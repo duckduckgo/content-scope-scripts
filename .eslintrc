@@ -1,0 +1,14 @@
+{
+    "extends": "standard",
+    "globals": {
+        "$CONTENT_SCOPE$": "readonly"
+    },
+    "rules": {
+        "indent": ["error", 4]
+    },
+    "env": {
+        "webextensions": true,
+        "browser": true,
+        "jasmine": true
+    }
+}
