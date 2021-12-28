@@ -1,6 +1,8 @@
 {
     "extends": "standard",
+    "root": true,
     "globals": {
+        "$USER_UNPROTECTED_DOMAINS$": "readonly",
         "$CONTENT_SCOPE$": "readonly"
     },
     "rules": {

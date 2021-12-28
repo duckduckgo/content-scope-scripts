@@ -34,7 +34,7 @@ export async function loadProtections () {
         'fingerprintingTemporaryStorage'
     ]
 
-    for (const featureNameName of featureNames) {
+    for (const featureName of featureNames) {
         const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
