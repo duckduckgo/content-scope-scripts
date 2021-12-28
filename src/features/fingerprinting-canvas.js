@@ -1,5 +1,5 @@
-import { DDGProxy, DDGReflect } from './utils'
-import { computeOffScreenCanvas } from './canvas'
+import { DDGProxy, DDGReflect } from '../utils'
+import { computeOffScreenCanvas } from '../canvas'
 
 export function init (args) {
     const { sessionKey, site } = args

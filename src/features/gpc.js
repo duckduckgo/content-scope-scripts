@@ -1,4 +1,4 @@
-import { defineProperty } from './utils'
+import { defineProperty } from '../utils'
 
 // Set Global Privacy Control property on DOM
 export function init (args) {

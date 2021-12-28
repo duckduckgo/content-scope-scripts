@@ -14,13 +14,13 @@ function shouldRun () {
 
 let initArgs = null
 const updates = []
-const protections = []
+const features = []
 
 export async function loadProtections () {
     if (!shouldRun()) {
         return
     }
-    const protectionNames = [
+    const featureNames = [
         'fingerprintingAudio',
         'fingerprintingBattery',
         'fingerprintingCanvas',
@@ -34,15 +34,15 @@ export async function loadProtections () {
         'fingerprintingTemporaryStorage'
     ]
 
-    for (const protectionName of protectionNames) {
-        const filename = protectionName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
-        const protection = import(`./${filename}-protection.js`).then(({ init, load, update }) => {
+    for (const featureNameName of featureNames) {
+        const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+        const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
                 load()
             }
-            return { protectionName, init, update }
+            return { featureName, init, update }
         })
-        protections.push(protection)
+        features.push(feature)
     }
 }
 
@@ -52,9 +52,9 @@ export async function initProtections (args) {
         return
     }
     initStringExemptionLists(args)
-    const resolvedProtections = await Promise.all(protections)
-    resolvedProtections.forEach(({ init, protectionName }) => {
-        if (!isFeatureBroken(args, protectionName)) {
+    const resolvedProtections = await Promise.all(features)
+    resolvedProtections.forEach(({ init, featureName }) => {
+        if (!isFeatureBroken(args, featureName)) {
             init(args)
         }
     })
@@ -77,9 +77,9 @@ export async function updateProtections (args) {
 }
 
 async function updateProtectionsInner (args) {
-    const resolvedProtections = await Promise.all(protections)
-    resolvedProtections.forEach(({ update, protectionName }) => {
-        if (!isFeatureBroken(initArgs, protectionName) && update) {
+    const resolvedProtections = await Promise.all(features)
+    resolvedProtections.forEach(({ update, featureName }) => {
+        if (!isFeatureBroken(initArgs, featureName) && update) {
             update(args)
         }
     })

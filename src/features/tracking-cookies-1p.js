@@ -1,5 +1,5 @@
-import { Cookie } from './cookie.js'
-import { defineProperty, postDebugMessage } from './utils'
+import { Cookie } from '../cookie.js'
+import { defineProperty, postDebugMessage } from '../utils'
 
 let loadedPolicyResolve
 // Listen for a message from the content script which will configure the policy for this context

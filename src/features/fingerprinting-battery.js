@@ -1,4 +1,4 @@
-import { defineProperty } from './utils'
+import { defineProperty } from '../utils'
 
 /**
  * Overwrites the Battery API if present in the browser.

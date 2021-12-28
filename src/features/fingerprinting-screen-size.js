@@ -1,4 +1,4 @@
-import { overrideProperty, defineProperty } from './utils'
+import { overrideProperty, defineProperty } from '../utils'
 
 /**
  * normalize window dimensions, if more than one monitor is in play.
