@@ -1,4 +1,4 @@
-import { iterateDataKey, DDGProxy, DDGReflect, getDataKeySync } from './utils'
+import { iterateDataKey, DDGProxy, DDGReflect, getDataKeySync } from '../utils'
 
 export function init (args) {
     const { sessionKey, site } = args

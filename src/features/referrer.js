@@ -1,4 +1,4 @@
-import { overrideProperty } from './utils'
+import { overrideProperty } from '../utils'
 
 export function init (args) {
     // Unfortunately, we only have limited information about the referrer and current frame. A single

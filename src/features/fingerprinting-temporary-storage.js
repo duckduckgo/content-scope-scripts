@@ -1,4 +1,4 @@
-import { defineProperty } from './utils'
+import { defineProperty } from '../utils'
 
 export function init () {
     /**

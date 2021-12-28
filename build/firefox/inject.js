@@ -885,17 +885,17 @@ var protections = (function (exports) {
 
 	function __variableDynamicImportRuntime0__(path) {
 	   switch (path) {
-	     case './fingerprinting-audio-protection.js': return Promise.resolve().then(function () { return fingerprintingAudioProtection; });
-	     case './fingerprinting-battery-protection.js': return Promise.resolve().then(function () { return fingerprintingBatteryProtection; });
-	     case './fingerprinting-canvas-protection.js': return Promise.resolve().then(function () { return fingerprintingCanvasProtection; });
-	     case './fingerprinting-hardware-protection.js': return Promise.resolve().then(function () { return fingerprintingHardwareProtection; });
-	     case './fingerprinting-screen-size-protection.js': return Promise.resolve().then(function () { return fingerprintingScreenSizeProtection; });
-	     case './fingerprinting-temporary-storage-protection.js': return Promise.resolve().then(function () { return fingerprintingTemporaryStorageProtection; });
-	     case './floc-protection.js': return Promise.resolve().then(function () { return flocProtection; });
-	     case './gpc-protection.js': return Promise.resolve().then(function () { return gpcProtection; });
-	     case './referrer-protection.js': return Promise.resolve().then(function () { return referrerProtection; });
-	     case './tracking-cookies-1p-protection.js': return Promise.resolve().then(function () { return trackingCookies1pProtection; });
-	     case './tracking-cookies-3p-protection.js': return Promise.resolve().then(function () { return trackingCookies3pProtection; });
+	     case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
+	     case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
+	     case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
+	     case './features/fingerprinting-hardware.js': return Promise.resolve().then(function () { return fingerprintingHardware; });
+	     case './features/fingerprinting-screen-size.js': return Promise.resolve().then(function () { return fingerprintingScreenSize; });
+	     case './features/fingerprinting-temporary-storage.js': return Promise.resolve().then(function () { return fingerprintingTemporaryStorage; });
+	     case './features/floc.js': return Promise.resolve().then(function () { return floc; });
+	     case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
+	     case './features/referrer.js': return Promise.resolve().then(function () { return referrer; });
+	     case './features/tracking-cookies-1p.js': return Promise.resolve().then(function () { return trackingCookies1p; });
+	     case './features/tracking-cookies-3p.js': return Promise.resolve().then(function () { return trackingCookies3p; });
 	     default: return Promise.reject(new Error("Unknown variable dynamic import: " + path));
 	   }
 	 }
@@ -914,13 +914,13 @@ var protections = (function (exports) {
 
 	let initArgs = null;
 	const updates = [];
-	const protections = [];
+	const features = [];
 
 	async function loadProtections () {
 	    if (!shouldRun()) {
 	        return
 	    }
-	    const protectionNames = [
+	    const featureNames = [
 	        'fingerprintingAudio',
 	        'fingerprintingBattery',
 	        'fingerprintingCanvas',
@@ -934,15 +934,15 @@ var protections = (function (exports) {
 	        'fingerprintingTemporaryStorage'
 	    ];
 
-	    for (const protectionName of protectionNames) {
-	        const filename = protectionName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
-	        const protection = __variableDynamicImportRuntime0__(`./${filename}-protection.js`).then(({ init, load, update }) => {
+	    for (const featureNameName of featureNames) {
+	        const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
+	        const feature = __variableDynamicImportRuntime0__(`./features/${filename}.js`).then(({ init, load, update }) => {
 	            if (load) {
 	                load();
 	            }
-	            return { protectionName, init, update }
+	            return { featureName, init, update }
 	        });
-	        protections.push(protection);
+	        features.push(feature);
 	    }
 	}
 
@@ -952,9 +952,9 @@ var protections = (function (exports) {
 	        return
 	    }
 	    initStringExemptionLists(args);
-	    const resolvedProtections = await Promise.all(protections);
-	    resolvedProtections.forEach(({ init, protectionName }) => {
-	        if (!isFeatureBroken(args, protectionName)) {
+	    const resolvedProtections = await Promise.all(features);
+	    resolvedProtections.forEach(({ init, featureName }) => {
+	        if (!isFeatureBroken(args, featureName)) {
 	            init(args);
 	        }
 	    });
@@ -977,9 +977,9 @@ var protections = (function (exports) {
 	}
 
 	async function updateProtectionsInner (args) {
-	    const resolvedProtections = await Promise.all(protections);
-	    resolvedProtections.forEach(({ update, protectionName }) => {
-	        if (!isFeatureBroken(initArgs, protectionName) && update) {
+	    const resolvedProtections = await Promise.all(features);
+	    resolvedProtections.forEach(({ update, featureName }) => {
+	        if (!isFeatureBroken(initArgs, featureName) && update) {
 	            update(args);
 	        }
 	    });
@@ -1088,7 +1088,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var fingerprintingAudioProtection = /*#__PURE__*/Object.freeze({
+	var fingerprintingAudio = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$a
 	});
@@ -1121,7 +1121,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var fingerprintingBatteryProtection = /*#__PURE__*/Object.freeze({
+	var fingerprintingBattery = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$9
 	});
@@ -2310,7 +2310,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var fingerprintingCanvasProtection = /*#__PURE__*/Object.freeze({
+	var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$8
 	});
@@ -2333,7 +2333,7 @@ var protections = (function (exports) {
 	    });
 	}
 
-	var fingerprintingHardwareProtection = /*#__PURE__*/Object.freeze({
+	var fingerprintingHardware = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$7
 	});
@@ -2455,7 +2455,7 @@ var protections = (function (exports) {
 	    setWindowDimensions();
 	}
 
-	var fingerprintingScreenSizeProtection = /*#__PURE__*/Object.freeze({
+	var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$6
 	});
@@ -2483,7 +2483,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var fingerprintingTemporaryStorageProtection = /*#__PURE__*/Object.freeze({
+	var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$5
 	});
@@ -2498,7 +2498,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var flocProtection = /*#__PURE__*/Object.freeze({
+	var floc = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$4
 	});
@@ -2529,7 +2529,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var gpcProtection = /*#__PURE__*/Object.freeze({
+	var gpc = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$3
 	});
@@ -2558,7 +2558,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var referrerProtection = /*#__PURE__*/Object.freeze({
+	var referrer = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init$2
 	});
@@ -2750,7 +2750,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var trackingCookies1pProtection = /*#__PURE__*/Object.freeze({
+	var trackingCookies1p = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		load: load,
 		init: init$1,
@@ -2795,7 +2795,7 @@ var protections = (function (exports) {
 	    }
 	}
 
-	var trackingCookies3pProtection = /*#__PURE__*/Object.freeze({
+	var trackingCookies3p = /*#__PURE__*/Object.freeze({
 		__proto__: null,
 		init: init
 	});

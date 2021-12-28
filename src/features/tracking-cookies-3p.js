@@ -1,4 +1,4 @@
-import { defineProperty, postDebugMessage } from './utils'
+import { defineProperty, postDebugMessage } from '../utils'
 
 function blockCookies (debug) {
     // disable setting cookies

@@ -1,4 +1,4 @@
-import { overrideProperty } from './utils'
+import { overrideProperty } from '../utils'
 
 export function init (args) {
     overrideProperty('keyboard', {
