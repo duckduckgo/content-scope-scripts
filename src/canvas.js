@@ -1,4 +1,4 @@
-import { getDataKeySync } from './utils'
+import { getDataKeySync } from './utils.js'
 import Seedrandom from 'seedrandom'
 
 export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy) {

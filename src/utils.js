@@ -1,5 +1,5 @@
 /* global exportFunction, mozProxies */
-import sjcl from '../lib/sjcl'
+import { sjcl } from '../lib/sjcl.js'
 
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
@@ -127,7 +127,7 @@ export function overrideProperty (name, prop) {
 export function defineProperty (object, propertyName, descriptor) {
     if (hasMozProxies) {
         const usedObj = object.wrappedJSObject
-        const UsedObjectInterface = window.wrappedJSObject.Object
+        const UsedObjectInterface = globalThis.wrappedJSObject.Object
         const definedDescriptor = new UsedObjectInterface();
         ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
             // TODO check if value is complex and export it if so.
@@ -177,14 +177,14 @@ export class DDGProxy {
         }
         if (hasMozProxies) {
             this._native = objectScope[property]
-            const handler = new window.wrappedJSObject.Object()
-            handler.apply = exportFunction(outputHandler, window)
-            this.internal = new window.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
+            const handler = new globalThis.wrappedJSObject.Object()
+            handler.apply = exportFunction(outputHandler, globalThis)
+            this.internal = new globalThis.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
         } else {
             this._native = objectScope[property]
             const handler = {}
             handler.apply = outputHandler
-            this.internal = new window.Proxy(objectScope[property], handler)
+            this.internal = new globalThis.Proxy(objectScope[property], handler)
         }
     }
 
@@ -199,7 +199,7 @@ export class DDGProxy {
 }
 
 export function postDebugMessage (feature, message) {
-    window.postMessage({
+    globalThis.postMessage({
         action: feature,
         message
     })
@@ -208,7 +208,7 @@ export function postDebugMessage (feature, message) {
 export let DDGReflect
 
 if (hasMozProxies) {
-    DDGReflect = window.wrappedJSObject.Reflect
+    DDGReflect = globaThis.wrappedJSObject.Reflect
 } else {
-    DDGReflect = window.Reflect
+    DDGReflect = globalThis.Reflect
 }
