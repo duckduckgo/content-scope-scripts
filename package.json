@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "postinstall": "npm run copy-sjcl",
-    "copy-sjcl": "cd node_modules/sjcl/ && ./configure --compress=none --without-all --with-hmac --with-codecHex && make && cp sjcl.js ../../lib/",
+    "copy-sjcl": "node scripts/generateSJCL.js",
     "build": "npm run build-firefox && npm run build-chrome && npm run build-apple",
     "build-firefox": "mkdir -p build/firefox/ && node scripts/inject.mjs firefox > build/firefox/inject.js",
     "build-chrome": "mkdir -p build/chrome/ && node scripts/inject.mjs chrome > build/chrome/inject.js",
@@ -11,11 +11,13 @@
     "lint": "npx eslint .",
     "test": "npm run lint && jasmine"
   },
+  "type": "module",
   "dependencies": {
     "seedrandom": "^3.0.5",
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
+    "@canvas/image-data": "^1.0.0",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.1.1",
     "@rollup/plugin-replace": "^3.0.0",
@@ -24,6 +26,7 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
+    "jasmine": "^3.10.0",
     "rollup": "^2.62.0",
     "rollup-plugin-dynamic-import-variables": "^1.1.0"
   }
