@@ -208,7 +208,7 @@ export function postDebugMessage (feature, message) {
 export let DDGReflect
 
 if (hasMozProxies) {
-    DDGReflect = globaThis.wrappedJSObject.Reflect
+    DDGReflect = globalThis.wrappedJSObject.Reflect
 } else {
     DDGReflect = globalThis.Reflect
 }
