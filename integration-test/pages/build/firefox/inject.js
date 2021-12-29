@@ -705,12 +705,7 @@ var protections = (function (exports) {
   // Checks the stack trace if there are known libraries that are broken.
   function shouldExemptMethod (type) {
       // Short circuit stack tracing if we don't have checks
-      // If the feature isn't in the config it should be disabled always
-      if (!(type in exemptionLists)) {
-          return true
-      }
-      // Short circuit stack tracing if we don't have checks
-      if (exemptionLists[type].length === 0) {
+      if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
           return false
       }
       try {

@@ -2,6 +2,7 @@
     "extends": "standard",
     "root": true,
     "globals": {
+        "$USER_PREFERENCES$": "readonly",
         "$USER_UNPROTECTED_DOMAINS$": "readonly",
         "$CONTENT_SCOPE$": "readonly"
     },
