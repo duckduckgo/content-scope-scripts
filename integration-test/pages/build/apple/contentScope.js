@@ -705,12 +705,7 @@ var protections = (function (exports) {
   // Checks the stack trace if there are known libraries that are broken.
   function shouldExemptMethod (type) {
       // Short circuit stack tracing if we don't have checks
-      // If the feature isn't in the config it should be disabled always
-      if (!(type in exemptionLists)) {
-          return true
-      }
-      // Short circuit stack tracing if we don't have checks
-      if (exemptionLists[type].length === 0) {
+      if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
           return false
       }
       try {
@@ -2796,16 +2791,15 @@ function getTopLevelURL () {
     }
 }
 
-function isUnprotectedDomain (featureList) {
+function isUnprotectedDomain (topLevelUrl, featureList) {
     let unprotectedDomain = false
-    const topLevelUrl = getTopLevelURL()
     const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : []
 
     // walk up the domain to see if it's unprotected
     while (domainParts.length > 1 && !unprotectedDomain) {
         const partialDomain = domainParts.join('.')
 
-        unprotectedDomain = featureList.filter(domain => domain === partialDomain).length > 0
+        unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0
 
         domainParts.shift()
     }
@@ -2813,32 +2807,28 @@ function isUnprotectedDomain (featureList) {
     return unprotectedDomain
 }
 
-function processConfig (data, userList) {
+function processConfig (data, userList, preferences) {
     const topLevelUrl = getTopLevelURL()
-    let allowlisted = false
-    if (userList.filter(domain => domain === topLevelUrl.host).length > 0) {
-        allowlisted = true
-    }
+    const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0
     const enabledFeatures = Object.keys(data.features).filter((featureName) => {
         const feature = data.features[featureName]
-        if (feature.state !== 'enabled') {
-            return false
-        }
-        return !isUnprotectedDomain(feature.exceptions.map(fm => fm.domain))
+        return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
     })
-    return {
-        debug: false,
-        site: {
-            isBroken: false,
-            allowlisted,
-            enabledFeatures
-        }
+    const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary)
+    preferences.site = {
+        domain: topLevelUrl.hostname,
+        isBroken,
+        allowlisted,
+        enabledFeatures
     }
+    // TODO
+    preferences.cookie = {}
+    return preferences
 }
 
 function init () {
-    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$)
-    if (processedConfig.allowlisted) {
+    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+    if (processedConfig.site.allowlisted) {
         return
     }
 

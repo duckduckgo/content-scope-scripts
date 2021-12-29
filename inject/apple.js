@@ -14,16 +14,15 @@ function getTopLevelURL () {
     }
 }
 
-function isUnprotectedDomain (featureList) {
+function isUnprotectedDomain (topLevelUrl, featureList) {
     let unprotectedDomain = false
-    const topLevelUrl = getTopLevelURL()
     const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : []
 
     // walk up the domain to see if it's unprotected
     while (domainParts.length > 1 && !unprotectedDomain) {
         const partialDomain = domainParts.join('.')
 
-        unprotectedDomain = featureList.filter(domain => domain === partialDomain).length > 0
+        unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0
 
         domainParts.shift()
     }
@@ -31,35 +30,28 @@ function isUnprotectedDomain (featureList) {
     return unprotectedDomain
 }
 
-function processConfig (data, userList, sessionKey) {
+function processConfig (data, userList, preferences) {
     const topLevelUrl = getTopLevelURL()
-    let allowlisted = false
-    if (userList.filter(domain => domain === topLevelUrl.host).length > 0) {
-        allowlisted = true
-    }
+    const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0
     const enabledFeatures = Object.keys(data.features).filter((featureName) => {
         const feature = data.features[featureName]
-        if (feature.state !== 'enabled') {
-            return false
-        }
-        return !isUnprotectedDomain(feature.exceptions.map(fm => fm.domain))
+        return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
     })
-
-    return {
-        debug: false,
-        sessionKey,
-        site: {
-            domain: topLevelUrl.hostname,
-            isBroken: false,
-            allowlisted,
-            enabledFeatures
-        }
+    const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary)
+    preferences.site = {
+        domain: topLevelUrl.hostname,
+        isBroken,
+        allowlisted,
+        enabledFeatures
     }
+    // TODO
+    preferences.cookie = {}
+    return preferences
 }
 
 function init () {
-    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$)
-    if (processedConfig.allowlisted) {
+    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+    if (processedConfig.site.allowlisted) {
         return
     }
 
