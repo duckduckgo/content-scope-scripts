@@ -26,7 +26,7 @@
     "@canvas/image-data": "^1.0.0",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.1.1",
-    "@rollup/plugin-replace": "^3.0.0",
+    "@rollup/plugin-replace": "^3.0.1",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.3",
