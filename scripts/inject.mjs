@@ -45,26 +45,18 @@ async function init() {
         throw new Error("Specify the build type as an argument to this script.");
     }
     if (process.argv[2] == "firefox") {
-        initFirefox();
+        initOther('inject/mozilla.js');
     } else if (process.argv[2] == "apple") {
-        initApple();
+        initOther('inject/apple.js');
+    } else if (process.argv[2] == "integration") {
+        initOther('inject/integration.js');
     } else {
         initChrome();
     }
 }
 
-async function initApple() {
+async function initOther(injectScriptPath) {
     const replaceString = "/* global protections */";
-    const injectScriptPath = "inject/apple.js";
-    const injectScript = await readFile(injectScriptPath);
-    const contentScope = await generateContentScope();
-    const outputScript = injectScript.toString().replace(replaceString, contentScope.toString());
-    console.log(outputScript);
-}
-
-async function initFirefox() {
-    const replaceString = "/* global protections */";
-    const injectScriptPath = "inject/mozilla.js";
     const injectScript = await readFile(injectScriptPath);
     const contentScope = await generateContentScope();
     const outputScript = injectScript.toString().replace(replaceString, contentScope.toString());

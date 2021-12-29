@@ -31,7 +31,7 @@ function isUnprotectedDomain (featureList) {
     return unprotectedDomain
 }
 
-function processConfig (data, userList) {
+function processConfig (data, userList, sessionKey) {
     const topLevelUrl = getTopLevelURL()
     let allowlisted = false
     if (userList.filter(domain => domain === topLevelUrl.host).length > 0) {
@@ -44,9 +44,12 @@ function processConfig (data, userList) {
         }
         return !isUnprotectedDomain(feature.exceptions.map(fm => fm.domain))
     })
+
     return {
         debug: false,
+        sessionKey,
         site: {
+            domain: topLevelUrl.hostname,
             isBroken: false,
             allowlisted,
             enabledFeatures
