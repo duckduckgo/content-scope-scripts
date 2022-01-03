@@ -32,7 +32,7 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
-    "jasmine": "^3.10.0",
+    "jasmine": "^4.0.0",
     "puppeteer": "^13.0.1",
     "rollup": "^2.62.0",
     "rollup-plugin-dynamic-import-variables": "^1.1.0"
