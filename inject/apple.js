@@ -1,4 +1,4 @@
-/* global protections */
+/* global contentScopeFeatures */
 
 function getTopLevelURL () {
     try {
@@ -55,12 +55,12 @@ function init () {
         return
     }
 
-    protections.loadProtections()
+    contentScopeFeatures.load()
 
-    protections.initProtections(processedConfig)
+    contentScopeFeatures.init(processedConfig)
 
     // Not supported:
-    // protections.updateProtections(message)
+    // contentScopeFeatures.update(message)
 }
 
 init()

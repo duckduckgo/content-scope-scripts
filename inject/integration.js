@@ -1,4 +1,4 @@
-/* global protections */
+/* global contentScopeFeatures */
 
 function getTopLevelURL () {
     try {
@@ -34,12 +34,12 @@ function generateConfig (data, userList) {
 function init () {
     const processedConfig = generateConfig()
 
-    protections.loadProtections()
+    contentScopeFeatures.load()
 
-    protections.initProtections(processedConfig)
+    contentScopeFeatures.init(processedConfig)
 
     // Not supported:
-    // protections.updateProtections(message)
+    // contentScopeFeatures.update(message)
 }
 
 init()

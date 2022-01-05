@@ -16,7 +16,7 @@ let initArgs = null
 const updates = []
 const features = []
 
-export async function loadProtections () {
+export async function load () {
     if (!shouldRun()) {
         return
     }
@@ -46,14 +46,14 @@ export async function loadProtections () {
     }
 }
 
-export async function initProtections (args) {
+export async function init (args) {
     initArgs = args
     if (!shouldRun()) {
         return
     }
     initStringExemptionLists(args)
-    const resolvedProtections = await Promise.all(features)
-    resolvedProtections.forEach(({ init, featureName }) => {
+    const resolvedFeatures = await Promise.all(features)
+    resolvedFeatures.forEach(({ init, featureName }) => {
         if (!isFeatureBroken(args, featureName)) {
             init(args)
         }
@@ -61,11 +61,11 @@ export async function initProtections (args) {
     // Fire off updates that came in faster than the init
     while (updates.length) {
         const update = updates.pop()
-        await updateProtectionsInner(update)
+        await updateFeaturesInner(update)
     }
 }
 
-export async function updateProtections (args) {
+export async function update (args) {
     if (!shouldRun()) {
         return
     }
@@ -73,12 +73,12 @@ export async function updateProtections (args) {
         updates.push(args)
         return
     }
-    updateProtectionsInner(args)
+    updateFeaturesInner(args)
 }
 
-async function updateProtectionsInner (args) {
-    const resolvedProtections = await Promise.all(features)
-    resolvedProtections.forEach(({ update, featureName }) => {
+async function updateFeaturesInner (args) {
+    const resolvedFeatures = await Promise.all(features)
+    resolvedFeatures.forEach(({ update, featureName }) => {
         if (!isFeatureBroken(initArgs, featureName) && update) {
             update(args)
         }

@@ -13,7 +13,7 @@ async function generateContentScope() {
         mozProxies = true;
     }
     const inputOptions = {
-        input: 'src/content-scope.js',
+        input: 'src/content-scope-features.js',
         plugins: [
             resolve(),
             dynamicImportVariables({}),
@@ -30,7 +30,7 @@ async function generateContentScope() {
         dir: 'build',
         format: 'iife',
         inlineDynamicImports: true,
-        name: 'protections',
+        name: 'contentScopeFeatures',
         // This if for seedrandom causing build issues
         globals: { crypto: 'undefined' }
     };
@@ -56,7 +56,7 @@ async function init() {
 }
 
 async function initOther(injectScriptPath) {
-    const replaceString = "/* global protections */";
+    const replaceString = "/* global contentScopeFeatures */";
     const injectScript = await readFile(injectScriptPath);
     const contentScope = await generateContentScope();
     const outputScript = injectScript.toString().replace(replaceString, contentScope.toString());
@@ -64,7 +64,7 @@ async function initOther(injectScriptPath) {
 }
 
 async function initChrome() {
-    const replaceString = "/* global protections */";
+    const replaceString = "/* global contentScopeFeatures */";
     const injectScriptPath = "inject/chrome.js";
     const injectScript = await readFile(injectScriptPath);
     const contentScope = await generateContentScope();

@@ -1,7 +1,7 @@
-/* global protections */
+/* global contentScopeFeatures */
 
 function init () {
-    protections.loadProtections()
+    contentScopeFeatures.load()
 
     chrome.runtime.sendMessage({
         messageType: 'registeredContentScript',
@@ -10,7 +10,7 @@ function init () {
         }
     },
     (message) => {
-        // Background has disabled protections
+        // Background has disabled features
         if (!message) {
             return
         }
@@ -23,14 +23,14 @@ function init () {
                 }
             })
         }
-        protections.initProtections(message)
+        contentScopeFeatures.init(message)
     }
     )
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
         if (message && message.type === 'update') {
-            protections.updateProtections(message)
+            contentScopeFeatures.update(message)
         }
     })
 }
