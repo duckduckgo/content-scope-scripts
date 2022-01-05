@@ -1,4 +1,4 @@
-var protections = (function (exports) {
+var contentScopeFeatures = (function (exports) {
   'use strict';
 
   const sjcl = (() => {
@@ -894,7 +894,7 @@ var protections = (function (exports) {
   const updates = [];
   const features = [];
 
-  async function loadProtections () {
+  async function load$1 () {
       if (!shouldRun()) {
           return
       }
@@ -924,14 +924,14 @@ var protections = (function (exports) {
       }
   }
 
-  async function initProtections (args) {
+  async function init$b (args) {
       initArgs = args;
       if (!shouldRun()) {
           return
       }
       initStringExemptionLists(args);
-      const resolvedProtections = await Promise.all(features);
-      resolvedProtections.forEach(({ init, featureName }) => {
+      const resolvedFeatures = await Promise.all(features);
+      resolvedFeatures.forEach(({ init, featureName }) => {
           if (!isFeatureBroken(args, featureName)) {
               init(args);
           }
@@ -939,11 +939,11 @@ var protections = (function (exports) {
       // Fire off updates that came in faster than the init
       while (updates.length) {
           const update = updates.pop();
-          await updateProtectionsInner(update);
+          await updateFeaturesInner(update);
       }
   }
 
-  async function updateProtections (args) {
+  async function update$1 (args) {
       if (!shouldRun()) {
           return
       }
@@ -951,12 +951,12 @@ var protections = (function (exports) {
           updates.push(args);
           return
       }
-      updateProtectionsInner(args);
+      updateFeaturesInner(args);
   }
 
-  async function updateProtectionsInner (args) {
-      const resolvedProtections = await Promise.all(features);
-      resolvedProtections.forEach(({ update, featureName }) => {
+  async function updateFeaturesInner (args) {
+      const resolvedFeatures = await Promise.all(features);
+      resolvedFeatures.forEach(({ update, featureName }) => {
           if (!isFeatureBroken(initArgs, featureName) && update) {
               update(args);
           }
@@ -2780,9 +2780,9 @@ var protections = (function (exports) {
     init: init
   });
 
-  exports.initProtections = initProtections;
-  exports.loadProtections = loadProtections;
-  exports.updateProtections = updateProtections;
+  exports.init = init$b;
+  exports.load = load$1;
+  exports.update = update$1;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
@@ -2792,7 +2792,7 @@ var protections = (function (exports) {
 
 
 function init () {
-    protections.loadProtections()
+    contentScopeFeatures.load()
 
     chrome.runtime.sendMessage({
         messageType: 'registeredContentScript',
@@ -2801,7 +2801,7 @@ function init () {
         }
     },
     (message) => {
-        // Background has disabled protections
+        // Background has disabled features
         if (!message) {
             return
         }
@@ -2814,14 +2814,14 @@ function init () {
                 }
             })
         }
-        protections.initProtections(message)
+        contentScopeFeatures.init(message)
     }
     )
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
         if (message && message.type === 'update') {
-            protections.updateProtections(message)
+            contentScopeFeatures.update(message)
         }
     })
 }

@@ -26,8 +26,8 @@ function init () {
     const reusableMethodName = '_rm' + randomString()
     const reusableSecret = '_r' + randomString()
     const initialScript = `
-      /* global protections */
-      protections.loadProtections()
+      /* global contentScopeFeatures */
+      contentScopeFeatures.load()
       // Define a random function we call later.
       // Use define property so isn't enumerable
       Object.defineProperty(window, '${randomMethodName}', {
@@ -39,10 +39,10 @@ function init () {
           value: new Proxy(function () {}, {
               apply(target, thisArg, args) {
                   if ('${randomPassword}' === args[0]) {
-                      protections.initProtections(args[1])
+                      contentScopeFeatures.init(args[1])
                   } else {
-                      // TODO force enable all protections if password is wrong
-                      console.error("Password for hidden function wasn't correct! The page is likely attempting to attack the protections by DuckDuckGo");
+                      // TODO force enable all features if password is wrong
+                      console.error("Password for hidden function wasn't correct! The page is likely attempting to attack the feature by DuckDuckGo");
                   }
                   // This method is single use, clean up
                   delete window.${randomMethodName};
@@ -61,7 +61,7 @@ function init () {
           value: new Proxy(function () {}, {
               apply(target, thisArg, args) {
                   if ('${reusableSecret}' === args[0]) {
-                      protections.updateProtections(args[1])
+                      contentScopeFeatures.update(args[1])
                   }
               }
           })
@@ -77,7 +77,7 @@ function init () {
     },
     (message) => {
         if (!message) {
-            // Remove injected function only as background has disabled protections
+            // Remove injected function only as background has disabled feature
             inject(`delete window.${randomMethodName}`)
             return
         }
