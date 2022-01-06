@@ -1,5 +1,5 @@
 /* global exportFunction, mozProxies */
-import { sjcl } from '../lib/sjcl.js'
+import sjcl from '../lib/sjcl.cjs'
 
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
