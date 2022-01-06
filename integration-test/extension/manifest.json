@@ -1,0 +1,16 @@
+{
+  "name": "integration-test-extension",
+  "description": "integration-test-extension",
+  "version": "1.0",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScope.js"]
+    }
+  ],
+  "action": {
+    "default_title": "integration-test-extension",
+    "default_icon": "favicon-16x16.png"
+  }
+}

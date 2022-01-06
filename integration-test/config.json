@@ -3,6 +3,7 @@
     "jsLoader": "import",
     "spec_files": [
         "**/*.js",
-        "!pages/**/*.js"
+        "!pages/**/*.js",
+        "!extension/**/*.js"
     ]
 }

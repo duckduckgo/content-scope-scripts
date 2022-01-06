@@ -19,13 +19,15 @@ function generateConfig (data, userList) {
     return {
         debug: false,
         sessionKey: 'randomVal',
+        platform: { name: 'extension' },
         site: {
             domain: topLevelUrl.hostname,
             isBroken: false,
             allowlisted: false,
             enabledFeatures: [
                 'fingerprintingCanvas',
-                'fingerprintingScreenSize'
+                'fingerprintingScreenSize',
+                'navigatorInterface'
             ]
         }
     }

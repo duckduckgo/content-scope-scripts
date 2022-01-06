@@ -13,22 +13,28 @@ if (process.env.KEEP_OPEN) {
 const DATA_DIR_PREFIX = 'ddg-temp-'
 
 export async function setup (ops = {}) {
+    const { withExtension = false } = ops
     const tmpDirPrefix = path.join(os.tmpdir(), DATA_DIR_PREFIX)
     const dataDir = fs.mkdtempSync(tmpDirPrefix)
-    const puppeteerOps = {
-        args: [
-            `--user-data-dir=${dataDir}`
-        ],
-        headless: false
+    const args = [
+        `--user-data-dir=${dataDir}`
+    ]
+    if (withExtension) {
+        args.push('--disable-extensions-except=integration-test/extension')
+        args.push('--load-extension=integration-test/extension')
     }
 
     // github actions
     if (process.env.CI) {
-        puppeteerOps.args.push('--no-sandbox')
+        args.push('--no-sandbox')
+    }
+
+    const puppeteerOps = {
+        args,
+        headless: false
     }
 
     const browser = await puppeteer.launch(puppeteerOps)
-    await browser.targets()
     const servers = []
 
     async function teardown () {
@@ -53,6 +59,10 @@ export async function setup (ops = {}) {
         spawnSync('rm', ['-rf', dataDir])
     }
 
+    /**
+     * @param [port]
+     * @returns {http.Server}
+     */
     function setupServer (port) {
         const server = http.createServer(function (req, res) {
             const url = new URL(req.url, `http://${req.headers.host}`)
