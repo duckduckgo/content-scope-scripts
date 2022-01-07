@@ -103,7 +103,7 @@ export async function setup (ops = {}) {
         await page.goto(url.href)
 
         // wait until contentScopeFeatures.load() has completed
-        await page.evaluate(() => {
+        await page.waitForFunction(() => {
             return window.__content_scope_status === 'loaded'
         })
 
@@ -115,7 +115,7 @@ export async function setup (ops = {}) {
         await page.evaluate(evalString)
 
         // wait until contentScopeFeatures.init(args) has completed
-        await page.evaluate(() => {
+        await page.waitForFunction(() => {
             return window.__content_scope_status === 'initialized'
         })
     }
