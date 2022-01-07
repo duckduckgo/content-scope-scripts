@@ -2504,7 +2504,12 @@ var contentScopeFeatures = (function (exports) {
 
   function init$3 (args) {
       try {
-          if (navigator.duckduckgo) return
+          if (navigator.duckduckgo) {
+              return
+          }
+          if (!args.platform || !args.platform.name) {
+              return
+          }
           defineProperty(Navigator.prototype, 'duckduckgo', {
               value: {
                   platform: args.platform.name,
@@ -2517,7 +2522,7 @@ var contentScopeFeatures = (function (exports) {
               writable: false
           });
       } catch {
-          // todo: Just ignore this exception if a conflict occurs?
+          // todo: Just ignore this exception?
       }
   }
 

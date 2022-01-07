@@ -2,7 +2,12 @@ import { defineProperty } from '../utils'
 
 export function init (args) {
     try {
-        if (navigator.duckduckgo) return
+        if (navigator.duckduckgo) {
+            return
+        }
+        if (!args.platform || !args.platform.name) {
+            return
+        }
         defineProperty(Navigator.prototype, 'duckduckgo', {
             value: {
                 platform: args.platform.name,
@@ -15,6 +20,6 @@ export function init (args) {
             writable: false
         })
     } catch {
-        // todo: Just ignore this exception if a conflict occurs?
+        // todo: Just ignore this exception?
     }
 }
