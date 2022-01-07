@@ -2822,7 +2822,6 @@ function generateConfig (data, userList) {
     return {
         debug: false,
         sessionKey: 'randomVal',
-        platform: { name: 'extension' },
         site: {
             domain: topLevelUrl.hostname,
             isBroken: false,
@@ -2836,15 +2835,40 @@ function generateConfig (data, userList) {
     }
 }
 
-function init () {
+async function init () {
+    const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
+    await contentScopeFeatures.load()
 
-    contentScopeFeatures.load()
+    // mark this phase as loaded
+    setStatus('loaded')
 
-    contentScopeFeatures.init(processedConfig)
+    if (!topLevelUrl.searchParams.has('wait-for-init-args')) {
+        await contentScopeFeatures.init(processedConfig)
+        setStatus('initialized')
+        return
+    }
 
-    // Not supported:
-    // contentScopeFeatures.update(message)
+    // Wait for a message containing additional config
+    document.addEventListener('content-scope-init-args', async (evt) => {
+        const merged = {
+            ...processedConfig,
+            ...evt.detail
+        }
+
+        // init features
+        await contentScopeFeatures.init(merged)
+
+        // set status to initialized so that tests can resume
+        setStatus('initialized')
+    }, { once: true })
+}
+
+/**
+ * @param {"loaded" | "initialized"} status
+ */
+function setStatus (status) {
+    window.__content_scope_status = status
 }
 
 init()
