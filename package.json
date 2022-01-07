@@ -22,7 +22,6 @@
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.174",
     "@fingerprintjs/fingerprintjs": "^3.3.2",
     "@canvas/image-data": "^1.0.0",
     "@rollup/plugin-commonjs": "^21.0.1",
