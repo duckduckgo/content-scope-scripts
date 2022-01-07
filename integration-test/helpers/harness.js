@@ -13,22 +13,28 @@ if (process.env.KEEP_OPEN) {
 const DATA_DIR_PREFIX = 'ddg-temp-'
 
 export async function setup (ops = {}) {
+    const { withExtension = false } = ops
     const tmpDirPrefix = path.join(os.tmpdir(), DATA_DIR_PREFIX)
     const dataDir = fs.mkdtempSync(tmpDirPrefix)
-    const puppeteerOps = {
-        args: [
-            `--user-data-dir=${dataDir}`
-        ],
-        headless: false
+    const args = [
+        `--user-data-dir=${dataDir}`
+    ]
+    if (withExtension) {
+        args.push('--disable-extensions-except=integration-test/extension')
+        args.push('--load-extension=integration-test/extension')
     }
 
     // github actions
     if (process.env.CI) {
-        puppeteerOps.args.push('--no-sandbox')
+        args.push('--no-sandbox')
+    }
+
+    const puppeteerOps = {
+        args,
+        headless: false
     }
 
     const browser = await puppeteer.launch(puppeteerOps)
-    await browser.targets()
     const servers = []
 
     async function teardown () {
@@ -53,12 +59,18 @@ export async function setup (ops = {}) {
         spawnSync('rm', ['-rf', dataDir])
     }
 
+    /**
+     * @param {number|string} [port]
+     * @returns {http.Server}
+     */
     function setupServer (port) {
         const server = http.createServer(function (req, res) {
             const url = new URL(req.url, `http://${req.headers.host}`)
             const importUrl = new URL(import.meta.url)
             const dirname = importUrl.pathname.replace(/\/[^/]*$/, '')
-            fs.readFile(path.join(dirname, '../pages', url.pathname), (err, data) => {
+            const pathname = path.join(dirname, '../pages', url.pathname)
+
+            fs.readFile(pathname, (err, data) => {
                 if (err) {
                     res.writeHead(404)
                     res.end(JSON.stringify(err))
@@ -72,5 +84,41 @@ export async function setup (ops = {}) {
         return server
     }
 
-    return { browser, teardown, setupServer }
+    /**
+     * A wrapper around page.goto() that supports sending additional
+     * arguments to content-scope's init methods + waits for a known
+     * indicators to avoid race conditions
+     *
+     * @param {import("puppeteer").Page} page
+     * @param {string} urlString
+     * @param {Record<string, any>} [args]
+     * @returns {Promise<void>}
+     */
+    async function gotoAndWait (page, urlString, args = {}) {
+        const url = new URL(urlString)
+
+        // Append the flag so that the script knows to wait for incoming args.
+        url.searchParams.append('wait-for-init-args', 'true')
+
+        await page.goto(url.href)
+
+        // wait until contentScopeFeatures.load() has completed
+        await page.waitForFunction(() => {
+            return window.__content_scope_status === 'loaded'
+        })
+
+        const evalString = `
+            const detail = ${JSON.stringify(args)}
+            const evt = new CustomEvent('content-scope-init-args', { detail })
+            document.dispatchEvent(evt)
+        `
+        await page.evaluate(evalString)
+
+        // wait until contentScopeFeatures.init(args) has completed
+        await page.waitForFunction(() => {
+            return window.__content_scope_status === 'initialized'
+        })
+    }
+
+    return { browser, teardown, setupServer, gotoAndWait }
 }
