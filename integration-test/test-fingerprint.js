@@ -4,10 +4,6 @@
 
 import { setup } from './helpers/harness.js'
 
-let browser
-let teardown
-let setupServer
-
 const expectedFingerprintValues = {
     availTop: 0,
     availLeft: 0,
@@ -32,6 +28,9 @@ function testFPValues (values) {
 }
 
 describe('Fingerprint Defense Tests', () => {
+    let browser
+    let teardown
+    let setupServer
     beforeAll(async () => {
         ({ browser, teardown, setupServer } = await setup())
 
@@ -71,6 +70,9 @@ describe('Fingerprint Defense Tests', () => {
 })
 
 describe('First Party Fingerprint Randomization', () => {
+    let browser
+    let teardown
+    let setupServer
     beforeAll(async () => {
         ({ browser, setupServer, teardown } = await setup())
 
@@ -137,6 +139,9 @@ describe('First Party Fingerprint Randomization', () => {
 })
 
 describe('Verify injected script is not visible to the page', () => {
+    let browser
+    let teardown
+    let setupServer
     beforeAll(async () => {
         ({ browser, setupServer, teardown } = await setup())
 

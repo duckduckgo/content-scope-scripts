@@ -857,6 +857,7 @@ var contentScopeFeatures = (function (exports) {
        case './features/fingerprinting-temporary-storage.js': return Promise.resolve().then(function () { return fingerprintingTemporaryStorage; });
        case './features/floc.js': return Promise.resolve().then(function () { return floc; });
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
+       case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
        case './features/referrer.js': return Promise.resolve().then(function () { return referrer; });
        case './features/tracking-cookies-1p.js': return Promise.resolve().then(function () { return trackingCookies1p; });
        case './features/tracking-cookies-3p.js': return Promise.resolve().then(function () { return trackingCookies3p; });
@@ -895,7 +896,8 @@ var contentScopeFeatures = (function (exports) {
           'fingerprintingHardware',
           'referrer',
           'fingerprintingScreenSize',
-          'fingerprintingTemporaryStorage'
+          'fingerprintingTemporaryStorage',
+          'navigatorInterface'
       ];
 
       for (const featureName of featureNames) {
@@ -910,7 +912,7 @@ var contentScopeFeatures = (function (exports) {
       }
   }
 
-  async function init$b (args) {
+  async function init$c (args) {
       initArgs = args;
       if (!shouldRun()) {
           return
@@ -949,7 +951,7 @@ var contentScopeFeatures = (function (exports) {
       });
   }
 
-  function init$a (args) {
+  function init$b (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-audio';
@@ -1054,7 +1056,7 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingAudio = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$a
+    init: init$b
   });
 
   /**
@@ -1062,7 +1064,7 @@ var contentScopeFeatures = (function (exports) {
    * It will return the values defined in the getBattery function to the client,
    * as well as prevent any script from listening to events.
    */
-  function init$9 (args) {
+  function init$a (args) {
       if (navigator.getBattery) {
           const spoofedValues = {
               charging: true,
@@ -1087,7 +1089,7 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingBattery = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$9
+    init: init$a
   });
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -2163,7 +2165,7 @@ var contentScopeFeatures = (function (exports) {
       return false
   }
 
-  function init$8 (args) {
+  function init$9 (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-canvas';
@@ -2278,10 +2280,10 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$8
+    init: init$9
   });
 
-  function init$7 (args) {
+  function init$8 (args) {
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
@@ -2301,7 +2303,7 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingHardware = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$7
+    init: init$8
   });
 
   /**
@@ -2383,7 +2385,7 @@ var contentScopeFeatures = (function (exports) {
       }
   }
 
-  function init$6 (args) {
+  function init$7 (args) {
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
@@ -2423,10 +2425,10 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$6
+    init: init$7
   });
 
-  function init$5 () {
+  function init$6 () {
       /**
        * Temporary storage can be used to determine hard disk usage and size.
        * This will limit the max storage to 4GB without completely disabling the
@@ -2451,10 +2453,10 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$5
+    init: init$6
   });
 
-  function init$4 () {
+  function init$5 () {
       if ('interestCohort' in Document.prototype) {
           try {
               delete Document.prototype.interestCohort;
@@ -2466,11 +2468,11 @@ var contentScopeFeatures = (function (exports) {
 
   var floc = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$4
+    init: init$5
   });
 
   // Set Global Privacy Control property on DOM
-  function init$3 (args) {
+  function init$4 (args) {
       try {
           // If GPC on, set DOM property prototype to true if not already true
           if (args.globalPrivacyControlValue) {
@@ -2496,6 +2498,35 @@ var contentScopeFeatures = (function (exports) {
   }
 
   var gpc = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$4
+  });
+
+  function init$3 (args) {
+      try {
+          if (navigator.duckduckgo) {
+              return
+          }
+          if (!args.platform || !args.platform.name) {
+              return
+          }
+          defineProperty(Navigator.prototype, 'duckduckgo', {
+              value: {
+                  platform: args.platform.name,
+                  async isDuckDuckGo () {
+                      return true
+                  }
+              },
+              enumerable: true,
+              configurable: false,
+              writable: false
+          });
+      } catch {
+          // todo: Just ignore this exception?
+      }
+  }
+
+  var navigatorInterface = /*#__PURE__*/Object.freeze({
     __proto__: null,
     init: init$3
   });
@@ -2766,7 +2797,7 @@ var contentScopeFeatures = (function (exports) {
     init: init
   });
 
-  exports.init = init$b;
+  exports.init = init$c;
   exports.load = load$1;
   exports.update = update$1;
 
@@ -2802,21 +2833,47 @@ function generateConfig (data, userList) {
             allowlisted: false,
             enabledFeatures: [
                 'fingerprintingCanvas',
-                'fingerprintingScreenSize'
+                'fingerprintingScreenSize',
+                'navigatorInterface'
             ]
         }
     }
 }
 
-function init () {
+async function init () {
+    const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
+    await contentScopeFeatures.load()
 
-    contentScopeFeatures.load()
+    // mark this phase as loaded
+    setStatus('loaded')
 
-    contentScopeFeatures.init(processedConfig)
+    if (!topLevelUrl.searchParams.has('wait-for-init-args')) {
+        await contentScopeFeatures.init(processedConfig)
+        setStatus('initialized')
+        return
+    }
 
-    // Not supported:
-    // contentScopeFeatures.update(message)
+    // Wait for a message containing additional config
+    document.addEventListener('content-scope-init-args', async (evt) => {
+        const merged = {
+            ...processedConfig,
+            ...evt.detail
+        }
+
+        // init features
+        await contentScopeFeatures.init(merged)
+
+        // set status to initialized so that tests can resume
+        setStatus('initialized')
+    }, { once: true })
+}
+
+/**
+ * @param {"loaded" | "initialized"} status
+ */
+function setStatus (status) {
+    window.__content_scope_status = status
 }
 
 init()
