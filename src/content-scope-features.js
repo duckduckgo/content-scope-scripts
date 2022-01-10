@@ -32,7 +32,8 @@ export async function load () {
         'referrer',
         'fingerprintingScreenSize',
         'fingerprintingTemporaryStorage',
-        'navigatorInterface'
+        'navigatorInterface',
+        'navigatorCredentials'
     ]
 
     for (const featureName of featureNames) {
