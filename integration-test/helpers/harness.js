@@ -1,9 +1,9 @@
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
-import * as http from 'http'
 import puppeteer from 'puppeteer'
-import { spawnSync } from 'child_process'
+import { fork, spawnSync } from 'child_process'
+import { join } from 'path'
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000
 if (process.env.KEEP_OPEN) {
@@ -35,7 +35,7 @@ export async function setup (ops = {}) {
     }
 
     const browser = await puppeteer.launch(puppeteerOps)
-    const servers = []
+    const cleanups = []
 
     async function teardown () {
         if (process.env.KEEP_OPEN) {
@@ -51,7 +51,7 @@ export async function setup (ops = {}) {
     }
 
     async function teardownInternal () {
-        await Promise.all(servers.map(server => server.close()))
+        await Promise.all(cleanups.map((fn) => fn()))
         await browser.close()
 
         // necessary so e.g. local storage
@@ -61,27 +61,12 @@ export async function setup (ops = {}) {
 
     /**
      * @param {number|string} [port]
-     * @returns {http.Server}
+     * @returns {{address: string}}
      */
-    function setupServer (port) {
-        const server = http.createServer(function (req, res) {
-            const url = new URL(req.url, `http://${req.headers.host}`)
-            const importUrl = new URL(import.meta.url)
-            const dirname = importUrl.pathname.replace(/\/[^/]*$/, '')
-            const pathname = path.join(dirname, '../pages', url.pathname)
-
-            fs.readFile(pathname, (err, data) => {
-                if (err) {
-                    res.writeHead(404)
-                    res.end(JSON.stringify(err))
-                    return
-                }
-                res.writeHead(200)
-                res.end(data)
-            })
-        }).listen(port)
-        servers.push(server)
-        return server
+    async function setupServer (port) {
+        const { address, close } = await forkServer(port)
+        cleanups.push(close)
+        return { address }
     }
 
     /**
@@ -121,4 +106,43 @@ export async function setup (ops = {}) {
     }
 
     return { browser, teardown, setupServer, gotoAndWait }
+}
+
+/**
+ * @returns {Promise<{address: any, close: ()=>void}>}
+ */
+function forkServer (port) {
+    const cwd = new URL('../../', import.meta.url)
+    const script = join(cwd.pathname, 'scripts', 'serve-pages.js')
+    return new Promise((resolve) => {
+        const server = fork(script, {
+            stdio: 'inherit',
+            cwd,
+            env: {
+                PORT: port
+            }
+        })
+        function close () {
+            return new Promise((resolve, reject) => {
+                server.on('close', (code) => {
+                    if (code === null || code === 0) {
+                        resolve(code)
+                    } else {
+                        reject(new Error(`server closed with none-zero exit code ${code}`))
+                    }
+                })
+                server.kill()
+            })
+        }
+        server.on('message', (msg) => {
+            if (msg.kind !== 'server-listening') {
+                console.log('unknown message', msg)
+                return
+            }
+            resolve({
+                address: msg.address,
+                close
+            })
+        })
+    })
 }

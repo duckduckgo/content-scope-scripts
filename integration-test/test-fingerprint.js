@@ -34,8 +34,8 @@ describe('Fingerprint Defense Tests', () => {
     beforeAll(async () => {
         ({ browser, teardown, setupServer } = await setup())
 
-        setupServer('8080')
-        setupServer('8383')
+        await setupServer('8080')
+        await setupServer('8383')
     })
     afterAll(async () => {
         await teardown()
@@ -76,8 +76,8 @@ describe('First Party Fingerprint Randomization', () => {
     beforeAll(async () => {
         ({ browser, setupServer, teardown } = await setup())
 
-        setupServer('8080')
-        setupServer('8383')
+        await setupServer('8080')
+        await setupServer('8383')
     })
     afterAll(async () => {
         await teardown()
@@ -144,9 +144,8 @@ describe('Verify injected script is not visible to the page', () => {
     let setupServer
     beforeAll(async () => {
         ({ browser, setupServer, teardown } = await setup())
-
-        setupServer('8080')
-        setupServer('8383')
+        await setupServer('8080')
+        await setupServer('8383')
     })
     afterAll(async () => {
         await teardown()
