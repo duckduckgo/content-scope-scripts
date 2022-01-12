@@ -1,4 +1,4 @@
-import { defineProperty } from '../utils'
+import { defineProperty, DDGPromise } from '../utils'
 
 export function init (args) {
     try {
@@ -11,8 +11,8 @@ export function init (args) {
         defineProperty(Navigator.prototype, 'duckduckgo', {
             value: {
                 platform: args.platform.name,
-                async isDuckDuckGo () {
-                    return true
+                isDuckDuckGo () {
+                    return DDGPromise.resolve(true)
                 }
             },
             enumerable: true,
