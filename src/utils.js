@@ -1,5 +1,9 @@
-/* global exportFunction, mozProxies */
+/* global cloneInto, exportFunction, mozProxies */
 import { sjcl } from '../lib/sjcl.js'
+
+// Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
+// eslint-disable-next-line no-global-assign
+const globalObj = typeof window === 'undefined' ? globalThis : window
 
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
@@ -122,12 +126,14 @@ export function overrideProperty (name, prop) {
 export function defineProperty (object, propertyName, descriptor) {
     if (hasMozProxies) {
         const usedObj = object.wrappedJSObject
-        const UsedObjectInterface = globalThis.wrappedJSObject.Object
+        const UsedObjectInterface = globalObj.wrappedJSObject.Object
         const definedDescriptor = new UsedObjectInterface();
         ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-            // TODO check if value is complex and export it if so.
             if (propertyName in descriptor) {
-                definedDescriptor[propertyName] = descriptor[propertyName]
+                definedDescriptor[propertyName] = cloneInto(
+                    descriptor[propertyName],
+                    definedDescriptor,
+                    { cloneFunctions: true })
             }
         });
         ['get', 'set'].forEach((methodName) => {
@@ -172,14 +178,14 @@ export class DDGProxy {
         }
         if (hasMozProxies) {
             this._native = objectScope[property]
-            const handler = new globalThis.wrappedJSObject.Object()
-            handler.apply = exportFunction(outputHandler, globalThis)
-            this.internal = new globalThis.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
+            const handler = new globalObj.wrappedJSObject.Object()
+            handler.apply = exportFunction(outputHandler, globalObj)
+            this.internal = new globalObj.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
         } else {
             this._native = objectScope[property]
             const handler = {}
             handler.apply = outputHandler
-            this.internal = new globalThis.Proxy(objectScope[property], handler)
+            this.internal = new globalObj.Proxy(objectScope[property], handler)
         }
     }
 
@@ -194,16 +200,20 @@ export class DDGProxy {
 }
 
 export function postDebugMessage (feature, message) {
-    globalThis.postMessage({
+    globalObj.postMessage({
         action: feature,
         message
     })
 }
 
 export let DDGReflect
+export let DDGPromise
 
+// Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
 if (hasMozProxies) {
-    DDGReflect = globalThis.wrappedJSObject.Reflect
+    DDGPromise = globalObj.wrappedJSObject.Promise
+    DDGReflect = globalObj.wrappedJSObject.Reflect
 } else {
-    DDGReflect = globalThis.Reflect
+    DDGPromise = globalObj.Promise
+    DDGReflect = globalObj.Reflect
 }

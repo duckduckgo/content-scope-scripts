@@ -666,7 +666,11 @@ var contentScopeFeatures = (function (exports) {
       return sjcl;
     })();
 
-  /* global exportFunction, true */
+  /* global cloneInto, exportFunction, true */
+
+  // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
+  // eslint-disable-next-line no-global-assign
+  const globalObj = typeof window === 'undefined' ? globalThis : window;
 
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
@@ -786,12 +790,14 @@ var contentScopeFeatures = (function (exports) {
   function defineProperty (object, propertyName, descriptor) {
       {
           const usedObj = object.wrappedJSObject;
-          const UsedObjectInterface = globalThis.wrappedJSObject.Object;
+          const UsedObjectInterface = globalObj.wrappedJSObject.Object;
           const definedDescriptor = new UsedObjectInterface();
           ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-              // TODO check if value is complex and export it if so.
               if (propertyName in descriptor) {
-                  definedDescriptor[propertyName] = descriptor[propertyName];
+                  definedDescriptor[propertyName] = cloneInto(
+                      descriptor[propertyName],
+                      definedDescriptor,
+                      { cloneFunctions: true });
               }
           });
           ['get', 'set'].forEach((methodName) => {
@@ -834,9 +840,9 @@ var contentScopeFeatures = (function (exports) {
           };
           {
               this._native = objectScope[property];
-              const handler = new globalThis.wrappedJSObject.Object();
-              handler.apply = exportFunction(outputHandler, globalThis);
-              this.internal = new globalThis.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler);
+              const handler = new globalObj.wrappedJSObject.Object();
+              handler.apply = exportFunction(outputHandler, globalObj);
+              this.internal = new globalObj.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler);
           }
       }
 
@@ -849,16 +855,19 @@ var contentScopeFeatures = (function (exports) {
   }
 
   function postDebugMessage (feature, message) {
-      globalThis.postMessage({
+      globalObj.postMessage({
           action: feature,
           message
       });
   }
 
   let DDGReflect;
+  let DDGPromise;
 
+  // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
   {
-      DDGReflect = globalThis.wrappedJSObject.Reflect;
+      DDGPromise = globalObj.wrappedJSObject.Promise;
+      DDGReflect = globalObj.wrappedJSObject.Reflect;
   }
 
   function __variableDynamicImportRuntime0__(path) {
@@ -2551,8 +2560,8 @@ var contentScopeFeatures = (function (exports) {
           defineProperty(Navigator.prototype, 'duckduckgo', {
               value: {
                   platform: args.platform.name,
-                  async isDuckDuckGo () {
-                      return true
+                  isDuckDuckGo () {
+                      return DDGPromise.resolve(true)
                   }
               },
               enumerable: true,
