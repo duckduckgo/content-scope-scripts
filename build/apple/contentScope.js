@@ -666,7 +666,11 @@ var contentScopeFeatures = (function (exports) {
       return sjcl;
     })();
 
-  /* global exportFunction, false */
+  /* global cloneInto, exportFunction, false */
+
+  // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
+  // eslint-disable-next-line no-global-assign
+  const globalObj = typeof window === 'undefined' ? globalThis : window;
 
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
@@ -822,7 +826,7 @@ var contentScopeFeatures = (function (exports) {
               this._native = objectScope[property];
               const handler = {};
               handler.apply = outputHandler;
-              this.internal = new globalThis.Proxy(objectScope[property], handler);
+              this.internal = new globalObj.Proxy(objectScope[property], handler);
           }
       }
 
@@ -835,16 +839,19 @@ var contentScopeFeatures = (function (exports) {
   }
 
   function postDebugMessage (feature, message) {
-      globalThis.postMessage({
+      globalObj.postMessage({
           action: feature,
           message
       });
   }
 
   let DDGReflect;
+  let DDGPromise;
 
+  // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
   {
-      DDGReflect = globalThis.Reflect;
+      DDGPromise = globalObj.Promise;
+      DDGReflect = globalObj.Reflect;
   }
 
   function __variableDynamicImportRuntime0__(path) {
@@ -2537,8 +2544,8 @@ var contentScopeFeatures = (function (exports) {
           defineProperty(Navigator.prototype, 'duckduckgo', {
               value: {
                   platform: args.platform.name,
-                  async isDuckDuckGo () {
-                      return true
+                  isDuckDuckGo () {
+                      return DDGPromise.resolve(true)
                   }
               },
               enumerable: true,

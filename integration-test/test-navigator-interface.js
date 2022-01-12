@@ -25,8 +25,7 @@ describe('Ensure navigator interface is injected', () => {
         const isDuckDuckGoResult = await page.evaluate(
             () => {
                 const fn = navigator.duckduckgo?.isDuckDuckGo
-                const isPromise = fn.constructor.name === 'Promise' || fn.constructor.name === 'AsyncFunction'
-                return isPromise && fn()
+                return fn()
             }
         )
         expect(isDuckDuckGoResult).toEqual(true)
