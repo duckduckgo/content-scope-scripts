@@ -8,9 +8,11 @@ const trackerHosts = new Set()
 /**
  * Apply an expiry policy to cookies set via document.cookie.
  */
-function applyCookieExpiryPolicy () {
-    const cookieSetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie').set
-    const cookieGetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie').get
+function applyCookieExpiryPolicy (window) {
+    const document = window.document
+    const Error = window.Error
+    const cookieSetter = Object.getOwnPropertyDescriptor(window.Document.prototype, 'cookie').set
+    const cookieGetter = Object.getOwnPropertyDescriptor(window.Document.prototype, 'cookie').get
     const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/
 
     const loadPolicy = new Promise((resolve) => {
@@ -115,10 +117,10 @@ function applyCookieExpiryPolicy () {
 }
 
 // Set up 1st party cookie blocker
-export function load (args) {
+export function load (args, window = globalThis.window) {
     // The cookie expiry policy is injected into every frame immediately so that no cookie will
     // be missed.
-    applyCookieExpiryPolicy()
+    applyCookieExpiryPolicy(window)
 }
 
 export function init (args) {

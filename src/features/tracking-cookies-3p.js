@@ -1,15 +1,15 @@
 import { defineProperty, postDebugMessage } from '../utils'
 
-function blockCookies (debug) {
+function blockCookies (debug, window) {
     // disable setting cookies
-    defineProperty(document, 'cookie', {
+    defineProperty(window.document, 'cookie', {
         configurable: false,
         set: function (value) {
             if (debug) {
                 postDebugMessage('jscookie', {
                     action: 'block',
                     reason: 'tracker frame',
-                    documentUrl: document.location.href,
+                    documentUrl: window.document.location.href,
                     scriptOrigins: [],
                     value: value
                 })
@@ -20,7 +20,7 @@ function blockCookies (debug) {
                 postDebugMessage('jscookie', {
                     action: 'block',
                     reason: 'tracker frame',
-                    documentUrl: document.location.href,
+                    documentUrl: window.document.location.href,
                     scriptOrigins: [],
                     value: 'getter'
                 })
@@ -30,10 +30,12 @@ function blockCookies (debug) {
     })
 }
 
-export function init (args) {
+export function init (args, window = globalThis.window) {
     args.cookie.debug = args.debug
+    console.warn(args.cookie.isTrackerFrame, args.cookie.shouldBlock, args.cookie.isThirdParty)
     if (window.top !== window && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
+        console.warn('PROTECTION ENABLED')
         // overrides expiry policy with blocking - only in subframes
-        blockCookies(args.debug)
+        blockCookies(args.debug, window)
     }
 }

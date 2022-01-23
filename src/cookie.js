@@ -51,5 +51,5 @@ export class Cookie {
 
 // support node-requires (for test import)
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Cookie
+    module.exports = { Cookie }
 }
