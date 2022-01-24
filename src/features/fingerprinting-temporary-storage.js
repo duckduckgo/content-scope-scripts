@@ -1,6 +1,6 @@
 import { defineProperty } from '../utils'
 
-export function init (args, window) {
+export function init (args, window = globalThis) {
     const navigator = window.navigator
 
     /**
