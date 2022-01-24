@@ -32,7 +32,6 @@ function blockCookies (debug, window) {
 
 export function init (args, window = globalThis.window) {
     args.cookie.debug = args.debug
-    console.warn(args.cookie.isTrackerFrame, args.cookie.shouldBlock, args.cookie.isThirdParty)
     if (window.top !== window && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
         // overrides expiry policy with blocking - only in subframes
         blockCookies(args.debug, window)
