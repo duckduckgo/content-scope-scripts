@@ -1,4 +1,4 @@
-import { defineProperty, DDGPromise } from '../utils'
+import { defineProperty, DDGPromise } from '../utils.js'
 
 export function init (args) {
     try {
