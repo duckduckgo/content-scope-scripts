@@ -16,7 +16,7 @@ function normalizeWindowDimension (value, targetDimension) {
     return value
 }
 
-function setWindowPropertyValue (property, value) {
+function setWindowPropertyValue (property, value, window) {
     // Here we don't update the prototype getter because the values are updated dynamically
     try {
         defineProperty(window, property, {
@@ -35,41 +35,43 @@ const origPropertyValues = {}
  * ensuring that no information is leaked as the dimensions change, but also that the
  * values change correctly for valid use cases.
  */
-function setWindowDimensions () {
+function setWindowDimensions (window) {
     try {
+        const top = window.top
+
         const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height)
         const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width)
         if (normalizedY <= origPropertyValues.availTop) {
-            setWindowPropertyValue('screenY', 0)
-            setWindowPropertyValue('screenTop', 0)
+            setWindowPropertyValue('screenY', 0, window)
+            setWindowPropertyValue('screenTop', 0, window)
         } else {
-            setWindowPropertyValue('screenY', normalizedY)
-            setWindowPropertyValue('screenTop', normalizedY)
+            setWindowPropertyValue('screenY', normalizedY, window)
+            setWindowPropertyValue('screenTop', normalizedY, window)
         }
 
         if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
-            setWindowPropertyValue('outerHeight', top.window.screen.height)
+            setWindowPropertyValue('outerHeight', top.window.screen.height, window)
         } else {
             try {
-                setWindowPropertyValue('outerHeight', top.window.outerHeight)
+                setWindowPropertyValue('outerHeight', top.window.outerHeight, window)
             } catch (e) {
                 // top not accessible to certain iFrames, so ignore.
             }
         }
 
         if (normalizedX <= origPropertyValues.availLeft) {
-            setWindowPropertyValue('screenX', 0)
-            setWindowPropertyValue('screenLeft', 0)
+            setWindowPropertyValue('screenX', 0, window)
+            setWindowPropertyValue('screenLeft', 0, window)
         } else {
-            setWindowPropertyValue('screenX', normalizedX)
-            setWindowPropertyValue('screenLeft', normalizedX)
+            setWindowPropertyValue('screenX', normalizedX, window)
+            setWindowPropertyValue('screenLeft', normalizedX, window)
         }
 
         if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
-            setWindowPropertyValue('outerWidth', top.window.screen.width)
+            setWindowPropertyValue('outerWidth', top.window.screen.width, window)
         } else {
             try {
-                setWindowPropertyValue('outerWidth', top.window.outerWidth)
+                setWindowPropertyValue('outerWidth', top.window.outerWidth, window)
             } catch (e) {
                 // top not accessible to certain iFrames, so ignore.
             }
@@ -79,7 +81,10 @@ function setWindowDimensions () {
     }
 }
 
-export function init (args) {
+export function init (args, window = globalThis) {
+    const Screen = window.Screen
+    const screen = window.screen
+
     origPropertyValues.availTop = overrideProperty('availTop', {
         object: Screen.prototype,
         origValue: screen.availTop,
@@ -112,7 +117,7 @@ export function init (args) {
     })
 
     window.addEventListener('resize', function () {
-        setWindowDimensions()
+        setWindowDimensions(window)
     })
-    setWindowDimensions()
+    setWindowDimensions(window)
 }
