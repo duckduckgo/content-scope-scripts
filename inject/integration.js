@@ -14,7 +14,7 @@ function getTopLevelURL () {
     }
 }
 
-function generateConfig (data, userList) {
+function generateConfig (_data, _userList) {
     const topLevelUrl = getTopLevelURL()
     return {
         debug: false,

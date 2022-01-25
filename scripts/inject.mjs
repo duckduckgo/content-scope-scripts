@@ -21,11 +21,16 @@ async function generateContentScope() {
             replace({
                 preventAssignment: true,
                 values: {
+                    // @ts-ignore - todo: check if types are incorrect, or the API usage is
                     mozProxies
                 }
             })
         ]
     };
+
+    /**
+     * @type {import("rollup").OutputOptions}
+     */
     const outputOptions = {
         dir: 'build',
         format: 'iife',

@@ -5,7 +5,7 @@ import { defineProperty } from '../utils'
  * It will return the values defined in the getBattery function to the client,
  * as well as prevent any script from listening to events.
  */
-export function init (args) {
+export function init (_args) {
     if (navigator.getBattery) {
         const spoofedValues = {
             charging: true,

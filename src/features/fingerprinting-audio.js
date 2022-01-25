@@ -79,7 +79,7 @@ export function init (args) {
             const channelData = DDGReflect.apply(target, thisArg, args)
             // Anything we do here should be caught and ignored silently
             try {
-                transformArrayData(channelData, domainKey, sessionKey, thisArg, args)
+                transformArrayData(channelData, domainKey, sessionKey, thisArg)
             } catch {
             }
             return channelData
@@ -94,7 +94,7 @@ export function init (args) {
                 DDGReflect.apply(target, thisArg, args)
                 // Anything we do here should be caught and ignored silently
                 try {
-                    transformArrayData(args[0], domainKey, sessionKey, thisArg, args)
+                    transformArrayData(args[0], domainKey, sessionKey, thisArg)
                 } catch {
                 }
             }

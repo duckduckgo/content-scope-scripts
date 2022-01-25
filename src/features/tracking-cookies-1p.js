@@ -9,8 +9,8 @@ const trackerHosts = new Set()
  * Apply an expiry policy to cookies set via document.cookie.
  */
 function applyCookieExpiryPolicy () {
-    const cookieSetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie').set
-    const cookieGetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie').get
+    const cookieSetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie')?.set
+    const cookieGetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie')?.get
     const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/
 
     const loadPolicy = new Promise((resolve) => {
@@ -25,10 +25,10 @@ function applyCookieExpiryPolicy () {
             // call the native document.cookie implementation. This will set the cookie immediately
             // if the value is valid. We will override this set later if the policy dictates that
             // the expiry should be changed.
-            cookieSetter.apply(document, [value])
+            cookieSetter?.apply(document, [value])
             try {
                 // determine the origins of the scripts in the stack
-                const stack = new Error().stack.split('\n')
+                const stack = new Error().stack?.split('\n') || []
                 const scriptOrigins = stack.reduce((origins, line) => {
                     const res = line.match(lineTest)
                     if (res && res[2]) {
@@ -87,7 +87,7 @@ function applyCookieExpiryPolicy () {
                                 scriptOrigins: [...scriptOrigins],
                                 value
                             })
-                            cookieSetter.apply(document, [cookie.toString()])
+                            cookieSetter?.apply(document, [cookie.toString()])
                         } else {
                             debug && postDebugMessage('jscookie', {
                                 action: 'ignored',
@@ -115,7 +115,7 @@ function applyCookieExpiryPolicy () {
 }
 
 // Set up 1st party cookie blocker
-export function load (args) {
+export function load (_args) {
     // The cookie expiry policy is injected into every frame immediately so that no cookie will
     // be missed.
     applyCookieExpiryPolicy()

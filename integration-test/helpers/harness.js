@@ -42,7 +42,7 @@ export async function setup (ops = {}) {
             return new Promise((resolve) => {
                 browser.on('disconnected', async () => {
                     await teardownInternal()
-                    resolve()
+                    resolve(undefined)
                 })
             })
         } else {
@@ -65,6 +65,7 @@ export async function setup (ops = {}) {
      */
     function setupServer (port) {
         const server = http.createServer(function (req, res) {
+            if (!req.url) throw new Error('unreachable')
             const url = new URL(req.url, `http://${req.headers.host}`)
             const importUrl = new URL(import.meta.url)
             const dirname = importUrl.pathname.replace(/\/[^/]*$/, '')

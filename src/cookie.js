@@ -1,12 +1,13 @@
 export class Cookie {
     constructor (cookieString) {
         this.parts = cookieString.split(';')
+        this.attrIdx = {}
         this.parse()
+        this.expires = undefined
     }
 
     parse () {
         const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain'])
-        this.attrIdx = {}
         this.parts.forEach((part, index) => {
             const kv = part.split('=', 1)
             const attribute = kv[0].trim()
@@ -27,7 +28,7 @@ export class Cookie {
         }
         const expiry = this.maxAge
             ? parseInt(this.maxAge)
-            : (new Date(this.expires) - new Date()) / 1000
+            : (new Date(this.expires).getTime() - new Date().getTime()) / 1000
         return expiry
     }
 
@@ -36,8 +37,8 @@ export class Cookie {
     }
 
     set maxAge (value) {
-        if (this.attrIdx['max-age'] > 0) {
-            this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`)
+        if (this.attrIdx?.['max-age'] > 0) {
+            this.parts.splice(this.attrIdx?.['max-age'], 1, `max-age=${value}`)
         } else {
             this.parts.push(`max-age=${value}`)
         }

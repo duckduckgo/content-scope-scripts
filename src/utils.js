@@ -49,7 +49,7 @@ export function shouldExemptMethod (type) {
         return false
     }
     try {
-        const errorLines = new Error().stack.split('\n')
+        const errorLines = new Error().stack?.split('\n') || []
         const errorFiles = new Set()
         // Should cater for Chrome and Firefox stacks, we only care about https? resources.
         const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/
@@ -148,7 +148,7 @@ export function defineProperty (object, propertyName, descriptor) {
 }
 
 function camelcase (dashCaseText) {
-    return dashCaseText.replace(/-(.)/g, (match, letter) => {
+    return dashCaseText.replace(/-(.)/g, (_match, letter) => {
         return letter.toUpperCase()
     })
 }

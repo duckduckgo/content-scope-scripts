@@ -12,7 +12,7 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
     offScreenCanvas.width = canvas.width
     offScreenCanvas.height = canvas.height
     const offScreenCtx = offScreenCanvas.getContext('2d')
-    offScreenCtx.putImageData(imageData, 0, 0)
+    offScreenCtx?.putImageData(imageData, 0, 0)
 
     return { offScreenCanvas, offScreenCtx }
 }
