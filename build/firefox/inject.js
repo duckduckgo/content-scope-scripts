@@ -872,13 +872,13 @@ var contentScopeFeatures = (function (exports) {
 
   function __variableDynamicImportRuntime0__(path) {
      switch (path) {
+       case './features/browsing-topics.js': return Promise.resolve().then(function () { return browsingTopics; });
        case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
        case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
        case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
        case './features/fingerprinting-hardware.js': return Promise.resolve().then(function () { return fingerprintingHardware; });
        case './features/fingerprinting-screen-size.js': return Promise.resolve().then(function () { return fingerprintingScreenSize; });
        case './features/fingerprinting-temporary-storage.js': return Promise.resolve().then(function () { return fingerprintingTemporaryStorage; });
-       case './features/floc.js': return Promise.resolve().then(function () { return floc; });
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
        case './features/navigator-credentials.js': return Promise.resolve().then(function () { return navigatorCredentials; });
        case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
@@ -915,7 +915,7 @@ var contentScopeFeatures = (function (exports) {
           'fingerprintingCanvas',
           'trackingCookies3p',
           'trackingCookies1p',
-          'floc',
+          'browsingTopics',
           'gpc',
           'fingerprintingHardware',
           'referrer',
@@ -976,7 +976,23 @@ var contentScopeFeatures = (function (exports) {
       });
   }
 
-  function init$c (args) {
+  function init$c () {
+      console.log('deleting');
+      if ('browsingTopics' in Document.prototype) {
+          try {
+              delete Document.prototype.browsingTopics;
+          } catch {
+              // Throw away this exception, it's likely a confict with another extension
+          }
+      }
+  }
+
+  var browsingTopics = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$c
+  });
+
+  function init$b (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-audio';
@@ -1081,7 +1097,7 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingAudio = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$c
+    init: init$b
   });
 
   /**
@@ -1089,7 +1105,7 @@ var contentScopeFeatures = (function (exports) {
    * It will return the values defined in the getBattery function to the client,
    * as well as prevent any script from listening to events.
    */
-  function init$b (args) {
+  function init$a (args) {
       if (navigator.getBattery) {
           const spoofedValues = {
               charging: true,
@@ -1114,7 +1130,7 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingBattery = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$b
+    init: init$a
   });
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -2190,7 +2206,7 @@ var contentScopeFeatures = (function (exports) {
       return false
   }
 
-  function init$a (args) {
+  function init$9 (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-canvas';
@@ -2305,10 +2321,10 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$a
+    init: init$9
   });
 
-  function init$9 (args) {
+  function init$8 (args) {
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
@@ -2328,7 +2344,7 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingHardware = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$9
+    init: init$8
   });
 
   /**
@@ -2410,7 +2426,7 @@ var contentScopeFeatures = (function (exports) {
       }
   }
 
-  function init$8 (args) {
+  function init$7 (args) {
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
@@ -2450,10 +2466,10 @@ var contentScopeFeatures = (function (exports) {
 
   var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$8
+    init: init$7
   });
 
-  function init$7 () {
+  function init$6 () {
       /**
        * Temporary storage can be used to determine hard disk usage and size.
        * This will limit the max storage to 4GB without completely disabling the
@@ -2477,21 +2493,6 @@ var contentScopeFeatures = (function (exports) {
   }
 
   var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    init: init$7
-  });
-
-  function init$6 () {
-      if ('interestCohort' in Document.prototype) {
-          try {
-              delete Document.prototype.interestCohort;
-          } catch {
-              // Throw away this exception, it's likely a confict with another extension
-          }
-      }
-  }
-
-  var floc = /*#__PURE__*/Object.freeze({
     __proto__: null,
     init: init$6
   });
