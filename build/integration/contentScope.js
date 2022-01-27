@@ -961,7 +961,6 @@ var contentScopeFeatures = (function (exports) {
   }
 
   function init$c () {
-      console.log('deleting');
       if ('browsingTopics' in Document.prototype) {
           try {
               delete Document.prototype.browsingTopics;
