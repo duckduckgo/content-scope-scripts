@@ -16,10 +16,10 @@ function normalizeWindowDimension (value, targetDimension) {
     return value
 }
 
-function setWindowPropertyValue (property, value, window) {
+function setWindowPropertyValue (property, value) {
     // Here we don't update the prototype getter because the values are updated dynamically
     try {
-        defineProperty(window, property, {
+        defineProperty(globalThis, property, {
             get: () => value,
             set: () => {},
             configurable: true
@@ -43,36 +43,36 @@ function setWindowDimensions () {
         const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height)
         const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width)
         if (normalizedY <= origPropertyValues.availTop) {
-            setWindowPropertyValue('screenY', 0, window)
-            setWindowPropertyValue('screenTop', 0, window)
+            setWindowPropertyValue('screenY', 0)
+            setWindowPropertyValue('screenTop', 0)
         } else {
-            setWindowPropertyValue('screenY', normalizedY, window)
-            setWindowPropertyValue('screenTop', normalizedY, window)
+            setWindowPropertyValue('screenY', normalizedY)
+            setWindowPropertyValue('screenTop', normalizedY)
         }
 
         if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
-            setWindowPropertyValue('outerHeight', top.window.screen.height, window)
+            setWindowPropertyValue('outerHeight', top.window.screen.height)
         } else {
             try {
-                setWindowPropertyValue('outerHeight', top.window.outerHeight, window)
+                setWindowPropertyValue('outerHeight', top.window.outerHeight)
             } catch (e) {
                 // top not accessible to certain iFrames, so ignore.
             }
         }
 
         if (normalizedX <= origPropertyValues.availLeft) {
-            setWindowPropertyValue('screenX', 0, window)
-            setWindowPropertyValue('screenLeft', 0, window)
+            setWindowPropertyValue('screenX', 0)
+            setWindowPropertyValue('screenLeft', 0)
         } else {
-            setWindowPropertyValue('screenX', normalizedX, window)
-            setWindowPropertyValue('screenLeft', normalizedX, window)
+            setWindowPropertyValue('screenX', normalizedX)
+            setWindowPropertyValue('screenLeft', normalizedX)
         }
 
         if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
-            setWindowPropertyValue('outerWidth', top.window.screen.width, window)
+            setWindowPropertyValue('outerWidth', top.window.screen.width)
         } else {
             try {
-                setWindowPropertyValue('outerWidth', top.window.outerWidth, window)
+                setWindowPropertyValue('outerWidth', top.window.outerWidth)
             } catch (e) {
                 // top not accessible to certain iFrames, so ignore.
             }
