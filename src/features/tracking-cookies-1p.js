@@ -118,6 +118,8 @@ function applyCookieExpiryPolicy (window) {
 
 // Set up 1st party cookie blocker
 export function load (args, window = globalThis.window) {
+    trackerHosts.clear()
+
     // The cookie expiry policy is injected into every frame immediately so that no cookie will
     // be missed.
     applyCookieExpiryPolicy(window)
