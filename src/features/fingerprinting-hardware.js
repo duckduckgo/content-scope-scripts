@@ -1,8 +1,8 @@
 import { overrideProperty } from '../utils'
 
-export function init (args, window = globalThis) {
-    const Navigator = window.Navigator
-    const navigator = window.navigator
+export function init (args) {
+    const Navigator = globalThis.Navigator
+    const navigator = globalThis.navigator
 
     overrideProperty('keyboard', {
         object: Navigator.prototype,

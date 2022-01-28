@@ -35,9 +35,10 @@ const origPropertyValues = {}
  * ensuring that no information is leaked as the dimensions change, but also that the
  * values change correctly for valid use cases.
  */
-function setWindowDimensions (window) {
+function setWindowDimensions () {
     try {
-        const top = window.top
+        const window = globalThis
+        const top = globalThis.top
 
         const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height)
         const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width)
@@ -81,9 +82,9 @@ function setWindowDimensions (window) {
     }
 }
 
-export function init (args, window = globalThis) {
-    const Screen = window.Screen
-    const screen = window.screen
+export function init (args) {
+    const Screen = globalThis.Screen
+    const screen = globalThis.screen
 
     origPropertyValues.availTop = overrideProperty('availTop', {
         object: Screen.prototype,
@@ -117,7 +118,7 @@ export function init (args, window = globalThis) {
     })
 
     window.addEventListener('resize', function () {
-        setWindowDimensions(window)
+        setWindowDimensions()
     })
-    setWindowDimensions(window)
+    setWindowDimensions()
 }

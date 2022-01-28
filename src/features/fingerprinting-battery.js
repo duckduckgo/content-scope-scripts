@@ -5,9 +5,9 @@ import { defineProperty } from '../utils'
  * It will return the values defined in the getBattery function to the client,
  * as well as prevent any script from listening to events.
  */
-export function init (args, window = globalThis) {
-    if (window.navigator.getBattery) {
-        const BatteryManager = window.BatteryManager
+export function init (args) {
+    if (globalThis.navigator.getBattery) {
+        const BatteryManager = globalThis.BatteryManager
 
         const spoofedValues = {
             charging: true,

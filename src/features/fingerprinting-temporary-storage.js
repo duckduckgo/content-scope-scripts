@@ -1,7 +1,8 @@
 import { defineProperty } from '../utils'
 
-export function init (args, window = globalThis) {
-    const navigator = window.navigator
+export function init (args) {
+    const navigator = globalThis.navigator
+    const Navigator = globalThis.Navigator
 
     /**
      * Temporary storage can be used to determine hard disk usage and size.

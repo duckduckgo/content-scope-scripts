@@ -11,8 +11,8 @@ const trackerHosts = new Set()
 function applyCookieExpiryPolicy () {
     const document = globalThis.document
     const Error = globalThis.Error
-    const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.window.Document.prototype, 'cookie').set
-    const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.window.Document.prototype, 'cookie').get
+    const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set
+    const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get
     const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/
 
     const loadPolicy = new Promise((resolve) => {
