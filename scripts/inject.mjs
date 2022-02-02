@@ -47,7 +47,7 @@ async function init() {
     if (process.argv[2] == "firefox") {
         initOther('inject/mozilla.js');
     } else if (process.argv[2] == "apple") {
-        initOther('inject/apple.js');
+        initApple();
     } else if (process.argv[2] == "integration") {
         initOther('inject/integration.js');
     } else {
@@ -60,6 +60,22 @@ async function initOther(injectScriptPath) {
     const injectScript = await readFile(injectScriptPath);
     const contentScope = await generateContentScope();
     const outputScript = injectScript.toString().replace(replaceString, contentScope.toString());
+    console.log(outputScript);
+}
+
+async function initApple() {
+    const contentScopeReplaceString = "/* global contentScopeFeatures */";
+    const appleUtilsReplaceString = "/* global appleUtils */";
+    const injectScriptPath = "inject/apple.js";
+    const injectScript = await readFile(injectScriptPath);
+
+    const appleUtilScript = await readFile("src/apple-utils.js");
+    const utilScriptStr = appleUtilScript.toString().replace('export ', ''); // Remove the export keyword for compatibility
+
+    const contentScope = await generateContentScope();
+    const outputScript = injectScript.toString()
+                                .replace(contentScopeReplaceString, contentScope.toString())
+                                .replace(appleUtilsReplaceString, utilScriptStr);
     console.log(outputScript);
 }
 

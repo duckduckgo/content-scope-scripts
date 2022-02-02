@@ -2888,6 +2888,7 @@ function processConfig (data, userList, preferences) {
     return preferences
 }
 
+
 function init () {
     const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
     if (processedConfig.site.allowlisted) {
