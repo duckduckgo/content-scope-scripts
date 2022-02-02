@@ -1,6 +1,6 @@
 /* global contentScopeFeatures */
 
-/* global appleUtils */
+import { processConfig } from './../src/apple-utils'
 
 function init () {
     const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
