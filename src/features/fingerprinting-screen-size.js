@@ -19,7 +19,7 @@ function normalizeWindowDimension (value, targetDimension) {
 function setWindowPropertyValue (property, value) {
     // Here we don't update the prototype getter because the values are updated dynamically
     try {
-        defineProperty(window, property, {
+        defineProperty(globalThis, property, {
             get: () => value,
             set: () => {},
             configurable: true
@@ -37,6 +37,9 @@ const origPropertyValues = {}
  */
 function setWindowDimensions () {
     try {
+        const window = globalThis
+        const top = globalThis.top
+
         const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height)
         const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width)
         if (normalizedY <= origPropertyValues.availTop) {
@@ -80,6 +83,9 @@ function setWindowDimensions () {
 }
 
 export function init (args) {
+    const Screen = globalThis.Screen
+    const screen = globalThis.screen
+
     origPropertyValues.availTop = overrideProperty('availTop', {
         object: Screen.prototype,
         origValue: screen.availTop,
