@@ -48,8 +48,3 @@ export class Cookie {
         return this.parts.join(';')
     }
 }
-
-// support node-requires (for test import)
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Cookie
-}

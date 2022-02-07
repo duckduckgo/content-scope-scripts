@@ -1090,7 +1090,9 @@ var contentScopeFeatures = (function (exports) {
    * as well as prevent any script from listening to events.
    */
   function init$b (args) {
-      if (navigator.getBattery) {
+      if (globalThis.navigator.getBattery) {
+          const BatteryManager = globalThis.BatteryManager;
+
           const spoofedValues = {
               charging: true,
               chargingTime: 0,
@@ -2309,6 +2311,9 @@ var contentScopeFeatures = (function (exports) {
   });
 
   function init$9 (args) {
+      const Navigator = globalThis.Navigator;
+      const navigator = globalThis.navigator;
+
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
@@ -2350,7 +2355,7 @@ var contentScopeFeatures = (function (exports) {
   function setWindowPropertyValue (property, value) {
       // Here we don't update the prototype getter because the values are updated dynamically
       try {
-          defineProperty(window, property, {
+          defineProperty(globalThis, property, {
               get: () => value,
               set: () => {},
               configurable: true
@@ -2368,6 +2373,9 @@ var contentScopeFeatures = (function (exports) {
    */
   function setWindowDimensions () {
       try {
+          const window = globalThis;
+          const top = globalThis.top;
+
           const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height);
           const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width);
           if (normalizedY <= origPropertyValues.availTop) {
@@ -2411,6 +2419,9 @@ var contentScopeFeatures = (function (exports) {
   }
 
   function init$8 (args) {
+      const Screen = globalThis.Screen;
+      const screen = globalThis.screen;
+
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
@@ -2454,6 +2465,9 @@ var contentScopeFeatures = (function (exports) {
   });
 
   function init$7 () {
+      const navigator = globalThis.navigator;
+      const Navigator = globalThis.Navigator;
+
       /**
        * Temporary storage can be used to determine hard disk usage and size.
        * This will limit the max storage to 4GB without completely disabling the
@@ -2658,11 +2672,6 @@ var contentScopeFeatures = (function (exports) {
       }
   }
 
-  // support node-requires (for test import)
-  if (typeof module !== 'undefined' && module.exports) {
-      module.exports = Cookie;
-  }
-
   let loadedPolicyResolve;
   // Listen for a message from the content script which will configure the policy for this context
   const trackerHosts = new Set();
@@ -2671,8 +2680,10 @@ var contentScopeFeatures = (function (exports) {
    * Apply an expiry policy to cookies set via document.cookie.
    */
   function applyCookieExpiryPolicy () {
-      const cookieSetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie').set;
-      const cookieGetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie').get;
+      const document = globalThis.document;
+      const Error = globalThis.Error;
+      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
+      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
       const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
 
       const loadPolicy = new Promise((resolve) => {
@@ -2778,6 +2789,8 @@ var contentScopeFeatures = (function (exports) {
 
   // Set up 1st party cookie blocker
   function load (args) {
+      trackerHosts.clear();
+
       // The cookie expiry policy is injected into every frame immediately so that no cookie will
       // be missed.
       applyCookieExpiryPolicy();
@@ -2803,14 +2816,14 @@ var contentScopeFeatures = (function (exports) {
 
   function blockCookies (debug) {
       // disable setting cookies
-      defineProperty(document, 'cookie', {
+      defineProperty(globalThis.document, 'cookie', {
           configurable: false,
           set: function (value) {
               if (debug) {
                   postDebugMessage('jscookie', {
                       action: 'block',
                       reason: 'tracker frame',
-                      documentUrl: document.location.href,
+                      documentUrl: globalThis.document.location.href,
                       scriptOrigins: [],
                       value: value
                   });
@@ -2821,7 +2834,7 @@ var contentScopeFeatures = (function (exports) {
                   postDebugMessage('jscookie', {
                       action: 'block',
                       reason: 'tracker frame',
-                      documentUrl: document.location.href,
+                      documentUrl: globalThis.document.location.href,
                       scriptOrigins: [],
                       value: 'getter'
                   });
@@ -2833,7 +2846,7 @@ var contentScopeFeatures = (function (exports) {
 
   function init (args) {
       args.cookie.debug = args.debug;
-      if (window.top !== window && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
+      if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
           // overrides expiry policy with blocking - only in subframes
           blockCookies(args.debug);
       }

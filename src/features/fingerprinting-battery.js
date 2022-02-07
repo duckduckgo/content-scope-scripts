@@ -6,7 +6,9 @@ import { defineProperty } from '../utils'
  * as well as prevent any script from listening to events.
  */
 export function init (args) {
-    if (navigator.getBattery) {
+    if (globalThis.navigator.getBattery) {
+        const BatteryManager = globalThis.BatteryManager
+
         const spoofedValues = {
             charging: true,
             chargingTime: 0,
