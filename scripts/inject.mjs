@@ -65,17 +65,6 @@ async function initOther(injectScriptPath, platformName) {
     console.log(outputScript);
 }
 
-async function initApple() {
-    const contentScopeReplaceString = "/* global contentScopeFeatures */";
-    const injectScriptPath = "inject/apple.js";
-    const injectScript = await rollupScript(injectScriptPath, 'appleInject');
-
-    const contentScope = await rollupScript(contentScopePath, contentScopeName);
-    const outputScript = injectScript.toString()
-                                .replace(contentScopeReplaceString, contentScope.toString())
-    console.log(outputScript);
-}
-
 async function initChrome() {
     const replaceString = "/* global contentScopeFeatures */";
     const injectScriptPath = "inject/chrome.js";
