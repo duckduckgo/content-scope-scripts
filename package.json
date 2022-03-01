@@ -11,11 +11,12 @@
     "build-integration": "mkdir -p build/integration/ && node scripts/inject.mjs integration > build/integration/contentScope.js && npm run copy-build-integration",
     "copy-build-integration": "cp build/integration/contentScope.js integration-test/extension",
     "lint": "eslint .",
+    "lint-no-output-globals": "eslint build/apple/contentScope.js --rule '{\"no-implicit-globals\": [\"error\"]}' --no-ignore --no-eslintrc --parser-options=ecmaVersion:10",
     "lint-fix": "npm run lint -- --fix",
     "test-unit": "jasmine --config=unit-test/config.json",
     "test-int": "npm run build-integration && jasmine --config=integration-test/config.js",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
-    "test": "npm run lint && npm run test-unit && npm run test-int"
+    "test": "npm run lint && npm run lint-no-output-globals && npm run test-unit && npm run test-int"
   },
   "type": "module",
   "dependencies": {
