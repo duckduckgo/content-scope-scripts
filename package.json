@@ -23,7 +23,7 @@
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
-    "@fingerprintjs/fingerprintjs": "^3.3.2",
+    "@fingerprintjs/fingerprintjs": "^3.3.3",
     "@canvas/image-data": "^1.0.0",
     "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-node-resolve": "^13.1.3",
