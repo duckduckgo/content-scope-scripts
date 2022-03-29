@@ -37,7 +37,7 @@
     "eslint-plugin-promise": "^6.0.0",
     "jasmine": "^4.0.2",
     "puppeteer": "^13.5.1",
-    "rollup": "^2.68.0",
+    "rollup": "^2.70.1",
     "rollup-plugin-dynamic-import-variables": "^1.1.0"
   }
 }
