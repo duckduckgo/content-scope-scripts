@@ -27,7 +27,7 @@
   "devDependencies": {
     "@fingerprintjs/fingerprintjs": "^3.3.3",
     "@canvas/image-data": "^1.0.0",
-    "@rollup/plugin-commonjs": "^21.0.2",
+    "@rollup/plugin-commonjs": "^21.0.3",
     "@rollup/plugin-node-resolve": "^13.1.3",
     "@rollup/plugin-replace": "^4.0.0",
     "eslint": "^7.32.0",
