@@ -20,6 +20,8 @@ jobs:
       - run: npm install
       - run: npm run lint
       - run: npm run test-unit
+      - name: "Clean tree"
+        run: "npm run test-clean-tree"
   integration:
     runs-on: ubuntu-20.04
     timeout-minutes: 10

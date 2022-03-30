@@ -1,4 +1,56 @@
-var contentScopeFeatures = (function (exports) {
+(function () {
+    'use strict';
+
+    function getTopLevelURL () {
+        try {
+            // FROM: https://stackoverflow.com/a/7739035/73479
+            // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
+            if (window.location !== window.parent.location) {
+                return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
+            } else {
+                return new URL(window.location.href)
+            }
+        } catch (error) {
+            return new URL(location.href)
+        }
+    }
+
+    function isUnprotectedDomain (topLevelUrl, featureList) {
+        let unprotectedDomain = false;
+        const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : [];
+
+        // walk up the domain to see if it's unprotected
+        while (domainParts.length > 1 && !unprotectedDomain) {
+            const partialDomain = domainParts.join('.');
+
+            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;
+
+            domainParts.shift();
+        }
+
+        return unprotectedDomain
+    }
+
+    function processConfig (data, userList, preferences) {
+        const topLevelUrl = getTopLevelURL();
+        const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
+        const enabledFeatures = Object.keys(data.features).filter((featureName) => {
+            const feature = data.features[featureName];
+            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
+        });
+        const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
+        preferences.site = {
+            domain: topLevelUrl.hostname,
+            isBroken,
+            allowlisted,
+            enabledFeatures
+        };
+        // TODO
+        preferences.cookie = {};
+        return preferences
+    }
+
+    var contentScopeFeatures = (function (exports) {
   'use strict';
 
   const sjcl = (() => {
@@ -1089,7 +1141,9 @@ var contentScopeFeatures = (function (exports) {
    * as well as prevent any script from listening to events.
    */
   function init$a (args) {
-      if (navigator.getBattery) {
+      if (globalThis.navigator.getBattery) {
+          const BatteryManager = globalThis.BatteryManager;
+
           const spoofedValues = {
               charging: true,
               chargingTime: 0,
@@ -2308,6 +2362,9 @@ var contentScopeFeatures = (function (exports) {
   });
 
   function init$8 (args) {
+      const Navigator = globalThis.Navigator;
+      const navigator = globalThis.navigator;
+
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
@@ -2349,7 +2406,7 @@ var contentScopeFeatures = (function (exports) {
   function setWindowPropertyValue (property, value) {
       // Here we don't update the prototype getter because the values are updated dynamically
       try {
-          defineProperty(window, property, {
+          defineProperty(globalThis, property, {
               get: () => value,
               set: () => {},
               configurable: true
@@ -2367,6 +2424,9 @@ var contentScopeFeatures = (function (exports) {
    */
   function setWindowDimensions () {
       try {
+          const window = globalThis;
+          const top = globalThis.top;
+
           const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height);
           const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width);
           if (normalizedY <= origPropertyValues.availTop) {
@@ -2410,6 +2470,9 @@ var contentScopeFeatures = (function (exports) {
   }
 
   function init$7 (args) {
+      const Screen = globalThis.Screen;
+      const screen = globalThis.screen;
+
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
@@ -2453,6 +2516,9 @@ var contentScopeFeatures = (function (exports) {
   });
 
   function init$6 () {
+      const navigator = globalThis.navigator;
+      const Navigator = globalThis.Navigator;
+
       /**
        * Temporary storage can be used to determine hard disk usage and size.
        * This will limit the max storage to 4GB without completely disabling the
@@ -2642,11 +2708,6 @@ var contentScopeFeatures = (function (exports) {
       }
   }
 
-  // support node-requires (for test import)
-  if (typeof module !== 'undefined' && module.exports) {
-      module.exports = Cookie;
-  }
-
   let loadedPolicyResolve;
   // Listen for a message from the content script which will configure the policy for this context
   const trackerHosts = new Set();
@@ -2655,8 +2716,10 @@ var contentScopeFeatures = (function (exports) {
    * Apply an expiry policy to cookies set via document.cookie.
    */
   function applyCookieExpiryPolicy () {
-      const cookieSetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie').set;
-      const cookieGetter = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie').get;
+      const document = globalThis.document;
+      const Error = globalThis.Error;
+      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
+      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
       const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
 
       const loadPolicy = new Promise((resolve) => {
@@ -2762,6 +2825,8 @@ var contentScopeFeatures = (function (exports) {
 
   // Set up 1st party cookie blocker
   function load (args) {
+      trackerHosts.clear();
+
       // The cookie expiry policy is injected into every frame immediately so that no cookie will
       // be missed.
       applyCookieExpiryPolicy();
@@ -2787,14 +2852,14 @@ var contentScopeFeatures = (function (exports) {
 
   function blockCookies (debug) {
       // disable setting cookies
-      defineProperty(document, 'cookie', {
+      defineProperty(globalThis.document, 'cookie', {
           configurable: false,
           set: function (value) {
               if (debug) {
                   postDebugMessage('jscookie', {
                       action: 'block',
                       reason: 'tracker frame',
-                      documentUrl: document.location.href,
+                      documentUrl: globalThis.document.location.href,
                       scriptOrigins: [],
                       value: value
                   });
@@ -2805,7 +2870,7 @@ var contentScopeFeatures = (function (exports) {
                   postDebugMessage('jscookie', {
                       action: 'block',
                       reason: 'tracker frame',
-                      documentUrl: document.location.href,
+                      documentUrl: globalThis.document.location.href,
                       scriptOrigins: [],
                       value: 'getter'
                   });
@@ -2817,7 +2882,7 @@ var contentScopeFeatures = (function (exports) {
 
   function init (args) {
       args.cookie.debug = args.debug;
-      if (window.top !== window && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
+      if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
           // overrides expiry policy with blocking - only in subframes
           blockCookies(args.debug);
       }
@@ -2839,68 +2904,21 @@ var contentScopeFeatures = (function (exports) {
 })({});
 
 
-function getTopLevelURL () {
-    try {
-        // FROM: https://stackoverflow.com/a/7739035/73479
-        // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
-        if (window.location !== window.parent.location) {
-            return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
-        } else {
-            return new URL(window.location.href)
+    function init () {
+        const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
+        if (processedConfig.site.allowlisted) {
+            return
         }
-    } catch (error) {
-        return new URL(location.href)
-    }
-}
 
-function isUnprotectedDomain (topLevelUrl, featureList) {
-    let unprotectedDomain = false
-    const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : []
+        contentScopeFeatures.load();
 
-    // walk up the domain to see if it's unprotected
-    while (domainParts.length > 1 && !unprotectedDomain) {
-        const partialDomain = domainParts.join('.')
+        contentScopeFeatures.init(processedConfig);
 
-        unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0
-
-        domainParts.shift()
+        // Not supported:
+        // contentScopeFeatures.update(message)
     }
 
-    return unprotectedDomain
-}
+    init();
 
-function processConfig (data, userList, preferences) {
-    const topLevelUrl = getTopLevelURL()
-    const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0
-    const enabledFeatures = Object.keys(data.features).filter((featureName) => {
-        const feature = data.features[featureName]
-        return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
-    })
-    const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary)
-    preferences.site = {
-        domain: topLevelUrl.hostname,
-        isBroken,
-        allowlisted,
-        enabledFeatures
-    }
-    // TODO
-    preferences.cookie = {}
-    return preferences
-}
-
-function init () {
-    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
-    if (processedConfig.site.allowlisted) {
-        return
-    }
-
-    contentScopeFeatures.load()
-
-    contentScopeFeatures.init(processedConfig)
-
-    // Not supported:
-    // contentScopeFeatures.update(message)
-}
-
-init()
+})();
 

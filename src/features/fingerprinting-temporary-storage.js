@@ -1,6 +1,9 @@
 import { defineProperty } from '../utils'
 
 export function init () {
+    const navigator = globalThis.navigator
+    const Navigator = globalThis.Navigator
+
     /**
      * Temporary storage can be used to determine hard disk usage and size.
      * This will limit the max storage to 4GB without completely disabling the
