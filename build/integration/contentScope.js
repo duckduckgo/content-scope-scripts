@@ -2829,6 +2829,15 @@
               return ''
           }
       });
+      defineProperty(globalThis.window, 'localStorage', {
+          configurable: false,
+          set: function (value) {
+              throw new DOMException('The operation is insecure.')
+          },
+          get: () => {
+              throw new DOMException('The operation is insecure.')
+          }
+      });
   }
 
   function init (args) {

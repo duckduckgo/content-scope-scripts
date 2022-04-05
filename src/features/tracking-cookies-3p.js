@@ -28,6 +28,15 @@ function blockCookies (debug) {
             return ''
         }
     })
+    defineProperty(globalThis.window, 'localStorage', {
+        configurable: false,
+        set: function (value) {
+            throw new DOMException('The operation is insecure.')
+        },
+        get: () => {
+            throw new DOMException('The operation is insecure.')
+        }
+    })
 }
 
 export function init (args) {
