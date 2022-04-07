@@ -7,12 +7,25 @@ export function init (args) {
     const featureName = 'fingerprinting-canvas'
 
     const unsafeCanvases = new WeakSet()
+    const canvasContexts = new WeakMap()
     const canvasCache = new WeakMap()
 
     function clearCache (canvas) {
         // Clear cache as canvas has changed
         canvasCache.delete(canvas)
     }
+
+    const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, 'getContext', {
+        apply (target, thisArg, args) {
+            const context = DDGReflect.apply(target, thisArg, args)
+            try {
+                canvasContexts.set(thisArg, context)
+            } catch {
+            }
+            return context
+        }
+    })
+    proxy.overload()
 
     // Known data methods
     const safeMethods = ['putImageData', 'drawImage']
@@ -61,6 +74,34 @@ export function init (args) {
         }
     }
 
+    const unsafeGlMethods = [
+        'commit',
+        'compileShader',
+        'shaderSource',
+        'attachShader',
+        'createProgram',
+        'linkProgram'
+    ]
+    const glContexts = [
+        WebGL2RenderingContext,
+        WebGLRenderingContext
+    ]
+    for (const context of glContexts) {
+        for (const methodName of unsafeGlMethods) {
+            // Some methods are browser specific
+            if (methodName in context.prototype) {
+                const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
+                    apply (target, thisArg, args) {
+                        unsafeCanvases.add(thisArg.canvas)
+                        clearCache(thisArg.canvas)
+                        return DDGReflect.apply(target, thisArg, args)
+                    }
+                })
+                unsafeProxy.overload()
+            }
+        }
+    }
+
     // Using proxies here to swallow calls to toString etc
     const getImageDataProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, 'getImageData', {
         apply (target, thisArg, args) {
@@ -69,7 +110,7 @@ export function init (args) {
             }
             // Anything we do here should be caught and ignored silently
             try {
-                const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey, getImageDataProxy)
+                const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey)
                 // Call the original method on the modified off-screen canvas
                 return DDGReflect.apply(target, offScreenCtx, args)
             } catch {
@@ -81,12 +122,13 @@ export function init (args) {
     getImageDataProxy.overload()
 
     // Get cached offscreen if one exists, otherwise compute one
-    function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey, getImageDataProxy) {
+    function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey) {
         let result
         if (canvasCache.has(canvas)) {
             result = canvasCache.get(canvas)
         } else {
-            result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy)
+            const ctx = canvasContexts.get(canvas)
+            result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx)
             canvasCache.set(canvas, result)
         }
         return result
@@ -101,7 +143,7 @@ export function init (args) {
                     return DDGReflect.apply(target, thisArg, args)
                 }
                 try {
-                    const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey, getImageDataProxy)
+                    const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey)
                     // Call the original method on the modified off-screen canvas
                     return DDGReflect.apply(target, offScreenCanvas, args)
                 } catch {

@@ -1,20 +1,37 @@
 import { getDataKeySync } from './utils.js'
 import Seedrandom from 'seedrandom'
 
-export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy) {
-    const ctx = canvas.getContext('2d')
-    // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
-    let imageData = getImageDataProxy._native.apply(ctx, [0, 0, canvas.width, canvas.height])
-    imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width)
+export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+    if (!ctx) {
+        ctx = canvas.getContext('2d')
+    }
 
     // Make a off-screen canvas and put the data there
     const offScreenCanvas = document.createElement('canvas')
     offScreenCanvas.width = canvas.width
     offScreenCanvas.height = canvas.height
     const offScreenCtx = offScreenCanvas.getContext('2d')
+
+    offScreenCtx.drawImage(canvas, 0, 0)
+
+    // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
+    let imageData = getImageDataProxy._native.apply(offScreenCtx, [0, 0, canvas.width, canvas.height])
+    imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width)
+
+    clearCanvas(offScreenCtx)
+
     offScreenCtx.putImageData(imageData, 0, 0)
 
     return { offScreenCanvas, offScreenCtx }
+}
+
+function clearCanvas (canvasContext) {
+    // Save state and clean the pixels from the canvas
+    canvasContext.save()
+    canvasContext.globalCompositeOperation = 'destination-out'
+    canvasContext.fillStyle = 'rgb(255,255,255)'
+    canvasContext.fillRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height)
+    canvasContext.restore()
 }
 
 export function modifyPixelData (imageData, domainKey, sessionKey, width) {
