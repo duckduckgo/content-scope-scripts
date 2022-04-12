@@ -32,11 +32,11 @@
     "@rollup/plugin-replace": "^4.0.0",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "jasmine": "^4.0.2",
-    "puppeteer": "^13.5.1",
+    "puppeteer": "^13.5.2",
     "rollup": "^2.70.1",
     "rollup-plugin-dynamic-import-variables": "^1.1.0"
   }
