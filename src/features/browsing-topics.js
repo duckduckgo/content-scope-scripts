@@ -6,4 +6,20 @@ export function init () {
             // Throw away this exception, it's likely a confict with another extension
         }
     }
+
+    if ('joinAdInterestGroup' in Navigator.prototype) {
+        try {
+            delete Navigator.prototype.joinAdInterestGroup
+        } catch {
+            // Throw away this exception, it's likely a confict with another extension
+        }
+    }
+
+    if ('runAdAuction' in Navigator.prototype) {
+        try {
+            delete Navigator.prototype.runAdAuction
+        } catch {
+            // Throw away this exception, it's likely a confict with another extension
+        }
+    }
 }
