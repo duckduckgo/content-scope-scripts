@@ -10,9 +10,20 @@ export function init (args) {
     const canvasContexts = new WeakMap()
     const canvasCache = new WeakMap()
 
+    /**
+     * Clear cache as canvas has changed
+     * @param {HTMLCanvasElement} canvas
+     */
     function clearCache (canvas) {
-        // Clear cache as canvas has changed
         canvasCache.delete(canvas)
+    }
+
+    /**
+     * @param {HTMLCanvasElement} canvas
+     */
+     function treatAsUnsafe(canvas) {
+        unsafeCanvases.add(canvas)
+        clearCache(canvas)
     }
 
     const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, 'getContext', {
@@ -32,7 +43,12 @@ export function init (args) {
     for (const methodName of safeMethods) {
         const safeMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
             apply (target, thisArg, args) {
-                clearCache(thisArg.canvas)
+                // Don't apply escape hatch for canvases
+                if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
+                    treatAsUnsafe(args[0])
+                } else {
+                    clearCache(thisArg.canvas)
+                }
                 return DDGReflect.apply(target, thisArg, args)
             }
         })
@@ -65,8 +81,7 @@ export function init (args) {
         if (methodName in CanvasRenderingContext2D.prototype) {
             const unsafeProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
                 apply (target, thisArg, args) {
-                    unsafeCanvases.add(thisArg.canvas)
-                    clearCache(thisArg.canvas)
+                    treatAsUnsafe(thisArg.canvas)
                     return DDGReflect.apply(target, thisArg, args)
                 }
             })
@@ -80,7 +95,9 @@ export function init (args) {
         'shaderSource',
         'attachShader',
         'createProgram',
-        'linkProgram'
+        'linkProgram',
+        'drawElements',
+        'drawArrays'
     ]
     const glContexts = [
         WebGL2RenderingContext,
@@ -92,8 +109,7 @@ export function init (args) {
             if (methodName in context.prototype) {
                 const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
                     apply (target, thisArg, args) {
-                        unsafeCanvases.add(thisArg.canvas)
-                        clearCache(thisArg.canvas)
+                        treatAsUnsafe(thisArg.canvas)
                         return DDGReflect.apply(target, thisArg, args)
                     }
                 })

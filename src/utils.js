@@ -153,15 +153,11 @@ function camelcase (dashCaseText) {
     })
 }
 
-/**
- * @typedef {(target?: object, thisArg?: P, args?: object) => void} applyFunction<P>
- * @template {object} P
- */
 
 /**
  * @template {object} P
  * @typedef {object} ProxyObject<P>
- * @property {applyFunction<P>} apply
+ * @property {(target?: object, thisArg?: P, args?: object) => void} apply
  */
 
 /**
