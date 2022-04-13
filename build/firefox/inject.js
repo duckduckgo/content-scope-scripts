@@ -875,13 +875,13 @@
 
   function __variableDynamicImportRuntime0__(path) {
      switch (path) {
-       case './features/browsing-topics.js': return Promise.resolve().then(function () { return browsingTopics; });
        case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
        case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
        case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
        case './features/fingerprinting-hardware.js': return Promise.resolve().then(function () { return fingerprintingHardware; });
        case './features/fingerprinting-screen-size.js': return Promise.resolve().then(function () { return fingerprintingScreenSize; });
        case './features/fingerprinting-temporary-storage.js': return Promise.resolve().then(function () { return fingerprintingTemporaryStorage; });
+       case './features/google-rejected.js': return Promise.resolve().then(function () { return googleRejected; });
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
        case './features/navigator-credentials.js': return Promise.resolve().then(function () { return navigatorCredentials; });
        case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
@@ -918,7 +918,7 @@
           'fingerprintingCanvas',
           'trackingCookies3p',
           'trackingCookies1p',
-          'browsingTopics',
+          'googleRejected',
           'gpc',
           'fingerprintingHardware',
           'referrer',
@@ -979,38 +979,7 @@
       });
   }
 
-  function init$c () {
-      if ('browsingTopics' in Document.prototype) {
-          try {
-              delete Document.prototype.browsingTopics;
-          } catch {
-              // Throw away this exception, it's likely a confict with another extension
-          }
-      }
-
-      if ('joinAdInterestGroup' in Navigator.prototype) {
-          try {
-              delete Navigator.prototype.joinAdInterestGroup;
-          } catch {
-              // Throw away this exception, it's likely a confict with another extension
-          }
-      }
-
-      if ('runAdAuction' in Navigator.prototype) {
-          try {
-              delete Navigator.prototype.runAdAuction;
-          } catch {
-              // Throw away this exception, it's likely a confict with another extension
-          }
-      }
-  }
-
-  var browsingTopics = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    init: init$c
-  });
-
-  function init$b (args) {
+  function init$c (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-audio';
@@ -1115,7 +1084,7 @@
 
   var fingerprintingAudio = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$b
+    init: init$c
   });
 
   /**
@@ -1123,7 +1092,7 @@
    * It will return the values defined in the getBattery function to the client,
    * as well as prevent any script from listening to events.
    */
-  function init$a (args) {
+  function init$b (args) {
       if (globalThis.navigator.getBattery) {
           const BatteryManager = globalThis.BatteryManager;
 
@@ -1150,7 +1119,7 @@
 
   var fingerprintingBattery = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$a
+    init: init$b
   });
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -2226,7 +2195,7 @@
       return false
   }
 
-  function init$9 (args) {
+  function init$a (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-canvas';
@@ -2341,10 +2310,10 @@
 
   var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$9
+    init: init$a
   });
 
-  function init$8 (args) {
+  function init$9 (args) {
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
 
@@ -2367,7 +2336,7 @@
 
   var fingerprintingHardware = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$8
+    init: init$9
   });
 
   /**
@@ -2452,7 +2421,7 @@
       }
   }
 
-  function init$7 (args) {
+  function init$8 (args) {
       const Screen = globalThis.Screen;
       const screen = globalThis.screen;
 
@@ -2495,10 +2464,10 @@
 
   var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$7
+    init: init$8
   });
 
-  function init$6 () {
+  function init$7 () {
       const navigator = globalThis.navigator;
       const Navigator = globalThis.Navigator;
 
@@ -2525,6 +2494,37 @@
   }
 
   var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$7
+  });
+
+  function init$6 () {
+      if ('browsingTopics' in Document.prototype) {
+          try {
+              delete Document.prototype.browsingTopics;
+          } catch {
+              // Throw away this exception, it's likely a confict with another extension
+          }
+      }
+
+      if ('joinAdInterestGroup' in Navigator.prototype) {
+          try {
+              delete Navigator.prototype.joinAdInterestGroup;
+          } catch {
+              // Throw away this exception, it's likely a confict with another extension
+          }
+      }
+
+      if ('runAdAuction' in Navigator.prototype) {
+          try {
+              delete Navigator.prototype.runAdAuction;
+          } catch {
+              // Throw away this exception, it's likely a confict with another extension
+          }
+      }
+  }
+
+  var googleRejected = /*#__PURE__*/Object.freeze({
     __proto__: null,
     init: init$6
   });
