@@ -153,7 +153,27 @@ function camelcase (dashCaseText) {
     })
 }
 
+/**
+ * @typedef {(target?: object, thisArg?: P, args?: object) => void} applyFunction<P>
+ * @template {object} P
+ */
+
+/**
+ * @template {object} P
+ * @typedef {object} ProxyObject<P>
+ * @property {applyFunction<P>} apply
+ */
+
+/**
+ * @template [P=object]
+ */
 export class DDGProxy {
+    /**
+     * @param {string} featureName
+     * @param {P} objectScope
+     * @param {string} property
+     * @param {ProxyObject<P>} proxyObject
+     */
     constructor (featureName, objectScope, property, proxyObject) {
         this.objectScope = objectScope
         this.property = property
@@ -180,6 +200,7 @@ export class DDGProxy {
             this._native = objectScope[property]
             const handler = new globalObj.wrappedJSObject.Object()
             handler.apply = exportFunction(outputHandler, globalObj)
+            // @ts-ignore
             this.internal = new globalObj.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
         } else {
             this._native = objectScope[property]
@@ -192,6 +213,7 @@ export class DDGProxy {
     // Actually apply the proxy to the native property
     overload () {
         if (hasMozProxies) {
+            // @ts-ignore
             exportFunction(this.internal, this.objectScope, { defineAs: this.property })
         } else {
             this.objectScope[this.property] = this.internal

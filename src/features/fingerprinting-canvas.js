@@ -121,7 +121,13 @@ export function init (args) {
     })
     getImageDataProxy.overload()
 
-    // Get cached offscreen if one exists, otherwise compute one
+    /**
+     * Get cached offscreen if one exists, otherwise compute one
+     *
+     * @param {HTMLCanvasElement} canvas
+     * @param {string} domainKey
+     * @param {string} sessionKey
+     */
     function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey) {
         let result
         if (canvasCache.has(canvas)) {

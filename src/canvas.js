@@ -1,6 +1,13 @@
 import { getDataKeySync } from './utils.js'
 import Seedrandom from 'seedrandom'
 
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} domainKey
+ * @param {string} sessionKey
+ * @param {any} getImageDataProxy
+ * @param {CanvasRenderingContext2D | WebGL2RenderingContext} ctx
+ */
 export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
     if (!ctx) {
         ctx = canvas.getContext('2d')
@@ -25,6 +32,11 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
     return { offScreenCanvas, offScreenCtx }
 }
 
+/**
+ * Clears the pixels from the canvas context
+ *
+ * @param {CanvasRenderingContext2D} canvasContext
+ */
 function clearCanvas (canvasContext) {
     // Save state and clean the pixels from the canvas
     canvasContext.save()
@@ -34,6 +46,12 @@ function clearCanvas (canvasContext) {
     canvasContext.restore()
 }
 
+/**
+ * @param {ImageData} imageData
+ * @param {string} sessionKey
+ * @param {string} domainKey
+ * @param {number} width
+ */
 export function modifyPixelData (imageData, domainKey, sessionKey, width) {
     const d = imageData.data
     const length = d.length / 4
@@ -60,7 +78,13 @@ export function modifyPixelData (imageData, domainKey, sessionKey, width) {
     return imageData
 }
 
-// Ignore pixels that have neighbours that are the same
+/**
+ * Ignore pixels that have neighbours that are the same
+ *
+ * @param {Uint8ClampedArray} imageData
+ * @param {number} index
+ * @param {number} index
+ */
 function adjacentSame (imageData, index, width) {
     const widthPixel = width * 4
     const x = index % widthPixel
@@ -111,7 +135,12 @@ function adjacentSame (imageData, index, width) {
     return true
 }
 
-// Check that a pixel at index and index2 match all channels
+/**
+ * Check that a pixel at index and index2 match all channels
+ * @param {Uint8ClampedArray} imageData
+ * @param {number} index
+ * @param {number} index2
+ */
 function pixelsSame (imageData, index, index2) {
     return imageData[index] === imageData[index2] &&
            imageData[index + 1] === imageData[index2 + 1] &&
@@ -119,6 +148,12 @@ function pixelsSame (imageData, index, index2) {
            imageData[index + 3] === imageData[index2 + 3]
 }
 
+/**
+ * Returns true if pixel should be ignored
+ * @param {Uint8ClampedArray} imageData
+ * @param {number} index
+ * @returns {boolean}
+ */
 function shouldIgnorePixel (imageData, index) {
     // Transparent pixels
     if (imageData[index + 3] === 0) {
