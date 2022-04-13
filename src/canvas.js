@@ -6,7 +6,7 @@ import Seedrandom from 'seedrandom'
  * @param {string} domainKey
  * @param {string} sessionKey
  * @param {any} getImageDataProxy
- * @param {CanvasRenderingContext2D | WebGL2RenderingContext} ctx
+ * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
  */
 export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
     if (!ctx) {
@@ -19,13 +19,21 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
     offScreenCanvas.height = canvas.height
     const offScreenCtx = offScreenCanvas.getContext('2d')
 
-    offScreenCtx.drawImage(canvas, 0, 0)
+    let rasterizedCtx = ctx
+    // If we're not a 2d canvas we need to rasterise first into 2d
+    const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D)
+    if (rasterizeToCanvas) {
+        rasterizedCtx = offScreenCtx
+        offScreenCtx.drawImage(canvas, 0, 0)
+    }
 
     // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
-    let imageData = getImageDataProxy._native.apply(offScreenCtx, [0, 0, canvas.width, canvas.height])
+    let imageData = getImageDataProxy._native.apply(rasterizedCtx, [0, 0, canvas.width, canvas.height])
     imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width)
 
-    clearCanvas(offScreenCtx)
+    if (rasterizeToCanvas) {
+        clearCanvas(offScreenCtx)
+    }
 
     offScreenCtx.putImageData(imageData, 0, 0)
 

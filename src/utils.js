@@ -153,7 +153,6 @@ function camelcase (dashCaseText) {
     })
 }
 
-
 /**
  * @template {object} P
  * @typedef {object} ProxyObject<P>

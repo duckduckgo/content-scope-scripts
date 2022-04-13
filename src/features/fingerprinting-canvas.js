@@ -21,7 +21,7 @@ export function init (args) {
     /**
      * @param {HTMLCanvasElement} canvas
      */
-     function treatAsUnsafe(canvas) {
+    function treatAsUnsafe (canvas) {
         unsafeCanvases.add(canvas)
         clearCache(canvas)
     }
