@@ -914,7 +914,7 @@
        case './features/fingerprinting-hardware.js': return Promise.resolve().then(function () { return fingerprintingHardware; });
        case './features/fingerprinting-screen-size.js': return Promise.resolve().then(function () { return fingerprintingScreenSize; });
        case './features/fingerprinting-temporary-storage.js': return Promise.resolve().then(function () { return fingerprintingTemporaryStorage; });
-       case './features/floc.js': return Promise.resolve().then(function () { return floc; });
+       case './features/google-rejected.js': return Promise.resolve().then(function () { return googleRejected; });
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
        case './features/navigator-credentials.js': return Promise.resolve().then(function () { return navigatorCredentials; });
        case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
@@ -951,7 +951,7 @@
           'fingerprintingCanvas',
           'trackingCookies3p',
           'trackingCookies1p',
-          'floc',
+          'googleRejected',
           'gpc',
           'fingerprintingHardware',
           'referrer',
@@ -2532,16 +2532,31 @@
   });
 
   function init$6 () {
-      if ('interestCohort' in Document.prototype) {
-          try {
-              delete Document.prototype.interestCohort;
-          } catch {
-              // Throw away this exception, it's likely a confict with another extension
+      try {
+          if ('browsingTopics' in Document.prototype) {
+              delete Document.prototype.browsingTopics;
           }
+          if ('joinAdInterestGroup' in Navigator.prototype) {
+              delete Navigator.prototype.joinAdInterestGroup;
+          }
+          if ('leaveAdInterestGroup' in Navigator.prototype) {
+              delete Navigator.prototype.leaveAdInterestGroup;
+          }
+          if ('updateAdInterestGroup' in Navigator.prototype) {
+              delete Navigator.prototype.updateAdInterestGroup;
+          }
+          if ('runAdAuction' in Navigator.prototype) {
+              delete Navigator.prototype.runAdAuction;
+          }
+          if ('adAuctionComponents' in Navigator.prototype) {
+              delete Navigator.prototype.adAuctionComponents;
+          }
+      } catch {
+          // Throw away this exception, it's likely a confict with another extension
       }
   }
 
-  var floc = /*#__PURE__*/Object.freeze({
+  var googleRejected = /*#__PURE__*/Object.freeze({
     __proto__: null,
     init: init$6
   });
