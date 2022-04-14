@@ -1,10 +1,11 @@
-import { DDGProxy, DDGReflect } from '../utils'
+import { DDGProxy, DDGReflect, getFeatureSettingEnabled } from '../utils'
 import { computeOffScreenCanvas } from '../canvas'
 
 export function init (args) {
     const { sessionKey, site } = args
     const domainKey = site.domain
     const featureName = 'fingerprinting-canvas'
+    const supportsWebGl = getFeatureSettingEnabled(featureName, args, 'webGl')
 
     const unsafeCanvases = new WeakSet()
     const canvasContexts = new WeakMap()
@@ -89,31 +90,33 @@ export function init (args) {
         }
     }
 
-    const unsafeGlMethods = [
-        'commit',
-        'compileShader',
-        'shaderSource',
-        'attachShader',
-        'createProgram',
-        'linkProgram',
-        'drawElements',
-        'drawArrays'
-    ]
-    const glContexts = [
-        WebGL2RenderingContext,
-        WebGLRenderingContext
-    ]
-    for (const context of glContexts) {
-        for (const methodName of unsafeGlMethods) {
-            // Some methods are browser specific
-            if (methodName in context.prototype) {
-                const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
-                    apply (target, thisArg, args) {
-                        treatAsUnsafe(thisArg.canvas)
-                        return DDGReflect.apply(target, thisArg, args)
-                    }
-                })
-                unsafeProxy.overload()
+    if (supportsWebGl) {
+        const unsafeGlMethods = [
+            'commit',
+            'compileShader',
+            'shaderSource',
+            'attachShader',
+            'createProgram',
+            'linkProgram',
+            'drawElements',
+            'drawArrays'
+        ]
+        const glContexts = [
+            WebGL2RenderingContext,
+            WebGLRenderingContext
+        ]
+        for (const context of glContexts) {
+            for (const methodName of unsafeGlMethods) {
+                // Some methods are browser specific
+                if (methodName in context.prototype) {
+                    const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
+                        apply (target, thisArg, args) {
+                            treatAsUnsafe(thisArg.canvas)
+                            return DDGReflect.apply(target, thisArg, args)
+                        }
+                    })
+                    unsafeProxy.overload()
+                }
             }
         }
     }

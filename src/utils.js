@@ -154,6 +154,28 @@ function camelcase (dashCaseText) {
 }
 
 /**
+ * @param {string} featureName
+ * @param {object} args
+ * @param {string} prop
+ * @returns {any}
+ */
+export function getFeatureSetting (featureName, args, prop) {
+    const camelFeatureName = camelcase(featureName)
+    return args.featureSettings?.[camelFeatureName]?.[prop]
+}
+
+/**
+ * @param {string} featureName
+ * @param {object} args
+ * @param {string} prop
+ * @returns {boolean}
+ */
+export function getFeatureSettingEnabled (featureName, args, prop) {
+    const result = getFeatureSetting(featureName, args, prop)
+    return result === 'enabled'
+}
+
+/**
  * @template {object} P
  * @typedef {object} ProxyObject<P>
  * @property {(target?: object, thisArg?: P, args?: object) => void} apply

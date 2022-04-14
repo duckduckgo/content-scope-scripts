@@ -91,7 +91,7 @@ export function modifyPixelData (imageData, domainKey, sessionKey, width) {
  *
  * @param {Uint8ClampedArray} imageData
  * @param {number} index
- * @param {number} index
+ * @param {number} width
  */
 function adjacentSame (imageData, index, width) {
     const widthPixel = width * 4
