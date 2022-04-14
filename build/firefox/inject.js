@@ -2499,28 +2499,27 @@
   });
 
   function init$6 () {
-      if ('browsingTopics' in Document.prototype) {
-          try {
+      try {
+          if ('browsingTopics' in Document.prototype) {
               delete Document.prototype.browsingTopics;
-          } catch {
-              // Throw away this exception, it's likely a confict with another extension
           }
-      }
-
-      if ('joinAdInterestGroup' in Navigator.prototype) {
-          try {
+          if ('joinAdInterestGroup' in Navigator.prototype) {
               delete Navigator.prototype.joinAdInterestGroup;
-          } catch {
-              // Throw away this exception, it's likely a confict with another extension
           }
-      }
-
-      if ('runAdAuction' in Navigator.prototype) {
-          try {
+          if ('leaveAdInterestGroup' in Navigator.prototype) {
+              delete Navigator.prototype.leaveAdInterestGroup;
+          }
+          if ('updateAdInterestGroup' in Navigator.prototype) {
+              delete Navigator.prototype.updateAdInterestGroup;
+          }
+          if ('runAdAuction' in Navigator.prototype) {
               delete Navigator.prototype.runAdAuction;
-          } catch {
-              // Throw away this exception, it's likely a confict with another extension
           }
+          if ('adAuctionComponents' in Navigator.prototype) {
+              delete Navigator.prototype.adAuctionComponents;
+          }
+      } catch {
+          // Throw away this exception, it's likely a confict with another extension
       }
   }
 
