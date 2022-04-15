@@ -10,7 +10,8 @@
     "build-apple": "mkdir -p build/apple/ && node scripts/inject.mjs apple > build/apple/contentScope.js",
     "build-integration": "mkdir -p build/integration/ && node scripts/inject.mjs integration > build/integration/contentScope.js && npm run copy-build-integration",
     "copy-build-integration": "cp build/integration/contentScope.js integration-test/extension",
-    "lint": "eslint .",
+    "tsc": "tsc",
+    "lint": "eslint . && npm run tsc",
     "lint-no-output-globals": "eslint build/apple/contentScope.js --rule '{\"no-implicit-globals\": [\"error\"]}' --no-ignore --no-eslintrc --parser-options=ecmaVersion:10",
     "lint-fix": "npm run lint -- --fix",
     "test-unit": "jasmine --config=unit-test/config.json",
@@ -25,8 +26,8 @@
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
-    "@fingerprintjs/fingerprintjs": "^3.3.3",
     "@canvas/image-data": "^1.0.0",
+    "@fingerprintjs/fingerprintjs": "^3.3.3",
     "@rollup/plugin-commonjs": "^21.0.3",
     "@rollup/plugin-node-resolve": "^13.2.0",
     "@rollup/plugin-replace": "^4.0.0",
@@ -38,6 +39,7 @@
     "jasmine": "^4.1.0",
     "puppeteer": "^13.5.2",
     "rollup": "^2.70.2",
-    "rollup-plugin-dynamic-import-variables": "^1.1.0"
+    "rollup-plugin-dynamic-import-variables": "^1.1.0",
+    "typescript": "^4.6.3"
   }
 }
