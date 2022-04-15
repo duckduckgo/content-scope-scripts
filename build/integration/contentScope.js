@@ -4,7 +4,8 @@
     var contentScopeFeatures = (function (exports) {
   'use strict';
 
-  const sjcl = (() => {
+  // @ts-nocheck
+      const sjcl = (() => {
   /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
   /*global document, window, escape, unescape, module, require, Uint32Array */
 
@@ -802,7 +803,44 @@
       })
   }
 
+  /**
+   * @param {string} featureName
+   * @param {object} args
+   * @param {string} prop
+   * @returns {any}
+   */
+  function getFeatureSetting (featureName, args, prop) {
+      const camelFeatureName = camelcase(featureName);
+      return args.featureSettings?.[camelFeatureName]?.[prop]
+  }
+
+  /**
+   * @param {string} featureName
+   * @param {object} args
+   * @param {string} prop
+   * @returns {boolean}
+   */
+  function getFeatureSettingEnabled (featureName, args, prop) {
+      const result = getFeatureSetting(featureName, args, prop);
+      return result === 'enabled'
+  }
+
+  /**
+   * @template {object} P
+   * @typedef {object} ProxyObject<P>
+   * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+   */
+
+  /**
+   * @template [P=object]
+   */
   class DDGProxy {
+      /**
+       * @param {string} featureName
+       * @param {P} objectScope
+       * @param {string} property
+       * @param {ProxyObject<P>} proxyObject
+       */
       constructor (featureName, objectScope, property, proxyObject) {
           this.objectScope = objectScope;
           this.property = property;
@@ -2070,22 +2108,65 @@
 
   var seedrandom = sr;
 
-  function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy) {
-      const ctx = canvas.getContext('2d');
-      // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
-      let imageData = getImageDataProxy._native.apply(ctx, [0, 0, canvas.width, canvas.height]);
-      imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width);
+  /**
+   * @param {HTMLCanvasElement} canvas
+   * @param {string} domainKey
+   * @param {string} sessionKey
+   * @param {any} getImageDataProxy
+   * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
+   */
+  function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+      if (!ctx) {
+          ctx = canvas.getContext('2d');
+      }
 
       // Make a off-screen canvas and put the data there
       const offScreenCanvas = document.createElement('canvas');
       offScreenCanvas.width = canvas.width;
       offScreenCanvas.height = canvas.height;
       const offScreenCtx = offScreenCanvas.getContext('2d');
+
+      let rasterizedCtx = ctx;
+      // If we're not a 2d canvas we need to rasterise first into 2d
+      const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D);
+      if (rasterizeToCanvas) {
+          rasterizedCtx = offScreenCtx;
+          offScreenCtx.drawImage(canvas, 0, 0);
+      }
+
+      // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
+      let imageData = getImageDataProxy._native.apply(rasterizedCtx, [0, 0, canvas.width, canvas.height]);
+      imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width);
+
+      if (rasterizeToCanvas) {
+          clearCanvas(offScreenCtx);
+      }
+
       offScreenCtx.putImageData(imageData, 0, 0);
 
       return { offScreenCanvas, offScreenCtx }
   }
 
+  /**
+   * Clears the pixels from the canvas context
+   *
+   * @param {CanvasRenderingContext2D} canvasContext
+   */
+  function clearCanvas (canvasContext) {
+      // Save state and clean the pixels from the canvas
+      canvasContext.save();
+      canvasContext.globalCompositeOperation = 'destination-out';
+      canvasContext.fillStyle = 'rgb(255,255,255)';
+      canvasContext.fillRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+      canvasContext.restore();
+  }
+
+  /**
+   * @param {ImageData} imageData
+   * @param {string} sessionKey
+   * @param {string} domainKey
+   * @param {number} width
+   */
   function modifyPixelData (imageData, domainKey, sessionKey, width) {
       const d = imageData.data;
       const length = d.length / 4;
@@ -2112,7 +2193,13 @@
       return imageData
   }
 
-  // Ignore pixels that have neighbours that are the same
+  /**
+   * Ignore pixels that have neighbours that are the same
+   *
+   * @param {Uint8ClampedArray} imageData
+   * @param {number} index
+   * @param {number} width
+   */
   function adjacentSame (imageData, index, width) {
       const widthPixel = width * 4;
       const x = index % widthPixel;
@@ -2163,7 +2250,12 @@
       return true
   }
 
-  // Check that a pixel at index and index2 match all channels
+  /**
+   * Check that a pixel at index and index2 match all channels
+   * @param {Uint8ClampedArray} imageData
+   * @param {number} index
+   * @param {number} index2
+   */
   function pixelsSame (imageData, index, index2) {
       return imageData[index] === imageData[index2] &&
              imageData[index + 1] === imageData[index2 + 1] &&
@@ -2171,6 +2263,12 @@
              imageData[index + 3] === imageData[index2 + 3]
   }
 
+  /**
+   * Returns true if pixel should be ignored
+   * @param {Uint8ClampedArray} imageData
+   * @param {number} index
+   * @returns {boolean}
+   */
   function shouldIgnorePixel (imageData, index) {
       // Transparent pixels
       if (imageData[index + 3] === 0) {
@@ -2183,21 +2281,51 @@
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-canvas';
+      const supportsWebGl = getFeatureSettingEnabled(featureName, args, 'webGl');
 
       const unsafeCanvases = new WeakSet();
+      const canvasContexts = new WeakMap();
       const canvasCache = new WeakMap();
 
+      /**
+       * Clear cache as canvas has changed
+       * @param {HTMLCanvasElement} canvas
+       */
       function clearCache (canvas) {
-          // Clear cache as canvas has changed
           canvasCache.delete(canvas);
       }
+
+      /**
+       * @param {HTMLCanvasElement} canvas
+       */
+      function treatAsUnsafe (canvas) {
+          unsafeCanvases.add(canvas);
+          clearCache(canvas);
+      }
+
+      const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, 'getContext', {
+          apply (target, thisArg, args) {
+              const context = DDGReflect.apply(target, thisArg, args);
+              try {
+                  canvasContexts.set(thisArg, context);
+              } catch {
+              }
+              return context
+          }
+      });
+      proxy.overload();
 
       // Known data methods
       const safeMethods = ['putImageData', 'drawImage'];
       for (const methodName of safeMethods) {
           const safeMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
               apply (target, thisArg, args) {
-                  clearCache(thisArg.canvas);
+                  // Don't apply escape hatch for canvases
+                  if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
+                      treatAsUnsafe(args[0]);
+                  } else {
+                      clearCache(thisArg.canvas);
+                  }
                   return DDGReflect.apply(target, thisArg, args)
               }
           });
@@ -2230,12 +2358,42 @@
           if (methodName in CanvasRenderingContext2D.prototype) {
               const unsafeProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
                   apply (target, thisArg, args) {
-                      unsafeCanvases.add(thisArg.canvas);
-                      clearCache(thisArg.canvas);
+                      treatAsUnsafe(thisArg.canvas);
                       return DDGReflect.apply(target, thisArg, args)
                   }
               });
               unsafeProxy.overload();
+          }
+      }
+
+      if (supportsWebGl) {
+          const unsafeGlMethods = [
+              'commit',
+              'compileShader',
+              'shaderSource',
+              'attachShader',
+              'createProgram',
+              'linkProgram',
+              'drawElements',
+              'drawArrays'
+          ];
+          const glContexts = [
+              WebGL2RenderingContext,
+              WebGLRenderingContext
+          ];
+          for (const context of glContexts) {
+              for (const methodName of unsafeGlMethods) {
+                  // Some methods are browser specific
+                  if (methodName in context.prototype) {
+                      const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
+                          apply (target, thisArg, args) {
+                              treatAsUnsafe(thisArg.canvas);
+                              return DDGReflect.apply(target, thisArg, args)
+                          }
+                      });
+                      unsafeProxy.overload();
+                  }
+              }
           }
       }
 
@@ -2247,7 +2405,7 @@
               }
               // Anything we do here should be caught and ignored silently
               try {
-                  const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey, getImageDataProxy);
+                  const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey);
                   // Call the original method on the modified off-screen canvas
                   return DDGReflect.apply(target, offScreenCtx, args)
               } catch {
@@ -2258,13 +2416,20 @@
       });
       getImageDataProxy.overload();
 
-      // Get cached offscreen if one exists, otherwise compute one
-      function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey, getImageDataProxy) {
+      /**
+       * Get cached offscreen if one exists, otherwise compute one
+       *
+       * @param {HTMLCanvasElement} canvas
+       * @param {string} domainKey
+       * @param {string} sessionKey
+       */
+      function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey) {
           let result;
           if (canvasCache.has(canvas)) {
               result = canvasCache.get(canvas);
           } else {
-              result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy);
+              const ctx = canvasContexts.get(canvas);
+              result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx);
               canvasCache.set(canvas, result);
           }
           return result
@@ -2279,7 +2444,7 @@
                       return DDGReflect.apply(target, thisArg, args)
                   }
                   try {
-                      const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey, getImageDataProxy);
+                      const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey);
                       // Call the original method on the modified off-screen canvas
                       return DDGReflect.apply(target, offScreenCanvas, args)
                   } catch {

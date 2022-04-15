@@ -13,7 +13,8 @@ async function init () {
     await exec('cd node_modules/sjcl/ && ./configure --no-export --compress=none --without-all --with-hmac --with-codecHex && make')
     const sjclFileContents = await fs.readFile('node_modules/sjcl/sjcl.js')
     // Reexport the file as es6 module format
-    const contents = `export const sjcl = (() => {
+    const contents = `// @ts-nocheck
+    export const sjcl = (() => {
     ${sjclFileContents}
     return sjcl;
   })()`

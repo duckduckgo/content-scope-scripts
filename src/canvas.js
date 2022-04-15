@@ -1,22 +1,65 @@
 import { getDataKeySync } from './utils.js'
 import Seedrandom from 'seedrandom'
 
-export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy) {
-    const ctx = canvas.getContext('2d')
-    // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
-    let imageData = getImageDataProxy._native.apply(ctx, [0, 0, canvas.width, canvas.height])
-    imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width)
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} domainKey
+ * @param {string} sessionKey
+ * @param {any} getImageDataProxy
+ * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
+ */
+export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+    if (!ctx) {
+        ctx = canvas.getContext('2d')
+    }
 
     // Make a off-screen canvas and put the data there
     const offScreenCanvas = document.createElement('canvas')
     offScreenCanvas.width = canvas.width
     offScreenCanvas.height = canvas.height
     const offScreenCtx = offScreenCanvas.getContext('2d')
+
+    let rasterizedCtx = ctx
+    // If we're not a 2d canvas we need to rasterise first into 2d
+    const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D)
+    if (rasterizeToCanvas) {
+        rasterizedCtx = offScreenCtx
+        offScreenCtx.drawImage(canvas, 0, 0)
+    }
+
+    // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
+    let imageData = getImageDataProxy._native.apply(rasterizedCtx, [0, 0, canvas.width, canvas.height])
+    imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width)
+
+    if (rasterizeToCanvas) {
+        clearCanvas(offScreenCtx)
+    }
+
     offScreenCtx.putImageData(imageData, 0, 0)
 
     return { offScreenCanvas, offScreenCtx }
 }
 
+/**
+ * Clears the pixels from the canvas context
+ *
+ * @param {CanvasRenderingContext2D} canvasContext
+ */
+function clearCanvas (canvasContext) {
+    // Save state and clean the pixels from the canvas
+    canvasContext.save()
+    canvasContext.globalCompositeOperation = 'destination-out'
+    canvasContext.fillStyle = 'rgb(255,255,255)'
+    canvasContext.fillRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height)
+    canvasContext.restore()
+}
+
+/**
+ * @param {ImageData} imageData
+ * @param {string} sessionKey
+ * @param {string} domainKey
+ * @param {number} width
+ */
 export function modifyPixelData (imageData, domainKey, sessionKey, width) {
     const d = imageData.data
     const length = d.length / 4
@@ -43,7 +86,13 @@ export function modifyPixelData (imageData, domainKey, sessionKey, width) {
     return imageData
 }
 
-// Ignore pixels that have neighbours that are the same
+/**
+ * Ignore pixels that have neighbours that are the same
+ *
+ * @param {Uint8ClampedArray} imageData
+ * @param {number} index
+ * @param {number} width
+ */
 function adjacentSame (imageData, index, width) {
     const widthPixel = width * 4
     const x = index % widthPixel
@@ -94,7 +143,12 @@ function adjacentSame (imageData, index, width) {
     return true
 }
 
-// Check that a pixel at index and index2 match all channels
+/**
+ * Check that a pixel at index and index2 match all channels
+ * @param {Uint8ClampedArray} imageData
+ * @param {number} index
+ * @param {number} index2
+ */
 function pixelsSame (imageData, index, index2) {
     return imageData[index] === imageData[index2] &&
            imageData[index + 1] === imageData[index2 + 1] &&
@@ -102,6 +156,12 @@ function pixelsSame (imageData, index, index2) {
            imageData[index + 3] === imageData[index2 + 3]
 }
 
+/**
+ * Returns true if pixel should be ignored
+ * @param {Uint8ClampedArray} imageData
+ * @param {number} index
+ * @returns {boolean}
+ */
 function shouldIgnorePixel (imageData, index) {
     // Transparent pixels
     if (imageData[index + 3] === 0) {
