@@ -21,6 +21,7 @@ export async function load () {
         return
     }
     const featureNames = [
+        'webCompat',
         'fingerprintingAudio',
         'fingerprintingBattery',
         'fingerprintingCanvas',
@@ -32,8 +33,7 @@ export async function load () {
         'referrer',
         'fingerprintingScreenSize',
         'fingerprintingTemporaryStorage',
-        'navigatorInterface',
-        'navigatorCredentials'
+        'navigatorInterface'
     ]
 
     for (const featureName of featureNames) {

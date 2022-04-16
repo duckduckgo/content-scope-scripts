@@ -905,11 +905,11 @@
        case './features/fingerprinting-temporary-storage.js': return Promise.resolve().then(function () { return fingerprintingTemporaryStorage; });
        case './features/google-rejected.js': return Promise.resolve().then(function () { return googleRejected; });
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
-       case './features/navigator-credentials.js': return Promise.resolve().then(function () { return navigatorCredentials; });
        case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
        case './features/referrer.js': return Promise.resolve().then(function () { return referrer; });
        case './features/tracking-cookies-1p.js': return Promise.resolve().then(function () { return trackingCookies1p; });
        case './features/tracking-cookies-3p.js': return Promise.resolve().then(function () { return trackingCookies3p; });
+       case './features/web-compat.js': return Promise.resolve().then(function () { return webCompat; });
        default: return Promise.reject(new Error("Unknown variable dynamic import: " + path));
      }
    }
@@ -935,6 +935,7 @@
           return
       }
       const featureNames = [
+          'webCompat',
           'fingerprintingAudio',
           'fingerprintingBattery',
           'fingerprintingCanvas',
@@ -946,8 +947,7 @@
           'referrer',
           'fingerprintingScreenSize',
           'fingerprintingTemporaryStorage',
-          'navigatorInterface',
-          'navigatorCredentials'
+          'navigatorInterface'
       ];
 
       for (const featureName of featureNames) {
@@ -2710,28 +2710,6 @@
 
   function init$4 (args) {
       try {
-          const value = {
-              get () {
-                  return Promise.reject(new Error())
-              }
-          };
-          defineProperty(Navigator.prototype, 'credentials', {
-              value,
-              configurable: true,
-              enumerable: true
-          });
-      } catch {
-          // Ignore exceptions that could be caused by conflicting with other extensions
-      }
-  }
-
-  var navigatorCredentials = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    init: init$4
-  });
-
-  function init$3 (args) {
-      try {
           if (navigator.duckduckgo) {
               return
           }
@@ -2756,10 +2734,10 @@
 
   var navigatorInterface = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$3
+    init: init$4
   });
 
-  function init$2 (args) {
+  function init$3 (args) {
       // Unfortunately, we only have limited information about the referrer and current frame. A single
       // page may load many requests and sub frames, all with different referrers. Since we
       if (args.referrer && // make sure the referrer was set correctly
@@ -2785,7 +2763,7 @@
 
   var referrer = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$2
+    init: init$3
   });
 
   class Cookie {
@@ -2963,7 +2941,7 @@
       applyCookieExpiryPolicy();
   }
 
-  function init$1 (args) {
+  function init$2 (args) {
       args.cookie.debug = args.debug;
       loadedPolicyResolve(args.cookie);
   }
@@ -2977,7 +2955,7 @@
   var trackingCookies1p = /*#__PURE__*/Object.freeze({
     __proto__: null,
     load: load,
-    init: init$1,
+    init: init$2,
     update: update
   });
 
@@ -3011,7 +2989,7 @@
       });
   }
 
-  function init (args) {
+  function init$1 (args) {
       args.cookie.debug = args.debug;
       if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
           // overrides expiry policy with blocking - only in subframes
@@ -3020,6 +2998,44 @@
   }
 
   var trackingCookies3p = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$1
+  });
+
+  /**
+   * Fixes incorrect sizing value for outerHeight and outerWidth
+   */
+  function windowSizingFix () {
+      window.outerHeight = window.innerHeight;
+      window.outerWidth = window.innerWidth;
+  }
+
+  /**
+   * Add missing navigator.credentials API
+   */
+  function navigatorCredentialsFix () {
+      try {
+          const value = {
+              get () {
+                  return Promise.reject(new Error())
+              }
+          };
+          defineProperty(Navigator.prototype, 'credentials', {
+              value,
+              configurable: true,
+              enumerable: true
+          });
+      } catch {
+          // Ignore exceptions that could be caused by conflicting with other extensions
+      }
+  }
+
+  function init () {
+      windowSizingFix();
+      navigatorCredentialsFix();
+  }
+
+  var webCompat = /*#__PURE__*/Object.freeze({
     __proto__: null,
     init: init
   });
