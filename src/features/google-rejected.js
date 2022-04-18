@@ -9,8 +9,8 @@ export function init () {
         if ('leaveAdInterestGroup' in Navigator.prototype) {
             delete Navigator.prototype.leaveAdInterestGroup
         }
-        if ('updateAdInterestGroup' in Navigator.prototype) {
-            delete Navigator.prototype.updateAdInterestGroup
+        if ('updateAdInterestGroups' in Navigator.prototype) {
+            delete Navigator.prototype.updateAdInterestGroups
         }
         if ('runAdAuction' in Navigator.prototype) {
             delete Navigator.prototype.runAdAuction
