@@ -1,6 +1,18 @@
+
 import { defineProperty } from '../utils'
 
-export function init (args) {
+/**
+ * Fixes incorrect sizing value for outerHeight and outerWidth
+ */
+function windowSizingFix () {
+    window.outerHeight = window.innerHeight
+    window.outerWidth = window.innerWidth
+}
+
+/**
+ * Add missing navigator.credentials API
+ */
+function navigatorCredentialsFix () {
     try {
         const value = {
             get () {
@@ -15,4 +27,9 @@ export function init (args) {
     } catch {
         // Ignore exceptions that could be caused by conflicting with other extensions
     }
+}
+
+export function init () {
+    windowSizingFix()
+    navigatorCredentialsFix()
 }
