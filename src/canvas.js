@@ -2,15 +2,24 @@ import { getDataKeySync } from './utils.js'
 import Seedrandom from 'seedrandom'
 
 /**
+ * @typedef {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} CanvasContext
+ */
+
+/**
  * @param {HTMLCanvasElement} canvas
  * @param {string} domainKey
  * @param {string} sessionKey
  * @param {any} getImageDataProxy
- * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
+ * @param {CanvasContext} ctx?
+ * @return {{offScreenCanvas: HTMLCanvasElement, offScreenCtx: CanvasContext}?}
  */
 export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
     if (!ctx) {
-        ctx = canvas.getContext('2d')
+        const newCtx = canvas.getContext('2d')
+        if (newCtx === null) {
+            return null
+        }
+        ctx = newCtx
     }
 
     // Make a off-screen canvas and put the data there
@@ -18,6 +27,9 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
     offScreenCanvas.width = canvas.width
     offScreenCanvas.height = canvas.height
     const offScreenCtx = offScreenCanvas.getContext('2d')
+    if (offScreenCtx === null) {
+        return null
+    }
 
     let rasterizedCtx = ctx
     // If we're not a 2d canvas we need to rasterise first into 2d

@@ -725,18 +725,30 @@
   // eslint-disable-next-line no-global-assign
   const globalObj = typeof window === 'undefined' ? globalThis : window;
 
+  /**
+   * @param {string} sessionKey
+   * @param {string} domainKey
+   * @param {number} inputData
+   */
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
       const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256);
       return sjcl.codec.hex.fromBits(hmac.encrypt(inputData))
   }
 
-  // linear feedback shift register to find a random approximation
+  /**
+   * Linear feedback shift register to find a random approximation
+   * @param {number} v
+   */
   function nextRandom (v) {
       return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)))
   }
 
   const exemptionLists = {};
+  /**
+   * @param {string | number} type
+   * @param {string} url
+   */
   function shouldExemptUrl (type, url) {
       for (const regex of exemptionLists[type]) {
           if (regex.test(url)) {
@@ -748,6 +760,9 @@
 
   let debug = false;
 
+  /**
+   * @param {{ debug?: any; stringExemptionLists?: any; }} args
+   */
   function initStringExemptionLists (args) {
       const { stringExemptionLists } = args;
       debug = args.debug;
@@ -759,14 +774,17 @@
       }
   }
 
-  // Checks the stack trace if there are known libraries that are broken.
+  /**
+   * Checks the stack trace if there are known libraries that are broken.
+   * @param {string} type
+   */
   function shouldExemptMethod (type) {
       // Short circuit stack tracing if we don't have checks
       if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
           return false
       }
       try {
-          const errorLines = new Error().stack.split('\n');
+          const errorLines = new Error().stack?.split('\n') || [];
           const errorFiles = new Set();
           // Should cater for Chrome and Firefox stacks, we only care about https? resources.
           const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
@@ -790,7 +808,11 @@
       return false
   }
 
-  // Iterate through the key, passing an item index and a byte to be modified
+  /**
+   * Iterate through the key, passing an item index and a byte to be modified
+   * @param {any} key
+   * @param {{ (item: any, byte: any): void; (arg0: any, arg1: any): any; }} callback
+   */
   function iterateDataKey (key, callback) {
       let item = key.charCodeAt(0);
       for (const i in key) {
@@ -811,12 +833,18 @@
       }
   }
 
+  /**
+   * @param {{ site: { isBroken: any; allowlisted: any; enabledFeatures: string | any[]; }; }} args
+   * @param {string} feature
+   */
   function isFeatureBroken (args, feature) {
       return args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
   }
 
   /**
    * For each property defined on the object, update it with the target value.
+   * @param {string} name
+   * @param {{ object: any; origValue: any; targetValue: any; }} prop
    */
   function overrideProperty (name, prop) {
       // Don't update if existing value is undefined or null
@@ -840,12 +868,20 @@
       return prop.origValue
   }
 
+  /**
+   * @param {typeof globalThis} object
+   * @param {PropertyKey} propertyName
+   * @param {PropertyDescriptor & ThisType<any>} descriptor
+   */
   function defineProperty (object, propertyName, descriptor) {
       {
           Object.defineProperty(object, propertyName, descriptor);
       }
   }
 
+  /**
+   * @param {string} dashCaseText
+   */
   function camelcase (dashCaseText) {
       return dashCaseText.replace(/-(.)/g, (match, letter) => {
           return letter.toUpperCase()
@@ -876,8 +912,13 @@
 
   /**
    * @template {object} P
+   * @typedef {(target: object, thisArg: P, args: object) => void} ApplyMethod<P>
+   */
+
+  /**
+   * @template {object} P
    * @typedef {object} ProxyObject<P>
-   * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+   * @property {ApplyMethod<P>} apply?
    */
 
   /**
@@ -895,6 +936,7 @@
           this.property = property;
           this.featureName = featureName;
           this.camelFeatureName = camelcase(this.featureName);
+          /** @type ApplyMethod<P> */
           const outputHandler = (...args) => {
               const isExempt = shouldExemptMethod(this.camelFeatureName);
               if (debug) {
@@ -902,7 +944,7 @@
                       action: isExempt ? 'ignore' : 'restrict',
                       kind: this.property,
                       documentUrl: document.location.href,
-                      stack: new Error().stack,
+                      stack: new Error().stack || '',
                       args: JSON.stringify(args[2])
                   });
               }
@@ -928,6 +970,10 @@
       }
   }
 
+  /**
+   * @param {any} feature
+   * @param {{ action: string; kind: string; documentUrl: string; stack: string; args: string; }} message
+   */
   function postDebugMessage (feature, message) {
       globalObj.postMessage({
           action: feature,
@@ -1056,7 +1102,7 @@
       const featureName = 'fingerprinting-audio';
 
       // In place modify array data to remove fingerprinting
-      function transformArrayData (channelData, domainKey, sessionKey, thisArg) {
+      function transformArrayData (channelData, domainKey, sessionKey, thisArg, args) {
           let { audioKey } = getCachedResponse(thisArg, args);
           if (!audioKey) {
               let cdSum = 0;
@@ -1164,7 +1210,7 @@
    * as well as prevent any script from listening to events.
    */
   function init$b (args) {
-      if (globalThis.navigator.getBattery) {
+      if ('getBattery' in globalThis.navigator) {
           const BatteryManager = globalThis.BatteryManager;
 
           const spoofedValues = {
@@ -2158,15 +2204,24 @@
   var seedrandom = sr;
 
   /**
+   * @typedef {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} CanvasContext
+   */
+
+  /**
    * @param {HTMLCanvasElement} canvas
    * @param {string} domainKey
    * @param {string} sessionKey
    * @param {any} getImageDataProxy
-   * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
+   * @param {CanvasContext} ctx?
+   * @return {{offScreenCanvas: HTMLCanvasElement, offScreenCtx: CanvasContext}?}
    */
   function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
       if (!ctx) {
-          ctx = canvas.getContext('2d');
+          const newCtx = canvas.getContext('2d');
+          if (newCtx === null) {
+              return null
+          }
+          ctx = newCtx;
       }
 
       // Make a off-screen canvas and put the data there
@@ -2174,6 +2229,9 @@
       offScreenCanvas.width = canvas.width;
       offScreenCanvas.height = canvas.height;
       const offScreenCtx = offScreenCanvas.getContext('2d');
+      if (offScreenCtx === null) {
+          return null
+      }
 
       let rasterizedCtx = ctx;
       // If we're not a 2d canvas we need to rasterise first into 2d
@@ -2517,6 +2575,7 @@
 
       overrideProperty('keyboard', {
           object: Navigator.prototype,
+          // @ts-ignore
           origValue: navigator.keyboard,
           targetValue: undefined
       });
@@ -2527,6 +2586,7 @@
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
+          // @ts-ignore
           origValue: navigator.deviceMemory,
           targetValue: 8
       });
@@ -2587,11 +2647,12 @@
               setWindowPropertyValue('screenTop', normalizedY);
           }
 
-          if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
-              setWindowPropertyValue('outerHeight', top.window.screen.height);
+          const outerHeight = top?.window.outerHeight || 0;
+          if (outerHeight >= origPropertyValues.availHeight - 1) {
+              setWindowPropertyValue('outerHeight', top?.window.screen.height);
           } else {
               try {
-                  setWindowPropertyValue('outerHeight', top.window.outerHeight);
+                  setWindowPropertyValue('outerHeight', top?.window.outerHeight);
               } catch (e) {
                   // top not accessible to certain iFrames, so ignore.
               }
@@ -2605,11 +2666,12 @@
               setWindowPropertyValue('screenLeft', normalizedX);
           }
 
-          if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
-              setWindowPropertyValue('outerWidth', top.window.screen.width);
+          const outerWidth = top?.window.outerWidth || 0;
+          if (outerWidth >= origPropertyValues.availWidth - 1) {
+              setWindowPropertyValue('outerWidth', top?.window.screen.width);
           } else {
               try {
-                  setWindowPropertyValue('outerWidth', top.window.outerWidth);
+                  setWindowPropertyValue('outerWidth', top?.window.outerWidth);
               } catch (e) {
                   // top not accessible to certain iFrames, so ignore.
               }
@@ -2619,17 +2681,20 @@
       }
   }
 
+  // @ts-ignore
   function init$8 (args) {
       const Screen = globalThis.Screen;
       const screen = globalThis.screen;
 
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
+          // @ts-ignore
           origValue: screen.availTop,
           targetValue: 0
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
+          // @ts-ignore
           origValue: screen.availLeft,
           targetValue: 0
       });

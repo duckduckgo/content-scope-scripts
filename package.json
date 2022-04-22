@@ -35,7 +35,6 @@
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.0.0",
     "jasmine": "^4.1.0",
     "puppeteer": "^13.6.0",
     "rollup": "^2.70.2",

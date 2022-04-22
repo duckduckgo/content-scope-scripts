@@ -6,6 +6,7 @@ export function init (args) {
 
     overrideProperty('keyboard', {
         object: Navigator.prototype,
+        // @ts-ignore
         origValue: navigator.keyboard,
         targetValue: undefined
     })
@@ -16,6 +17,7 @@ export function init (args) {
     })
     overrideProperty('deviceMemory', {
         object: Navigator.prototype,
+        // @ts-ignore
         origValue: navigator.deviceMemory,
         targetValue: 8
     })

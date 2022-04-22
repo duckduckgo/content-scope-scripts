@@ -8,18 +8,30 @@ const globalObj = typeof window === 'undefined' ? globalThis : window
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 
+/**
+ * @param {string} sessionKey
+ * @param {string} domainKey
+ * @param {number} inputData
+ */
 export function getDataKeySync (sessionKey, domainKey, inputData) {
     // eslint-disable-next-line new-cap
     const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256)
     return sjcl.codec.hex.fromBits(hmac.encrypt(inputData))
 }
 
-// linear feedback shift register to find a random approximation
+/**
+ * Linear feedback shift register to find a random approximation
+ * @param {number} v
+ */
 export function nextRandom (v) {
     return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)))
 }
 
 const exemptionLists = {}
+/**
+ * @param {string | number} type
+ * @param {string} url
+ */
 export function shouldExemptUrl (type, url) {
     for (const regex of exemptionLists[type]) {
         if (regex.test(url)) {
@@ -31,6 +43,9 @@ export function shouldExemptUrl (type, url) {
 
 let debug = false
 
+/**
+ * @param {{ debug?: any; stringExemptionLists?: any; }} args
+ */
 export function initStringExemptionLists (args) {
     const { stringExemptionLists } = args
     debug = args.debug
@@ -42,14 +57,17 @@ export function initStringExemptionLists (args) {
     }
 }
 
-// Checks the stack trace if there are known libraries that are broken.
+/**
+ * Checks the stack trace if there are known libraries that are broken.
+ * @param {string} type
+ */
 export function shouldExemptMethod (type) {
     // Short circuit stack tracing if we don't have checks
     if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
         return false
     }
     try {
-        const errorLines = new Error().stack.split('\n')
+        const errorLines = new Error().stack?.split('\n') || []
         const errorFiles = new Set()
         // Should cater for Chrome and Firefox stacks, we only care about https? resources.
         const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/
@@ -73,7 +91,11 @@ export function shouldExemptMethod (type) {
     return false
 }
 
-// Iterate through the key, passing an item index and a byte to be modified
+/**
+ * Iterate through the key, passing an item index and a byte to be modified
+ * @param {any} key
+ * @param {{ (item: any, byte: any): void; (arg0: any, arg1: any): any; }} callback
+ */
 export function iterateDataKey (key, callback) {
     let item = key.charCodeAt(0)
     for (const i in key) {
@@ -94,12 +116,18 @@ export function iterateDataKey (key, callback) {
     }
 }
 
+/**
+ * @param {{ site: { isBroken: any; allowlisted: any; enabledFeatures: string | any[]; }; }} args
+ * @param {string} feature
+ */
 export function isFeatureBroken (args, feature) {
     return args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
 }
 
 /**
  * For each property defined on the object, update it with the target value.
+ * @param {string} name
+ * @param {{ object: any; origValue: any; targetValue: any; }} prop
  */
 export function overrideProperty (name, prop) {
     // Don't update if existing value is undefined or null
@@ -123,6 +151,11 @@ export function overrideProperty (name, prop) {
     return prop.origValue
 }
 
+/**
+ * @param {typeof globalThis} object
+ * @param {PropertyKey} propertyName
+ * @param {PropertyDescriptor & ThisType<any>} descriptor
+ */
 export function defineProperty (object, propertyName, descriptor) {
     if (hasMozProxies) {
         const usedObj = object.wrappedJSObject
@@ -147,6 +180,9 @@ export function defineProperty (object, propertyName, descriptor) {
     }
 }
 
+/**
+ * @param {string} dashCaseText
+ */
 function camelcase (dashCaseText) {
     return dashCaseText.replace(/-(.)/g, (match, letter) => {
         return letter.toUpperCase()
@@ -177,8 +213,13 @@ export function getFeatureSettingEnabled (featureName, args, prop) {
 
 /**
  * @template {object} P
+ * @typedef {(target: object, thisArg: P, args: object) => void} ApplyMethod<P>
+ */
+
+/**
+ * @template {object} P
  * @typedef {object} ProxyObject<P>
- * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+ * @property {ApplyMethod<P>} apply?
  */
 
 /**
@@ -196,6 +237,7 @@ export class DDGProxy {
         this.property = property
         this.featureName = featureName
         this.camelFeatureName = camelcase(this.featureName)
+        /** @type ApplyMethod<P> */
         const outputHandler = (...args) => {
             const isExempt = shouldExemptMethod(this.camelFeatureName)
             if (debug) {
@@ -203,7 +245,7 @@ export class DDGProxy {
                     action: isExempt ? 'ignore' : 'restrict',
                     kind: this.property,
                     documentUrl: document.location.href,
-                    stack: new Error().stack,
+                    stack: new Error().stack || '',
                     args: JSON.stringify(args[2])
                 })
             }
@@ -238,6 +280,10 @@ export class DDGProxy {
     }
 }
 
+/**
+ * @param {any} feature
+ * @param {{ action: string; kind: string; documentUrl: string; stack: string; args: string; }} message
+ */
 export function postDebugMessage (feature, message) {
     globalObj.postMessage({
         action: feature,
