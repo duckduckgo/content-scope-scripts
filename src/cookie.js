@@ -1,13 +1,13 @@
 export class Cookie {
     constructor (cookieString) {
+        this.attrIdx = {}
         this.parts = cookieString.split(';')
         this.parse()
     }
 
     parse () {
         const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain'])
-        this.attrIdx = {}
-        this.parts.forEach((part, index) => {
+        for (const [part, index] of this.parts) {
             const kv = part.split('=', 1)
             const attribute = kv[0].trim()
             const value = part.slice(kv[0].length + 1)
@@ -18,7 +18,7 @@ export class Cookie {
                 this[attribute.toLowerCase()] = value
                 this.attrIdx[attribute.toLowerCase()] = index
             }
-        })
+        }
     }
 
     getExpiry () {

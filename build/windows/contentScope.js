@@ -1431,18 +1431,30 @@
   let globalObj = typeof window === 'undefined' ? globalThis : window;
   let Error$1 = globalObj.Error;
 
+  /**
+   * @param {string} sessionKey
+   * @param {string} domainKey
+   * @param {number} inputData
+   */
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
       const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256);
       return sjcl.codec.hex.fromBits(hmac.encrypt(inputData))
   }
 
-  // linear feedback shift register to find a random approximation
+  /**
+   * Linear feedback shift register to find a random approximation
+   * @param {number} v
+   */
   function nextRandom (v) {
       return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)))
   }
 
   const exemptionLists = {};
+  /**
+   * @param {string | number} type
+   * @param {string} url
+   */
   function shouldExemptUrl (type, url) {
       for (const regex of exemptionLists[type]) {
           if (regex.test(url)) {
@@ -1454,6 +1466,9 @@
 
   let debug = false;
 
+  /**
+   * @param {{ debug?: any; stringExemptionLists?: any; }} args
+   */
   function initStringExemptionLists (args) {
       const { stringExemptionLists } = args;
       debug = args.debug;
@@ -1550,7 +1565,10 @@
       return origins
   }
 
-  // Checks the stack trace if there are known libraries that are broken.
+  /**
+   * Checks the stack trace if there are known libraries that are broken.
+   * @param {string} type
+   */
   function shouldExemptMethod (type) {
       // Short circuit stack tracing if we don't have checks
       if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
@@ -1566,7 +1584,11 @@
       return false
   }
 
-  // Iterate through the key, passing an item index and a byte to be modified
+  /**
+   * Iterate through the key, passing an item index and a byte to be modified
+   * @param {any} key
+   * @param {{ (item: any, byte: any): void; (arg0: any, arg1: any): any; }} callback
+   */
   function iterateDataKey (key, callback) {
       let item = key.charCodeAt(0);
       for (const i in key) {
@@ -1587,6 +1609,10 @@
       }
   }
 
+  /**
+   * @param {{ site: { isBroken: any; allowlisted: any; enabledFeatures: string | any[]; }; }} args
+   * @param {string} feature
+   */
   function isFeatureBroken (args, feature) {
       return isWindowsSpecificFeature(feature)
           ? !args.site.enabledFeatures.includes(feature)
@@ -1595,6 +1621,8 @@
 
   /**
    * For each property defined on the object, update it with the target value.
+   * @param {string} name
+   * @param {{ object: any; origValue: any; targetValue: any; }} prop
    */
   function overrideProperty (name, prop) {
       // Don't update if existing value is undefined or null
@@ -1618,12 +1646,20 @@
       return prop.origValue
   }
 
+  /**
+   * @param {typeof globalThis} object
+   * @param {PropertyKey} propertyName
+   * @param {PropertyDescriptor & ThisType<any>} descriptor
+   */
   function defineProperty (object, propertyName, descriptor) {
       {
           Object.defineProperty(object, propertyName, descriptor);
       }
   }
 
+  /**
+   * @param {string} dashCaseText
+   */
   function camelcase (dashCaseText) {
       return dashCaseText.replace(/-(.)/g, (match, letter) => {
           return letter.toUpperCase()
@@ -1637,7 +1673,7 @@
 
       // Best guess if the device is an Apple Silicon
       // https://stackoverflow.com/a/65412357
-      return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1
+      return gl && gl.getSupportedExtensions()?.indexOf('WEBGL_compressed_texture_etc') !== -1
   }
 
   /**
@@ -1735,8 +1771,13 @@
 
   /**
    * @template {object} P
+   * @typedef {(target: object, thisArg: P, args: object) => void} ApplyMethod<P>
+   */
+
+  /**
+   * @template {object} P
    * @typedef {object} ProxyObject<P>
-   * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+   * @property {ApplyMethod<P>} apply?
    */
 
   /**
@@ -1754,6 +1795,7 @@
           this.property = property;
           this.featureName = featureName;
           this.camelFeatureName = camelcase(this.featureName);
+          /** @type ApplyMethod<P> */
           const outputHandler = (...args) => {
               const isExempt = shouldExemptMethod(this.camelFeatureName);
               if (debug) {
@@ -1787,6 +1829,22 @@
       }
   }
 
+  /**
+   * @typedef debugMessage
+   * @property {string} action
+   * @property {string} [reason]
+   * @property {string} [kind]
+   * @property {string} documentUrl
+   * @property {string | undefined} stack
+   * @property {string} [args]
+   * @property {string[]} [scriptOrigins]
+   * @property {any} [value]
+   */
+
+  /**
+   * @param {any} feature
+   * @param {debugMessage} message
+   */
   function postDebugMessage (feature, message) {
       if (message.stack) {
           const scriptOrigins = [...getStackTraceOrigins(message.stack)];
@@ -1923,14 +1981,14 @@
 
   class Cookie {
       constructor (cookieString) {
+          this.attrIdx = {};
           this.parts = cookieString.split(';');
           this.parse();
       }
 
       parse () {
           const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
-          this.attrIdx = {};
-          this.parts.forEach((part, index) => {
+          for (const [part, index] of this.parts) {
               const kv = part.split('=', 1);
               const attribute = kv[0].trim();
               const value = part.slice(kv[0].length + 1);
@@ -1941,7 +1999,7 @@
                   this[attribute.toLowerCase()] = value;
                   this.attrIdx[attribute.toLowerCase()] = index;
               }
-          });
+          }
       }
 
       getExpiry () {
@@ -2148,8 +2206,11 @@
       // The cookie policy is injected into every frame immediately so that no cookie will
       // be missed.
       const document = globalThis.document;
-      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
-      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
+      const cookieDescriptor = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie');
+      if (!cookieDescriptor) return
+      const cookieSetter = cookieDescriptor.set;
+      const cookieGetter = cookieDescriptor.get;
+      if (!cookieSetter || !cookieGetter) return
 
       const loadPolicy = new Promise((resolve) => {
           loadedPolicyResolve = resolve;
@@ -2407,7 +2468,7 @@
       const featureName = 'fingerprinting-audio';
 
       // In place modify array data to remove fingerprinting
-      function transformArrayData (channelData, domainKey, sessionKey, thisArg) {
+      function transformArrayData (channelData, domainKey, sessionKey, thisArg, args) {
           let { audioKey } = getCachedResponse(thisArg, args);
           if (!audioKey) {
               let cdSum = 0;
@@ -2515,7 +2576,7 @@
    * as well as prevent any script from listening to events.
    */
   function init$a (args) {
-      if (globalThis.navigator.getBattery) {
+      if ('getBattery' in globalThis.navigator) {
           const BatteryManager = globalThis.BatteryManager;
 
           const spoofedValues = {
@@ -3509,15 +3570,24 @@
   var seedrandom = sr;
 
   /**
+   * @typedef {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} CanvasContext
+   */
+
+  /**
    * @param {HTMLCanvasElement} canvas
    * @param {string} domainKey
    * @param {string} sessionKey
    * @param {any} getImageDataProxy
-   * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
+   * @param {CanvasContext} ctx?
+   * @return {{offScreenCanvas: HTMLCanvasElement, offScreenCtx: CanvasContext}?}
    */
   function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
       if (!ctx) {
-          ctx = canvas.getContext('2d');
+          const newCtx = canvas.getContext('2d');
+          if (newCtx === null) {
+              return null
+          }
+          ctx = newCtx;
       }
 
       // Make a off-screen canvas and put the data there
@@ -3525,6 +3595,9 @@
       offScreenCanvas.width = canvas.width;
       offScreenCanvas.height = canvas.height;
       const offScreenCtx = offScreenCanvas.getContext('2d');
+      if (offScreenCtx === null) {
+          return null
+      }
 
       let rasterizedCtx = ctx;
       // If we're not a 2d canvas we need to rasterise first into 2d
@@ -3872,6 +3945,7 @@
 
       overrideProperty('keyboard', {
           object: Navigator.prototype,
+          // @ts-ignore
           origValue: navigator.keyboard,
           targetValue: getFeatureAttr(featureName$1, args, 'keyboard')
       });
@@ -3882,6 +3956,7 @@
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
+          // @ts-ignore
           origValue: navigator.deviceMemory,
           targetValue: getFeatureAttr(featureName$1, args, 'deviceMemory', 8)
       });
@@ -3944,11 +4019,12 @@
               setWindowPropertyValue('screenTop', normalizedY);
           }
 
-          if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
-              setWindowPropertyValue('outerHeight', top.window.screen.height);
+          const outerHeight = top?.window.outerHeight || 0;
+          if (outerHeight >= origPropertyValues.availHeight - 1) {
+              setWindowPropertyValue('outerHeight', top?.window.screen.height);
           } else {
               try {
-                  setWindowPropertyValue('outerHeight', top.window.outerHeight);
+                  setWindowPropertyValue('outerHeight', top?.window.outerHeight);
               } catch (e) {
                   // top not accessible to certain iFrames, so ignore.
               }
@@ -3962,11 +4038,12 @@
               setWindowPropertyValue('screenLeft', normalizedX);
           }
 
-          if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
-              setWindowPropertyValue('outerWidth', top.window.screen.width);
+          const outerWidth = top?.window.outerWidth || 0;
+          if (outerWidth >= origPropertyValues.availWidth - 1) {
+              setWindowPropertyValue('outerWidth', top?.window.screen.width);
           } else {
               try {
-                  setWindowPropertyValue('outerWidth', top.window.outerWidth);
+                  setWindowPropertyValue('outerWidth', top?.window.outerWidth);
               } catch (e) {
                   // top not accessible to certain iFrames, so ignore.
               }
@@ -3976,17 +4053,20 @@
       }
   }
 
+  // @ts-ignore
   function init$7 (args) {
       const Screen = globalThis.Screen;
       const screen = globalThis.screen;
 
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
+          // @ts-ignore
           origValue: screen.availTop,
           targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
+          // @ts-ignore
           origValue: screen.availLeft,
           targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
       });

@@ -6,7 +6,7 @@ export function init (args) {
     const featureName = 'fingerprinting-audio'
 
     // In place modify array data to remove fingerprinting
-    function transformArrayData (channelData, domainKey, sessionKey, thisArg) {
+    function transformArrayData (channelData, domainKey, sessionKey, thisArg, args) {
         let { audioKey } = getCachedResponse(thisArg, args)
         if (!audioKey) {
             let cdSum = 0
