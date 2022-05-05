@@ -7,7 +7,7 @@
     "build": "npm run build-firefox && npm run build-chrome && npm run build-apple && npm run build-integration",
     "build-firefox": "mkdir -p build/firefox/ && node scripts/inject.mjs firefox > build/firefox/inject.js",
     "build-chrome": "mkdir -p build/chrome/ && node scripts/inject.mjs chrome > build/chrome/inject.js",
-    "build-apple": "mkdir -p build/apple/ && node scripts/inject.mjs apple > build/apple/contentScope.js",
+    "build-apple": "mkdir -p swift-package/Resources/assets/ && node scripts/inject.mjs apple > swift-package/Resources/assets/contentScope.js",
     "build-integration": "mkdir -p build/integration/ && node scripts/inject.mjs integration > build/integration/contentScope.js && npm run copy-build-integration",
     "copy-build-integration": "cp build/integration/contentScope.js integration-test/extension",
     "tsc": "tsc",
