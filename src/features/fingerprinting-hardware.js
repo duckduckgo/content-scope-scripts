@@ -1,4 +1,5 @@
-import { overrideProperty } from '../utils'
+import { overrideProperty, getFeatureSetting } from '../utils'
+const featureName = "fingerprinting-hardware";
 
 export function init (args) {
     const Navigator = globalThis.Navigator
@@ -7,16 +8,16 @@ export function init (args) {
     overrideProperty('keyboard', {
         object: Navigator.prototype,
         origValue: navigator.keyboard,
-        targetValue: undefined
+        targetValue: getFeatureSetting(featureName, args, 'keyboard') || undefined
     })
     overrideProperty('hardwareConcurrency', {
         object: Navigator.prototype,
         origValue: navigator.hardwareConcurrency,
-        targetValue: 2
+        targetValue: getFeatureSetting(featureName, args, 'hardwareConcurrency') || 2
     })
     overrideProperty('deviceMemory', {
         object: Navigator.prototype,
         origValue: navigator.deviceMemory,
-        targetValue: 8
+        targetValue: getFeatureSetting(featureName, args, 'deviceMemory') || 8
     })
 }

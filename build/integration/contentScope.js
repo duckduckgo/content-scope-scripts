@@ -2462,6 +2462,8 @@
     init: init$a
   });
 
+  const featureName = "fingerprinting-hardware";
+
   function init$9 (args) {
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
@@ -2469,17 +2471,17 @@
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
-          targetValue: undefined
+          targetValue: getFeatureSetting(featureName, args, 'keyboard') || undefined
       });
       overrideProperty('hardwareConcurrency', {
           object: Navigator.prototype,
           origValue: navigator.hardwareConcurrency,
-          targetValue: 2
+          targetValue: getFeatureSetting(featureName, args, 'hardwareConcurrency') || 2
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
           origValue: navigator.deviceMemory,
-          targetValue: 8
+          targetValue: getFeatureSetting(featureName, args, 'deviceMemory') || 8
       });
   }
 
