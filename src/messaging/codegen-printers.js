@@ -24,7 +24,7 @@ export function printJs (groups) {
  * @param {object} args
  * @param {string} args.linkImportText
  */
-function printTypeDefs (int, args) {
+export function printTypeDefs (int, args) {
     const { linkImportText } = args
 
     let output = ''
@@ -33,7 +33,6 @@ function printTypeDefs (int, args) {
     lines.push(`@link {${linkImportText}}`)
     lines.push(...printInterfaceHeading(int))
     for (const member of int.members) {
-        // lines.push(memComment)
         if (member.name === '[index: string]') continue
         lines.push(...printMember(member))
     }
@@ -45,7 +44,7 @@ function printTypeDefs (int, args) {
  * @param {import("./codegen").Member} member
  * @returns {(string|undefined)[]}
  */
-function printMember (member) {
+export function printMember (member) {
     const elements = [
         `@property {${member.type}}`,
         printMemberName(member),
@@ -64,7 +63,7 @@ function printMember (member) {
 /**
  * @param {import("./codegen").Member} member
  */
-function printMemberName (member) {
+export function printMemberName (member) {
     if (member.required) return member.name
     return `[${member.name}]`
 }
@@ -73,7 +72,7 @@ function printMemberName (member) {
  * @param {import("./codegen.js").Interface} int
  * @returns {string[]}
  */
-function printInterfaceHeading (int) {
+export function printInterfaceHeading (int) {
     const multiDesc = int.description?.includes('\n')
     if (int.members.length === 1) {
         if (int.members[0].name === '[index: string]') {
@@ -103,7 +102,11 @@ function printInterfaceHeading (int) {
     return [elements.filter(Boolean).join(' ')]
 }
 
-function printComments (lines) {
+/**
+ * @param {string[]} lines
+ * @returns {string}
+ */
+export function printComments (lines) {
     const start = '/**'
     const end = ' */'
     const inner = lines.map(x => ' * ' + x)

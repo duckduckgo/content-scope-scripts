@@ -1,8 +1,9 @@
-import { fromInputs, parse } from '../src/messaging/codegen.js'
+import { fromInputs } from '../src/messaging/codegen.js'
+import { printComments, printInterfaceHeading, printMember } from '../src/messaging/codegen-printers.js'
 
-describe('code generation', () => {
+fdescribe('code generation', () => {
     describe('for a message', () => {
-        fit('should generate types + message implementation', () => {
+        it('should generate types + message implementation', () => {
             const requestSchema = {
                 $schema: 'http://json-schema.org/draft-07/schema#',
                 $id: '#/definitions/GetAutofillDataRequest',
@@ -96,6 +97,79 @@ describe('code generation', () => {
  */
 `
             expect(types).toBe(expected)
+        })
+    })
+    describe('when printing', () => {
+        describe('interface headings', () => {
+            it('should print with type inline when it is a record', () => {
+                const lines = printInterfaceHeading({
+                    name: 'Foo',
+                    title: 'A title',
+                    description: 'A Description',
+                    source: 'hello',
+                    members: [
+                        { name: '[index: string]', type: ['Settings'] }
+                    ]
+                })
+                expect(lines[0]).toBe('@typedef {Record<string, Settings>} Foo A title A Description')
+            })
+            it('should not print type where there are multiple members', () => {
+                const lines = printInterfaceHeading({
+                    name: 'Foo',
+                    title: 'A title',
+                    description: 'A Description',
+                    source: 'hello',
+                    members: [
+                        { name: 'bar', type: ['Bar'] },
+                        { name: 'baz', type: ['Baz'] }
+                    ]
+                })
+                expect(lines[0]).toBe('@typedef Foo A title A Description')
+            })
+            it('should split the description over 2 lines', () => {
+                const lines = printInterfaceHeading({
+                    name: 'Foo',
+                    title: 'A title',
+                    description: 'A Description\nover two lines',
+                    source: 'hello',
+                    members: [
+                        { name: 'bar', type: ['Bar'] },
+                        { name: 'baz', type: ['Baz'] }
+                    ]
+                })
+                expect(lines[0]).toBe('@typedef Foo A title')
+                expect(lines[1]).toBe('A Description')
+                expect(lines[2]).toBe('over two lines')
+            })
+        })
+        describe('comments', () => {
+            it('should print lines', () => {
+                const actual = printComments(['foo', 'bar', 'baz'])
+                expect(actual).toBe(`/**
+ * foo
+ * bar
+ * baz
+ */`)
+                console.log(actual)
+            })
+        })
+        describe('members', () => {
+            it('prints when required', () => {
+                const lines = printMember({
+                    name: 'bar',
+                    type: ['Bar'],
+                    required: true
+                })
+                expect(lines[0]).toBe('@property {Bar} bar')
+            })
+            it('prints when optional', () => {
+                const lines = printMember({
+                    name: 'bar',
+                    type: ['Bar'],
+                    required: false
+                })
+                expect(lines[0]).toBe('@property {Bar} [bar]')
+            })
         })
     })
 })
