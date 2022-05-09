@@ -34,40 +34,11 @@ import { printJs } from './codegen-printers.js'
 
 /**
  * @param {import('json-schema').JSONSchema7} value
- * @param {Member[]} members
  * @param {string} propName
  */
-function processString (value, members, propName) {
-    if (value.const) {
-        members.push({
-            name: propName,
-            type: [JSON.stringify(value.const)],
-            title: value.title,
-            description: value.description
-        })
-    } else if (value.enum) {
-        members.push({
-            name: propName,
-            type: [value.enum.map(x => JSON.stringify(x)).join(' | ')],
-            title: value.title,
-            description: value.description
-        })
-    } else { // base case
-        members.push({
-            name: propName,
-            type: ['string'],
-            title: value.title,
-            description: value.description
-        })
-    }
-}
-
-/**
- * @param {import('json-schema').JSONSchema7} value
- * @param {Member[]} members
- * @param {string} propName
- */
-function processArray (value, members, propName) {
+function processArray (value, propName) {
+    /** @type {Member[]} */
+    const members = []
     const arrayMembers = []
     if (typeof value.items === 'boolean') {
         /** noop */
@@ -85,17 +56,19 @@ function processArray (value, members, propName) {
             type: [formatArrayMembers(arrayMembers)]
         })
     }
+    return members
 }
 
 /**
  * @param {import("json-schema").JSONSchema7} value
  * @param {string | string[]} localRefs
  * @param {ObjectArgs} args
- * @param {Member[]} members
  * @param {string} propName
  * @param {string} identPrefix
  */
-function processUnknown (value, localRefs, args, members, propName, identPrefix) {
+function processUnknown (value, localRefs, args, propName, identPrefix) {
+    /** @type {Member[]} */
+    const members = []
     if (!value.type) {
         if (value?.$ref) {
             let name = identName(value.$ref)
@@ -122,27 +95,161 @@ function processUnknown (value, localRefs, args, members, propName, identPrefix)
         }
         return name
     }
+
+    return members
 }
 
-/**
- * @param {ParseArgs} args
- * @returns {Interface[]}
- */
-export function parse (args) {
+class Parser {
+    /** @type {ParseArgs} */
+    args
+
     /** @type {Interface[]} */
-    const interfaces = []
+    interfaces = [];
+
+    constructor (args) {
+        this.args = args
+    }
+
+    parse () {
+        this.processOne(this.args)
+        return this.interfaces
+    }
+
+    /**
+     * @param {ParseArgs} args
+     * @returns {Interface[]}
+     */
+    processOne (args) {
+        const { json, input, knownId, identPrefix, localRefs, topName } = args
+        if (!json.$id && !knownId) {
+            console.log('no json.$id or knownId', json)
+            return this.interfaces
+        }
+        if (!knownId && !json.$id.startsWith('#/definitions/')) {
+            console.log('cannot find name')
+            return this.interfaces
+        }
+        const parentName = knownId || json.$id?.slice(14)
+        if (!parentName) {
+            throw new Error('unreachable name should exist')
+        }
+        /** @type {Member[]} */
+        const members = []
+        const hasProps = Boolean(json.properties)
+        const isObject = json.type === 'object'
+        if (hasProps) {
+            members.push(...this.processProperties(json, input, identPrefix, localRefs, parentName, topName))
+        } else {
+            if (isObject) {
+                if (json.additionalProperties) {
+                    if (typeof json.additionalProperties === 'boolean') {
+                        members.push({ name: '[index: string]', type: ['unknown'], required: true })
+                    } else {
+                        if (json.additionalProperties.$ref) {
+                            // members.push()
+                            let topName = json.additionalProperties.$ref?.slice(14)
+                            if (identPrefix) {
+                                topName = identPrefix + topName
+                            }
+                            members.push({ name: '[index: string]', type: [topName], required: true })
+                        }
+                    }
+                }
+            }
+        }
+        if (json.definitions) {
+            for (const [defName, defValue] of Object.entries(json.definitions)) {
+                const ident = parentName + defName
+                if (typeof defValue === 'boolean') {
+                    /** noop */
+                } else {
+                    this.processOne({ json: defValue, input: input, knownId: ident, identPrefix: parentName, localRefs, topName })
+                }
+            }
+        }
+        this.interfaces.push({
+            name: parentName,
+            members,
+            source: input.relative,
+            description: json.description,
+            title: parentName !== json.title ? json.title : undefined
+        })
+    }
+
+    processProperties (json, input, identPrefix, localRefs, parentName, topName) {
+        /** @type {Member[]} */
+        const members = []
+        for (const [propName, value] of Object.entries(json.properties || {})) {
+            const required = json.required?.includes(propName)
+            if (typeof value === 'boolean') {
+                /** Noop */
+            } else {
+                const thisId = value?.$id?.slice(14)
+                const innerMembers = this.processObject({
+                    value: value,
+                    propName: propName,
+                    ident: thisId,
+                    input: input,
+                    identPrefix,
+                    localRefs,
+                    parentName,
+                    topName
+                })
+                const mapped = innerMembers.map(x => {
+                    /** @type {Member} */
+                    const memberMarkedAsRequired = { ...x, required }
+                    return memberMarkedAsRequired
+                })
+                members.push(...mapped)
+            }
+        }
+        return members
+    }
+
+    /**
+     * @param {import('json-schema').JSONSchema7} value
+     * @param {string} propName
+     * @returns {Member[]} member
+     */
+    processString (value, propName) {
+        /** @type {Member[]} */
+        const members = []
+        if (value.const) {
+            members.push({
+                name: propName,
+                type: [JSON.stringify(value.const)],
+                title: value.title,
+                description: value.description
+            })
+        } else if (value.enum) {
+            members.push({
+                name: propName,
+                type: [value.enum.map(x => JSON.stringify(x)).join(' | ')],
+                title: value.title,
+                description: value.description
+            })
+        } else { // base case
+            members.push({
+                name: propName,
+                type: ['string'],
+                title: value.title,
+                description: value.description
+            })
+        }
+        return members
+    }
 
     /**
      * @param {ObjectArgs} args;
      * @returns {Member[]}
      */
-    function processObject (args) {
+    processObject (args) {
         const { value, propName, ident, input, identPrefix, localRefs, topName } = args
         /** @type {Member[]} */
         const members = []
         switch (value.type) {
         case 'string': {
-            processString(value, members, propName)
+            members.push(...this.processString(value, propName))
             break
         }
         case 'number': {
@@ -180,7 +287,7 @@ export function parse (args) {
                     })
                 }
                 if (ident || propName === 'success') {
-                    processOne({
+                    this.processOne({
                         json: value,
                         input: input,
                         topName
@@ -190,93 +297,12 @@ export function parse (args) {
             break
         }
         case 'array': {
-            processArray(value, members, propName)
+            members.push(...processArray(value, propName))
         }
         }
-        processUnknown(value, localRefs, args, members, propName, identPrefix)
+        members.push(...processUnknown(value, localRefs, args, propName, identPrefix))
         return members
     }
-
-    /**
-     * @param {ParseArgs} args
-     * @returns {Interface[]}
-     */
-    function processOne (args) {
-        const { json, input, knownId, identPrefix, localRefs, topName } = args
-        if (!json.$id && !knownId) {
-            console.log('no json.$id or knownId', json)
-            return interfaces
-        }
-        if (!knownId && !json.$id.startsWith('#/definitions/')) {
-            console.log('cannot find name')
-            return interfaces
-        }
-        const parentName = knownId || json.$id?.slice(14)
-        if (!parentName) {
-            throw new Error('unreachable name should exist')
-        }
-        /** @type {Member[]} */
-        const members = []
-        const hasProps = Boolean(json.properties)
-        const isObject = json.type === 'object'
-        if (hasProps) {
-            for (const [propName, value] of Object.entries(json.properties || {})) {
-                const required = json.required?.includes(propName)
-                if (typeof value === 'boolean') {
-                    /** Noop */
-                } else {
-                    const thisId = value?.$id?.slice(14)
-                    const inner = processObject({
-                        value: value,
-                        propName: propName,
-                        ident: thisId,
-                        input: input,
-                        identPrefix,
-                        localRefs,
-                        parentName,
-                        topName
-                    })
-                    members.push(...inner.map(x => ({ ...x, required })))
-                }
-            }
-        } else {
-            if (isObject) {
-                if (json.additionalProperties) {
-                    if (typeof json.additionalProperties === 'boolean') {
-                        members.push({ name: '[index: string]', type: ['unknown'], required: true })
-                    } else {
-                        if (json.additionalProperties.$ref) {
-                            // members.push()
-                            let topName = json.additionalProperties.$ref?.slice(14)
-                            if (identPrefix) {
-                                topName = identPrefix + topName
-                            }
-                            members.push({ name: '[index: string]', type: [topName], required: true })
-                        }
-                    }
-                }
-            }
-        }
-        if (json.definitions) {
-            for (const [defName, defValue] of Object.entries(json.definitions)) {
-                const ident = parentName + defName
-                if (typeof defValue === 'boolean') {
-                    /** noop */
-                } else {
-                    processOne({ json: defValue, input: input, knownId: ident, identPrefix: parentName, localRefs, topName })
-                }
-            }
-        }
-        interfaces.push({
-            name: parentName,
-            members,
-            source: input.relative,
-            description: json.description,
-            title: parentName !== json.title ? json.title : undefined
-        })
-    }
-    processOne(args)
-    return interfaces
 }
 
 /**
@@ -292,7 +318,7 @@ export function fromInputs (inputs) {
         if (!topName) {
             throw new Error('unreachable')
         }
-        const interfaces = parse({ json: input.json, input: input, localRefs: topRefs, topName })
+        const interfaces = new Parser({ json: input.json, input: input, localRefs: topRefs, topName }).parse()
         groups.push({ input, interfaces: interfaces.slice().reverse() })
     }
 

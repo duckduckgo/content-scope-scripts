@@ -170,6 +170,14 @@ fdescribe('code generation', () => {
                 })
                 expect(lines[0]).toBe('@property {Bar} [bar]')
             })
+            // it('prints enum', () => {
+            //     const lines = printMember({
+            //         name: 'bar',
+            //         type: ['Bar', 'Foo', 'baz'],
+            //         required: false
+            //     })
+            //     expect(lines[0]).toBe('@property {Bar | Foo | baz} [bar]')
+            // })
         })
     })
 })
