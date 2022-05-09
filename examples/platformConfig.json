@@ -1,0 +1,48 @@
+{
+  "remote": {
+    "features": {
+      "autofill": {
+        "exceptions": [
+          {
+            "domain": "asana.com",
+            "reason": "site breakage"
+          }
+        ],
+        "state": "enabled",
+        "settings": {
+          "featureToggles": {
+            "inputType.credentials": false,
+            "inputType.identities": false,
+            "inputType.creditCards": false,
+            "inputType.email": false,
+            "password.generation": false,
+            "credentials.save": false
+          }
+        }
+      }
+    },
+    "unprotectedTemporary": []
+  },
+  "user": {
+    "unprotectedDomains": [],
+    "sessionKey": "AF51A265-9ED4-4DC8-81D6-D2F0CEF7335C",
+    "debug": false,
+    "platform": {
+      "name": "macos"
+    },
+    "features": {
+      "autofill": {
+        "settings": {
+          "featureToggles": {
+            "inputType.credentials": false,
+            "inputType.identities": true,
+            "inputType.creditCards": true,
+            "inputType.email": true,
+            "password.generation": true,
+            "credentials.save": true
+          }
+        }
+      }
+    }
+  }
+}

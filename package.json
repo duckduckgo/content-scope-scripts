@@ -1,9 +1,11 @@
 {
   "name": "@duckduckgo/content-scope-scripts",
   "version": "1.1.2",
+  "main": "index.js",
   "scripts": {
-    "postinstall": "npm run copy-sjcl",
-    "copy-sjcl": "node scripts/generateSJCL.js",
+    "postinstall": "echo 'todo(Shane): re-enable this'",
+    "copy-sjcl": "echo 'todo(Shane): re-enable this'",
+    "prebuild": "npm run schema-compile",
     "build": "npm run build-firefox && npm run build-chrome && npm run build-apple && npm run build-integration",
     "build-firefox": "mkdir -p build/firefox/ && node scripts/inject.mjs firefox > build/firefox/inject.js",
     "build-chrome": "mkdir -p build/chrome/ && node scripts/inject.mjs chrome > build/chrome/inject.js",
@@ -14,6 +16,8 @@
     "lint": "eslint . && npm run tsc",
     "lint-no-output-globals": "eslint build/apple/contentScope.js --rule '{\"no-implicit-globals\": [\"error\"]}' --no-ignore --no-eslintrc --parser-options=ecmaVersion:10",
     "lint-fix": "npm run lint -- --fix",
+    "schema-compile": "ajv compile -s src/schema/runtime-configuration.schema.json -o src/schema/validate.cjs",
+    "fetch-remote": "node scripts/pull-remotes.js --css-write-to-disk",
     "test-unit": "jasmine --config=unit-test/config.json",
     "test-int": "npm run build-integration && jasmine --config=integration-test/config.js",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
@@ -26,6 +30,8 @@
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
+    "ajv": "^8.10.0",
+    "ajv-cli": "^5.0.0",
     "@canvas/image-data": "^1.0.0",
     "@fingerprintjs/fingerprintjs": "^3.3.3",
     "@rollup/plugin-commonjs": "^21.1.0",
@@ -40,6 +46,7 @@
     "puppeteer": "^13.7.0",
     "rollup": "^2.71.1",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
-    "typescript": "^4.6.4"
+    "typescript": "^4.6.4",
+    "node-fetch": "^3.2.3"
   }
 }

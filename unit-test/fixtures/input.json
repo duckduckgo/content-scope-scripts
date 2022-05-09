@@ -1,0 +1,29 @@
+{
+  "success": {
+    "contentScope": {
+      "features": {
+        "autofill": {
+          "exceptions": [],
+          "state": "enabled"
+        }
+      },
+      "unprotectedTemporary": []
+    },
+    "userUnprotectedDomains": [],
+    "userPreferences": {
+      "debug": false,
+      "platform": {
+        "name": "macos"
+      },
+      "features": {
+        "autofill": {
+          "settings": {
+            "featureToggles": {
+              "inputType.credentials": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

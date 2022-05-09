@@ -13,5 +13,8 @@
         "webextensions": true,
         "browser": true,
         "jasmine": true
+    },
+    "parserOptions": {
+        "ecmaVersion": "latest"
     }
 }
