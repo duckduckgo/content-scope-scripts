@@ -1,4 +1,4 @@
-import { parse } from '../src/messaging/codegen.js'
+import { fromInputs, parse } from '../src/messaging/codegen.js'
 
 describe('code generation', () => {
     describe('for a message', () => {
@@ -65,7 +65,7 @@ describe('code generation', () => {
                 // @ts-ignore
                 { json: responseSchema, relative: '02.json' }
             ]
-            const { types } = parse(inputs)
+            const { types } = fromInputs(inputs)
             const expected = `// Do not edit, this was created by \`scripts/schema.js\`
 /**
  * @link {import("./01.json")}

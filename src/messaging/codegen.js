@@ -11,9 +11,16 @@ import { printJs } from './codegen-printers.js'
  */
 
 /**
- * @param {Input[]} inputs
+ * @param {object} args
+ * @param {Input} args.input
+ * @param {import('json-schema').JSONSchema7} args.json
+ * @param {string} args.topName
+ * @param {string} [args.knownId]
+ * @param {string} [args.identPrefix]
+ * @param {string[]} [args.localRefs]
+ * @returns {Interface[]}
  */
-export function parse (inputs) {
+export function parse (args) {
     /**
      * @param {object} args;
      * @param {import('json-schema').JSONSchema7} args.value;
@@ -138,19 +145,19 @@ export function parse (inputs) {
         }
     }
 
+    /** @type {Interface[]} */
+    const interfaces = []
+
     /**
      * @param {object} args
      * @param {Input} args.input
-     * @param {Record<string, any>} args.json
+     * @param {import('json-schema').JSONSchema7} args.json
      * @param {string} args.topName
      * @param {string} [args.knownId]
      * @param {string} [args.identPrefix]
      * @param {string[]} [args.localRefs]
      * @returns {Interface[]}
      */
-    /** @type {Interface[]} */
-    let interfaces = []
-
     function processOne (args) {
         const { json, input, knownId, identPrefix, localRefs, topName } = args
         if (!json.$id && !knownId) {
@@ -172,18 +179,22 @@ export function parse (inputs) {
         if (hasProps) {
             for (const [propName, value] of Object.entries(json.properties || {})) {
                 const required = json.required?.includes(propName)
-                const thisId = value?.$id?.slice(14)
-                const inner = processObject({
-                    value: value,
-                    propName: propName,
-                    ident: thisId,
-                    input: input,
-                    identPrefix,
-                    localRefs,
-                    parentName,
-                    topName
-                })
-                members.push(...inner.map(x => ({ ...x, required })))
+                if (typeof value === 'boolean') {
+                    /** Noop */
+                } else {
+                    const thisId = value?.$id?.slice(14)
+                    const inner = processObject({
+                        value: value,
+                        propName: propName,
+                        ident: thisId,
+                        input: input,
+                        identPrefix,
+                        localRefs,
+                        parentName,
+                        topName
+                    })
+                    members.push(...inner.map(x => ({ ...x, required })))
+                }
             }
         } else {
             if (isObject) {
@@ -206,7 +217,11 @@ export function parse (inputs) {
         if (json.definitions) {
             for (const [defName, defValue] of Object.entries(json.definitions)) {
                 const ident = parentName + defName
-                processOne({ json: defValue, input: input, knownId: ident, identPrefix: parentName, localRefs, topName })
+                if (typeof defValue === 'boolean') {
+                    /** noop */
+                } else {
+                    processOne({ json: defValue, input: input, knownId: ident, identPrefix: parentName, localRefs, topName })
+                }
             }
         }
         interfaces.push({
@@ -217,7 +232,14 @@ export function parse (inputs) {
             title: parentName !== json.title ? json.title : undefined
         })
     }
+    processOne(args)
+    return interfaces
+}
 
+/**
+ * @param {Input[]} inputs
+ */
+export function fromInputs (inputs) {
     /** @type {Group[]} */
     const groups = []
 
@@ -227,9 +249,8 @@ export function parse (inputs) {
         if (!topName) {
             throw new Error('unreachable')
         }
-        processOne({ json: input.json, input: input, localRefs: topRefs, topName })
+        const interfaces = parse({ json: input.json, input: input, localRefs: topRefs, topName })
         groups.push({ input, interfaces: interfaces.slice().reverse() })
-        interfaces = []
     }
 
     const ajv = new Ajv({ schemas: inputs.map(x => x.json), code: { source: true }, strict: false })
