@@ -6,7 +6,8 @@
     "noEmit": true,
   },
   "include": [
-    "src/globals.d.ts"
+    "src/globals.d.ts",
+    "src/messaging"
   ],
   "files": [
     "src/canvas.js",

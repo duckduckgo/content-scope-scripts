@@ -11,6 +11,7 @@
     "build-integration": "mkdir -p build/integration/ && node scripts/inject.mjs integration > build/integration/contentScope.js && npm run copy-build-integration",
     "copy-build-integration": "cp build/integration/contentScope.js integration-test/extension",
     "tsc": "tsc",
+    "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc",
     "lint-no-output-globals": "eslint build/apple/contentScope.js --rule '{\"no-implicit-globals\": [\"error\"]}' --no-ignore --no-eslintrc --parser-options=ecmaVersion:10",
     "lint-fix": "npm run lint -- --fix",
