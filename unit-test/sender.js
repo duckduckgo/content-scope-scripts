@@ -76,7 +76,7 @@ describe('Sender', () => {
             }
             expect(callCount).toBe(1)
         })
-        fit('allows data to be altered before response validation occurs', async () => {
+        it('allows data to be altered before response validation occurs', async () => {
             class RecoveringMessage extends Message {
                 preResponseValidation (response) {
                     return { success: 'dax@example.com' }

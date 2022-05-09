@@ -27,6 +27,7 @@
     "sjcl": "^1.0.8"
   },
   "devDependencies": {
+    "ajv": "^8.11.0",
     "@canvas/image-data": "^1.0.0",
     "@fingerprintjs/fingerprintjs": "^3.3.3",
     "@rollup/plugin-commonjs": "^21.1.0",
