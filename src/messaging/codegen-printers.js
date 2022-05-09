@@ -48,7 +48,7 @@ function printTypeDefs (int, args) {
 function printMember (member) {
     const elements = [
         `@property {${member.type}}`,
-        memberName(member),
+        printMemberName(member),
         member.title
     ]
 
@@ -64,7 +64,7 @@ function printMember (member) {
 /**
  * @param {import("./codegen").Member} member
  */
-function memberName (member) {
+function printMemberName (member) {
     if (member.required) return member.name
     return `[${member.name}]`
 }
