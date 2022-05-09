@@ -25,7 +25,6 @@ describe('code generation', () => {
                     }
                 }
             }
-
             const responseSchema = {
                 $schema: 'http://json-schema.org/draft-07/schema#',
                 $id: '#/definitions/GetAutofillDataResponse',
@@ -61,7 +60,9 @@ describe('code generation', () => {
              * @type {import('../src/messaging/codegen').Input[]}
              */
             const inputs = [
+                // @ts-ignore
                 { json: requestSchema, relative: '01.json' },
+                // @ts-ignore
                 { json: responseSchema, relative: '02.json' }
             ]
             const { types } = parse(inputs)

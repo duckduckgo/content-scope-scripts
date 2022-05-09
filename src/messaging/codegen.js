@@ -4,7 +4,7 @@ import { formatArrayMembers, formatUnionMembers } from './codegen-utils.js'
 import { printJs } from './codegen-printers.js'
 
 /**
- * @typedef {{json: any, relative: string}} Input
+ * @typedef {{json: import('json-schema').JSONSchema7, relative: string}} Input
  * @typedef {{name: string, type: string[], required?: boolean, description?: string, title?: string}} Member
  * @typedef {{name: string, members: Member[], source: string, description?: string, title?: string}} Interface
  * @typedef {{interfaces: Interface[], input: Input}} Group
@@ -16,7 +16,7 @@ import { printJs } from './codegen-printers.js'
 export function parse (inputs) {
     /**
      * @param {object} args;
-     * @param {Record<string, any>} args.value;
+     * @param {import('json-schema').JSONSchema7} args.value;
      * @param {string} args.propName;
      * @param {string} args.ident;
      * @param {Input} args.input;
@@ -28,6 +28,7 @@ export function parse (inputs) {
      */
     function processObject (args) {
         const { value, propName, ident, input, identPrefix, localRefs, topName } = args
+        /** @type {Member[]} */
         const members = []
         switch (value.type) {
         case 'string': {
@@ -67,6 +68,9 @@ export function parse (inputs) {
             if (Array.isArray(value.oneOf)) {
                 const unionMembers = []
                 for (const oneOfElement of value.oneOf) {
+                    if (typeof oneOfElement === 'boolean') {
+                        continue
+                    }
                     if (oneOfElement?.$ref) {
                         const name = oneOfElement.$ref.slice(14)
                         unionMembers.push(name)
@@ -91,13 +95,19 @@ export function parse (inputs) {
         }
         case 'array': {
             const arrayMembers = []
-            if (value.items?.$ref) {
-                const name = value.items?.$ref.slice(14)
-                arrayMembers.push(name)
+            if (typeof value.items === 'boolean') {
+                /** noop */
+            } else if (Array.isArray(value.items)) {
+                /** noop */
             } else {
-                arrayMembers.push('any')
+                if (value.items?.$ref) {
+                    const name = value.items?.$ref.slice(14)
+                    arrayMembers.push(name)
+                } else {
+                    arrayMembers.push('any')
+                }
+                members.push({ name: propName, type: [formatArrayMembers(arrayMembers)] })
             }
-            members.push({ name: propName, type: [formatArrayMembers(arrayMembers)] })
         }
         }
 
