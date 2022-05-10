@@ -15,6 +15,10 @@
         }
     }
 
+    /**
+     * @param {URL} topLevelUrl
+     * @param {*} featureList
+     */
     function isUnprotectedDomain (topLevelUrl, featureList) {
         let unprotectedDomain = false;
         const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : [];
@@ -31,23 +35,31 @@
         return unprotectedDomain
     }
 
-    function processConfig (data, userList, preferences) {
-        const topLevelUrl = getTopLevelURL();
+    /**
+     * @param {*} data
+     * @param {string[]} userList
+     * @param {*} preferences
+     * @param {string|URL} [maybeTopLevelUrl]
+     */
+    function processConfig (data, userList, preferences, maybeTopLevelUrl) {
+        const topLevelUrl = maybeTopLevelUrl || getTopLevelURL();
         const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
         const enabledFeatures = Object.keys(data.features).filter((featureName) => {
             const feature = data.features[featureName];
             return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
         });
         const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
-        preferences.site = {
-            domain: topLevelUrl.hostname,
-            isBroken,
-            allowlisted,
-            enabledFeatures
+        const prefs = {
+            ...preferences,
+            site: {
+                domain: topLevelUrl.hostname,
+                isBroken,
+                allowlisted,
+                enabledFeatures
+            },
+            cookie: {}
         };
-        // TODO
-        preferences.cookie = {};
-        return preferences
+        return prefs
     }
 
     var contentScopeFeatures = (function (exports) {
@@ -2839,11 +2851,13 @@
       }
 
       getExpiry () {
+          // @ts-ignore
           if (!this.maxAge && !this.expires) {
               return NaN
           }
           const expiry = this.maxAge
               ? parseInt(this.maxAge)
+              // @ts-ignore
               : (new Date(this.expires) - new Date()) / 1000;
           return expiry
       }

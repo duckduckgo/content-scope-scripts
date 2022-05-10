@@ -2808,11 +2808,13 @@
       }
 
       getExpiry () {
+          // @ts-ignore
           if (!this.maxAge && !this.expires) {
               return NaN
           }
           const expiry = this.maxAge
               ? parseInt(this.maxAge)
+              // @ts-ignore
               : (new Date(this.expires) - new Date()) / 1000;
           return expiry
       }
