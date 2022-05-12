@@ -34,7 +34,7 @@ function applyCookieExpiryPolicy () {
                 const scriptOrigins = stack.reduce((origins, line) => {
                     const res = line.match(lineTest)
                     if (res && res[2]) {
-                        origins.add(new URL(res[2]).hostname)
+                        origins.add(new URL(res[2], location.href).hostname)
                     }
                     return origins
                 }, new Set())
