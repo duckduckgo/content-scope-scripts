@@ -1,6 +1,6 @@
 import { defineProperty, postDebugMessage } from '../utils'
 
-function blockCookies (debug) {
+export function blockCookies (debug) {
     // disable setting cookies
     defineProperty(globalThis.document, 'cookie', {
         configurable: false,

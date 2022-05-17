@@ -2739,7 +2739,7 @@
     init: init$5
   });
 
-  function blockCookies$1 (debug) {
+  function blockCookies (debug) {
       // disable setting cookies
       defineProperty(globalThis.document, 'cookie', {
           configurable: false,
@@ -2771,18 +2771,32 @@
 
   function init$4 (args) {
       args.cookie.debug = args.debug;
+      if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
+          // overrides expiry policy with blocking - only in subframes
+          blockCookies(args.debug);
+      }
+  }
+
+  var trackingCookies3p = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    blockCookies: blockCookies,
+    init: init$4
+  });
+
+  function init$3 (args) {
+      args.cookie.debug = args.debug;
       if (globalThis.top !== globalThis && !args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
           // overrides expiry policy with blocking - only in subframes
-          blockCookies$1(args.debug);
+          blockCookies(args.debug);
       }
   }
 
   var nonTracking3pCookies = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$4
+    init: init$3
   });
 
-  function init$3 (args) {
+  function init$2 (args) {
       // Unfortunately, we only have limited information about the referrer and current frame. A single
       // page may load many requests and sub frames, all with different referrers. Since we
       if (args.referrer && // make sure the referrer was set correctly
@@ -2808,7 +2822,7 @@
 
   var referrer = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$3
+    init: init$2
   });
 
   class Cookie {
@@ -2986,7 +3000,7 @@
       applyCookieExpiryPolicy();
   }
 
-  function init$2 (args) {
+  function init$1 (args) {
       args.cookie.debug = args.debug;
       loadedPolicyResolve(args.cookie);
   }
@@ -3000,51 +3014,8 @@
   var trackingCookies1p = /*#__PURE__*/Object.freeze({
     __proto__: null,
     load: load,
-    init: init$2,
+    init: init$1,
     update: update
-  });
-
-  function blockCookies (debug) {
-      // disable setting cookies
-      defineProperty(globalThis.document, 'cookie', {
-          configurable: false,
-          set: function (value) {
-              if (debug) {
-                  postDebugMessage('jscookie', {
-                      action: 'block',
-                      reason: 'tracker frame',
-                      documentUrl: globalThis.document.location.href,
-                      scriptOrigins: [],
-                      value: value
-                  });
-              }
-          },
-          get: () => {
-              if (debug) {
-                  postDebugMessage('jscookie', {
-                      action: 'block',
-                      reason: 'tracker frame',
-                      documentUrl: globalThis.document.location.href,
-                      scriptOrigins: [],
-                      value: 'getter'
-                  });
-              }
-              return ''
-          }
-      });
-  }
-
-  function init$1 (args) {
-      args.cookie.debug = args.debug;
-      if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
-          // overrides expiry policy with blocking - only in subframes
-          blockCookies(args.debug);
-      }
-  }
-
-  var trackingCookies3p = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    init: init$1
   });
 
   /**
