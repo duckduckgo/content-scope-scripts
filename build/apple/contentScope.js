@@ -955,6 +955,7 @@
        case './features/google-rejected.js': return Promise.resolve().then(function () { return googleRejected; });
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
        case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
+       case './features/non-tracking-3p-cookies.js': return Promise.resolve().then(function () { return nonTracking3pCookies; });
        case './features/referrer.js': return Promise.resolve().then(function () { return referrer; });
        case './features/tracking-cookies-1p.js': return Promise.resolve().then(function () { return trackingCookies1p; });
        case './features/tracking-cookies-3p.js': return Promise.resolve().then(function () { return trackingCookies3p; });
@@ -990,6 +991,7 @@
           'fingerprintingCanvas',
           'trackingCookies3p',
           'trackingCookies1p',
+          'nonTracking3pCookies',
           'googleRejected',
           'gpc',
           'fingerprintingHardware',
@@ -1011,7 +1013,7 @@
       }
   }
 
-  async function init$d (args) {
+  async function init$e (args) {
       initArgs = args;
       if (!shouldRun()) {
           return
@@ -1050,7 +1052,7 @@
       });
   }
 
-  function init$c (args) {
+  function init$d (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-audio';
@@ -1155,7 +1157,7 @@
 
   var fingerprintingAudio = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$c
+    init: init$d
   });
 
   /**
@@ -1163,7 +1165,7 @@
    * It will return the values defined in the getBattery function to the client,
    * as well as prevent any script from listening to events.
    */
-  function init$b (args) {
+  function init$c (args) {
       if (globalThis.navigator.getBattery) {
           const BatteryManager = globalThis.BatteryManager;
 
@@ -1190,7 +1192,7 @@
 
   var fingerprintingBattery = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$b
+    init: init$c
   });
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -2326,7 +2328,7 @@
       return false
   }
 
-  function init$a (args) {
+  function init$b (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-canvas';
@@ -2508,10 +2510,10 @@
 
   var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$a
+    init: init$b
   });
 
-  function init$9 (args) {
+  function init$a (args) {
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
 
@@ -2534,7 +2536,7 @@
 
   var fingerprintingHardware = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$9
+    init: init$a
   });
 
   /**
@@ -2619,7 +2621,7 @@
       }
   }
 
-  function init$8 (args) {
+  function init$9 (args) {
       const Screen = globalThis.Screen;
       const screen = globalThis.screen;
 
@@ -2662,10 +2664,10 @@
 
   var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$8
+    init: init$9
   });
 
-  function init$7 () {
+  function init$8 () {
       const navigator = globalThis.navigator;
       const Navigator = globalThis.Navigator;
 
@@ -2693,10 +2695,10 @@
 
   var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$7
+    init: init$8
   });
 
-  function init$6 () {
+  function init$7 () {
       try {
           if ('browsingTopics' in Document.prototype) {
               delete Document.prototype.browsingTopics;
@@ -2723,11 +2725,11 @@
 
   var googleRejected = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$6
+    init: init$7
   });
 
   // Set Global Privacy Control property on DOM
-  function init$5 (args) {
+  function init$6 (args) {
       try {
           // If GPC on, set DOM property prototype to true if not already true
           if (args.globalPrivacyControlValue) {
@@ -2754,10 +2756,10 @@
 
   var gpc = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$5
+    init: init$6
   });
 
-  function init$4 (args) {
+  function init$5 (args) {
       try {
           if (navigator.duckduckgo) {
               return
@@ -2782,6 +2784,49 @@
   }
 
   var navigatorInterface = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$5
+  });
+
+  function blockCookies$1 (debug) {
+      // disable setting cookies
+      defineProperty(globalThis.document, 'cookie', {
+          configurable: false,
+          set: function (value) {
+              if (debug) {
+                  postDebugMessage('jscookie', {
+                      action: 'block',
+                      reason: 'tracker frame',
+                      documentUrl: globalThis.document.location.href,
+                      scriptOrigins: [],
+                      value: value
+                  });
+              }
+          },
+          get: () => {
+              if (debug) {
+                  postDebugMessage('jscookie', {
+                      action: 'block',
+                      reason: 'tracker frame',
+                      documentUrl: globalThis.document.location.href,
+                      scriptOrigins: [],
+                      value: 'getter'
+                  });
+              }
+              return ''
+          }
+      });
+  }
+
+  function init$4 (args) {
+      args.cookie.debug = args.debug;
+      if (globalThis.top !== globalThis && !args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
+          // overrides expiry policy with blocking - only in subframes
+          blockCookies$1(args.debug);
+      }
+  }
+
+  var nonTracking3pCookies = /*#__PURE__*/Object.freeze({
     __proto__: null,
     init: init$4
   });
@@ -3089,7 +3134,7 @@
     init: init
   });
 
-  exports.init = init$d;
+  exports.init = init$e;
   exports.load = load$1;
   exports.update = update$1;
 
