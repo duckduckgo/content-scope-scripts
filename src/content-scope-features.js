@@ -27,6 +27,7 @@ export async function load () {
         'fingerprintingCanvas',
         'trackingCookies3p',
         'trackingCookies1p',
+        'nonTracking3pCookies',
         'googleRejected',
         'gpc',
         'fingerprintingHardware',
