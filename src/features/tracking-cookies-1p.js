@@ -1,5 +1,5 @@
 import { Cookie } from '../cookie.js'
-import { defineProperty, postDebugMessage } from '../utils'
+import { defineProperty, postDebugMessage, getStackTraceOrigins, getStack } from '../utils'
 
 let loadedPolicyResolve
 // Listen for a message from the content script which will configure the policy for this context
@@ -10,10 +10,8 @@ const trackerHosts = new Set()
  */
 function applyCookieExpiryPolicy () {
     const document = globalThis.document
-    const Error = globalThis.Error
     const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set
     const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get
-    const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/
 
     const loadPolicy = new Promise((resolve) => {
         loadedPolicyResolve = resolve
@@ -30,14 +28,8 @@ function applyCookieExpiryPolicy () {
             cookieSetter.apply(document, [value])
             try {
                 // determine the origins of the scripts in the stack
-                const stack = new Error().stack.split('\n')
-                const scriptOrigins = stack.reduce((origins, line) => {
-                    const res = line.match(lineTest)
-                    if (res && res[2]) {
-                        origins.add(new URL(res[2]).hostname)
-                    }
-                    return origins
-                }, new Set())
+                const stack = getStack()
+                const scriptOrigins = getStackTraceOrigins(stack)
 
                 // wait for config before doing same-site tests
                 loadPolicyThen(({ shouldBlock, tabRegisteredDomain, policy, isTrackerFrame, debug }) => {
@@ -47,7 +39,7 @@ function applyCookieExpiryPolicy () {
                             action: 'ignore',
                             reason: 'disabled',
                             documentUrl: document.location.href,
-                            scriptOrigins: [...scriptOrigins],
+                            stack,
                             value
                         })
                         return
@@ -59,7 +51,7 @@ function applyCookieExpiryPolicy () {
                             action: 'ignore',
                             reason: 'sameSite',
                             documentUrl: document.location.href,
-                            scriptOrigins: [...scriptOrigins],
+                            stack,
                             value
                         })
                         return
@@ -70,7 +62,7 @@ function applyCookieExpiryPolicy () {
                             action: 'ignore',
                             reason: 'non-tracker',
                             documentUrl: document.location.href,
-                            scriptOrigins: [...scriptOrigins],
+                            stack,
                             value
                         })
                         return
@@ -86,7 +78,7 @@ function applyCookieExpiryPolicy () {
                                 action: 'restrict',
                                 reason: 'tracker',
                                 documentUrl: document.location.href,
-                                scriptOrigins: [...scriptOrigins],
+                                stack,
                                 value
                             })
                             cookieSetter.apply(document, [cookie.toString()])
@@ -94,7 +86,7 @@ function applyCookieExpiryPolicy () {
                             debug && postDebugMessage('jscookie', {
                                 action: 'ignored',
                                 reason: 'dissappeared',
-                                scriptOrigins: [...scriptOrigins],
+                                stack,
                                 value
                             })
                         }
@@ -102,7 +94,7 @@ function applyCookieExpiryPolicy () {
                         debug && postDebugMessage('jscookie', {
                             action: 'ignored',
                             reason: 'expiry',
-                            scriptOrigins: [...scriptOrigins],
+                            stack,
                             value
                         })
                     }

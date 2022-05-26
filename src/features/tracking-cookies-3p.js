@@ -1,27 +1,29 @@
-import { defineProperty, postDebugMessage } from '../utils'
+import { defineProperty, postDebugMessage, getStack } from '../utils'
 
-export function blockCookies (debug) {
+export function blockCookies (debug, reason) {
     // disable setting cookies
     defineProperty(globalThis.document, 'cookie', {
         configurable: false,
-        set: function (value) {
+        set (value) {
             if (debug) {
+                const stack = getStack()
                 postDebugMessage('jscookie', {
                     action: 'block',
-                    reason: 'tracker frame',
+                    reason,
                     documentUrl: globalThis.document.location.href,
-                    scriptOrigins: [],
+                    stack,
                     value: value
                 })
             }
         },
-        get: () => {
+        get () {
             if (debug) {
+                const stack = getStack()
                 postDebugMessage('jscookie', {
                     action: 'block',
-                    reason: 'tracker frame',
+                    reason,
                     documentUrl: globalThis.document.location.href,
-                    scriptOrigins: [],
+                    stack,
                     value: 'getter'
                 })
             }
@@ -34,6 +36,6 @@ export function init (args) {
     args.cookie.debug = args.debug
     if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlockTrackerCookie && args.cookie.isThirdParty) {
         // overrides expiry policy with blocking - only in subframes
-        blockCookies(args.debug)
+        blockCookies(args.debug, 'tracker frame')
     }
 }

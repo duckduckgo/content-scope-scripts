@@ -675,6 +675,7 @@
   // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
   // eslint-disable-next-line no-global-assign
   const globalObj = typeof window === 'undefined' ? globalThis : window;
+  const Error$1 = globalObj.Error;
 
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
@@ -710,33 +711,45 @@
       }
   }
 
+  const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+  function getStackTraceUrls (stack) {
+      const urls = new Set();
+      try {
+          const errorLines = stack.split('\n');
+          // Should cater for Chrome and Firefox stacks, we only care about https? resources.
+          for (const line of errorLines) {
+              const res = line.match(lineTest);
+              if (res) {
+                  urls.add(new URL(res[2], location.href));
+              }
+          }
+      } catch (e) {
+          // Fall through
+      }
+      return urls
+  }
+
+  function getStackTraceOrigins (stack) {
+      const urls = getStackTraceUrls(stack);
+      const origins = new Set();
+      for (const url of urls) {
+          origins.add(url.hostname);
+      }
+      return origins
+  }
+
   // Checks the stack trace if there are known libraries that are broken.
   function shouldExemptMethod (type) {
       // Short circuit stack tracing if we don't have checks
       if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
           return false
       }
-      try {
-          const errorLines = new Error().stack.split('\n');
-          const errorFiles = new Set();
-          // Should cater for Chrome and Firefox stacks, we only care about https? resources.
-          const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
-          for (const line of errorLines) {
-              const res = line.match(lineTest);
-              if (res) {
-                  const path = res[2];
-                  // checked already
-                  if (errorFiles.has(path)) {
-                      continue
-                  }
-                  if (shouldExemptUrl(type, path)) {
-                      return true
-                  }
-                  errorFiles.add(res[2]);
-              }
+      const stack = getStack();
+      const errorFiles = getStackTraceUrls(stack);
+      for (const path of errorFiles) {
+          if (shouldExemptUrl(type, path.href)) {
+              return true
           }
-      } catch (e) {
-          // Fall through
       }
       return false
   }
@@ -841,6 +854,10 @@
       return result === 'enabled'
   }
 
+  function getStack () {
+      return new Error$1().stack
+  }
+
   /**
    * @template {object} P
    * @typedef {object} ProxyObject<P>
@@ -869,7 +886,7 @@
                       action: isExempt ? 'ignore' : 'restrict',
                       kind: this.property,
                       documentUrl: document.location.href,
-                      stack: new Error().stack,
+                      stack: getStack(),
                       args: JSON.stringify(args[2])
                   });
               }
@@ -898,6 +915,10 @@
   }
 
   function postDebugMessage (feature, message) {
+      if (message.stack) {
+          const scriptOrigins = [...getStackTraceOrigins(message.stack)];
+          message.scriptOrigins = scriptOrigins;
+      }
       globalObj.postMessage({
           action: feature,
           message
@@ -2757,28 +2778,30 @@
     init: init$5
   });
 
-  function blockCookies (debug) {
+  function blockCookies (debug, reason) {
       // disable setting cookies
       defineProperty(globalThis.document, 'cookie', {
           configurable: false,
-          set: function (value) {
+          set (value) {
               if (debug) {
+                  const stack = getStack();
                   postDebugMessage('jscookie', {
                       action: 'block',
-                      reason: 'tracker frame',
+                      reason,
                       documentUrl: globalThis.document.location.href,
-                      scriptOrigins: [],
+                      stack,
                       value: value
                   });
               }
           },
-          get: () => {
+          get () {
               if (debug) {
+                  const stack = getStack();
                   postDebugMessage('jscookie', {
                       action: 'block',
-                      reason: 'tracker frame',
+                      reason,
                       documentUrl: globalThis.document.location.href,
-                      scriptOrigins: [],
+                      stack,
                       value: 'getter'
                   });
               }
@@ -2791,7 +2814,7 @@
       args.cookie.debug = args.debug;
       if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlockTrackerCookie && args.cookie.isThirdParty) {
           // overrides expiry policy with blocking - only in subframes
-          blockCookies(args.debug);
+          blockCookies(args.debug, 'tracker frame');
       }
   }
 
@@ -2805,7 +2828,7 @@
       args.cookie.debug = args.debug;
       if (globalThis.top !== globalThis && !args.cookie.isTrackerFrame && args.cookie.shouldBlockNonTrackerCookie && args.cookie.isThirdParty) {
           // overrides expiry policy with blocking - only in subframes
-          blockCookies(args.debug);
+          blockCookies(args.debug, 'non-tracker frame');
       }
   }
 
@@ -2903,10 +2926,8 @@
    */
   function applyCookieExpiryPolicy () {
       const document = globalThis.document;
-      const Error = globalThis.Error;
       const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
       const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
-      const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
 
       const loadPolicy = new Promise((resolve) => {
           loadedPolicyResolve = resolve;
@@ -2923,14 +2944,8 @@
               cookieSetter.apply(document, [value]);
               try {
                   // determine the origins of the scripts in the stack
-                  const stack = new Error().stack.split('\n');
-                  const scriptOrigins = stack.reduce((origins, line) => {
-                      const res = line.match(lineTest);
-                      if (res && res[2]) {
-                          origins.add(new URL(res[2]).hostname);
-                      }
-                      return origins
-                  }, new Set());
+                  const stack = getStack();
+                  const scriptOrigins = getStackTraceOrigins(stack);
 
                   // wait for config before doing same-site tests
                   loadPolicyThen(({ shouldBlock, tabRegisteredDomain, policy, isTrackerFrame, debug }) => {
@@ -2940,7 +2955,7 @@
                               action: 'ignore',
                               reason: 'disabled',
                               documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
+                              stack,
                               value
                           });
                           return
@@ -2952,7 +2967,7 @@
                               action: 'ignore',
                               reason: 'sameSite',
                               documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
+                              stack,
                               value
                           });
                           return
@@ -2963,7 +2978,7 @@
                               action: 'ignore',
                               reason: 'non-tracker',
                               documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
+                              stack,
                               value
                           });
                           return
@@ -2979,7 +2994,7 @@
                                   action: 'restrict',
                                   reason: 'tracker',
                                   documentUrl: document.location.href,
-                                  scriptOrigins: [...scriptOrigins],
+                                  stack,
                                   value
                               });
                               cookieSetter.apply(document, [cookie.toString()]);
@@ -2987,7 +3002,7 @@
                               debug && postDebugMessage('jscookie', {
                                   action: 'ignored',
                                   reason: 'dissappeared',
-                                  scriptOrigins: [...scriptOrigins],
+                                  stack,
                                   value
                               });
                           }
@@ -2995,7 +3010,7 @@
                           debug && postDebugMessage('jscookie', {
                               action: 'ignored',
                               reason: 'expiry',
-                              scriptOrigins: [...scriptOrigins],
+                              stack,
                               value
                           });
                       }
@@ -3103,7 +3118,8 @@
                 window.addEventListener('message', (m) => {
                     if (m.data.action && m.data.message) {
                         chrome.runtime.sendMessage({
-                            debuggerMessage: m.data
+                            messageType: 'debuggerMessage',
+                            options: m.data
                         });
                     }
                 });
