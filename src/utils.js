@@ -4,6 +4,7 @@ import { sjcl } from '../lib/sjcl.js'
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
 const globalObj = typeof window === 'undefined' ? globalThis : window
+const Error = globalObj.Error
 
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
@@ -42,33 +43,45 @@ export function initStringExemptionLists (args) {
     }
 }
 
+const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
+export function getStackTraceUrls (stack) {
+    const urls = new Set()
+    try {
+        const errorLines = stack.split('\n')
+        // Should cater for Chrome and Firefox stacks, we only care about https? resources.
+        for (const line of errorLines) {
+            const res = line.match(lineTest)
+            if (res) {
+                urls.add(new URL(res[2], location.href))
+            }
+        }
+    } catch (e) {
+        // Fall through
+    }
+    return urls
+}
+
+export function getStackTraceOrigins (stack) {
+    const urls = getStackTraceUrls(stack)
+    const origins = new Set()
+    for (const url of urls) {
+        origins.add(url.hostname)
+    }
+    return origins
+}
+
 // Checks the stack trace if there are known libraries that are broken.
 export function shouldExemptMethod (type) {
     // Short circuit stack tracing if we don't have checks
     if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
         return false
     }
-    try {
-        const errorLines = new Error().stack.split('\n')
-        const errorFiles = new Set()
-        // Should cater for Chrome and Firefox stacks, we only care about https? resources.
-        const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/
-        for (const line of errorLines) {
-            const res = line.match(lineTest)
-            if (res) {
-                const path = res[2]
-                // checked already
-                if (errorFiles.has(path)) {
-                    continue
-                }
-                if (shouldExemptUrl(type, path)) {
-                    return true
-                }
-                errorFiles.add(res[2])
-            }
+    const stack = getStack()
+    const errorFiles = getStackTraceUrls(stack)
+    for (const path of errorFiles) {
+        if (shouldExemptUrl(type, path.href)) {
+            return true
         }
-    } catch (e) {
-        // Fall through
     }
     return false
 }
@@ -175,6 +188,10 @@ export function getFeatureSettingEnabled (featureName, args, prop) {
     return result === 'enabled'
 }
 
+export function getStack () {
+    return new Error().stack
+}
+
 /**
  * @template {object} P
  * @typedef {object} ProxyObject<P>
@@ -203,7 +220,7 @@ export class DDGProxy {
                     action: isExempt ? 'ignore' : 'restrict',
                     kind: this.property,
                     documentUrl: document.location.href,
-                    stack: new Error().stack,
+                    stack: getStack(),
                     args: JSON.stringify(args[2])
                 })
             }
@@ -239,6 +256,10 @@ export class DDGProxy {
 }
 
 export function postDebugMessage (feature, message) {
+    if (message.stack) {
+        const scriptOrigins = [...getStackTraceOrigins(message.stack)]
+        message.scriptOrigins = scriptOrigins
+    }
     globalObj.postMessage({
         action: feature,
         message
