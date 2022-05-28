@@ -45,14 +45,20 @@ function getTabOrigin () {
     return framingOrigin
 }
 
+/**
+ * Returns true if hostname is a subset of exceptionDomain or an exact match.
+ * @param {string} hostname
+ * @param {string} exceptionDomain
+ * @returns {boolean}
+ */
+function matchHostname (hostname, exceptionDomain) {
+    return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+}
+
 let protectionExempted = true
 const tabOrigin = getTabOrigin()
 try {
     const tabUrl = new URL(tabOrigin)
-
-    function matchHostname (hostname, exceptionDomain) {
-        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
-    }
 
     const tabExempted = exceptions.some((exception) => {
         return matchHostname(tabUrl.hostname, exception.domain)
@@ -179,7 +185,7 @@ export function load (args) {
                     debugHelper('ignore', 'disabled', setCookieContext)
                     return
                 }
-                const sameSiteScript = [...scriptOrigins].every((host) => host === tabRegisteredDomain || host.endsWith(`.${tabRegisteredDomain}`))
+                const sameSiteScript = [...scriptOrigins].every((host) => matchHostname(host, tabRegisteredDomain))
                 if (sameSiteScript) {
                     // cookies set by scripts loaded on the same site as the site are not modified
                     debugHelper('ignore', '1p sameSite', setCookieContext)
