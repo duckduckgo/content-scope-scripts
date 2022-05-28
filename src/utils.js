@@ -3,8 +3,17 @@ import { sjcl } from '../lib/sjcl.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
-const globalObj = typeof window === 'undefined' ? globalThis : window
-const Error = globalObj.Error
+let globalObj = typeof window === 'undefined' ? globalThis : window
+let Error = globalObj.Error
+
+/**
+ * Used for testing to override the globals used within this file.
+ * @param {window} globalObjIn
+ */
+export function setGlobal (globalObjIn) {
+    globalObj = globalObjIn
+    Error = globalObj.Error
+}
 
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
