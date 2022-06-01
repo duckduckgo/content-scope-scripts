@@ -711,6 +711,65 @@
       }
   }
 
+  /**
+   * Best guess effort if the document is being framed
+   * @returns {boolean} if we infer the document is framed
+   */
+  function isBeingFramed () {
+      if ('ancestorOrigins' in globalThis.location) {
+          return globalThis.location.ancestorOrigins.length > 0
+      }
+      // @ts-ignore types do overlap whilst in DOM context
+      return globalThis.top !== globalThis
+  }
+
+  /**
+   * Best guess effort if the document is third party
+   * @returns {boolean} if we infer the document is third party
+   */
+  function isThirdParty () {
+      if (!isBeingFramed()) {
+          return false
+      }
+      return !matchHostname(globalThis.location.hostname, getTabOrigin())
+  }
+
+  /**
+   * Best guess effort of the tabs origin
+   * @returns {string|null} inferred tab origin
+   */
+  function getTabOrigin () {
+      let framingOrigin = null;
+      try {
+          framingOrigin = globalThis.top.location.href;
+      } catch {
+          framingOrigin = globalThis.document.referrer;
+      }
+
+      // Not supported in Firefox
+      if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+          // ancestorOrigins is reverse order, with the last item being the top frame
+          framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+      }
+
+      try {
+          framingOrigin = new URL(framingOrigin).hostname;
+      } catch {
+          framingOrigin = null;
+      }
+      return framingOrigin
+  }
+
+  /**
+   * Returns true if hostname is a subset of exceptionDomain or an exact match.
+   * @param {string} hostname
+   * @param {string} exceptionDomain
+   * @returns {boolean}
+   */
+  function matchHostname (hostname, exceptionDomain) {
+      return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+  }
+
   const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
   function getStackTraceUrls (stack) {
       const urls = new Set();
@@ -1190,72 +1249,19 @@
     }
   ];
 
-  /**
-   * Best guess effort if the document is being framed
-   * @returns {boolean} if we infer the document is framed
-   */
-  function isBeingFramed () {
-      if ('ancestorOrigins' in globalThis.location) {
-          return globalThis.location.ancestorOrigins.length > 0
-      }
-      // @ts-ignore types do overlap whilst in DOM context
-      return globalThis.top !== globalThis
-  }
-
-  /**
-   * Best guess effort if the document is third party
-   * @returns {boolean} if we infer the document is third party
-   */
-  function isThirdParty () {
-      if (!isBeingFramed()) {
-          return false
-      }
-      return getTabOrigin() !== globalThis.location.href
-  }
-
-  /**
-   * Best guess effort of the tabs origin
-   * @returns {string} inferred tab origin
-   */
-  function getTabOrigin () {
-      let framingOrigin = null;
-      try {
-          framingOrigin = globalThis.top.location.href;
-      } catch {
-          framingOrigin = globalThis.document.referrer;
-      }
-
-      // Not supported in Firefox
-      if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
-          // ancestorOrigins is reverse order, with the last item being the top frame
-          framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
-      }
-      return framingOrigin
-  }
-
-  /**
-   * Returns true if hostname is a subset of exceptionDomain or an exact match.
-   * @param {string} hostname
-   * @param {string} exceptionDomain
-   * @returns {boolean}
-   */
-  function matchHostname (hostname, exceptionDomain) {
-      return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
-  }
-
   let protectionExempted = true;
   const tabOrigin = getTabOrigin();
-  try {
-      const tabUrl = new URL(tabOrigin);
+  let tabExempted = true;
 
-      const tabExempted = exceptions.some((exception) => {
-          return matchHostname(tabUrl.hostname, exception.domain)
+  if (tabOrigin != null) {
+      tabExempted = exceptions.some((exception) => {
+          return matchHostname(tabOrigin, exception.domain)
       });
-      const frameExempted = excludedCookieDomains.some((exception) => {
-          return matchHostname(globalThis.location.hostname, exception.domain)
-      });
-      protectionExempted = frameExempted || tabExempted;
-  } catch {}
+  }
+  const frameExempted = excludedCookieDomains.some((exception) => {
+      return matchHostname(globalThis.location.hostname, exception.domain)
+  });
+  protectionExempted = frameExempted || tabExempted;
 
   // Initial cookie policy pre init
   let cookiePolicy = {
