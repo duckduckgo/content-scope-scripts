@@ -13,7 +13,7 @@
     "copy-build-integration": "cp build/integration/contentScope.js integration-test/extension",
     "tsc": "tsc",
     "lint": "eslint . && npm run tsc",
-    "lint-no-output-globals": "eslint build/apple/contentScope.js --rule '{\"no-implicit-globals\": [\"error\"]}' --no-ignore --no-eslintrc --parser-options=ecmaVersion:10",
+    "lint-no-output-globals": "eslint build/apple/contentScope.js --rule '{\"no-implicit-globals\": [\"error\"]}' --no-ignore --no-eslintrc --parser-options=ecmaVersion:11",
     "lint-fix": "npm run lint -- --fix",
     "test-unit": "jasmine --config=unit-test/config.json",
     "test-int": "npm run build-integration && jasmine --config=integration-test/config.js",
