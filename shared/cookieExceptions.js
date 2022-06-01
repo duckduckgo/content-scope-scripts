@@ -9,6 +9,14 @@
   {
     "domain": "nespresso.com",
     "reason": "login issues"
+  },
+  {
+    "domain": "teams.microsoft.com",
+    "reason": "broken login: https://github.com/duckduckgo/privacy-configuration/issues/242"
+  },
+  {
+    "domain": "start.me",
+    "reason": "broken login: https://github.com/duckduckgo/privacy-configuration/issues/245"
   }
 ]
     export const excludedCookieDomains = [

@@ -5,7 +5,7 @@ import { exec as callbackExec } from 'child_process'
 const exec = util.promisify(callbackExec)
 
 async function init () {
-    if (!existsSync('node_modules/sjcl/')) {
+    if (!existsSync('node_modules/sjcl/') || !existsSync('node_modules/tldts/')) {
         // If content scope scripts is installed as a module there is no need to copy sjcl
         return
     }
@@ -19,6 +19,12 @@ async function init () {
     return sjcl;
   })()`
     fs.writeFile('lib/sjcl.js', contents)
+
+    const tldtsFileContents = await fs.readFile('node_modules/tldts/dist/cjs/index.js')
+    // Reexport the file as es6 module format
+    const tldtsContents = `// @ts-nocheck
+    ${tldtsFileContents}`
+    fs.writeFile('lib/tldts.cjs', tldtsContents)
 }
 
 init()
