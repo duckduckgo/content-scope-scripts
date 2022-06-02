@@ -22,8 +22,8 @@ let cookiePolicy = {
     isFrame: isBeingFramed(),
     isTracker: false,
     shouldBlock: !protectionExempted,
-    shouldBlockTrackerCookie: true,
-    shouldBlockNonTrackerCookie: true,
+    shouldBlockTrackerCookie: false,
+    shouldBlockNonTrackerCookie: false,
     isThirdParty: isThirdParty(),
     tabRegisteredDomain: tabOrigin,
     policy: {
