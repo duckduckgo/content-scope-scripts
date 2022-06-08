@@ -7715,8 +7715,8 @@
       isFrame: isBeingFramed(),
       isTracker: false,
       shouldBlock: !protectionExempted,
-      shouldBlockTrackerCookie: false,
-      shouldBlockNonTrackerCookie: false,
+      shouldBlockTrackerCookie: true,
+      shouldBlockNonTrackerCookie: true,
       isThirdParty: isThirdParty(),
       tabRegisteredDomain: tabOrigin,
       policy: {
