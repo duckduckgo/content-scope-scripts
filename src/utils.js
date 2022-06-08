@@ -107,7 +107,7 @@ export function getTabOrigin () {
  * Lifted from privacy grade repo. Checks entity data and tries to find an owner for the domain.
  *
  * @param {object} requestData - Object consinting siteUrlSplit which is an array of domain components
- * @returns 
+ * @returns Found owner or null
  */
 function findWebsiteOwner (requestData) {
     // find the site owner
