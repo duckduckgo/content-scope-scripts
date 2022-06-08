@@ -1,5 +1,7 @@
 /* global cloneInto, exportFunction, mozProxies */
 import { sjcl } from '../lib/sjcl.js'
+import * as tldts from '../lib/tldts.cjs'
+import { entities } from '../shared/entities.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
@@ -102,13 +104,54 @@ export function getTabOrigin () {
 }
 
 /**
+ * Lifted from privacy grade repo. Checks entity data and tries to find an owner for the domain.
+ *
+ * @param {object} requestData - Object consinting siteUrlSplit which is an array of domain components
+ * @returns Found owner or null
+ */
+function findWebsiteOwner (requestData) {
+    // find the site owner
+    const siteUrlList = Array.from(requestData.siteUrlSplit)
+
+    while (siteUrlList.length > 1) {
+        const siteToCheck = siteUrlList.join('.')
+        siteUrlList.shift()
+
+        if (entities[siteToCheck]) {
+            return entities[siteToCheck]
+        }
+    }
+}
+
+/**
+ * Tests whether the two URL's belong to the same
+ * top level domain.
+ */
+function isSameTopLevelDomain (url1, url2) {
+    const first = tldts.parse(url1, { allowPrivateDomains: true })
+    const second = tldts.parse(url2, { allowPrivateDomains: true })
+
+    const firstDomain = first.domain === null ? first.hostname : first.domain
+    const secondDomain = first.domain === null ? second.hostname : second.domain
+
+    return firstDomain === secondDomain
+}
+
+/**
  * Returns true if hostname is a subset of exceptionDomain or an exact match.
  * @param {string} hostname
  * @param {string} exceptionDomain
  * @returns {boolean}
  */
 export function matchHostname (hostname, exceptionDomain) {
-    return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+    if (isSameTopLevelDomain(hostname, exceptionDomain)) {
+        return true
+    }
+
+    const hostnameOwner = findWebsiteOwner({ siteUrlSplit: hostname.split('.') })
+    const exceptionOwner = findWebsiteOwner({ siteUrlSplit: exceptionDomain.split('.') })
+
+    return (hostnameOwner && exceptionOwner) ? hostnameOwner === exceptionOwner : false
 }
 
 const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
