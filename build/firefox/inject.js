@@ -7175,6 +7175,12 @@
       return framingOrigin
   }
 
+  /**
+   * Lifted from privacy grade repo. Checks entity data and tries to find an owner for the domain.
+   *
+   * @param {object} requestData - Object consinting siteUrlSplit which is an array of domain components
+   * @returns 
+   */
   function findWebsiteOwner (requestData) {
       // find the site owner
       const siteUrlList = Array.from(requestData.siteUrlSplit);
