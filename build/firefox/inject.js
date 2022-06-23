@@ -1272,10 +1272,9 @@
       shouldBlockTrackerCookie: true,
       shouldBlockNonTrackerCookie: true,
       isThirdParty: isThirdParty(),
-      tabRegisteredDomain: tabOrigin,
       policy: {
-          threshold: 864000, // 10 days
-          maxAge: 864000 // 10 days
+          threshold: 604800, // 7 days
+          maxAge: 604800 // 7 days
       }
   };
 
@@ -1372,24 +1371,13 @@
           try {
               // wait for config before doing same-site tests
               loadPolicyThen(() => {
-                  const { shouldBlock, tabRegisteredDomain, policy, isTrackerFrame } = cookiePolicy;
+                  const { shouldBlock, policy } = cookiePolicy;
 
-                  if (!tabRegisteredDomain || !shouldBlock) {
-                      // no site domain for this site to test against, abort
+                  if (!shouldBlock) {
                       debugHelper('ignore', 'disabled', setCookieContext);
                       return
                   }
-                  const sameSiteScript = [...scriptOrigins].every((host) => matchHostname(host, tabRegisteredDomain));
-                  if (sameSiteScript) {
-                      // cookies set by scripts loaded on the same site as the site are not modified
-                      debugHelper('ignore', '1p sameSite', setCookieContext);
-                      return
-                  }
-                  const trackerScript = [...scriptOrigins].some((host) => trackerHosts.has(host));
-                  if (!trackerScript && !isTrackerFrame) {
-                      debugHelper('ignore', '1p non-tracker', setCookieContext);
-                      return
-                  }
+
                   // extract cookie expiry from cookie string
                   const cookie = new Cookie(value);
                   // apply cookie policy
@@ -1398,7 +1386,7 @@
                       if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
                           cookie.maxAge = policy.maxAge;
 
-                          debugHelper('restrict', 'tracker', scriptOrigins);
+                          debugHelper('restrict', 'expiry', scriptOrigins);
 
                           cookieSetter.apply(document, [cookie.toString()]);
                       } else {
@@ -1429,7 +1417,7 @@
       const featureName = 'cookie';
       cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
       cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
-      const policy = getFeatureSetting(featureName, args, 'firstPartyTrackerCookiePolicy');
+      const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
       if (policy) {
           cookiePolicy.policy = policy;
       }
