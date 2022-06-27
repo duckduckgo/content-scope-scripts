@@ -1417,7 +1417,7 @@
                       if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
                           cookie.maxAge = policy.maxAge;
 
-                          debugHelper('restrict', 'expiry', scriptOrigins);
+                          debugHelper('restrict', 'expiry', setCookieContext);
 
                           cookieSetter.apply(document, [cookie.toString()]);
                       } else {
