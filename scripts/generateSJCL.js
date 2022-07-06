@@ -10,7 +10,11 @@ async function init () {
         return
     }
 
-    await exec('cd node_modules/sjcl/ && ./configure --no-export --compress=none --without-all --with-hmac --with-codecHex && make')
+    const command = process.platform === 'win32'
+        ? 'cd node_modules/sjcl/ && perl ./configure --no-export --compress=none --without-all --with-hmac --with-codecHex && make'
+        : 'cd node_modules/sjcl/ && ./configure --no-export --compress=none --without-all --with-hmac --with-codecHex && make'
+    await exec(command)
+
     const sjclFileContents = await fs.readFile('node_modules/sjcl/sjcl.js')
     // Reexport the file as es6 module format
     const contents = `// @ts-nocheck
