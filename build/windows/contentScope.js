@@ -1,112 +1,4424 @@
-/**
- * Inject all the overwrites into the page.
- */
-function inject (code) {
-    const elem = document.head || document.documentElement
-    // Inject into main page
-    try {
-        const e = document.createElement('script')
-        e.textContent = `(() => {
-            ${code}
-        })();`
-        elem.appendChild(e)
-        e.remove()
-    } catch (e) {
-    }
-}
+(function () {
+    'use strict';
 
-function randomString () {
-    const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
-    return num.toString().replace('0.', '')
-}
-
-function init () {
-    const randomMethodName = '_d' + randomString()
-    const randomPassword = '_p' + randomString()
-    const reusableMethodName = '_rm' + randomString()
-    const reusableSecret = '_r' + randomString()
-    const initialScript = `
-      ${decodeURI("var%20contentScopeFeatures%20=%20(function%20(exports)%20%7B%0A%20%20'use%20strict';%0A%0A%20%20//%20@ts-nocheck%0D%0A%20%20%20%20%20%20const%20sjcl%20=%20(()%20=%3E%20%7B%0D%0A%20%20/*jslint%20indent:%202,%20bitwise:%20false,%20nomen:%20false,%20plusplus:%20false,%20white:%20false,%20regexp:%20false%20*/%0D%0A%20%20/*global%20document,%20window,%20escape,%20unescape,%20module,%20require,%20Uint32Array%20*/%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20The%20Stanford%20Javascript%20Crypto%20Library,%20top-level%20namespace.%0D%0A%20%20%20*%20@namespace%0D%0A%20%20%20*/%0D%0A%20%20var%20sjcl%20=%20%7B%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Symmetric%20ciphers.%0D%0A%20%20%20%20%20*%20@namespace%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20cipher:%20%7B%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Hash%20functions.%20%20Right%20now%20only%20SHA256%20is%20implemented.%0D%0A%20%20%20%20%20*%20@namespace%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20hash:%20%7B%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Key%20exchange%20functions.%20%20Right%20now%20only%20SRP%20is%20implemented.%0D%0A%20%20%20%20%20*%20@namespace%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20keyexchange:%20%7B%7D,%0D%0A%20%20%20%20%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Cipher%20modes%20of%20operation.%0D%0A%20%20%20%20%20*%20@namespace%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20mode:%20%7B%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Miscellaneous.%20%20HMAC%20and%20PBKDF2.%0D%0A%20%20%20%20%20*%20@namespace%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20misc:%20%7B%7D,%0D%0A%20%20%20%20%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Bit%20array%20encoders%20and%20decoders.%0D%0A%20%20%20%20%20*%20@namespace%0D%0A%20%20%20%20%20*%0D%0A%20%20%20%20%20*%20@description%0D%0A%20%20%20%20%20*%20The%20members%20of%20this%20namespace%20are%20functions%20which%20translate%20between%0D%0A%20%20%20%20%20*%20SJCL's%20bitArrays%20and%20other%20objects%20(usually%20strings).%20%20Because%20it%0D%0A%20%20%20%20%20*%20isn't%20always%20clear%20which%20direction%20is%20encoding%20and%20which%20is%20decoding,%0D%0A%20%20%20%20%20*%20the%20method%20names%20are%20%22fromBits%22%20and%20%22toBits%22.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20codec:%20%7B%7D,%0D%0A%20%20%20%20%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Exceptions.%0D%0A%20%20%20%20%20*%20@namespace%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20exception:%20%7B%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20Ciphertext%20is%20corrupt.%0D%0A%20%20%20%20%20%20%20*%20@constructor%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20corrupt:%20function(message)%20%7B%0D%0A%20%20%20%20%20%20%20%20this.toString%20=%20function()%20%7B%20return%20%22CORRUPT:%20%22+this.message;%20%7D;%0D%0A%20%20%20%20%20%20%20%20this.message%20=%20message;%0D%0A%20%20%20%20%20%20%7D,%0D%0A%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20Invalid%20parameter.%0D%0A%20%20%20%20%20%20%20*%20@constructor%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20invalid:%20function(message)%20%7B%0D%0A%20%20%20%20%20%20%20%20this.toString%20=%20function()%20%7B%20return%20%22INVALID:%20%22+this.message;%20%7D;%0D%0A%20%20%20%20%20%20%20%20this.message%20=%20message;%0D%0A%20%20%20%20%20%20%7D,%0D%0A%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20Bug%20or%20missing%20feature%20in%20SJCL.%0D%0A%20%20%20%20%20%20%20*%20@constructor%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20bug:%20function(message)%20%7B%0D%0A%20%20%20%20%20%20%20%20this.toString%20=%20function()%20%7B%20return%20%22BUG:%20%22+this.message;%20%7D;%0D%0A%20%20%20%20%20%20%20%20this.message%20=%20message;%0D%0A%20%20%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20Something%20isn't%20ready.%0D%0A%20%20%20%20%20%20%20*%20@constructor%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20notReady:%20function(message)%20%7B%0D%0A%20%20%20%20%20%20%20%20this.toString%20=%20function()%20%7B%20return%20%22NOT%20READY:%20%22+this.message;%20%7D;%0D%0A%20%20%20%20%20%20%20%20this.message%20=%20message;%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%7D%0D%0A%20%20%7D;%0D%0A%20%20/**%20@fileOverview%20Arrays%20of%20bits,%20encoded%20as%20arrays%20of%20Numbers.%0D%0A%20%20%20*%0D%0A%20%20%20*%20@author%20Emily%20Stark%0D%0A%20%20%20*%20@author%20Mike%20Hamburg%0D%0A%20%20%20*%20@author%20Dan%20Boneh%0D%0A%20%20%20*/%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Arrays%20of%20bits,%20encoded%20as%20arrays%20of%20Numbers.%0D%0A%20%20%20*%20@namespace%0D%0A%20%20%20*%20@description%0D%0A%20%20%20*%20%3Cp%3E%0D%0A%20%20%20*%20These%20objects%20are%20the%20currency%20accepted%20by%20SJCL's%20crypto%20functions.%0D%0A%20%20%20*%20%3C/p%3E%0D%0A%20%20%20*%0D%0A%20%20%20*%20%3Cp%3E%0D%0A%20%20%20*%20Most%20of%20our%20crypto%20primitives%20operate%20on%20arrays%20of%204-byte%20words%20internally,%0D%0A%20%20%20*%20but%20many%20of%20them%20can%20take%20arguments%20that%20are%20not%20a%20multiple%20of%204%20bytes.%0D%0A%20%20%20*%20This%20library%20encodes%20arrays%20of%20bits%20(whose%20size%20need%20not%20be%20a%20multiple%20of%208%0D%0A%20%20%20*%20bits)%20as%20arrays%20of%2032-bit%20words.%20%20The%20bits%20are%20packed,%20big-endian,%20into%20an%0D%0A%20%20%20*%20array%20of%20words,%2032%20bits%20at%20a%20time.%20%20Since%20the%20words%20are%20double-precision%0D%0A%20%20%20*%20floating%20point%20numbers,%20they%20fit%20some%20extra%20data.%20%20We%20use%20this%20(in%20a%20private,%0D%0A%20%20%20*%20possibly-changing%20manner)%20to%20encode%20the%20number%20of%20bits%20actually%20%20present%0D%0A%20%20%20*%20in%20the%20last%20word%20of%20the%20array.%0D%0A%20%20%20*%20%3C/p%3E%0D%0A%20%20%20*%0D%0A%20%20%20*%20%3Cp%3E%0D%0A%20%20%20*%20Because%20bitwise%20ops%20clear%20this%20out-of-band%20data,%20these%20arrays%20can%20be%20passed%0D%0A%20%20%20*%20to%20ciphers%20like%20AES%20which%20want%20arrays%20of%20words.%0D%0A%20%20%20*%20%3C/p%3E%0D%0A%20%20%20*/%0D%0A%20%20sjcl.bitArray%20=%20%7B%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Array%20slices%20in%20units%20of%20bits.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20a%20The%20array%20to%20slice.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20bstart%20The%20offset%20to%20the%20start%20of%20the%20slice,%20in%20bits.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20bend%20The%20offset%20to%20the%20end%20of%20the%20slice,%20in%20bits.%20%20If%20this%20is%20undefined,%0D%0A%20%20%20%20%20*%20slice%20until%20the%20end%20of%20the%20array.%0D%0A%20%20%20%20%20*%20@return%20%7BbitArray%7D%20The%20requested%20slice.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20bitSlice:%20function%20(a,%20bstart,%20bend)%20%7B%0D%0A%20%20%20%20%20%20a%20=%20sjcl.bitArray._shiftRight(a.slice(bstart/32),%2032%20-%20(bstart%20&%2031)).slice(1);%0D%0A%20%20%20%20%20%20return%20(bend%20===%20undefined)%20?%20a%20:%20sjcl.bitArray.clamp(a,%20bend-bstart);%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Extract%20a%20number%20packed%20into%20a%20bit%20array.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20a%20The%20array%20to%20slice.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20bstart%20The%20offset%20to%20the%20start%20of%20the%20slice,%20in%20bits.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20blength%20The%20length%20of%20the%20number%20to%20extract.%0D%0A%20%20%20%20%20*%20@return%20%7BNumber%7D%20The%20requested%20slice.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20extract:%20function(a,%20bstart,%20blength)%20%7B%0D%0A%20%20%20%20%20%20//%20FIXME:%20this%20Math.floor%20is%20not%20necessary%20at%20all,%20but%20for%20some%20reason%0D%0A%20%20%20%20%20%20//%20seems%20to%20suppress%20a%20bug%20in%20the%20Chromium%20JIT.%0D%0A%20%20%20%20%20%20var%20x,%20sh%20=%20Math.floor((-bstart-blength)%20&%2031);%0D%0A%20%20%20%20%20%20if%20((bstart%20+%20blength%20-%201%20%5E%20bstart)%20&%20-32)%20%7B%0D%0A%20%20%20%20%20%20%20%20//%20it%20crosses%20a%20boundary%0D%0A%20%20%20%20%20%20%20%20x%20=%20(a%5Bbstart/32%7C0%5D%20%3C%3C%20(32%20-%20sh))%20%5E%20(a%5Bbstart/32+1%7C0%5D%20%3E%3E%3E%20sh);%0D%0A%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20//%20within%20a%20single%20word%0D%0A%20%20%20%20%20%20%20%20x%20=%20a%5Bbstart/32%7C0%5D%20%3E%3E%3E%20sh;%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20x%20&%20((1%3C%3Cblength)%20-%201);%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Concatenate%20two%20bit%20arrays.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20a1%20The%20first%20array.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20a2%20The%20second%20array.%0D%0A%20%20%20%20%20*%20@return%20%7BbitArray%7D%20The%20concatenation%20of%20a1%20and%20a2.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20concat:%20function%20(a1,%20a2)%20%7B%0D%0A%20%20%20%20%20%20if%20(a1.length%20===%200%20%7C%7C%20a2.length%20===%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20return%20a1.concat(a2);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20var%20last%20=%20a1%5Ba1.length-1%5D,%20shift%20=%20sjcl.bitArray.getPartial(last);%0D%0A%20%20%20%20%20%20if%20(shift%20===%2032)%20%7B%0D%0A%20%20%20%20%20%20%20%20return%20a1.concat(a2);%0D%0A%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20return%20sjcl.bitArray._shiftRight(a2,%20shift,%20last%7C0,%20a1.slice(0,a1.length-1));%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Find%20the%20length%20of%20an%20array%20of%20bits.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20a%20The%20array.%0D%0A%20%20%20%20%20*%20@return%20%7BNumber%7D%20The%20length%20of%20a,%20in%20bits.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20bitLength:%20function%20(a)%20%7B%0D%0A%20%20%20%20%20%20var%20l%20=%20a.length,%20x;%0D%0A%20%20%20%20%20%20if%20(l%20===%200)%20%7B%20return%200;%20%7D%0D%0A%20%20%20%20%20%20x%20=%20a%5Bl%20-%201%5D;%0D%0A%20%20%20%20%20%20return%20(l-1)%20*%2032%20+%20sjcl.bitArray.getPartial(x);%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Truncate%20an%20array.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20a%20The%20array.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20len%20The%20length%20to%20truncate%20to,%20in%20bits.%0D%0A%20%20%20%20%20*%20@return%20%7BbitArray%7D%20A%20new%20array,%20truncated%20to%20len%20bits.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20clamp:%20function%20(a,%20len)%20%7B%0D%0A%20%20%20%20%20%20if%20(a.length%20*%2032%20%3C%20len)%20%7B%20return%20a;%20%7D%0D%0A%20%20%20%20%20%20a%20=%20a.slice(0,%20Math.ceil(len%20/%2032));%0D%0A%20%20%20%20%20%20var%20l%20=%20a.length;%0D%0A%20%20%20%20%20%20len%20=%20len%20&%2031;%0D%0A%20%20%20%20%20%20if%20(l%20%3E%200%20&&%20len)%20%7B%0D%0A%20%20%20%20%20%20%20%20a%5Bl-1%5D%20=%20sjcl.bitArray.partial(len,%20a%5Bl-1%5D%20&%200x80000000%20%3E%3E%20(len-1),%201);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20a;%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Make%20a%20partial%20word%20for%20a%20bit%20array.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20len%20The%20number%20of%20bits%20in%20the%20word.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20x%20The%20bits.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20%5B_end=0%5D%20Pass%201%20if%20x%20has%20already%20been%20shifted%20to%20the%20high%20side.%0D%0A%20%20%20%20%20*%20@return%20%7BNumber%7D%20The%20partial%20word.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20partial:%20function%20(len,%20x,%20_end)%20%7B%0D%0A%20%20%20%20%20%20if%20(len%20===%2032)%20%7B%20return%20x;%20%7D%0D%0A%20%20%20%20%20%20return%20(_end%20?%20x%7C0%20:%20x%20%3C%3C%20(32-len))%20+%20len%20*%200x10000000000;%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Get%20the%20number%20of%20bits%20used%20by%20a%20partial%20word.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20x%20The%20partial%20word.%0D%0A%20%20%20%20%20*%20@return%20%7BNumber%7D%20The%20number%20of%20bits%20used%20by%20the%20partial%20word.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20getPartial:%20function%20(x)%20%7B%0D%0A%20%20%20%20%20%20return%20Math.round(x/0x10000000000)%20%7C%7C%2032;%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Compare%20two%20arrays%20for%20equality%20in%20a%20predictable%20amount%20of%20time.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20a%20The%20first%20array.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20b%20The%20second%20array.%0D%0A%20%20%20%20%20*%20@return%20%7Bboolean%7D%20true%20if%20a%20==%20b;%20false%20otherwise.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20equal:%20function%20(a,%20b)%20%7B%0D%0A%20%20%20%20%20%20if%20(sjcl.bitArray.bitLength(a)%20!==%20sjcl.bitArray.bitLength(b))%20%7B%0D%0A%20%20%20%20%20%20%20%20return%20false;%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20var%20x%20=%200,%20i;%0D%0A%20%20%20%20%20%20for%20(i=0;%20i%3Ca.length;%20i++)%20%7B%0D%0A%20%20%20%20%20%20%20%20x%20%7C=%20a%5Bi%5D%5Eb%5Bi%5D;%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20(x%20===%200);%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%20Shift%20an%20array%20right.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20a%20The%20array%20to%20shift.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20shift%20The%20number%20of%20bits%20to%20shift.%0D%0A%20%20%20%20%20*%20@param%20%7BNumber%7D%20%5Bcarry=0%5D%20A%20byte%20to%20carry%20in%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7D%20%5Bout=%5B%5D%5D%20An%20array%20to%20prepend%20to%20the%20output.%0D%0A%20%20%20%20%20*%20@private%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20_shiftRight:%20function%20(a,%20shift,%20carry,%20out)%20%7B%0D%0A%20%20%20%20%20%20var%20i,%20last2=0,%20shift2;%0D%0A%20%20%20%20%20%20if%20(out%20===%20undefined)%20%7B%20out%20=%20%5B%5D;%20%7D%0D%0A%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20for%20(;%20shift%20%3E=%2032;%20shift%20-=%2032)%20%7B%0D%0A%20%20%20%20%20%20%20%20out.push(carry);%0D%0A%20%20%20%20%20%20%20%20carry%20=%200;%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20if%20(shift%20===%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20return%20out.concat(a);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20for%20(i=0;%20i%3Ca.length;%20i++)%20%7B%0D%0A%20%20%20%20%20%20%20%20out.push(carry%20%7C%20a%5Bi%5D%3E%3E%3Eshift);%0D%0A%20%20%20%20%20%20%20%20carry%20=%20a%5Bi%5D%20%3C%3C%20(32-shift);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20last2%20=%20a.length%20?%20a%5Ba.length-1%5D%20:%200;%0D%0A%20%20%20%20%20%20shift2%20=%20sjcl.bitArray.getPartial(last2);%0D%0A%20%20%20%20%20%20out.push(sjcl.bitArray.partial(shift+shift2%20&%2031,%20(shift%20+%20shift2%20%3E%2032)%20?%20carry%20:%20out.pop(),1));%0D%0A%20%20%20%20%20%20return%20out;%0D%0A%20%20%20%20%7D,%0D%0A%20%20%20%20%0D%0A%20%20%20%20/**%20xor%20a%20block%20of%204%20words%20together.%0D%0A%20%20%20%20%20*%20@private%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20_xor4:%20function(x,y)%20%7B%0D%0A%20%20%20%20%20%20return%20%5Bx%5B0%5D%5Ey%5B0%5D,x%5B1%5D%5Ey%5B1%5D,x%5B2%5D%5Ey%5B2%5D,x%5B3%5D%5Ey%5B3%5D%5D;%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%20byteswap%20a%20word%20array%20inplace.%0D%0A%20%20%20%20%20*%20(does%20not%20handle%20partial%20words)%0D%0A%20%20%20%20%20*%20@param%20%7Bsjcl.bitArray%7D%20a%20word%20array%0D%0A%20%20%20%20%20*%20@return%20%7Bsjcl.bitArray%7D%20byteswapped%20array%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20byteswapM:%20function(a)%20%7B%0D%0A%20%20%20%20%20%20var%20i,%20v,%20m%20=%200xff00;%0D%0A%20%20%20%20%20%20for%20(i%20=%200;%20i%20%3C%20a.length;%20++i)%20%7B%0D%0A%20%20%20%20%20%20%20%20v%20=%20a%5Bi%5D;%0D%0A%20%20%20%20%20%20%20%20a%5Bi%5D%20=%20(v%20%3E%3E%3E%2024)%20%7C%20((v%20%3E%3E%3E%208)%20&%20m)%20%7C%20((v%20&%20m)%20%3C%3C%208)%20%7C%20(v%20%3C%3C%2024);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20a;%0D%0A%20%20%20%20%7D%0D%0A%20%20%7D;%0D%0A%20%20/**%20@fileOverview%20Bit%20array%20codec%20implementations.%0D%0A%20%20%20*%0D%0A%20%20%20*%20@author%20Emily%20Stark%0D%0A%20%20%20*%20@author%20Mike%20Hamburg%0D%0A%20%20%20*%20@author%20Dan%20Boneh%0D%0A%20%20%20*/%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20UTF-8%20strings%0D%0A%20%20%20*%20@namespace%0D%0A%20%20%20*/%0D%0A%20%20sjcl.codec.utf8String%20=%20%7B%0D%0A%20%20%20%20/**%20Convert%20from%20a%20bitArray%20to%20a%20UTF-8%20string.%20*/%0D%0A%20%20%20%20fromBits:%20function%20(arr)%20%7B%0D%0A%20%20%20%20%20%20var%20out%20=%20%22%22,%20bl%20=%20sjcl.bitArray.bitLength(arr),%20i,%20tmp;%0D%0A%20%20%20%20%20%20for%20(i=0;%20i%3Cbl/8;%20i++)%20%7B%0D%0A%20%20%20%20%20%20%20%20if%20((i&3)%20===%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20tmp%20=%20arr%5Bi/4%5D;%0D%0A%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20out%20+=%20String.fromCharCode(tmp%20%3E%3E%3E%208%20%3E%3E%3E%208%20%3E%3E%3E%208);%0D%0A%20%20%20%20%20%20%20%20tmp%20%3C%3C=%208;%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20decodeURIComponent(escape(out));%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%20Convert%20from%20a%20UTF-8%20string%20to%20a%20bitArray.%20*/%0D%0A%20%20%20%20toBits:%20function%20(str)%20%7B%0D%0A%20%20%20%20%20%20str%20=%20unescape(encodeURIComponent(str));%0D%0A%20%20%20%20%20%20var%20out%20=%20%5B%5D,%20i,%20tmp=0;%0D%0A%20%20%20%20%20%20for%20(i=0;%20i%3Cstr.length;%20i++)%20%7B%0D%0A%20%20%20%20%20%20%20%20tmp%20=%20tmp%20%3C%3C%208%20%7C%20str.charCodeAt(i);%0D%0A%20%20%20%20%20%20%20%20if%20((i&3)%20===%203)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20out.push(tmp);%0D%0A%20%20%20%20%20%20%20%20%20%20tmp%20=%200;%0D%0A%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20if%20(i&3)%20%7B%0D%0A%20%20%20%20%20%20%20%20out.push(sjcl.bitArray.partial(8*(i&3),%20tmp));%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20out;%0D%0A%20%20%20%20%7D%0D%0A%20%20%7D;%0D%0A%20%20/**%20@fileOverview%20Bit%20array%20codec%20implementations.%0D%0A%20%20%20*%0D%0A%20%20%20*%20@author%20Emily%20Stark%0D%0A%20%20%20*%20@author%20Mike%20Hamburg%0D%0A%20%20%20*%20@author%20Dan%20Boneh%0D%0A%20%20%20*/%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Hexadecimal%0D%0A%20%20%20*%20@namespace%0D%0A%20%20%20*/%0D%0A%20%20sjcl.codec.hex%20=%20%7B%0D%0A%20%20%20%20/**%20Convert%20from%20a%20bitArray%20to%20a%20hex%20string.%20*/%0D%0A%20%20%20%20fromBits:%20function%20(arr)%20%7B%0D%0A%20%20%20%20%20%20var%20out%20=%20%22%22,%20i;%0D%0A%20%20%20%20%20%20for%20(i=0;%20i%3Carr.length;%20i++)%20%7B%0D%0A%20%20%20%20%20%20%20%20out%20+=%20((arr%5Bi%5D%7C0)+0xF00000000000).toString(16).substr(4);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20out.substr(0,%20sjcl.bitArray.bitLength(arr)/4);//.replace(/(.%7B8%7D)/g,%20%22$1%20%22);%0D%0A%20%20%20%20%7D,%0D%0A%20%20%20%20/**%20Convert%20from%20a%20hex%20string%20to%20a%20bitArray.%20*/%0D%0A%20%20%20%20toBits:%20function%20(str)%20%7B%0D%0A%20%20%20%20%20%20var%20i,%20out=%5B%5D,%20len;%0D%0A%20%20%20%20%20%20str%20=%20str.replace(/%5Cs%7C0x/g,%20%22%22);%0D%0A%20%20%20%20%20%20len%20=%20str.length;%0D%0A%20%20%20%20%20%20str%20=%20str%20+%20%2200000000%22;%0D%0A%20%20%20%20%20%20for%20(i=0;%20i%3Cstr.length;%20i+=8)%20%7B%0D%0A%20%20%20%20%20%20%20%20out.push(parseInt(str.substr(i,8),16)%5E0);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20sjcl.bitArray.clamp(out,%20len*4);%0D%0A%20%20%20%20%7D%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20/**%20@fileOverview%20Javascript%20SHA-256%20implementation.%0D%0A%20%20%20*%0D%0A%20%20%20*%20An%20older%20version%20of%20this%20implementation%20is%20available%20in%20the%20public%0D%0A%20%20%20*%20domain,%20but%20this%20one%20is%20(c)%20Emily%20Stark,%20Mike%20Hamburg,%20Dan%20Boneh,%0D%0A%20%20%20*%20Stanford%20University%202008-2010%20and%20BSD-licensed%20for%20liability%0D%0A%20%20%20*%20reasons.%0D%0A%20%20%20*%0D%0A%20%20%20*%20Special%20thanks%20to%20Aldo%20Cortesi%20for%20pointing%20out%20several%20bugs%20in%0D%0A%20%20%20*%20this%20code.%0D%0A%20%20%20*%0D%0A%20%20%20*%20@author%20Emily%20Stark%0D%0A%20%20%20*%20@author%20Mike%20Hamburg%0D%0A%20%20%20*%20@author%20Dan%20Boneh%0D%0A%20%20%20*/%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Context%20for%20a%20SHA-256%20operation%20in%20progress.%0D%0A%20%20%20*%20@constructor%0D%0A%20%20%20*/%0D%0A%20%20sjcl.hash.sha256%20=%20function%20(hash)%20%7B%0D%0A%20%20%20%20if%20(!this._key%5B0%5D)%20%7B%20this._precompute();%20%7D%0D%0A%20%20%20%20if%20(hash)%20%7B%0D%0A%20%20%20%20%20%20this._h%20=%20hash._h.slice(0);%0D%0A%20%20%20%20%20%20this._buffer%20=%20hash._buffer.slice(0);%0D%0A%20%20%20%20%20%20this._length%20=%20hash._length;%0D%0A%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20this.reset();%0D%0A%20%20%20%20%7D%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Hash%20a%20string%20or%20an%20array%20of%20words.%0D%0A%20%20%20*%20@static%0D%0A%20%20%20*%20@param%20%7BbitArray%7CString%7D%20data%20the%20data%20to%20hash.%0D%0A%20%20%20*%20@return%20%7BbitArray%7D%20The%20hash%20value,%20an%20array%20of%2016%20big-endian%20words.%0D%0A%20%20%20*/%0D%0A%20%20sjcl.hash.sha256.hash%20=%20function%20(data)%20%7B%0D%0A%20%20%20%20return%20(new%20sjcl.hash.sha256()).update(data).finalize();%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20sjcl.hash.sha256.prototype%20=%20%7B%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20The%20hash's%20block%20size,%20in%20bits.%0D%0A%20%20%20%20%20*%20@constant%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20blockSize:%20512,%0D%0A%20%20%20%20%20%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Reset%20the%20hash%20state.%0D%0A%20%20%20%20%20*%20@return%20this%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20reset:function%20()%20%7B%0D%0A%20%20%20%20%20%20this._h%20=%20this._init.slice(0);%0D%0A%20%20%20%20%20%20this._buffer%20=%20%5B%5D;%0D%0A%20%20%20%20%20%20this._length%20=%200;%0D%0A%20%20%20%20%20%20return%20this;%0D%0A%20%20%20%20%7D,%0D%0A%20%20%20%20%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Input%20several%20words%20to%20the%20hash.%0D%0A%20%20%20%20%20*%20@param%20%7BbitArray%7CString%7D%20data%20the%20data%20to%20hash.%0D%0A%20%20%20%20%20*%20@return%20this%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20update:%20function%20(data)%20%7B%0D%0A%20%20%20%20%20%20if%20(typeof%20data%20===%20%22string%22)%20%7B%0D%0A%20%20%20%20%20%20%20%20data%20=%20sjcl.codec.utf8String.toBits(data);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20var%20i,%20b%20=%20this._buffer%20=%20sjcl.bitArray.concat(this._buffer,%20data),%0D%0A%20%20%20%20%20%20%20%20%20%20ol%20=%20this._length,%0D%0A%20%20%20%20%20%20%20%20%20%20nl%20=%20this._length%20=%20ol%20+%20sjcl.bitArray.bitLength(data);%0D%0A%20%20%20%20%20%20if%20(nl%20%3E%209007199254740991)%7B%0D%0A%20%20%20%20%20%20%20%20throw%20new%20sjcl.exception.invalid(%22Cannot%20hash%20more%20than%202%5E53%20-%201%20bits%22);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20if%20(typeof%20Uint32Array%20!==%20'undefined')%20%7B%0D%0A%20%20%09var%20c%20=%20new%20Uint32Array(b);%0D%0A%20%20%20%20%20%20%09var%20j%20=%200;%0D%0A%20%20%20%20%20%20%09for%20(i%20=%20512+ol%20-%20((512+ol)%20&%20511);%20i%20%3C=%20nl;%20i+=%20512)%20%7B%0D%0A%20%20%20%20%20%20%20%20%09%20%20%20%20this._block(c.subarray(16%20*%20j,%2016%20*%20(j+1)));%0D%0A%20%20%20%20%20%20%20%20%09%20%20%20%20j%20+=%201;%0D%0A%20%20%20%20%20%20%09%7D%0D%0A%20%20%20%20%20%20%09b.splice(0,%2016%20*%20j);%0D%0A%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%09for%20(i%20=%20512+ol%20-%20((512+ol)%20&%20511);%20i%20%3C=%20nl;%20i+=%20512)%20%7B%0D%0A%20%20%20%20%20%20%20%20%09%20%20%20%20this._block(b.splice(0,16));%0D%0A%20%20%20%20%20%20%20%20%09%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20this;%0D%0A%20%20%20%20%7D,%0D%0A%20%20%20%20%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Complete%20hashing%20and%20output%20the%20hash%20value.%0D%0A%20%20%20%20%20*%20@return%20%7BbitArray%7D%20The%20hash%20value,%20an%20array%20of%208%20big-endian%20words.%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20finalize:function%20()%20%7B%0D%0A%20%20%20%20%20%20var%20i,%20b%20=%20this._buffer,%20h%20=%20this._h;%0D%0A%0D%0A%20%20%20%20%20%20//%20Round%20out%20and%20push%20the%20buffer%0D%0A%20%20%20%20%20%20b%20=%20sjcl.bitArray.concat(b,%20%5Bsjcl.bitArray.partial(1,1)%5D);%0D%0A%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20//%20Round%20out%20the%20buffer%20to%20a%20multiple%20of%2016%20words,%20less%20the%202%20length%20words.%0D%0A%20%20%20%20%20%20for%20(i%20=%20b.length%20+%202;%20i%20&%2015;%20i++)%20%7B%0D%0A%20%20%20%20%20%20%20%20b.push(0);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20//%20append%20the%20length%0D%0A%20%20%20%20%20%20b.push(Math.floor(this._length%20/%200x100000000));%0D%0A%20%20%20%20%20%20b.push(this._length%20%7C%200);%0D%0A%0D%0A%20%20%20%20%20%20while%20(b.length)%20%7B%0D%0A%20%20%20%20%20%20%20%20this._block(b.splice(0,16));%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20this.reset();%0D%0A%20%20%20%20%20%20return%20h;%0D%0A%20%20%20%20%7D,%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20The%20SHA-256%20initialization%20vector,%20to%20be%20precomputed.%0D%0A%20%20%20%20%20*%20@private%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20_init:%5B%5D,%0D%0A%20%20%20%20/*%0D%0A%20%20%20%20_init:%5B0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19%5D,%0D%0A%20%20%20%20*/%0D%0A%20%20%20%20%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20The%20SHA-256%20hash%20key,%20to%20be%20precomputed.%0D%0A%20%20%20%20%20*%20@private%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20_key:%5B%5D,%0D%0A%20%20%20%20/*%0D%0A%20%20%20%20_key:%0D%0A%20%20%20%20%20%20%5B0x428a2f98,%200x71374491,%200xb5c0fbcf,%200xe9b5dba5,%200x3956c25b,%200x59f111f1,%200x923f82a4,%200xab1c5ed5,%0D%0A%20%20%20%20%20%20%200xd807aa98,%200x12835b01,%200x243185be,%200x550c7dc3,%200x72be5d74,%200x80deb1fe,%200x9bdc06a7,%200xc19bf174,%0D%0A%20%20%20%20%20%20%200xe49b69c1,%200xefbe4786,%200x0fc19dc6,%200x240ca1cc,%200x2de92c6f,%200x4a7484aa,%200x5cb0a9dc,%200x76f988da,%0D%0A%20%20%20%20%20%20%200x983e5152,%200xa831c66d,%200xb00327c8,%200xbf597fc7,%200xc6e00bf3,%200xd5a79147,%200x06ca6351,%200x14292967,%0D%0A%20%20%20%20%20%20%200x27b70a85,%200x2e1b2138,%200x4d2c6dfc,%200x53380d13,%200x650a7354,%200x766a0abb,%200x81c2c92e,%200x92722c85,%0D%0A%20%20%20%20%20%20%200xa2bfe8a1,%200xa81a664b,%200xc24b8b70,%200xc76c51a3,%200xd192e819,%200xd6990624,%200xf40e3585,%200x106aa070,%0D%0A%20%20%20%20%20%20%200x19a4c116,%200x1e376c08,%200x2748774c,%200x34b0bcb5,%200x391c0cb3,%200x4ed8aa4a,%200x5b9cca4f,%200x682e6ff3,%0D%0A%20%20%20%20%20%20%200x748f82ee,%200x78a5636f,%200x84c87814,%200x8cc70208,%200x90befffa,%200xa4506ceb,%200xbef9a3f7,%200xc67178f2%5D,%0D%0A%20%20%20%20*/%0D%0A%0D%0A%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Function%20to%20precompute%20_init%20and%20_key.%0D%0A%20%20%20%20%20*%20@private%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20_precompute:%20function%20()%20%7B%0D%0A%20%20%20%20%20%20var%20i%20=%200,%20prime%20=%202,%20factor,%20isPrime;%0D%0A%0D%0A%20%20%20%20%20%20function%20frac(x)%20%7B%20return%20(x-Math.floor(x))%20*%200x100000000%20%7C%200;%20%7D%0D%0A%0D%0A%20%20%20%20%20%20for%20(;%20i%3C64;%20prime++)%20%7B%0D%0A%20%20%20%20%20%20%20%20isPrime%20=%20true;%0D%0A%20%20%20%20%20%20%20%20for%20(factor=2;%20factor*factor%20%3C=%20prime;%20factor++)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(prime%20%25%20factor%20===%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20isPrime%20=%20false;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20break;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20if%20(isPrime)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(i%3C8)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20this._init%5Bi%5D%20=%20frac(Math.pow(prime,%201/2));%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20this._key%5Bi%5D%20=%20frac(Math.pow(prime,%201/3));%0D%0A%20%20%20%20%20%20%20%20%20%20i++;%0D%0A%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%7D,%0D%0A%20%20%20%20%0D%0A%20%20%20%20/**%0D%0A%20%20%20%20%20*%20Perform%20one%20cycle%20of%20SHA-256.%0D%0A%20%20%20%20%20*%20@param%20%7BUint32Array%7CbitArray%7D%20w%20one%20block%20of%20words.%0D%0A%20%20%20%20%20*%20@private%0D%0A%20%20%20%20%20*/%0D%0A%20%20%20%20_block:function%20(w)%20%7B%20%20%0D%0A%20%20%20%20%20%20var%20i,%20tmp,%20a,%20b,%0D%0A%20%20%20%20%20%20%20%20h%20=%20this._h,%0D%0A%20%20%20%20%20%20%20%20k%20=%20this._key,%0D%0A%20%20%20%20%20%20%20%20h0%20=%20h%5B0%5D,%20h1%20=%20h%5B1%5D,%20h2%20=%20h%5B2%5D,%20h3%20=%20h%5B3%5D,%0D%0A%20%20%20%20%20%20%20%20h4%20=%20h%5B4%5D,%20h5%20=%20h%5B5%5D,%20h6%20=%20h%5B6%5D,%20h7%20=%20h%5B7%5D;%0D%0A%0D%0A%20%20%20%20%20%20/*%20Rationale%20for%20placement%20of%20%7C0%20:%0D%0A%20%20%20%20%20%20%20*%20If%20a%20value%20can%20overflow%20is%20original%2032%20bits%20by%20a%20factor%20of%20more%20than%20a%20few%0D%0A%20%20%20%20%20%20%20*%20million%20(2%5E23%20ish),%20there%20is%20a%20possibility%20that%20it%20might%20overflow%20the%0D%0A%20%20%20%20%20%20%20*%2053-bit%20mantissa%20and%20lose%20precision.%0D%0A%20%20%20%20%20%20%20*%0D%0A%20%20%20%20%20%20%20*%20To%20avoid%20this,%20we%20clamp%20back%20to%2032%20bits%20by%20%7C'ing%20with%200%20on%20any%20value%20that%0D%0A%20%20%20%20%20%20%20*%20propagates%20around%20the%20loop,%20and%20on%20the%20hash%20state%20h%5B%5D.%20%20I%20don't%20believe%0D%0A%20%20%20%20%20%20%20*%20that%20the%20clamps%20on%20h4%20and%20on%20h0%20are%20strictly%20necessary,%20but%20it's%20close%0D%0A%20%20%20%20%20%20%20*%20(for%20h4%20anyway),%20and%20better%20safe%20than%20sorry.%0D%0A%20%20%20%20%20%20%20*%0D%0A%20%20%20%20%20%20%20*%20The%20clamps%20on%20h%5B%5D%20are%20necessary%20for%20the%20output%20to%20be%20correct%20even%20in%20the%0D%0A%20%20%20%20%20%20%20*%20common%20case%20and%20for%20short%20inputs.%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20for%20(i=0;%20i%3C64;%20i++)%20%7B%0D%0A%20%20%20%20%20%20%20%20//%20load%20up%20the%20input%20word%20for%20this%20round%0D%0A%20%20%20%20%20%20%20%20if%20(i%3C16)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20tmp%20=%20w%5Bi%5D;%0D%0A%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20a%20%20%20=%20w%5B(i+1%20)%20&%2015%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20b%20%20%20=%20w%5B(i+14)%20&%2015%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20tmp%20=%20w%5Bi&15%5D%20=%20((a%3E%3E%3E7%20%20%5E%20a%3E%3E%3E18%20%5E%20a%3E%3E%3E3%20%20%5E%20a%3C%3C25%20%5E%20a%3C%3C14)%20+%20%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20(b%3E%3E%3E17%20%5E%20b%3E%3E%3E19%20%5E%20b%3E%3E%3E10%20%5E%20b%3C%3C15%20%5E%20b%3C%3C13)%20+%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20w%5Bi&15%5D%20+%20w%5B(i+9)%20&%2015%5D)%20%7C%200;%0D%0A%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20%20%20tmp%20=%20(tmp%20+%20h7%20+%20(h4%3E%3E%3E6%20%5E%20h4%3E%3E%3E11%20%5E%20h4%3E%3E%3E25%20%5E%20h4%3C%3C26%20%5E%20h4%3C%3C21%20%5E%20h4%3C%3C7)%20+%20%20(h6%20%5E%20h4&(h5%5Eh6))%20+%20k%5Bi%5D);%20//%20%7C%200;%0D%0A%20%20%20%20%20%20%20%20%0D%0A%20%20%20%20%20%20%20%20//%20shift%20register%0D%0A%20%20%20%20%20%20%20%20h7%20=%20h6;%20h6%20=%20h5;%20h5%20=%20h4;%0D%0A%20%20%20%20%20%20%20%20h4%20=%20h3%20+%20tmp%20%7C%200;%0D%0A%20%20%20%20%20%20%20%20h3%20=%20h2;%20h2%20=%20h1;%20h1%20=%20h0;%0D%0A%0D%0A%20%20%20%20%20%20%20%20h0%20=%20(tmp%20+%20%20((h1&h2)%20%5E%20(h3&(h1%5Eh2)))%20+%20(h1%3E%3E%3E2%20%5E%20h1%3E%3E%3E13%20%5E%20h1%3E%3E%3E22%20%5E%20h1%3C%3C30%20%5E%20h1%3C%3C19%20%5E%20h1%3C%3C10))%20%7C%200;%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20h%5B0%5D%20=%20h%5B0%5D+h0%20%7C%200;%0D%0A%20%20%20%20%20%20h%5B1%5D%20=%20h%5B1%5D+h1%20%7C%200;%0D%0A%20%20%20%20%20%20h%5B2%5D%20=%20h%5B2%5D+h2%20%7C%200;%0D%0A%20%20%20%20%20%20h%5B3%5D%20=%20h%5B3%5D+h3%20%7C%200;%0D%0A%20%20%20%20%20%20h%5B4%5D%20=%20h%5B4%5D+h4%20%7C%200;%0D%0A%20%20%20%20%20%20h%5B5%5D%20=%20h%5B5%5D+h5%20%7C%200;%0D%0A%20%20%20%20%20%20h%5B6%5D%20=%20h%5B6%5D+h6%20%7C%200;%0D%0A%20%20%20%20%20%20h%5B7%5D%20=%20h%5B7%5D+h7%20%7C%200;%0D%0A%20%20%20%20%7D%0D%0A%20%20%7D;%0D%0A%0D%0A%0D%0A%20%20/**%20@fileOverview%20HMAC%20implementation.%0D%0A%20%20%20*%0D%0A%20%20%20*%20@author%20Emily%20Stark%0D%0A%20%20%20*%20@author%20Mike%20Hamburg%0D%0A%20%20%20*%20@author%20Dan%20Boneh%0D%0A%20%20%20*/%0D%0A%0D%0A%20%20/**%20HMAC%20with%20the%20specified%20hash%20function.%0D%0A%20%20%20*%20@constructor%0D%0A%20%20%20*%20@param%20%7BbitArray%7D%20key%20the%20key%20for%20HMAC.%0D%0A%20%20%20*%20@param%20%7BObject%7D%20%5BHash=sjcl.hash.sha256%5D%20The%20hash%20function%20to%20use.%0D%0A%20%20%20*/%0D%0A%20%20sjcl.misc.hmac%20=%20function%20(key,%20Hash)%20%7B%0D%0A%20%20%20%20this._hash%20=%20Hash%20=%20Hash%20%7C%7C%20sjcl.hash.sha256;%0D%0A%20%20%20%20var%20exKey%20=%20%5B%5B%5D,%5B%5D%5D,%20i,%0D%0A%20%20%20%20%20%20%20%20bs%20=%20Hash.prototype.blockSize%20/%2032;%0D%0A%20%20%20%20this._baseHash%20=%20%5Bnew%20Hash(),%20new%20Hash()%5D;%0D%0A%0D%0A%20%20%20%20if%20(key.length%20%3E%20bs)%20%7B%0D%0A%20%20%20%20%20%20key%20=%20Hash.hash(key);%0D%0A%20%20%20%20%7D%0D%0A%20%20%20%20%0D%0A%20%20%20%20for%20(i=0;%20i%3Cbs;%20i++)%20%7B%0D%0A%20%20%20%20%20%20exKey%5B0%5D%5Bi%5D%20=%20key%5Bi%5D%5E0x36363636;%0D%0A%20%20%20%20%20%20exKey%5B1%5D%5Bi%5D%20=%20key%5Bi%5D%5E0x5C5C5C5C;%0D%0A%20%20%20%20%7D%0D%0A%20%20%20%20%0D%0A%20%20%20%20this._baseHash%5B0%5D.update(exKey%5B0%5D);%0D%0A%20%20%20%20this._baseHash%5B1%5D.update(exKey%5B1%5D);%0D%0A%20%20%20%20this._resultHash%20=%20new%20Hash(this._baseHash%5B0%5D);%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20/**%20HMAC%20with%20the%20specified%20hash%20function.%20%20Also%20called%20encrypt%20since%20it's%20a%20prf.%0D%0A%20%20%20*%20@param%20%7BbitArray%7CString%7D%20data%20The%20data%20to%20mac.%0D%0A%20%20%20*/%0D%0A%20%20sjcl.misc.hmac.prototype.encrypt%20=%20sjcl.misc.hmac.prototype.mac%20=%20function%20(data)%20%7B%0D%0A%20%20%20%20if%20(!this._updated)%20%7B%0D%0A%20%20%20%20%20%20this.update(data);%0D%0A%20%20%20%20%20%20return%20this.digest(data);%0D%0A%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20throw%20new%20sjcl.exception.invalid(%22encrypt%20on%20already%20updated%20hmac%20called!%22);%0D%0A%20%20%20%20%7D%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20sjcl.misc.hmac.prototype.reset%20=%20function%20()%20%7B%0D%0A%20%20%20%20this._resultHash%20=%20new%20this._hash(this._baseHash%5B0%5D);%0D%0A%20%20%20%20this._updated%20=%20false;%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20sjcl.misc.hmac.prototype.update%20=%20function%20(data)%20%7B%0D%0A%20%20%20%20this._updated%20=%20true;%0D%0A%20%20%20%20this._resultHash.update(data);%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20sjcl.misc.hmac.prototype.digest%20=%20function%20()%20%7B%0D%0A%20%20%20%20var%20w%20=%20this._resultHash.finalize(),%20result%20=%20new%20(this._hash)(this._baseHash%5B1%5D).update(w).finalize();%0D%0A%0D%0A%20%20%20%20this.reset();%0D%0A%0D%0A%20%20%20%20return%20result;%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20%20%20%20%20return%20sjcl;%0D%0A%20%20%20%20%7D)();%0A%0A%20%20/*%20global%20cloneInto,%20exportFunction,%20false%20*/%0D%0A%0D%0A%20%20//%20Only%20use%20globalThis%20for%20testing%20this%20breaks%20window.wrappedJSObject%20code%20in%20Firefox%0D%0A%20%20//%20eslint-disable-next-line%20no-global-assign%0D%0A%20%20let%20globalObj%20=%20typeof%20window%20===%20'undefined'%20?%20globalThis%20:%20window;%0D%0A%20%20let%20Error$1%20=%20globalObj.Error;%0D%0A%0D%0A%20%20function%20getDataKeySync%20(sessionKey,%20domainKey,%20inputData)%20%7B%0D%0A%20%20%20%20%20%20//%20eslint-disable-next-line%20new-cap%0D%0A%20%20%20%20%20%20const%20hmac%20=%20new%20sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey%20+%20domainKey),%20sjcl.hash.sha256);%0D%0A%20%20%20%20%20%20return%20sjcl.codec.hex.fromBits(hmac.encrypt(inputData))%0D%0A%20%20%7D%0D%0A%0D%0A%20%20//%20linear%20feedback%20shift%20register%20to%20find%20a%20random%20approximation%0D%0A%20%20function%20nextRandom%20(v)%20%7B%0D%0A%20%20%20%20%20%20return%20Math.abs((v%20%3E%3E%201)%20%7C%20(((v%20%3C%3C%2062)%20%5E%20(v%20%3C%3C%2061))%20&%20(~(~0%20%3C%3C%2063)%20%3C%3C%2062)))%0D%0A%20%20%7D%0D%0A%0D%0A%20%20const%20exemptionLists%20=%20%7B%7D;%0D%0A%20%20function%20shouldExemptUrl%20(type,%20url)%20%7B%0D%0A%20%20%20%20%20%20for%20(const%20regex%20of%20exemptionLists%5Btype%5D)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(regex.test(url))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20true%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20false%0D%0A%20%20%7D%0D%0A%0D%0A%20%20let%20debug%20=%20false;%0D%0A%0D%0A%20%20function%20initStringExemptionLists%20(args)%20%7B%0D%0A%20%20%20%20%20%20const%20%7B%20stringExemptionLists%20%7D%20=%20args;%0D%0A%20%20%20%20%20%20debug%20=%20args.debug;%0D%0A%20%20%20%20%20%20for%20(const%20type%20in%20stringExemptionLists)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20exemptionLists%5Btype%5D%20=%20%5B%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20for%20(const%20stringExemption%20of%20stringExemptionLists%5Btype%5D)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20exemptionLists%5Btype%5D.push(new%20RegExp(stringExemption));%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Best%20guess%20effort%20if%20the%20document%20is%20being%20framed%0D%0A%20%20%20*%20@returns%20%7Bboolean%7D%20if%20we%20infer%20the%20document%20is%20framed%0D%0A%20%20%20*/%0D%0A%20%20function%20isBeingFramed%20()%20%7B%0D%0A%20%20%20%20%20%20if%20('ancestorOrigins'%20in%20globalThis.location)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20globalThis.location.ancestorOrigins.length%20%3E%200%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20//%20@ts-ignore%20types%20do%20overlap%20whilst%20in%20DOM%20context%0D%0A%20%20%20%20%20%20return%20globalThis.top%20!==%20globalThis%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Best%20guess%20effort%20if%20the%20document%20is%20third%20party%0D%0A%20%20%20*%20@returns%20%7Bboolean%7D%20if%20we%20infer%20the%20document%20is%20third%20party%0D%0A%20%20%20*/%0D%0A%20%20function%20isThirdParty%20()%20%7B%0D%0A%20%20%20%20%20%20if%20(!isBeingFramed())%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20!matchHostname(globalThis.location.hostname,%20getTabOrigin())%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Best%20guess%20effort%20of%20the%20tabs%20origin%0D%0A%20%20%20*%20@returns%20%7Bstring%7Cnull%7D%20inferred%20tab%20origin%0D%0A%20%20%20*/%0D%0A%20%20function%20getTabOrigin%20()%20%7B%0D%0A%20%20%20%20%20%20let%20framingOrigin%20=%20null;%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20framingOrigin%20=%20globalThis.top.location.href;%0D%0A%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20framingOrigin%20=%20globalThis.document.referrer;%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20//%20Not%20supported%20in%20Firefox%0D%0A%20%20%20%20%20%20if%20('ancestorOrigins'%20in%20globalThis.location%20&&%20globalThis.location.ancestorOrigins.length)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20ancestorOrigins%20is%20reverse%20order,%20with%20the%20last%20item%20being%20the%20top%20frame%0D%0A%20%20%20%20%20%20%20%20%20%20framingOrigin%20=%20globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length%20-%201);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20framingOrigin%20=%20new%20URL(framingOrigin).hostname;%0D%0A%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20framingOrigin%20=%20null;%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20framingOrigin%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Returns%20true%20if%20hostname%20is%20a%20subset%20of%20exceptionDomain%20or%20an%20exact%20match.%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20hostname%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20exceptionDomain%0D%0A%20%20%20*%20@returns%20%7Bboolean%7D%0D%0A%20%20%20*/%0D%0A%20%20function%20matchHostname%20(hostname,%20exceptionDomain)%20%7B%0D%0A%20%20%20%20%20%20return%20hostname%20===%20exceptionDomain%20%7C%7C%20hostname.endsWith(%60.$%7BexceptionDomain%7D%60)%0D%0A%20%20%7D%0D%0A%0D%0A%20%20const%20lineTest%20=%20/(%5C()?(https?:%5B%5E)%5D+):%5B0-9%5D+:%5B0-9%5D+(%5C))?/;%0D%0A%20%20function%20getStackTraceUrls%20(stack)%20%7B%0D%0A%20%20%20%20%20%20const%20urls%20=%20new%20Set();%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20errorLines%20=%20stack.split('%5Cn');%0D%0A%20%20%20%20%20%20%20%20%20%20//%20Should%20cater%20for%20Chrome%20and%20Firefox%20stacks,%20we%20only%20care%20about%20https?%20resources.%0D%0A%20%20%20%20%20%20%20%20%20%20for%20(const%20line%20of%20errorLines)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20res%20=%20line.match(lineTest);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(res)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20urls.add(new%20URL(res%5B2%5D,%20location.href));%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20Fall%20through%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20urls%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20getStackTraceOrigins%20(stack)%20%7B%0D%0A%20%20%20%20%20%20const%20urls%20=%20getStackTraceUrls(stack);%0D%0A%20%20%20%20%20%20const%20origins%20=%20new%20Set();%0D%0A%20%20%20%20%20%20for%20(const%20url%20of%20urls)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20origins.add(url.hostname);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20origins%0D%0A%20%20%7D%0D%0A%0D%0A%20%20//%20Checks%20the%20stack%20trace%20if%20there%20are%20known%20libraries%20that%20are%20broken.%0D%0A%20%20function%20shouldExemptMethod%20(type)%20%7B%0D%0A%20%20%20%20%20%20//%20Short%20circuit%20stack%20tracing%20if%20we%20don't%20have%20checks%0D%0A%20%20%20%20%20%20if%20(!(type%20in%20exemptionLists)%20%7C%7C%20exemptionLists%5Btype%5D.length%20===%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20const%20stack%20=%20getStack();%0D%0A%20%20%20%20%20%20const%20errorFiles%20=%20getStackTraceUrls(stack);%0D%0A%20%20%20%20%20%20for%20(const%20path%20of%20errorFiles)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(shouldExemptUrl(type,%20path.href))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20true%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20false%0D%0A%20%20%7D%0D%0A%0D%0A%20%20//%20Iterate%20through%20the%20key,%20passing%20an%20item%20index%20and%20a%20byte%20to%20be%20modified%0D%0A%20%20function%20iterateDataKey%20(key,%20callback)%20%7B%0D%0A%20%20%20%20%20%20let%20item%20=%20key.charCodeAt(0);%0D%0A%20%20%20%20%20%20for%20(const%20i%20in%20key)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20let%20byte%20=%20key.charCodeAt(i);%0D%0A%20%20%20%20%20%20%20%20%20%20for%20(let%20j%20=%208;%20j%20%3E=%200;%20j--)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20res%20=%20callback(item,%20byte);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Exit%20early%20if%20callback%20returns%20null%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(res%20===%20null)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20find%20next%20item%20to%20perturb%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20item%20=%20nextRandom(item);%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Right%20shift%20as%20we%20use%20the%20least%20significant%20bit%20of%20it%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20byte%20=%20byte%20%3E%3E%201;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20isFeatureBroken%20(args,%20feature)%20%7B%0D%0A%20%20%20%20%20%20return%20args.site.isBroken%20%7C%7C%20args.site.allowlisted%20%7C%7C%20!args.site.enabledFeatures.includes(feature)%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20For%20each%20property%20defined%20on%20the%20object,%20update%20it%20with%20the%20target%20value.%0D%0A%20%20%20*/%0D%0A%20%20function%20overrideProperty%20(name,%20prop)%20%7B%0D%0A%20%20%20%20%20%20//%20Don't%20update%20if%20existing%20value%20is%20undefined%20or%20null%0D%0A%20%20%20%20%20%20if%20(!(prop.origValue%20===%20undefined))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20%20%20%20%20*%20When%20re-defining%20properties,%20we%20bind%20the%20overwritten%20functions%20to%20null.%20This%20prevents%0D%0A%20%20%20%20%20%20%20%20%20%20%20*%20sites%20from%20using%20toString%20to%20see%20if%20the%20function%20has%20been%20overwritten%0D%0A%20%20%20%20%20%20%20%20%20%20%20*%20without%20this%20bind%20call,%20a%20site%20could%20run%20something%20like%0D%0A%20%20%20%20%20%20%20%20%20%20%20*%20%60Object.getOwnPropertyDescriptor(Screen.prototype,%20%22availTop%22).get.toString()%60%20and%20see%0D%0A%20%20%20%20%20%20%20%20%20%20%20*%20the%20contents%20of%20the%20function.%20Appending%20.bind(null)%20to%20the%20function%20definition%20will%0D%0A%20%20%20%20%20%20%20%20%20%20%20*%20have%20the%20same%20toString%20call%20return%20the%20default%20%5Bnative%20code%5D%0D%0A%20%20%20%20%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20defineProperty(prop.object,%20name,%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20eslint-disable-next-line%20no-extra-bind%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20get:%20(()%20=%3E%20prop.targetValue).bind(null)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20prop.origValue%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20defineProperty%20(object,%20propertyName,%20descriptor)%20%7B%0D%0A%20%20%20%20%20%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20Object.defineProperty(object,%20propertyName,%20descriptor);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20camelcase%20(dashCaseText)%20%7B%0D%0A%20%20%20%20%20%20return%20dashCaseText.replace(/-(.)/g,%20(match,%20letter)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20letter.toUpperCase()%0D%0A%20%20%20%20%20%20%7D)%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20featureName%0D%0A%20%20%20*%20@param%20%7Bobject%7D%20args%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20prop%0D%0A%20%20%20*%20@returns%20%7Bany%7D%0D%0A%20%20%20*/%0D%0A%20%20function%20getFeatureSetting%20(featureName,%20args,%20prop)%20%7B%0D%0A%20%20%20%20%20%20const%20camelFeatureName%20=%20camelcase(featureName);%0D%0A%20%20%20%20%20%20return%20args.featureSettings?.%5BcamelFeatureName%5D?.%5Bprop%5D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20featureName%0D%0A%20%20%20*%20@param%20%7Bobject%7D%20args%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20prop%0D%0A%20%20%20*%20@returns%20%7Bboolean%7D%0D%0A%20%20%20*/%0D%0A%20%20function%20getFeatureSettingEnabled%20(featureName,%20args,%20prop)%20%7B%0D%0A%20%20%20%20%20%20const%20result%20=%20getFeatureSetting(featureName,%20args,%20prop);%0D%0A%20%20%20%20%20%20return%20result%20===%20'enabled'%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20getStack%20()%20%7B%0D%0A%20%20%20%20%20%20return%20new%20Error$1().stack%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20@template%20%7Bobject%7D%20P%0D%0A%20%20%20*%20@typedef%20%7Bobject%7D%20ProxyObject%3CP%3E%0D%0A%20%20%20*%20@property%20%7B(target?:%20object,%20thisArg?:%20P,%20args?:%20object)%20=%3E%20void%7D%20apply%0D%0A%20%20%20*/%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20@template%20%5BP=object%5D%0D%0A%20%20%20*/%0D%0A%20%20class%20DDGProxy%20%7B%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20@param%20%7Bstring%7D%20featureName%0D%0A%20%20%20%20%20%20%20*%20@param%20%7BP%7D%20objectScope%0D%0A%20%20%20%20%20%20%20*%20@param%20%7Bstring%7D%20property%0D%0A%20%20%20%20%20%20%20*%20@param%20%7BProxyObject%3CP%3E%7D%20proxyObject%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20constructor%20(featureName,%20objectScope,%20property,%20proxyObject)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20this.objectScope%20=%20objectScope;%0D%0A%20%20%20%20%20%20%20%20%20%20this.property%20=%20property;%0D%0A%20%20%20%20%20%20%20%20%20%20this.featureName%20=%20featureName;%0D%0A%20%20%20%20%20%20%20%20%20%20this.camelFeatureName%20=%20camelcase(this.featureName);%0D%0A%20%20%20%20%20%20%20%20%20%20const%20outputHandler%20=%20(...args)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20isExempt%20=%20shouldExemptMethod(this.camelFeatureName);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(debug)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20postDebugMessage(this.camelFeatureName,%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20action:%20isExempt%20?%20'ignore'%20:%20'restrict',%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20kind:%20this.property,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20documentUrl:%20document.location.href,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20stack:%20getStack(),%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20args:%20JSON.stringify(args%5B2%5D)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20The%20normal%20return%20value%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(isExempt)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(...args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20proxyObject.apply(...args)%0D%0A%20%20%20%20%20%20%20%20%20%20%7D;%0D%0A%20%20%20%20%20%20%20%20%20%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20this._native%20=%20objectScope%5Bproperty%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20handler%20=%20%7B%7D;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20handler.apply%20=%20outputHandler;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20this.internal%20=%20new%20globalObj.Proxy(objectScope%5Bproperty%5D,%20handler);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20//%20Actually%20apply%20the%20proxy%20to%20the%20native%20property%0D%0A%20%20%20%20%20%20overload%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20this.objectScope%5Bthis.property%5D%20=%20this.internal;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20postDebugMessage%20(feature,%20message)%20%7B%0D%0A%20%20%20%20%20%20if%20(message.stack)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20scriptOrigins%20=%20%5B...getStackTraceOrigins(message.stack)%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20message.scriptOrigins%20=%20scriptOrigins;%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20globalObj.postMessage(%7B%0D%0A%20%20%20%20%20%20%20%20%20%20action:%20feature,%0D%0A%20%20%20%20%20%20%20%20%20%20message%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%7D%0D%0A%0D%0A%20%20let%20DDGReflect;%0D%0A%20%20let%20DDGPromise;%0D%0A%0D%0A%20%20//%20Exports%20for%20usage%20where%20we%20have%20to%20cross%20the%20xray%20boundary:%20https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts%0D%0A%20%20%7B%0D%0A%20%20%20%20%20%20DDGPromise%20=%20globalObj.Promise;%0D%0A%20%20%20%20%20%20DDGReflect%20=%20globalObj.Reflect;%0D%0A%20%20%7D%0A%0A%20%20function%20__variableDynamicImportRuntime0__(path)%20%7B%0A%20%20%20%20%20switch%20(path)%20%7B%0A%20%20%20%20%20%20%20case%20'./features/cookie.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20cookie;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/fingerprinting-audio.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20fingerprintingAudio;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/fingerprinting-battery.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20fingerprintingBattery;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/fingerprinting-canvas.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20fingerprintingCanvas;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/fingerprinting-hardware.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20fingerprintingHardware;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/fingerprinting-screen-size.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20fingerprintingScreenSize;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/fingerprinting-temporary-storage.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20fingerprintingTemporaryStorage;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/google-rejected.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20googleRejected;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/gpc.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20gpc;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/navigator-interface.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20navigatorInterface;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/referrer.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20referrer;%20%7D);%0A%20%20%20%20%20%20%20case%20'./features/web-compat.js':%20return%20Promise.resolve().then(function%20()%20%7B%20return%20webCompat;%20%7D);%0A%20%20%20%20%20%20%20default:%20return%20Promise.reject(new%20Error(%22Unknown%20variable%20dynamic%20import:%20%22%20+%20path));%0A%20%20%20%20%20%7D%0A%20%20%20%7D%0A%0D%0A%20%20function%20shouldRun%20()%20%7B%0D%0A%20%20%20%20%20%20//%20don't%20inject%20into%20non-HTML%20documents%20(such%20as%20XML%20documents)%0D%0A%20%20%20%20%20%20//%20but%20do%20inject%20into%20XHTML%20documents%0D%0A%20%20%20%20%20%20if%20(document%20instanceof%20HTMLDocument%20===%20false%20&&%20(%0D%0A%20%20%20%20%20%20%20%20%20%20document%20instanceof%20XMLDocument%20===%20false%20%7C%7C%0D%0A%20%20%20%20%20%20%20%20%20%20document.createElement('div')%20instanceof%20HTMLDivElement%20===%20false%0D%0A%20%20%20%20%20%20))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20true%0D%0A%20%20%7D%0D%0A%0D%0A%20%20let%20initArgs%20=%20null;%0D%0A%20%20const%20updates%20=%20%5B%5D;%0D%0A%20%20const%20features%20=%20%5B%5D;%0D%0A%0D%0A%20%20async%20function%20load$1%20()%20%7B%0D%0A%20%20%20%20%20%20if%20(!shouldRun())%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20const%20featureNames%20=%20%5B%0D%0A%20%20%20%20%20%20%20%20%20%20'webCompat',%0D%0A%20%20%20%20%20%20%20%20%20%20'fingerprintingAudio',%0D%0A%20%20%20%20%20%20%20%20%20%20'fingerprintingBattery',%0D%0A%20%20%20%20%20%20%20%20%20%20'fingerprintingCanvas',%0D%0A%20%20%20%20%20%20%20%20%20%20'cookie',%0D%0A%20%20%20%20%20%20%20%20%20%20'googleRejected',%0D%0A%20%20%20%20%20%20%20%20%20%20'gpc',%0D%0A%20%20%20%20%20%20%20%20%20%20'fingerprintingHardware',%0D%0A%20%20%20%20%20%20%20%20%20%20'referrer',%0D%0A%20%20%20%20%20%20%20%20%20%20'fingerprintingScreenSize',%0D%0A%20%20%20%20%20%20%20%20%20%20'fingerprintingTemporaryStorage',%0D%0A%20%20%20%20%20%20%20%20%20%20'navigatorInterface'%0D%0A%20%20%20%20%20%20%5D;%0D%0A%0D%0A%20%20%20%20%20%20for%20(const%20featureName%20of%20featureNames)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20filename%20=%20featureName.replace(/(%5Ba-zA-Z%5D)(?=%5BA-Z0-9%5D)/g,%20'$1-').toLowerCase();%0D%0A%20%20%20%20%20%20%20%20%20%20const%20feature%20=%20__variableDynamicImportRuntime0__(%60./features/$%7Bfilename%7D.js%60).then((%7B%20init,%20load,%20update%20%7D)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(load)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20load();%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20%7B%20featureName,%20init,%20update%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20features.push(feature);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20async%20function%20init$c%20(args)%20%7B%0D%0A%20%20%20%20%20%20initArgs%20=%20args;%0D%0A%20%20%20%20%20%20if%20(!shouldRun())%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20initStringExemptionLists(args);%0D%0A%20%20%20%20%20%20const%20resolvedFeatures%20=%20await%20Promise.all(features);%0D%0A%20%20%20%20%20%20resolvedFeatures.forEach((%7B%20init,%20featureName%20%7D)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(!isFeatureBroken(args,%20featureName))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20init(args);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20//%20Fire%20off%20updates%20that%20came%20in%20faster%20than%20the%20init%0D%0A%20%20%20%20%20%20while%20(updates.length)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20update%20=%20updates.pop();%0D%0A%20%20%20%20%20%20%20%20%20%20await%20updateFeaturesInner(update);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20async%20function%20update$1%20(args)%20%7B%0D%0A%20%20%20%20%20%20if%20(!shouldRun())%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20if%20(initArgs%20===%20null)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20updates.push(args);%0D%0A%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20updateFeaturesInner(args);%0D%0A%20%20%7D%0D%0A%0D%0A%20%20async%20function%20updateFeaturesInner%20(args)%20%7B%0D%0A%20%20%20%20%20%20const%20resolvedFeatures%20=%20await%20Promise.all(features);%0D%0A%20%20%20%20%20%20resolvedFeatures.forEach((%7B%20update,%20featureName%20%7D)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(!isFeatureBroken(initArgs,%20featureName)%20&&%20update)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20update(args);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%7D%0A%0A%20%20class%20Cookie%20%7B%0D%0A%20%20%20%20%20%20constructor%20(cookieString)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20this.parts%20=%20cookieString.split(';');%0D%0A%20%20%20%20%20%20%20%20%20%20this.parse();%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20parse%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20EXTRACT_ATTRIBUTES%20=%20new%20Set(%5B'max-age',%20'expires',%20'domain'%5D);%0D%0A%20%20%20%20%20%20%20%20%20%20this.attrIdx%20=%20%7B%7D;%0D%0A%20%20%20%20%20%20%20%20%20%20this.parts.forEach((part,%20index)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20kv%20=%20part.split('=',%201);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20attribute%20=%20kv%5B0%5D.trim();%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20value%20=%20part.slice(kv%5B0%5D.length%20+%201);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(index%20===%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20this.name%20=%20attribute;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20this.value%20=%20value;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20else%20if%20(EXTRACT_ATTRIBUTES.has(attribute.toLowerCase()))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20this%5Battribute.toLowerCase()%5D%20=%20value;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20this.attrIdx%5Battribute.toLowerCase()%5D%20=%20index;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20getExpiry%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20@ts-ignore%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(!this.maxAge%20&&%20!this.expires)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20NaN%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20const%20expiry%20=%20this.maxAge%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20?%20parseInt(this.maxAge)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20@ts-ignore%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20:%20(new%20Date(this.expires)%20-%20new%20Date())%20/%201000;%0D%0A%20%20%20%20%20%20%20%20%20%20return%20expiry%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20get%20maxAge%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20this%5B'max-age'%5D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20set%20maxAge%20(value)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(this.attrIdx%5B'max-age'%5D%20%3E%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20this.parts.splice(this.attrIdx%5B'max-age'%5D,%201,%20%60max-age=$%7Bvalue%7D%60);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20this.parts.push(%60max-age=$%7Bvalue%7D%60);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20this.parse();%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20toString%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20this.parts.join(';')%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20/*%20eslint-disable%20quote-props%20*/%0A%20%20/*%20eslint-disable%20quotes%20*/%0A%20%20/*%20eslint-disable%20indent%20*/%0A%20%20/*%20eslint-disable%20eol-last%20*/%0A%20%20/*%20eslint-disable%20no-trailing-spaces%20*/%0A%20%20/*%20eslint-disable%20no-multiple-empty-lines%20*/%0A%20%20%20%20%20%20const%20exceptions%20=%20%5B%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22nespresso.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22login%20issues%22%0A%20%20%20%20%7D%0A%20%20%5D;%0A%20%20%20%20%20%20const%20excludedCookieDomains%20=%20%5B%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22hangouts.google.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22docs.google.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22accounts.google.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22SSO%20which%20needs%20cookies%20for%20auth%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22googleapis.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22login.live.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22SSO%20which%20needs%20cookies%20for%20auth%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22apis.google.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22pay.google.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22payments.amazon.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22payments.amazon.de%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22atlassian.net%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22atlassian.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22paypal.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22paypal.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22salesforce.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22salesforceliveagent.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22force.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22disqus.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22spotify.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22Site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22hangouts.google.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22docs.google.com%22,%0A%20%20%20%20%20%20%22reason%22:%20%22site%20breakage%22%0A%20%20%20%20%7D,%0A%20%20%20%20%7B%0A%20%20%20%20%20%20%22domain%22:%20%22btsport-utils-prod.akamaized.net%22,%0A%20%20%20%20%20%20%22reason%22:%20%22broken%20videos%22%0A%20%20%20%20%7D%0A%20%20%5D;%0A%0A%20%20let%20protectionExempted%20=%20true;%0D%0A%20%20const%20tabOrigin%20=%20getTabOrigin();%0D%0A%20%20let%20tabExempted%20=%20true;%0D%0A%0D%0A%20%20if%20(tabOrigin%20!=%20null)%20%7B%0D%0A%20%20%20%20%20%20tabExempted%20=%20exceptions.some((exception)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20matchHostname(tabOrigin,%20exception.domain)%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%7D%0D%0A%20%20const%20frameExempted%20=%20excludedCookieDomains.some((exception)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20return%20matchHostname(globalThis.location.hostname,%20exception.domain)%0D%0A%20%20%7D);%0D%0A%20%20protectionExempted%20=%20frameExempted%20%7C%7C%20tabExempted;%0D%0A%0D%0A%20%20//%20Initial%20cookie%20policy%20pre%20init%0D%0A%20%20let%20cookiePolicy%20=%20%7B%0D%0A%20%20%20%20%20%20debug:%20false,%0D%0A%20%20%20%20%20%20isFrame:%20isBeingFramed(),%0D%0A%20%20%20%20%20%20isTracker:%20false,%0D%0A%20%20%20%20%20%20shouldBlock:%20!protectionExempted,%0D%0A%20%20%20%20%20%20shouldBlockTrackerCookie:%20true,%0D%0A%20%20%20%20%20%20shouldBlockNonTrackerCookie:%20true,%0D%0A%20%20%20%20%20%20isThirdParty:%20isThirdParty(),%0D%0A%20%20%20%20%20%20policy:%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20threshold:%20604800,%20//%207%20days%0D%0A%20%20%20%20%20%20%20%20%20%20maxAge:%20604800%20//%207%20days%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D;%0D%0A%0D%0A%20%20let%20loadedPolicyResolve;%0D%0A%20%20//%20Listen%20for%20a%20message%20from%20the%20content%20script%20which%20will%20configure%20the%20policy%20for%20this%20context%0D%0A%20%20const%20trackerHosts%20=%20new%20Set();%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20@param%20%7B'ignore'%20%7C%20'block'%20%7C%20'restrict'%7D%20action%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20reason%0D%0A%20%20%20*%20@param%20%7Bany%7D%20ctx%0D%0A%20%20%20*/%0D%0A%20%20function%20debugHelper%20(action,%20reason,%20ctx)%20%7B%0D%0A%20%20%20%20%20%20cookiePolicy.debug%20&&%20postDebugMessage('jscookie',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20action,%0D%0A%20%20%20%20%20%20%20%20%20%20reason,%0D%0A%20%20%20%20%20%20%20%20%20%20stack:%20ctx.stack,%0D%0A%20%20%20%20%20%20%20%20%20%20documentUrl:%20globalThis.document.location.href,%0D%0A%20%20%20%20%20%20%20%20%20%20scriptOrigins:%20%5B...ctx.scriptOrigins%5D,%0D%0A%20%20%20%20%20%20%20%20%20%20value:%20ctx.value%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20shouldBlockTrackingCookie%20()%20%7B%0D%0A%20%20%20%20%20%20return%20cookiePolicy.shouldBlock%20&&%20cookiePolicy.shouldBlockTrackerCookie%20&&%20isTrackingCookie()%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20shouldBlockNonTrackingCookie%20()%20%7B%0D%0A%20%20%20%20%20%20return%20cookiePolicy.shouldBlock%20&&%20cookiePolicy.shouldBlockNonTrackerCookie%20&&%20isNonTrackingCookie()%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20isTrackingCookie%20()%20%7B%0D%0A%20%20%20%20%20%20return%20cookiePolicy.isFrame%20&&%20cookiePolicy.isTracker%20&&%20cookiePolicy.isThirdParty%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20isNonTrackingCookie%20()%20%7B%0D%0A%20%20%20%20%20%20return%20cookiePolicy.isFrame%20&&%20!cookiePolicy.isTracker%20&&%20cookiePolicy.isThirdParty%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20load%20(args)%20%7B%0D%0A%20%20%20%20%20%20trackerHosts.clear();%0D%0A%0D%0A%20%20%20%20%20%20//%20The%20cookie%20policy%20is%20injected%20into%20every%20frame%20immediately%20so%20that%20no%20cookie%20will%0D%0A%20%20%20%20%20%20//%20be%20missed.%0D%0A%20%20%20%20%20%20const%20document%20=%20globalThis.document;%0D%0A%20%20%20%20%20%20const%20cookieSetter%20=%20Object.getOwnPropertyDescriptor(globalThis.Document.prototype,%20'cookie').set;%0D%0A%20%20%20%20%20%20const%20cookieGetter%20=%20Object.getOwnPropertyDescriptor(globalThis.Document.prototype,%20'cookie').get;%0D%0A%0D%0A%20%20%20%20%20%20const%20loadPolicy%20=%20new%20Promise((resolve)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20loadedPolicyResolve%20=%20resolve;%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20//%20Create%20the%20then%20callback%20now%20-%20this%20ensures%20that%20Promise.prototype.then%20changes%20won't%20break%0D%0A%20%20%20%20%20%20//%20this%20call.%0D%0A%20%20%20%20%20%20const%20loadPolicyThen%20=%20loadPolicy.then.bind(loadPolicy);%0D%0A%0D%0A%20%20%20%20%20%20function%20getCookiePolicy%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20stack%20=%20getStack();%0D%0A%20%20%20%20%20%20%20%20%20%20const%20scriptOrigins%20=%20getStackTraceOrigins(stack);%0D%0A%20%20%20%20%20%20%20%20%20%20const%20getCookieContext%20=%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20stack,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20scriptOrigins,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20value:%20'getter'%0D%0A%20%20%20%20%20%20%20%20%20%20%7D;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(shouldBlockTrackingCookie()%20%7C%7C%20shouldBlockNonTrackingCookie())%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('block',%20'3p%20frame',%20getCookieContext);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20''%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20if%20(isTrackingCookie()%20%7C%7C%20isNonTrackingCookie())%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('ignore',%20'3p%20frame',%20getCookieContext);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20return%20cookieGetter.call(document)%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20function%20setCookiePolicy%20(value)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20stack%20=%20getStack();%0D%0A%20%20%20%20%20%20%20%20%20%20const%20scriptOrigins%20=%20getStackTraceOrigins(stack);%0D%0A%20%20%20%20%20%20%20%20%20%20const%20setCookieContext%20=%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20stack,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20scriptOrigins,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20value%0D%0A%20%20%20%20%20%20%20%20%20%20%7D;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(shouldBlockTrackingCookie()%20%7C%7C%20shouldBlockNonTrackingCookie())%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('block',%20'3p%20frame',%20setCookieContext);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20if%20(isTrackingCookie()%20%7C%7C%20isNonTrackingCookie())%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('ignore',%20'3p%20frame',%20setCookieContext);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20//%20call%20the%20native%20document.cookie%20implementation.%20This%20will%20set%20the%20cookie%20immediately%0D%0A%20%20%20%20%20%20%20%20%20%20//%20if%20the%20value%20is%20valid.%20We%20will%20override%20this%20set%20later%20if%20the%20policy%20dictates%20that%0D%0A%20%20%20%20%20%20%20%20%20%20//%20the%20expiry%20should%20be%20changed.%0D%0A%20%20%20%20%20%20%20%20%20%20cookieSetter.call(document,%20value);%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20wait%20for%20config%20before%20doing%20same-site%20tests%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20loadPolicyThen(()%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20%7B%20shouldBlock,%20policy%20%7D%20=%20cookiePolicy;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(!shouldBlock)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('ignore',%20'disabled',%20setCookieContext);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20extract%20cookie%20expiry%20from%20cookie%20string%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20cookie%20=%20new%20Cookie(value);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20apply%20cookie%20policy%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(cookie.getExpiry()%20%3E%20policy.threshold)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20check%20if%20the%20cookie%20still%20exists%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(document.cookie.split(';').findIndex(kv%20=%3E%20kv.trim().startsWith(cookie.parts%5B0%5D.trim()))%20!==%20-1)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20cookie.maxAge%20=%20policy.maxAge;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('restrict',%20'expiry',%20setCookieContext);%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20cookieSetter.apply(document,%20%5Bcookie.toString()%5D);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('ignore',%20'dissappeared',%20setCookieContext);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('ignore',%20'expiry',%20setCookieContext);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20debugHelper('ignore',%20'error',%20setCookieContext);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20suppress%20error%20in%20cookie%20override%20to%20avoid%20breakage%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20console.warn('Error%20in%20cookie%20override',%20e);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20defineProperty(document,%20'cookie',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20configurable:%20true,%0D%0A%20%20%20%20%20%20%20%20%20%20set:%20setCookiePolicy,%0D%0A%20%20%20%20%20%20%20%20%20%20get:%20getCookiePolicy%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20init$b%20(args)%20%7B%0D%0A%20%20%20%20%20%20args.cookie.debug%20=%20args.debug;%0D%0A%20%20%20%20%20%20cookiePolicy%20=%20args.cookie;%0D%0A%0D%0A%20%20%20%20%20%20const%20featureName%20=%20'cookie';%0D%0A%20%20%20%20%20%20cookiePolicy.shouldBlockTrackerCookie%20=%20getFeatureSettingEnabled(featureName,%20args,%20'trackerCookie');%0D%0A%20%20%20%20%20%20cookiePolicy.shouldBlockNonTrackerCookie%20=%20getFeatureSettingEnabled(featureName,%20args,%20'nonTrackerCookie');%0D%0A%20%20%20%20%20%20const%20policy%20=%20getFeatureSetting(featureName,%20args,%20'firstPartyCookiePolicy');%0D%0A%20%20%20%20%20%20if%20(policy)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20cookiePolicy.policy%20=%20policy;%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20loadedPolicyResolve();%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20update%20(args)%20%7B%0D%0A%20%20%20%20%20%20if%20(args.trackerDefinition)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20trackerHosts.add(args.hostname);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20cookie%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20load:%20load,%0A%20%20%20%20init:%20init$b,%0A%20%20%20%20update:%20update%0A%20%20%7D);%0A%0A%20%20function%20init$a%20(args)%20%7B%0D%0A%20%20%20%20%20%20const%20%7B%20sessionKey,%20site%20%7D%20=%20args;%0D%0A%20%20%20%20%20%20const%20domainKey%20=%20site.domain;%0D%0A%20%20%20%20%20%20const%20featureName%20=%20'fingerprinting-audio';%0D%0A%0D%0A%20%20%20%20%20%20//%20In%20place%20modify%20array%20data%20to%20remove%20fingerprinting%0D%0A%20%20%20%20%20%20function%20transformArrayData%20(channelData,%20domainKey,%20sessionKey,%20thisArg)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20let%20%7B%20audioKey%20%7D%20=%20getCachedResponse(thisArg,%20args);%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(!audioKey)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20cdSum%20=%200;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20for%20(const%20k%20in%20channelData)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20cdSum%20+=%20channelData%5Bk%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20If%20the%20buffer%20is%20blank,%20skip%20adding%20data%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(cdSum%20===%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20audioKey%20=%20getDataKeySync(sessionKey,%20domainKey,%20cdSum);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setCache(thisArg,%20args,%20audioKey);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20iterateDataKey(audioKey,%20(item,%20byte)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20itemAudioIndex%20=%20item%20%25%20channelData.length;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20let%20factor%20=%20byte%20*%200.0000001;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(byte%20%5E%200x1)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20factor%20=%200%20-%20factor;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20channelData%5BitemAudioIndex%5D%20=%20channelData%5BitemAudioIndex%5D%20+%20factor;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20const%20copyFromChannelProxy%20=%20new%20DDGProxy(featureName,%20AudioBuffer.prototype,%20'copyFromChannel',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20%5Bsource,%20channelNumber,%20startInChannel%5D%20=%20args;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20This%20is%20implemented%20in%20a%20different%20way%20to%20canvas%20purely%20because%20calling%20the%20function%20copied%20the%20original%20value,%20which%20is%20not%20ideal%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(//%20If%20channelNumber%20is%20longer%20than%20arrayBuffer%20number%20of%20channels%20then%20call%20the%20default%20method%20to%20throw%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20channelNumber%20%3E%20thisArg.numberOfChannels%20%7C%7C%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20If%20startInChannel%20is%20longer%20than%20the%20arrayBuffer%20length%20then%20call%20the%20default%20method%20to%20throw%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20startInChannel%20%3E%20thisArg.length)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20The%20normal%20return%20value%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Call%20the%20protected%20getChannelData%20we%20implement,%20slice%20from%20the%20startInChannel%20value%20and%20assign%20to%20the%20source%20array%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20thisArg.getChannelData(channelNumber).slice(startInChannel).forEach((val,%20index)%20=%3E%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20source%5Bindex%5D%20=%20val;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20copyFromChannelProxy.overload();%0D%0A%0D%0A%20%20%20%20%20%20const%20cacheExpiry%20=%2060;%0D%0A%20%20%20%20%20%20const%20cacheData%20=%20new%20WeakMap();%0D%0A%20%20%20%20%20%20function%20getCachedResponse%20(thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20data%20=%20cacheData.get(thisArg);%0D%0A%20%20%20%20%20%20%20%20%20%20const%20timeNow%20=%20Date.now();%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(data%20&&%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20data.args%20===%20JSON.stringify(args)%20&&%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20data.expires%20%3E%20timeNow)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20data.expires%20=%20timeNow%20+%20cacheExpiry;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20cacheData.set(thisArg,%20data);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20data%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20return%20%7B%20audioKey:%20null%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20function%20setCache%20(thisArg,%20args,%20audioKey)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20cacheData.set(thisArg,%20%7B%20args:%20JSON.stringify(args),%20expires:%20Date.now()%20+%20cacheExpiry,%20audioKey%20%7D);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20const%20getChannelDataProxy%20=%20new%20DDGProxy(featureName,%20AudioBuffer.prototype,%20'getChannelData',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20The%20normal%20return%20value%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20channelData%20=%20DDGReflect.apply(target,%20thisArg,%20args);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Anything%20we%20do%20here%20should%20be%20caught%20and%20ignored%20silently%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transformArrayData(channelData,%20domainKey,%20sessionKey,%20thisArg,%20args);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20channelData%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20getChannelDataProxy.overload();%0D%0A%0D%0A%20%20%20%20%20%20const%20audioMethods%20=%20%5B'getByteTimeDomainData',%20'getFloatTimeDomainData',%20'getByteFrequencyData',%20'getFloatFrequencyData'%5D;%0D%0A%20%20%20%20%20%20for%20(const%20methodName%20of%20audioMethods)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20proxy%20=%20new%20DDGProxy(featureName,%20AnalyserNode.prototype,%20methodName,%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20DDGReflect.apply(target,%20thisArg,%20args);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Anything%20we%20do%20here%20should%20be%20caught%20and%20ignored%20silently%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transformArrayData(args%5B0%5D,%20domainKey,%20sessionKey,%20thisArg,%20args);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20proxy.overload();%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20fingerprintingAudio%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$a%0A%20%20%7D);%0A%0A%20%20/**%0D%0A%20%20%20*%20Overwrites%20the%20Battery%20API%20if%20present%20in%20the%20browser.%0D%0A%20%20%20*%20It%20will%20return%20the%20values%20defined%20in%20the%20getBattery%20function%20to%20the%20client,%0D%0A%20%20%20*%20as%20well%20as%20prevent%20any%20script%20from%20listening%20to%20events.%0D%0A%20%20%20*/%0D%0A%20%20function%20init$9%20(args)%20%7B%0D%0A%20%20%20%20%20%20if%20(globalThis.navigator.getBattery)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20BatteryManager%20=%20globalThis.BatteryManager;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20const%20spoofedValues%20=%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20charging:%20true,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20chargingTime:%200,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20dischargingTime:%20Infinity,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20level:%201%0D%0A%20%20%20%20%20%20%20%20%20%20%7D;%0D%0A%20%20%20%20%20%20%20%20%20%20const%20eventProperties%20=%20%5B'onchargingchange',%20'onchargingtimechange',%20'ondischargingtimechange',%20'onlevelchange'%5D;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20for%20(const%20%5Bprop,%20val%5D%20of%20Object.entries(spoofedValues))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20defineProperty(BatteryManager.prototype,%20prop,%20%7B%20get:%20()%20=%3E%20val%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20for%20(const%20eventProp%20of%20eventProperties)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20defineProperty(BatteryManager.prototype,%20eventProp,%20%7B%20get:%20()%20=%3E%20null%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20fingerprintingBattery%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$9%0A%20%20%7D);%0A%0A%20%20var%20commonjsGlobal%20=%20typeof%20globalThis%20!==%20'undefined'%20?%20globalThis%20:%20typeof%20window%20!==%20'undefined'%20?%20window%20:%20typeof%20global%20!==%20'undefined'%20?%20global%20:%20typeof%20self%20!==%20'undefined'%20?%20self%20:%20%7B%7D;%0A%0A%20%20var%20alea$1%20=%20%7Bexports:%20%7B%7D%7D;%0A%0A%20%20(function%20(module)%20%7B%0A%20%20//%20A%20port%20of%20an%20algorithm%20by%20Johannes%20Baag%C3%B8e%20%3Cbaagoe@baagoe.com%3E,%202010%0A%20%20//%20http://baagoe.com/en/RandomMusings/javascript/%0A%20%20//%20https://github.com/nquinlan/better-random-numbers-for-javascript-mirror%0A%20%20//%20Original%20work%20is%20under%20MIT%20license%20-%0A%0A%20%20//%20Copyright%20(C)%202010%20by%20Johannes%20Baag%C3%B8e%20%3Cbaagoe@baagoe.org%3E%0A%20%20//%0A%20%20//%20Permission%20is%20hereby%20granted,%20free%20of%20charge,%20to%20any%20person%20obtaining%20a%20copy%0A%20%20//%20of%20this%20software%20and%20associated%20documentation%20files%20(the%20%22Software%22),%20to%20deal%0A%20%20//%20in%20the%20Software%20without%20restriction,%20including%20without%20limitation%20the%20rights%0A%20%20//%20to%20use,%20copy,%20modify,%20merge,%20publish,%20distribute,%20sublicense,%20and/or%20sell%0A%20%20//%20copies%20of%20the%20Software,%20and%20to%20permit%20persons%20to%20whom%20the%20Software%20is%0A%20%20//%20furnished%20to%20do%20so,%20subject%20to%20the%20following%20conditions:%0A%20%20//%0A%20%20//%20The%20above%20copyright%20notice%20and%20this%20permission%20notice%20shall%20be%20included%20in%0A%20%20//%20all%20copies%20or%20substantial%20portions%20of%20the%20Software.%0A%20%20//%0A%20%20//%20THE%20SOFTWARE%20IS%20PROVIDED%20%22AS%20IS%22,%20WITHOUT%20WARRANTY%20OF%20ANY%20KIND,%20EXPRESS%20OR%0A%20%20//%20IMPLIED,%20INCLUDING%20BUT%20NOT%20LIMITED%20TO%20THE%20WARRANTIES%20OF%20MERCHANTABILITY,%0A%20%20//%20FITNESS%20FOR%20A%20PARTICULAR%20PURPOSE%20AND%20NONINFRINGEMENT.%20IN%20NO%20EVENT%20SHALL%20THE%0A%20%20//%20AUTHORS%20OR%20COPYRIGHT%20HOLDERS%20BE%20LIABLE%20FOR%20ANY%20CLAIM,%20DAMAGES%20OR%20OTHER%0A%20%20//%20LIABILITY,%20WHETHER%20IN%20AN%20ACTION%20OF%20CONTRACT,%20TORT%20OR%20OTHERWISE,%20ARISING%20FROM,%0A%20%20//%20OUT%20OF%20OR%20IN%20CONNECTION%20WITH%20THE%20SOFTWARE%20OR%20THE%20USE%20OR%20OTHER%20DEALINGS%20IN%0A%20%20//%20THE%20SOFTWARE.%0A%0A%0A%0A%20%20(function(global,%20module,%20define)%20%7B%0A%0A%20%20function%20Alea(seed)%20%7B%0A%20%20%20%20var%20me%20=%20this,%20mash%20=%20Mash();%0A%0A%20%20%20%20me.next%20=%20function()%20%7B%0A%20%20%20%20%20%20var%20t%20=%202091639%20*%20me.s0%20+%20me.c%20*%202.3283064365386963e-10;%20//%202%5E-32%0A%20%20%20%20%20%20me.s0%20=%20me.s1;%0A%20%20%20%20%20%20me.s1%20=%20me.s2;%0A%20%20%20%20%20%20return%20me.s2%20=%20t%20-%20(me.c%20=%20t%20%7C%200);%0A%20%20%20%20%7D;%0A%0A%20%20%20%20//%20Apply%20the%20seeding%20algorithm%20from%20Baagoe.%0A%20%20%20%20me.c%20=%201;%0A%20%20%20%20me.s0%20=%20mash('%20');%0A%20%20%20%20me.s1%20=%20mash('%20');%0A%20%20%20%20me.s2%20=%20mash('%20');%0A%20%20%20%20me.s0%20-=%20mash(seed);%0A%20%20%20%20if%20(me.s0%20%3C%200)%20%7B%20me.s0%20+=%201;%20%7D%0A%20%20%20%20me.s1%20-=%20mash(seed);%0A%20%20%20%20if%20(me.s1%20%3C%200)%20%7B%20me.s1%20+=%201;%20%7D%0A%20%20%20%20me.s2%20-=%20mash(seed);%0A%20%20%20%20if%20(me.s2%20%3C%200)%20%7B%20me.s2%20+=%201;%20%7D%0A%20%20%20%20mash%20=%20null;%0A%20%20%7D%0A%0A%20%20function%20copy(f,%20t)%20%7B%0A%20%20%20%20t.c%20=%20f.c;%0A%20%20%20%20t.s0%20=%20f.s0;%0A%20%20%20%20t.s1%20=%20f.s1;%0A%20%20%20%20t.s2%20=%20f.s2;%0A%20%20%20%20return%20t;%0A%20%20%7D%0A%0A%20%20function%20impl(seed,%20opts)%20%7B%0A%20%20%20%20var%20xg%20=%20new%20Alea(seed),%0A%20%20%20%20%20%20%20%20state%20=%20opts%20&&%20opts.state,%0A%20%20%20%20%20%20%20%20prng%20=%20xg.next;%0A%20%20%20%20prng.int32%20=%20function()%20%7B%20return%20(xg.next()%20*%200x100000000)%20%7C%200;%20%7D;%0A%20%20%20%20prng.double%20=%20function()%20%7B%0A%20%20%20%20%20%20return%20prng()%20+%20(prng()%20*%200x200000%20%7C%200)%20*%201.1102230246251565e-16;%20//%202%5E-53%0A%20%20%20%20%7D;%0A%20%20%20%20prng.quick%20=%20prng;%0A%20%20%20%20if%20(state)%20%7B%0A%20%20%20%20%20%20if%20(typeof(state)%20==%20'object')%20copy(state,%20xg);%0A%20%20%20%20%20%20prng.state%20=%20function()%20%7B%20return%20copy(xg,%20%7B%7D);%20%7D;%0A%20%20%20%20%7D%0A%20%20%20%20return%20prng;%0A%20%20%7D%0A%0A%20%20function%20Mash()%20%7B%0A%20%20%20%20var%20n%20=%200xefc8249d;%0A%0A%20%20%20%20var%20mash%20=%20function(data)%20%7B%0A%20%20%20%20%20%20data%20=%20String(data);%0A%20%20%20%20%20%20for%20(var%20i%20=%200;%20i%20%3C%20data.length;%20i++)%20%7B%0A%20%20%20%20%20%20%20%20n%20+=%20data.charCodeAt(i);%0A%20%20%20%20%20%20%20%20var%20h%20=%200.02519603282416938%20*%20n;%0A%20%20%20%20%20%20%20%20n%20=%20h%20%3E%3E%3E%200;%0A%20%20%20%20%20%20%20%20h%20-=%20n;%0A%20%20%20%20%20%20%20%20h%20*=%20n;%0A%20%20%20%20%20%20%20%20n%20=%20h%20%3E%3E%3E%200;%0A%20%20%20%20%20%20%20%20h%20-=%20n;%0A%20%20%20%20%20%20%20%20n%20+=%20h%20*%200x100000000;%20//%202%5E32%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20return%20(n%20%3E%3E%3E%200)%20*%202.3283064365386963e-10;%20//%202%5E-32%0A%20%20%20%20%7D;%0A%0A%20%20%20%20return%20mash;%0A%20%20%7D%0A%0A%0A%20%20if%20(module%20&&%20module.exports)%20%7B%0A%20%20%20%20module.exports%20=%20impl;%0A%20%20%7D%20else%20if%20(define%20&&%20define.amd)%20%7B%0A%20%20%20%20define(function()%20%7B%20return%20impl;%20%7D);%0A%20%20%7D%20else%20%7B%0A%20%20%20%20this.alea%20=%20impl;%0A%20%20%7D%0A%0A%20%20%7D)(%0A%20%20%20%20commonjsGlobal,%0A%20%20%20%20module,%20%20%20%20//%20present%20in%20node.js%0A%20%20%20%20(typeof%20undefined)%20==%20'function'%20%20%20%20//%20present%20with%20an%20AMD%20loader%0A%20%20);%0A%20%20%7D(alea$1));%0A%0A%20%20var%20xor128$1%20=%20%7Bexports:%20%7B%7D%7D;%0A%0A%20%20(function%20(module)%20%7B%0A%20%20//%20A%20Javascript%20implementaion%20of%20the%20%22xor128%22%20prng%20algorithm%20by%0A%20%20//%20George%20Marsaglia.%20%20See%20http://www.jstatsoft.org/v08/i14/paper%0A%0A%20%20(function(global,%20module,%20define)%20%7B%0A%0A%20%20function%20XorGen(seed)%20%7B%0A%20%20%20%20var%20me%20=%20this,%20strseed%20=%20'';%0A%0A%20%20%20%20me.x%20=%200;%0A%20%20%20%20me.y%20=%200;%0A%20%20%20%20me.z%20=%200;%0A%20%20%20%20me.w%20=%200;%0A%0A%20%20%20%20//%20Set%20up%20generator%20function.%0A%20%20%20%20me.next%20=%20function()%20%7B%0A%20%20%20%20%20%20var%20t%20=%20me.x%20%5E%20(me.x%20%3C%3C%2011);%0A%20%20%20%20%20%20me.x%20=%20me.y;%0A%20%20%20%20%20%20me.y%20=%20me.z;%0A%20%20%20%20%20%20me.z%20=%20me.w;%0A%20%20%20%20%20%20return%20me.w%20%5E=%20(me.w%20%3E%3E%3E%2019)%20%5E%20t%20%5E%20(t%20%3E%3E%3E%208);%0A%20%20%20%20%7D;%0A%0A%20%20%20%20if%20(seed%20===%20(seed%20%7C%200))%20%7B%0A%20%20%20%20%20%20//%20Integer%20seed.%0A%20%20%20%20%20%20me.x%20=%20seed;%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20//%20String%20seed.%0A%20%20%20%20%20%20strseed%20+=%20seed;%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Mix%20in%20string%20seed,%20then%20discard%20an%20initial%20batch%20of%2064%20values.%0A%20%20%20%20for%20(var%20k%20=%200;%20k%20%3C%20strseed.length%20+%2064;%20k++)%20%7B%0A%20%20%20%20%20%20me.x%20%5E=%20strseed.charCodeAt(k)%20%7C%200;%0A%20%20%20%20%20%20me.next();%0A%20%20%20%20%7D%0A%20%20%7D%0A%0A%20%20function%20copy(f,%20t)%20%7B%0A%20%20%20%20t.x%20=%20f.x;%0A%20%20%20%20t.y%20=%20f.y;%0A%20%20%20%20t.z%20=%20f.z;%0A%20%20%20%20t.w%20=%20f.w;%0A%20%20%20%20return%20t;%0A%20%20%7D%0A%0A%20%20function%20impl(seed,%20opts)%20%7B%0A%20%20%20%20var%20xg%20=%20new%20XorGen(seed),%0A%20%20%20%20%20%20%20%20state%20=%20opts%20&&%20opts.state,%0A%20%20%20%20%20%20%20%20prng%20=%20function()%20%7B%20return%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000;%20%7D;%0A%20%20%20%20prng.double%20=%20function()%20%7B%0A%20%20%20%20%20%20do%20%7B%0A%20%20%20%20%20%20%20%20var%20top%20=%20xg.next()%20%3E%3E%3E%2011,%0A%20%20%20%20%20%20%20%20%20%20%20%20bot%20=%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000,%0A%20%20%20%20%20%20%20%20%20%20%20%20result%20=%20(top%20+%20bot)%20/%20(1%20%3C%3C%2021);%0A%20%20%20%20%20%20%7D%20while%20(result%20===%200);%0A%20%20%20%20%20%20return%20result;%0A%20%20%20%20%7D;%0A%20%20%20%20prng.int32%20=%20xg.next;%0A%20%20%20%20prng.quick%20=%20prng;%0A%20%20%20%20if%20(state)%20%7B%0A%20%20%20%20%20%20if%20(typeof(state)%20==%20'object')%20copy(state,%20xg);%0A%20%20%20%20%20%20prng.state%20=%20function()%20%7B%20return%20copy(xg,%20%7B%7D);%20%7D;%0A%20%20%20%20%7D%0A%20%20%20%20return%20prng;%0A%20%20%7D%0A%0A%20%20if%20(module%20&&%20module.exports)%20%7B%0A%20%20%20%20module.exports%20=%20impl;%0A%20%20%7D%20else%20if%20(define%20&&%20define.amd)%20%7B%0A%20%20%20%20define(function()%20%7B%20return%20impl;%20%7D);%0A%20%20%7D%20else%20%7B%0A%20%20%20%20this.xor128%20=%20impl;%0A%20%20%7D%0A%0A%20%20%7D)(%0A%20%20%20%20commonjsGlobal,%0A%20%20%20%20module,%20%20%20%20//%20present%20in%20node.js%0A%20%20%20%20(typeof%20undefined)%20==%20'function'%20%20%20%20//%20present%20with%20an%20AMD%20loader%0A%20%20);%0A%20%20%7D(xor128$1));%0A%0A%20%20var%20xorwow$1%20=%20%7Bexports:%20%7B%7D%7D;%0A%0A%20%20(function%20(module)%20%7B%0A%20%20//%20A%20Javascript%20implementaion%20of%20the%20%22xorwow%22%20prng%20algorithm%20by%0A%20%20//%20George%20Marsaglia.%20%20See%20http://www.jstatsoft.org/v08/i14/paper%0A%0A%20%20(function(global,%20module,%20define)%20%7B%0A%0A%20%20function%20XorGen(seed)%20%7B%0A%20%20%20%20var%20me%20=%20this,%20strseed%20=%20'';%0A%0A%20%20%20%20//%20Set%20up%20generator%20function.%0A%20%20%20%20me.next%20=%20function()%20%7B%0A%20%20%20%20%20%20var%20t%20=%20(me.x%20%5E%20(me.x%20%3E%3E%3E%202));%0A%20%20%20%20%20%20me.x%20=%20me.y;%20me.y%20=%20me.z;%20me.z%20=%20me.w;%20me.w%20=%20me.v;%0A%20%20%20%20%20%20return%20(me.d%20=%20(me.d%20+%20362437%20%7C%200))%20+%0A%20%20%20%20%20%20%20%20%20(me.v%20=%20(me.v%20%5E%20(me.v%20%3C%3C%204))%20%5E%20(t%20%5E%20(t%20%3C%3C%201)))%20%7C%200;%0A%20%20%20%20%7D;%0A%0A%20%20%20%20me.x%20=%200;%0A%20%20%20%20me.y%20=%200;%0A%20%20%20%20me.z%20=%200;%0A%20%20%20%20me.w%20=%200;%0A%20%20%20%20me.v%20=%200;%0A%0A%20%20%20%20if%20(seed%20===%20(seed%20%7C%200))%20%7B%0A%20%20%20%20%20%20//%20Integer%20seed.%0A%20%20%20%20%20%20me.x%20=%20seed;%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20//%20String%20seed.%0A%20%20%20%20%20%20strseed%20+=%20seed;%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Mix%20in%20string%20seed,%20then%20discard%20an%20initial%20batch%20of%2064%20values.%0A%20%20%20%20for%20(var%20k%20=%200;%20k%20%3C%20strseed.length%20+%2064;%20k++)%20%7B%0A%20%20%20%20%20%20me.x%20%5E=%20strseed.charCodeAt(k)%20%7C%200;%0A%20%20%20%20%20%20if%20(k%20==%20strseed.length)%20%7B%0A%20%20%20%20%20%20%20%20me.d%20=%20me.x%20%3C%3C%2010%20%5E%20me.x%20%3E%3E%3E%204;%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20me.next();%0A%20%20%20%20%7D%0A%20%20%7D%0A%0A%20%20function%20copy(f,%20t)%20%7B%0A%20%20%20%20t.x%20=%20f.x;%0A%20%20%20%20t.y%20=%20f.y;%0A%20%20%20%20t.z%20=%20f.z;%0A%20%20%20%20t.w%20=%20f.w;%0A%20%20%20%20t.v%20=%20f.v;%0A%20%20%20%20t.d%20=%20f.d;%0A%20%20%20%20return%20t;%0A%20%20%7D%0A%0A%20%20function%20impl(seed,%20opts)%20%7B%0A%20%20%20%20var%20xg%20=%20new%20XorGen(seed),%0A%20%20%20%20%20%20%20%20state%20=%20opts%20&&%20opts.state,%0A%20%20%20%20%20%20%20%20prng%20=%20function()%20%7B%20return%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000;%20%7D;%0A%20%20%20%20prng.double%20=%20function()%20%7B%0A%20%20%20%20%20%20do%20%7B%0A%20%20%20%20%20%20%20%20var%20top%20=%20xg.next()%20%3E%3E%3E%2011,%0A%20%20%20%20%20%20%20%20%20%20%20%20bot%20=%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000,%0A%20%20%20%20%20%20%20%20%20%20%20%20result%20=%20(top%20+%20bot)%20/%20(1%20%3C%3C%2021);%0A%20%20%20%20%20%20%7D%20while%20(result%20===%200);%0A%20%20%20%20%20%20return%20result;%0A%20%20%20%20%7D;%0A%20%20%20%20prng.int32%20=%20xg.next;%0A%20%20%20%20prng.quick%20=%20prng;%0A%20%20%20%20if%20(state)%20%7B%0A%20%20%20%20%20%20if%20(typeof(state)%20==%20'object')%20copy(state,%20xg);%0A%20%20%20%20%20%20prng.state%20=%20function()%20%7B%20return%20copy(xg,%20%7B%7D);%20%7D;%0A%20%20%20%20%7D%0A%20%20%20%20return%20prng;%0A%20%20%7D%0A%0A%20%20if%20(module%20&&%20module.exports)%20%7B%0A%20%20%20%20module.exports%20=%20impl;%0A%20%20%7D%20else%20if%20(define%20&&%20define.amd)%20%7B%0A%20%20%20%20define(function()%20%7B%20return%20impl;%20%7D);%0A%20%20%7D%20else%20%7B%0A%20%20%20%20this.xorwow%20=%20impl;%0A%20%20%7D%0A%0A%20%20%7D)(%0A%20%20%20%20commonjsGlobal,%0A%20%20%20%20module,%20%20%20%20//%20present%20in%20node.js%0A%20%20%20%20(typeof%20undefined)%20==%20'function'%20%20%20%20//%20present%20with%20an%20AMD%20loader%0A%20%20);%0A%20%20%7D(xorwow$1));%0A%0A%20%20var%20xorshift7$1%20=%20%7Bexports:%20%7B%7D%7D;%0A%0A%20%20(function%20(module)%20%7B%0A%20%20//%20A%20Javascript%20implementaion%20of%20the%20%22xorshift7%22%20algorithm%20by%0A%20%20//%20Fran%C3%A7ois%20Panneton%20and%20Pierre%20L'ecuyer:%0A%20%20//%20%22On%20the%20Xorgshift%20Random%20Number%20Generators%22%0A%20%20//%20http://saluc.engr.uconn.edu/refs/crypto/rng/panneton05onthexorshift.pdf%0A%0A%20%20(function(global,%20module,%20define)%20%7B%0A%0A%20%20function%20XorGen(seed)%20%7B%0A%20%20%20%20var%20me%20=%20this;%0A%0A%20%20%20%20//%20Set%20up%20generator%20function.%0A%20%20%20%20me.next%20=%20function()%20%7B%0A%20%20%20%20%20%20//%20Update%20xor%20generator.%0A%20%20%20%20%20%20var%20X%20=%20me.x,%20i%20=%20me.i,%20t,%20v;%0A%20%20%20%20%20%20t%20=%20X%5Bi%5D;%20t%20%5E=%20(t%20%3E%3E%3E%207);%20v%20=%20t%20%5E%20(t%20%3C%3C%2024);%0A%20%20%20%20%20%20t%20=%20X%5B(i%20+%201)%20&%207%5D;%20v%20%5E=%20t%20%5E%20(t%20%3E%3E%3E%2010);%0A%20%20%20%20%20%20t%20=%20X%5B(i%20+%203)%20&%207%5D;%20v%20%5E=%20t%20%5E%20(t%20%3E%3E%3E%203);%0A%20%20%20%20%20%20t%20=%20X%5B(i%20+%204)%20&%207%5D;%20v%20%5E=%20t%20%5E%20(t%20%3C%3C%207);%0A%20%20%20%20%20%20t%20=%20X%5B(i%20+%207)%20&%207%5D;%20t%20=%20t%20%5E%20(t%20%3C%3C%2013);%20v%20%5E=%20t%20%5E%20(t%20%3C%3C%209);%0A%20%20%20%20%20%20X%5Bi%5D%20=%20v;%0A%20%20%20%20%20%20me.i%20=%20(i%20+%201)%20&%207;%0A%20%20%20%20%20%20return%20v;%0A%20%20%20%20%7D;%0A%0A%20%20%20%20function%20init(me,%20seed)%20%7B%0A%20%20%20%20%20%20var%20j,%20X%20=%20%5B%5D;%0A%0A%20%20%20%20%20%20if%20(seed%20===%20(seed%20%7C%200))%20%7B%0A%20%20%20%20%20%20%20%20//%20Seed%20state%20array%20using%20a%2032-bit%20integer.%0A%20%20%20%20%20%20%20%20X%5B0%5D%20=%20seed;%0A%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20//%20Seed%20state%20using%20a%20string.%0A%20%20%20%20%20%20%20%20seed%20=%20''%20+%20seed;%0A%20%20%20%20%20%20%20%20for%20(j%20=%200;%20j%20%3C%20seed.length;%20++j)%20%7B%0A%20%20%20%20%20%20%20%20%20%20X%5Bj%20&%207%5D%20=%20(X%5Bj%20&%207%5D%20%3C%3C%2015)%20%5E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20(seed.charCodeAt(j)%20+%20X%5B(j%20+%201)%20&%207%5D%20%3C%3C%2013);%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20//%20Enforce%20an%20array%20length%20of%208,%20not%20all%20zeroes.%0A%20%20%20%20%20%20while%20(X.length%20%3C%208)%20X.push(0);%0A%20%20%20%20%20%20for%20(j%20=%200;%20j%20%3C%208%20&&%20X%5Bj%5D%20===%200;%20++j);%0A%20%20%20%20%20%20if%20(j%20==%208)%20X%5B7%5D%20=%20-1;%0A%0A%20%20%20%20%20%20me.x%20=%20X;%0A%20%20%20%20%20%20me.i%20=%200;%0A%0A%20%20%20%20%20%20//%20Discard%20an%20initial%20256%20values.%0A%20%20%20%20%20%20for%20(j%20=%20256;%20j%20%3E%200;%20--j)%20%7B%0A%20%20%20%20%20%20%20%20me.next();%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%0A%20%20%20%20init(me,%20seed);%0A%20%20%7D%0A%0A%20%20function%20copy(f,%20t)%20%7B%0A%20%20%20%20t.x%20=%20f.x.slice();%0A%20%20%20%20t.i%20=%20f.i;%0A%20%20%20%20return%20t;%0A%20%20%7D%0A%0A%20%20function%20impl(seed,%20opts)%20%7B%0A%20%20%20%20if%20(seed%20==%20null)%20seed%20=%20+(new%20Date);%0A%20%20%20%20var%20xg%20=%20new%20XorGen(seed),%0A%20%20%20%20%20%20%20%20state%20=%20opts%20&&%20opts.state,%0A%20%20%20%20%20%20%20%20prng%20=%20function()%20%7B%20return%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000;%20%7D;%0A%20%20%20%20prng.double%20=%20function()%20%7B%0A%20%20%20%20%20%20do%20%7B%0A%20%20%20%20%20%20%20%20var%20top%20=%20xg.next()%20%3E%3E%3E%2011,%0A%20%20%20%20%20%20%20%20%20%20%20%20bot%20=%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000,%0A%20%20%20%20%20%20%20%20%20%20%20%20result%20=%20(top%20+%20bot)%20/%20(1%20%3C%3C%2021);%0A%20%20%20%20%20%20%7D%20while%20(result%20===%200);%0A%20%20%20%20%20%20return%20result;%0A%20%20%20%20%7D;%0A%20%20%20%20prng.int32%20=%20xg.next;%0A%20%20%20%20prng.quick%20=%20prng;%0A%20%20%20%20if%20(state)%20%7B%0A%20%20%20%20%20%20if%20(state.x)%20copy(state,%20xg);%0A%20%20%20%20%20%20prng.state%20=%20function()%20%7B%20return%20copy(xg,%20%7B%7D);%20%7D;%0A%20%20%20%20%7D%0A%20%20%20%20return%20prng;%0A%20%20%7D%0A%0A%20%20if%20(module%20&&%20module.exports)%20%7B%0A%20%20%20%20module.exports%20=%20impl;%0A%20%20%7D%20else%20if%20(define%20&&%20define.amd)%20%7B%0A%20%20%20%20define(function()%20%7B%20return%20impl;%20%7D);%0A%20%20%7D%20else%20%7B%0A%20%20%20%20this.xorshift7%20=%20impl;%0A%20%20%7D%0A%0A%20%20%7D)(%0A%20%20%20%20commonjsGlobal,%0A%20%20%20%20module,%20%20%20%20//%20present%20in%20node.js%0A%20%20%20%20(typeof%20undefined)%20==%20'function'%20%20%20%20//%20present%20with%20an%20AMD%20loader%0A%20%20);%0A%20%20%7D(xorshift7$1));%0A%0A%20%20var%20xor4096$1%20=%20%7Bexports:%20%7B%7D%7D;%0A%0A%20%20(function%20(module)%20%7B%0A%20%20//%20A%20Javascript%20implementaion%20of%20Richard%20Brent's%20Xorgens%20xor4096%20algorithm.%0A%20%20//%0A%20%20//%20This%20fast%20non-cryptographic%20random%20number%20generator%20is%20designed%20for%0A%20%20//%20use%20in%20Monte-Carlo%20algorithms.%20It%20combines%20a%20long-period%20xorshift%0A%20%20//%20generator%20with%20a%20Weyl%20generator,%20and%20it%20passes%20all%20common%20batteries%0A%20%20//%20of%20stasticial%20tests%20for%20randomness%20while%20consuming%20only%20a%20few%20nanoseconds%0A%20%20//%20for%20each%20prng%20generated.%20%20For%20background%20on%20the%20generator,%20see%20Brent's%0A%20%20//%20paper:%20%22Some%20long-period%20random%20number%20generators%20using%20shifts%20and%20xors.%22%0A%20%20//%20http://arxiv.org/pdf/1004.3115v1.pdf%0A%20%20//%0A%20%20//%20Usage:%0A%20%20//%0A%20%20//%20var%20xor4096%20=%20require('xor4096');%0A%20%20//%20random%20=%20xor4096(1);%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Seed%20with%20int32%20or%20string.%0A%20%20//%20assert.equal(random(),%200.1520436450538547);%20//%20(0,%201)%20range,%2053%20bits.%0A%20%20//%20assert.equal(random.int32(),%201806534897);%20%20%20//%20signed%20int32,%2032%20bits.%0A%20%20//%0A%20%20//%20For%20nonzero%20numeric%20keys,%20this%20impelementation%20provides%20a%20sequence%0A%20%20//%20identical%20to%20that%20by%20Brent's%20xorgens%203%20implementaion%20in%20C.%20%20This%0A%20%20//%20implementation%20also%20provides%20for%20initalizing%20the%20generator%20with%0A%20%20//%20string%20seeds,%20or%20for%20saving%20and%20restoring%20the%20state%20of%20the%20generator.%0A%20%20//%0A%20%20//%20On%20Chrome,%20this%20prng%20benchmarks%20about%202.1%20times%20slower%20than%0A%20%20//%20Javascript's%20built-in%20Math.random().%0A%0A%20%20(function(global,%20module,%20define)%20%7B%0A%0A%20%20function%20XorGen(seed)%20%7B%0A%20%20%20%20var%20me%20=%20this;%0A%0A%20%20%20%20//%20Set%20up%20generator%20function.%0A%20%20%20%20me.next%20=%20function()%20%7B%0A%20%20%20%20%20%20var%20w%20=%20me.w,%0A%20%20%20%20%20%20%20%20%20%20X%20=%20me.X,%20i%20=%20me.i,%20t,%20v;%0A%20%20%20%20%20%20//%20Update%20Weyl%20generator.%0A%20%20%20%20%20%20me.w%20=%20w%20=%20(w%20+%200x61c88647)%20%7C%200;%0A%20%20%20%20%20%20//%20Update%20xor%20generator.%0A%20%20%20%20%20%20v%20=%20X%5B(i%20+%2034)%20&%20127%5D;%0A%20%20%20%20%20%20t%20=%20X%5Bi%20=%20((i%20+%201)%20&%20127)%5D;%0A%20%20%20%20%20%20v%20%5E=%20v%20%3C%3C%2013;%0A%20%20%20%20%20%20t%20%5E=%20t%20%3C%3C%2017;%0A%20%20%20%20%20%20v%20%5E=%20v%20%3E%3E%3E%2015;%0A%20%20%20%20%20%20t%20%5E=%20t%20%3E%3E%3E%2012;%0A%20%20%20%20%20%20//%20Update%20Xor%20generator%20array%20state.%0A%20%20%20%20%20%20v%20=%20X%5Bi%5D%20=%20v%20%5E%20t;%0A%20%20%20%20%20%20me.i%20=%20i;%0A%20%20%20%20%20%20//%20Result%20is%20the%20combination.%0A%20%20%20%20%20%20return%20(v%20+%20(w%20%5E%20(w%20%3E%3E%3E%2016)))%20%7C%200;%0A%20%20%20%20%7D;%0A%0A%20%20%20%20function%20init(me,%20seed)%20%7B%0A%20%20%20%20%20%20var%20t,%20v,%20i,%20j,%20w,%20X%20=%20%5B%5D,%20limit%20=%20128;%0A%20%20%20%20%20%20if%20(seed%20===%20(seed%20%7C%200))%20%7B%0A%20%20%20%20%20%20%20%20//%20Numeric%20seeds%20initialize%20v,%20which%20is%20used%20to%20generates%20X.%0A%20%20%20%20%20%20%20%20v%20=%20seed;%0A%20%20%20%20%20%20%20%20seed%20=%20null;%0A%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20//%20String%20seeds%20are%20mixed%20into%20v%20and%20X%20one%20character%20at%20a%20time.%0A%20%20%20%20%20%20%20%20seed%20=%20seed%20+%20'%5C0';%0A%20%20%20%20%20%20%20%20v%20=%200;%0A%20%20%20%20%20%20%20%20limit%20=%20Math.max(limit,%20seed.length);%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20//%20Initialize%20circular%20array%20and%20weyl%20value.%0A%20%20%20%20%20%20for%20(i%20=%200,%20j%20=%20-32;%20j%20%3C%20limit;%20++j)%20%7B%0A%20%20%20%20%20%20%20%20//%20Put%20the%20unicode%20characters%20into%20the%20array,%20and%20shuffle%20them.%0A%20%20%20%20%20%20%20%20if%20(seed)%20v%20%5E=%20seed.charCodeAt((j%20+%2032)%20%25%20seed.length);%0A%20%20%20%20%20%20%20%20//%20After%2032%20shuffles,%20take%20v%20as%20the%20starting%20w%20value.%0A%20%20%20%20%20%20%20%20if%20(j%20===%200)%20w%20=%20v;%0A%20%20%20%20%20%20%20%20v%20%5E=%20v%20%3C%3C%2010;%0A%20%20%20%20%20%20%20%20v%20%5E=%20v%20%3E%3E%3E%2015;%0A%20%20%20%20%20%20%20%20v%20%5E=%20v%20%3C%3C%204;%0A%20%20%20%20%20%20%20%20v%20%5E=%20v%20%3E%3E%3E%2013;%0A%20%20%20%20%20%20%20%20if%20(j%20%3E=%200)%20%7B%0A%20%20%20%20%20%20%20%20%20%20w%20=%20(w%20+%200x61c88647)%20%7C%200;%20%20%20%20%20//%20Weyl.%0A%20%20%20%20%20%20%20%20%20%20t%20=%20(X%5Bj%20&%20127%5D%20%5E=%20(v%20+%20w));%20%20//%20Combine%20xor%20and%20weyl%20to%20init%20array.%0A%20%20%20%20%20%20%20%20%20%20i%20=%20(0%20==%20t)%20?%20i%20+%201%20:%200;%20%20%20%20%20//%20Count%20zeroes.%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20//%20We%20have%20detected%20all%20zeroes;%20make%20the%20key%20nonzero.%0A%20%20%20%20%20%20if%20(i%20%3E=%20128)%20%7B%0A%20%20%20%20%20%20%20%20X%5B(seed%20&&%20seed.length%20%7C%7C%200)%20&%20127%5D%20=%20-1;%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20//%20Run%20the%20generator%20512%20times%20to%20further%20mix%20the%20state%20before%20using%20it.%0A%20%20%20%20%20%20//%20Factoring%20this%20as%20a%20function%20slows%20the%20main%20generator,%20so%20it%20is%20just%0A%20%20%20%20%20%20//%20unrolled%20here.%20%20The%20weyl%20generator%20is%20not%20advanced%20while%20warming%20up.%0A%20%20%20%20%20%20i%20=%20127;%0A%20%20%20%20%20%20for%20(j%20=%204%20*%20128;%20j%20%3E%200;%20--j)%20%7B%0A%20%20%20%20%20%20%20%20v%20=%20X%5B(i%20+%2034)%20&%20127%5D;%0A%20%20%20%20%20%20%20%20t%20=%20X%5Bi%20=%20((i%20+%201)%20&%20127)%5D;%0A%20%20%20%20%20%20%20%20v%20%5E=%20v%20%3C%3C%2013;%0A%20%20%20%20%20%20%20%20t%20%5E=%20t%20%3C%3C%2017;%0A%20%20%20%20%20%20%20%20v%20%5E=%20v%20%3E%3E%3E%2015;%0A%20%20%20%20%20%20%20%20t%20%5E=%20t%20%3E%3E%3E%2012;%0A%20%20%20%20%20%20%20%20X%5Bi%5D%20=%20v%20%5E%20t;%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20//%20Storing%20state%20as%20object%20members%20is%20faster%20than%20using%20closure%20variables.%0A%20%20%20%20%20%20me.w%20=%20w;%0A%20%20%20%20%20%20me.X%20=%20X;%0A%20%20%20%20%20%20me.i%20=%20i;%0A%20%20%20%20%7D%0A%0A%20%20%20%20init(me,%20seed);%0A%20%20%7D%0A%0A%20%20function%20copy(f,%20t)%20%7B%0A%20%20%20%20t.i%20=%20f.i;%0A%20%20%20%20t.w%20=%20f.w;%0A%20%20%20%20t.X%20=%20f.X.slice();%0A%20%20%20%20return%20t;%0A%20%20%7D%0A%20%20function%20impl(seed,%20opts)%20%7B%0A%20%20%20%20if%20(seed%20==%20null)%20seed%20=%20+(new%20Date);%0A%20%20%20%20var%20xg%20=%20new%20XorGen(seed),%0A%20%20%20%20%20%20%20%20state%20=%20opts%20&&%20opts.state,%0A%20%20%20%20%20%20%20%20prng%20=%20function()%20%7B%20return%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000;%20%7D;%0A%20%20%20%20prng.double%20=%20function()%20%7B%0A%20%20%20%20%20%20do%20%7B%0A%20%20%20%20%20%20%20%20var%20top%20=%20xg.next()%20%3E%3E%3E%2011,%0A%20%20%20%20%20%20%20%20%20%20%20%20bot%20=%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000,%0A%20%20%20%20%20%20%20%20%20%20%20%20result%20=%20(top%20+%20bot)%20/%20(1%20%3C%3C%2021);%0A%20%20%20%20%20%20%7D%20while%20(result%20===%200);%0A%20%20%20%20%20%20return%20result;%0A%20%20%20%20%7D;%0A%20%20%20%20prng.int32%20=%20xg.next;%0A%20%20%20%20prng.quick%20=%20prng;%0A%20%20%20%20if%20(state)%20%7B%0A%20%20%20%20%20%20if%20(state.X)%20copy(state,%20xg);%0A%20%20%20%20%20%20prng.state%20=%20function()%20%7B%20return%20copy(xg,%20%7B%7D);%20%7D;%0A%20%20%20%20%7D%0A%20%20%20%20return%20prng;%0A%20%20%7D%0A%0A%20%20if%20(module%20&&%20module.exports)%20%7B%0A%20%20%20%20module.exports%20=%20impl;%0A%20%20%7D%20else%20if%20(define%20&&%20define.amd)%20%7B%0A%20%20%20%20define(function()%20%7B%20return%20impl;%20%7D);%0A%20%20%7D%20else%20%7B%0A%20%20%20%20this.xor4096%20=%20impl;%0A%20%20%7D%0A%0A%20%20%7D)(%0A%20%20%20%20commonjsGlobal,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20window%20object%20or%20global%0A%20%20%20%20module,%20%20%20%20//%20present%20in%20node.js%0A%20%20%20%20(typeof%20undefined)%20==%20'function'%20%20%20%20//%20present%20with%20an%20AMD%20loader%0A%20%20);%0A%20%20%7D(xor4096$1));%0A%0A%20%20var%20tychei$1%20=%20%7Bexports:%20%7B%7D%7D;%0A%0A%20%20(function%20(module)%20%7B%0A%20%20//%20A%20Javascript%20implementaion%20of%20the%20%22Tyche-i%22%20prng%20algorithm%20by%0A%20%20//%20Samuel%20Neves%20and%20Filipe%20Araujo.%0A%20%20//%20See%20https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf%0A%0A%20%20(function(global,%20module,%20define)%20%7B%0A%0A%20%20function%20XorGen(seed)%20%7B%0A%20%20%20%20var%20me%20=%20this,%20strseed%20=%20'';%0A%0A%20%20%20%20//%20Set%20up%20generator%20function.%0A%20%20%20%20me.next%20=%20function()%20%7B%0A%20%20%20%20%20%20var%20b%20=%20me.b,%20c%20=%20me.c,%20d%20=%20me.d,%20a%20=%20me.a;%0A%20%20%20%20%20%20b%20=%20(b%20%3C%3C%2025)%20%5E%20(b%20%3E%3E%3E%207)%20%5E%20c;%0A%20%20%20%20%20%20c%20=%20(c%20-%20d)%20%7C%200;%0A%20%20%20%20%20%20d%20=%20(d%20%3C%3C%2024)%20%5E%20(d%20%3E%3E%3E%208)%20%5E%20a;%0A%20%20%20%20%20%20a%20=%20(a%20-%20b)%20%7C%200;%0A%20%20%20%20%20%20me.b%20=%20b%20=%20(b%20%3C%3C%2020)%20%5E%20(b%20%3E%3E%3E%2012)%20%5E%20c;%0A%20%20%20%20%20%20me.c%20=%20c%20=%20(c%20-%20d)%20%7C%200;%0A%20%20%20%20%20%20me.d%20=%20(d%20%3C%3C%2016)%20%5E%20(c%20%3E%3E%3E%2016)%20%5E%20a;%0A%20%20%20%20%20%20return%20me.a%20=%20(a%20-%20b)%20%7C%200;%0A%20%20%20%20%7D;%0A%0A%20%20%20%20/*%20The%20following%20is%20non-inverted%20tyche,%20which%20has%20better%20internal%0A%20%20%20%20%20*%20bit%20diffusion,%20but%20which%20is%20about%2025%25%20slower%20than%20tyche-i%20in%20JS.%0A%20%20%20%20me.next%20=%20function()%20%7B%0A%20%20%20%20%20%20var%20a%20=%20me.a,%20b%20=%20me.b,%20c%20=%20me.c,%20d%20=%20me.d;%0A%20%20%20%20%20%20a%20=%20(me.a%20+%20me.b%20%7C%200)%20%3E%3E%3E%200;%0A%20%20%20%20%20%20d%20=%20me.d%20%5E%20a;%20d%20=%20d%20%3C%3C%2016%20%5E%20d%20%3E%3E%3E%2016;%0A%20%20%20%20%20%20c%20=%20me.c%20+%20d%20%7C%200;%0A%20%20%20%20%20%20b%20=%20me.b%20%5E%20c;%20b%20=%20b%20%3C%3C%2012%20%5E%20d%20%3E%3E%3E%2020;%0A%20%20%20%20%20%20me.a%20=%20a%20=%20a%20+%20b%20%7C%200;%0A%20%20%20%20%20%20d%20=%20d%20%5E%20a;%20me.d%20=%20d%20=%20d%20%3C%3C%208%20%5E%20d%20%3E%3E%3E%2024;%0A%20%20%20%20%20%20me.c%20=%20c%20=%20c%20+%20d%20%7C%200;%0A%20%20%20%20%20%20b%20=%20b%20%5E%20c;%0A%20%20%20%20%20%20return%20me.b%20=%20(b%20%3C%3C%207%20%5E%20b%20%3E%3E%3E%2025);%0A%20%20%20%20%7D%0A%20%20%20%20*/%0A%0A%20%20%20%20me.a%20=%200;%0A%20%20%20%20me.b%20=%200;%0A%20%20%20%20me.c%20=%202654435769%20%7C%200;%0A%20%20%20%20me.d%20=%201367130551;%0A%0A%20%20%20%20if%20(seed%20===%20Math.floor(seed))%20%7B%0A%20%20%20%20%20%20//%20Integer%20seed.%0A%20%20%20%20%20%20me.a%20=%20(seed%20/%200x100000000)%20%7C%200;%0A%20%20%20%20%20%20me.b%20=%20seed%20%7C%200;%0A%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20//%20String%20seed.%0A%20%20%20%20%20%20strseed%20+=%20seed;%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20Mix%20in%20string%20seed,%20then%20discard%20an%20initial%20batch%20of%2064%20values.%0A%20%20%20%20for%20(var%20k%20=%200;%20k%20%3C%20strseed.length%20+%2020;%20k++)%20%7B%0A%20%20%20%20%20%20me.b%20%5E=%20strseed.charCodeAt(k)%20%7C%200;%0A%20%20%20%20%20%20me.next();%0A%20%20%20%20%7D%0A%20%20%7D%0A%0A%20%20function%20copy(f,%20t)%20%7B%0A%20%20%20%20t.a%20=%20f.a;%0A%20%20%20%20t.b%20=%20f.b;%0A%20%20%20%20t.c%20=%20f.c;%0A%20%20%20%20t.d%20=%20f.d;%0A%20%20%20%20return%20t;%0A%20%20%7D%0A%20%20function%20impl(seed,%20opts)%20%7B%0A%20%20%20%20var%20xg%20=%20new%20XorGen(seed),%0A%20%20%20%20%20%20%20%20state%20=%20opts%20&&%20opts.state,%0A%20%20%20%20%20%20%20%20prng%20=%20function()%20%7B%20return%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000;%20%7D;%0A%20%20%20%20prng.double%20=%20function()%20%7B%0A%20%20%20%20%20%20do%20%7B%0A%20%20%20%20%20%20%20%20var%20top%20=%20xg.next()%20%3E%3E%3E%2011,%0A%20%20%20%20%20%20%20%20%20%20%20%20bot%20=%20(xg.next()%20%3E%3E%3E%200)%20/%200x100000000,%0A%20%20%20%20%20%20%20%20%20%20%20%20result%20=%20(top%20+%20bot)%20/%20(1%20%3C%3C%2021);%0A%20%20%20%20%20%20%7D%20while%20(result%20===%200);%0A%20%20%20%20%20%20return%20result;%0A%20%20%20%20%7D;%0A%20%20%20%20prng.int32%20=%20xg.next;%0A%20%20%20%20prng.quick%20=%20prng;%0A%20%20%20%20if%20(state)%20%7B%0A%20%20%20%20%20%20if%20(typeof(state)%20==%20'object')%20copy(state,%20xg);%0A%20%20%20%20%20%20prng.state%20=%20function()%20%7B%20return%20copy(xg,%20%7B%7D);%20%7D;%0A%20%20%20%20%7D%0A%20%20%20%20return%20prng;%0A%20%20%7D%0A%0A%20%20if%20(module%20&&%20module.exports)%20%7B%0A%20%20%20%20module.exports%20=%20impl;%0A%20%20%7D%20else%20if%20(define%20&&%20define.amd)%20%7B%0A%20%20%20%20define(function()%20%7B%20return%20impl;%20%7D);%0A%20%20%7D%20else%20%7B%0A%20%20%20%20this.tychei%20=%20impl;%0A%20%20%7D%0A%0A%20%20%7D)(%0A%20%20%20%20commonjsGlobal,%0A%20%20%20%20module,%20%20%20%20//%20present%20in%20node.js%0A%20%20%20%20(typeof%20undefined)%20==%20'function'%20%20%20%20//%20present%20with%20an%20AMD%20loader%0A%20%20);%0A%20%20%7D(tychei$1));%0A%0A%20%20var%20seedrandom$1%20=%20%7Bexports:%20%7B%7D%7D;%0A%0A%20%20/*%0A%20%20Copyright%202019%20David%20Bau.%0A%0A%20%20Permission%20is%20hereby%20granted,%20free%20of%20charge,%20to%20any%20person%20obtaining%0A%20%20a%20copy%20of%20this%20software%20and%20associated%20documentation%20files%20(the%0A%20%20%22Software%22),%20to%20deal%20in%20the%20Software%20without%20restriction,%20including%0A%20%20without%20limitation%20the%20rights%20to%20use,%20copy,%20modify,%20merge,%20publish,%0A%20%20distribute,%20sublicense,%20and/or%20sell%20copies%20of%20the%20Software,%20and%20to%0A%20%20permit%20persons%20to%20whom%20the%20Software%20is%20furnished%20to%20do%20so,%20subject%20to%0A%20%20the%20following%20conditions:%0A%0A%20%20The%20above%20copyright%20notice%20and%20this%20permission%20notice%20shall%20be%0A%20%20included%20in%20all%20copies%20or%20substantial%20portions%20of%20the%20Software.%0A%0A%20%20THE%20SOFTWARE%20IS%20PROVIDED%20%22AS%20IS%22,%20WITHOUT%20WARRANTY%20OF%20ANY%20KIND,%0A%20%20EXPRESS%20OR%20IMPLIED,%20INCLUDING%20BUT%20NOT%20LIMITED%20TO%20THE%20WARRANTIES%20OF%0A%20%20MERCHANTABILITY,%20FITNESS%20FOR%20A%20PARTICULAR%20PURPOSE%20AND%20NONINFRINGEMENT.%0A%20%20IN%20NO%20EVENT%20SHALL%20THE%20AUTHORS%20OR%20COPYRIGHT%20HOLDERS%20BE%20LIABLE%20FOR%20ANY%0A%20%20CLAIM,%20DAMAGES%20OR%20OTHER%20LIABILITY,%20WHETHER%20IN%20AN%20ACTION%20OF%20CONTRACT,%0A%20%20TORT%20OR%20OTHERWISE,%20ARISING%20FROM,%20OUT%20OF%20OR%20IN%20CONNECTION%20WITH%20THE%0A%20%20SOFTWARE%20OR%20THE%20USE%20OR%20OTHER%20DEALINGS%20IN%20THE%20SOFTWARE.%0A%0A%20%20*/%0A%0A%20%20(function%20(module)%20%7B%0A%20%20(function%20(global,%20pool,%20math)%20%7B%0A%20%20//%0A%20%20//%20The%20following%20constants%20are%20related%20to%20IEEE%20754%20limits.%0A%20%20//%0A%0A%20%20var%20width%20=%20256,%20%20%20%20%20%20%20%20//%20each%20RC4%20output%20is%200%20%3C=%20x%20%3C%20256%0A%20%20%20%20%20%20chunks%20=%206,%20%20%20%20%20%20%20%20%20//%20at%20least%20six%20RC4%20outputs%20for%20each%20double%0A%20%20%20%20%20%20digits%20=%2052,%20%20%20%20%20%20%20%20//%20there%20are%2052%20significant%20digits%20in%20a%20double%0A%20%20%20%20%20%20rngname%20=%20'random',%20//%20rngname:%20name%20for%20Math.random%20and%20Math.seedrandom%0A%20%20%20%20%20%20startdenom%20=%20math.pow(width,%20chunks),%0A%20%20%20%20%20%20significance%20=%20math.pow(2,%20digits),%0A%20%20%20%20%20%20overflow%20=%20significance%20*%202,%0A%20%20%20%20%20%20mask%20=%20width%20-%201,%0A%20%20%20%20%20%20nodecrypto;%20%20%20%20%20%20%20%20%20//%20node.js%20crypto%20module,%20initialized%20at%20the%20bottom.%0A%0A%20%20//%0A%20%20//%20seedrandom()%0A%20%20//%20This%20is%20the%20seedrandom%20function%20described%20above.%0A%20%20//%0A%20%20function%20seedrandom(seed,%20options,%20callback)%20%7B%0A%20%20%20%20var%20key%20=%20%5B%5D;%0A%20%20%20%20options%20=%20(options%20==%20true)%20?%20%7B%20entropy:%20true%20%7D%20:%20(options%20%7C%7C%20%7B%7D);%0A%0A%20%20%20%20//%20Flatten%20the%20seed%20string%20or%20build%20one%20from%20local%20entropy%20if%20needed.%0A%20%20%20%20var%20shortseed%20=%20mixkey(flatten(%0A%20%20%20%20%20%20options.entropy%20?%20%5Bseed,%20tostring(pool)%5D%20:%0A%20%20%20%20%20%20(seed%20==%20null)%20?%20autoseed()%20:%20seed,%203),%20key);%0A%0A%20%20%20%20//%20Use%20the%20seed%20to%20initialize%20an%20ARC4%20generator.%0A%20%20%20%20var%20arc4%20=%20new%20ARC4(key);%0A%0A%20%20%20%20//%20This%20function%20returns%20a%20random%20double%20in%20%5B0,%201)%20that%20contains%0A%20%20%20%20//%20randomness%20in%20every%20bit%20of%20the%20mantissa%20of%20the%20IEEE%20754%20value.%0A%20%20%20%20var%20prng%20=%20function()%20%7B%0A%20%20%20%20%20%20var%20n%20=%20arc4.g(chunks),%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Start%20with%20a%20numerator%20n%20%3C%202%20%5E%2048%0A%20%20%20%20%20%20%20%20%20%20d%20=%20startdenom,%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20%20%20and%20denominator%20d%20=%202%20%5E%2048.%0A%20%20%20%20%20%20%20%20%20%20x%20=%200;%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20%20%20and%20no%20'extra%20last%20byte'.%0A%20%20%20%20%20%20while%20(n%20%3C%20significance)%20%7B%20%20%20%20%20%20%20%20%20%20//%20Fill%20up%20all%20significant%20digits%20by%0A%20%20%20%20%20%20%20%20n%20=%20(n%20+%20x)%20*%20width;%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20%20%20shifting%20numerator%20and%0A%20%20%20%20%20%20%20%20d%20*=%20width;%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20%20%20denominator%20and%20generating%20a%0A%20%20%20%20%20%20%20%20x%20=%20arc4.g(1);%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20%20%20new%20least-significant-byte.%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20while%20(n%20%3E=%20overflow)%20%7B%20%20%20%20%20%20%20%20%20%20%20%20%20//%20To%20avoid%20rounding%20up,%20before%20adding%0A%20%20%20%20%20%20%20%20n%20/=%202;%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20%20%20last%20byte,%20shift%20everything%0A%20%20%20%20%20%20%20%20d%20/=%202;%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20%20%20right%20using%20integer%20math%20until%0A%20%20%20%20%20%20%20%20x%20%3E%3E%3E=%201;%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20%20%20we%20have%20exactly%20the%20desired%20bits.%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20return%20(n%20+%20x)%20/%20d;%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Form%20the%20number%20within%20%5B0,%201).%0A%20%20%20%20%7D;%0A%0A%20%20%20%20prng.int32%20=%20function()%20%7B%20return%20arc4.g(4)%20%7C%200;%20%7D;%0A%20%20%20%20prng.quick%20=%20function()%20%7B%20return%20arc4.g(4)%20/%200x100000000;%20%7D;%0A%20%20%20%20prng.double%20=%20prng;%0A%0A%20%20%20%20//%20Mix%20the%20randomness%20into%20accumulated%20entropy.%0A%20%20%20%20mixkey(tostring(arc4.S),%20pool);%0A%0A%20%20%20%20//%20Calling%20convention:%20what%20to%20return%20as%20a%20function%20of%20prng,%20seed,%20is_math.%0A%20%20%20%20return%20(options.pass%20%7C%7C%20callback%20%7C%7C%0A%20%20%20%20%20%20%20%20function(prng,%20seed,%20is_math_call,%20state)%20%7B%0A%20%20%20%20%20%20%20%20%20%20if%20(state)%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20Load%20the%20arc4%20state%20from%20the%20given%20state%20if%20it%20has%20an%20S%20array.%0A%20%20%20%20%20%20%20%20%20%20%20%20if%20(state.S)%20%7B%20copy(state,%20arc4);%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20//%20Only%20provide%20the%20.state%20method%20if%20requested%20via%20options.state.%0A%20%20%20%20%20%20%20%20%20%20%20%20prng.state%20=%20function()%20%7B%20return%20copy(arc4,%20%7B%7D);%20%7D;%0A%20%20%20%20%20%20%20%20%20%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20//%20If%20called%20as%20a%20method%20of%20Math%20(Math.seedrandom()),%20mutate%0A%20%20%20%20%20%20%20%20%20%20//%20Math.random%20because%20that%20is%20how%20seedrandom.js%20has%20worked%20since%20v1.0.%0A%20%20%20%20%20%20%20%20%20%20if%20(is_math_call)%20%7B%20math%5Brngname%5D%20=%20prng;%20return%20seed;%20%7D%0A%0A%20%20%20%20%20%20%20%20%20%20//%20Otherwise,%20it%20is%20a%20newer%20calling%20convention,%20so%20return%20the%0A%20%20%20%20%20%20%20%20%20%20//%20prng%20directly.%0A%20%20%20%20%20%20%20%20%20%20else%20return%20prng;%0A%20%20%20%20%20%20%20%20%7D)(%0A%20%20%20%20prng,%0A%20%20%20%20shortseed,%0A%20%20%20%20'global'%20in%20options%20?%20options.global%20:%20(this%20==%20math),%0A%20%20%20%20options.state);%0A%20%20%7D%0A%0A%20%20//%0A%20%20//%20ARC4%0A%20%20//%0A%20%20//%20An%20ARC4%20implementation.%20%20The%20constructor%20takes%20a%20key%20in%20the%20form%20of%0A%20%20//%20an%20array%20of%20at%20most%20(width)%20integers%20that%20should%20be%200%20%3C=%20x%20%3C%20(width).%0A%20%20//%0A%20%20//%20The%20g(count)%20method%20returns%20a%20pseudorandom%20integer%20that%20concatenates%0A%20%20//%20the%20next%20(count)%20outputs%20from%20ARC4.%20%20Its%20return%20value%20is%20a%20number%20x%0A%20%20//%20that%20is%20in%20the%20range%200%20%3C=%20x%20%3C%20(width%20%5E%20count).%0A%20%20//%0A%20%20function%20ARC4(key)%20%7B%0A%20%20%20%20var%20t,%20keylen%20=%20key.length,%0A%20%20%20%20%20%20%20%20me%20=%20this,%20i%20=%200,%20j%20=%20me.i%20=%20me.j%20=%200,%20s%20=%20me.S%20=%20%5B%5D;%0A%0A%20%20%20%20//%20The%20empty%20key%20%5B%5D%20is%20treated%20as%20%5B0%5D.%0A%20%20%20%20if%20(!keylen)%20%7B%20key%20=%20%5Bkeylen++%5D;%20%7D%0A%0A%20%20%20%20//%20Set%20up%20S%20using%20the%20standard%20key%20scheduling%20algorithm.%0A%20%20%20%20while%20(i%20%3C%20width)%20%7B%0A%20%20%20%20%20%20s%5Bi%5D%20=%20i++;%0A%20%20%20%20%7D%0A%20%20%20%20for%20(i%20=%200;%20i%20%3C%20width;%20i++)%20%7B%0A%20%20%20%20%20%20s%5Bi%5D%20=%20s%5Bj%20=%20mask%20&%20(j%20+%20key%5Bi%20%25%20keylen%5D%20+%20(t%20=%20s%5Bi%5D))%5D;%0A%20%20%20%20%20%20s%5Bj%5D%20=%20t;%0A%20%20%20%20%7D%0A%0A%20%20%20%20//%20The%20%22g%22%20method%20returns%20the%20next%20(count)%20outputs%20as%20one%20number.%0A%20%20%20%20(me.g%20=%20function(count)%20%7B%0A%20%20%20%20%20%20//%20Using%20instance%20members%20instead%20of%20closure%20state%20nearly%20doubles%20speed.%0A%20%20%20%20%20%20var%20t,%20r%20=%200,%0A%20%20%20%20%20%20%20%20%20%20i%20=%20me.i,%20j%20=%20me.j,%20s%20=%20me.S;%0A%20%20%20%20%20%20while%20(count--)%20%7B%0A%20%20%20%20%20%20%20%20t%20=%20s%5Bi%20=%20mask%20&%20(i%20+%201)%5D;%0A%20%20%20%20%20%20%20%20r%20=%20r%20*%20width%20+%20s%5Bmask%20&%20((s%5Bi%5D%20=%20s%5Bj%20=%20mask%20&%20(j%20+%20t)%5D)%20+%20(s%5Bj%5D%20=%20t))%5D;%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20me.i%20=%20i;%20me.j%20=%20j;%0A%20%20%20%20%20%20return%20r;%0A%20%20%20%20%20%20//%20For%20robust%20unpredictability,%20the%20function%20call%20below%20automatically%0A%20%20%20%20%20%20//%20discards%20an%20initial%20batch%20of%20values.%20%20This%20is%20called%20RC4-drop%5B256%5D.%0A%20%20%20%20%20%20//%20See%20http://google.com/search?q=rsa+fluhrer+response&btnI%0A%20%20%20%20%7D)(width);%0A%20%20%7D%0A%0A%20%20//%0A%20%20//%20copy()%0A%20%20//%20Copies%20internal%20state%20of%20ARC4%20to%20or%20from%20a%20plain%20object.%0A%20%20//%0A%20%20function%20copy(f,%20t)%20%7B%0A%20%20%20%20t.i%20=%20f.i;%0A%20%20%20%20t.j%20=%20f.j;%0A%20%20%20%20t.S%20=%20f.S.slice();%0A%20%20%20%20return%20t;%0A%20%20%7D%0A%20%20//%0A%20%20//%20flatten()%0A%20%20//%20Converts%20an%20object%20tree%20to%20nested%20arrays%20of%20strings.%0A%20%20//%0A%20%20function%20flatten(obj,%20depth)%20%7B%0A%20%20%20%20var%20result%20=%20%5B%5D,%20typ%20=%20(typeof%20obj),%20prop;%0A%20%20%20%20if%20(depth%20&&%20typ%20==%20'object')%20%7B%0A%20%20%20%20%20%20for%20(prop%20in%20obj)%20%7B%0A%20%20%20%20%20%20%20%20try%20%7B%20result.push(flatten(obj%5Bprop%5D,%20depth%20-%201));%20%7D%20catch%20(e)%20%7B%7D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20return%20(result.length%20?%20result%20:%20typ%20==%20'string'%20?%20obj%20:%20obj%20+%20'%5C0');%0A%20%20%7D%0A%0A%20%20//%0A%20%20//%20mixkey()%0A%20%20//%20Mixes%20a%20string%20seed%20into%20a%20key%20that%20is%20an%20array%20of%20integers,%20and%0A%20%20//%20returns%20a%20shortened%20string%20seed%20that%20is%20equivalent%20to%20the%20result%20key.%0A%20%20//%0A%20%20function%20mixkey(seed,%20key)%20%7B%0A%20%20%20%20var%20stringseed%20=%20seed%20+%20'',%20smear,%20j%20=%200;%0A%20%20%20%20while%20(j%20%3C%20stringseed.length)%20%7B%0A%20%20%20%20%20%20key%5Bmask%20&%20j%5D%20=%0A%20%20%20%20%20%20%20%20mask%20&%20((smear%20%5E=%20key%5Bmask%20&%20j%5D%20*%2019)%20+%20stringseed.charCodeAt(j++));%0A%20%20%20%20%7D%0A%20%20%20%20return%20tostring(key);%0A%20%20%7D%0A%0A%20%20//%0A%20%20//%20autoseed()%0A%20%20//%20Returns%20an%20object%20for%20autoseeding,%20using%20window.crypto%20and%20Node%20crypto%0A%20%20//%20module%20if%20available.%0A%20%20//%0A%20%20function%20autoseed()%20%7B%0A%20%20%20%20try%20%7B%0A%20%20%20%20%20%20var%20out;%0A%20%20%20%20%20%20if%20(nodecrypto%20&&%20(out%20=%20nodecrypto.randomBytes))%20%7B%0A%20%20%20%20%20%20%20%20//%20The%20use%20of%20'out'%20to%20remember%20randomBytes%20makes%20tight%20minified%20code.%0A%20%20%20%20%20%20%20%20out%20=%20out(width);%0A%20%20%20%20%20%20%7D%20else%20%7B%0A%20%20%20%20%20%20%20%20out%20=%20new%20Uint8Array(width);%0A%20%20%20%20%20%20%20%20(global.crypto%20%7C%7C%20global.msCrypto).getRandomValues(out);%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20return%20tostring(out);%0A%20%20%20%20%7D%20catch%20(e)%20%7B%0A%20%20%20%20%20%20var%20browser%20=%20global.navigator,%0A%20%20%20%20%20%20%20%20%20%20plugins%20=%20browser%20&&%20browser.plugins;%0A%20%20%20%20%20%20return%20%5B+new%20Date,%20global,%20plugins,%20global.screen,%20tostring(pool)%5D;%0A%20%20%20%20%7D%0A%20%20%7D%0A%0A%20%20//%0A%20%20//%20tostring()%0A%20%20//%20Converts%20an%20array%20of%20charcodes%20to%20a%20string%0A%20%20//%0A%20%20function%20tostring(a)%20%7B%0A%20%20%20%20return%20String.fromCharCode.apply(0,%20a);%0A%20%20%7D%0A%0A%20%20//%0A%20%20//%20When%20seedrandom.js%20is%20loaded,%20we%20immediately%20mix%20a%20few%20bits%0A%20%20//%20from%20the%20built-in%20RNG%20into%20the%20entropy%20pool.%20%20Because%20we%20do%0A%20%20//%20not%20want%20to%20interfere%20with%20deterministic%20PRNG%20state%20later,%0A%20%20//%20seedrandom%20will%20not%20call%20math.random%20on%20its%20own%20again%20after%0A%20%20//%20initialization.%0A%20%20//%0A%20%20mixkey(math.random(),%20pool);%0A%0A%20%20//%0A%20%20//%20Nodejs%20and%20AMD%20support:%20export%20the%20implementation%20as%20a%20module%20using%0A%20%20//%20either%20convention.%0A%20%20//%0A%20%20if%20(module.exports)%20%7B%0A%20%20%20%20module.exports%20=%20seedrandom;%0A%20%20%20%20//%20When%20in%20node.js,%20try%20using%20crypto%20package%20for%20autoseeding.%0A%20%20%20%20try%20%7B%0A%20%20%20%20%20%20nodecrypto%20=%20require('crypto');%0A%20%20%20%20%7D%20catch%20(ex)%20%7B%7D%0A%20%20%7D%20else%20%7B%0A%20%20%20%20//%20When%20included%20as%20a%20plain%20script,%20set%20up%20Math.seedrandom%20global.%0A%20%20%20%20math%5B'seed'%20+%20rngname%5D%20=%20seedrandom;%0A%20%20%7D%0A%0A%0A%20%20//%20End%20anonymous%20scope,%20and%20pass%20initial%20values.%0A%20%20%7D)(%0A%20%20%20%20//%20global:%20%60self%60%20in%20browsers%20(including%20strict%20mode%20and%20web%20workers),%0A%20%20%20%20//%20otherwise%20%60this%60%20in%20Node%20and%20other%20environments%0A%20%20%20%20(typeof%20self%20!==%20'undefined')%20?%20self%20:%20commonjsGlobal,%0A%20%20%20%20%5B%5D,%20%20%20%20%20//%20pool:%20entropy%20pool%20starts%20empty%0A%20%20%20%20Math%20%20%20%20//%20math:%20package%20containing%20random,%20pow,%20and%20seedrandom%0A%20%20);%0A%20%20%7D(seedrandom$1));%0A%0A%20%20//%20A%20library%20of%20seedable%20RNGs%20implemented%20in%20Javascript.%0A%20%20//%0A%20%20//%20Usage:%0A%20%20//%0A%20%20//%20var%20seedrandom%20=%20require('seedrandom');%0A%20%20//%20var%20random%20=%20seedrandom(1);%20//%20or%20any%20seed.%0A%20%20//%20var%20x%20=%20random();%20%20%20%20%20%20%20//%200%20%3C=%20x%20%3C%201.%20%20Every%20bit%20is%20random.%0A%20%20//%20var%20x%20=%20random.quick();%20//%200%20%3C=%20x%20%3C%201.%20%2032%20bits%20of%20randomness.%0A%0A%20%20//%20alea,%20a%2053-bit%20multiply-with-carry%20generator%20by%20Johannes%20Baag%C3%B8e.%0A%20%20//%20Period:%20~2%5E116%0A%20%20//%20Reported%20to%20pass%20all%20BigCrush%20tests.%0A%20%20var%20alea%20=%20alea$1.exports;%0A%0A%20%20//%20xor128,%20a%20pure%20xor-shift%20generator%20by%20George%20Marsaglia.%0A%20%20//%20Period:%202%5E128-1.%0A%20%20//%20Reported%20to%20fail:%20MatrixRank%20and%20LinearComp.%0A%20%20var%20xor128%20=%20xor128$1.exports;%0A%0A%20%20//%20xorwow,%20George%20Marsaglia's%20160-bit%20xor-shift%20combined%20plus%20weyl.%0A%20%20//%20Period:%202%5E192-2%5E32%0A%20%20//%20Reported%20to%20fail:%20CollisionOver,%20SimpPoker,%20and%20LinearComp.%0A%20%20var%20xorwow%20=%20xorwow$1.exports;%0A%0A%20%20//%20xorshift7,%20by%20Fran%C3%A7ois%20Panneton%20and%20Pierre%20L'ecuyer,%20takes%0A%20%20//%20a%20different%20approach:%20it%20adds%20robustness%20by%20allowing%20more%20shifts%0A%20%20//%20than%20Marsaglia's%20original%20three.%20%20It%20is%20a%207-shift%20generator%0A%20%20//%20with%20256%20bits,%20that%20passes%20BigCrush%20with%20no%20systmatic%20failures.%0A%20%20//%20Period%202%5E256-1.%0A%20%20//%20No%20systematic%20BigCrush%20failures%20reported.%0A%20%20var%20xorshift7%20=%20xorshift7$1.exports;%0A%0A%20%20//%20xor4096,%20by%20Richard%20Brent,%20is%20a%204096-bit%20xor-shift%20with%20a%0A%20%20//%20very%20long%20period%20that%20also%20adds%20a%20Weyl%20generator.%20It%20also%20passes%0A%20%20//%20BigCrush%20with%20no%20systematic%20failures.%20%20Its%20long%20period%20may%0A%20%20//%20be%20useful%20if%20you%20have%20many%20generators%20and%20need%20to%20avoid%0A%20%20//%20collisions.%0A%20%20//%20Period:%202%5E4128-2%5E32.%0A%20%20//%20No%20systematic%20BigCrush%20failures%20reported.%0A%20%20var%20xor4096%20=%20xor4096$1.exports;%0A%0A%20%20//%20Tyche-i,%20by%20Samuel%20Neves%20and%20Filipe%20Araujo,%20is%20a%20bit-shifting%20random%0A%20%20//%20number%20generator%20derived%20from%20ChaCha,%20a%20modern%20stream%20cipher.%0A%20%20//%20https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf%0A%20%20//%20Period:%20~2%5E127%0A%20%20//%20No%20systematic%20BigCrush%20failures%20reported.%0A%20%20var%20tychei%20=%20tychei$1.exports;%0A%0A%20%20//%20The%20original%20ARC4-based%20prng%20included%20in%20this%20library.%0A%20%20//%20Period:%20~2%5E1600%0A%20%20var%20sr%20=%20seedrandom$1.exports;%0A%0A%20%20sr.alea%20=%20alea;%0A%20%20sr.xor128%20=%20xor128;%0A%20%20sr.xorwow%20=%20xorwow;%0A%20%20sr.xorshift7%20=%20xorshift7;%0A%20%20sr.xor4096%20=%20xor4096;%0A%20%20sr.tychei%20=%20tychei;%0A%0A%20%20var%20seedrandom%20=%20sr;%0A%0A%20%20/**%0D%0A%20%20%20*%20@param%20%7BHTMLCanvasElement%7D%20canvas%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20domainKey%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20sessionKey%0D%0A%20%20%20*%20@param%20%7Bany%7D%20getImageDataProxy%0D%0A%20%20%20*%20@param%20%7BCanvasRenderingContext2D%20%7C%20WebGL2RenderingContext%20%7C%20WebGLRenderingContext%7D%20ctx?%0D%0A%20%20%20*/%0D%0A%20%20function%20computeOffScreenCanvas%20(canvas,%20domainKey,%20sessionKey,%20getImageDataProxy,%20ctx)%20%7B%0D%0A%20%20%20%20%20%20if%20(!ctx)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20ctx%20=%20canvas.getContext('2d');%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20//%20Make%20a%20off-screen%20canvas%20and%20put%20the%20data%20there%0D%0A%20%20%20%20%20%20const%20offScreenCanvas%20=%20document.createElement('canvas');%0D%0A%20%20%20%20%20%20offScreenCanvas.width%20=%20canvas.width;%0D%0A%20%20%20%20%20%20offScreenCanvas.height%20=%20canvas.height;%0D%0A%20%20%20%20%20%20const%20offScreenCtx%20=%20offScreenCanvas.getContext('2d');%0D%0A%0D%0A%20%20%20%20%20%20let%20rasterizedCtx%20=%20ctx;%0D%0A%20%20%20%20%20%20//%20If%20we're%20not%20a%202d%20canvas%20we%20need%20to%20rasterise%20first%20into%202d%0D%0A%20%20%20%20%20%20const%20rasterizeToCanvas%20=%20!(ctx%20instanceof%20CanvasRenderingContext2D);%0D%0A%20%20%20%20%20%20if%20(rasterizeToCanvas)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20rasterizedCtx%20=%20offScreenCtx;%0D%0A%20%20%20%20%20%20%20%20%20%20offScreenCtx.drawImage(canvas,%200,%200);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20//%20We%20*always*%20compute%20the%20random%20pixels%20on%20the%20complete%20pixel%20set,%20then%20pass%20back%20the%20subset%20later%0D%0A%20%20%20%20%20%20let%20imageData%20=%20getImageDataProxy._native.apply(rasterizedCtx,%20%5B0,%200,%20canvas.width,%20canvas.height%5D);%0D%0A%20%20%20%20%20%20imageData%20=%20modifyPixelData(imageData,%20sessionKey,%20domainKey,%20canvas.width);%0D%0A%0D%0A%20%20%20%20%20%20if%20(rasterizeToCanvas)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20clearCanvas(offScreenCtx);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20offScreenCtx.putImageData(imageData,%200,%200);%0D%0A%0D%0A%20%20%20%20%20%20return%20%7B%20offScreenCanvas,%20offScreenCtx%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Clears%20the%20pixels%20from%20the%20canvas%20context%0D%0A%20%20%20*%0D%0A%20%20%20*%20@param%20%7BCanvasRenderingContext2D%7D%20canvasContext%0D%0A%20%20%20*/%0D%0A%20%20function%20clearCanvas%20(canvasContext)%20%7B%0D%0A%20%20%20%20%20%20//%20Save%20state%20and%20clean%20the%20pixels%20from%20the%20canvas%0D%0A%20%20%20%20%20%20canvasContext.save();%0D%0A%20%20%20%20%20%20canvasContext.globalCompositeOperation%20=%20'destination-out';%0D%0A%20%20%20%20%20%20canvasContext.fillStyle%20=%20'rgb(255,255,255)';%0D%0A%20%20%20%20%20%20canvasContext.fillRect(0,%200,%20canvasContext.canvas.width,%20canvasContext.canvas.height);%0D%0A%20%20%20%20%20%20canvasContext.restore();%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20@param%20%7BImageData%7D%20imageData%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20sessionKey%0D%0A%20%20%20*%20@param%20%7Bstring%7D%20domainKey%0D%0A%20%20%20*%20@param%20%7Bnumber%7D%20width%0D%0A%20%20%20*/%0D%0A%20%20function%20modifyPixelData%20(imageData,%20domainKey,%20sessionKey,%20width)%20%7B%0D%0A%20%20%20%20%20%20const%20d%20=%20imageData.data;%0D%0A%20%20%20%20%20%20const%20length%20=%20d.length%20/%204;%0D%0A%20%20%20%20%20%20let%20checkSum%20=%200;%0D%0A%20%20%20%20%20%20const%20mappingArray%20=%20%5B%5D;%0D%0A%20%20%20%20%20%20for%20(let%20i%20=%200;%20i%20%3C%20length;%20i%20+=%204)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(!shouldIgnorePixel(d,%20i)%20&&%20!adjacentSame(d,%20i,%20width))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20mappingArray.push(i);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20checkSum%20+=%20d%5Bi%5D%20+%20d%5Bi%20+%201%5D%20+%20d%5Bi%20+%202%5D%20+%20d%5Bi%20+%203%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20const%20windowHash%20=%20getDataKeySync(sessionKey,%20domainKey,%20checkSum);%0D%0A%20%20%20%20%20%20const%20rng%20=%20new%20seedrandom(windowHash);%0D%0A%20%20%20%20%20%20for%20(let%20i%20=%200;%20i%20%3C%20mappingArray.length;%20i++)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20rand%20=%20rng();%0D%0A%20%20%20%20%20%20%20%20%20%20const%20byte%20=%20Math.floor(rand%20*%2010);%0D%0A%20%20%20%20%20%20%20%20%20%20const%20channel%20=%20byte%20%25%203;%0D%0A%20%20%20%20%20%20%20%20%20%20const%20pixelCanvasIndex%20=%20mappingArray%5Bi%5D%20+%20channel;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20d%5BpixelCanvasIndex%5D%20=%20d%5BpixelCanvasIndex%5D%20%5E%20(byte%20&%200x1);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20return%20imageData%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Ignore%20pixels%20that%20have%20neighbours%20that%20are%20the%20same%0D%0A%20%20%20*%0D%0A%20%20%20*%20@param%20%7BUint8ClampedArray%7D%20imageData%0D%0A%20%20%20*%20@param%20%7Bnumber%7D%20index%0D%0A%20%20%20*%20@param%20%7Bnumber%7D%20width%0D%0A%20%20%20*/%0D%0A%20%20function%20adjacentSame%20(imageData,%20index,%20width)%20%7B%0D%0A%20%20%20%20%20%20const%20widthPixel%20=%20width%20*%204;%0D%0A%20%20%20%20%20%20const%20x%20=%20index%20%25%20widthPixel;%0D%0A%20%20%20%20%20%20const%20maxLength%20=%20imageData.length;%0D%0A%0D%0A%20%20%20%20%20%20//%20Pixels%20not%20on%20the%20right%20border%20of%20the%20canvas%0D%0A%20%20%20%20%20%20if%20(x%20%3C%20widthPixel)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20right%20=%20index%20+%204;%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(!pixelsSame(imageData,%20index,%20right))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20const%20diagonalRightUp%20=%20right%20-%20widthPixel;%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(diagonalRightUp%20%3E%200%20&&%20!pixelsSame(imageData,%20index,%20diagonalRightUp))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20const%20diagonalRightDown%20=%20right%20+%20widthPixel;%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(diagonalRightDown%20%3C%20maxLength%20&&%20!pixelsSame(imageData,%20index,%20diagonalRightDown))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20//%20Pixels%20not%20on%20the%20left%20border%20of%20the%20canvas%0D%0A%20%20%20%20%20%20if%20(x%20%3E%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20left%20=%20index%20-%204;%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(!pixelsSame(imageData,%20index,%20left))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20const%20diagonalLeftUp%20=%20left%20-%20widthPixel;%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(diagonalLeftUp%20%3E%200%20&&%20!pixelsSame(imageData,%20index,%20diagonalLeftUp))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20const%20diagonalLeftDown%20=%20left%20+%20widthPixel;%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(diagonalLeftDown%20%3C%20maxLength%20&&%20!pixelsSame(imageData,%20index,%20diagonalLeftDown))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20const%20up%20=%20index%20-%20widthPixel;%0D%0A%20%20%20%20%20%20if%20(up%20%3E%200%20&&%20!pixelsSame(imageData,%20index,%20up))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20const%20down%20=%20index%20+%20widthPixel;%0D%0A%20%20%20%20%20%20if%20(down%20%3C%20maxLength%20&&%20!pixelsSame(imageData,%20index,%20down))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20false%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20return%20true%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Check%20that%20a%20pixel%20at%20index%20and%20index2%20match%20all%20channels%0D%0A%20%20%20*%20@param%20%7BUint8ClampedArray%7D%20imageData%0D%0A%20%20%20*%20@param%20%7Bnumber%7D%20index%0D%0A%20%20%20*%20@param%20%7Bnumber%7D%20index2%0D%0A%20%20%20*/%0D%0A%20%20function%20pixelsSame%20(imageData,%20index,%20index2)%20%7B%0D%0A%20%20%20%20%20%20return%20imageData%5Bindex%5D%20===%20imageData%5Bindex2%5D%20&&%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20imageData%5Bindex%20+%201%5D%20===%20imageData%5Bindex2%20+%201%5D%20&&%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20imageData%5Bindex%20+%202%5D%20===%20imageData%5Bindex2%20+%202%5D%20&&%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20imageData%5Bindex%20+%203%5D%20===%20imageData%5Bindex2%20+%203%5D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Returns%20true%20if%20pixel%20should%20be%20ignored%0D%0A%20%20%20*%20@param%20%7BUint8ClampedArray%7D%20imageData%0D%0A%20%20%20*%20@param%20%7Bnumber%7D%20index%0D%0A%20%20%20*%20@returns%20%7Bboolean%7D%0D%0A%20%20%20*/%0D%0A%20%20function%20shouldIgnorePixel%20(imageData,%20index)%20%7B%0D%0A%20%20%20%20%20%20//%20Transparent%20pixels%0D%0A%20%20%20%20%20%20if%20(imageData%5Bindex%20+%203%5D%20===%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20true%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20false%0D%0A%20%20%7D%0A%0A%20%20function%20init$8%20(args)%20%7B%0D%0A%20%20%20%20%20%20const%20%7B%20sessionKey,%20site%20%7D%20=%20args;%0D%0A%20%20%20%20%20%20const%20domainKey%20=%20site.domain;%0D%0A%20%20%20%20%20%20const%20featureName%20=%20'fingerprinting-canvas';%0D%0A%20%20%20%20%20%20const%20supportsWebGl%20=%20getFeatureSettingEnabled(featureName,%20args,%20'webGl');%0D%0A%0D%0A%20%20%20%20%20%20const%20unsafeCanvases%20=%20new%20WeakSet();%0D%0A%20%20%20%20%20%20const%20canvasContexts%20=%20new%20WeakMap();%0D%0A%20%20%20%20%20%20const%20canvasCache%20=%20new%20WeakMap();%0D%0A%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20Clear%20cache%20as%20canvas%20has%20changed%0D%0A%20%20%20%20%20%20%20*%20@param%20%7BHTMLCanvasElement%7D%20canvas%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20function%20clearCache%20(canvas)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20canvasCache.delete(canvas);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20@param%20%7BHTMLCanvasElement%7D%20canvas%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20function%20treatAsUnsafe%20(canvas)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20unsafeCanvases.add(canvas);%0D%0A%20%20%20%20%20%20%20%20%20%20clearCache(canvas);%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20const%20proxy%20=%20new%20DDGProxy(featureName,%20HTMLCanvasElement.prototype,%20'getContext',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20context%20=%20DDGReflect.apply(target,%20thisArg,%20args);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20canvasContexts.set(thisArg,%20context);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20context%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20proxy.overload();%0D%0A%0D%0A%20%20%20%20%20%20//%20Known%20data%20methods%0D%0A%20%20%20%20%20%20const%20safeMethods%20=%20%5B'putImageData',%20'drawImage'%5D;%0D%0A%20%20%20%20%20%20for%20(const%20methodName%20of%20safeMethods)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20safeMethodProxy%20=%20new%20DDGProxy(featureName,%20CanvasRenderingContext2D.prototype,%20methodName,%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Don't%20apply%20escape%20hatch%20for%20canvases%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(methodName%20===%20'drawImage'%20&&%20args%5B0%5D%20&&%20args%5B0%5D%20instanceof%20HTMLCanvasElement)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20treatAsUnsafe(args%5B0%5D);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20clearCache(thisArg.canvas);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20safeMethodProxy.overload();%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20const%20unsafeMethods%20=%20%5B%0D%0A%20%20%20%20%20%20%20%20%20%20'strokeRect',%0D%0A%20%20%20%20%20%20%20%20%20%20'bezierCurveTo',%0D%0A%20%20%20%20%20%20%20%20%20%20'quadraticCurveTo',%0D%0A%20%20%20%20%20%20%20%20%20%20'arcTo',%0D%0A%20%20%20%20%20%20%20%20%20%20'ellipse',%0D%0A%20%20%20%20%20%20%20%20%20%20'rect',%0D%0A%20%20%20%20%20%20%20%20%20%20'fill',%0D%0A%20%20%20%20%20%20%20%20%20%20'stroke',%0D%0A%20%20%20%20%20%20%20%20%20%20'lineTo',%0D%0A%20%20%20%20%20%20%20%20%20%20'beginPath',%0D%0A%20%20%20%20%20%20%20%20%20%20'closePath',%0D%0A%20%20%20%20%20%20%20%20%20%20'arc',%0D%0A%20%20%20%20%20%20%20%20%20%20'fillText',%0D%0A%20%20%20%20%20%20%20%20%20%20'fillRect',%0D%0A%20%20%20%20%20%20%20%20%20%20'strokeText',%0D%0A%20%20%20%20%20%20%20%20%20%20'createConicGradient',%0D%0A%20%20%20%20%20%20%20%20%20%20'createLinearGradient',%0D%0A%20%20%20%20%20%20%20%20%20%20'createRadialGradient',%0D%0A%20%20%20%20%20%20%20%20%20%20'createPattern'%0D%0A%20%20%20%20%20%20%5D;%0D%0A%20%20%20%20%20%20for%20(const%20methodName%20of%20unsafeMethods)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20Some%20methods%20are%20browser%20specific%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(methodName%20in%20CanvasRenderingContext2D.prototype)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20unsafeProxy%20=%20new%20DDGProxy(featureName,%20CanvasRenderingContext2D.prototype,%20methodName,%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20treatAsUnsafe(thisArg.canvas);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20unsafeProxy.overload();%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20if%20(supportsWebGl)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20unsafeGlMethods%20=%20%5B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20'commit',%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20'compileShader',%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20'shaderSource',%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20'attachShader',%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20'createProgram',%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20'linkProgram',%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20'drawElements',%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20'drawArrays'%0D%0A%20%20%20%20%20%20%20%20%20%20%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20const%20glContexts%20=%20%5B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20WebGL2RenderingContext,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20WebGLRenderingContext%0D%0A%20%20%20%20%20%20%20%20%20%20%5D;%0D%0A%20%20%20%20%20%20%20%20%20%20for%20(const%20context%20of%20glContexts)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20for%20(const%20methodName%20of%20unsafeGlMethods)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Some%20methods%20are%20browser%20specific%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(methodName%20in%20context.prototype)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20unsafeProxy%20=%20new%20DDGProxy(featureName,%20context.prototype,%20methodName,%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20treatAsUnsafe(thisArg.canvas);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20unsafeProxy.overload();%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20//%20Using%20proxies%20here%20to%20swallow%20calls%20to%20toString%20etc%0D%0A%20%20%20%20%20%20const%20getImageDataProxy%20=%20new%20DDGProxy(featureName,%20CanvasRenderingContext2D.prototype,%20'getImageData',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(!unsafeCanvases.has(thisArg.canvas))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Anything%20we%20do%20here%20should%20be%20caught%20and%20ignored%20silently%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20%7B%20offScreenCtx%20%7D%20=%20getCachedOffScreenCanvasOrCompute(thisArg.canvas,%20domainKey,%20sessionKey);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Call%20the%20original%20method%20on%20the%20modified%20off-screen%20canvas%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20offScreenCtx,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20getImageDataProxy.overload();%0D%0A%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20Get%20cached%20offscreen%20if%20one%20exists,%20otherwise%20compute%20one%0D%0A%20%20%20%20%20%20%20*%0D%0A%20%20%20%20%20%20%20*%20@param%20%7BHTMLCanvasElement%7D%20canvas%0D%0A%20%20%20%20%20%20%20*%20@param%20%7Bstring%7D%20domainKey%0D%0A%20%20%20%20%20%20%20*%20@param%20%7Bstring%7D%20sessionKey%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20function%20getCachedOffScreenCanvasOrCompute%20(canvas,%20domainKey,%20sessionKey)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20let%20result;%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(canvasCache.has(canvas))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20result%20=%20canvasCache.get(canvas);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20ctx%20=%20canvasContexts.get(canvas);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20result%20=%20computeOffScreenCanvas(canvas,%20domainKey,%20sessionKey,%20getImageDataProxy,%20ctx);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20canvasCache.set(canvas,%20result);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20return%20result%0D%0A%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20const%20canvasMethods%20=%20%5B'toDataURL',%20'toBlob'%5D;%0D%0A%20%20%20%20%20%20for%20(const%20methodName%20of%20canvasMethods)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20proxy%20=%20new%20DDGProxy(featureName,%20HTMLCanvasElement.prototype,%20methodName,%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20apply%20(target,%20thisArg,%20args)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Short%20circuit%20for%20low%20risk%20canvas%20calls%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(!unsafeCanvases.has(thisArg))%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20%7B%20offScreenCanvas%20%7D%20=%20getCachedOffScreenCanvasOrCompute(thisArg,%20domainKey,%20sessionKey);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Call%20the%20original%20method%20on%20the%20modified%20off-screen%20canvas%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20offScreenCanvas,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20Something%20we%20did%20caused%20an%20exception,%20fall%20back%20to%20the%20native%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGReflect.apply(target,%20thisArg,%20args)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20proxy.overload();%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20fingerprintingCanvas%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$8%0A%20%20%7D);%0A%0A%20%20function%20init$7%20(args)%20%7B%0D%0A%20%20%20%20%20%20const%20Navigator%20=%20globalThis.Navigator;%0D%0A%20%20%20%20%20%20const%20navigator%20=%20globalThis.navigator;%0D%0A%0D%0A%20%20%20%20%20%20overrideProperty('keyboard',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Navigator.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20navigator.keyboard,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%20undefined%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20overrideProperty('hardwareConcurrency',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Navigator.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20navigator.hardwareConcurrency,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%202%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20overrideProperty('deviceMemory',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Navigator.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20navigator.deviceMemory,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%208%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%7D%0A%0A%20%20var%20fingerprintingHardware%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$7%0A%20%20%7D);%0A%0A%20%20/**%0D%0A%20%20%20*%20normalize%20window%20dimensions,%20if%20more%20than%20one%20monitor%20is%20in%20play.%0D%0A%20%20%20*%20%20X/Y%20values%20are%20set%20in%20the%20browser%20based%20on%20distance%20to%20the%20main%20monitor%20top%20or%20left,%20which%0D%0A%20%20%20*%20can%20mean%20second%20or%20more%20monitors%20have%20very%20large%20or%20negative%20values.%20This%20function%20maps%20a%20given%0D%0A%20%20%20*%20given%20coordinate%20value%20to%20the%20proper%20place%20on%20the%20main%20screen.%0D%0A%20%20%20*/%0D%0A%20%20function%20normalizeWindowDimension%20(value,%20targetDimension)%20%7B%0D%0A%20%20%20%20%20%20if%20(value%20%3E%20targetDimension)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20value%20%25%20targetDimension%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20if%20(value%20%3C%200)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20return%20targetDimension%20+%20value%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20return%20value%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20setWindowPropertyValue%20(property,%20value)%20%7B%0D%0A%20%20%20%20%20%20//%20Here%20we%20don't%20update%20the%20prototype%20getter%20because%20the%20values%20are%20updated%20dynamically%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20defineProperty(globalThis,%20property,%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20get:%20()%20=%3E%20value,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20set:%20()%20=%3E%20%7B%7D,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20configurable:%20true%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20const%20origPropertyValues%20=%20%7B%7D;%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Fix%20window%20dimensions.%20The%20extension%20runs%20in%20a%20different%20JS%20context%20than%20the%0D%0A%20%20%20*%20page,%20so%20we%20can%20inject%20the%20correct%20screen%20values%20as%20the%20window%20is%20resized,%0D%0A%20%20%20*%20ensuring%20that%20no%20information%20is%20leaked%20as%20the%20dimensions%20change,%20but%20also%20that%20the%0D%0A%20%20%20*%20values%20change%20correctly%20for%20valid%20use%20cases.%0D%0A%20%20%20*/%0D%0A%20%20function%20setWindowDimensions%20()%20%7B%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20window%20=%20globalThis;%0D%0A%20%20%20%20%20%20%20%20%20%20const%20top%20=%20globalThis.top;%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20const%20normalizedY%20=%20normalizeWindowDimension(window.screenY,%20window.screen.height);%0D%0A%20%20%20%20%20%20%20%20%20%20const%20normalizedX%20=%20normalizeWindowDimension(window.screenX,%20window.screen.width);%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(normalizedY%20%3C=%20origPropertyValues.availTop)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('screenY',%200);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('screenTop',%200);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('screenY',%20normalizedY);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('screenTop',%20normalizedY);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(top.window.outerHeight%20%3E=%20origPropertyValues.availHeight%20-%201)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('outerHeight',%20top.window.screen.height);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('outerHeight',%20top.window.outerHeight);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20top%20not%20accessible%20to%20certain%20iFrames,%20so%20ignore.%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(normalizedX%20%3C=%20origPropertyValues.availLeft)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('screenX',%200);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('screenLeft',%200);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('screenX',%20normalizedX);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('screenLeft',%20normalizedX);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(top.window.outerWidth%20%3E=%20origPropertyValues.availWidth%20-%201)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('outerWidth',%20top.window.screen.width);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20setWindowPropertyValue('outerWidth',%20top.window.outerWidth);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20top%20not%20accessible%20to%20certain%20iFrames,%20so%20ignore.%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20in%20a%20cross%20domain%20iFrame,%20top.window%20is%20not%20accessible.%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20init$6%20(args)%20%7B%0D%0A%20%20%20%20%20%20const%20Screen%20=%20globalThis.Screen;%0D%0A%20%20%20%20%20%20const%20screen%20=%20globalThis.screen;%0D%0A%0D%0A%20%20%20%20%20%20origPropertyValues.availTop%20=%20overrideProperty('availTop',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Screen.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20screen.availTop,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%200%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20origPropertyValues.availLeft%20=%20overrideProperty('availLeft',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Screen.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20screen.availLeft,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%200%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20origPropertyValues.availWidth%20=%20overrideProperty('availWidth',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Screen.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20screen.availWidth,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%20screen.width%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20origPropertyValues.availHeight%20=%20overrideProperty('availHeight',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Screen.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20screen.availHeight,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%20screen.height%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20overrideProperty('colorDepth',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Screen.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20screen.colorDepth,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%2024%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20overrideProperty('pixelDepth',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20object:%20Screen.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20origValue:%20screen.pixelDepth,%0D%0A%20%20%20%20%20%20%20%20%20%20targetValue:%2024%0D%0A%20%20%20%20%20%20%7D);%0D%0A%0D%0A%20%20%20%20%20%20window.addEventListener('resize',%20function%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20setWindowDimensions();%0D%0A%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20setWindowDimensions();%0D%0A%20%20%7D%0A%0A%20%20var%20fingerprintingScreenSize%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$6%0A%20%20%7D);%0A%0A%20%20function%20init$5%20()%20%7B%0D%0A%20%20%20%20%20%20const%20navigator%20=%20globalThis.navigator;%0D%0A%20%20%20%20%20%20const%20Navigator%20=%20globalThis.Navigator;%0D%0A%0D%0A%20%20%20%20%20%20/**%0D%0A%20%20%20%20%20%20%20*%20Temporary%20storage%20can%20be%20used%20to%20determine%20hard%20disk%20usage%20and%20size.%0D%0A%20%20%20%20%20%20%20*%20This%20will%20limit%20the%20max%20storage%20to%204GB%20without%20completely%20disabling%20the%0D%0A%20%20%20%20%20%20%20*%20feature.%0D%0A%20%20%20%20%20%20%20*/%0D%0A%20%20%20%20%20%20if%20(navigator.webkitTemporaryStorage)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20org%20=%20navigator.webkitTemporaryStorage.queryUsageAndQuota;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20tStorage%20=%20navigator.webkitTemporaryStorage;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20tStorage.queryUsageAndQuota%20=%20function%20queryUsageAndQuota%20(callback,%20err)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20modifiedCallback%20=%20function%20(usedBytes,%20grantedBytes)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20maxBytesGranted%20=%204%20*%201024%20*%201024%20*%201024;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20const%20spoofedGrantedBytes%20=%20Math.min(grantedBytes,%20maxBytesGranted);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20callback(usedBytes,%20spoofedGrantedBytes);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20org.call(navigator.webkitTemporaryStorage,%20modifiedCallback,%20err);%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D;%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20defineProperty(Navigator.prototype,%20'webkitTemporaryStorage',%20%7B%20get:%20()%20=%3E%20tStorage%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20catch%20(e)%20%7B%7D%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20fingerprintingTemporaryStorage%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$5%0A%20%20%7D);%0A%0A%20%20function%20init$4%20()%20%7B%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20('browsingTopics'%20in%20Document.prototype)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20delete%20Document.prototype.browsingTopics;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20if%20('joinAdInterestGroup'%20in%20Navigator.prototype)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20delete%20Navigator.prototype.joinAdInterestGroup;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20if%20('leaveAdInterestGroup'%20in%20Navigator.prototype)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20delete%20Navigator.prototype.leaveAdInterestGroup;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20if%20('updateAdInterestGroups'%20in%20Navigator.prototype)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20delete%20Navigator.prototype.updateAdInterestGroups;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20if%20('runAdAuction'%20in%20Navigator.prototype)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20delete%20Navigator.prototype.runAdAuction;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20if%20('adAuctionComponents'%20in%20Navigator.prototype)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20delete%20Navigator.prototype.adAuctionComponents;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20Throw%20away%20this%20exception,%20it's%20likely%20a%20confict%20with%20another%20extension%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20googleRejected%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$4%0A%20%20%7D);%0A%0A%20%20//%20Set%20Global%20Privacy%20Control%20property%20on%20DOM%0D%0A%20%20function%20init$3%20(args)%20%7B%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20If%20GPC%20on,%20set%20DOM%20property%20prototype%20to%20true%20if%20not%20already%20true%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(args.globalPrivacyControlValue)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(navigator.globalPrivacyControl)%20return%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20defineProperty(Navigator.prototype,%20'globalPrivacyControl',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20get:%20()%20=%3E%20true,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20configurable:%20true,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20enumerable:%20true%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20If%20GPC%20off%20&%20unsupported%20by%20browser,%20set%20DOM%20property%20prototype%20to%20false%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20this%20may%20be%20overwritten%20by%20the%20user%20agent%20or%20other%20extensions%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20if%20(typeof%20navigator.globalPrivacyControl%20!==%20'undefined')%20return%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20defineProperty(Navigator.prototype,%20'globalPrivacyControl',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20get:%20()%20=%3E%20false,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20configurable:%20true,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20enumerable:%20true%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20Ignore%20exceptions%20that%20could%20be%20caused%20by%20conflicting%20with%20other%20extensions%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20gpc%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$3%0A%20%20%7D);%0A%0A%20%20function%20init$2%20(args)%20%7B%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(navigator.duckduckgo)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(!args.platform%20%7C%7C%20!args.platform.name)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20defineProperty(Navigator.prototype,%20'duckduckgo',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20value:%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20platform:%20args.platform.name,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20isDuckDuckGo%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20DDGPromise.resolve(true)%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20enumerable:%20true,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20configurable:%20false,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20writable:%20false%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20todo:%20Just%20ignore%20this%20exception?%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20navigatorInterface%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$2%0A%20%20%7D);%0A%0A%20%20function%20init$1%20(args)%20%7B%0D%0A%20%20%20%20%20%20//%20Unfortunately,%20we%20only%20have%20limited%20information%20about%20the%20referrer%20and%20current%20frame.%20A%20single%0D%0A%20%20%20%20%20%20//%20page%20may%20load%20many%20requests%20and%20sub%20frames,%20all%20with%20different%20referrers.%20Since%20we%0D%0A%20%20%20%20%20%20if%20(args.referrer%20&&%20//%20make%20sure%20the%20referrer%20was%20set%20correctly%0D%0A%20%20%20%20%20%20%20%20%20%20args.referrer.referrer%20!==%20undefined%20&&%20//%20referrer%20value%20will%20be%20undefined%20when%20it%20should%20be%20unchanged.%0D%0A%20%20%20%20%20%20%20%20%20%20document.referrer%20&&%20//%20don't%20change%20the%20value%20if%20it%20isn't%20set%0D%0A%20%20%20%20%20%20%20%20%20%20document.referrer%20!==%20''%20&&%20//%20don't%20add%20referrer%20information%0D%0A%20%20%20%20%20%20%20%20%20%20new%20URL(document.URL).hostname%20!==%20new%20URL(document.referrer).hostname)%20%7B%20//%20don't%20replace%20the%20referrer%20for%20the%20current%20host.%0D%0A%20%20%20%20%20%20%20%20%20%20let%20trimmedReferer%20=%20document.referrer;%0D%0A%20%20%20%20%20%20%20%20%20%20if%20(new%20URL(document.referrer).hostname%20===%20args.referrer.referrerHost)%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20make%20sure%20the%20real%20referrer%20&%20replacement%20referrer%20match%20if%20we're%20going%20to%20replace%20it%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20trimmedReferer%20=%20args.referrer.referrer;%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%20else%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20//%20if%20we%20don't%20have%20a%20matching%20referrer,%20just%20trim%20it%20to%20origin.%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20trimmedReferer%20=%20new%20URL(document.referrer).origin%20+%20'/';%0D%0A%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20overrideProperty('referrer',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20object:%20Document.prototype,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20origValue:%20document.referrer,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20targetValue:%20trimmedReferer%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0A%0A%20%20var%20referrer%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init$1%0A%20%20%7D);%0A%0A%20%20/**%0D%0A%20%20%20*%20Fixes%20incorrect%20sizing%20value%20for%20outerHeight%20and%20outerWidth%0D%0A%20%20%20*/%0D%0A%20%20function%20windowSizingFix%20()%20%7B%0D%0A%20%20%20%20%20%20window.outerHeight%20=%20window.innerHeight;%0D%0A%20%20%20%20%20%20window.outerWidth%20=%20window.innerWidth;%0D%0A%20%20%7D%0D%0A%0D%0A%20%20/**%0D%0A%20%20%20*%20Add%20missing%20navigator.credentials%20API%0D%0A%20%20%20*/%0D%0A%20%20function%20navigatorCredentialsFix%20()%20%7B%0D%0A%20%20%20%20%20%20try%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20const%20value%20=%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20get%20()%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20return%20Promise.reject(new%20Error())%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0D%0A%20%20%20%20%20%20%20%20%20%20%7D;%0D%0A%20%20%20%20%20%20%20%20%20%20defineProperty(Navigator.prototype,%20'credentials',%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20value,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20configurable:%20true,%0D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20enumerable:%20true%0D%0A%20%20%20%20%20%20%20%20%20%20%7D);%0D%0A%20%20%20%20%20%20%7D%20catch%20%7B%0D%0A%20%20%20%20%20%20%20%20%20%20//%20Ignore%20exceptions%20that%20could%20be%20caused%20by%20conflicting%20with%20other%20extensions%0D%0A%20%20%20%20%20%20%7D%0D%0A%20%20%7D%0D%0A%0D%0A%20%20function%20init%20()%20%7B%0D%0A%20%20%20%20%20%20windowSizingFix();%0D%0A%20%20%20%20%20%20navigatorCredentialsFix();%0D%0A%20%20%7D%0A%0A%20%20var%20webCompat%20=%20/*#__PURE__*/Object.freeze(%7B%0A%20%20%20%20__proto__:%20null,%0A%20%20%20%20init:%20init%0A%20%20%7D);%0A%0A%20%20exports.init%20=%20init$c;%0A%20%20exports.load%20=%20load$1;%0A%20%20exports.update%20=%20update$1;%0A%0A%20%20Object.defineProperty(exports,%20'__esModule',%20%7B%20value:%20true%20%7D);%0A%0A%20%20return%20exports;%0A%0A%7D)(%7B%7D);%0A")}
-      contentScopeFeatures.load()
-      // Define a random function we call later.
-      // Use define property so isn't enumerable
-      Object.defineProperty(window, '${randomMethodName}', {
-          enumerable: false,
-          // configurable, To allow for deletion later
-          configurable: true,
-          writable: false,
-          // Use proxy to ensure stringification isn't possible
-          value: new Proxy(function () {}, {
-              apply(target, thisArg, args) {
-                  if ('${randomPassword}' === args[0]) {
-                      contentScopeFeatures.init(args[1])
-                  } else {
-                      // TODO force enable all features if password is wrong
-                      console.error("Password for hidden function wasn't correct! The page is likely attempting to attack the feature by DuckDuckGo");
-                  }
-                  // This method is single use, clean up
-                  delete window.${randomMethodName};
-              }
-          })
-      });
-
-      // Define a random update function we call later.
-      // Use define property so isn't enumerable
-      Object.defineProperty(window, '${reusableMethodName}', {
-          enumerable: false,
-          // configurable, To allow for deletion later
-          configurable: true,
-          writable: false,
-          // Use proxy to ensure stringification isn't possible
-          value: new Proxy(function () {}, {
-              apply(target, thisArg, args) {
-                  if ('${reusableSecret}' === args[0]) {
-                      contentScopeFeatures.update(args[1])
-                  }
-              }
-          })
-      });
-    `
-    inject(initialScript)
-
-    chrome.runtime.sendMessage({
-        messageType: 'registeredContentScript',
-        options: {
-            documentUrl: window.location.href
+    function getTopLevelURL () {
+        try {
+            // FROM: https://stackoverflow.com/a/7739035/73479
+            // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
+            if (window.location !== window.parent.location) {
+                return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
+            } else {
+                return new URL(window.location.href)
+            }
+        } catch (error) {
+            return new URL(location.href)
         }
+    }
+
+    function isUnprotectedDomain (topLevelUrl, featureList) {
+        let unprotectedDomain = false;
+        const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : [];
+
+        // walk up the domain to see if it's unprotected
+        while (domainParts.length > 1 && !unprotectedDomain) {
+            const partialDomain = domainParts.join('.');
+
+            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;
+
+            domainParts.shift();
+        }
+
+        return unprotectedDomain
+    }
+
+    function processConfig (data, userList, preferences) {
+        const topLevelUrl = getTopLevelURL();
+        const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
+        const enabledFeatures = Object.keys(data.features).filter((featureName) => {
+            const feature = data.features[featureName];
+            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
+        });
+        const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
+        preferences.site = {
+            domain: topLevelUrl.hostname,
+            isBroken,
+            allowlisted,
+            enabledFeatures
+        };
+        // TODO
+        preferences.cookie = {};
+        return preferences
+    }
+
+    // @ts-nocheck
+        (() => {
+    /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
+    /*global document, window, escape, unescape, module, require, Uint32Array */
+
+    /**
+     * The Stanford Javascript Crypto Library, top-level namespace.
+     * @namespace
+     */
+    var sjcl = {
+      /**
+       * Symmetric ciphers.
+       * @namespace
+       */
+      cipher: {},
+
+      /**
+       * Hash functions.  Right now only SHA256 is implemented.
+       * @namespace
+       */
+      hash: {},
+
+      /**
+       * Key exchange functions.  Right now only SRP is implemented.
+       * @namespace
+       */
+      keyexchange: {},
+      
+      /**
+       * Cipher modes of operation.
+       * @namespace
+       */
+      mode: {},
+
+      /**
+       * Miscellaneous.  HMAC and PBKDF2.
+       * @namespace
+       */
+      misc: {},
+      
+      /**
+       * Bit array encoders and decoders.
+       * @namespace
+       *
+       * @description
+       * The members of this namespace are functions which translate between
+       * SJCL's bitArrays and other objects (usually strings).  Because it
+       * isn't always clear which direction is encoding and which is decoding,
+       * the method names are "fromBits" and "toBits".
+       */
+      codec: {},
+      
+      /**
+       * Exceptions.
+       * @namespace
+       */
+      exception: {
+        /**
+         * Ciphertext is corrupt.
+         * @constructor
+         */
+        corrupt: function(message) {
+          this.toString = function() { return "CORRUPT: "+this.message; };
+          this.message = message;
+        },
+        
+        /**
+         * Invalid parameter.
+         * @constructor
+         */
+        invalid: function(message) {
+          this.toString = function() { return "INVALID: "+this.message; };
+          this.message = message;
+        },
+        
+        /**
+         * Bug or missing feature in SJCL.
+         * @constructor
+         */
+        bug: function(message) {
+          this.toString = function() { return "BUG: "+this.message; };
+          this.message = message;
+        },
+
+        /**
+         * Something isn't ready.
+         * @constructor
+         */
+        notReady: function(message) {
+          this.toString = function() { return "NOT READY: "+this.message; };
+          this.message = message;
+        }
+      }
+    };
+    /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
+     *
+     * @author Emily Stark
+     * @author Mike Hamburg
+     * @author Dan Boneh
+     */
+
+    /**
+     * Arrays of bits, encoded as arrays of Numbers.
+     * @namespace
+     * @description
+     * <p>
+     * These objects are the currency accepted by SJCL's crypto functions.
+     * </p>
+     *
+     * <p>
+     * Most of our crypto primitives operate on arrays of 4-byte words internally,
+     * but many of them can take arguments that are not a multiple of 4 bytes.
+     * This library encodes arrays of bits (whose size need not be a multiple of 8
+     * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
+     * array of words, 32 bits at a time.  Since the words are double-precision
+     * floating point numbers, they fit some extra data.  We use this (in a private,
+     * possibly-changing manner) to encode the number of bits actually  present
+     * in the last word of the array.
+     * </p>
+     *
+     * <p>
+     * Because bitwise ops clear this out-of-band data, these arrays can be passed
+     * to ciphers like AES which want arrays of words.
+     * </p>
+     */
+    sjcl.bitArray = {
+      /**
+       * Array slices in units of bits.
+       * @param {bitArray} a The array to slice.
+       * @param {Number} bstart The offset to the start of the slice, in bits.
+       * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
+       * slice until the end of the array.
+       * @return {bitArray} The requested slice.
+       */
+      bitSlice: function (a, bstart, bend) {
+        a = sjcl.bitArray._shiftRight(a.slice(bstart/32), 32 - (bstart & 31)).slice(1);
+        return (bend === undefined) ? a : sjcl.bitArray.clamp(a, bend-bstart);
+      },
+
+      /**
+       * Extract a number packed into a bit array.
+       * @param {bitArray} a The array to slice.
+       * @param {Number} bstart The offset to the start of the slice, in bits.
+       * @param {Number} blength The length of the number to extract.
+       * @return {Number} The requested slice.
+       */
+      extract: function(a, bstart, blength) {
+        // FIXME: this Math.floor is not necessary at all, but for some reason
+        // seems to suppress a bug in the Chromium JIT.
+        var x, sh = Math.floor((-bstart-blength) & 31);
+        if ((bstart + blength - 1 ^ bstart) & -32) {
+          // it crosses a boundary
+          x = (a[bstart/32|0] << (32 - sh)) ^ (a[bstart/32+1|0] >>> sh);
+        } else {
+          // within a single word
+          x = a[bstart/32|0] >>> sh;
+        }
+        return x & ((1<<blength) - 1);
+      },
+
+      /**
+       * Concatenate two bit arrays.
+       * @param {bitArray} a1 The first array.
+       * @param {bitArray} a2 The second array.
+       * @return {bitArray} The concatenation of a1 and a2.
+       */
+      concat: function (a1, a2) {
+        if (a1.length === 0 || a2.length === 0) {
+          return a1.concat(a2);
+        }
+        
+        var last = a1[a1.length-1], shift = sjcl.bitArray.getPartial(last);
+        if (shift === 32) {
+          return a1.concat(a2);
+        } else {
+          return sjcl.bitArray._shiftRight(a2, shift, last|0, a1.slice(0,a1.length-1));
+        }
+      },
+
+      /**
+       * Find the length of an array of bits.
+       * @param {bitArray} a The array.
+       * @return {Number} The length of a, in bits.
+       */
+      bitLength: function (a) {
+        var l = a.length, x;
+        if (l === 0) { return 0; }
+        x = a[l - 1];
+        return (l-1) * 32 + sjcl.bitArray.getPartial(x);
+      },
+
+      /**
+       * Truncate an array.
+       * @param {bitArray} a The array.
+       * @param {Number} len The length to truncate to, in bits.
+       * @return {bitArray} A new array, truncated to len bits.
+       */
+      clamp: function (a, len) {
+        if (a.length * 32 < len) { return a; }
+        a = a.slice(0, Math.ceil(len / 32));
+        var l = a.length;
+        len = len & 31;
+        if (l > 0 && len) {
+          a[l-1] = sjcl.bitArray.partial(len, a[l-1] & 0x80000000 >> (len-1), 1);
+        }
+        return a;
+      },
+
+      /**
+       * Make a partial word for a bit array.
+       * @param {Number} len The number of bits in the word.
+       * @param {Number} x The bits.
+       * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
+       * @return {Number} The partial word.
+       */
+      partial: function (len, x, _end) {
+        if (len === 32) { return x; }
+        return (_end ? x|0 : x << (32-len)) + len * 0x10000000000;
+      },
+
+      /**
+       * Get the number of bits used by a partial word.
+       * @param {Number} x The partial word.
+       * @return {Number} The number of bits used by the partial word.
+       */
+      getPartial: function (x) {
+        return Math.round(x/0x10000000000) || 32;
+      },
+
+      /**
+       * Compare two arrays for equality in a predictable amount of time.
+       * @param {bitArray} a The first array.
+       * @param {bitArray} b The second array.
+       * @return {boolean} true if a == b; false otherwise.
+       */
+      equal: function (a, b) {
+        if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
+          return false;
+        }
+        var x = 0, i;
+        for (i=0; i<a.length; i++) {
+          x |= a[i]^b[i];
+        }
+        return (x === 0);
+      },
+
+      /** Shift an array right.
+       * @param {bitArray} a The array to shift.
+       * @param {Number} shift The number of bits to shift.
+       * @param {Number} [carry=0] A byte to carry in
+       * @param {bitArray} [out=[]] An array to prepend to the output.
+       * @private
+       */
+      _shiftRight: function (a, shift, carry, out) {
+        var i, last2=0, shift2;
+        if (out === undefined) { out = []; }
+        
+        for (; shift >= 32; shift -= 32) {
+          out.push(carry);
+          carry = 0;
+        }
+        if (shift === 0) {
+          return out.concat(a);
+        }
+        
+        for (i=0; i<a.length; i++) {
+          out.push(carry | a[i]>>>shift);
+          carry = a[i] << (32-shift);
+        }
+        last2 = a.length ? a[a.length-1] : 0;
+        shift2 = sjcl.bitArray.getPartial(last2);
+        out.push(sjcl.bitArray.partial(shift+shift2 & 31, (shift + shift2 > 32) ? carry : out.pop(),1));
+        return out;
+      },
+      
+      /** xor a block of 4 words together.
+       * @private
+       */
+      _xor4: function(x,y) {
+        return [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]];
+      },
+
+      /** byteswap a word array inplace.
+       * (does not handle partial words)
+       * @param {sjcl.bitArray} a word array
+       * @return {sjcl.bitArray} byteswapped array
+       */
+      byteswapM: function(a) {
+        var i, v, m = 0xff00;
+        for (i = 0; i < a.length; ++i) {
+          v = a[i];
+          a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
+        }
+        return a;
+      }
+    };
+    /** @fileOverview Bit array codec implementations.
+     *
+     * @author Emily Stark
+     * @author Mike Hamburg
+     * @author Dan Boneh
+     */
+
+    /**
+     * UTF-8 strings
+     * @namespace
+     */
+    sjcl.codec.utf8String = {
+      /** Convert from a bitArray to a UTF-8 string. */
+      fromBits: function (arr) {
+        var out = "", bl = sjcl.bitArray.bitLength(arr), i, tmp;
+        for (i=0; i<bl/8; i++) {
+          if ((i&3) === 0) {
+            tmp = arr[i/4];
+          }
+          out += String.fromCharCode(tmp >>> 8 >>> 8 >>> 8);
+          tmp <<= 8;
+        }
+        return decodeURIComponent(escape(out));
+      },
+
+      /** Convert from a UTF-8 string to a bitArray. */
+      toBits: function (str) {
+        str = unescape(encodeURIComponent(str));
+        var out = [], i, tmp=0;
+        for (i=0; i<str.length; i++) {
+          tmp = tmp << 8 | str.charCodeAt(i);
+          if ((i&3) === 3) {
+            out.push(tmp);
+            tmp = 0;
+          }
+        }
+        if (i&3) {
+          out.push(sjcl.bitArray.partial(8*(i&3), tmp));
+        }
+        return out;
+      }
+    };
+    /** @fileOverview Bit array codec implementations.
+     *
+     * @author Emily Stark
+     * @author Mike Hamburg
+     * @author Dan Boneh
+     */
+
+    /**
+     * Hexadecimal
+     * @namespace
+     */
+    sjcl.codec.hex = {
+      /** Convert from a bitArray to a hex string. */
+      fromBits: function (arr) {
+        var out = "", i;
+        for (i=0; i<arr.length; i++) {
+          out += ((arr[i]|0)+0xF00000000000).toString(16).substr(4);
+        }
+        return out.substr(0, sjcl.bitArray.bitLength(arr)/4);//.replace(/(.{8})/g, "$1 ");
+      },
+      /** Convert from a hex string to a bitArray. */
+      toBits: function (str) {
+        var i, out=[], len;
+        str = str.replace(/\s|0x/g, "");
+        len = str.length;
+        str = str + "00000000";
+        for (i=0; i<str.length; i+=8) {
+          out.push(parseInt(str.substr(i,8),16)^0);
+        }
+        return sjcl.bitArray.clamp(out, len*4);
+      }
+    };
+
+    /** @fileOverview Javascript SHA-256 implementation.
+     *
+     * An older version of this implementation is available in the public
+     * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
+     * Stanford University 2008-2010 and BSD-licensed for liability
+     * reasons.
+     *
+     * Special thanks to Aldo Cortesi for pointing out several bugs in
+     * this code.
+     *
+     * @author Emily Stark
+     * @author Mike Hamburg
+     * @author Dan Boneh
+     */
+
+    /**
+     * Context for a SHA-256 operation in progress.
+     * @constructor
+     */
+    sjcl.hash.sha256 = function (hash) {
+      if (!this._key[0]) { this._precompute(); }
+      if (hash) {
+        this._h = hash._h.slice(0);
+        this._buffer = hash._buffer.slice(0);
+        this._length = hash._length;
+      } else {
+        this.reset();
+      }
+    };
+
+    /**
+     * Hash a string or an array of words.
+     * @static
+     * @param {bitArray|String} data the data to hash.
+     * @return {bitArray} The hash value, an array of 16 big-endian words.
+     */
+    sjcl.hash.sha256.hash = function (data) {
+      return (new sjcl.hash.sha256()).update(data).finalize();
+    };
+
+    sjcl.hash.sha256.prototype = {
+      /**
+       * The hash's block size, in bits.
+       * @constant
+       */
+      blockSize: 512,
+       
+      /**
+       * Reset the hash state.
+       * @return this
+       */
+      reset:function () {
+        this._h = this._init.slice(0);
+        this._buffer = [];
+        this._length = 0;
+        return this;
+      },
+      
+      /**
+       * Input several words to the hash.
+       * @param {bitArray|String} data the data to hash.
+       * @return this
+       */
+      update: function (data) {
+        if (typeof data === "string") {
+          data = sjcl.codec.utf8String.toBits(data);
+        }
+        var i, b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
+            ol = this._length,
+            nl = this._length = ol + sjcl.bitArray.bitLength(data);
+        if (nl > 9007199254740991){
+          throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
+        }
+
+        if (typeof Uint32Array !== 'undefined') {
+    	var c = new Uint32Array(b);
+        	var j = 0;
+        	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
+          	    this._block(c.subarray(16 * j, 16 * (j+1)));
+          	    j += 1;
+        	}
+        	b.splice(0, 16 * j);
+        } else {
+    	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
+          	    this._block(b.splice(0,16));
+          	}
+        }
+        return this;
+      },
+      
+      /**
+       * Complete hashing and output the hash value.
+       * @return {bitArray} The hash value, an array of 8 big-endian words.
+       */
+      finalize:function () {
+        var i, b = this._buffer, h = this._h;
+
+        // Round out and push the buffer
+        b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1,1)]);
+        
+        // Round out the buffer to a multiple of 16 words, less the 2 length words.
+        for (i = b.length + 2; i & 15; i++) {
+          b.push(0);
+        }
+        
+        // append the length
+        b.push(Math.floor(this._length / 0x100000000));
+        b.push(this._length | 0);
+
+        while (b.length) {
+          this._block(b.splice(0,16));
+        }
+
+        this.reset();
+        return h;
+      },
+
+      /**
+       * The SHA-256 initialization vector, to be precomputed.
+       * @private
+       */
+      _init:[],
+      /*
+      _init:[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],
+      */
+      
+      /**
+       * The SHA-256 hash key, to be precomputed.
+       * @private
+       */
+      _key:[],
+      /*
+      _key:
+        [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+         0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+         0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+         0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+         0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+         0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+         0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+         0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
+      */
+
+
+      /**
+       * Function to precompute _init and _key.
+       * @private
+       */
+      _precompute: function () {
+        var i = 0, prime = 2, factor, isPrime;
+
+        function frac(x) { return (x-Math.floor(x)) * 0x100000000 | 0; }
+
+        for (; i<64; prime++) {
+          isPrime = true;
+          for (factor=2; factor*factor <= prime; factor++) {
+            if (prime % factor === 0) {
+              isPrime = false;
+              break;
+            }
+          }
+          if (isPrime) {
+            if (i<8) {
+              this._init[i] = frac(Math.pow(prime, 1/2));
+            }
+            this._key[i] = frac(Math.pow(prime, 1/3));
+            i++;
+          }
+        }
+      },
+      
+      /**
+       * Perform one cycle of SHA-256.
+       * @param {Uint32Array|bitArray} w one block of words.
+       * @private
+       */
+      _block:function (w) {  
+        var i, tmp, a, b,
+          h = this._h,
+          k = this._key,
+          h0 = h[0], h1 = h[1], h2 = h[2], h3 = h[3],
+          h4 = h[4], h5 = h[5], h6 = h[6], h7 = h[7];
+
+        /* Rationale for placement of |0 :
+         * If a value can overflow is original 32 bits by a factor of more than a few
+         * million (2^23 ish), there is a possibility that it might overflow the
+         * 53-bit mantissa and lose precision.
+         *
+         * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
+         * propagates around the loop, and on the hash state h[].  I don't believe
+         * that the clamps on h4 and on h0 are strictly necessary, but it's close
+         * (for h4 anyway), and better safe than sorry.
+         *
+         * The clamps on h[] are necessary for the output to be correct even in the
+         * common case and for short inputs.
+         */
+        for (i=0; i<64; i++) {
+          // load up the input word for this round
+          if (i<16) {
+            tmp = w[i];
+          } else {
+            a   = w[(i+1 ) & 15];
+            b   = w[(i+14) & 15];
+            tmp = w[i&15] = ((a>>>7  ^ a>>>18 ^ a>>>3  ^ a<<25 ^ a<<14) + 
+                             (b>>>17 ^ b>>>19 ^ b>>>10 ^ b<<15 ^ b<<13) +
+                             w[i&15] + w[(i+9) & 15]) | 0;
+          }
+          
+          tmp = (tmp + h7 + (h4>>>6 ^ h4>>>11 ^ h4>>>25 ^ h4<<26 ^ h4<<21 ^ h4<<7) +  (h6 ^ h4&(h5^h6)) + k[i]); // | 0;
+          
+          // shift register
+          h7 = h6; h6 = h5; h5 = h4;
+          h4 = h3 + tmp | 0;
+          h3 = h2; h2 = h1; h1 = h0;
+
+          h0 = (tmp +  ((h1&h2) ^ (h3&(h1^h2))) + (h1>>>2 ^ h1>>>13 ^ h1>>>22 ^ h1<<30 ^ h1<<19 ^ h1<<10)) | 0;
+        }
+
+        h[0] = h[0]+h0 | 0;
+        h[1] = h[1]+h1 | 0;
+        h[2] = h[2]+h2 | 0;
+        h[3] = h[3]+h3 | 0;
+        h[4] = h[4]+h4 | 0;
+        h[5] = h[5]+h5 | 0;
+        h[6] = h[6]+h6 | 0;
+        h[7] = h[7]+h7 | 0;
+      }
+    };
+
+
+    /** @fileOverview HMAC implementation.
+     *
+     * @author Emily Stark
+     * @author Mike Hamburg
+     * @author Dan Boneh
+     */
+
+    /** HMAC with the specified hash function.
+     * @constructor
+     * @param {bitArray} key the key for HMAC.
+     * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
+     */
+    sjcl.misc.hmac = function (key, Hash) {
+      this._hash = Hash = Hash || sjcl.hash.sha256;
+      var exKey = [[],[]], i,
+          bs = Hash.prototype.blockSize / 32;
+      this._baseHash = [new Hash(), new Hash()];
+
+      if (key.length > bs) {
+        key = Hash.hash(key);
+      }
+      
+      for (i=0; i<bs; i++) {
+        exKey[0][i] = key[i]^0x36363636;
+        exKey[1][i] = key[i]^0x5C5C5C5C;
+      }
+      
+      this._baseHash[0].update(exKey[0]);
+      this._baseHash[1].update(exKey[1]);
+      this._resultHash = new Hash(this._baseHash[0]);
+    };
+
+    /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
+     * @param {bitArray|String} data The data to mac.
+     */
+    sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
+      if (!this._updated) {
+        this.update(data);
+        return this.digest(data);
+      } else {
+        throw new sjcl.exception.invalid("encrypt on already updated hmac called!");
+      }
+    };
+
+    sjcl.misc.hmac.prototype.reset = function () {
+      this._resultHash = new this._hash(this._baseHash[0]);
+      this._updated = false;
+    };
+
+    sjcl.misc.hmac.prototype.update = function (data) {
+      this._updated = true;
+      this._resultHash.update(data);
+    };
+
+    sjcl.misc.hmac.prototype.digest = function () {
+      var w = this._resultHash.finalize(), result = new (this._hash)(this._baseHash[1]).update(w).finalize();
+
+      this.reset();
+
+      return result;
+    };
+
+        return sjcl;
+      })();
+
+    /* global cloneInto, exportFunction, false */
+
+    // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
+    // eslint-disable-next-line no-global-assign
+    let globalObj = typeof window === 'undefined' ? globalThis : window;
+    let Error = globalObj.Error;
+
+    const exemptionLists = {};
+    function shouldExemptUrl (type, url) {
+        for (const regex of exemptionLists[type]) {
+            if (regex.test(url)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+    function getStackTraceUrls (stack) {
+        const urls = new Set();
+        try {
+            const errorLines = stack.split('\n');
+            // Should cater for Chrome and Firefox stacks, we only care about https? resources.
+            for (const line of errorLines) {
+                const res = line.match(lineTest);
+                if (res) {
+                    urls.add(new URL(res[2], location.href));
+                }
+            }
+        } catch (e) {
+            // Fall through
+        }
+        return urls
+    }
+
+    // Checks the stack trace if there are known libraries that are broken.
+    function shouldExemptMethod (type) {
+        // Short circuit stack tracing if we don't have checks
+        if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
+            return false
+        }
+        const stack = getStack();
+        const errorFiles = getStackTraceUrls(stack);
+        for (const path of errorFiles) {
+            if (shouldExemptUrl(type, path.href)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    function camelcase (dashCaseText) {
+        return dashCaseText.replace(/-(.)/g, (match, letter) => {
+            return letter.toUpperCase()
+        })
+    }
+
+    function getStack () {
+        return new Error().stack
+    }
+
+    /**
+     * @template {object} P
+     * @typedef {object} ProxyObject<P>
+     * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+     */
+
+    /**
+     * @template [P=object]
+     */
+    class DDGProxy {
+        /**
+         * @param {string} featureName
+         * @param {P} objectScope
+         * @param {string} property
+         * @param {ProxyObject<P>} proxyObject
+         */
+        constructor (featureName, objectScope, property, proxyObject) {
+            this.objectScope = objectScope;
+            this.property = property;
+            this.featureName = featureName;
+            this.camelFeatureName = camelcase(this.featureName);
+            const outputHandler = (...args) => {
+                const isExempt = shouldExemptMethod(this.camelFeatureName);
+                // The normal return value
+                if (isExempt) {
+                    return DDGReflect.apply(...args)
+                }
+                return proxyObject.apply(...args)
+            };
+            {
+                this._native = objectScope[property];
+                const handler = {};
+                handler.apply = outputHandler;
+                this.internal = new globalObj.Proxy(objectScope[property], handler);
+            }
+        }
+
+        // Actually apply the proxy to the native property
+        overload () {
+            {
+                this.objectScope[this.property] = this.internal;
+            }
+        }
+    }
+
+    let DDGReflect;
+
+    // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+    {
+        DDGReflect = globalObj.Reflect;
+    }
+
+    /* global Bluetooth, Geolocation, HID, Serial, USB */
+
+    function initPermissionsInUseDetection () {
+        const featureName = 'permission-usage';
+
+        const Permission = {
+            Geolocation: 'geolocation',
+            Camera: 'camera',
+            Microphone: 'microphone'
+        };
+
+        const Status = {
+            Inactive: 'inactive',
+            Accessed: 'accessed',
+            Active: 'active',
+            Paused: 'paused'
+        };
+
+        const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
+
+        function windowsPostMessage (name, data) {
+            window.chrome.webview.postMessage({
+                Feature: 'Permissions',
+                Name: name,
+                Data: data
+            });
+        }
+
+        function signalPermissionStatus (permission, status) {
+            windowsPostMessage('PermissionStatusMessage', { permission, status });
+            console.debug(`Permission '${permission}' is ${status}`);
+        }
+
+        const watchedPositions = new Set();
+        // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
+        const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
+            apply (target, thisArg, args) {
+                if (isFrameInsideFrame) {
+                    // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
+                    throw new DOMException('Permission denied')
+                }
+
+                const successHandler = args[0];
+                args[0] = function (position) {
+                    signalPermissionStatus(Permission.Geolocation, Status.Active);
+                    successHandler?.(position);
+                };
+                const id = DDGReflect.apply(target, thisArg, args);
+                watchedPositions.add(id);
+                return id
+            }
+        });
+        watchPositionProxy.overload();
+
+        // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
+        const clearWatchProxy = new DDGProxy(featureName, Geolocation.prototype, 'clearWatch', {
+            apply (target, thisArg, args) {
+                DDGReflect.apply(target, thisArg, args);
+                if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
+                    signalPermissionStatus(Permission.Geolocation, Status.Inactive);
+                }
+            }
+        });
+        clearWatchProxy.overload();
+
+        // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
+        const getCurrentPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'getCurrentPosition', {
+            apply (target, thisArg, args) {
+                const successHandler = args[0];
+                args[0] = function (position) {
+                    signalPermissionStatus(Permission.Geolocation, Status.Accessed);
+                    successHandler?.(position);
+                };
+                return DDGReflect.apply(target, thisArg, args)
+            }
+        });
+        getCurrentPositionProxy.overload();
+
+        const userMediaStreams = new Set();
+        const videoTracks = new Set();
+        const audioTracks = new Set();
+
+        function getTracks (permission) {
+            switch (permission) {
+            case Permission.Camera:
+                return videoTracks
+            case Permission.Microphone:
+                return audioTracks
+            }
+        }
+
+        function pause (permission) {
+            const streamTracks = getTracks(permission);
+            streamTracks?.forEach(track => {
+                track.enabled = false;
+            });
+        }
+
+        function resume (permission) {
+            const streamTracks = getTracks(permission);
+            streamTracks?.forEach(track => {
+                track.enabled = true;
+            });
+        }
+
+        function stop (permission) {
+            const streamTracks = getTracks(permission);
+            streamTracks?.forEach(track => track.stop());
+        }
+
+        function monitorTrack (track) {
+            if (track.readyState === 'ended') return
+
+            if (track.kind === 'video' && !videoTracks.has(track)) {
+                console.debug(`New video stream track ${track.id}`);
+                track.addEventListener('ended', videoTrackEnded);
+                track.addEventListener('mute', signalVideoTracksState);
+                track.addEventListener('unmute', signalVideoTracksState);
+                videoTracks.add(track);
+            } else if (track.kind === 'audio' && !audioTracks.has(track)) {
+                console.debug(`New audio stream track ${track.id}`);
+                track.addEventListener('ended', audioTrackEnded);
+                track.addEventListener('mute', signalAudioTracksState);
+                track.addEventListener('unmute', signalAudioTracksState);
+                audioTracks.add(track);
+            }
+        }
+
+        function handleTrackEnded (track) {
+            if (track.kind === 'video' && videoTracks.has(track)) {
+                console.debug(`Video stream track ${track.id} ended`);
+                track.removeEventListener('ended', videoTrackEnded);
+                track.removeEventListener('mute', signalVideoTracksState);
+                track.removeEventListener('unmute', signalVideoTracksState);
+                videoTracks.delete(track);
+                signalVideoTracksState();
+            } else if (track.kind === 'audio' && audioTracks.has(track)) {
+                console.debug(`Audio stream track ${track.id} ended`);
+                track.removeEventListener('ended', audioTrackEnded);
+                track.removeEventListener('mute', signalAudioTracksState);
+                track.removeEventListener('unmute', signalAudioTracksState);
+                audioTracks.delete(track);
+                signalAudioTracksState();
+            }
+        }
+
+        function videoTrackEnded (e) {
+            handleTrackEnded(e.target);
+        }
+
+        function audioTrackEnded (e) {
+            handleTrackEnded(e.target);
+        }
+
+        function signalTracksState (permission) {
+            const tracks = getTracks(permission);
+            if (!tracks) return
+
+            const allTrackCount = tracks.size;
+            if (allTrackCount === 0) {
+                signalPermissionStatus(permission, Status.Inactive);
+                return
+            }
+
+            let mutedTrackCount = 0;
+            tracks.forEach(track => {
+                mutedTrackCount += ((!track.enabled || track.muted) ? 1 : 0);
+            });
+            if (mutedTrackCount === allTrackCount) {
+                signalPermissionStatus(permission, Status.Paused);
+            } else {
+                if (mutedTrackCount > 0) {
+                    console.debug(`Some ${permission} tracks are still active: ${allTrackCount - mutedTrackCount}/${allTrackCount}`);
+                }
+                signalPermissionStatus(permission, Status.Active);
+            }
+        }
+
+        let signalVideoTracksStateTimer;
+        function signalVideoTracksState () {
+            clearTimeout(signalVideoTracksStateTimer);
+            signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100);
+        }
+
+        let signalAudioTracksStateTimer;
+        function signalAudioTracksState () {
+            clearTimeout(signalAudioTracksStateTimer);
+            signalAudioTracksStateTimer = setTimeout(() => signalTracksState(Permission.Microphone), 100);
+        }
+
+        // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
+        const stopTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'stop', {
+            apply (target, thisArg, args) {
+                handleTrackEnded(thisArg);
+                return DDGReflect.apply(target, thisArg, args)
+            }
+        });
+        stopTrackProxy.overload();
+
+        // proxy for track.clone -> monitor the cloned track
+        const cloneTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'clone', {
+            apply (target, thisArg, args) {
+                const clonedTrack = DDGReflect.apply(target, thisArg, args);
+                if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
+                    console.debug(`Media stream track ${thisArg.id} has been cloned to track ${clonedTrack.id}`);
+                    monitorTrack(clonedTrack);
+                }
+                return clonedTrack
+            }
+        });
+        cloneTrackProxy.overload();
+
+        // override MediaStreamTrack.enabled -> update active/paused status when enabled is set
+        const trackEnabledPropertyDescriptor = Object.getOwnPropertyDescriptor(MediaStreamTrack.prototype, 'enabled');
+        Object.defineProperty(MediaStreamTrack.prototype, 'enabled', {
+            configurable: trackEnabledPropertyDescriptor.configurable,
+            enumerable: trackEnabledPropertyDescriptor.enumerable,
+            get: function () {
+                return trackEnabledPropertyDescriptor.get.bind(this)()
+            },
+            set: function (value) {
+                const result = trackEnabledPropertyDescriptor.set.bind(this)(...arguments);
+                if (videoTracks.has(this)) {
+                    signalVideoTracksState();
+                } else if (audioTracks.has(this)) {
+                    signalAudioTracksState();
+                }
+                return result
+            }
+        });
+
+        // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
+        const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks'];
+        for (const methodName of getTracksMethodNames) {
+            const getTracksProxy = new DDGProxy(featureName, MediaStream.prototype, methodName, {
+                apply (target, thisArg, args) {
+                    const tracks = DDGReflect.apply(target, thisArg, args);
+                    if (userMediaStreams.has(thisArg)) {
+                        tracks.forEach(monitorTrack);
+                    }
+                    return tracks
+                }
+            });
+            getTracksProxy.overload();
+        }
+
+        // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
+        const cloneMediaStreamProxy = new DDGProxy(featureName, MediaStream.prototype, 'clone', {
+            apply (target, thisArg, args) {
+                const clonedStream = DDGReflect.apply(target, thisArg, args);
+                if (userMediaStreams.has(thisArg)) {
+                    console.debug(`User stream ${thisArg.id} has been cloned to stream ${clonedStream.id}`);
+                    userMediaStreams.add(clonedStream);
+                }
+                return clonedStream
+            }
+        });
+        cloneMediaStreamProxy.overload();
+
+        // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
+        if (MediaDevices) {
+            const getUserMediaProxy = new DDGProxy(featureName, MediaDevices.prototype, 'getUserMedia', {
+                apply (target, thisArg, args) {
+                    if (isFrameInsideFrame) {
+                        // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
+                        return Promise.reject(new DOMException('Permission denied'))
+                    }
+
+                    const videoRequested = args[0]?.video;
+                    const audioRequested = args[0]?.audio;
+                    return DDGReflect.apply(target, thisArg, args).then(function (stream) {
+                        console.debug(`User stream ${stream.id} has been acquired`);
+                        userMediaStreams.add(stream);
+                        if (videoRequested) {
+                            const newVideoTracks = stream.getVideoTracks();
+                            if (newVideoTracks?.length > 0) {
+                                signalPermissionStatus(Permission.Camera, Status.Active);
+                            }
+                            newVideoTracks.forEach(monitorTrack);
+                        }
+
+                        if (audioRequested) {
+                            const newAudioTracks = stream.getAudioTracks();
+                            if (newAudioTracks?.length > 0) {
+                                signalPermissionStatus(Permission.Microphone, Status.Active);
+                            }
+                            newAudioTracks.forEach(monitorTrack);
+                        }
+                        return stream
+                    })
+                }
+            });
+            getUserMediaProxy.overload();
+        }
+
+        function performAction (action, permission) {
+            if (action && permission) {
+                switch (action) {
+                case 'pause':
+                    pause(permission);
+                    break
+                case 'resume':
+                    resume(permission);
+                    break
+                case 'stop':
+                    stop(permission);
+                    break
+                }
+            }
+        }
+
+        // handle actions from browser
+        window.chrome.webview.addEventListener('message', function ({ data }) {
+            if (data?.action && data?.permission) {
+                performAction(data?.action, data?.permission);
+            }
+        });
+
+        // these permissions cannot be disabled using WebView2 or DevTools protocol
+        const permissionsToDisable = [
+            { name: 'Bluetooth', prototype: Bluetooth.prototype, method: 'requestDevice' },
+            { name: 'USB', prototype: USB.prototype, method: 'requestDevice' },
+            { name: 'Serial', prototype: Serial.prototype, method: 'requestPort' },
+            { name: 'HID', prototype: HID.prototype, method: 'requestDevice' }
+        ];
+        for (const { name, prototype, method } of permissionsToDisable) {
+            try {
+                const proxy = new DDGProxy(featureName, prototype, method, {
+                    apply () {
+                        return Promise.reject(new DOMException('Permission denied'))
+                    }
+                });
+                proxy.overload();
+            } catch (error) {
+                console.info(`Could not disable access to ${name} because of error`, error);
+            }
+        }
+    }
+
+    var contentScopeFeatures = (function (exports) {
+  'use strict';
+
+  // @ts-nocheck
+      const sjcl = (() => {
+  /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
+  /*global document, window, escape, unescape, module, require, Uint32Array */
+
+  /**
+   * The Stanford Javascript Crypto Library, top-level namespace.
+   * @namespace
+   */
+  var sjcl = {
+    /**
+     * Symmetric ciphers.
+     * @namespace
+     */
+    cipher: {},
+
+    /**
+     * Hash functions.  Right now only SHA256 is implemented.
+     * @namespace
+     */
+    hash: {},
+
+    /**
+     * Key exchange functions.  Right now only SRP is implemented.
+     * @namespace
+     */
+    keyexchange: {},
+    
+    /**
+     * Cipher modes of operation.
+     * @namespace
+     */
+    mode: {},
+
+    /**
+     * Miscellaneous.  HMAC and PBKDF2.
+     * @namespace
+     */
+    misc: {},
+    
+    /**
+     * Bit array encoders and decoders.
+     * @namespace
+     *
+     * @description
+     * The members of this namespace are functions which translate between
+     * SJCL's bitArrays and other objects (usually strings).  Because it
+     * isn't always clear which direction is encoding and which is decoding,
+     * the method names are "fromBits" and "toBits".
+     */
+    codec: {},
+    
+    /**
+     * Exceptions.
+     * @namespace
+     */
+    exception: {
+      /**
+       * Ciphertext is corrupt.
+       * @constructor
+       */
+      corrupt: function(message) {
+        this.toString = function() { return "CORRUPT: "+this.message; };
+        this.message = message;
+      },
+      
+      /**
+       * Invalid parameter.
+       * @constructor
+       */
+      invalid: function(message) {
+        this.toString = function() { return "INVALID: "+this.message; };
+        this.message = message;
+      },
+      
+      /**
+       * Bug or missing feature in SJCL.
+       * @constructor
+       */
+      bug: function(message) {
+        this.toString = function() { return "BUG: "+this.message; };
+        this.message = message;
+      },
+
+      /**
+       * Something isn't ready.
+       * @constructor
+       */
+      notReady: function(message) {
+        this.toString = function() { return "NOT READY: "+this.message; };
+        this.message = message;
+      }
+    }
+  };
+  /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /**
+   * Arrays of bits, encoded as arrays of Numbers.
+   * @namespace
+   * @description
+   * <p>
+   * These objects are the currency accepted by SJCL's crypto functions.
+   * </p>
+   *
+   * <p>
+   * Most of our crypto primitives operate on arrays of 4-byte words internally,
+   * but many of them can take arguments that are not a multiple of 4 bytes.
+   * This library encodes arrays of bits (whose size need not be a multiple of 8
+   * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
+   * array of words, 32 bits at a time.  Since the words are double-precision
+   * floating point numbers, they fit some extra data.  We use this (in a private,
+   * possibly-changing manner) to encode the number of bits actually  present
+   * in the last word of the array.
+   * </p>
+   *
+   * <p>
+   * Because bitwise ops clear this out-of-band data, these arrays can be passed
+   * to ciphers like AES which want arrays of words.
+   * </p>
+   */
+  sjcl.bitArray = {
+    /**
+     * Array slices in units of bits.
+     * @param {bitArray} a The array to slice.
+     * @param {Number} bstart The offset to the start of the slice, in bits.
+     * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
+     * slice until the end of the array.
+     * @return {bitArray} The requested slice.
+     */
+    bitSlice: function (a, bstart, bend) {
+      a = sjcl.bitArray._shiftRight(a.slice(bstart/32), 32 - (bstart & 31)).slice(1);
+      return (bend === undefined) ? a : sjcl.bitArray.clamp(a, bend-bstart);
     },
-    (message) => {
-        if (!message) {
-            // Remove injected function only as background has disabled feature
-            inject(`delete window.${randomMethodName}`)
+
+    /**
+     * Extract a number packed into a bit array.
+     * @param {bitArray} a The array to slice.
+     * @param {Number} bstart The offset to the start of the slice, in bits.
+     * @param {Number} blength The length of the number to extract.
+     * @return {Number} The requested slice.
+     */
+    extract: function(a, bstart, blength) {
+      // FIXME: this Math.floor is not necessary at all, but for some reason
+      // seems to suppress a bug in the Chromium JIT.
+      var x, sh = Math.floor((-bstart-blength) & 31);
+      if ((bstart + blength - 1 ^ bstart) & -32) {
+        // it crosses a boundary
+        x = (a[bstart/32|0] << (32 - sh)) ^ (a[bstart/32+1|0] >>> sh);
+      } else {
+        // within a single word
+        x = a[bstart/32|0] >>> sh;
+      }
+      return x & ((1<<blength) - 1);
+    },
+
+    /**
+     * Concatenate two bit arrays.
+     * @param {bitArray} a1 The first array.
+     * @param {bitArray} a2 The second array.
+     * @return {bitArray} The concatenation of a1 and a2.
+     */
+    concat: function (a1, a2) {
+      if (a1.length === 0 || a2.length === 0) {
+        return a1.concat(a2);
+      }
+      
+      var last = a1[a1.length-1], shift = sjcl.bitArray.getPartial(last);
+      if (shift === 32) {
+        return a1.concat(a2);
+      } else {
+        return sjcl.bitArray._shiftRight(a2, shift, last|0, a1.slice(0,a1.length-1));
+      }
+    },
+
+    /**
+     * Find the length of an array of bits.
+     * @param {bitArray} a The array.
+     * @return {Number} The length of a, in bits.
+     */
+    bitLength: function (a) {
+      var l = a.length, x;
+      if (l === 0) { return 0; }
+      x = a[l - 1];
+      return (l-1) * 32 + sjcl.bitArray.getPartial(x);
+    },
+
+    /**
+     * Truncate an array.
+     * @param {bitArray} a The array.
+     * @param {Number} len The length to truncate to, in bits.
+     * @return {bitArray} A new array, truncated to len bits.
+     */
+    clamp: function (a, len) {
+      if (a.length * 32 < len) { return a; }
+      a = a.slice(0, Math.ceil(len / 32));
+      var l = a.length;
+      len = len & 31;
+      if (l > 0 && len) {
+        a[l-1] = sjcl.bitArray.partial(len, a[l-1] & 0x80000000 >> (len-1), 1);
+      }
+      return a;
+    },
+
+    /**
+     * Make a partial word for a bit array.
+     * @param {Number} len The number of bits in the word.
+     * @param {Number} x The bits.
+     * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
+     * @return {Number} The partial word.
+     */
+    partial: function (len, x, _end) {
+      if (len === 32) { return x; }
+      return (_end ? x|0 : x << (32-len)) + len * 0x10000000000;
+    },
+
+    /**
+     * Get the number of bits used by a partial word.
+     * @param {Number} x The partial word.
+     * @return {Number} The number of bits used by the partial word.
+     */
+    getPartial: function (x) {
+      return Math.round(x/0x10000000000) || 32;
+    },
+
+    /**
+     * Compare two arrays for equality in a predictable amount of time.
+     * @param {bitArray} a The first array.
+     * @param {bitArray} b The second array.
+     * @return {boolean} true if a == b; false otherwise.
+     */
+    equal: function (a, b) {
+      if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
+        return false;
+      }
+      var x = 0, i;
+      for (i=0; i<a.length; i++) {
+        x |= a[i]^b[i];
+      }
+      return (x === 0);
+    },
+
+    /** Shift an array right.
+     * @param {bitArray} a The array to shift.
+     * @param {Number} shift The number of bits to shift.
+     * @param {Number} [carry=0] A byte to carry in
+     * @param {bitArray} [out=[]] An array to prepend to the output.
+     * @private
+     */
+    _shiftRight: function (a, shift, carry, out) {
+      var i, last2=0, shift2;
+      if (out === undefined) { out = []; }
+      
+      for (; shift >= 32; shift -= 32) {
+        out.push(carry);
+        carry = 0;
+      }
+      if (shift === 0) {
+        return out.concat(a);
+      }
+      
+      for (i=0; i<a.length; i++) {
+        out.push(carry | a[i]>>>shift);
+        carry = a[i] << (32-shift);
+      }
+      last2 = a.length ? a[a.length-1] : 0;
+      shift2 = sjcl.bitArray.getPartial(last2);
+      out.push(sjcl.bitArray.partial(shift+shift2 & 31, (shift + shift2 > 32) ? carry : out.pop(),1));
+      return out;
+    },
+    
+    /** xor a block of 4 words together.
+     * @private
+     */
+    _xor4: function(x,y) {
+      return [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]];
+    },
+
+    /** byteswap a word array inplace.
+     * (does not handle partial words)
+     * @param {sjcl.bitArray} a word array
+     * @return {sjcl.bitArray} byteswapped array
+     */
+    byteswapM: function(a) {
+      var i, v, m = 0xff00;
+      for (i = 0; i < a.length; ++i) {
+        v = a[i];
+        a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
+      }
+      return a;
+    }
+  };
+  /** @fileOverview Bit array codec implementations.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /**
+   * UTF-8 strings
+   * @namespace
+   */
+  sjcl.codec.utf8String = {
+    /** Convert from a bitArray to a UTF-8 string. */
+    fromBits: function (arr) {
+      var out = "", bl = sjcl.bitArray.bitLength(arr), i, tmp;
+      for (i=0; i<bl/8; i++) {
+        if ((i&3) === 0) {
+          tmp = arr[i/4];
+        }
+        out += String.fromCharCode(tmp >>> 8 >>> 8 >>> 8);
+        tmp <<= 8;
+      }
+      return decodeURIComponent(escape(out));
+    },
+
+    /** Convert from a UTF-8 string to a bitArray. */
+    toBits: function (str) {
+      str = unescape(encodeURIComponent(str));
+      var out = [], i, tmp=0;
+      for (i=0; i<str.length; i++) {
+        tmp = tmp << 8 | str.charCodeAt(i);
+        if ((i&3) === 3) {
+          out.push(tmp);
+          tmp = 0;
+        }
+      }
+      if (i&3) {
+        out.push(sjcl.bitArray.partial(8*(i&3), tmp));
+      }
+      return out;
+    }
+  };
+  /** @fileOverview Bit array codec implementations.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /**
+   * Hexadecimal
+   * @namespace
+   */
+  sjcl.codec.hex = {
+    /** Convert from a bitArray to a hex string. */
+    fromBits: function (arr) {
+      var out = "", i;
+      for (i=0; i<arr.length; i++) {
+        out += ((arr[i]|0)+0xF00000000000).toString(16).substr(4);
+      }
+      return out.substr(0, sjcl.bitArray.bitLength(arr)/4);//.replace(/(.{8})/g, "$1 ");
+    },
+    /** Convert from a hex string to a bitArray. */
+    toBits: function (str) {
+      var i, out=[], len;
+      str = str.replace(/\s|0x/g, "");
+      len = str.length;
+      str = str + "00000000";
+      for (i=0; i<str.length; i+=8) {
+        out.push(parseInt(str.substr(i,8),16)^0);
+      }
+      return sjcl.bitArray.clamp(out, len*4);
+    }
+  };
+
+  /** @fileOverview Javascript SHA-256 implementation.
+   *
+   * An older version of this implementation is available in the public
+   * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
+   * Stanford University 2008-2010 and BSD-licensed for liability
+   * reasons.
+   *
+   * Special thanks to Aldo Cortesi for pointing out several bugs in
+   * this code.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /**
+   * Context for a SHA-256 operation in progress.
+   * @constructor
+   */
+  sjcl.hash.sha256 = function (hash) {
+    if (!this._key[0]) { this._precompute(); }
+    if (hash) {
+      this._h = hash._h.slice(0);
+      this._buffer = hash._buffer.slice(0);
+      this._length = hash._length;
+    } else {
+      this.reset();
+    }
+  };
+
+  /**
+   * Hash a string or an array of words.
+   * @static
+   * @param {bitArray|String} data the data to hash.
+   * @return {bitArray} The hash value, an array of 16 big-endian words.
+   */
+  sjcl.hash.sha256.hash = function (data) {
+    return (new sjcl.hash.sha256()).update(data).finalize();
+  };
+
+  sjcl.hash.sha256.prototype = {
+    /**
+     * The hash's block size, in bits.
+     * @constant
+     */
+    blockSize: 512,
+     
+    /**
+     * Reset the hash state.
+     * @return this
+     */
+    reset:function () {
+      this._h = this._init.slice(0);
+      this._buffer = [];
+      this._length = 0;
+      return this;
+    },
+    
+    /**
+     * Input several words to the hash.
+     * @param {bitArray|String} data the data to hash.
+     * @return this
+     */
+    update: function (data) {
+      if (typeof data === "string") {
+        data = sjcl.codec.utf8String.toBits(data);
+      }
+      var i, b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
+          ol = this._length,
+          nl = this._length = ol + sjcl.bitArray.bitLength(data);
+      if (nl > 9007199254740991){
+        throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
+      }
+
+      if (typeof Uint32Array !== 'undefined') {
+  	var c = new Uint32Array(b);
+      	var j = 0;
+      	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
+        	    this._block(c.subarray(16 * j, 16 * (j+1)));
+        	    j += 1;
+      	}
+      	b.splice(0, 16 * j);
+      } else {
+  	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
+        	    this._block(b.splice(0,16));
+        	}
+      }
+      return this;
+    },
+    
+    /**
+     * Complete hashing and output the hash value.
+     * @return {bitArray} The hash value, an array of 8 big-endian words.
+     */
+    finalize:function () {
+      var i, b = this._buffer, h = this._h;
+
+      // Round out and push the buffer
+      b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1,1)]);
+      
+      // Round out the buffer to a multiple of 16 words, less the 2 length words.
+      for (i = b.length + 2; i & 15; i++) {
+        b.push(0);
+      }
+      
+      // append the length
+      b.push(Math.floor(this._length / 0x100000000));
+      b.push(this._length | 0);
+
+      while (b.length) {
+        this._block(b.splice(0,16));
+      }
+
+      this.reset();
+      return h;
+    },
+
+    /**
+     * The SHA-256 initialization vector, to be precomputed.
+     * @private
+     */
+    _init:[],
+    /*
+    _init:[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],
+    */
+    
+    /**
+     * The SHA-256 hash key, to be precomputed.
+     * @private
+     */
+    _key:[],
+    /*
+    _key:
+      [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+       0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+       0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+       0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+       0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+       0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+       0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+       0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
+    */
+
+
+    /**
+     * Function to precompute _init and _key.
+     * @private
+     */
+    _precompute: function () {
+      var i = 0, prime = 2, factor, isPrime;
+
+      function frac(x) { return (x-Math.floor(x)) * 0x100000000 | 0; }
+
+      for (; i<64; prime++) {
+        isPrime = true;
+        for (factor=2; factor*factor <= prime; factor++) {
+          if (prime % factor === 0) {
+            isPrime = false;
+            break;
+          }
+        }
+        if (isPrime) {
+          if (i<8) {
+            this._init[i] = frac(Math.pow(prime, 1/2));
+          }
+          this._key[i] = frac(Math.pow(prime, 1/3));
+          i++;
+        }
+      }
+    },
+    
+    /**
+     * Perform one cycle of SHA-256.
+     * @param {Uint32Array|bitArray} w one block of words.
+     * @private
+     */
+    _block:function (w) {  
+      var i, tmp, a, b,
+        h = this._h,
+        k = this._key,
+        h0 = h[0], h1 = h[1], h2 = h[2], h3 = h[3],
+        h4 = h[4], h5 = h[5], h6 = h[6], h7 = h[7];
+
+      /* Rationale for placement of |0 :
+       * If a value can overflow is original 32 bits by a factor of more than a few
+       * million (2^23 ish), there is a possibility that it might overflow the
+       * 53-bit mantissa and lose precision.
+       *
+       * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
+       * propagates around the loop, and on the hash state h[].  I don't believe
+       * that the clamps on h4 and on h0 are strictly necessary, but it's close
+       * (for h4 anyway), and better safe than sorry.
+       *
+       * The clamps on h[] are necessary for the output to be correct even in the
+       * common case and for short inputs.
+       */
+      for (i=0; i<64; i++) {
+        // load up the input word for this round
+        if (i<16) {
+          tmp = w[i];
+        } else {
+          a   = w[(i+1 ) & 15];
+          b   = w[(i+14) & 15];
+          tmp = w[i&15] = ((a>>>7  ^ a>>>18 ^ a>>>3  ^ a<<25 ^ a<<14) + 
+                           (b>>>17 ^ b>>>19 ^ b>>>10 ^ b<<15 ^ b<<13) +
+                           w[i&15] + w[(i+9) & 15]) | 0;
+        }
+        
+        tmp = (tmp + h7 + (h4>>>6 ^ h4>>>11 ^ h4>>>25 ^ h4<<26 ^ h4<<21 ^ h4<<7) +  (h6 ^ h4&(h5^h6)) + k[i]); // | 0;
+        
+        // shift register
+        h7 = h6; h6 = h5; h5 = h4;
+        h4 = h3 + tmp | 0;
+        h3 = h2; h2 = h1; h1 = h0;
+
+        h0 = (tmp +  ((h1&h2) ^ (h3&(h1^h2))) + (h1>>>2 ^ h1>>>13 ^ h1>>>22 ^ h1<<30 ^ h1<<19 ^ h1<<10)) | 0;
+      }
+
+      h[0] = h[0]+h0 | 0;
+      h[1] = h[1]+h1 | 0;
+      h[2] = h[2]+h2 | 0;
+      h[3] = h[3]+h3 | 0;
+      h[4] = h[4]+h4 | 0;
+      h[5] = h[5]+h5 | 0;
+      h[6] = h[6]+h6 | 0;
+      h[7] = h[7]+h7 | 0;
+    }
+  };
+
+
+  /** @fileOverview HMAC implementation.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /** HMAC with the specified hash function.
+   * @constructor
+   * @param {bitArray} key the key for HMAC.
+   * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
+   */
+  sjcl.misc.hmac = function (key, Hash) {
+    this._hash = Hash = Hash || sjcl.hash.sha256;
+    var exKey = [[],[]], i,
+        bs = Hash.prototype.blockSize / 32;
+    this._baseHash = [new Hash(), new Hash()];
+
+    if (key.length > bs) {
+      key = Hash.hash(key);
+    }
+    
+    for (i=0; i<bs; i++) {
+      exKey[0][i] = key[i]^0x36363636;
+      exKey[1][i] = key[i]^0x5C5C5C5C;
+    }
+    
+    this._baseHash[0].update(exKey[0]);
+    this._baseHash[1].update(exKey[1]);
+    this._resultHash = new Hash(this._baseHash[0]);
+  };
+
+  /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
+   * @param {bitArray|String} data The data to mac.
+   */
+  sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
+    if (!this._updated) {
+      this.update(data);
+      return this.digest(data);
+    } else {
+      throw new sjcl.exception.invalid("encrypt on already updated hmac called!");
+    }
+  };
+
+  sjcl.misc.hmac.prototype.reset = function () {
+    this._resultHash = new this._hash(this._baseHash[0]);
+    this._updated = false;
+  };
+
+  sjcl.misc.hmac.prototype.update = function (data) {
+    this._updated = true;
+    this._resultHash.update(data);
+  };
+
+  sjcl.misc.hmac.prototype.digest = function () {
+    var w = this._resultHash.finalize(), result = new (this._hash)(this._baseHash[1]).update(w).finalize();
+
+    this.reset();
+
+    return result;
+  };
+
+      return sjcl;
+    })();
+
+  /* global cloneInto, exportFunction, false */
+
+  // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
+  // eslint-disable-next-line no-global-assign
+  let globalObj = typeof window === 'undefined' ? globalThis : window;
+  let Error$1 = globalObj.Error;
+
+  function getDataKeySync (sessionKey, domainKey, inputData) {
+      // eslint-disable-next-line new-cap
+      const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256);
+      return sjcl.codec.hex.fromBits(hmac.encrypt(inputData))
+  }
+
+  // linear feedback shift register to find a random approximation
+  function nextRandom (v) {
+      return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)))
+  }
+
+  const exemptionLists = {};
+  function shouldExemptUrl (type, url) {
+      for (const regex of exemptionLists[type]) {
+          if (regex.test(url)) {
+              return true
+          }
+      }
+      return false
+  }
+
+  let debug = false;
+
+  function initStringExemptionLists (args) {
+      const { stringExemptionLists } = args;
+      debug = args.debug;
+      for (const type in stringExemptionLists) {
+          exemptionLists[type] = [];
+          for (const stringExemption of stringExemptionLists[type]) {
+              exemptionLists[type].push(new RegExp(stringExemption));
+          }
+      }
+  }
+
+  /**
+   * Best guess effort if the document is being framed
+   * @returns {boolean} if we infer the document is framed
+   */
+  function isBeingFramed () {
+      if ('ancestorOrigins' in globalThis.location) {
+          return globalThis.location.ancestorOrigins.length > 0
+      }
+      // @ts-ignore types do overlap whilst in DOM context
+      return globalThis.top !== globalThis
+  }
+
+  /**
+   * Best guess effort if the document is third party
+   * @returns {boolean} if we infer the document is third party
+   */
+  function isThirdParty () {
+      if (!isBeingFramed()) {
+          return false
+      }
+      return !matchHostname(globalThis.location.hostname, getTabOrigin())
+  }
+
+  /**
+   * Best guess effort of the tabs origin
+   * @returns {string|null} inferred tab origin
+   */
+  function getTabOrigin () {
+      let framingOrigin = null;
+      try {
+          framingOrigin = globalThis.top.location.href;
+      } catch {
+          framingOrigin = globalThis.document.referrer;
+      }
+
+      // Not supported in Firefox
+      if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+          // ancestorOrigins is reverse order, with the last item being the top frame
+          framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+      }
+
+      try {
+          framingOrigin = new URL(framingOrigin).hostname;
+      } catch {
+          framingOrigin = null;
+      }
+      return framingOrigin
+  }
+
+  /**
+   * Returns true if hostname is a subset of exceptionDomain or an exact match.
+   * @param {string} hostname
+   * @param {string} exceptionDomain
+   * @returns {boolean}
+   */
+  function matchHostname (hostname, exceptionDomain) {
+      return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+  }
+
+  const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+  function getStackTraceUrls (stack) {
+      const urls = new Set();
+      try {
+          const errorLines = stack.split('\n');
+          // Should cater for Chrome and Firefox stacks, we only care about https? resources.
+          for (const line of errorLines) {
+              const res = line.match(lineTest);
+              if (res) {
+                  urls.add(new URL(res[2], location.href));
+              }
+          }
+      } catch (e) {
+          // Fall through
+      }
+      return urls
+  }
+
+  function getStackTraceOrigins (stack) {
+      const urls = getStackTraceUrls(stack);
+      const origins = new Set();
+      for (const url of urls) {
+          origins.add(url.hostname);
+      }
+      return origins
+  }
+
+  // Checks the stack trace if there are known libraries that are broken.
+  function shouldExemptMethod (type) {
+      // Short circuit stack tracing if we don't have checks
+      if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
+          return false
+      }
+      const stack = getStack();
+      const errorFiles = getStackTraceUrls(stack);
+      for (const path of errorFiles) {
+          if (shouldExemptUrl(type, path.href)) {
+              return true
+          }
+      }
+      return false
+  }
+
+  // Iterate through the key, passing an item index and a byte to be modified
+  function iterateDataKey (key, callback) {
+      let item = key.charCodeAt(0);
+      for (const i in key) {
+          let byte = key.charCodeAt(i);
+          for (let j = 8; j >= 0; j--) {
+              const res = callback(item, byte);
+              // Exit early if callback returns null
+              if (res === null) {
+                  return
+              }
+
+              // find next item to perturb
+              item = nextRandom(item);
+
+              // Right shift as we use the least significant bit of it
+              byte = byte >> 1;
+          }
+      }
+  }
+
+  function isFeatureBroken (args, feature) {
+      return args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
+  }
+
+  /**
+   * For each property defined on the object, update it with the target value.
+   */
+  function overrideProperty (name, prop) {
+      // Don't update if existing value is undefined or null
+      if (!(prop.origValue === undefined)) {
+          /**
+           * When re-defining properties, we bind the overwritten functions to null. This prevents
+           * sites from using toString to see if the function has been overwritten
+           * without this bind call, a site could run something like
+           * `Object.getOwnPropertyDescriptor(Screen.prototype, "availTop").get.toString()` and see
+           * the contents of the function. Appending .bind(null) to the function definition will
+           * have the same toString call return the default [native code]
+           */
+          try {
+              defineProperty(prop.object, name, {
+                  // eslint-disable-next-line no-extra-bind
+                  get: (() => prop.targetValue).bind(null)
+              });
+          } catch (e) {
+          }
+      }
+      return prop.origValue
+  }
+
+  function defineProperty (object, propertyName, descriptor) {
+      {
+          Object.defineProperty(object, propertyName, descriptor);
+      }
+  }
+
+  function camelcase (dashCaseText) {
+      return dashCaseText.replace(/-(.)/g, (match, letter) => {
+          return letter.toUpperCase()
+      })
+  }
+
+  /**
+   * @param {string} featureName
+   * @param {object} args
+   * @param {string} prop
+   * @returns {any}
+   */
+  function getFeatureSetting (featureName, args, prop) {
+      const camelFeatureName = camelcase(featureName);
+      return args.featureSettings?.[camelFeatureName]?.[prop]
+  }
+
+  /**
+   * @param {string} featureName
+   * @param {object} args
+   * @param {string} prop
+   * @returns {boolean}
+   */
+  function getFeatureSettingEnabled (featureName, args, prop) {
+      const result = getFeatureSetting(featureName, args, prop);
+      return result === 'enabled'
+  }
+
+  function getStack () {
+      return new Error$1().stack
+  }
+
+  /**
+   * @template {object} P
+   * @typedef {object} ProxyObject<P>
+   * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+   */
+
+  /**
+   * @template [P=object]
+   */
+  class DDGProxy {
+      /**
+       * @param {string} featureName
+       * @param {P} objectScope
+       * @param {string} property
+       * @param {ProxyObject<P>} proxyObject
+       */
+      constructor (featureName, objectScope, property, proxyObject) {
+          this.objectScope = objectScope;
+          this.property = property;
+          this.featureName = featureName;
+          this.camelFeatureName = camelcase(this.featureName);
+          const outputHandler = (...args) => {
+              const isExempt = shouldExemptMethod(this.camelFeatureName);
+              if (debug) {
+                  postDebugMessage(this.camelFeatureName, {
+                      action: isExempt ? 'ignore' : 'restrict',
+                      kind: this.property,
+                      documentUrl: document.location.href,
+                      stack: getStack(),
+                      args: JSON.stringify(args[2])
+                  });
+              }
+              // The normal return value
+              if (isExempt) {
+                  return DDGReflect.apply(...args)
+              }
+              return proxyObject.apply(...args)
+          };
+          {
+              this._native = objectScope[property];
+              const handler = {};
+              handler.apply = outputHandler;
+              this.internal = new globalObj.Proxy(objectScope[property], handler);
+          }
+      }
+
+      // Actually apply the proxy to the native property
+      overload () {
+          {
+              this.objectScope[this.property] = this.internal;
+          }
+      }
+  }
+
+  function postDebugMessage (feature, message) {
+      if (message.stack) {
+          const scriptOrigins = [...getStackTraceOrigins(message.stack)];
+          message.scriptOrigins = scriptOrigins;
+      }
+      globalObj.postMessage({
+          action: feature,
+          message
+      });
+  }
+
+  let DDGReflect;
+  let DDGPromise;
+
+  // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+  {
+      DDGPromise = globalObj.Promise;
+      DDGReflect = globalObj.Reflect;
+  }
+
+  function __variableDynamicImportRuntime0__(path) {
+     switch (path) {
+       case './features/cookie.js': return Promise.resolve().then(function () { return cookie; });
+       case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
+       case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
+       case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
+       case './features/fingerprinting-hardware.js': return Promise.resolve().then(function () { return fingerprintingHardware; });
+       case './features/fingerprinting-screen-size.js': return Promise.resolve().then(function () { return fingerprintingScreenSize; });
+       case './features/fingerprinting-temporary-storage.js': return Promise.resolve().then(function () { return fingerprintingTemporaryStorage; });
+       case './features/google-rejected.js': return Promise.resolve().then(function () { return googleRejected; });
+       case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
+       case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
+       case './features/referrer.js': return Promise.resolve().then(function () { return referrer; });
+       case './features/web-compat.js': return Promise.resolve().then(function () { return webCompat; });
+       default: return Promise.reject(new Error("Unknown variable dynamic import: " + path));
+     }
+   }
+
+  function shouldRun () {
+      // don't inject into non-HTML documents (such as XML documents)
+      // but do inject into XHTML documents
+      if (document instanceof HTMLDocument === false && (
+          document instanceof XMLDocument === false ||
+          document.createElement('div') instanceof HTMLDivElement === false
+      )) {
+          return false
+      }
+      return true
+  }
+
+  let initArgs = null;
+  const updates = [];
+  const features = [];
+
+  async function load$1 () {
+      if (!shouldRun()) {
+          return
+      }
+      const featureNames = [
+          'webCompat',
+          'fingerprintingAudio',
+          'fingerprintingBattery',
+          'fingerprintingCanvas',
+          'cookie',
+          'googleRejected',
+          'gpc',
+          'fingerprintingHardware',
+          'referrer',
+          'fingerprintingScreenSize',
+          'fingerprintingTemporaryStorage',
+          'navigatorInterface'
+      ];
+
+      for (const featureName of featureNames) {
+          const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
+          const feature = __variableDynamicImportRuntime0__(`./features/${filename}.js`).then(({ init, load, update }) => {
+              if (load) {
+                  load();
+              }
+              return { featureName, init, update }
+          });
+          features.push(feature);
+      }
+  }
+
+  async function init$c (args) {
+      initArgs = args;
+      if (!shouldRun()) {
+          return
+      }
+      initStringExemptionLists(args);
+      const resolvedFeatures = await Promise.all(features);
+      resolvedFeatures.forEach(({ init, featureName }) => {
+          if (!isFeatureBroken(args, featureName)) {
+              init(args);
+          }
+      });
+      // Fire off updates that came in faster than the init
+      while (updates.length) {
+          const update = updates.pop();
+          await updateFeaturesInner(update);
+      }
+  }
+
+  async function update$1 (args) {
+      if (!shouldRun()) {
+          return
+      }
+      if (initArgs === null) {
+          updates.push(args);
+          return
+      }
+      updateFeaturesInner(args);
+  }
+
+  async function updateFeaturesInner (args) {
+      const resolvedFeatures = await Promise.all(features);
+      resolvedFeatures.forEach(({ update, featureName }) => {
+          if (!isFeatureBroken(initArgs, featureName) && update) {
+              update(args);
+          }
+      });
+  }
+
+  class Cookie {
+      constructor (cookieString) {
+          this.parts = cookieString.split(';');
+          this.parse();
+      }
+
+      parse () {
+          const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
+          this.attrIdx = {};
+          this.parts.forEach((part, index) => {
+              const kv = part.split('=', 1);
+              const attribute = kv[0].trim();
+              const value = part.slice(kv[0].length + 1);
+              if (index === 0) {
+                  this.name = attribute;
+                  this.value = value;
+              } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
+                  this[attribute.toLowerCase()] = value;
+                  this.attrIdx[attribute.toLowerCase()] = index;
+              }
+          });
+      }
+
+      getExpiry () {
+          // @ts-ignore
+          if (!this.maxAge && !this.expires) {
+              return NaN
+          }
+          const expiry = this.maxAge
+              ? parseInt(this.maxAge)
+              // @ts-ignore
+              : (new Date(this.expires) - new Date()) / 1000;
+          return expiry
+      }
+
+      get maxAge () {
+          return this['max-age']
+      }
+
+      set maxAge (value) {
+          if (this.attrIdx['max-age'] > 0) {
+              this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
+          } else {
+              this.parts.push(`max-age=${value}`);
+          }
+          this.parse();
+      }
+
+      toString () {
+          return this.parts.join(';')
+      }
+  }
+
+  /* eslint-disable quote-props */
+  /* eslint-disable quotes */
+  /* eslint-disable indent */
+  /* eslint-disable eol-last */
+  /* eslint-disable no-trailing-spaces */
+  /* eslint-disable no-multiple-empty-lines */
+      const exceptions = [
+    {
+      "domain": "nespresso.com",
+      "reason": "login issues"
+    }
+  ];
+      const excludedCookieDomains = [
+    {
+      "domain": "hangouts.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "docs.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "accounts.google.com",
+      "reason": "SSO which needs cookies for auth"
+    },
+    {
+      "domain": "googleapis.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "login.live.com",
+      "reason": "SSO which needs cookies for auth"
+    },
+    {
+      "domain": "apis.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "pay.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "payments.amazon.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "payments.amazon.de",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "atlassian.net",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "atlassian.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "paypal.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "paypal.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "salesforce.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "salesforceliveagent.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "force.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "disqus.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "spotify.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "hangouts.google.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "docs.google.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "btsport-utils-prod.akamaized.net",
+      "reason": "broken videos"
+    }
+  ];
+
+  let protectionExempted = true;
+  const tabOrigin = getTabOrigin();
+  let tabExempted = true;
+
+  if (tabOrigin != null) {
+      tabExempted = exceptions.some((exception) => {
+          return matchHostname(tabOrigin, exception.domain)
+      });
+  }
+  const frameExempted = excludedCookieDomains.some((exception) => {
+      return matchHostname(globalThis.location.hostname, exception.domain)
+  });
+  protectionExempted = frameExempted || tabExempted;
+
+  // Initial cookie policy pre init
+  let cookiePolicy = {
+      debug: false,
+      isFrame: isBeingFramed(),
+      isTracker: false,
+      shouldBlock: !protectionExempted,
+      shouldBlockTrackerCookie: true,
+      shouldBlockNonTrackerCookie: true,
+      isThirdParty: isThirdParty(),
+      policy: {
+          threshold: 604800, // 7 days
+          maxAge: 604800 // 7 days
+      }
+  };
+
+  let loadedPolicyResolve;
+  // Listen for a message from the content script which will configure the policy for this context
+  const trackerHosts = new Set();
+
+  /**
+   * @param {'ignore' | 'block' | 'restrict'} action
+   * @param {string} reason
+   * @param {any} ctx
+   */
+  function debugHelper (action, reason, ctx) {
+      cookiePolicy.debug && postDebugMessage('jscookie', {
+          action,
+          reason,
+          stack: ctx.stack,
+          documentUrl: globalThis.document.location.href,
+          scriptOrigins: [...ctx.scriptOrigins],
+          value: ctx.value
+      });
+  }
+
+  function shouldBlockTrackingCookie () {
+      return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
+  }
+
+  function shouldBlockNonTrackingCookie () {
+      return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
+  }
+
+  function isTrackingCookie () {
+      return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdParty
+  }
+
+  function isNonTrackingCookie () {
+      return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdParty
+  }
+
+  function load (args) {
+      trackerHosts.clear();
+
+      // The cookie policy is injected into every frame immediately so that no cookie will
+      // be missed.
+      const document = globalThis.document;
+      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
+      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
+
+      const loadPolicy = new Promise((resolve) => {
+          loadedPolicyResolve = resolve;
+      });
+      // Create the then callback now - this ensures that Promise.prototype.then changes won't break
+      // this call.
+      const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
+
+      function getCookiePolicy () {
+          const stack = getStack();
+          const scriptOrigins = getStackTraceOrigins(stack);
+          const getCookieContext = {
+              stack,
+              scriptOrigins,
+              value: 'getter'
+          };
+
+          if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+              debugHelper('block', '3p frame', getCookieContext);
+              return ''
+          } else if (isTrackingCookie() || isNonTrackingCookie()) {
+              debugHelper('ignore', '3p frame', getCookieContext);
+          }
+          return cookieGetter.call(document)
+      }
+
+      function setCookiePolicy (value) {
+          const stack = getStack();
+          const scriptOrigins = getStackTraceOrigins(stack);
+          const setCookieContext = {
+              stack,
+              scriptOrigins,
+              value
+          };
+
+          if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+              debugHelper('block', '3p frame', setCookieContext);
+              return
+          } else if (isTrackingCookie() || isNonTrackingCookie()) {
+              debugHelper('ignore', '3p frame', setCookieContext);
+          }
+          // call the native document.cookie implementation. This will set the cookie immediately
+          // if the value is valid. We will override this set later if the policy dictates that
+          // the expiry should be changed.
+          cookieSetter.call(document, value);
+
+          try {
+              // wait for config before doing same-site tests
+              loadPolicyThen(() => {
+                  const { shouldBlock, policy } = cookiePolicy;
+
+                  if (!shouldBlock) {
+                      debugHelper('ignore', 'disabled', setCookieContext);
+                      return
+                  }
+
+                  // extract cookie expiry from cookie string
+                  const cookie = new Cookie(value);
+                  // apply cookie policy
+                  if (cookie.getExpiry() > policy.threshold) {
+                      // check if the cookie still exists
+                      if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                          cookie.maxAge = policy.maxAge;
+
+                          debugHelper('restrict', 'expiry', setCookieContext);
+
+                          cookieSetter.apply(document, [cookie.toString()]);
+                      } else {
+                          debugHelper('ignore', 'dissappeared', setCookieContext);
+                      }
+                  } else {
+                      debugHelper('ignore', 'expiry', setCookieContext);
+                  }
+              });
+          } catch (e) {
+              debugHelper('ignore', 'error', setCookieContext);
+              // suppress error in cookie override to avoid breakage
+              console.warn('Error in cookie override', e);
+          }
+      }
+
+      defineProperty(document, 'cookie', {
+          configurable: true,
+          set: setCookiePolicy,
+          get: getCookiePolicy
+      });
+  }
+
+  function init$b (args) {
+      args.cookie.debug = args.debug;
+      cookiePolicy = args.cookie;
+
+      const featureName = 'cookie';
+      cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
+      cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
+      const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
+      if (policy) {
+          cookiePolicy.policy = policy;
+      }
+
+      loadedPolicyResolve();
+  }
+
+  function update (args) {
+      if (args.trackerDefinition) {
+          trackerHosts.add(args.hostname);
+      }
+  }
+
+  var cookie = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    load: load,
+    init: init$b,
+    update: update
+  });
+
+  function init$a (args) {
+      const { sessionKey, site } = args;
+      const domainKey = site.domain;
+      const featureName = 'fingerprinting-audio';
+
+      // In place modify array data to remove fingerprinting
+      function transformArrayData (channelData, domainKey, sessionKey, thisArg) {
+          let { audioKey } = getCachedResponse(thisArg, args);
+          if (!audioKey) {
+              let cdSum = 0;
+              for (const k in channelData) {
+                  cdSum += channelData[k];
+              }
+              // If the buffer is blank, skip adding data
+              if (cdSum === 0) {
+                  return
+              }
+              audioKey = getDataKeySync(sessionKey, domainKey, cdSum);
+              setCache(thisArg, args, audioKey);
+          }
+          iterateDataKey(audioKey, (item, byte) => {
+              const itemAudioIndex = item % channelData.length;
+
+              let factor = byte * 0.0000001;
+              if (byte ^ 0x1) {
+                  factor = 0 - factor;
+              }
+              channelData[itemAudioIndex] = channelData[itemAudioIndex] + factor;
+          });
+      }
+
+      const copyFromChannelProxy = new DDGProxy(featureName, AudioBuffer.prototype, 'copyFromChannel', {
+          apply (target, thisArg, args) {
+              const [source, channelNumber, startInChannel] = args;
+              // This is implemented in a different way to canvas purely because calling the function copied the original value, which is not ideal
+              if (// If channelNumber is longer than arrayBuffer number of channels then call the default method to throw
+                  channelNumber > thisArg.numberOfChannels ||
+                  // If startInChannel is longer than the arrayBuffer length then call the default method to throw
+                  startInChannel > thisArg.length) {
+                  // The normal return value
+                  return DDGReflect.apply(target, thisArg, args)
+              }
+              try {
+                  // Call the protected getChannelData we implement, slice from the startInChannel value and assign to the source array
+                  thisArg.getChannelData(channelNumber).slice(startInChannel).forEach((val, index) => {
+                      source[index] = val;
+                  });
+              } catch {
+                  return DDGReflect.apply(target, thisArg, args)
+              }
+          }
+      });
+      copyFromChannelProxy.overload();
+
+      const cacheExpiry = 60;
+      const cacheData = new WeakMap();
+      function getCachedResponse (thisArg, args) {
+          const data = cacheData.get(thisArg);
+          const timeNow = Date.now();
+          if (data &&
+              data.args === JSON.stringify(args) &&
+              data.expires > timeNow) {
+              data.expires = timeNow + cacheExpiry;
+              cacheData.set(thisArg, data);
+              return data
+          }
+          return { audioKey: null }
+      }
+
+      function setCache (thisArg, args, audioKey) {
+          cacheData.set(thisArg, { args: JSON.stringify(args), expires: Date.now() + cacheExpiry, audioKey });
+      }
+
+      const getChannelDataProxy = new DDGProxy(featureName, AudioBuffer.prototype, 'getChannelData', {
+          apply (target, thisArg, args) {
+              // The normal return value
+              const channelData = DDGReflect.apply(target, thisArg, args);
+              // Anything we do here should be caught and ignored silently
+              try {
+                  transformArrayData(channelData, domainKey, sessionKey, thisArg, args);
+              } catch {
+              }
+              return channelData
+          }
+      });
+      getChannelDataProxy.overload();
+
+      const audioMethods = ['getByteTimeDomainData', 'getFloatTimeDomainData', 'getByteFrequencyData', 'getFloatFrequencyData'];
+      for (const methodName of audioMethods) {
+          const proxy = new DDGProxy(featureName, AnalyserNode.prototype, methodName, {
+              apply (target, thisArg, args) {
+                  DDGReflect.apply(target, thisArg, args);
+                  // Anything we do here should be caught and ignored silently
+                  try {
+                      transformArrayData(args[0], domainKey, sessionKey, thisArg, args);
+                  } catch {
+                  }
+              }
+          });
+          proxy.overload();
+      }
+  }
+
+  var fingerprintingAudio = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$a
+  });
+
+  /**
+   * Overwrites the Battery API if present in the browser.
+   * It will return the values defined in the getBattery function to the client,
+   * as well as prevent any script from listening to events.
+   */
+  function init$9 (args) {
+      if (globalThis.navigator.getBattery) {
+          const BatteryManager = globalThis.BatteryManager;
+
+          const spoofedValues = {
+              charging: true,
+              chargingTime: 0,
+              dischargingTime: Infinity,
+              level: 1
+          };
+          const eventProperties = ['onchargingchange', 'onchargingtimechange', 'ondischargingtimechange', 'onlevelchange'];
+
+          for (const [prop, val] of Object.entries(spoofedValues)) {
+              try {
+                  defineProperty(BatteryManager.prototype, prop, { get: () => val });
+              } catch (e) { }
+          }
+          for (const eventProp of eventProperties) {
+              try {
+                  defineProperty(BatteryManager.prototype, eventProp, { get: () => null });
+              } catch (e) { }
+          }
+      }
+  }
+
+  var fingerprintingBattery = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$9
+  });
+
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  var alea$1 = {exports: {}};
+
+  (function (module) {
+  // A port of an algorithm by Johannes Baagøe <baagoe@baagoe.com>, 2010
+  // http://baagoe.com/en/RandomMusings/javascript/
+  // https://github.com/nquinlan/better-random-numbers-for-javascript-mirror
+  // Original work is under MIT license -
+
+  // Copyright (C) 2010 by Johannes Baagøe <baagoe@baagoe.org>
+  //
+  // Permission is hereby granted, free of charge, to any person obtaining a copy
+  // of this software and associated documentation files (the "Software"), to deal
+  // in the Software without restriction, including without limitation the rights
+  // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  // copies of the Software, and to permit persons to whom the Software is
+  // furnished to do so, subject to the following conditions:
+  //
+  // The above copyright notice and this permission notice shall be included in
+  // all copies or substantial portions of the Software.
+  //
+  // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  // THE SOFTWARE.
+
+
+
+  (function(global, module, define) {
+
+  function Alea(seed) {
+    var me = this, mash = Mash();
+
+    me.next = function() {
+      var t = 2091639 * me.s0 + me.c * 2.3283064365386963e-10; // 2^-32
+      me.s0 = me.s1;
+      me.s1 = me.s2;
+      return me.s2 = t - (me.c = t | 0);
+    };
+
+    // Apply the seeding algorithm from Baagoe.
+    me.c = 1;
+    me.s0 = mash(' ');
+    me.s1 = mash(' ');
+    me.s2 = mash(' ');
+    me.s0 -= mash(seed);
+    if (me.s0 < 0) { me.s0 += 1; }
+    me.s1 -= mash(seed);
+    if (me.s1 < 0) { me.s1 += 1; }
+    me.s2 -= mash(seed);
+    if (me.s2 < 0) { me.s2 += 1; }
+    mash = null;
+  }
+
+  function copy(f, t) {
+    t.c = f.c;
+    t.s0 = f.s0;
+    t.s1 = f.s1;
+    t.s2 = f.s2;
+    return t;
+  }
+
+  function impl(seed, opts) {
+    var xg = new Alea(seed),
+        state = opts && opts.state,
+        prng = xg.next;
+    prng.int32 = function() { return (xg.next() * 0x100000000) | 0; };
+    prng.double = function() {
+      return prng() + (prng() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
+    };
+    prng.quick = prng;
+    if (state) {
+      if (typeof(state) == 'object') copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
+
+  function Mash() {
+    var n = 0xefc8249d;
+
+    var mash = function(data) {
+      data = String(data);
+      for (var i = 0; i < data.length; i++) {
+        n += data.charCodeAt(i);
+        var h = 0.02519603282416938 * n;
+        n = h >>> 0;
+        h -= n;
+        h *= n;
+        n = h >>> 0;
+        h -= n;
+        n += h * 0x100000000; // 2^32
+      }
+      return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
+    };
+
+    return mash;
+  }
+
+
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.alea = impl;
+  }
+
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(alea$1));
+
+  var xor128$1 = {exports: {}};
+
+  (function (module) {
+  // A Javascript implementaion of the "xor128" prng algorithm by
+  // George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
+
+  (function(global, module, define) {
+
+  function XorGen(seed) {
+    var me = this, strseed = '';
+
+    me.x = 0;
+    me.y = 0;
+    me.z = 0;
+    me.w = 0;
+
+    // Set up generator function.
+    me.next = function() {
+      var t = me.x ^ (me.x << 11);
+      me.x = me.y;
+      me.y = me.z;
+      me.z = me.w;
+      return me.w ^= (me.w >>> 19) ^ t ^ (t >>> 8);
+    };
+
+    if (seed === (seed | 0)) {
+      // Integer seed.
+      me.x = seed;
+    } else {
+      // String seed.
+      strseed += seed;
+    }
+
+    // Mix in string seed, then discard an initial batch of 64 values.
+    for (var k = 0; k < strseed.length + 64; k++) {
+      me.x ^= strseed.charCodeAt(k) | 0;
+      me.next();
+    }
+  }
+
+  function copy(f, t) {
+    t.x = f.x;
+    t.y = f.y;
+    t.z = f.z;
+    t.w = f.w;
+    return t;
+  }
+
+  function impl(seed, opts) {
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (typeof(state) == 'object') copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
+
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.xor128 = impl;
+  }
+
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(xor128$1));
+
+  var xorwow$1 = {exports: {}};
+
+  (function (module) {
+  // A Javascript implementaion of the "xorwow" prng algorithm by
+  // George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
+
+  (function(global, module, define) {
+
+  function XorGen(seed) {
+    var me = this, strseed = '';
+
+    // Set up generator function.
+    me.next = function() {
+      var t = (me.x ^ (me.x >>> 2));
+      me.x = me.y; me.y = me.z; me.z = me.w; me.w = me.v;
+      return (me.d = (me.d + 362437 | 0)) +
+         (me.v = (me.v ^ (me.v << 4)) ^ (t ^ (t << 1))) | 0;
+    };
+
+    me.x = 0;
+    me.y = 0;
+    me.z = 0;
+    me.w = 0;
+    me.v = 0;
+
+    if (seed === (seed | 0)) {
+      // Integer seed.
+      me.x = seed;
+    } else {
+      // String seed.
+      strseed += seed;
+    }
+
+    // Mix in string seed, then discard an initial batch of 64 values.
+    for (var k = 0; k < strseed.length + 64; k++) {
+      me.x ^= strseed.charCodeAt(k) | 0;
+      if (k == strseed.length) {
+        me.d = me.x << 10 ^ me.x >>> 4;
+      }
+      me.next();
+    }
+  }
+
+  function copy(f, t) {
+    t.x = f.x;
+    t.y = f.y;
+    t.z = f.z;
+    t.w = f.w;
+    t.v = f.v;
+    t.d = f.d;
+    return t;
+  }
+
+  function impl(seed, opts) {
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (typeof(state) == 'object') copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
+
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.xorwow = impl;
+  }
+
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(xorwow$1));
+
+  var xorshift7$1 = {exports: {}};
+
+  (function (module) {
+  // A Javascript implementaion of the "xorshift7" algorithm by
+  // François Panneton and Pierre L'ecuyer:
+  // "On the Xorgshift Random Number Generators"
+  // http://saluc.engr.uconn.edu/refs/crypto/rng/panneton05onthexorshift.pdf
+
+  (function(global, module, define) {
+
+  function XorGen(seed) {
+    var me = this;
+
+    // Set up generator function.
+    me.next = function() {
+      // Update xor generator.
+      var X = me.x, i = me.i, t, v;
+      t = X[i]; t ^= (t >>> 7); v = t ^ (t << 24);
+      t = X[(i + 1) & 7]; v ^= t ^ (t >>> 10);
+      t = X[(i + 3) & 7]; v ^= t ^ (t >>> 3);
+      t = X[(i + 4) & 7]; v ^= t ^ (t << 7);
+      t = X[(i + 7) & 7]; t = t ^ (t << 13); v ^= t ^ (t << 9);
+      X[i] = v;
+      me.i = (i + 1) & 7;
+      return v;
+    };
+
+    function init(me, seed) {
+      var j, X = [];
+
+      if (seed === (seed | 0)) {
+        // Seed state array using a 32-bit integer.
+        X[0] = seed;
+      } else {
+        // Seed state using a string.
+        seed = '' + seed;
+        for (j = 0; j < seed.length; ++j) {
+          X[j & 7] = (X[j & 7] << 15) ^
+              (seed.charCodeAt(j) + X[(j + 1) & 7] << 13);
+        }
+      }
+      // Enforce an array length of 8, not all zeroes.
+      while (X.length < 8) X.push(0);
+      for (j = 0; j < 8 && X[j] === 0; ++j);
+      if (j == 8) X[7] = -1;
+
+      me.x = X;
+      me.i = 0;
+
+      // Discard an initial 256 values.
+      for (j = 256; j > 0; --j) {
+        me.next();
+      }
+    }
+
+    init(me, seed);
+  }
+
+  function copy(f, t) {
+    t.x = f.x.slice();
+    t.i = f.i;
+    return t;
+  }
+
+  function impl(seed, opts) {
+    if (seed == null) seed = +(new Date);
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (state.x) copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
+
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.xorshift7 = impl;
+  }
+
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(xorshift7$1));
+
+  var xor4096$1 = {exports: {}};
+
+  (function (module) {
+  // A Javascript implementaion of Richard Brent's Xorgens xor4096 algorithm.
+  //
+  // This fast non-cryptographic random number generator is designed for
+  // use in Monte-Carlo algorithms. It combines a long-period xorshift
+  // generator with a Weyl generator, and it passes all common batteries
+  // of stasticial tests for randomness while consuming only a few nanoseconds
+  // for each prng generated.  For background on the generator, see Brent's
+  // paper: "Some long-period random number generators using shifts and xors."
+  // http://arxiv.org/pdf/1004.3115v1.pdf
+  //
+  // Usage:
+  //
+  // var xor4096 = require('xor4096');
+  // random = xor4096(1);                        // Seed with int32 or string.
+  // assert.equal(random(), 0.1520436450538547); // (0, 1) range, 53 bits.
+  // assert.equal(random.int32(), 1806534897);   // signed int32, 32 bits.
+  //
+  // For nonzero numeric keys, this impelementation provides a sequence
+  // identical to that by Brent's xorgens 3 implementaion in C.  This
+  // implementation also provides for initalizing the generator with
+  // string seeds, or for saving and restoring the state of the generator.
+  //
+  // On Chrome, this prng benchmarks about 2.1 times slower than
+  // Javascript's built-in Math.random().
+
+  (function(global, module, define) {
+
+  function XorGen(seed) {
+    var me = this;
+
+    // Set up generator function.
+    me.next = function() {
+      var w = me.w,
+          X = me.X, i = me.i, t, v;
+      // Update Weyl generator.
+      me.w = w = (w + 0x61c88647) | 0;
+      // Update xor generator.
+      v = X[(i + 34) & 127];
+      t = X[i = ((i + 1) & 127)];
+      v ^= v << 13;
+      t ^= t << 17;
+      v ^= v >>> 15;
+      t ^= t >>> 12;
+      // Update Xor generator array state.
+      v = X[i] = v ^ t;
+      me.i = i;
+      // Result is the combination.
+      return (v + (w ^ (w >>> 16))) | 0;
+    };
+
+    function init(me, seed) {
+      var t, v, i, j, w, X = [], limit = 128;
+      if (seed === (seed | 0)) {
+        // Numeric seeds initialize v, which is used to generates X.
+        v = seed;
+        seed = null;
+      } else {
+        // String seeds are mixed into v and X one character at a time.
+        seed = seed + '\0';
+        v = 0;
+        limit = Math.max(limit, seed.length);
+      }
+      // Initialize circular array and weyl value.
+      for (i = 0, j = -32; j < limit; ++j) {
+        // Put the unicode characters into the array, and shuffle them.
+        if (seed) v ^= seed.charCodeAt((j + 32) % seed.length);
+        // After 32 shuffles, take v as the starting w value.
+        if (j === 0) w = v;
+        v ^= v << 10;
+        v ^= v >>> 15;
+        v ^= v << 4;
+        v ^= v >>> 13;
+        if (j >= 0) {
+          w = (w + 0x61c88647) | 0;     // Weyl.
+          t = (X[j & 127] ^= (v + w));  // Combine xor and weyl to init array.
+          i = (0 == t) ? i + 1 : 0;     // Count zeroes.
+        }
+      }
+      // We have detected all zeroes; make the key nonzero.
+      if (i >= 128) {
+        X[(seed && seed.length || 0) & 127] = -1;
+      }
+      // Run the generator 512 times to further mix the state before using it.
+      // Factoring this as a function slows the main generator, so it is just
+      // unrolled here.  The weyl generator is not advanced while warming up.
+      i = 127;
+      for (j = 4 * 128; j > 0; --j) {
+        v = X[(i + 34) & 127];
+        t = X[i = ((i + 1) & 127)];
+        v ^= v << 13;
+        t ^= t << 17;
+        v ^= v >>> 15;
+        t ^= t >>> 12;
+        X[i] = v ^ t;
+      }
+      // Storing state as object members is faster than using closure variables.
+      me.w = w;
+      me.X = X;
+      me.i = i;
+    }
+
+    init(me, seed);
+  }
+
+  function copy(f, t) {
+    t.i = f.i;
+    t.w = f.w;
+    t.X = f.X.slice();
+    return t;
+  }
+  function impl(seed, opts) {
+    if (seed == null) seed = +(new Date);
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (state.X) copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
+
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.xor4096 = impl;
+  }
+
+  })(
+    commonjsGlobal,                                     // window object or global
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(xor4096$1));
+
+  var tychei$1 = {exports: {}};
+
+  (function (module) {
+  // A Javascript implementaion of the "Tyche-i" prng algorithm by
+  // Samuel Neves and Filipe Araujo.
+  // See https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf
+
+  (function(global, module, define) {
+
+  function XorGen(seed) {
+    var me = this, strseed = '';
+
+    // Set up generator function.
+    me.next = function() {
+      var b = me.b, c = me.c, d = me.d, a = me.a;
+      b = (b << 25) ^ (b >>> 7) ^ c;
+      c = (c - d) | 0;
+      d = (d << 24) ^ (d >>> 8) ^ a;
+      a = (a - b) | 0;
+      me.b = b = (b << 20) ^ (b >>> 12) ^ c;
+      me.c = c = (c - d) | 0;
+      me.d = (d << 16) ^ (c >>> 16) ^ a;
+      return me.a = (a - b) | 0;
+    };
+
+    /* The following is non-inverted tyche, which has better internal
+     * bit diffusion, but which is about 25% slower than tyche-i in JS.
+    me.next = function() {
+      var a = me.a, b = me.b, c = me.c, d = me.d;
+      a = (me.a + me.b | 0) >>> 0;
+      d = me.d ^ a; d = d << 16 ^ d >>> 16;
+      c = me.c + d | 0;
+      b = me.b ^ c; b = b << 12 ^ d >>> 20;
+      me.a = a = a + b | 0;
+      d = d ^ a; me.d = d = d << 8 ^ d >>> 24;
+      me.c = c = c + d | 0;
+      b = b ^ c;
+      return me.b = (b << 7 ^ b >>> 25);
+    }
+    */
+
+    me.a = 0;
+    me.b = 0;
+    me.c = 2654435769 | 0;
+    me.d = 1367130551;
+
+    if (seed === Math.floor(seed)) {
+      // Integer seed.
+      me.a = (seed / 0x100000000) | 0;
+      me.b = seed | 0;
+    } else {
+      // String seed.
+      strseed += seed;
+    }
+
+    // Mix in string seed, then discard an initial batch of 64 values.
+    for (var k = 0; k < strseed.length + 20; k++) {
+      me.b ^= strseed.charCodeAt(k) | 0;
+      me.next();
+    }
+  }
+
+  function copy(f, t) {
+    t.a = f.a;
+    t.b = f.b;
+    t.c = f.c;
+    t.d = f.d;
+    return t;
+  }
+  function impl(seed, opts) {
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (typeof(state) == 'object') copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
+
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.tychei = impl;
+  }
+
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(tychei$1));
+
+  var seedrandom$1 = {exports: {}};
+
+  /*
+  Copyright 2019 David Bau.
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+  */
+
+  (function (module) {
+  (function (global, pool, math) {
+  //
+  // The following constants are related to IEEE 754 limits.
+  //
+
+  var width = 256,        // each RC4 output is 0 <= x < 256
+      chunks = 6,         // at least six RC4 outputs for each double
+      digits = 52,        // there are 52 significant digits in a double
+      rngname = 'random', // rngname: name for Math.random and Math.seedrandom
+      startdenom = math.pow(width, chunks),
+      significance = math.pow(2, digits),
+      overflow = significance * 2,
+      mask = width - 1,
+      nodecrypto;         // node.js crypto module, initialized at the bottom.
+
+  //
+  // seedrandom()
+  // This is the seedrandom function described above.
+  //
+  function seedrandom(seed, options, callback) {
+    var key = [];
+    options = (options == true) ? { entropy: true } : (options || {});
+
+    // Flatten the seed string or build one from local entropy if needed.
+    var shortseed = mixkey(flatten(
+      options.entropy ? [seed, tostring(pool)] :
+      (seed == null) ? autoseed() : seed, 3), key);
+
+    // Use the seed to initialize an ARC4 generator.
+    var arc4 = new ARC4(key);
+
+    // This function returns a random double in [0, 1) that contains
+    // randomness in every bit of the mantissa of the IEEE 754 value.
+    var prng = function() {
+      var n = arc4.g(chunks),             // Start with a numerator n < 2 ^ 48
+          d = startdenom,                 //   and denominator d = 2 ^ 48.
+          x = 0;                          //   and no 'extra last byte'.
+      while (n < significance) {          // Fill up all significant digits by
+        n = (n + x) * width;              //   shifting numerator and
+        d *= width;                       //   denominator and generating a
+        x = arc4.g(1);                    //   new least-significant-byte.
+      }
+      while (n >= overflow) {             // To avoid rounding up, before adding
+        n /= 2;                           //   last byte, shift everything
+        d /= 2;                           //   right using integer math until
+        x >>>= 1;                         //   we have exactly the desired bits.
+      }
+      return (n + x) / d;                 // Form the number within [0, 1).
+    };
+
+    prng.int32 = function() { return arc4.g(4) | 0; };
+    prng.quick = function() { return arc4.g(4) / 0x100000000; };
+    prng.double = prng;
+
+    // Mix the randomness into accumulated entropy.
+    mixkey(tostring(arc4.S), pool);
+
+    // Calling convention: what to return as a function of prng, seed, is_math.
+    return (options.pass || callback ||
+        function(prng, seed, is_math_call, state) {
+          if (state) {
+            // Load the arc4 state from the given state if it has an S array.
+            if (state.S) { copy(state, arc4); }
+            // Only provide the .state method if requested via options.state.
+            prng.state = function() { return copy(arc4, {}); };
+          }
+
+          // If called as a method of Math (Math.seedrandom()), mutate
+          // Math.random because that is how seedrandom.js has worked since v1.0.
+          if (is_math_call) { math[rngname] = prng; return seed; }
+
+          // Otherwise, it is a newer calling convention, so return the
+          // prng directly.
+          else return prng;
+        })(
+    prng,
+    shortseed,
+    'global' in options ? options.global : (this == math),
+    options.state);
+  }
+
+  //
+  // ARC4
+  //
+  // An ARC4 implementation.  The constructor takes a key in the form of
+  // an array of at most (width) integers that should be 0 <= x < (width).
+  //
+  // The g(count) method returns a pseudorandom integer that concatenates
+  // the next (count) outputs from ARC4.  Its return value is a number x
+  // that is in the range 0 <= x < (width ^ count).
+  //
+  function ARC4(key) {
+    var t, keylen = key.length,
+        me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+
+    // The empty key [] is treated as [0].
+    if (!keylen) { key = [keylen++]; }
+
+    // Set up S using the standard key scheduling algorithm.
+    while (i < width) {
+      s[i] = i++;
+    }
+    for (i = 0; i < width; i++) {
+      s[i] = s[j = mask & (j + key[i % keylen] + (t = s[i]))];
+      s[j] = t;
+    }
+
+    // The "g" method returns the next (count) outputs as one number.
+    (me.g = function(count) {
+      // Using instance members instead of closure state nearly doubles speed.
+      var t, r = 0,
+          i = me.i, j = me.j, s = me.S;
+      while (count--) {
+        t = s[i = mask & (i + 1)];
+        r = r * width + s[mask & ((s[i] = s[j = mask & (j + t)]) + (s[j] = t))];
+      }
+      me.i = i; me.j = j;
+      return r;
+      // For robust unpredictability, the function call below automatically
+      // discards an initial batch of values.  This is called RC4-drop[256].
+      // See http://google.com/search?q=rsa+fluhrer+response&btnI
+    })(width);
+  }
+
+  //
+  // copy()
+  // Copies internal state of ARC4 to or from a plain object.
+  //
+  function copy(f, t) {
+    t.i = f.i;
+    t.j = f.j;
+    t.S = f.S.slice();
+    return t;
+  }
+  //
+  // flatten()
+  // Converts an object tree to nested arrays of strings.
+  //
+  function flatten(obj, depth) {
+    var result = [], typ = (typeof obj), prop;
+    if (depth && typ == 'object') {
+      for (prop in obj) {
+        try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
+      }
+    }
+    return (result.length ? result : typ == 'string' ? obj : obj + '\0');
+  }
+
+  //
+  // mixkey()
+  // Mixes a string seed into a key that is an array of integers, and
+  // returns a shortened string seed that is equivalent to the result key.
+  //
+  function mixkey(seed, key) {
+    var stringseed = seed + '', smear, j = 0;
+    while (j < stringseed.length) {
+      key[mask & j] =
+        mask & ((smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++));
+    }
+    return tostring(key);
+  }
+
+  //
+  // autoseed()
+  // Returns an object for autoseeding, using window.crypto and Node crypto
+  // module if available.
+  //
+  function autoseed() {
+    try {
+      var out;
+      if (nodecrypto && (out = nodecrypto.randomBytes)) {
+        // The use of 'out' to remember randomBytes makes tight minified code.
+        out = out(width);
+      } else {
+        out = new Uint8Array(width);
+        (global.crypto || global.msCrypto).getRandomValues(out);
+      }
+      return tostring(out);
+    } catch (e) {
+      var browser = global.navigator,
+          plugins = browser && browser.plugins;
+      return [+new Date, global, plugins, global.screen, tostring(pool)];
+    }
+  }
+
+  //
+  // tostring()
+  // Converts an array of charcodes to a string
+  //
+  function tostring(a) {
+    return String.fromCharCode.apply(0, a);
+  }
+
+  //
+  // When seedrandom.js is loaded, we immediately mix a few bits
+  // from the built-in RNG into the entropy pool.  Because we do
+  // not want to interfere with deterministic PRNG state later,
+  // seedrandom will not call math.random on its own again after
+  // initialization.
+  //
+  mixkey(math.random(), pool);
+
+  //
+  // Nodejs and AMD support: export the implementation as a module using
+  // either convention.
+  //
+  if (module.exports) {
+    module.exports = seedrandom;
+    // When in node.js, try using crypto package for autoseeding.
+    try {
+      nodecrypto = require('crypto');
+    } catch (ex) {}
+  } else {
+    // When included as a plain script, set up Math.seedrandom global.
+    math['seed' + rngname] = seedrandom;
+  }
+
+
+  // End anonymous scope, and pass initial values.
+  })(
+    // global: `self` in browsers (including strict mode and web workers),
+    // otherwise `this` in Node and other environments
+    (typeof self !== 'undefined') ? self : commonjsGlobal,
+    [],     // pool: entropy pool starts empty
+    Math    // math: package containing random, pow, and seedrandom
+  );
+  }(seedrandom$1));
+
+  // A library of seedable RNGs implemented in Javascript.
+  //
+  // Usage:
+  //
+  // var seedrandom = require('seedrandom');
+  // var random = seedrandom(1); // or any seed.
+  // var x = random();       // 0 <= x < 1.  Every bit is random.
+  // var x = random.quick(); // 0 <= x < 1.  32 bits of randomness.
+
+  // alea, a 53-bit multiply-with-carry generator by Johannes Baagøe.
+  // Period: ~2^116
+  // Reported to pass all BigCrush tests.
+  var alea = alea$1.exports;
+
+  // xor128, a pure xor-shift generator by George Marsaglia.
+  // Period: 2^128-1.
+  // Reported to fail: MatrixRank and LinearComp.
+  var xor128 = xor128$1.exports;
+
+  // xorwow, George Marsaglia's 160-bit xor-shift combined plus weyl.
+  // Period: 2^192-2^32
+  // Reported to fail: CollisionOver, SimpPoker, and LinearComp.
+  var xorwow = xorwow$1.exports;
+
+  // xorshift7, by François Panneton and Pierre L'ecuyer, takes
+  // a different approach: it adds robustness by allowing more shifts
+  // than Marsaglia's original three.  It is a 7-shift generator
+  // with 256 bits, that passes BigCrush with no systmatic failures.
+  // Period 2^256-1.
+  // No systematic BigCrush failures reported.
+  var xorshift7 = xorshift7$1.exports;
+
+  // xor4096, by Richard Brent, is a 4096-bit xor-shift with a
+  // very long period that also adds a Weyl generator. It also passes
+  // BigCrush with no systematic failures.  Its long period may
+  // be useful if you have many generators and need to avoid
+  // collisions.
+  // Period: 2^4128-2^32.
+  // No systematic BigCrush failures reported.
+  var xor4096 = xor4096$1.exports;
+
+  // Tyche-i, by Samuel Neves and Filipe Araujo, is a bit-shifting random
+  // number generator derived from ChaCha, a modern stream cipher.
+  // https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf
+  // Period: ~2^127
+  // No systematic BigCrush failures reported.
+  var tychei = tychei$1.exports;
+
+  // The original ARC4-based prng included in this library.
+  // Period: ~2^1600
+  var sr = seedrandom$1.exports;
+
+  sr.alea = alea;
+  sr.xor128 = xor128;
+  sr.xorwow = xorwow;
+  sr.xorshift7 = xorshift7;
+  sr.xor4096 = xor4096;
+  sr.tychei = tychei;
+
+  var seedrandom = sr;
+
+  /**
+   * @param {HTMLCanvasElement} canvas
+   * @param {string} domainKey
+   * @param {string} sessionKey
+   * @param {any} getImageDataProxy
+   * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
+   */
+  function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+      if (!ctx) {
+          ctx = canvas.getContext('2d');
+      }
+
+      // Make a off-screen canvas and put the data there
+      const offScreenCanvas = document.createElement('canvas');
+      offScreenCanvas.width = canvas.width;
+      offScreenCanvas.height = canvas.height;
+      const offScreenCtx = offScreenCanvas.getContext('2d');
+
+      let rasterizedCtx = ctx;
+      // If we're not a 2d canvas we need to rasterise first into 2d
+      const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D);
+      if (rasterizeToCanvas) {
+          rasterizedCtx = offScreenCtx;
+          offScreenCtx.drawImage(canvas, 0, 0);
+      }
+
+      // We *always* compute the random pixels on the complete pixel set, then pass back the subset later
+      let imageData = getImageDataProxy._native.apply(rasterizedCtx, [0, 0, canvas.width, canvas.height]);
+      imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width);
+
+      if (rasterizeToCanvas) {
+          clearCanvas(offScreenCtx);
+      }
+
+      offScreenCtx.putImageData(imageData, 0, 0);
+
+      return { offScreenCanvas, offScreenCtx }
+  }
+
+  /**
+   * Clears the pixels from the canvas context
+   *
+   * @param {CanvasRenderingContext2D} canvasContext
+   */
+  function clearCanvas (canvasContext) {
+      // Save state and clean the pixels from the canvas
+      canvasContext.save();
+      canvasContext.globalCompositeOperation = 'destination-out';
+      canvasContext.fillStyle = 'rgb(255,255,255)';
+      canvasContext.fillRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+      canvasContext.restore();
+  }
+
+  /**
+   * @param {ImageData} imageData
+   * @param {string} sessionKey
+   * @param {string} domainKey
+   * @param {number} width
+   */
+  function modifyPixelData (imageData, domainKey, sessionKey, width) {
+      const d = imageData.data;
+      const length = d.length / 4;
+      let checkSum = 0;
+      const mappingArray = [];
+      for (let i = 0; i < length; i += 4) {
+          if (!shouldIgnorePixel(d, i) && !adjacentSame(d, i, width)) {
+              mappingArray.push(i);
+              checkSum += d[i] + d[i + 1] + d[i + 2] + d[i + 3];
+          }
+      }
+
+      const windowHash = getDataKeySync(sessionKey, domainKey, checkSum);
+      const rng = new seedrandom(windowHash);
+      for (let i = 0; i < mappingArray.length; i++) {
+          const rand = rng();
+          const byte = Math.floor(rand * 10);
+          const channel = byte % 3;
+          const pixelCanvasIndex = mappingArray[i] + channel;
+
+          d[pixelCanvasIndex] = d[pixelCanvasIndex] ^ (byte & 0x1);
+      }
+
+      return imageData
+  }
+
+  /**
+   * Ignore pixels that have neighbours that are the same
+   *
+   * @param {Uint8ClampedArray} imageData
+   * @param {number} index
+   * @param {number} width
+   */
+  function adjacentSame (imageData, index, width) {
+      const widthPixel = width * 4;
+      const x = index % widthPixel;
+      const maxLength = imageData.length;
+
+      // Pixels not on the right border of the canvas
+      if (x < widthPixel) {
+          const right = index + 4;
+          if (!pixelsSame(imageData, index, right)) {
+              return false
+          }
+          const diagonalRightUp = right - widthPixel;
+          if (diagonalRightUp > 0 && !pixelsSame(imageData, index, diagonalRightUp)) {
+              return false
+          }
+          const diagonalRightDown = right + widthPixel;
+          if (diagonalRightDown < maxLength && !pixelsSame(imageData, index, diagonalRightDown)) {
+              return false
+          }
+      }
+
+      // Pixels not on the left border of the canvas
+      if (x > 0) {
+          const left = index - 4;
+          if (!pixelsSame(imageData, index, left)) {
+              return false
+          }
+          const diagonalLeftUp = left - widthPixel;
+          if (diagonalLeftUp > 0 && !pixelsSame(imageData, index, diagonalLeftUp)) {
+              return false
+          }
+          const diagonalLeftDown = left + widthPixel;
+          if (diagonalLeftDown < maxLength && !pixelsSame(imageData, index, diagonalLeftDown)) {
+              return false
+          }
+      }
+
+      const up = index - widthPixel;
+      if (up > 0 && !pixelsSame(imageData, index, up)) {
+          return false
+      }
+
+      const down = index + widthPixel;
+      if (down < maxLength && !pixelsSame(imageData, index, down)) {
+          return false
+      }
+
+      return true
+  }
+
+  /**
+   * Check that a pixel at index and index2 match all channels
+   * @param {Uint8ClampedArray} imageData
+   * @param {number} index
+   * @param {number} index2
+   */
+  function pixelsSame (imageData, index, index2) {
+      return imageData[index] === imageData[index2] &&
+             imageData[index + 1] === imageData[index2 + 1] &&
+             imageData[index + 2] === imageData[index2 + 2] &&
+             imageData[index + 3] === imageData[index2 + 3]
+  }
+
+  /**
+   * Returns true if pixel should be ignored
+   * @param {Uint8ClampedArray} imageData
+   * @param {number} index
+   * @returns {boolean}
+   */
+  function shouldIgnorePixel (imageData, index) {
+      // Transparent pixels
+      if (imageData[index + 3] === 0) {
+          return true
+      }
+      return false
+  }
+
+  function init$8 (args) {
+      const { sessionKey, site } = args;
+      const domainKey = site.domain;
+      const featureName = 'fingerprinting-canvas';
+      const supportsWebGl = getFeatureSettingEnabled(featureName, args, 'webGl');
+
+      const unsafeCanvases = new WeakSet();
+      const canvasContexts = new WeakMap();
+      const canvasCache = new WeakMap();
+
+      /**
+       * Clear cache as canvas has changed
+       * @param {HTMLCanvasElement} canvas
+       */
+      function clearCache (canvas) {
+          canvasCache.delete(canvas);
+      }
+
+      /**
+       * @param {HTMLCanvasElement} canvas
+       */
+      function treatAsUnsafe (canvas) {
+          unsafeCanvases.add(canvas);
+          clearCache(canvas);
+      }
+
+      const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, 'getContext', {
+          apply (target, thisArg, args) {
+              const context = DDGReflect.apply(target, thisArg, args);
+              try {
+                  canvasContexts.set(thisArg, context);
+              } catch {
+              }
+              return context
+          }
+      });
+      proxy.overload();
+
+      // Known data methods
+      const safeMethods = ['putImageData', 'drawImage'];
+      for (const methodName of safeMethods) {
+          const safeMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
+              apply (target, thisArg, args) {
+                  // Don't apply escape hatch for canvases
+                  if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
+                      treatAsUnsafe(args[0]);
+                  } else {
+                      clearCache(thisArg.canvas);
+                  }
+                  return DDGReflect.apply(target, thisArg, args)
+              }
+          });
+          safeMethodProxy.overload();
+      }
+
+      const unsafeMethods = [
+          'strokeRect',
+          'bezierCurveTo',
+          'quadraticCurveTo',
+          'arcTo',
+          'ellipse',
+          'rect',
+          'fill',
+          'stroke',
+          'lineTo',
+          'beginPath',
+          'closePath',
+          'arc',
+          'fillText',
+          'fillRect',
+          'strokeText',
+          'createConicGradient',
+          'createLinearGradient',
+          'createRadialGradient',
+          'createPattern'
+      ];
+      for (const methodName of unsafeMethods) {
+          // Some methods are browser specific
+          if (methodName in CanvasRenderingContext2D.prototype) {
+              const unsafeProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
+                  apply (target, thisArg, args) {
+                      treatAsUnsafe(thisArg.canvas);
+                      return DDGReflect.apply(target, thisArg, args)
+                  }
+              });
+              unsafeProxy.overload();
+          }
+      }
+
+      if (supportsWebGl) {
+          const unsafeGlMethods = [
+              'commit',
+              'compileShader',
+              'shaderSource',
+              'attachShader',
+              'createProgram',
+              'linkProgram',
+              'drawElements',
+              'drawArrays'
+          ];
+          const glContexts = [
+              WebGL2RenderingContext,
+              WebGLRenderingContext
+          ];
+          for (const context of glContexts) {
+              for (const methodName of unsafeGlMethods) {
+                  // Some methods are browser specific
+                  if (methodName in context.prototype) {
+                      const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
+                          apply (target, thisArg, args) {
+                              treatAsUnsafe(thisArg.canvas);
+                              return DDGReflect.apply(target, thisArg, args)
+                          }
+                      });
+                      unsafeProxy.overload();
+                  }
+              }
+          }
+      }
+
+      // Using proxies here to swallow calls to toString etc
+      const getImageDataProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, 'getImageData', {
+          apply (target, thisArg, args) {
+              if (!unsafeCanvases.has(thisArg.canvas)) {
+                  return DDGReflect.apply(target, thisArg, args)
+              }
+              // Anything we do here should be caught and ignored silently
+              try {
+                  const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey);
+                  // Call the original method on the modified off-screen canvas
+                  return DDGReflect.apply(target, offScreenCtx, args)
+              } catch {
+              }
+
+              return DDGReflect.apply(target, thisArg, args)
+          }
+      });
+      getImageDataProxy.overload();
+
+      /**
+       * Get cached offscreen if one exists, otherwise compute one
+       *
+       * @param {HTMLCanvasElement} canvas
+       * @param {string} domainKey
+       * @param {string} sessionKey
+       */
+      function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey) {
+          let result;
+          if (canvasCache.has(canvas)) {
+              result = canvasCache.get(canvas);
+          } else {
+              const ctx = canvasContexts.get(canvas);
+              result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx);
+              canvasCache.set(canvas, result);
+          }
+          return result
+      }
+
+      const canvasMethods = ['toDataURL', 'toBlob'];
+      for (const methodName of canvasMethods) {
+          const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, methodName, {
+              apply (target, thisArg, args) {
+                  // Short circuit for low risk canvas calls
+                  if (!unsafeCanvases.has(thisArg)) {
+                      return DDGReflect.apply(target, thisArg, args)
+                  }
+                  try {
+                      const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey);
+                      // Call the original method on the modified off-screen canvas
+                      return DDGReflect.apply(target, offScreenCanvas, args)
+                  } catch {
+                      // Something we did caused an exception, fall back to the native
+                      return DDGReflect.apply(target, thisArg, args)
+                  }
+              }
+          });
+          proxy.overload();
+      }
+  }
+
+  var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$8
+  });
+
+  function init$7 (args) {
+      const Navigator = globalThis.Navigator;
+      const navigator = globalThis.navigator;
+
+      overrideProperty('keyboard', {
+          object: Navigator.prototype,
+          origValue: navigator.keyboard,
+          targetValue: undefined
+      });
+      overrideProperty('hardwareConcurrency', {
+          object: Navigator.prototype,
+          origValue: navigator.hardwareConcurrency,
+          targetValue: 2
+      });
+      overrideProperty('deviceMemory', {
+          object: Navigator.prototype,
+          origValue: navigator.deviceMemory,
+          targetValue: 8
+      });
+  }
+
+  var fingerprintingHardware = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$7
+  });
+
+  /**
+   * normalize window dimensions, if more than one monitor is in play.
+   *  X/Y values are set in the browser based on distance to the main monitor top or left, which
+   * can mean second or more monitors have very large or negative values. This function maps a given
+   * given coordinate value to the proper place on the main screen.
+   */
+  function normalizeWindowDimension (value, targetDimension) {
+      if (value > targetDimension) {
+          return value % targetDimension
+      }
+      if (value < 0) {
+          return targetDimension + value
+      }
+      return value
+  }
+
+  function setWindowPropertyValue (property, value) {
+      // Here we don't update the prototype getter because the values are updated dynamically
+      try {
+          defineProperty(globalThis, property, {
+              get: () => value,
+              set: () => {},
+              configurable: true
+          });
+      } catch (e) {}
+  }
+
+  const origPropertyValues = {};
+
+  /**
+   * Fix window dimensions. The extension runs in a different JS context than the
+   * page, so we can inject the correct screen values as the window is resized,
+   * ensuring that no information is leaked as the dimensions change, but also that the
+   * values change correctly for valid use cases.
+   */
+  function setWindowDimensions () {
+      try {
+          const window = globalThis;
+          const top = globalThis.top;
+
+          const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height);
+          const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width);
+          if (normalizedY <= origPropertyValues.availTop) {
+              setWindowPropertyValue('screenY', 0);
+              setWindowPropertyValue('screenTop', 0);
+          } else {
+              setWindowPropertyValue('screenY', normalizedY);
+              setWindowPropertyValue('screenTop', normalizedY);
+          }
+
+          if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
+              setWindowPropertyValue('outerHeight', top.window.screen.height);
+          } else {
+              try {
+                  setWindowPropertyValue('outerHeight', top.window.outerHeight);
+              } catch (e) {
+                  // top not accessible to certain iFrames, so ignore.
+              }
+          }
+
+          if (normalizedX <= origPropertyValues.availLeft) {
+              setWindowPropertyValue('screenX', 0);
+              setWindowPropertyValue('screenLeft', 0);
+          } else {
+              setWindowPropertyValue('screenX', normalizedX);
+              setWindowPropertyValue('screenLeft', normalizedX);
+          }
+
+          if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
+              setWindowPropertyValue('outerWidth', top.window.screen.width);
+          } else {
+              try {
+                  setWindowPropertyValue('outerWidth', top.window.outerWidth);
+              } catch (e) {
+                  // top not accessible to certain iFrames, so ignore.
+              }
+          }
+      } catch (e) {
+          // in a cross domain iFrame, top.window is not accessible.
+      }
+  }
+
+  function init$6 (args) {
+      const Screen = globalThis.Screen;
+      const screen = globalThis.screen;
+
+      origPropertyValues.availTop = overrideProperty('availTop', {
+          object: Screen.prototype,
+          origValue: screen.availTop,
+          targetValue: 0
+      });
+      origPropertyValues.availLeft = overrideProperty('availLeft', {
+          object: Screen.prototype,
+          origValue: screen.availLeft,
+          targetValue: 0
+      });
+      origPropertyValues.availWidth = overrideProperty('availWidth', {
+          object: Screen.prototype,
+          origValue: screen.availWidth,
+          targetValue: screen.width
+      });
+      origPropertyValues.availHeight = overrideProperty('availHeight', {
+          object: Screen.prototype,
+          origValue: screen.availHeight,
+          targetValue: screen.height
+      });
+      overrideProperty('colorDepth', {
+          object: Screen.prototype,
+          origValue: screen.colorDepth,
+          targetValue: 24
+      });
+      overrideProperty('pixelDepth', {
+          object: Screen.prototype,
+          origValue: screen.pixelDepth,
+          targetValue: 24
+      });
+
+      window.addEventListener('resize', function () {
+          setWindowDimensions();
+      });
+      setWindowDimensions();
+  }
+
+  var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$6
+  });
+
+  function init$5 () {
+      const navigator = globalThis.navigator;
+      const Navigator = globalThis.Navigator;
+
+      /**
+       * Temporary storage can be used to determine hard disk usage and size.
+       * This will limit the max storage to 4GB without completely disabling the
+       * feature.
+       */
+      if (navigator.webkitTemporaryStorage) {
+          try {
+              const org = navigator.webkitTemporaryStorage.queryUsageAndQuota;
+              const tStorage = navigator.webkitTemporaryStorage;
+              tStorage.queryUsageAndQuota = function queryUsageAndQuota (callback, err) {
+                  const modifiedCallback = function (usedBytes, grantedBytes) {
+                      const maxBytesGranted = 4 * 1024 * 1024 * 1024;
+                      const spoofedGrantedBytes = Math.min(grantedBytes, maxBytesGranted);
+                      callback(usedBytes, spoofedGrantedBytes);
+                  };
+                  org.call(navigator.webkitTemporaryStorage, modifiedCallback, err);
+              };
+              defineProperty(Navigator.prototype, 'webkitTemporaryStorage', { get: () => tStorage });
+          } catch (e) {}
+      }
+  }
+
+  var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$5
+  });
+
+  function init$4 () {
+      try {
+          if ('browsingTopics' in Document.prototype) {
+              delete Document.prototype.browsingTopics;
+          }
+          if ('joinAdInterestGroup' in Navigator.prototype) {
+              delete Navigator.prototype.joinAdInterestGroup;
+          }
+          if ('leaveAdInterestGroup' in Navigator.prototype) {
+              delete Navigator.prototype.leaveAdInterestGroup;
+          }
+          if ('updateAdInterestGroups' in Navigator.prototype) {
+              delete Navigator.prototype.updateAdInterestGroups;
+          }
+          if ('runAdAuction' in Navigator.prototype) {
+              delete Navigator.prototype.runAdAuction;
+          }
+          if ('adAuctionComponents' in Navigator.prototype) {
+              delete Navigator.prototype.adAuctionComponents;
+          }
+      } catch {
+          // Throw away this exception, it's likely a confict with another extension
+      }
+  }
+
+  var googleRejected = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$4
+  });
+
+  // Set Global Privacy Control property on DOM
+  function init$3 (args) {
+      try {
+          // If GPC on, set DOM property prototype to true if not already true
+          if (args.globalPrivacyControlValue) {
+              if (navigator.globalPrivacyControl) return
+              defineProperty(Navigator.prototype, 'globalPrivacyControl', {
+                  get: () => true,
+                  configurable: true,
+                  enumerable: true
+              });
+          } else {
+              // If GPC off & unsupported by browser, set DOM property prototype to false
+              // this may be overwritten by the user agent or other extensions
+              if (typeof navigator.globalPrivacyControl !== 'undefined') return
+              defineProperty(Navigator.prototype, 'globalPrivacyControl', {
+                  get: () => false,
+                  configurable: true,
+                  enumerable: true
+              });
+          }
+      } catch {
+          // Ignore exceptions that could be caused by conflicting with other extensions
+      }
+  }
+
+  var gpc = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$3
+  });
+
+  function init$2 (args) {
+      try {
+          if (navigator.duckduckgo) {
+              return
+          }
+          if (!args.platform || !args.platform.name) {
+              return
+          }
+          defineProperty(Navigator.prototype, 'duckduckgo', {
+              value: {
+                  platform: args.platform.name,
+                  isDuckDuckGo () {
+                      return DDGPromise.resolve(true)
+                  }
+              },
+              enumerable: true,
+              configurable: false,
+              writable: false
+          });
+      } catch {
+          // todo: Just ignore this exception?
+      }
+  }
+
+  var navigatorInterface = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$2
+  });
+
+  function init$1 (args) {
+      // Unfortunately, we only have limited information about the referrer and current frame. A single
+      // page may load many requests and sub frames, all with different referrers. Since we
+      if (args.referrer && // make sure the referrer was set correctly
+          args.referrer.referrer !== undefined && // referrer value will be undefined when it should be unchanged.
+          document.referrer && // don't change the value if it isn't set
+          document.referrer !== '' && // don't add referrer information
+          new URL(document.URL).hostname !== new URL(document.referrer).hostname) { // don't replace the referrer for the current host.
+          let trimmedReferer = document.referrer;
+          if (new URL(document.referrer).hostname === args.referrer.referrerHost) {
+              // make sure the real referrer & replacement referrer match if we're going to replace it
+              trimmedReferer = args.referrer.referrer;
+          } else {
+              // if we don't have a matching referrer, just trim it to origin.
+              trimmedReferer = new URL(document.referrer).origin + '/';
+          }
+          overrideProperty('referrer', {
+              object: Document.prototype,
+              origValue: document.referrer,
+              targetValue: trimmedReferer
+          });
+      }
+  }
+
+  var referrer = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$1
+  });
+
+  /**
+   * Fixes incorrect sizing value for outerHeight and outerWidth
+   */
+  function windowSizingFix () {
+      window.outerHeight = window.innerHeight;
+      window.outerWidth = window.innerWidth;
+  }
+
+  /**
+   * Add missing navigator.credentials API
+   */
+  function navigatorCredentialsFix () {
+      try {
+          const value = {
+              get () {
+                  return Promise.reject(new Error())
+              }
+          };
+          defineProperty(Navigator.prototype, 'credentials', {
+              value,
+              configurable: true,
+              enumerable: true
+          });
+      } catch {
+          // Ignore exceptions that could be caused by conflicting with other extensions
+      }
+  }
+
+  function init () {
+      windowSizingFix();
+      navigatorCredentialsFix();
+  }
+
+  var webCompat = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init
+  });
+
+  exports.init = init$c;
+  exports.load = load$1;
+  exports.update = update$1;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+  return exports;
+
+})({});
+
+
+    function init () {
+        // permissions in use detection cannot be turned off
+        initPermissionsInUseDetection();
+
+        const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
+        if (processedConfig.site.allowlisted) {
             return
         }
-        if (message.debug) {
-            window.addEventListener('message', (m) => {
-                if (m.data.action && m.data.message) {
-                    chrome.runtime.sendMessage({ messageType: 'debuggerMessage', options: m.data })
-                }
-            })
-        }
-        const stringifiedArgs = JSON.stringify(message)
-        const callRandomFunction = `
-                window.${randomMethodName}('${randomPassword}', ${stringifiedArgs});
-            `
-        inject(callRandomFunction)
+
+        contentScopeFeatures.load();
+
+        contentScopeFeatures.init(processedConfig);
+
+        // Not supported:
+        // contentScopeFeatures.update(message)
     }
-    )
 
-    chrome.runtime.onMessage.addListener((message) => {
-        // forward update messages to the embedded script
-        if (message && message.type === 'update') {
-            const stringifiedArgs = JSON.stringify(message)
-            const callRandomUpdateFunction = `
-                window.${reusableMethodName}('${reusableSecret}', ${stringifiedArgs});
-            `
-            inject(callRandomUpdateFunction)
-        }
-    })
-}
+    init();
 
-init()
+})();
 

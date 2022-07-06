@@ -1,7 +1,7 @@
 /* global contentScopeFeatures */
 
 import { processConfig } from './../src/apple-utils'
-import { initPermissionsInUseDetection } from '../src/windows-utils'
+import { initPermissionsInUseDetection } from './../src/windows-utils'
 
 function init () {
     // permissions in use detection cannot be turned off
