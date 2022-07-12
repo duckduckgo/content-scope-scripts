@@ -699,13 +699,15 @@
       return unprotectedDomain
   }
 
-  function processConfig (data, userList, preferences) {
+  function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
       const topLevelUrl = getTopLevelURL();
       const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
-      const enabledFeatures = Object.keys(data.features).filter((featureName) => {
+      const remoteFeatureNames = Object.keys(data.features);
+      const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
+      const enabledFeatures = remoteFeatureNames.filter((featureName) => {
           const feature = data.features[featureName];
           return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
-      });
+      }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
       const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
       preferences.site = {
           domain: topLevelUrl.hostname,

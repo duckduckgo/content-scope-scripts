@@ -73,7 +73,7 @@ async function initChrome() {
     const injectScript = await readFile(injectScriptPath);
     const contentScope = await rollupScript(contentScopePath, contentScopeName);
     // Encode in URI format to prevent breakage (we could choose to just escape ` instead)
-    const encodedString = encodeURI(contentScope.toString());
+    const encodedString = encodeURI(contentScope.toString().replace(/\r\n/g, "\n"));
     const outputScript = injectScript.toString().replace(replaceString, '${decodeURI("' + encodedString + '")}');
     console.log(outputScript);
 }

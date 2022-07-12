@@ -699,17 +699,15 @@
       return unprotectedDomain
   }
 
-  const windowsSpecificFeatures = ['windowsPermissionUsage'];
-
-  function processConfig (data, userList, preferences) {
+  function processConfig (data, userList, preferences, platformSpecificFeatures) {
       const topLevelUrl = getTopLevelURL();
       const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
       const remoteFeatureNames = Object.keys(data.features);
-      const windowSpecificFeaturesNotInRemoteConfig = windowsSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
+      const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
       const enabledFeatures = remoteFeatureNames.filter((featureName) => {
           const feature = data.features[featureName];
           return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
-      }).concat(windowSpecificFeaturesNotInRemoteConfig); // only disable Windows specific features if it's explicitly disabled in remote config
+      }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
       const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
       preferences.site = {
           domain: topLevelUrl.hostname,
@@ -721,6 +719,8 @@
       preferences.cookie = {};
       return preferences
   }
+
+  const windowsSpecificFeatures = ['windowsPermissionUsage'];
 
   var contentScopeFeatures = (function (exports) {
   'use strict';
@@ -4310,7 +4310,7 @@
 
 
   function init () {
-      const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
+      const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$, windowsSpecificFeatures);
 
       contentScopeFeatures.load();
 

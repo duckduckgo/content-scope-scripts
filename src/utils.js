@@ -378,6 +378,27 @@ export function isUnprotectedDomain (topLevelUrl, featureList) {
     return unprotectedDomain
 }
 
+export function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
+    const topLevelUrl = getTopLevelURL()
+    const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0
+    const remoteFeatureNames = Object.keys(data.features)
+    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
+    const enabledFeatures = remoteFeatureNames.filter((featureName) => {
+        const feature = data.features[featureName]
+        return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
+    }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
+    const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary)
+    preferences.site = {
+        domain: topLevelUrl.hostname,
+        isBroken,
+        allowlisted,
+        enabledFeatures
+    }
+    // TODO
+    preferences.cookie = {}
+    return preferences
+}
+
 export const windowsSpecificFeatures = ['windowsPermissionUsage']
 
 export function isWindowsSpecificFeature (featureName) {

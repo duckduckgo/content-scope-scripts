@@ -1,9 +1,9 @@
 /* global contentScopeFeatures */
 
-import { processConfig } from './../src/windows-utils'
+import { processConfig, windowsSpecificFeatures } from './../src/utils'
 
 function init () {
-    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$, windowsSpecificFeatures)
 
     contentScopeFeatures.load()
 
