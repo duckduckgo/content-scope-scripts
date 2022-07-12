@@ -176,7 +176,9 @@ export function iterateDataKey (key, callback) {
 }
 
 export function isFeatureBroken (args, feature) {
-    return args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
+    return isWindowsSpecificFeature(feature)
+        ? !args.site.enabledFeatures.includes(feature)
+        : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
 }
 
 /**
@@ -344,4 +346,40 @@ if (hasMozProxies) {
 } else {
     DDGPromise = globalObj.Promise
     DDGReflect = globalObj.Reflect
+}
+
+export function getTopLevelURL () {
+    try {
+        // FROM: https://stackoverflow.com/a/7739035/73479
+        // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
+        if (window.location !== window.parent.location) {
+            return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
+        } else {
+            return new URL(window.location.href)
+        }
+    } catch (error) {
+        return new URL(location.href)
+    }
+}
+
+export function isUnprotectedDomain (topLevelUrl, featureList) {
+    let unprotectedDomain = false
+    const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : []
+
+    // walk up the domain to see if it's unprotected
+    while (domainParts.length > 1 && !unprotectedDomain) {
+        const partialDomain = domainParts.join('.')
+
+        unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0
+
+        domainParts.shift()
+    }
+
+    return unprotectedDomain
+}
+
+export const windowsSpecificFeatures = ['windowsPermissionUsage']
+
+export function isWindowsSpecificFeature (featureName) {
+    return windowsSpecificFeatures.includes(featureName)
 }
