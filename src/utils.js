@@ -176,7 +176,9 @@ export function iterateDataKey (key, callback) {
 }
 
 export function isFeatureBroken (args, feature) {
-    return args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
+    return isWindowsSpecificFeature(feature)
+        ? !args.site.enabledFeatures.includes(feature)
+        : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
 }
 
 /**
@@ -344,4 +346,61 @@ if (hasMozProxies) {
 } else {
     DDGPromise = globalObj.Promise
     DDGReflect = globalObj.Reflect
+}
+
+export function getTopLevelURL () {
+    try {
+        // FROM: https://stackoverflow.com/a/7739035/73479
+        // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
+        if (window.location !== window.parent.location) {
+            return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
+        } else {
+            return new URL(window.location.href)
+        }
+    } catch (error) {
+        return new URL(location.href)
+    }
+}
+
+export function isUnprotectedDomain (topLevelUrl, featureList) {
+    let unprotectedDomain = false
+    const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : []
+
+    // walk up the domain to see if it's unprotected
+    while (domainParts.length > 1 && !unprotectedDomain) {
+        const partialDomain = domainParts.join('.')
+
+        unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0
+
+        domainParts.shift()
+    }
+
+    return unprotectedDomain
+}
+
+export function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
+    const topLevelUrl = getTopLevelURL()
+    const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0
+    const remoteFeatureNames = Object.keys(data.features)
+    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
+    const enabledFeatures = remoteFeatureNames.filter((featureName) => {
+        const feature = data.features[featureName]
+        return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
+    }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
+    const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary)
+    preferences.site = {
+        domain: topLevelUrl.hostname,
+        isBroken,
+        allowlisted,
+        enabledFeatures
+    }
+    // TODO
+    preferences.cookie = {}
+    return preferences
+}
+
+export const windowsSpecificFeatures = ['windowsPermissionUsage']
+
+export function isWindowsSpecificFeature (featureName) {
+    return windowsSpecificFeatures.includes(featureName)
 }
