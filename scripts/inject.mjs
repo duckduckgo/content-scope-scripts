@@ -73,6 +73,7 @@ async function initChrome() {
     const injectScript = await readFile(injectScriptPath);
     const contentScope = await rollupScript(contentScopePath, contentScopeName);
     // Encode in URI format to prevent breakage (we could choose to just escape ` instead)
+    // NB: .replace(/\r\n/g, "\n") is needed because in Windows rollup generates CRLF line endings
     const encodedString = encodeURI(contentScope.toString().replace(/\r\n/g, "\n"));
     const outputScript = injectScript.toString().replace(replaceString, '${decodeURI("' + encodedString + '")}');
     console.log(outputScript);
