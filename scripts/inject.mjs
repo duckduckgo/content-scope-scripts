@@ -50,6 +50,8 @@ async function init() {
         initOther('inject/mozilla.js', process.argv[2]);
     } else if (process.argv[2] == "apple") {
         initOther('inject/apple.js', process.argv[2]);
+    } else if (process.argv[2] == "windows") {
+        initOther('inject/windows.js', process.argv[2]);
     } else if (process.argv[2] == "integration") {
         initOther('inject/integration.js', process.argv[2]);
     } else {
@@ -71,7 +73,8 @@ async function initChrome() {
     const injectScript = await readFile(injectScriptPath);
     const contentScope = await rollupScript(contentScopePath, contentScopeName);
     // Encode in URI format to prevent breakage (we could choose to just escape ` instead)
-    const encodedString = encodeURI(contentScope.toString());
+    // NB: .replace(/\r\n/g, "\n") is needed because in Windows rollup generates CRLF line endings
+    const encodedString = encodeURI(contentScope.toString().replace(/\r\n/g, "\n"));
     const outputScript = injectScript.toString().replace(replaceString, '${decodeURI("' + encodedString + '")}');
     console.log(outputScript);
 }
