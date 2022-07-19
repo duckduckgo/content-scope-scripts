@@ -1,56 +1,726 @@
 (function () {
-    'use strict';
+  'use strict';
 
-    function getTopLevelURL () {
-        try {
-            // FROM: https://stackoverflow.com/a/7739035/73479
-            // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
-            if (window.location !== window.parent.location) {
-                return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
-            } else {
-                return new URL(window.location.href)
-            }
-        } catch (error) {
-            return new URL(location.href)
+  // @ts-nocheck
+      (() => {
+  /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
+  /*global document, window, escape, unescape, module, require, Uint32Array */
+
+  /**
+   * The Stanford Javascript Crypto Library, top-level namespace.
+   * @namespace
+   */
+  var sjcl = {
+    /**
+     * Symmetric ciphers.
+     * @namespace
+     */
+    cipher: {},
+
+    /**
+     * Hash functions.  Right now only SHA256 is implemented.
+     * @namespace
+     */
+    hash: {},
+
+    /**
+     * Key exchange functions.  Right now only SRP is implemented.
+     * @namespace
+     */
+    keyexchange: {},
+    
+    /**
+     * Cipher modes of operation.
+     * @namespace
+     */
+    mode: {},
+
+    /**
+     * Miscellaneous.  HMAC and PBKDF2.
+     * @namespace
+     */
+    misc: {},
+    
+    /**
+     * Bit array encoders and decoders.
+     * @namespace
+     *
+     * @description
+     * The members of this namespace are functions which translate between
+     * SJCL's bitArrays and other objects (usually strings).  Because it
+     * isn't always clear which direction is encoding and which is decoding,
+     * the method names are "fromBits" and "toBits".
+     */
+    codec: {},
+    
+    /**
+     * Exceptions.
+     * @namespace
+     */
+    exception: {
+      /**
+       * Ciphertext is corrupt.
+       * @constructor
+       */
+      corrupt: function(message) {
+        this.toString = function() { return "CORRUPT: "+this.message; };
+        this.message = message;
+      },
+      
+      /**
+       * Invalid parameter.
+       * @constructor
+       */
+      invalid: function(message) {
+        this.toString = function() { return "INVALID: "+this.message; };
+        this.message = message;
+      },
+      
+      /**
+       * Bug or missing feature in SJCL.
+       * @constructor
+       */
+      bug: function(message) {
+        this.toString = function() { return "BUG: "+this.message; };
+        this.message = message;
+      },
+
+      /**
+       * Something isn't ready.
+       * @constructor
+       */
+      notReady: function(message) {
+        this.toString = function() { return "NOT READY: "+this.message; };
+        this.message = message;
+      }
+    }
+  };
+  /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /**
+   * Arrays of bits, encoded as arrays of Numbers.
+   * @namespace
+   * @description
+   * <p>
+   * These objects are the currency accepted by SJCL's crypto functions.
+   * </p>
+   *
+   * <p>
+   * Most of our crypto primitives operate on arrays of 4-byte words internally,
+   * but many of them can take arguments that are not a multiple of 4 bytes.
+   * This library encodes arrays of bits (whose size need not be a multiple of 8
+   * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
+   * array of words, 32 bits at a time.  Since the words are double-precision
+   * floating point numbers, they fit some extra data.  We use this (in a private,
+   * possibly-changing manner) to encode the number of bits actually  present
+   * in the last word of the array.
+   * </p>
+   *
+   * <p>
+   * Because bitwise ops clear this out-of-band data, these arrays can be passed
+   * to ciphers like AES which want arrays of words.
+   * </p>
+   */
+  sjcl.bitArray = {
+    /**
+     * Array slices in units of bits.
+     * @param {bitArray} a The array to slice.
+     * @param {Number} bstart The offset to the start of the slice, in bits.
+     * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
+     * slice until the end of the array.
+     * @return {bitArray} The requested slice.
+     */
+    bitSlice: function (a, bstart, bend) {
+      a = sjcl.bitArray._shiftRight(a.slice(bstart/32), 32 - (bstart & 31)).slice(1);
+      return (bend === undefined) ? a : sjcl.bitArray.clamp(a, bend-bstart);
+    },
+
+    /**
+     * Extract a number packed into a bit array.
+     * @param {bitArray} a The array to slice.
+     * @param {Number} bstart The offset to the start of the slice, in bits.
+     * @param {Number} blength The length of the number to extract.
+     * @return {Number} The requested slice.
+     */
+    extract: function(a, bstart, blength) {
+      // FIXME: this Math.floor is not necessary at all, but for some reason
+      // seems to suppress a bug in the Chromium JIT.
+      var x, sh = Math.floor((-bstart-blength) & 31);
+      if ((bstart + blength - 1 ^ bstart) & -32) {
+        // it crosses a boundary
+        x = (a[bstart/32|0] << (32 - sh)) ^ (a[bstart/32+1|0] >>> sh);
+      } else {
+        // within a single word
+        x = a[bstart/32|0] >>> sh;
+      }
+      return x & ((1<<blength) - 1);
+    },
+
+    /**
+     * Concatenate two bit arrays.
+     * @param {bitArray} a1 The first array.
+     * @param {bitArray} a2 The second array.
+     * @return {bitArray} The concatenation of a1 and a2.
+     */
+    concat: function (a1, a2) {
+      if (a1.length === 0 || a2.length === 0) {
+        return a1.concat(a2);
+      }
+      
+      var last = a1[a1.length-1], shift = sjcl.bitArray.getPartial(last);
+      if (shift === 32) {
+        return a1.concat(a2);
+      } else {
+        return sjcl.bitArray._shiftRight(a2, shift, last|0, a1.slice(0,a1.length-1));
+      }
+    },
+
+    /**
+     * Find the length of an array of bits.
+     * @param {bitArray} a The array.
+     * @return {Number} The length of a, in bits.
+     */
+    bitLength: function (a) {
+      var l = a.length, x;
+      if (l === 0) { return 0; }
+      x = a[l - 1];
+      return (l-1) * 32 + sjcl.bitArray.getPartial(x);
+    },
+
+    /**
+     * Truncate an array.
+     * @param {bitArray} a The array.
+     * @param {Number} len The length to truncate to, in bits.
+     * @return {bitArray} A new array, truncated to len bits.
+     */
+    clamp: function (a, len) {
+      if (a.length * 32 < len) { return a; }
+      a = a.slice(0, Math.ceil(len / 32));
+      var l = a.length;
+      len = len & 31;
+      if (l > 0 && len) {
+        a[l-1] = sjcl.bitArray.partial(len, a[l-1] & 0x80000000 >> (len-1), 1);
+      }
+      return a;
+    },
+
+    /**
+     * Make a partial word for a bit array.
+     * @param {Number} len The number of bits in the word.
+     * @param {Number} x The bits.
+     * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
+     * @return {Number} The partial word.
+     */
+    partial: function (len, x, _end) {
+      if (len === 32) { return x; }
+      return (_end ? x|0 : x << (32-len)) + len * 0x10000000000;
+    },
+
+    /**
+     * Get the number of bits used by a partial word.
+     * @param {Number} x The partial word.
+     * @return {Number} The number of bits used by the partial word.
+     */
+    getPartial: function (x) {
+      return Math.round(x/0x10000000000) || 32;
+    },
+
+    /**
+     * Compare two arrays for equality in a predictable amount of time.
+     * @param {bitArray} a The first array.
+     * @param {bitArray} b The second array.
+     * @return {boolean} true if a == b; false otherwise.
+     */
+    equal: function (a, b) {
+      if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
+        return false;
+      }
+      var x = 0, i;
+      for (i=0; i<a.length; i++) {
+        x |= a[i]^b[i];
+      }
+      return (x === 0);
+    },
+
+    /** Shift an array right.
+     * @param {bitArray} a The array to shift.
+     * @param {Number} shift The number of bits to shift.
+     * @param {Number} [carry=0] A byte to carry in
+     * @param {bitArray} [out=[]] An array to prepend to the output.
+     * @private
+     */
+    _shiftRight: function (a, shift, carry, out) {
+      var i, last2=0, shift2;
+      if (out === undefined) { out = []; }
+      
+      for (; shift >= 32; shift -= 32) {
+        out.push(carry);
+        carry = 0;
+      }
+      if (shift === 0) {
+        return out.concat(a);
+      }
+      
+      for (i=0; i<a.length; i++) {
+        out.push(carry | a[i]>>>shift);
+        carry = a[i] << (32-shift);
+      }
+      last2 = a.length ? a[a.length-1] : 0;
+      shift2 = sjcl.bitArray.getPartial(last2);
+      out.push(sjcl.bitArray.partial(shift+shift2 & 31, (shift + shift2 > 32) ? carry : out.pop(),1));
+      return out;
+    },
+    
+    /** xor a block of 4 words together.
+     * @private
+     */
+    _xor4: function(x,y) {
+      return [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]];
+    },
+
+    /** byteswap a word array inplace.
+     * (does not handle partial words)
+     * @param {sjcl.bitArray} a word array
+     * @return {sjcl.bitArray} byteswapped array
+     */
+    byteswapM: function(a) {
+      var i, v, m = 0xff00;
+      for (i = 0; i < a.length; ++i) {
+        v = a[i];
+        a[i] = (v >>> 24) | ((v >>> 8) & m) | ((v & m) << 8) | (v << 24);
+      }
+      return a;
+    }
+  };
+  /** @fileOverview Bit array codec implementations.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /**
+   * UTF-8 strings
+   * @namespace
+   */
+  sjcl.codec.utf8String = {
+    /** Convert from a bitArray to a UTF-8 string. */
+    fromBits: function (arr) {
+      var out = "", bl = sjcl.bitArray.bitLength(arr), i, tmp;
+      for (i=0; i<bl/8; i++) {
+        if ((i&3) === 0) {
+          tmp = arr[i/4];
         }
-    }
+        out += String.fromCharCode(tmp >>> 8 >>> 8 >>> 8);
+        tmp <<= 8;
+      }
+      return decodeURIComponent(escape(out));
+    },
 
-    function isUnprotectedDomain (topLevelUrl, featureList) {
-        let unprotectedDomain = false;
-        const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : [];
-
-        // walk up the domain to see if it's unprotected
-        while (domainParts.length > 1 && !unprotectedDomain) {
-            const partialDomain = domainParts.join('.');
-
-            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;
-
-            domainParts.shift();
+    /** Convert from a UTF-8 string to a bitArray. */
+    toBits: function (str) {
+      str = unescape(encodeURIComponent(str));
+      var out = [], i, tmp=0;
+      for (i=0; i<str.length; i++) {
+        tmp = tmp << 8 | str.charCodeAt(i);
+        if ((i&3) === 3) {
+          out.push(tmp);
+          tmp = 0;
         }
-
-        return unprotectedDomain
+      }
+      if (i&3) {
+        out.push(sjcl.bitArray.partial(8*(i&3), tmp));
+      }
+      return out;
     }
+  };
+  /** @fileOverview Bit array codec implementations.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
 
-    function processConfig (data, userList, preferences) {
-        const topLevelUrl = getTopLevelURL();
-        const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
-        const enabledFeatures = Object.keys(data.features).filter((featureName) => {
-            const feature = data.features[featureName];
-            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
-        });
-        const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
-        preferences.site = {
-            domain: topLevelUrl.hostname,
-            isBroken,
-            allowlisted,
-            enabledFeatures
-        };
-        // TODO
-        preferences.cookie = {};
-        return preferences
+  /**
+   * Hexadecimal
+   * @namespace
+   */
+  sjcl.codec.hex = {
+    /** Convert from a bitArray to a hex string. */
+    fromBits: function (arr) {
+      var out = "", i;
+      for (i=0; i<arr.length; i++) {
+        out += ((arr[i]|0)+0xF00000000000).toString(16).substr(4);
+      }
+      return out.substr(0, sjcl.bitArray.bitLength(arr)/4);//.replace(/(.{8})/g, "$1 ");
+    },
+    /** Convert from a hex string to a bitArray. */
+    toBits: function (str) {
+      var i, out=[], len;
+      str = str.replace(/\s|0x/g, "");
+      len = str.length;
+      str = str + "00000000";
+      for (i=0; i<str.length; i+=8) {
+        out.push(parseInt(str.substr(i,8),16)^0);
+      }
+      return sjcl.bitArray.clamp(out, len*4);
     }
+  };
 
-    var contentScopeFeatures = (function (exports) {
+  /** @fileOverview Javascript SHA-256 implementation.
+   *
+   * An older version of this implementation is available in the public
+   * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
+   * Stanford University 2008-2010 and BSD-licensed for liability
+   * reasons.
+   *
+   * Special thanks to Aldo Cortesi for pointing out several bugs in
+   * this code.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /**
+   * Context for a SHA-256 operation in progress.
+   * @constructor
+   */
+  sjcl.hash.sha256 = function (hash) {
+    if (!this._key[0]) { this._precompute(); }
+    if (hash) {
+      this._h = hash._h.slice(0);
+      this._buffer = hash._buffer.slice(0);
+      this._length = hash._length;
+    } else {
+      this.reset();
+    }
+  };
+
+  /**
+   * Hash a string or an array of words.
+   * @static
+   * @param {bitArray|String} data the data to hash.
+   * @return {bitArray} The hash value, an array of 16 big-endian words.
+   */
+  sjcl.hash.sha256.hash = function (data) {
+    return (new sjcl.hash.sha256()).update(data).finalize();
+  };
+
+  sjcl.hash.sha256.prototype = {
+    /**
+     * The hash's block size, in bits.
+     * @constant
+     */
+    blockSize: 512,
+     
+    /**
+     * Reset the hash state.
+     * @return this
+     */
+    reset:function () {
+      this._h = this._init.slice(0);
+      this._buffer = [];
+      this._length = 0;
+      return this;
+    },
+    
+    /**
+     * Input several words to the hash.
+     * @param {bitArray|String} data the data to hash.
+     * @return this
+     */
+    update: function (data) {
+      if (typeof data === "string") {
+        data = sjcl.codec.utf8String.toBits(data);
+      }
+      var i, b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
+          ol = this._length,
+          nl = this._length = ol + sjcl.bitArray.bitLength(data);
+      if (nl > 9007199254740991){
+        throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
+      }
+
+      if (typeof Uint32Array !== 'undefined') {
+  	var c = new Uint32Array(b);
+      	var j = 0;
+      	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
+        	    this._block(c.subarray(16 * j, 16 * (j+1)));
+        	    j += 1;
+      	}
+      	b.splice(0, 16 * j);
+      } else {
+  	for (i = 512+ol - ((512+ol) & 511); i <= nl; i+= 512) {
+        	    this._block(b.splice(0,16));
+        	}
+      }
+      return this;
+    },
+    
+    /**
+     * Complete hashing and output the hash value.
+     * @return {bitArray} The hash value, an array of 8 big-endian words.
+     */
+    finalize:function () {
+      var i, b = this._buffer, h = this._h;
+
+      // Round out and push the buffer
+      b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1,1)]);
+      
+      // Round out the buffer to a multiple of 16 words, less the 2 length words.
+      for (i = b.length + 2; i & 15; i++) {
+        b.push(0);
+      }
+      
+      // append the length
+      b.push(Math.floor(this._length / 0x100000000));
+      b.push(this._length | 0);
+
+      while (b.length) {
+        this._block(b.splice(0,16));
+      }
+
+      this.reset();
+      return h;
+    },
+
+    /**
+     * The SHA-256 initialization vector, to be precomputed.
+     * @private
+     */
+    _init:[],
+    /*
+    _init:[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],
+    */
+    
+    /**
+     * The SHA-256 hash key, to be precomputed.
+     * @private
+     */
+    _key:[],
+    /*
+    _key:
+      [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+       0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+       0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+       0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+       0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+       0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+       0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+       0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
+    */
+
+
+    /**
+     * Function to precompute _init and _key.
+     * @private
+     */
+    _precompute: function () {
+      var i = 0, prime = 2, factor, isPrime;
+
+      function frac(x) { return (x-Math.floor(x)) * 0x100000000 | 0; }
+
+      for (; i<64; prime++) {
+        isPrime = true;
+        for (factor=2; factor*factor <= prime; factor++) {
+          if (prime % factor === 0) {
+            isPrime = false;
+            break;
+          }
+        }
+        if (isPrime) {
+          if (i<8) {
+            this._init[i] = frac(Math.pow(prime, 1/2));
+          }
+          this._key[i] = frac(Math.pow(prime, 1/3));
+          i++;
+        }
+      }
+    },
+    
+    /**
+     * Perform one cycle of SHA-256.
+     * @param {Uint32Array|bitArray} w one block of words.
+     * @private
+     */
+    _block:function (w) {  
+      var i, tmp, a, b,
+        h = this._h,
+        k = this._key,
+        h0 = h[0], h1 = h[1], h2 = h[2], h3 = h[3],
+        h4 = h[4], h5 = h[5], h6 = h[6], h7 = h[7];
+
+      /* Rationale for placement of |0 :
+       * If a value can overflow is original 32 bits by a factor of more than a few
+       * million (2^23 ish), there is a possibility that it might overflow the
+       * 53-bit mantissa and lose precision.
+       *
+       * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
+       * propagates around the loop, and on the hash state h[].  I don't believe
+       * that the clamps on h4 and on h0 are strictly necessary, but it's close
+       * (for h4 anyway), and better safe than sorry.
+       *
+       * The clamps on h[] are necessary for the output to be correct even in the
+       * common case and for short inputs.
+       */
+      for (i=0; i<64; i++) {
+        // load up the input word for this round
+        if (i<16) {
+          tmp = w[i];
+        } else {
+          a   = w[(i+1 ) & 15];
+          b   = w[(i+14) & 15];
+          tmp = w[i&15] = ((a>>>7  ^ a>>>18 ^ a>>>3  ^ a<<25 ^ a<<14) + 
+                           (b>>>17 ^ b>>>19 ^ b>>>10 ^ b<<15 ^ b<<13) +
+                           w[i&15] + w[(i+9) & 15]) | 0;
+        }
+        
+        tmp = (tmp + h7 + (h4>>>6 ^ h4>>>11 ^ h4>>>25 ^ h4<<26 ^ h4<<21 ^ h4<<7) +  (h6 ^ h4&(h5^h6)) + k[i]); // | 0;
+        
+        // shift register
+        h7 = h6; h6 = h5; h5 = h4;
+        h4 = h3 + tmp | 0;
+        h3 = h2; h2 = h1; h1 = h0;
+
+        h0 = (tmp +  ((h1&h2) ^ (h3&(h1^h2))) + (h1>>>2 ^ h1>>>13 ^ h1>>>22 ^ h1<<30 ^ h1<<19 ^ h1<<10)) | 0;
+      }
+
+      h[0] = h[0]+h0 | 0;
+      h[1] = h[1]+h1 | 0;
+      h[2] = h[2]+h2 | 0;
+      h[3] = h[3]+h3 | 0;
+      h[4] = h[4]+h4 | 0;
+      h[5] = h[5]+h5 | 0;
+      h[6] = h[6]+h6 | 0;
+      h[7] = h[7]+h7 | 0;
+    }
+  };
+
+
+  /** @fileOverview HMAC implementation.
+   *
+   * @author Emily Stark
+   * @author Mike Hamburg
+   * @author Dan Boneh
+   */
+
+  /** HMAC with the specified hash function.
+   * @constructor
+   * @param {bitArray} key the key for HMAC.
+   * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
+   */
+  sjcl.misc.hmac = function (key, Hash) {
+    this._hash = Hash = Hash || sjcl.hash.sha256;
+    var exKey = [[],[]], i,
+        bs = Hash.prototype.blockSize / 32;
+    this._baseHash = [new Hash(), new Hash()];
+
+    if (key.length > bs) {
+      key = Hash.hash(key);
+    }
+    
+    for (i=0; i<bs; i++) {
+      exKey[0][i] = key[i]^0x36363636;
+      exKey[1][i] = key[i]^0x5C5C5C5C;
+    }
+    
+    this._baseHash[0].update(exKey[0]);
+    this._baseHash[1].update(exKey[1]);
+    this._resultHash = new Hash(this._baseHash[0]);
+  };
+
+  /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
+   * @param {bitArray|String} data The data to mac.
+   */
+  sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
+    if (!this._updated) {
+      this.update(data);
+      return this.digest(data);
+    } else {
+      throw new sjcl.exception.invalid("encrypt on already updated hmac called!");
+    }
+  };
+
+  sjcl.misc.hmac.prototype.reset = function () {
+    this._resultHash = new this._hash(this._baseHash[0]);
+    this._updated = false;
+  };
+
+  sjcl.misc.hmac.prototype.update = function (data) {
+    this._updated = true;
+    this._resultHash.update(data);
+  };
+
+  sjcl.misc.hmac.prototype.digest = function () {
+    var w = this._resultHash.finalize(), result = new (this._hash)(this._baseHash[1]).update(w).finalize();
+
+    this.reset();
+
+    return result;
+  };
+
+      return sjcl;
+    })();
+
+  /* global cloneInto, exportFunction, false */
+
+  function getTopLevelURL () {
+      try {
+          // FROM: https://stackoverflow.com/a/7739035/73479
+          // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
+          if (window.location !== window.parent.location) {
+              return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
+          } else {
+              return new URL(window.location.href)
+          }
+      } catch (error) {
+          return new URL(location.href)
+      }
+  }
+
+  function isUnprotectedDomain (topLevelUrl, featureList) {
+      let unprotectedDomain = false;
+      const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : [];
+
+      // walk up the domain to see if it's unprotected
+      while (domainParts.length > 1 && !unprotectedDomain) {
+          const partialDomain = domainParts.join('.');
+
+          unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;
+
+          domainParts.shift();
+      }
+
+      return unprotectedDomain
+  }
+
+  function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
+      const topLevelUrl = getTopLevelURL();
+      const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
+      const remoteFeatureNames = Object.keys(data.features);
+      const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
+      const enabledFeatures = remoteFeatureNames.filter((featureName) => {
+          const feature = data.features[featureName];
+          return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
+      }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
+      const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
+      preferences.site = {
+          domain: topLevelUrl.hostname,
+          isBroken,
+          allowlisted,
+          enabledFeatures
+      };
+      // TODO
+      preferences.cookie = {};
+      return preferences
+  }
+
+  var contentScopeFeatures = (function (exports) {
   'use strict';
 
   // @ts-nocheck
@@ -723,7 +1393,8 @@
 
   // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
   // eslint-disable-next-line no-global-assign
-  const globalObj = typeof window === 'undefined' ? globalThis : window;
+  let globalObj = typeof window === 'undefined' ? globalThis : window;
+  let Error$1 = globalObj.Error;
 
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
@@ -759,33 +1430,104 @@
       }
   }
 
+  /**
+   * Best guess effort if the document is being framed
+   * @returns {boolean} if we infer the document is framed
+   */
+  function isBeingFramed () {
+      if ('ancestorOrigins' in globalThis.location) {
+          return globalThis.location.ancestorOrigins.length > 0
+      }
+      // @ts-ignore types do overlap whilst in DOM context
+      return globalThis.top !== globalThis
+  }
+
+  /**
+   * Best guess effort if the document is third party
+   * @returns {boolean} if we infer the document is third party
+   */
+  function isThirdParty () {
+      if (!isBeingFramed()) {
+          return false
+      }
+      return !matchHostname(globalThis.location.hostname, getTabOrigin())
+  }
+
+  /**
+   * Best guess effort of the tabs origin
+   * @returns {string|null} inferred tab origin
+   */
+  function getTabOrigin () {
+      let framingOrigin = null;
+      try {
+          framingOrigin = globalThis.top.location.href;
+      } catch {
+          framingOrigin = globalThis.document.referrer;
+      }
+
+      // Not supported in Firefox
+      if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+          // ancestorOrigins is reverse order, with the last item being the top frame
+          framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+      }
+
+      try {
+          framingOrigin = new URL(framingOrigin).hostname;
+      } catch {
+          framingOrigin = null;
+      }
+      return framingOrigin
+  }
+
+  /**
+   * Returns true if hostname is a subset of exceptionDomain or an exact match.
+   * @param {string} hostname
+   * @param {string} exceptionDomain
+   * @returns {boolean}
+   */
+  function matchHostname (hostname, exceptionDomain) {
+      return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+  }
+
+  const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+  function getStackTraceUrls (stack) {
+      const urls = new Set();
+      try {
+          const errorLines = stack.split('\n');
+          // Should cater for Chrome and Firefox stacks, we only care about https? resources.
+          for (const line of errorLines) {
+              const res = line.match(lineTest);
+              if (res) {
+                  urls.add(new URL(res[2], location.href));
+              }
+          }
+      } catch (e) {
+          // Fall through
+      }
+      return urls
+  }
+
+  function getStackTraceOrigins (stack) {
+      const urls = getStackTraceUrls(stack);
+      const origins = new Set();
+      for (const url of urls) {
+          origins.add(url.hostname);
+      }
+      return origins
+  }
+
   // Checks the stack trace if there are known libraries that are broken.
   function shouldExemptMethod (type) {
       // Short circuit stack tracing if we don't have checks
       if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
           return false
       }
-      try {
-          const errorLines = new Error().stack.split('\n');
-          const errorFiles = new Set();
-          // Should cater for Chrome and Firefox stacks, we only care about https? resources.
-          const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
-          for (const line of errorLines) {
-              const res = line.match(lineTest);
-              if (res) {
-                  const path = res[2];
-                  // checked already
-                  if (errorFiles.has(path)) {
-                      continue
-                  }
-                  if (shouldExemptUrl(type, path)) {
-                      return true
-                  }
-                  errorFiles.add(res[2]);
-              }
+      const stack = getStack();
+      const errorFiles = getStackTraceUrls(stack);
+      for (const path of errorFiles) {
+          if (shouldExemptUrl(type, path.href)) {
+              return true
           }
-      } catch (e) {
-          // Fall through
       }
       return false
   }
@@ -812,7 +1554,9 @@
   }
 
   function isFeatureBroken (args, feature) {
-      return args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
+      return isWindowsSpecificFeature(feature)
+          ? !args.site.enabledFeatures.includes(feature)
+          : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
   }
 
   /**
@@ -874,6 +1618,10 @@
       return result === 'enabled'
   }
 
+  function getStack () {
+      return new Error$1().stack
+  }
+
   /**
    * @template {object} P
    * @typedef {object} ProxyObject<P>
@@ -902,7 +1650,7 @@
                       action: isExempt ? 'ignore' : 'restrict',
                       kind: this.property,
                       documentUrl: document.location.href,
-                      stack: new Error().stack,
+                      stack: getStack(),
                       args: JSON.stringify(args[2])
                   });
               }
@@ -929,6 +1677,10 @@
   }
 
   function postDebugMessage (feature, message) {
+      if (message.stack) {
+          const scriptOrigins = [...getStackTraceOrigins(message.stack)];
+          message.scriptOrigins = scriptOrigins;
+      }
       globalObj.postMessage({
           action: feature,
           message
@@ -944,8 +1696,15 @@
       DDGReflect = globalObj.Reflect;
   }
 
+  const windowsSpecificFeatures = ['windowsPermissionUsage'];
+
+  function isWindowsSpecificFeature (featureName) {
+      return windowsSpecificFeatures.includes(featureName)
+  }
+
   function __variableDynamicImportRuntime0__(path) {
      switch (path) {
+       case './features/cookie.js': return Promise.resolve().then(function () { return cookie; });
        case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
        case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
        case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
@@ -956,9 +1715,8 @@
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
        case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
        case './features/referrer.js': return Promise.resolve().then(function () { return referrer; });
-       case './features/tracking-cookies-1p.js': return Promise.resolve().then(function () { return trackingCookies1p; });
-       case './features/tracking-cookies-3p.js': return Promise.resolve().then(function () { return trackingCookies3p; });
        case './features/web-compat.js': return Promise.resolve().then(function () { return webCompat; });
+       case './features/windows-permission-usage.js': return Promise.resolve().then(function () { return windowsPermissionUsage; });
        default: return Promise.reject(new Error("Unknown variable dynamic import: " + path));
      }
    }
@@ -984,12 +1742,12 @@
           return
       }
       const featureNames = [
+          'windowsPermissionUsage',
           'webCompat',
           'fingerprintingAudio',
           'fingerprintingBattery',
           'fingerprintingCanvas',
-          'trackingCookies3p',
-          'trackingCookies1p',
+          'cookie',
           'googleRejected',
           'gpc',
           'fingerprintingHardware',
@@ -1050,7 +1808,348 @@
       });
   }
 
+  class Cookie {
+      constructor (cookieString) {
+          this.parts = cookieString.split(';');
+          this.parse();
+      }
+
+      parse () {
+          const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
+          this.attrIdx = {};
+          this.parts.forEach((part, index) => {
+              const kv = part.split('=', 1);
+              const attribute = kv[0].trim();
+              const value = part.slice(kv[0].length + 1);
+              if (index === 0) {
+                  this.name = attribute;
+                  this.value = value;
+              } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
+                  this[attribute.toLowerCase()] = value;
+                  this.attrIdx[attribute.toLowerCase()] = index;
+              }
+          });
+      }
+
+      getExpiry () {
+          // @ts-ignore
+          if (!this.maxAge && !this.expires) {
+              return NaN
+          }
+          const expiry = this.maxAge
+              ? parseInt(this.maxAge)
+              // @ts-ignore
+              : (new Date(this.expires) - new Date()) / 1000;
+          return expiry
+      }
+
+      get maxAge () {
+          return this['max-age']
+      }
+
+      set maxAge (value) {
+          if (this.attrIdx['max-age'] > 0) {
+              this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
+          } else {
+              this.parts.push(`max-age=${value}`);
+          }
+          this.parse();
+      }
+
+      toString () {
+          return this.parts.join(';')
+      }
+  }
+
+  /* eslint-disable quote-props */
+  /* eslint-disable quotes */
+  /* eslint-disable indent */
+  /* eslint-disable eol-last */
+  /* eslint-disable no-trailing-spaces */
+  /* eslint-disable no-multiple-empty-lines */
+      const exceptions = [
+    {
+      "domain": "nespresso.com",
+      "reason": "login issues"
+    }
+  ];
+      const excludedCookieDomains = [
+    {
+      "domain": "hangouts.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "docs.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "accounts.google.com",
+      "reason": "SSO which needs cookies for auth"
+    },
+    {
+      "domain": "googleapis.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "login.live.com",
+      "reason": "SSO which needs cookies for auth"
+    },
+    {
+      "domain": "apis.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "pay.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "payments.amazon.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "payments.amazon.de",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "atlassian.net",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "atlassian.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "paypal.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "paypal.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "salesforce.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "salesforceliveagent.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "force.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "disqus.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "spotify.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "hangouts.google.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "docs.google.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "btsport-utils-prod.akamaized.net",
+      "reason": "broken videos"
+    }
+  ];
+
+  let protectionExempted = true;
+  const tabOrigin = getTabOrigin();
+  let tabExempted = true;
+
+  if (tabOrigin != null) {
+      tabExempted = exceptions.some((exception) => {
+          return matchHostname(tabOrigin, exception.domain)
+      });
+  }
+  const frameExempted = excludedCookieDomains.some((exception) => {
+      return matchHostname(globalThis.location.hostname, exception.domain)
+  });
+  protectionExempted = frameExempted || tabExempted;
+
+  // Initial cookie policy pre init
+  let cookiePolicy = {
+      debug: false,
+      isFrame: isBeingFramed(),
+      isTracker: false,
+      shouldBlock: !protectionExempted,
+      shouldBlockTrackerCookie: true,
+      shouldBlockNonTrackerCookie: true,
+      isThirdParty: isThirdParty(),
+      policy: {
+          threshold: 604800, // 7 days
+          maxAge: 604800 // 7 days
+      }
+  };
+
+  let loadedPolicyResolve;
+  // Listen for a message from the content script which will configure the policy for this context
+  const trackerHosts = new Set();
+
+  /**
+   * @param {'ignore' | 'block' | 'restrict'} action
+   * @param {string} reason
+   * @param {any} ctx
+   */
+  function debugHelper (action, reason, ctx) {
+      cookiePolicy.debug && postDebugMessage('jscookie', {
+          action,
+          reason,
+          stack: ctx.stack,
+          documentUrl: globalThis.document.location.href,
+          scriptOrigins: [...ctx.scriptOrigins],
+          value: ctx.value
+      });
+  }
+
+  function shouldBlockTrackingCookie () {
+      return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
+  }
+
+  function shouldBlockNonTrackingCookie () {
+      return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
+  }
+
+  function isTrackingCookie () {
+      return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdParty
+  }
+
+  function isNonTrackingCookie () {
+      return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdParty
+  }
+
+  function load (args) {
+      trackerHosts.clear();
+
+      // The cookie policy is injected into every frame immediately so that no cookie will
+      // be missed.
+      const document = globalThis.document;
+      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
+      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
+
+      const loadPolicy = new Promise((resolve) => {
+          loadedPolicyResolve = resolve;
+      });
+      // Create the then callback now - this ensures that Promise.prototype.then changes won't break
+      // this call.
+      const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
+
+      function getCookiePolicy () {
+          const stack = getStack();
+          const scriptOrigins = getStackTraceOrigins(stack);
+          const getCookieContext = {
+              stack,
+              scriptOrigins,
+              value: 'getter'
+          };
+
+          if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+              debugHelper('block', '3p frame', getCookieContext);
+              return ''
+          } else if (isTrackingCookie() || isNonTrackingCookie()) {
+              debugHelper('ignore', '3p frame', getCookieContext);
+          }
+          return cookieGetter.call(document)
+      }
+
+      function setCookiePolicy (value) {
+          const stack = getStack();
+          const scriptOrigins = getStackTraceOrigins(stack);
+          const setCookieContext = {
+              stack,
+              scriptOrigins,
+              value
+          };
+
+          if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+              debugHelper('block', '3p frame', setCookieContext);
+              return
+          } else if (isTrackingCookie() || isNonTrackingCookie()) {
+              debugHelper('ignore', '3p frame', setCookieContext);
+          }
+          // call the native document.cookie implementation. This will set the cookie immediately
+          // if the value is valid. We will override this set later if the policy dictates that
+          // the expiry should be changed.
+          cookieSetter.call(document, value);
+
+          try {
+              // wait for config before doing same-site tests
+              loadPolicyThen(() => {
+                  const { shouldBlock, policy } = cookiePolicy;
+
+                  if (!shouldBlock) {
+                      debugHelper('ignore', 'disabled', setCookieContext);
+                      return
+                  }
+
+                  // extract cookie expiry from cookie string
+                  const cookie = new Cookie(value);
+                  // apply cookie policy
+                  if (cookie.getExpiry() > policy.threshold) {
+                      // check if the cookie still exists
+                      if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                          cookie.maxAge = policy.maxAge;
+
+                          debugHelper('restrict', 'expiry', setCookieContext);
+
+                          cookieSetter.apply(document, [cookie.toString()]);
+                      } else {
+                          debugHelper('ignore', 'dissappeared', setCookieContext);
+                      }
+                  } else {
+                      debugHelper('ignore', 'expiry', setCookieContext);
+                  }
+              });
+          } catch (e) {
+              debugHelper('ignore', 'error', setCookieContext);
+              // suppress error in cookie override to avoid breakage
+              console.warn('Error in cookie override', e);
+          }
+      }
+
+      defineProperty(document, 'cookie', {
+          configurable: true,
+          set: setCookiePolicy,
+          get: getCookiePolicy
+      });
+  }
+
   function init$c (args) {
+      args.cookie.debug = args.debug;
+      cookiePolicy = args.cookie;
+
+      const featureName = 'cookie';
+      cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
+      cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
+      const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
+      if (policy) {
+          cookiePolicy.policy = policy;
+      }
+
+      loadedPolicyResolve();
+  }
+
+  function update (args) {
+      if (args.trackerDefinition) {
+          trackerHosts.add(args.hostname);
+      }
+  }
+
+  var cookie = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    load: load,
+    init: init$c,
+    update: update
+  });
+
+  function init$b (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-audio';
@@ -1155,7 +2254,7 @@
 
   var fingerprintingAudio = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$c
+    init: init$b
   });
 
   /**
@@ -1163,7 +2262,7 @@
    * It will return the values defined in the getBattery function to the client,
    * as well as prevent any script from listening to events.
    */
-  function init$b (args) {
+  function init$a (args) {
       if (globalThis.navigator.getBattery) {
           const BatteryManager = globalThis.BatteryManager;
 
@@ -1190,7 +2289,7 @@
 
   var fingerprintingBattery = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$b
+    init: init$a
   });
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -2326,7 +3425,7 @@
       return false
   }
 
-  function init$a (args) {
+  function init$9 (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-canvas';
@@ -2508,12 +3607,12 @@
 
   var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$a
+    init: init$9
   });
 
   const featureName = "fingerprinting-hardware";
 
-  function init$9 (args) {
+  function init$8 (args) {
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
 
@@ -2536,7 +3635,7 @@
 
   var fingerprintingHardware = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$9
+    init: init$8
   });
 
   /**
@@ -2621,7 +3720,7 @@
       }
   }
 
-  function init$8 (args) {
+  function init$7 (args) {
       const Screen = globalThis.Screen;
       const screen = globalThis.screen;
 
@@ -2664,10 +3763,10 @@
 
   var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$8
+    init: init$7
   });
 
-  function init$7 () {
+  function init$6 () {
       const navigator = globalThis.navigator;
       const Navigator = globalThis.Navigator;
 
@@ -2695,10 +3794,10 @@
 
   var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$7
+    init: init$6
   });
 
-  function init$6 () {
+  function init$5 () {
       try {
           if ('browsingTopics' in Document.prototype) {
               delete Document.prototype.browsingTopics;
@@ -2725,11 +3824,11 @@
 
   var googleRejected = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$6
+    init: init$5
   });
 
   // Set Global Privacy Control property on DOM
-  function init$5 (args) {
+  function init$4 (args) {
       try {
           // If GPC on, set DOM property prototype to true if not already true
           if (args.globalPrivacyControlValue) {
@@ -2756,10 +3855,10 @@
 
   var gpc = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$5
+    init: init$4
   });
 
-  function init$4 (args) {
+  function init$3 (args) {
       try {
           if (navigator.duckduckgo) {
               return
@@ -2785,10 +3884,10 @@
 
   var navigatorInterface = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$4
+    init: init$3
   });
 
-  function init$3 (args) {
+  function init$2 (args) {
       // Unfortunately, we only have limited information about the referrer and current frame. A single
       // page may load many requests and sub frames, all with different referrers. Since we
       if (args.referrer && // make sure the referrer was set correctly
@@ -2814,243 +3913,7 @@
 
   var referrer = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$3
-  });
-
-  class Cookie {
-      constructor (cookieString) {
-          this.parts = cookieString.split(';');
-          this.parse();
-      }
-
-      parse () {
-          const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
-          this.attrIdx = {};
-          this.parts.forEach((part, index) => {
-              const kv = part.split('=', 1);
-              const attribute = kv[0].trim();
-              const value = part.slice(kv[0].length + 1);
-              if (index === 0) {
-                  this.name = attribute;
-                  this.value = value;
-              } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
-                  this[attribute.toLowerCase()] = value;
-                  this.attrIdx[attribute.toLowerCase()] = index;
-              }
-          });
-      }
-
-      getExpiry () {
-          if (!this.maxAge && !this.expires) {
-              return NaN
-          }
-          const expiry = this.maxAge
-              ? parseInt(this.maxAge)
-              : (new Date(this.expires) - new Date()) / 1000;
-          return expiry
-      }
-
-      get maxAge () {
-          return this['max-age']
-      }
-
-      set maxAge (value) {
-          if (this.attrIdx['max-age'] > 0) {
-              this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
-          } else {
-              this.parts.push(`max-age=${value}`);
-          }
-          this.parse();
-      }
-
-      toString () {
-          return this.parts.join(';')
-      }
-  }
-
-  let loadedPolicyResolve;
-  // Listen for a message from the content script which will configure the policy for this context
-  const trackerHosts = new Set();
-
-  /**
-   * Apply an expiry policy to cookies set via document.cookie.
-   */
-  function applyCookieExpiryPolicy () {
-      const document = globalThis.document;
-      const Error = globalThis.Error;
-      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
-      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
-      const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
-
-      const loadPolicy = new Promise((resolve) => {
-          loadedPolicyResolve = resolve;
-      });
-      // Create the then callback now - this ensures that Promise.prototype.then changes won't break
-      // this call.
-      const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
-      defineProperty(document, 'cookie', {
-          configurable: true,
-          set: (value) => {
-              // call the native document.cookie implementation. This will set the cookie immediately
-              // if the value is valid. We will override this set later if the policy dictates that
-              // the expiry should be changed.
-              cookieSetter.apply(document, [value]);
-              try {
-                  // determine the origins of the scripts in the stack
-                  const stack = new Error().stack.split('\n');
-                  const scriptOrigins = stack.reduce((origins, line) => {
-                      const res = line.match(lineTest);
-                      if (res && res[2]) {
-                          origins.add(new URL(res[2]).hostname);
-                      }
-                      return origins
-                  }, new Set());
-
-                  // wait for config before doing same-site tests
-                  loadPolicyThen(({ shouldBlock, tabRegisteredDomain, policy, isTrackerFrame, debug }) => {
-                      if (!tabRegisteredDomain || !shouldBlock) {
-                          // no site domain for this site to test against, abort
-                          debug && postDebugMessage('jscookie', {
-                              action: 'ignore',
-                              reason: 'disabled',
-                              documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
-                              value
-                          });
-                          return
-                      }
-                      const sameSiteScript = [...scriptOrigins].every((host) => host === tabRegisteredDomain || host.endsWith(`.${tabRegisteredDomain}`));
-                      if (sameSiteScript) {
-                          // cookies set by scripts loaded on the same site as the site are not modified
-                          debug && postDebugMessage('jscookie', {
-                              action: 'ignore',
-                              reason: 'sameSite',
-                              documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
-                              value
-                          });
-                          return
-                      }
-                      const trackerScript = [...scriptOrigins].some((host) => trackerHosts.has(host));
-                      if (!trackerScript && !isTrackerFrame) {
-                          debug && postDebugMessage('jscookie', {
-                              action: 'ignore',
-                              reason: 'non-tracker',
-                              documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
-                              value
-                          });
-                          return
-                      }
-                      // extract cookie expiry from cookie string
-                      const cookie = new Cookie(value);
-                      // apply cookie policy
-                      if (cookie.getExpiry() > policy.threshold) {
-                          // check if the cookie still exists
-                          if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
-                              cookie.maxAge = policy.maxAge;
-                              debug && postDebugMessage('jscookie', {
-                                  action: 'restrict',
-                                  reason: 'tracker',
-                                  documentUrl: document.location.href,
-                                  scriptOrigins: [...scriptOrigins],
-                                  value
-                              });
-                              cookieSetter.apply(document, [cookie.toString()]);
-                          } else {
-                              debug && postDebugMessage('jscookie', {
-                                  action: 'ignored',
-                                  reason: 'dissappeared',
-                                  scriptOrigins: [...scriptOrigins],
-                                  value
-                              });
-                          }
-                      } else {
-                          debug && postDebugMessage('jscookie', {
-                              action: 'ignored',
-                              reason: 'expiry',
-                              scriptOrigins: [...scriptOrigins],
-                              value
-                          });
-                      }
-                  });
-              } catch (e) {
-                  // suppress error in cookie override to avoid breakage
-                  console.warn('Error in cookie override', e);
-              }
-          },
-          get: cookieGetter
-      });
-  }
-
-  // Set up 1st party cookie blocker
-  function load (args) {
-      trackerHosts.clear();
-
-      // The cookie expiry policy is injected into every frame immediately so that no cookie will
-      // be missed.
-      applyCookieExpiryPolicy();
-  }
-
-  function init$2 (args) {
-      args.cookie.debug = args.debug;
-      loadedPolicyResolve(args.cookie);
-  }
-
-  function update (args) {
-      if (args.trackerDefinition) {
-          trackerHosts.add(args.hostname);
-      }
-  }
-
-  var trackingCookies1p = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    load: load,
-    init: init$2,
-    update: update
-  });
-
-  function blockCookies (debug) {
-      // disable setting cookies
-      defineProperty(globalThis.document, 'cookie', {
-          configurable: false,
-          set: function (value) {
-              if (debug) {
-                  postDebugMessage('jscookie', {
-                      action: 'block',
-                      reason: 'tracker frame',
-                      documentUrl: globalThis.document.location.href,
-                      scriptOrigins: [],
-                      value: value
-                  });
-              }
-          },
-          get: () => {
-              if (debug) {
-                  postDebugMessage('jscookie', {
-                      action: 'block',
-                      reason: 'tracker frame',
-                      documentUrl: globalThis.document.location.href,
-                      scriptOrigins: [],
-                      value: 'getter'
-                  });
-              }
-              return ''
-          }
-      });
-  }
-
-  function init$1 (args) {
-      args.cookie.debug = args.debug;
-      if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
-          // overrides expiry policy with blocking - only in subframes
-          blockCookies(args.debug);
-      }
-  }
-
-  var trackingCookies3p = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    init: init$1
+    init: init$2
   });
 
   /**
@@ -3081,12 +3944,356 @@
       }
   }
 
-  function init () {
+  function init$1 () {
       windowSizingFix();
       navigatorCredentialsFix();
   }
 
   var webCompat = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$1
+  });
+
+  /* global Bluetooth, Geolocation, HID, Serial, USB */
+
+  function init () {
+      const featureName = 'windows-permission-usage';
+
+      const Permission = {
+          Geolocation: 'geolocation',
+          Camera: 'camera',
+          Microphone: 'microphone'
+      };
+
+      const Status = {
+          Inactive: 'inactive',
+          Accessed: 'accessed',
+          Active: 'active',
+          Paused: 'paused'
+      };
+
+      const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
+
+      function windowsPostMessage (name, data) {
+          window.chrome.webview.postMessage({
+              Feature: 'Permissions',
+              Name: name,
+              Data: data
+          });
+      }
+
+      function signalPermissionStatus (permission, status) {
+          windowsPostMessage('PermissionStatusMessage', { permission, status });
+          console.debug(`Permission '${permission}' is ${status}`);
+      }
+
+      const watchedPositions = new Set();
+      // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
+      const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
+          apply (target, thisArg, args) {
+              if (isFrameInsideFrame) {
+                  // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
+                  throw new DOMException('Permission denied')
+              }
+
+              const successHandler = args[0];
+              args[0] = function (position) {
+                  signalPermissionStatus(Permission.Geolocation, Status.Active);
+                  successHandler?.(position);
+              };
+              const id = DDGReflect.apply(target, thisArg, args);
+              watchedPositions.add(id);
+              return id
+          }
+      });
+      watchPositionProxy.overload();
+
+      // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
+      const clearWatchProxy = new DDGProxy(featureName, Geolocation.prototype, 'clearWatch', {
+          apply (target, thisArg, args) {
+              DDGReflect.apply(target, thisArg, args);
+              if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
+                  signalPermissionStatus(Permission.Geolocation, Status.Inactive);
+              }
+          }
+      });
+      clearWatchProxy.overload();
+
+      // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
+      const getCurrentPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'getCurrentPosition', {
+          apply (target, thisArg, args) {
+              const successHandler = args[0];
+              args[0] = function (position) {
+                  signalPermissionStatus(Permission.Geolocation, Status.Accessed);
+                  successHandler?.(position);
+              };
+              return DDGReflect.apply(target, thisArg, args)
+          }
+      });
+      getCurrentPositionProxy.overload();
+
+      const userMediaStreams = new Set();
+      const videoTracks = new Set();
+      const audioTracks = new Set();
+
+      function getTracks (permission) {
+          switch (permission) {
+          case Permission.Camera:
+              return videoTracks
+          case Permission.Microphone:
+              return audioTracks
+          }
+      }
+
+      function pause (permission) {
+          const streamTracks = getTracks(permission);
+          streamTracks?.forEach(track => {
+              track.enabled = false;
+          });
+      }
+
+      function resume (permission) {
+          const streamTracks = getTracks(permission);
+          streamTracks?.forEach(track => {
+              track.enabled = true;
+          });
+      }
+
+      function stop (permission) {
+          const streamTracks = getTracks(permission);
+          streamTracks?.forEach(track => track.stop());
+      }
+
+      function monitorTrack (track) {
+          if (track.readyState === 'ended') return
+
+          if (track.kind === 'video' && !videoTracks.has(track)) {
+              console.debug(`New video stream track ${track.id}`);
+              track.addEventListener('ended', videoTrackEnded);
+              track.addEventListener('mute', signalVideoTracksState);
+              track.addEventListener('unmute', signalVideoTracksState);
+              videoTracks.add(track);
+          } else if (track.kind === 'audio' && !audioTracks.has(track)) {
+              console.debug(`New audio stream track ${track.id}`);
+              track.addEventListener('ended', audioTrackEnded);
+              track.addEventListener('mute', signalAudioTracksState);
+              track.addEventListener('unmute', signalAudioTracksState);
+              audioTracks.add(track);
+          }
+      }
+
+      function handleTrackEnded (track) {
+          if (track.kind === 'video' && videoTracks.has(track)) {
+              console.debug(`Video stream track ${track.id} ended`);
+              track.removeEventListener('ended', videoTrackEnded);
+              track.removeEventListener('mute', signalVideoTracksState);
+              track.removeEventListener('unmute', signalVideoTracksState);
+              videoTracks.delete(track);
+              signalVideoTracksState();
+          } else if (track.kind === 'audio' && audioTracks.has(track)) {
+              console.debug(`Audio stream track ${track.id} ended`);
+              track.removeEventListener('ended', audioTrackEnded);
+              track.removeEventListener('mute', signalAudioTracksState);
+              track.removeEventListener('unmute', signalAudioTracksState);
+              audioTracks.delete(track);
+              signalAudioTracksState();
+          }
+      }
+
+      function videoTrackEnded (e) {
+          handleTrackEnded(e.target);
+      }
+
+      function audioTrackEnded (e) {
+          handleTrackEnded(e.target);
+      }
+
+      function signalTracksState (permission) {
+          const tracks = getTracks(permission);
+          if (!tracks) return
+
+          const allTrackCount = tracks.size;
+          if (allTrackCount === 0) {
+              signalPermissionStatus(permission, Status.Inactive);
+              return
+          }
+
+          let mutedTrackCount = 0;
+          tracks.forEach(track => {
+              mutedTrackCount += ((!track.enabled || track.muted) ? 1 : 0);
+          });
+          if (mutedTrackCount === allTrackCount) {
+              signalPermissionStatus(permission, Status.Paused);
+          } else {
+              if (mutedTrackCount > 0) {
+                  console.debug(`Some ${permission} tracks are still active: ${allTrackCount - mutedTrackCount}/${allTrackCount}`);
+              }
+              signalPermissionStatus(permission, Status.Active);
+          }
+      }
+
+      let signalVideoTracksStateTimer;
+      function signalVideoTracksState () {
+          clearTimeout(signalVideoTracksStateTimer);
+          signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100);
+      }
+
+      let signalAudioTracksStateTimer;
+      function signalAudioTracksState () {
+          clearTimeout(signalAudioTracksStateTimer);
+          signalAudioTracksStateTimer = setTimeout(() => signalTracksState(Permission.Microphone), 100);
+      }
+
+      // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
+      const stopTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'stop', {
+          apply (target, thisArg, args) {
+              handleTrackEnded(thisArg);
+              return DDGReflect.apply(target, thisArg, args)
+          }
+      });
+      stopTrackProxy.overload();
+
+      // proxy for track.clone -> monitor the cloned track
+      const cloneTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'clone', {
+          apply (target, thisArg, args) {
+              const clonedTrack = DDGReflect.apply(target, thisArg, args);
+              if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
+                  console.debug(`Media stream track ${thisArg.id} has been cloned to track ${clonedTrack.id}`);
+                  monitorTrack(clonedTrack);
+              }
+              return clonedTrack
+          }
+      });
+      cloneTrackProxy.overload();
+
+      // override MediaStreamTrack.enabled -> update active/paused status when enabled is set
+      const trackEnabledPropertyDescriptor = Object.getOwnPropertyDescriptor(MediaStreamTrack.prototype, 'enabled');
+      defineProperty(MediaStreamTrack.prototype, 'enabled', {
+          configurable: trackEnabledPropertyDescriptor.configurable,
+          enumerable: trackEnabledPropertyDescriptor.enumerable,
+          get: function () {
+              return trackEnabledPropertyDescriptor.get.bind(this)()
+          },
+          set: function (value) {
+              const result = trackEnabledPropertyDescriptor.set.bind(this)(...arguments);
+              if (videoTracks.has(this)) {
+                  signalVideoTracksState();
+              } else if (audioTracks.has(this)) {
+                  signalAudioTracksState();
+              }
+              return result
+          }
+      });
+
+      // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
+      const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks'];
+      for (const methodName of getTracksMethodNames) {
+          const getTracksProxy = new DDGProxy(featureName, MediaStream.prototype, methodName, {
+              apply (target, thisArg, args) {
+                  const tracks = DDGReflect.apply(target, thisArg, args);
+                  if (userMediaStreams.has(thisArg)) {
+                      tracks.forEach(monitorTrack);
+                  }
+                  return tracks
+              }
+          });
+          getTracksProxy.overload();
+      }
+
+      // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
+      const cloneMediaStreamProxy = new DDGProxy(featureName, MediaStream.prototype, 'clone', {
+          apply (target, thisArg, args) {
+              const clonedStream = DDGReflect.apply(target, thisArg, args);
+              if (userMediaStreams.has(thisArg)) {
+                  console.debug(`User stream ${thisArg.id} has been cloned to stream ${clonedStream.id}`);
+                  userMediaStreams.add(clonedStream);
+              }
+              return clonedStream
+          }
+      });
+      cloneMediaStreamProxy.overload();
+
+      // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
+      if (MediaDevices) {
+          const getUserMediaProxy = new DDGProxy(featureName, MediaDevices.prototype, 'getUserMedia', {
+              apply (target, thisArg, args) {
+                  if (isFrameInsideFrame) {
+                      // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
+                      return Promise.reject(new DOMException('Permission denied'))
+                  }
+
+                  const videoRequested = args[0]?.video;
+                  const audioRequested = args[0]?.audio;
+                  return DDGReflect.apply(target, thisArg, args).then(function (stream) {
+                      console.debug(`User stream ${stream.id} has been acquired`);
+                      userMediaStreams.add(stream);
+                      if (videoRequested) {
+                          const newVideoTracks = stream.getVideoTracks();
+                          if (newVideoTracks?.length > 0) {
+                              signalPermissionStatus(Permission.Camera, Status.Active);
+                          }
+                          newVideoTracks.forEach(monitorTrack);
+                      }
+
+                      if (audioRequested) {
+                          const newAudioTracks = stream.getAudioTracks();
+                          if (newAudioTracks?.length > 0) {
+                              signalPermissionStatus(Permission.Microphone, Status.Active);
+                          }
+                          newAudioTracks.forEach(monitorTrack);
+                      }
+                      return stream
+                  })
+              }
+          });
+          getUserMediaProxy.overload();
+      }
+
+      function performAction (action, permission) {
+          if (action && permission) {
+              switch (action) {
+              case 'pause':
+                  pause(permission);
+                  break
+              case 'resume':
+                  resume(permission);
+                  break
+              case 'stop':
+                  stop(permission);
+                  break
+              }
+          }
+      }
+
+      // handle actions from browser
+      window.chrome.webview.addEventListener('message', function ({ data }) {
+          if (data?.action && data?.permission) {
+              performAction(data?.action, data?.permission);
+          }
+      });
+
+      // these permissions cannot be disabled using WebView2 or DevTools protocol
+      const permissionsToDisable = [
+          { name: 'Bluetooth', prototype: Bluetooth.prototype, method: 'requestDevice' },
+          { name: 'USB', prototype: USB.prototype, method: 'requestDevice' },
+          { name: 'Serial', prototype: Serial.prototype, method: 'requestPort' },
+          { name: 'HID', prototype: HID.prototype, method: 'requestDevice' }
+      ];
+      for (const { name, prototype, method } of permissionsToDisable) {
+          try {
+              const proxy = new DDGProxy(featureName, prototype, method, {
+                  apply () {
+                      return Promise.reject(new DOMException('Permission denied'))
+                  }
+              });
+              proxy.overload();
+          } catch (error) {
+              console.info(`Could not disable access to ${name} because of error`, error);
+          }
+      }
+  }
+
+  var windowsPermissionUsage = /*#__PURE__*/Object.freeze({
     __proto__: null,
     init: init
   });
@@ -3102,21 +4309,21 @@
 })({});
 
 
-    function init () {
-        const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
-        if (processedConfig.site.allowlisted) {
-            return
-        }
+  function init () {
+      const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
+      if (processedConfig.site.allowlisted) {
+          return
+      }
 
-        contentScopeFeatures.load();
+      contentScopeFeatures.load();
 
-        contentScopeFeatures.init(processedConfig);
+      contentScopeFeatures.init(processedConfig);
 
-        // Not supported:
-        // contentScopeFeatures.update(message)
-    }
+      // Not supported:
+      // contentScopeFeatures.update(message)
+  }
 
-    init();
+  init();
 
 })();
 

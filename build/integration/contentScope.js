@@ -674,7 +674,8 @@
 
   // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
   // eslint-disable-next-line no-global-assign
-  const globalObj = typeof window === 'undefined' ? globalThis : window;
+  let globalObj = typeof window === 'undefined' ? globalThis : window;
+  let Error$1 = globalObj.Error;
 
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
@@ -710,33 +711,104 @@
       }
   }
 
+  /**
+   * Best guess effort if the document is being framed
+   * @returns {boolean} if we infer the document is framed
+   */
+  function isBeingFramed () {
+      if ('ancestorOrigins' in globalThis.location) {
+          return globalThis.location.ancestorOrigins.length > 0
+      }
+      // @ts-ignore types do overlap whilst in DOM context
+      return globalThis.top !== globalThis
+  }
+
+  /**
+   * Best guess effort if the document is third party
+   * @returns {boolean} if we infer the document is third party
+   */
+  function isThirdParty () {
+      if (!isBeingFramed()) {
+          return false
+      }
+      return !matchHostname(globalThis.location.hostname, getTabOrigin())
+  }
+
+  /**
+   * Best guess effort of the tabs origin
+   * @returns {string|null} inferred tab origin
+   */
+  function getTabOrigin () {
+      let framingOrigin = null;
+      try {
+          framingOrigin = globalThis.top.location.href;
+      } catch {
+          framingOrigin = globalThis.document.referrer;
+      }
+
+      // Not supported in Firefox
+      if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+          // ancestorOrigins is reverse order, with the last item being the top frame
+          framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+      }
+
+      try {
+          framingOrigin = new URL(framingOrigin).hostname;
+      } catch {
+          framingOrigin = null;
+      }
+      return framingOrigin
+  }
+
+  /**
+   * Returns true if hostname is a subset of exceptionDomain or an exact match.
+   * @param {string} hostname
+   * @param {string} exceptionDomain
+   * @returns {boolean}
+   */
+  function matchHostname (hostname, exceptionDomain) {
+      return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+  }
+
+  const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+  function getStackTraceUrls (stack) {
+      const urls = new Set();
+      try {
+          const errorLines = stack.split('\n');
+          // Should cater for Chrome and Firefox stacks, we only care about https? resources.
+          for (const line of errorLines) {
+              const res = line.match(lineTest);
+              if (res) {
+                  urls.add(new URL(res[2], location.href));
+              }
+          }
+      } catch (e) {
+          // Fall through
+      }
+      return urls
+  }
+
+  function getStackTraceOrigins (stack) {
+      const urls = getStackTraceUrls(stack);
+      const origins = new Set();
+      for (const url of urls) {
+          origins.add(url.hostname);
+      }
+      return origins
+  }
+
   // Checks the stack trace if there are known libraries that are broken.
   function shouldExemptMethod (type) {
       // Short circuit stack tracing if we don't have checks
       if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
           return false
       }
-      try {
-          const errorLines = new Error().stack.split('\n');
-          const errorFiles = new Set();
-          // Should cater for Chrome and Firefox stacks, we only care about https? resources.
-          const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
-          for (const line of errorLines) {
-              const res = line.match(lineTest);
-              if (res) {
-                  const path = res[2];
-                  // checked already
-                  if (errorFiles.has(path)) {
-                      continue
-                  }
-                  if (shouldExemptUrl(type, path)) {
-                      return true
-                  }
-                  errorFiles.add(res[2]);
-              }
+      const stack = getStack();
+      const errorFiles = getStackTraceUrls(stack);
+      for (const path of errorFiles) {
+          if (shouldExemptUrl(type, path.href)) {
+              return true
           }
-      } catch (e) {
-          // Fall through
       }
       return false
   }
@@ -763,7 +835,9 @@
   }
 
   function isFeatureBroken (args, feature) {
-      return args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
+      return isWindowsSpecificFeature(feature)
+          ? !args.site.enabledFeatures.includes(feature)
+          : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
   }
 
   /**
@@ -825,6 +899,10 @@
       return result === 'enabled'
   }
 
+  function getStack () {
+      return new Error$1().stack
+  }
+
   /**
    * @template {object} P
    * @typedef {object} ProxyObject<P>
@@ -853,7 +931,7 @@
                       action: isExempt ? 'ignore' : 'restrict',
                       kind: this.property,
                       documentUrl: document.location.href,
-                      stack: new Error().stack,
+                      stack: getStack(),
                       args: JSON.stringify(args[2])
                   });
               }
@@ -880,6 +958,10 @@
   }
 
   function postDebugMessage (feature, message) {
+      if (message.stack) {
+          const scriptOrigins = [...getStackTraceOrigins(message.stack)];
+          message.scriptOrigins = scriptOrigins;
+      }
       globalObj.postMessage({
           action: feature,
           message
@@ -895,8 +977,15 @@
       DDGReflect = globalObj.Reflect;
   }
 
+  const windowsSpecificFeatures = ['windowsPermissionUsage'];
+
+  function isWindowsSpecificFeature (featureName) {
+      return windowsSpecificFeatures.includes(featureName)
+  }
+
   function __variableDynamicImportRuntime0__(path) {
      switch (path) {
+       case './features/cookie.js': return Promise.resolve().then(function () { return cookie; });
        case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
        case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
        case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
@@ -907,9 +996,8 @@
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
        case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
        case './features/referrer.js': return Promise.resolve().then(function () { return referrer; });
-       case './features/tracking-cookies-1p.js': return Promise.resolve().then(function () { return trackingCookies1p; });
-       case './features/tracking-cookies-3p.js': return Promise.resolve().then(function () { return trackingCookies3p; });
        case './features/web-compat.js': return Promise.resolve().then(function () { return webCompat; });
+       case './features/windows-permission-usage.js': return Promise.resolve().then(function () { return windowsPermissionUsage; });
        default: return Promise.reject(new Error("Unknown variable dynamic import: " + path));
      }
    }
@@ -935,12 +1023,12 @@
           return
       }
       const featureNames = [
+          'windowsPermissionUsage',
           'webCompat',
           'fingerprintingAudio',
           'fingerprintingBattery',
           'fingerprintingCanvas',
-          'trackingCookies3p',
-          'trackingCookies1p',
+          'cookie',
           'googleRejected',
           'gpc',
           'fingerprintingHardware',
@@ -1001,7 +1089,348 @@
       });
   }
 
+  class Cookie {
+      constructor (cookieString) {
+          this.parts = cookieString.split(';');
+          this.parse();
+      }
+
+      parse () {
+          const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
+          this.attrIdx = {};
+          this.parts.forEach((part, index) => {
+              const kv = part.split('=', 1);
+              const attribute = kv[0].trim();
+              const value = part.slice(kv[0].length + 1);
+              if (index === 0) {
+                  this.name = attribute;
+                  this.value = value;
+              } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
+                  this[attribute.toLowerCase()] = value;
+                  this.attrIdx[attribute.toLowerCase()] = index;
+              }
+          });
+      }
+
+      getExpiry () {
+          // @ts-ignore
+          if (!this.maxAge && !this.expires) {
+              return NaN
+          }
+          const expiry = this.maxAge
+              ? parseInt(this.maxAge)
+              // @ts-ignore
+              : (new Date(this.expires) - new Date()) / 1000;
+          return expiry
+      }
+
+      get maxAge () {
+          return this['max-age']
+      }
+
+      set maxAge (value) {
+          if (this.attrIdx['max-age'] > 0) {
+              this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
+          } else {
+              this.parts.push(`max-age=${value}`);
+          }
+          this.parse();
+      }
+
+      toString () {
+          return this.parts.join(';')
+      }
+  }
+
+  /* eslint-disable quote-props */
+  /* eslint-disable quotes */
+  /* eslint-disable indent */
+  /* eslint-disable eol-last */
+  /* eslint-disable no-trailing-spaces */
+  /* eslint-disable no-multiple-empty-lines */
+      const exceptions = [
+    {
+      "domain": "nespresso.com",
+      "reason": "login issues"
+    }
+  ];
+      const excludedCookieDomains = [
+    {
+      "domain": "hangouts.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "docs.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "accounts.google.com",
+      "reason": "SSO which needs cookies for auth"
+    },
+    {
+      "domain": "googleapis.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "login.live.com",
+      "reason": "SSO which needs cookies for auth"
+    },
+    {
+      "domain": "apis.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "pay.google.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "payments.amazon.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "payments.amazon.de",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "atlassian.net",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "atlassian.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "paypal.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "paypal.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "salesforce.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "salesforceliveagent.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "force.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "disqus.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "spotify.com",
+      "reason": "Site breakage"
+    },
+    {
+      "domain": "hangouts.google.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "docs.google.com",
+      "reason": "site breakage"
+    },
+    {
+      "domain": "btsport-utils-prod.akamaized.net",
+      "reason": "broken videos"
+    }
+  ];
+
+  let protectionExempted = true;
+  const tabOrigin = getTabOrigin();
+  let tabExempted = true;
+
+  if (tabOrigin != null) {
+      tabExempted = exceptions.some((exception) => {
+          return matchHostname(tabOrigin, exception.domain)
+      });
+  }
+  const frameExempted = excludedCookieDomains.some((exception) => {
+      return matchHostname(globalThis.location.hostname, exception.domain)
+  });
+  protectionExempted = frameExempted || tabExempted;
+
+  // Initial cookie policy pre init
+  let cookiePolicy = {
+      debug: false,
+      isFrame: isBeingFramed(),
+      isTracker: false,
+      shouldBlock: !protectionExempted,
+      shouldBlockTrackerCookie: true,
+      shouldBlockNonTrackerCookie: true,
+      isThirdParty: isThirdParty(),
+      policy: {
+          threshold: 604800, // 7 days
+          maxAge: 604800 // 7 days
+      }
+  };
+
+  let loadedPolicyResolve;
+  // Listen for a message from the content script which will configure the policy for this context
+  const trackerHosts = new Set();
+
+  /**
+   * @param {'ignore' | 'block' | 'restrict'} action
+   * @param {string} reason
+   * @param {any} ctx
+   */
+  function debugHelper (action, reason, ctx) {
+      cookiePolicy.debug && postDebugMessage('jscookie', {
+          action,
+          reason,
+          stack: ctx.stack,
+          documentUrl: globalThis.document.location.href,
+          scriptOrigins: [...ctx.scriptOrigins],
+          value: ctx.value
+      });
+  }
+
+  function shouldBlockTrackingCookie () {
+      return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
+  }
+
+  function shouldBlockNonTrackingCookie () {
+      return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
+  }
+
+  function isTrackingCookie () {
+      return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdParty
+  }
+
+  function isNonTrackingCookie () {
+      return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdParty
+  }
+
+  function load (args) {
+      trackerHosts.clear();
+
+      // The cookie policy is injected into every frame immediately so that no cookie will
+      // be missed.
+      const document = globalThis.document;
+      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
+      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
+
+      const loadPolicy = new Promise((resolve) => {
+          loadedPolicyResolve = resolve;
+      });
+      // Create the then callback now - this ensures that Promise.prototype.then changes won't break
+      // this call.
+      const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
+
+      function getCookiePolicy () {
+          const stack = getStack();
+          const scriptOrigins = getStackTraceOrigins(stack);
+          const getCookieContext = {
+              stack,
+              scriptOrigins,
+              value: 'getter'
+          };
+
+          if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+              debugHelper('block', '3p frame', getCookieContext);
+              return ''
+          } else if (isTrackingCookie() || isNonTrackingCookie()) {
+              debugHelper('ignore', '3p frame', getCookieContext);
+          }
+          return cookieGetter.call(document)
+      }
+
+      function setCookiePolicy (value) {
+          const stack = getStack();
+          const scriptOrigins = getStackTraceOrigins(stack);
+          const setCookieContext = {
+              stack,
+              scriptOrigins,
+              value
+          };
+
+          if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+              debugHelper('block', '3p frame', setCookieContext);
+              return
+          } else if (isTrackingCookie() || isNonTrackingCookie()) {
+              debugHelper('ignore', '3p frame', setCookieContext);
+          }
+          // call the native document.cookie implementation. This will set the cookie immediately
+          // if the value is valid. We will override this set later if the policy dictates that
+          // the expiry should be changed.
+          cookieSetter.call(document, value);
+
+          try {
+              // wait for config before doing same-site tests
+              loadPolicyThen(() => {
+                  const { shouldBlock, policy } = cookiePolicy;
+
+                  if (!shouldBlock) {
+                      debugHelper('ignore', 'disabled', setCookieContext);
+                      return
+                  }
+
+                  // extract cookie expiry from cookie string
+                  const cookie = new Cookie(value);
+                  // apply cookie policy
+                  if (cookie.getExpiry() > policy.threshold) {
+                      // check if the cookie still exists
+                      if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                          cookie.maxAge = policy.maxAge;
+
+                          debugHelper('restrict', 'expiry', setCookieContext);
+
+                          cookieSetter.apply(document, [cookie.toString()]);
+                      } else {
+                          debugHelper('ignore', 'dissappeared', setCookieContext);
+                      }
+                  } else {
+                      debugHelper('ignore', 'expiry', setCookieContext);
+                  }
+              });
+          } catch (e) {
+              debugHelper('ignore', 'error', setCookieContext);
+              // suppress error in cookie override to avoid breakage
+              console.warn('Error in cookie override', e);
+          }
+      }
+
+      defineProperty(document, 'cookie', {
+          configurable: true,
+          set: setCookiePolicy,
+          get: getCookiePolicy
+      });
+  }
+
   function init$c (args) {
+      args.cookie.debug = args.debug;
+      cookiePolicy = args.cookie;
+
+      const featureName = 'cookie';
+      cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
+      cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
+      const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
+      if (policy) {
+          cookiePolicy.policy = policy;
+      }
+
+      loadedPolicyResolve();
+  }
+
+  function update (args) {
+      if (args.trackerDefinition) {
+          trackerHosts.add(args.hostname);
+      }
+  }
+
+  var cookie = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    load: load,
+    init: init$c,
+    update: update
+  });
+
+  function init$b (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-audio';
@@ -1106,7 +1535,7 @@
 
   var fingerprintingAudio = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$c
+    init: init$b
   });
 
   /**
@@ -1114,7 +1543,7 @@
    * It will return the values defined in the getBattery function to the client,
    * as well as prevent any script from listening to events.
    */
-  function init$b (args) {
+  function init$a (args) {
       if (globalThis.navigator.getBattery) {
           const BatteryManager = globalThis.BatteryManager;
 
@@ -1141,7 +1570,7 @@
 
   var fingerprintingBattery = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$b
+    init: init$a
   });
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -2277,7 +2706,7 @@
       return false
   }
 
-  function init$a (args) {
+  function init$9 (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-canvas';
@@ -2459,12 +2888,12 @@
 
   var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$a
+    init: init$9
   });
 
   const featureName = "fingerprinting-hardware";
 
-  function init$9 (args) {
+  function init$8 (args) {
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
 
@@ -2487,7 +2916,7 @@
 
   var fingerprintingHardware = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$9
+    init: init$8
   });
 
   /**
@@ -2572,7 +3001,7 @@
       }
   }
 
-  function init$8 (args) {
+  function init$7 (args) {
       const Screen = globalThis.Screen;
       const screen = globalThis.screen;
 
@@ -2615,10 +3044,10 @@
 
   var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$8
+    init: init$7
   });
 
-  function init$7 () {
+  function init$6 () {
       const navigator = globalThis.navigator;
       const Navigator = globalThis.Navigator;
 
@@ -2646,10 +3075,10 @@
 
   var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$7
+    init: init$6
   });
 
-  function init$6 () {
+  function init$5 () {
       try {
           if ('browsingTopics' in Document.prototype) {
               delete Document.prototype.browsingTopics;
@@ -2676,11 +3105,11 @@
 
   var googleRejected = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$6
+    init: init$5
   });
 
   // Set Global Privacy Control property on DOM
-  function init$5 (args) {
+  function init$4 (args) {
       try {
           // If GPC on, set DOM property prototype to true if not already true
           if (args.globalPrivacyControlValue) {
@@ -2707,10 +3136,10 @@
 
   var gpc = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$5
+    init: init$4
   });
 
-  function init$4 (args) {
+  function init$3 (args) {
       try {
           if (navigator.duckduckgo) {
               return
@@ -2736,10 +3165,10 @@
 
   var navigatorInterface = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$4
+    init: init$3
   });
 
-  function init$3 (args) {
+  function init$2 (args) {
       // Unfortunately, we only have limited information about the referrer and current frame. A single
       // page may load many requests and sub frames, all with different referrers. Since we
       if (args.referrer && // make sure the referrer was set correctly
@@ -2765,243 +3194,7 @@
 
   var referrer = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$3
-  });
-
-  class Cookie {
-      constructor (cookieString) {
-          this.parts = cookieString.split(';');
-          this.parse();
-      }
-
-      parse () {
-          const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
-          this.attrIdx = {};
-          this.parts.forEach((part, index) => {
-              const kv = part.split('=', 1);
-              const attribute = kv[0].trim();
-              const value = part.slice(kv[0].length + 1);
-              if (index === 0) {
-                  this.name = attribute;
-                  this.value = value;
-              } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
-                  this[attribute.toLowerCase()] = value;
-                  this.attrIdx[attribute.toLowerCase()] = index;
-              }
-          });
-      }
-
-      getExpiry () {
-          if (!this.maxAge && !this.expires) {
-              return NaN
-          }
-          const expiry = this.maxAge
-              ? parseInt(this.maxAge)
-              : (new Date(this.expires) - new Date()) / 1000;
-          return expiry
-      }
-
-      get maxAge () {
-          return this['max-age']
-      }
-
-      set maxAge (value) {
-          if (this.attrIdx['max-age'] > 0) {
-              this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
-          } else {
-              this.parts.push(`max-age=${value}`);
-          }
-          this.parse();
-      }
-
-      toString () {
-          return this.parts.join(';')
-      }
-  }
-
-  let loadedPolicyResolve;
-  // Listen for a message from the content script which will configure the policy for this context
-  const trackerHosts = new Set();
-
-  /**
-   * Apply an expiry policy to cookies set via document.cookie.
-   */
-  function applyCookieExpiryPolicy () {
-      const document = globalThis.document;
-      const Error = globalThis.Error;
-      const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
-      const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
-      const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/;
-
-      const loadPolicy = new Promise((resolve) => {
-          loadedPolicyResolve = resolve;
-      });
-      // Create the then callback now - this ensures that Promise.prototype.then changes won't break
-      // this call.
-      const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
-      defineProperty(document, 'cookie', {
-          configurable: true,
-          set: (value) => {
-              // call the native document.cookie implementation. This will set the cookie immediately
-              // if the value is valid. We will override this set later if the policy dictates that
-              // the expiry should be changed.
-              cookieSetter.apply(document, [value]);
-              try {
-                  // determine the origins of the scripts in the stack
-                  const stack = new Error().stack.split('\n');
-                  const scriptOrigins = stack.reduce((origins, line) => {
-                      const res = line.match(lineTest);
-                      if (res && res[2]) {
-                          origins.add(new URL(res[2]).hostname);
-                      }
-                      return origins
-                  }, new Set());
-
-                  // wait for config before doing same-site tests
-                  loadPolicyThen(({ shouldBlock, tabRegisteredDomain, policy, isTrackerFrame, debug }) => {
-                      if (!tabRegisteredDomain || !shouldBlock) {
-                          // no site domain for this site to test against, abort
-                          debug && postDebugMessage('jscookie', {
-                              action: 'ignore',
-                              reason: 'disabled',
-                              documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
-                              value
-                          });
-                          return
-                      }
-                      const sameSiteScript = [...scriptOrigins].every((host) => host === tabRegisteredDomain || host.endsWith(`.${tabRegisteredDomain}`));
-                      if (sameSiteScript) {
-                          // cookies set by scripts loaded on the same site as the site are not modified
-                          debug && postDebugMessage('jscookie', {
-                              action: 'ignore',
-                              reason: 'sameSite',
-                              documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
-                              value
-                          });
-                          return
-                      }
-                      const trackerScript = [...scriptOrigins].some((host) => trackerHosts.has(host));
-                      if (!trackerScript && !isTrackerFrame) {
-                          debug && postDebugMessage('jscookie', {
-                              action: 'ignore',
-                              reason: 'non-tracker',
-                              documentUrl: document.location.href,
-                              scriptOrigins: [...scriptOrigins],
-                              value
-                          });
-                          return
-                      }
-                      // extract cookie expiry from cookie string
-                      const cookie = new Cookie(value);
-                      // apply cookie policy
-                      if (cookie.getExpiry() > policy.threshold) {
-                          // check if the cookie still exists
-                          if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
-                              cookie.maxAge = policy.maxAge;
-                              debug && postDebugMessage('jscookie', {
-                                  action: 'restrict',
-                                  reason: 'tracker',
-                                  documentUrl: document.location.href,
-                                  scriptOrigins: [...scriptOrigins],
-                                  value
-                              });
-                              cookieSetter.apply(document, [cookie.toString()]);
-                          } else {
-                              debug && postDebugMessage('jscookie', {
-                                  action: 'ignored',
-                                  reason: 'dissappeared',
-                                  scriptOrigins: [...scriptOrigins],
-                                  value
-                              });
-                          }
-                      } else {
-                          debug && postDebugMessage('jscookie', {
-                              action: 'ignored',
-                              reason: 'expiry',
-                              scriptOrigins: [...scriptOrigins],
-                              value
-                          });
-                      }
-                  });
-              } catch (e) {
-                  // suppress error in cookie override to avoid breakage
-                  console.warn('Error in cookie override', e);
-              }
-          },
-          get: cookieGetter
-      });
-  }
-
-  // Set up 1st party cookie blocker
-  function load (args) {
-      trackerHosts.clear();
-
-      // The cookie expiry policy is injected into every frame immediately so that no cookie will
-      // be missed.
-      applyCookieExpiryPolicy();
-  }
-
-  function init$2 (args) {
-      args.cookie.debug = args.debug;
-      loadedPolicyResolve(args.cookie);
-  }
-
-  function update (args) {
-      if (args.trackerDefinition) {
-          trackerHosts.add(args.hostname);
-      }
-  }
-
-  var trackingCookies1p = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    load: load,
-    init: init$2,
-    update: update
-  });
-
-  function blockCookies (debug) {
-      // disable setting cookies
-      defineProperty(globalThis.document, 'cookie', {
-          configurable: false,
-          set: function (value) {
-              if (debug) {
-                  postDebugMessage('jscookie', {
-                      action: 'block',
-                      reason: 'tracker frame',
-                      documentUrl: globalThis.document.location.href,
-                      scriptOrigins: [],
-                      value: value
-                  });
-              }
-          },
-          get: () => {
-              if (debug) {
-                  postDebugMessage('jscookie', {
-                      action: 'block',
-                      reason: 'tracker frame',
-                      documentUrl: globalThis.document.location.href,
-                      scriptOrigins: [],
-                      value: 'getter'
-                  });
-              }
-              return ''
-          }
-      });
-  }
-
-  function init$1 (args) {
-      args.cookie.debug = args.debug;
-      if (globalThis.top !== globalThis && args.cookie.isTrackerFrame && args.cookie.shouldBlock && args.cookie.isThirdParty) {
-          // overrides expiry policy with blocking - only in subframes
-          blockCookies(args.debug);
-      }
-  }
-
-  var trackingCookies3p = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    init: init$1
+    init: init$2
   });
 
   /**
@@ -3032,12 +3225,356 @@
       }
   }
 
-  function init () {
+  function init$1 () {
       windowSizingFix();
       navigatorCredentialsFix();
   }
 
   var webCompat = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$1
+  });
+
+  /* global Bluetooth, Geolocation, HID, Serial, USB */
+
+  function init () {
+      const featureName = 'windows-permission-usage';
+
+      const Permission = {
+          Geolocation: 'geolocation',
+          Camera: 'camera',
+          Microphone: 'microphone'
+      };
+
+      const Status = {
+          Inactive: 'inactive',
+          Accessed: 'accessed',
+          Active: 'active',
+          Paused: 'paused'
+      };
+
+      const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
+
+      function windowsPostMessage (name, data) {
+          window.chrome.webview.postMessage({
+              Feature: 'Permissions',
+              Name: name,
+              Data: data
+          });
+      }
+
+      function signalPermissionStatus (permission, status) {
+          windowsPostMessage('PermissionStatusMessage', { permission, status });
+          console.debug(`Permission '${permission}' is ${status}`);
+      }
+
+      const watchedPositions = new Set();
+      // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
+      const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
+          apply (target, thisArg, args) {
+              if (isFrameInsideFrame) {
+                  // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
+                  throw new DOMException('Permission denied')
+              }
+
+              const successHandler = args[0];
+              args[0] = function (position) {
+                  signalPermissionStatus(Permission.Geolocation, Status.Active);
+                  successHandler?.(position);
+              };
+              const id = DDGReflect.apply(target, thisArg, args);
+              watchedPositions.add(id);
+              return id
+          }
+      });
+      watchPositionProxy.overload();
+
+      // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
+      const clearWatchProxy = new DDGProxy(featureName, Geolocation.prototype, 'clearWatch', {
+          apply (target, thisArg, args) {
+              DDGReflect.apply(target, thisArg, args);
+              if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
+                  signalPermissionStatus(Permission.Geolocation, Status.Inactive);
+              }
+          }
+      });
+      clearWatchProxy.overload();
+
+      // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
+      const getCurrentPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'getCurrentPosition', {
+          apply (target, thisArg, args) {
+              const successHandler = args[0];
+              args[0] = function (position) {
+                  signalPermissionStatus(Permission.Geolocation, Status.Accessed);
+                  successHandler?.(position);
+              };
+              return DDGReflect.apply(target, thisArg, args)
+          }
+      });
+      getCurrentPositionProxy.overload();
+
+      const userMediaStreams = new Set();
+      const videoTracks = new Set();
+      const audioTracks = new Set();
+
+      function getTracks (permission) {
+          switch (permission) {
+          case Permission.Camera:
+              return videoTracks
+          case Permission.Microphone:
+              return audioTracks
+          }
+      }
+
+      function pause (permission) {
+          const streamTracks = getTracks(permission);
+          streamTracks?.forEach(track => {
+              track.enabled = false;
+          });
+      }
+
+      function resume (permission) {
+          const streamTracks = getTracks(permission);
+          streamTracks?.forEach(track => {
+              track.enabled = true;
+          });
+      }
+
+      function stop (permission) {
+          const streamTracks = getTracks(permission);
+          streamTracks?.forEach(track => track.stop());
+      }
+
+      function monitorTrack (track) {
+          if (track.readyState === 'ended') return
+
+          if (track.kind === 'video' && !videoTracks.has(track)) {
+              console.debug(`New video stream track ${track.id}`);
+              track.addEventListener('ended', videoTrackEnded);
+              track.addEventListener('mute', signalVideoTracksState);
+              track.addEventListener('unmute', signalVideoTracksState);
+              videoTracks.add(track);
+          } else if (track.kind === 'audio' && !audioTracks.has(track)) {
+              console.debug(`New audio stream track ${track.id}`);
+              track.addEventListener('ended', audioTrackEnded);
+              track.addEventListener('mute', signalAudioTracksState);
+              track.addEventListener('unmute', signalAudioTracksState);
+              audioTracks.add(track);
+          }
+      }
+
+      function handleTrackEnded (track) {
+          if (track.kind === 'video' && videoTracks.has(track)) {
+              console.debug(`Video stream track ${track.id} ended`);
+              track.removeEventListener('ended', videoTrackEnded);
+              track.removeEventListener('mute', signalVideoTracksState);
+              track.removeEventListener('unmute', signalVideoTracksState);
+              videoTracks.delete(track);
+              signalVideoTracksState();
+          } else if (track.kind === 'audio' && audioTracks.has(track)) {
+              console.debug(`Audio stream track ${track.id} ended`);
+              track.removeEventListener('ended', audioTrackEnded);
+              track.removeEventListener('mute', signalAudioTracksState);
+              track.removeEventListener('unmute', signalAudioTracksState);
+              audioTracks.delete(track);
+              signalAudioTracksState();
+          }
+      }
+
+      function videoTrackEnded (e) {
+          handleTrackEnded(e.target);
+      }
+
+      function audioTrackEnded (e) {
+          handleTrackEnded(e.target);
+      }
+
+      function signalTracksState (permission) {
+          const tracks = getTracks(permission);
+          if (!tracks) return
+
+          const allTrackCount = tracks.size;
+          if (allTrackCount === 0) {
+              signalPermissionStatus(permission, Status.Inactive);
+              return
+          }
+
+          let mutedTrackCount = 0;
+          tracks.forEach(track => {
+              mutedTrackCount += ((!track.enabled || track.muted) ? 1 : 0);
+          });
+          if (mutedTrackCount === allTrackCount) {
+              signalPermissionStatus(permission, Status.Paused);
+          } else {
+              if (mutedTrackCount > 0) {
+                  console.debug(`Some ${permission} tracks are still active: ${allTrackCount - mutedTrackCount}/${allTrackCount}`);
+              }
+              signalPermissionStatus(permission, Status.Active);
+          }
+      }
+
+      let signalVideoTracksStateTimer;
+      function signalVideoTracksState () {
+          clearTimeout(signalVideoTracksStateTimer);
+          signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100);
+      }
+
+      let signalAudioTracksStateTimer;
+      function signalAudioTracksState () {
+          clearTimeout(signalAudioTracksStateTimer);
+          signalAudioTracksStateTimer = setTimeout(() => signalTracksState(Permission.Microphone), 100);
+      }
+
+      // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
+      const stopTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'stop', {
+          apply (target, thisArg, args) {
+              handleTrackEnded(thisArg);
+              return DDGReflect.apply(target, thisArg, args)
+          }
+      });
+      stopTrackProxy.overload();
+
+      // proxy for track.clone -> monitor the cloned track
+      const cloneTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'clone', {
+          apply (target, thisArg, args) {
+              const clonedTrack = DDGReflect.apply(target, thisArg, args);
+              if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
+                  console.debug(`Media stream track ${thisArg.id} has been cloned to track ${clonedTrack.id}`);
+                  monitorTrack(clonedTrack);
+              }
+              return clonedTrack
+          }
+      });
+      cloneTrackProxy.overload();
+
+      // override MediaStreamTrack.enabled -> update active/paused status when enabled is set
+      const trackEnabledPropertyDescriptor = Object.getOwnPropertyDescriptor(MediaStreamTrack.prototype, 'enabled');
+      defineProperty(MediaStreamTrack.prototype, 'enabled', {
+          configurable: trackEnabledPropertyDescriptor.configurable,
+          enumerable: trackEnabledPropertyDescriptor.enumerable,
+          get: function () {
+              return trackEnabledPropertyDescriptor.get.bind(this)()
+          },
+          set: function (value) {
+              const result = trackEnabledPropertyDescriptor.set.bind(this)(...arguments);
+              if (videoTracks.has(this)) {
+                  signalVideoTracksState();
+              } else if (audioTracks.has(this)) {
+                  signalAudioTracksState();
+              }
+              return result
+          }
+      });
+
+      // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
+      const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks'];
+      for (const methodName of getTracksMethodNames) {
+          const getTracksProxy = new DDGProxy(featureName, MediaStream.prototype, methodName, {
+              apply (target, thisArg, args) {
+                  const tracks = DDGReflect.apply(target, thisArg, args);
+                  if (userMediaStreams.has(thisArg)) {
+                      tracks.forEach(monitorTrack);
+                  }
+                  return tracks
+              }
+          });
+          getTracksProxy.overload();
+      }
+
+      // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
+      const cloneMediaStreamProxy = new DDGProxy(featureName, MediaStream.prototype, 'clone', {
+          apply (target, thisArg, args) {
+              const clonedStream = DDGReflect.apply(target, thisArg, args);
+              if (userMediaStreams.has(thisArg)) {
+                  console.debug(`User stream ${thisArg.id} has been cloned to stream ${clonedStream.id}`);
+                  userMediaStreams.add(clonedStream);
+              }
+              return clonedStream
+          }
+      });
+      cloneMediaStreamProxy.overload();
+
+      // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
+      if (MediaDevices) {
+          const getUserMediaProxy = new DDGProxy(featureName, MediaDevices.prototype, 'getUserMedia', {
+              apply (target, thisArg, args) {
+                  if (isFrameInsideFrame) {
+                      // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
+                      return Promise.reject(new DOMException('Permission denied'))
+                  }
+
+                  const videoRequested = args[0]?.video;
+                  const audioRequested = args[0]?.audio;
+                  return DDGReflect.apply(target, thisArg, args).then(function (stream) {
+                      console.debug(`User stream ${stream.id} has been acquired`);
+                      userMediaStreams.add(stream);
+                      if (videoRequested) {
+                          const newVideoTracks = stream.getVideoTracks();
+                          if (newVideoTracks?.length > 0) {
+                              signalPermissionStatus(Permission.Camera, Status.Active);
+                          }
+                          newVideoTracks.forEach(monitorTrack);
+                      }
+
+                      if (audioRequested) {
+                          const newAudioTracks = stream.getAudioTracks();
+                          if (newAudioTracks?.length > 0) {
+                              signalPermissionStatus(Permission.Microphone, Status.Active);
+                          }
+                          newAudioTracks.forEach(monitorTrack);
+                      }
+                      return stream
+                  })
+              }
+          });
+          getUserMediaProxy.overload();
+      }
+
+      function performAction (action, permission) {
+          if (action && permission) {
+              switch (action) {
+              case 'pause':
+                  pause(permission);
+                  break
+              case 'resume':
+                  resume(permission);
+                  break
+              case 'stop':
+                  stop(permission);
+                  break
+              }
+          }
+      }
+
+      // handle actions from browser
+      window.chrome.webview.addEventListener('message', function ({ data }) {
+          if (data?.action && data?.permission) {
+              performAction(data?.action, data?.permission);
+          }
+      });
+
+      // these permissions cannot be disabled using WebView2 or DevTools protocol
+      const permissionsToDisable = [
+          { name: 'Bluetooth', prototype: Bluetooth.prototype, method: 'requestDevice' },
+          { name: 'USB', prototype: USB.prototype, method: 'requestDevice' },
+          { name: 'Serial', prototype: Serial.prototype, method: 'requestPort' },
+          { name: 'HID', prototype: HID.prototype, method: 'requestDevice' }
+      ];
+      for (const { name, prototype, method } of permissionsToDisable) {
+          try {
+              const proxy = new DDGProxy(featureName, prototype, method, {
+                  apply () {
+                      return Promise.reject(new DOMException('Permission denied'))
+                  }
+              });
+              proxy.overload();
+          } catch (error) {
+              console.info(`Could not disable access to ${name} because of error`, error);
+          }
+      }
+  }
+
+  var windowsPermissionUsage = /*#__PURE__*/Object.freeze({
     __proto__: null,
     init: init
   });

@@ -21,12 +21,12 @@ export async function load () {
         return
     }
     const featureNames = [
+        'windowsPermissionUsage',
         'webCompat',
         'fingerprintingAudio',
         'fingerprintingBattery',
         'fingerprintingCanvas',
-        'trackingCookies3p',
-        'trackingCookies1p',
+        'cookie',
         'googleRejected',
         'gpc',
         'fingerprintingHardware',

@@ -3,7 +3,17 @@ import { sjcl } from '../lib/sjcl.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
-const globalObj = typeof window === 'undefined' ? globalThis : window
+let globalObj = typeof window === 'undefined' ? globalThis : window
+let Error = globalObj.Error
+
+/**
+ * Used for testing to override the globals used within this file.
+ * @param {window} globalObjIn
+ */
+export function setGlobal (globalObjIn) {
+    globalObj = globalObjIn
+    Error = globalObj.Error
+}
 
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
@@ -42,33 +52,104 @@ export function initStringExemptionLists (args) {
     }
 }
 
+/**
+ * Best guess effort if the document is being framed
+ * @returns {boolean} if we infer the document is framed
+ */
+export function isBeingFramed () {
+    if ('ancestorOrigins' in globalThis.location) {
+        return globalThis.location.ancestorOrigins.length > 0
+    }
+    // @ts-ignore types do overlap whilst in DOM context
+    return globalThis.top !== globalThis
+}
+
+/**
+ * Best guess effort if the document is third party
+ * @returns {boolean} if we infer the document is third party
+ */
+export function isThirdParty () {
+    if (!isBeingFramed()) {
+        return false
+    }
+    return !matchHostname(globalThis.location.hostname, getTabOrigin())
+}
+
+/**
+ * Best guess effort of the tabs origin
+ * @returns {string|null} inferred tab origin
+ */
+export function getTabOrigin () {
+    let framingOrigin = null
+    try {
+        framingOrigin = globalThis.top.location.href
+    } catch {
+        framingOrigin = globalThis.document.referrer
+    }
+
+    // Not supported in Firefox
+    if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+        // ancestorOrigins is reverse order, with the last item being the top frame
+        framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1)
+    }
+
+    try {
+        framingOrigin = new URL(framingOrigin).hostname
+    } catch {
+        framingOrigin = null
+    }
+    return framingOrigin
+}
+
+/**
+ * Returns true if hostname is a subset of exceptionDomain or an exact match.
+ * @param {string} hostname
+ * @param {string} exceptionDomain
+ * @returns {boolean}
+ */
+export function matchHostname (hostname, exceptionDomain) {
+    return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
+}
+
+const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
+export function getStackTraceUrls (stack) {
+    const urls = new Set()
+    try {
+        const errorLines = stack.split('\n')
+        // Should cater for Chrome and Firefox stacks, we only care about https? resources.
+        for (const line of errorLines) {
+            const res = line.match(lineTest)
+            if (res) {
+                urls.add(new URL(res[2], location.href))
+            }
+        }
+    } catch (e) {
+        // Fall through
+    }
+    return urls
+}
+
+export function getStackTraceOrigins (stack) {
+    const urls = getStackTraceUrls(stack)
+    const origins = new Set()
+    for (const url of urls) {
+        origins.add(url.hostname)
+    }
+    return origins
+}
+
 // Checks the stack trace if there are known libraries that are broken.
 export function shouldExemptMethod (type) {
     // Short circuit stack tracing if we don't have checks
     if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
         return false
     }
-    try {
-        const errorLines = new Error().stack.split('\n')
-        const errorFiles = new Set()
-        // Should cater for Chrome and Firefox stacks, we only care about https? resources.
-        const lineTest = /(\()?(http[^)]+):[0-9]+:[0-9]+(\))?/
-        for (const line of errorLines) {
-            const res = line.match(lineTest)
-            if (res) {
-                const path = res[2]
-                // checked already
-                if (errorFiles.has(path)) {
-                    continue
-                }
-                if (shouldExemptUrl(type, path)) {
-                    return true
-                }
-                errorFiles.add(res[2])
-            }
+    const stack = getStack()
+    const errorFiles = getStackTraceUrls(stack)
+    for (const path of errorFiles) {
+        if (shouldExemptUrl(type, path.href)) {
+            return true
         }
-    } catch (e) {
-        // Fall through
     }
     return false
 }
@@ -95,7 +176,9 @@ export function iterateDataKey (key, callback) {
 }
 
 export function isFeatureBroken (args, feature) {
-    return args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
+    return isWindowsSpecificFeature(feature)
+        ? !args.site.enabledFeatures.includes(feature)
+        : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
 }
 
 /**
@@ -175,6 +258,10 @@ export function getFeatureSettingEnabled (featureName, args, prop) {
     return result === 'enabled'
 }
 
+export function getStack () {
+    return new Error().stack
+}
+
 /**
  * @template {object} P
  * @typedef {object} ProxyObject<P>
@@ -203,7 +290,7 @@ export class DDGProxy {
                     action: isExempt ? 'ignore' : 'restrict',
                     kind: this.property,
                     documentUrl: document.location.href,
-                    stack: new Error().stack,
+                    stack: getStack(),
                     args: JSON.stringify(args[2])
                 })
             }
@@ -239,6 +326,10 @@ export class DDGProxy {
 }
 
 export function postDebugMessage (feature, message) {
+    if (message.stack) {
+        const scriptOrigins = [...getStackTraceOrigins(message.stack)]
+        message.scriptOrigins = scriptOrigins
+    }
     globalObj.postMessage({
         action: feature,
         message
@@ -255,4 +346,61 @@ if (hasMozProxies) {
 } else {
     DDGPromise = globalObj.Promise
     DDGReflect = globalObj.Reflect
+}
+
+export function getTopLevelURL () {
+    try {
+        // FROM: https://stackoverflow.com/a/7739035/73479
+        // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
+        if (window.location !== window.parent.location) {
+            return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
+        } else {
+            return new URL(window.location.href)
+        }
+    } catch (error) {
+        return new URL(location.href)
+    }
+}
+
+export function isUnprotectedDomain (topLevelUrl, featureList) {
+    let unprotectedDomain = false
+    const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : []
+
+    // walk up the domain to see if it's unprotected
+    while (domainParts.length > 1 && !unprotectedDomain) {
+        const partialDomain = domainParts.join('.')
+
+        unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0
+
+        domainParts.shift()
+    }
+
+    return unprotectedDomain
+}
+
+export function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
+    const topLevelUrl = getTopLevelURL()
+    const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0
+    const remoteFeatureNames = Object.keys(data.features)
+    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
+    const enabledFeatures = remoteFeatureNames.filter((featureName) => {
+        const feature = data.features[featureName]
+        return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
+    }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
+    const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary)
+    preferences.site = {
+        domain: topLevelUrl.hostname,
+        isBroken,
+        allowlisted,
+        enabledFeatures
+    }
+    // TODO
+    preferences.cookie = {}
+    return preferences
+}
+
+export const windowsSpecificFeatures = ['windowsPermissionUsage']
+
+export function isWindowsSpecificFeature (featureName) {
+    return windowsSpecificFeatures.includes(featureName)
 }

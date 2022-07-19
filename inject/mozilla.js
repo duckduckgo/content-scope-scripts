@@ -18,7 +18,8 @@ function init () {
             window.addEventListener('message', (m) => {
                 if (m.data.action && m.data.message) {
                     chrome.runtime.sendMessage({
-                        debuggerMessage: m.data
+                        messageType: 'debuggerMessage',
+                        options: m.data
                     })
                 }
             })
