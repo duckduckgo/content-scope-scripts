@@ -242,9 +242,22 @@ function camelcase (dashCaseText) {
  * @param {string} prop
  * @returns {any}
  */
-export function getFeatureSetting (featureName, args, prop) {
+export function getFeatureSetting (featureName, args, prop, defaultValue) {
     const camelFeatureName = camelcase(featureName)
-    return args.featureSettings?.[camelFeatureName]?.[prop]
+    const configSetting = args.featureSettings?.[camelFeatureName]?.[prop]
+
+    // Config may pass the string 'undefined' which should be interpreted as undefined
+    // Otherwise return the config value
+    if (configSetting !== undefined) {
+        if (configSetting === 'undefined') {
+            return undefined
+        }
+
+        return configSetting
+    }
+
+    // If the config setting is undefined, return the default value (if defined)
+    return defaultValue
 }
 
 /**

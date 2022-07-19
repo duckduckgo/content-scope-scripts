@@ -899,9 +899,22 @@
    * @param {string} prop
    * @returns {any}
    */
-  function getFeatureSetting (featureName, args, prop) {
+  function getFeatureSetting$1 (featureName, args, prop, defaultValue) {
       const camelFeatureName = camelcase(featureName);
-      return args.featureSettings?.[camelFeatureName]?.[prop]
+      const configSetting = args.featureSettings?.[camelFeatureName]?.[prop];
+
+      // Config may pass the string 'undefined' which should be interpreted as undefined
+      // Otherwise return the config value
+      if (configSetting !== undefined) {
+          if (configSetting === 'undefined') {
+              return undefined
+          }
+
+          return configSetting
+      }
+
+      // If the config setting is undefined, return the default value (if defined)
+      return defaultValue
   }
 
   /**
@@ -911,7 +924,7 @@
    * @returns {boolean}
    */
   function getFeatureSettingEnabled (featureName, args, prop) {
-      const result = getFeatureSetting(featureName, args, prop);
+      const result = getFeatureSetting$1(featureName, args, prop);
       return result === 'enabled'
   }
 
@@ -1427,7 +1440,7 @@
       const featureName = 'cookie';
       cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
       cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
-      const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
+      const policy = getFeatureSetting$1(featureName, args, 'firstPartyCookiePolicy');
       if (policy) {
           cookiePolicy.policy = policy;
       }
@@ -2909,7 +2922,7 @@
     init: init$9
   });
 
-  const featureName = "fingerprinting-hardware";
+  const featureName$1 = 'fingerprinting-hardware';
 
   function init$8 (args) {
       const Navigator = globalThis.Navigator;
@@ -2918,17 +2931,17 @@
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
-          targetValue: getFeatureSetting(featureName, args, 'keyboard') || undefined
+          targetValue: getFeatureSetting$1(featureName$1, args, 'keyboard')
       });
       overrideProperty('hardwareConcurrency', {
           object: Navigator.prototype,
           origValue: navigator.hardwareConcurrency,
-          targetValue: getFeatureSetting(featureName, args, 'hardwareConcurrency') || 2
+          targetValue: getFeatureSetting$1(featureName$1, args, 'hardwareConcurrency', 2)
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
           origValue: navigator.deviceMemory,
-          targetValue: getFeatureSetting(featureName, args, 'deviceMemory') || 8
+          targetValue: getFeatureSetting$1(featureName$1, args, 'deviceMemory', 8)
       });
   }
 
@@ -2936,6 +2949,8 @@
     __proto__: null,
     init: init$8
   });
+
+  const featureName = 'fingerprinting-screen-size';
 
   /**
    * normalize window dimensions, if more than one monitor is in play.
@@ -3026,12 +3041,12 @@
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
-          targetValue: 0
+          targetValue: getFeatureSetting(featureName, args, 'availTop', 0)
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
           origValue: screen.availLeft,
-          targetValue: 0
+          targetValue: getFeatureSetting(featureName, args, 'availLeft', 0)
       });
       origPropertyValues.availWidth = overrideProperty('availWidth', {
           object: Screen.prototype,
@@ -3046,12 +3061,12 @@
       overrideProperty('colorDepth', {
           object: Screen.prototype,
           origValue: screen.colorDepth,
-          targetValue: 24
+          targetValue: getFeatureSetting(featureName, args, 'colorDepth', 24)
       });
       overrideProperty('pixelDepth', {
           object: Screen.prototype,
           origValue: screen.pixelDepth,
-          targetValue: 24
+          targetValue: getFeatureSetting(featureName, args, 'pixelDepth', 24)
       });
 
       window.addEventListener('resize', function () {
