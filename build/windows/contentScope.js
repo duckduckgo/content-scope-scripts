@@ -1604,7 +1604,7 @@
    * @param {string} prop
    * @returns {any}
    */
-  function getFeatureSetting$1 (featureName, args, prop, defaultValue) {
+  function getFeatureSetting (featureName, args, prop, defaultValue) {
       const camelFeatureName = camelcase(featureName);
       const configSetting = args.featureSettings?.[camelFeatureName]?.[prop];
 
@@ -1629,7 +1629,7 @@
    * @returns {boolean}
    */
   function getFeatureSettingEnabled (featureName, args, prop) {
-      const result = getFeatureSetting$1(featureName, args, prop);
+      const result = getFeatureSetting(featureName, args, prop);
       return result === 'enabled'
   }
 
@@ -2143,7 +2143,7 @@
       const featureName = 'cookie';
       cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
       cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
-      const policy = getFeatureSetting$1(featureName, args, 'firstPartyCookiePolicy');
+      const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
       if (policy) {
           cookiePolicy.policy = policy;
       }
@@ -3634,17 +3634,17 @@
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
-          targetValue: getFeatureSetting$1(featureName$1, args, 'keyboard')
+          targetValue: getFeatureSetting(featureName$1, args, 'keyboard')
       });
       overrideProperty('hardwareConcurrency', {
           object: Navigator.prototype,
           origValue: navigator.hardwareConcurrency,
-          targetValue: getFeatureSetting$1(featureName$1, args, 'hardwareConcurrency', 2)
+          targetValue: getFeatureSetting(featureName$1, args, 'hardwareConcurrency', 2)
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
           origValue: navigator.deviceMemory,
-          targetValue: getFeatureSetting$1(featureName$1, args, 'deviceMemory', 8)
+          targetValue: getFeatureSetting(featureName$1, args, 'deviceMemory', 8)
       });
   }
 

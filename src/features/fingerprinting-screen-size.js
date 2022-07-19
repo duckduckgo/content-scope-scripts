@@ -1,4 +1,4 @@
-import { overrideProperty, defineProperty } from '../utils'
+import { overrideProperty, defineProperty, getFeatureSetting } from '../utils'
 const featureName = 'fingerprinting-screen-size'
 
 /**
