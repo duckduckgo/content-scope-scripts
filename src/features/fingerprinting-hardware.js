@@ -1,5 +1,5 @@
 import { overrideProperty, getFeatureSetting } from '../utils'
-const featureName = "fingerprinting-hardware";
+const featureName = 'fingerprinting-hardware'
 
 export function init (args) {
     const Navigator = globalThis.Navigator
