@@ -717,6 +717,17 @@
       };
       // TODO
       preferences.cookie = {};
+
+      // Copy feature settings from remote config to preferences object
+      preferences.featureSettings = {};
+      remoteFeatureNames.forEach((featureName) => {
+          if (!enabledFeatures.includes(featureName)) {
+              return
+          }
+
+          preferences.featureSettings[featureName] = data.features[featureName].settings;
+      });
+
       return preferences
   }
 
