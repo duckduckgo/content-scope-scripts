@@ -877,7 +877,7 @@
       })
   }
 
-  function isAppleSilicon() {
+  function isAppleSilicon () {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl');
       const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
@@ -893,7 +893,7 @@
    *
    * @param {any} configSetting - The config setting to get the value for
    * @param {any} defaultValue - The default value to use if the config setting is not set
-   * @returns 
+   * @returns The value of the config setting or the default value
    */
   function getFeatureAttr (configSetting, defaultValue) {
       if (configSetting === undefined) {
