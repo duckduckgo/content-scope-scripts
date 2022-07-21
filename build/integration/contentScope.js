@@ -955,7 +955,7 @@
               return processAttrByCriteria(configSetting)
           }
 
-          return configSetting.type
+          return configSetting.value
       default:
           return configSetting
       }
