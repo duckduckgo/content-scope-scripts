@@ -1612,9 +1612,10 @@
   function isAppleSilicon () {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl');
-      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-      const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-      return renderer.includes('Apple M1') || renderer.includes('Apple GPU')
+
+      // Best guess if the device is an Apple Silicon
+      // https://stackoverflow.com/a/65412357
+      return gl.getSupportedExtensions().indexOf("WEBGL_compressed_texture_s3tc_srgb") == -1
   }
 
   /**
@@ -1678,7 +1679,7 @@
           if (Array.isArray(configSetting)) {
               return processAttrByCriteria(configSetting)
           }
-          
+
           if (!configSetting.type) {
               return configSetting
           }
