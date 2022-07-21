@@ -899,7 +899,7 @@
 
       // Best guess if the device is an Apple Silicon
       // https://stackoverflow.com/a/65412357
-      return gl.getSupportedExtensions().indexOf("WEBGL_compressed_texture_s3tc_srgb") == -1
+      return gl.getSupportedExtensions().indexOf("WEBGL_compressed_texture_etc") !== -1
   }
 
   /**
