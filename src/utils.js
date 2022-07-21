@@ -236,6 +236,24 @@ function camelcase (dashCaseText) {
     })
 }
 
+export function isAppleSilicon() {
+    const canvas = document.createElement('canvas')
+    const gl = canvas.getContext('webgl')
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
+    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
+    return renderer.includes('Apple M1') || renderer.includes('Apple GPU')
+}
+
+/**
+ * Get the value of a config setting.
+ * If the value is not set, return the default value.
+ * If the value is not an object, return the value.
+ * If the value is an object, check its type property.
+ *
+ * @param {any} configSetting - The config setting to get the value for
+ * @param {any} defaultValue - The default value to use if the config setting is not set
+ * @returns 
+ */
 function getFeatureAttr (configSetting, defaultValue) {
     if (configSetting === undefined) {
         return defaultValue

@@ -1609,6 +1609,24 @@
       })
   }
 
+  function isAppleSilicon() {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl');
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+      return renderer.includes('Apple M1') || renderer.includes('Apple GPU')
+  }
+
+  /**
+   * Get the value of a config setting.
+   * If the value is not set, return the default value.
+   * If the value is not an object, return the value.
+   * If the value is an object, check its type property.
+   *
+   * @param {any} configSetting - The config setting to get the value for
+   * @param {any} defaultValue - The default value to use if the config setting is not set
+   * @returns 
+   */
   function getFeatureAttr (configSetting, defaultValue) {
       if (configSetting === undefined) {
           return defaultValue
@@ -3646,6 +3664,11 @@
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
 
+      let hardwareConcurrency = getFeatureSetting(featureName$1, args, 'hardwareConcurrency', 2);
+      if (typeof hardwareConcurrency === 'object') {
+          hardwareConcurrency = isAppleSilicon() ? hardwareConcurrency.appleSilicon : hardwareConcurrency.intel;
+      }
+
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
@@ -3654,7 +3677,7 @@
       overrideProperty('hardwareConcurrency', {
           object: Navigator.prototype,
           origValue: navigator.hardwareConcurrency,
-          targetValue: getFeatureSetting(featureName$1, args, 'hardwareConcurrency', 2)
+          targetValue: hardwareConcurrency
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
