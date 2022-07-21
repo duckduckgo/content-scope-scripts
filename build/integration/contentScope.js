@@ -943,16 +943,16 @@
       const configSettingType = typeof configSetting;
       switch (configSettingType) {
       case 'object':
+          if (Array.isArray(configSetting)) {
+              return processAttrByCriteria(configSetting)
+          }
+          
           if (!configSetting.type) {
               return configSetting
           }
 
           if (configSetting.type === 'undefined') {
               return undefined
-          }
-
-          if (Array.isArray(configSetting)) {
-              return processAttrByCriteria(configSetting)
           }
 
           return configSetting.value
