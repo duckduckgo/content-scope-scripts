@@ -236,7 +236,7 @@ function camelcase (dashCaseText) {
     })
 }
 
-export function isAppleSilicon () {
+function isAppleSilicon () {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
@@ -245,28 +245,78 @@ export function isAppleSilicon () {
 }
 
 /**
+ * Take configSeting which should be an array of possible values.
+ * If a value contains a criteria that is a match for this environment then return that value.
+ * Otherwise return the first value that doesn't have a criteria.
+ *
+ * @param {array} configSetting - Config setting which should contain a list of possible values
+ * @returns - The value from the list that best matches the criteria in the config
+ */
+function processAttrByCriteria (configSetting) {
+    if (!configSetting.some(item => item.criteria !== undefined)) {
+        return configSetting
+    }
+
+    let bestOption = null
+    for (const item of configSetting) {
+        if (item.criteria) {
+            if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {
+                bestOption = item
+                break
+            }
+        } else {
+            bestOption = item
+        }
+    }
+
+    if (bestOption && bestOption.type) {
+        if (bestOption.type === 'undefined') {
+            return undefined
+        }
+
+        return bestOption.value
+    }
+
+    return bestOption
+}
+
+/**
  * Get the value of a config setting.
  * If the value is not set, return the default value.
  * If the value is not an object, return the value.
  * If the value is an object, check its type property.
  *
- * @param {any} configSetting - The config setting to get the value for
+ * @param {string} featureName
+ * @param {object} args
+ * @param {string} prop
  * @param {any} defaultValue - The default value to use if the config setting is not set
  * @returns The value of the config setting or the default value
  */
-function getFeatureAttr (configSetting, defaultValue) {
+export function getFeatureAttr (featureName, args, prop, defaultValue) {
+    const configSetting = getFeatureSetting(featureName, args, prop)
+
     if (configSetting === undefined) {
         return defaultValue
     }
 
-    if (typeof configSetting !== 'object' || !configSetting.type) {
-        return configSetting
-    }
+    const configSettingType = typeof configSetting
+    switch (configSettingType) {
+    case 'object':
+        if (!configSetting.type) {
+            return configSetting
+        }
 
-    if (configSetting.type === 'undefined') {
-        return undefined
-    } else {
-        return configSetting.value
+        if (configSetting.type === 'undefined') {
+            return undefined
+        }
+
+        if (Array.isArray(configSetting)) {
+            return processAttrByCriteria(configSetting)
+        }
+
+        return configSetting.type
+    default:
+        return configSetting
     }
 }
 
@@ -276,10 +326,9 @@ function getFeatureAttr (configSetting, defaultValue) {
  * @param {string} prop
  * @returns {any}
  */
-export function getFeatureSetting (featureName, args, prop, defaultValue) {
+export function getFeatureSetting (featureName, args, prop) {
     const camelFeatureName = camelcase(featureName)
-    const configSetting = args.featureSettings?.[camelFeatureName]?.[prop]
-    return getFeatureAttr(configSetting, defaultValue)
+    return args.featureSettings?.[camelFeatureName]?.[prop]
 }
 
 /**

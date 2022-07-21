@@ -1618,28 +1618,78 @@
   }
 
   /**
+   * Take configSeting which should be an array of possible values.
+   * If a value contains a criteria that is a match for this environment then return that value.
+   * Otherwise return the first value that doesn't have a criteria.
+   *
+   * @param {array} configSetting - Config setting which should contain a list of possible values
+   * @returns - The value from the list that best matches the criteria in the config
+   */
+  function processAttrByCriteria (configSetting) {
+      if (!configSetting.some(item => item.criteria !== undefined)) {
+          return configSetting
+      }
+
+      let bestOption = null;
+      for (const item of configSetting) {
+          if (item.criteria) {
+              if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {
+                  bestOption = item;
+                  break
+              }
+          } else {
+              bestOption = item;
+          }
+      }
+
+      if (bestOption && bestOption.type) {
+          if (bestOption.type === 'undefined') {
+              return undefined
+          }
+
+          return bestOption.value
+      }
+
+      return bestOption
+  }
+
+  /**
    * Get the value of a config setting.
    * If the value is not set, return the default value.
    * If the value is not an object, return the value.
    * If the value is an object, check its type property.
    *
-   * @param {any} configSetting - The config setting to get the value for
+   * @param {string} featureName
+   * @param {object} args
+   * @param {string} prop
    * @param {any} defaultValue - The default value to use if the config setting is not set
    * @returns The value of the config setting or the default value
    */
-  function getFeatureAttr (configSetting, defaultValue) {
+  function getFeatureAttr (featureName, args, prop, defaultValue) {
+      const configSetting = getFeatureSetting(featureName, args, prop);
+
       if (configSetting === undefined) {
           return defaultValue
       }
 
-      if (typeof configSetting !== 'object' || !configSetting.type) {
-          return configSetting
-      }
+      const configSettingType = typeof configSetting;
+      switch (configSettingType) {
+      case 'object':
+          if (!configSetting.type) {
+              return configSetting
+          }
 
-      if (configSetting.type === 'undefined') {
-          return undefined
-      } else {
-          return configSetting.value
+          if (configSetting.type === 'undefined') {
+              return undefined
+          }
+
+          if (Array.isArray(configSetting)) {
+              return processAttrByCriteria(configSetting)
+          }
+
+          return configSetting.type
+      default:
+          return configSetting
       }
   }
 
@@ -1649,10 +1699,9 @@
    * @param {string} prop
    * @returns {any}
    */
-  function getFeatureSetting (featureName, args, prop, defaultValue) {
+  function getFeatureSetting (featureName, args, prop) {
       const camelFeatureName = camelcase(featureName);
-      const configSetting = args.featureSettings?.[camelFeatureName]?.[prop];
-      return getFeatureAttr(configSetting, defaultValue)
+      return args.featureSettings?.[camelFeatureName]?.[prop]
   }
 
   /**
@@ -3664,25 +3713,20 @@
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
 
-      let hardwareConcurrency = getFeatureSetting(featureName$1, args, 'hardwareConcurrency', 2);
-      if (typeof hardwareConcurrency === 'object') {
-          hardwareConcurrency = isAppleSilicon() ? hardwareConcurrency.appleSilicon : hardwareConcurrency.intel;
-      }
-
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
-          targetValue: getFeatureSetting(featureName$1, args, 'keyboard')
+          targetValue: getFeatureAttr(featureName$1, args, 'keyboard')
       });
       overrideProperty('hardwareConcurrency', {
           object: Navigator.prototype,
           origValue: navigator.hardwareConcurrency,
-          targetValue: hardwareConcurrency
+          targetValue: getFeatureAttr(featureName$1, args, 'hardwareConcurrency', 2)
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
           origValue: navigator.deviceMemory,
-          targetValue: getFeatureSetting(featureName$1, args, 'deviceMemory', 8)
+          targetValue: getFeatureAttr(featureName$1, args, 'deviceMemory', 8)
       });
   }
 
@@ -3782,12 +3826,12 @@
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
-          targetValue: getFeatureSetting(featureName, args, 'availTop', 0)
+          targetValue: getFeatureSetting(featureName, args, 'availTop')
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
           origValue: screen.availLeft,
-          targetValue: getFeatureSetting(featureName, args, 'availLeft', 0)
+          targetValue: getFeatureSetting(featureName, args, 'availLeft')
       });
       origPropertyValues.availWidth = overrideProperty('availWidth', {
           object: Screen.prototype,
@@ -3802,12 +3846,12 @@
       overrideProperty('colorDepth', {
           object: Screen.prototype,
           origValue: screen.colorDepth,
-          targetValue: getFeatureSetting(featureName, args, 'colorDepth', 24)
+          targetValue: getFeatureSetting(featureName, args, 'colorDepth')
       });
       overrideProperty('pixelDepth', {
           object: Screen.prototype,
           origValue: screen.pixelDepth,
-          targetValue: getFeatureSetting(featureName, args, 'pixelDepth', 24)
+          targetValue: getFeatureSetting(featureName, args, 'pixelDepth')
       });
 
       window.addEventListener('resize', function () {
