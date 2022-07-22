@@ -1641,14 +1641,6 @@
           }
       }
 
-      if (bestOption && bestOption.type) {
-          if (bestOption.type === 'undefined') {
-              return undefined
-          }
-
-          return bestOption.value
-      }
-
       return bestOption
   }
 
@@ -1665,7 +1657,7 @@
    * @returns The value of the config setting or the default value
    */
   function getFeatureAttr (featureName, args, prop, defaultValue) {
-      const configSetting = getFeatureSetting(featureName, args, prop);
+      let configSetting = getFeatureSetting(featureName, args, prop);
 
       if (configSetting === undefined) {
           return defaultValue
@@ -1675,7 +1667,7 @@
       switch (configSettingType) {
       case 'object':
           if (Array.isArray(configSetting)) {
-              return processAttrByCriteria(configSetting)
+              configSetting = processAttrByCriteria(configSetting);
           }
 
           if (!configSetting.type) {
