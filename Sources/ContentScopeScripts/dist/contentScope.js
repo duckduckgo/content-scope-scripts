@@ -1607,6 +1607,7 @@
       })
   }
 
+  // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
   function isAppleSilicon () {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl');
