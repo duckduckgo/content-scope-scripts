@@ -1632,7 +1632,7 @@
           return configSetting
       }
 
-      let bestOption = null;
+      let bestOption = configSetting[0];
       for (const item of configSetting) {
           if (item.criteria) {
               if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {
