@@ -717,6 +717,17 @@
       };
       // TODO
       preferences.cookie = {};
+
+      // Copy feature settings from remote config to preferences object
+      preferences.featureSettings = {};
+      remoteFeatureNames.forEach((featureName) => {
+          if (!enabledFeatures.includes(featureName)) {
+              return
+          }
+
+          preferences.featureSettings[featureName] = data.features[featureName].settings;
+      });
+
       return preferences
   }
 
@@ -1596,6 +1607,83 @@
       return dashCaseText.replace(/-(.)/g, (match, letter) => {
           return letter.toUpperCase()
       })
+  }
+
+  // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
+  function isAppleSilicon () {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl');
+
+      // Best guess if the device is an Apple Silicon
+      // https://stackoverflow.com/a/65412357
+      return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1
+  }
+
+  /**
+   * Take configSeting which should be an array of possible values.
+   * If a value contains a criteria that is a match for this environment then return that value.
+   * Otherwise return the first value that doesn't have a criteria.
+   *
+   * @param {*[]} configSetting - Config setting which should contain a list of possible values
+   * @returns {*|undefined} - The value from the list that best matches the criteria in the config
+   */
+  function processAttrByCriteria (configSetting) {
+      let bestOption;
+      for (const item of configSetting) {
+          if (item.criteria) {
+              if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {
+                  bestOption = item;
+                  break
+              }
+          } else {
+              bestOption = item;
+          }
+      }
+
+      return bestOption
+  }
+
+  /**
+   * Get the value of a config setting.
+   * If the value is not set, return the default value.
+   * If the value is not an object, return the value.
+   * If the value is an object, check its type property.
+   *
+   * @param {string} featureName
+   * @param {object} args
+   * @param {string} prop
+   * @param {any} defaultValue - The default value to use if the config setting is not set
+   * @returns The value of the config setting or the default value
+   */
+  function getFeatureAttr (featureName, args, prop, defaultValue) {
+      let configSetting = getFeatureSetting(featureName, args, prop);
+
+      if (configSetting === undefined) {
+          return defaultValue
+      }
+
+      const configSettingType = typeof configSetting;
+      switch (configSettingType) {
+      case 'object':
+          if (Array.isArray(configSetting)) {
+              configSetting = processAttrByCriteria(configSetting);
+              if (configSetting === undefined) {
+                  return defaultValue
+              }
+          }
+
+          if (!configSetting.type) {
+              return defaultValue
+          }
+
+          if (configSetting.type === 'undefined') {
+              return undefined
+          }
+
+          return configSetting.value
+      default:
+          return defaultValue
+      }
   }
 
   /**
@@ -3612,6 +3700,8 @@
     init: init$9
   });
 
+  const featureName$1 = 'fingerprinting-hardware';
+
   function init$8 (args) {
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
@@ -3619,17 +3709,17 @@
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
-          targetValue: undefined
+          targetValue: getFeatureAttr(featureName$1, args, 'keyboard')
       });
       overrideProperty('hardwareConcurrency', {
           object: Navigator.prototype,
           origValue: navigator.hardwareConcurrency,
-          targetValue: 2
+          targetValue: getFeatureAttr(featureName$1, args, 'hardwareConcurrency', 2)
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
           origValue: navigator.deviceMemory,
-          targetValue: 8
+          targetValue: getFeatureAttr(featureName$1, args, 'deviceMemory', 8)
       });
   }
 
@@ -3637,6 +3727,8 @@
     __proto__: null,
     init: init$8
   });
+
+  const featureName = 'fingerprinting-screen-size';
 
   /**
    * normalize window dimensions, if more than one monitor is in play.
@@ -3727,12 +3819,12 @@
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
-          targetValue: 0
+          targetValue: getFeatureSetting(featureName, args, 'availTop')
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
           origValue: screen.availLeft,
-          targetValue: 0
+          targetValue: getFeatureSetting(featureName, args, 'availLeft')
       });
       origPropertyValues.availWidth = overrideProperty('availWidth', {
           object: Screen.prototype,
@@ -3747,12 +3839,12 @@
       overrideProperty('colorDepth', {
           object: Screen.prototype,
           origValue: screen.colorDepth,
-          targetValue: 24
+          targetValue: getFeatureSetting(featureName, args, 'colorDepth')
       });
       overrideProperty('pixelDepth', {
           object: Screen.prototype,
           origValue: screen.pixelDepth,
-          targetValue: 24
+          targetValue: getFeatureSetting(featureName, args, 'pixelDepth')
       });
 
       window.addEventListener('resize', function () {
