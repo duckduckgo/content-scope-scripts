@@ -1,4 +1,5 @@
-import { overrideProperty, defineProperty } from '../utils'
+import { overrideProperty, defineProperty, getFeatureSetting } from '../utils'
+const featureName = 'fingerprinting-screen-size'
 
 /**
  * normalize window dimensions, if more than one monitor is in play.
@@ -89,12 +90,12 @@ export function init (args) {
     origPropertyValues.availTop = overrideProperty('availTop', {
         object: Screen.prototype,
         origValue: screen.availTop,
-        targetValue: 0
+        targetValue: getFeatureSetting(featureName, args, 'availTop', 0)
     })
     origPropertyValues.availLeft = overrideProperty('availLeft', {
         object: Screen.prototype,
         origValue: screen.availLeft,
-        targetValue: 0
+        targetValue: getFeatureSetting(featureName, args, 'availLeft', 0)
     })
     origPropertyValues.availWidth = overrideProperty('availWidth', {
         object: Screen.prototype,
@@ -109,12 +110,12 @@ export function init (args) {
     overrideProperty('colorDepth', {
         object: Screen.prototype,
         origValue: screen.colorDepth,
-        targetValue: 24
+        targetValue: getFeatureSetting(featureName, args, 'colorDepth', 24)
     })
     overrideProperty('pixelDepth', {
         object: Screen.prototype,
         origValue: screen.pixelDepth,
-        targetValue: 24
+        targetValue: getFeatureSetting(featureName, args, 'pixelDepth', 24)
     })
 
     window.addEventListener('resize', function () {
