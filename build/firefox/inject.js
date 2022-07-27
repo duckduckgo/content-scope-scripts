@@ -908,15 +908,11 @@
    * If a value contains a criteria that is a match for this environment then return that value.
    * Otherwise return the first value that doesn't have a criteria.
    *
-   * @param {array} configSetting - Config setting which should contain a list of possible values
-   * @returns - The value from the list that best matches the criteria in the config
+   * @param {*[]} configSetting - Config setting which should contain a list of possible values
+   * @returns {*|undefined} - The value from the list that best matches the criteria in the config
    */
   function processAttrByCriteria (configSetting) {
-      if (!configSetting.some(item => item.criteria !== undefined)) {
-          return configSetting
-      }
-
-      let bestOption = configSetting[0];
+      let bestOption;
       for (const item of configSetting) {
           if (item.criteria) {
               if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {
@@ -955,10 +951,13 @@
       case 'object':
           if (Array.isArray(configSetting)) {
               configSetting = processAttrByCriteria(configSetting);
+              if (configSetting === undefined) {
+                  return defaultValue
+              }
           }
 
           if (!configSetting.type) {
-              return configSetting
+              return defaultValue
           }
 
           if (configSetting.type === 'undefined') {
@@ -967,7 +966,7 @@
 
           return configSetting.value
       default:
-          return configSetting
+          return defaultValue
       }
   }
 
