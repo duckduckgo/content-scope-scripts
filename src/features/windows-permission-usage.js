@@ -108,9 +108,9 @@ export function init () {
     // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
     const getCurrentPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'getCurrentPosition', {
         apply (target, thisArg, args) {
-            const messageId = Math.random().toString();
-            registerPositionMessageHandler(args, messageId, Status.Accessed);
-            windowsPostGeolocationMessage('positionRequested', { id: messageId });
+            const messageId = Math.random().toString()
+            registerPositionMessageHandler(args, messageId, Status.Accessed)
+            windowsPostGeolocationMessage('positionRequested', { id: messageId })
         }
     })
     getCurrentPositionProxy.overload()
