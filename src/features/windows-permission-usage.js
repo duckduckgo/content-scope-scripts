@@ -85,7 +85,7 @@ export function init () {
                 throw new DOMException('Permission denied')
             }
 
-            const messageId = Math.random().toString()
+            const messageId = crypto.randomUUID()
             registerPositionMessageHandler(args, messageId, Status.Active)
             windowsPostGeolocationMessage('positionRequested', { id: messageId })
             watchedPositionId++
@@ -108,7 +108,7 @@ export function init () {
     // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
     const getCurrentPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'getCurrentPosition', {
         apply (target, thisArg, args) {
-            const messageId = Math.random().toString()
+            const messageId = crypto.randomUUID()
             registerPositionMessageHandler(args, messageId, Status.Accessed)
             windowsPostGeolocationMessage('positionRequested', { id: messageId })
         }
