@@ -46,12 +46,12 @@ export function init () {
         const handler = function ({ data }) {
             if (data?.id === messageId) {
                 window.chrome.webview.removeEventListener('message', handler)
-                signalPermissionStatus(Permission.Geolocation, geolocationActiveStatus);
+                signalPermissionStatus(Permission.Geolocation, geolocationActiveStatus)
                 if (Object.prototype.hasOwnProperty.call(data, 'errorCode')) {
                     if (args.length >= 2) {
                         const errorHandler = args[1]
                         const error = { code: data.errorCode, message: data.errorMessage }
-                        errorHandler?.(error);
+                        errorHandler?.(error)
                     }
                 } else {
                     const rez = {
@@ -65,17 +65,17 @@ export function init () {
                             speed: null,
                             accuracy: data.accuracy
                         }
-                    };
+                    }
 
-                    successHandler?.(rez);
+                    successHandler?.(rez)
                 }
             }
-        };
+        }
 
-        window.chrome.webview.addEventListener('message', handler);
+        window.chrome.webview.addEventListener('message', handler)
     }
 
-    let watchedPositionId = 0;
+    let watchedPositionId = 0
     const watchedPositions = new Set()
     // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
     const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
@@ -85,12 +85,12 @@ export function init () {
                 throw new DOMException('Permission denied')
             }
 
-            const messageId = Math.random().toString();
-            registerPositionMessageHandler(args, messageId, Status.Active);
-            windowsPostGeolocationMessage('positionRequested', { id: messageId });
-            watchedPositionId++;
-            watchedPositions.add(watchedPositionId);
-            return watchedPositionId;
+            const messageId = Math.random().toString()
+            registerPositionMessageHandler(args, messageId, Status.Active)
+            windowsPostGeolocationMessage('positionRequested', { id: messageId })
+            watchedPositionId++
+            watchedPositions.add(watchedPositionId)
+            return watchedPositionId
         }
     })
     watchPositionProxy.overload()
