@@ -26,13 +26,13 @@ export function init () {
             Data: data
         })
     }
-    
-    function windowsPostGeolocationMessage(name, data) {
+
+    function windowsPostGeolocationMessage (name, data) {
         window.chrome.webview.postMessage({
             Feature: 'Geolocation',
             Name: name,
             Data: data
-        });
+        })
     }
 
     function signalPermissionStatus (permission, status) {
@@ -40,17 +40,17 @@ export function init () {
         console.debug(`Permission '${permission}' is ${status}`)
     }
 
-    function registerPositionMessageHandler(args, messageId, geolocationActiveStatus) {
-        const successHandler = args[0];
+    function registerPositionMessageHandler (args, messageId, geolocationActiveStatus) {
+        const successHandler = args[0]
 
         const handler = function ({ data }) {
             if (data?.id === messageId) {
-                window.chrome.webview.removeEventListener('message', handler);
+                window.chrome.webview.removeEventListener('message', handler)
                 signalPermissionStatus(Permission.Geolocation, geolocationActiveStatus);
-                if (data.hasOwnProperty('errorCode')) {
+                if (Object.prototype.hasOwnProperty.call(data, 'errorCode')) {
                     if (args.length >= 2) {
-                        const errorHandler = args[1];
-                        const error = { code: data.errorCode, message: data.errorMessage };
+                        const errorHandler = args[1]
+                        const error = { code: data.errorCode, message: data.errorMessage }
                         errorHandler?.(error);
                     }
                 } else {
