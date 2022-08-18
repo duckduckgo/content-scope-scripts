@@ -1986,7 +1986,7 @@
       // Enforce an array length of 8, not all zeroes.
       while (X.length < 8) X.push(0);
       for (j = 0; j < 8 && X[j] === 0; ++j);
-      if (j == 8) X[7] = -1;
+      if (j == 8) X[7] = -1; else X[j];
 
       me.x = X;
       me.i = 0;

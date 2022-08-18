@@ -699,7 +699,7 @@
       return unprotectedDomain
   }
 
-  function processConfig (data, userList, preferences, platformSpecificFeatures) {
+  function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
       const topLevelUrl = getTopLevelURL();
       const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
       const remoteFeatureNames = Object.keys(data.features);
@@ -2718,7 +2718,7 @@
       // Enforce an array length of 8, not all zeroes.
       while (X.length < 8) X.push(0);
       for (j = 0; j < 8 && X[j] === 0; ++j);
-      if (j == 8) X[7] = -1;
+      if (j == 8) X[7] = -1; else X[j];
 
       me.x = X;
       me.i = 0;
