@@ -3087,12 +3087,12 @@
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
-          targetValue: getFeatureSetting(featureName, args, 'availTop')
+          targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
           origValue: screen.availLeft,
-          targetValue: getFeatureSetting(featureName, args, 'availLeft')
+          targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
       });
       origPropertyValues.availWidth = overrideProperty('availWidth', {
           object: Screen.prototype,
@@ -3107,12 +3107,12 @@
       overrideProperty('colorDepth', {
           object: Screen.prototype,
           origValue: screen.colorDepth,
-          targetValue: getFeatureSetting(featureName, args, 'colorDepth')
+          targetValue: getFeatureAttr(featureName, args, 'colorDepth', 24)
       });
       overrideProperty('pixelDepth', {
           object: Screen.prototype,
           origValue: screen.pixelDepth,
-          targetValue: getFeatureSetting(featureName, args, 'pixelDepth')
+          targetValue: getFeatureAttr(featureName, args, 'pixelDepth', 24)
       });
 
       window.addEventListener('resize', function () {
