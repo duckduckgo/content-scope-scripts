@@ -8,7 +8,7 @@ import dynamicImportVariables from 'rollup-plugin-dynamic-import-variables';
 const contentScopePath = 'src/content-scope-features.js';
 const contentScopeName = 'contentScopeFeatures';
 
-async function rollupScript(scriptPath, name) {
+async function rollupScript(scriptPath, name, customOutputOptions = null) {
     let mozProxies = false;
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     if (process.argv[2] == "firefox") {
@@ -37,6 +37,12 @@ async function rollupScript(scriptPath, name) {
         globals: { crypto: 'undefined' }
     };
 
+    if (customOutputOptions) {
+        for (const [key, value] of Object.entries(customOutputOptions)) {
+            outputOptions[key] = value;
+        }
+    }
+
     const bundle = await rollup.rollup(inputOptions);
     const generated = await bundle.generate(outputOptions);
     return generated.output[0].code;
@@ -54,6 +60,8 @@ async function init() {
         initOther('inject/windows.js', process.argv[2]);
     } else if (process.argv[2] == "integration") {
         initOther('inject/integration.js', process.argv[2]);
+    } else if (process.argv[2] == "chrome-mv3") {
+        initChromeMV3();
     } else {
         initChrome();
     }
@@ -76,6 +84,15 @@ async function initChrome() {
     // NB: .replace(/\r\n/g, "\n") is needed because in Windows rollup generates CRLF line endings
     const encodedString = encodeURI(contentScope.toString().replace(/\r\n/g, "\n"));
     const outputScript = injectScript.toString().replace(replaceString, '${decodeURI("' + encodedString + '")}');
+    console.log(outputScript);
+}
+
+async function initChromeMV3() {
+    const replaceString = "/* global contentScopeFeatures */";
+    const injectScriptPath = "inject/chrome-mv3.js";
+    const injectScript = await rollupScript(injectScriptPath, 'inject', { format: 'cjs' });
+    const contentScope = await rollupScript(contentScopePath, contentScopeName);
+    const outputScript = injectScript.toString().replace(replaceString, contentScope.toString());
     console.log(outputScript);
 }
 
