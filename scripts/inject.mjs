@@ -54,6 +54,8 @@ async function init() {
         initOther('inject/windows.js', process.argv[2]);
     } else if (process.argv[2] == "integration") {
         initOther('inject/integration.js', process.argv[2]);
+    } else if (process.argv[2] == 'chrome-mv3') {
+        initOther('inject/chrome-mv3.js', 'chrome_mv3');
     } else {
         initChrome();
     }
