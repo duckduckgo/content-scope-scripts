@@ -32,7 +32,7 @@
     "@canvas/image-data": "^1.0.0",
     "@fingerprintjs/fingerprintjs": "^3.3.5",
     "@rollup/plugin-commonjs": "^22.0.2",
-    "@rollup/plugin-node-resolve": "^14.0.0",
+    "@rollup/plugin-node-resolve": "^14.0.1",
     "@rollup/plugin-replace": "^4.0.0",
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
