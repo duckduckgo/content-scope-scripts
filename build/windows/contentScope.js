@@ -5031,12 +5031,12 @@
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
-          targetValue: getFeatureSetting(featureName, args, 'availTop')
+          targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
           origValue: screen.availLeft,
-          targetValue: getFeatureSetting(featureName, args, 'availLeft')
+          targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
       });
       origPropertyValues.availWidth = overrideProperty('availWidth', {
           object: Screen.prototype,
@@ -5051,12 +5051,12 @@
       overrideProperty('colorDepth', {
           object: Screen.prototype,
           origValue: screen.colorDepth,
-          targetValue: getFeatureSetting(featureName, args, 'colorDepth')
+          targetValue: getFeatureAttr(featureName, args, 'colorDepth', 24)
       });
       overrideProperty('pixelDepth', {
           object: Screen.prototype,
           origValue: screen.pixelDepth,
-          targetValue: getFeatureSetting(featureName, args, 'pixelDepth')
+          targetValue: getFeatureAttr(featureName, args, 'pixelDepth', 24)
       });
 
       window.addEventListener('resize', function () {
@@ -5286,11 +5286,55 @@
           });
       }
 
+      function windowsPostGeolocationMessage (name, data) {
+          window.chrome.webview.postMessage({
+              Feature: 'Geolocation',
+              Name: name,
+              Data: data
+          });
+      }
+
       function signalPermissionStatus (permission, status) {
           windowsPostMessage('PermissionStatusMessage', { permission, status });
           console.debug(`Permission '${permission}' is ${status}`);
       }
 
+      function registerPositionMessageHandler (args, messageId, geolocationActiveStatus) {
+          const successHandler = args[0];
+
+          const handler = function ({ data }) {
+              if (data?.id === messageId) {
+                  window.chrome.webview.removeEventListener('message', handler);
+                  signalPermissionStatus(Permission.Geolocation, geolocationActiveStatus);
+                  if (Object.prototype.hasOwnProperty.call(data, 'errorCode')) {
+                      if (args.length >= 2) {
+                          const errorHandler = args[1];
+                          const error = { code: data.errorCode, message: data.errorMessage };
+                          errorHandler?.(error);
+                      }
+                  } else {
+                      const rez = {
+                          timestamp: data.timestamp,
+                          coords: {
+                              latitude: data.latitude,
+                              longitude: data.longitude,
+                              altitude: null,
+                              altitudeAccuracy: null,
+                              heading: null,
+                              speed: null,
+                              accuracy: data.accuracy
+                          }
+                      };
+
+                      successHandler?.(rez);
+                  }
+              }
+          };
+
+          window.chrome.webview.addEventListener('message', handler);
+      }
+
+      let watchedPositionId = 0;
       const watchedPositions = new Set();
       // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
       const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
@@ -5300,14 +5344,12 @@
                   throw new DOMException('Permission denied')
               }
 
-              const successHandler = args[0];
-              args[0] = function (position) {
-                  signalPermissionStatus(Permission.Geolocation, Status.Active);
-                  successHandler?.(position);
-              };
-              const id = DDGReflect.apply(target, thisArg, args);
-              watchedPositions.add(id);
-              return id
+              const messageId = crypto.randomUUID();
+              registerPositionMessageHandler(args, messageId, Status.Active);
+              windowsPostGeolocationMessage('positionRequested', { id: messageId });
+              watchedPositionId++;
+              watchedPositions.add(watchedPositionId);
+              return watchedPositionId
           }
       });
       watchPositionProxy.overload();
@@ -5315,7 +5357,6 @@
       // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
       const clearWatchProxy = new DDGProxy(featureName, Geolocation.prototype, 'clearWatch', {
           apply (target, thisArg, args) {
-              DDGReflect.apply(target, thisArg, args);
               if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
                   signalPermissionStatus(Permission.Geolocation, Status.Inactive);
               }
@@ -5326,12 +5367,9 @@
       // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
       const getCurrentPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'getCurrentPosition', {
           apply (target, thisArg, args) {
-              const successHandler = args[0];
-              args[0] = function (position) {
-                  signalPermissionStatus(Permission.Geolocation, Status.Accessed);
-                  successHandler?.(position);
-              };
-              return DDGReflect.apply(target, thisArg, args)
+              const messageId = crypto.randomUUID();
+              registerPositionMessageHandler(args, messageId, Status.Accessed);
+              windowsPostGeolocationMessage('positionRequested', { id: messageId });
           }
       });
       getCurrentPositionProxy.overload();

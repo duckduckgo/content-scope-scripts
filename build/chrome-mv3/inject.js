@@ -1062,6 +1062,7 @@
 
   function __variableDynamicImportRuntime0__(path) {
      switch (path) {
+       case './features/click-to-load.js': return Promise.resolve().then(function () { return clickToLoad; });
        case './features/cookie.js': return Promise.resolve().then(function () { return cookie; });
        case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
        case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
@@ -1112,7 +1113,8 @@
           'referrer',
           'fingerprintingScreenSize',
           'fingerprintingTemporaryStorage',
-          'navigatorInterface'
+          'navigatorInterface',
+          'clickToLoad'
       ];
 
       for (const featureName of featureNames) {
@@ -1127,7 +1129,7 @@
       }
   }
 
-  async function init$d (args) {
+  async function init$e (args) {
       initArgs = args;
       if (!shouldRun()) {
           return
@@ -1165,6 +1167,1216 @@
           }
       });
   }
+
+  /* global cloneInto */
+  function init$d (args) {
+      function sendMessage (messageType, options) {
+          return new Promise((resolve, reject) => {
+              chrome.runtime.sendMessage({ messageType, options }, response => {
+                  if (chrome.runtime.lastError) {
+                      reject(new Error(chrome.runtime.lastError.message));
+                  } else {
+                      resolve(response);
+                  }
+              });
+          })
+      }
+
+      function createCustomEvent (eventName, eventDetail) {
+          // By default, Firefox protects the event detail Object from the page,
+          // leading to "Permission denied to access property" errors.
+          // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+          if (typeof cloneInto === 'function') {
+              eventDetail = cloneInto(eventDetail, window);
+          }
+
+          return new CustomEvent(eventName, eventDetail)
+      }
+
+      const devMode = sendMessage('getDevMode');
+      let appID;
+      const loadingImages = {
+          darkMode: '',
+          lightMode: ''
+      };
+      let logoImg;
+      const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle';
+      const entities = [];
+      const ddgFont = chrome.runtime.getURL('public/font/ProximaNova-Reg-webfont.woff');
+      const ddgFontBold = chrome.runtime.getURL('public/font/ProximaNova-Bold-webfont.woff2');
+      const entityData = {};
+
+      /*********************************************************
+       *  Style Definitions
+       *********************************************************/
+      const styles = {
+          fontStyle: `
+            @font-face{
+                font-family: DuckDuckGoPrivacyEssentials;
+                src: url(${ddgFont});
+            }
+            @font-face{
+                font-family: DuckDuckGoPrivacyEssentialsBold;
+                font-weight: bold;
+                src: url(${ddgFontBold});
+            }
+        `,
+          darkMode: {
+              background: `
+                background: #111111;
+            `,
+              textFont: `
+                color: rgba(255, 255, 255, 0.9);
+            `,
+              buttonFont: `
+                color: #111111;
+            `,
+              linkFont: `
+                color: #5784FF;
+            `,
+              buttonBackground: `
+                background: #5784FF;
+            `
+          },
+          lightMode: {
+              background: `
+                background: #FFFFFF;
+            `,
+              textFont: `
+                color: #222222;
+            `,
+              buttonFont: `
+                color: #FFFFFF;
+            `,
+              linkFont: `
+                color: #3969EF;
+            `,
+              buttonBackground: `
+                background: #3969EF;
+            `
+          },
+          loginMode: {
+              buttonBackground: `
+                background: #666666;
+            `,
+              buttonFont: `
+                color: #FFFFFF;
+            `
+          },
+          cancelMode: {
+              buttonBackground: `
+                background: rgba(34, 34, 34, 0.1);
+            `,
+              buttonFont: `
+                color: #222222;
+            `
+          },
+          button: `
+            border-radius: 8px;
+
+            padding: 11px 22px;
+            font-weight: bold;
+            margin: auto;
+            border-color: #3969EF;
+            border: none;
+
+            font-family: DuckDuckGoPrivacyEssentialsBold;
+            font-size: 14px;
+
+            position: relative;
+            cursor: pointer;
+            box-shadow: none;
+            z-index: 2147483646;
+        `,
+          circle: `
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            background: #E0E0E0;
+            border: 1px solid #E0E0E0;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+        `,
+          loginIcon: `
+            position: absolute;
+            top: -13px;
+            right: -10px;
+            height: 28px;
+            width: 28px;
+        `,
+          rectangle: `
+            width: 12px;
+            height: 3px;
+            background: #666666;
+            position: relative;
+            top: 42.5%;
+            margin: auto;
+        `,
+          textBubble: `
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 8px 16px rgba(0, 0, 0, 0.08);
+            width: 360px;
+            margin-top: 10px;
+            z-index: 2147483647;
+            position: absolute;
+        `,
+          textBubbleWidth: 360, // Should match the width rule in textBubble
+          textBubbleLeftShift: 100, // Should match the CSS left: rule in textBubble
+          textArrow: `
+            display: inline-block;
+            background: #FFFFFF;
+            border: solid rgba(0, 0, 0, 0.1);
+            border-width: 0 1px 1px 0;
+            padding: 5px;
+            transform: rotate(-135deg);
+            -webkit-transform: rotate(-135deg);
+            position: relative;
+            top: -9px;
+        `,
+          arrowDefaultLocationPercent: 50,
+          hoverTextTitle: `
+            padding: 0px 12px 12px;
+            margin-top: -5px;
+        `,
+          hoverTextBody: `
+            font-family: DuckDuckGoPrivacyEssentials;
+            font-size: 14px;
+            line-height: 21px;
+            margin: auto;
+            padding: 17px;
+            text-align: left;
+        `,
+          hoverContainer: `
+            padding-bottom: 10px;
+        `,
+          buttonTextContainer: `
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        `,
+          headerRow: `
+
+        `,
+          block: `
+            box-sizing: border-box;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            max-width: 600px;
+            min-height: 300px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+
+            font-family: DuckDuckGoPrivacyEssentials;
+            line-height: 1;
+        `,
+          imgRow: `
+            display: flex;
+            flex-direction: column;
+            margin: 20px 0px;
+        `,
+          content: `
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+        `,
+          titleBox: `
+            display: flex;
+            padding: 12px;
+            max-height: 44px;
+            border-bottom: 1px solid;
+            border-color: rgba(196, 196, 196, 0.3);
+        `,
+          title: `
+            font-family: DuckDuckGoPrivacyEssentials;
+            line-height: 1.4;
+            font-size: 14px;
+            margin: auto 10px;
+            flex-basis: 100%;
+            height: 1.4em;
+            flex-wrap: wrap;
+            overflow: hidden;
+            text-align: left;
+        `,
+          buttonRow: `
+            display: flex;
+            height: 100%
+            flex-direction: row;
+            margin: 20px auto 0px;
+            padding-bottom: 36px;
+        `,
+          modalContentTitle: `
+            font-family: DuckDuckGoPrivacyEssentialsBold;
+            font-size: 17px;
+            font-weight: bold;
+            line-height: 21px;
+            margin: 27px auto 10px;
+            text-align: center;
+        `,
+          modalContentText: `
+            font-family: DuckDuckGoPrivacyEssentials;
+            font-size: 14px;
+            line-height: 21px;
+            margin: 0px auto 24px;
+            text-align: center;
+        `,
+          modalButton: `
+        `,
+          modalIcon: `
+            display: block;
+        `,
+          contentTitle: `
+            font-family: DuckDuckGoPrivacyEssentialsBold;
+            font-size: 17px;
+            font-weight: bold;
+            margin: 20px auto 10px;
+            padding: 0px 30px;
+            text-align: center;
+        `,
+          contentText: `
+            font-family: DuckDuckGoPrivacyEssentials;
+            font-size: 14px;
+            line-height: 21px;
+            margin: auto;
+            padding: 0px 40px;
+            text-align: center;
+        `,
+          icon: `
+            height: 80px;
+            width: 80px;
+            margin: auto;
+        `,
+          logo: `
+            flex-basis: 0%;
+            min-width: 20px;
+            height: 21px;
+        `,
+          logoImg: `
+            height: 21px;
+            width: 21px;
+        `,
+          loadingImg: `
+            display: block;
+            margin: 0px 8px 0px 0px;
+            height: 14px;
+            width: 14px;
+        `,
+          modal: `
+            width: 312px;
+            margin: auto;
+            background-color: #FFFFFF;
+            position: absolute;
+            left: calc(50% - 312px/2);
+            top: calc(50% - 356px/2 + 0.5px);
+            display: block;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.08), 0px 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        `,
+          modalContent: `
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        `,
+          overlay: `
+            height: 100%;
+            width: 100%;
+            background-color: #666666;
+            opacity: .5;
+            display: block;
+            position: fixed;
+            top: 0;
+            right: 0;
+        `,
+          modalContainer: `
+            height: 100%;
+            width: 100%;
+            z-index: 2147483647;
+            display: block;
+            position: fixed;
+        `,
+          headerLinkContainer: `
+            flex-basis: 100%;
+            display: grid;
+            justify-content: flex-end;
+        `,
+          headerLink: `
+            line-height: 1.4;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: DuckDuckGoPrivacyEssentialsBold;
+            text-decoration: none;
+            cursor: pointer;
+            min-width: 100px;
+            text-align: end;
+            float: right;
+            display: none;
+        `,
+          generalLink: `
+            line-height: 1.4;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: DuckDuckGoPrivacyEssentialsBold;
+            cursor: pointer;
+            text-decoration: none;
+        `,
+          wrapperDiv: `
+            display: inline-block;
+            border: 0;
+            padding: 0;
+            margin: 0;
+        `
+      };
+
+      /*********************************************************
+       *  Widget Replacement logic
+       *********************************************************/
+      class DuckWidget {
+          constructor (widgetData, originalElement, entity) {
+              this.clickAction = { ...widgetData.clickAction }; // shallow copy
+              this.replaceSettings = widgetData.replaceSettings;
+              this.originalElement = originalElement;
+              this.dataElements = {};
+              this.gatherDataElements();
+              this.entity = entity;
+              this.widgetID = Math.random();
+          }
+
+          dispatchEvent (eventTarget, eventName) {
+              eventTarget.dispatchEvent(
+                  createCustomEvent(
+                      eventName, {
+                          detail: {
+                              entity: this.entity,
+                              replaceSettings: this.replaceSettings,
+                              widgetID: this.widgetID
+                          }
+                      }
+                  )
+              );
+          }
+
+          // Collect and store data elements from original widget. Store default values
+          // from config if not present.
+          gatherDataElements () {
+              if (!this.clickAction.urlDataAttributesToPreserve) {
+                  return
+              }
+              for (const [attrName, attrSettings] of Object.entries(this.clickAction.urlDataAttributesToPreserve)) {
+                  let value = this.originalElement.getAttribute(attrName);
+                  if (!value) {
+                      if (attrSettings.required) {
+                          // missing a required attribute means we won't be able to replace it
+                          // with a light version, replace with full version.
+                          this.clickAction.type = 'allowFull';
+                      }
+                      value = attrSettings.default;
+                  }
+                  this.dataElements[attrName] = value;
+              }
+          }
+
+          // Return the facebook content URL to use when a user has clicked.
+          getTargetURL () {
+              // Copying over data fields should be done lazily, since some required data may not be
+              // captured until after page scripts run.
+              this.copySocialDataFields();
+              return this.clickAction.targetURL
+          }
+
+          // Determine if element should render in dark mode
+          getMode () {
+              // Login buttons are always the login style types
+              if (this.replaceSettings.type === 'loginButton') {
+                  return 'loginMode'
+              }
+              const mode = this.originalElement.getAttribute('data-colorscheme');
+              if (mode === 'dark') {
+                  return 'darkMode'
+              }
+              return 'lightMode'
+          }
+
+          // The config file offers the ability to style the replaced facebook widget. This
+          // collects the style from the original element & any specified in config for the element
+          // type and returns a CSS string.
+          getStyle () {
+              let styleString = 'border: none;';
+
+              if (this.clickAction.styleDataAttributes) {
+                  // Copy elements from the original div into style attributes as directed by config
+                  for (const [attr, valAttr] of Object.entries(this.clickAction.styleDataAttributes)) {
+                      let valueFound = this.dataElements[valAttr.name];
+                      if (!valueFound) {
+                          valueFound = this.dataElements[valAttr.fallbackAttribute];
+                      }
+                      let partialStyleString = '';
+                      if (valueFound) {
+                          partialStyleString += `${attr}: ${valueFound}`;
+                      }
+                      if (!partialStyleString.includes(valAttr.unit)) {
+                          partialStyleString += valAttr.unit;
+                      }
+                      partialStyleString += ';';
+                      styleString += partialStyleString;
+                  }
+              }
+
+              return styleString
+          }
+
+          // Some data fields are 'kept' from the original element. These are used both in
+          // replacement styling (darkmode, width, height), and when returning to a FB element.
+          copySocialDataFields () {
+              if (!this.clickAction.urlDataAttributesToPreserve) {
+                  return
+              }
+
+              // App ID may be set by client scripts, and is required for some elements.
+              if (this.dataElements.app_id_replace && appID != null) {
+                  this.clickAction.targetURL = this.clickAction.targetURL.replace('app_id_replace', appID);
+              }
+
+              for (const key of Object.keys(this.dataElements)) {
+                  const attrValue = encodeURIComponent(this.dataElements[key]);
+                  if (attrValue) {
+                      this.clickAction.targetURL = this.clickAction.targetURL.replace(key, attrValue);
+                  }
+              }
+          }
+
+          /*
+           * Creates an iFrame for this facebook content.
+           *
+           * @returns {Element}
+           */
+          createFBIFrame () {
+              const frame = document.createElement('iframe');
+
+              frame.setAttribute('src', this.getTargetURL());
+              frame.setAttribute('style', this.getStyle());
+
+              return frame
+          }
+
+          /*
+           * Tweaks an embedded YouTube video element ready for when it's
+           * reloaded.
+           *
+           * @param {Element} videoElement
+           * @returns {Function?} onError
+           *   Function to be called if the video fails to load.
+           */
+          async adjustYouTubeVideoElement (videoElement) {
+              let onError = null;
+
+              if (!videoElement.src) {
+                  return onError
+              }
+              const url = new URL(videoElement.src);
+              const { hostname: originalHostname } = url;
+
+              // Upgrade video to YouTube's "privacy enhanced" mode, but fall back
+              // to standard mode if the video fails to load.
+              // Note:
+              //  1. Changing the iframe's host like this won't cause a CSP
+              //     violation on Chrome, see https://crbug.com/1271196.
+              //  2. The onError event doesn't fire for blocked iframes on Chrome.
+              if (originalHostname !== 'www.youtube-nocookie.com') {
+                  url.hostname = 'www.youtube-nocookie.com';
+                  onError = (event) => {
+                      url.hostname = originalHostname;
+                      videoElement.src = url.href;
+                      event.stopImmediatePropagation();
+                  };
+              }
+
+              // Ensure the video doesn't auto-play.
+              const allowString = videoElement.getAttribute('allow') || '';
+              const allowed = new Set(allowString.split(';').map(s => s.trim()));
+              allowed.delete('autoplay');
+              url.searchParams.delete('autoplay');
+              videoElement.setAttribute('allow', Array.from(allowed).join('; '));
+
+              videoElement.src = url.href;
+              return onError
+          }
+
+          /*
+           * Fades out the given element. Returns a promise that resolves when the fade is complete.
+           * @param {Element} element - the element to fade in or out
+           * @param {int} interval - frequency of opacity updates (ms)
+           * @param {bool} fadeIn - true if the element should fade in instead of out
+           */
+          fadeElement (element, interval, fadeIn) {
+              return new Promise((resolve, reject) => {
+                  let opacity = fadeIn ? 0 : 1;
+                  const originStyle = element.style.cssText;
+                  const fadeOut = setInterval(function () {
+                      opacity += fadeIn ? 0.03 : -0.03;
+                      element.style.cssText = originStyle + `opacity: ${opacity};`;
+                      if (opacity <= 0 || opacity >= 1) {
+                          clearInterval(fadeOut);
+                          resolve();
+                      }
+                  }, interval);
+              })
+          }
+
+          fadeOutElement (element) {
+              return this.fadeElement(element, 10, false)
+          }
+
+          fadeInElement (element) {
+              return this.fadeElement(element, 10, true)
+          }
+
+          clickFunction (originalElement, replacementElement) {
+              let clicked = false;
+              const handleClick = async function handleClick (e) {
+                  // Ensure that the click is created by a user event & prevent double clicks from adding more animations
+                  if (e.isTrusted && !clicked) {
+                      clicked = true;
+                      let isLogin = false;
+                      if (this.replaceSettings.type === 'loginButton') {
+                          isLogin = true;
+                      }
+                      enableSocialTracker(this.entity, isLogin);
+                      const parent = replacementElement.parentNode;
+
+                      // If we allow everything when this element is clicked,
+                      // notify surrogate to enable SDK and replace original element.
+                      if (this.clickAction.type === 'allowFull') {
+                          parent.replaceChild(originalElement, replacementElement);
+                          this.dispatchEvent(window, 'ddg-ctp-load-sdk');
+                          return
+                      }
+                      // Create a container for the new FB element
+                      const fbContainer = document.createElement('div');
+                      fbContainer.style.cssText = styles.wrapperDiv;
+                      const fadeIn = document.createElement('div');
+                      fadeIn.style.cssText = 'display: none; opacity: 0;';
+
+                      // Loading animation (FB can take some time to load)
+                      const loadingImg = document.createElement('img');
+                      loadingImg.setAttribute('src', loadingImages[this.getMode()]);
+                      loadingImg.setAttribute('height', '14px');
+                      loadingImg.style.cssText = styles.loadingImg;
+
+                      // Always add the animation to the button, regardless of click source
+                      if (e.srcElement.nodeName === 'BUTTON') {
+                          e.srcElement.firstElementChild.insertBefore(loadingImg, e.srcElement.firstElementChild.firstChild);
+                      } else {
+                          // try to find the button
+                          let el = e.srcElement;
+                          let button = null;
+                          while (button === null && el !== null) {
+                              button = el.querySelector('button');
+                              el = el.parentElement;
+                          }
+                          if (button) {
+                              button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild);
+                          }
+                      }
+
+                      fbContainer.appendChild(fadeIn);
+
+                      let fbElement;
+                      let onError = null;
+                      switch (this.clickAction.type) {
+                      case 'iFrame':
+                          fbElement = this.createFBIFrame();
+                          break
+                      case 'youtube-video':
+                          onError = await this.adjustYouTubeVideoElement(originalElement);
+                          fbElement = originalElement;
+                          break
+                      default:
+                          fbElement = originalElement;
+                          break
+                      }
+
+                      // If hidden, restore the tracking element's styles to make
+                      // it visible again.
+                      if (this.originalElementStyle) {
+                          for (const [key, [value, priority]] of
+                              Object.entries(this.originalElementStyle)) {
+                              if (value) {
+                                  fbElement.style.setProperty(key, value, priority);
+                              } else {
+                                  fbElement.style.removeProperty(key);
+                              }
+                          }
+                      }
+
+                      /*
+                       * Modify the overlay to include a Facebook iFrame, which
+                       * starts invisible. Once loaded, fade out and remove the overlay
+                       * then fade in the Facebook content
+                       */
+                      parent.replaceChild(fbContainer, replacementElement);
+                      fbContainer.appendChild(replacementElement);
+                      fadeIn.appendChild(fbElement);
+                      fbElement.addEventListener('load', () => {
+                          this.fadeOutElement(replacementElement)
+                              .then(v => {
+                                  fbContainer.replaceWith(fbElement);
+                                  this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
+                                  this.fadeInElement(fadeIn).then(v => {
+                                      fbElement.focus(); // focus on new element for screen readers
+                                  });
+                              });
+                      }, { once: true });
+                      // Note: This event only fires on Firefox, on Chrome the frame's
+                      //       load event will always fire.
+                      if (onError) {
+                          fbElement.addEventListener('error', onError, { once: true });
+                      }
+                  }
+              }.bind(this);
+              // If this is a login button, show modal if needed
+              if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
+                  return function handleLoginClick (e) {
+                      makeModal(this.entity, handleClick, e);
+                  }.bind(this)
+              }
+              return handleClick
+          }
+      }
+
+      async function init (extensionResponseData) {
+          for (const entity of Object.keys(extensionResponseData)) {
+              entities.push(entity);
+              const { informationalModal, simpleVersion } = extensionResponseData[entity];
+              const shouldShowLoginModal = !!informationalModal;
+
+              const currentEntityData = {
+                  shouldShowLoginModal,
+                  simpleVersion
+              };
+
+              if (shouldShowLoginModal) {
+                  currentEntityData.modalIcon = informationalModal.icon;
+                  currentEntityData.modalTitle = informationalModal.messageTitle;
+                  currentEntityData.modalText = informationalModal.messageBody;
+                  currentEntityData.modalAcceptText = informationalModal.confirmButtonText;
+                  currentEntityData.modalRejectText = informationalModal.rejectButtonText;
+              }
+
+              entityData[entity] = currentEntityData;
+          }
+          await replaceClickToLoadElements(extensionResponseData);
+
+          window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
+              replaceClickToLoadElements(extensionResponseData, target);
+          }, { capture: true });
+
+          window.dispatchEvent(createCustomEvent('ddg-ctp-ready'));
+      }
+
+      function replaceTrackingElement (widget, trackingElement, placeholderElement, hideTrackingElement = false) {
+          widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element');
+
+          // Usually the tracking element can simply be replaced with the
+          // placeholder, but in some situations that isn't possible and the
+          // tracking element must be hidden instead.
+          if (hideTrackingElement) {
+              // Take care to note existing styles so that they can be restored.
+              widget.originalElementStyle = { };
+              for (const key of ['display', 'visibility']) {
+                  widget.originalElementStyle[key] = [
+                      trackingElement.style.getPropertyValue(key),
+                      trackingElement.style.getPropertyPriority(key)
+                  ];
+              }
+
+              // Hide the tracking element and add the placeholder next to it in
+              // the DOM.
+              trackingElement.style.setProperty('display', 'none', 'important');
+              trackingElement.style.setProperty('visibility', 'hidden', 'important');
+              trackingElement.parentElement.insertBefore(placeholderElement, trackingElement);
+          } else {
+              trackingElement.replaceWith(placeholderElement);
+          }
+
+          widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element');
+      }
+
+      /**
+       * Creates a placeholder element for the given tracking element and replaces
+       * it on the page.
+       * @param {DuckWidget} widget
+       *   The CTP 'widget' associated with the tracking element.
+       * @param {Element} trackingElement
+       *   The tracking element on the page that should be replaced with a placeholder.
+       */
+      async function createPlaceholderElementAndReplace (widget, trackingElement) {
+          if (widget.replaceSettings.type === 'blank') {
+              replaceTrackingElement(widget, trackingElement, document.createElement('div'));
+          }
+
+          if (widget.replaceSettings.type === 'loginButton') {
+              const icon = await sendMessage('getImage', widget.replaceSettings.icon);
+              // Create a button to replace old element
+              const { button, container } = makeLoginButton(
+                  widget.replaceSettings.buttonText, widget.getMode(),
+                  widget.replaceSettings.popupTitleText,
+                  widget.replaceSettings.popupBodyText, icon, trackingElement
+              );
+              button.addEventListener('click', widget.clickFunction(trackingElement, container));
+              replaceTrackingElement(widget, trackingElement, container);
+          }
+
+          const youTubeVideo = widget.replaceSettings.type === 'youtube-video';
+          if (widget.replaceSettings.type === 'dialog' || youTubeVideo) {
+              const icon = await sendMessage('getImage', widget.replaceSettings.icon);
+              const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
+              const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
+              const { contentBlock, shadowRoot } = await createContentBlock(
+                  widget, button, textButton, icon
+              );
+              button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+              textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+
+              replaceTrackingElement(
+                  widget, trackingElement, contentBlock, /* hideTrackingElement= */youTubeVideo
+              );
+
+              if (youTubeVideo) {
+                  // Size the placeholder element to match the original video
+                  // element.
+                  // Note: If the website later resizes the video element, the
+                  //       placeholder will not resize to match.
+                  const {
+                      width: videoWidth,
+                      height: videoHeight
+                  } = window.getComputedStyle(trackingElement);
+                  contentBlock.style.width = videoWidth;
+                  contentBlock.style.height = videoHeight;
+              }
+
+              // Show the extra unblock link in the header if the placeholder or
+              // its parent is too short for the normal unblock button to be visible.
+              // Note: This does not take into account the placeholder's vertical
+              //       position in the parent element.
+              const { height: placeholderHeight } = window.getComputedStyle(contentBlock);
+              const { height: parentHeight } = window.getComputedStyle(contentBlock.parentElement);
+              if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
+                  const textButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`);
+                  textButton.style.display = 'block';
+              }
+          }
+      }
+
+      /**
+       * Replace the blocked CTP elements on the page with placeholders.
+       * @param {Object} config
+       *   The parsed Click to Play configuration.
+       * @param {Element} [targetElement]
+       *   If specified, only this element will be replaced (assuming it matches
+       *   one of the expected CSS selectors). If omitted, all matching elements
+       *   in the document will be replaced instead.
+       */
+      async function replaceClickToLoadElements (config, targetElement) {
+          for (const entity of Object.keys(config)) {
+              for (const widgetData of Object.values(config[entity].elementData)) {
+                  const selector = widgetData.selectors.join();
+
+                  let trackingElements = [];
+                  if (targetElement) {
+                      if (targetElement.matches(selector)) {
+                          trackingElements.push(targetElement);
+                      }
+                  } else {
+                      trackingElements = Array.from(document.querySelectorAll(selector));
+                  }
+
+                  await Promise.all(trackingElements.map(trackingElement => {
+                      const widget = new DuckWidget(widgetData, trackingElement, entity);
+                      return createPlaceholderElementAndReplace(widget, trackingElement)
+                  }));
+              }
+          }
+      }
+
+      /*********************************************************
+       *  Messaging to surrogates & extension
+       *********************************************************/
+      function enableSocialTracker (entity, isLogin) {
+          const message = {
+              entity: entity,
+              isLogin: isLogin
+          };
+          sendMessage('enableSocialTracker', message);
+      }
+
+      sendMessage('initClickToLoad').then(response => {
+          if (document.readyState === 'complete') {
+              init(response);
+          } else {
+              // Content script loaded before page content, so wait for load.
+              window.addEventListener('load', (event) => {
+                  init(response);
+              });
+          }
+      });
+
+      // Fetch reusable assets
+      sendMessage('getLoadingImage', 'light').then(response => {
+          loadingImages.lightMode = response;
+      });
+
+      sendMessage('getLoadingImage', 'dark').then(response => {
+          loadingImages.darkMode = response;
+      });
+
+      sendMessage('getLogo', '').then(response => {
+          logoImg = response;
+      });
+
+      // Listen for events from surrogates
+      addEventListener('ddg-ctp', (event) => {
+          if (!event.detail) return
+          const entity = event.detail.entity;
+          if (!entities.includes(entity)) {
+              // Unknown entity, reject
+              return
+          }
+          if (event.detail.appID) {
+              appID = JSON.stringify(event.detail.appID).replace(/"/g, '');
+          }
+          // Handle login call
+          if (event.detail.action === 'login') {
+              if (entityData[entity].shouldShowLoginModal) {
+                  makeModal(entity, runLogin, entity);
+              } else {
+                  runLogin(entity);
+              }
+          }
+      });
+
+      function runLogin (entity) {
+          enableSocialTracker(entity, true);
+          window.dispatchEvent(
+              createCustomEvent('ddg-ctp-run-login', {
+                  detail: {
+                      entity
+                  }
+              })
+          );
+      }
+
+      /*********************************************************
+       *  Widget building blocks
+       *********************************************************/
+      function getLearnMoreLink (mode) {
+          if (!mode) {
+              mode = 'lightMode';
+          }
+          const linkElement = document.createElement('a');
+          linkElement.style.cssText = styles.generalLink + styles[mode].linkFont;
+          linkElement.ariaLabel = 'Read about this privacy protection';
+          linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/';
+          linkElement.target = '_blank';
+          linkElement.textContent = 'Learn More';
+          return linkElement
+      }
+
+      function makeTextButton (linkText, mode) {
+          const linkElement = document.createElement('a');
+          linkElement.style.cssText = styles.headerLink + styles[mode].linkFont;
+          linkElement.textContent = linkText;
+          return linkElement
+      }
+
+      function makeButton (buttonText, mode) {
+          const button = document.createElement('button');
+          button.style.cssText = styles.button + styles[mode].buttonBackground;
+          const textContainer = document.createElement('div');
+          textContainer.style.cssText = styles.buttonTextContainer + styles[mode].buttonFont;
+          textContainer.textContent = buttonText;
+          button.appendChild(textContainer);
+          return button
+      }
+
+      /* If there isn't an image available, just make a default block symbol */
+      function makeDefaultBlockIcon () {
+          const blockedIcon = document.createElement('div');
+          const dash = document.createElement('div');
+          blockedIcon.appendChild(dash);
+          blockedIcon.style.cssText = styles.circle;
+          dash.style.cssText = styles.rectangle;
+          return blockedIcon
+      }
+
+      /* FB login replacement button, with hover text */
+      function makeLoginButton (buttonText, mode, hoverTextTitle, hoverTextBody, icon, originalElement) {
+          const container = document.createElement('div');
+          container.style.cssText = 'position: relative;';
+          // inherit any class styles on the button
+          container.className = 'fb-login-button FacebookLogin__button';
+          const styleElement = document.createElement('style');
+          styleElement.textContent = `
+            #DuckDuckGoPrivacyEssentialsHoverableText {
+                display: none;
+            }
+            #DuckDuckGoPrivacyEssentialsHoverable:hover #DuckDuckGoPrivacyEssentialsHoverableText {
+                display: block;
+            }
+        `;
+          container.appendChild(styleElement);
+
+          const hoverContainer = document.createElement('div');
+          hoverContainer.id = 'DuckDuckGoPrivacyEssentialsHoverable';
+          hoverContainer.style.cssText = styles.hoverContainer;
+          container.appendChild(hoverContainer);
+
+          // Make the button
+          const button = makeButton(buttonText, mode);
+          // Add blocked icon
+          if (!icon) {
+              button.appendChild(makeDefaultBlockIcon());
+          } else {
+              const imgElement = document.createElement('img');
+              imgElement.style.cssText = styles.loginIcon;
+              imgElement.setAttribute('src', icon);
+              imgElement.setAttribute('height', '28px');
+              button.appendChild(imgElement);
+          }
+          hoverContainer.appendChild(button);
+
+          // hover action
+          const hoverBox = document.createElement('div');
+          hoverBox.id = 'DuckDuckGoPrivacyEssentialsHoverableText';
+          hoverBox.style.cssText = styles.textBubble;
+          const arrow = document.createElement('div');
+          arrow.style.cssText = styles.textArrow;
+          hoverBox.appendChild(arrow);
+          const branding = createTitleRow('DuckDuckGo');
+          branding.style.cssText += styles.hoverTextTitle;
+          hoverBox.appendChild(branding);
+          const hoverText = document.createElement('div');
+          hoverText.style.cssText = styles.hoverTextBody;
+          hoverText.textContent = hoverTextBody + ' ';
+          hoverText.appendChild(getLearnMoreLink());
+          hoverBox.appendChild(hoverText);
+
+          hoverContainer.appendChild(hoverBox);
+          const rect = originalElement.getBoundingClientRect();
+          /*
+          * The left side of the hover popup may go offscreen if the
+          * login button is all the way on the left side of the page. This
+          * If that is the case, dynamically shift the box right so it shows
+          * properly.
+          */
+          if (rect.left < styles.textBubbleLeftShift) {
+              const leftShift = -rect.left + 10; // 10px away from edge of the screen
+              hoverBox.style.cssText += `left: ${leftShift}px;`;
+              const change = (1 - (rect.left / styles.textBubbleLeftShift)) * (100 - styles.arrowDefaultLocationPercent);
+              arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent - change)}%;`;
+          } else if (rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift > window.innerWidth) {
+              const rightShift = rect.left + styles.textBubbleWidth - styles.textBubbleLeftShift;
+              const diff = Math.min(rightShift - window.innerWidth, styles.textBubbleLeftShift);
+              const rightMargin = 20; // Add some margin to the page, so scrollbar doesn't overlap.
+              hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift + diff + rightMargin}px;`;
+              const change = ((diff / styles.textBubbleLeftShift)) * (100 - styles.arrowDefaultLocationPercent);
+              arrow.style.cssText += `left: ${Math.max(10, styles.arrowDefaultLocationPercent + change)}%;`;
+          } else {
+              hoverBox.style.cssText += `left: -${styles.textBubbleLeftShift}px;`;
+              arrow.style.cssText += `left: ${styles.arrowDefaultLocationPercent}%;`;
+          }
+
+          return {
+              button: button,
+              container: container
+          }
+      }
+
+      async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
+          const icon = await sendMessage('getImage', entityData[entity].modalIcon);
+          const modalContainer = document.createElement('div');
+          modalContainer.style.cssText = styles.modalContainer;
+          const pageOverlay = document.createElement('div');
+          pageOverlay.style.cssText = styles.overlay;
+          const modal = document.createElement('div');
+          modal.style.cssText = styles.modal;
+
+          // Title
+          const modalTitle = createTitleRow('DuckDuckGo');
+          modal.appendChild(modalTitle);
+
+          // Content
+          const modalContent = document.createElement('div');
+          modalContent.style.cssText = styles.modalContent;
+
+          const iconElement = document.createElement('img');
+          iconElement.style.cssText = styles.icon + styles.modalIcon;
+          iconElement.setAttribute('src', icon);
+          iconElement.setAttribute('height', '70px');
+
+          const title = document.createElement('div');
+          title.style.cssText = styles.modalContentTitle;
+          title.textContent = entityData[entity].modalTitle;
+
+          const message = document.createElement('div');
+          message.style.cssText = styles.modalContentText;
+          message.textContent = entityData[entity].modalText + ' ';
+          message.appendChild(getLearnMoreLink());
+
+          modalContent.appendChild(iconElement);
+          modalContent.appendChild(title);
+          modalContent.appendChild(message);
+
+          // Buttons
+          const buttonRow = document.createElement('div');
+          buttonRow.style.cssText = 'margin:auto;';
+          const allowButton = makeButton(entityData[entity].modalAcceptText, 'lightMode');
+          allowButton.style.cssText += styles.modalButton + 'margin-right: 15px;';
+          allowButton.addEventListener('click', function doLogin () {
+              acceptFunction(...acceptFunctionParams);
+              document.body.removeChild(modalContainer);
+          });
+          const rejectButton = makeButton(entityData[entity].modalRejectText, 'cancelMode');
+          rejectButton.style.cssText += styles.modalButton + 'float: right;';
+          rejectButton.addEventListener('click', function cancelLogin () {
+              document.body.removeChild(modalContainer);
+          });
+
+          buttonRow.appendChild(allowButton);
+          buttonRow.appendChild(rejectButton);
+          modalContent.appendChild(buttonRow);
+
+          modal.appendChild(modalContent);
+
+          modalContainer.appendChild(pageOverlay);
+          modalContainer.appendChild(modal);
+          document.body.insertBefore(modalContainer, document.body.childNodes[0]);
+      }
+
+      function createTitleRow (message, textButton) {
+          // Create row container
+          const row = document.createElement('div');
+          row.style.cssText = styles.titleBox;
+
+          // Logo
+          const logoContainer = document.createElement('div');
+          logoContainer.style.cssText = styles.logo;
+          const logoElement = document.createElement('img');
+          logoElement.setAttribute('src', logoImg);
+          logoElement.setAttribute('height', '21px');
+          logoElement.style.cssText = styles.logoImg;
+          logoContainer.appendChild(logoElement);
+          row.appendChild(logoContainer);
+
+          // Content box title
+          const msgElement = document.createElement('div');
+          msgElement.id = titleID; // Ensure we can find this to potentially hide it later.
+          msgElement.textContent = message;
+          msgElement.style.cssText = styles.title;
+          row.appendChild(msgElement);
+
+          // Text button for very small boxes
+          if (textButton) {
+              textButton.id = titleID + 'TextButton';
+              row.appendChild(textButton);
+          }
+
+          return row
+      }
+
+      // Create the content block to replace other divs/iframes with
+      async function createContentBlock (widget, button, textButton, img) {
+          const contentBlock = document.createElement('div');
+          contentBlock.style.cssText = styles.wrapperDiv;
+
+          // Put our custom font-faces inside the wrapper element, since
+          // @font-face does not work inside a shadowRoot.
+          // See https://github.com/mdn/interactive-examples/issues/887.
+          const fontFaceStyleElement = document.createElement('style');
+          fontFaceStyleElement.textContent = styles.fontStyle;
+          contentBlock.appendChild(fontFaceStyleElement);
+
+          // Put everyting else inside the shadowRoot of the wrapper element to
+          // reduce the chances of the website's stylesheets messing up the
+          // placeholder's appearance.
+          const shadowRootMode = (await devMode) ? 'open' : 'closed';
+          const shadowRoot = contentBlock.attachShadow({ mode: shadowRootMode });
+
+          // Style element includes our font & overwrites page styles
+          const styleElement = document.createElement('style');
+          const wrapperClass = 'DuckDuckGoSocialContainer';
+          styleElement.textContent = `
+            .${wrapperClass} a {
+                ${styles[widget.getMode()].linkFont}
+                font-weight: bold;
+            }
+            .${wrapperClass} a:hover {
+                ${styles[widget.getMode()].linkFont}
+                font-weight: bold;
+            }
+        `;
+          shadowRoot.appendChild(styleElement);
+
+          // Create overall grid structure
+          const element = document.createElement('div');
+          element.style.cssText = styles.block + styles[widget.getMode()].background + styles[widget.getMode()].textFont;
+          element.className = wrapperClass;
+          shadowRoot.appendChild(element);
+
+          // grid of three rows
+          const titleRow = document.createElement('div');
+          titleRow.style.cssText = styles.headerRow;
+          element.appendChild(titleRow);
+          titleRow.appendChild(createTitleRow('DuckDuckGo', textButton));
+
+          const contentRow = document.createElement('div');
+          contentRow.style.cssText = styles.content;
+
+          if (img) {
+              const imageRow = document.createElement('div');
+              imageRow.style.cssText = styles.imgRow;
+              const imgElement = document.createElement('img');
+              imgElement.style.cssText = styles.icon;
+              imgElement.setAttribute('src', img);
+              imgElement.setAttribute('height', '70px');
+              imageRow.appendChild(imgElement);
+              element.appendChild(imageRow);
+          }
+
+          const contentTitle = document.createElement('div');
+          contentTitle.style.cssText = styles.contentTitle;
+          if (entityData[widget.entity].simpleVersion && widget.replaceSettings.simpleInfoTitle) {
+              contentTitle.textContent = widget.replaceSettings.simpleInfoTitle;
+          } else {
+              contentTitle.textContent = widget.replaceSettings.infoTitle;
+          }
+          contentRow.appendChild(contentTitle);
+          const contentText = document.createElement('div');
+          contentText.style.cssText = styles.contentText;
+          if (entityData[widget.entity].simpleVersion && widget.replaceSettings.simpleInfoText) {
+              contentText.textContent = widget.replaceSettings.simpleInfoText + ' ';
+          } else {
+              contentText.textContent = widget.replaceSettings.infoText + ' ';
+          }
+          contentText.appendChild(getLearnMoreLink());
+          contentRow.appendChild(contentText);
+          element.appendChild(contentRow);
+
+          const buttonRow = document.createElement('div');
+          buttonRow.style.cssText = styles.buttonRow;
+          buttonRow.appendChild(button);
+          contentRow.appendChild(buttonRow);
+
+          return { contentBlock, shadowRoot }
+      }
+  }
+
+  var clickToLoad = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$d
+  });
 
   class Cookie {
       constructor (cookieString) {
@@ -1655,648 +2867,648 @@
   var alea$1 = {exports: {}};
 
   (function (module) {
-  	// A port of an algorithm by Johannes Baagøe <baagoe@baagoe.com>, 2010
-  	// http://baagoe.com/en/RandomMusings/javascript/
-  	// https://github.com/nquinlan/better-random-numbers-for-javascript-mirror
-  	// Original work is under MIT license -
+  // A port of an algorithm by Johannes Baagøe <baagoe@baagoe.com>, 2010
+  // http://baagoe.com/en/RandomMusings/javascript/
+  // https://github.com/nquinlan/better-random-numbers-for-javascript-mirror
+  // Original work is under MIT license -
 
-  	// Copyright (C) 2010 by Johannes Baagøe <baagoe@baagoe.org>
-  	//
-  	// Permission is hereby granted, free of charge, to any person obtaining a copy
-  	// of this software and associated documentation files (the "Software"), to deal
-  	// in the Software without restriction, including without limitation the rights
-  	// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  	// copies of the Software, and to permit persons to whom the Software is
-  	// furnished to do so, subject to the following conditions:
-  	//
-  	// The above copyright notice and this permission notice shall be included in
-  	// all copies or substantial portions of the Software.
-  	//
-  	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  	// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  	// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  	// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  	// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  	// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-  	// THE SOFTWARE.
-
-
-
-  	(function(global, module, define) {
-
-  	function Alea(seed) {
-  	  var me = this, mash = Mash();
-
-  	  me.next = function() {
-  	    var t = 2091639 * me.s0 + me.c * 2.3283064365386963e-10; // 2^-32
-  	    me.s0 = me.s1;
-  	    me.s1 = me.s2;
-  	    return me.s2 = t - (me.c = t | 0);
-  	  };
-
-  	  // Apply the seeding algorithm from Baagoe.
-  	  me.c = 1;
-  	  me.s0 = mash(' ');
-  	  me.s1 = mash(' ');
-  	  me.s2 = mash(' ');
-  	  me.s0 -= mash(seed);
-  	  if (me.s0 < 0) { me.s0 += 1; }
-  	  me.s1 -= mash(seed);
-  	  if (me.s1 < 0) { me.s1 += 1; }
-  	  me.s2 -= mash(seed);
-  	  if (me.s2 < 0) { me.s2 += 1; }
-  	  mash = null;
-  	}
-
-  	function copy(f, t) {
-  	  t.c = f.c;
-  	  t.s0 = f.s0;
-  	  t.s1 = f.s1;
-  	  t.s2 = f.s2;
-  	  return t;
-  	}
-
-  	function impl(seed, opts) {
-  	  var xg = new Alea(seed),
-  	      state = opts && opts.state,
-  	      prng = xg.next;
-  	  prng.int32 = function() { return (xg.next() * 0x100000000) | 0; };
-  	  prng.double = function() {
-  	    return prng() + (prng() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
-  	  };
-  	  prng.quick = prng;
-  	  if (state) {
-  	    if (typeof(state) == 'object') copy(state, xg);
-  	    prng.state = function() { return copy(xg, {}); };
-  	  }
-  	  return prng;
-  	}
-
-  	function Mash() {
-  	  var n = 0xefc8249d;
-
-  	  var mash = function(data) {
-  	    data = String(data);
-  	    for (var i = 0; i < data.length; i++) {
-  	      n += data.charCodeAt(i);
-  	      var h = 0.02519603282416938 * n;
-  	      n = h >>> 0;
-  	      h -= n;
-  	      h *= n;
-  	      n = h >>> 0;
-  	      h -= n;
-  	      n += h * 0x100000000; // 2^32
-  	    }
-  	    return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
-  	  };
-
-  	  return mash;
-  	}
+  // Copyright (C) 2010 by Johannes Baagøe <baagoe@baagoe.org>
+  //
+  // Permission is hereby granted, free of charge, to any person obtaining a copy
+  // of this software and associated documentation files (the "Software"), to deal
+  // in the Software without restriction, including without limitation the rights
+  // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  // copies of the Software, and to permit persons to whom the Software is
+  // furnished to do so, subject to the following conditions:
+  //
+  // The above copyright notice and this permission notice shall be included in
+  // all copies or substantial portions of the Software.
+  //
+  // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  // THE SOFTWARE.
 
 
-  	if (module && module.exports) {
-  	  module.exports = impl;
-  	} else if (define && define.amd) {
-  	  define(function() { return impl; });
-  	} else {
-  	  this.alea = impl;
-  	}
 
-  	})(
-  	  commonjsGlobal,
-  	  module,    // present in node.js
-  	  (typeof undefined) == 'function'    // present with an AMD loader
-  	);
-  } (alea$1));
+  (function(global, module, define) {
+
+  function Alea(seed) {
+    var me = this, mash = Mash();
+
+    me.next = function() {
+      var t = 2091639 * me.s0 + me.c * 2.3283064365386963e-10; // 2^-32
+      me.s0 = me.s1;
+      me.s1 = me.s2;
+      return me.s2 = t - (me.c = t | 0);
+    };
+
+    // Apply the seeding algorithm from Baagoe.
+    me.c = 1;
+    me.s0 = mash(' ');
+    me.s1 = mash(' ');
+    me.s2 = mash(' ');
+    me.s0 -= mash(seed);
+    if (me.s0 < 0) { me.s0 += 1; }
+    me.s1 -= mash(seed);
+    if (me.s1 < 0) { me.s1 += 1; }
+    me.s2 -= mash(seed);
+    if (me.s2 < 0) { me.s2 += 1; }
+    mash = null;
+  }
+
+  function copy(f, t) {
+    t.c = f.c;
+    t.s0 = f.s0;
+    t.s1 = f.s1;
+    t.s2 = f.s2;
+    return t;
+  }
+
+  function impl(seed, opts) {
+    var xg = new Alea(seed),
+        state = opts && opts.state,
+        prng = xg.next;
+    prng.int32 = function() { return (xg.next() * 0x100000000) | 0; };
+    prng.double = function() {
+      return prng() + (prng() * 0x200000 | 0) * 1.1102230246251565e-16; // 2^-53
+    };
+    prng.quick = prng;
+    if (state) {
+      if (typeof(state) == 'object') copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
+
+  function Mash() {
+    var n = 0xefc8249d;
+
+    var mash = function(data) {
+      data = String(data);
+      for (var i = 0; i < data.length; i++) {
+        n += data.charCodeAt(i);
+        var h = 0.02519603282416938 * n;
+        n = h >>> 0;
+        h -= n;
+        h *= n;
+        n = h >>> 0;
+        h -= n;
+        n += h * 0x100000000; // 2^32
+      }
+      return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
+    };
+
+    return mash;
+  }
+
+
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.alea = impl;
+  }
+
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(alea$1));
 
   var xor128$1 = {exports: {}};
 
   (function (module) {
-  	// A Javascript implementaion of the "xor128" prng algorithm by
-  	// George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
+  // A Javascript implementaion of the "xor128" prng algorithm by
+  // George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
 
-  	(function(global, module, define) {
+  (function(global, module, define) {
 
-  	function XorGen(seed) {
-  	  var me = this, strseed = '';
+  function XorGen(seed) {
+    var me = this, strseed = '';
 
-  	  me.x = 0;
-  	  me.y = 0;
-  	  me.z = 0;
-  	  me.w = 0;
+    me.x = 0;
+    me.y = 0;
+    me.z = 0;
+    me.w = 0;
 
-  	  // Set up generator function.
-  	  me.next = function() {
-  	    var t = me.x ^ (me.x << 11);
-  	    me.x = me.y;
-  	    me.y = me.z;
-  	    me.z = me.w;
-  	    return me.w ^= (me.w >>> 19) ^ t ^ (t >>> 8);
-  	  };
+    // Set up generator function.
+    me.next = function() {
+      var t = me.x ^ (me.x << 11);
+      me.x = me.y;
+      me.y = me.z;
+      me.z = me.w;
+      return me.w ^= (me.w >>> 19) ^ t ^ (t >>> 8);
+    };
 
-  	  if (seed === (seed | 0)) {
-  	    // Integer seed.
-  	    me.x = seed;
-  	  } else {
-  	    // String seed.
-  	    strseed += seed;
-  	  }
+    if (seed === (seed | 0)) {
+      // Integer seed.
+      me.x = seed;
+    } else {
+      // String seed.
+      strseed += seed;
+    }
 
-  	  // Mix in string seed, then discard an initial batch of 64 values.
-  	  for (var k = 0; k < strseed.length + 64; k++) {
-  	    me.x ^= strseed.charCodeAt(k) | 0;
-  	    me.next();
-  	  }
-  	}
+    // Mix in string seed, then discard an initial batch of 64 values.
+    for (var k = 0; k < strseed.length + 64; k++) {
+      me.x ^= strseed.charCodeAt(k) | 0;
+      me.next();
+    }
+  }
 
-  	function copy(f, t) {
-  	  t.x = f.x;
-  	  t.y = f.y;
-  	  t.z = f.z;
-  	  t.w = f.w;
-  	  return t;
-  	}
+  function copy(f, t) {
+    t.x = f.x;
+    t.y = f.y;
+    t.z = f.z;
+    t.w = f.w;
+    return t;
+  }
 
-  	function impl(seed, opts) {
-  	  var xg = new XorGen(seed),
-  	      state = opts && opts.state,
-  	      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
-  	  prng.double = function() {
-  	    do {
-  	      var top = xg.next() >>> 11,
-  	          bot = (xg.next() >>> 0) / 0x100000000,
-  	          result = (top + bot) / (1 << 21);
-  	    } while (result === 0);
-  	    return result;
-  	  };
-  	  prng.int32 = xg.next;
-  	  prng.quick = prng;
-  	  if (state) {
-  	    if (typeof(state) == 'object') copy(state, xg);
-  	    prng.state = function() { return copy(xg, {}); };
-  	  }
-  	  return prng;
-  	}
+  function impl(seed, opts) {
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (typeof(state) == 'object') copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
 
-  	if (module && module.exports) {
-  	  module.exports = impl;
-  	} else if (define && define.amd) {
-  	  define(function() { return impl; });
-  	} else {
-  	  this.xor128 = impl;
-  	}
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.xor128 = impl;
+  }
 
-  	})(
-  	  commonjsGlobal,
-  	  module,    // present in node.js
-  	  (typeof undefined) == 'function'    // present with an AMD loader
-  	);
-  } (xor128$1));
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(xor128$1));
 
   var xorwow$1 = {exports: {}};
 
   (function (module) {
-  	// A Javascript implementaion of the "xorwow" prng algorithm by
-  	// George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
+  // A Javascript implementaion of the "xorwow" prng algorithm by
+  // George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
 
-  	(function(global, module, define) {
+  (function(global, module, define) {
 
-  	function XorGen(seed) {
-  	  var me = this, strseed = '';
+  function XorGen(seed) {
+    var me = this, strseed = '';
 
-  	  // Set up generator function.
-  	  me.next = function() {
-  	    var t = (me.x ^ (me.x >>> 2));
-  	    me.x = me.y; me.y = me.z; me.z = me.w; me.w = me.v;
-  	    return (me.d = (me.d + 362437 | 0)) +
-  	       (me.v = (me.v ^ (me.v << 4)) ^ (t ^ (t << 1))) | 0;
-  	  };
+    // Set up generator function.
+    me.next = function() {
+      var t = (me.x ^ (me.x >>> 2));
+      me.x = me.y; me.y = me.z; me.z = me.w; me.w = me.v;
+      return (me.d = (me.d + 362437 | 0)) +
+         (me.v = (me.v ^ (me.v << 4)) ^ (t ^ (t << 1))) | 0;
+    };
 
-  	  me.x = 0;
-  	  me.y = 0;
-  	  me.z = 0;
-  	  me.w = 0;
-  	  me.v = 0;
+    me.x = 0;
+    me.y = 0;
+    me.z = 0;
+    me.w = 0;
+    me.v = 0;
 
-  	  if (seed === (seed | 0)) {
-  	    // Integer seed.
-  	    me.x = seed;
-  	  } else {
-  	    // String seed.
-  	    strseed += seed;
-  	  }
+    if (seed === (seed | 0)) {
+      // Integer seed.
+      me.x = seed;
+    } else {
+      // String seed.
+      strseed += seed;
+    }
 
-  	  // Mix in string seed, then discard an initial batch of 64 values.
-  	  for (var k = 0; k < strseed.length + 64; k++) {
-  	    me.x ^= strseed.charCodeAt(k) | 0;
-  	    if (k == strseed.length) {
-  	      me.d = me.x << 10 ^ me.x >>> 4;
-  	    }
-  	    me.next();
-  	  }
-  	}
+    // Mix in string seed, then discard an initial batch of 64 values.
+    for (var k = 0; k < strseed.length + 64; k++) {
+      me.x ^= strseed.charCodeAt(k) | 0;
+      if (k == strseed.length) {
+        me.d = me.x << 10 ^ me.x >>> 4;
+      }
+      me.next();
+    }
+  }
 
-  	function copy(f, t) {
-  	  t.x = f.x;
-  	  t.y = f.y;
-  	  t.z = f.z;
-  	  t.w = f.w;
-  	  t.v = f.v;
-  	  t.d = f.d;
-  	  return t;
-  	}
+  function copy(f, t) {
+    t.x = f.x;
+    t.y = f.y;
+    t.z = f.z;
+    t.w = f.w;
+    t.v = f.v;
+    t.d = f.d;
+    return t;
+  }
 
-  	function impl(seed, opts) {
-  	  var xg = new XorGen(seed),
-  	      state = opts && opts.state,
-  	      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
-  	  prng.double = function() {
-  	    do {
-  	      var top = xg.next() >>> 11,
-  	          bot = (xg.next() >>> 0) / 0x100000000,
-  	          result = (top + bot) / (1 << 21);
-  	    } while (result === 0);
-  	    return result;
-  	  };
-  	  prng.int32 = xg.next;
-  	  prng.quick = prng;
-  	  if (state) {
-  	    if (typeof(state) == 'object') copy(state, xg);
-  	    prng.state = function() { return copy(xg, {}); };
-  	  }
-  	  return prng;
-  	}
+  function impl(seed, opts) {
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (typeof(state) == 'object') copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
 
-  	if (module && module.exports) {
-  	  module.exports = impl;
-  	} else if (define && define.amd) {
-  	  define(function() { return impl; });
-  	} else {
-  	  this.xorwow = impl;
-  	}
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.xorwow = impl;
+  }
 
-  	})(
-  	  commonjsGlobal,
-  	  module,    // present in node.js
-  	  (typeof undefined) == 'function'    // present with an AMD loader
-  	);
-  } (xorwow$1));
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(xorwow$1));
 
   var xorshift7$1 = {exports: {}};
 
   (function (module) {
-  	// A Javascript implementaion of the "xorshift7" algorithm by
-  	// François Panneton and Pierre L'ecuyer:
-  	// "On the Xorgshift Random Number Generators"
-  	// http://saluc.engr.uconn.edu/refs/crypto/rng/panneton05onthexorshift.pdf
+  // A Javascript implementaion of the "xorshift7" algorithm by
+  // François Panneton and Pierre L'ecuyer:
+  // "On the Xorgshift Random Number Generators"
+  // http://saluc.engr.uconn.edu/refs/crypto/rng/panneton05onthexorshift.pdf
 
-  	(function(global, module, define) {
+  (function(global, module, define) {
 
-  	function XorGen(seed) {
-  	  var me = this;
+  function XorGen(seed) {
+    var me = this;
 
-  	  // Set up generator function.
-  	  me.next = function() {
-  	    // Update xor generator.
-  	    var X = me.x, i = me.i, t, v;
-  	    t = X[i]; t ^= (t >>> 7); v = t ^ (t << 24);
-  	    t = X[(i + 1) & 7]; v ^= t ^ (t >>> 10);
-  	    t = X[(i + 3) & 7]; v ^= t ^ (t >>> 3);
-  	    t = X[(i + 4) & 7]; v ^= t ^ (t << 7);
-  	    t = X[(i + 7) & 7]; t = t ^ (t << 13); v ^= t ^ (t << 9);
-  	    X[i] = v;
-  	    me.i = (i + 1) & 7;
-  	    return v;
-  	  };
+    // Set up generator function.
+    me.next = function() {
+      // Update xor generator.
+      var X = me.x, i = me.i, t, v;
+      t = X[i]; t ^= (t >>> 7); v = t ^ (t << 24);
+      t = X[(i + 1) & 7]; v ^= t ^ (t >>> 10);
+      t = X[(i + 3) & 7]; v ^= t ^ (t >>> 3);
+      t = X[(i + 4) & 7]; v ^= t ^ (t << 7);
+      t = X[(i + 7) & 7]; t = t ^ (t << 13); v ^= t ^ (t << 9);
+      X[i] = v;
+      me.i = (i + 1) & 7;
+      return v;
+    };
 
-  	  function init(me, seed) {
-  	    var j, X = [];
+    function init(me, seed) {
+      var j, X = [];
 
-  	    if (seed === (seed | 0)) {
-  	      // Seed state array using a 32-bit integer.
-  	      X[0] = seed;
-  	    } else {
-  	      // Seed state using a string.
-  	      seed = '' + seed;
-  	      for (j = 0; j < seed.length; ++j) {
-  	        X[j & 7] = (X[j & 7] << 15) ^
-  	            (seed.charCodeAt(j) + X[(j + 1) & 7] << 13);
-  	      }
-  	    }
-  	    // Enforce an array length of 8, not all zeroes.
-  	    while (X.length < 8) X.push(0);
-  	    for (j = 0; j < 8 && X[j] === 0; ++j);
-  	    if (j == 8) X[7] = -1; else X[j];
+      if (seed === (seed | 0)) {
+        // Seed state array using a 32-bit integer.
+        X[0] = seed;
+      } else {
+        // Seed state using a string.
+        seed = '' + seed;
+        for (j = 0; j < seed.length; ++j) {
+          X[j & 7] = (X[j & 7] << 15) ^
+              (seed.charCodeAt(j) + X[(j + 1) & 7] << 13);
+        }
+      }
+      // Enforce an array length of 8, not all zeroes.
+      while (X.length < 8) X.push(0);
+      for (j = 0; j < 8 && X[j] === 0; ++j);
+      if (j == 8) X[7] = -1;
 
-  	    me.x = X;
-  	    me.i = 0;
+      me.x = X;
+      me.i = 0;
 
-  	    // Discard an initial 256 values.
-  	    for (j = 256; j > 0; --j) {
-  	      me.next();
-  	    }
-  	  }
+      // Discard an initial 256 values.
+      for (j = 256; j > 0; --j) {
+        me.next();
+      }
+    }
 
-  	  init(me, seed);
-  	}
+    init(me, seed);
+  }
 
-  	function copy(f, t) {
-  	  t.x = f.x.slice();
-  	  t.i = f.i;
-  	  return t;
-  	}
+  function copy(f, t) {
+    t.x = f.x.slice();
+    t.i = f.i;
+    return t;
+  }
 
-  	function impl(seed, opts) {
-  	  if (seed == null) seed = +(new Date);
-  	  var xg = new XorGen(seed),
-  	      state = opts && opts.state,
-  	      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
-  	  prng.double = function() {
-  	    do {
-  	      var top = xg.next() >>> 11,
-  	          bot = (xg.next() >>> 0) / 0x100000000,
-  	          result = (top + bot) / (1 << 21);
-  	    } while (result === 0);
-  	    return result;
-  	  };
-  	  prng.int32 = xg.next;
-  	  prng.quick = prng;
-  	  if (state) {
-  	    if (state.x) copy(state, xg);
-  	    prng.state = function() { return copy(xg, {}); };
-  	  }
-  	  return prng;
-  	}
+  function impl(seed, opts) {
+    if (seed == null) seed = +(new Date);
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (state.x) copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
 
-  	if (module && module.exports) {
-  	  module.exports = impl;
-  	} else if (define && define.amd) {
-  	  define(function() { return impl; });
-  	} else {
-  	  this.xorshift7 = impl;
-  	}
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.xorshift7 = impl;
+  }
 
-  	})(
-  	  commonjsGlobal,
-  	  module,    // present in node.js
-  	  (typeof undefined) == 'function'    // present with an AMD loader
-  	);
-  } (xorshift7$1));
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(xorshift7$1));
 
   var xor4096$1 = {exports: {}};
 
   (function (module) {
-  	// A Javascript implementaion of Richard Brent's Xorgens xor4096 algorithm.
-  	//
-  	// This fast non-cryptographic random number generator is designed for
-  	// use in Monte-Carlo algorithms. It combines a long-period xorshift
-  	// generator with a Weyl generator, and it passes all common batteries
-  	// of stasticial tests for randomness while consuming only a few nanoseconds
-  	// for each prng generated.  For background on the generator, see Brent's
-  	// paper: "Some long-period random number generators using shifts and xors."
-  	// http://arxiv.org/pdf/1004.3115v1.pdf
-  	//
-  	// Usage:
-  	//
-  	// var xor4096 = require('xor4096');
-  	// random = xor4096(1);                        // Seed with int32 or string.
-  	// assert.equal(random(), 0.1520436450538547); // (0, 1) range, 53 bits.
-  	// assert.equal(random.int32(), 1806534897);   // signed int32, 32 bits.
-  	//
-  	// For nonzero numeric keys, this impelementation provides a sequence
-  	// identical to that by Brent's xorgens 3 implementaion in C.  This
-  	// implementation also provides for initalizing the generator with
-  	// string seeds, or for saving and restoring the state of the generator.
-  	//
-  	// On Chrome, this prng benchmarks about 2.1 times slower than
-  	// Javascript's built-in Math.random().
+  // A Javascript implementaion of Richard Brent's Xorgens xor4096 algorithm.
+  //
+  // This fast non-cryptographic random number generator is designed for
+  // use in Monte-Carlo algorithms. It combines a long-period xorshift
+  // generator with a Weyl generator, and it passes all common batteries
+  // of stasticial tests for randomness while consuming only a few nanoseconds
+  // for each prng generated.  For background on the generator, see Brent's
+  // paper: "Some long-period random number generators using shifts and xors."
+  // http://arxiv.org/pdf/1004.3115v1.pdf
+  //
+  // Usage:
+  //
+  // var xor4096 = require('xor4096');
+  // random = xor4096(1);                        // Seed with int32 or string.
+  // assert.equal(random(), 0.1520436450538547); // (0, 1) range, 53 bits.
+  // assert.equal(random.int32(), 1806534897);   // signed int32, 32 bits.
+  //
+  // For nonzero numeric keys, this impelementation provides a sequence
+  // identical to that by Brent's xorgens 3 implementaion in C.  This
+  // implementation also provides for initalizing the generator with
+  // string seeds, or for saving and restoring the state of the generator.
+  //
+  // On Chrome, this prng benchmarks about 2.1 times slower than
+  // Javascript's built-in Math.random().
 
-  	(function(global, module, define) {
+  (function(global, module, define) {
 
-  	function XorGen(seed) {
-  	  var me = this;
+  function XorGen(seed) {
+    var me = this;
 
-  	  // Set up generator function.
-  	  me.next = function() {
-  	    var w = me.w,
-  	        X = me.X, i = me.i, t, v;
-  	    // Update Weyl generator.
-  	    me.w = w = (w + 0x61c88647) | 0;
-  	    // Update xor generator.
-  	    v = X[(i + 34) & 127];
-  	    t = X[i = ((i + 1) & 127)];
-  	    v ^= v << 13;
-  	    t ^= t << 17;
-  	    v ^= v >>> 15;
-  	    t ^= t >>> 12;
-  	    // Update Xor generator array state.
-  	    v = X[i] = v ^ t;
-  	    me.i = i;
-  	    // Result is the combination.
-  	    return (v + (w ^ (w >>> 16))) | 0;
-  	  };
+    // Set up generator function.
+    me.next = function() {
+      var w = me.w,
+          X = me.X, i = me.i, t, v;
+      // Update Weyl generator.
+      me.w = w = (w + 0x61c88647) | 0;
+      // Update xor generator.
+      v = X[(i + 34) & 127];
+      t = X[i = ((i + 1) & 127)];
+      v ^= v << 13;
+      t ^= t << 17;
+      v ^= v >>> 15;
+      t ^= t >>> 12;
+      // Update Xor generator array state.
+      v = X[i] = v ^ t;
+      me.i = i;
+      // Result is the combination.
+      return (v + (w ^ (w >>> 16))) | 0;
+    };
 
-  	  function init(me, seed) {
-  	    var t, v, i, j, w, X = [], limit = 128;
-  	    if (seed === (seed | 0)) {
-  	      // Numeric seeds initialize v, which is used to generates X.
-  	      v = seed;
-  	      seed = null;
-  	    } else {
-  	      // String seeds are mixed into v and X one character at a time.
-  	      seed = seed + '\0';
-  	      v = 0;
-  	      limit = Math.max(limit, seed.length);
-  	    }
-  	    // Initialize circular array and weyl value.
-  	    for (i = 0, j = -32; j < limit; ++j) {
-  	      // Put the unicode characters into the array, and shuffle them.
-  	      if (seed) v ^= seed.charCodeAt((j + 32) % seed.length);
-  	      // After 32 shuffles, take v as the starting w value.
-  	      if (j === 0) w = v;
-  	      v ^= v << 10;
-  	      v ^= v >>> 15;
-  	      v ^= v << 4;
-  	      v ^= v >>> 13;
-  	      if (j >= 0) {
-  	        w = (w + 0x61c88647) | 0;     // Weyl.
-  	        t = (X[j & 127] ^= (v + w));  // Combine xor and weyl to init array.
-  	        i = (0 == t) ? i + 1 : 0;     // Count zeroes.
-  	      }
-  	    }
-  	    // We have detected all zeroes; make the key nonzero.
-  	    if (i >= 128) {
-  	      X[(seed && seed.length || 0) & 127] = -1;
-  	    }
-  	    // Run the generator 512 times to further mix the state before using it.
-  	    // Factoring this as a function slows the main generator, so it is just
-  	    // unrolled here.  The weyl generator is not advanced while warming up.
-  	    i = 127;
-  	    for (j = 4 * 128; j > 0; --j) {
-  	      v = X[(i + 34) & 127];
-  	      t = X[i = ((i + 1) & 127)];
-  	      v ^= v << 13;
-  	      t ^= t << 17;
-  	      v ^= v >>> 15;
-  	      t ^= t >>> 12;
-  	      X[i] = v ^ t;
-  	    }
-  	    // Storing state as object members is faster than using closure variables.
-  	    me.w = w;
-  	    me.X = X;
-  	    me.i = i;
-  	  }
+    function init(me, seed) {
+      var t, v, i, j, w, X = [], limit = 128;
+      if (seed === (seed | 0)) {
+        // Numeric seeds initialize v, which is used to generates X.
+        v = seed;
+        seed = null;
+      } else {
+        // String seeds are mixed into v and X one character at a time.
+        seed = seed + '\0';
+        v = 0;
+        limit = Math.max(limit, seed.length);
+      }
+      // Initialize circular array and weyl value.
+      for (i = 0, j = -32; j < limit; ++j) {
+        // Put the unicode characters into the array, and shuffle them.
+        if (seed) v ^= seed.charCodeAt((j + 32) % seed.length);
+        // After 32 shuffles, take v as the starting w value.
+        if (j === 0) w = v;
+        v ^= v << 10;
+        v ^= v >>> 15;
+        v ^= v << 4;
+        v ^= v >>> 13;
+        if (j >= 0) {
+          w = (w + 0x61c88647) | 0;     // Weyl.
+          t = (X[j & 127] ^= (v + w));  // Combine xor and weyl to init array.
+          i = (0 == t) ? i + 1 : 0;     // Count zeroes.
+        }
+      }
+      // We have detected all zeroes; make the key nonzero.
+      if (i >= 128) {
+        X[(seed && seed.length || 0) & 127] = -1;
+      }
+      // Run the generator 512 times to further mix the state before using it.
+      // Factoring this as a function slows the main generator, so it is just
+      // unrolled here.  The weyl generator is not advanced while warming up.
+      i = 127;
+      for (j = 4 * 128; j > 0; --j) {
+        v = X[(i + 34) & 127];
+        t = X[i = ((i + 1) & 127)];
+        v ^= v << 13;
+        t ^= t << 17;
+        v ^= v >>> 15;
+        t ^= t >>> 12;
+        X[i] = v ^ t;
+      }
+      // Storing state as object members is faster than using closure variables.
+      me.w = w;
+      me.X = X;
+      me.i = i;
+    }
 
-  	  init(me, seed);
-  	}
+    init(me, seed);
+  }
 
-  	function copy(f, t) {
-  	  t.i = f.i;
-  	  t.w = f.w;
-  	  t.X = f.X.slice();
-  	  return t;
-  	}
-  	function impl(seed, opts) {
-  	  if (seed == null) seed = +(new Date);
-  	  var xg = new XorGen(seed),
-  	      state = opts && opts.state,
-  	      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
-  	  prng.double = function() {
-  	    do {
-  	      var top = xg.next() >>> 11,
-  	          bot = (xg.next() >>> 0) / 0x100000000,
-  	          result = (top + bot) / (1 << 21);
-  	    } while (result === 0);
-  	    return result;
-  	  };
-  	  prng.int32 = xg.next;
-  	  prng.quick = prng;
-  	  if (state) {
-  	    if (state.X) copy(state, xg);
-  	    prng.state = function() { return copy(xg, {}); };
-  	  }
-  	  return prng;
-  	}
+  function copy(f, t) {
+    t.i = f.i;
+    t.w = f.w;
+    t.X = f.X.slice();
+    return t;
+  }
+  function impl(seed, opts) {
+    if (seed == null) seed = +(new Date);
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (state.X) copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
 
-  	if (module && module.exports) {
-  	  module.exports = impl;
-  	} else if (define && define.amd) {
-  	  define(function() { return impl; });
-  	} else {
-  	  this.xor4096 = impl;
-  	}
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.xor4096 = impl;
+  }
 
-  	})(
-  	  commonjsGlobal,                                     // window object or global
-  	  module,    // present in node.js
-  	  (typeof undefined) == 'function'    // present with an AMD loader
-  	);
-  } (xor4096$1));
+  })(
+    commonjsGlobal,                                     // window object or global
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(xor4096$1));
 
   var tychei$1 = {exports: {}};
 
   (function (module) {
-  	// A Javascript implementaion of the "Tyche-i" prng algorithm by
-  	// Samuel Neves and Filipe Araujo.
-  	// See https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf
+  // A Javascript implementaion of the "Tyche-i" prng algorithm by
+  // Samuel Neves and Filipe Araujo.
+  // See https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf
 
-  	(function(global, module, define) {
+  (function(global, module, define) {
 
-  	function XorGen(seed) {
-  	  var me = this, strseed = '';
+  function XorGen(seed) {
+    var me = this, strseed = '';
 
-  	  // Set up generator function.
-  	  me.next = function() {
-  	    var b = me.b, c = me.c, d = me.d, a = me.a;
-  	    b = (b << 25) ^ (b >>> 7) ^ c;
-  	    c = (c - d) | 0;
-  	    d = (d << 24) ^ (d >>> 8) ^ a;
-  	    a = (a - b) | 0;
-  	    me.b = b = (b << 20) ^ (b >>> 12) ^ c;
-  	    me.c = c = (c - d) | 0;
-  	    me.d = (d << 16) ^ (c >>> 16) ^ a;
-  	    return me.a = (a - b) | 0;
-  	  };
+    // Set up generator function.
+    me.next = function() {
+      var b = me.b, c = me.c, d = me.d, a = me.a;
+      b = (b << 25) ^ (b >>> 7) ^ c;
+      c = (c - d) | 0;
+      d = (d << 24) ^ (d >>> 8) ^ a;
+      a = (a - b) | 0;
+      me.b = b = (b << 20) ^ (b >>> 12) ^ c;
+      me.c = c = (c - d) | 0;
+      me.d = (d << 16) ^ (c >>> 16) ^ a;
+      return me.a = (a - b) | 0;
+    };
 
-  	  /* The following is non-inverted tyche, which has better internal
-  	   * bit diffusion, but which is about 25% slower than tyche-i in JS.
-  	  me.next = function() {
-  	    var a = me.a, b = me.b, c = me.c, d = me.d;
-  	    a = (me.a + me.b | 0) >>> 0;
-  	    d = me.d ^ a; d = d << 16 ^ d >>> 16;
-  	    c = me.c + d | 0;
-  	    b = me.b ^ c; b = b << 12 ^ d >>> 20;
-  	    me.a = a = a + b | 0;
-  	    d = d ^ a; me.d = d = d << 8 ^ d >>> 24;
-  	    me.c = c = c + d | 0;
-  	    b = b ^ c;
-  	    return me.b = (b << 7 ^ b >>> 25);
-  	  }
-  	  */
+    /* The following is non-inverted tyche, which has better internal
+     * bit diffusion, but which is about 25% slower than tyche-i in JS.
+    me.next = function() {
+      var a = me.a, b = me.b, c = me.c, d = me.d;
+      a = (me.a + me.b | 0) >>> 0;
+      d = me.d ^ a; d = d << 16 ^ d >>> 16;
+      c = me.c + d | 0;
+      b = me.b ^ c; b = b << 12 ^ d >>> 20;
+      me.a = a = a + b | 0;
+      d = d ^ a; me.d = d = d << 8 ^ d >>> 24;
+      me.c = c = c + d | 0;
+      b = b ^ c;
+      return me.b = (b << 7 ^ b >>> 25);
+    }
+    */
 
-  	  me.a = 0;
-  	  me.b = 0;
-  	  me.c = 2654435769 | 0;
-  	  me.d = 1367130551;
+    me.a = 0;
+    me.b = 0;
+    me.c = 2654435769 | 0;
+    me.d = 1367130551;
 
-  	  if (seed === Math.floor(seed)) {
-  	    // Integer seed.
-  	    me.a = (seed / 0x100000000) | 0;
-  	    me.b = seed | 0;
-  	  } else {
-  	    // String seed.
-  	    strseed += seed;
-  	  }
+    if (seed === Math.floor(seed)) {
+      // Integer seed.
+      me.a = (seed / 0x100000000) | 0;
+      me.b = seed | 0;
+    } else {
+      // String seed.
+      strseed += seed;
+    }
 
-  	  // Mix in string seed, then discard an initial batch of 64 values.
-  	  for (var k = 0; k < strseed.length + 20; k++) {
-  	    me.b ^= strseed.charCodeAt(k) | 0;
-  	    me.next();
-  	  }
-  	}
+    // Mix in string seed, then discard an initial batch of 64 values.
+    for (var k = 0; k < strseed.length + 20; k++) {
+      me.b ^= strseed.charCodeAt(k) | 0;
+      me.next();
+    }
+  }
 
-  	function copy(f, t) {
-  	  t.a = f.a;
-  	  t.b = f.b;
-  	  t.c = f.c;
-  	  t.d = f.d;
-  	  return t;
-  	}
-  	function impl(seed, opts) {
-  	  var xg = new XorGen(seed),
-  	      state = opts && opts.state,
-  	      prng = function() { return (xg.next() >>> 0) / 0x100000000; };
-  	  prng.double = function() {
-  	    do {
-  	      var top = xg.next() >>> 11,
-  	          bot = (xg.next() >>> 0) / 0x100000000,
-  	          result = (top + bot) / (1 << 21);
-  	    } while (result === 0);
-  	    return result;
-  	  };
-  	  prng.int32 = xg.next;
-  	  prng.quick = prng;
-  	  if (state) {
-  	    if (typeof(state) == 'object') copy(state, xg);
-  	    prng.state = function() { return copy(xg, {}); };
-  	  }
-  	  return prng;
-  	}
+  function copy(f, t) {
+    t.a = f.a;
+    t.b = f.b;
+    t.c = f.c;
+    t.d = f.d;
+    return t;
+  }
+  function impl(seed, opts) {
+    var xg = new XorGen(seed),
+        state = opts && opts.state,
+        prng = function() { return (xg.next() >>> 0) / 0x100000000; };
+    prng.double = function() {
+      do {
+        var top = xg.next() >>> 11,
+            bot = (xg.next() >>> 0) / 0x100000000,
+            result = (top + bot) / (1 << 21);
+      } while (result === 0);
+      return result;
+    };
+    prng.int32 = xg.next;
+    prng.quick = prng;
+    if (state) {
+      if (typeof(state) == 'object') copy(state, xg);
+      prng.state = function() { return copy(xg, {}); };
+    }
+    return prng;
+  }
 
-  	if (module && module.exports) {
-  	  module.exports = impl;
-  	} else if (define && define.amd) {
-  	  define(function() { return impl; });
-  	} else {
-  	  this.tychei = impl;
-  	}
+  if (module && module.exports) {
+    module.exports = impl;
+  } else if (define && define.amd) {
+    define(function() { return impl; });
+  } else {
+    this.tychei = impl;
+  }
 
-  	})(
-  	  commonjsGlobal,
-  	  module,    // present in node.js
-  	  (typeof undefined) == 'function'    // present with an AMD loader
-  	);
-  } (tychei$1));
+  })(
+    commonjsGlobal,
+    module,    // present in node.js
+    (typeof undefined) == 'function'    // present with an AMD loader
+  );
+  }(tychei$1));
 
   var seedrandom$1 = {exports: {}};
 
@@ -2325,233 +3537,233 @@
   */
 
   (function (module) {
-  	(function (global, pool, math) {
-  	//
-  	// The following constants are related to IEEE 754 limits.
-  	//
+  (function (global, pool, math) {
+  //
+  // The following constants are related to IEEE 754 limits.
+  //
 
-  	var width = 256,        // each RC4 output is 0 <= x < 256
-  	    chunks = 6,         // at least six RC4 outputs for each double
-  	    digits = 52,        // there are 52 significant digits in a double
-  	    rngname = 'random', // rngname: name for Math.random and Math.seedrandom
-  	    startdenom = math.pow(width, chunks),
-  	    significance = math.pow(2, digits),
-  	    overflow = significance * 2,
-  	    mask = width - 1,
-  	    nodecrypto;         // node.js crypto module, initialized at the bottom.
+  var width = 256,        // each RC4 output is 0 <= x < 256
+      chunks = 6,         // at least six RC4 outputs for each double
+      digits = 52,        // there are 52 significant digits in a double
+      rngname = 'random', // rngname: name for Math.random and Math.seedrandom
+      startdenom = math.pow(width, chunks),
+      significance = math.pow(2, digits),
+      overflow = significance * 2,
+      mask = width - 1,
+      nodecrypto;         // node.js crypto module, initialized at the bottom.
 
-  	//
-  	// seedrandom()
-  	// This is the seedrandom function described above.
-  	//
-  	function seedrandom(seed, options, callback) {
-  	  var key = [];
-  	  options = (options == true) ? { entropy: true } : (options || {});
+  //
+  // seedrandom()
+  // This is the seedrandom function described above.
+  //
+  function seedrandom(seed, options, callback) {
+    var key = [];
+    options = (options == true) ? { entropy: true } : (options || {});
 
-  	  // Flatten the seed string or build one from local entropy if needed.
-  	  var shortseed = mixkey(flatten(
-  	    options.entropy ? [seed, tostring(pool)] :
-  	    (seed == null) ? autoseed() : seed, 3), key);
+    // Flatten the seed string or build one from local entropy if needed.
+    var shortseed = mixkey(flatten(
+      options.entropy ? [seed, tostring(pool)] :
+      (seed == null) ? autoseed() : seed, 3), key);
 
-  	  // Use the seed to initialize an ARC4 generator.
-  	  var arc4 = new ARC4(key);
+    // Use the seed to initialize an ARC4 generator.
+    var arc4 = new ARC4(key);
 
-  	  // This function returns a random double in [0, 1) that contains
-  	  // randomness in every bit of the mantissa of the IEEE 754 value.
-  	  var prng = function() {
-  	    var n = arc4.g(chunks),             // Start with a numerator n < 2 ^ 48
-  	        d = startdenom,                 //   and denominator d = 2 ^ 48.
-  	        x = 0;                          //   and no 'extra last byte'.
-  	    while (n < significance) {          // Fill up all significant digits by
-  	      n = (n + x) * width;              //   shifting numerator and
-  	      d *= width;                       //   denominator and generating a
-  	      x = arc4.g(1);                    //   new least-significant-byte.
-  	    }
-  	    while (n >= overflow) {             // To avoid rounding up, before adding
-  	      n /= 2;                           //   last byte, shift everything
-  	      d /= 2;                           //   right using integer math until
-  	      x >>>= 1;                         //   we have exactly the desired bits.
-  	    }
-  	    return (n + x) / d;                 // Form the number within [0, 1).
-  	  };
+    // This function returns a random double in [0, 1) that contains
+    // randomness in every bit of the mantissa of the IEEE 754 value.
+    var prng = function() {
+      var n = arc4.g(chunks),             // Start with a numerator n < 2 ^ 48
+          d = startdenom,                 //   and denominator d = 2 ^ 48.
+          x = 0;                          //   and no 'extra last byte'.
+      while (n < significance) {          // Fill up all significant digits by
+        n = (n + x) * width;              //   shifting numerator and
+        d *= width;                       //   denominator and generating a
+        x = arc4.g(1);                    //   new least-significant-byte.
+      }
+      while (n >= overflow) {             // To avoid rounding up, before adding
+        n /= 2;                           //   last byte, shift everything
+        d /= 2;                           //   right using integer math until
+        x >>>= 1;                         //   we have exactly the desired bits.
+      }
+      return (n + x) / d;                 // Form the number within [0, 1).
+    };
 
-  	  prng.int32 = function() { return arc4.g(4) | 0; };
-  	  prng.quick = function() { return arc4.g(4) / 0x100000000; };
-  	  prng.double = prng;
+    prng.int32 = function() { return arc4.g(4) | 0; };
+    prng.quick = function() { return arc4.g(4) / 0x100000000; };
+    prng.double = prng;
 
-  	  // Mix the randomness into accumulated entropy.
-  	  mixkey(tostring(arc4.S), pool);
+    // Mix the randomness into accumulated entropy.
+    mixkey(tostring(arc4.S), pool);
 
-  	  // Calling convention: what to return as a function of prng, seed, is_math.
-  	  return (options.pass || callback ||
-  	      function(prng, seed, is_math_call, state) {
-  	        if (state) {
-  	          // Load the arc4 state from the given state if it has an S array.
-  	          if (state.S) { copy(state, arc4); }
-  	          // Only provide the .state method if requested via options.state.
-  	          prng.state = function() { return copy(arc4, {}); };
-  	        }
+    // Calling convention: what to return as a function of prng, seed, is_math.
+    return (options.pass || callback ||
+        function(prng, seed, is_math_call, state) {
+          if (state) {
+            // Load the arc4 state from the given state if it has an S array.
+            if (state.S) { copy(state, arc4); }
+            // Only provide the .state method if requested via options.state.
+            prng.state = function() { return copy(arc4, {}); };
+          }
 
-  	        // If called as a method of Math (Math.seedrandom()), mutate
-  	        // Math.random because that is how seedrandom.js has worked since v1.0.
-  	        if (is_math_call) { math[rngname] = prng; return seed; }
+          // If called as a method of Math (Math.seedrandom()), mutate
+          // Math.random because that is how seedrandom.js has worked since v1.0.
+          if (is_math_call) { math[rngname] = prng; return seed; }
 
-  	        // Otherwise, it is a newer calling convention, so return the
-  	        // prng directly.
-  	        else return prng;
-  	      })(
-  	  prng,
-  	  shortseed,
-  	  'global' in options ? options.global : (this == math),
-  	  options.state);
-  	}
+          // Otherwise, it is a newer calling convention, so return the
+          // prng directly.
+          else return prng;
+        })(
+    prng,
+    shortseed,
+    'global' in options ? options.global : (this == math),
+    options.state);
+  }
 
-  	//
-  	// ARC4
-  	//
-  	// An ARC4 implementation.  The constructor takes a key in the form of
-  	// an array of at most (width) integers that should be 0 <= x < (width).
-  	//
-  	// The g(count) method returns a pseudorandom integer that concatenates
-  	// the next (count) outputs from ARC4.  Its return value is a number x
-  	// that is in the range 0 <= x < (width ^ count).
-  	//
-  	function ARC4(key) {
-  	  var t, keylen = key.length,
-  	      me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
+  //
+  // ARC4
+  //
+  // An ARC4 implementation.  The constructor takes a key in the form of
+  // an array of at most (width) integers that should be 0 <= x < (width).
+  //
+  // The g(count) method returns a pseudorandom integer that concatenates
+  // the next (count) outputs from ARC4.  Its return value is a number x
+  // that is in the range 0 <= x < (width ^ count).
+  //
+  function ARC4(key) {
+    var t, keylen = key.length,
+        me = this, i = 0, j = me.i = me.j = 0, s = me.S = [];
 
-  	  // The empty key [] is treated as [0].
-  	  if (!keylen) { key = [keylen++]; }
+    // The empty key [] is treated as [0].
+    if (!keylen) { key = [keylen++]; }
 
-  	  // Set up S using the standard key scheduling algorithm.
-  	  while (i < width) {
-  	    s[i] = i++;
-  	  }
-  	  for (i = 0; i < width; i++) {
-  	    s[i] = s[j = mask & (j + key[i % keylen] + (t = s[i]))];
-  	    s[j] = t;
-  	  }
+    // Set up S using the standard key scheduling algorithm.
+    while (i < width) {
+      s[i] = i++;
+    }
+    for (i = 0; i < width; i++) {
+      s[i] = s[j = mask & (j + key[i % keylen] + (t = s[i]))];
+      s[j] = t;
+    }
 
-  	  // The "g" method returns the next (count) outputs as one number.
-  	  (me.g = function(count) {
-  	    // Using instance members instead of closure state nearly doubles speed.
-  	    var t, r = 0,
-  	        i = me.i, j = me.j, s = me.S;
-  	    while (count--) {
-  	      t = s[i = mask & (i + 1)];
-  	      r = r * width + s[mask & ((s[i] = s[j = mask & (j + t)]) + (s[j] = t))];
-  	    }
-  	    me.i = i; me.j = j;
-  	    return r;
-  	    // For robust unpredictability, the function call below automatically
-  	    // discards an initial batch of values.  This is called RC4-drop[256].
-  	    // See http://google.com/search?q=rsa+fluhrer+response&btnI
-  	  })(width);
-  	}
+    // The "g" method returns the next (count) outputs as one number.
+    (me.g = function(count) {
+      // Using instance members instead of closure state nearly doubles speed.
+      var t, r = 0,
+          i = me.i, j = me.j, s = me.S;
+      while (count--) {
+        t = s[i = mask & (i + 1)];
+        r = r * width + s[mask & ((s[i] = s[j = mask & (j + t)]) + (s[j] = t))];
+      }
+      me.i = i; me.j = j;
+      return r;
+      // For robust unpredictability, the function call below automatically
+      // discards an initial batch of values.  This is called RC4-drop[256].
+      // See http://google.com/search?q=rsa+fluhrer+response&btnI
+    })(width);
+  }
 
-  	//
-  	// copy()
-  	// Copies internal state of ARC4 to or from a plain object.
-  	//
-  	function copy(f, t) {
-  	  t.i = f.i;
-  	  t.j = f.j;
-  	  t.S = f.S.slice();
-  	  return t;
-  	}
-  	//
-  	// flatten()
-  	// Converts an object tree to nested arrays of strings.
-  	//
-  	function flatten(obj, depth) {
-  	  var result = [], typ = (typeof obj), prop;
-  	  if (depth && typ == 'object') {
-  	    for (prop in obj) {
-  	      try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
-  	    }
-  	  }
-  	  return (result.length ? result : typ == 'string' ? obj : obj + '\0');
-  	}
+  //
+  // copy()
+  // Copies internal state of ARC4 to or from a plain object.
+  //
+  function copy(f, t) {
+    t.i = f.i;
+    t.j = f.j;
+    t.S = f.S.slice();
+    return t;
+  }
+  //
+  // flatten()
+  // Converts an object tree to nested arrays of strings.
+  //
+  function flatten(obj, depth) {
+    var result = [], typ = (typeof obj), prop;
+    if (depth && typ == 'object') {
+      for (prop in obj) {
+        try { result.push(flatten(obj[prop], depth - 1)); } catch (e) {}
+      }
+    }
+    return (result.length ? result : typ == 'string' ? obj : obj + '\0');
+  }
 
-  	//
-  	// mixkey()
-  	// Mixes a string seed into a key that is an array of integers, and
-  	// returns a shortened string seed that is equivalent to the result key.
-  	//
-  	function mixkey(seed, key) {
-  	  var stringseed = seed + '', smear, j = 0;
-  	  while (j < stringseed.length) {
-  	    key[mask & j] =
-  	      mask & ((smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++));
-  	  }
-  	  return tostring(key);
-  	}
+  //
+  // mixkey()
+  // Mixes a string seed into a key that is an array of integers, and
+  // returns a shortened string seed that is equivalent to the result key.
+  //
+  function mixkey(seed, key) {
+    var stringseed = seed + '', smear, j = 0;
+    while (j < stringseed.length) {
+      key[mask & j] =
+        mask & ((smear ^= key[mask & j] * 19) + stringseed.charCodeAt(j++));
+    }
+    return tostring(key);
+  }
 
-  	//
-  	// autoseed()
-  	// Returns an object for autoseeding, using window.crypto and Node crypto
-  	// module if available.
-  	//
-  	function autoseed() {
-  	  try {
-  	    var out;
-  	    if (nodecrypto && (out = nodecrypto.randomBytes)) {
-  	      // The use of 'out' to remember randomBytes makes tight minified code.
-  	      out = out(width);
-  	    } else {
-  	      out = new Uint8Array(width);
-  	      (global.crypto || global.msCrypto).getRandomValues(out);
-  	    }
-  	    return tostring(out);
-  	  } catch (e) {
-  	    var browser = global.navigator,
-  	        plugins = browser && browser.plugins;
-  	    return [+new Date, global, plugins, global.screen, tostring(pool)];
-  	  }
-  	}
+  //
+  // autoseed()
+  // Returns an object for autoseeding, using window.crypto and Node crypto
+  // module if available.
+  //
+  function autoseed() {
+    try {
+      var out;
+      if (nodecrypto && (out = nodecrypto.randomBytes)) {
+        // The use of 'out' to remember randomBytes makes tight minified code.
+        out = out(width);
+      } else {
+        out = new Uint8Array(width);
+        (global.crypto || global.msCrypto).getRandomValues(out);
+      }
+      return tostring(out);
+    } catch (e) {
+      var browser = global.navigator,
+          plugins = browser && browser.plugins;
+      return [+new Date, global, plugins, global.screen, tostring(pool)];
+    }
+  }
 
-  	//
-  	// tostring()
-  	// Converts an array of charcodes to a string
-  	//
-  	function tostring(a) {
-  	  return String.fromCharCode.apply(0, a);
-  	}
+  //
+  // tostring()
+  // Converts an array of charcodes to a string
+  //
+  function tostring(a) {
+    return String.fromCharCode.apply(0, a);
+  }
 
-  	//
-  	// When seedrandom.js is loaded, we immediately mix a few bits
-  	// from the built-in RNG into the entropy pool.  Because we do
-  	// not want to interfere with deterministic PRNG state later,
-  	// seedrandom will not call math.random on its own again after
-  	// initialization.
-  	//
-  	mixkey(math.random(), pool);
+  //
+  // When seedrandom.js is loaded, we immediately mix a few bits
+  // from the built-in RNG into the entropy pool.  Because we do
+  // not want to interfere with deterministic PRNG state later,
+  // seedrandom will not call math.random on its own again after
+  // initialization.
+  //
+  mixkey(math.random(), pool);
 
-  	//
-  	// Nodejs and AMD support: export the implementation as a module using
-  	// either convention.
-  	//
-  	if (module.exports) {
-  	  module.exports = seedrandom;
-  	  // When in node.js, try using crypto package for autoseeding.
-  	  try {
-  	    nodecrypto = require('crypto');
-  	  } catch (ex) {}
-  	} else {
-  	  // When included as a plain script, set up Math.seedrandom global.
-  	  math['seed' + rngname] = seedrandom;
-  	}
+  //
+  // Nodejs and AMD support: export the implementation as a module using
+  // either convention.
+  //
+  if (module.exports) {
+    module.exports = seedrandom;
+    // When in node.js, try using crypto package for autoseeding.
+    try {
+      nodecrypto = require('crypto');
+    } catch (ex) {}
+  } else {
+    // When included as a plain script, set up Math.seedrandom global.
+    math['seed' + rngname] = seedrandom;
+  }
 
 
-  	// End anonymous scope, and pass initial values.
-  	})(
-  	  // global: `self` in browsers (including strict mode and web workers),
-  	  // otherwise `this` in Node and other environments
-  	  (typeof self !== 'undefined') ? self : commonjsGlobal,
-  	  [],     // pool: entropy pool starts empty
-  	  Math    // math: package containing random, pow, and seedrandom
-  	);
-  } (seedrandom$1));
+  // End anonymous scope, and pass initial values.
+  })(
+    // global: `self` in browsers (including strict mode and web workers),
+    // otherwise `this` in Node and other environments
+    (typeof self !== 'undefined') ? self : commonjsGlobal,
+    [],     // pool: entropy pool starts empty
+    Math    // math: package containing random, pow, and seedrandom
+  );
+  }(seedrandom$1));
 
   // A library of seedable RNGs implemented in Javascript.
   //
@@ -3696,7 +4908,7 @@
     init: init
   });
 
-  exports.init = init$d;
+  exports.init = init$e;
   exports.load = load$1;
   exports.update = update$1;
 
