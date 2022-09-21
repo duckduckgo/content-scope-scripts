@@ -470,10 +470,24 @@ export function init (args) {
             }
 
             for (const key of Object.keys(this.dataElements)) {
-                const attrValue = encodeURIComponent(this.dataElements[key])
-                if (attrValue) {
-                    this.clickAction.targetURL = this.clickAction.targetURL.replace(key, attrValue)
+                let attrValue = this.dataElements[key]
+
+                if (!attrValue) {
+                    continue
                 }
+
+                // The URL for Facebook videos are specified as the data-href
+                // attribute on a div, that is then used to create the iframe.
+                // Some websites omit the protocol part of the URL when doing
+                // that, which then prevents the iframe from loading correctly.
+                if (key === 'data-href' && attrValue.startsWith('//')) {
+                    attrValue = window.location.protocol + attrValue
+                }
+
+                this.clickAction.targetURL =
+                    this.clickAction.targetURL.replace(
+                        key, encodeURIComponent(attrValue)
+                    )
             }
         }
 
@@ -654,7 +668,7 @@ export function init (args) {
                             .then(v => {
                                 fbContainer.replaceWith(fbElement)
                                 this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked')
-                                this.fadeInElement(fadeIn).then(v => {
+                                this.fadeInElement(fadeIn).then(() => {
                                     fbElement.focus() // focus on new element for screen readers
                                 })
                             })
@@ -794,8 +808,8 @@ export function init (args) {
             const { height: placeholderHeight } = window.getComputedStyle(contentBlock)
             const { height: parentHeight } = window.getComputedStyle(contentBlock.parentElement)
             if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
-                const textButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
-                textButton.style.display = 'block'
+                const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
+                titleRowTextButton.style.display = 'block'
             }
         }
     }
@@ -836,8 +850,8 @@ export function init (args) {
      *********************************************************/
     function enableSocialTracker (entity, isLogin) {
         const message = {
-            entity: entity,
-            isLogin: isLogin
+            entity,
+            isLogin
         }
         sendMessage('enableSocialTracker', message)
     }
@@ -891,6 +905,16 @@ export function init (args) {
         enableSocialTracker(entity, true)
         window.dispatchEvent(
             createCustomEvent('ddg-ctp-run-login', {
+                detail: {
+                    entity
+                }
+            })
+        )
+    }
+
+    function cancelModal (entity) {
+        window.dispatchEvent(
+            createCustomEvent('ddg-ctp-cancel-modal', {
                 detail: {
                     entity
                 }
@@ -1019,8 +1043,8 @@ export function init (args) {
         }
 
         return {
-            button: button,
-            container: container
+            button,
+            container
         }
     }
 
@@ -1072,6 +1096,7 @@ export function init (args) {
         rejectButton.style.cssText += styles.modalButton + 'float: right;'
         rejectButton.addEventListener('click', function cancelLogin () {
             document.body.removeChild(modalContainer)
+            cancelModal(entity)
         })
 
         buttonRow.appendChild(allowButton)
