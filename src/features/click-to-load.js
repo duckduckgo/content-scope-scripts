@@ -415,10 +415,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock Page",
-                        "infoTitle": "DuckDuckGo blocked this Facebook content",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Content",
+                        "infoTitle": "DuckDuckGo blocked this content to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "originalElement"
@@ -430,10 +430,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock Page",
-                        "infoTitle": "DuckDuckGo blocked this Facebook content",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Content",
+                        "infoTitle": "DuckDuckGo blocked this content to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "iFrame",
@@ -472,10 +472,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock comment",
-                        "infoTitle": "DuckDuckGo blocked this Facebook comment",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Comment",
+                        "infoTitle": "DuckDuckGo blocked this comment to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "originalElement"
@@ -484,14 +484,14 @@ export function init (args) {
                 "FB Comments": {
                     "selectors": [
                         ".fb-comments",
-                        "fb\\3Acomments"
+                        "fb\\:comments"
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock comments",
-                        "infoTitle": "DuckDuckGo blocked these Facebook comments",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Comments",
+                        "infoTitle": "DuckDuckGo blocked these comments to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "allowFull",
@@ -516,10 +516,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock comment",
-                        "infoTitle": "DuckDuckGo blocked this Facebook comment",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Comment",
+                        "infoTitle": "DuckDuckGo blocked this comment to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "iFrame",
@@ -551,10 +551,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock post",
-                        "infoTitle": "DuckDuckGo blocked this Facebook post",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Post",
+                        "infoTitle": "DuckDuckGo blocked this post to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "originalElement"
@@ -566,10 +566,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock post",
-                        "infoTitle": "DuckDuckGo blocked this Facebook post",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Post",
+                        "infoTitle": "DuckDuckGo blocked this post to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "allowFull",
@@ -603,10 +603,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock video",
-                        "infoTitle": "DuckDuckGo blocked this Facebook video",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Video",
+                        "infoTitle": "DuckDuckGo blocked this video to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "originalElement"
@@ -618,10 +618,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock video",
-                        "infoTitle": "DuckDuckGo blocked this Facebook video",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Video",
+                        "infoTitle": "DuckDuckGo blocked this video to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "iFrame",
@@ -655,10 +655,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock Group",
-                        "infoTitle": "DuckDuckGo blocked this Facebook content",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Content",
+                        "infoTitle": "DuckDuckGo blocked this content to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "originalElement"
@@ -670,10 +670,10 @@ export function init (args) {
                     ],
                     "replaceSettings": {
                         "type": "dialog",
-                        "buttonText": "Unblock Group",
-                        "infoTitle": "DuckDuckGo blocked this Facebook content",
-                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity.",
-                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this Facebook content, Facebook will know your activity."
+                        "buttonText": "Unblock Content",
+                        "infoTitle": "DuckDuckGo blocked this content to prevent Facebook from tracking you",
+                        "infoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.",
+                        "simpleInfoText": "We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."
                     },
                     "clickAction": {
                         "type": "iFrame",
