@@ -9,7 +9,7 @@
     "build-firefox": "mkdir -p build/firefox/ && node scripts/inject.mjs firefox > build/firefox/inject.js",
     "build-chrome": "mkdir -p build/chrome/ && node scripts/inject.mjs chrome > build/chrome/inject.js",
     "build-chrome-mv3": "mkdir -p build/chrome-mv3/ && node scripts/inject.mjs chrome-mv3 > build/chrome-mv3/inject.js",
-    "build-apple": "mkdir -p Sources/ContentScopeScripts/dist/ && node scripts/inject.mjs apple > Sources/ContentScopeScripts/dist/contentScope.js",
+    "build-apple": "mkdir -p build/apple/ && node scripts/inject.mjs apple > build/apple/contentScope.js",
     "build-android": "mkdir -p build/android/ && node scripts/inject.mjs android > build/android/contentScope.js",
     "build-windows": "mkdir -p build/windows/ && node scripts/inject.mjs windows > build/windows/contentScope.js",
     "build-integration": "mkdir -p build/integration/ && node scripts/inject.mjs integration > build/integration/contentScope.js && npm run copy-build-integration",
