@@ -1531,9 +1531,9 @@
       };
 
       /*********************************************************
-       *  Strings (temporarily here, until localized)
+       *  config (temporarily here, until localized)
        *********************************************************/
-      const strings = {
+      const config = {
           Facebook: {
               informationalModal: {
                   icon: 'blocked_facebook_logo.svg',
@@ -2227,10 +2227,10 @@
           }
       }
 
-      async function init () {
-          for (const entity of Object.keys(strings)) {
+      async function initCTL () {
+          for (const entity of Object.keys(config)) {
               entities.push(entity);
-              const { informationalModal, simpleVersion } = strings[entity];
+              const { informationalModal, simpleVersion } = config[entity];
               const shouldShowLoginModal = !!informationalModal;
 
               const currentEntityData = {
@@ -2248,10 +2248,10 @@
 
               entityData[entity] = currentEntityData;
           }
-          await replaceClickToLoadElements(strings);
+          await replaceClickToLoadElements(config);
 
           window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
-              replaceClickToLoadElements(strings, target);
+              replaceClickToLoadElements(config, target);
           }, { capture: true });
 
           window.dispatchEvent(createCustomEvent('ddg-ctp-ready'));
@@ -2395,11 +2395,11 @@
 
       sendMessage('initClickToLoad').then(response => {
           if (document.readyState === 'complete') {
-              init();
+              initCTL();
           } else {
               // Content script loaded before page content, so wait for load.
               window.addEventListener('load', (event) => {
-                  init();
+                  initCTL();
               });
           }
       });
