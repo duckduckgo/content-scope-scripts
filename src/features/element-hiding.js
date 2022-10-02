@@ -1,4 +1,6 @@
-import { isBeingFramed, getFeatureSetting, getFeatureSettingEnabled, matchHostname } from '../utils'
+import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect } from '../utils'
+
+let adLabelStrings = []
 
 function collapseDomNode(element, type) {
     console.log("attempting to hide element", element, type)
@@ -6,29 +8,40 @@ function collapseDomNode(element, type) {
         return
     }
     
-    if (type === 'hide') {
-        if (isDomNodeEmpty(element)) {
-            element.style.setProperty('display', 'none', 'important')
-            element.hidden = true
-        }
-    }
-    
-    if (type === 'closest-empty') {
-        if (isDomNodeEmpty(element)) {
-            element.style.setProperty('display', 'none', 'important')
-            element.hidden = true
-            
-//            if (element.parentNode.childElementCount === 1) {
+    switch (type) {
+        case 'hide':
+            if (!element.hidden) {
+                element.style.setProperty('display', 'none', 'important')
+                element.hidden = true
+            }
+            break
+        case 'hide-empty':
+            if (!element.hidden && isDomNodeEmpty(element)) {
+                element.style.setProperty('display', 'none', 'important')
+                element.hidden = true
+            }
+            break
+        case 'closest-empty':
+            // if element already hidden, continue onto parent element
+            if (element.hidden) {
                 collapseDomNode(element.parentNode, type)
             }
-//        }
+            
+            if (isDomNodeEmpty(element)) {
+                element.style.setProperty('display', 'none', 'important')
+                element.hidden = true
+                collapseDomNode(element.parentNode, type)
+            }
+            break
+        default:
+            console.log(`Unsupported rule: ${type}`)
     }
 }
 
 function isDomNodeEmpty (node) {
-    if (node.childElementCount === 0 ||
-        node.textContent.trim() === '' || node.textContent.trim().toLocaleLowerCase() === 'advertisement' ||
-        [...node.children].every((el) => (el.nodeName === 'SCRIPT' || el.hidden === true || el.textContent.trim() === ''))) {
+    const visibleText = node.innerText.trim().toLocaleLowerCase()
+    const mediaContent = node.querySelector('iframe,video,canvas')
+    if ((visibleText === '' || adLabelStrings.includes(visibleText)) && mediaContent === null) {
         return true
     }
     return false
@@ -36,27 +49,38 @@ function isDomNodeEmpty (node) {
 
 function hideMatchingDomNodes(rules) {
     const document = globalThis.document
-    
-    rules.forEach((rule) => {
-        const matchingElementArray = [...document.querySelectorAll(rule.selector)]
-        matchingElementArray.forEach((element) => {
-            collapseDomNode(element, rule.type)
+
+    // wait 300ms before hiding ad containers so ads have a chance to load
+    setTimeout(() => {
+        rules.forEach((rule) => {
+            const matchingElementArray = [...document.querySelectorAll(rule.selector)]
+            matchingElementArray.forEach((element) => {
+                collapseDomNode(element, rule.type)
+            })
         })
-        
-    })
+    }, 300)
+    
+    // handle any ad containers that weren't added to the page within 300ms of page load
+    setTimeout(() => {
+        rules.forEach((rule) => {
+            const matchingElementArray = [...document.querySelectorAll(rule.selector)]
+            matchingElementArray.forEach((element) => {
+                collapseDomNode(element, rule.type)
+            })
+        })
+    }, 1000)
 }
 
 export function init (args) {
     if (isBeingFramed()) {
         return
     }
-    console.log("elementHiding successfully injected")
     
-    const document = globalThis.document
     const featureName = 'elementHiding'
     const domain = args.site.domain
     const domainRules = getFeatureSetting(featureName, args, 'domains')
     const globalRules = getFeatureSetting(featureName, args, 'rules')
+    adLabelStrings = getFeatureSetting(featureName, args, 'adLabelStrings')
 
     // collect all matching rules for domain
     const activeDomainRules = domainRules.filter((rule) => {
@@ -81,23 +105,22 @@ export function init (args) {
     // now have the final list of rules to apply, so we apply them when document is loaded
     if (document.readyState === 'loading') {
         window.addEventListener('DOMContentLoaded', (event) => {
-            setTimeout(() => {
-                hideMatchingDomNodes(activeRules)
-            }, 300)
+            hideMatchingDomNodes(activeRules)
         })
     } else {
-        setTimeout(() => {
-            hideMatchingDomNodes(activeRules)
-        }, 300)
+        hideMatchingDomNodes(activeRules)
     }
-    // SPAs like aljazeera.com don't have a DOMContentLoaded event on navigations, so we set
-    // up a listener on popstate as well
-    window.addEventListener('popstate', (event) => {
-        setTimeout(() => {
-            hideMatchingDomNodes(activeRules)
-        }, 300)
-    })
-    
-    //console.log("getFeatureSettingEnabled", getFeatureSettingEnabled())
-    console.log(args)
+    // Single page applications don't have a DOMContentLoaded event on navigations, so
+    // we use proxy/reflect on history.pushState and history.replaceState to call hideMatchingDomNodes
+    // on page loads
+    const methods = ['pushState', 'replaceState']
+    for (const methodName of methods) {
+        const historyMethodProxy = new DDGProxy(featureName, History.prototype, methodName, {
+            apply(target, thisArg, args) {
+                hideMatchingDomNodes(activeRules)
+                return DDGReflect.apply(target, thisArg, args)
+            }
+        })
+        historyMethodProxy.overload()
+    }
 }
