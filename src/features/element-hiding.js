@@ -44,11 +44,11 @@ function isDomNodeEmpty (node) {
     const visibleText = node.innerText.trim().toLocaleLowerCase()
     const mediaContent = node.querySelector('video,canvas')
     const frameElements = [...node.querySelectorAll('iframe')]
-    // about:blank iframes don't count as content, return true if
-    // node either doesn't contain any iframes or node contains only
-    // iframes with src='about:blank'
+    // about:blank iframes don't count as content, return true if:
+    // - node doesn't contain any iframes
+    // - node contains iframes, all of which are hidden or have src='about:blank'
     const noFramesWithContent = frameElements.every((frame) => {
-        return frame.src === 'about:blank'
+        return (frame.hidden || frame.src === 'about:blank')
     })
     if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
         noFramesWithContent && mediaContent === null) {
