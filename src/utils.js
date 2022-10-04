@@ -60,8 +60,7 @@ export function isBeingFramed () {
     if ('ancestorOrigins' in globalThis.location) {
         return globalThis.location.ancestorOrigins.length > 0
     }
-    // @ts-ignore types do overlap whilst in DOM context
-    return globalThis.top !== globalThis
+    return globalThis.top !== globalThis.window
 }
 
 /**
