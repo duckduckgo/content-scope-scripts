@@ -669,23 +669,35 @@
 
   /* global cloneInto, exportFunction, false */
 
-  function getTopLevelURL () {
+  /**
+   * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
+   * @returns {string|null} inferred tab hostname
+   */
+  function getTabHostname () {
+      let framingOrigin = null;
       try {
-          // FROM: https://stackoverflow.com/a/7739035/73479
-          // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
-          if (window.location !== window.parent.location) {
-              return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
-          } else {
-              return new URL(window.location.href)
-          }
-      } catch (error) {
-          return new URL(location.href)
+          framingOrigin = globalThis.top.location.href;
+      } catch {
+          framingOrigin = globalThis.document.referrer;
       }
+
+      // Not supported in Firefox
+      if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+          // ancestorOrigins is reverse order, with the last item being the top frame
+          framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+      }
+
+      try {
+          framingOrigin = new URL(framingOrigin).hostname;
+      } catch {
+          framingOrigin = null;
+      }
+      return framingOrigin
   }
 
-  function isUnprotectedDomain (topLevelUrl, featureList) {
+  function isUnprotectedDomain (topLevelHostname, featureList) {
       let unprotectedDomain = false;
-      const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : [];
+      const domainParts = topLevelHostname.split('.');
 
       // walk up the domain to see if it's unprotected
       while (domainParts.length > 1 && !unprotectedDomain) {
@@ -699,18 +711,24 @@
       return unprotectedDomain
   }
 
+  /**
+   * @param {{ features: Record<string, { state: string; settings: any; exceptions: string[] }>; unprotectedTemporary: string; }} data
+   * @param {string[]} userList
+   * @param {Record<string, unknown>} preferences
+   * @param {string[]} platformSpecificFeatures
+   */
   function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
-      const topLevelUrl = getTopLevelURL();
-      const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
+      const topLevelHostname = getTabHostname();
+      const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0;
       const remoteFeatureNames = Object.keys(data.features);
       const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
       const enabledFeatures = remoteFeatureNames.filter((featureName) => {
           const feature = data.features[featureName];
-          return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
+          return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
       }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
-      const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
+      const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary);
       preferences.site = {
-          domain: topLevelUrl.hostname,
+          domain: topLevelHostname,
           isBroken,
           allowlisted,
           enabledFeatures
@@ -1463,14 +1481,14 @@
       if (!isBeingFramed()) {
           return false
       }
-      return !matchHostname(globalThis.location.hostname, getTabOrigin())
+      return !matchHostname(globalThis.location.hostname, getTabHostname())
   }
 
   /**
-   * Best guess effort of the tabs origin
-   * @returns {string|null} inferred tab origin
+   * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
+   * @returns {string|null} inferred tab hostname
    */
-  function getTabOrigin () {
+  function getTabHostname () {
       let framingOrigin = null;
       try {
           framingOrigin = globalThis.top.location.href;
@@ -2051,12 +2069,12 @@
   ];
 
   let protectionExempted = true;
-  const tabOrigin = getTabOrigin();
+  const tabHostname = getTabHostname();
   let tabExempted = true;
 
-  if (tabOrigin != null) {
+  if (tabHostname != null) {
       tabExempted = exceptions.some((exception) => {
-          return matchHostname(tabOrigin, exception.domain)
+          return matchHostname(tabHostname, exception.domain)
       });
   }
   const frameExempted = excludedCookieDomains.some((exception) => {

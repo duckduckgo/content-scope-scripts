@@ -1,14 +1,14 @@
-import { defineProperty, postDebugMessage, getFeatureSetting, getFeatureSettingEnabled, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabOrigin, matchHostname } from '../utils.js'
+import { defineProperty, postDebugMessage, getFeatureSetting, getFeatureSettingEnabled, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabHostname, matchHostname } from '../utils.js'
 import { Cookie } from '../cookie.js'
 import { exceptions, excludedCookieDomains } from '../../shared/cookieExceptions.js'
 
 let protectionExempted = true
-const tabOrigin = getTabOrigin()
+const tabHostname = getTabHostname()
 let tabExempted = true
 
-if (tabOrigin != null) {
+if (tabHostname != null) {
     tabExempted = exceptions.some((exception) => {
-        return matchHostname(tabOrigin, exception.domain)
+        return matchHostname(tabHostname, exception.domain)
     })
 }
 const frameExempted = excludedCookieDomains.some((exception) => {
