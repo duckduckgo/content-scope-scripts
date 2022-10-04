@@ -118,9 +118,9 @@ export function init (args) {
     } else {
         hideMatchingDomNodes(activeRules)
     }
-    // Single page applications don't have a DOMContentLoaded event on navigations, so
+    // single page applications don't have a DOMContentLoaded event on navigations, so
     // we use proxy/reflect on history.pushState and history.replaceState to call hideMatchingDomNodes
-    // on page loads
+    // on page navigations, and listen for popstate events that indicate a back/forward navigation
     const methods = ['pushState', 'replaceState']
     for (const methodName of methods) {
         const historyMethodProxy = new DDGProxy(featureName, History.prototype, methodName, {
@@ -131,4 +131,7 @@ export function init (args) {
         })
         historyMethodProxy.overload()
     }
+    window.addEventListener('popstate', (event) => {
+        hideMatchingDomNodes(activeRules)
+    })
 }
