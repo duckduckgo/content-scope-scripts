@@ -60,25 +60,19 @@ function isDomNodeEmpty (node) {
 function hideMatchingDomNodes (rules) {
     const document = globalThis.document
 
-    // wait 300ms before hiding ad containers so ads have a chance to load
-    setTimeout(() => {
+    function hideMatchingNodesInner () {
         rules.forEach((rule) => {
             const matchingElementArray = [...document.querySelectorAll(rule.selector)]
             matchingElementArray.forEach((element) => {
                 collapseDomNode(element, rule.type)
             })
         })
-    }, 300)
+    }
+    // wait 300ms before hiding ad containers so ads have a chance to load
+    setTimeout(hideMatchingNodesInner, 300)
 
     // handle any ad containers that weren't added to the page within 300ms of page load
-    setTimeout(() => {
-        rules.forEach((rule) => {
-            const matchingElementArray = [...document.querySelectorAll(rule.selector)]
-            matchingElementArray.forEach((element) => {
-                collapseDomNode(element, rule.type)
-            })
-        })
-    }, 1000)
+    setTimeout(hideMatchingNodesInner, 1000)
 }
 
 export function init (args) {
