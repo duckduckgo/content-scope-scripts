@@ -731,14 +731,14 @@
       if (!isBeingFramed()) {
           return false
       }
-      return !matchHostname(globalThis.location.hostname, getTabOrigin())
+      return !matchHostname(globalThis.location.hostname, getTabHostname())
   }
 
   /**
-   * Best guess effort of the tabs origin
-   * @returns {string|null} inferred tab origin
+   * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
+   * @returns {string|null} inferred tab hostname
    */
-  function getTabOrigin () {
+  function getTabHostname () {
       let framingOrigin = null;
       try {
           framingOrigin = globalThis.top.location.href;
@@ -1319,12 +1319,12 @@
   ];
 
   let protectionExempted = true;
-  const tabOrigin = getTabOrigin();
+  const tabHostname = getTabHostname();
   let tabExempted = true;
 
-  if (tabOrigin != null) {
+  if (tabHostname != null) {
       tabExempted = exceptions.some((exception) => {
-          return matchHostname(tabOrigin, exception.domain)
+          return matchHostname(tabHostname, exception.domain)
       });
   }
   const frameExempted = excludedCookieDomains.some((exception) => {
