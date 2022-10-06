@@ -749,6 +749,10 @@
       return preferences
   }
 
+  function isGloballyDisabled (args) {
+      return args.site.allowlisted || args.site.isBroken
+  }
+
   var contentScopeFeatures = (function (exports) {
   'use strict';
 
@@ -4458,7 +4462,7 @@
 
   function init () {
       const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
-      if (processedConfig.site.allowlisted) {
+      if (isGloballyDisabled(processedConfig)) {
           return
       }
 

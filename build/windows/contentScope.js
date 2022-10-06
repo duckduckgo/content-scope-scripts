@@ -749,6 +749,10 @@
       return preferences
   }
 
+  function isGloballyDisabled (args) {
+      return args.site.allowlisted || args.site.isBroken
+  }
+
   const windowsSpecificFeatures = ['windowsPermissionUsage'];
 
   var contentScopeFeatures = (function (exports) {
@@ -4460,6 +4464,9 @@
 
   function init () {
       const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$, windowsSpecificFeatures);
+      if (isGloballyDisabled(processedConfig)) {
+          return
+      }
 
       contentScopeFeatures.load();
 

@@ -1,10 +1,10 @@
 /* global contentScopeFeatures */
 
-import { processConfig } from './../src/utils'
+import { processConfig, isGloballyDisabled } from './../src/utils'
 
 function init () {
     const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
-    if (processedConfig.site.allowlisted) {
+    if (isGloballyDisabled(processedConfig)) {
         return
     }
 

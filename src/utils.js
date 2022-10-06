@@ -478,6 +478,10 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     return preferences
 }
 
+export function isGloballyDisabled (args) {
+    return args.site.allowlisted || args.site.isBroken
+}
+
 export const windowsSpecificFeatures = ['windowsPermissionUsage']
 
 export function isWindowsSpecificFeature (featureName) {
