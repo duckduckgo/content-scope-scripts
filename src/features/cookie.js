@@ -68,6 +68,10 @@ function isNonTrackingCookie () {
 }
 
 export function load (args) {
+    // Feature is only relevant to the extension, we should skip for other platforms for now as the config testing is broken.
+    if (args.platform.name !== 'extension') {
+        return
+    }
     trackerHosts.clear()
 
     // The cookie policy is injected into every frame immediately so that no cookie will

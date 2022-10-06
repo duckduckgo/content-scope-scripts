@@ -19,6 +19,9 @@ function generateConfig (data, userList) {
     return {
         debug: false,
         sessionKey: 'randomVal',
+        platform: {
+            name: 'extension'
+        },
         site: {
             domain: topLevelUrl.hostname,
             isBroken: false,
@@ -35,7 +38,9 @@ function generateConfig (data, userList) {
 async function init () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
-    await contentScopeFeatures.load()
+    await contentScopeFeatures.load({
+        platform: processedConfig.platform
+    })
 
     // mark this phase as loaded
     setStatus('loaded')
