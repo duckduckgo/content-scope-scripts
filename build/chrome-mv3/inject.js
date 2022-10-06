@@ -1062,6 +1062,7 @@
   function __variableDynamicImportRuntime0__(path) {
      switch (path) {
        case './features/cookie.js': return Promise.resolve().then(function () { return cookie; });
+       case './features/element-hiding.js': return Promise.resolve().then(function () { return elementHiding; });
        case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
        case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
        case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
@@ -1111,7 +1112,8 @@
           'referrer',
           'fingerprintingScreenSize',
           'fingerprintingTemporaryStorage',
-          'navigatorInterface'
+          'navigatorInterface',
+          'elementHiding'
       ];
 
       for (const featureName of featureNames) {
@@ -1126,7 +1128,7 @@
       }
   }
 
-  async function init$d (args) {
+  async function init$e (args) {
       initArgs = args;
       if (!shouldRun()) {
           return
@@ -1482,7 +1484,7 @@
       });
   }
 
-  function init$c (args) {
+  function init$d (args) {
       args.cookie.debug = args.debug;
       cookiePolicy = args.cookie;
 
@@ -1506,8 +1508,143 @@
   var cookie = /*#__PURE__*/Object.freeze({
     __proto__: null,
     load: load,
-    init: init$c,
+    init: init$d,
     update: update
+  });
+
+  let adLabelStrings = [];
+
+  function collapseDomNode (element, type) {
+      if (!element) {
+          return
+      }
+
+      switch (type) {
+      case 'hide':
+          if (!element.hidden) {
+              hideNode(element);
+          }
+          break
+      case 'hide-empty':
+          if (!element.hidden && isDomNodeEmpty(element)) {
+              hideNode(element);
+          }
+          break
+      case 'closest-empty':
+          // if element already hidden, continue onto parent element
+          if (element.hidden) {
+              collapseDomNode(element.parentNode, type);
+              break
+          }
+
+          if (isDomNodeEmpty(element)) {
+              hideNode(element);
+              collapseDomNode(element.parentNode, type);
+          }
+          break
+      default:
+          console.log(`Unsupported rule: ${type}`);
+      }
+  }
+
+  function hideNode (element) {
+      element.style.setProperty('display', 'none', 'important');
+      element.hidden = true;
+  }
+
+  function isDomNodeEmpty (node) {
+      const visibleText = node.innerText.trim().toLocaleLowerCase();
+      const mediaContent = node.querySelector('video,canvas');
+      const frameElements = [...node.querySelectorAll('iframe')];
+      // about:blank iframes don't count as content, return true if:
+      // - node doesn't contain any iframes
+      // - node contains iframes, all of which are hidden or have src='about:blank'
+      const noFramesWithContent = frameElements.every((frame) => {
+          return (frame.hidden || frame.src === 'about:blank')
+      });
+      if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
+          noFramesWithContent && mediaContent === null) {
+          return true
+      }
+      return false
+  }
+
+  function hideMatchingDomNodes (rules) {
+      const document = globalThis.document;
+
+      function hideMatchingNodesInner () {
+          rules.forEach((rule) => {
+              const matchingElementArray = [...document.querySelectorAll(rule.selector)];
+              matchingElementArray.forEach((element) => {
+                  collapseDomNode(element, rule.type);
+              });
+          });
+      }
+      // wait 300ms before hiding ad containers so ads have a chance to load
+      setTimeout(hideMatchingNodesInner, 300);
+
+      // handle any ad containers that weren't added to the page within 300ms of page load
+      setTimeout(hideMatchingNodesInner, 1000);
+  }
+
+  function init$c (args) {
+      if (isBeingFramed()) {
+          return
+      }
+
+      const featureName = 'elementHiding';
+      const domain = args.site.domain;
+      const domainRules = getFeatureSetting(featureName, args, 'domains');
+      const globalRules = getFeatureSetting(featureName, args, 'rules');
+      adLabelStrings = getFeatureSetting(featureName, args, 'adLabelStrings');
+
+      // collect all matching rules for domain
+      const activeDomainRules = domainRules.filter((rule) => {
+          return matchHostname(domain, rule.domain)
+      }).flatMap((item) => item.rules);
+
+      const overrideRules = activeDomainRules.filter((rule) => {
+          return rule.type === 'override'
+      });
+
+      let activeRules = activeDomainRules.concat(globalRules);
+
+      // remove overrides and rules that match overrides from array of rules to be applied to page
+      overrideRules.forEach((override) => {
+          activeRules = activeRules.filter((rule) => {
+              return rule.selector !== override.selector
+          });
+      });
+
+      // now have the final list of rules to apply, so we apply them when document is loaded
+      if (document.readyState === 'loading') {
+          window.addEventListener('DOMContentLoaded', (event) => {
+              hideMatchingDomNodes(activeRules);
+          });
+      } else {
+          hideMatchingDomNodes(activeRules);
+      }
+      // single page applications don't have a DOMContentLoaded event on navigations, so
+      // we use proxy/reflect on history.pushState and history.replaceState to call hideMatchingDomNodes
+      // on page navigations, and listen for popstate events that indicate a back/forward navigation
+      const methods = ['pushState', 'replaceState'];
+      for (const methodName of methods) {
+          const historyMethodProxy = new DDGProxy(featureName, History.prototype, methodName, {
+              apply (target, thisArg, args) {
+                  hideMatchingDomNodes(activeRules);
+                  return DDGReflect.apply(target, thisArg, args)
+              }
+          });
+          historyMethodProxy.overload();
+      }
+      window.addEventListener('popstate', (event) => {
+          hideMatchingDomNodes(activeRules);
+      });
+  }
+
+  var elementHiding = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$c
   });
 
   function init$b (args) {
@@ -3707,7 +3844,7 @@
     init: init
   });
 
-  exports.init = init$d;
+  exports.init = init$e;
   exports.load = load$1;
   exports.update = update$1;
 
