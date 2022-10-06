@@ -35,7 +35,23 @@ function navigatorCredentialsFix () {
     }
 }
 
+function safariObjectFix () {
+    try {
+        if (window.safari) {
+            return
+        }
+        defineProperty(window, 'safari', {
+            value: {},
+            configurable: true,
+            enumerable: true
+        })
+    } catch {
+        // Ignore exceptions that could be caused by conflicting with other extensions
+    }
+}
+
 export function init () {
     windowSizingFix()
     navigatorCredentialsFix()
+    safariObjectFix()
 }
