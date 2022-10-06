@@ -8,7 +8,9 @@ function init () {
         return
     }
 
-    contentScopeFeatures.load()
+    contentScopeFeatures.load({
+        platform: processedConfig.platform
+    })
 
     contentScopeFeatures.init(processedConfig)
 

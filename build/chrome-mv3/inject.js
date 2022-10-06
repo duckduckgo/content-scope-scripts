@@ -1094,7 +1094,7 @@
   const updates = [];
   const features = [];
 
-  async function load$1 () {
+  async function load$1 (args) {
       if (!shouldRun()) {
           return
       }
@@ -1118,7 +1118,7 @@
           const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
           const feature = __variableDynamicImportRuntime0__(`./features/${filename}.js`).then(({ init, load, update }) => {
               if (load) {
-                  load();
+                  load(args);
               }
               return { featureName, init, update }
           });
@@ -1383,6 +1383,10 @@
   }
 
   function load (args) {
+      // Feature is only relevant to the extension, we should skip for other platforms for now as the config testing is broken.
+      if (args.platform.name !== 'extension') {
+          return
+      }
       trackerHosts.clear();
 
       // The cookie policy is injected into every frame immediately so that no cookie will
@@ -3710,7 +3714,11 @@
 
     const secret = window.crypto.randomUUID();
 
-    contentScopeFeatures.load();
+    contentScopeFeatures.load({
+        platform: {
+            name: 'extension'
+        }
+    });
 
     window.addEventListener(secret, ({ detail: message }) => {
         if (!message) return
