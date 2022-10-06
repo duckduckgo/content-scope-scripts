@@ -3631,9 +3631,11 @@
               'drawArrays'
           ];
           const glContexts = [
-              WebGL2RenderingContext,
               WebGLRenderingContext
           ];
+          if ('WebGL2RenderingContext' in globalThis) {
+              glContexts.push(WebGL2RenderingContext);
+          }
           for (const context of glContexts) {
               for (const methodName of unsafeGlMethods) {
                   // Some methods are browser specific
