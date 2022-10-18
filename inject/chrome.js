@@ -106,6 +106,17 @@ function init () {
             inject(callRandomUpdateFunction)
         }
     })
+
+    // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    //     console.warn('*** onMessage Response 1')
+    //     sendResponse({"success": "success"});
+    //     return true;
+    // });
+
+    window.addEventListener('message', (m) => {
+        console.warn('**** MSG', m, m && m.data)
+        // m.ports[0].postMessage("YES");
+    })
 }
 
 init()

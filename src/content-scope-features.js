@@ -57,6 +57,7 @@ export async function init (args) {
     initStringExemptionLists(args)
     const resolvedFeatures = await Promise.all(features)
     resolvedFeatures.forEach(({ init, featureName }) => {
+        if(featureName === 'clickToLoad') featureName = 'clickToPlay'
         if (!isFeatureBroken(args, featureName)) {
             init(args)
         }

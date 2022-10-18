@@ -413,6 +413,20 @@ export function postDebugMessage (feature, message) {
     })
 }
 
+export function ctlMessage (feature, message) {
+    const channel = new MessageChannel();
+    channel.port1.onmessage = ({data}) => {
+        console.warn('channel resp', data)
+    }
+
+    console.warn('ctlMessage sent msg', message)
+
+    globalObj.postMessage({
+        action: feature,
+        message
+    }, [channel.port2])
+}
+
 export let DDGReflect
 export let DDGPromise
 
@@ -424,6 +438,11 @@ if (hasMozProxies) {
     DDGPromise = globalObj.Promise
     DDGReflect = globalObj.Reflect
 }
+
+// const extensionId = 'epcfiajcdnoijfngcanpkncijagokblg'
+// export function DDGsendMessage (messageType, options, response) {
+//     return chrome.runtime.sendMessage('epcfiajcdnoijfngcanpkncijagokblg', { messageType, options}, response)
+// }
 
 export function getTopLevelURL () {
     try {

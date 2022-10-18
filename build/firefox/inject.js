@@ -1063,6 +1063,20 @@
       });
   }
 
+  function ctlMessage (feature, message) {
+      const channel = new MessageChannel();
+      channel.port1.onmessage = ({data}) => {
+          console.warn('channel resp', data);
+      };
+
+      console.warn('ctlMessage sent msg', message);
+
+      globalObj.postMessage({
+          action: feature,
+          message
+      }, [channel.port2]);
+  }
+
   let DDGReflect;
   let DDGPromise;
 
@@ -1155,6 +1169,7 @@
       initStringExemptionLists(args);
       const resolvedFeatures = await Promise.all(features);
       resolvedFeatures.forEach(({ init, featureName }) => {
+          if(featureName === 'clickToLoad') featureName = 'clickToPlay';
           if (!isFeatureBroken(args, featureName)) {
               init(args);
           }
@@ -1190,13 +1205,15 @@
   function init$d (args) {
       function sendMessage (messageType, options) {
           return new Promise((resolve, reject) => {
-              chrome.runtime.sendMessage({ messageType, options }, response => {
-                  if (chrome.runtime.lastError) {
-                      reject(new Error(chrome.runtime.lastError.message));
-                  } else {
-                      resolve(response);
-                  }
-              });
+              // const extensionId = 'epcfiajcdnoijfngcanpkncijagokblg'
+              // chrome.runtime.sendMessage(extensionId, { messageType, options }, response => {
+              //     if (chrome.runtime.lastError) {
+              //         reject(new Error(chrome.runtime.lastError.message))
+              //     } else {
+              //         resolve("ok")
+              //     }
+              // })
+              ctlMessage(messageType, options);
           })
       }
 
@@ -1220,8 +1237,8 @@
       let logoImg;
       const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle';
       const entities = [];
-      const ddgFont = chrome.runtime.getURL('public/font/ProximaNova-Reg-webfont.woff');
-      const ddgFontBold = chrome.runtime.getURL('public/font/ProximaNova-Bold-webfont.woff2');
+      const ddgFont = '';//chrome.runtime.getURL('public/font/ProximaNova-Reg-webfont.woff')
+      const ddgFontBold = '';//chrome.runtime.getURL('public/font/ProximaNova-Bold-webfont.woff2')
       const entityData = {};
 
       /*********************************************************
@@ -2246,6 +2263,7 @@
       }
 
       async function initCTL () {
+          console.warn('CONTENT-SCOPE CLICK TO LOAD ** NEW ** 2');
           for (const entity of Object.keys(config)) {
               entities.push(entity);
               const { informationalModal, simpleVersion } = config[entity];

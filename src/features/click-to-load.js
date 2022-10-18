@@ -1,14 +1,18 @@
+import { ctlMessage } from '../utils'
+
 /* global cloneInto */
 export function init (args) {
     function sendMessage (messageType, options) {
         return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({ messageType, options }, response => {
-                if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message))
-                } else {
-                    resolve(response)
-                }
-            })
+            // const extensionId = 'epcfiajcdnoijfngcanpkncijagokblg'
+            // chrome.runtime.sendMessage(extensionId, { messageType, options }, response => {
+            //     if (chrome.runtime.lastError) {
+            //         reject(new Error(chrome.runtime.lastError.message))
+            //     } else {
+            //         resolve("ok")
+            //     }
+            // })
+            ctlMessage(messageType, options)
         })
     }
 
@@ -32,8 +36,8 @@ export function init (args) {
     let logoImg
     const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
     const entities = []
-    const ddgFont = chrome.runtime.getURL('public/font/ProximaNova-Reg-webfont.woff')
-    const ddgFontBold = chrome.runtime.getURL('public/font/ProximaNova-Bold-webfont.woff2')
+    const ddgFont = ''//chrome.runtime.getURL('public/font/ProximaNova-Reg-webfont.woff')
+    const ddgFontBold = ''//chrome.runtime.getURL('public/font/ProximaNova-Bold-webfont.woff2')
     const entityData = {}
 
     /*********************************************************
