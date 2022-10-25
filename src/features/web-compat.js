@@ -1,5 +1,4 @@
-
-import { defineProperty } from '../utils'
+import { defineProperty, getFeatureSettingEnabled } from '../utils'
 
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
@@ -41,7 +40,44 @@ function safariObjectFix () {
             return
         }
         defineProperty(window, 'safari', {
-            value: {},
+            value: {
+            },
+            configurable: true,
+            enumerable: true
+        })
+        defineProperty(window.safari, 'pushNotification', {
+            value: {
+            },
+            configurable: true,
+            enumerable: true
+        })
+        defineProperty(window.safari.pushNotification, 'toString', {
+            value: () => { return '[object SafariRemoteNotification]' },
+            configurable: true,
+            enumerable: true
+        })
+        class SafariRemoteNotificationPermission {
+            constructor () {
+                this.deviceToken = null
+                this.permission = 'denied'
+            }
+        }
+        defineProperty(window.safari.pushNotification, 'permission', {
+            value: (name) => {
+                return new SafariRemoteNotificationPermission()
+            },
+            configurable: true,
+            enumerable: true
+        })
+        defineProperty(window.safari.pushNotification, 'requestPermission', {
+            value: (name, domain, options, callback) => {
+                if (typeof callback === 'function') {
+                    callback(new SafariRemoteNotificationPermission())
+                    return
+                }
+                const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function."
+                throw new Error(reason)
+            },
             configurable: true,
             enumerable: true
         })
@@ -50,8 +86,15 @@ function safariObjectFix () {
     }
 }
 
-export function init () {
-    windowSizingFix()
-    navigatorCredentialsFix()
-    safariObjectFix()
+export function init (args) {
+    const featureName = 'web-compat'
+    if (getFeatureSettingEnabled(featureName, args, 'windowSizing')) {
+        windowSizingFix()
+    }
+    if (getFeatureSettingEnabled(featureName, args, 'navigatorCredentials')) {
+        navigatorCredentialsFix()
+    }
+    if (getFeatureSettingEnabled(featureName, args, 'safariObject')) {
+        safariObjectFix()
+    }
 }
