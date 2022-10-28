@@ -1,39 +1,12 @@
-/* global cloneInto */
+import { createCustomEvent, sendMessage } from '../utils.js'
+import { logoImg, loadingImages, blockedFBLogo, ddgFont, ddgFontBold } from './ctl-assets.js'
+
 export function init (args) {
-    function sendMessage (messageType, options) {
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({ messageType, options }, response => {
-                if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message))
-                } else {
-                    resolve(response)
-                }
-            })
-        })
-    }
-
-    function createCustomEvent (eventName, eventDetail) {
-        // By default, Firefox protects the event detail Object from the page,
-        // leading to "Permission denied to access property" errors.
-        // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-        if (typeof cloneInto === 'function') {
-            eventDetail = cloneInto(eventDetail, window)
-        }
-
-        return new CustomEvent(eventName, eventDetail)
-    }
-
     const devMode = sendMessage('getDevMode')
     let appID
-    const loadingImages = {
-        darkMode: '',
-        lightMode: ''
-    }
-    let logoImg
+
     const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
     const entities = []
-    const ddgFont = chrome.runtime.getURL('public/font/ProximaNova-Reg-webfont.woff')
-    const ddgFontBold = chrome.runtime.getURL('public/font/ProximaNova-Bold-webfont.woff2')
     const entityData = {}
 
     /*********************************************************
@@ -366,7 +339,7 @@ export function init (args) {
     const config = {
         Facebook: {
             informationalModal: {
-                icon: 'blocked_facebook_logo.svg',
+                icon: blockedFBLogo,
                 messageTitle: 'Logging in with Facebook lets them track you',
                 messageBody: "Once you're logged in, DuckDuckGo can't block Facebook content from tracking you on this site.",
                 confirmButtonText: 'Log In',
@@ -701,7 +674,7 @@ export function init (args) {
                     ],
                     replaceSettings: {
                         type: 'loginButton',
-                        icon: 'blocked_facebook_logo.svg',
+                        icon: blockedFBLogo,
                         buttonText: 'Log in with Facebook',
                         popupTitleText: 'DuckDuckGo blocked this Facebook login',
                         popupBodyText: 'Facebook tracks your activity on a site when you use them to login.'
@@ -1084,12 +1057,11 @@ export function init (args) {
             replaceClickToLoadElements(config, target)
         }, { capture: true })
 
-        window.dispatchEvent(createCustomEvent('ddg-ctp-ready'))
+        // window.dispatchEvent(new CustomEvent('sendMessage', {msg: 'Message test'}))
     }
 
     function replaceTrackingElement (widget, trackingElement, placeholderElement, hideTrackingElement = false) {
         widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
-
         // Usually the tracking element can simply be replaced with the
         // placeholder, but in some situations that isn't possible and the
         // tracking element must be hidden instead.
@@ -1129,7 +1101,7 @@ export function init (args) {
         }
 
         if (widget.replaceSettings.type === 'loginButton') {
-            const icon = await sendMessage('getImage', widget.replaceSettings.icon)
+            const icon = widget.replaceSettings.icon
             // Create a button to replace old element
             const { button, container } = makeLoginButton(
                 widget.replaceSettings.buttonText, widget.getMode(),
@@ -1142,7 +1114,7 @@ export function init (args) {
 
         const youTubeVideo = widget.replaceSettings.type === 'youtube-video'
         if (widget.replaceSettings.type === 'dialog' || youTubeVideo) {
-            const icon = await sendMessage('getImage', widget.replaceSettings.icon)
+            const icon = widget.replaceSettings.icon
             const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
             const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
             const { contentBlock, shadowRoot } = await createContentBlock(
@@ -1223,29 +1195,18 @@ export function init (args) {
         sendMessage('enableSocialTracker', message)
     }
 
-    sendMessage('initClickToLoad').then(response => {
+    sendMessage('initClickToLoad')
+
+    // .then(response => {
         if (document.readyState === 'complete') {
-            initCTL(response)
+            initCTL()
         } else {
             // Content script loaded before page content, so wait for load.
             window.addEventListener('load', (event) => {
-                initCTL(response)
+                initCTL()
             })
         }
-    })
-
-    // Fetch reusable assets
-    sendMessage('getLoadingImage', 'light').then(response => {
-        loadingImages.lightMode = response
-    })
-
-    sendMessage('getLoadingImage', 'dark').then(response => {
-        loadingImages.darkMode = response
-    })
-
-    sendMessage('getLogo', '').then(response => {
-        logoImg = response
-    })
+    // })
 
     // Listen for events from surrogates
     addEventListener('ddg-ctp', (event) => {
@@ -1416,7 +1377,7 @@ export function init (args) {
     }
 
     async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
-        const icon = await sendMessage('getImage', entityData[entity].modalIcon)
+        const icon = entityData[entity].modalIcon
         const modalContainer = document.createElement('div')
         modalContainer.style.cssText = styles.modalContainer
         const pageOverlay = document.createElement('div')
@@ -1593,4 +1554,11 @@ export function init (args) {
 
         return { contentBlock, shadowRoot }
     }
+}
+
+export function update (args) {
+    console.warn('CTL update:', args)
+    // if (args.trackerDefinition) {
+    //     trackerHosts.add(args.hostname)
+    // }
 }

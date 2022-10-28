@@ -176,6 +176,8 @@ export function iterateDataKey (key, callback) {
 }
 
 export function isFeatureBroken (args, feature) {
+    if(feature === 'clickToLoad') feature = 'clickToPlay'
+
     return isWindowsSpecificFeature(feature)
         ? !args.site.enabledFeatures.includes(feature)
         : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
@@ -425,6 +427,11 @@ if (hasMozProxies) {
     DDGReflect = globalObj.Reflect
 }
 
+// const extensionId = 'epcfiajcdnoijfngcanpkncijagokblg'
+// export function DDGsendMessage (messageType, options, response) {
+//     return chrome.runtime.sendMessage('epcfiajcdnoijfngcanpkncijagokblg', { messageType, options}, response)
+// }
+
 export function getTopLevelURL () {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479
@@ -491,4 +498,21 @@ export const windowsSpecificFeatures = ['windowsPermissionUsage']
 
 export function isWindowsSpecificFeature (featureName) {
     return windowsSpecificFeatures.includes(featureName)
+}
+
+export function createCustomEvent (eventName, eventDetail) {
+    // By default, Firefox protects the event detail Object from the page,
+    // leading to "Permission denied to access property" errors.
+    // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+    if (typeof cloneInto === 'function') {
+        eventDetail = cloneInto(eventDetail, window)
+    }
+
+    return new CustomEvent(eventName, eventDetail)
+}
+
+export function sendMessage (messageType, options) {
+    // FF & Chrome
+    return window.dispatchEvent(createCustomEvent('sendMessage', {detail: {messageType, options}}))
+    // TBD other platforms
 }

@@ -26,6 +26,7 @@ function init () {
     const reusableMethodName = '_rm' + randomString()
     const reusableSecret = '_r' + randomString()
     const initialScript = `
+    console.warn('initialScript loaded')
       /* global contentScopeFeatures */
       contentScopeFeatures.load()
       // Define a random function we call later.
@@ -60,6 +61,7 @@ function init () {
           // Use proxy to ensure stringification isn't possible
           value: new Proxy(function () {}, {
               apply(target, thisArg, args) {
+                console.warn('secret method args:', args)
                   if ('${reusableSecret}' === args[0]) {
                       contentScopeFeatures.update(args[1])
                   }
@@ -105,6 +107,24 @@ function init () {
             `
             inject(callRandomUpdateFunction)
         }
+    })
+
+    window.addEventListener('sendMessage', (m) => {
+        console.warn('**** customMSG:', m && m.detail)
+        chrome.runtime.sendMessage(m && m.detail, response => {
+            console.warn('**** msg RESP', response)
+            // if (chrome.runtime.lastError) {
+            //     reject(new Error(chrome.runtime.lastError.message))
+            // } else {
+            //     resolve("ok")
+            // }
+            const msg = { type: 'ctl', response }
+            const stringifiedArgs = JSON.stringify(msg)
+            const callRandomUpdateFunction = `
+                window.${reusableMethodName}('${reusableSecret}', ${stringifiedArgs});
+            `
+            inject(callRandomUpdateFunction)
+        })
     })
 }
 
