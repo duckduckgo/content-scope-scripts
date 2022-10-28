@@ -176,6 +176,8 @@ export function iterateDataKey (key, callback) {
 }
 
 export function isFeatureBroken (args, feature) {
+    if(feature === 'clickToLoad') feature = 'clickToPlay'
+
     return isWindowsSpecificFeature(feature)
         ? !args.site.enabledFeatures.includes(feature)
         : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
@@ -411,20 +413,6 @@ export function postDebugMessage (feature, message) {
         action: feature,
         message
     })
-}
-
-export function ctlMessage (feature, message) {
-    const channel = new MessageChannel();
-    channel.port1.onmessage = ({data}) => {
-        console.warn('channel resp', data)
-    }
-
-    console.warn('ctlMessage sent msg', message)
-
-    globalObj.postMessage({
-        action: feature,
-        message
-    }, [channel.port2])
 }
 
 export let DDGReflect
