@@ -499,3 +499,20 @@ export const windowsSpecificFeatures = ['windowsPermissionUsage']
 export function isWindowsSpecificFeature (featureName) {
     return windowsSpecificFeatures.includes(featureName)
 }
+
+export function createCustomEvent (eventName, eventDetail) {
+    // By default, Firefox protects the event detail Object from the page,
+    // leading to "Permission denied to access property" errors.
+    // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
+    if (typeof cloneInto === 'function') {
+        eventDetail = cloneInto(eventDetail, window)
+    }
+
+    return new CustomEvent(eventName, eventDetail)
+}
+
+export function sendMessage (messageType, options) {
+    // FF & Chrome
+    return window.dispatchEvent(createCustomEvent('sendMessage', {detail: {messageType, options}}))
+    // TBD other platforms
+}

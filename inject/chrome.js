@@ -111,12 +111,20 @@ function init () {
 
     window.addEventListener('sendMessage', (m) => {
         console.warn('**** customMSG:', m && m.detail)
-        const msg = { type: 'update', fbEnabled: true }
-        const stringifiedArgs = JSON.stringify(msg)
-        const callRandomUpdateFunction = `
-            window.${reusableMethodName}('${reusableSecret}', ${stringifiedArgs});
-        `
-        inject(callRandomUpdateFunction)
+        chrome.runtime.sendMessage(m && m.detail, response => {
+            console.warn('**** msg RESP', response)
+            // if (chrome.runtime.lastError) {
+            //     reject(new Error(chrome.runtime.lastError.message))
+            // } else {
+            //     resolve("ok")
+            // }
+            const msg = { type: 'ctl', response }
+            const stringifiedArgs = JSON.stringify(msg)
+            const callRandomUpdateFunction = `
+                window.${reusableMethodName}('${reusableSecret}', ${stringifiedArgs});
+            `
+            inject(callRandomUpdateFunction)
+        })
     })
 }
 
