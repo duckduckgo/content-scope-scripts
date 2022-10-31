@@ -1207,7 +1207,7 @@
     ddgFontBold: ddgFontBold
   });
 
-  const devMode = sendMessage('getDevMode');
+  let devMode = false;
   let appID;
 
   const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle';
@@ -2653,7 +2653,7 @@
       // Put everyting else inside the shadowRoot of the wrapper element to
       // reduce the chances of the website's stylesheets messing up the
       // placeholder's appearance.
-      const shadowRootMode = (await devMode) ? 'open' : 'closed';
+      const shadowRootMode = devMode ? 'open' : 'closed';
       const shadowRoot = contentBlock.attachShadow({ mode: shadowRootMode });
 
       // Style element includes our font & overwrites page styles
@@ -2736,10 +2736,14 @@
                   initCTL();
               });
           }
+      },
+      getDevMode: function (resp) {
+          devMode = resp;
       }
   };
 
   function init$d (args) {
+      sendMessage('getDevMode');
       sendMessage('initClickToLoad');
 
       // Listen for events from surrogates

@@ -1,7 +1,7 @@
 import { createCustomEvent, sendMessage } from '../utils.js'
 import { logoImg, loadingImages, blockedFBLogo, ddgFont, ddgFontBold } from './ctl-assets.js'
 
-const devMode = sendMessage('getDevMode')
+let devMode = false
 let appID
 
 const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
@@ -1447,7 +1447,7 @@ async function createContentBlock (widget, button, textButton, img) {
     // Put everyting else inside the shadowRoot of the wrapper element to
     // reduce the chances of the website's stylesheets messing up the
     // placeholder's appearance.
-    const shadowRootMode = (await devMode) ? 'open' : 'closed'
+    const shadowRootMode = devMode ? 'open' : 'closed'
     const shadowRoot = contentBlock.attachShadow({ mode: shadowRootMode })
 
     // Style element includes our font & overwrites page styles
@@ -1530,10 +1530,14 @@ const updateHandlers = {
                 initCTL(resp)
             })
         }
+    },
+    getDevMode: function (resp) {
+        devMode = resp
     }
 }
 
 export function init (args) {
+    sendMessage('getDevMode')
     sendMessage('initClickToLoad')
 
     // Listen for events from surrogates

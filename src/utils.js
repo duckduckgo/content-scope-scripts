@@ -427,11 +427,6 @@ if (hasMozProxies) {
     DDGReflect = globalObj.Reflect
 }
 
-// const extensionId = 'epcfiajcdnoijfngcanpkncijagokblg'
-// export function DDGsendMessage (messageType, options, response) {
-//     return chrome.runtime.sendMessage('epcfiajcdnoijfngcanpkncijagokblg', { messageType, options}, response)
-// }
-
 export function getTopLevelURL () {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479

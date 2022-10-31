@@ -25,14 +25,21 @@ function init () {
             })
         }
         contentScopeFeatures.init(message)
-    }
-    )
+    })
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
         if (message && message.type === 'update') {
             contentScopeFeatures.update(message)
         }
+    })
+
+    window.addEventListener('sendMessage', (m) => {
+        const messageType = m.detail.messageType
+        chrome.runtime.sendMessage(m && m.detail, response => {
+            const msg = { type: messageType, response }
+            contentScopeFeatures.update(msg)
+        })
     })
 }
 
