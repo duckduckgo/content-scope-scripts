@@ -335,7 +335,7 @@ const styles = {
 /*********************************************************
  *  config (temporarily here, until localized)
  *********************************************************/
-    const config = {
+const config = {
     Facebook: {
         informationalModal: {
             icon: blockedFBLogo,
@@ -1521,7 +1521,7 @@ async function createContentBlock (widget, button, textButton, img) {
 const updateHandlers = {
     // Convention is that each function should be named the same as the sendMessage method we are calling into
     // eg. calling sendMessage('initClickToLoad') will result in a response routed to 'updateHandlers.initClickToLoad()'
-    initClickToLoad: function  (resp) {
+    initClickToLoad: function (resp) {
         if (document.readyState === 'complete') {
             initCTL(resp)
         } else {
@@ -1559,12 +1559,10 @@ export function init (args) {
 }
 
 export function update (args) {
-    if(!(args && args.type))
-        return
+    if (!(args && args.type)) { return }
 
     const fn = updateHandlers[args.type]
-    if(typeof fn !== 'function')
-        return
+    if (typeof fn !== 'function') { return }
 
     fn(args.response)
 }

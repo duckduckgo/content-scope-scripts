@@ -176,7 +176,7 @@ export function iterateDataKey (key, callback) {
 }
 
 export function isFeatureBroken (args, feature) {
-    if(feature === 'clickToLoad') feature = 'clickToPlay'
+    if (feature === 'clickToLoad') feature = 'clickToPlay'
 
     return isWindowsSpecificFeature(feature)
         ? !args.site.enabledFeatures.includes(feature)
@@ -513,6 +513,6 @@ export function createCustomEvent (eventName, eventDetail) {
 
 export function sendMessage (messageType, options) {
     // FF & Chrome
-    return window.dispatchEvent(createCustomEvent('sendMessage', {detail: {messageType, options}}))
+    return window.dispatchEvent(createCustomEvent('sendMessage', { detail: { messageType, options } }))
     // TBD other platforms
 }
