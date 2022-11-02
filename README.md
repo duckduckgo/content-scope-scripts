@@ -57,13 +57,13 @@ In the built output you will see these dramatic differences in the bundled code 
 
 #### App specific integration replacements
 
-$CONTENT_SCOPE$ - raw remote config object
-$USER_UNPROTECTED_DOMAINS$ - an array of user allowlisted domains
-$USER_PREFERENCES$ - an object containing:
-    platform: { name: '<ios | macos | extension | android>' }
-    debug: boolean
-    globalPrivacyControlValue: boolean
-    sessionKey: <random UUID string> (used for fingerprinting)
+- `$CONTENT_SCOPE$` - raw remote config object
+- `$USER_UNPROTECTED_DOMAINS$` - an array of user allowlisted domains
+- `$USER_PREFERENCES$` - an object containing:
+    - platform: { name: '<ios | macos | extension | android>' }
+    - debug: boolean
+    - globalPrivacyControlValue: boolean
+    - sessionKey: <CSRNG UUID 4 string> (used for fingerprinting) - this should regnerate on browser close or every 24 hours.
 
 ### Features scope injection utilities
 
