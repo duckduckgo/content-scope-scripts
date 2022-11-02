@@ -6,14 +6,19 @@
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
+    "strictNullChecks": true
   },
   "include": [
     "src/globals.d.ts"
   ],
   "files": [
     "src/canvas.js",
+    "src/features/fingerprinting-audio.js",
+    "src/features/fingerprinting-battery.js",
     "src/features/fingerprinting-canvas.js",
     "src/features/cookie.js",
     "src/utils.js",
+    "src/features/fingerprinting-hardware.js",
+    "src/features/fingerprinting-screen-size.js"
   ]
 }

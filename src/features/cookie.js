@@ -77,8 +77,11 @@ export function load (args) {
     // The cookie policy is injected into every frame immediately so that no cookie will
     // be missed.
     const document = globalThis.document
-    const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set
-    const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get
+    const cookieDescriptor = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie')
+    if (!cookieDescriptor) return
+    const cookieSetter = cookieDescriptor.set
+    const cookieGetter = cookieDescriptor.get
+    if (!cookieSetter || !cookieGetter) return
 
     const loadPolicy = new Promise((resolve) => {
         loadedPolicyResolve = resolve

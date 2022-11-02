@@ -51,11 +51,12 @@ function setWindowDimensions () {
             setWindowPropertyValue('screenTop', normalizedY)
         }
 
-        if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
-            setWindowPropertyValue('outerHeight', top.window.screen.height)
+        const outerHeight = top?.window.outerHeight || 0
+        if (outerHeight >= origPropertyValues.availHeight - 1) {
+            setWindowPropertyValue('outerHeight', top?.window.screen.height)
         } else {
             try {
-                setWindowPropertyValue('outerHeight', top.window.outerHeight)
+                setWindowPropertyValue('outerHeight', top?.window.outerHeight)
             } catch (e) {
                 // top not accessible to certain iFrames, so ignore.
             }
@@ -69,11 +70,12 @@ function setWindowDimensions () {
             setWindowPropertyValue('screenLeft', normalizedX)
         }
 
-        if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
-            setWindowPropertyValue('outerWidth', top.window.screen.width)
+        const outerWidth = top?.window.outerWidth || 0
+        if (outerWidth >= origPropertyValues.availWidth - 1) {
+            setWindowPropertyValue('outerWidth', top?.window.screen.width)
         } else {
             try {
-                setWindowPropertyValue('outerWidth', top.window.outerWidth)
+                setWindowPropertyValue('outerWidth', top?.window.outerWidth)
             } catch (e) {
                 // top not accessible to certain iFrames, so ignore.
             }
@@ -83,17 +85,20 @@ function setWindowDimensions () {
     }
 }
 
+// @ts-ignore
 export function init (args) {
     const Screen = globalThis.Screen
     const screen = globalThis.screen
 
     origPropertyValues.availTop = overrideProperty('availTop', {
         object: Screen.prototype,
+        // @ts-ignore
         origValue: screen.availTop,
         targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
     })
     origPropertyValues.availLeft = overrideProperty('availLeft', {
         object: Screen.prototype,
+        // @ts-ignore
         origValue: screen.availLeft,
         targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
     })
