@@ -175,8 +175,6 @@ export function iterateDataKey (key, callback) {
 }
 
 export function isFeatureBroken (args, feature) {
-    if (feature === 'clickToLoad') feature = 'clickToPlay'
-
     return isWindowsSpecificFeature(feature)
         ? !args.site.enabledFeatures.includes(feature)
         : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
