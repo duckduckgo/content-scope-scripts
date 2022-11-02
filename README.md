@@ -63,7 +63,7 @@ In the built output you will see these dramatic differences in the bundled code 
     - platform: { name: '<ios | macos | extension | android>' }
     - debug: boolean
     - globalPrivacyControlValue: boolean
-    - sessionKey: <CSRNG UUID 4 string> (used for fingerprinting)
+    - sessionKey: <CSRNG UUID 4 string> (used for fingerprinting) - this should regnerate on browser close or every 24 hours.
 
 ### Features scope injection utilities
 
