@@ -1,14 +1,14 @@
-import { defineProperty, postDebugMessage, getFeatureSetting, getFeatureSettingEnabled, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabOrigin, matchHostname } from '../utils.js'
+import { defineProperty, postDebugMessage, getFeatureSetting, getFeatureSettingEnabled, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabHostname, matchHostname } from '../utils.js'
 import { Cookie } from '../cookie.js'
 import { exceptions, excludedCookieDomains } from '../../shared/cookieExceptions.js'
 
 let protectionExempted = true
-const tabOrigin = getTabOrigin()
+const tabHostname = getTabHostname()
 let tabExempted = true
 
-if (tabOrigin != null) {
+if (tabHostname != null) {
     tabExempted = exceptions.some((exception) => {
-        return matchHostname(tabOrigin, exception.domain)
+        return matchHostname(tabHostname, exception.domain)
     })
 }
 const frameExempted = excludedCookieDomains.some((exception) => {
@@ -68,6 +68,10 @@ function isNonTrackingCookie () {
 }
 
 export function load (args) {
+    // Feature is only relevant to the extension, we should skip for other platforms for now as the config testing is broken.
+    if (args.platform.name !== 'extension') {
+        return
+    }
     trackerHosts.clear()
 
     // The cookie policy is injected into every frame immediately so that no cookie will

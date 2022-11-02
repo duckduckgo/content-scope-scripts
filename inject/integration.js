@@ -19,6 +19,9 @@ function generateConfig (data, userList) {
     return {
         debug: false,
         sessionKey: 'randomVal',
+        platform: {
+            name: 'extension'
+        },
         site: {
             domain: topLevelUrl.hostname,
             isBroken: false,
@@ -32,10 +35,44 @@ function generateConfig (data, userList) {
     }
 }
 
+/**
+ * Simple object check.
+ * @param item
+ * @returns {boolean}
+ */
+function isObject (item) {
+    return (item && typeof item === 'object' && !Array.isArray(item))
+}
+
+/**
+ * Deep merge two objects.
+ * @param target
+ * @param ...sources
+ */
+function mergeDeep (target, ...sources) {
+    if (!sources.length) return target
+    const source = sources.shift()
+
+    if (isObject(target) && isObject(source)) {
+        for (const key in source) {
+            if (isObject(source[key])) {
+                if (!target[key]) Object.assign(target, { [key]: {} })
+                mergeDeep(target[key], source[key])
+            } else {
+                Object.assign(target, { [key]: source[key] })
+            }
+        }
+    }
+
+    return mergeDeep(target, ...sources)
+}
+
 async function init () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
-    await contentScopeFeatures.load()
+    await contentScopeFeatures.load({
+        platform: processedConfig.platform
+    })
 
     // mark this phase as loaded
     setStatus('loaded')
@@ -48,11 +85,7 @@ async function init () {
 
     // Wait for a message containing additional config
     document.addEventListener('content-scope-init-args', async (evt) => {
-        const merged = {
-            ...processedConfig,
-            ...evt.detail
-        }
-
+        const merged = mergeDeep(processedConfig, evt.detail)
         // init features
         await contentScopeFeatures.init(merged)
 

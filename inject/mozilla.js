@@ -1,7 +1,11 @@
 /* global contentScopeFeatures */
 
 function init () {
-    contentScopeFeatures.load()
+    contentScopeFeatures.load({
+        platform: {
+            name: 'extension'
+        }
+    })
 
     chrome.runtime.sendMessage({
         messageType: 'registeredContentScript',

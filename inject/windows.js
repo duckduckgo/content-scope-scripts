@@ -1,11 +1,16 @@
 /* global contentScopeFeatures */
 
-import { processConfig, windowsSpecificFeatures } from './../src/utils'
+import { processConfig, isGloballyDisabled, windowsSpecificFeatures } from './../src/utils'
 
 function init () {
     const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$, windowsSpecificFeatures)
+    if (isGloballyDisabled(processedConfig)) {
+        return
+    }
 
-    contentScopeFeatures.load()
+    contentScopeFeatures.load({
+        platform: processedConfig.platform
+    })
 
     contentScopeFeatures.init(processedConfig)
 

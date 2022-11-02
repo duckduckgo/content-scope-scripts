@@ -16,7 +16,7 @@ let initArgs = null
 const updates = []
 const features = []
 
-export async function load () {
+export async function load (args) {
     if (!shouldRun()) {
         return
     }
@@ -34,14 +34,15 @@ export async function load () {
         'fingerprintingScreenSize',
         'fingerprintingTemporaryStorage',
         'navigatorInterface',
-        'clickToLoad'
+        'clickToLoad',
+        'elementHiding'
     ]
 
     for (const featureName of featureNames) {
         const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
-                load()
+                load(args)
             }
             return { featureName, init, update }
         })

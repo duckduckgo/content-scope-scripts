@@ -2,7 +2,11 @@
 
 const secret = window.crypto.randomUUID()
 
-contentScopeFeatures.load()
+contentScopeFeatures.load({
+    platform: {
+        name: 'extension'
+    }
+})
 
 window.addEventListener(secret, ({ detail: message }) => {
     if (!message) return

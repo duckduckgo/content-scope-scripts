@@ -27,7 +27,11 @@ function init () {
     const reusableSecret = '_r' + randomString()
     const initialScript = `
       /* global contentScopeFeatures */
-      contentScopeFeatures.load()
+      contentScopeFeatures.load({
+          platform: {
+              name: 'extension'
+          }
+      })
       // Define a random function we call later.
       // Use define property so isn't enumerable
       Object.defineProperty(window, '${randomMethodName}', {
