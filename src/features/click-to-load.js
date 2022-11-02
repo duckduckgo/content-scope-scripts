@@ -1,5 +1,5 @@
 import { createCustomEvent, sendMessage } from '../utils.js'
-import { logoImg, loadingImages, blockedFBLogo, ddgFont, ddgFontBold } from './ctl-assets.js'
+import { logoImg, loadingImages, blockedFBLogo, ddgFont, ddgFontBold } from '../assets/ctl-assets.js'
 
 let devMode = false
 let appID
