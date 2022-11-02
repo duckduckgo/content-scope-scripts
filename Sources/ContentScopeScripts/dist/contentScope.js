@@ -669,23 +669,35 @@
 
   /* global cloneInto, exportFunction, false */
 
-  function getTopLevelURL () {
+  /**
+   * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
+   * @returns {string|null} inferred tab hostname
+   */
+  function getTabHostname () {
+      let framingOrigin = null;
       try {
-          // FROM: https://stackoverflow.com/a/7739035/73479
-          // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
-          if (window.location !== window.parent.location) {
-              return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href)
-          } else {
-              return new URL(window.location.href)
-          }
-      } catch (error) {
-          return new URL(location.href)
+          framingOrigin = globalThis.top.location.href;
+      } catch {
+          framingOrigin = globalThis.document.referrer;
       }
+
+      // Not supported in Firefox
+      if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+          // ancestorOrigins is reverse order, with the last item being the top frame
+          framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+      }
+
+      try {
+          framingOrigin = new URL(framingOrigin).hostname;
+      } catch {
+          framingOrigin = null;
+      }
+      return framingOrigin
   }
 
-  function isUnprotectedDomain (topLevelUrl, featureList) {
+  function isUnprotectedDomain (topLevelHostname, featureList) {
       let unprotectedDomain = false;
-      const domainParts = topLevelUrl && topLevelUrl.host ? topLevelUrl.host.split('.') : [];
+      const domainParts = topLevelHostname.split('.');
 
       // walk up the domain to see if it's unprotected
       while (domainParts.length > 1 && !unprotectedDomain) {
@@ -699,18 +711,24 @@
       return unprotectedDomain
   }
 
+  /**
+   * @param {{ features: Record<string, { state: string; settings: any; exceptions: string[] }>; unprotectedTemporary: string; }} data
+   * @param {string[]} userList
+   * @param {Record<string, unknown>} preferences
+   * @param {string[]} platformSpecificFeatures
+   */
   function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
-      const topLevelUrl = getTopLevelURL();
-      const allowlisted = userList.filter(domain => domain === topLevelUrl.host).length > 0;
+      const topLevelHostname = getTabHostname();
+      const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0;
       const remoteFeatureNames = Object.keys(data.features);
       const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
       const enabledFeatures = remoteFeatureNames.filter((featureName) => {
           const feature = data.features[featureName];
-          return feature.state === 'enabled' && !isUnprotectedDomain(topLevelUrl, feature.exceptions)
+          return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
       }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
-      const isBroken = isUnprotectedDomain(topLevelUrl, data.unprotectedTemporary);
+      const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary);
       preferences.site = {
-          domain: topLevelUrl.hostname,
+          domain: topLevelHostname,
           isBroken,
           allowlisted,
           enabledFeatures
@@ -729,6 +747,10 @@
       });
 
       return preferences
+  }
+
+  function isGloballyDisabled (args) {
+      return args.site.allowlisted || args.site.isBroken
   }
 
   var contentScopeFeatures = (function (exports) {
@@ -1449,8 +1471,7 @@
       if ('ancestorOrigins' in globalThis.location) {
           return globalThis.location.ancestorOrigins.length > 0
       }
-      // @ts-ignore types do overlap whilst in DOM context
-      return globalThis.top !== globalThis
+      return globalThis.top !== globalThis.window
   }
 
   /**
@@ -1461,14 +1482,14 @@
       if (!isBeingFramed()) {
           return false
       }
-      return !matchHostname(globalThis.location.hostname, getTabOrigin())
+      return !matchHostname(globalThis.location.hostname, getTabHostname())
   }
 
   /**
-   * Best guess effort of the tabs origin
-   * @returns {string|null} inferred tab origin
+   * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
+   * @returns {string|null} inferred tab hostname
    */
-  function getTabOrigin () {
+  function getTabHostname () {
       let framingOrigin = null;
       try {
           framingOrigin = globalThis.top.location.href;
@@ -1808,6 +1829,7 @@
        case './features/click-to-load.js': return Promise.resolve().then(function () { return clickToLoad; });
        case './features/cookie.js': return Promise.resolve().then(function () { return cookie; });
        case './features/ctl-assets.js': return Promise.resolve().then(function () { return ctlAssets; });
+       case './features/element-hiding.js': return Promise.resolve().then(function () { return elementHiding; });
        case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
        case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
        case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
@@ -1840,7 +1862,7 @@
   const updates = [];
   const features = [];
 
-  async function load$1 () {
+  async function load$1 (args) {
       if (!shouldRun()) {
           return
       }
@@ -1858,14 +1880,15 @@
           'fingerprintingScreenSize',
           'fingerprintingTemporaryStorage',
           'navigatorInterface',
-          'clickToLoad'
+          'clickToLoad',
+          'elementHiding'
       ];
 
       for (const featureName of featureNames) {
           const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
           const feature = __variableDynamicImportRuntime0__(`./features/${filename}.js`).then(({ init, load, update }) => {
               if (load) {
-                  load();
+                  load(args);
               }
               return { featureName, init, update }
           });
@@ -1873,7 +1896,7 @@
       }
   }
 
-  async function init$e (args) {
+  async function init$f (args) {
       initArgs = args;
       if (!shouldRun()) {
           return
@@ -3457,7 +3480,7 @@
       }
   };
 
-  function init$d (args) {
+  function init$e (args) {
       sendMessage('getDevMode');
       sendMessage('initClickToLoad');
 
@@ -3494,7 +3517,7 @@
 
   var clickToLoad = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$d,
+    init: init$e,
     update: update$1
   });
 
@@ -3651,12 +3674,12 @@
   ];
 
   let protectionExempted = true;
-  const tabOrigin = getTabOrigin();
+  const tabHostname = getTabHostname();
   let tabExempted = true;
 
-  if (tabOrigin != null) {
+  if (tabHostname != null) {
       tabExempted = exceptions.some((exception) => {
-          return matchHostname(tabOrigin, exception.domain)
+          return matchHostname(tabHostname, exception.domain)
       });
   }
   const frameExempted = excludedCookieDomains.some((exception) => {
@@ -3716,6 +3739,10 @@
   }
 
   function load (args) {
+      // Feature is only relevant to the extension, we should skip for other platforms for now as the config testing is broken.
+      if (args.platform.name !== 'extension') {
+          return
+      }
       trackerHosts.clear();
 
       // The cookie policy is injected into every frame immediately so that no cookie will
@@ -3811,7 +3838,7 @@
       });
   }
 
-  function init$c (args) {
+  function init$d (args) {
       args.cookie.debug = args.debug;
       cookiePolicy = args.cookie;
 
@@ -3835,7 +3862,7 @@
   var cookie = /*#__PURE__*/Object.freeze({
     __proto__: null,
     load: load,
-    init: init$c,
+    init: init$d,
     update: update
   });
 
@@ -3856,6 +3883,141 @@
     blockedFBLogo: blockedFBLogo,
     ddgFont: ddgFont,
     ddgFontBold: ddgFontBold
+  });
+
+  let adLabelStrings = [];
+
+  function collapseDomNode (element, type) {
+      if (!element) {
+          return
+      }
+
+      switch (type) {
+      case 'hide':
+          if (!element.hidden) {
+              hideNode(element);
+          }
+          break
+      case 'hide-empty':
+          if (!element.hidden && isDomNodeEmpty(element)) {
+              hideNode(element);
+          }
+          break
+      case 'closest-empty':
+          // if element already hidden, continue onto parent element
+          if (element.hidden) {
+              collapseDomNode(element.parentNode, type);
+              break
+          }
+
+          if (isDomNodeEmpty(element)) {
+              hideNode(element);
+              collapseDomNode(element.parentNode, type);
+          }
+          break
+      default:
+          console.log(`Unsupported rule: ${type}`);
+      }
+  }
+
+  function hideNode (element) {
+      element.style.setProperty('display', 'none', 'important');
+      element.hidden = true;
+  }
+
+  function isDomNodeEmpty (node) {
+      const visibleText = node.innerText.trim().toLocaleLowerCase();
+      const mediaContent = node.querySelector('video,canvas');
+      const frameElements = [...node.querySelectorAll('iframe')];
+      // about:blank iframes don't count as content, return true if:
+      // - node doesn't contain any iframes
+      // - node contains iframes, all of which are hidden or have src='about:blank'
+      const noFramesWithContent = frameElements.every((frame) => {
+          return (frame.hidden || frame.src === 'about:blank')
+      });
+      if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
+          noFramesWithContent && mediaContent === null) {
+          return true
+      }
+      return false
+  }
+
+  function hideMatchingDomNodes (rules) {
+      const document = globalThis.document;
+
+      function hideMatchingNodesInner () {
+          rules.forEach((rule) => {
+              const matchingElementArray = [...document.querySelectorAll(rule.selector)];
+              matchingElementArray.forEach((element) => {
+                  collapseDomNode(element, rule.type);
+              });
+          });
+      }
+      // wait 300ms before hiding ad containers so ads have a chance to load
+      setTimeout(hideMatchingNodesInner, 300);
+
+      // handle any ad containers that weren't added to the page within 300ms of page load
+      setTimeout(hideMatchingNodesInner, 1000);
+  }
+
+  function init$c (args) {
+      if (isBeingFramed()) {
+          return
+      }
+
+      const featureName = 'elementHiding';
+      const domain = args.site.domain;
+      const domainRules = getFeatureSetting(featureName, args, 'domains');
+      const globalRules = getFeatureSetting(featureName, args, 'rules');
+      adLabelStrings = getFeatureSetting(featureName, args, 'adLabelStrings');
+
+      // collect all matching rules for domain
+      const activeDomainRules = domainRules.filter((rule) => {
+          return matchHostname(domain, rule.domain)
+      }).flatMap((item) => item.rules);
+
+      const overrideRules = activeDomainRules.filter((rule) => {
+          return rule.type === 'override'
+      });
+
+      let activeRules = activeDomainRules.concat(globalRules);
+
+      // remove overrides and rules that match overrides from array of rules to be applied to page
+      overrideRules.forEach((override) => {
+          activeRules = activeRules.filter((rule) => {
+              return rule.selector !== override.selector
+          });
+      });
+
+      // now have the final list of rules to apply, so we apply them when document is loaded
+      if (document.readyState === 'loading') {
+          window.addEventListener('DOMContentLoaded', (event) => {
+              hideMatchingDomNodes(activeRules);
+          });
+      } else {
+          hideMatchingDomNodes(activeRules);
+      }
+      // single page applications don't have a DOMContentLoaded event on navigations, so
+      // we use proxy/reflect on history.pushState and history.replaceState to call hideMatchingDomNodes
+      // on page navigations, and listen for popstate events that indicate a back/forward navigation
+      const methods = ['pushState', 'replaceState'];
+      for (const methodName of methods) {
+          const historyMethodProxy = new DDGProxy(featureName, History.prototype, methodName, {
+              apply (target, thisArg, args) {
+                  hideMatchingDomNodes(activeRules);
+                  return DDGReflect.apply(target, thisArg, args)
+              }
+          });
+          historyMethodProxy.overload();
+      }
+      window.addEventListener('popstate', (event) => {
+          hideMatchingDomNodes(activeRules);
+      });
+  }
+
+  var elementHiding = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    init: init$c
   });
 
   function init$b (args) {
@@ -5235,9 +5397,11 @@
               'drawArrays'
           ];
           const glContexts = [
-              WebGL2RenderingContext,
               WebGLRenderingContext
           ];
+          if ('WebGL2RenderingContext' in globalThis) {
+              glContexts.push(WebGL2RenderingContext);
+          }
           for (const context of glContexts) {
               for (const methodName of unsafeGlMethods) {
                   // Some methods are browser specific
@@ -5631,6 +5795,9 @@
    * Fixes incorrect sizing value for outerHeight and outerWidth
    */
   function windowSizingFix () {
+      if (window.outerHeight !== 0 && window.outerWidth !== 0) {
+          return
+      }
       window.outerHeight = window.innerHeight;
       window.outerWidth = window.innerWidth;
   }
@@ -5640,6 +5807,9 @@
    */
   function navigatorCredentialsFix () {
       try {
+          if ('credentials' in navigator && 'get' in navigator.credentials) {
+              return
+          }
           const value = {
               get () {
                   return Promise.reject(new Error())
@@ -5655,9 +5825,69 @@
       }
   }
 
-  function init$1 () {
-      windowSizingFix();
-      navigatorCredentialsFix();
+  function safariObjectFix () {
+      try {
+          if (window.safari) {
+              return
+          }
+          defineProperty(window, 'safari', {
+              value: {
+              },
+              configurable: true,
+              enumerable: true
+          });
+          defineProperty(window.safari, 'pushNotification', {
+              value: {
+              },
+              configurable: true,
+              enumerable: true
+          });
+          defineProperty(window.safari.pushNotification, 'toString', {
+              value: () => { return '[object SafariRemoteNotification]' },
+              configurable: true,
+              enumerable: true
+          });
+          class SafariRemoteNotificationPermission {
+              constructor () {
+                  this.deviceToken = null;
+                  this.permission = 'denied';
+              }
+          }
+          defineProperty(window.safari.pushNotification, 'permission', {
+              value: (name) => {
+                  return new SafariRemoteNotificationPermission()
+              },
+              configurable: true,
+              enumerable: true
+          });
+          defineProperty(window.safari.pushNotification, 'requestPermission', {
+              value: (name, domain, options, callback) => {
+                  if (typeof callback === 'function') {
+                      callback(new SafariRemoteNotificationPermission());
+                      return
+                  }
+                  const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function.";
+                  throw new Error(reason)
+              },
+              configurable: true,
+              enumerable: true
+          });
+      } catch {
+          // Ignore exceptions that could be caused by conflicting with other extensions
+      }
+  }
+
+  function init$1 (args) {
+      const featureName = 'web-compat';
+      if (getFeatureSettingEnabled(featureName, args, 'windowSizing')) {
+          windowSizingFix();
+      }
+      if (getFeatureSettingEnabled(featureName, args, 'navigatorCredentials')) {
+          navigatorCredentialsFix();
+      }
+      if (getFeatureSettingEnabled(featureName, args, 'safariObject')) {
+          safariObjectFix();
+      }
   }
 
   var webCompat = /*#__PURE__*/Object.freeze({
@@ -6047,7 +6277,7 @@
     init: init
   });
 
-  exports.init = init$e;
+  exports.init = init$f;
   exports.load = load$1;
   exports.update = update$2;
 
@@ -6060,11 +6290,13 @@
 
   function init () {
       const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$);
-      if (processedConfig.site.allowlisted) {
+      if (isGloballyDisabled(processedConfig)) {
           return
       }
 
-      contentScopeFeatures.load();
+      contentScopeFeatures.load({
+          platform: processedConfig.platform
+      });
 
       contentScopeFeatures.init(processedConfig);
 
