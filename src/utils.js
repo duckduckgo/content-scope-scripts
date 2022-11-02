@@ -499,7 +499,7 @@ export function createCustomEvent (eventName, eventDetail) {
     // By default, Firefox protects the event detail Object from the page,
     // leading to "Permission denied to access property" errors.
     // See https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
-    if (typeof cloneInto === 'function') {
+    if (hasMozProxies) {
         eventDetail = cloneInto(eventDetail, window)
     }
 
