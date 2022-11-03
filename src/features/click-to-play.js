@@ -1538,7 +1538,7 @@ const updateHandlers = {
 
 export function init (args) {
     sendMessage('getDevMode')
-    sendMessage('initClickToLoad')
+    sendMessage('initClickToLoad', config)
 
     // Listen for events from surrogates
     addEventListener('ddg-ctp', (event) => {

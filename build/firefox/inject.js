@@ -2751,7 +2751,7 @@
 
   function init$e (args) {
       sendMessage('getDevMode');
-      sendMessage('initClickToLoad');
+      sendMessage('initClickToLoad', config);
 
       // Listen for events from surrogates
       addEventListener('ddg-ctp', (event) => {
@@ -5530,8 +5530,6 @@
   exports.init = init$f;
   exports.load = load$1;
   exports.update = update$2;
-
-  Object.defineProperty(exports, '__esModule', { value: true });
 
   return exports;
 
