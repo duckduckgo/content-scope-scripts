@@ -13,6 +13,7 @@
   "files": [
     "src/canvas.js",
     "src/features/fingerprinting-canvas.js",
+    "src/features/element-hiding.js",
     "src/features/cookie.js",
     "src/utils.js",
   ]

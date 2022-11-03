@@ -3894,26 +3894,10 @@
 
   const featureName = 'fingerprinting-screen-size';
 
-  /**
-   * normalize window dimensions, if more than one monitor is in play.
-   *  X/Y values are set in the browser based on distance to the main monitor top or left, which
-   * can mean second or more monitors have very large or negative values. This function maps a given
-   * given coordinate value to the proper place on the main screen.
-   */
-  function normalizeWindowDimension (value, targetDimension) {
-      if (value > targetDimension) {
-          return value % targetDimension
-      }
-      if (value < 0) {
-          return targetDimension + value
-      }
-      return value
-  }
-
-  function setWindowPropertyValue (property, value) {
+  function setWindowScreenPropertyValue (property, value) {
       // Here we don't update the prototype getter because the values are updated dynamically
       try {
-          defineProperty(globalThis, property, {
+          defineProperty(window.screen, property, {
               get: () => value,
               set: () => {},
               configurable: true
@@ -3921,85 +3905,134 @@
       } catch (e) {}
   }
 
-  const origPropertyValues = {};
-
-  /**
-   * Fix window dimensions. The extension runs in a different JS context than the
-   * page, so we can inject the correct screen values as the window is resized,
-   * ensuring that no information is leaked as the dimensions change, but also that the
-   * values change correctly for valid use cases.
-   */
   function setWindowDimensions () {
       try {
-          const window = globalThis;
-          const top = globalThis.top;
+          setWindowScreenPropertyValue('availWidth', window.innerWidth);
+          setWindowScreenPropertyValue('availHeight', window.innerHeight);
+          setWindowScreenPropertyValue('width', window.innerWidth);
+          setWindowScreenPropertyValue('height', window.innerHeight);
+      } catch (e) {}
+  }
 
-          const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height);
-          const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width);
-          if (normalizedY <= origPropertyValues.availTop) {
-              setWindowPropertyValue('screenY', 0);
-              setWindowPropertyValue('screenTop', 0);
-          } else {
-              setWindowPropertyValue('screenY', normalizedY);
-              setWindowPropertyValue('screenTop', normalizedY);
-          }
+  /**
+   * Since we're spoofing that the browser window is in the upper left corner
+   * of the screen (i.e., 0,0), we should map any offsets provided to window.open() back
+   * into the *real* screen coordinates. From the websites point of view, the browser's inner window
+   * is the user's screen. Without this correction, any pop-ups set using relative dimensions will
+   * be in the wrong position and possibly on the wrong monitor (if the user has multiple monitors).
+   */
+  function correctWindowOpenOffset (windowFeatures, offsetName, realScreenOffset) {
+      const dimensionRegex = new RegExp(`\\b${offsetName}\\s*=\\s*(?<offset>-?\\d+(\\.\\d+)?)\\b`, 'i');
+      const matches = windowFeatures.match(dimensionRegex);
 
-          if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
-              setWindowPropertyValue('outerHeight', top.window.screen.height);
-          } else {
-              try {
-                  setWindowPropertyValue('outerHeight', top.window.outerHeight);
-              } catch (e) {
-                  // top not accessible to certain iFrames, so ignore.
-              }
-          }
-
-          if (normalizedX <= origPropertyValues.availLeft) {
-              setWindowPropertyValue('screenX', 0);
-              setWindowPropertyValue('screenLeft', 0);
-          } else {
-              setWindowPropertyValue('screenX', normalizedX);
-              setWindowPropertyValue('screenLeft', normalizedX);
-          }
-
-          if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
-              setWindowPropertyValue('outerWidth', top.window.screen.width);
-          } else {
-              try {
-                  setWindowPropertyValue('outerWidth', top.window.outerWidth);
-              } catch (e) {
-                  // top not accessible to certain iFrames, so ignore.
-              }
-          }
-      } catch (e) {
-          // in a cross domain iFrame, top.window is not accessible.
+      if (matches && matches.groups && matches.groups.offset) {
+          const newOffset = Number(matches.groups.offset) + realScreenOffset;
+          windowFeatures = windowFeatures.replace(
+              dimensionRegex,
+              `${offsetName}=${newOffset}`
+          );
       }
+      return windowFeatures
   }
 
   function init$7 (args) {
-      const Screen = globalThis.Screen;
-      const screen = globalThis.screen;
+      // Storing the original getters for screenX and screenY allow us to
+      // query the real screen offsets after overwriting. This is needed to
+      // accurately position window.open pop-ups based on the real window
+      // location (which may change during a page visit).
+      const origPropDesc = {};
+      try {
+          origPropDesc.screenX = Object.getOwnPropertyDescriptor(window, 'screenX').get;
+          origPropDesc.screenY = Object.getOwnPropertyDescriptor(window, 'screenY').get;
+      } catch (e) {}
 
-      origPropertyValues.availTop = overrideProperty('availTop', {
+      // Always return that the window is in the upper left of the display
+      overrideProperty('screenX', {
+          object: window,
+          origValue: window.screenX,
+          targetValue: 0
+      });
+      overrideProperty('screenY', {
+          object: window,
+          origValue: window.screenY,
+          targetValue: 0
+      });
+      overrideProperty('screenLeft', {
+          object: window,
+          origValue: window.screenLeft,
+          targetValue: 0
+      });
+      overrideProperty('screenTop', {
+          object: window,
+          origValue: window.screenTop,
+          targetValue: 0
+      });
+      overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
-          targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
+          targetValue: 0
       });
-      origPropertyValues.availLeft = overrideProperty('availLeft', {
+      overrideProperty('availLeft', {
           object: Screen.prototype,
           origValue: screen.availLeft,
-          targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
+          targetValue: 0
       });
-      origPropertyValues.availWidth = overrideProperty('availWidth', {
+      if (Object.prototype.hasOwnProperty.call(Screen.prototype, 'left')) { // Firefox only
+          overrideProperty('left', {
+              object: Screen.prototype,
+              origValue: screen.left,
+              targetValue: 0
+          });
+      }
+      if (Object.prototype.hasOwnProperty.call(Screen.prototype, 'top')) { // Firefox only
+          overrideProperty('top', {
+              object: Screen.prototype,
+              origValue: screen.top,
+              targetValue: 0
+          });
+      }
+      if (Object.prototype.hasOwnProperty.call(window, 'mozInnerScreenX')) { // Firefox only
+          overrideProperty('mozInnerScreenX', {
+              object: window,
+              origValue: window.mozInnerScreenX,
+              targetValue: 0
+          });
+      }
+      if (Object.prototype.hasOwnProperty.call(window, 'mozInnerScreenY')) { // Firefox only
+          overrideProperty('mozInnerScreenY', {
+              object: window,
+              origValue: window.mozInnerScreenY,
+              targetValue: 0
+          });
+      }
+
+      // Reveal only the size of the current window to content
+      // Since innerHeight and innerWidth are dynamic based on window size we need to
+      // update these values dynamically. However, it's still important to override
+      // the prototypes to prevent a malicious website from being able to discover
+      // the true size via `delete window.screen.width`, etc.
+      // See: https://palant.info/2020/12/10/how-anti-fingerprinting-extensions-tend-to-make-fingerprinting-easier/
+      overrideProperty('availWidth', {
           object: Screen.prototype,
           origValue: screen.availWidth,
-          targetValue: screen.width
+          targetValue: window.innerWidth
       });
-      origPropertyValues.availHeight = overrideProperty('availHeight', {
+      overrideProperty('availHeight', {
           object: Screen.prototype,
           origValue: screen.availHeight,
-          targetValue: screen.height
+          targetValue: window.innerHeight
       });
+      overrideProperty('width', {
+          object: Screen.prototype,
+          origValue: screen.width,
+          targetValue: window.innerWidth
+      });
+      overrideProperty('height', {
+          object: Screen.prototype,
+          origValue: screen.height,
+          targetValue: window.innerHeight
+      });
+
       overrideProperty('colorDepth', {
           object: Screen.prototype,
           origValue: screen.colorDepth,
@@ -4011,14 +4044,58 @@
           targetValue: getFeatureAttr(featureName, args, 'pixelDepth', 24)
       });
 
+      // Override window.open to allow us to re-position popups based on the
+      // real window location.
+      const windowOpenProxy = new DDGProxy(window, 'open', {
+          apply (target, thisArg, args) {
+              if (args.length < 3) {
+                  return DDGReflect.apply(target, thisArg, args)
+              }
+              try {
+                  let windowFeatures = args[2];
+                  const screenY = origPropDesc.screenY ? origPropDesc.screenY.call(window) : 0;
+                  if (screenY !== 0) {
+                      windowFeatures = correctWindowOpenOffset(
+                          windowFeatures,
+                          'top',
+                          screenY
+                      );
+                      windowFeatures = correctWindowOpenOffset(
+                          windowFeatures,
+                          'screeny',
+                          screenY
+                      );
+                  }
+                  const screenX = origPropDesc.screenX ? origPropDesc.screenX.call(window) : 0;
+                  if (screenX !== 0) {
+                      windowFeatures = correctWindowOpenOffset(
+                          windowFeatures,
+                          'left',
+                          screenX
+                      );
+                      windowFeatures = correctWindowOpenOffset(
+                          windowFeatures,
+                          'screenx',
+                          screenX
+                      );
+                  }
+                  args[2] = windowFeatures;
+              } catch (e) {
+                  // Ignore all errors
+              }
+              return DDGReflect.apply(target, thisArg, args)
+          }
+      });
+      windowOpenProxy.overload();
+
       window.addEventListener('resize', function () {
           setWindowDimensions();
       });
-      setWindowDimensions();
   }
 
   var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    correctWindowOpenOffset: correctWindowOpenOffset,
     init: init$7
   });
 
