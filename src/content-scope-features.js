@@ -34,6 +34,7 @@ export async function load (args) {
         'fingerprintingScreenSize',
         'fingerprintingTemporaryStorage',
         'navigatorInterface',
+        'clickToPlay',
         'elementHiding'
     ]
 

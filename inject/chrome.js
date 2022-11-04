@@ -97,8 +97,7 @@ function init () {
                 window.${randomMethodName}('${randomPassword}', ${stringifiedArgs});
             `
         inject(callRandomFunction)
-    }
-    )
+    })
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
@@ -109,6 +108,18 @@ function init () {
             `
             inject(callRandomUpdateFunction)
         }
+    })
+
+    window.addEventListener('sendMessage', (m) => {
+        const messageType = m.detail.messageType
+        chrome.runtime.sendMessage(m && m.detail, response => {
+            const msg = { type: messageType, response }
+            const stringifiedArgs = JSON.stringify(msg)
+            const callRandomUpdateFunction = `
+                window.${reusableMethodName}('${reusableSecret}', ${stringifiedArgs});
+            `
+            inject(callRandomUpdateFunction)
+        })
     })
 }
 
