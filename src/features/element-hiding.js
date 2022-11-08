@@ -167,7 +167,7 @@ function applyRules (rules) {
             clearInterval(hideInterval)
         }
         hideAdNodes(rules)
-    }, 200)
+    }, 150)
 
     // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
     // we do this in order to display non-tracking ads that aren't blocked at the request level
