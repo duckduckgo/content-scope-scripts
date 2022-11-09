@@ -2,7 +2,7 @@ import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect }
 
 let adLabelStrings = []
 const parser = new DOMParser()
-const hiddenElements = new WeakSet()
+const hiddenElements = new WeakMap()
 const appliedRules = new Set()
 
 /**
@@ -91,15 +91,20 @@ function expandNonEmptyDomNode (element, rule, previousElement) {
  * @param {HTMLElement} element
  */
 function hideNode (element) {
-    // cache any previous inline display property
-    if (element.style.display) {
-        element.setAttribute('data-ddg-display', element.style.display)
+    // maintain a reference to each hidden element along with the properties
+    // that are being overwritten
+    const cachedDisplayProperties = {
+        display: element.style.display,
+        'min-height': element.style.minHeight,
+        height: element.style.height
     }
-    element.style.setProperty('display', 'none', 'important')
-    element.hidden = true
+    hiddenElements.set(element, cachedDisplayProperties)
 
-    // maintain a reference to each hidden element
-    hiddenElements.add(element)
+    // apply styles to hide element
+    element.style.setProperty('display', 'none', 'important')
+    element.style.setProperty('min-height', '0px', 'important')
+    element.style.setProperty('height', '0px', 'important')
+    element.hidden = true
 }
 
 /**
@@ -107,12 +112,16 @@ function hideNode (element) {
  * @param {HTMLElement} element
  */
 function unhideNode (element) {
-    const prevDisplayProperty = element.getAttribute('data-ddg-display')
-    element.hidden = false
-    element.style.setProperty('display', prevDisplayProperty)
-    element.removeAttribute('data-ddg-display')
+    const cachedDisplayProperties = hiddenElements.get(element)
+    if (!cachedDisplayProperties) {
+        return
+    }
 
+    for (const prop in cachedDisplayProperties) {
+        element.style.setProperty(prop, cachedDisplayProperties[prop])
+    }
     hiddenElements.delete(element)
+    element.hidden = false
 }
 
 /**
@@ -156,21 +165,32 @@ function isDomNodeEmpty (node) {
  */
 function applyRules (rules) {
     // several passes are made to hide & unhide elements. this is necessary because we're not using
-    // a mutation observer but we want to hide/unhide elements as soon as possible, and often
-    // elements aren't present on the page immediately after page load.
-    let hideIterations = 0
-    let unhideIterations = 0
+    // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
+    // frequently take from several hundred milliseconds to several seconds to load
+    // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
     hideAdNodes(rules)
-    const hideInterval = setInterval(function () {
-        hideIterations += 1
-        if (hideIterations === 4) {
-            clearInterval(hideInterval)
+    let immediateHideIterations = 0
+    const immediateHideInterval = setInterval(function () {
+        immediateHideIterations += 1
+        if (immediateHideIterations === 4) {
+            clearInterval(immediateHideInterval)
         }
         hideAdNodes(rules)
-    }, 150)
+    }, 100)
+    
+    let delayedHideIterations = 0
+    const delayedHideInterval = setInterval(function () {
+        delayedHideIterations += 1
+        if (delayedHideIterations === 4) {
+            clearInterval(delayedHideInterval)
+        }
+        hideAdNodes(rules)
+    }, 500)
 
     // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
     // we do this in order to display non-tracking ads that aren't blocked at the request level
+    // check at 750ms, 1500ms, 2250ms, 3000ms
+    let unhideIterations = 0
     const unhideInterval = setInterval(function () {
         unhideIterations += 1
         if (unhideIterations === 3) {
