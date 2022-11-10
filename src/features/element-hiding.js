@@ -177,7 +177,7 @@ function applyRules (rules) {
         }
         hideAdNodes(rules)
     }, 100)
-    
+
     let delayedHideIterations = 0
     const delayedHideInterval = setInterval(function () {
         delayedHideIterations += 1
