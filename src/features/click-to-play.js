@@ -1563,10 +1563,11 @@ export function init (args) {
 }
 
 export function update (args) {
-    if (!(args && args.type)) { return }
+    const detail = args && args.detail
+    if (!(detail && detail.func)) { return }
 
-    const fn = updateHandlers[args.type]
+    const fn = updateHandlers[detail.func]
     if (typeof fn !== 'function') { return }
 
-    fn(args.response)
+    fn(detail.response)
 }

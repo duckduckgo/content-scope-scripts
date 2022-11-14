@@ -2726,6 +2726,7 @@
   };
 
   function init$e (args) {
+      console.warn('ctl init');
       sendMessage('getDevMode');
       sendMessage('initClickToLoad', config);
 
@@ -2752,12 +2753,13 @@
   }
 
   function update$1 (args) {
-      if (!(args && args.type)) { return }
+      const detail = args && args.detail;
+      if (!(detail && detail.func)) { return }
 
-      const fn = updateHandlers[args.type];
+      const fn = updateHandlers[detail.func];
       if (typeof fn !== 'function') { return }
 
-      fn(args.response);
+      fn(detail.response);
   }
 
   var clickToPlay = /*#__PURE__*/Object.freeze({
