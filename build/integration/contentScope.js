@@ -2115,7 +2115,7 @@
                   if (this.replaceSettings.type === 'loginButton') {
                       isLogin = true;
                   }
-                  enableSocialTracker(this.entity, isLogin);
+                  enableSocialTracker({ entity: this.entity, action: 'block-ctl-fb', isLogin });
                   const parent = replacementElement.parentNode;
 
                   // If we allow everything when this element is clicked,
@@ -2373,16 +2373,12 @@
   /*********************************************************
    *  Messaging to surrogates & extension
    *********************************************************/
-  function enableSocialTracker (entity, isLogin) {
-      const message = {
-          entity,
-          isLogin
-      };
+  function enableSocialTracker (message) {
       sendMessage('enableSocialTracker', message);
   }
 
   function runLogin (entity) {
-      enableSocialTracker(entity, true);
+      enableSocialTracker(entity);
       window.dispatchEvent(
           createCustomEvent('ddg-ctp-run-login', {
               detail: {
