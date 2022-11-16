@@ -1860,6 +1860,7 @@
   let initArgs = null;
   const updates = [];
   const features = [];
+  const alwaysInitFeatures = new Set(['cookie']);
 
   async function load$1 (args) {
       if (!shouldRun()) {
@@ -1903,7 +1904,7 @@
       initStringExemptionLists(args);
       const resolvedFeatures = await Promise.all(features);
       resolvedFeatures.forEach(({ init, featureName }) => {
-          if (!isFeatureBroken(args, featureName)) {
+          if (!isFeatureBroken(args, featureName) || alwaysInitFeatures.has(featureName)) {
               init(args);
           }
       });
