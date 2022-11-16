@@ -3769,15 +3769,20 @@
   }
 
   function init$d (args) {
-      args.cookie.debug = args.debug;
-      cookiePolicy = args.cookie;
+      if (args.cookie) {
+          cookiePolicy = args.cookie;
+          args.cookie.debug = args.debug;
 
-      const featureName = 'cookie';
-      cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
-      cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
-      const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
-      if (policy) {
-          cookiePolicy.policy = policy;
+          const featureName = 'cookie';
+          cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
+          cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
+          const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
+          if (policy) {
+              cookiePolicy.policy = policy;
+          }
+      } else {
+          // no cookie information - disable protections
+          cookiePolicy.shouldBlock = false;
       }
 
       loadedPolicyResolve();
