@@ -1,11 +1,14 @@
 /* global contentScopeFeatures */
 
+import { isTrackerOrigin } from '../src/trackers'
+
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '')
 
 contentScopeFeatures.load({
     platform: {
         name: 'extension'
-    }
+    },
+    documentOriginIsTracker: isTrackerOrigin($TRACKER_LOOKUP$)
 })
 
 window.addEventListener(secret, ({ detail: message }) => {

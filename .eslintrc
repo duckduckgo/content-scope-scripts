@@ -4,7 +4,8 @@
     "globals": {
         "$USER_PREFERENCES$": "readonly",
         "$USER_UNPROTECTED_DOMAINS$": "readonly",
-        "$CONTENT_SCOPE$": "readonly"
+        "$CONTENT_SCOPE$": "readonly",
+        "$TRACKER_LOOKUP$": "readonly"
     },
     "rules": {
         "indent": ["error", 4]

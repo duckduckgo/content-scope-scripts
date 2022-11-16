@@ -23,7 +23,7 @@ let cookiePolicy = {
     isTracker: false,
     shouldBlock: !protectionExempted,
     shouldBlockTrackerCookie: true,
-    shouldBlockNonTrackerCookie: true,
+    shouldBlockNonTrackerCookie: false,
     isThirdParty: isThirdParty(),
     policy: {
         threshold: 604800, // 7 days
@@ -71,6 +71,9 @@ export function load (args) {
     // Feature is only relevant to the extension, we should skip for other platforms for now as the config testing is broken.
     if (args.platform.name !== 'extension') {
         return
+    }
+    if (args.documentOriginIsTracker) {
+        cookiePolicy.isTracker = true
     }
     trackerHosts.clear()
 
