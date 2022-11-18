@@ -1904,7 +1904,7 @@
       initStringExemptionLists(args);
       const resolvedFeatures = await Promise.all(features);
       resolvedFeatures.forEach(({ init, featureName }) => {
-          if (!isFeatureBroken(args, featureName) || alwaysInitFeatures.has(featureName)) {
+          if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
               init(args);
           }
       });
@@ -1924,6 +1924,10 @@
           return
       }
       updateFeaturesInner(args);
+  }
+
+  function alwaysInitExtensionFeatures (args, featureName) {
+      return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName)
   }
 
   async function updateFeaturesInner (args) {
@@ -6198,6 +6202,8 @@
   exports.init = init$f;
   exports.load = load$1;
   exports.update = update$2;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
 
   return exports;
 
