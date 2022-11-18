@@ -2,8 +2,8 @@ import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect }
 
 let adLabelStrings = []
 const parser = new DOMParser()
-const hiddenElements = new WeakMap()
-const appliedRules = new Set()
+let hiddenElements = new WeakMap()
+let appliedRules = new Set()
 
 /**
  * Hide DOM element if rule conditions met
@@ -65,19 +65,12 @@ function expandNonEmptyDomNode (element, rule, previousElement) {
         // only care about rule types that specifically apply to empty elements
         break
     case 'hide-empty':
+    case 'closest-empty':
         if (alreadyHidden && !isDomNodeEmpty(element)) {
             unhideNode(element)
-        }
-        break
-    case 'closest-empty':
-        // iterate upwards from matching DOM elements until we arrive at previously
-        // hidden element. Unhide element if it contains visible content.
-        if (alreadyHidden) {
-            if (!isDomNodeEmpty(element)) {
-                unhideNode(element)
-            }
-            break
-        } else {
+        } else if (type === 'closest-empty') {
+            // iterate upwards from matching DOM elements until we arrive at previously
+            // hidden element. Unhide element if it contains visible content.
             expandNonEmptyDomNode(element.parentNode, rule, element)
         }
         break
@@ -198,6 +191,12 @@ function applyRules (rules) {
         }
         unhideLoadedAds()
     }, 750)
+
+    // clear appliedRules and hiddenElements caches once all checks have run
+    setTimeout(function () {
+        appliedRules = new Set()
+        hiddenElements = new WeakMap()
+    }, 3100)
 }
 
 /**
@@ -269,8 +268,7 @@ export function init (args) {
         applyRules(activeRules)
     }
     // single page applications don't have a DOMContentLoaded event on navigations, so
-    // we use proxy/reflect on history.pushState to call applyRules on page
-    // navigations, and listen for popstate events that indicate a back/forward navigation
+    // we use proxy/reflect on history.pushState to call applyRules on page navigations
     const historyMethodProxy = new DDGProxy(featureName, History.prototype, 'pushState', {
         apply (target, thisArg, args) {
             applyRules(activeRules)
@@ -278,7 +276,7 @@ export function init (args) {
         }
     })
     historyMethodProxy.overload()
-
+    // listen for popstate events in order to run on back/forward navigations
     window.addEventListener('popstate', (event) => {
         applyRules(activeRules)
     })
