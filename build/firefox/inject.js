@@ -1130,6 +1130,7 @@
   let initArgs = null;
   const updates = [];
   const features = [];
+  const alwaysInitFeatures = new Set(['cookie']);
 
   async function load$1 (args) {
       if (!shouldRun()) {
@@ -1173,7 +1174,7 @@
       initStringExemptionLists(args);
       const resolvedFeatures = await Promise.all(features);
       resolvedFeatures.forEach(({ init, featureName }) => {
-          if (!isFeatureBroken(args, featureName)) {
+          if (!isFeatureBroken(args, featureName) || alwaysInitFeatures.has(featureName)) {
               init(args);
           }
       });
@@ -2850,93 +2851,25 @@
       const exceptions = [
     {
       "domain": "nespresso.com",
-      "reason": "login issues"
+      "reason": "Clicking 'Continue' after filling out details for account creation yields an error."
     }
   ];
       const excludedCookieDomains = [
     {
-      "domain": "hangouts.google.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "docs.google.com",
-      "reason": "Site breakage"
-    },
-    {
       "domain": "accounts.google.com",
-      "reason": "SSO which needs cookies for auth"
-    },
-    {
-      "domain": "googleapis.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "login.live.com",
-      "reason": "SSO which needs cookies for auth"
-    },
-    {
-      "domain": "apis.google.com",
-      "reason": "Site breakage"
+      "reason": "On some Google sign-in flows, there is an error after entering username and proceeding: 'Your browser has cookies disabled. Make sure that your cookies are enabled and try again.'"
     },
     {
       "domain": "pay.google.com",
-      "reason": "Site breakage"
+      "reason": "After sign-in for Google Pay flows, there is repeated flickering and a loading spinner, preventing the flow from proceeding."
     },
     {
-      "domain": "payments.amazon.com",
-      "reason": "Site breakage"
+      "domain": "payments.google.com",
+      "reason": "After sign-in for Google Pay flows (after flickering is resolved), blocking this causes the loading spinner to spin indefinitely, and the payment flow cannot proceed."
     },
     {
-      "domain": "payments.amazon.de",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "atlassian.net",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "atlassian.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "paypal.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "paypal.com",
-      "reason": "site breakage"
-    },
-    {
-      "domain": "salesforce.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "salesforceliveagent.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "force.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "disqus.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "spotify.com",
-      "reason": "Site breakage"
-    },
-    {
-      "domain": "hangouts.google.com",
-      "reason": "site breakage"
-    },
-    {
-      "domain": "docs.google.com",
-      "reason": "site breakage"
-    },
-    {
-      "domain": "btsport-utils-prod.akamaized.net",
-      "reason": "broken videos"
+      "domain": "shutterfly.com",
+      "reason": "https://github.com/duckduckgo/privacy-configuration/issues/544"
     }
   ];
 
@@ -3106,15 +3039,20 @@
   }
 
   function init$d (args) {
-      args.cookie.debug = args.debug;
-      cookiePolicy = args.cookie;
+      if (args.cookie) {
+          cookiePolicy = args.cookie;
+          args.cookie.debug = args.debug;
 
-      const featureName = 'cookie';
-      cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
-      cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
-      const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
-      if (policy) {
-          cookiePolicy.policy = policy;
+          const featureName = 'cookie';
+          cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie');
+          cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie');
+          const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy');
+          if (policy) {
+              cookiePolicy.policy = policy;
+          }
+      } else {
+          // no cookie information - disable protections
+          cookiePolicy.shouldBlock = false;
       }
 
       loadedPolicyResolve();
