@@ -6201,8 +6201,6 @@
   exports.load = load$1;
   exports.update = update$2;
 
-  Object.defineProperty(exports, '__esModule', { value: true });
-
   return exports;
 
 })({});
