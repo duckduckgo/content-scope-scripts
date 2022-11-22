@@ -1902,7 +1902,7 @@
       initStringExemptionLists(args);
       const resolvedFeatures = await Promise.all(features);
       resolvedFeatures.forEach(({ init, featureName }) => {
-          if (!isFeatureBroken(args, featureName) || alwaysInitFeatures.has(featureName)) {
+          if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
               init(args);
           }
       });
@@ -1922,6 +1922,10 @@
           return
       }
       updateFeaturesInner(args);
+  }
+
+  function alwaysInitExtensionFeatures (args, featureName) {
+      return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName)
   }
 
   async function updateFeaturesInner (args) {
