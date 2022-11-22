@@ -1,5 +1,6 @@
 /* global contentScopeFeatures */
 
+import { appFeatureNames } from '../src/features'
 import { processConfig, isGloballyDisabled, windowsSpecificFeatures } from './../src/utils'
 
 function init () {
@@ -10,7 +11,7 @@ function init () {
 
     contentScopeFeatures.load({
         platform: processedConfig.platform
-    })
+    }, appFeatureNames)
 
     contentScopeFeatures.init(processedConfig)
 

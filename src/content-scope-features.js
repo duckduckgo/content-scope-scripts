@@ -1,3 +1,4 @@
+import { extensionFeatureNames } from './features'
 import { initStringExemptionLists, isFeatureBroken } from './utils'
 
 function shouldRun () {
@@ -17,28 +18,11 @@ const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
 
-export async function load (args) {
+export async function load (args, featureNames = extensionFeatureNames) {
     if (!shouldRun()) {
         return
     }
-    const featureNames = [
-        'windowsPermissionUsage',
-        'webCompat',
-        'fingerprintingAudio',
-        'fingerprintingBattery',
-        'fingerprintingCanvas',
-        'cookie',
-        'googleRejected',
-        'gpc',
-        'fingerprintingHardware',
-        'referrer',
-        'fingerprintingScreenSize',
-        'fingerprintingTemporaryStorage',
-        'navigatorInterface',
-        'clickToPlay',
-        'elementHiding'
-    ]
-
+    
     for (const featureName of featureNames) {
         const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
