@@ -1355,10 +1355,10 @@ class DuckWidget {
     }
 }
 
-async function initCTL (resp) {
-    for (const entity of Object.keys(config)) {
+async function initCTL (configResponseData) {
+    for (const entity of Object.keys(configResponseData)) {
         entities.push(entity)
-        const { informationalModal, simpleVersion } = config[entity]
+        const { informationalModal, simpleVersion } = configResponseData[entity]
         const shouldShowLoginModal = !!informationalModal
 
         const currentEntityData = {
@@ -1376,10 +1376,10 @@ async function initCTL (resp) {
 
         entityData[entity] = currentEntityData
     }
-    await replaceClickToLoadElements(config)
+    await replaceClickToLoadElements(configResponseData)
 
     window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
-        replaceClickToLoadElements(config, target)
+        replaceClickToLoadElements(configResponseData, target)
     }, { capture: true })
 
     // Inform surrogate scripts that CTP is ready
