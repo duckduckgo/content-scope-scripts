@@ -3262,7 +3262,7 @@
       const buttonRow = document.createElement('div');
       buttonRow.style.cssText = styles.buttonRow;
       buttonRow.appendChild(button);
-      contentRow.appendChild(buttonRow);
+      contentText.appendChild(buttonRow);
 
       if (bottomRow) {
           contentRow.appendChild(bottomRow);
@@ -3499,8 +3499,8 @@
 
   function init$e (args) {
       sendMessage('getDevMode');
-      sendMessage('initClickToLoad', config);
       sendMessage('getSetting', { name: 'youtubePreviewsEnabled' });
+      sendMessage('initClickToLoad', config);
 
       // Listen for events from surrogates
       addEventListener('ddg-ctp', (event) => {
