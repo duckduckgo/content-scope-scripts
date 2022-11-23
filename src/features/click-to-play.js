@@ -5,6 +5,7 @@ import {
 } from '../assets/ctl-assets.js'
 
 let devMode = false
+let isYoutubePreviewsEnabled = false
 let appID
 
 const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
@@ -1361,7 +1362,6 @@ class DuckWidget {
 }
 
 async function initCTL (resp) {
-    console.log('linked script 5')
     for (const entity of Object.keys(config)) {
         entities.push(entity)
         const { informationalModal, simpleVersion } = config[entity]
@@ -1479,8 +1479,9 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
-        window.addEventListener('ddg-settings-youtubePreviewsEnabled', ({ detail: { value } }) => {
-            replaceYouTubeCTL(trackingElement, widget, value, true)
+        window.addEventListener('ddg-settings-youtubePreviewsEnabled', ({ detail: value }) => {
+            isYoutubePreviewsEnabled = value
+            replaceYouTubeCTL(trackingElement, widget, true)
         })
     }
 }
@@ -1490,22 +1491,18 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
  *   The original tracking element (YouTube video iframe)
  * @param {DuckWidget} widget
  *   The CTP 'widget' associated with the tracking element.
- * @param {boolean} youtubePreviewsEnabled
- *   Boolean indicating if YouTube Previews are enabled
  * @param {boolean} togglePlaceholder
  *   Boolean indicating if this function should toggle between placeholders,
  *   because tracking element has already been replaced
  */
-async function replaceYouTubeCTL (trackingElement, widget, youtubePreviewsEnabled = false, togglePlaceholder = false) {
+async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = false) {
     // Skip replacing tracking element if it has already been unblocked
     if (widget.isUnblocked) {
         return
     }
 
-    // const youtubePreviewsEnabled = await getYouTubePreviewsEnabled()
-
     // Show YouTube Preview for embedded video
-    if (youtubePreviewsEnabled === true) {
+    if (isYoutubePreviewsEnabled === true) {
         const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
         const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-dialog-${widget.widgetID}`) : null
         replaceTrackingElement(
@@ -1612,11 +1609,6 @@ function openShareFeedbackPage () {
 function getYouTubeVideoDetails (videoURL) {
     sendMessage('getYouTubeVideoDetails', videoURL)
 }
-
-/** TODO - CLEAN UP */
-// function getYouTubePreviewsEnabled () {
-//     sendMessage('getSetting', { name: 'youtubePreviewsEnabled' })
-// }
 
 /*********************************************************
  *  Widget building blocks
@@ -2235,9 +2227,11 @@ async function createYouTubePreview (originalElement, widget) {
     widget.autoplay = false
     // We use .then() instead of await here to show the placeholder right away
     // while the YouTube endpoint takes it time to respond.
-    getYouTubeVideoDetails(originalElement.src || originalElement.getAttribute('data-src'))
-    window.addEventListener('ddg-ctl-youTubeVideoDetails-response',
-        ({ detail: { status, title, previewImage } }) => {
+    const videoURL = originalElement.src || originalElement.getAttribute('data-src')
+    getYouTubeVideoDetails(videoURL)
+    window.addEventListener('ddg-ctp-youTubeVideoDetails',
+        ({ detail: { videoURL: videoURLResp, status, title, previewImage } }) => {
+            if (videoURLResp !== videoURL) { return }
             if (status === 'success') {
                 titleElement.innerText = title
                 titleElement.title = title
@@ -2271,12 +2265,24 @@ const updateHandlers = {
     },
     getDevMode: function (resp) {
         devMode = resp
+    },
+    getSetting: function (resp) {
+        isYoutubePreviewsEnabled = resp
+    },
+    updateSetting: function (resp) {
+        if (!resp.messageType || resp.value === undefined) { return }
+        window.dispatchEvent(new CustomEvent(resp.messageType, { detail: resp.value }))
+    },
+    getYouTubeVideoDetails: function (resp) {
+        if (!resp.status || !resp.videoURL) { return }
+        window.dispatchEvent(new CustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
     }
 }
 
 export function init (args) {
     sendMessage('getDevMode')
     sendMessage('initClickToLoad', config)
+    sendMessage('getSetting', { name: 'youtubePreviewsEnabled' })
 
     // Listen for events from surrogates
     addEventListener('ddg-ctp', (event) => {
