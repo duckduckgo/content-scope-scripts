@@ -2960,13 +2960,7 @@
               messageBody: 'Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.',
               confirmButtonText: 'Enable Previews',
               rejectButtonText: 'No Thanks'
-          },
-          surrogates: [
-              {
-                  rule: '(www.)?youtube(-nocookie)?.com/iframe_api',
-                  surrogate: 'youtube-iframe-api.js'
-              }
-          ]
+          }
       }
   };
 
@@ -3336,6 +3330,9 @@
       window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
           replaceClickToLoadElements(config, target);
       }, { capture: true });
+
+      // Inform surrogate scripts that CTP is ready
+      window.dispatchEvent(createCustomEvent('ddg-ctp-ready'));
   }
 
   function replaceTrackingElement (widget, trackingElement, placeholderElement, hideTrackingElement = false, currentPlaceholder = null) {
