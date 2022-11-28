@@ -3039,7 +3039,9 @@
 
   async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
       const icon = entityData[entity].modalIcon;
+
       const modalContainer = document.createElement('div');
+      modalContainer.setAttribute('data-key', 'modal');
       modalContainer.style.cssText = styles.modalContainer;
 
       const closeModal = () => {
