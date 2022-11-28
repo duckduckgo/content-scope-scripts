@@ -5454,7 +5454,7 @@
 })({});
 
 
-    const secret = window.crypto.randomUUID();
+    const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
 
     contentScopeFeatures.load({
         platform: {
