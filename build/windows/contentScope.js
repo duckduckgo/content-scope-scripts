@@ -2974,7 +2974,7 @@
   }
 
   async function initCTL (resp) {
-      for (const entity of Object.keys(config)) {
+      for (const entity of Object.keys(resp)) {
           entities.push(entity);
           const { informationalModal, simpleVersion } = config[entity];
           const shouldShowLoginModal = !!informationalModal;
@@ -2994,10 +2994,10 @@
 
           entityData[entity] = currentEntityData;
       }
-      await replaceClickToLoadElements(config);
+      await replaceClickToLoadElements(resp);
 
       window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
-          replaceClickToLoadElements(config, target);
+          replaceClickToLoadElements(resp, target);
       }, { capture: true });
   }
 
@@ -3463,11 +3463,11 @@
       // eg. calling sendMessage('initClickToLoad') will result in a response routed to 'updateHandlers.initClickToLoad()'
       initClickToLoad: function (resp) {
           if (document.readyState === 'complete') {
-              initCTL();
+              initCTL(resp);
           } else {
               // Content script loaded before page content, so wait for load.
               window.addEventListener('load', (event) => {
-                  initCTL();
+                  initCTL(resp);
               });
           }
       },
