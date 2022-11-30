@@ -2191,7 +2191,7 @@
                       "iframe[data-src*='://www.youtube-nocookie.com/embed']"
                   ],
                   replaceSettings: {
-                      type: 'youtube-video',
+                      type: 'ctp-youtube-video',
                       buttonText: 'Unblock video',
                       infoTitle: 'DuckDuckGo blocked this YouTube video to prevent Google from tracking you',
                       infoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
@@ -2207,7 +2207,7 @@
                       }
                   },
                   clickAction: {
-                      type: 'youtube-video'
+                      type: 'ctp-youtube-video'
                   }
               },
               'YouTube embedded subscription button': {
@@ -2519,7 +2519,7 @@
                   case 'iFrame':
                       fbElement = this.createFBIFrame();
                       break
-                  case 'youtube-video':
+                  case 'ctp-youtube-video':
                       onError = await this.adjustYouTubeVideoElement(originalElement);
                       fbElement = originalElement;
                       break
@@ -2691,7 +2691,7 @@
       }
 
       /** YouTube CTL */
-      if (widget.replaceSettings.type === 'youtube-video') {
+      if (widget.replaceSettings.type === 'ctp-youtube-video') {
           sendMessage('updateYouTubeCTLAddedFlag', true);
           await replaceYouTubeCTL(trackingElement, widget);
 
@@ -3216,7 +3216,7 @@
       // Create overall grid structure
       const element = document.createElement('div');
       element.style.cssText = styles.block + styles[widget.getMode()].background + styles[widget.getMode()].textFont;
-      if (widget.replaceSettings.type === 'youtube-video') {
+      if (widget.replaceSettings.type === 'ctp-youtube-video') {
           element.style.cssText += styles.youTubeDialogBlock;
       }
       element.className = wrapperClass;
@@ -3271,7 +3271,7 @@
       }
 
       /** Share Feedback Link */
-      if (widget.replaceSettings.type === 'youtube-video') {
+      if (widget.replaceSettings.type === 'ctp-youtube-video') {
           const feedbackRow = makeShareFeedbackRow();
           shadowRoot.appendChild(feedbackRow);
       }
