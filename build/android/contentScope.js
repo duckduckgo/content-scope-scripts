@@ -3304,10 +3304,10 @@
       }
   }
 
-  async function initCTL (configResponseData) {
-      for (const entity of Object.keys(configResponseData)) {
+  async function initCTL (resp) {
+      for (const entity of Object.keys(resp)) {
           entities.push(entity);
-          const { informationalModal, simpleVersion } = configResponseData[entity];
+          const { informationalModal, simpleVersion } = resp[entity];
           const shouldShowLoginModal = !!informationalModal;
 
           const currentEntityData = {
@@ -3325,10 +3325,10 @@
 
           entityData[entity] = currentEntityData;
       }
-      await replaceClickToLoadElements(configResponseData);
+      await replaceClickToLoadElements(resp);
 
       window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
-          replaceClickToLoadElements(configResponseData, target);
+          replaceClickToLoadElements(resp, target);
       }, { capture: true });
 
       // Inform surrogate scripts that CTP is ready
