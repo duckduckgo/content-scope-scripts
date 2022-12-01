@@ -481,7 +481,7 @@ const styles = {
         border-radius: 12px;
         box-sizing: border-box;
         max-width: initial;
-        min-width: 410px;
+        min-width: 380px;
         min-height: 300px;
         margin: auto;
     `,
@@ -489,7 +489,7 @@ const styles = {
         position: relative;
         overflow: hidden;
         max-width: initial;
-        min-width: 410px;
+        min-width: 380px;
         min-height: 300px;
         height: 100%;
     `,
@@ -1311,9 +1311,9 @@ class DuckWidget {
                 // it visible again.
                 if (this.originalElementStyle) {
                     for (const key of ['display', 'visibility']) {
-                        const value = this.originalElementStyle[key][0]
+                        const { value, priority } = this.originalElementStyle[key]
                         if (value) {
-                            fbElement.style.setProperty(key, value)
+                            fbElement.style.setProperty(key, value, priority)
                         } else {
                             fbElement.style.removeProperty(key)
                         }
@@ -1635,26 +1635,20 @@ function getOriginalElementStyle (originalElement, widget) {
     }
 
     const stylesToCopy = ['display', 'visibility', 'position', 'top', 'bottom', 'left', 'right',
-        'transform', 'margin', 'width', 'max-width', 'height', 'max-height']
+        'transform', 'margin']
     widget.originalElementStyle = {}
     const allOriginalElementStyles = getComputedStyle(originalElement)
     for (const key of stylesToCopy) {
-        widget.originalElementStyle[key] = [
-            allOriginalElementStyles[key],
-            originalElement.style.getPropertyPriority(key)
-        ]
+        widget.originalElementStyle[key] = {
+            value: allOriginalElementStyles[key],
+            priority: originalElement.style.getPropertyPriority(key)
+        }
     }
 
-    // Try to get original height/width styles from element,
-    // otherwise measures current size and stores that
+    // Copy current size of the element
     const { height: heightViewValue, width: widthViewValue } = originalElement.getBoundingClientRect()
-    let styleHeight = originalElement.height
-    styleHeight += styleHeight.search(/^\d+(\.\d+)*$/g) > -1 ? 'px' : ''
-    widget.originalElementStyle.height[0] = styleHeight || widget.originalElementStyle.height[0] || heightViewValue
-
-    let styleWidth = originalElement.width
-    styleWidth += styleWidth.search(/^\d+(\.\d+)*$/g) > -1 ? 'px' : ''
-    widget.originalElementStyle.width[0] = styleWidth || widget.originalElementStyle.width[0] || widthViewValue
+    widget.originalElementStyle.height = { value: `${heightViewValue}px`, priority: '' }
+    widget.originalElementStyle.width = { value: `${widthViewValue}px`, priority: '' }
 
     return widget.originalElementStyle
 }
@@ -1666,7 +1660,7 @@ function getOriginalElementStyle (originalElement, widget) {
  */
 function copyStylesTo (originalStyles, element) {
     const { display, visibility, ...filteredStyles } = originalStyles
-    const cssText = Object.keys(filteredStyles).reduce((cssAcc, key) => (cssAcc + `${key}: ${filteredStyles[key][0]};`), '')
+    const cssText = Object.keys(filteredStyles).reduce((cssAcc, key) => (cssAcc + `${key}: ${filteredStyles[key].value};`), '')
     element.style.cssText += cssText
 }
 
