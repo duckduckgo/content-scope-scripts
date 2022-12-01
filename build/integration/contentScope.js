@@ -3456,7 +3456,7 @@
       getDevMode: function (resp) {
           devMode = resp;
       },
-      getSetting: function (resp) {
+      getYoutubePreviewsEnabled: function (resp) {
           isYoutubePreviewsEnabled = resp;
       },
       updateSetting: function (resp) {
@@ -3471,7 +3471,7 @@
 
   function init$e (args) {
       sendMessage('getDevMode');
-      sendMessage('getSetting', { name: 'youtubePreviewsEnabled' });
+      sendMessage('getYoutubePreviewsEnabled');
       sendMessage('initClickToLoad', config);
 
       // Listen for events from surrogates
