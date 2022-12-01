@@ -2897,15 +2897,6 @@
           }
       },
       Youtube: {
-          domains: [
-              'youtube.com',
-              'youtube-nocookie.com'
-          ],
-          excludedSubdomains: [],
-          excludedDomains: [{
-              domain: 'duckduckgo.com',
-              reason: 'Existing privacy protections for YouTube videos'
-          }],
           elementData: {
               'YouTube embedded video': {
                   selectors: [
