@@ -3475,7 +3475,6 @@
   };
 
   function init$e (args) {
-      console.warn('ctl init');
       sendMessage('getDevMode');
       sendMessage('initClickToLoad', config);
 
