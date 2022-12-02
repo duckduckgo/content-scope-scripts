@@ -1,7 +1,7 @@
 import { createCustomEvent, sendMessage } from '../utils.js'
 import {
-    logoImg, loadingImages, closeIcon, blockedFBLogo, blockedYTVideo,
-    videoPlayDark, videoPlayLight, ddgFont, ddgFontBold
+    logoImg, loadingImages, closeIcon, blockedFBLogo, ddgFont, ddgFontBold
+    // blockedYTVideo, videoPlayDark, videoPlayLight // For YT CTL
 } from '../assets/ctl-assets.js'
 
 let devMode = false
@@ -947,7 +947,7 @@ const config = {
             }
         }
     }
-    // Youtube: {
+    // Youtube: { // Config for YT CTL
     //     elementData: {
     //         'YouTube embedded video': {
     //             selectors: [
