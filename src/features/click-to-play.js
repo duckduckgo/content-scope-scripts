@@ -1533,7 +1533,6 @@ const updateHandlers = {
 }
 
 export function init (args) {
-    console.warn('ctl init')
     sendMessage('getDevMode')
     sendMessage('initClickToLoad', config)
 
