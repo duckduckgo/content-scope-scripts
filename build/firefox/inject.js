@@ -3961,7 +3961,10 @@
       // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
       // frequently take from several hundred milliseconds to several seconds to load
       // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
-      hideAdNodes(rules);
+      setTimeout(function () {
+          hideAdNodes(rules);
+      }, 0);
+
       let immediateHideIterations = 0;
       const immediateHideInterval = setInterval(function () {
           immediateHideIterations += 1;
