@@ -676,6 +676,11 @@
   // eslint-disable-next-line no-global-assign
   let globalObj = typeof window === 'undefined' ? globalThis : window;
   let Error$1 = globalObj.Error;
+  let messageSecret;
+
+  function registerMessageSecret (secret) {
+      messageSecret = secret;
+  }
 
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
@@ -1090,7 +1095,7 @@
 
   function sendMessage (messageType, options) {
       // FF & Chrome
-      return window.dispatchEvent(createCustomEvent('sendMessage', { detail: { messageType, options } }))
+      return window.dispatchEvent(createCustomEvent('sendMessage' + messageSecret, { detail: { messageType, options } }))
       // TBD other platforms
   }
 
@@ -1171,6 +1176,7 @@
       if (!shouldRun()) {
           return
       }
+      registerMessageSecret(args.messageSecret);
       initStringExemptionLists(args);
       const resolvedFeatures = await Promise.all(features);
       resolvedFeatures.forEach(({ init, featureName }) => {
@@ -3234,7 +3240,10 @@
       // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
       // frequently take from several hundred milliseconds to several seconds to load
       // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
-      hideAdNodes(rules);
+      setTimeout(function () {
+          hideAdNodes(rules);
+      }, 0);
+
       let immediateHideIterations = 0;
       const immediateHideInterval = setInterval(function () {
           immediateHideIterations += 1;
@@ -5626,6 +5635,13 @@
 })({});
 
 
+    const messageSecret = randomString();
+
+    function randomString () {
+        const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+        return num.toString().replace('0.', '')
+    }
+
     function init () {
         contentScopeFeatures.load({
             platform: {
@@ -5654,6 +5670,7 @@
                     }
                 });
             }
+            message.messageSecret = messageSecret;
             contentScopeFeatures.init(message);
         });
 
@@ -5664,7 +5681,7 @@
             }
         });
 
-        window.addEventListener('sendMessage', (m) => {
+        window.addEventListener('sendMessage' + messageSecret, (m) => {
             const messageType = m.detail.messageType;
             chrome.runtime.sendMessage(m && m.detail, response => {
                 const msg = { type: messageType, response };
