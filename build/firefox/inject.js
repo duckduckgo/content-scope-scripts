@@ -5664,8 +5664,8 @@
         window.addEventListener('sendMessage', (m) => {
             const messageType = m.detail.messageType;
             chrome.runtime.sendMessage(m && m.detail, response => {
-                const msg = { type: messageType, response };
-                contentScopeFeatures.update(msg);
+                const msg = { func: messageType, response };
+                contentScopeFeatures.update({ detail: msg });
             });
         });
     }
