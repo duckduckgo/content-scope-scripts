@@ -1243,7 +1243,7 @@ class DuckWidget {
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true
                 }
-                enableSocialTracker(this.entity, isLogin)
+                enableSocialTracker({ entity: this.entity, action: 'block-ctl-fb', isLogin })
                 const parent = replacementElement.parentNode
 
                 // If we allow everything when this element is clicked,
@@ -1561,11 +1561,7 @@ async function replaceClickToLoadElements (config, targetElement) {
 /*********************************************************
  *  Messaging to surrogates & extension
  *********************************************************/
-function enableSocialTracker (entity, isLogin) {
-    const message = {
-        entity,
-        isLogin
-    }
+function enableSocialTracker (message) {
     sendMessage('enableSocialTracker', message)
 }
 
@@ -2291,10 +2287,11 @@ export function init (args) {
 }
 
 export function update (args) {
-    if (!(args && args.type)) { return }
+    const detail = args && args.detail
+    if (!(detail && detail.func)) { return }
 
-    const fn = updateHandlers[args.type]
+    const fn = updateHandlers[detail.func]
     if (typeof fn !== 'function') { return }
 
-    fn(args.response)
+    fn(detail.response)
 }
