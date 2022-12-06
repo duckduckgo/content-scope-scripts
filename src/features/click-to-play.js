@@ -38,7 +38,7 @@ const styles = {
             color: #111111;
         `,
         linkFont: `
-            color: #5784FF;
+            color: #7295F6;
         `,
         buttonBackground: `
             background: #5784FF;
@@ -1790,7 +1790,7 @@ function makeLoginButton (buttonText, mode, hoverTextTitle, hoverTextBody, icon,
     const hoverText = document.createElement('div')
     hoverText.style.cssText = styles.hoverTextBody
     hoverText.textContent = hoverTextBody + ' '
-    hoverText.appendChild(getLearnMoreLink())
+    hoverText.appendChild(getLearnMoreLink(mode))
     hoverBox.appendChild(hoverText)
 
     hoverContainer.appendChild(hoverBox)
@@ -2144,7 +2144,8 @@ async function createYouTubePreview (originalElement, widget) {
     topSection.appendChild(titleElement)
 
     /** Text Button on top section */
-    const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
+    // Use darkMode styles because of preview background
+    const textButton = makeTextButton(widget.replaceSettings.buttonText, 'darkMode')
     textButton.id = titleID + 'TextButton'
 
     textButton.addEventListener(
@@ -2196,7 +2197,8 @@ async function createYouTubePreview (originalElement, widget) {
     const previewText = document.createElement('div')
     previewText.style.cssText = styles.contentText + styles.toggleButtonText + styles.youTubePreviewInfoText
     previewText.innerText = widget.replaceSettings.placeholder.previewInfoText + ' '
-    previewText.appendChild(getLearnMoreLink())
+    // Use darkMode styles because of preview background
+    previewText.appendChild(getLearnMoreLink('darkMode'))
 
     previewToggleRow.appendChild(previewToggle)
     previewToggleRow.appendChild(previewText)
