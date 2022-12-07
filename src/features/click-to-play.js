@@ -275,7 +275,7 @@ const styles = {
         margin: 10px auto;
         text-align: center;
         border: none;
-        padding: 0;
+        padding: 0px 32px;
     `,
     modalContentText: `
         font-family: DuckDuckGoPrivacyEssentials;
@@ -1880,10 +1880,6 @@ async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
     const modalTitle = createTitleRow('DuckDuckGo', null, closeModal)
     modal.appendChild(modalTitle)
 
-    // Content
-    const modalContent = document.createElement('div')
-    modalContent.style.cssText = styles.modalContent
-
     const iconElement = document.createElement('img')
     iconElement.style.cssText = styles.icon + styles.modalIcon
     iconElement.setAttribute('src', icon)
@@ -1892,6 +1888,10 @@ async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
     const title = document.createElement('div')
     title.style.cssText = styles.modalContentTitle
     title.textContent = entityData[entity].modalTitle
+
+    // Content
+    const modalContent = document.createElement('div')
+    modalContent.style.cssText = styles.modalContent
 
     const message = document.createElement('div')
     message.style.cssText = styles.modalContentText
