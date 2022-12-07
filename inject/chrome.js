@@ -1,6 +1,9 @@
 /**
  * Inject all the overwrites into the page.
  */
+
+const messageSecret = randomString()
+
 function inject (code) {
     const elem = document.head || document.documentElement
     // Inject into main page
@@ -92,6 +95,7 @@ function init () {
                 }
             })
         }
+        message.messageSecret = messageSecret
         const stringifiedArgs = JSON.stringify(message)
         const callRandomFunction = `
                 window.${randomMethodName}('${randomPassword}', ${stringifiedArgs});
@@ -110,7 +114,7 @@ function init () {
         }
     })
 
-    window.addEventListener('sendMessage', (m) => {
+    window.addEventListener('sendMessage' + messageSecret, (m) => {
         const messageType = m.detail.messageType
         chrome.runtime.sendMessage(m && m.detail, response => {
             const msg = { type: messageType, response }
