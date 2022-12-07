@@ -1854,6 +1854,13 @@ async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
     modalContainer.setAttribute('data-key', 'modal')
     modalContainer.style.cssText = styles.modalContainer
 
+    // Put our custom font-faces inside the wrapper element, since
+    // @font-face does not work inside a shadowRoot.
+    // See https://github.com/mdn/interactive-examples/issues/887.
+    const fontFaceStyleElement = document.createElement('style')
+    fontFaceStyleElement.textContent = styles.fontStyle
+    modalContainer.appendChild(fontFaceStyleElement)
+
     const closeModal = () => {
         document.body.removeChild(modalContainer)
         cancelModal(entity)
