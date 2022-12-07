@@ -43,6 +43,12 @@ const styles = {
         buttonBackground: `
             background: #5784FF;
         `,
+        buttonBackgroundHover: `
+            background: #557FF3;
+        `,
+        buttonBackgroundPress: `
+            background: #3969EF;
+        `,
         toggleButtonText: `
             color: #EEEEEE;
         `
@@ -63,6 +69,12 @@ const styles = {
         buttonBackground: `
             background: #3969EF;
         `,
+        buttonBackgroundHover: `
+            background: #2B55CA;
+        `,
+        buttonBackgroundPress: `
+            background: #1E42A4;
+        `,
         toggleButtonText: `
             color: #666666;
         `
@@ -81,6 +93,12 @@ const styles = {
         `,
         buttonFont: `
             color: #222222;
+        `,
+        buttonBackgroundHover: `
+            background: rgba(0, 0, 0, 0.12);
+        `,
+        buttonBackgroundPress: `
+            background: rgba(0, 0, 0, 0.18);
         `
     },
     button: `
@@ -1661,13 +1679,18 @@ function makeTextButton (linkText, mode) {
     return linkElement
 }
 
-function makeButton (buttonText, mode) {
+function makeButton (buttonText, mode = 'lightMode') {
     const button = document.createElement('button')
     button.style.cssText = styles.button + styles[mode].buttonBackground
-    const textContainer = document.createElement('div')
-    textContainer.style.cssText = styles.buttonTextContainer + styles[mode].buttonFont
-    textContainer.textContent = buttonText
-    button.appendChild(textContainer)
+    button.addEventListener('mouseenter', function () { button.style.cssText += styles[mode].buttonBackgroundHover })
+    button.addEventListener('mouseleave', function () { button.style.cssText += styles[mode].buttonBackground })
+    button.addEventListener('mousedown', function () { button.style.cssText += styles[mode].buttonBackgroundPress })
+    if (buttonText) {
+        const textContainer = document.createElement('div')
+        textContainer.style.cssText = styles.buttonTextContainer + styles[mode].buttonFont
+        textContainer.textContent = buttonText
+        button.appendChild(textContainer)
+    }
     return button
 }
 
@@ -2158,8 +2181,8 @@ async function createYouTubePreview (originalElement, widget) {
     const playButtonRow = document.createElement('div')
     playButtonRow.style.cssText = styles.youTubePlayButtonRow
 
-    const playButton = document.createElement('button')
-    playButton.style.cssText = styles.button + styles.youTubePlayButton + styles[widget.getMode()].buttonBackground
+    const playButton = makeButton('', widget.getMode())
+    playButton.style.cssText += styles.youTubePlayButton
 
     const videoPlayImg = document.createElement('img')
     const videoPlayIcon = widget.replaceSettings.placeholder.videoPlayIcon[widget.getMode()]
