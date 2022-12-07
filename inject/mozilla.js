@@ -1,5 +1,12 @@
 /* global contentScopeFeatures */
 
+const messageSecret = randomString()
+
+function randomString () {
+    const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
+    return num.toString().replace('0.', '')
+}
+
 function init () {
     contentScopeFeatures.load({
         platform: {
@@ -28,6 +35,7 @@ function init () {
                 }
             })
         }
+        message.messageSecret = messageSecret
         contentScopeFeatures.init(message)
     })
 
@@ -38,7 +46,7 @@ function init () {
         }
     })
 
-    window.addEventListener('sendMessage', (m) => {
+    window.addEventListener('sendMessage' + messageSecret, (m) => {
         const messageType = m.detail.messageType
         chrome.runtime.sendMessage(m && m.detail, response => {
             const msg = { type: messageType, response }
