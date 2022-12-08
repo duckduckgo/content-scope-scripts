@@ -676,6 +676,11 @@
   // eslint-disable-next-line no-global-assign
   let globalObj = typeof window === 'undefined' ? globalThis : window;
   let Error$1 = globalObj.Error;
+  let messageSecret;
+
+  function registerMessageSecret (secret) {
+      messageSecret = secret;
+  }
 
   function getDataKeySync (sessionKey, domainKey, inputData) {
       // eslint-disable-next-line new-cap
@@ -1090,7 +1095,7 @@
 
   function sendMessage (messageType, options) {
       // FF & Chrome
-      return window.dispatchEvent(createCustomEvent('sendMessage', { detail: { messageType, options } }))
+      return window.dispatchEvent(createCustomEvent('sendMessage' + messageSecret, { detail: { messageType, options } }))
       // TBD other platforms
   }
 
@@ -1171,6 +1176,7 @@
       if (!shouldRun()) {
           return
       }
+      registerMessageSecret(args.messageSecret);
       initStringExemptionLists(args);
       const resolvedFeatures = await Promise.all(features);
       resolvedFeatures.forEach(({ init, featureName }) => {
@@ -6353,6 +6359,13 @@
 })({});
 
 
+    const messageSecret = randomString();
+
+    function randomString () {
+        const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+        return num.toString().replace('0.', '')
+    }
+
     function init () {
         contentScopeFeatures.load({
             platform: {
@@ -6381,6 +6394,7 @@
                     }
                 });
             }
+            message.messageSecret = messageSecret;
             contentScopeFeatures.init(message);
         });
 
@@ -6391,7 +6405,7 @@
             }
         });
 
-        window.addEventListener('sendMessage', (m) => {
+        window.addEventListener('sendMessage' + messageSecret, (m) => {
             const messageType = m.detail.messageType;
             chrome.runtime.sendMessage(m && m.detail, response => {
                 const msg = { func: messageType, response };

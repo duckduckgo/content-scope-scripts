@@ -17,6 +17,7 @@ window.addEventListener(secret, ({ detail: message }) => {
         break
     case 'register':
         if (message.argumentsObject) {
+            message.argumentsObject.messageSecret = secret
             contentScopeFeatures.init(message.argumentsObject)
         }
         break

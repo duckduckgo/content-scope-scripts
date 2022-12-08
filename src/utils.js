@@ -5,6 +5,11 @@ import { sjcl } from '../lib/sjcl.js'
 // eslint-disable-next-line no-global-assign
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
+let messageSecret
+
+export function registerMessageSecret (secret) {
+    messageSecret = secret
+}
 
 /**
  * Used for testing to override the globals used within this file.
@@ -501,6 +506,6 @@ export function createCustomEvent (eventName, eventDetail) {
 
 export function sendMessage (messageType, options) {
     // FF & Chrome
-    return window.dispatchEvent(createCustomEvent('sendMessage', { detail: { messageType, options } }))
+    return window.dispatchEvent(createCustomEvent('sendMessage' + messageSecret, { detail: { messageType, options } }))
     // TBD other platforms
 }
