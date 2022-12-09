@@ -2056,10 +2056,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => makeModal(widget.entity, () => sendMessage('updateSetting', {
-            name: 'youtubePreviewsEnabled',
-            value: true
-        }), widget.entity)
+        () => makeModal(widget.entity, () => sendMessage('setYoutubePreviewsEnabled', true), widget.entity)
     )
     bottomRow.appendChild(previewToggle)
 
@@ -2186,7 +2183,7 @@ async function createYouTubePreview (originalElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => sendMessage('updateSetting', {
+        () => sendMessage('setYoutubePreviewsEnabled', {
             name: 'youtubePreviewsEnabled',
             value: false
         })

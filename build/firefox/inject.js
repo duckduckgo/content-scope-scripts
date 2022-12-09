@@ -677,6 +677,16 @@
   let globalObj = typeof window === 'undefined' ? globalThis : window;
   let Error$1 = globalObj.Error;
   let messageSecret;
+  const allowedMessages = [
+      'getDevMode',
+      'initClickToLoad',
+      'enableSocialTracker',
+      'openShareFeedbackPage',
+      'getYouTubeVideoDetails',
+      'updateYouTubeCTLAddedFlag',
+      'getYoutubePreviewsEnabled',
+      'setYoutubePreviewsEnabled'
+  ];
 
   function registerMessageSecret (secret) {
       messageSecret = secret;
@@ -1095,6 +1105,10 @@
 
   function sendMessage (messageType, options) {
       // FF & Chrome
+      console.warn('CTL sendMessage for', messageSecret, messageType, options);
+      if (!allowedMessages.includes(messageType)) {
+          return console.warn('Ignoring invalid sendMessage messageType', messageType)
+      }
       return window.dispatchEvent(createCustomEvent('sendMessage' + messageSecret, { detail: { messageType, options } }))
       // TBD other platforms
   }
@@ -3279,10 +3293,7 @@
       );
       previewToggle.addEventListener(
           'click',
-          () => makeModal(widget.entity, () => sendMessage('updateSetting', {
-              name: 'youtubePreviewsEnabled',
-              value: true
-          }), widget.entity)
+          () => makeModal(widget.entity, () => sendMessage('setYoutubePreviewsEnabled', true), widget.entity)
       );
       bottomRow.appendChild(previewToggle);
 
@@ -3409,7 +3420,7 @@
       );
       previewToggle.addEventListener(
           'click',
-          () => sendMessage('updateSetting', {
+          () => sendMessage('setYoutubePreviewsEnabled', {
               name: 'youtubePreviewsEnabled',
               value: false
           })

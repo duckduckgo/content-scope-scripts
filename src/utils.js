@@ -6,6 +6,16 @@ import { sjcl } from '../lib/sjcl.js'
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
+const allowedMessages = [
+    'getDevMode',
+    'initClickToLoad',
+    'enableSocialTracker',
+    'openShareFeedbackPage',
+    'getYouTubeVideoDetails',
+    'updateYouTubeCTLAddedFlag',
+    'getYoutubePreviewsEnabled',
+    'setYoutubePreviewsEnabled'
+]
 
 export function registerMessageSecret (secret) {
     messageSecret = secret
@@ -506,6 +516,9 @@ export function createCustomEvent (eventName, eventDetail) {
 
 export function sendMessage (messageType, options) {
     // FF & Chrome
+    if (!allowedMessages.includes(messageType)) {
+        return console.warn('Ignoring invalid sendMessage messageType', messageType)
+    }
     return window.dispatchEvent(createCustomEvent('sendMessage' + messageSecret, { detail: { messageType, options } }))
     // TBD other platforms
 }
