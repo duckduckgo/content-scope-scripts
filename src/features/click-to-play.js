@@ -1161,7 +1161,7 @@ class DuckWidget {
     * @returns {Function?} onError
     *   Function to be called if the video fails to load.
     */
-    async adjustYouTubeVideoElement (videoElement) {
+    adjustYouTubeVideoElement (videoElement) {
         let onError = null
 
         if (!videoElement.src) {
@@ -1240,100 +1240,108 @@ class DuckWidget {
                 this.isUnblocked = true
                 clicked = true
                 let isLogin = false
+                const clickElement = e.srcElement //Object.assign({}, e)
+                console.warn('clickElement', clickElement)
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true
                 }
-                enableSocialTracker({ entity: this.entity, action: 'block-ctl-fb', isLogin })
-                const parent = replacementElement.parentNode
+               console.warn('Before enableSocialTracker')
+               window.addEventListener('ddg-ctp-enableSocialTracker-complete', () => {
+                    console.warn('After enableSocialTracker')
+                    console.warn('clickElement 2', clickElement)
+                    const parent = replacementElement.parentNode
 
-                // If we allow everything when this element is clicked,
-                // notify surrogate to enable SDK and replace original element.
-                if (this.clickAction.type === 'allowFull') {
-                    parent.replaceChild(originalElement, replacementElement)
-                    this.dispatchEvent(window, 'ddg-ctp-load-sdk')
-                    return
-                }
-                // Create a container for the new FB element
-                const fbContainer = document.createElement('div')
-                fbContainer.style.cssText = styles.wrapperDiv
-                const fadeIn = document.createElement('div')
-                fadeIn.style.cssText = 'display: none; opacity: 0;'
-
-                // Loading animation (FB can take some time to load)
-                const loadingImg = document.createElement('img')
-                loadingImg.setAttribute('src', loadingImages[this.getMode()])
-                loadingImg.setAttribute('height', '14px')
-                loadingImg.style.cssText = styles.loadingImg
-
-                // Always add the animation to the button, regardless of click source
-                if (e.srcElement.nodeName === 'BUTTON') {
-                    e.srcElement.firstElementChild.insertBefore(loadingImg, e.srcElement.firstElementChild.firstChild)
-                } else {
-                    // try to find the button
-                    let el = e.srcElement
-                    let button = null
-                    while (button === null && el !== null) {
-                        button = el.querySelector('button')
-                        el = el.parentElement
+                    // If we allow everything when this element is clicked,
+                    // notify surrogate to enable SDK and replace original element.
+                    if (this.clickAction.type === 'allowFull') {
+                        parent.replaceChild(originalElement, replacementElement)
+                        this.dispatchEvent(window, 'ddg-ctp-load-sdk')
+                        return
                     }
-                    if (button) {
-                        button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild)
-                    }
-                }
+                    // Create a container for the new FB element
+                    const fbContainer = document.createElement('div')
+                    fbContainer.style.cssText = styles.wrapperDiv
+                    const fadeIn = document.createElement('div')
+                    fadeIn.style.cssText = 'display: none; opacity: 0;'
 
-                fbContainer.appendChild(fadeIn)
+                    // Loading animation (FB can take some time to load)
+                    const loadingImg = document.createElement('img')
+                    loadingImg.setAttribute('src', loadingImages[this.getMode()])
+                    loadingImg.setAttribute('height', '14px')
+                    loadingImg.style.cssText = styles.loadingImg
 
-                let fbElement
-                let onError = null
-                switch (this.clickAction.type) {
-                case 'iFrame':
-                    fbElement = this.createFBIFrame()
-                    break
-                case 'youtube-video':
-                    onError = await this.adjustYouTubeVideoElement(originalElement)
-                    fbElement = originalElement
-                    break
-                default:
-                    fbElement = originalElement
-                    break
-                }
-
-                // If hidden, restore the tracking element's styles to make
-                // it visible again.
-                if (this.originalElementStyle) {
-                    for (const key of ['display', 'visibility']) {
-                        const { value, priority } = this.originalElementStyle[key]
-                        if (value) {
-                            fbElement.style.setProperty(key, value, priority)
-                        } else {
-                            fbElement.style.removeProperty(key)
+                    // Always add the animation to the button, regardless of click source
+                    if (clickElement.nodeName === 'BUTTON') {
+                        clickElement.firstElementChild.insertBefore(loadingImg, clickElement.firstElementChild.firstChild)
+                    } else {
+                        // try to find the button
+                        let el = clickElement
+                        let button = null
+                        while (button === null && el !== null) {
+                            button = el.querySelector('button')
+                            el = el.parentElement
+                        }
+                        if (button) {
+                            button.firstElementChild.insertBefore(loadingImg, button.firstElementChild.firstChild)
                         }
                     }
-                }
 
-                /*
-                * Modify the overlay to include a Facebook iFrame, which
-                * starts invisible. Once loaded, fade out and remove the overlay
-                * then fade in the Facebook content
-                */
-                parent.replaceChild(fbContainer, replacementElement)
-                fbContainer.appendChild(replacementElement)
-                fadeIn.appendChild(fbElement)
-                fbElement.addEventListener('load', () => {
-                    this.fadeOutElement(replacementElement)
-                        .then(v => {
-                            fbContainer.replaceWith(fbElement)
-                            this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked')
-                            this.fadeInElement(fadeIn).then(() => {
-                                fbElement.focus() // focus on new element for screen readers
+                    fbContainer.appendChild(fadeIn)
+
+                    let fbElement
+                    let onError = null
+                    switch (this.clickAction.type) {
+                    case 'iFrame':
+                        fbElement = this.createFBIFrame()
+                        break
+                    case 'youtube-video':
+                        onError = this.adjustYouTubeVideoElement(originalElement)
+                        fbElement = originalElement
+                        break
+                    default:
+                        fbElement = originalElement
+                        break
+                    }
+
+                    // If hidden, restore the tracking element's styles to make
+                    // it visible again.
+                    if (this.originalElementStyle) {
+                        for (const key of ['display', 'visibility']) {
+                            const { value, priority } = this.originalElementStyle[key]
+                            if (value) {
+                                fbElement.style.setProperty(key, value, priority)
+                            } else {
+                                fbElement.style.removeProperty(key)
+                            }
+                        }
+                    }
+
+                    /*
+                    * Modify the overlay to include a Facebook iFrame, which
+                    * starts invisible. Once loaded, fade out and remove the overlay
+                    * then fade in the Facebook content
+                    */
+                    parent.replaceChild(fbContainer, replacementElement)
+                    fbContainer.appendChild(replacementElement)
+                    fadeIn.appendChild(fbElement)
+                    console.warn('elements'. fbElement, replacementElement)
+                    fbElement.addEventListener('load', () => {
+                        this.fadeOutElement(replacementElement)
+                            .then(v => {
+                                fbContainer.replaceWith(fbElement)
+                                this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked')
+                                this.fadeInElement(fadeIn).then(() => {
+                                    fbElement.focus() // focus on new element for screen readers
+                                })
                             })
-                        })
+                    }, { once: true })
+                    // Note: This event only fires on Firefox, on Chrome the frame's
+                    //       load event will always fire.
+                    if (onError) {
+                        fbElement.addEventListener('error', onError, { once: true })
+                    }
                 }, { once: true })
-                // Note: This event only fires on Firefox, on Chrome the frame's
-                //       load event will always fire.
-                if (onError) {
-                    fbElement.addEventListener('error', onError, { once: true })
-                }
+                enableSocialTracker({ entity: this.entity, action: 'block-ctl-fb', isLogin })
             }
         }.bind(this)
         // If this is a login button, show modal if needed
@@ -2246,13 +2254,17 @@ const updateHandlers = {
     getYoutubePreviewsEnabled: function (resp) {
         isYoutubePreviewsEnabled = resp
     },
-    updateSetting: function (resp) {
+    setYoutubePreviewsEnabled: function (resp) {
         if (!resp.messageType || resp.value === undefined) { return }
         window.dispatchEvent(new CustomEvent(resp.messageType, { detail: resp.value }))
     },
     getYouTubeVideoDetails: function (resp) {
         if (!resp.status || !resp.videoURL) { return }
         window.dispatchEvent(new CustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
+    },
+    enableSocialTracker: function (resp) {
+        console.warn('enableSocialTracker RETURNED', resp)
+        window.dispatchEvent(new CustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }))
     }
 }
 
