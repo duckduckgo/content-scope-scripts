@@ -16,6 +16,8 @@ const allowedMessages = [
     'getYoutubePreviewsEnabled',
     'setYoutubePreviewsEnabled'
 ]
+// save a reference to original CustomEvent so it can't be overriden to forge messages
+export const OriginalCustomEvent = CustomEvent
 
 export function registerMessageSecret (secret) {
     messageSecret = secret
@@ -511,7 +513,7 @@ export function createCustomEvent (eventName, eventDetail) {
         eventDetail = cloneInto(eventDetail, window)
     }
 
-    return new CustomEvent(eventName, eventDetail)
+    return new OriginalCustomEvent(eventName, eventDetail)
 }
 
 export function sendMessage (messageType, options) {

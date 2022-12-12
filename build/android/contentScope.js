@@ -1439,6 +1439,8 @@
       'getYoutubePreviewsEnabled',
       'setYoutubePreviewsEnabled'
   ];
+  // save a reference to original CustomEvent so it can't be overriden to forge messages
+  const OriginalCustomEvent = CustomEvent;
 
   function registerMessageSecret (secret) {
       messageSecret = secret;
@@ -1828,7 +1830,7 @@
 
   function createCustomEvent (eventName, eventDetail) {
 
-      return new CustomEvent(eventName, eventDetail)
+      return new OriginalCustomEvent(eventName, eventDetail)
   }
 
   function sendMessage (messageType, options) {
@@ -3204,13 +3206,13 @@
                   this.isUnblocked = true;
                   clicked = true;
                   let isLogin = false;
-                  const clickElement = e.srcElement; //Object.assign({}, e)
+                  const clickElement = e.srcElement; // Object.assign({}, e)
                   console.warn('clickElement', clickElement);
                   if (this.replaceSettings.type === 'loginButton') {
                       isLogin = true;
                   }
-                 console.warn('Before enableSocialTracker');
-                 window.addEventListener('ddg-ctp-enableSocialTracker-complete', () => {
+                  console.warn('Before enableSocialTracker');
+                  window.addEventListener('ddg-ctp-enableSocialTracker-complete', () => {
                       console.warn('After enableSocialTracker');
                       console.warn('clickElement 2', clickElement);
                       const parent = replacementElement.parentNode;
@@ -3288,7 +3290,7 @@
                       parent.replaceChild(fbContainer, replacementElement);
                       fbContainer.appendChild(replacementElement);
                       fadeIn.appendChild(fbElement);
-                      console.warn('elements'. fbElement, replacementElement);
+                      console.warn('elements'.fbElement, replacementElement);
                       fbElement.addEventListener('load', () => {
                           this.fadeOutElement(replacementElement)
                               .then(v => {
@@ -4220,15 +4222,15 @@
       },
       setYoutubePreviewsEnabled: function (resp) {
           if (!resp.messageType || resp.value === undefined) { return }
-          window.dispatchEvent(new CustomEvent(resp.messageType, { detail: resp.value }));
+          window.dispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }));
       },
       getYouTubeVideoDetails: function (resp) {
           if (!resp.status || !resp.videoURL) { return }
-          window.dispatchEvent(new CustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }));
+          window.dispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }));
       },
       enableSocialTracker: function (resp) {
           console.warn('enableSocialTracker RETURNED', resp);
-          window.dispatchEvent(new CustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }));
+          window.dispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }));
       }
   };
 
