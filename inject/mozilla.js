@@ -1,5 +1,15 @@
 /* global contentScopeFeatures */
 
+const allowedMessages = [
+    'getDevMode',
+    'initClickToLoad',
+    'enableSocialTracker',
+    'openShareFeedbackPage',
+    'getYouTubeVideoDetails',
+    'updateYouTubeCTLAddedFlag',
+    'getYoutubePreviewsEnabled',
+    'setYoutubePreviewsEnabled'
+]
 const messageSecret = randomString()
 
 function randomString () {
@@ -46,8 +56,11 @@ function init () {
         }
     })
 
-    window.addEventListener('sendMessage' + messageSecret, (m) => {
+    window.addEventListener('sendMessageProxy' + messageSecret, (m) => {
         const messageType = m.detail.messageType
+        if (!allowedMessages.includes(messageType)) {
+            return console.warn('Ignoring invalid sendMessage messageType', messageType)
+        }
         chrome.runtime.sendMessage(m && m.detail, response => {
             const msg = { func: messageType, response }
             contentScopeFeatures.update({ detail: msg })
