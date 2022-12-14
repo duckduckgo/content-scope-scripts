@@ -1,27 +1,12 @@
 import { defineProperty, postDebugMessage, getFeatureSetting, getFeatureSettingEnabled, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabHostname, matchHostname } from '../utils.js'
 import { Cookie } from '../cookie.js'
-import { exceptions, excludedCookieDomains } from '../../shared/cookieExceptions.js'
-
-let protectionExempted = true
-const tabHostname = getTabHostname()
-let tabExempted = true
-
-if (tabHostname != null) {
-    tabExempted = exceptions.some((exception) => {
-        return matchHostname(tabHostname, exception.domain)
-    })
-}
-const frameExempted = excludedCookieDomains.some((exception) => {
-    return matchHostname(globalThis.location.hostname, exception.domain)
-})
-protectionExempted = frameExempted || tabExempted
 
 // Initial cookie policy pre init
 let cookiePolicy = {
     debug: false,
     isFrame: isBeingFramed(),
     isTracker: false,
-    shouldBlock: !protectionExempted,
+    shouldBlock: true,
     shouldBlockTrackerCookie: true,
     shouldBlockNonTrackerCookie: false,
     isThirdParty: isThirdParty(),
@@ -74,6 +59,23 @@ export function load (args) {
     }
     if (args.documentOriginIsTracker) {
         cookiePolicy.isTracker = true
+    }
+    if (args.bundledConfig) {
+        // use the bundled config to get a best-effort at the policy, before the background sends the real one
+        const { exceptions, settings } = args.bundledConfig.features.cookie
+        const tabHostname = getTabHostname()
+        let tabExempted = true
+
+        if (tabHostname != null) {
+            tabExempted = exceptions.some((exception) => {
+                return matchHostname(tabHostname, exception.domain)
+            })
+        }
+        const frameExempted = settings.excludedCookieDomains.some((exception) => {
+            return matchHostname(globalThis.location.hostname, exception.domain)
+        })
+        cookiePolicy.shouldBlock = !frameExempted && !tabExempted
+        cookiePolicy.policy = settings.firstPartyCookiePolicy
     }
     trackerHosts.clear()
 

@@ -1,5 +1,3 @@
-import { isTrackerOrigin } from '../src/tracker'
-
 /**
  * Inject all the overwrites into the page.
  */
@@ -35,8 +33,28 @@ function randomString () {
     return num.toString().replace('0.', '')
 }
 
+/**
+ * @see ../src/trackers.js
+ */
+function isTrackerOrigin (trackerLookup) {
+    const originHostname = document.location.hostname
+    const parts = originHostname.split('.').reverse()
+    let node = trackerLookup
+    for (const sub of parts) {
+        if (node[sub] === '1') {
+            return true
+        } else if (node[sub]) {
+            node = node[sub]
+        } else {
+            return false
+        }
+    }
+    return false
+}
+
 function init () {
     const documentOriginIsTracker = isTrackerOrigin($TRACKER_LOOKUP$)
+    const bundledConfig = $BUNDLED_CONFIG$
     const randomMethodName = '_d' + randomString()
     const randomPassword = '_p' + randomString()
     const reusableMethodName = '_rm' + randomString()
@@ -47,7 +65,8 @@ function init () {
           platform: {
               name: 'extension'
           },
-          documentOriginIsTracker: ${documentOriginIsTracker}
+          documentOriginIsTracker: ${documentOriginIsTracker},
+          bundledConfig: ${JSON.stringify(bundledConfig)}
       })
       // Define a random function we call later.
       // Use define property so isn't enumerable
