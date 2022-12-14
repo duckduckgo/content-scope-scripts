@@ -1,4 +1,4 @@
-import { createCustomEvent, sendMessage, OriginalCustomEvent } from '../utils.js'
+import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import {
     logoImg, loadingImages, closeIcon, blockedFBLogo, ddgFont, ddgFontBold
     // blockedYTVideo, videoPlayDark, videoPlayLight // For YT CTL
@@ -1377,7 +1377,7 @@ async function initCTL (resp) {
     }, { capture: true })
 
     // Inform surrogate scripts that CTP is ready
-    window.dispatchEvent(createCustomEvent('ddg-ctp-ready'))
+    originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
 }
 
 function replaceTrackingElement (widget, trackingElement, placeholderElement, hideTrackingElement = false, currentPlaceholder = null) {
@@ -1570,7 +1570,7 @@ function enableSocialTracker (message) {
 
 function runLogin (entity) {
     enableSocialTracker(entity, true)
-    window.dispatchEvent(
+    originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-run-login', {
             detail: {
                 entity
@@ -1580,7 +1580,7 @@ function runLogin (entity) {
 }
 
 function cancelModal (entity) {
-    window.dispatchEvent(
+    originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-cancel-modal', {
             detail: {
                 entity
@@ -2251,14 +2251,14 @@ const updateHandlers = {
     },
     setYoutubePreviewsEnabled: function (resp) {
         if (!resp.messageType || resp.value === undefined) { return }
-        window.dispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }))
+        originalWindowDispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }))
     },
     getYouTubeVideoDetails: function (resp) {
         if (!resp.status || !resp.videoURL) { return }
-        window.dispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
+        originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
     },
     enableSocialTracker: function (resp) {
-        window.dispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }))
+        originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }))
     }
 }
 

@@ -7,10 +7,9 @@ let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
 
-// save a reference to original CustomEvent so it can't be overriden to forge messages
-// jest freaks out on undefined CustomEvent so need to dance around that here
-// eslint-disable-next-line
+// save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
+export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent
 export function registerMessageSecret (secret) {
     messageSecret = secret
 }
@@ -510,6 +509,6 @@ export function createCustomEvent (eventName, eventDetail) {
 
 export function sendMessage (messageType, options) {
     // FF & Chrome
-    return window.dispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+    return originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
     // TBD other platforms
 }

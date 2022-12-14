@@ -678,10 +678,9 @@
   let Error$1 = globalObj.Error;
   let messageSecret;
 
-  // save a reference to original CustomEvent so it can't be overriden to forge messages
-  // jest freaks out on undefined CustomEvent so need to dance around that here
-  // eslint-disable-next-line
+  // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
   const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
+  const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent;
   function registerMessageSecret (secret) {
       messageSecret = secret;
   }
@@ -1075,7 +1074,7 @@
 
   function sendMessage (messageType, options) {
       // FF & Chrome
-      return window.dispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+      return originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
       // TBD other platforms
   }
 
@@ -2580,7 +2579,7 @@
       }, { capture: true });
 
       // Inform surrogate scripts that CTP is ready
-      window.dispatchEvent(createCustomEvent('ddg-ctp-ready'));
+      originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
   }
 
   function replaceTrackingElement (widget, trackingElement, placeholderElement, hideTrackingElement = false, currentPlaceholder = null) {
@@ -2773,7 +2772,7 @@
 
   function runLogin (entity) {
       enableSocialTracker(entity);
-      window.dispatchEvent(
+      originalWindowDispatchEvent(
           createCustomEvent('ddg-ctp-run-login', {
               detail: {
                   entity
@@ -2783,7 +2782,7 @@
   }
 
   function cancelModal (entity) {
-      window.dispatchEvent(
+      originalWindowDispatchEvent(
           createCustomEvent('ddg-ctp-cancel-modal', {
               detail: {
                   entity
@@ -3454,14 +3453,14 @@
       },
       setYoutubePreviewsEnabled: function (resp) {
           if (!resp.messageType || resp.value === undefined) { return }
-          window.dispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }));
+          originalWindowDispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }));
       },
       getYouTubeVideoDetails: function (resp) {
           if (!resp.status || !resp.videoURL) { return }
-          window.dispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }));
+          originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }));
       },
       enableSocialTracker: function (resp) {
-          window.dispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }));
+          originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }));
       }
   };
 
