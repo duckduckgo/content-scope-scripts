@@ -1241,14 +1241,10 @@ class DuckWidget {
                 clicked = true
                 let isLogin = false
                 const clickElement = e.srcElement // Object.assign({}, e)
-                console.warn('clickElement', clickElement)
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true
                 }
-                console.warn('Before enableSocialTracker')
                 window.addEventListener('ddg-ctp-enableSocialTracker-complete', () => {
-                    console.warn('After enableSocialTracker')
-                    console.warn('clickElement 2', clickElement)
                     const parent = replacementElement.parentNode
 
                     // If we allow everything when this element is clicked,
@@ -1324,7 +1320,6 @@ class DuckWidget {
                     parent.replaceChild(fbContainer, replacementElement)
                     fbContainer.appendChild(replacementElement)
                     fadeIn.appendChild(fbElement)
-                    console.warn('elements'.fbElement, replacementElement)
                     fbElement.addEventListener('load', () => {
                         this.fadeOutElement(replacementElement)
                             .then(v => {
@@ -2263,7 +2258,6 @@ const updateHandlers = {
         window.dispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
     },
     enableSocialTracker: function (resp) {
-        console.warn('enableSocialTracker RETURNED', resp)
         window.dispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }))
     }
 }
