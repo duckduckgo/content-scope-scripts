@@ -21,7 +21,9 @@ function init () {
     contentScopeFeatures.load({
         platform: {
             name: 'extension'
-        }
+        },
+        documentOriginIsTracker: isTrackerOrigin($TRACKER_LOOKUP$),
+        bundledConfig: $BUNDLED_CONFIG$
     })
 
     chrome.runtime.sendMessage({

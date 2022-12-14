@@ -9,7 +9,7 @@ export function isTrackerOrigin (trackerLookup) {
     const parts = originHostname.split('.').reverse()
     let node = trackerLookup
     for (const sub of parts) {
-        if (node[sub] === '1') {
+        if (node[sub] === 1) {
             return true
         } else if (node[sub]) {
             node = node[sub]
