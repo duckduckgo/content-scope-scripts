@@ -1,4 +1,4 @@
-import { initStringExemptionLists, isFeatureBroken } from './utils'
+import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
 
 function shouldRun () {
     // don't inject into non-HTML documents (such as XML documents)
@@ -56,6 +56,7 @@ export async function init (args) {
     if (!shouldRun()) {
         return
     }
+    registerMessageSecret(args.messageSecret)
     initStringExemptionLists(args)
     const resolvedFeatures = await Promise.all(features)
     resolvedFeatures.forEach(({ init, featureName }) => {

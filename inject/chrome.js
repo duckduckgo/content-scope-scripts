@@ -1,6 +1,19 @@
 /**
  * Inject all the overwrites into the page.
  */
+
+const allowedMessages = [
+    'getDevMode',
+    'initClickToLoad',
+    'enableSocialTracker',
+    'openShareFeedbackPage',
+    'getYouTubeVideoDetails',
+    'updateYouTubeCTLAddedFlag',
+    'getYoutubePreviewsEnabled',
+    'setYoutubePreviewsEnabled'
+]
+const messageSecret = randomString()
+
 function inject (code) {
     const elem = document.head || document.documentElement
     // Inject into main page
@@ -57,11 +70,7 @@ function init () {
       // Define a random update function we call later.
       // Use define property so isn't enumerable
       Object.defineProperty(window, '${reusableMethodName}', {
-          enumerable: false,
-          // configurable, To allow for deletion later
-          configurable: true,
-          writable: false,
-          // Use proxy to ensure stringification isn't possible
+        // Use proxy to ensure stringification isn't possible
           value: new Proxy(function () {}, {
               apply(target, thisArg, args) {
                   if ('${reusableSecret}' === args[0]) {
@@ -92,6 +101,7 @@ function init () {
                 }
             })
         }
+        message.messageSecret = messageSecret
         const stringifiedArgs = JSON.stringify(message)
         const callRandomFunction = `
                 window.${randomMethodName}('${randomPassword}', ${stringifiedArgs});
@@ -110,8 +120,11 @@ function init () {
         }
     })
 
-    window.addEventListener('sendMessage', (m) => {
+    window.addEventListener('sendMessageProxy' + messageSecret, (m) => {
         const messageType = m.detail.messageType
+        if (!allowedMessages.includes(messageType)) {
+            return console.warn('Ignoring invalid sendMessage messageType', messageType)
+        }
         chrome.runtime.sendMessage(m && m.detail, response => {
             const msg = { func: messageType, response }
             const stringifiedArgs = JSON.stringify({ detail: msg })
