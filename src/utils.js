@@ -5,6 +5,14 @@ import { sjcl } from '../lib/sjcl.js'
 // eslint-disable-next-line no-global-assign
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
+let messageSecret
+
+// save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
+export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
+export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent
+export function registerMessageSecret (secret) {
+    messageSecret = secret
+}
 
 /**
  * Used for testing to override the globals used within this file.
@@ -496,11 +504,11 @@ export function createCustomEvent (eventName, eventDetail) {
         eventDetail = cloneInto(eventDetail, window)
     }
 
-    return new CustomEvent(eventName, eventDetail)
+    return new OriginalCustomEvent(eventName, eventDetail)
 }
 
 export function sendMessage (messageType, options) {
     // FF & Chrome
-    return window.dispatchEvent(createCustomEvent('sendMessage', { detail: { messageType, options } }))
+    return originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
     // TBD other platforms
 }
