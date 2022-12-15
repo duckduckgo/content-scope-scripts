@@ -1,3 +1,5 @@
+import { isTrackerOrigin } from '../src/trackers'
+
 /**
  * Inject all the overwrites into the page.
  */
@@ -31,25 +33,6 @@ function inject (code) {
 function randomString () {
     const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
     return num.toString().replace('0.', '')
-}
-
-/**
- * @see ../src/trackers.js
- */
-function isTrackerOrigin (trackerLookup) {
-    const originHostname = document.location.hostname
-    const parts = originHostname.split('.').reverse()
-    let node = trackerLookup
-    for (const sub of parts) {
-        if (node[sub] === '1') {
-            return true
-        } else if (node[sub]) {
-            node = node[sub]
-        } else {
-            return false
-        }
-    }
-    return false
 }
 
 function init () {
