@@ -668,6 +668,7 @@
     })();
 
   /* global cloneInto, exportFunction, false */
+  typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
 
   /**
    * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain
@@ -1434,7 +1435,7 @@
 
   // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
   const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
-  const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent;
+  const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
   function registerMessageSecret (secret) {
       messageSecret = secret;
   }

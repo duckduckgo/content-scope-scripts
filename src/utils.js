@@ -9,7 +9,7 @@ let messageSecret
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
-export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent
+export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window)
 export function registerMessageSecret (secret) {
     messageSecret = secret
 }
