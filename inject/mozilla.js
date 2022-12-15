@@ -1,4 +1,5 @@
 /* global contentScopeFeatures */
+import { isTrackerOrigin } from '../src/trackers'
 
 const allowedMessages = [
     'getDevMode',
