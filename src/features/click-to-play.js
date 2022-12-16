@@ -1016,9 +1016,9 @@ const config = {
     //     },
     //     informationalModal: {
     //         icon: blockedYTVideo,
-    //         messageTitle: 'Enable YouTube previews and reduce privacy?',
+    //         messageTitle: 'Enable all YouTube previews?',
     //         messageBody: 'Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.',
-    //         confirmButtonText: 'Enable Previews',
+    //         confirmButtonText: 'Enable All Previews',
     //         rejectButtonText: 'No Thanks'
     //     }
     // }
@@ -2279,14 +2279,14 @@ const updateHandlers = {
         devMode = resp
     },
     getYoutubePreviewsEnabled: function (resp) {
-        isYoutubePreviewsEnabled = resp
+        isYoutubePreviewsEnabled = Boolean(resp)
     },
     setYoutubePreviewsEnabled: function (resp) {
-        if (!resp.messageType || resp.value === undefined) { return }
+        if (!resp || !resp.messageType || resp.value === undefined) { return }
         originalWindowDispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }))
     },
     getYouTubeVideoDetails: function (resp) {
-        if (!resp.status || !resp.videoURL) { return }
+        if (!resp || !resp.status || !resp.videoURL) { return }
         originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
     },
     enableSocialTracker: function (resp) {
