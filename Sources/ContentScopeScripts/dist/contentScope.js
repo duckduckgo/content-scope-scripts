@@ -1993,10 +1993,16 @@
             color: #111111;
         `,
           linkFont: `
-            color: #5784FF;
+            color: #7295F6;
         `,
           buttonBackground: `
             background: #5784FF;
+        `,
+          buttonBackgroundHover: `
+            background: #557FF3;
+        `,
+          buttonBackgroundPress: `
+            background: #3969EF;
         `,
           toggleButtonText: `
             color: #EEEEEE;
@@ -2018,6 +2024,12 @@
           buttonBackground: `
             background: #3969EF;
         `,
+          buttonBackgroundHover: `
+            background: #2B55CA;
+        `,
+          buttonBackgroundPress: `
+            background: #1E42A4;
+        `,
           toggleButtonText: `
             color: #666666;
         `
@@ -2036,6 +2048,12 @@
         `,
           buttonFont: `
             color: #222222;
+        `,
+          buttonBackgroundHover: `
+            background: rgba(0, 0, 0, 0.12);
+        `,
+          buttonBackgroundPress: `
+            background: rgba(0, 0, 0, 0.18);
         `
       },
       button: `
@@ -2089,6 +2107,7 @@
         margin-top: 10px;
         z-index: 2147483647;
         position: absolute;
+        line-height: normal;
     `,
       textBubbleWidth: 360, // Should match the width rule in textBubble
       textBubbleLeftShift: 100, // Should match the CSS left: rule in textBubble
@@ -2212,7 +2231,7 @@
         margin: 10px auto;
         text-align: center;
         border: none;
-        padding: 0;
+        padding: 0px 32px;
     `,
       modalContentText: `
         font-family: DuckDuckGoPrivacyEssentials;
@@ -2953,9 +2972,9 @@
       //     },
       //     informationalModal: {
       //         icon: blockedYTVideo,
-      //         messageTitle: 'Enable YouTube previews and reduce privacy?',
+      //         messageTitle: 'Enable all YouTube previews?',
       //         messageBody: 'Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.',
-      //         confirmButtonText: 'Enable Previews',
+      //         confirmButtonText: 'Enable All Previews',
       //         rejectButtonText: 'No Thanks'
       //     }
       // }
@@ -3609,6 +3628,74 @@
       element.style.cssText += cssText;
   }
 
+  /**
+   * Create a `<style/>` element with DDG font-face styles/CSS
+   * to be attached to DDG wrapper elements
+   * @returns HTMLStyleElement
+   */
+  function makeFontFaceStyleElement () {
+      // Put our custom font-faces inside the wrapper element, since
+      // @font-face does not work inside a shadowRoot.
+      // See https://github.com/mdn/interactive-examples/issues/887.
+      const fontFaceStyleElement = document.createElement('style');
+      fontFaceStyleElement.textContent = styles.fontStyle;
+      return fontFaceStyleElement
+  }
+
+  /**
+   * Create a `<style/>` element with base styles for DDG social container and
+   * button to be attached to DDG wrapper elements/shadowRoot, also returns a wrapper
+   * class name for Social Container link styles
+   * @param {"lightMode" | "darkMode"} mode Light or Dark mode value
+   * @returns {{wrapperClass: string, styleElement: HTMLStyleElement; }}
+   */
+  function makeBaseStyleElement (mode = 'lightMode') {
+      // Style element includes our font & overwrites page styles
+      const styleElement = document.createElement('style');
+      const wrapperClass = 'DuckDuckGoSocialContainer';
+      styleElement.textContent = `
+        .${wrapperClass} a {
+            ${styles[mode].linkFont}
+            font-weight: bold;
+        }
+        .${wrapperClass} a:hover {
+            ${styles[mode].linkFont}
+            font-weight: bold;
+        }
+        .DuckDuckGoButton {
+            ${styles.button}
+        }
+        .DuckDuckGoButton > div {
+            ${styles.buttonTextContainer}
+        }
+        .DuckDuckGoButton.primary {
+           ${styles[mode].buttonBackground}
+        }
+        .DuckDuckGoButton.primary > div {
+           ${styles[mode].buttonFont}
+        }
+        .DuckDuckGoButton.primary:hover {
+           ${styles[mode].buttonBackgroundHover}
+        }
+        .DuckDuckGoButton.primary:active {
+           ${styles[mode].buttonBackgroundPress}
+        }
+        .DuckDuckGoButton.secondary {
+           ${styles.cancelMode.buttonBackground}
+        }
+        .DuckDuckGoButton.secondary > div {
+            ${styles.cancelMode.buttonFont}
+         }
+        .DuckDuckGoButton.secondary:hover {
+           ${styles.cancelMode.buttonBackgroundHover}
+        }
+        .DuckDuckGoButton.secondary:active {
+           ${styles.cancelMode.buttonBackgroundPress}
+        }
+    `;
+      return { wrapperClass, styleElement }
+  }
+
   function makeTextButton (linkText, mode) {
       const linkElement = document.createElement('a');
       linkElement.style.cssText = styles.headerLink + styles[mode].linkFont;
@@ -3616,13 +3703,15 @@
       return linkElement
   }
 
-  function makeButton (buttonText, mode) {
+  function makeButton (buttonText, mode = 'lightMode') {
       const button = document.createElement('button');
-      button.style.cssText = styles.button + styles[mode].buttonBackground;
-      const textContainer = document.createElement('div');
-      textContainer.style.cssText = styles.buttonTextContainer + styles[mode].buttonFont;
-      textContainer.textContent = buttonText;
-      button.appendChild(textContainer);
+      button.classList.add('DuckDuckGoButton');
+      button.classList.add(mode !== 'cancelMode' ? 'primary' : 'secondary');
+      if (buttonText) {
+          const textContainer = document.createElement('div');
+          textContainer.textContent = buttonText;
+          button.appendChild(textContainer);
+      }
       return button
   }
 
@@ -3700,10 +3789,14 @@
   function makeLoginButton (buttonText, mode, hoverTextTitle, hoverTextBody, icon, originalElement) {
       const container = document.createElement('div');
       container.style.cssText = 'position: relative;';
+      const fontFaceStyleElement = makeFontFaceStyleElement();
+      container.appendChild(fontFaceStyleElement);
+
+      const shadowRoot = container.attachShadow({ mode: devMode ? 'open' : 'closed' });
       // inherit any class styles on the button
       container.className = 'fb-login-button FacebookLogin__button';
-      const styleElement = document.createElement('style');
-      styleElement.textContent = `
+      const { styleElement } = makeBaseStyleElement(mode);
+      styleElement.textContent += `
         #DuckDuckGoPrivacyEssentialsHoverableText {
             display: none;
         }
@@ -3711,12 +3804,12 @@
             display: block;
         }
     `;
-      container.appendChild(styleElement);
+      shadowRoot.appendChild(styleElement);
 
       const hoverContainer = document.createElement('div');
       hoverContainer.id = 'DuckDuckGoPrivacyEssentialsHoverable';
       hoverContainer.style.cssText = styles.hoverContainer;
-      container.appendChild(hoverContainer);
+      shadowRoot.appendChild(hoverContainer);
 
       // Make the button
       const button = makeButton(buttonText, mode);
@@ -3745,7 +3838,7 @@
       const hoverText = document.createElement('div');
       hoverText.style.cssText = styles.hoverTextBody;
       hoverText.textContent = hoverTextBody + ' ';
-      hoverText.appendChild(getLearnMoreLink());
+      hoverText.appendChild(getLearnMoreLink(mode));
       hoverBox.appendChild(hoverText);
 
       hoverContainer.appendChild(hoverBox);
@@ -3786,6 +3879,9 @@
       modalContainer.setAttribute('data-key', 'modal');
       modalContainer.style.cssText = styles.modalContainer;
 
+      const fontFaceStyleElement = makeFontFaceStyleElement();
+      modalContainer.appendChild(fontFaceStyleElement);
+
       const closeModal = () => {
           document.body.removeChild(modalContainer);
           cancelModal(entity);
@@ -3794,6 +3890,8 @@
       // Protect the contents of our modal inside a shadowRoot, to avoid
       // it being styled by the website's stylesheets.
       const shadowRoot = modalContainer.attachShadow({ mode: devMode ? 'open' : 'closed' });
+      const { styleElement } = makeBaseStyleElement('lightMode');
+      shadowRoot.appendChild(styleElement);
 
       const pageOverlay = document.createElement('div');
       pageOverlay.style.cssText = styles.overlay;
@@ -3805,10 +3903,6 @@
       const modalTitle = createTitleRow('DuckDuckGo', null, closeModal);
       modal.appendChild(modalTitle);
 
-      // Content
-      const modalContent = document.createElement('div');
-      modalContent.style.cssText = styles.modalContent;
-
       const iconElement = document.createElement('img');
       iconElement.style.cssText = styles.icon + styles.modalIcon;
       iconElement.setAttribute('src', icon);
@@ -3817,6 +3911,10 @@
       const title = document.createElement('div');
       title.style.cssText = styles.modalContentTitle;
       title.textContent = entityData[entity].modalTitle;
+
+      // Content
+      const modalContent = document.createElement('div');
+      modalContent.style.cssText = styles.modalContent;
 
       const message = document.createElement('div');
       message.style.cssText = styles.modalContentText;
@@ -3903,11 +4001,7 @@
       const contentBlock = document.createElement('div');
       contentBlock.style.cssText = styles.wrapperDiv;
 
-      // Put our custom font-faces inside the wrapper element, since
-      // @font-face does not work inside a shadowRoot.
-      // See https://github.com/mdn/interactive-examples/issues/887.
-      const fontFaceStyleElement = document.createElement('style');
-      fontFaceStyleElement.textContent = styles.fontStyle;
+      const fontFaceStyleElement = makeFontFaceStyleElement();
       contentBlock.appendChild(fontFaceStyleElement);
 
       // Put everything else inside the shadowRoot of the wrapper element to
@@ -3917,18 +4011,7 @@
       const shadowRoot = contentBlock.attachShadow({ mode: shadowRootMode });
 
       // Style element includes our font & overwrites page styles
-      const styleElement = document.createElement('style');
-      const wrapperClass = 'DuckDuckGoSocialContainer';
-      styleElement.textContent = `
-        .${wrapperClass} a {
-            ${styles[widget.getMode()].linkFont}
-            font-weight: bold;
-        }
-        .${wrapperClass} a:hover {
-            ${styles[widget.getMode()].linkFont}
-            font-weight: bold;
-        }
-    `;
+      const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode());
       shadowRoot.appendChild(styleElement);
 
       // Create overall grid structure
@@ -4054,11 +4137,7 @@
       youTubePreview.id = `yt-ctl-preview-${widget.widgetID}`;
       youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv;
 
-      // Put our custom font-faces inside the wrapper element, since
-      // @font-face does not work inside a shadowRoot.
-      // See https://github.com/mdn/interactive-examples/issues/887.
-      const fontFaceStyleElement = document.createElement('style');
-      fontFaceStyleElement.textContent = styles.fontStyle;
+      const fontFaceStyleElement = makeFontFaceStyleElement();
       youTubePreview.appendChild(fontFaceStyleElement);
 
       // Size the placeholder element to match the original video element styles.
@@ -4069,9 +4148,12 @@
       // Protect the contents of our placeholder inside a shadowRoot, to avoid
       // it being styled by the website's stylesheets.
       const shadowRoot = youTubePreview.attachShadow({ mode: devMode ? 'open' : 'closed' });
+      const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode());
+      shadowRoot.appendChild(styleElement);
 
       const youTubePreviewDiv = document.createElement('div');
       youTubePreviewDiv.style.cssText = styles.youTubeDialogDiv;
+      youTubePreviewDiv.classList.add(wrapperClass);
       shadowRoot.appendChild(youTubePreviewDiv);
 
       /** Preview Image */
@@ -4099,7 +4181,8 @@
       topSection.appendChild(titleElement);
 
       /** Text Button on top section */
-      const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
+      // Use darkMode styles because of preview background
+      const textButton = makeTextButton(widget.replaceSettings.buttonText, 'darkMode');
       textButton.id = titleID + 'TextButton';
 
       textButton.addEventListener(
@@ -4112,8 +4195,8 @@
       const playButtonRow = document.createElement('div');
       playButtonRow.style.cssText = styles.youTubePlayButtonRow;
 
-      const playButton = document.createElement('button');
-      playButton.style.cssText = styles.button + styles.youTubePlayButton + styles[widget.getMode()].buttonBackground;
+      const playButton = makeButton('', widget.getMode());
+      playButton.style.cssText += styles.youTubePlayButton;
 
       const videoPlayImg = document.createElement('img');
       const videoPlayIcon = widget.replaceSettings.placeholder.videoPlayIcon[widget.getMode()];
@@ -4141,17 +4224,15 @@
       );
       previewToggle.addEventListener(
           'click',
-          () => sendMessage('setYoutubePreviewsEnabled', {
-              name: 'youtubePreviewsEnabled',
-              value: false
-          })
+          () => sendMessage('setYoutubePreviewsEnabled', false)
       );
 
       /** Preview Info Text */
       const previewText = document.createElement('div');
       previewText.style.cssText = styles.contentText + styles.toggleButtonText + styles.youTubePreviewInfoText;
       previewText.innerText = widget.replaceSettings.placeholder.previewInfoText + ' ';
-      previewText.appendChild(getLearnMoreLink());
+      // Use darkMode styles because of preview background
+      previewText.appendChild(getLearnMoreLink('darkMode'));
 
       previewToggleRow.appendChild(previewToggle);
       previewToggleRow.appendChild(previewText);
@@ -4205,12 +4286,14 @@
           isYoutubePreviewsEnabled = resp;
       },
       setYoutubePreviewsEnabled: function (resp) {
-          if (!resp.messageType || resp.value === undefined) { return }
-          originalWindowDispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }));
+          if (resp?.messageType && typeof resp?.value === 'boolean') {
+              originalWindowDispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }));
+          }
       },
       getYouTubeVideoDetails: function (resp) {
-          if (!resp.status || !resp.videoURL) { return }
-          originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }));
+          if (resp?.status && typeof resp.videoURL === 'string') {
+              originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }));
+          }
       },
       enableSocialTracker: function (resp) {
           originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }));
