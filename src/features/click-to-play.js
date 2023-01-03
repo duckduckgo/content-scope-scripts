@@ -2217,10 +2217,7 @@ async function createYouTubePreview (originalElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => sendMessage('setYoutubePreviewsEnabled', {
-            name: 'youtubePreviewsEnabled',
-            value: false
-        })
+        () => sendMessage('setYoutubePreviewsEnabled', false)
     )
 
     /** Preview Info Text */
