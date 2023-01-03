@@ -2276,15 +2276,17 @@ const updateHandlers = {
         devMode = resp
     },
     getYoutubePreviewsEnabled: function (resp) {
-        isYoutubePreviewsEnabled = Boolean(resp)
+        isYoutubePreviewsEnabled = resp
     },
     setYoutubePreviewsEnabled: function (resp) {
-        if (!resp || !resp.messageType || resp.value === undefined) { return }
-        originalWindowDispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }))
+        if (resp?.messageType && typeof resp?.value === 'boolean') {
+            originalWindowDispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }))
+        }
     },
     getYouTubeVideoDetails: function (resp) {
-        if (!resp || !resp.status || !resp.videoURL) { return }
-        originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
+        if (resp?.status && typeof resp.videoURL === 'string') {
+            originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
+        }
     },
     enableSocialTracker: function (resp) {
         originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }))
