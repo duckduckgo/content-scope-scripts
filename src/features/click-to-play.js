@@ -1748,10 +1748,19 @@ function makeTextButton (linkText, mode) {
     return linkElement
 }
 
+/**
+ * Create a button element.
+ * @param {string} buttonText Text to be displayed inside the button
+ * @param {'lightMode' | 'darkMode' | 'cancelMode'} mode Key for theme value to determine the styling of the button. Key matches `styles[mode]` keys.
+ * - `'lightMode'`: Primary colors styling for light theme
+ * - `'darkMode'`: Primary colors styling for dark theme
+ * - `'cancelMode'`: Secondary colors styling for all themes
+ * @returns {HTMLButtonElement} Button element
+ */
 function makeButton (buttonText, mode = 'lightMode') {
     const button = document.createElement('button')
     button.classList.add('DuckDuckGoButton')
-    button.classList.add(mode !== 'cancelMode' ? 'primary' : 'secondary')
+    button.classList.add(mode === 'cancelMode' ? 'secondary' : 'primary')
     if (buttonText) {
         const textContainer = document.createElement('div')
         textContainer.textContent = buttonText
@@ -1834,8 +1843,7 @@ function makeShareFeedbackRow () {
 function makeLoginButton (buttonText, mode, hoverTextTitle, hoverTextBody, icon, originalElement) {
     const container = document.createElement('div')
     container.style.cssText = 'position: relative;'
-    const fontFaceStyleElement = makeFontFaceStyleElement()
-    container.appendChild(fontFaceStyleElement)
+    container.appendChild(makeFontFaceStyleElement())
 
     const shadowRoot = container.attachShadow({ mode: devMode ? 'open' : 'closed' })
     // inherit any class styles on the button
@@ -1924,8 +1932,7 @@ async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
     modalContainer.setAttribute('data-key', 'modal')
     modalContainer.style.cssText = styles.modalContainer
 
-    const fontFaceStyleElement = makeFontFaceStyleElement()
-    modalContainer.appendChild(fontFaceStyleElement)
+    modalContainer.appendChild(makeFontFaceStyleElement())
 
     const closeModal = () => {
         document.body.removeChild(modalContainer)
@@ -2046,8 +2053,7 @@ async function createContentBlock (widget, button, textButton, img, bottomRow) {
     const contentBlock = document.createElement('div')
     contentBlock.style.cssText = styles.wrapperDiv
 
-    const fontFaceStyleElement = makeFontFaceStyleElement()
-    contentBlock.appendChild(fontFaceStyleElement)
+    contentBlock.appendChild(makeFontFaceStyleElement())
 
     // Put everything else inside the shadowRoot of the wrapper element to
     // reduce the chances of the website's stylesheets messing up the
@@ -2182,8 +2188,7 @@ async function createYouTubePreview (originalElement, widget) {
     youTubePreview.id = `yt-ctl-preview-${widget.widgetID}`
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
 
-    const fontFaceStyleElement = makeFontFaceStyleElement()
-    youTubePreview.appendChild(fontFaceStyleElement)
+    youTubePreview.appendChild(makeFontFaceStyleElement())
 
     // Size the placeholder element to match the original video element styles.
     // If no styles are in place, it will get its current size
@@ -2226,7 +2231,8 @@ async function createYouTubePreview (originalElement, widget) {
     topSection.appendChild(titleElement)
 
     /** Text Button on top section */
-    // Use darkMode styles because of preview background
+    // Use darkMode styles because the preview background is dark and causes poor contrast
+    // with lightMode button, making it hard to read.
     const textButton = makeTextButton(widget.replaceSettings.buttonText, 'darkMode')
     textButton.id = titleID + 'TextButton'
 
