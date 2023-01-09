@@ -1,29 +1,14 @@
 import { defineProperty, postDebugMessage, getFeatureSetting, getFeatureSettingEnabled, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabHostname, matchHostname } from '../utils.js'
 import { Cookie } from '../cookie.js'
-import { exceptions, excludedCookieDomains } from '../../shared/cookieExceptions.js'
-
-let protectionExempted = true
-const tabHostname = getTabHostname()
-let tabExempted = true
-
-if (tabHostname != null) {
-    tabExempted = exceptions.some((exception) => {
-        return matchHostname(tabHostname, exception.domain)
-    })
-}
-const frameExempted = excludedCookieDomains.some((exception) => {
-    return matchHostname(globalThis.location.hostname, exception.domain)
-})
-protectionExempted = frameExempted || tabExempted
 
 // Initial cookie policy pre init
 let cookiePolicy = {
     debug: false,
     isFrame: isBeingFramed(),
     isTracker: false,
-    shouldBlock: !protectionExempted,
+    shouldBlock: true,
     shouldBlockTrackerCookie: true,
-    shouldBlockNonTrackerCookie: true,
+    shouldBlockNonTrackerCookie: false,
     isThirdParty: isThirdParty(),
     policy: {
         threshold: 604800, // 7 days
@@ -71,6 +56,26 @@ export function load (args) {
     // Feature is only relevant to the extension, we should skip for other platforms for now as the config testing is broken.
     if (args.platform.name !== 'extension') {
         return
+    }
+    if (args.documentOriginIsTracker) {
+        cookiePolicy.isTracker = true
+    }
+    if (args.bundledConfig) {
+        // use the bundled config to get a best-effort at the policy, before the background sends the real one
+        const { exceptions, settings } = args.bundledConfig.features.cookie
+        const tabHostname = getTabHostname()
+        let tabExempted = true
+
+        if (tabHostname != null) {
+            tabExempted = exceptions.some((exception) => {
+                return matchHostname(tabHostname, exception.domain)
+            })
+        }
+        const frameExempted = settings.excludedCookieDomains.some((exception) => {
+            return matchHostname(globalThis.location.hostname, exception.domain)
+        })
+        cookiePolicy.shouldBlock = !frameExempted && !tabExempted
+        cookiePolicy.policy = settings.firstPartyCookiePolicy
     }
     trackerHosts.clear()
 

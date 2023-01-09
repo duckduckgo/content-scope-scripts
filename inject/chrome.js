@@ -1,3 +1,5 @@
+import { isTrackerOrigin } from '../src/trackers'
+
 /**
  * Inject all the overwrites into the page.
  */
@@ -34,6 +36,8 @@ function randomString () {
 }
 
 function init () {
+    const documentOriginIsTracker = isTrackerOrigin($TRACKER_LOOKUP$)
+    const bundledConfig = $BUNDLED_CONFIG$
     const randomMethodName = '_d' + randomString()
     const randomPassword = '_p' + randomString()
     const reusableMethodName = '_rm' + randomString()
@@ -43,7 +47,9 @@ function init () {
       contentScopeFeatures.load({
           platform: {
               name: 'extension'
-          }
+          },
+          documentOriginIsTracker: ${documentOriginIsTracker},
+          bundledConfig: ${JSON.stringify(bundledConfig)}
       })
       // Define a random function we call later.
       // Use define property so isn't enumerable

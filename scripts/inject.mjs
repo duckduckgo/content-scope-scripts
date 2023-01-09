@@ -74,7 +74,7 @@ async function initOther(injectScriptPath, platformName) {
 async function initChrome() {
     const replaceString = "/* global contentScopeFeatures */";
     const injectScriptPath = "inject/chrome.js";
-    const injectScript = await readFile(injectScriptPath);
+    const injectScript = await rollupScript(injectScriptPath);
     const contentScope = await rollupScript(contentScopePath, contentScopeName);
     // Encode in URI format to prevent breakage (we could choose to just escape ` instead)
     // NB: .replace(/\r\n/g, "\n") is needed because in Windows rollup generates CRLF line endings
