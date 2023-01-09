@@ -1,4 +1,5 @@
 /* global contentScopeFeatures */
+import { isTrackerOrigin } from '../src/trackers'
 
 const allowedMessages = [
     'getDevMode',
@@ -21,7 +22,9 @@ function init () {
     contentScopeFeatures.load({
         platform: {
             name: 'extension'
-        }
+        },
+        documentOriginIsTracker: isTrackerOrigin($TRACKER_LOOKUP$),
+        bundledConfig: $BUNDLED_CONFIG$
     })
 
     chrome.runtime.sendMessage({
