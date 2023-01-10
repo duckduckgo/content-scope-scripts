@@ -1583,12 +1583,32 @@ async function replaceClickToLoadElements (config, targetElement) {
 /*********************************************************
  *  Messaging to surrogates & extension
  *********************************************************/
+
+/**
+ * @typedef enableSocialTrackerRequest
+ * @property {string} entity
+ *   The entity to unblock requests for (e.g. "Facebook").
+ * @property {bool} [isLogin=false]
+ *   True if we should "allow social login", defaults to false.
+ * @property {string} action
+ *   The Click to Load blocklist rule action (e.g. "block-ctl-fb") that should
+ *   be allowed. Important since in the future there might be multiple types of
+ *   embedded content from the same entity that the user can allow
+ *   independently.
+ */
+
+/**
+ * Send a message to the background to unblock requests for the given entity for
+ * the page.
+ * @param {enableSocialTrackerRequest} message
+ * @see {@event ddg-ctp-enableSocialTracker-complete} for the response handler.
+ */
 function enableSocialTracker (message) {
     sendMessage('enableSocialTracker', message)
 }
 
 function runLogin (entity) {
-    enableSocialTracker(entity, true)
+    enableSocialTracker({ entity, isLogin: true })
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-run-login', {
             detail: {
