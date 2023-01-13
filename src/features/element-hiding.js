@@ -177,7 +177,7 @@ function applyRules (rules) {
     // check at 750ms, 1500ms, 2250ms, 3000ms
     unhideTimeouts.forEach((timeout) => {
         setTimeout(() => {
-            hideAdNodes(timeoutRules)
+            unhideLoadedAds(timeoutRules)
         }, timeout)
     })
 
@@ -198,9 +198,9 @@ function extractTimeoutRules (rules) {
     if (!shouldInjectStyleTag) {
         return rules
     }
-    
-    let strictHideRules = []
-    let timeoutRules = []
+
+    const strictHideRules = []
+    const timeoutRules = []
 
     rules.forEach((rule, i) => {
         if (rule.type === 'hide') {
@@ -209,7 +209,7 @@ function extractTimeoutRules (rules) {
             timeoutRules.push(rule)
         }
     })
-    
+
     injectStyleTag(strictHideRules)
     return timeoutRules
 }
