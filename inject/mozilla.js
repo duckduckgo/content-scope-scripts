@@ -2,14 +2,12 @@
 import { isTrackerOrigin } from '../src/trackers'
 
 const allowedMessages = [
-    'getDevMode',
-    'initClickToLoad',
-    'enableSocialTracker',
-    'openShareFeedbackPage',
+    'getClickToLoadState',
     'getYouTubeVideoDetails',
-    'updateYouTubeCTLAddedFlag',
-    'getYoutubePreviewsEnabled',
-    'setYoutubePreviewsEnabled'
+    'openShareFeedbackPage',
+    'setYoutubePreviewsEnabled',
+    'unblockClickToLoadContent',
+    'updateYouTubeCTLAddedFlag'
 ]
 const messageSecret = randomString()
 

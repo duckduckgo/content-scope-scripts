@@ -9,6 +9,10 @@ let isYoutubePreviewsEnabled = false
 let appID
 
 const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
+
+// TODO: Remove these redundant data structures and refactor the related code.
+//       There should be no need to have the entity configuration stored in two
+//       places.
 const entities = []
 const entityData = {}
 
@@ -1263,7 +1267,7 @@ class DuckWidget {
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true
                 }
-                window.addEventListener('ddg-ctp-enableSocialTracker-complete', () => {
+                window.addEventListener('ddg-ctp-unblockClickToLoadContent-complete', () => {
                     const parent = replacementElement.parentNode
 
                     // If we allow everything when this element is clicked,
@@ -1355,7 +1359,7 @@ class DuckWidget {
                         fbElement.addEventListener('error', onError, { once: true })
                     }
                 }, { once: true })
-                enableSocialTracker({ entity: this.entity, action: 'block-ctl-fb', isLogin })
+                unblockClickToLoadContent({ entity: this.entity, action: 'block-ctl-fb', isLogin })
             }
         }.bind(this)
         // If this is a login button, show modal if needed
@@ -1368,31 +1372,16 @@ class DuckWidget {
     }
 }
 
-async function initCTL (resp) {
-    for (const entity of Object.keys(resp)) {
-        entities.push(entity)
-        const { informationalModal, simpleVersion } = resp[entity]
-        const shouldShowLoginModal = !!informationalModal
-
-        const currentEntityData = {
-            shouldShowLoginModal,
-            simpleVersion
-        }
-
-        if (shouldShowLoginModal) {
-            currentEntityData.modalIcon = informationalModal.icon
-            currentEntityData.modalTitle = informationalModal.messageTitle
-            currentEntityData.modalText = informationalModal.messageBody
-            currentEntityData.modalAcceptText = informationalModal.confirmButtonText
-            currentEntityData.modalRejectText = informationalModal.rejectButtonText
-        }
-
-        entityData[entity] = currentEntityData
-    }
-    await replaceClickToLoadElements(resp)
+/**
+ * Initialise the Click to Load feature, once the necessary details have been
+ * returned by the platform.
+ * @returns {Promise}
+ */
+async function initCTL () {
+    await replaceClickToLoadElements()
 
     window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
-        replaceClickToLoadElements(resp, target)
+        replaceClickToLoadElements(target)
     }, { capture: true })
 
     // Inform surrogate scripts that CTP is ready
@@ -1551,14 +1540,12 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
 
 /**
  * Replace the blocked CTP elements on the page with placeholders.
- * @param {Object} config
- *   The parsed Click to Play configuration.
  * @param {Element} [targetElement]
  *   If specified, only this element will be replaced (assuming it matches
  *   one of the expected CSS selectors). If omitted, all matching elements
  *   in the document will be replaced instead.
  */
-async function replaceClickToLoadElements (config, targetElement) {
+async function replaceClickToLoadElements (targetElement) {
     for (const entity of Object.keys(config)) {
         for (const widgetData of Object.values(config[entity].elementData)) {
             const selector = widgetData.selectors.join()
@@ -1585,7 +1572,7 @@ async function replaceClickToLoadElements (config, targetElement) {
  *********************************************************/
 
 /**
- * @typedef enableSocialTrackerRequest
+ * @typedef unblockClickToLoadContentRequest
  * @property {string} entity
  *   The entity to unblock requests for (e.g. "Facebook").
  * @property {bool} [isLogin=false]
@@ -1600,15 +1587,15 @@ async function replaceClickToLoadElements (config, targetElement) {
 /**
  * Send a message to the background to unblock requests for the given entity for
  * the page.
- * @param {enableSocialTrackerRequest} message
- * @see {@event ddg-ctp-enableSocialTracker-complete} for the response handler.
+ * @param {unblockClickToLoadContentRequest} message
+ * @see {@event ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
  */
-function enableSocialTracker (message) {
-    sendMessage('enableSocialTracker', message)
+function unblockClickToLoadContent (message) {
+    sendMessage('unblockClickToLoadContent', message)
 }
 
 function runLogin (entity) {
-    enableSocialTracker({ entity, isLogin: true })
+    unblockClickToLoadContent({ entity, isLogin: true })
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-run-login', {
             detail: {
@@ -2337,24 +2324,35 @@ async function createYouTubePreview (originalElement, widget) {
     return { youTubePreview, shadowRoot }
 }
 
+// Convention is that each function should be named the same as the sendMessage
+// method we are calling into eg. calling `sendMessage('getClickToLoadState')`
+// will result in a response routed to `updateHandlers.getClickToLoadState()`.
 const updateHandlers = {
-    // Convention is that each function should be named the same as the sendMessage method we are calling into
-    // eg. calling sendMessage('initClickToLoad') will result in a response routed to 'updateHandlers.initClickToLoad()'
-    initClickToLoad: function (resp) {
+    getClickToLoadState (response) {
+        devMode = response.devMode
+        isYoutubePreviewsEnabled = response.youtubePreviewsEnabled
+        const { clickToLoadClicks } = response
+
+        for (const [entity, clickCount] of Object.entries(clickToLoadClicks)) {
+            if (entityData[entity]) {
+                entityData[entity].simpleVersion =
+                    clickCount >= entityData[entity].maxClicks
+            }
+        }
+
+        // TODO: Move the below init logic to the exported init() function,
+        //       somehow waiting for this response handler to have been called
+        //       first.
+
+        // Start Click to Load
         if (document.readyState === 'complete') {
-            initCTL(resp)
+            initCTL()
         } else {
             // Content script loaded before page content, so wait for load.
             window.addEventListener('load', (event) => {
-                initCTL(resp)
+                initCTL()
             })
         }
-    },
-    getDevMode: function (resp) {
-        devMode = resp
-    },
-    getYoutubePreviewsEnabled: function (resp) {
-        isYoutubePreviewsEnabled = resp
     },
     setYoutubePreviewsEnabled: function (resp) {
         if (resp?.messageType && typeof resp?.value === 'boolean') {
@@ -2366,17 +2364,49 @@ const updateHandlers = {
             originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
         }
     },
-    enableSocialTracker: function (resp) {
-        originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-enableSocialTracker-complete', { detail: resp }))
+    unblockClickToLoadContent () {
+        originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-unblockClickToLoadContent-complete'))
     }
 }
 
 export function init (args) {
-    sendMessage('getDevMode')
-    sendMessage('getYoutubePreviewsEnabled')
-    sendMessage('initClickToLoad', config)
+    const websiteOwner = args?.site?.parentEntity
+    const settings = args?.featureSettings?.clickToPlay || {}
 
-    // Listen for events from surrogates
+    for (const entity of Object.keys(config)) {
+        // Strip config entities that are first-party, or aren't enabled in the
+        // extension's clickToPlay settings.
+        // Note: To support legacy configurations consider `undefined` state as
+        //       "enabled".
+        if ((websiteOwner && entity === websiteOwner) ||
+            !settings[entity] ||
+            settings[entity].state === 'disabled') {
+            delete config[entity]
+            continue
+        }
+
+        // Populate the entities and entityData data structures.
+        // TODO: Remove them and this logic, they seem unnecessary.
+
+        entities.push(entity)
+
+        const shouldShowLoginModal = !!config[entity].informationalModal
+        const maxClicks = config[entity].clicksBeforeSimpleVersion || 3
+        const currentEntityData = { maxClicks, shouldShowLoginModal }
+
+        if (shouldShowLoginModal) {
+            const { informationalModal } = config[entity]
+            currentEntityData.modalIcon = informationalModal.icon
+            currentEntityData.modalTitle = informationalModal.messageTitle
+            currentEntityData.modalText = informationalModal.messageBody
+            currentEntityData.modalAcceptText = informationalModal.confirmButtonText
+            currentEntityData.modalRejectText = informationalModal.rejectButtonText
+        }
+
+        entityData[entity] = currentEntityData
+    }
+
+    // Listen for events from "surrogate" scripts.
     addEventListener('ddg-ctp', (event) => {
         if (!event.detail) return
         const entity = event.detail.entity
@@ -2396,6 +2426,11 @@ export function init (args) {
             }
         }
     })
+
+    // Request the current state of Click to Load from the platform.
+    // Note: When the response is received, initCTL() is then called by the
+    //       response handler to finish starting up the feature.
+    sendMessage('getClickToLoadState')
 }
 
 export function update (args) {
