@@ -1,7 +1,7 @@
 import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import {
-    logoImg, loadingImages, closeIcon, blockedFBLogo, ddgFont, ddgFontBold
-    // blockedYTVideo, videoPlayDark, videoPlayLight // For YT CTL
+    logoImg, loadingImages, closeIcon, blockedFBLogo, ddgFont, ddgFontBold,
+    blockedYTVideo, videoPlayDark, videoPlayLight
 } from '../assets/ctl-assets.js'
 
 let devMode = false
@@ -969,64 +969,64 @@ const config = {
                 }
             }
         }
+    },
+    Youtube: {
+        elementData: {
+            'YouTube embedded video': {
+                selectors: [
+                    "iframe[src*='://youtube.com/embed']",
+                    "iframe[src*='://youtube-nocookie.com/embed']",
+                    "iframe[src*='://www.youtube.com/embed']",
+                    "iframe[src*='://www.youtube-nocookie.com/embed']",
+                    "iframe[data-src*='://youtube.com/embed']",
+                    "iframe[data-src*='://youtube-nocookie.com/embed']",
+                    "iframe[data-src*='://www.youtube.com/embed']",
+                    "iframe[data-src*='://www.youtube-nocookie.com/embed']"
+                ],
+                replaceSettings: {
+                    type: 'youtube-video',
+                    buttonText: 'Unblock video',
+                    infoTitle: 'DuckDuckGo blocked this YouTube video to prevent Google from tracking you',
+                    infoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
+                    simpleInfoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
+                    previewToggleText: 'Previews disabled for additional privacy',
+                    placeholder: {
+                        previewToggleEnabledText: 'Previews enabled',
+                        previewInfoText: 'Turn previews off for additional privacy from DuckDuckGo.',
+                        videoPlayIcon: {
+                            lightMode: videoPlayLight,
+                            darkMode: videoPlayDark
+                        }
+                    }
+                },
+                clickAction: {
+                    type: 'youtube-video'
+                }
+            },
+            'YouTube embedded subscription button': {
+                selectors: [
+                    "iframe[src*='://youtube.com/subscribe_embed']",
+                    "iframe[src*='://youtube-nocookie.com/subscribe_embed']",
+                    "iframe[src*='://www.youtube.com/subscribe_embed']",
+                    "iframe[src*='://www.youtube-nocookie.com/subscribe_embed']",
+                    "iframe[data-src*='://youtube.com/subscribe_embed']",
+                    "iframe[data-src*='://youtube-nocookie.com/subscribe_embed']",
+                    "iframe[data-src*='://www.youtube.com/subscribe_embed']",
+                    "iframe[data-src*='://www.youtube-nocookie.com/subscribe_embed']"
+                ],
+                replaceSettings: {
+                    type: 'blank'
+                }
+            }
+        },
+        informationalModal: {
+            icon: blockedYTVideo,
+            messageTitle: 'Enable all YouTube previews?',
+            messageBody: 'Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.',
+            confirmButtonText: 'Enable All Previews',
+            rejectButtonText: 'No Thanks'
+        }
     }
-    // Youtube: { // Config for YT CTL
-    //     elementData: {
-    //         'YouTube embedded video': {
-    //             selectors: [
-    //                 "iframe[src*='://youtube.com/embed']",
-    //                 "iframe[src*='://youtube-nocookie.com/embed']",
-    //                 "iframe[src*='://www.youtube.com/embed']",
-    //                 "iframe[src*='://www.youtube-nocookie.com/embed']",
-    //                 "iframe[data-src*='://youtube.com/embed']",
-    //                 "iframe[data-src*='://youtube-nocookie.com/embed']",
-    //                 "iframe[data-src*='://www.youtube.com/embed']",
-    //                 "iframe[data-src*='://www.youtube-nocookie.com/embed']"
-    //             ],
-    //             replaceSettings: {
-    //                 type: 'youtube-video',
-    //                 buttonText: 'Unblock video',
-    //                 infoTitle: 'DuckDuckGo blocked this YouTube video to prevent Google from tracking you',
-    //                 infoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
-    //                 simpleInfoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
-    //                 previewToggleText: 'Previews disabled for additional privacy',
-    //                 placeholder: {
-    //                     previewToggleEnabledText: 'Previews enabled',
-    //                     previewInfoText: 'Turn previews off for additional privacy from DuckDuckGo.',
-    //                     videoPlayIcon: {
-    //                         lightMode: videoPlayLight,
-    //                         darkMode: videoPlayDark
-    //                     }
-    //                 }
-    //             },
-    //             clickAction: {
-    //                 type: 'youtube-video'
-    //             }
-    //         },
-    //         'YouTube embedded subscription button': {
-    //             selectors: [
-    //                 "iframe[src*='://youtube.com/subscribe_embed']",
-    //                 "iframe[src*='://youtube-nocookie.com/subscribe_embed']",
-    //                 "iframe[src*='://www.youtube.com/subscribe_embed']",
-    //                 "iframe[src*='://www.youtube-nocookie.com/subscribe_embed']",
-    //                 "iframe[data-src*='://youtube.com/subscribe_embed']",
-    //                 "iframe[data-src*='://youtube-nocookie.com/subscribe_embed']",
-    //                 "iframe[data-src*='://www.youtube.com/subscribe_embed']",
-    //                 "iframe[data-src*='://www.youtube-nocookie.com/subscribe_embed']"
-    //             ],
-    //             replaceSettings: {
-    //                 type: 'blank'
-    //             }
-    //         }
-    //     },
-    //     informationalModal: {
-    //         icon: blockedYTVideo,
-    //         messageTitle: 'Enable all YouTube previews?',
-    //         messageBody: 'Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.',
-    //         confirmButtonText: 'Enable All Previews',
-    //         rejectButtonText: 'No Thanks'
-    //     }
-    // }
 }
 
 /*********************************************************
@@ -1359,7 +1359,8 @@ class DuckWidget {
                         fbElement.addEventListener('error', onError, { once: true })
                     }
                 }, { once: true })
-                unblockClickToLoadContent({ entity: this.entity, action: 'block-ctl-fb', isLogin })
+                const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
+                unblockClickToLoadContent({ entity: this.entity, action, isLogin })
             }
         }.bind(this)
         // If this is a login button, show modal if needed
@@ -1595,7 +1596,8 @@ function unblockClickToLoadContent (message) {
 }
 
 function runLogin (entity) {
-    unblockClickToLoadContent({ entity, isLogin: true })
+    const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
+    unblockClickToLoadContent({ entity, action, isLogin: true })
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-run-login', {
             detail: {
