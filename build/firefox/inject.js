@@ -2847,7 +2847,7 @@
   }
 
   function runLogin (entity) {
-      const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
+      const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
       unblockClickToLoadContent({ entity, action, isLogin: true });
       originalWindowDispatchEvent(
           createCustomEvent('ddg-ctp-run-login', {
