@@ -221,18 +221,21 @@ function extractTimeoutRules (rules) {
  * @param {string} rules[].type
  */
 function injectStyleTag (rules) {
-    let styleTag = '<style>'
+    const styleTag = document.createElement('style')
+    let styleTagContents = ''
 
     rules.forEach((rule, i) => {
-        if (i === rules.length - 1) {
-            styleTag = styleTag.concat(rule.selector, '{')
+        if (i !== rules.length - 1) {
+            styleTagContents = styleTagContents.concat(rule.selector, ',')
         } else {
-            styleTag = styleTag.concat(rule.selector, ',')
+            styleTagContents = styleTagContents.concat(rule.selector)
         }
     })
 
-    styleTag = styleTag.concat('display:none!important;min-height:0!important;height:0!important;}</style>')
-    document.head.insertAdjacentHTML('beforeend', styleTag)
+    styleTagContents = styleTagContents.concat('{display:none!important;min-height:0!important;height:0!important;}')
+    styleTag.innerText = styleTagContents
+
+    document.head.appendChild(styleTag)
 }
 
 /**
