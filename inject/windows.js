@@ -9,7 +9,9 @@ function init () {
     }
 
     contentScopeFeatures.load({
-        platform: processedConfig.platform
+        platform: {
+            name: 'windows'
+        }
     })
 
     contentScopeFeatures.init(processedConfig)
