@@ -172,10 +172,6 @@ const styles = {
         top: -9px;
     `,
     arrowDefaultLocationPercent: 50,
-    hoverTextTitle: `
-        padding: 0px 12px 12px;
-        margin-top: -5px;
-    `,
     hoverTextBody: `
         font-family: DuckDuckGoPrivacyEssentials;
         font-size: 14px;
@@ -948,7 +944,6 @@ const config = {
                     type: 'loginButton',
                     icon: blockedFBLogo,
                     buttonText: 'Log in with Facebook',
-                    popupTitleText: 'DuckDuckGo blocked this Facebook login',
                     popupBodyText: 'Facebook tracks your activity on a site when you use them to login.'
                 },
                 clickAction: {
@@ -1438,7 +1433,6 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         // Create a button to replace old element
         const { button, container } = makeLoginButton(
             widget.replaceSettings.buttonText, widget.getMode(),
-            widget.replaceSettings.popupTitleText,
             widget.replaceSettings.popupBodyText, icon, trackingElement
         )
         button.addEventListener('click', widget.clickFunction(trackingElement, container))
@@ -1849,7 +1843,7 @@ function makeShareFeedbackRow () {
 }
 
 /* FB login replacement button, with hover text */
-function makeLoginButton (buttonText, mode, hoverTextTitle, hoverTextBody, icon, originalElement) {
+function makeLoginButton (buttonText, mode, hoverTextBody, icon, originalElement) {
     const container = document.createElement('div')
     container.style.cssText = 'position: relative;'
     container.appendChild(makeFontFaceStyleElement())
@@ -1895,7 +1889,6 @@ function makeLoginButton (buttonText, mode, hoverTextTitle, hoverTextBody, icon,
     arrow.style.cssText = styles.textArrow
     hoverBox.appendChild(arrow)
     const branding = createTitleRow('DuckDuckGo')
-    branding.style.cssText += styles.hoverTextTitle
     hoverBox.appendChild(branding)
     const hoverText = document.createElement('div')
     hoverText.style.cssText = styles.hoverTextBody
