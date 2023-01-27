@@ -1,3 +1,2 @@
-Sources/ContentScopeScripts/dist/** binary
-build/** binary linguist-generated
-shared/** binary linguist-generated
+Sources/ContentScopeScripts/dist/** linguist-generated
+build/** linguist-generated
