@@ -2637,7 +2637,7 @@
                       ],
                       replaceSettings: {
                           type: 'dialog',
-                          buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                          buttonText: `${fbStrings.buttonTextUnblockContent.title}`,
                           infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
                           infoText: `${fbStrings.infoTextUnblockContent.title}`
                       },
@@ -2854,7 +2854,7 @@
                       ],
                       replaceSettings: {
                           type: 'dialog',
-                          buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                          buttonText: `${fbStrings.buttonTextUnblockContent.title}`,
                           infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
                           infoText: `${fbStrings.infoTextUnblockContent.title}`
                       },
@@ -2868,7 +2868,7 @@
                       ],
                       replaceSettings: {
                           type: 'dialog',
-                          buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                          buttonText: `${fbStrings.buttonTextUnblockContent.title}`,
                           infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
                           infoText: `${fbStrings.infoTextUnblockContent.title}`
                       },
@@ -4054,11 +4054,7 @@
 
       const contentTitle = document.createElement('div');
       contentTitle.style.cssText = styles.contentTitle;
-      if (entityData[widget.entity].simpleVersion && widget.replaceSettings.simpleInfoTitle) {
-          contentTitle.textContent = widget.replaceSettings.simpleInfoTitle;
-      } else {
-          contentTitle.textContent = widget.replaceSettings.infoTitle;
-      }
+      contentTitle.textContent = widget.replaceSettings.infoTitle;
       contentRow.appendChild(contentTitle);
       const contentText = document.createElement('div');
       contentText.style.cssText = styles.contentText;
@@ -4278,14 +4274,6 @@
       getClickToLoadState (response) {
           devMode = response.devMode;
           isYoutubePreviewsEnabled = response.youtubePreviewsEnabled;
-          const { clickToLoadClicks } = response;
-
-          for (const [entity, clickCount] of Object.entries(clickToLoadClicks)) {
-              if (entityData[entity]) {
-                  entityData[entity].simpleVersion =
-                      clickCount >= entityData[entity].maxClicks;
-              }
-          }
 
           // TODO: Move the below init logic to the exported init() function,
           //       somehow waiting for this response handler to have been called
@@ -4320,7 +4308,7 @@
       const websiteOwner = args?.site?.parentEntity;
       const settings = args?.featureSettings?.clickToPlay || {};
 
-      config = getConfig('en');
+      config = getConfig('pl');
 
       for (const entity of Object.keys(config)) {
           // Strip config entities that are first-party, or aren't enabled in the
@@ -4340,8 +4328,7 @@
           entities.push(entity);
 
           const shouldShowLoginModal = !!config[entity].informationalModal;
-          const maxClicks = config[entity].clicksBeforeSimpleVersion || 3;
-          const currentEntityData = { maxClicks, shouldShowLoginModal };
+          const currentEntityData = { shouldShowLoginModal };
 
           if (shouldShowLoginModal) {
               const { informationalModal } = config[entity];
