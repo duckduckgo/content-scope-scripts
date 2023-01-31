@@ -3,6 +3,7 @@ import {
     logoImg, loadingImages, closeIcon, blockedFBLogo, ddgFont, ddgFontBold,
     blockedYTVideo, videoPlayDark, videoPlayLight
 } from '../assets/ctl-assets.js'
+import localesJSON from '../../build/locales/locales.js'
 
 let devMode = false
 let isYoutubePreviewsEnabled = false
@@ -602,424 +603,419 @@ const styles = {
 }
 
 /*********************************************************
- *  config (temporarily here, until localized)
+ *  config set by getConfig() at init per localization
  *********************************************************/
-const config = {
-    Facebook: {
-        informationalModal: {
-            icon: blockedFBLogo,
-            messageTitle: 'Logging in with Facebook lets them track you',
-            messageBody: "Once you're logged in, DuckDuckGo can't block Facebook content from tracking you on this site.",
-            confirmButtonText: 'Log In',
-            rejectButtonText: 'Go back'
-        },
-        elementData: {
-            'FB Like Button': {
-                selectors: [
-                    '.fb-like'
-                ],
-                replaceSettings: {
-                    type: 'blank'
-                }
+let config = {}
+
+function getConfig(locale) {
+    const locales = JSON.parse(localesJSON)
+    const fbStrings = locales['en']['facebook.json']
+
+    return {
+        Facebook: {
+            informationalModal: {
+                icon: blockedFBLogo,
+                messageTitle: `${fbStrings.informationalModalMessageTitle.title}`,
+                messageBody: `${fbStrings.informationalModalMessageBody.title}`,
+                confirmButtonText: `${fbStrings.informationalModalConfirmButtonText.title}`,
+                rejectButtonText: `${fbStrings.informationalModalRejectButtonText.title}`
             },
-            'FB Button iFrames': {
-                selectors: [
-                    "iframe[src*='://www.facebook.com/plugins/like.php']",
-                    "iframe[src*='://www.facebook.com/v2.0/plugins/like.php']",
-                    "iframe[src*='://www.facebook.com/plugins/share_button.php']",
-                    "iframe[src*='://www.facebook.com/v2.0/plugins/share_button.php']"
-                ],
-                replaceSettings: {
-                    type: 'blank'
-                }
-            },
-            'FB Save Button': {
-                selectors: [
-                    '.fb-save'
-                ],
-                replaceSettings: {
-                    type: 'blank'
-                }
-            },
-            'FB Share Button': {
-                selectors: [
-                    '.fb-share-button'
-                ],
-                replaceSettings: {
-                    type: 'blank'
-                }
-            },
-            'FB Page iFrames': {
-                selectors: [
-                    "iframe[src*='://www.facebook.com/plugins/page.php']",
-                    "iframe[src*='://www.facebook.com/v2.0/plugins/page.php']"
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Content',
-                    infoTitle: 'DuckDuckGo blocked this content to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
+            elementData: {
+                'FB Like Button': {
+                    selectors: [
+                        '.fb-like'
+                    ],
+                    replaceSettings: {
+                        type: 'blank'
+                    }
                 },
-                clickAction: {
-                    type: 'originalElement'
-                }
-            },
-            'FB Page Div': {
-                selectors: [
-                    '.fb-page'
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Content',
-                    infoTitle: 'DuckDuckGo blocked this content to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
+                'FB Button iFrames': {
+                    selectors: [
+                        "iframe[src*='://www.facebook.com/plugins/like.php']",
+                        "iframe[src*='://www.facebook.com/v2.0/plugins/like.php']",
+                        "iframe[src*='://www.facebook.com/plugins/share_button.php']",
+                        "iframe[src*='://www.facebook.com/v2.0/plugins/share_button.php']"
+                    ],
+                    replaceSettings: {
+                        type: 'blank'
+                    }
                 },
-                clickAction: {
-                    type: 'iFrame',
-                    targetURL: 'https://www.facebook.com/plugins/page.php?href=data-href&tabs=data-tabs&width=data-width&height=data-height',
-                    urlDataAttributesToPreserve: {
-                        'data-href': {
-                            default: '',
-                            required: true
-                        },
-                        'data-tabs': {
-                            default: 'timeline'
-                        },
-                        'data-height': {
-                            default: '500'
-                        },
-                        'data-width': {
-                            default: '500'
-                        }
+                'FB Save Button': {
+                    selectors: [
+                        '.fb-save'
+                    ],
+                    replaceSettings: {
+                        type: 'blank'
+                    }
+                },
+                'FB Share Button': {
+                    selectors: [
+                        '.fb-share-button'
+                    ],
+                    replaceSettings: {
+                        type: 'blank'
+                    }
+                },
+                'FB Page iFrames': {
+                    selectors: [
+                        "iframe[src*='://www.facebook.com/plugins/page.php']",
+                        "iframe[src*='://www.facebook.com/v2.0/plugins/page.php']"
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockContent.title}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
                     },
-                    styleDataAttributes: {
-                        width: {
-                            name: 'data-width',
-                            unit: 'px'
-                        },
-                        height: {
-                            name: 'data-height',
-                            unit: 'px'
-                        }
+                    clickAction: {
+                        type: 'originalElement'
                     }
-                }
-            },
-            'FB Comment iFrames': {
-                selectors: [
-                    "iframe[src*='://www.facebook.com/plugins/comment_embed.php']",
-                    "iframe[src*='://www.facebook.com/v2.0/plugins/comment_embed.php']"
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Comment',
-                    infoTitle: 'DuckDuckGo blocked this comment to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
                 },
-                clickAction: {
-                    type: 'originalElement'
-                }
-            },
-            'FB Comments': {
-                selectors: [
-                    '.fb-comments',
-                    'fb\\:comments'
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Comments',
-                    infoTitle: 'DuckDuckGo blocked these comments to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
-                },
-                clickAction: {
-                    type: 'allowFull',
-                    targetURL: 'https://www.facebook.com/v9.0/plugins/comments.php?href=data-href&numposts=data-numposts&sdk=joey&version=v9.0&width=data-width',
-                    urlDataAttributesToPreserve: {
-                        'data-href': {
-                            default: '',
-                            required: true
-                        },
-                        'data-numposts': {
-                            default: 10
-                        },
-                        'data-width': {
-                            default: '500'
-                        }
-                    }
-                }
-            },
-            'FB Embedded Comment Div': {
-                selectors: [
-                    '.fb-comment-embed'
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Comment',
-                    infoTitle: 'DuckDuckGo blocked this comment to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
-                },
-                clickAction: {
-                    type: 'iFrame',
-                    targetURL: 'https://www.facebook.com/v9.0/plugins/comment_embed.php?href=data-href&sdk=joey&width=data-width&include_parent=data-include-parent',
-                    urlDataAttributesToPreserve: {
-                        'data-href': {
-                            default: '',
-                            required: true
-                        },
-                        'data-width': {
-                            default: '500'
-                        },
-                        'data-include-parent': {
-                            default: 'false'
-                        }
+                'FB Page Div': {
+                    selectors: [
+                        '.fb-page'
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
                     },
-                    styleDataAttributes: {
-                        width: {
-                            name: 'data-width',
-                            unit: 'px'
+                    clickAction: {
+                        type: 'iFrame',
+                        targetURL: 'https://www.facebook.com/plugins/page.php?href=data-href&tabs=data-tabs&width=data-width&height=data-height',
+                        urlDataAttributesToPreserve: {
+                            'data-href': {
+                                default: '',
+                                required: true
+                            },
+                            'data-tabs': {
+                                default: 'timeline'
+                            },
+                            'data-height': {
+                                default: '500'
+                            },
+                            'data-width': {
+                                default: '500'
+                            }
+                        },
+                        styleDataAttributes: {
+                            width: {
+                                name: 'data-width',
+                                unit: 'px'
+                            },
+                            height: {
+                                name: 'data-height',
+                                unit: 'px'
+                            }
                         }
                     }
-                }
-            },
-            'FB Post iFrames': {
-                selectors: [
-                    "iframe[src*='://www.facebook.com/plugins/post.php']",
-                    "iframe[src*='://www.facebook.com/v2.0/plugins/post.php']"
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Post',
-                    infoTitle: 'DuckDuckGo blocked this post to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
                 },
-                clickAction: {
-                    type: 'originalElement'
-                }
-            },
-            'FB Posts Div': {
-                selectors: [
-                    '.fb-post'
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Post',
-                    infoTitle: 'DuckDuckGo blocked this post to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
-                },
-                clickAction: {
-                    type: 'allowFull',
-                    targetURL: 'https://www.facebook.com/v9.0/plugins/post.php?href=data-href&sdk=joey&show_text=true&width=data-width',
-                    urlDataAttributesToPreserve: {
-                        'data-href': {
-                            default: '',
-                            required: true
-                        },
-                        'data-width': {
-                            default: '500'
-                        }
+                'FB Comment iFrames': {
+                    selectors: [
+                        "iframe[src*='://www.facebook.com/plugins/comment_embed.php']",
+                        "iframe[src*='://www.facebook.com/v2.0/plugins/comment_embed.php']"
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockComment.title}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockComment.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
                     },
-                    styleDataAttributes: {
-                        width: {
-                            name: 'data-width',
-                            unit: 'px'
-                        },
-                        height: {
-                            name: 'data-height',
-                            unit: 'px',
-                            fallbackAttribute: 'data-width'
-                        }
+                    clickAction: {
+                        type: 'originalElement'
                     }
-                }
-            },
-            'FB Video iFrames': {
-                selectors: [
-                    "iframe[src*='://www.facebook.com/plugins/video.php']",
-                    "iframe[src*='://www.facebook.com/v2.0/plugins/video.php']"
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Video',
-                    infoTitle: 'DuckDuckGo blocked this video to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
                 },
-                clickAction: {
-                    type: 'originalElement'
-                }
-            },
-            'FB Video': {
-                selectors: [
-                    '.fb-video'
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Video',
-                    infoTitle: 'DuckDuckGo blocked this video to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
-                },
-                clickAction: {
-                    type: 'iFrame',
-                    targetURL: 'https://www.facebook.com/plugins/video.php?href=data-href&show_text=true&width=data-width',
-                    urlDataAttributesToPreserve: {
-                        'data-href': {
-                            default: '',
-                            required: true
-                        },
-                        'data-width': {
-                            default: '500'
-                        }
+                'FB Comments': {
+                    selectors: [
+                        '.fb-comments',
+                        'fb\\:comments'
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockComments.title}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockComments.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
                     },
-                    styleDataAttributes: {
-                        width: {
-                            name: 'data-width',
-                            unit: 'px'
-                        },
-                        height: {
-                            name: 'data-height',
-                            unit: 'px',
-                            fallbackAttribute: 'data-width'
+                    clickAction: {
+                        type: 'allowFull',
+                        targetURL: 'https://www.facebook.com/v9.0/plugins/comments.php?href=data-href&numposts=data-numposts&sdk=joey&version=v9.0&width=data-width',
+                        urlDataAttributesToPreserve: {
+                            'data-href': {
+                                default: '',
+                                required: true
+                            },
+                            'data-numposts': {
+                                default: 10
+                            },
+                            'data-width': {
+                                default: '500'
+                            }
                         }
                     }
-                }
-            },
-            'FB Group iFrames': {
-                selectors: [
-                    "iframe[src*='://www.facebook.com/plugins/group.php']",
-                    "iframe[src*='://www.facebook.com/v2.0/plugins/group.php']"
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Content',
-                    infoTitle: 'DuckDuckGo blocked this content to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
                 },
-                clickAction: {
-                    type: 'originalElement'
-                }
-            },
-            'FB Group': {
-                selectors: [
-                    '.fb-group'
-                ],
-                replaceSettings: {
-                    type: 'dialog',
-                    buttonText: 'Unblock Content',
-                    infoTitle: 'DuckDuckGo blocked this content to prevent Facebook from tracking you',
-                    infoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.',
-                    simpleInfoText: 'We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity.'
-                },
-                clickAction: {
-                    type: 'iFrame',
-                    targetURL: 'https://www.facebook.com/plugins/group.php?href=data-href&width=data-width',
-                    urlDataAttributesToPreserve: {
-                        'data-href': {
-                            default: '',
-                            required: true
-                        },
-                        'data-width': {
-                            default: '500'
-                        }
+                'FB Embedded Comment Div': {
+                    selectors: [
+                        '.fb-comment-embed'
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockComment.title}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockComment.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
                     },
-                    styleDataAttributes: {
-                        width: {
-                            name: 'data-width',
-                            unit: 'px'
+                    clickAction: {
+                        type: 'iFrame',
+                        targetURL: 'https://www.facebook.com/v9.0/plugins/comment_embed.php?href=data-href&sdk=joey&width=data-width&include_parent=data-include-parent',
+                        urlDataAttributesToPreserve: {
+                            'data-href': {
+                                default: '',
+                                required: true
+                            },
+                            'data-width': {
+                                default: '500'
+                            },
+                            'data-include-parent': {
+                                default: 'false'
+                            }
+                        },
+                        styleDataAttributes: {
+                            width: {
+                                name: 'data-width',
+                                unit: 'px'
+                            }
                         }
                     }
-                }
-            },
-            'FB Login Button': {
-                selectors: [
-                    '.fb-login-button'
-                ],
-                replaceSettings: {
-                    type: 'loginButton',
-                    icon: blockedFBLogo,
-                    buttonText: 'Log in with Facebook',
-                    popupBodyText: 'Facebook tracks your activity on a site when you use them to login.'
                 },
-                clickAction: {
-                    type: 'allowFull',
-                    targetURL: 'https://www.facebook.com/v9.0/plugins/login_button.php?app_id=app_id_replace&auto_logout_link=false&button_type=continue_with&sdk=joey&size=large&use_continue_as=false&width=',
-                    urlDataAttributesToPreserve: {
-                        'data-href': {
-                            default: '',
-                            required: true
+                'FB Post iFrames': {
+                    selectors: [
+                        "iframe[src*='://www.facebook.com/plugins/post.php']",
+                        "iframe[src*='://www.facebook.com/v2.0/plugins/post.php']"
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockPost.title}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockPost.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
+                    },
+                    clickAction: {
+                        type: 'originalElement'
+                    }
+                },
+                'FB Posts Div': {
+                    selectors: [
+                        '.fb-post'
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockPost.title}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockPost.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
+                    },
+                    clickAction: {
+                        type: 'allowFull',
+                        targetURL: 'https://www.facebook.com/v9.0/plugins/post.php?href=data-href&sdk=joey&show_text=true&width=data-width',
+                        urlDataAttributesToPreserve: {
+                            'data-href': {
+                                default: '',
+                                required: true
+                            },
+                            'data-width': {
+                                default: '500'
+                            }
                         },
-                        'data-width': {
-                            default: '500'
+                        styleDataAttributes: {
+                            width: {
+                                name: 'data-width',
+                                unit: 'px'
+                            },
+                            height: {
+                                name: 'data-height',
+                                unit: 'px',
+                                fallbackAttribute: 'data-width'
+                            }
+                        }
+                    }
+                },
+                'FB Video iFrames': {
+                    selectors: [
+                        "iframe[src*='://www.facebook.com/plugins/video.php']",
+                        "iframe[src*='://www.facebook.com/v2.0/plugins/video.php']"
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockVideo.title}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockVideo.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
+                    },
+                    clickAction: {
+                        type: 'originalElement'
+                    }
+                },
+                'FB Video': {
+                    selectors: [
+                        '.fb-video'
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockVideo.title}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockVideo.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
+                    },
+                    clickAction: {
+                        type: 'iFrame',
+                        targetURL: 'https://www.facebook.com/plugins/video.php?href=data-href&show_text=true&width=data-width',
+                        urlDataAttributesToPreserve: {
+                            'data-href': {
+                                default: '',
+                                required: true
+                            },
+                            'data-width': {
+                                default: '500'
+                            }
                         },
-                        app_id_replace: {
-                            default: 'null'
+                        styleDataAttributes: {
+                            width: {
+                                name: 'data-width',
+                                unit: 'px'
+                            },
+                            height: {
+                                name: 'data-height',
+                                unit: 'px',
+                                fallbackAttribute: 'data-width'
+                            }
+                        }
+                    }
+                },
+                'FB Group iFrames': {
+                    selectors: [
+                        "iframe[src*='://www.facebook.com/plugins/group.php']",
+                        "iframe[src*='://www.facebook.com/v2.0/plugins/group.php']"
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
+                    },
+                    clickAction: {
+                        type: 'originalElement'
+                    }
+                },
+                'FB Group': {
+                    selectors: [
+                        '.fb-group'
+                    ],
+                    replaceSettings: {
+                        type: 'dialog',
+                        buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                        infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
+                        infoText: `${fbStrings.infoTextUnblockContent.title}`
+                    },
+                    clickAction: {
+                        type: 'iFrame',
+                        targetURL: 'https://www.facebook.com/plugins/group.php?href=data-href&width=data-width',
+                        urlDataAttributesToPreserve: {
+                            'data-href': {
+                                default: '',
+                                required: true
+                            },
+                            'data-width': {
+                                default: '500'
+                            }
+                        },
+                        styleDataAttributes: {
+                            width: {
+                                name: 'data-width',
+                                unit: 'px'
+                            }
+                        }
+                    }
+                },
+                'FB Login Button': {
+                    selectors: [
+                        '.fb-login-button'
+                    ],
+                    replaceSettings: {
+                        type: 'loginButton',
+                        icon: blockedFBLogo,
+                        buttonText: `${fbStrings.loginButtonText.title}`,
+                        popupBodyText: `${fbStrings.loginBodyText.title}`
+                    },
+                    clickAction: {
+                        type: 'allowFull',
+                        targetURL: 'https://www.facebook.com/v9.0/plugins/login_button.php?app_id=app_id_replace&auto_logout_link=false&button_type=continue_with&sdk=joey&size=large&use_continue_as=false&width=',
+                        urlDataAttributesToPreserve: {
+                            'data-href': {
+                                default: '',
+                                required: true
+                            },
+                            'data-width': {
+                                default: '500'
+                            },
+                            app_id_replace: {
+                                default: 'null'
+                            }
                         }
                     }
                 }
             }
-        }
-    },
-    Youtube: {
-        elementData: {
-            'YouTube embedded video': {
-                selectors: [
-                    "iframe[src*='://youtube.com/embed']",
-                    "iframe[src*='://youtube-nocookie.com/embed']",
-                    "iframe[src*='://www.youtube.com/embed']",
-                    "iframe[src*='://www.youtube-nocookie.com/embed']",
-                    "iframe[data-src*='://youtube.com/embed']",
-                    "iframe[data-src*='://youtube-nocookie.com/embed']",
-                    "iframe[data-src*='://www.youtube.com/embed']",
-                    "iframe[data-src*='://www.youtube-nocookie.com/embed']"
-                ],
-                replaceSettings: {
-                    type: 'youtube-video',
-                    buttonText: 'Unblock video',
-                    infoTitle: 'DuckDuckGo blocked this YouTube video to prevent Google from tracking you',
-                    infoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
-                    simpleInfoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
-                    previewToggleText: 'Previews disabled for additional privacy',
-                    placeholder: {
-                        previewToggleEnabledText: 'Previews enabled',
-                        previewInfoText: 'Turn previews off for additional privacy from DuckDuckGo.',
-                        videoPlayIcon: {
-                            lightMode: videoPlayLight,
-                            darkMode: videoPlayDark
+        },
+        Youtube: {
+            elementData: {
+                'YouTube embedded video': {
+                    selectors: [
+                        "iframe[src*='://youtube.com/embed']",
+                        "iframe[src*='://youtube-nocookie.com/embed']",
+                        "iframe[src*='://www.youtube.com/embed']",
+                        "iframe[src*='://www.youtube-nocookie.com/embed']",
+                        "iframe[data-src*='://youtube.com/embed']",
+                        "iframe[data-src*='://youtube-nocookie.com/embed']",
+                        "iframe[data-src*='://www.youtube.com/embed']",
+                        "iframe[data-src*='://www.youtube-nocookie.com/embed']"
+                    ],
+                    replaceSettings: {
+                        type: 'youtube-video',
+                        buttonText: `${fbStrings.buttonTextUnblockVideo.title}`,
+                        infoTitle: 'DuckDuckGo blocked this YouTube video to prevent Google from tracking you',
+                        infoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
+                        previewToggleText: 'Previews disabled for additional privacy',
+                        placeholder: {
+                            previewToggleEnabledText: 'Previews enabled',
+                            previewInfoText: 'Turn previews off for additional privacy from DuckDuckGo.',
+                            videoPlayIcon: {
+                                lightMode: videoPlayLight,
+                                darkMode: videoPlayDark
+                            }
                         }
+                    },
+                    clickAction: {
+                        type: 'youtube-video'
                     }
                 },
-                clickAction: {
-                    type: 'youtube-video'
+                'YouTube embedded subscription button': {
+                    selectors: [
+                        "iframe[src*='://youtube.com/subscribe_embed']",
+                        "iframe[src*='://youtube-nocookie.com/subscribe_embed']",
+                        "iframe[src*='://www.youtube.com/subscribe_embed']",
+                        "iframe[src*='://www.youtube-nocookie.com/subscribe_embed']",
+                        "iframe[data-src*='://youtube.com/subscribe_embed']",
+                        "iframe[data-src*='://youtube-nocookie.com/subscribe_embed']",
+                        "iframe[data-src*='://www.youtube.com/subscribe_embed']",
+                        "iframe[data-src*='://www.youtube-nocookie.com/subscribe_embed']"
+                    ],
+                    replaceSettings: {
+                        type: 'blank'
+                    }
                 }
             },
-            'YouTube embedded subscription button': {
-                selectors: [
-                    "iframe[src*='://youtube.com/subscribe_embed']",
-                    "iframe[src*='://youtube-nocookie.com/subscribe_embed']",
-                    "iframe[src*='://www.youtube.com/subscribe_embed']",
-                    "iframe[src*='://www.youtube-nocookie.com/subscribe_embed']",
-                    "iframe[data-src*='://youtube.com/subscribe_embed']",
-                    "iframe[data-src*='://youtube-nocookie.com/subscribe_embed']",
-                    "iframe[data-src*='://www.youtube.com/subscribe_embed']",
-                    "iframe[data-src*='://www.youtube-nocookie.com/subscribe_embed']"
-                ],
-                replaceSettings: {
-                    type: 'blank'
-                }
+            informationalModal: {
+                icon: blockedYTVideo,
+                messageTitle: 'Enable all YouTube previews?',
+                messageBody: 'Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.',
+                confirmButtonText: 'Enable All Previews',
+                rejectButtonText: 'No Thanks'
             }
-        },
-        informationalModal: {
-            icon: blockedYTVideo,
-            messageTitle: 'Enable all YouTube previews?',
-            messageBody: 'Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.',
-            confirmButtonText: 'Enable All Previews',
-            rejectButtonText: 'No Thanks'
         }
     }
 }
@@ -2106,11 +2102,7 @@ async function createContentBlock (widget, button, textButton, img, bottomRow) {
     contentRow.appendChild(contentTitle)
     const contentText = document.createElement('div')
     contentText.style.cssText = styles.contentText
-    if (entityData[widget.entity].simpleVersion && widget.replaceSettings.simpleInfoText) {
-        contentText.textContent = widget.replaceSettings.simpleInfoText + ' '
-    } else {
-        contentText.textContent = widget.replaceSettings.infoText + ' '
-    }
+    contentText.textContent = widget.replaceSettings.infoText + ' '
     contentText.appendChild(getLearnMoreLink())
     contentRow.appendChild(contentText)
     element.appendChild(contentRow)
@@ -2367,6 +2359,8 @@ const updateHandlers = {
 export function init (args) {
     const websiteOwner = args?.site?.parentEntity
     const settings = args?.featureSettings?.clickToPlay || {}
+
+    config = getConfig('en')
 
     for (const entity of Object.keys(config)) {
         // Strip config entities that are first-party, or aren't enabled in the
