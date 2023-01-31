@@ -2567,7 +2567,7 @@
    *********************************************************/
   let config = {};
 
-  function getConfig(locale) {
+  function getConfig (locale) {
       const locales = JSON.parse(localesJSON);
       const fbStrings = locales[locale]['facebook.json'];
 
