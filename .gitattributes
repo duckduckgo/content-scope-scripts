@@ -1,2 +1,3 @@
 Sources/ContentScopeScripts/dist/** linguist-generated
 build/** linguist-generated
+src/locales/** linguist-generated
