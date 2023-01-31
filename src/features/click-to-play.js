@@ -609,7 +609,7 @@ let config = {}
 
 function getConfig(locale) {
     const locales = JSON.parse(localesJSON)
-    const fbStrings = locales['en']['facebook.json']
+    const fbStrings = locales[locale]['facebook.json']
 
     return {
         Facebook: {
@@ -677,7 +677,7 @@ function getConfig(locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                        buttonText: `${fbStrings.buttonTextUnblockContent.title}`,
                         infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
                         infoText: `${fbStrings.infoTextUnblockContent.title}`
                     },
@@ -894,7 +894,7 @@ function getConfig(locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                        buttonText: `${fbStrings.buttonTextUnblockContent.title}`,
                         infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
                         infoText: `${fbStrings.infoTextUnblockContent.title}`
                     },
@@ -908,7 +908,7 @@ function getConfig(locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: `${fbStrings.buttonTextUnblockContent.target}`,
+                        buttonText: `${fbStrings.buttonTextUnblockContent.title}`,
                         infoTitle: `${fbStrings.infoTitleUnblockContent.title}`,
                         infoText: `${fbStrings.infoTextUnblockContent.title}`
                     },
@@ -2360,7 +2360,7 @@ export function init (args) {
     const websiteOwner = args?.site?.parentEntity
     const settings = args?.featureSettings?.clickToPlay || {}
 
-    config = getConfig('en')
+    config = getConfig('pl')
 
     for (const entity of Object.keys(config)) {
         // Strip config entities that are first-party, or aren't enabled in the
