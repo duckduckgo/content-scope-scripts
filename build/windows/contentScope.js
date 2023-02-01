@@ -7190,9 +7190,7 @@
       }
 
       contentScopeFeatures.load({
-          platform: {
-              name: 'windows'
-          }
+          platform: processedConfig.platform
       });
 
       contentScopeFeatures.init(processedConfig);
