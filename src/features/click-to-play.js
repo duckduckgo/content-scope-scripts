@@ -620,15 +620,17 @@ function getYouTubeVideoDetails (videoURL) {
  *  Widget building blocks
  *********************************************************/
 function getLearnMoreLink (mode) {
+    const sharedStrings = config.Shared
     if (!mode) {
         mode = 'lightMode'
     }
+
     const linkElement = document.createElement('a')
     linkElement.style.cssText = styles.generalLink + styles[mode].linkFont
-    linkElement.ariaLabel = 'Read about this privacy protection'
+    linkElement.ariaLabel = sharedStrings.learnMoreLink.label
     linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/'
     linkElement.target = '_blank'
-    linkElement.textContent = 'Learn More'
+    linkElement.textContent = sharedStrings.learnMoreLink.content
     return linkElement
 }
 
@@ -1348,8 +1350,9 @@ const updateHandlers = {
 export function init (args) {
     const websiteOwner = args?.site?.parentEntity
     const settings = args?.featureSettings?.clickToPlay || {}
+    const locale = args?.locale || 'en'
 
-    config = getConfig('pl')
+    config = getConfig(locale)
 
     for (const entity of Object.keys(config)) {
         // Strip config entities that are first-party, or aren't enabled in the

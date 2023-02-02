@@ -2,7 +2,7 @@ import {
     blockedFBLogo, ddgFont, ddgFontBold, blockedYTVideo, videoPlayDark, videoPlayLight
 } from './ctl-assets.js'
 
-import localesJSON from '../../../build/locales/locales.js'
+import localesJSON from '../../../build/locales/ctl-locales.js'
 
 /*********************************************************
  *  Style Definitions
@@ -591,9 +591,18 @@ export const styles = {
 
 export function getConfig (locale) {
     const locales = JSON.parse(localesJSON)
+    const sharedStrings = locales[locale]['shared.json']
     const fbStrings = locales[locale]['facebook.json']
+    const ytStrings = locales[locale]['youtube.json']
 
     return {
+        Shared: {
+            learnMoreLink: {
+                content: sharedStrings.learnMore.title,
+                label: sharedStrings.readAbout.title
+            },
+            elementData: {}
+        },
         Facebook: {
             informationalModal: {
                 icon: blockedFBLogo,
@@ -944,6 +953,13 @@ export function getConfig (locale) {
             }
         },
         Youtube: {
+            informationalModal: {
+                icon: blockedYTVideo,
+                messageTitle: ytStrings.informationalModalMessageTitle.title,
+                messageBody: ytStrings.informationalModalMessageBody.title,
+                confirmButtonText: ytStrings.informationalModalConfirmButtonText.title,
+                rejectButtonText: ytStrings.informationalModalRejectButtonText.title
+            },
             elementData: {
                 'YouTube embedded video': {
                     selectors: [
@@ -958,13 +974,13 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'youtube-video',
-                        buttonText: fbStrings.buttonTextUnblockVideo.title,
-                        infoTitle: 'DuckDuckGo blocked this YouTube video to prevent Google from tracking you',
-                        infoText: 'We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.',
-                        previewToggleText: 'Previews disabled for additional privacy',
+                        buttonText: ytStrings.buttonTextUnblockVideo.title,
+                        infoTitle: ytStrings.infoTitleUnblockVideo.title,
+                        infoText: ytStrings.infoTextUnblockVideo.title,
+                        previewToggleText: ytStrings.infoPreviewToggleText.title,
                         placeholder: {
-                            previewToggleEnabledText: 'Previews enabled',
-                            previewInfoText: 'Turn previews off for additional privacy from DuckDuckGo.',
+                            previewToggleEnabledText: ytStrings.infoPreviewToggleEnabledText.title,
+                            previewInfoText: ytStrings.infoPreviewInfoText.title,
                             videoPlayIcon: {
                                 lightMode: videoPlayLight,
                                 darkMode: videoPlayDark
@@ -990,13 +1006,6 @@ export function getConfig (locale) {
                         type: 'blank'
                     }
                 }
-            },
-            informationalModal: {
-                icon: blockedYTVideo,
-                messageTitle: 'Enable all YouTube previews?',
-                messageBody: 'Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.',
-                confirmButtonText: 'Enable All Previews',
-                rejectButtonText: 'No Thanks'
             }
         }
     }
