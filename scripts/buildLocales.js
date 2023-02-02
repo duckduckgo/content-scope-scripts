@@ -3,7 +3,7 @@ import * as fs from 'fs'
 // This script loads the current JSON-based locales files and merges them into
 // a single importable ES module for bundling purposes
 const localesRoot = process.argv[2]
-if(!localesRoot) {
+if (!localesRoot) {
     console.log('usage: buildLocales <locales/feature dir>')
 }
 
