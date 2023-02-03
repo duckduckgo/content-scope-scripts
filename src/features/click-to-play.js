@@ -14,6 +14,7 @@ const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
  *  config set by getConfig() at init per localization
  *********************************************************/
 let config = {}
+let sharedStrings = {}
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
@@ -620,17 +621,16 @@ function getYouTubeVideoDetails (videoURL) {
  *  Widget building blocks
  *********************************************************/
 function getLearnMoreLink (mode) {
-    const sharedStrings = config.Shared
     if (!mode) {
         mode = 'lightMode'
     }
 
     const linkElement = document.createElement('a')
     linkElement.style.cssText = styles.generalLink + styles[mode].linkFont
-    linkElement.ariaLabel = sharedStrings.learnMoreLink.label
+    linkElement.ariaLabel = sharedStrings.readAbout
     linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/'
     linkElement.target = '_blank'
-    linkElement.textContent = sharedStrings.learnMoreLink.content
+    linkElement.textContent = sharedStrings.learnMore
     return linkElement
 }
 
@@ -1351,8 +1351,9 @@ export function init (args) {
     const websiteOwner = args?.site?.parentEntity
     const settings = args?.featureSettings?.clickToPlay || {}
     const locale = args?.locale || 'en'
-
-    config = getConfig(locale)
+    const localizedConfig = getConfig(locale)
+    config = localizedConfig.config
+    sharedStrings = localizedConfig.sharedStrings
 
     for (const entity of Object.keys(config)) {
         // Strip config entities that are first-party, or aren't enabled in the

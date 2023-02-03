@@ -591,25 +591,18 @@ export const styles = {
 
 export function getConfig (locale) {
     const locales = JSON.parse(localesJSON)
-    const sharedStrings = locales[locale]['shared.json']
     const fbStrings = locales[locale]['facebook.json']
     const ytStrings = locales[locale]['youtube.json']
 
-    return {
-        Shared: {
-            learnMoreLink: {
-                content: sharedStrings.learnMore.title,
-                label: sharedStrings.readAbout.title
-            },
-            elementData: {}
-        },
+    const sharedStrings = locales[locale]['shared.json']
+    const config = {
         Facebook: {
             informationalModal: {
                 icon: blockedFBLogo,
-                messageTitle: fbStrings.informationalModalMessageTitle.title,
-                messageBody: fbStrings.informationalModalMessageBody.title,
-                confirmButtonText: fbStrings.informationalModalConfirmButtonText.title,
-                rejectButtonText: fbStrings.informationalModalRejectButtonText.title
+                messageTitle: fbStrings.informationalModalMessageTitle,
+                messageBody: fbStrings.informationalModalMessageBody,
+                confirmButtonText: fbStrings.informationalModalConfirmButtonText,
+                rejectButtonText: fbStrings.informationalModalRejectButtonText
             },
             elementData: {
                 'FB Like Button': {
@@ -654,9 +647,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockContent.title,
-                        infoTitle: fbStrings.infoTitleUnblockContent.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockContent,
+                        infoTitle: fbStrings.infoTitleUnblockContent,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'originalElement'
@@ -668,9 +661,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockContent.title,
-                        infoTitle: fbStrings.infoTitleUnblockContent.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockContent,
+                        infoTitle: fbStrings.infoTitleUnblockContent,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'iFrame',
@@ -709,9 +702,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockComment.title,
-                        infoTitle: fbStrings.infoTitleUnblockComment.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockComment,
+                        infoTitle: fbStrings.infoTitleUnblockComment,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'originalElement'
@@ -724,9 +717,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockComments.title,
-                        infoTitle: fbStrings.infoTitleUnblockComments.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockComments,
+                        infoTitle: fbStrings.infoTitleUnblockComments,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'allowFull',
@@ -751,9 +744,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockComment.title,
-                        infoTitle: fbStrings.infoTitleUnblockComment.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockComment,
+                        infoTitle: fbStrings.infoTitleUnblockComment,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'iFrame',
@@ -785,9 +778,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockPost.title,
-                        infoTitle: fbStrings.infoTitleUnblockPost.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockPost,
+                        infoTitle: fbStrings.infoTitleUnblockPost,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'originalElement'
@@ -799,9 +792,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockPost.title,
-                        infoTitle: fbStrings.infoTitleUnblockPost.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockPost,
+                        infoTitle: fbStrings.infoTitleUnblockPost,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'allowFull',
@@ -835,9 +828,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockVideo.title,
-                        infoTitle: fbStrings.infoTitleUnblockVideo.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockVideo,
+                        infoTitle: fbStrings.infoTitleUnblockVideo,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'originalElement'
@@ -849,9 +842,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockVideo.title,
-                        infoTitle: fbStrings.infoTitleUnblockVideo.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockVideo,
+                        infoTitle: fbStrings.infoTitleUnblockVideo,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'iFrame',
@@ -885,9 +878,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockContent.title,
-                        infoTitle: fbStrings.infoTitleUnblockContent.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockContent,
+                        infoTitle: fbStrings.infoTitleUnblockContent,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'originalElement'
@@ -899,9 +892,9 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'dialog',
-                        buttonText: fbStrings.buttonTextUnblockContent.title,
-                        infoTitle: fbStrings.infoTitleUnblockContent.title,
-                        infoText: fbStrings.infoTextUnblockContent.title
+                        buttonText: fbStrings.buttonTextUnblockContent,
+                        infoTitle: fbStrings.infoTitleUnblockContent,
+                        infoText: fbStrings.infoTextUnblockContent
                     },
                     clickAction: {
                         type: 'iFrame',
@@ -930,8 +923,8 @@ export function getConfig (locale) {
                     replaceSettings: {
                         type: 'loginButton',
                         icon: blockedFBLogo,
-                        buttonText: fbStrings.loginButtonText.title,
-                        popupBodyText: fbStrings.loginBodyText.title
+                        buttonText: fbStrings.loginButtonText,
+                        popupBodyText: fbStrings.loginBodyText
                     },
                     clickAction: {
                         type: 'allowFull',
@@ -955,10 +948,10 @@ export function getConfig (locale) {
         Youtube: {
             informationalModal: {
                 icon: blockedYTVideo,
-                messageTitle: ytStrings.informationalModalMessageTitle.title,
-                messageBody: ytStrings.informationalModalMessageBody.title,
-                confirmButtonText: ytStrings.informationalModalConfirmButtonText.title,
-                rejectButtonText: ytStrings.informationalModalRejectButtonText.title
+                messageTitle: ytStrings.informationalModalMessageTitle,
+                messageBody: ytStrings.informationalModalMessageBody,
+                confirmButtonText: ytStrings.informationalModalConfirmButtonText,
+                rejectButtonText: ytStrings.informationalModalRejectButtonText
             },
             elementData: {
                 'YouTube embedded video': {
@@ -974,13 +967,13 @@ export function getConfig (locale) {
                     ],
                     replaceSettings: {
                         type: 'youtube-video',
-                        buttonText: ytStrings.buttonTextUnblockVideo.title,
-                        infoTitle: ytStrings.infoTitleUnblockVideo.title,
-                        infoText: ytStrings.infoTextUnblockVideo.title,
-                        previewToggleText: ytStrings.infoPreviewToggleText.title,
+                        buttonText: ytStrings.buttonTextUnblockVideo,
+                        infoTitle: ytStrings.infoTitleUnblockVideo,
+                        infoText: ytStrings.infoTextUnblockVideo,
+                        previewToggleText: ytStrings.infoPreviewToggleText,
                         placeholder: {
-                            previewToggleEnabledText: ytStrings.infoPreviewToggleEnabledText.title,
-                            previewInfoText: ytStrings.infoPreviewInfoText.title,
+                            previewToggleEnabledText: ytStrings.infoPreviewToggleEnabledText,
+                            previewInfoText: ytStrings.infoPreviewInfoText,
                             videoPlayIcon: {
                                 lightMode: videoPlayLight,
                                 darkMode: videoPlayDark
@@ -1009,4 +1002,6 @@ export function getConfig (locale) {
             }
         }
     }
+
+    return { config, sharedStrings }
 }

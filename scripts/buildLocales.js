@@ -15,7 +15,13 @@ for (const l of localesDirs) {
     const files = fs.readdirSync(dir)
     for (const f of files) {
         const localeJSON = fs.readFileSync(`${dir}/${f}`)
-        locales[l][f] = JSON.parse(localeJSON)
+        const stringObj = JSON.parse(localeJSON)
+        locales[l][f] = {}
+        for (const [key, value] of Object.entries(stringObj)) {
+            if (key !== 'smartling') {
+                locales[l][f][key] = value.title
+            }
+        }
     }
 }
 
