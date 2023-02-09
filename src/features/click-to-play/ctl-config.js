@@ -160,6 +160,10 @@ export const styles = {
         top: -9px;
     `,
     arrowDefaultLocationPercent: 50,
+    hoverTextTitle: `
+        padding: 0px 12px 12px;
+        margin-top: -5px;
+    `,
     hoverTextBody: `
         font-family: DuckDuckGoPrivacyEssentials;
         font-size: 14px;

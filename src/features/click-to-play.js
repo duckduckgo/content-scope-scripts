@@ -886,6 +886,7 @@ function makeLoginButton (buttonText, mode, hoverTextBody, icon, originalElement
     arrow.style.cssText = styles.textArrow
     hoverBox.appendChild(arrow)
     const branding = createTitleRow('DuckDuckGo')
+    branding.style.cssText += styles.hoverTextTitle
     hoverBox.appendChild(branding)
     const hoverText = document.createElement('div')
     hoverText.style.cssText = styles.hoverTextBody

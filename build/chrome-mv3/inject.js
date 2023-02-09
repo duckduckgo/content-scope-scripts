@@ -1389,6 +1389,10 @@
         top: -9px;
     `,
       arrowDefaultLocationPercent: 50,
+      hoverTextTitle: `
+        padding: 0px 12px 12px;
+        margin-top: -5px;
+    `,
       hoverTextBody: `
         font-family: DuckDuckGoPrivacyEssentials;
         font-size: 14px;
@@ -3119,6 +3123,7 @@
       arrow.style.cssText = styles.textArrow;
       hoverBox.appendChild(arrow);
       const branding = createTitleRow('DuckDuckGo');
+      branding.style.cssText += styles.hoverTextTitle;
       hoverBox.appendChild(branding);
       const hoverText = document.createElement('div');
       hoverText.style.cssText = styles.hoverTextBody;
