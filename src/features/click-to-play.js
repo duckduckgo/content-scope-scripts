@@ -8,11 +8,10 @@ let appID
 
 const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
 
-/*********************************************************
- *  config set by getConfig() at init per localization
- *********************************************************/
-let config = {}
-let sharedStrings = {}
+// Configuration for how the placeholder elements should look and behave.
+// @see {getConfig}
+let config = null
+let sharedStrings = null
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two

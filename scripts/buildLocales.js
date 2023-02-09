@@ -1,4 +1,5 @@
-import * as fs from 'fs'
+import { readdirSync, readFileSync } from 'fs'
+import { join } from 'path'
 
 // This script loads the current JSON-based locales files and merges them into
 // a single importable ES module for bundling purposes
@@ -8,18 +9,18 @@ if (!localesRoot) {
 }
 
 const locales = {}
-const localesDirs = fs.readdirSync(localesRoot).filter(f => !f.startsWith('.'))
-for (const l of localesDirs) {
-    locales[l] = {}
-    const dir = `${localesRoot}/${l}`
-    const files = fs.readdirSync(dir)
-    for (const f of files) {
-        const localeJSON = fs.readFileSync(`${dir}/${f}`)
+const localeDirs = readdirSync(localesRoot).filter(f => !f.startsWith('.'))
+for (const locale of localeDirs) {
+    locales[locale] = {}
+    const dir = join(localesRoot, locale)
+    const files = readdirSync(dir)
+    for (const file of files) {
+        const localeJSON = readFileSync(join(dir, file))
         const stringObj = JSON.parse(localeJSON)
-        locales[l][f] = {}
+        locales[locale][file] = {}
         for (const [key, value] of Object.entries(stringObj)) {
             if (key !== 'smartling') {
-                locales[l][f][key] = value.title
+                locales[locale][file][key] = value.title
             }
         }
     }
