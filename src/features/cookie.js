@@ -53,8 +53,8 @@ function isNonTrackingCookie () {
 }
 
 export function load (args) {
-    // Feature is only relevant to the extension, we should skip for other platforms for now as the config testing is broken.
-    if (args.platform.name !== 'extension') {
+    // Feature is only relevant to the extension and windows, we should skip for other platforms for now as the config testing is broken.
+    if (args.platform.name !== 'extension' && args.platform.name !== 'windows') {
         return
     }
     if (args.documentOriginIsTracker) {
