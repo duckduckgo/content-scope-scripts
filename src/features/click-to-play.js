@@ -1,7 +1,5 @@
 import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
-import {
-    logoImg, loadingImages, closeIcon
-} from './click-to-play/ctl-assets.js'
+import { logoImg, loadingImages, closeIcon } from './click-to-play/ctl-assets.js'
 import { styles, getConfig } from './click-to-play/ctl-config.js'
 
 let devMode = false
