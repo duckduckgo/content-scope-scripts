@@ -8,10 +8,6 @@
       "instruction" : "*/note"
     }]
   },
-  "learnMore" : {
-    "title" : "További részletek",
-    "note" : "Link to learn more about a given topic"
-  },
   "informationalModalMessageTitle" : {
     "title" : "A Facebookkal való bejelentkezéskor a Facebook nyomon követhet",
     "note" : "Title for a popup that happens when the user clicks on a Facebook login button"

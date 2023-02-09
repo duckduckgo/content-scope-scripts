@@ -8,10 +8,6 @@
       "instruction" : "*/note"
     }]
   },
-  "learnMore" : {
-    "title" : "Finn ut mer",
-    "note" : "Link to learn more about a given topic"
-  },
   "informationalModalMessageTitle" : {
     "title" : "Når du logger på med Facebook, kan de spore deg",
     "note" : "Title for a popup that happens when the user clicks on a Facebook login button"

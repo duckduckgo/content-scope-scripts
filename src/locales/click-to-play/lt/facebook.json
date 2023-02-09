@@ -8,10 +8,6 @@
       "instruction" : "*/note"
     }]
   },
-  "learnMore" : {
-    "title" : "Sužinoti daugiau",
-    "note" : "Link to learn more about a given topic"
-  },
   "informationalModalMessageTitle" : {
     "title" : "Prisijungę prie „Facebook“ galite būti sekami",
     "note" : "Title for a popup that happens when the user clicks on a Facebook login button"

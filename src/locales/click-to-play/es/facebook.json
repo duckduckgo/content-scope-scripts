@@ -8,10 +8,6 @@
       "instruction" : "*/note"
     }]
   },
-  "learnMore" : {
-    "title" : "Más información",
-    "note" : "Link to learn more about a given topic"
-  },
   "informationalModalMessageTitle" : {
     "title" : "Al iniciar sesión en Facebook, les permites que te rastreen",
     "note" : "Title for a popup that happens when the user clicks on a Facebook login button"

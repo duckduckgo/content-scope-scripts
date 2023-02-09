@@ -8,10 +8,6 @@
       "instruction" : "*/note"
     }]
   },
-  "learnMore" : {
-    "title" : "Μάθετε περισσότερα",
-    "note" : "Link to learn more about a given topic"
-  },
   "informationalModalMessageTitle" : {
     "title" : "Η σύνδεση μέσω Facebook τους επιτρέπει να σας παρακολουθούν",
     "note" : "Title for a popup that happens when the user clicks on a Facebook login button"

@@ -8,10 +8,6 @@
       "instruction" : "*/note"
     }]
   },
-  "learnMore" : {
-    "title" : "Zistite viac",
-    "note" : "Link to learn more about a given topic"
-  },
   "informationalModalMessageTitle" : {
     "title" : "Prihlásenie cez Facebook mu umožní sledovať vás",
     "note" : "Title for a popup that happens when the user clicks on a Facebook login button"

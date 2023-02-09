@@ -8,16 +8,12 @@
       "instruction" : "*/note"
     }]
   },
-  "learnMore" : {
-    "title" : "Meer informatie",
-    "note" : "Link to learn more about a given topic"
-  },
   "informationalModalMessageTitle" : {
     "title" : "Als je inlogt met Facebook, kunnen zij je volgen",
     "note" : "Title for a popup that happens when the user clicks on a Facebook login button"
   },
   "informationalModalMessageBody" : {
-    "title" : "Als je eenmaal bent ingelogd, kan DuckDuckGo niet voorkomen dat Facebook-inhoud je op deze site volgt.",
+    "title" : "Als je eenmaal bent ingelogd, kan DuckDuckGo niet voorkomen dat Facebook je op deze site volgt.",
     "note" : "Description for a popup when the user clicks on the Facebook login button, warning the user that continuing to login will expose them to tracking by Facebook"
   },
   "informationalModalConfirmButtonText" : {
