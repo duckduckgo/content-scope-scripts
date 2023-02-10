@@ -4658,6 +4658,7 @@
   const parser = new DOMParser();
   let hiddenElements = new WeakMap();
   let appliedRules = new Set();
+  let shouldInjectStyleTag = false;
 
   /**
    * Hide DOM element if rule conditions met
@@ -4807,49 +4808,84 @@
    * @param {string} rules[].type
    */
   function applyRules (rules) {
+      const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
+      const unhideTimeouts = [750, 1500, 2250, 3000];
+      const timeoutRules = extractTimeoutRules(rules);
+
       // several passes are made to hide & unhide elements. this is necessary because we're not using
       // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
       // frequently take from several hundred milliseconds to several seconds to load
       // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
-      setTimeout(function () {
-          hideAdNodes(rules);
-      }, 0);
-
-      let immediateHideIterations = 0;
-      const immediateHideInterval = setInterval(function () {
-          immediateHideIterations += 1;
-          if (immediateHideIterations === 4) {
-              clearInterval(immediateHideInterval);
-          }
-          hideAdNodes(rules);
-      }, 100);
-
-      let delayedHideIterations = 0;
-      const delayedHideInterval = setInterval(function () {
-          delayedHideIterations += 1;
-          if (delayedHideIterations === 4) {
-              clearInterval(delayedHideInterval);
-          }
-          hideAdNodes(rules);
-      }, 500);
+      hideTimeouts.forEach((timeout) => {
+          setTimeout(() => {
+              hideAdNodes(timeoutRules);
+          }, timeout);
+      });
 
       // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
       // we do this in order to display non-tracking ads that aren't blocked at the request level
       // check at 750ms, 1500ms, 2250ms, 3000ms
-      let unhideIterations = 0;
-      const unhideInterval = setInterval(function () {
-          unhideIterations += 1;
-          if (unhideIterations === 3) {
-              clearInterval(unhideInterval);
-          }
-          unhideLoadedAds();
-      }, 750);
+      unhideTimeouts.forEach((timeout) => {
+          setTimeout(() => {
+              unhideLoadedAds();
+          }, timeout);
+      });
 
       // clear appliedRules and hiddenElements caches once all checks have run
-      setTimeout(function () {
+      setTimeout(() => {
           appliedRules = new Set();
           hiddenElements = new WeakMap();
       }, 3100);
+  }
+
+  /**
+   * Separate strict hide rules to inject as style tag if enabled
+   * @param {Object[]} rules
+   * @param {string} rules[].selector
+   * @param {string} rules[].type
+   */
+  function extractTimeoutRules (rules) {
+      if (!shouldInjectStyleTag) {
+          return rules
+      }
+
+      const strictHideRules = [];
+      const timeoutRules = [];
+
+      rules.forEach((rule, i) => {
+          if (rule.type === 'hide') {
+              strictHideRules.push(rule);
+          } else {
+              timeoutRules.push(rule);
+          }
+      });
+
+      injectStyleTag(strictHideRules);
+      return timeoutRules
+  }
+
+  /**
+   * Create styletag for strict hide rules and append it to document head
+   * @param {Object[]} rules
+   * @param {string} rules[].selector
+   * @param {string} rules[].type
+   */
+  function injectStyleTag (rules) {
+      const styleTag = document.createElement('style');
+      let styleTagContents = '';
+
+      rules.forEach((rule, i) => {
+          if (i !== rules.length - 1) {
+              styleTagContents = styleTagContents.concat(rule.selector, ',');
+          } else {
+              styleTagContents = styleTagContents.concat(rule.selector);
+          }
+      });
+
+      styleTagContents = styleTagContents.concat('{display:none!important;min-height:0!important;height:0!important;}');
+      styleTag.innerText = styleTagContents;
+
+      document.head.appendChild(styleTag);
   }
 
   /**
@@ -4892,7 +4928,16 @@
       const domain = args.site.domain;
       const domainRules = getFeatureSetting(featureName, args, 'domains');
       const globalRules = getFeatureSetting(featureName, args, 'rules');
+      const styleTagExceptions = getFeatureSetting(featureName, args, 'styleTagExceptions');
       adLabelStrings = getFeatureSetting(featureName, args, 'adLabelStrings');
+      shouldInjectStyleTag = getFeatureSetting(featureName, args, 'useStrictHideStyleTag');
+
+      // determine whether strict hide rules should be injected as a style tag
+      if (shouldInjectStyleTag) {
+          shouldInjectStyleTag = !styleTagExceptions.some((exception) => {
+              return matchHostname(domain, exception.domain)
+          });
+      }
 
       // collect all matching rules for domain
       const activeDomainRules = domainRules.filter((rule) => {
