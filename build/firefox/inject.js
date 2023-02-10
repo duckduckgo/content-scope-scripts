@@ -6211,6 +6211,14 @@
           }
       }
 
+      function stopTracks (streamTracks) {
+          streamTracks?.forEach(track => track.stop());
+      }
+
+      function clearAllGeolocationWatch () {
+          watchedPositions.forEach(id => navigator.geolocation.clearWatch(id));
+      }
+
       function pause (permission) {
           const streamTracks = getTracks(permission);
           streamTracks?.forEach(track => {
@@ -6226,8 +6234,17 @@
       }
 
       function stop (permission) {
-          const streamTracks = getTracks(permission);
-          streamTracks?.forEach(track => track.stop());
+          switch (permission) {
+          case Permission.Camera:
+              stopTracks(videoTracks);
+              break
+          case Permission.Microphone:
+              stopTracks(audioTracks);
+              break
+          case Permission.Geolocation:
+              clearAllGeolocationWatch();
+              break
+          }
       }
 
       function monitorTrack (track) {
