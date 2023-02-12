@@ -1846,6 +1846,7 @@
        case './features/gpc.js': return Promise.resolve().then(function () { return gpc; });
        case './features/navigator-interface.js': return Promise.resolve().then(function () { return navigatorInterface; });
        case './features/referrer.js': return Promise.resolve().then(function () { return referrer; });
+       case './features/runtime-checks.js': return Promise.resolve().then(function () { return runtimeChecks; });
        case './features/web-compat.js': return Promise.resolve().then(function () { return webCompat; });
        case './features/windows-permission-usage.js': return Promise.resolve().then(function () { return windowsPermissionUsage; });
        default: return Promise.reject(new Error("Unknown variable dynamic import: " + path));
@@ -1869,11 +1870,12 @@
   const features = [];
   const alwaysInitFeatures = new Set(['cookie']);
 
-  async function load$1 (args) {
+  async function load$2 (args) {
       if (!shouldRun()) {
           return
       }
       const featureNames = [
+          'runtimeChecks',
           'windowsPermissionUsage',
           'webCompat',
           'fingerprintingAudio',
@@ -1903,7 +1905,7 @@
       }
   }
 
-  async function init$f (args) {
+  async function init$g (args) {
       initArgs = args;
       if (!shouldRun()) {
           return
@@ -4314,7 +4316,7 @@
       }
   };
 
-  function init$e (args) {
+  function init$f (args) {
       const websiteOwner = args?.site?.parentEntity;
       const settings = args?.featureSettings?.clickToPlay || {};
       const locale = args?.locale || 'en';
@@ -4398,7 +4400,7 @@
 
   var clickToPlay = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$e,
+    init: init$f,
     update: update$1
   });
 
@@ -4506,7 +4508,7 @@
       return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdParty
   }
 
-  function load (args) {
+  function load$1 (args) {
       // Feature is only relevant to the extension and windows, we should skip for other platforms for now as the config testing is broken.
       if (args.platform.name !== 'extension' && args.platform.name !== 'windows') {
           return
@@ -4626,7 +4628,7 @@
       });
   }
 
-  function init$d (args) {
+  function init$e (args) {
       if (args.cookie) {
           cookiePolicy = args.cookie;
           args.cookie.debug = args.debug;
@@ -4654,8 +4656,8 @@
 
   var cookie = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    load: load,
-    init: init$d,
+    load: load$1,
+    init: init$e,
     update: update
   });
 
@@ -4924,7 +4926,7 @@
       });
   }
 
-  function init$c (args) {
+  function init$d (args) {
       if (isBeingFramed()) {
           return
       }
@@ -4987,10 +4989,10 @@
 
   var elementHiding = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$c
+    init: init$d
   });
 
-  function init$b (args) {
+  function init$c (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-audio';
@@ -5095,7 +5097,7 @@
 
   var fingerprintingAudio = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$b
+    init: init$c
   });
 
   /**
@@ -5103,7 +5105,7 @@
    * It will return the values defined in the getBattery function to the client,
    * as well as prevent any script from listening to events.
    */
-  function init$a (args) {
+  function init$b (args) {
       if (globalThis.navigator.getBattery) {
           const BatteryManager = globalThis.BatteryManager;
 
@@ -5130,7 +5132,7 @@
 
   var fingerprintingBattery = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$a
+    init: init$b
   });
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -6266,7 +6268,7 @@
       return false
   }
 
-  function init$9 (args) {
+  function init$a (args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
       const featureName = 'fingerprinting-canvas';
@@ -6450,38 +6452,38 @@
 
   var fingerprintingCanvas = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$9
+    init: init$a
   });
 
-  const featureName$1 = 'fingerprinting-hardware';
+  const featureName$2 = 'fingerprinting-hardware';
 
-  function init$8 (args) {
+  function init$9 (args) {
       const Navigator = globalThis.Navigator;
       const navigator = globalThis.navigator;
 
       overrideProperty('keyboard', {
           object: Navigator.prototype,
           origValue: navigator.keyboard,
-          targetValue: getFeatureAttr(featureName$1, args, 'keyboard')
+          targetValue: getFeatureAttr(featureName$2, args, 'keyboard')
       });
       overrideProperty('hardwareConcurrency', {
           object: Navigator.prototype,
           origValue: navigator.hardwareConcurrency,
-          targetValue: getFeatureAttr(featureName$1, args, 'hardwareConcurrency', 2)
+          targetValue: getFeatureAttr(featureName$2, args, 'hardwareConcurrency', 2)
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
           origValue: navigator.deviceMemory,
-          targetValue: getFeatureAttr(featureName$1, args, 'deviceMemory', 8)
+          targetValue: getFeatureAttr(featureName$2, args, 'deviceMemory', 8)
       });
   }
 
   var fingerprintingHardware = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$8
+    init: init$9
   });
 
-  const featureName = 'fingerprinting-screen-size';
+  const featureName$1 = 'fingerprinting-screen-size';
 
   /**
    * normalize window dimensions, if more than one monitor is in play.
@@ -6565,19 +6567,19 @@
       }
   }
 
-  function init$7 (args) {
+  function init$8 (args) {
       const Screen = globalThis.Screen;
       const screen = globalThis.screen;
 
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
           origValue: screen.availTop,
-          targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
+          targetValue: getFeatureAttr(featureName$1, args, 'availTop', 0)
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
           origValue: screen.availLeft,
-          targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
+          targetValue: getFeatureAttr(featureName$1, args, 'availLeft', 0)
       });
       origPropertyValues.availWidth = overrideProperty('availWidth', {
           object: Screen.prototype,
@@ -6592,12 +6594,12 @@
       overrideProperty('colorDepth', {
           object: Screen.prototype,
           origValue: screen.colorDepth,
-          targetValue: getFeatureAttr(featureName, args, 'colorDepth', 24)
+          targetValue: getFeatureAttr(featureName$1, args, 'colorDepth', 24)
       });
       overrideProperty('pixelDepth', {
           object: Screen.prototype,
           origValue: screen.pixelDepth,
-          targetValue: getFeatureAttr(featureName, args, 'pixelDepth', 24)
+          targetValue: getFeatureAttr(featureName$1, args, 'pixelDepth', 24)
       });
 
       window.addEventListener('resize', function () {
@@ -6608,10 +6610,10 @@
 
   var fingerprintingScreenSize = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$7
+    init: init$8
   });
 
-  function init$6 () {
+  function init$7 () {
       const navigator = globalThis.navigator;
       const Navigator = globalThis.Navigator;
 
@@ -6639,10 +6641,10 @@
 
   var fingerprintingTemporaryStorage = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$6
+    init: init$7
   });
 
-  function init$5 () {
+  function init$6 () {
       try {
           if ('browsingTopics' in Document.prototype) {
               delete Document.prototype.browsingTopics;
@@ -6669,11 +6671,11 @@
 
   var googleRejected = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$5
+    init: init$6
   });
 
   // Set Global Privacy Control property on DOM
-  function init$4 (args) {
+  function init$5 (args) {
       try {
           // If GPC on, set DOM property prototype to true if not already true
           if (args.globalPrivacyControlValue) {
@@ -6700,10 +6702,10 @@
 
   var gpc = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$4
+    init: init$5
   });
 
-  function init$3 (args) {
+  function init$4 (args) {
       try {
           if (navigator.duckduckgo) {
               return
@@ -6729,10 +6731,10 @@
 
   var navigatorInterface = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    init: init$3
+    init: init$4
   });
 
-  function init$2 (args) {
+  function init$3 (args) {
       // Unfortunately, we only have limited information about the referrer and current frame. A single
       // page may load many requests and sub frames, all with different referrers. Since we
       if (args.referrer && // make sure the referrer was set correctly
@@ -6758,6 +6760,260 @@
 
   var referrer = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    init: init$3
+  });
+
+  let interestingHosts = [];
+  let initialCreateElement;
+
+  const elementRemovalTimeout = 1000;
+  const featureName = 'runtimeChecks';
+
+  class DDGRuntimeChecks extends HTMLElement {
+      #tagName
+      #el
+      #listeners
+
+      constructor () {
+          super();
+          const shadowRoot = this.attachShadow({ mode: 'open' });
+          const frag = document.createDocumentFragment();
+          const node = document.createElement('slot');
+          frag.appendChild(node);
+          shadowRoot.appendChild(frag);
+          this.#tagName = null;
+          this.#el = null;
+          this.#listeners = [];
+      }
+
+      setTagName (tagName) {
+          this.#tagName = tagName;
+      }
+
+      connectedCallback () {
+          this.transplantElement();
+      }
+
+      monitorProperties (el) {
+          // Mutation oberver and observedAttributes don't work on property accessors
+          // So instead we need to monitor all properties on the prototypes and forward them to the real element
+          const propertyNames = [];
+          let proto = Object.getPrototypeOf(el);
+          while (proto && proto !== Object.prototype) {
+              propertyNames.push(...Object.getOwnPropertyNames(proto));
+              proto = Object.getPrototypeOf(proto);
+          }
+          propertyNames.forEach(prop => {
+              if (prop === 'constructor') return
+              Object.defineProperty(this, prop, {
+                  get () {
+                      return el[prop]
+                  },
+                  set (value) {
+                      el[prop] = value;
+                  }
+              });
+          });
+      }
+
+      /**
+       * The element has been moved to the DOM, so we can now reflect all changes to a real element.
+       * This is to allow us to interrogate the real element before it is moved to the DOM.
+       */
+      transplantElement () {
+          // Creeate the real element
+          const el = initialCreateElement.call(document, this.#tagName);
+
+          // Reflect all attrs to the new element
+          for (const attribute of this.getAttributeNames()) {
+              el.setAttribute(attribute, this.getAttribute(attribute));
+          }
+
+          // Reflect all props to the new element
+          for (const param of Object.keys(this)) {
+              el[param] = this[param];
+          }
+
+          // Reflect all listeners to the new element
+          for (const [...args] of this.#listeners) {
+              el.addEventListener(...args);
+          }
+          this.#listeners = [];
+
+          // Move all children to the new element
+          while (this.firstChild) {
+              el.appendChild(this.firstChild);
+          }
+
+          // Move the new element to the DOM
+          try {
+              this.insertAdjacentElement('afterend', el);
+          } catch (e) { console.warn(e); }
+
+          this.monitorProperties(el);
+          // TODO pollyfill WeakRef
+          this.#el = new WeakRef(el);
+
+          // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.
+          setTimeout(() => {
+              this.remove();
+          }, elementRemovalTimeout);
+      }
+
+      getElement () {
+          return this.#el?.deref()
+      }
+
+      setAttribute (name, value) {
+          const el = this.getElement();
+          if (el) {
+              return el.setAttribute(name, value)
+          }
+          return super.setAttribute(name, value)
+      }
+
+      removeAttribute (name) {
+          const el = this.getElement();
+          if (el) {
+              return el.removeAttribute(name)
+          }
+          return super.removeAttribute(name)
+      }
+
+      addEventListener (...args) {
+          const el = this.getElement();
+          if (el) {
+              return el.addEventListener(...args)
+          }
+          this.#listeners.push([...args]);
+      }
+
+      removeEventListener (...args) {
+          const el = this.getElement();
+          if (el) {
+              return el.removeEventListener(...args)
+          }
+          this.#listeners = this.#listeners.filter((listener) => {
+              return listener[0] !== args[0] || listener[1] !== args[1]
+          });
+      }
+
+      toString () {
+          // TODO
+          let interfaceName = '';
+          if (this._tagName === 'script') {
+              interfaceName = 'Script';
+          }
+          return `[object HTML${interfaceName}Element]`
+      }
+
+      get tagName () {
+          return this.#tagName.toUpperCase()
+      }
+
+      get nodeName () {
+          return this.tagName
+      }
+
+      remove () {
+          const el = this.getElement();
+          if (el) {
+              return el.remove()
+          }
+          return super.remove()
+      }
+
+      removeChild (child) {
+          const el = this.getElement();
+          if (el) {
+              return el.removeChild(child)
+          }
+          return super.removeChild(child)
+      }
+  }
+
+  /**
+   * Overrides the instanceof checks to make the custom element interface pass an instanceof check
+   * @param {Object} elementInterface
+   */
+  function overloadInstanceOfChecks (elementInterface) {
+      const proxy = new Proxy(elementInterface[Symbol.hasInstance], {
+          apply (fn, scope, args) {
+              if (args[0] instanceof DDGRuntimeChecks) {
+                  return true
+              }
+              return Reflect.apply(fn, scope, args)
+          }
+      });
+      Object.defineProperty(elementInterface, Symbol.hasInstance, {
+          value: proxy
+      });
+  }
+
+  /**
+   * Returns true if the tag should be intercepted
+   * @param {string} tagName
+   * @returns {boolean}
+   */
+  function shouldInterrogate (tagName) {
+      const interestingTags = ['script'];
+      if (!interestingTags.includes(tagName)) {
+          return false
+      }
+      const stack = getStack();
+      const scriptOrigins = [...getStackTraceOrigins(stack)];
+      const isInterestingHost = scriptOrigins.some(origin => {
+          return interestingHosts.find(hostname => matchHostname(origin, hostname))
+      });
+      return isInterestingHost
+  }
+
+  function overrideCreateElement () {
+      const proxy = new DDGProxy(featureName, document, 'createElement', {
+          apply (fn, scope, args) {
+              if (args.length >= 1) {
+                  const initialTagName = args[0].toLowerCase();
+                  if (shouldInterrogate(initialTagName)) {
+                      args[0] = 'ddg-runtime-checks';
+                      const el = Reflect.apply(fn, scope, args);
+                      el.setTagName(initialTagName);
+                      return el
+                  }
+              }
+              return Reflect.apply(fn, scope, args)
+          }
+      });
+      proxy.overload();
+      initialCreateElement = proxy._native;
+  }
+
+  function load () {
+      customElements.define('ddg-runtime-checks', DDGRuntimeChecks);
+  }
+
+  function init$2 (args) {
+      const domain = args.site.domain;
+      const domains = getFeatureSetting(featureName, args, 'domains') || [];
+      const enabled = domains.find((rule) => {
+          if (rule.matchAll) {
+              return true
+          }
+          return matchHostname(domain, rule.domain)
+      });
+      if (!enabled) return
+
+      interestingHosts = getFeatureSetting(featureName, args, 'interestingHosts') || [];
+
+      overrideCreateElement();
+
+      if (getFeatureSettingEnabled(featureName, args, 'overloadInstanceOf')) {
+          overloadInstanceOfChecks(HTMLScriptElement);
+      }
+  }
+
+  var runtimeChecks = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    load: load,
     init: init$2
   });
 
@@ -7226,8 +7482,8 @@
     init: init
   });
 
-  exports.init = init$f;
-  exports.load = load$1;
+  exports.init = init$g;
+  exports.load = load$2;
   exports.update = update$2;
 
   return exports;
