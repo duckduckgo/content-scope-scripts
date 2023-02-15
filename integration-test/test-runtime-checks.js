@@ -27,22 +27,18 @@ describe('Runtime checks', () => {
             },
             featureSettings: {
                 runtimeChecks: {
-                    domains: [
-                        {
-                            matchAll: true
-                        }
-                    ],
-                    interestingHosts: [
-                        `localhost:${port}`
-                    ],
+                    matchAllDomains: true,
+                    matchAllStackDomains: true,
                     overloadInstanceOf: 'enabled'
                 }
             }
         })
+        // First, a script that will not execute
         const scriptResult = await page.evaluate(
             () => {
+                window.scripty1Ran = false
                 const scriptElement = document.createElement('script')
-                scriptElement.innerText = 'console.log(1)'
+                scriptElement.innerText = 'window.scripty1Ran = true'
                 scriptElement.id = 'scripty'
                 scriptElement.setAttribute('type', 'application/evilscript')
                 document.body.appendChild(scriptElement)
@@ -50,11 +46,13 @@ describe('Runtime checks', () => {
                 // Continue to modify the script element after it has been added to the DOM
                 scriptElement.integrity = 'sha256-123'
                 scriptElement.madeUpProp = 'val'
-
+                const instanceofResult = scriptElement instanceof HTMLScriptElement
                 const scripty = document.querySelector('#scripty')
 
                 return {
+                    scripty1: window.scripty1Ran,
                     hadInspectorNode,
+                    instanceofResult,
                     integrity: scripty.integrity,
                     madeUpProp: scripty.madeUpProp,
                     type: scripty.getAttribute('type')
@@ -62,10 +60,44 @@ describe('Runtime checks', () => {
             }
         )
         expect(scriptResult).toEqual({
+            scripty1: false,
             hadInspectorNode: true,
+            instanceofResult: true,
             integrity: 'sha256-123',
             madeUpProp: 'val',
             type: 'application/evilscript'
+        })
+
+        // And now with a script that will execute
+        const scriptResult2 = await page.evaluate(
+            () => {
+                window.scripty2Ran = false
+                const scriptElement = document.createElement('script')
+                scriptElement.innerText = 'window.scripty2Ran = true'
+                scriptElement.id = 'scripty2'
+                scriptElement.setAttribute('type', 'application/javascript')
+                document.body.appendChild(scriptElement)
+                const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
+                // Continue to modify the script element after it has been added to the DOM
+                scriptElement.madeUpProp = 'val'
+                const instanceofResult = scriptElement instanceof HTMLScriptElement
+                const scripty = document.querySelector('#scripty2')
+
+                return {
+                    scripty2: window.scripty2Ran,
+                    hadInspectorNode,
+                    instanceofResult,
+                    madeUpProp: scripty.madeUpProp,
+                    type: scripty.getAttribute('type')
+                }
+            }
+        )
+        expect(scriptResult2).toEqual({
+            scripty2: true,
+            hadInspectorNode: true,
+            instanceofResult: true,
+            madeUpProp: 'val',
+            type: 'application/javascript'
         })
     })
 })

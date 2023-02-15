@@ -1,9 +1,10 @@
 import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled } from '../utils.js'
 
-let interestingHosts = []
+let stackDomains = []
+let matchAllStackDomains = false
 let initialCreateElement
 
-const elementRemovalTimeout = 1000
+let elementRemovalTimeout
 const featureName = 'runtimeChecks'
 
 class DDGRuntimeChecks extends HTMLElement {
@@ -136,11 +137,7 @@ class DDGRuntimeChecks extends HTMLElement {
     }
 
     toString () {
-        // TODO
-        let interfaceName = ''
-        if (this._tagName === 'script') {
-            interfaceName = 'Script'
-        }
+        const interfaceName = this._tagName.charAt(0).toUpperCase() + this._tagName.slice(1)
         return `[object HTML${interfaceName}Element]`
     }
 
@@ -197,10 +194,13 @@ function shouldInterrogate (tagName) {
     if (!interestingTags.includes(tagName)) {
         return false
     }
+    if (matchAllStackDomains) {
+        return true
+    }
     const stack = getStack()
     const scriptOrigins = [...getStackTraceOrigins(stack)]
     const isInterestingHost = scriptOrigins.some(origin => {
-        return interestingHosts.find(hostname => matchHostname(origin, hostname))
+        return stackDomains.find(hostname => matchHostname(origin, hostname))
     })
     return isInterestingHost
 }
@@ -225,21 +225,26 @@ function overrideCreateElement () {
 }
 
 export function load () {
-    customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
+    // This shouldn't happen, but if it does we don't want to break the page
+    try {
+        customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
+    } catch {}
 }
 
 export function init (args) {
     const domain = args.site.domain
     const domains = getFeatureSetting(featureName, args, 'domains') || []
-    const enabled = domains.find((rule) => {
-        if (rule.matchAll) {
-            return true
-        }
-        return matchHostname(domain, rule.domain)
-    })
+    let enabled = getFeatureSetting(featureName, args, 'matchAllDomains')
+    if (!enabled) {
+        enabled = domains.find((rule) => {
+            return matchHostname(domain, rule.domain)
+        })
+    }
     if (!enabled) return
 
-    interestingHosts = getFeatureSetting(featureName, args, 'interestingHosts') || []
+    matchAllStackDomains = getFeatureSetting(featureName, args, 'matchAllStackDomains')
+    stackDomains = getFeatureSetting(featureName, args, 'stackDomains') || []
+    elementRemovalTimeout = getFeatureSetting(featureName, args, 'elementRemovalTimeout') || 1000
 
     overrideCreateElement()
 
