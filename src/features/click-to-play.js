@@ -1354,11 +1354,16 @@ export function init (args) {
     sharedStrings = localizedConfig.sharedStrings
 
     for (const entity of Object.keys(config)) {
+        // TODO: Remove this workaround once the privacy-configuration has been
+        //       updated, and 'Facebook, Inc.' is used consistently in
+        //       content-scope-scripts too.
+        const normalizedEntity = entity === 'Facebook' ? 'Facebook, Inc.' : entity
+
         // Strip config entities that are first-party, or aren't enabled in the
         // extension's clickToPlay settings.
         // Note: To support legacy configurations consider `undefined` state as
         //       "enabled".
-        if ((websiteOwner && entity === websiteOwner) ||
+        if ((websiteOwner && normalizedEntity === websiteOwner) ||
             !settings[entity] ||
             settings[entity].state === 'disabled') {
             delete config[entity]
