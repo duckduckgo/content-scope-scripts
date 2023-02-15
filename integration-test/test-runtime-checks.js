@@ -27,8 +27,9 @@ describe('Runtime checks', () => {
             },
             featureSettings: {
                 runtimeChecks: {
-                    matchAllDomains: true,
-                    matchAllStackDomains: true,
+                    taintCheck: 'enabled',
+                    matchAllDomains: 'enabled',
+                    matchAllStackDomains: 'enabled',
                     overloadInstanceOf: 'enabled'
                 }
             }

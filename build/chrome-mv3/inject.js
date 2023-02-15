@@ -6033,10 +6033,12 @@
 
   let stackDomains = [];
   let matchAllStackDomains = false;
+  let taintCheck = false;
   let initialCreateElement;
 
   let elementRemovalTimeout;
   const featureName = 'runtimeChecks';
+  const symbol = Symbol(featureName);
 
   class DDGRuntimeChecks extends HTMLElement {
       #tagName
@@ -6092,6 +6094,11 @@
       transplantElement () {
           // Creeate the real element
           const el = initialCreateElement.call(document, this.#tagName);
+
+          if (taintCheck) {
+              // Add a symbol to the element so we can identify it as a runtime checked element
+              Object.defineProperty(el, symbol, { value: true, configurable: false, enumerable: false, writable: false });
+          }
 
           // Reflect all attrs to the new element
           for (const attribute of this.getAttributeNames()) {
@@ -6228,6 +6235,9 @@
       if (matchAllStackDomains) {
           return true
       }
+      if (taintCheck && document.currentScript[symbol]) {
+          return true
+      }
       const stack = getStack();
       const scriptOrigins = [...getStackTraceOrigins(stack)];
       const isInterestingHost = scriptOrigins.some(origin => {
@@ -6265,7 +6275,7 @@
   function init$2 (args) {
       const domain = args.site.domain;
       const domains = getFeatureSetting(featureName, args, 'domains') || [];
-      let enabled = getFeatureSetting(featureName, args, 'matchAllDomains');
+      let enabled = getFeatureSettingEnabled(featureName, args, 'matchAllDomains');
       if (!enabled) {
           enabled = domains.find((rule) => {
               return matchHostname(domain, rule.domain)
@@ -6273,7 +6283,8 @@
       }
       if (!enabled) return
 
-      matchAllStackDomains = getFeatureSetting(featureName, args, 'matchAllStackDomains');
+      taintCheck = getFeatureSettingEnabled(featureName, args, 'taintCheck');
+      matchAllStackDomains = getFeatureSettingEnabled(featureName, args, 'matchAllStackDomains');
       stackDomains = getFeatureSetting(featureName, args, 'stackDomains') || [];
       elementRemovalTimeout = getFeatureSetting(featureName, args, 'elementRemovalTimeout') || 1000;
 
