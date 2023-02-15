@@ -4332,11 +4332,9 @@
 
           // Strip config entities that are first-party, or aren't enabled in the
           // extension's clickToPlay settings.
-          // Note: To support legacy configurations consider `undefined` state as
-          //       "enabled".
           if ((websiteOwner && normalizedEntity === websiteOwner) ||
               !settings[entity] ||
-              settings[entity].state === 'disabled') {
+              settings[entity].state !== 'enabled') {
               delete config[entity];
               continue
           }
