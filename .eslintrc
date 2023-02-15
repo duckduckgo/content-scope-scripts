@@ -1,6 +1,9 @@
 {
     "extends": "standard",
     "root": true,
+    "parserOptions": {
+      "ecmaVersion": "latest",
+    },
     "globals": {
         "$USER_PREFERENCES$": "readonly",
         "$USER_UNPROTECTED_DOMAINS$": "readonly",

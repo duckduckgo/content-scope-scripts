@@ -22,6 +22,7 @@ export async function load (args) {
         return
     }
     const featureNames = [
+        'runtimeChecks',
         'windowsPermissionUsage',
         'webCompat',
         'fingerprintingAudio',
