@@ -6047,11 +6047,6 @@
 
       constructor () {
           super();
-          const shadowRoot = this.attachShadow({ mode: 'open' });
-          const frag = document.createDocumentFragment();
-          const node = document.createElement('slot');
-          frag.appendChild(node);
-          shadowRoot.appendChild(frag);
           this.#tagName = null;
           this.#el = null;
           this.#listeners = [];
