@@ -85,6 +85,16 @@ class DDGRuntimeChecks extends HTMLElement {
         }
         this.#listeners = []
 
+        // Reflect all 'on' event handlers to the new element
+        for (const propName in this) {
+            if (propName.startsWith('on')) {
+                const prop = this[propName]
+                if (typeof prop === 'function') {
+                    el[propName] = prop
+                }
+            }
+        }
+
         // Move all children to the new element
         while (this.firstChild) {
             el.appendChild(this.firstChild)
