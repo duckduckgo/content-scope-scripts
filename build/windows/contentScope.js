@@ -6778,12 +6778,14 @@
       #tagName
       #el
       #listeners
+      #connected
 
       constructor () {
           super();
           this.#tagName = null;
           this.#el = null;
           this.#listeners = [];
+          this.#connected = false;
       }
 
       setTagName (tagName) {
@@ -6791,6 +6793,9 @@
       }
 
       connectedCallback () {
+          // Solves re-entrancy issues from React
+          if (this.#connected) return
+          this.#connected = true;
           this.transplantElement();
       }
 
@@ -6805,14 +6810,17 @@
           }
           propertyNames.forEach(prop => {
               if (prop === 'constructor') return
-              Object.defineProperty(this, prop, {
-                  get () {
-                      return el[prop]
-                  },
-                  set (value) {
-                      el[prop] = value;
-                  }
-              });
+              // May throw, but this is best effort monitoring.
+              try {
+                  Object.defineProperty(this, prop, {
+                      get () {
+                          return el[prop]
+                      },
+                      set (value) {
+                          el[prop] = value;
+                      }
+                  });
+              } catch { }
           });
       }
 
@@ -6956,9 +6964,12 @@
               return Reflect.apply(fn, scope, args)
           }
       });
-      Object.defineProperty(elementInterface, Symbol.hasInstance, {
-          value: proxy
-      });
+      // May throw, but we can ignore it
+      try {
+          Object.defineProperty(elementInterface, Symbol.hasInstance, {
+              value: proxy
+          });
+      } catch {}
   }
 
   /**
@@ -6980,7 +6991,7 @@
       const stack = getStack();
       const scriptOrigins = [...getStackTraceOrigins(stack)];
       const isInterestingHost = scriptOrigins.some(origin => {
-          return stackDomains.find(hostname => matchHostname(origin, hostname))
+          return stackDomains.some(rule => matchHostname(origin, rule.domain))
       });
       return isInterestingHost
   }
