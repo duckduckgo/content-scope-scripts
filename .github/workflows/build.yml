@@ -19,14 +19,17 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      - name: Bump version and config
+      - name: Build release
         run: |
-          npm run install
+          npm install
           npm run build
-          git add -f build
+
+      - name: Check in files
+        run: |
+          git add -f build/ Sources/
 
       - name: Commit build files
-        uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Release ${{ github.event.inputs.version }} [ci release]"
           branch: "releases"
