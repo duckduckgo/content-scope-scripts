@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        description: 'Release version'
+
+jobs:
+  release_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Bump version and config
+        run: |
+          npm run install
+          npm run build
+          git add -f build
+
+      - name: Commit build files
+        uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a
+        with:
+          commit_message: "Release ${{ github.event.inputs.version }} [ci release]"
+          branch: "releases"
+
+#      - name: Create Release
+#        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          draft: false
+#          prerelease: false
+#          body: "${{ steps.changelog.outputs.changelog }}\n\n${{ env.BUILT_WITH }}"
+#          tag_name: ${{ env.VERSION }}
+#          target_commitish: ${{ github.ref }}
