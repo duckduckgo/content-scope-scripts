@@ -157,7 +157,7 @@ class DDGRuntimeChecks extends HTMLElement {
     }
 
     toString () {
-        const interfaceName = this._tagName.charAt(0).toUpperCase() + this._tagName.slice(1)
+        const interfaceName = this.#tagName.charAt(0).toUpperCase() + this.#tagName.slice(1)
         return `[object HTML${interfaceName}Element]`
     }
 
