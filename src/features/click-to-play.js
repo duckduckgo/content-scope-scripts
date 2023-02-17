@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-play/ctl-assets.js'
 import { styles, getConfig } from './click-to-play/ctl-config.js'
@@ -664,10 +665,11 @@ function getOriginalElementStyle (originalElement, widget) {
 /**
  * Copy list of styles to provided element
  * @param {{[key: string]: string[]}} originalStyles Object with styles read from original element.
- * @param {Element} element Node element to have the styles copied to
+ * @param {HTMLElement} element Node element to have the styles copied to
  */
 function copyStylesTo (originalStyles, element) {
     const { display, visibility, ...filteredStyles } = originalStyles
+    // @ts-ignore
     const cssText = Object.keys(filteredStyles).reduce((cssAcc, key) => (cssAcc + `${key}: ${filteredStyles[key].value};`), '')
     element.style.cssText += cssText
 }
@@ -1288,7 +1290,7 @@ async function createYouTubePreview (originalElement, widget) {
     const videoURL = originalElement.src || originalElement.getAttribute('data-src')
     getYouTubeVideoDetails(videoURL)
     window.addEventListener('ddg-ctp-youTubeVideoDetails',
-        ({ detail: { videoURL: videoURLResp, status, title, previewImage } }) => {
+        /** @type {(e: CustomEvent)=>void} */({ detail: { videoURL: videoURLResp, status, title, previewImage } }) => {
             if (videoURLResp !== videoURL) { return }
             if (status === 'success') {
                 titleElement.innerText = title

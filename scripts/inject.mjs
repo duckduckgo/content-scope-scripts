@@ -23,6 +23,7 @@ async function rollupScript(scriptPath, name) {
             replace({
                 preventAssignment: true,
                 values: {
+                    // @ts-ignore
                     mozProxies
                 }
             })
@@ -38,6 +39,7 @@ async function rollupScript(scriptPath, name) {
     };
 
     const bundle = await rollup.rollup(inputOptions);
+    // @ts-ignore
     const generated = await bundle.generate(outputOptions);
     return generated.output[0].code;
 }

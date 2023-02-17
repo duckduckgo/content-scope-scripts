@@ -26,6 +26,7 @@ describe('Canvas', () => {
     it('Modifying a canvas should make a difference', () => {
         const imageData = computeSampleImageData()
         const inCS = calculateCheckSum(imageData)
+        // @ts-ignore
         modifyPixelData(imageData, 'example.com', 'randomkey', 100)
         const outCS = calculateCheckSum(imageData)
         expect(inCS).not.toEqual(outCS)
@@ -33,10 +34,12 @@ describe('Canvas', () => {
 
     it('Ensure image data from a different domain is unique', () => {
         const imageData = computeSampleImageData()
+        // @ts-ignore
         modifyPixelData(imageData, 'example.com', 'randomkey', 100)
         const example = calculateCheckSum(imageData)
 
         const imageData2 = computeSampleImageData()
+        // @ts-ignore
         modifyPixelData(imageData2, 'test.com', 'randomkey', 100)
         const test = calculateCheckSum(imageData2)
 
@@ -45,10 +48,12 @@ describe('Canvas', () => {
 
     it('Ensure when key rotates the data output is unique', () => {
         const imageData = computeSampleImageData()
+        // @ts-ignore
         modifyPixelData(imageData, 'example.com', 'randomkey', 100)
         const one = calculateCheckSum(imageData)
 
         const imageData2 = computeSampleImageData()
+        // @ts-ignore
         modifyPixelData(imageData2, 'example.com', 'randomkey2', 100)
         const two = calculateCheckSum(imageData2)
 

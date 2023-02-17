@@ -2,18 +2,18 @@
   "compilerOptions": {
     "target": "es2021",
     "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["DOM", "DOM.Iterable"],
     "alwaysStrict": true,
     "allowJs": true,
     "checkJs": true,
-    "noEmit": true,
+    "noEmit": true
   },
   "include": [
-    "src/globals.d.ts"
-  ],
-  "files": [
-    "src/canvas.js",
-    "src/features/fingerprinting-canvas.js",
-    "src/features/cookie.js",
-    "src/utils.js",
+    "src",
+    "unit-test",
+    "scripts",
+    "integration-test/*.js",
+    "integration-test/helpers"
   ]
 }

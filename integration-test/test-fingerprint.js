@@ -52,9 +52,13 @@ describe('Fingerprint Defense Tests', () => {
             }
             const values = await page.evaluate(() => {
                 return {
+                    // @ts-ignore
                     availTop: screen.availTop,
+                    // @ts-ignore
                     availLeft: screen.availLeft,
+                    // @ts-ignore
                     wAvailTop: window.screen.availTop,
+                    // @ts-ignore
                     wAvailLeft: window.screen.availLeft,
                     colorDepth: screen.colorDepth,
                     pixelDepth: screen.pixelDepth,
@@ -97,6 +101,7 @@ describe('First Party Fingerprint Randomization', () => {
         const fingerprint = await page.evaluate(() => {
             /* global FingerprintJS */
             return (async () => {
+                // @ts-ignore
                 const fp = await FingerprintJS.load()
                 return fp.get()
             })()

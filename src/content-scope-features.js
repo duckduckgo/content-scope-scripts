@@ -42,6 +42,7 @@ export async function load (args) {
 
     for (const featureName of featureNames) {
         const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+        // @ts-ignore
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
                 load(args)

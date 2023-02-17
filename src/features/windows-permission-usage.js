@@ -20,6 +20,7 @@ export function init () {
     const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top
 
     function windowsPostMessage (name, data) {
+        // @ts-ignore
         window.chrome.webview.postMessage({
             Feature: 'Permissions',
             Name: name,
@@ -328,6 +329,7 @@ export function init () {
     }
 
     // handle actions from browser
+    // @ts-ignore
     window.chrome.webview.addEventListener('message', function ({ data }) {
         if (data?.action && data?.permission) {
             performAction(data?.action, data?.permission)

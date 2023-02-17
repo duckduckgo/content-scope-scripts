@@ -89,11 +89,13 @@ export function init (args) {
 
     origPropertyValues.availTop = overrideProperty('availTop', {
         object: Screen.prototype,
+        // @ts-ignore
         origValue: screen.availTop,
         targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
     })
     origPropertyValues.availLeft = overrideProperty('availLeft', {
         object: Screen.prototype,
+        // @ts-ignore
         origValue: screen.availLeft,
         targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
     })

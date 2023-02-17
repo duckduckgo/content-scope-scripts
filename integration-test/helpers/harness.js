@@ -66,6 +66,7 @@ export async function setup (ops = {}) {
     function setupServer (port) {
         const server = http.createServer(function (req, res) {
             const url = new URL(req.url, `http://${req.headers.host}`)
+            // @ts-ignore
             const importUrl = new URL(import.meta.url)
             const dirname = importUrl.pathname.replace(/\/[^/]*$/, '')
             const pathname = path.join(dirname, '../pages', url.pathname)

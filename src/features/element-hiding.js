@@ -36,7 +36,9 @@ function collapseDomNode (element, rule, previousElement) {
     case 'closest-empty':
         // hide the outermost empty node so that we may unhide if ad loads
         if (isDomNodeEmpty(element)) {
-            collapseDomNode(element.parentNode, rule, element)
+            if (element.parentNode instanceof HTMLElement) {
+                collapseDomNode(element.parentNode, rule, element)
+            }
         } else if (previousElement) {
             hideNode(previousElement)
             appliedRules.add(rule)
@@ -72,7 +74,9 @@ function expandNonEmptyDomNode (element, rule, previousElement) {
         } else if (type === 'closest-empty') {
             // iterate upwards from matching DOM elements until we arrive at previously
             // hidden element. Unhide element if it contains visible content.
-            expandNonEmptyDomNode(element.parentNode, rule, element)
+            if (element.parentNode instanceof HTMLElement) {
+                expandNonEmptyDomNode(element.parentNode, rule, element)
+            }
         }
         break
     default:
@@ -177,7 +181,7 @@ function applyRules (rules) {
     // check at 750ms, 1500ms, 2250ms, 3000ms
     unhideTimeouts.forEach((timeout) => {
         setTimeout(() => {
-            unhideLoadedAds(timeoutRules)
+            unhideLoadedAds()
         }, timeout)
     })
 
@@ -250,7 +254,9 @@ function hideAdNodes (rules) {
     rules.forEach((rule) => {
         const matchingElementArray = [...document.querySelectorAll(rule.selector)]
         matchingElementArray.forEach((element) => {
-            collapseDomNode(element, rule)
+            if (element instanceof HTMLElement) {
+                collapseDomNode(element, rule)
+            }
         })
     })
 }

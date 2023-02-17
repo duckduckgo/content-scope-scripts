@@ -110,6 +110,7 @@ class DDGRuntimeChecks extends HTMLElement {
 
         this.monitorProperties(el)
         // TODO pollyfill WeakRef
+        // @ts-ignore
         this.#el = new WeakRef(el)
 
         // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.
@@ -157,7 +158,7 @@ class DDGRuntimeChecks extends HTMLElement {
     }
 
     toString () {
-        const interfaceName = this._tagName.charAt(0).toUpperCase() + this._tagName.slice(1)
+        const interfaceName = this.#tagName.charAt(0).toUpperCase() + this.#tagName.slice(1)
         return `[object HTML${interfaceName}Element]`
     }
 

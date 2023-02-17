@@ -216,6 +216,7 @@ export function overrideProperty (name, prop) {
 export function defineProperty (object, propertyName, descriptor) {
     if (hasMozProxies) {
         const usedObj = object.wrappedJSObject
+        // @ts-ignore
         const UsedObjectInterface = globalObj.wrappedJSObject.Object
         const definedDescriptor = new UsedObjectInterface();
         ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
@@ -386,6 +387,7 @@ export class DDGProxy {
         }
         if (hasMozProxies) {
             this._native = objectScope[property]
+            // @ts-ignore
             const handler = new globalObj.wrappedJSObject.Object()
             handler.apply = exportFunction(outputHandler, globalObj)
             // @ts-ignore
@@ -425,7 +427,9 @@ export let DDGPromise
 
 // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
 if (hasMozProxies) {
+    // @ts-ignore
     DDGPromise = globalObj.wrappedJSObject.Promise
+    // @ts-ignore
     DDGReflect = globalObj.wrappedJSObject.Reflect
 } else {
     DDGPromise = globalObj.Promise
