@@ -1142,6 +1142,7 @@
 
       for (const featureName of featureNames) {
           const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
+          // @ts-ignore
           const feature = __variableDynamicImportRuntime0__(`./features/${filename}.js`).then(({ init, load, update }) => {
               if (load) {
                   load(args);
@@ -2220,6 +2221,8 @@
       return { config, sharedStrings }
   }
 
+  // @ts-nocheck
+
   let devMode = false;
   let isYoutubePreviewsEnabled = false;
   let appID;
@@ -2882,10 +2885,11 @@
   /**
    * Copy list of styles to provided element
    * @param {{[key: string]: string[]}} originalStyles Object with styles read from original element.
-   * @param {Element} element Node element to have the styles copied to
+   * @param {HTMLElement} element Node element to have the styles copied to
    */
   function copyStylesTo (originalStyles, element) {
       const { display, visibility, ...filteredStyles } = originalStyles;
+      // @ts-ignore
       const cssText = Object.keys(filteredStyles).reduce((cssAcc, key) => (cssAcc + `${key}: ${filteredStyles[key].value};`), '');
       element.style.cssText += cssText;
   }
@@ -3506,7 +3510,7 @@
       const videoURL = originalElement.src || originalElement.getAttribute('data-src');
       getYouTubeVideoDetails(videoURL);
       window.addEventListener('ddg-ctp-youTubeVideoDetails',
-          ({ detail: { videoURL: videoURLResp, status, title, previewImage } }) => {
+          /** @type {(e: CustomEvent)=>void} */({ detail: { videoURL: videoURLResp, status, title, previewImage } }) => {
               if (videoURLResp !== videoURL) { return }
               if (status === 'success') {
                   titleElement.innerText = title;
@@ -3942,7 +3946,9 @@
       case 'closest-empty':
           // hide the outermost empty node so that we may unhide if ad loads
           if (isDomNodeEmpty(element)) {
-              collapseDomNode(element.parentNode, rule, element);
+              if (element.parentNode instanceof HTMLElement) {
+                  collapseDomNode(element.parentNode, rule, element);
+              }
           } else if (previousElement) {
               hideNode(previousElement);
               appliedRules.add(rule);
@@ -3976,7 +3982,9 @@
           } else if (type === 'closest-empty') {
               // iterate upwards from matching DOM elements until we arrive at previously
               // hidden element. Unhide element if it contains visible content.
-              expandNonEmptyDomNode(element.parentNode, rule);
+              if (element.parentNode instanceof HTMLElement) {
+                  expandNonEmptyDomNode(element.parentNode, rule);
+              }
           }
           break
       }
@@ -4152,7 +4160,9 @@
       rules.forEach((rule) => {
           const matchingElementArray = [...document.querySelectorAll(rule.selector)];
           matchingElementArray.forEach((element) => {
-              collapseDomNode(element, rule);
+              if (element instanceof HTMLElement) {
+                  collapseDomNode(element, rule);
+              }
           });
       });
   }
@@ -4316,7 +4326,7 @@
               const channelData = DDGReflect.apply(target, thisArg, args);
               // Anything we do here should be caught and ignored silently
               try {
-                  transformArrayData(channelData, domainKey, sessionKey, thisArg, args);
+                  transformArrayData(channelData, domainKey, sessionKey, thisArg);
               } catch {
               }
               return channelData
@@ -4331,7 +4341,7 @@
                   DDGReflect.apply(target, thisArg, args);
                   // Anything we do here should be caught and ignored silently
                   try {
-                      transformArrayData(args[0], domainKey, sessionKey, thisArg, args);
+                      transformArrayData(args[0], domainKey, sessionKey, thisArg);
                   } catch {
                   }
               }
@@ -5818,11 +5828,13 @@
 
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
+          // @ts-ignore
           origValue: screen.availTop,
           targetValue: getFeatureAttr(featureName$1, args, 'availTop', 0)
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
+          // @ts-ignore
           origValue: screen.availLeft,
           targetValue: getFeatureAttr(featureName$1, args, 'availLeft', 0)
       });
@@ -6118,6 +6130,7 @@
 
           this.monitorProperties(el);
           // TODO pollyfill WeakRef
+          // @ts-ignore
           this.#el = new WeakRef(el);
 
           // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.
@@ -6165,7 +6178,7 @@
       }
 
       toString () {
-          const interfaceName = this._tagName.charAt(0).toUpperCase() + this._tagName.slice(1);
+          const interfaceName = this.#tagName.charAt(0).toUpperCase() + this.#tagName.slice(1);
           return `[object HTML${interfaceName}Element]`
       }
 
@@ -6419,6 +6432,7 @@
       const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
 
       function windowsPostMessage (name, data) {
+          // @ts-ignore
           window.chrome.webview.postMessage({
               Feature: 'Permissions',
               Name: name,
@@ -6727,6 +6741,7 @@
       }
 
       // handle actions from browser
+      // @ts-ignore
       window.chrome.webview.addEventListener('message', function ({ data }) {
           if (data?.action && data?.permission) {
               performAction(data?.action, data?.permission);
