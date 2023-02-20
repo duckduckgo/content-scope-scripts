@@ -1025,6 +1025,9 @@
               }
               return proxyObject.apply(...args)
           };
+          outputHandler.toString = () => {
+              return `function ${property}() {\n [native code]\n}`
+          };
           {
               this._native = objectScope[property];
               const handler = {};
@@ -1053,11 +1056,9 @@
   }
 
   let DDGReflect;
-  let DDGPromise;
 
   // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts
   {
-      DDGPromise = globalObj.Promise;
       DDGReflect = globalObj.Reflect;
   }
 
@@ -4219,13 +4220,15 @@
       }
       // single page applications don't have a DOMContentLoaded event on navigations, so
       // we use proxy/reflect on history.pushState to call applyRules on page navigations
+      /*
       const historyMethodProxy = new DDGProxy(featureName, History.prototype, 'pushState', {
           apply (target, thisArg, args) {
-              applyRules(activeRules);
+              applyRules(activeRules)
               return DDGReflect.apply(target, thisArg, args)
           }
-      });
-      historyMethodProxy.overload();
+      })
+      historyMethodProxy.overload()
+      */
       // listen for popstate events in order to run on back/forward navigations
       window.addEventListener('popstate', (event) => {
           applyRules(activeRules);
@@ -5921,28 +5924,7 @@
 
   // Set Global Privacy Control property on DOM
   function init$5 (args) {
-      try {
-          // If GPC on, set DOM property prototype to true if not already true
-          if (args.globalPrivacyControlValue) {
-              if (navigator.globalPrivacyControl) return
-              defineProperty(Navigator.prototype, 'globalPrivacyControl', {
-                  get: () => true,
-                  configurable: true,
-                  enumerable: true
-              });
-          } else {
-              // If GPC off & unsupported by browser, set DOM property prototype to false
-              // this may be overwritten by the user agent or other extensions
-              if (typeof navigator.globalPrivacyControl !== 'undefined') return
-              defineProperty(Navigator.prototype, 'globalPrivacyControl', {
-                  get: () => false,
-                  configurable: true,
-                  enumerable: true
-              });
-          }
-      } catch {
-          // Ignore exceptions that could be caused by conflicting with other extensions
-      }
+      return false
   }
 
   var gpc = /*#__PURE__*/Object.freeze({
@@ -5951,27 +5933,7 @@
   });
 
   function init$4 (args) {
-      try {
-          if (navigator.duckduckgo) {
-              return
-          }
-          if (!args.platform || !args.platform.name) {
-              return
-          }
-          defineProperty(Navigator.prototype, 'duckduckgo', {
-              value: {
-                  platform: args.platform.name,
-                  isDuckDuckGo () {
-                      return DDGPromise.resolve(true)
-                  }
-              },
-              enumerable: true,
-              configurable: false,
-              writable: false
-          });
-      } catch {
-          // todo: Just ignore this exception?
-      }
+      return false
   }
 
   var navigatorInterface = /*#__PURE__*/Object.freeze({
@@ -6337,12 +6299,13 @@
               value: {
               },
               configurable: true,
-              enumerable: true
+              enumerable: true,
+              writable: true
           });
           defineProperty(window.safari, 'pushNotification', {
               value: {
               },
-              configurable: true,
+              configurable: false,
               enumerable: true
           });
           defineProperty(window.safari.pushNotification, 'toString', {
@@ -6380,6 +6343,75 @@
       }
   }
 
+  function mediaSessionFix () {
+      try {
+          if (MediaSession.prototype.coordinator) {
+              return
+          }
+          defineProperty(MediaSession.prototype, 'coordinator', {
+              value: {
+                  state: 'inactive'
+              },
+              configurable: true,
+              enumerable: true
+          });
+      } catch {
+          // Ignore exceptions that could be caused by conflicting with other extensions
+      }
+  }
+
+  function browserFix () {
+      try {
+          if (window.browser) {
+              return
+          }
+          class WebPageRuntime {
+              constructor () {
+                  this.connect = null;
+                  this.sendMessage = null;
+              }
+          }
+          class WebPageNamespace {
+              constructor () {
+                  this.runtime = new WebPageRuntime();
+              }
+          }
+          const ns = new WebPageNamespace();
+          defineProperty(window, 'browser', {
+              value: ns,
+              configurable: true,
+              enumerable: true,
+              writable: true
+          });
+      } catch {
+          // Ignore exceptions that could be caused by conflicting with other extensions
+      }
+  }
+  function showModalDialogFix () {
+      try {
+          if (window.showModalDialog) {
+              return
+          }
+          const value = () => {
+              return null
+          };
+          defineProperty(window, 'showModalDialog', {
+              value,
+              configurable: true,
+              enumerable: true
+          });
+          defineProperty(window.showModalDialog, 'toString', {
+              value: () => {
+                  return "function showModalDialog() {\n [native code]\n}"
+              },
+              configurable: true,
+              enumerable: true
+          });
+      } catch {
+          // Ignore exceptions that could be caused by conflicting with other extensions
+      }
+  }
+
   function init$1 (args) {
       const featureName = 'web-compat';
       if (getFeatureSettingEnabled(featureName, args, 'windowSizing')) {
@@ -6391,6 +6423,9 @@
       if (getFeatureSettingEnabled(featureName, args, 'safariObject')) {
           safariObjectFix();
       }
+      browserFix();
+      mediaSessionFix();
+      showModalDialogFix();
   }
 
   var webCompat = /*#__PURE__*/Object.freeze({
