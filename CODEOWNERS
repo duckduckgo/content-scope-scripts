@@ -1,0 +1,14 @@
+* @jonathanKingston @shakyShane
+
+# Feature owners
+src/features/fingerprinting-* @jonathanKingston @englehardt
+src/canvas.js @jonathanKingston @englehardt
+src/element-hiding.js @jonathanKingston @dharb
+src/features/click-to-play.js @kzar @ladamski
+src/locales/click-to-play/ @kzar @ladamski
+
+# Platform owners
+inject/android.js @jonathanKingston @joshliebe
+inject/chrome-mv3.js @kzar @sammacbeth
+inject/chrome.js @jonathanKingston @sammacbeth
+inject/windows.js @jonathanKingston @q71114 @szanto90balazs
