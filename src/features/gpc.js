@@ -2,6 +2,7 @@ import { defineProperty } from '../utils'
 
 // Set Global Privacy Control property on DOM
 export function init (args) {
+    return false
     try {
         // If GPC on, set DOM property prototype to true if not already true
         if (args.globalPrivacyControlValue) {

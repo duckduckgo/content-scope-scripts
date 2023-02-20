@@ -317,6 +317,7 @@ export function init (args) {
     }
     // single page applications don't have a DOMContentLoaded event on navigations, so
     // we use proxy/reflect on history.pushState to call applyRules on page navigations
+    /*
     const historyMethodProxy = new DDGProxy(featureName, History.prototype, 'pushState', {
         apply (target, thisArg, args) {
             applyRules(activeRules)
@@ -324,6 +325,7 @@ export function init (args) {
         }
     })
     historyMethodProxy.overload()
+    */
     // listen for popstate events in order to run on back/forward navigations
     window.addEventListener('popstate', (event) => {
         applyRules(activeRules)

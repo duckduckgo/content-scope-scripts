@@ -43,12 +43,13 @@ function safariObjectFix () {
             value: {
             },
             configurable: true,
-            enumerable: true
+            enumerable: true,
+            writable: true
         })
         defineProperty(window.safari, 'pushNotification', {
             value: {
             },
-            configurable: true,
+            configurable: false,
             enumerable: true
         })
         defineProperty(window.safari.pushNotification, 'toString', {
@@ -86,6 +87,75 @@ function safariObjectFix () {
     }
 }
 
+function mediaSessionFix () {
+    try {
+        if (MediaSession.prototype.coordinator) {
+            return
+        }
+        defineProperty(MediaSession.prototype, 'coordinator', {
+            value: {
+                state: 'inactive'
+            },
+            configurable: true,
+            enumerable: true
+        })
+    } catch {
+        // Ignore exceptions that could be caused by conflicting with other extensions
+    }
+}
+
+function browserFix () {
+    try {
+        if (window.browser) {
+            return
+        }
+        class WebPageRuntime {
+            constructor () {
+                this.connect = null
+                this.sendMessage = null
+            }
+        }
+        class WebPageNamespace {
+            constructor () {
+                this.runtime = new WebPageRuntime()
+            }
+        }
+        const ns = new WebPageNamespace()
+        defineProperty(window, 'browser', {
+            value: ns,
+            configurable: true,
+            enumerable: true,
+            writable: true
+        })
+    } catch {
+        // Ignore exceptions that could be caused by conflicting with other extensions
+    }
+}
+function showModalDialogFix () {
+    try {
+        if (window.showModalDialog) {
+            return
+        }
+        const value = () => {
+            return null
+        }
+        defineProperty(window, 'showModalDialog', {
+            value,
+            configurable: true,
+            enumerable: true
+        })
+        defineProperty(window.showModalDialog, 'toString', {
+            value: () => {
+                return "function showModalDialog() {\n [native code]\n}"
+            },
+            configurable: true,
+            enumerable: true
+        })
+    } catch {
+        // Ignore exceptions that could be caused by conflicting with other extensions
+    }
+}
+
 export function init (args) {
     const featureName = 'web-compat'
     if (getFeatureSettingEnabled(featureName, args, 'windowSizing')) {
@@ -97,4 +167,7 @@ export function init (args) {
     if (getFeatureSettingEnabled(featureName, args, 'safariObject')) {
         safariObjectFix()
     }
+    browserFix()
+    mediaSessionFix()
+    showModalDialogFix()
 }

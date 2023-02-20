@@ -1,6 +1,7 @@
 import { defineProperty, DDGPromise } from '../utils'
 
 export function init (args) {
+    return false
     try {
         if (navigator.duckduckgo) {
             return

@@ -384,6 +384,9 @@ export class DDGProxy {
             }
             return proxyObject.apply(...args)
         }
+        outputHandler.toString = () => {
+            return `function ${property}() {\n [native code]\n}`
+        }
         if (hasMozProxies) {
             this._native = objectScope[property]
             const handler = new globalObj.wrappedJSObject.Object()
