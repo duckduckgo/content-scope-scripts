@@ -13,14 +13,14 @@ export function init (args) {
 
     /**
      * Clear cache as canvas has changed
-     * @param {HTMLCanvasElement} canvas
+     * @param {OffscreenCanvas | HTMLCanvasElement} canvas
      */
     function clearCache (canvas) {
         canvasCache.delete(canvas)
     }
 
     /**
-     * @param {HTMLCanvasElement} canvas
+     * @param {OffscreenCanvas | HTMLCanvasElement} canvas
      */
     function treatAsUnsafe (canvas) {
         unsafeCanvases.add(canvas)
