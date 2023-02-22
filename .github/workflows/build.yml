@@ -49,5 +49,5 @@ jobs:
         with:
           draft: false
           prerelease: false
-          tag_name: ${{ env.VERSION }}
+          tag_name: ${{ github.event.inputs.version }}
           target_commitish: "releases"
