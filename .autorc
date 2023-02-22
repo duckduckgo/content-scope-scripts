@@ -4,6 +4,5 @@
   ],
   "baseBranch": "releases",
   "owner": "duckduckgo",
-  "repo": "content-scope-scripts",
-  "onlyPublishWithReleaseLabel": true
+  "repo": "content-scope-scripts"
 }
