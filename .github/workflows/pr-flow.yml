@@ -1,5 +1,7 @@
 name: Release
 
+#... on push after PR
+
 jobs:
   release_pr:
     runs-on: ubuntu-latest
@@ -24,10 +26,10 @@ jobs:
       - name: Commit build files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Release build [ci release]"
-          commit_options: '--allow-empty'
-          branch: "releases"
+          commit_message: "Release staging build [ci release]"
+          --create-branch
+          branch: "releases-${....}" # numbered by PR number
 
-      - name: Ship
-        run: |
-          npx auto shipit
+## add comment to PR about link?
+
+## separate workflow on pr merge delete release branch?
