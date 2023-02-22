@@ -47,7 +47,7 @@ function isObject (item) {
 /**
  * Deep merge two objects.
  * @param target
- * @param ...sources
+ * @param sources
  */
 function mergeDeep (target, ...sources) {
     if (!sources.length) return target
@@ -70,6 +70,7 @@ function mergeDeep (target, ...sources) {
 async function init () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     await contentScopeFeatures.load({
         platform: processedConfig.platform
     })
@@ -78,6 +79,7 @@ async function init () {
     setStatus('loaded')
 
     if (!topLevelUrl.searchParams.has('wait-for-init-args')) {
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         await contentScopeFeatures.init(processedConfig)
         setStatus('initialized')
         return
@@ -85,8 +87,10 @@ async function init () {
 
     // Wait for a message containing additional config
     document.addEventListener('content-scope-init-args', async (evt) => {
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const merged = mergeDeep(processedConfig, evt.detail)
         // init features
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         await contentScopeFeatures.init(merged)
 
         // set status to initialized so that tests can resume
@@ -98,6 +102,7 @@ async function init () {
  * @param {"loaded" | "initialized"} status
  */
 function setStatus (status) {
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     window.__content_scope_status = status
 }
 

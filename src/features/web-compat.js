@@ -36,6 +36,7 @@ function navigatorCredentialsFix () {
 
 function safariObjectFix () {
     try {
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         if (window.safari) {
             return
         }
@@ -45,12 +46,14 @@ function safariObjectFix () {
             configurable: true,
             enumerable: true
         })
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         defineProperty(window.safari, 'pushNotification', {
             value: {
             },
             configurable: true,
             enumerable: true
         })
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         defineProperty(window.safari.pushNotification, 'toString', {
             value: () => { return '[object SafariRemoteNotification]' },
             configurable: true,
@@ -62,6 +65,7 @@ function safariObjectFix () {
                 this.permission = 'denied'
             }
         }
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         defineProperty(window.safari.pushNotification, 'permission', {
             value: (name) => {
                 return new SafariRemoteNotificationPermission()
@@ -69,6 +73,7 @@ function safariObjectFix () {
             configurable: true,
             enumerable: true
         })
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         defineProperty(window.safari.pushNotification, 'requestPermission', {
             value: (name, domain, options, callback) => {
                 if (typeof callback === 'function') {

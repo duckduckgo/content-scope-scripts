@@ -89,11 +89,13 @@ export function init (args) {
 
     origPropertyValues.availTop = overrideProperty('availTop', {
         object: Screen.prototype,
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         origValue: screen.availTop,
         targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
     })
     origPropertyValues.availLeft = overrideProperty('availLeft', {
         object: Screen.prototype,
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         origValue: screen.availLeft,
         targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
     })

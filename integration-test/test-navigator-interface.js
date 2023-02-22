@@ -24,6 +24,7 @@ describe('Ensure navigator interface is injected', () => {
         await gotoAndWait(page, `http://localhost:${port}/blank.html`, { platform: { name: 'extension' } })
         const isDuckDuckGoResult = await page.evaluate(
             () => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 const fn = navigator.duckduckgo?.isDuckDuckGo
                 return fn()
             }

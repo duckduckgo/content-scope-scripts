@@ -44,11 +44,13 @@ describe('Ensure safari interface is injected', () => {
         expect(hasSafari).toEqual(true)
 
         const pushNotificationToString = await page.evaluate(() => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             return window.safari.pushNotification.toString()
         })
         expect(pushNotificationToString).toEqual('[object SafariRemoteNotification]')
 
         const pushNotificationPermission = await page.evaluate(() => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             return window.safari.pushNotification.permission('test')
         })
         expect(pushNotificationPermission.deviceToken).toEqual(null)
@@ -56,6 +58,7 @@ describe('Ensure safari interface is injected', () => {
 
         const pushNotificationRequestPermissionThrow = await page.evaluate(() => {
             try {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 window.safari.pushNotification.requestPermission('test', 'test.com')
             } catch (e) {
                 return e.message
@@ -65,6 +68,7 @@ describe('Ensure safari interface is injected', () => {
 
         const pushNotificationRequestPermission = await page.evaluate(() => {
             const response = new Promise((resolve) => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 window.safari.pushNotification.requestPermission('test', 'test.com', {}, (data) => {
                     resolve(data)
                 })

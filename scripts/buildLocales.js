@@ -16,6 +16,7 @@ for (const locale of localeDirs) {
     const files = readdirSync(dir)
     for (const file of files) {
         const localeJSON = readFileSync(join(dir, file))
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const stringObj = JSON.parse(localeJSON)
         locales[locale][file] = {}
         for (const [key, value] of Object.entries(stringObj)) {

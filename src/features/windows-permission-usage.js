@@ -20,6 +20,7 @@ export function init () {
     const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top
 
     function windowsPostMessage (name, data) {
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         window.chrome.webview.postMessage({
             Feature: 'Permissions',
             Name: name,
@@ -360,6 +361,7 @@ export function init () {
     }
 
     // handle actions from browser
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     window.chrome.webview.addEventListener('message', function ({ data }) {
         if (data?.action && data?.permission) {
             performAction(data?.action, data?.permission)
@@ -368,9 +370,13 @@ export function init () {
 
     // these permissions cannot be disabled using WebView2 or DevTools protocol
     const permissionsToDisable = [
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         { name: 'Bluetooth', prototype: Bluetooth.prototype, method: 'requestDevice' },
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         { name: 'USB', prototype: USB.prototype, method: 'requestDevice' },
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         { name: 'Serial', prototype: Serial.prototype, method: 'requestPort' },
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         { name: 'HID', prototype: HID.prototype, method: 'requestDevice' },
         { name: 'Protocol handler', prototype: Navigator.prototype, method: 'registerProtocolHandler' }
     ]

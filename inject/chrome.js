@@ -34,7 +34,9 @@ function randomString () {
 }
 
 function init () {
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const documentOriginIsTracker = isTrackerOrigin($TRACKER_LOOKUP$)
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const bundledConfig = $BUNDLED_CONFIG$
     const randomMethodName = '_d' + randomString()
     const randomPassword = '_p' + randomString()
@@ -125,10 +127,12 @@ function init () {
     })
 
     window.addEventListener('sendMessageProxy' + messageSecret, (m) => {
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const messageType = m.detail.messageType
         if (!allowedMessages.includes(messageType)) {
             return console.warn('Ignoring invalid sendMessage messageType', messageType)
         }
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         chrome.runtime.sendMessage(m && m.detail, response => {
             const msg = { func: messageType, response }
             const stringifiedArgs = JSON.stringify({ detail: msg })
