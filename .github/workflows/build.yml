@@ -22,7 +22,7 @@ jobs:
 
       - name: Build release
         run: |
-          npm install
+          npm ci
           npm run build
 
       - name: Check in files
