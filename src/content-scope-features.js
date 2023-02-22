@@ -22,7 +22,7 @@ export async function load (args) {
         return
     }
     const featureNames = [
-        'runtimeChecks',
+        // 'runtimeChecks',
         'windowsPermissionUsage',
         'webCompat',
         'fingerprintingAudio',

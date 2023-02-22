@@ -4,7 +4,7 @@ const featureName = 'fingerprinting-hardware'
 export function init (args) {
     const Navigator = globalThis.Navigator
     const navigator = globalThis.navigator
-
+    return
     overrideProperty('keyboard', {
         object: Navigator.prototype,
         origValue: navigator.keyboard,
