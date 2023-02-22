@@ -312,6 +312,12 @@ export function init () {
 
                 const videoRequested = args[0]?.video
                 const audioRequested = args[0]?.audio
+
+                if (videoRequested && (videoRequested.pan || videoRequested.tilt || videoRequested.zoom)) {
+                    // WebView2 doesn't support acquiring pan-tilt-zoom from its API at the moment
+                    return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'))
+                }
+
                 return DDGReflect.apply(target, thisArg, args).then(function (stream) {
                     console.debug(`User stream ${stream.id} has been acquired`)
                     userMediaStreams.add(stream)
@@ -365,7 +371,8 @@ export function init () {
         { name: 'Bluetooth', prototype: Bluetooth.prototype, method: 'requestDevice' },
         { name: 'USB', prototype: USB.prototype, method: 'requestDevice' },
         { name: 'Serial', prototype: Serial.prototype, method: 'requestPort' },
-        { name: 'HID', prototype: HID.prototype, method: 'requestDevice' }
+        { name: 'HID', prototype: HID.prototype, method: 'requestDevice' },
+        { name: 'Protocol handler', prototype: Navigator.prototype, method: 'registerProtocolHandler' }
     ]
     for (const { name, prototype, method } of permissionsToDisable) {
         try {
