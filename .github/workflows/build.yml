@@ -1,10 +1,11 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        description: 'Release version'
 
 jobs:
   release_pr:
@@ -33,23 +34,20 @@ jobs:
         run: |
           git add -f build/ Sources/
 
-      - name: Get version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npx auto version
-          echo "VERSION=$(npx auto version)" >> $GITHUB_ENV
-
       - name: Commit build files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Release build ${{ env.VERSION }} [ci release]"
+          commit_message: "Release build ${{ github.event.inputs.version }} [ci release]"
           commit_options: '--allow-empty'
           skip_checkout: true
           branch: "releases"
 
-      - name: Ship
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-            npx auto release
+        with:
+          draft: false
+          prerelease: false
+          tag_name: ${{ env.VERSION }}
+          target_commitish: "releases"
