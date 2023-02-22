@@ -6,10 +6,10 @@ on:
 jobs:
   release_pr:
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
 
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -29,10 +29,17 @@ jobs:
         run: |
           git add -f build/ Sources/
 
+      - name: Get version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx auto version
+          echo "VERSION=$(npx auto version)" >> $GITHUB_ENV
+
       - name: Commit build files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Release build [ci release]"
+          commit_message: "Release build ${{ env.VERSION }} [ci release]"
           commit_options: '--allow-empty'
           branch: "releases"
 
@@ -40,4 +47,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx auto shipit
+            npx auto shipit
