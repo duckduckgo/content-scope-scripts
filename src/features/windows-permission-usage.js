@@ -32,6 +32,7 @@ export function init () {
         console.debug(`Permission '${permission}' is ${status}`)
     }
 
+    let pauseWatchedPositions = false
     const watchedPositions = new Set()
     // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
     const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
@@ -43,8 +44,12 @@ export function init () {
 
             const successHandler = args[0]
             args[0] = function (position) {
-                signalPermissionStatus(Permission.Geolocation, Status.Active)
-                successHandler?.(position)
+                if (pauseWatchedPositions) {
+                    signalPermissionStatus(Permission.Geolocation, Status.Paused)
+                } else {
+                    signalPermissionStatus(Permission.Geolocation, Status.Active)
+                    successHandler?.(position)
+                }
             }
             const id = DDGReflect.apply(target, thisArg, args)
             watchedPositions.add(id)
@@ -99,17 +104,35 @@ export function init () {
     }
 
     function pause (permission) {
-        const streamTracks = getTracks(permission)
-        streamTracks?.forEach(track => {
-            track.enabled = false
-        })
+        switch (permission) {
+        case Permission.Camera:
+        case Permission.Microphone:
+            const streamTracks = getTracks(permission)
+            streamTracks?.forEach(track => {
+                track.enabled = false
+            })
+            break
+        case Permission.Geolocation:
+            pauseWatchedPositions = true
+            signalPermissionStatus(Permission.Geolocation, Status.Paused)
+            break
+        }
     }
 
     function resume (permission) {
-        const streamTracks = getTracks(permission)
-        streamTracks?.forEach(track => {
-            track.enabled = true
-        })
+        switch (permission) {
+        case Permission.Camera:
+        case Permission.Microphone:
+            const streamTracks = getTracks(permission)
+            streamTracks?.forEach(track => {
+                track.enabled = true
+            })
+            break
+        case Permission.Geolocation:
+            pauseWatchedPositions = false
+            signalPermissionStatus(Permission.Geolocation, Status.Active)
+            break
+        }
     }
 
     function stop (permission) {
@@ -121,6 +144,7 @@ export function init () {
             stopTracks(audioTracks)
             break
         case Permission.Geolocation:
+            pauseWatchedPositions = false
             clearAllGeolocationWatch()
             break
         }
