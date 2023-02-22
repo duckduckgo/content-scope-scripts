@@ -1,6 +1,10 @@
-name: Release
+name: PR flow
 
+# Draft flow don't use
 #... on push after PR
+
+on:
+  workflow_dispatch:
 
 jobs:
   release_pr:
