@@ -251,7 +251,7 @@ function overrideCreateElement () {
 }
 
 export function load () {
-    // This shouldn't happen, but if it does we don't want to break the page.
+    // This shouldn't happen, but if it does we don't want to break the page
     try {
         customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
     } catch {}
