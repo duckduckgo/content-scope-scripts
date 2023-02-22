@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -19,6 +22,7 @@ jobs:
         run: |
           git fetch --all
           git checkout releases
+          git checkout main .
 
       - name: Build release
         run: |
@@ -27,7 +31,6 @@ jobs:
 
       - name: Check in files
         run: |
-          git checkout releases
           git add -f build/ Sources/
 
       - name: Get version
@@ -49,4 +52,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-            npx auto shipit
+            npx auto release

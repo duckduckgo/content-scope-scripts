@@ -1163,6 +1163,7 @@
 
       for (const featureName of featureNames) {
           const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           const feature = __variableDynamicImportRuntime0__(`./features/${filename}.js`).then(({ init, load, update }) => {
               if (load) {
                   load(args);
@@ -2240,6 +2241,8 @@
 
       return { config, sharedStrings }
   }
+
+  // @ts-nocheck
 
   let devMode = false;
   let isYoutubePreviewsEnabled = false;
@@ -3963,6 +3966,7 @@
       case 'closest-empty':
           // hide the outermost empty node so that we may unhide if ad loads
           if (isDomNodeEmpty(element)) {
+              // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
               collapseDomNode(element.parentNode, rule, element);
           } else if (previousElement) {
               hideNode(previousElement);
@@ -3997,6 +4001,7 @@
           } else if (type === 'closest-empty') {
               // iterate upwards from matching DOM elements until we arrive at previously
               // hidden element. Unhide element if it contains visible content.
+              // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
               expandNonEmptyDomNode(element.parentNode, rule);
           }
           break
@@ -4100,6 +4105,7 @@
       // check at 750ms, 1500ms, 2250ms, 3000ms
       unhideTimeouts.forEach((timeout) => {
           setTimeout(() => {
+              // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
               unhideLoadedAds();
           }, timeout);
       });
@@ -4173,6 +4179,7 @@
       rules.forEach((rule) => {
           const matchingElementArray = [...document.querySelectorAll(rule.selector)];
           matchingElementArray.forEach((element) => {
+              // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
               collapseDomNode(element, rule);
           });
       });
@@ -4337,6 +4344,7 @@
               const channelData = DDGReflect.apply(target, thisArg, args);
               // Anything we do here should be caught and ignored silently
               try {
+                  // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                   transformArrayData(channelData, domainKey, sessionKey, thisArg, args);
               } catch {
               }
@@ -4352,6 +4360,7 @@
                   DDGReflect.apply(target, thisArg, args);
                   // Anything we do here should be caught and ignored silently
                   try {
+                      // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                       transformArrayData(args[0], domainKey, sessionKey, thisArg, args);
                   } catch {
                   }
@@ -4372,6 +4381,7 @@
    * as well as prevent any script from listening to events.
    */
   function init$b (args) {
+      // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
       if (globalThis.navigator.getBattery) {
           const BatteryManager = globalThis.BatteryManager;
 
@@ -5729,6 +5739,7 @@
 
       overrideProperty('keyboard', {
           object: Navigator.prototype,
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           origValue: navigator.keyboard,
           targetValue: getFeatureAttr(featureName$2, args, 'keyboard')
       });
@@ -5739,6 +5750,7 @@
       });
       overrideProperty('deviceMemory', {
           object: Navigator.prototype,
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           origValue: navigator.deviceMemory,
           targetValue: getFeatureAttr(featureName$2, args, 'deviceMemory', 8)
       });
@@ -5839,11 +5851,13 @@
 
       origPropertyValues.availTop = overrideProperty('availTop', {
           object: Screen.prototype,
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           origValue: screen.availTop,
           targetValue: getFeatureAttr(featureName$1, args, 'availTop', 0)
       });
       origPropertyValues.availLeft = overrideProperty('availLeft', {
           object: Screen.prototype,
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           origValue: screen.availLeft,
           targetValue: getFeatureAttr(featureName$1, args, 'availLeft', 0)
       });
@@ -5888,9 +5902,12 @@
        * This will limit the max storage to 4GB without completely disabling the
        * feature.
        */
+      // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
       if (navigator.webkitTemporaryStorage) {
           try {
+              // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
               const org = navigator.webkitTemporaryStorage.queryUsageAndQuota;
+              // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
               const tStorage = navigator.webkitTemporaryStorage;
               tStorage.queryUsageAndQuota = function queryUsageAndQuota (callback, err) {
                   const modifiedCallback = function (usedBytes, grantedBytes) {
@@ -5898,6 +5915,7 @@
                       const spoofedGrantedBytes = Math.min(grantedBytes, maxBytesGranted);
                       callback(usedBytes, spoofedGrantedBytes);
                   };
+                  // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                   org.call(navigator.webkitTemporaryStorage, modifiedCallback, err);
               };
               defineProperty(Navigator.prototype, 'webkitTemporaryStorage', { get: () => tStorage });
@@ -5945,6 +5963,7 @@
       try {
           // If GPC on, set DOM property prototype to true if not already true
           if (args.globalPrivacyControlValue) {
+              // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
               if (navigator.globalPrivacyControl) return
               defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                   get: () => true,
@@ -5954,6 +5973,7 @@
           } else {
               // If GPC off & unsupported by browser, set DOM property prototype to false
               // this may be overwritten by the user agent or other extensions
+              // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
               if (typeof navigator.globalPrivacyControl !== 'undefined') return
               defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                   get: () => false,
@@ -5973,6 +5993,7 @@
 
   function init$4 (args) {
       try {
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           if (navigator.duckduckgo) {
               return
           }
@@ -6351,6 +6372,7 @@
 
   function safariObjectFix () {
       try {
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           if (window.safari) {
               return
           }
@@ -6360,12 +6382,14 @@
               configurable: true,
               enumerable: true
           });
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           defineProperty(window.safari, 'pushNotification', {
               value: {
               },
               configurable: true,
               enumerable: true
           });
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           defineProperty(window.safari.pushNotification, 'toString', {
               value: () => { return '[object SafariRemoteNotification]' },
               configurable: true,
@@ -6377,6 +6401,7 @@
                   this.permission = 'denied';
               }
           }
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           defineProperty(window.safari.pushNotification, 'permission', {
               value: (name) => {
                   return new SafariRemoteNotificationPermission()
@@ -6384,6 +6409,7 @@
               configurable: true,
               enumerable: true
           });
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           defineProperty(window.safari.pushNotification, 'requestPermission', {
               value: (name, domain, options, callback) => {
                   if (typeof callback === 'function') {
@@ -6440,6 +6466,7 @@
       const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
 
       function windowsPostMessage (name, data) {
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           window.chrome.webview.postMessage({
               Feature: 'Permissions',
               Name: name,
@@ -6452,6 +6479,7 @@
           console.debug(`Permission '${permission}' is ${status}`);
       }
 
+      let pauseWatchedPositions = false;
       const watchedPositions = new Set();
       // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
       const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
@@ -6463,8 +6491,12 @@
 
               const successHandler = args[0];
               args[0] = function (position) {
-                  signalPermissionStatus(Permission.Geolocation, Status.Active);
-                  successHandler?.(position);
+                  if (pauseWatchedPositions) {
+                      signalPermissionStatus(Permission.Geolocation, Status.Paused);
+                  } else {
+                      signalPermissionStatus(Permission.Geolocation, Status.Active);
+                      successHandler?.(position);
+                  }
               };
               const id = DDGReflect.apply(target, thisArg, args);
               watchedPositions.add(id);
@@ -6519,17 +6551,37 @@
       }
 
       function pause (permission) {
-          const streamTracks = getTracks(permission);
-          streamTracks?.forEach(track => {
-              track.enabled = false;
-          });
+          switch (permission) {
+          case Permission.Camera:
+          case Permission.Microphone: {
+              const streamTracks = getTracks(permission);
+              streamTracks?.forEach(track => {
+                  track.enabled = false;
+              });
+              break
+          }
+          case Permission.Geolocation:
+              pauseWatchedPositions = true;
+              signalPermissionStatus(Permission.Geolocation, Status.Paused);
+              break
+          }
       }
 
       function resume (permission) {
-          const streamTracks = getTracks(permission);
-          streamTracks?.forEach(track => {
-              track.enabled = true;
-          });
+          switch (permission) {
+          case Permission.Camera:
+          case Permission.Microphone: {
+              const streamTracks = getTracks(permission);
+              streamTracks?.forEach(track => {
+                  track.enabled = true;
+              });
+              break
+          }
+          case Permission.Geolocation:
+              pauseWatchedPositions = false;
+              signalPermissionStatus(Permission.Geolocation, Status.Active);
+              break
+          }
       }
 
       function stop (permission) {
@@ -6541,6 +6593,7 @@
               stopTracks(audioTracks);
               break
           case Permission.Geolocation:
+              pauseWatchedPositions = false;
               clearAllGeolocationWatch();
               break
           }
@@ -6706,6 +6759,12 @@
 
                   const videoRequested = args[0]?.video;
                   const audioRequested = args[0]?.audio;
+
+                  if (videoRequested && (videoRequested.pan || videoRequested.tilt || videoRequested.zoom)) {
+                      // WebView2 doesn't support acquiring pan-tilt-zoom from its API at the moment
+                      return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'))
+                  }
+
                   return DDGReflect.apply(target, thisArg, args).then(function (stream) {
                       console.debug(`User stream ${stream.id} has been acquired`);
                       userMediaStreams.add(stream);
@@ -6748,6 +6807,7 @@
       }
 
       // handle actions from browser
+      // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
       window.chrome.webview.addEventListener('message', function ({ data }) {
           if (data?.action && data?.permission) {
               performAction(data?.action, data?.permission);
@@ -6756,10 +6816,15 @@
 
       // these permissions cannot be disabled using WebView2 or DevTools protocol
       const permissionsToDisable = [
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           { name: 'Bluetooth', prototype: Bluetooth.prototype, method: 'requestDevice' },
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           { name: 'USB', prototype: USB.prototype, method: 'requestDevice' },
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
           { name: 'Serial', prototype: Serial.prototype, method: 'requestPort' },
-          { name: 'HID', prototype: HID.prototype, method: 'requestDevice' }
+          // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+          { name: 'HID', prototype: HID.prototype, method: 'requestDevice' },
+          { name: 'Protocol handler', prototype: Navigator.prototype, method: 'registerProtocolHandler' }
       ];
       for (const { name, prototype, method } of permissionsToDisable) {
           try {
@@ -6791,24 +6856,30 @@
 
     const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
 
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     contentScopeFeatures.load({
         platform: {
             name: 'extension'
         },
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         documentOriginIsTracker: isTrackerOrigin($TRACKER_LOOKUP$),
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         bundledConfig: $BUNDLED_CONFIG$
     });
 
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     window.addEventListener(secret, ({ detail: message }) => {
         if (!message) return
 
         switch (message.type) {
         case 'update':
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             contentScopeFeatures.update(message);
             break
         case 'register':
             if (message.argumentsObject) {
                 message.argumentsObject.messageSecret = secret;
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 contentScopeFeatures.init(message.argumentsObject);
             }
             break

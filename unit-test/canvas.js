@@ -1,3 +1,4 @@
+// @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
 import ImageData from '@canvas/image-data'
 import { modifyPixelData } from '../src/canvas.js'
 

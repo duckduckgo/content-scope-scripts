@@ -20,6 +20,7 @@ export function init () {
     const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top
 
     function windowsPostMessage (name, data) {
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         window.chrome.webview.postMessage({
             Feature: 'Permissions',
             Name: name,
@@ -32,6 +33,7 @@ export function init () {
         console.debug(`Permission '${permission}' is ${status}`)
     }
 
+    let pauseWatchedPositions = false
     const watchedPositions = new Set()
     // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
     const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
@@ -43,8 +45,12 @@ export function init () {
 
             const successHandler = args[0]
             args[0] = function (position) {
-                signalPermissionStatus(Permission.Geolocation, Status.Active)
-                successHandler?.(position)
+                if (pauseWatchedPositions) {
+                    signalPermissionStatus(Permission.Geolocation, Status.Paused)
+                } else {
+                    signalPermissionStatus(Permission.Geolocation, Status.Active)
+                    successHandler?.(position)
+                }
             }
             const id = DDGReflect.apply(target, thisArg, args)
             watchedPositions.add(id)
@@ -99,17 +105,37 @@ export function init () {
     }
 
     function pause (permission) {
-        const streamTracks = getTracks(permission)
-        streamTracks?.forEach(track => {
-            track.enabled = false
-        })
+        switch (permission) {
+        case Permission.Camera:
+        case Permission.Microphone: {
+            const streamTracks = getTracks(permission)
+            streamTracks?.forEach(track => {
+                track.enabled = false
+            })
+            break
+        }
+        case Permission.Geolocation:
+            pauseWatchedPositions = true
+            signalPermissionStatus(Permission.Geolocation, Status.Paused)
+            break
+        }
     }
 
     function resume (permission) {
-        const streamTracks = getTracks(permission)
-        streamTracks?.forEach(track => {
-            track.enabled = true
-        })
+        switch (permission) {
+        case Permission.Camera:
+        case Permission.Microphone: {
+            const streamTracks = getTracks(permission)
+            streamTracks?.forEach(track => {
+                track.enabled = true
+            })
+            break
+        }
+        case Permission.Geolocation:
+            pauseWatchedPositions = false
+            signalPermissionStatus(Permission.Geolocation, Status.Active)
+            break
+        }
     }
 
     function stop (permission) {
@@ -121,6 +147,7 @@ export function init () {
             stopTracks(audioTracks)
             break
         case Permission.Geolocation:
+            pauseWatchedPositions = false
             clearAllGeolocationWatch()
             break
         }
@@ -286,6 +313,12 @@ export function init () {
 
                 const videoRequested = args[0]?.video
                 const audioRequested = args[0]?.audio
+
+                if (videoRequested && (videoRequested.pan || videoRequested.tilt || videoRequested.zoom)) {
+                    // WebView2 doesn't support acquiring pan-tilt-zoom from its API at the moment
+                    return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'))
+                }
+
                 return DDGReflect.apply(target, thisArg, args).then(function (stream) {
                     console.debug(`User stream ${stream.id} has been acquired`)
                     userMediaStreams.add(stream)
@@ -328,6 +361,7 @@ export function init () {
     }
 
     // handle actions from browser
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     window.chrome.webview.addEventListener('message', function ({ data }) {
         if (data?.action && data?.permission) {
             performAction(data?.action, data?.permission)
@@ -336,10 +370,15 @@ export function init () {
 
     // these permissions cannot be disabled using WebView2 or DevTools protocol
     const permissionsToDisable = [
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         { name: 'Bluetooth', prototype: Bluetooth.prototype, method: 'requestDevice' },
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         { name: 'USB', prototype: USB.prototype, method: 'requestDevice' },
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         { name: 'Serial', prototype: Serial.prototype, method: 'requestPort' },
-        { name: 'HID', prototype: HID.prototype, method: 'requestDevice' }
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        { name: 'HID', prototype: HID.prototype, method: 'requestDevice' },
+        { name: 'Protocol handler', prototype: Navigator.prototype, method: 'registerProtocolHandler' }
     ]
     for (const { name, prototype, method } of permissionsToDisable) {
         try {
