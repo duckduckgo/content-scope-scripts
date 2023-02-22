@@ -42,11 +42,16 @@ jobs:
           skip_checkout: true
           branch: "releases"
 
+      - name: Collect commit ranges
+        run: |
+          echo "$(git log  $(git describe --tags $(git rev-list --tags --max-count=1))...HEAD --pretty='format:- %s')" > ${{ github.workspace }}-CHANGELOG.txt
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
           draft: false
           prerelease: false
           tag_name: ${{ github.event.inputs.version }}
