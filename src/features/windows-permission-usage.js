@@ -106,12 +106,13 @@ export function init () {
     function pause (permission) {
         switch (permission) {
         case Permission.Camera:
-        case Permission.Microphone:
+        case Permission.Microphone: {
             const streamTracks = getTracks(permission)
             streamTracks?.forEach(track => {
                 track.enabled = false
             })
             break
+        }
         case Permission.Geolocation:
             pauseWatchedPositions = true
             signalPermissionStatus(Permission.Geolocation, Status.Paused)
@@ -122,12 +123,13 @@ export function init () {
     function resume (permission) {
         switch (permission) {
         case Permission.Camera:
-        case Permission.Microphone:
+        case Permission.Microphone: {
             const streamTracks = getTracks(permission)
             streamTracks?.forEach(track => {
                 track.enabled = true
             })
             break
+        }
         case Permission.Geolocation:
             pauseWatchedPositions = false
             signalPermissionStatus(Permission.Geolocation, Status.Active)
