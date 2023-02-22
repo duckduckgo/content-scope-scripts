@@ -5,16 +5,17 @@
     "alwaysStrict": true,
     "allowJs": true,
     "checkJs": true,
-    "noEmit": true,
+    "noEmit": true
   },
   "include": [
-    "src/globals.d.ts"
+    "src",
+    "scripts",
+    "unit-test",
+    "integration-test",
+    "inject"
   ],
-  "files": [
-    "src/canvas.js",
-    "src/features/fingerprinting-canvas.js",
-    "src/features/runtime-checks.js",
-    "src/features/cookie.js",
-    "src/utils.js",
+  "exclude": [
+    "integration-test/pages",
+    "integration-test/extension",
   ]
 }

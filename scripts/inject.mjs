@@ -23,6 +23,7 @@ async function rollupScript(scriptPath, name) {
             replace({
                 preventAssignment: true,
                 values: {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     mozProxies
                 }
             })
@@ -38,6 +39,7 @@ async function rollupScript(scriptPath, name) {
     };
 
     const bundle = await rollup.rollup(inputOptions);
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const generated = await bundle.generate(outputOptions);
     return generated.output[0].code;
 }
