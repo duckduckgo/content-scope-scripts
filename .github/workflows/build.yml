@@ -1,5 +1,8 @@
 name: Release
 
+on:
+  workflow_dispatch:
+
 jobs:
   release_pr:
     runs-on: ubuntu-latest
@@ -19,6 +22,7 @@ jobs:
 
       - name: Check in files
         run: |
+          git checkout releases
           git add -f build/ Sources/
 
       - name: Commit build files
@@ -26,6 +30,7 @@ jobs:
         with:
           commit_message: "Release build [ci release]"
           commit_options: '--allow-empty'
+          skip_checkout: true
           branch: "releases"
 
       - name: Ship
