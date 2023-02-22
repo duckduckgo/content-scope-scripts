@@ -15,6 +15,11 @@ jobs:
           node-version: 18
           cache: 'npm'
 
+      - name: Fetch files and checkout
+        run: |
+          git fetch --all
+          git checkout releases
+
       - name: Build release
         run: |
           npm install
