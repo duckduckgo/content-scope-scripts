@@ -18,6 +18,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - run: npm install
+      - run: npm run build
       - run: npm run lint
       - run: npm run test-unit
       - name: "Clean tree"
@@ -41,4 +42,5 @@ jobs:
       run: |
         sudo apt-get install xvfb
         npm install
+        npm run build
     - run: npm run test-int-x
