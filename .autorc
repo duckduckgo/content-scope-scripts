@@ -2,8 +2,10 @@
   "plugins": [
     "git-tag"
   ],
-  "baseBranch": "releases",
   "owner": "duckduckgo",
   "repo": "content-scope-scripts",
+  "name": "dax",
+  "email": "dax@duck.co",
+  "baseBranch": "releases",
   "onlyPublishWithReleaseLabel": true
 }
