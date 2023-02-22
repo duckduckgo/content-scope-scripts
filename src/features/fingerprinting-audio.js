@@ -79,6 +79,7 @@ export function init (args) {
             const channelData = DDGReflect.apply(target, thisArg, args)
             // Anything we do here should be caught and ignored silently
             try {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 transformArrayData(channelData, domainKey, sessionKey, thisArg, args)
             } catch {
             }
@@ -94,6 +95,7 @@ export function init (args) {
                 DDGReflect.apply(target, thisArg, args)
                 // Anything we do here should be caught and ignored silently
                 try {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     transformArrayData(args[0], domainKey, sessionKey, thisArg, args)
                 } catch {
                 }

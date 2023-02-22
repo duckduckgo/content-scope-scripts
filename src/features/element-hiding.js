@@ -36,6 +36,7 @@ function collapseDomNode (element, rule, previousElement) {
     case 'closest-empty':
         // hide the outermost empty node so that we may unhide if ad loads
         if (isDomNodeEmpty(element)) {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             collapseDomNode(element.parentNode, rule, element)
         } else if (previousElement) {
             hideNode(previousElement)
@@ -72,6 +73,7 @@ function expandNonEmptyDomNode (element, rule, previousElement) {
         } else if (type === 'closest-empty') {
             // iterate upwards from matching DOM elements until we arrive at previously
             // hidden element. Unhide element if it contains visible content.
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             expandNonEmptyDomNode(element.parentNode, rule, element)
         }
         break
@@ -177,6 +179,7 @@ function applyRules (rules) {
     // check at 750ms, 1500ms, 2250ms, 3000ms
     unhideTimeouts.forEach((timeout) => {
         setTimeout(() => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             unhideLoadedAds(timeoutRules)
         }, timeout)
     })
@@ -250,6 +253,7 @@ function hideAdNodes (rules) {
     rules.forEach((rule) => {
         const matchingElementArray = [...document.querySelectorAll(rule.selector)]
         matchingElementArray.forEach((element) => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             collapseDomNode(element, rule)
         })
     })

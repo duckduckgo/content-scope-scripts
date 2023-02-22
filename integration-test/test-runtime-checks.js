@@ -37,6 +37,7 @@ describe('Runtime checks: should allow element modification', () => {
         // First, a script that will not execute
         const scriptResult = await page.evaluate(
             () => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 window.scripty1Ran = false
                 const scriptElement = document.createElement('script')
                 scriptElement.innerText = 'window.scripty1Ran = true'
@@ -46,15 +47,19 @@ describe('Runtime checks: should allow element modification', () => {
                 const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
                 // Continue to modify the script element after it has been added to the DOM
                 scriptElement.integrity = 'sha256-123'
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 scriptElement.madeUpProp = 'val'
                 const instanceofResult = scriptElement instanceof HTMLScriptElement
                 const scripty = document.querySelector('#scripty')
 
                 return {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     scripty1: window.scripty1Ran,
                     hadInspectorNode,
                     instanceofResult,
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     integrity: scripty.integrity,
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     madeUpProp: scripty.madeUpProp,
                     type: scripty.getAttribute('type')
                 }
@@ -89,6 +94,7 @@ describe('Runtime checks: should allow element modification', () => {
         // And now with a script that will execute
         const scriptResult2 = await page.evaluate(
             () => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 window.scripty2Ran = false
                 const scriptElement = document.createElement('script')
                 scriptElement.innerText = 'window.scripty2Ran = true'
@@ -97,14 +103,17 @@ describe('Runtime checks: should allow element modification', () => {
                 document.body.appendChild(scriptElement)
                 const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
                 // Continue to modify the script element after it has been added to the DOM
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 scriptElement.madeUpProp = 'val'
                 const instanceofResult = scriptElement instanceof HTMLScriptElement
                 const scripty = document.querySelector('#scripty2')
 
                 return {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     scripty2: window.scripty2Ran,
                     hadInspectorNode,
                     instanceofResult,
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     madeUpProp: scripty.madeUpProp,
                     type: scripty.getAttribute('type')
                 }
@@ -167,6 +176,7 @@ describe('Runtime checks: should allow element modification', () => {
 
                 const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
                 // Continue to modify the script element after it has been added to the DOM
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 scriptElement.madeUpProp = 'val'
                 const instanceofResult = scriptElement instanceof HTMLScriptElement
                 const scripty = document.querySelector('#scripty3')
@@ -175,6 +185,7 @@ describe('Runtime checks: should allow element modification', () => {
                     listenerCount,
                     hadInspectorNode,
                     instanceofResult,
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     madeUpProp: scripty.madeUpProp,
                     type: scripty.getAttribute('type')
                 }

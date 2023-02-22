@@ -66,6 +66,7 @@ export async function setup (ops = {}) {
     function setupServer (port) {
         const server = http.createServer(function (req, res) {
             const url = new URL(req.url, `http://${req.headers.host}`)
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             const importUrl = new URL(import.meta.url)
             const dirname = importUrl.pathname.replace(/\/[^/]*$/, '')
             const pathname = path.join(dirname, '../pages', url.pathname)
@@ -104,6 +105,7 @@ export async function setup (ops = {}) {
 
         // wait until contentScopeFeatures.load() has completed
         await page.waitForFunction(() => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             return window.__content_scope_status === 'loaded'
         })
 
@@ -116,6 +118,7 @@ export async function setup (ops = {}) {
 
         // wait until contentScopeFeatures.init(args) has completed
         await page.waitForFunction(() => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             return window.__content_scope_status === 'initialized'
         })
     }
