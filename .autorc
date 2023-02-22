@@ -6,6 +6,5 @@
   "repo": "content-scope-scripts",
   "name": "dax",
   "email": "dax@duck.co",
-  "baseBranch": "releases",
-  "onlyPublishWithReleaseLabel": true
+  "baseBranch": "releases"
 }
