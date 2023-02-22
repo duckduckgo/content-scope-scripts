@@ -34,13 +34,6 @@ jobs:
           commit_message: "Release ${{ github.event.inputs.version }} [ci release]"
           branch: "releases"
 
-#      - name: Create Release
-#        uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          draft: false
-#          prerelease: false
-#          body: "${{ steps.changelog.outputs.changelog }}\n\n${{ env.BUILT_WITH }}"
-#          tag_name: ${{ env.VERSION }}
-#          target_commitish: ${{ github.ref }}
+      - name: Ship
+        run: |
+          npx auto shipit

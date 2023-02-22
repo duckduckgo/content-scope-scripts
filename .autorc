@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    "git-tag"
+  ],
+  "baseBranch": "releases",
+  "owner": "duckduckgo",
+  "repo": "content-scope-scripts",
+  "onlyPublishWithReleaseLabel": true
+}
