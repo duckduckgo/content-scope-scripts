@@ -63,6 +63,7 @@ export async function init (args) {
     const resolvedFeatures = await Promise.all(features)
     resolvedFeatures.forEach(({ init, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+            console.log("✅", featureName, args);
             init(args)
         }
     })

@@ -13,17 +13,18 @@
     "lint-no-output-globals": "eslint build/apple/contentScope.js --rule '{\"no-implicit-globals\": [\"error\"]}' --no-ignore --no-eslintrc --parser-options=ecmaVersion:11",
     "test": "lerna run test",
     "test.unit": "lerna run test.unit",
-    "test.integration": "lerna run test.integration",
+    "test.integration": "playwright test",
+    "test.integration.headed": "playwright test --headed",
     "test.clean-tree": "lerna run test.clean-tree"
   },
   "type": "module",
-  "dependencies": {},
   "devDependencies": {
-    "lerna": "^6.5.1",
+    "@playwright/test": "^1.31.1",
     "@types/node": "^18.14.1",
     "eslint": "^8.34.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0"
+    "eslint-plugin-node": "^11.1.0",
+    "lerna": "^6.5.1"
   }
 }

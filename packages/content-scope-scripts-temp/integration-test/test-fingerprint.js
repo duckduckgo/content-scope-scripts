@@ -27,52 +27,6 @@ function testFPValues (values) {
     }
 }
 
-describe('Fingerprint Defense Tests', () => {
-    let browser
-    let teardown
-    let setupServer
-    beforeAll(async () => {
-        ({ browser, teardown, setupServer } = await setup())
-
-        setupServer('8080')
-        setupServer('8383')
-    })
-    afterAll(async () => {
-        await teardown()
-    })
-
-    for (const test of tests) {
-        it(`${test.url} should include anti-fingerprinting code`, async () => {
-            const page = await browser.newPage()
-
-            try {
-                await page.goto(`http://${test.url}`)
-            } catch (e) {
-                // timed out waiting for page to load, let's try running the test anyway
-            }
-            const values = await page.evaluate(() => {
-                return {
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    availTop: screen.availTop,
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    availLeft: screen.availLeft,
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    wAvailTop: window.screen.availTop,
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    wAvailLeft: window.screen.availLeft,
-                    colorDepth: screen.colorDepth,
-                    pixelDepth: screen.pixelDepth,
-                    productSub: navigator.productSub,
-                    vendorSub: navigator.vendorSub
-                }
-            })
-            testFPValues(values)
-
-            await page.close()
-        })
-    }
-})
-
 describe('First Party Fingerprint Randomization', () => {
     let browser
     let teardown
