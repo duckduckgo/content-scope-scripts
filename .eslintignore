@@ -1,4 +1,5 @@
 build/
-lib/
-Sources/ContentScopeScripts/dist/
-integration-test/extension/contentScope.js
+packages/content-scope-scripts-temp/build
+packages/content-scope-scripts-temp/lib
+packages/content-scope-scripts-temp/integration-test/extension/contentScope.js
+

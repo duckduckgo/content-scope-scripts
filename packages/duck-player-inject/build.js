@@ -1,1 +1,1 @@
-console.log("wedw")
+console.log('wedw')

@@ -9,7 +9,7 @@ const platforms = [
     'chrome-mv3',
     'firefox',
     'integration',
-    'windows',
+    'windows'
 ]
 
 const errors = {
@@ -34,10 +34,10 @@ const json = tryOr(() => JSON.parse(string), errors['invalid-json'])
 process(json)
 
 function process (json) {
-    let taskCount = Object.values(json).flat().length
-    let completed = 0;
-    for (let [platform, packages] of Object.entries(json)) {
-        for (let pkg of packages) {
+    const taskCount = Object.values(json).flat().length
+    let completed = 0
+    for (const [platform, packages] of Object.entries(json)) {
+        for (const pkg of packages) {
             if (!platforms.includes(platform)) {
                 console.error('\n\n❌❌❌', errors['invalid-platform'], pkg)
                 continue
@@ -57,13 +57,13 @@ function process (json) {
                 console.error('\n\n❌❌❌', errors['missing-output'], outputBase)
                 continue
             }
-            const output = join(outputBase, 'content-pages', pkg);
+            const output = join(outputBase, 'content-pages', pkg)
             tryOr(() => cpSync(inputBuildDir, output, { recursive: true }), errors['copy-failed'])
-            completed+=1;
+            completed += 1
         }
     }
     if (completed !== taskCount) {
-        throw new Error(`${taskCount-completed} task(s) did not complete`)
+        throw new Error(`${taskCount - completed} task(s) did not complete`)
     }
 }
 
