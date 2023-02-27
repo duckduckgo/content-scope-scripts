@@ -70,7 +70,7 @@ function mergeDeep (target, ...sources) {
 async function init () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
-    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+
     await contentScopeFeatures.load({
         platform: processedConfig.platform
     })
@@ -79,7 +79,6 @@ async function init () {
     setStatus('loaded')
 
     if (!topLevelUrl.searchParams.has('wait-for-init-args')) {
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         await contentScopeFeatures.init(processedConfig)
         setStatus('initialized')
         return
@@ -90,7 +89,6 @@ async function init () {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const merged = mergeDeep(processedConfig, evt.detail)
         // init features
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         await contentScopeFeatures.init(merged)
 
         // set status to initialized so that tests can resume
