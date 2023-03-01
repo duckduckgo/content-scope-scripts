@@ -4,7 +4,6 @@ import { isTrackerOrigin } from '../src/trackers'
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '')
 
-// @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
 contentScopeFeatures.load({
     platform: {
         name: 'extension'
@@ -21,13 +20,11 @@ window.addEventListener(secret, ({ detail: message }) => {
 
     switch (message.type) {
     case 'update':
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         contentScopeFeatures.update(message)
         break
     case 'register':
         if (message.argumentsObject) {
             message.argumentsObject.messageSecret = secret
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             contentScopeFeatures.init(message.argumentsObject)
         }
         break
