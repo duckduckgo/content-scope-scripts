@@ -3949,8 +3949,8 @@
 
   var cookie = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    load: load$1,
     init: init$e,
+    load: load$1,
     update: update
   });
 
@@ -6078,6 +6078,20 @@
   let matchAllStackDomains = false;
   let taintCheck = false;
   let initialCreateElement;
+  let tagModifiers = {};
+
+  /**
+   * @param {string} tagName
+   * @param {'property' | 'attribute' | 'handler' | 'listener'} filterName
+   * @param {string} key
+   * @returns {boolean}
+   */
+  function shouldFilterKey (tagName, filterName, key) {
+      if (filterName === 'attribute') {
+          key = key.toLowerCase();
+      }
+      return tagModifiers?.[tagName]?.filters?.[filterName]?.includes(key)
+  }
 
   let elementRemovalTimeout;
   const featureName = 'runtimeChecks';
@@ -6111,12 +6125,15 @@
       monitorProperties (el) {
           // Mutation oberver and observedAttributes don't work on property accessors
           // So instead we need to monitor all properties on the prototypes and forward them to the real element
-          const propertyNames = [];
+          let propertyNames = [];
           let proto = Object.getPrototypeOf(el);
           while (proto && proto !== Object.prototype) {
               propertyNames.push(...Object.getOwnPropertyNames(proto));
               proto = Object.getPrototypeOf(proto);
           }
+          const classMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));
+          // Filter away the methods we don't want to monitor from our own class
+          propertyNames = propertyNames.filter(prop => !classMethods.includes(prop));
           propertyNames.forEach(prop => {
               if (prop === 'constructor') return
               // May throw, but this is best effort monitoring.
@@ -6126,6 +6143,7 @@
                           return el[prop]
                       },
                       set (value) {
+                          if (shouldFilterKey(this.#tagName, 'property', prop)) return
                           el[prop] = value;
                       }
                   });
@@ -6148,16 +6166,19 @@
 
           // Reflect all attrs to the new element
           for (const attribute of this.getAttributeNames()) {
+              if (shouldFilterKey(this.#tagName, 'attribute', attribute)) continue
               el.setAttribute(attribute, this.getAttribute(attribute));
           }
 
           // Reflect all props to the new element
           for (const param of Object.keys(this)) {
+              if (shouldFilterKey(this.#tagName, 'property', param)) continue
               el[param] = this[param];
           }
 
           // Reflect all listeners to the new element
           for (const [...args] of this.#listeners) {
+              if (shouldFilterKey(this.#tagName, 'listener', args[0])) continue
               el.addEventListener(...args);
           }
           this.#listeners = [];
@@ -6165,6 +6186,7 @@
           // Reflect all 'on' event handlers to the new element
           for (const propName in this) {
               if (propName.startsWith('on')) {
+                  if (shouldFilterKey(this.#tagName, 'handler', propName)) continue
                   const prop = this[propName];
                   if (typeof prop === 'function') {
                       el[propName] = prop;
@@ -6197,6 +6219,7 @@
       }
 
       setAttribute (name, value) {
+          if (shouldFilterKey(this.#tagName, 'attribute', name)) return
           const el = this.getElement();
           if (el) {
               return el.setAttribute(name, value)
@@ -6205,6 +6228,7 @@
       }
 
       removeAttribute (name) {
+          if (shouldFilterKey(this.#tagName, 'attribute', name)) return
           const el = this.getElement();
           if (el) {
               return el.removeAttribute(name)
@@ -6213,6 +6237,7 @@
       }
 
       addEventListener (...args) {
+          if (shouldFilterKey(this.#tagName, 'listener', args[0])) return
           const el = this.getElement();
           if (el) {
               return el.addEventListener(...args)
@@ -6221,6 +6246,7 @@
       }
 
       removeEventListener (...args) {
+          if (shouldFilterKey(this.#tagName, 'listener', args[0])) return
           const el = this.getElement();
           if (el) {
               return el.removeEventListener(...args)
@@ -6346,6 +6372,7 @@
       matchAllStackDomains = getFeatureSettingEnabled(featureName, args, 'matchAllStackDomains');
       stackDomains = getFeatureSetting(featureName, args, 'stackDomains') || [];
       elementRemovalTimeout = getFeatureSetting(featureName, args, 'elementRemovalTimeout') || 1000;
+      tagModifiers = getFeatureSetting(featureName, args, 'tagModifiers') || {};
 
       overrideCreateElement();
 
@@ -6356,8 +6383,8 @@
 
   var runtimeChecks = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    load: load,
-    init: init$2
+    init: init$2,
+    load: load
   });
 
   /**
@@ -6557,6 +6584,7 @@
       const videoTracks = new Set();
       const audioTracks = new Set();
 
+      // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
       function getTracks (permission) {
           switch (permission) {
           case Permission.Camera:
@@ -6894,7 +6922,6 @@
     }
 
     function init () {
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         contentScopeFeatures.load({
             platform: {
                 name: 'extension'
@@ -6927,14 +6954,12 @@
                 });
             }
             message.messageSecret = messageSecret;
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             contentScopeFeatures.init(message);
         });
 
         chrome.runtime.onMessage.addListener((message) => {
             // forward update messages to the embedded script
             if (message && message.type === 'update') {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 contentScopeFeatures.update(message);
             }
         });
@@ -6948,7 +6973,6 @@
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             chrome.runtime.sendMessage(m && m.detail, response => {
                 const msg = { func: messageType, response };
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 contentScopeFeatures.update({ detail: msg });
             });
         });

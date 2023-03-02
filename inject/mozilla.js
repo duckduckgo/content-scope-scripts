@@ -17,7 +17,6 @@ function randomString () {
 }
 
 function init () {
-    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     contentScopeFeatures.load({
         platform: {
             name: 'extension'
@@ -50,14 +49,12 @@ function init () {
             })
         }
         message.messageSecret = messageSecret
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         contentScopeFeatures.init(message)
     })
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
         if (message && message.type === 'update') {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             contentScopeFeatures.update(message)
         }
     })
@@ -71,7 +68,6 @@ function init () {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         chrome.runtime.sendMessage(m && m.detail, response => {
             const msg = { func: messageType, response }
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             contentScopeFeatures.update({ detail: msg })
         })
     })
