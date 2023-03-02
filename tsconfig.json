@@ -5,7 +5,8 @@
     "alwaysStrict": true,
     "allowJs": true,
     "checkJs": true,
-    "noEmit": true
+    "noEmit": true,
+    "noImplicitReturns": true
   },
   "include": [
     "src",

@@ -87,6 +87,7 @@ export function init () {
     const videoTracks = new Set()
     const audioTracks = new Set()
 
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     function getTracks (permission) {
         switch (permission) {
         case Permission.Camera:

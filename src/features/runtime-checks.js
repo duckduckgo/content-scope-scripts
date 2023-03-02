@@ -16,7 +16,7 @@ function shouldFilterKey (tagName, filterName, key) {
     if (filterName === 'attribute') {
         key = key.toLowerCase()
     }
-    if (tagModifiers?.[tagName]?.filters?.[filterName]?.includes(key)) return true
+    return tagModifiers?.[tagName]?.filters?.[filterName]?.includes(key)
 }
 
 let elementRemovalTimeout
