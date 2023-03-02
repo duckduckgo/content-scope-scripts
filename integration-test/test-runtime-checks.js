@@ -199,4 +199,100 @@ describe('Runtime checks: should allow element modification', () => {
             type: 'application/javascript'
         })
     })
+
+    it('Script that should filter props', async () => {
+        const port = server.address().port
+        const page = await browser.newPage()
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+            site: {
+                enabledFeatures: ['runtimeChecks']
+            },
+            featureSettings: {
+                runtimeChecks: {
+                    taintCheck: 'enabled',
+                    matchAllDomains: 'enabled',
+                    matchAllStackDomains: 'enabled',
+                    overloadInstanceOf: 'enabled',
+                    tagModifiers: {
+                        script: {
+                            filters: {
+                                property: ['madeUpProp1', 'madeUpProp3'],
+                                attribute: ['madeupattr1', 'madeupattr3']
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        // And now with a script that will execute
+        const scriptResult4 = await page.evaluate(
+            () => {
+                function getAttributeValues (el) {
+                    const attributes = {}
+                    for (const attribute of el.getAttributeNames()) {
+                        attributes[attribute] = el.getAttribute(attribute)
+                    }
+                    return attributes
+                }
+                function getProps (el) {
+                    const props = {}
+                    for (const prop of Object.keys(el)) {
+                        props[prop] = el[prop]
+                    }
+                    return props
+                }
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                window.scripty4Ran = false
+                const scriptElement = document.createElement('script')
+                scriptElement.innerText = 'window.scripty4Ran = true'
+                scriptElement.id = 'scripty4'
+                scriptElement.setAttribute('type', 'application/javascript')
+                // @ts-expect-error made up prop is unknown to TS
+                scriptElement.madeUpProp1 = 'val'
+                // @ts-expect-error made up prop is unknown to TS
+                scriptElement.madeUpProp2 = 'val'
+                scriptElement.setAttribute('madeUpAttr1', '1')
+                scriptElement.setAttribute('madeUpAttr2', '2')
+                document.body.appendChild(scriptElement)
+                const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
+                // Continue to modify the script element after it has been added to the DOM
+                // @ts-expect-error made up prop is unknown to TS
+                scriptElement.madeUpProp1 = 'val'
+                // @ts-expect-error made up prop is unknown to TS
+                scriptElement.madeUpProp2 = 'val'
+                scriptElement.setAttribute('madeUpAttr3', '3')
+                scriptElement.setAttribute('madeUpAttr4', '4')
+                const instanceofResult = scriptElement instanceof HTMLScriptElement
+                const scripty = document.querySelector('script#scripty4')
+                const nodeAndFakeNodeMatch = scripty === scriptElement
+
+                return {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    scripty4: window.scripty4Ran,
+                    hadInspectorNode,
+                    instanceofResult,
+                    attributes: getAttributeValues(scripty),
+                    props: getProps(scripty),
+                    nodeAndFakeNodeMatch
+                }
+            }
+        )
+        expect(scriptResult4).toEqual({
+            scripty4: true,
+            hadInspectorNode: true,
+            instanceofResult: true,
+            attributes: {
+                id: 'scripty4',
+                type: 'application/javascript',
+                // madeupattr1: undefined,
+                madeupattr2: '2',
+                // madeupattr3: undefined,
+                madeupattr4: '4'
+            },
+            props: {
+                madeUpProp2: 'val'
+            },
+            nodeAndFakeNodeMatch: false
+        })
+    })
 })
