@@ -59,26 +59,16 @@ function init () {
         }
     })
 
-    window.addEventListener('sendMessageProxy' + messageSecret, event => {
-        event.stopImmediatePropagation()
-
-        if (!(event instanceof CustomEvent) || !event?.detail) {
-            return console.warn('no details in sendMessage proxy', event)
-        }
-
-        const messageType = event.detail?.messageType
+    window.addEventListener('sendMessageProxy' + messageSecret, (m) => {
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        const messageType = m.detail.messageType
         if (!allowedMessages.includes(messageType)) {
             return console.warn('Ignoring invalid sendMessage messageType', messageType)
         }
-
-        chrome.runtime.sendMessage(event.detail, response => {
-            const message = {
-                messageType: 'response',
-                responseMessageType: messageType,
-                response
-            }
-
-            contentScopeFeatures.update(message)
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        chrome.runtime.sendMessage(m && m.detail, response => {
+            const msg = { func: messageType, response }
+            contentScopeFeatures.update({ detail: msg })
         })
     })
 }
