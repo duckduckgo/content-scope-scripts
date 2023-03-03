@@ -1,6 +1,10 @@
 {
   "name": "@duckduckgo/content-scope-scripts",
   "license": "Apache-2.0",
+  "files": [
+    "build/",
+    "Sources/ContentScopeScripts/dist/"
+  ],
   "scripts": {
     "postinstall": "npm run copy-sjcl",
     "copy-sjcl": "node scripts/generateSJCL.js",
