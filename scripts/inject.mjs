@@ -60,6 +60,8 @@ async function init() {
         initOther('inject/integration.js', process.argv[2]);
     } else if (process.argv[2] == 'chrome-mv3') {
         initOther('inject/chrome-mv3.js', 'chrome_mv3');
+    } else if (process.argv[2] === 'safari-mv3') {
+        initOther('inject/safari-mv3.js', 'safari_mv3');
     } else {
         initChrome();
     }
