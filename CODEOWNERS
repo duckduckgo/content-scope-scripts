@@ -4,8 +4,8 @@
 src/features/fingerprinting-* @jonathanKingston @englehardt
 src/canvas.js @jonathanKingston @englehardt
 src/element-hiding.js @jonathanKingston @dharb
-src/features/click-to-play.js @kzar @ladamski
-src/locales/click-to-play/ @kzar @ladamski
+src/features/click-to-load.js @kzar @ladamski
+src/locales/click-to-load/ @kzar @ladamski
 
 # Platform owners
 inject/android.js @jonathanKingston @joshliebe

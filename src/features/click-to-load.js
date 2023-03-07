@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
-import { logoImg, loadingImages, closeIcon } from './click-to-play/ctl-assets.js'
-import { styles, getConfig } from './click-to-play/ctl-config.js'
+import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
+import { styles, getConfig } from './click-to-load/ctl-config.js'
 
 let devMode = false
 let isYoutubePreviewsEnabled = false
@@ -557,7 +557,7 @@ async function replaceClickToLoadElements (targetElement) {
 /**
  * @typedef unblockClickToLoadContentRequest
  * @property {string} entity
- *   The entity to unblock requests for (e.g. "Facebook").
+ *   The entity to unblock requests for (e.g. "Facebook, Inc.").
  * @property {bool} [isLogin=false]
  *   True if we should "allow social login", defaults to false.
  * @property {string} action
@@ -1343,21 +1343,16 @@ const knownMessageResponseType = Object.prototype.hasOwnProperty.bind(messageRes
 
 export function init (args) {
     const websiteOwner = args?.site?.parentEntity
-    const settings = args?.featureSettings?.clickToPlay || {}
+    const settings = args?.featureSettings?.clickToLoad || {}
     const locale = args?.locale || 'en'
     const localizedConfig = getConfig(locale)
     config = localizedConfig.config
     sharedStrings = localizedConfig.sharedStrings
 
     for (const entity of Object.keys(config)) {
-        // TODO: Remove this workaround once the privacy-configuration has been
-        //       updated, and 'Facebook, Inc.' is used consistently in
-        //       content-scope-scripts too.
-        const normalizedEntity = entity === 'Facebook' ? 'Facebook, Inc.' : entity
-
         // Strip config entities that are first-party, or aren't enabled in the
-        // extension's clickToPlay settings.
-        if ((websiteOwner && normalizedEntity === websiteOwner) ||
+        // extension's clickToLoad settings.
+        if ((websiteOwner && entity === websiteOwner) ||
             !settings[entity] ||
             settings[entity].state !== 'enabled') {
             delete config[entity]
