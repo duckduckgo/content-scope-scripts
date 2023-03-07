@@ -404,7 +404,7 @@ export function init () {
         { name: 'Idle detection', permission: 'IdleDetector' },
         { name: 'NFC', permission: 'NDEFReader' },
         { name: 'Orientation', permission: 'ondeviceorientation' },
-        { name: 'Motion', permission: 'ondevicemotion' },
+        { name: 'Motion', permission: 'ondevicemotion' }
     ]
     for (const { permission } of permissionsToDelete) {
         if (permission in window) {
