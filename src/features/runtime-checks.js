@@ -45,6 +45,10 @@ class DDGRuntimeChecks extends HTMLElement {
         // Solves re-entrancy issues from React
         if (this.#connected) return
         this.#connected = true
+        if (!this.transplantElement) {
+            // Restore the 'this' object with the DDGRuntimeChecks prototype as sometimes pages will overwrite it.
+            Object.setPrototypeOf(this, DDGRuntimeChecks.prototype)
+        }
         this.transplantElement()
     }
 
