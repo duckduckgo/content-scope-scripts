@@ -600,7 +600,7 @@ export function getConfig (locale) {
 
     const sharedStrings = locales[locale]['shared.json']
     const config = {
-        Facebook: {
+        'Facebook, Inc.': {
             informationalModal: {
                 icon: blockedFBLogo,
                 messageTitle: fbStrings.informationalModalMessageTitle,
