@@ -224,7 +224,6 @@ describe('Runtime checks: should allow element modification', () => {
                 }
             }
         })
-        // And now with a script that will execute
         const scriptResult4 = await page.evaluate(
             () => {
                 function getAttributeValues (el) {
@@ -294,5 +293,35 @@ describe('Runtime checks: should allow element modification', () => {
             },
             nodeAndFakeNodeMatch: false
         })
+    })
+
+    it('Script that should filter props and attributes', async () => {
+        const port = server.address().port
+        const page = await browser.newPage()
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+            site: {
+                enabledFeatures: ['runtimeChecks']
+            },
+            featureSettings: {
+                runtimeChecks: {
+                    taintCheck: 'enabled',
+                    matchAllDomains: 'enabled',
+                    matchAllStackDomains: 'enabled',
+                    overloadInstanceOf: 'enabled'
+                }
+            }
+        })
+        const scriptResult5 = await page.evaluate(
+            () => {
+                // @ts-expect-error Undefined property for testing
+                window.scripty5Ran = false
+                const myScript = document.createElement('script')
+                myScript.innerText = 'window.scripty5Ran = true'
+                Object.setPrototypeOf(myScript, HTMLScriptElement.prototype)
+                document.body.appendChild(myScript)
+                // @ts-expect-error Undefined property for testing
+                return window.scripty5Ran
+            })
+        expect(scriptResult5).toBe(true)
     })
 })
