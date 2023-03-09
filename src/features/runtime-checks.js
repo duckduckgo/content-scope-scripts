@@ -109,9 +109,20 @@ class DDGRuntimeChecks extends HTMLElement {
         }
 
         // Reflect all props to the new element
-        for (const param of Object.keys(this)) {
-            if (shouldFilterKey(this.#tagName, 'property', param)) continue
-            el[param] = this[param]
+        const props = Object.keys(this)
+
+        // Nonce isn't enumerable so we need to add it manually
+        props.push('nonce')
+
+        for (const prop of props) {
+            if (shouldFilterKey(this.#tagName, 'property', prop)) continue
+            el[prop] = this[prop]
+        }
+
+        for (const sink of supportedSinks) {
+            if (this.#sinks[sink]) {
+                el[sink] = this.#sinks[sink]
+            }
         }
 
         for (const sink of supportedSinks) {
