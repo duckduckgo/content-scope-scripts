@@ -22,12 +22,14 @@ function shouldFilterKey (tagName, filterName, key) {
 let elementRemovalTimeout
 const featureName = 'runtimeChecks'
 const symbol = Symbol(featureName)
+const supportedSinks = ['src']
 
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
     #el
     #listeners
     #connected
+    #sinks
 
     constructor () {
         super()
@@ -35,6 +37,7 @@ class DDGRuntimeChecks extends HTMLElement {
         this.#el = null
         this.#listeners = []
         this.#connected = false
+        this.#sinks = {}
     }
 
     /**
@@ -111,6 +114,12 @@ class DDGRuntimeChecks extends HTMLElement {
             el[param] = this[param]
         }
 
+        for (const sink of supportedSinks) {
+            if (this.#sinks[sink]) {
+                el[sink] = this.#sinks[sink]
+            }
+        }
+
         // Reflect all listeners to the new element
         for (const [...args] of this.#listeners) {
             if (shouldFilterKey(this.#tagName, 'listener', args[0])) continue
@@ -155,8 +164,46 @@ class DDGRuntimeChecks extends HTMLElement {
 
     /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */
 
+    set src (value) {
+        const el = this.#getElement()
+        if (el) {
+            el.src = value
+            return
+        }
+        this.#sinks.src = value
+    }
+
+    get src () {
+        const el = this.#getElement()
+        if (el) {
+            return el.src
+        }
+        // @ts-expect-error TrustedScriptURL is not defined in the TS lib
+        // eslint-disable-next-line no-undef
+        if ('TrustedScriptURL' in window && this.#sinks.src instanceof TrustedScriptURL) {
+            return this.#sinks.src.toString()
+        }
+        return this.#sinks.src
+    }
+
+    getAttribute (name, value) {
+        if (shouldFilterKey(this.#tagName, 'attribute', name)) return
+        if (supportedSinks.includes(name)) {
+            return this[name]
+        }
+        const el = this.#getElement()
+        if (el) {
+            return el.getAttribute(name)
+        }
+        return super.getAttribute(name)
+    }
+
     setAttribute (name, value) {
         if (shouldFilterKey(this.#tagName, 'attribute', name)) return
+        if (supportedSinks.includes(name)) {
+            this[name] = value
+            return
+        }
         const el = this.#getElement()
         if (el) {
             return el.setAttribute(name, value)
@@ -166,6 +213,10 @@ class DDGRuntimeChecks extends HTMLElement {
 
     removeAttribute (name) {
         if (shouldFilterKey(this.#tagName, 'attribute', name)) return
+        if (supportedSinks.includes(name)) {
+            delete this[name]
+            return
+        }
         const el = this.#getElement()
         if (el) {
             return el.removeAttribute(name)

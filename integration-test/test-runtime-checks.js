@@ -324,4 +324,65 @@ describe('Runtime checks: should allow element modification', () => {
             })
         expect(scriptResult5).toBe(true)
     })
+
+    it('Script should support trusted types', async () => {
+        const port = server.address().port
+        const page = await browser.newPage()
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+            site: {
+                enabledFeatures: ['runtimeChecks']
+            },
+            featureSettings: {
+                runtimeChecks: {
+                    taintCheck: 'enabled',
+                    matchAllDomains: 'enabled',
+                    matchAllStackDomains: 'enabled',
+                    overloadInstanceOf: 'enabled'
+                }
+            }
+        })
+        const scriptResult6 = await page.evaluate(
+            () => {
+                // @ts-expect-error Trusted types are not defined on all browsers
+                const policy = window.trustedTypes.createPolicy('test', {
+                    createScriptURL: (url) => url
+                })
+                const myScript = document.createElement('script')
+                myScript.src = policy.createScriptURL('http://example.com')
+                const srcVal = myScript.src
+
+                myScript.setAttribute('src', policy.createScriptURL('http://example2.com'))
+                const srcVal2 = myScript.getAttribute('src')
+                const srcVal3 = myScript.src
+
+                document.body.appendChild(myScript)
+
+                // After append
+                myScript.setAttribute('src', policy.createScriptURL('http://example3.com'))
+                const srcVal4 = myScript.getAttribute('src')
+                const srcVal5 = myScript.src
+
+                myScript.src = policy.createScriptURL('http://example4.com')
+                const srcVal6 = myScript.getAttribute('src')
+                const srcVal7 = myScript.src
+                return {
+                    srcVal,
+                    srcVal2,
+                    srcVal3,
+                    srcVal4,
+                    srcVal5,
+                    srcVal6,
+                    srcVal7
+                }
+            })
+        expect(scriptResult6).toEqual({
+            srcVal: 'http://example.com',
+            srcVal2: 'http://example2.com',
+            srcVal3: 'http://example2.com',
+            srcVal4: 'http://example3.com/',
+            srcVal5: 'http://example3.com/',
+            srcVal6: 'http://example4.com/',
+            srcVal7: 'http://example4.com/'
+        })
+    })
 })
