@@ -125,12 +125,6 @@ class DDGRuntimeChecks extends HTMLElement {
             }
         }
 
-        for (const sink of supportedSinks) {
-            if (this.#sinks[sink]) {
-                el[sink] = this.#sinks[sink]
-            }
-        }
-
         // Reflect all listeners to the new element
         for (const [...args] of this.#listeners) {
             if (shouldFilterKey(this.#tagName, 'listener', args[0])) continue
