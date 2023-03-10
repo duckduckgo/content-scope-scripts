@@ -325,7 +325,7 @@ function shouldInterrogate (tagName) {
 }
 
 function overrideCreateElement () {
-    const proxy = new DDGProxy(featureName, document, 'createElement', {
+    const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
         apply (fn, scope, args) {
             if (args.length >= 1) {
                 const initialTagName = args[0].toLowerCase()
