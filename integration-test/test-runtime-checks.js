@@ -44,7 +44,7 @@ describe('Runtime checks: should allow element modification', () => {
                 scriptElement.id = 'scripty'
                 scriptElement.setAttribute('type', 'application/evilscript')
                 document.body.appendChild(scriptElement)
-                const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
+                const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks')
                 // Continue to modify the script element after it has been added to the DOM
                 scriptElement.integrity = 'sha256-123'
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -101,7 +101,7 @@ describe('Runtime checks: should allow element modification', () => {
                 scriptElement.id = 'scripty2'
                 scriptElement.setAttribute('type', 'application/javascript')
                 document.body.appendChild(scriptElement)
-                const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
+                const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks')
                 // Continue to modify the script element after it has been added to the DOM
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 scriptElement.madeUpProp = 'val'
@@ -174,7 +174,7 @@ describe('Runtime checks: should allow element modification', () => {
                 document.body.appendChild(scriptElement)
                 await Promise.all([promise, promise2])
 
-                const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
+                const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks')
                 // Continue to modify the script element after it has been added to the DOM
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 scriptElement.madeUpProp = 'val'
@@ -253,7 +253,7 @@ describe('Runtime checks: should allow element modification', () => {
                 scriptElement.setAttribute('madeUpAttr1', '1')
                 scriptElement.setAttribute('madeUpAttr2', '2')
                 document.body.appendChild(scriptElement)
-                const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
+                const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks')
                 // Continue to modify the script element after it has been added to the DOM
                 // @ts-expect-error made up prop is unknown to TS
                 scriptElement.madeUpProp1 = 'val'
@@ -412,7 +412,7 @@ describe('Runtime checks: should allow element modification', () => {
                 scriptElement.id = 'scriptDocumentPrototype'
                 scriptElement.setAttribute('type', 'application/javascript')
                 document.body.appendChild(scriptElement)
-                const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
+                const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks')
                 const instanceofResult = scriptElement instanceof HTMLScriptElement
                 const scripty = document.querySelector('script#scriptDocumentPrototype')
 
