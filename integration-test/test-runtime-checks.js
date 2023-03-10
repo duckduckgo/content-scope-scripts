@@ -385,4 +385,51 @@ describe('Runtime checks: should allow element modification', () => {
             srcVal7: 'http://example4.com/'
         })
     })
+
+    it('Script using parent prototype should execute checking', async () => {
+        const port = server.address().port
+        const page = await browser.newPage()
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+            site: {
+                enabledFeatures: ['runtimeChecks']
+            },
+            featureSettings: {
+                runtimeChecks: {
+                    taintCheck: 'enabled',
+                    matchAllDomains: 'enabled',
+                    matchAllStackDomains: 'enabled',
+                    overloadInstanceOf: 'enabled'
+                }
+            }
+        })
+        // And now with a script that will execute
+        const scriptResult = await page.evaluate(
+            () => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                window.scriptDocumentPrototypeRan = false
+                const scriptElement = Document.prototype.createElement.call(window.document, 'script')
+                scriptElement.innerText = 'window.scriptDocumentPrototypeRan = true'
+                scriptElement.id = 'scriptDocumentPrototype'
+                scriptElement.setAttribute('type', 'application/javascript')
+                document.body.appendChild(scriptElement)
+                const hadInspectorNode = !!document.querySelector('ddg-runtime-checks')
+                const instanceofResult = scriptElement instanceof HTMLScriptElement
+                const scripty = document.querySelector('script#scriptDocumentPrototype')
+
+                return {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    scriptRan: window.scriptDocumentPrototypeRan,
+                    hadInspectorNode,
+                    instanceofResult,
+                    type: scripty.getAttribute('type')
+                }
+            }
+        )
+        expect(scriptResult).toEqual({
+            scriptRan: true,
+            hadInspectorNode: true,
+            instanceofResult: true,
+            type: 'application/javascript'
+        })
+    })
 })
