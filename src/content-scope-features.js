@@ -1,4 +1,5 @@
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
+import injectedFeaturesCode from 'custom:runtimeInjects'
 
 function shouldRun () {
     // don't inject into non-HTML documents (such as XML documents)
@@ -16,6 +17,14 @@ let initArgs = null
 const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
+
+const injectedFeatures = [
+    'runtimeChecks'
+]
+
+function getFileNameFromFeatureName (featureName) {
+    return featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+}
 
 export async function load (args) {
     if (!shouldRun()) {
@@ -41,16 +50,41 @@ export async function load (args) {
     ]
 
     for (const featureName of featureNames) {
-        const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+        const filename = getFileNameFromFeatureName(featureName)
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
-                load(args)
+                // Short circuit if the feature is injected
+                if (!injectedFeatures.includes(featureName)) {
+                    load(args)
+                }
             }
             return { featureName, init, update }
         })
         features.push(feature)
     }
+}
+
+async function injectFeature (featureName, args) {
+    const codeImport = injectedFeaturesCode[featureName]
+    const script = document.createElement('script')
+    console.log(args)
+    const argsCopy = structuredClone(args)
+    argsCopy.featureSettings = {
+        [featureName]: argsCopy.featureSettings[featureName]
+    }
+    const code = `(() => {
+        ${codeImport}
+        console.log('Running feature ${featureName}', ${featureName})
+        ${featureName}.load()
+        ${featureName}.init(${JSON.stringify(argsCopy)})
+    })()`
+    console.log('gen code', code)
+    const blob = new Blob([code], {
+        type: 'application/javascript'
+    });
+    script.src = URL.createObjectURL(blob)
+    document.head.appendChild(script)
 }
 
 export async function init (args) {
@@ -62,6 +96,10 @@ export async function init (args) {
     initStringExemptionLists(args)
     const resolvedFeatures = await Promise.all(features)
     resolvedFeatures.forEach(({ init, featureName }) => {
+        if (injectedFeatures.includes(featureName)) {
+            injectFeature(featureName, args)
+            return
+        }
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
             init(args)
         }
