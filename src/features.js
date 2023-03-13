@@ -18,6 +18,7 @@ export const featureNames = [
 ]
 
 // Certain features are injected into the page in Firefox
+// This is because Firefox does not support proxies for custom elements, it's advided you don't use this without a good reason
 export const runtimeInjected = [
     'runtimeChecks'
 ]

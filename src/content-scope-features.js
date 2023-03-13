@@ -1,5 +1,5 @@
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
-import { runtimeInjected, featureNames } from './features'
+import { featureNames } from './features'
 // @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'custom:runtimeInjects'
 
@@ -31,7 +31,7 @@ export async function load (args) {
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
                 // Short circuit if the feature is injected
-                if (isInjectedFeature(featureName)) {
+                if (!isInjectedFeature(featureName)) {
                     load(args)
                 }
             }
@@ -65,7 +65,7 @@ async function injectFeature (featureName, args) {
 }
 
 function isInjectedFeature (featureName) {
-    return mozProxies && runtimeInjected.includes(featureName)
+    return mozProxies && featureName in injectedFeaturesCode
 }
 
 export async function init (args) {
