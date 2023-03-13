@@ -12,7 +12,6 @@
     "bundle-config": "node scripts/bundleConfig.mjs",
     "build": "npm run build-locales && npm run build-firefox && npm run build-chrome && npm run build-apple && npm run build-android && npm run build-windows && npm run build-integration && npm run build-chrome-mv3",
     "build-locales": "mkdir -p build/locales && node scripts/buildLocales src/locales/click-to-load > build/locales/ctl-locales.js",
-    "build-injected-features": "mkdir -p build/injected-features && node scripts/buildInjectedFeatures.js",
     "build-firefox": "mkdir -p build/firefox/ && node scripts/inject.js firefox > build/firefox/inject.js",
     "build-chrome": "mkdir -p build/chrome/ && node scripts/inject.js chrome > build/chrome/inject.js",
     "build-chrome-mv3": "mkdir -p build/chrome-mv3/ && node scripts/inject.js chrome-mv3 > build/chrome-mv3/inject.js",
