@@ -1,3 +1,4 @@
+/* global mozProxies */
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
 import { featureNames } from './features'
 // @ts-expect-error Special glob import for injected features see scripts/utils/build.js
@@ -56,10 +57,7 @@ async function injectFeature (featureName, args) {
         ${featureName}.load()
         ${featureName}.init(${JSON.stringify(argsCopy)})
     })()`
-    const blob = new Blob([code], {
-        type: 'application/javascript'
-    })
-    script.src = URL.createObjectURL(blob)
+    script.src = 'data:text/javascript;base64,' + btoa(code)
     document.head.appendChild(script)
     script.remove()
 }

@@ -21,7 +21,7 @@ async function getAllFeatureCode (pathName) {
 
 /**
  * Allows importing of all features into a custom runtimeInjects export
- * @returns {Record<String, String>}
+ * @returns {import('rollup').Plugin}
  */
 function runtimeInjections () {
     const customId = 'custom:runtimeInjects'
@@ -31,12 +31,14 @@ function runtimeInjections () {
             if (id === customId) {
                 return id
             }
+            return null
         },
         async load (id) {
             if (id === customId) {
                 const code = await getAllFeatureCode('src/features')
                 return `export default ${JSON.stringify(code, undefined, 4)}`
             }
+            return null
         }
     }
 }
