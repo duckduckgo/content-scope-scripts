@@ -1,4 +1,6 @@
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
+import { runtimeInjected, featureNames } from './features'
+// @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'custom:runtimeInjects'
 
 function shouldRun () {
@@ -18,32 +20,10 @@ const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
 
-const injectedFeatures = [
-    'runtimeChecks'
-]
-
 export async function load (args) {
     if (!shouldRun()) {
         return
     }
-    const featureNames = [
-        'runtimeChecks',
-        'windowsPermissionUsage',
-        'webCompat',
-        'fingerprintingAudio',
-        'fingerprintingBattery',
-        'fingerprintingCanvas',
-        'cookie',
-        'googleRejected',
-        'gpc',
-        'fingerprintingHardware',
-        'referrer',
-        'fingerprintingScreenSize',
-        'fingerprintingTemporaryStorage',
-        'navigatorInterface',
-        'clickToLoad',
-        'elementHiding'
-    ]
 
     for (const featureName of featureNames) {
         const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
@@ -51,7 +31,7 @@ export async function load (args) {
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
                 // Short circuit if the feature is injected
-                if (!injectedFeatures.includes(featureName)) {
+                if (isInjectedFeature(featureName)) {
                     load(args)
                 }
             }
@@ -61,10 +41,12 @@ export async function load (args) {
     }
 }
 
+/**
+ * Injects a feature into the page as a script tag and runs it
+ */
 async function injectFeature (featureName, args) {
     const codeImport = injectedFeaturesCode[featureName]
     const script = document.createElement('script')
-    console.log(args)
     const argsCopy = structuredClone(args)
     argsCopy.featureSettings = {
         [featureName]: argsCopy.featureSettings[featureName]
@@ -79,6 +61,11 @@ async function injectFeature (featureName, args) {
     })
     script.src = URL.createObjectURL(blob)
     document.head.appendChild(script)
+    script.remove()
+}
+
+function isInjectedFeature (featureName) {
+    return mozProxies && runtimeInjected.includes(featureName)
 }
 
 export async function init (args) {
@@ -90,7 +77,7 @@ export async function init (args) {
     initStringExemptionLists(args)
     const resolvedFeatures = await Promise.all(features)
     resolvedFeatures.forEach(({ init, featureName }) => {
-        if (injectedFeatures.includes(featureName)) {
+        if (isInjectedFeature(featureName)) {
             injectFeature(featureName, args)
             return
         }

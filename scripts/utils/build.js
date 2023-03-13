@@ -3,20 +3,17 @@ import commonjs from '@rollup/plugin-commonjs'
 import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
 import dynamicImportVariables from 'rollup-plugin-dynamic-import-variables'
-import { promises as fs } from 'fs'
+import { runtimeInjected } from '../../src/features.js'
 
 /**
  * This is a helper function to require all files in a directory
  */
-async function getAllFiles (pathName) {
-    const dirContents = await fs.readdir(pathName, { encoding: 'utf8', withFileTypes: true })
+async function getAllFeatureCode (pathName) {
     const fileContents = {}
-    for (const file of dirContents) {
-        const fileName = file.name
-        if (!file.isFile()) { continue }
-        const fullPath = `${pathName}/${fileName}`
+    for (const featureName of runtimeInjected) {
+        const fileName = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+        const fullPath = `${pathName}/${fileName}.js`
         const code = await rollupScript(fullPath, 'runtimeChecks', false)
-        const featureName = fileName.replace(/[.]js$/, '').replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase())
         fileContents[featureName] = code
     }
     return fileContents
@@ -37,7 +34,7 @@ function runtimeInjections () {
         },
         async load (id) {
             if (id === customId) {
-                const code = await getAllFiles('src/features')
+                const code = await getAllFeatureCode('src/features')
                 return `export default ${JSON.stringify(code, undefined, 4)}`
             }
         }
