@@ -28,13 +28,14 @@ export async function load (args) {
 
     for (const featureName of featureNames) {
         const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+        // Short circuit if the feature is injected later in load()
+        if (isInjectedFeature(featureName)) {
+            continue
+        }
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
-                // Short circuit if the feature is injected
-                if (!isInjectedFeature(featureName)) {
-                    load(args)
-                }
+                load(args)
             }
             return { featureName, init, update }
         })
@@ -62,8 +63,21 @@ async function injectFeature (featureName, args) {
     script.remove()
 }
 
+/**
+ * Returns true if the feature is injected into the page via a script tag
+ * @param {string} featureName
+ * @returns {boolean}
+ */
 function isInjectedFeature (featureName) {
-    return mozProxies && featureName in injectedFeaturesCode
+    return supportsInjectedFeatures() && featureName in injectedFeaturesCode
+}
+
+/**
+ * If the browser supports injected features (currently only Firefox)
+ * @returns {boolean} true if the browser supports injected features
+ */
+function supportsInjectedFeatures () {
+    return mozProxies
 }
 
 export async function init (args) {
@@ -75,14 +89,17 @@ export async function init (args) {
     initStringExemptionLists(args)
     const resolvedFeatures = await Promise.all(features)
     resolvedFeatures.forEach(({ init, featureName }) => {
-        if (isInjectedFeature(featureName)) {
-            injectFeature(featureName, args)
-            return
-        }
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
             init(args)
         }
     })
+    if (supportsInjectedFeatures()) {
+        for (const featureName of Object.keys(injectedFeaturesCode)) {
+            if (!isFeatureBroken(args, featureName)) {
+                injectFeature(featureName, args)
+            }
+        }
+    }
     // Fire off updates that came in faster than the init
     while (updates.length) {
         const update = updates.pop()
