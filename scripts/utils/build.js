@@ -24,7 +24,7 @@ async function getAllFeatureCode (pathName) {
  * @returns {import('rollup').Plugin}
  */
 function runtimeInjections () {
-    const customId = 'custom:runtimeInjects'
+    const customId = 'ddg:runtimeInjects'
     return {
         name: customId,
         resolveId (id) {

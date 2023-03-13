@@ -2,7 +2,7 @@
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
 import { featureNames } from './features'
 // @ts-expect-error Special glob import for injected features see scripts/utils/build.js
-import injectedFeaturesCode from 'custom:runtimeInjects'
+import injectedFeaturesCode from 'ddg:runtimeInjects'
 
 function shouldRun () {
     // don't inject into non-HTML documents (such as XML documents)
@@ -44,19 +44,31 @@ export async function load (args) {
 }
 
 /**
- * Injects a feature into the page as a script tag and runs it
+ * Injects features that we wish to inject into the page as a script tag and runs it.
+ * This currently is for runtime-checks.js for Firefox only.
  */
-async function injectFeature (featureName, args) {
-    const codeImport = injectedFeaturesCode[featureName]
-    const script = document.createElement('script')
+async function injectFeatures (args) {
+    const codeFeatures = []
     const argsCopy = structuredClone(args)
-    argsCopy.featureSettings = {
-        [featureName]: argsCopy.featureSettings[featureName]
+    // Clear out featureSettings to reduce injection overhead
+    argsCopy.featureSettings = {}
+    for (const featureName of Object.keys(injectedFeaturesCode)) {
+        if (!isFeatureBroken(args, featureName)) {
+            // Clone back in supported injected feature settings
+            argsCopy.featureSettings[featureName] = structuredClone(args.featureSettings[featureName])
+            const codeImport = injectedFeaturesCode[featureName]
+            const codeFeature = `((args) => {
+                ${codeImport}
+                ${featureName}.load()
+                ${featureName}.init(args)
+            })(args)`
+            codeFeatures.push(codeFeature)
+        }
     }
+    const script = document.createElement('script')
     const code = `(() => {
-        ${codeImport}
-        ${featureName}.load()
-        ${featureName}.init(${JSON.stringify(argsCopy)})
+        const args = ${JSON.stringify(argsCopy)};
+        ${codeFeatures.join('\n')}
     })()`
     script.src = 'data:text/javascript;base64,' + btoa(code)
     document.head.appendChild(script)
@@ -94,11 +106,7 @@ export async function init (args) {
         }
     })
     if (supportsInjectedFeatures()) {
-        for (const featureName of Object.keys(injectedFeaturesCode)) {
-            if (!isFeatureBroken(args, featureName)) {
-                injectFeature(featureName, args)
-            }
-        }
+        injectFeatures(args)
     }
     // Fire off updates that came in faster than the init
     while (updates.length) {
