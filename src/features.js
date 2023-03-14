@@ -22,3 +22,12 @@ export const featureNames = [
 export const runtimeInjected = [
     'runtimeChecks'
 ]
+
+export const isolatedFeatures = [
+    'gpc'
+]
+
+export const supportedIsolatedPlatforms = [
+    'apple',
+    'appleIsolated'
+]

@@ -1,3 +1,4 @@
+declare var isolated: boolean;
 declare var mozProxies: boolean;
 declare function exportFunction(fn: Function, desc: object, out: object): void;
 declare function exportFunction(fn: Function, desc: object): void;

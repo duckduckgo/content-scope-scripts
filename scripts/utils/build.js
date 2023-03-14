@@ -45,9 +45,13 @@ function runtimeInjections () {
 
 export async function rollupScript (scriptPath, name, supportsMozProxies = true) {
     let mozProxies = false
+    let isolated = false
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     if (process.argv[2] === 'firefox' && supportsMozProxies) {
         mozProxies = true
+    }
+    if (process.argv[2].endsWith('Isolated')) {
+        isolated = true
     }
     const inputOptions = {
         input: scriptPath,
@@ -60,7 +64,10 @@ export async function rollupScript (scriptPath, name, supportsMozProxies = true)
                 preventAssignment: true,
                 values: {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    mozProxies
+                    mozProxies,
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    isolated,
+                    platformName: process.argv[2]
                 }
             })
         ]

@@ -11,6 +11,8 @@ async function init () {
         initOther('inject/mozilla.js', process.argv[2])
     } else if (process.argv[2] === 'apple') {
         initOther('inject/apple.js', process.argv[2])
+    } else if (process.argv[2] === 'appleIsolated') {
+        initOther('inject/apple.js', process.argv[2])
     } else if (process.argv[2] === 'android') {
         initOther('inject/android.js', process.argv[2])
     } else if (process.argv[2] === 'windows') {
