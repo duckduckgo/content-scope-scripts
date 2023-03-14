@@ -1,4 +1,8 @@
+/* global mozProxies */
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
+import { featureNames } from './features'
+// @ts-expect-error Special glob import for injected features see scripts/utils/build.js
+import injectedFeaturesCode from 'ddg:runtimeInjects'
 
 function shouldRun () {
     // don't inject into non-HTML documents (such as XML documents)
@@ -21,27 +25,13 @@ export async function load (args) {
     if (!shouldRun()) {
         return
     }
-    const featureNames = [
-        'runtimeChecks',
-        'windowsPermissionUsage',
-        'webCompat',
-        'fingerprintingAudio',
-        'fingerprintingBattery',
-        'fingerprintingCanvas',
-        'cookie',
-        'googleRejected',
-        'gpc',
-        'fingerprintingHardware',
-        'referrer',
-        'fingerprintingScreenSize',
-        'fingerprintingTemporaryStorage',
-        'navigatorInterface',
-        'clickToLoad',
-        'elementHiding'
-    ]
 
     for (const featureName of featureNames) {
         const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+        // Short circuit if the feature is injected later in load()
+        if (isInjectedFeature(featureName)) {
+            continue
+        }
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
@@ -51,6 +41,55 @@ export async function load (args) {
         })
         features.push(feature)
     }
+}
+
+/**
+ * Injects features that we wish to inject into the page as a script tag and runs it.
+ * This currently is for runtime-checks.js for Firefox only.
+ */
+async function injectFeatures (args) {
+    const codeFeatures = []
+    const argsCopy = structuredClone(args)
+    // Clear out featureSettings to reduce injection overhead
+    argsCopy.featureSettings = {}
+    for (const featureName of Object.keys(injectedFeaturesCode)) {
+        if (!isFeatureBroken(args, featureName)) {
+            // Clone back in supported injected feature settings
+            argsCopy.featureSettings[featureName] = structuredClone(args.featureSettings[featureName])
+            const codeImport = injectedFeaturesCode[featureName]
+            const codeFeature = `((args) => {
+                ${codeImport}
+                ${featureName}.load()
+                ${featureName}.init(args)
+            })(args)`
+            codeFeatures.push(codeFeature)
+        }
+    }
+    const script = document.createElement('script')
+    const code = `(() => {
+        const args = ${JSON.stringify(argsCopy)};
+        ${codeFeatures.join('\n')}
+    })()`
+    script.src = 'data:text/javascript;base64,' + btoa(code)
+    document.head.appendChild(script)
+    script.remove()
+}
+
+/**
+ * Returns true if the feature is injected into the page via a script tag
+ * @param {string} featureName
+ * @returns {boolean}
+ */
+function isInjectedFeature (featureName) {
+    return supportsInjectedFeatures() && featureName in injectedFeaturesCode
+}
+
+/**
+ * If the browser supports injected features (currently only Firefox)
+ * @returns {boolean} true if the browser supports injected features
+ */
+function supportsInjectedFeatures () {
+    return mozProxies
 }
 
 export async function init (args) {
@@ -66,6 +105,9 @@ export async function init (args) {
             init(args)
         }
     })
+    if (supportsInjectedFeatures()) {
+        injectFeatures(args)
+    }
     // Fire off updates that came in faster than the init
     while (updates.length) {
         const update = updates.pop()
