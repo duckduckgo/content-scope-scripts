@@ -1,5 +1,4 @@
 /* global cloneInto, exportFunction, mozProxies */
-import { sjcl } from '../lib/sjcl.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
@@ -25,12 +24,6 @@ export function setGlobal (globalObjIn) {
 
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
-
-export function getDataKeySync (sessionKey, domainKey, inputData) {
-    // eslint-disable-next-line new-cap
-    const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256)
-    return sjcl.codec.hex.fromBits(hmac.encrypt(inputData))
-}
 
 // linear feedback shift register to find a random approximation
 export function nextRandom (v) {

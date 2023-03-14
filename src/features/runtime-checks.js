@@ -22,12 +22,14 @@ function shouldFilterKey (tagName, filterName, key) {
 let elementRemovalTimeout
 const featureName = 'runtimeChecks'
 const symbol = Symbol(featureName)
+const supportedSinks = ['src']
 
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
     #el
     #listeners
     #connected
+    #sinks
 
     constructor () {
         super()
@@ -35,20 +37,30 @@ class DDGRuntimeChecks extends HTMLElement {
         this.#el = null
         this.#listeners = []
         this.#connected = false
+        this.#sinks = {}
     }
 
+    /**
+     * This method is called once and externally so has to remain public.
+     **/
     setTagName (tagName) {
         this.#tagName = tagName
+        // Clear the method so it can't be called again
+        delete this.setTagName
     }
 
     connectedCallback () {
         // Solves re-entrancy issues from React
         if (this.#connected) return
         this.#connected = true
-        this.transplantElement()
+        if (!this.#transplantElement) {
+            // Restore the 'this' object with the DDGRuntimeChecks prototype as sometimes pages will overwrite it.
+            Object.setPrototypeOf(this, DDGRuntimeChecks.prototype)
+        }
+        this.#transplantElement()
     }
 
-    monitorProperties (el) {
+    #monitorProperties (el) {
         // Mutation oberver and observedAttributes don't work on property accessors
         // So instead we need to monitor all properties on the prototypes and forward them to the real element
         let propertyNames = []
@@ -81,7 +93,7 @@ class DDGRuntimeChecks extends HTMLElement {
      * The element has been moved to the DOM, so we can now reflect all changes to a real element.
      * This is to allow us to interrogate the real element before it is moved to the DOM.
      */
-    transplantElement () {
+    #transplantElement () {
         // Creeate the real element
         const el = initialCreateElement.call(document, this.#tagName)
 
@@ -97,9 +109,20 @@ class DDGRuntimeChecks extends HTMLElement {
         }
 
         // Reflect all props to the new element
-        for (const param of Object.keys(this)) {
-            if (shouldFilterKey(this.#tagName, 'property', param)) continue
-            el[param] = this[param]
+        const props = Object.keys(this)
+
+        // Nonce isn't enumerable so we need to add it manually
+        props.push('nonce')
+
+        for (const prop of props) {
+            if (shouldFilterKey(this.#tagName, 'property', prop)) continue
+            el[prop] = this[prop]
+        }
+
+        for (const sink of supportedSinks) {
+            if (this.#sinks[sink]) {
+                el[sink] = this.#sinks[sink]
+            }
         }
 
         // Reflect all listeners to the new element
@@ -130,7 +153,7 @@ class DDGRuntimeChecks extends HTMLElement {
             this.insertAdjacentElement('afterend', el)
         } catch (e) { console.warn(e) }
 
-        this.monitorProperties(el)
+        this.#monitorProperties(el)
         // TODO pollyfill WeakRef
         this.#el = new WeakRef(el)
 
@@ -140,13 +163,53 @@ class DDGRuntimeChecks extends HTMLElement {
         }, elementRemovalTimeout)
     }
 
-    getElement () {
+    #getElement () {
         return this.#el?.deref()
+    }
+
+    /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */
+
+    set src (value) {
+        const el = this.#getElement()
+        if (el) {
+            el.src = value
+            return
+        }
+        this.#sinks.src = value
+    }
+
+    get src () {
+        const el = this.#getElement()
+        if (el) {
+            return el.src
+        }
+        // @ts-expect-error TrustedScriptURL is not defined in the TS lib
+        // eslint-disable-next-line no-undef
+        if ('TrustedScriptURL' in window && this.#sinks.src instanceof TrustedScriptURL) {
+            return this.#sinks.src.toString()
+        }
+        return this.#sinks.src
+    }
+
+    getAttribute (name, value) {
+        if (shouldFilterKey(this.#tagName, 'attribute', name)) return
+        if (supportedSinks.includes(name)) {
+            return this[name]
+        }
+        const el = this.#getElement()
+        if (el) {
+            return el.getAttribute(name)
+        }
+        return super.getAttribute(name)
     }
 
     setAttribute (name, value) {
         if (shouldFilterKey(this.#tagName, 'attribute', name)) return
-        const el = this.getElement()
+        if (supportedSinks.includes(name)) {
+            this[name] = value
+            return
+        }
+        const el = this.#getElement()
         if (el) {
             return el.setAttribute(name, value)
         }
@@ -155,7 +218,11 @@ class DDGRuntimeChecks extends HTMLElement {
 
     removeAttribute (name) {
         if (shouldFilterKey(this.#tagName, 'attribute', name)) return
-        const el = this.getElement()
+        if (supportedSinks.includes(name)) {
+            delete this[name]
+            return
+        }
+        const el = this.#getElement()
         if (el) {
             return el.removeAttribute(name)
         }
@@ -164,7 +231,7 @@ class DDGRuntimeChecks extends HTMLElement {
 
     addEventListener (...args) {
         if (shouldFilterKey(this.#tagName, 'listener', args[0])) return
-        const el = this.getElement()
+        const el = this.#getElement()
         if (el) {
             return el.addEventListener(...args)
         }
@@ -173,7 +240,7 @@ class DDGRuntimeChecks extends HTMLElement {
 
     removeEventListener (...args) {
         if (shouldFilterKey(this.#tagName, 'listener', args[0])) return
-        const el = this.getElement()
+        const el = this.#getElement()
         if (el) {
             return el.removeEventListener(...args)
         }
@@ -196,7 +263,7 @@ class DDGRuntimeChecks extends HTMLElement {
     }
 
     remove () {
-        const el = this.getElement()
+        const el = this.#getElement()
         if (el) {
             return el.remove()
         }
@@ -204,7 +271,7 @@ class DDGRuntimeChecks extends HTMLElement {
     }
 
     removeChild (child) {
-        const el = this.getElement()
+        const el = this.#getElement()
         if (el) {
             return el.removeChild(child)
         }
@@ -258,7 +325,7 @@ function shouldInterrogate (tagName) {
 }
 
 function overrideCreateElement () {
-    const proxy = new DDGProxy(featureName, document, 'createElement', {
+    const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
         apply (fn, scope, args) {
             if (args.length >= 1) {
                 const initialTagName = args[0].toLowerCase()
