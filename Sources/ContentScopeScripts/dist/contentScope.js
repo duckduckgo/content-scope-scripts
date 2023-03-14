@@ -6014,7 +6014,9 @@
      * @param {string} rules[].type
      */
     function injectStyleTag (rules) {
-        const styleTag = document.createElement('style');
+        const styleTag = document.createElement('link');
+        styleTag.setAttribute('rel', 'stylesheet');
+        styleTag.setAttribute('type', 'text/css');
         let styleTagContents = '';
 
         rules.forEach((rule, i) => {
@@ -6026,7 +6028,7 @@
         });
 
         styleTagContents = styleTagContents.concat('{display:none!important;min-height:0!important;height:0!important;}');
-        styleTag.innerText = styleTagContents;
+        styleTag.href = 'data:text/css,' + encodeURIComponent(styleTagContents);
 
         document.head.appendChild(styleTag);
     }
