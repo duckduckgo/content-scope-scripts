@@ -5809,6 +5809,7 @@
     let hiddenElements = new WeakMap();
     let appliedRules = new Set();
     let shouldInjectStyleTag = false;
+    let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 
     /**
      * Hide DOM element if rule conditions met
@@ -5937,17 +5938,25 @@
         });
 
         const visibleText = parsedNode.innerText.trim().toLocaleLowerCase().replace(/:$/, '');
-        const mediaContent = parsedNode.querySelector('video,canvas,picture');
+        const mediaAndFormContent = parsedNode.querySelector(mediaAndFormSelectors);
         const frameElements = [...parsedNode.querySelectorAll('iframe')];
+        // query original node instead of parsedNode for img elements since heuristic relies
+        // on size of image elements
+        const imageElements = [...node.querySelectorAll('img,svg')];
         // about:blank iframes don't count as content, return true if:
         // - node doesn't contain any iframes
         // - node contains iframes, all of which are hidden or have src='about:blank'
         const noFramesWithContent = frameElements.every((frame) => {
             return (frame.hidden || frame.src === 'about:blank')
         });
+        // ad containers often contain tracking pixels and other small images (eg adchoices logo).
+        // these should be treated as empty and hidden, but real images should not.
+        const visibleImages = imageElements.some((image) => {
+            return (image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20)
+        });
 
         if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
-            noFramesWithContent && mediaContent === null) {
+            mediaAndFormContent === null && noFramesWithContent && !visibleImages) {
             return true
         }
         return false
@@ -6087,6 +6096,7 @@
         const styleTagExceptions = getFeatureSetting(featureName, args, 'styleTagExceptions');
         adLabelStrings = getFeatureSetting(featureName, args, 'adLabelStrings');
         shouldInjectStyleTag = getFeatureSetting(featureName, args, 'useStrictHideStyleTag');
+        mediaAndFormSelectors = getFeatureSetting(featureName, args, 'mediaAndFormSelectors') || mediaAndFormSelectors;
 
         // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
