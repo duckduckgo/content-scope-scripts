@@ -5,6 +5,7 @@ const parser = new DOMParser()
 let hiddenElements = new WeakMap()
 let appliedRules = new Set()
 let shouldInjectStyleTag = false
+let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button'
 
 /**
  * Hide DOM element if rule conditions met
@@ -137,8 +138,7 @@ function isDomNodeEmpty (node) {
     })
 
     const visibleText = parsedNode.innerText.trim().toLocaleLowerCase().replace(/:$/, '')
-    const mediaContent = parsedNode.querySelector('video,canvas,embed,object,audio,map')
-    const formContent = parsedNode.querySelector('form,input,textarea,select,option,button')
+    const mediaAndFormContent = parsedNode.querySelector(mediaAndFormSelectors)
     const frameElements = [...parsedNode.querySelectorAll('iframe')]
     // query original node instead of parsedNode for img elements since heuristic relies
     // on size of image elements
@@ -156,8 +156,7 @@ function isDomNodeEmpty (node) {
     })
 
     if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
-        mediaContent === null && formContent === null &&
-        noFramesWithContent && !visibleImages) {
+        mediaAndFormContent === null && noFramesWithContent && !visibleImages) {
         return true
     }
     return false
@@ -297,6 +296,7 @@ export function init (args) {
     const styleTagExceptions = getFeatureSetting(featureName, args, 'styleTagExceptions')
     adLabelStrings = getFeatureSetting(featureName, args, 'adLabelStrings')
     shouldInjectStyleTag = getFeatureSetting(featureName, args, 'useStrictHideStyleTag')
+    mediaAndFormSelectors = getFeatureSetting(featureName, args, 'mediaAndFormSelectors') || mediaAndFormSelectors
 
     // determine whether strict hide rules should be injected as a style tag
     if (shouldInjectStyleTag) {
