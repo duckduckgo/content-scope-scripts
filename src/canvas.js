@@ -1,4 +1,4 @@
-import { getDataKeySync } from './utils.js'
+import { getDataKeySync } from './crypto.js'
 import Seedrandom from 'seedrandom'
 
 /**

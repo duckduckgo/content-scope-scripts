@@ -1,4 +1,5 @@
-import { iterateDataKey, DDGProxy, DDGReflect, getDataKeySync } from '../utils'
+import { iterateDataKey, DDGProxy, DDGReflect } from '../utils'
+import { getDataKeySync } from '../crypto'
 
 export function init (args) {
     const { sessionKey, site } = args
