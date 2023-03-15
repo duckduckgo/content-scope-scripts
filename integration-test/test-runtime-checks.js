@@ -432,4 +432,60 @@ describe('Runtime checks: should allow element modification', () => {
             type: 'application/javascript'
         })
     })
+
+    it('Verify stack tracing', async () => {
+        const port = server.address().port
+        const page = await browser.newPage()
+        await gotoAndWait(page, `http://localhost:${port}/runtimeChecks/index.html`, {
+            site: {
+                enabledFeatures: ['runtimeChecks']
+            },
+            featureSettings: {
+                runtimeChecks: {
+                    taintCheck: 'enabled',
+                    matchAllDomains: 'enabled',
+                    matchAllStackDomains: 'disabled',
+                    stackDomains: [
+                        {
+                            domain: 'localhost'
+                        }
+                    ],
+                    tagModifiers: {
+                        script: {
+                            filters: {
+                                // verify the runtime check did run for the stack traced script and filtered the attribute
+                                attribute: ['magicalattribute']
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        // And now with a script that will execute
+        const pageResults = await page.evaluate(
+            async () => {
+                window.dispatchEvent(new Event('initialize'))
+                await new Promise(resolve => {
+                    window.addEventListener('initializeFinished', () => {
+                        resolve()
+                    })
+                })
+                const scripty = document.querySelector('script#script2')
+
+                return {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    script1: window.script1Ran,
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    script2: window.script2Ran,
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    magicalProperty: scripty.magicalProperty
+                }
+            }
+        )
+        expect(pageResults).toEqual({
+            script1: true,
+            script2: true
+            // no magical property
+        })
+    })
 })
