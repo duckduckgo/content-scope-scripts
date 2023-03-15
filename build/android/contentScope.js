@@ -8647,7 +8647,7 @@
 
     let elementRemovalTimeout;
     const featureName = 'runtimeChecks';
-    const symbol = Symbol(featureName);
+    const taintSymbol = Symbol(featureName);
     const supportedSinks = ['src'];
 
     class DDGRuntimeChecks extends HTMLElement {
@@ -8725,7 +8725,7 @@
 
             if (taintCheck) {
                 // Add a symbol to the element so we can identify it as a runtime checked element
-                Object.defineProperty(el, symbol, { value: true, configurable: false, enumerable: false, writable: false });
+                Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false });
             }
 
             // Reflect all attrs to the new element
@@ -8939,7 +8939,7 @@
         if (matchAllStackDomains) {
             return true
         }
-        if (taintCheck && document.currentScript[symbol]) {
+        if (taintCheck && document.currentScript?.[taintSymbol]) {
             return true
         }
         const stack = getStack();
