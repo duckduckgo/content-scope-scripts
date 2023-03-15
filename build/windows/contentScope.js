@@ -8681,14 +8681,14 @@
             // Solves re-entrancy issues from React
             if (this.#connected) return
             this.#connected = true;
-            if (!this.#transplantElement) {
+            if (!this._transplantElement) {
                 // Restore the 'this' object with the DDGRuntimeChecks prototype as sometimes pages will overwrite it.
                 Object.setPrototypeOf(this, DDGRuntimeChecks.prototype);
             }
-            this.#transplantElement();
+            this._transplantElement();
         }
 
-        #monitorProperties (el) {
+        _monitorProperties (el) {
             // Mutation oberver and observedAttributes don't work on property accessors
             // So instead we need to monitor all properties on the prototypes and forward them to the real element
             let propertyNames = [];
@@ -8721,7 +8721,7 @@
          * The element has been moved to the DOM, so we can now reflect all changes to a real element.
          * This is to allow us to interrogate the real element before it is moved to the DOM.
          */
-        #transplantElement () {
+        _transplantElement () {
             // Creeate the real element
             const el = initialCreateElement.call(document, this.#tagName);
 
@@ -8781,7 +8781,7 @@
                 this.insertAdjacentElement('afterend', el);
             } catch (e) { console.warn(e); }
 
-            this.#monitorProperties(el);
+            this._monitorProperties(el);
             // TODO pollyfill WeakRef
             this.#el = new WeakRef(el);
 
@@ -8791,14 +8791,14 @@
             }, elementRemovalTimeout);
         }
 
-        #getElement () {
+        _getElement () {
             return this.#el?.deref()
         }
 
         /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */
 
         set src (value) {
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 el.src = value;
                 return
@@ -8807,7 +8807,7 @@
         }
 
         get src () {
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 return el.src
             }
@@ -8824,7 +8824,7 @@
             if (supportedSinks.includes(name)) {
                 return this[name]
             }
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 return el.getAttribute(name)
             }
@@ -8837,7 +8837,7 @@
                 this[name] = value;
                 return
             }
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 return el.setAttribute(name, value)
             }
@@ -8850,7 +8850,7 @@
                 delete this[name];
                 return
             }
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 return el.removeAttribute(name)
             }
@@ -8859,7 +8859,7 @@
 
         addEventListener (...args) {
             if (shouldFilterKey(this.#tagName, 'listener', args[0])) return
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 return el.addEventListener(...args)
             }
@@ -8868,7 +8868,7 @@
 
         removeEventListener (...args) {
             if (shouldFilterKey(this.#tagName, 'listener', args[0])) return
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 return el.removeEventListener(...args)
             }
@@ -8891,7 +8891,7 @@
         }
 
         remove () {
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 return el.remove()
             }
@@ -8899,7 +8899,7 @@
         }
 
         removeChild (child) {
-            const el = this.#getElement();
+            const el = this._getElement();
             if (el) {
                 return el.removeChild(child)
             }
