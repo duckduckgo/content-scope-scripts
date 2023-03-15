@@ -316,19 +316,6 @@ class DuckWidget {
                         break
                     }
 
-                    // If hidden, restore the tracking element's styles to make
-                    // it visible again.
-                    if (this.originalElementStyle) {
-                        for (const key of ['display', 'visibility']) {
-                            const { value, priority } = this.originalElementStyle[key]
-                            if (value) {
-                                fbElement.style.setProperty(key, value, priority)
-                            } else {
-                                fbElement.style.removeProperty(key)
-                            }
-                        }
-                    }
-
                     /*
                     * Modify the overlay to include a Facebook iFrame, which
                     * starts invisible. Once loaded, fade out and remove the overlay
@@ -367,33 +354,11 @@ class DuckWidget {
     }
 }
 
-function replaceTrackingElement (widget, trackingElement, placeholderElement, hideTrackingElement = false, currentPlaceholder = null) {
+function replaceTrackingElement (widget, trackingElement, placeholderElement, currentPlaceholder = null) {
     widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
 
-    // Usually the tracking element can simply be replaced with the
-    // placeholder, but in some situations that isn't possible and the
-    // tracking element must be hidden instead.
-    if (hideTrackingElement) {
-        // Don't save original element styles if we've already done it
-        if (!widget.originalElementStyle) {
-            // Take care to note existing styles so that they can be restored.
-            widget.originalElementStyle = getOriginalElementStyle(trackingElement, widget)
-        }
-        // Hide the tracking element and add the placeholder next to it in
-        // the DOM.
-        trackingElement.style.setProperty('display', 'none', 'important')
-        trackingElement.style.setProperty('visibility', 'hidden', 'important')
-        trackingElement.parentElement.insertBefore(placeholderElement, trackingElement)
-        if (currentPlaceholder) {
-            currentPlaceholder.remove()
-        }
-    } else {
-        if (currentPlaceholder) {
-            currentPlaceholder.replaceWith(placeholderElement)
-        } else {
-            trackingElement.replaceWith(placeholderElement)
-        }
-    }
+    const elementToReplace = currentPlaceholder || trackingElement
+    elementToReplace.replaceWith(placeholderElement)
 
     widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element')
 }
@@ -486,14 +451,12 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
     }
 
     // Show YouTube Preview for embedded video
-    // TODO: Fix the hideTrackingElement option and reenable, or remove it. It's
-    //       disabled for YouTube videos so far since it caused multiple
-    //       placeholders to be displayed on the page.
     if (isYoutubePreviewsEnabled === true) {
         const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
         const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-dialog-${widget.widgetID}`) : null
+        resizeElementToMatch(currentPlaceholder || trackingElement, youTubePreview)
         replaceTrackingElement(
-            widget, trackingElement, youTubePreview, /* hideTrackingElement= */ false, currentPlaceholder
+            widget, trackingElement, youTubePreview, currentPlaceholder
         )
         showExtraUnblockIfShortPlaceholder(shadowRoot, youTubePreview)
 
@@ -502,8 +465,9 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
         widget.autoplay = false
         const { blockingDialog, shadowRoot } = await createYouTubeBlockingDialog(trackingElement, widget)
         const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-preview-${widget.widgetID}`) : null
+        resizeElementToMatch(currentPlaceholder || trackingElement, blockingDialog)
         replaceTrackingElement(
-            widget, trackingElement, blockingDialog, /* hideTrackingElement= */ false, currentPlaceholder
+            widget, trackingElement, blockingDialog, currentPlaceholder
         )
         showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
     }
@@ -632,44 +596,32 @@ function getLearnMoreLink (mode) {
 }
 
 /**
- * Reads and stores a set of styles from the original tracking element, and then returns it.
- * @param {Element} originalElement Original tracking element (ie iframe)
- * @param {DuckWidget} widget The widget Object.
- * @returns {{[key: string]: string[]}} Object with styles read from original element.
+ * Resizes and positions the target element to match the source element.
+ * @param {Element} sourceElement
+ * @param {Element} targetElement
  */
-function getOriginalElementStyle (originalElement, widget) {
-    if (widget.originalElementStyle) {
-        return widget.originalElementStyle
-    }
-
-    const stylesToCopy = ['display', 'visibility', 'position', 'top', 'bottom', 'left', 'right',
+function resizeElementToMatch (sourceElement, targetElement) {
+    const computedStyle = window.getComputedStyle(sourceElement)
+    const stylesToCopy = ['position', 'top', 'bottom', 'left', 'right',
         'transform', 'margin']
-    widget.originalElementStyle = {}
-    const allOriginalElementStyles = getComputedStyle(originalElement)
-    for (const key of stylesToCopy) {
-        widget.originalElementStyle[key] = {
-            value: allOriginalElementStyles[key],
-            priority: originalElement.style.getPropertyPriority(key)
-        }
+
+    // It's apparently preferable to use the source element's size relative to
+    // the current viewport, when resizing the target element. However, the
+    // declarativeNetRequest API "collapses" (hides) blocked elements. When
+    // that happens, getBoundingClientRect will return all zeros.
+    // TODO: Remove this entirely, and always use the computed height/width of
+    //       the source element instead?
+    const { height, width } = sourceElement.getBoundingClientRect()
+    if (height > 0 && width > 0) {
+        targetElement.style.height = height + 'px'
+        targetElement.style.width = width + 'px'
+    } else {
+        stylesToCopy.push('height', 'width')
     }
 
-    // Copy current size of the element
-    const { height: heightViewValue, width: widthViewValue } = originalElement.getBoundingClientRect()
-    widget.originalElementStyle.height = { value: `${heightViewValue}px`, priority: '' }
-    widget.originalElementStyle.width = { value: `${widthViewValue}px`, priority: '' }
-
-    return widget.originalElementStyle
-}
-
-/**
- * Copy list of styles to provided element
- * @param {{[key: string]: string[]}} originalStyles Object with styles read from original element.
- * @param {Element} element Node element to have the styles copied to
- */
-function copyStylesTo (originalStyles, element) {
-    const { display, visibility, ...filteredStyles } = originalStyles
-    const cssText = Object.keys(filteredStyles).reduce((cssAcc, key) => (cssAcc + `${key}: ${filteredStyles[key].value};`), '')
-    element.style.cssText += cssText
+    for (const key of stylesToCopy) {
+        targetElement.style[key] = computedStyle[key]
+    }
 }
 
 /**
@@ -1152,11 +1104,6 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
     button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
     textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
 
-    // Size the placeholder element to match the original video element styles.
-    // If no styles are in place, it will get its current size
-    const originalStyles = getOriginalElementStyle(trackingElement, widget)
-    copyStylesTo(originalStyles, contentBlock)
-
     return {
         blockingDialog: contentBlock,
         shadowRoot
@@ -1180,11 +1127,6 @@ async function createYouTubePreview (originalElement, widget) {
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
 
     youTubePreview.appendChild(makeFontFaceStyleElement())
-
-    // Size the placeholder element to match the original video element styles.
-    // If no styles are in place, it will get its current size
-    const originalStyles = getOriginalElementStyle(originalElement, widget)
-    copyStylesTo(originalStyles, youTubePreview)
 
     // Protect the contents of our placeholder inside a shadowRoot, to avoid
     // it being styled by the website's stylesheets.
