@@ -43,4 +43,6 @@ jobs:
         sudo apt-get install xvfb
         npm install
         npm run build
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
     - run: npm run test-int-x

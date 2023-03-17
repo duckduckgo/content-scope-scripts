@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "build": "node index.js",
-    "test": "playwright test",
+    "test": "echo '✅ No tests yet'",
     "test.headed": "playwright test --headed",
+    "test-int-x": "playwright test",
+    "test-int": "playwright test",
     "serve": "serve pages -p 3210"
   },
   "license": "ISC",
