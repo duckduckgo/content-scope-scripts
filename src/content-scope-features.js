@@ -32,7 +32,6 @@ export async function load (args) {
         if (isInjectedFeature(featureName)) {
             continue
         }
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
                 load(args)

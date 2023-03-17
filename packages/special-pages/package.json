@@ -1,0 +1,18 @@
+{
+  "name": "special-pages",
+  "version": "1.0.0",
+  "description": "A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like about: pages",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "node index.js",
+    "test": "playwright test",
+    "test.headed": "playwright test --headed",
+    "serve": "serve pages -p 3210"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@playwright/test": "^1.31.2",
+    "serve": "^14.2.0"
+  }
+}
