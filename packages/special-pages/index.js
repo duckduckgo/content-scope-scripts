@@ -5,7 +5,7 @@ const ROOT = new URL('../../', import.meta.url).pathname
 const BUILD = join(ROOT, 'build')
 
 export const support = {
-    example: ['windows']
+    // example: ['windows']
 }
 
 /** @type {{src: string, dest: string}[]} */
@@ -21,6 +21,10 @@ for (const [pageName, platforms] of Object.entries(support)) {
     for (const platform of platforms) {
         copyJobs.push({ src, dest: join(BUILD, platform, 'pages', pageName) })
     }
+}
+
+if (copyJobs.length === 0) {
+    console.log('⚠️ nothing to copy. This probably means that there isn\'t any pages to release yet.')
 }
 
 if (errors.length > 0) {
