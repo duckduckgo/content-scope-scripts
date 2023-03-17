@@ -18,7 +18,7 @@ describe('Ensure utils behave as expected', () => {
         await teardown()
     })
 
-    fit('should toString DDGProxy correctly', async () => {
+    it('should toString DDGProxy correctly', async () => {
         const port = server.address().port
         const page = await browser.newPage()
         await gotoAndWait(page, `http://localhost:${port}/blank.html`, { platform: { name: 'extension' } })
