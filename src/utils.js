@@ -377,16 +377,29 @@ export class DDGProxy {
             }
             return proxyObject.apply(...args)
         }
+        const getMethod = (target, prop, receiver) => {
+            if (prop === 'toString') {
+                const method = Reflect.get(target, prop, receiver).bind(target)
+                Object.defineProperty(method, 'toString', {
+                    value: String.toString.bind(String.toString),
+                    enumerable: false
+                })
+                return method
+            }
+            return DDGReflect.get(target, prop, receiver)
+        }
         if (hasMozProxies) {
             this._native = objectScope[property]
             const handler = new globalObj.wrappedJSObject.Object()
             handler.apply = exportFunction(outputHandler, globalObj)
+            handler.get = exportFunction(getMethod, globalObj)
             // @ts-ignore
             this.internal = new globalObj.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
         } else {
             this._native = objectScope[property]
             const handler = {}
             handler.apply = outputHandler
+            handler.get = getMethod
             this.internal = new globalObj.Proxy(objectScope[property], handler)
         }
     }
