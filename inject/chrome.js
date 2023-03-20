@@ -1,3 +1,6 @@
+/**
+ * @module Chrome integration
+ */
 import { isTrackerOrigin } from '../src/trackers'
 
 /**

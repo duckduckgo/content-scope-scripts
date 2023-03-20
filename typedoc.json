@@ -1,0 +1,14 @@
+{
+    "name": "@duckduckgo/workspaces-demo",
+    "entryPoints": [
+        "inject/*"
+    ],
+    "out": "docs",
+    "excludeExternals": true,
+    "excludeInternal": true,
+    "readme": "README.md",
+    "categoryOrder": [],
+    "treatWarningsAsErrors": true,
+    "searchInComments": true,
+    "includes": "."
+}

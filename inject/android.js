@@ -1,5 +1,7 @@
+/**
+ * @module Android integration
+ */
 /* global contentScopeFeatures */
-
 import { processConfig, isGloballyDisabled } from './../src/utils'
 
 function init () {

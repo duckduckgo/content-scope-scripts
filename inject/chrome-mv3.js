@@ -1,3 +1,6 @@
+/**
+ * @module Chrome MV3 integration
+ */
 /* global contentScopeFeatures */
 
 import { isTrackerOrigin } from '../src/trackers'
