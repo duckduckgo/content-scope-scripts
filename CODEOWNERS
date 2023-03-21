@@ -12,3 +12,6 @@ inject/android.js @jonathanKingston @joshliebe
 inject/chrome-mv3.js @kzar @sammacbeth
 inject/chrome.js @jonathanKingston @sammacbeth
 inject/windows.js @jonathanKingston @q71114 @szanto90balazs
+
+# Test owners
+integration-tests/test-pages/ @kdzwinel @jonathanKingston
