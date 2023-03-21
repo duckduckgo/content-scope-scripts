@@ -11,7 +11,7 @@
     "serve": "serve pages -p 3210"
   },
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
     "@playwright/test": "^1.31.2",
     "serve": "^14.2.0"
   }
