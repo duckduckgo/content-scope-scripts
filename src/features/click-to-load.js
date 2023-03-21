@@ -27,8 +27,19 @@ const entityData = {}
 // Used to avoid displaying placeholders for the same tracking element twice.
 const knownTrackingElements = new WeakSet()
 
-let readyResolver
-const ready = new Promise(resolve => { readyResolver = resolve })
+// Promise that is resolved when the Click to Load feature init() function has
+// finished its work, enough that it's now safe to replace elements with
+// placeholders.
+let readyToDisplayPlaceholdersResolver
+const readyToDisplayPlaceholders = new Promise(resolve => {
+    readyToDisplayPlaceholdersResolver = resolve
+})
+
+// Promise that is resolved when the page has finished loading (and
+// readyToDisplayPlaceholders has resolved). Wait for this before sending
+// essential messages to surrogate scripts.
+let afterPageLoadResolver
+const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve })
 
 /*********************************************************
  *  Widget Replacement logic
@@ -360,15 +371,74 @@ class DuckWidget {
     }
 }
 
-function replaceTrackingElement (widget, trackingElement, placeholderElement, currentPlaceholder = null) {
+/**
+ * Replace the given tracking element with the given placeholder.
+ * Notes:
+ *  1. This function also dispatches events targetting the original and
+ *     placeholder elements. That way, the surrogate scripts can use the event
+ *     targets to keep track of which placeholder corresponds to which tracking
+ *     element.
+ *  2. To achieve that, the original and placeholder elements must be in the DOM
+ *     at the time the events are dispatched. Otherwise, the events will not
+ *     bubble up and the surrogate script will miss them.
+ *  3. Placeholder must be shown immediately (to avoid a flicker for the user),
+ *     but the events must only be sent once the document (and therefore
+ *     surrogate scripts) have loaded.
+ *  4. Therefore, we hide the element until the page has loaded, then dispatch
+ *     the events after page load, and then remove the element from the DOM.
+ *  5. The "ddg-ctp-ready" event needs to be dispatched _after_ the element
+ *     replacement events have fired. That is why a setTimeout is required
+ *     before dispatching "ddg-ctp-ready".
+ *
+ *  Also note, this all assumes that the surrogate script that needs these
+ *  events will not be loaded asynchronously after the page has finished
+ *  loading.
+ *
+ * @param {DuckWidget} widget
+ *   The DuckWidget associated with the tracking element.
+ * @param {Element} trackingElement
+ *   The tracking element on the page to replace.
+ * @param {Element} placeholderElement
+ *   The placeholder element that should be shown instead.
+ */
+function replaceTrackingElement (widget, trackingElement, placeholderElement) {
+    // In some situations (e.g. YouTube Click to Load previews are
+    // enabled/disabled), a second placeholder will be shown for a tracking
+    // element.
+    const elementToReplace = widget.placeholderElement || trackingElement
+
+    // Note the placeholder element, so that it can also be replaced later if
+    // necessary.
     widget.placeholderElement = placeholderElement
 
-    widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
+    // First hide the element, since we need to keep it in the DOM until the
+    // events have been dispatched.
+    const originalDisplay = [
+        elementToReplace.style.getPropertyValue('display'),
+        elementToReplace.style.getPropertyPriority('display')
+    ]
+    elementToReplace.style.setProperty('display', 'none', 'important')
 
-    const elementToReplace = currentPlaceholder || trackingElement
-    elementToReplace.replaceWith(placeholderElement)
+    // Add the placeholder element to the page.
+    elementToReplace.parentElement.insertBefore(
+        placeholderElement, elementToReplace
+    )
 
-    widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element')
+    // While the placeholder is shown (and original element hidden)
+    // synchronously, the events are dispatched (and original element removed
+    // from the DOM) asynchronously after the page has finished loading.
+    // eslint-disable-next-line promise/prefer-await-to-then
+    const finishedReplacing = afterPageLoad.then(() => {
+        // With page load complete, and both elements in the DOM, the events can
+        // be dispatched.
+        widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
+        widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element')
+
+        // Once the events are sent, the tracking element (or previous
+        // placeholder) can finally be removed from the DOM.
+        elementToReplace.remove()
+        elementToReplace.style.setProperty('display', ...originalDisplay)
+    })
 }
 
 /**
@@ -406,9 +476,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
         textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
 
-        replaceTrackingElement(
-            widget, trackingElement, contentBlock
-        )
+        replaceTrackingElement(widget, trackingElement, contentBlock)
         showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
     }
 
@@ -421,7 +489,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         // and update the CTL state
         window.addEventListener('ddg-settings-youtubePreviewsEnabled', ({ detail: value }) => {
             isYoutubePreviewsEnabled = value
-            replaceYouTubeCTL(trackingElement, widget, true)
+            replaceYouTubeCTL(trackingElement, widget)
         })
     }
 }
@@ -431,11 +499,8 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
  *   The original tracking element (YouTube video iframe)
  * @param {DuckWidget} widget
  *   The CTP 'widget' associated with the tracking element.
- * @param {boolean} togglePlaceholder
- *   Boolean indicating if this function should toggle between placeholders,
- *   because tracking element has already been replaced
  */
-async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = false) {
+async function replaceYouTubeCTL (trackingElement, widget) {
     // Skip replacing tracking element if it has already been unblocked
     if (widget.isUnblocked) {
         return
@@ -443,23 +508,19 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
 
     // Show YouTube Preview for embedded video
     if (isYoutubePreviewsEnabled === true) {
+        const oldPlaceholder = widget.placeholderElement
         const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
-        resizeElementToMatch(currentPlaceholder || trackingElement, youTubePreview)
-        replaceTrackingElement(
-            widget, trackingElement, youTubePreview, currentPlaceholder
-        )
+        resizeElementToMatch(oldPlaceholder || trackingElement, youTubePreview)
+        replaceTrackingElement(widget, trackingElement, youTubePreview)
         showExtraUnblockIfShortPlaceholder(shadowRoot, youTubePreview)
 
         // Block YouTube embedded video and display blocking dialog
     } else {
         widget.autoplay = false
+        const oldPlaceholder = widget.placeholderElement
         const { blockingDialog, shadowRoot } = await createYouTubeBlockingDialog(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
-        resizeElementToMatch(currentPlaceholder || trackingElement, blockingDialog)
-        replaceTrackingElement(
-            widget, trackingElement, blockingDialog, currentPlaceholder
-        )
+        resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
+        replaceTrackingElement(widget, trackingElement, blockingDialog)
         showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
     }
 }
@@ -500,7 +561,7 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
  *   in the document will be replaced instead.
  */
 async function replaceClickToLoadElements (targetElement) {
-    await ready
+    await readyToDisplayPlaceholders
 
     for (const entity of Object.keys(config)) {
         for (const widgetData of Object.values(config[entity].elementData)) {
@@ -1266,20 +1327,9 @@ const messageResponseHandlers = {
         devMode = response.devMode
         isYoutubePreviewsEnabled = response.youtubePreviewsEnabled
 
-        // TODO: Move the below init logic to the exported init() function,
-        //       somehow waiting for this response handler to have been called
-        //       first.
-
-        // Start Click to Load
-        window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
-            replaceClickToLoadElements(target)
-        }, { capture: true })
-
-        // Inform surrogate scripts that CTP is ready
-        originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
-
-        // Mark the feature as ready, to allow placeholder replacements.
-        readyResolver()
+        // Mark the feature as ready, to allow placeholder replacements to
+        // start.
+        readyToDisplayPlaceholdersResolver()
     },
     setYoutubePreviewsEnabled: function (resp) {
         if (resp?.messageType && typeof resp?.value === 'boolean') {
@@ -1299,7 +1349,7 @@ const messageResponseHandlers = {
 const knownMessageResponseType = Object.prototype.hasOwnProperty.bind(messageResponseHandlers)
 
 export default class ClickToLoad extends ContentFeature {
-    init (args) {
+    async init (args) {
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}
         const locale = args?.locale || 'en'
@@ -1359,9 +1409,25 @@ export default class ClickToLoad extends ContentFeature {
         })
 
         // Request the current state of Click to Load from the platform.
-        // Note: When the response is received, the response handler finishes
-        //       starting up the feature.
+        // Note: When the response is received, the response handler resolves
+        //       the readyToDisplayPlaceholders Promise.
         sendMessage('getClickToLoadState')
+        await readyToDisplayPlaceholdersResolver
+
+        // Then wait for the page to finish loading, and resolve the
+        // afterPageLoad Promise.
+        if (document.readyState === 'complete') {
+            afterPageLoadResolver()
+        } else {
+            window.addEventListener('load', afterPageLoadResolver, { once: true })
+        }
+        await afterPageLoad
+
+        // Then wait for any in-progress element replacements, before letting
+        // the surrogate scripts know to start.
+        window.setTimeout(() => {
+            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
+        }, 0)
     }
 
     update (message) {
