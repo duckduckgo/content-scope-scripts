@@ -20,6 +20,7 @@
     "build-windows": "mkdir -p build/windows/ && node scripts/inject.js windows > build/windows/contentScope.js",
     "build-integration": "mkdir -p build/integration/ && node scripts/inject.js integration > build/integration/contentScope.js && npm run copy-build-integration",
     "copy-build-integration": "cp build/integration/contentScope.js integration-test/extension",
+    "postbuild": "npm run build --workspaces --if-present",
     "tsc": "tsc",
     "tsc.watch": "tsc --watch",
     "lint": "eslint . && npm run tsc",
@@ -29,9 +30,13 @@
     "test-int": "npm run build-integration && jasmine --config=integration-test/config.js",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
-    "test": "npm run lint && npm run lint-no-output-globals && npm run test-unit && npm run test-int"
+    "test": "npm run lint && npm run lint-no-output-globals && npm run test-unit && npm run test-int",
+    "posttest": "npm run test --workspaces --if-present"
   },
   "type": "module",
+  "workspaces": [
+    "packages/special-pages"
+  ],
   "dependencies": {
     "seedrandom": "^3.0.5",
     "sjcl": "^1.0.8"
