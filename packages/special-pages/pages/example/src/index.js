@@ -8,7 +8,7 @@
  */
 
 import { Messaging, WindowsMessagingConfig } from '../../../../messaging/index.js'
-import { ExamplePageMessages,  } from './messages.js'
+import { ExamplePageMessages } from './messages.js'
 import { Pixel, OverlayPixel, PlayPixel, PlayDoNotUse } from './pixels.js'
 
 /**

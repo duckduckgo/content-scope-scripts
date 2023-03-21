@@ -3,7 +3,7 @@ import { buildSync } from 'esbuild'
 const CWD = new URL('..', import.meta.url).pathname
 
 // build example page js
-const output = buildSync({
+buildSync({
     entryPoints: [
         join(CWD, 'pages', 'example', 'src', 'index.js')
     ],
