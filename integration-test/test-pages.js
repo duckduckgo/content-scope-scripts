@@ -3,7 +3,7 @@
  */
 import { processConfig } from '../src/utils.js'
 import { setup } from './helpers/harness.js'
-import fs from 'fs'
+import * as fs from 'fs'
 
 describe('Test integration pages', () => {
     let browser
@@ -31,12 +31,14 @@ describe('Test integration pages', () => {
             const port = server.address().port
             const page = await browser.newPage()
             const res = fs.readFileSync(process.cwd() + '/integration-test/test-pages/' + configName)
+            // @ts-expect-error - JSON.parse returns any
             const config = JSON.parse(res)
             // Pollyfill for globalThis methods needed in processConfig
             globalThis.document = {
                 referrer: 'http://localhost:8080',
                 location: {
                     href: 'http://localhost:8080',
+                    // @ts-expect-error - ancestorOrigins is not defined in the type definition
                     ancestorOrigins: {
                         length: 0
                     }
@@ -44,12 +46,13 @@ describe('Test integration pages', () => {
             }
             globalThis.location = {
                 href: 'http://localhost:8080',
+                // @ts-expect-error - ancestorOrigins is not defined in the type definition
                 ancestorOrigins: {
                     length: 0
                 }
             }
 
-            const processedConfig = processConfig(config, /* userList */ [], /* preferences */ {}/*, platformSpecificFeatures = []*/)
+            const processedConfig = processConfig(config, /* userList */ [], /* preferences */ {}/*, platformSpecificFeatures = [] */)
 
             await gotoAndWait(page, `http://localhost:${port}/${pageName}?automation=true`, processedConfig)
             // Check page results
@@ -59,10 +62,13 @@ describe('Test integration pages', () => {
                     const promise = new Promise(resolve => {
                         res = resolve
                     })
+                    // @ts-expect-error - results is not defined in the type definition
                     if (window.results) {
+                        // @ts-expect-error - results is not defined in the type definition
                         res(window.results)
                     } else {
                         window.addEventListener('results-ready', (e) => {
+                            // @ts-expect-error - e.detail is not defined in the type definition
                             res(e.detail)
                         })
                     }

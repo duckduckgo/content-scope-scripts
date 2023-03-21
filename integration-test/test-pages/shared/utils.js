@@ -32,10 +32,12 @@ function buildResultTable (results) {
         const tbody = document.createElement('tbody')
         tr = document.createElement('tr')
         const heading = buildTableCell(name, 'th')
+        // @ts-expect-error - colSpan is not defined in the type definition
         heading.colSpan = 3
         tr.appendChild(heading)
         tbody.appendChild(tr)
 
+        // @ts-expect-error - resultSection.forEach is not defined in the type definition
         resultSection.forEach((result) => {
             const resultOut = JSON.stringify(result.result)
             const expectedOut = JSON.stringify(result.expected)
@@ -64,9 +66,11 @@ if (url.searchParams.get('automation')) {
     })
 }
 
+// @ts-expect-error - ongoingTests is not defined in the type definition
 window.ongoingTests = []
 // eslint-disable-next-line no-unused-vars
-function it (name, test) {
+function test (name, test) {
+    // @ts-expect-error - ongoingTests is not defined in the type definition
     window.ongoingTests.push({ name, test })
 }
 
@@ -76,12 +80,14 @@ async function renderResults () {
     if (isInAutomation) {
         await isReadyPromise
     }
+    // @ts-expect-error - ongoingTests is not defined in the type definition
     for (const test of window.ongoingTests) {
         const result = await test.test()
         results[test.name] = result
     }
+    // @ts-expect-error - buildResultTable is not defined in the type definition
     document.body.appendChild(buildResultTable(results))
-    console.log('aboutto dispatch')
     window.dispatchEvent(new CustomEvent('results-ready', { detail: results }))
+    // @ts-expect-error - results is not defined in the type definition
     window.results = results
 }

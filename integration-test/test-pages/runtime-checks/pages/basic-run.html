@@ -14,7 +14,7 @@
 
     <script>
         // eslint-disable-next-line no-undef
-        it('Script that should not execute', async () => {
+        test('Script that should not execute', async () => {
             window.scripty1Ran = false;
             const scriptElement = document.createElement('script');
             scriptElement.innerText = 'window.scripty1Ran = true';
@@ -41,7 +41,7 @@
         });
 
         // eslint-disable-next-line no-undef
-        it('Script that should execute', async () => {
+        test('Script that should execute', async () => {
             window.scripty2Ran = false;
             const scriptElement = document.createElement('script');
             scriptElement.innerText = 'window.scripty2Ran = true';
@@ -66,7 +66,7 @@
         });
 
         // eslint-disable-next-line no-undef
-        it('Invalid external script should trigger error listeners', async () => {
+        test('Invalid external script should trigger error listeners', async () => {
             const scriptElement = document.createElement('script');
             scriptElement.id = 'scripty3';
             scriptElement.src = 'invalid://url';
