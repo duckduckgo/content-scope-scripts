@@ -1,7 +1,10 @@
 {
     "name": "@duckduckgo/workspaces-demo",
     "entryPoints": [
-        "inject/*"
+        "inject/*",
+        "packages/*",
+        "packages/messaging/lib/webkit.js",
+        "packages/messaging/lib/windows.js"
     ],
     "out": "docs",
     "excludeExternals": true,
