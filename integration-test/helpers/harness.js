@@ -64,12 +64,29 @@ export async function setup (ops = {}) {
      * @returns {http.Server}
      */
     function setupServer (port) {
+        return _startupServerInternal('../pages', port)
+    }
+
+    /**
+     * @param {number|string} [port]
+     * @returns {http.Server}
+     */
+    function setupIntegrationPagesServer (port) {
+        return _startupServerInternal('../test-pages', port)
+    }
+
+    /**
+     * @param {string} pathName
+     * @param {number|string} [port]
+     * @returns {http.Server}
+     */
+    function _startupServerInternal (pathName, port) {
         const server = http.createServer(function (req, res) {
             const url = new URL(req.url, `http://${req.headers.host}`)
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             const importUrl = new URL(import.meta.url)
             const dirname = importUrl.pathname.replace(/\/[^/]*$/, '')
-            const pathname = path.join(dirname, '../pages', url.pathname)
+            const pathname = path.join(dirname, pathName, url.pathname)
 
             fs.readFile(pathname, (err, data) => {
                 if (err) {
@@ -118,10 +135,11 @@ export async function setup (ops = {}) {
 
         // wait until contentScopeFeatures.init(args) has completed
         await page.waitForFunction(() => {
+            window.dispatchEvent(new Event('content-scope-init-complete'))
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             return window.__content_scope_status === 'initialized'
         })
     }
 
-    return { browser, teardown, setupServer, gotoAndWait }
+    return { browser, teardown, setupServer, setupIntegrationPagesServer, gotoAndWait }
 }
