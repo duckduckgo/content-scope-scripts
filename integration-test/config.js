@@ -3,6 +3,7 @@ export default {
     jsLoader: 'import',
     spec_files: [
         '**/*.js',
+        '!test-pages/**/*.js',
         '!pages/**/*.js',
         '!extension/**/*.js'
     ],

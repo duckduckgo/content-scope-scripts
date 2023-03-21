@@ -283,8 +283,17 @@ function processAttrByCriteria (configSetting) {
  * @returns The value of the config setting or the default value
  */
 export function getFeatureAttr (featureName, args, prop, defaultValue) {
-    let configSetting = getFeatureSetting(featureName, args, prop)
+    const configSetting = getFeatureSetting(featureName, args, prop)
+    return processAttr(configSetting, defaultValue)
+}
 
+/**
+ * Handles the processing of a config setting.
+ * @param {*} configSetting
+ * @param {*} defaultValue
+ * @returns
+ */
+export function processAttr (configSetting, defaultValue) {
     if (configSetting === undefined) {
         return defaultValue
     }
