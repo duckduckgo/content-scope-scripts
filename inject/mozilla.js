@@ -1,5 +1,6 @@
 /**
  * @module Mozilla integration
+ * @category Content Scope Scripts Integrations
  */
 /* global contentScopeFeatures */
 import { isTrackerOrigin } from '../src/trackers'

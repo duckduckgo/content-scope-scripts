@@ -20,6 +20,7 @@
   "exclude": [
     "integration-test/pages",
     "integration-test/extension",
+    "packages/special-pages/pages/**/public",
     "docs"
   ]
 }

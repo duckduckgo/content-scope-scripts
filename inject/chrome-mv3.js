@@ -1,5 +1,6 @@
 /**
  * @module Chrome MV3 integration
+ * @category Content Scope Scripts Integrations
  */
 /* global contentScopeFeatures */
 
