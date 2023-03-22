@@ -1,3 +1,6 @@
+/**
+ * @module Apple integration
+ */
 /* global contentScopeFeatures */
 
 import { processConfig, isGloballyDisabled } from './../src/utils'

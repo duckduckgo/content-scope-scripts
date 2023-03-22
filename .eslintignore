@@ -1,4 +1,5 @@
 build/
+docs/
 lib/
 Sources/ContentScopeScripts/dist/
 integration-test/extension/contentScope.js

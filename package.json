@@ -20,6 +20,7 @@
     "build-windows": "mkdir -p build/windows/ && node scripts/inject.js windows > build/windows/contentScope.js",
     "build-integration": "mkdir -p build/integration/ && node scripts/inject.js integration > build/integration/contentScope.js && npm run copy-build-integration",
     "copy-build-integration": "cp build/integration/contentScope.js integration-test/extension",
+    "docs": "typedoc",
     "postbuild": "npm run build --workspaces --if-present",
     "tsc": "tsc",
     "tsc.watch": "tsc --watch",
@@ -60,6 +61,7 @@
     "puppeteer": "^19.7.5",
     "rollup": "^3.20.0",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
+    "typedoc": "^0.23.28",
     "typescript": "^5.0.2"
   }
 }

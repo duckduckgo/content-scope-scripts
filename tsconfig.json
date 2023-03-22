@@ -20,5 +20,6 @@
   "exclude": [
     "integration-test/pages",
     "integration-test/extension",
+    "docs"
   ]
 }
