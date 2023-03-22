@@ -130,7 +130,7 @@ function init () {
         }
     })
 
-    window.addEventListener('sendMessageProxy' + messageSecret, event => {
+    window.addEventListener('{sendMessageProxy}' + messageSecret, event => {
         event.stopImmediatePropagation()
 
         if (!(event instanceof CustomEvent) || !event?.detail) {

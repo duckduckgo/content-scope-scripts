@@ -1,4 +1,4 @@
-import { Messaging, WebkitMessagingConfig } from '../../index.js'
+import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../index.js'
 
 /**
  * Webkit messaging involves calling methods on `window.webkit.messageHandlers`.
@@ -11,10 +11,16 @@ const config = new WebkitMessagingConfig({
   webkitMessageHandlerNames: ['helloWorld', 'sendPixel'],
 })
 
+const messagingContext = new MessagingContext({
+  context: 'contentScopeScripts',
+  featureName: 'hello-world'
+})
+
+
 /**
  * Send notifications!
  */
-const messaging = new Messaging(config)
+const messaging = new Messaging(messagingContext, config)
 messaging.notify('sendPixel')
 
 /**

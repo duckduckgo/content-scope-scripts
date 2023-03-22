@@ -25,15 +25,29 @@
 import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods } from './lib/windows.js'
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
 
+export class MessagingContext {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     */
+    constructor (params) {
+        this.context = params.context
+        this.featureName = params.featureName
+    }
+}
+
 /**
- * @implements {MessagingTransport}
+ *
  */
 export class Messaging {
     /**
+     * @param {MessagingContext} messagingContext
      * @param {WebkitMessagingConfig | WindowsMessagingConfig} config
      */
-    constructor (config) {
-        this.transport = getTransport(config)
+    constructor (messagingContext, config) {
+        this.messagingContext = messagingContext
+        this.transport = getTransport(config, this.messagingContext)
     }
 
     /**
@@ -50,7 +64,13 @@ export class Messaging {
      * @param {Record<string, any>} [data]
      */
     notify (name, data = {}) {
-        this.transport.notify(name, data)
+        const message = new NotificationMessage({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            method: name,
+            params: data
+        })
+        this.transport.notify(message)
     }
 
     /**
@@ -68,7 +88,15 @@ export class Messaging {
      * @return {Promise<any>}
      */
     request (name, data = {}) {
-        return this.transport.request(name, data)
+        const id = name + '.response'
+        const message = new RequestMessage({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            method: name,
+            params: data,
+            id
+        })
+        return this.transport.request(message)
     }
 
     /**
@@ -77,7 +105,12 @@ export class Messaging {
      * @return {() => void}
      */
     subscribe (name, callback) {
-        return this.transport.subscribe(name, callback)
+        const msg = new Subscription({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            subscriptionName: name
+        })
+        return this.transport.subscribe(msg, callback)
     }
 }
 
@@ -86,47 +119,46 @@ export class Messaging {
  */
 export class MessagingTransport {
     /**
-     * @param {string} name
-     * @param {Record<string, any>} [data]
+     * @param {NotificationMessage} msg
      * @returns {void}
      */
     // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
-    notify (name, data = {}) {
+    notify (msg) {
         throw new Error("must implement 'notify'")
     }
 
     /**
-     * @param {string} name
-     * @param {Record<string, any>} [data]
+     * @param {RequestMessage} msg
      * @param {{signal?: AbortSignal}} [options]
      * @return {Promise<any>}
      */
     // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
-    request (name, data = {}, options = {}) {
+    request (msg, options = {}) {
         throw new Error('must implement')
     }
 
     /**
-     * @param {string} name
+     * @param {Subscription} msg
      * @param {(value: unknown) => void} callback
      * @return {() => void}
      */
     // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
-    subscribe (name, callback) {
+    subscribe (msg, callback) {
         throw new Error('must implement')
     }
 }
 
 /**
  * @param {WebkitMessagingConfig | WindowsMessagingConfig} config
+ * @param {MessagingContext} messagingContext
  * @returns {MessagingTransport}
  */
-function getTransport (config) {
+function getTransport (config, messagingContext) {
     if (config instanceof WebkitMessagingConfig) {
-        return new WebkitMessagingTransport(config)
+        return new WebkitMessagingTransport(config, messagingContext)
     }
     if (config instanceof WindowsMessagingConfig) {
-        return new WindowsMessagingTransport(config)
+        return new WindowsMessagingTransport(config, messagingContext)
     }
     throw new Error('unreachable')
 }
@@ -142,6 +174,101 @@ export class MissingHandler extends Error {
     constructor (message, handlerName) {
         super(message)
         this.handlerName = handlerName
+    }
+}
+
+export class RequestMessage {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.method
+     * @param {Record<string, any>} [params.params]
+     * @param {string} params.id
+     */
+    constructor (params) {
+        this.context = params.context
+        this.featureName = params.featureName
+        this.method = params.method
+        this.params = params.params
+        this.id = params.id
+    }
+}
+
+export class MessageError {
+    /**
+     * @param {object} params
+     * @param {string} params.message
+     */
+    constructor (params) {
+        this.message = params.message
+    }
+}
+
+export class MessageResponse {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.id
+     * @param {Record<string, any>} [params.result]
+     * @param {MessageError} [params.error]
+     */
+    constructor (params) {
+        this.context = params.context
+        this.featureName = params.featureName
+        this.result = params.result
+        this.error = params.error
+        this.id = params.id
+    }
+}
+
+export class NotificationMessage {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.method
+     * @param {Record<string, any>} [params.params]
+     */
+    constructor (params) {
+        this.context = params.context
+        this.featureName = params.featureName
+        this.method = params.method
+        this.params = params.params
+    }
+}
+
+export class Subscription {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.subscriptionName
+     */
+    constructor (params) {
+        this.context = params.context
+        this.featureName = params.featureName
+        this.subscriptionName = params.subscriptionName
+    }
+}
+
+/**
+ * This is the shape of payloads that can be delivered via subscriptions
+ */
+export class SubscriptionEvent {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.subscriptionName
+     * @param {Record<string, any>} [params.params]
+     */
+    constructor (params) {
+        this.context = params.context
+        this.featureName = params.featureName
+        this.subscriptionName = params.subscriptionName
+        this.params = params.params
     }
 }
 

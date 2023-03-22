@@ -63,13 +63,17 @@ import { MessagingTransport, MissingHandler } from '../index.js'
 export class WebkitMessagingTransport {
   /** @type {WebkitMessagingConfig} */
   config
+  /** @internal */
   globals
   /**
    * @param {WebkitMessagingConfig} config
+   * @param {import("../index.js").MessagingContext} messagingContext
    */
-  constructor(config) {
+  constructor(config, messagingContext) {
+    this.messagingContext = messagingContext;
     this.config = config
     this.globals = captureGlobals()
+    this.installGlobalSubscriptionHandler()
     if (!this.config.hasModernWebkitAPI) {
       this.captureWebkitHandlers(this.config.webkitMessageHandlerNames)
     }
@@ -81,6 +85,7 @@ export class WebkitMessagingTransport {
    * @internal
    */
   wkSend(handler, data = {}) {
+    // console.log('WU?', handler in this.globals.window.webkit.messageHandlers);
     if (!(handler in this.globals.window.webkit.messageHandlers)) {
       throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
     }
@@ -142,25 +147,24 @@ export class WebkitMessagingTransport {
     }
   }
   /**
-   * @param {string} name
-   * @param {Record<string, any>} [data]
+   * @param {import("../index.js").NotificationMessage} msg
    */
-  notify(name, data = {}) {
-    this.wkSend(name, data)
+  notify(msg) {
+    this.wkSend(msg.context, msg)
   }
   /**
-   * @param {string} name
-   * @param {Record<string, any>} [data]
+   * @param {import("../index.js").RequestMessage} msg
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  request(name, data = {}) {
-    return this.wkSendAndWait(name, data)
+  async request(msg, _opts) {
+    return this.wkSendAndWait(msg.context, msg)
   }
   /**
    * Generate a random method name and adds it to the global scope
    * The native layer will use this method to send the response
    * @param {string | number} randomMethodName
    * @param {Function} callback
+   * @internal
    */
   generateRandomMethod(randomMethodName, callback) {
     this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
@@ -179,21 +183,31 @@ export class WebkitMessagingTransport {
     })
   }
 
+  /**
+   * @internal
+   * @return {string}
+   */
   randomString() {
     return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0]
   }
 
+  /**
+   * @internal
+   * @return {string}
+   */
   createRandMethodName() {
     return '_' + this.randomString()
   }
 
   /**
    * @type {{name: string, length: number}}
+   * @internal
    */
   algoObj = { name: 'AES-GCM', length: 256 }
 
   /**
    * @returns {Promise<Uint8Array>}
+   * @internal
    */
   async createRandKey() {
     const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt'])
@@ -203,6 +217,7 @@ export class WebkitMessagingTransport {
 
   /**
    * @returns {Uint8Array}
+   * @internal
    */
   createRandIv() {
     return this.globals.getRandomValues(new this.globals.Uint8Array(12))
@@ -213,6 +228,7 @@ export class WebkitMessagingTransport {
    * @param {BufferSource} key
    * @param {Uint8Array} iv
    * @returns {Promise<string>}
+   * @internal
    */
   async decrypt(ciphertext, key, iv) {
     const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt'])
@@ -248,13 +264,63 @@ export class WebkitMessagingTransport {
   }
 
   /**
-   * @param {string} name
+   * @param {import("../index.js").Subscription} msg
    * @param {(value: unknown) => void} callback
    */
-  subscribe(name, callback) {
-    console.warn('webkit.subscribe is not implemented yet!', name, callback)
+  subscribe(msg, callback) {
+    if (!this.config.hasModernWebkitAPI) {
+      throw new Error('webkit.subscribe is not implemented yet for none-modern')
+    }
+    // ensure we only respond to messages we care about
+    const comparator = (data) => {
+      return data.context === msg.context
+        && data.featureName === msg.featureName
+        && data.subscriptionName === msg.subscriptionName
+    }
+
+    // store the handler
+    const handler = { comparator, cb: callback };
+    this.subscriptionHandlers.push(handler);
+
+    // return a cleanup function
     return () => {
-      console.log('teardown')
+      const index = this.subscriptionHandlers.indexOf(handler);
+      if (index > -1) {
+        this.subscriptionHandlers.splice(index, 1);
+      }
+    }
+  }
+
+  /** @type {{comparator: (data) => boolean, cb: (data) => void}[]} */
+  subscriptionHandlers = [];
+
+  /**
+   * Attach a window method through which subscription events can be provided
+   * eg:
+   *
+   * ```
+   * window.webkitSubscriptionHandlerContentScopeScripts({
+   *     content: "contentScopeScripts",
+   *     featureName: "duckPlayerOverlays",
+   *     subscriptionName: "onUserValuesChanged",
+   *     params: {...}
+   * })
+   * ```
+   */
+  installGlobalSubscriptionHandler () {
+    const methodName = 'webkitSubscriptionHandler_' + this.messagingContext.context;
+    // console.log("SUB", {methodName})
+    window[methodName] = (payload) => {
+      // console.log('debug: webkit received subscription method', methodName);
+      if ('context' in payload && 'featureName' in payload && 'subscriptionName' in payload) {
+        for (let subscriptionHandler of this.subscriptionHandlers) {
+          if (subscriptionHandler.comparator(payload)) {
+            subscriptionHandler.cb(payload.params)
+          }
+        }
+      } else {
+        console.warn('ignoring', payload);
+      }
     }
   }
 }
@@ -293,7 +359,7 @@ export class WebkitMessagingConfig {
      */
     this.webkitMessageHandlerNames = params.webkitMessageHandlerNames
     /**
-     * A string provided by native platforms to be sent with future outgoing
+     * A string provided by native platforms to be sent with future readOutgoingMessages
      * messages
      */
     this.secret = params.secret
@@ -301,7 +367,7 @@ export class WebkitMessagingConfig {
 }
 
 /**
- * This is the additional payload that gets appended to outgoing messages.
+ * This is the additional payload that gets appended to readOutgoingMessages messages.
  * It's used in the Swift side to encrypt the response that comes back
  */
 export class SecureMessagingParams {
