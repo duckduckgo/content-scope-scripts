@@ -1,6 +1,4 @@
 /**
- * @module Windows Messaging
- *
  * @description
  *
  * A wrapper for messaging on Windows.
@@ -15,7 +13,7 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport } from '../'
+import { MessagingTransport } from '../index.js'
 
 /**
  * @implements {MessagingTransport}

@@ -1,5 +1,4 @@
 /**
- * @module Webkit Messaging
  *
  * @description
  *
@@ -9,27 +8,11 @@
  * Note: If you wish to support Catalina then you'll need to implement the native
  * part of the message handling, see {@link WebkitMessagingTransport} for details.
  *
- * ```js
- * import { Messaging, WebkitMessagingConfig } from "@duckduckgo/content-scope-scripts/lib/messaging.js"
- *
- * // This config would be injected into the UserScript
- * const injectedConfig = {
- *   hasModernWebkitAPI: true,
- *   webkitMessageHandlerNames: ["foo", "bar", "baz"],
- *   secret: "dax",
- * };
- *
- * // Then use that config to construct platform-specific configuration
- * const config = new WebkitMessagingConfig(injectedConfig);
- *
- * // finally, get an instance of Messaging and start sending messages in a unified way 🚀
- * const messaging = new Messaging(config);
- * messaging.notify("hello world!", {foo: "bar"})
- *
- * ```
+ * ```javascript
+ * [[include:packages/messaging/lib/examples/webkit.example.js]]```
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, MissingHandler } from '../'
+import { MessagingTransport, MissingHandler } from '../index.js'
 
 /**
  * @example
@@ -354,7 +337,7 @@ export class SecureMessagingParams {
  * scripts from tampering with this
  */
 function captureGlobals() {
-  // Creat base with null prototype
+  // Create base with null prototype
   return {
     window,
     // Methods must be bound to their interface, otherwise they throw Illegal invocation

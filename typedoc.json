@@ -1,10 +1,13 @@
 {
     "name": "@duckduckgo/workspaces-demo",
     "entryPoints": [
-        "inject/*",
-        "packages/*",
-        "packages/messaging/lib/webkit.js",
-        "packages/messaging/lib/windows.js"
+        "inject/android.js",
+        "inject/apple.js",
+        "inject/chrome.js",
+        "inject/chrome-mv3.js",
+        "inject/mozilla.js",
+        "inject/windows.js",
+        "packages/*"
     ],
     "out": "docs",
     "excludeExternals": true,

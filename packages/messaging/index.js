@@ -1,6 +1,6 @@
 /**
  * @module Messaging
- *
+ * @category Libraries
  * @description
  *
  * An abstraction for communications between JavaScript and host platforms.
@@ -9,48 +9,20 @@
  * 2) Then use that to get an instance of the Messaging utility which allows
  * you to send and receive data in a unified way
  * 3) Each platform implements {@link MessagingTransport} along with its own Configuration
- *     - For example, to learn what configuration is required for Webkit, see: {@link "Webkit Messaging".WebkitMessagingConfig}
- *     - Or, to learn about how messages are sent and received in Webkit, see {@link "Webkit Messaging".WebkitMessagingTransport}
+ *     - For example, to learn what configuration is required for Webkit, see: {@link WebkitMessagingConfig}
+ *     - Or, to learn about how messages are sent and received in Webkit, see {@link WebkitMessagingTransport}
  *
  * @example Webkit Messaging
  *
- * ```js
- * import { Messaging, WebkitMessagingConfig } from "@duckduckgo/content-scope-scripts/lib/messaging.js"
- *
- * // This config would be injected into the UserScript
- * const injectedConfig = {
- *   hasModernWebkitAPI: true,
- *   webkitMessageHandlerNames: ["foo", "bar", "baz"],
- *   secret: "dax",
- * };
- *
- * // Then use that config to construct platform-specific configuration
- * const config = new WebkitMessagingConfig(injectedConfig);
- *
- * // finally, get an instance of Messaging and start sending messages in a unified way 🚀
- * const messaging = new Messaging(config);
- * messaging.notify("hello world!", {foo: "bar"})
- *
- * ```
+ * ```javascript
+ * [[include:packages/messaging/lib/examples/webkit.example.js]]```
  *
  * @example Windows Messaging
  *
- * ```js
- * import { Messaging, WindowsMessagingConfig } from "@duckduckgo/content-scope-scripts/lib/messaging.js"
- *
- * // Messaging on Windows is namespaced, so you can create multiple messaging instances
- * const autofillConfig  = new WindowsMessagingConfig({ featureName: "Autofill" });
- * const debugConfig     = new WindowsMessagingConfig({ featureName: "Debugging" });
- *
- * const autofillMessaging = new Messaging(autofillConfig);
- * const debugMessaging    = new Messaging(debugConfig);
- *
- * // Now send messages to both features as needed 🚀
- * autofillMessaging.notify("storeFormData", { "username": "dax" })
- * debugMessaging.notify("pageLoad", { time: window.performance.now() })
- * ```
+ * ```javascript
+ * [[include:packages/messaging/lib/examples/windows.example.js]]```
  */
-import { WindowsMessagingConfig, WindowsMessagingTransport } from './lib/windows.js'
+import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods } from './lib/windows.js'
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
 
 /**
@@ -176,4 +148,10 @@ export class MissingHandler extends Error {
 /**
  * Some re-exports for convenience
  */
-export { WebkitMessagingConfig, WindowsMessagingConfig }
+export {
+    WebkitMessagingConfig,
+    WebkitMessagingTransport,
+    WindowsMessagingConfig,
+    WindowsMessagingTransport,
+    WindowsInteropMethods
+}
