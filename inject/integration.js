@@ -1,5 +1,8 @@
-/* global contentScopeFeatures */
+/**
+ * @module Testing integration
+ */
 
+/* global contentScopeFeatures */
 function getTopLevelURL () {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479
