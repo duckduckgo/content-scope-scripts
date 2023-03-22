@@ -31,7 +31,9 @@
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
     "test": "npm run lint && npm run lint-no-output-globals && npm run test-unit && npm run test-int",
-    "posttest": "npm run test --workspaces --if-present"
+    "posttest": "npm run test --workspaces --if-present",
+    "posttest-int": "npm run test-int --workspaces --if-present",
+    "posttest-int-x": "npm run test-int-x --workspaces --if-present"
   },
   "type": "module",
   "workspaces": [
