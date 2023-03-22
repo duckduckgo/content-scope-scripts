@@ -1,4 +1,4 @@
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement, processAttr } from '../utils.js'
 
 let stackDomains = []
 let matchAllStackDomains = false
@@ -6,6 +6,7 @@ let taintCheck = false
 let initialCreateElement
 let tagModifiers = {}
 let shadowDomEnabled = false
+let scriptOverload = {}
 
 /**
  * @param {string} tagName
@@ -108,6 +109,37 @@ class DDGRuntimeChecks extends HTMLElement {
         })
     }
 
+    computeScriptOverload (el) {
+        const config = scriptOverload
+        const processedConfig = {}
+        for (const [key, value] of Object.entries(config)) {
+            processedConfig[key] = processAttr(value)
+        }
+
+        function inject (parentScope, config) {
+            for (const [key, value] of Object.entries(config)) {
+                const path = key.split('.')
+                let currentScope = parentScope
+                for (let i = 0; i < path.length - 1; i++) {
+                    currentScope = currentScope[path[i]] = currentScope[path[i]] || {}
+                }
+                Object.defineProperty(currentScope, path[path.length - 1], {
+                    value,
+                    writable: true,
+                    configurable: true,
+                    enumerable: true
+                })
+            }
+        }
+        // Trailing semicolon is important to prevent the script from coliding with other ASI issues in the output script.
+        el.innerText = `(function initCode(parentScope, config) {
+            let window = Object.assign(parentScope, {});
+            let globalThis = Object.assign(parentScope, {});
+            (${inject.toString()})(window, config);
+            ${el.innerText}
+        })(window, ${JSON.stringify(processedConfig)})`
+    }
+
     /**
      * The element has been moved to the DOM, so we can now reflect all changes to a real element.
      * This is to allow us to interrogate the real element before it is moved to the DOM.
@@ -165,6 +197,10 @@ class DDGRuntimeChecks extends HTMLElement {
         // Move all children to the new element
         while (this.firstChild) {
             el.appendChild(this.firstChild)
+        }
+
+        if (this.#tagName === 'script') {
+            this.computeScriptOverload(el)
         }
 
         // Move the new element to the DOM
@@ -384,6 +420,7 @@ export function init (args) {
     elementRemovalTimeout = getFeatureSetting(featureName, args, 'elementRemovalTimeout') || 1000
     tagModifiers = getFeatureSetting(featureName, args, 'tagModifiers') || {}
     shadowDomEnabled = getFeatureSettingEnabled(featureName, args, 'shadowDom') || false
+    scriptOverload = getFeatureSetting(featureName, args, 'scriptOverload') || {}
 
     overrideCreateElement()
 
