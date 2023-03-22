@@ -1,5 +1,6 @@
 /**
  * @module Android integration
+ * @category Content Scope Scripts Integrations
  */
 /* global contentScopeFeatures */
 import { processConfig, isGloballyDisabled } from './../src/utils'

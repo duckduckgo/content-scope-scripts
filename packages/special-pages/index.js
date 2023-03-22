@@ -1,3 +1,16 @@
+/**
+ * @module Special Pages
+ * @category Special Pages
+ *
+ * @description
+ *
+ * A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like `about: pages`
+ *
+ * - {@link "Example Page"}
+ *
+ * [[include:packages/special-pages/readme.md]]
+ *
+ */
 import { join } from 'node:path'
 import { existsSync, cpSync, rmSync } from 'node:fs'
 const CWD = new URL('.', import.meta.url).pathname
@@ -5,7 +18,7 @@ const ROOT = new URL('../../', import.meta.url).pathname
 const BUILD = join(ROOT, 'build')
 
 export const support = {
-    // example: ['windows']
+    example: ['windows']
 }
 
 /** @type {{src: string, dest: string}[]} */
@@ -13,9 +26,9 @@ const copyJobs = []
 const errors = []
 
 for (const [pageName, platforms] of Object.entries(support)) {
-    const src = join(CWD, 'pages', pageName)
+    const src = join(CWD, 'pages', pageName, 'public')
     if (!existsSync(src)) {
-        errors.push(`${src} does not exist`)
+        errors.push(`${src} does not exist. Each page must have a 'public' directory`)
         continue
     }
     for (const platform of platforms) {
@@ -36,7 +49,7 @@ if (errors.length > 0) {
 
 if (errors.length === 0) {
     for (const copyJob of copyJobs) {
-        console.log('DRY RUN COPY: ', copyJob)
+        console.log('COPY: ', copyJob)
         rmSync(copyJob.dest, { force: true, recursive: true })
         cpSync(copyJob.src, copyJob.dest, { force: true, recursive: true })
     }

@@ -1,5 +1,6 @@
 /**
  * @module Apple integration
+ * @category Content Scope Scripts Integrations
  */
 /* global contentScopeFeatures */
 
