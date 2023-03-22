@@ -20,7 +20,8 @@ let package = Package(
             name: "ContentScopeScripts",
             dependencies: [],
             resources: [
-                .process("dist")
+                .process("dist/contentScope.js"),
+                .copy("dist/pages"),
             ]
         ),
     ]

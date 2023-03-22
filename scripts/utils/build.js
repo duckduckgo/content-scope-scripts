@@ -2,8 +2,12 @@ import * as rollup from 'rollup'
 import commonjs from '@rollup/plugin-commonjs'
 import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
+import css from 'rollup-plugin-import-css'
+import svg from 'rollup-plugin-svg-import'
 import dynamicImportVariables from 'rollup-plugin-dynamic-import-variables'
 import { runtimeInjected } from '../../src/features.js'
+
+const NODE_ENV = JSON.stringify(process.env.NODE_ENV || 'production')
 
 /**
  * This is a helper function to require all files in a directory
@@ -50,6 +54,10 @@ export async function rollupScript (scriptPath, name, supportsMozProxies = false
     const inputOptions = {
         input: scriptPath,
         plugins: [
+            css(),
+            svg({
+                stringify: true
+            }),
             runtimeInjections(),
             resolve(),
             dynamicImportVariables({}),
@@ -58,7 +66,8 @@ export async function rollupScript (scriptPath, name, supportsMozProxies = false
                 preventAssignment: true,
                 values: {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    mozProxies
+                    mozProxies,
+                    'import.meta.env': NODE_ENV
                 }
             })
         ]

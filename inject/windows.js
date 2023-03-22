@@ -18,6 +18,10 @@ function initCode () {
 
     init(processedConfig)
 
+    console.log('🪟, init', {
+        env: import.meta.env
+    })
+
     // Not supported:
     // update(message)
 }

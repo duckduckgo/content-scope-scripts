@@ -14,7 +14,8 @@ export const featureNames = [
     'fingerprintingTemporaryStorage',
     'navigatorInterface',
     'clickToLoad',
-    'elementHiding'
+    'elementHiding',
+    'duckPlayer'
 ]
 
 // Certain features are injected into the page in Firefox

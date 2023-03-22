@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Runtime checks</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        #thumbnail {
+            height: 100px;
+            width: 200px;
+            margin: 5px;
+            background: lightblue;
+            border: 1px solid black;
+            float: left;
+        }
+
+        #thumbnail img {
+            width: 100%;
+            height: 100%;
+        }
+
+        #playlist {
+            clear: both;
+            width: 100px;
+
+        }
+
+        #playlist #items {
+            height: 150px;
+            overflow: auto;
+        }
+
+        #playlist #thumbnail {
+            width: 90px;
+            height: 50px;
+        }
+
+        #loaded {
+            clear: both;
+            float: none;
+            width: 300px;
+        }
+
+        h2 {
+            padding-top: 2em;
+        }
+    </style>
+</head>
+<body>
+<script src="../../shared/utils.js"></script>
+<p><a href="../index.html">[Duck Player]</a></p>
+
+<div id="initial"></div>
+<div id="loaded"></div>
+
+<script>
+    const thumbnail = id => `<a id="thumbnail" href="/watch?v=${id}"><img src="//:0"></a>`;
+    const thumbnails = title => (title ? '<h2>'+title+'</h2>' : '') + '<div class="thumbnails" data-testid="'+title+'">' + ([1,2,3,4,5]).map(thumbnail).join('') + '</div>';
+    const playlist = title => `<div id="playlist"><h2>${title}</h2><div id="items" class="playlist-items" data-testid="${title}">${thumbnails()}</div></div>`;
+    document.querySelector('#initial').innerHTML = thumbnails('THUMBNAILS') + playlist('PLAYLIST') + thumbnails('MORE THUMBNAILS');
+</script>
+
+<script>
+    // eslint-disable-next-line no-undef
+    test('should thing', async () => {
+        console.log('haha');
+
+        await new Promise(res => setTimeout(res, 20000));
+
+        return [
+            {
+                name: 'enabled',
+                result: false,
+                expected: true
+            },
+        ]
+    })
+
+    // eslint-disable-next-line no-undef
+    renderResults()
+</script>
+</body>
+</html>

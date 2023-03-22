@@ -1,6 +1,7 @@
 import { camelcase, matchHostname, processAttr } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
+import { Messaging, MessagingContext, WebkitMessagingConfig, WindowsMessagingConfig } from '@duckduckgo/messaging'
 
 export default class ContentFeature {
     constructor (featureName) {
@@ -101,6 +102,38 @@ export default class ContentFeature {
 
     callLoad (args) {
         const mark = this.monitor.mark(this.name + 'CallLoad')
+        const configs = {
+            macos: () => {
+                return new WebkitMessagingConfig({
+                    secret: '1',
+                    hasModernWebkitAPI: true,
+                    webkitMessageHandlerNames: ['contentScopeScripts']
+                })
+            },
+            windows: () => {
+                return new WindowsMessagingConfig({
+                    methods: {
+                        postMessage: windowsInteropPostMessage,
+                        addEventListener: windowsInteropAddEventListener,
+                        removeEventListener: windowsInteropRemoveEventListener
+                    }
+                })
+            }
+        }
+
+        if (args.platform.name in configs) {
+            const config = configs[args.platform.name]()
+            if (!config) throw new Error('unreachable')
+
+            const context = new MessagingContext({
+                featureName: this.name,
+                context: 'contentScopeScripts',
+                env: import.meta.env
+            })
+
+            this.messaging = new Messaging(context, config)
+        }
+
         this._args = args
         this.platform = args.platform
         this.load(args)
