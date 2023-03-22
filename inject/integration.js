@@ -1,7 +1,3 @@
-/**
- * @module Testing integration
- */
-
 /* global contentScopeFeatures */
 function getTopLevelURL () {
     try {

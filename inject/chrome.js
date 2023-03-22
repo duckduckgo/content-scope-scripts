@@ -1,5 +1,6 @@
 /**
  * @module Chrome integration
+ * @category Content Scope Scripts Integrations
  */
 import { isTrackerOrigin } from '../src/trackers'
 
