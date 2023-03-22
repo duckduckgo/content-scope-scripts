@@ -2,10 +2,11 @@
 
 Serve the entire folder found under `build/<PLATFORM>/pages/duckplayer`
 
-### Platform Integration
+### Platform Integrations
 
-- On Windows, do x, y, z
-- On Android, do a, b, c
+So far, the following platforms are supported
+
+- Windows
 
 ---
 

@@ -10,8 +10,8 @@ buildSync({
     outdir: join(CWD, 'pages', 'example', 'public', 'generated', 'js'),
     bundle: true,
     format: 'esm',
-    metafile: true,
-});
+    metafile: true
+})
 
 // build duckplayer page js
 buildSync({

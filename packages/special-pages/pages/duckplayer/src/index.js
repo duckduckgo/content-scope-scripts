@@ -1,11 +1,15 @@
-// @ts-nocheck
+/**
+ * @module Duck Player Page
+ * @category Special Pages
+ *
+ */
 const VideoPlayer = {
     /**
      * Returns the video player iframe
-     * @returns {HTMLElement}
+     * @returns {HTMLIFrameElement}
      */
     iframe: () => {
-        return document.querySelector('#player');
+        return document.querySelector('#player')
     },
 
     /**
@@ -13,7 +17,7 @@ const VideoPlayer = {
      * @returns {HTMLElement}
      */
     playerContainer: () => {
-        return document.querySelector('.player-container');
+        return document.querySelector('.player-container')
     },
 
     /**
@@ -22,18 +26,18 @@ const VideoPlayer = {
      * @returns {string}
      */
     videoEmbedURL: (videoId, timestamp) => {
-        const url = new URL(`/embed/${videoId}`, "https://www.youtube-nocookie.com")
+        const url = new URL(`/embed/${videoId}`, 'https://www.youtube-nocookie.com')
 
-        url.searchParams.set('iv_load_policy', '1'); // show video annotations
-        url.searchParams.set('autoplay', '1'); // autoplays the video as soon as it loads
-        url.searchParams.set('rel', '0'); // shows related videos from the same channel as the video
-        url.searchParams.set('modestbranding', '1'); // disables showing the YouTube logo in the video control bar
+        url.searchParams.set('iv_load_policy', '1') // show video annotations
+        url.searchParams.set('autoplay', '1') // autoplays the video as soon as it loads
+        url.searchParams.set('rel', '0') // shows related videos from the same channel as the video
+        url.searchParams.set('modestbranding', '1') // disables showing the YouTube logo in the video control bar
 
         if (timestamp) {
-            url.searchParams.set('start', timestamp); // if timestamp supplied, start video at specific point
+            url.searchParams.set('start', timestamp) // if timestamp supplied, start video at specific point
         }
 
-        return url.href;
+        return url.href
     },
     /**
      * Sets up the video player:
@@ -41,21 +45,21 @@ const VideoPlayer = {
      * 2. If the video id is correctly formatted, it loads the YouTube video in the iframe, otherwise displays an error message
      */
     init: () => {
-        VideoPlayer.loadVideoById();
-        VideoPlayer.setTabTitle();
+        VideoPlayer.loadVideoById()
+        VideoPlayer.setTabTitle()
     },
 
     /**
      * Tries loading the video if there's a valid video id, otherwise shows error message.
      */
     loadVideoById: () => {
-        let validVideoId = Comms.getValidVideoId();
-        let timestamp = Comms.getSanitizedTimestamp();
+        const validVideoId = Comms.getValidVideoId()
+        const timestamp = Comms.getSanitizedTimestamp()
 
         if (validVideoId) {
-            VideoPlayer.iframe().setAttribute('src', VideoPlayer.videoEmbedURL(validVideoId, timestamp));
+            VideoPlayer.iframe().setAttribute('src', VideoPlayer.videoEmbedURL(validVideoId, timestamp))
         } else {
-            VideoPlayer.showVideoError('Invalid video id');
+            VideoPlayer.showVideoError('Invalid video id')
         }
     },
 
@@ -63,20 +67,20 @@ const VideoPlayer = {
      * Show an error instead of the video player iframe
      */
     showVideoError: (errorMessage) => {
-        VideoPlayer.playerContainer().innerHTML = `<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>`;
+        VideoPlayer.playerContainer().innerHTML = '<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>'
 
-        document.querySelector('.player-error-message').textContent = errorMessage;
+        document.querySelector('.player-error-message').textContent = errorMessage
     },
 
     /**
      * Trigger callback when the video player iframe has loaded
-     * @param {Function} callback
+     * @param {() => void} callback
      */
     onIframeLoaded: (callback) => {
-        let iframe = VideoPlayer.iframe();
+        const iframe = VideoPlayer.iframe()
 
         if (iframe) {
-            iframe.addEventListener('load', callback);
+            iframe.addEventListener('load', callback)
         }
     },
 
@@ -86,18 +90,19 @@ const VideoPlayer = {
      * @param {Function} callback(title)
      */
     onIframeTitleChange: (callback) => {
-        let iframe = VideoPlayer.iframe();
+        const iframe = VideoPlayer.iframe()
 
         if (iframe?.contentWindow && iframe?.contentDocument) {
-            let title = iframe.contentDocument.querySelector('title');
+            const title = iframe.contentDocument.querySelector('title')
 
             if (title) {
-                let observer = new iframe.contentWindow.MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        callback(mutation.target.textContent);
-                    });
-                });
-                observer.observe(title, { childList: true });
+                // @ts-expect-error
+                const observer = new iframe.contentWindow.MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
+                        callback(mutation.target.textContent)
+                    })
+                })
+                observer.observe(title, { childList: true })
             }
         }
     },
@@ -109,13 +114,13 @@ const VideoPlayer = {
     getValidVideoTitle: (iframeTitle) => {
         if (iframeTitle) {
             if (iframeTitle === 'YouTube') {
-                return false;
+                return false
             }
 
-            return iframeTitle.replace(/ - YouTube$/g,'');
+            return iframeTitle.replace(/ - YouTube$/g, '')
         }
 
-        return false;
+        return false
     },
 
     /**
@@ -123,22 +128,22 @@ const VideoPlayer = {
      */
     setTabTitle: () => {
         // Only set the title once, no subsequent sets are allowed once a valid title has been found.
-        let hasGottenValidVideoTitle = false;
+        let hasGottenValidVideoTitle = false
 
         VideoPlayer.onIframeLoaded(() => {
             VideoPlayer.onIframeTitleChange((title) => {
                 if (!hasGottenValidVideoTitle) {
-                    let validTitle = VideoPlayer.getValidVideoTitle(title);
+                    const validTitle = VideoPlayer.getValidVideoTitle(title)
 
                     if (validTitle) {
-                        document.title = 'Duck Player - ' + validTitle;
-                        hasGottenValidVideoTitle = true;
+                        document.title = 'Duck Player - ' + validTitle
+                        hasGottenValidVideoTitle = true
                     }
                 }
-            });
-        });
+            })
+        })
     }
-};
+}
 
 const Comms = {
     /**
@@ -150,14 +155,14 @@ const Comms = {
      */
     sendToNative: (setting, value) => {
         if (!Comms.hasValidMessageContent(setting, value)) {
-            console.error('Invalid setting type or value');
-            return;
+            console.error('Invalid setting type or value')
+            return
         }
 
         try {
             window.webkit.messageHandlers[setting].postMessage(value)
         } catch (e) {
-            console.error('Unable to send message to native. Tried sending window.webkit.messageHandlers.'+setting+'.postMessage('+value+')\n\n', e);
+            console.error('Unable to send message to native. Tried sending window.webkit.messageHandlers.' + setting + '.postMessage(' + value + ')\n\n', e)
         }
     },
 
@@ -169,21 +174,21 @@ const Comms = {
      * @returns {boolean}
      */
     hasValidMessageContent: (setting, value) => {
-        let validSettings = {
-            'setAlwaysOpenSettingTo': [true]
-        };
+        const validSettings = {
+            setAlwaysOpenSettingTo: [true]
+        }
 
         if (validSettings[setting]) {
-            let validValues = validSettings[setting];
+            const validValues = validSettings[setting]
 
-            for (validValue of validValues) {
+            for (const validValue of validValues) {
                 if (value === validValue) {
-                    return true;
+                    return true
                 }
             }
         }
 
-        return false;
+        return false
     },
 
     /**
@@ -196,9 +201,9 @@ const Comms = {
          * top level being youtube-nocookie.com/embed/123?... <- /embed/123 is the 'pathname'
          */
         if (window.location.protocol === 'duck:') {
-            return window.location.pathname.substr(1);
+            return window.location.pathname.substr(1)
         } else {
-            return window.location.pathname.replace('/embed/', '');
+            return window.location.pathname.replace('/embed/', '')
         }
     },
 
@@ -210,9 +215,9 @@ const Comms = {
      */
     validateVideoId: (input) => {
         if (/^[a-zA-Z0-9-_]+$/g.test(input)) {
-            return input;
+            return input
         }
-        return false;
+        return false
     },
 
     /**
@@ -220,7 +225,7 @@ const Comms = {
      * @returns {(string|false)}
      */
     getValidVideoId: () => {
-        return Comms.validateVideoId(Comms.getVideoIdFromLocation());
+        return Comms.validateVideoId(Comms.getVideoIdFromLocation())
     },
 
     /**
@@ -228,49 +233,51 @@ const Comms = {
      */
     getSanitizedTimestamp: () => {
         if (window.location && window.location.search) {
-            let parameters = new URLSearchParams(window.location.search);
-            let timeParameter = parameters.get('t');
+            const parameters = new URLSearchParams(window.location.search)
+            const timeParameter = parameters.get('t')
 
             if (timeParameter) {
-                return Comms.getTimestampInSeconds(timeParameter);
+                return Comms.getTimestampInSeconds(timeParameter)
             }
 
-            return false;
+            return false
         }
-        return false;
+        return false
     },
 
     /**
      * Sanitizes and converts timestamp to an integer of seconds,
      * input may be in the format 1h30m20s (each unit optional)
      * (iframe only takes seconds as parameter...)
-     * @param {string} untrusted
+     * @param {string} timestamp
      * @returns {(number|false)}
      */
     getTimestampInSeconds: (timestamp) => {
-        let units = {
-            'h': 3600,
-            'm': 60,
-            's': 1,
+        const units = {
+            h: 3600,
+            m: 60,
+            s: 1
         }
 
-        let parts = timestamp.split(/(\d+[hms]?)/);
+        const parts = timestamp.split(/(\d+[hms]?)/)
 
-        let totalSeconds = parts.reduce((total, part) => {
-            if (!part) return total;
+        const totalSeconds = parts.reduce((total, part) => {
+            if (!part) return total
 
-            for (unit in units) {
+            for (const unit in units) {
                 if (part.includes(unit)) {
-                    return total + (parseInt(part) * units[unit]);
+                    return total + (parseInt(part) * units[unit])
                 }
             }
-        }, 0);
+
+            return total
+        }, 0)
 
         if (totalSeconds > 0) {
-            return totalSeconds;
+            return totalSeconds
         }
 
-        return false;
+        return false
     },
 
     /**
@@ -285,26 +292,26 @@ const Comms = {
     listen: (message, callback) => {
         window.addEventListener('message', (e) => {
             if (Comms.isValidMessage(e, message)) {
-                callback(e.data[message]);
+                callback(e.data[message])
             }
-        });
+        })
     },
 
     /**
      * Based on e, returns whether the received message is valid.
-     * @param {Event} e
+     * @param {any} e
      * @returns {boolean}
      */
     isValidMessage: (e, message) => {
-        let hasMessage = e && e.data && typeof e.data[message] !== 'undefined',
-            isValidMessage = hasMessage && (e.data[message] === true || e.data[message] === false),
-            hasCorrectOrigin = e.origin && (e.origin === 'https://www.youtube-nocookie.com' || e.origin === 'duck://player');
+        const hasMessage = e && e.data && typeof e.data[message] !== 'undefined'
+        const isValidMessage = hasMessage && (e.data[message] === true || e.data[message] === false)
+        const hasCorrectOrigin = e.origin && (e.origin === 'https://www.youtube-nocookie.com' || e.origin === 'duck://player')
 
         if (isValidMessage && hasCorrectOrigin) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     },
 
     /**
@@ -312,22 +319,23 @@ const Comms = {
      * update the 'Setting' to the value of the message (true || false)
      *
      * To mock, use:
-     * window.postMessage({ alwaysOpenSetting: false })
+     *
+     * `window.postMessage({ alwaysOpenSetting: false })`
      */
     init: () => {
         Comms.listen('alwaysOpenSetting', (value) => {
-            Setting.setState(value);
-        });
+            Setting.setState(value)
+        })
     }
-};
+}
 
 const Setting = {
     /**
      * Returns the checkbox
-     * @returns {HTMLElement}
+     * @returns {HTMLInputElement}
      */
     checkbox: () => {
-        return document.querySelector('#setting');
+        return document.querySelector('#setting')
     },
 
     /**
@@ -335,7 +343,7 @@ const Setting = {
      * @returns {HTMLElement}
      */
     container: () => {
-        return document.querySelector('.setting-container');
+        return document.querySelector('.setting-container')
     },
 
     /**
@@ -345,7 +353,7 @@ const Setting = {
      * @param {boolean} value
      */
     set: (value) => {
-        Setting.checkbox().checked = value;
+        Setting.checkbox().checked = value
     },
 
     /**
@@ -353,7 +361,7 @@ const Setting = {
      * @returns {boolean}
      */
     isChecked: () => {
-        return Setting.checkbox().checked;
+        return Setting.checkbox().checked
     },
 
     /**
@@ -361,9 +369,9 @@ const Setting = {
      * @param {boolean} value
      */
     setState: (value) => {
-        Setting.toggleAnimatable(false);
-        Setting.toggleVisibility(!value);
-        Setting.set(value);
+        Setting.toggleAnimatable(false)
+        Setting.toggleVisibility(!value)
+        Setting.set(value)
     },
 
     /**
@@ -374,9 +382,9 @@ const Setting = {
         if (checked) {
             setTimeout(() => {
                 if (Setting.isChecked()) {
-                    Setting.toggleAnimatable(true);
-                    Setting.toggleVisibility(false);
-                    Setting.higlightSettingsButton();
+                    Setting.toggleAnimatable(true)
+                    Setting.toggleVisibility(false)
+                    Setting.higlightSettingsButton()
 
                     // NATIVE NOTE: Setting is sent to native after animation is done
                     // this is because as soon as native receives the updated setting
@@ -384,10 +392,10 @@ const Setting = {
                     // setting instantly. We don't want to do that for _this_ window, this
                     // is the quickest way of fixing that issue.
                     setTimeout(() => {
-                        Comms.sendToNative('setAlwaysOpenSettingTo', checked);
-                    }, 300); // Should match slide in CSS time
+                        Comms.sendToNative('setAlwaysOpenSettingTo', checked)
+                    }, 300) // Should match slide in CSS time
                 }
-            }, 800); // Wait a bit to allow for user mis-clicks
+            }, 800) // Wait a bit to allow for user mis-clicks
         }
     },
 
@@ -396,7 +404,7 @@ const Setting = {
      * @param {boolean} visible
      */
     toggleVisibility: (visible) => {
-        Setting.container()?.classList?.toggle('invisible', !visible);
+        Setting.container()?.classList?.toggle('invisible', !visible)
     },
 
     /**
@@ -405,7 +413,7 @@ const Setting = {
      * @param {boolean} animatable
      */
     toggleAnimatable: (animatable) => {
-        Setting.container()?.classList?.toggle('animatable', animatable);
+        Setting.container()?.classList?.toggle('animatable', animatable)
     },
 
     /**
@@ -413,14 +421,13 @@ const Setting = {
      * settings container is animating/sliding in behind it.
      */
     higlightSettingsButton: () => {
-        let openSettingsClasses = document.querySelector('.open-settings').classList;
+        const openSettingsClasses = document.querySelector('.open-settings').classList
 
-        openSettingsClasses.add('active');
+        openSettingsClasses.add('active')
 
         setTimeout(() => {
-            openSettingsClasses.remove('active');
+            openSettingsClasses.remove('active')
         }, 300 + 100) // match .animatable css
-
     },
 
     /**
@@ -429,13 +436,13 @@ const Setting = {
      * 2. Listens for to clicks on the checkbox text
      */
     init: () => {
-        let checkbox = Setting.checkbox();
+        const checkbox = Setting.checkbox()
 
         checkbox.addEventListener('change', () => {
-            Setting.updateAndSend(checkbox.checked);
-        });
+            Setting.updateAndSend(checkbox.checked)
+        })
     }
-};
+}
 
 const PlayOnYouTube = {
     /**
@@ -443,7 +450,7 @@ const PlayOnYouTube = {
      * @returns {HTMLElement}
      */
     button: () => {
-        return document.querySelector('.play-on-youtube');
+        return document.querySelector('.play-on-youtube')
     },
 
     /**
@@ -453,15 +460,15 @@ const PlayOnYouTube = {
      * @returns {string}
      */
     getVideoLinkURL: (videoId, timestamp) => {
-        const url = new URL('/watch', 'https://www.youtube.com');
+        const url = new URL('/watch', 'https://www.youtube.com')
 
-        url.searchParams.set('v', videoId);
+        url.searchParams.set('v', videoId)
 
         if (timestamp) {
-            url.searchParams.set('t', timestamp + 's');
+            url.searchParams.set('t', timestamp + 's')
         }
 
-        return url.href;
+        return url.href
     },
 
     /**
@@ -469,14 +476,14 @@ const PlayOnYouTube = {
      * video link url
      */
     init: () => {
-        let validVideoId = Comms.getValidVideoId();
-        let timestamp = Comms.getSanitizedTimestamp();
+        const validVideoId = Comms.getValidVideoId()
+        const timestamp = Comms.getSanitizedTimestamp()
 
-        if (validVideoId) {
-            PlayOnYouTube.button().setAttribute('href', PlayOnYouTube.getVideoLinkURL(validVideoId, timestamp));
+        if (validVideoId && typeof timestamp !== 'boolean') {
+            PlayOnYouTube.button().setAttribute('href', PlayOnYouTube.getVideoLinkURL(validVideoId, timestamp))
         }
     }
-};
+}
 
 const Tooltip = {
     visible: false,
@@ -486,7 +493,7 @@ const Tooltip = {
      * @returns {HTMLElement}
      */
     icon: () => {
-        return document.querySelector('.info-icon');
+        return document.querySelector('.info-icon')
     },
 
     /**
@@ -494,7 +501,7 @@ const Tooltip = {
      * @returns {HTMLElement}
      */
     tooltip: () => {
-        return document.querySelector('.info-icon-tooltip');
+        return document.querySelector('.info-icon-tooltip')
     },
 
     /**
@@ -502,30 +509,32 @@ const Tooltip = {
      * @param {boolean} show
      */
     toggle: (show) => {
-        Tooltip.tooltip()?.classList?.toggle('above', Tooltip.isCloseToBottom());
-        Tooltip.tooltip()?.classList?.toggle('visible', show);
-        Tooltip.visible = show;
+        Tooltip.tooltip()?.classList?.toggle('above', Tooltip.isCloseToBottom())
+        Tooltip.tooltip()?.classList?.toggle('visible', show)
+        Tooltip.visible = show
     },
 
     /**
-     * Returns whether tooltip is too close too bottom, used for positioning it above
+     * Returns whether tooltip is too close to bottom, used for positioning it above
      * the icon when this happens
      * @returns {boolean}
      */
     isCloseToBottom: () => {
-        let icon = Tooltip.icon()
-        let rect = icon && icon.getBoundingClientRect();
+        const icon = Tooltip.icon()
+        const rect = icon && icon.getBoundingClientRect()
 
         if (!rect || !rect.top) {
-            return false;
+            return false
         }
 
-        let iconTop = rect.top + window.scrollY;
-        let spaceBelowIcon = window.innerHeight - iconTop;
+        const iconTop = rect.top + window.scrollY
+        const spaceBelowIcon = window.innerHeight - iconTop
 
         if (spaceBelowIcon < 125) {
-            return true;
+            return true
         }
+
+        return false
     },
 
     /**
@@ -533,12 +542,12 @@ const Tooltip = {
      */
     init: () => {
         Tooltip.icon().addEventListener('mouseenter', () => {
-            Tooltip.toggle(true);
-        });
+            Tooltip.toggle(true)
+        })
 
         Tooltip.icon().addEventListener('mouseleave', () => {
-            Tooltip.toggle(false);
-        });
+            Tooltip.toggle(false)
+        })
     }
 }
 
@@ -565,22 +574,22 @@ const MouseMove = {
      * after the MouseMove.limit
      */
     init: () => {
-        document.addEventListener('mousemove', MouseMove.handleFadeState);
+        document.addEventListener('mousemove', MouseMove.handleFadeState)
 
         // Don't count clicks as inactivity and reset the timer.
-        document.addEventListener('mousedown', MouseMove.handleFadeState);
+        document.addEventListener('mousedown', MouseMove.handleFadeState)
 
         // Start watching for inactivity as soon as page is loaded - there might not be any
         // mouse interactions etc
-        MouseMove.handleFadeState();
+        MouseMove.handleFadeState()
 
         MouseMove.contentHover().addEventListener('mouseenter', () => {
-            MouseMove.isHoveringContent = true;
-        });
+            MouseMove.isHoveringContent = true
+        })
 
         MouseMove.contentHover().addEventListener('mouseleave', () => {
-            MouseMove.isHoveringContent = false;
-        });
+            MouseMove.isHoveringContent = false
+        })
     },
 
     /**
@@ -588,19 +597,19 @@ const MouseMove = {
      */
     handleFadeState: (e) => {
         if (MouseMove.timer) {
-            clearTimeout(MouseMove.timer);
+            clearTimeout(MouseMove.timer)
         }
 
         if (MouseMove.isFaded) {
-            MouseMove.fadeInContent();
+            MouseMove.fadeInContent()
         }
 
         MouseMove.timer = setTimeout(() => {
             // Only fade out if user is not hovering content or tooltip is shown
             if (!MouseMove.isHoveringContent && !Tooltip.visible) {
-                MouseMove.fadeOutContent();
+                MouseMove.fadeOutContent()
             }
-        }, MouseMove.limit);
+        }, MouseMove.limit)
     },
 
     /**
@@ -608,7 +617,7 @@ const MouseMove = {
      * @returns {HTMLElement}
      */
     bg: () => {
-        return document.querySelector('.bg');
+        return document.querySelector('.bg')
     },
 
     /**
@@ -617,44 +626,43 @@ const MouseMove = {
      * @returns {HTMLElement}
      */
     contentHover: () => {
-        return document.querySelector('.content-hover');
+        return document.querySelector('.content-hover')
     },
 
     /**
      * Fades out content
      */
     fadeOutContent: () => {
-        MouseMove.updateContent(true);
+        MouseMove.updateContent(true)
     },
 
     /**
      * Fades in content
      */
     fadeInContent: () => {
-        MouseMove.updateContent(false);
+        MouseMove.updateContent(false)
     },
 
     /**
      * Updates the faded state of the content below the player
      */
     updateContent: (isFaded) => {
-        document.body?.classList?.toggle('faded', isFaded);
+        document.body?.classList?.toggle('faded', isFaded)
 
         setTimeout(() => {
-            MouseMove.isFaded = isFaded;
-        }, MouseMove.fadeTransitionTime);
-    },
-};
+            MouseMove.isFaded = isFaded
+        }, MouseMove.fadeTransitionTime)
+    }
+}
 
 /**
  * Initializes all parts of the page on load.
  */
 document.addEventListener('DOMContentLoaded', () => {
-    Setting.init();
-    Comms.init();
-    VideoPlayer.init();
-    Tooltip.init();
-    PlayOnYouTube.init();
-    MouseMove.init();
-});
-
+    Setting.init()
+    Comms.init()
+    VideoPlayer.init()
+    Tooltip.init()
+    PlayOnYouTube.init()
+    MouseMove.init()
+})
