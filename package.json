@@ -38,7 +38,8 @@
   },
   "type": "module",
   "workspaces": [
-    "packages/special-pages"
+    "packages/special-pages",
+    "packages/messaging"
   ],
   "dependencies": {
     "seedrandom": "^3.0.5",
