@@ -1,6 +1,6 @@
-/* global mozProxies */
+/* global mozProxies, isolated */
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
-import { featureNames } from './features'
+import { featureNames, isolatedFeatures, supportedIsolatedPlatforms } from './features'
 // @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'ddg:runtimeInjects'
 
@@ -21,12 +21,22 @@ const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
 
+const isIsolatedSupported = supportedIsolatedPlatforms.includes('platformName')
 export async function load (args) {
     if (!shouldRun()) {
         return
     }
 
-    for (const featureName of featureNames) {
+    let featureNamesOut = featureNames
+    if (isolated) {
+        featureNamesOut = isolatedFeatures
+    } else {
+        if (isIsolatedSupported) {
+            featureNamesOut = featureNamesOut.filter(featureName => !isolatedFeatures.includes(featureName))
+        }
+    }
+
+    for (const featureName of featureNamesOut) {
         const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
         // Short circuit if the feature is injected later in load()
         if (isInjectedFeature(featureName)) {
