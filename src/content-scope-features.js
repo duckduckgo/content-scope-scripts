@@ -1,5 +1,5 @@
 /* global mozProxies */
-import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
+import { initStringExemptionLists, isFeatureBroken, registerMessageSecret, getInjectionElement } from './utils'
 import { featureNames } from './features'
 // @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'ddg:runtimeInjects'
@@ -70,7 +70,7 @@ async function injectFeatures (args) {
         ${codeFeatures.join('\n')}
     })()`
     script.src = 'data:text/javascript;base64,' + btoa(code)
-    document.head.appendChild(script)
+    getInjectionElement().appendChild(script)
     script.remove()
 }
 

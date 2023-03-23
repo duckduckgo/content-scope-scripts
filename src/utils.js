@@ -14,6 +14,13 @@ export function registerMessageSecret (secret) {
 }
 
 /**
+ * @returns {HTMLElement} the element to inject the script into
+ */
+export function getInjectionElement () {
+    return document.head || document.documentElement
+}
+
+/**
  * Used for testing to override the globals used within this file.
  * @param {window} globalObjIn
  */
