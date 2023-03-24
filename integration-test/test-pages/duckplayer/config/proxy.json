@@ -1,0 +1,20 @@
+{
+  "features": {
+    "duckPlayer": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "overlays": "disabled",
+        "proxy": "disabled",
+        "domains": [
+          {
+            "domain": "localhost",
+            "patchSettings": [
+              { "op": "replace", "path": "/proxy", "value": "enabled" }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

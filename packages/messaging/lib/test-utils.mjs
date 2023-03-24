@@ -164,6 +164,28 @@ export function mockWindows(params) {
     }
 }
 
+export function removeChromeWebView() {
+    Object.assign(globalThis, {
+        // @ts-expect-error
+        windowsInteropPostMessage: window.chrome.webview.postMessage,
+        // @ts-expect-error
+        windowsInteropAddEventListener: window.chrome.webview.addEventListener,
+        // @ts-expect-error
+        windowsInteropRemoveEventListener: window.chrome.webview.removeEventListener
+    })
+}
+
+/**
+ * @param {object} params
+ * @param {Record<string, any>} params.responses
+ */
+export function mockResponse(params) {
+    window.__playwright_01.mockResponses = {
+        ...window.__playwright_01.mockResponses,
+        ...params.responses
+    }
+}
+
 /**
  * @param {object} params
  * @param {string} params.method
@@ -203,14 +225,14 @@ export function simulateSubscriptionMessage(params) {
         break;
     }
     case "apple": {
-        const methodName = 'webkitSubscriptionHandler_' + params.messagingContext.context;
+        const methodName = 'webkitSubscriptionHandler_'
+            + params.messagingContext.context
+            + '_'
+            + params.messagingContext.featureName
+            + '_'
+            + params.name
         if (!window[methodName]) throw new Error('cannot access webkit subscription handler');
-        window[methodName].call(null, {
-            context: params.messagingContext.context,
-            featureName: params.messagingContext.featureName,
-            subscriptionName: params.name,
-            params: params.payload,
-        })
+        window[methodName].call(null, params.payload)
         break;
     }
     }

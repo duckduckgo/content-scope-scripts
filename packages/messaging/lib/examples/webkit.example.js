@@ -13,7 +13,8 @@ const config = new WebkitMessagingConfig({
 
 const messagingContext = new MessagingContext({
   context: 'contentScopeScripts',
-  featureName: 'hello-world'
+  featureName: 'hello-world',
+  env: 'development'
 })
 
 

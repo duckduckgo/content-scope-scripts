@@ -35,7 +35,7 @@ import {
     Messaging,
     WindowsMessagingConfig,
     WebkitMessagingConfig,
-    MessagingContext
+    MessagingContext, TestTransportConfig
 } from '../../../../../messaging/index.js'
 import { DuckPlayerPageMessages, UserValues, OpenSettings } from './messages'
 
@@ -131,7 +131,6 @@ const VideoPlayer = {
      */
     onIframeTitleChange: (callback) => {
         const iframe = VideoPlayer.iframe()
-        console.log('iframe', iframe)
 
         if (iframe?.contentWindow && iframe?.contentDocument) {
             const title = iframe.contentDocument.querySelector('title')
@@ -139,18 +138,16 @@ const VideoPlayer = {
             if (title) {
                 // @ts-expect-error
                 const observer = new iframe.contentWindow.MutationObserver(function (mutations) {
-                    console.log('got mutation', mutations)
                     mutations.forEach(function (mutation) {
                         callback(mutation.target.textContent)
                     })
                 })
-                console.log('watching iframe...')
                 observer.observe(title, { childList: true })
             } else {
-                console.warn('could not access title in iframe')
+                // console.warn('could not access title in iframe')
             }
         } else {
-            console.warn('could not access iframe?.contentWindow && iframe?.contentDocument')
+            // console.warn('could not access iframe?.contentWindow && iframe?.contentDocument')
         }
     },
 
@@ -178,9 +175,7 @@ const VideoPlayer = {
         let hasGottenValidVideoTitle = false
 
         VideoPlayer.onIframeLoaded(() => {
-            console.log('onIframeLoaded', { hasGottenValidVideoTitle })
             VideoPlayer.onIframeTitleChange((title) => {
-                console.log('onIframeTitleChange', { hasGottenValidVideoTitle, title })
                 if (!hasGottenValidVideoTitle) {
                     const validTitle = VideoPlayer.getValidVideoTitle(title)
 
@@ -310,6 +305,8 @@ const Comms = {
         }
         const hasMessage = e && e.data && typeof e.data[message] !== 'undefined'
         const isValidMessage = hasMessage && (e.data[message] === true || e.data[message] === false)
+
+        // todo(Shane): Verify this is ok on macOS
         const hasCorrectOrigin = e.origin && (e.origin === 'https://www.youtube-nocookie.com' || e.origin === 'duck://player')
 
         if (isValidMessage && hasCorrectOrigin) {
@@ -330,7 +327,8 @@ const Comms = {
     init: () => {
         const messageContext = new MessagingContext({
             context: 'specialPages',
-            featureName: 'duckPlayerPage'
+            featureName: 'duckPlayerPage',
+            env: import.meta.env
         })
         if (import.meta.platform === 'windows') {
             const opts = new WindowsMessagingConfig({
@@ -353,6 +351,34 @@ const Comms = {
             })
             const messaging = new Messaging(messageContext, opts)
             Comms.messaging = new DuckPlayerPageMessages(messaging)
+        } else if (import.meta.platform === 'integration') {
+            const config = new TestTransportConfig({
+                notify (msg) {
+                    console.log(msg)
+                },
+                request: async (msg) => {
+                    console.log(msg)
+                    if (msg.method === 'getUserValues') {
+                        return new UserValues({
+                            overlayInteracted: false,
+                            privatePlayerMode: { enabled: {} }
+                        })
+                    }
+                    return null
+                },
+                subscribe (msg) {
+                    console.log(msg)
+                    return () => {
+                        console.log('teardown')
+                    }
+                }
+            })
+            const messaging = new Messaging(messageContext, config)
+            Comms.messaging = new DuckPlayerPageMessages(messaging)
+        }
+        if (!Comms.messaging) {
+            console.warn('Cannot establish communications')
+            return
         }
         Comms.messaging.getUserValues().then((value) => {
             if ('enabled' in value.privatePlayerMode) {

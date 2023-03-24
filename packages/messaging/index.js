@@ -30,10 +30,12 @@ export class MessagingContext {
      * @param {object} params
      * @param {string} params.context
      * @param {string} params.featureName
+     * @param {"production" | "development"} params.env
      */
     constructor (params) {
         this.context = params.context
         this.featureName = params.featureName
+        this.env = params.env
     }
 }
 
@@ -43,7 +45,7 @@ export class MessagingContext {
 export class Messaging {
     /**
      * @param {MessagingContext} messagingContext
-     * @param {WebkitMessagingConfig | WindowsMessagingConfig} config
+     * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
      */
     constructor (messagingContext, config) {
         this.messagingContext = messagingContext
@@ -149,7 +151,51 @@ export class MessagingTransport {
 }
 
 /**
- * @param {WebkitMessagingConfig | WindowsMessagingConfig} config
+ * Use this to create testing transport on the fly.
+ * It's useful for debugging, and for enabling scripts to run in
+ * other environments - for example, testing in a browser without the need
+ * for a full integration
+ *
+ * ```js
+ * [[include:packages/messaging/lib/examples/test.example.js]]```
+ */
+export class TestTransportConfig {
+    /**
+     * @param {MessagingTransport} impl
+     */
+    constructor (impl) {
+        this.impl = impl
+    }
+}
+
+/**
+ * @implements {MessagingTransport}
+ */
+export class TestTransport {
+    /**
+     * @param {TestTransportConfig} config
+     * @param {MessagingContext} messagingContext
+     */
+    constructor (config, messagingContext) {
+        this.config = config
+        this.messagingContext = messagingContext
+    }
+
+    notify (msg) {
+        return this.config.impl.notify(msg)
+    }
+
+    request (msg, options) {
+        return this.config.impl.request(msg)
+    }
+
+    subscribe (msg, callback) {
+        return this.config.impl.subscribe(msg, callback)
+    }
+}
+
+/**
+ * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
  * @param {MessagingContext} messagingContext
  * @returns {MessagingTransport}
  */
@@ -159,6 +205,9 @@ function getTransport (config, messagingContext) {
     }
     if (config instanceof WindowsMessagingConfig) {
         return new WindowsMessagingTransport(config, messagingContext)
+    }
+    if (config instanceof TestTransportConfig) {
+        return new TestTransport(config, messagingContext)
     }
     throw new Error('unreachable')
 }

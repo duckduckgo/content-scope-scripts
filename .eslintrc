@@ -9,7 +9,10 @@
         "$USER_UNPROTECTED_DOMAINS$": "readonly",
         "$CONTENT_SCOPE$": "readonly",
         "$TRACKER_LOOKUP$": "readonly",
-        "$BUNDLED_CONFIG$": "readonly"
+        "$BUNDLED_CONFIG$": "readonly",
+        "windowsInteropPostMessage": "readonly",
+        "windowsInteropAddEventListener": "readonly",
+        "windowsInteropRemoveEventListener": "readonly"
     },
     "rules": {
         "indent": ["error", 4]

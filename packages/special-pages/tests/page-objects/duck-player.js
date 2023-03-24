@@ -15,7 +15,8 @@ export class DuckPlayerPage {
         this.platform = platform
         this.messageContext = {
             context: 'specialPages',
-            featureName: 'duckPlayerPage'
+            featureName: 'duckPlayerPage',
+            env: import.meta.env
         }
         this.mocks = new Mocks(page, platform, this.messageContext)
         // default mocks
@@ -171,7 +172,8 @@ export class DuckPlayerPage {
         await this.mocks.simulateSubscriptionMessage('onUserValuesChanged', {
             privatePlayerMode: {
                 enabled: {}
-            }
+            },
+            overlayInteracted: false
         })
     }
 

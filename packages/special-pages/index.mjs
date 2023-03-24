@@ -21,10 +21,11 @@ const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../../')
 const BUILD = join(ROOT, 'build')
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
-const NODE_ENV = JSON.stringify(process.env.NODE_ENV || 'development')
+const NODE_ENV = JSON.stringify(process.env.NODE_ENV || 'production')
 
 export const support = {
     duckplayer: {
+        'integration': ['copy', 'build-js'],
         'apple': ['copy', 'build-js', 'inline'],
         'windows': ['copy', 'build-js']
     },
@@ -112,6 +113,7 @@ if (errors.length === 0) {
     }
     for (const buildJob of buildJobs) {
         console.log('BUILD:', relative(ROOT, buildJob.src), relative(ROOT, buildJob.dest))
+        console.log('\t- import.meta.env: ', NODE_ENV)
         console.log('\t- import.meta.platform: ', buildJob.platform)
         if (!DRY_RUN) {
             buildSync({

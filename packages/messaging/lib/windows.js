@@ -59,7 +59,7 @@ export class WindowsMessagingTransport {
     // return waitForSingleWindowsResponse(this.messagingContext, this.config, id, opts)
     return new Promise((resolve, reject) => {
       try {
-        subscribe(this.config, comparator, opts, (value, unsubscribe) => {
+        this._subscribe(comparator, opts, (value, unsubscribe) => {
           unsubscribe();
           if ('result' in value) {
             resolve(value['result']);
@@ -90,7 +90,67 @@ export class WindowsMessagingTransport {
       if ('params' in eventData) return callback(eventData['params']);
       console.warn("debug: params field missing in subscription event", eventData)
     }
-    return subscribe(this.config, comparator, {}, cb)
+    return this._subscribe(comparator, {}, cb)
+  }
+
+  /**
+   * @typedef {import("../index.js").MessageResponse | import("../index.js").SubscriptionEvent} Incoming
+   * @param {(eventData: any) => boolean} comparator
+   * @param {{signal?: AbortSignal}} options
+   * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
+   */
+  _subscribe(comparator, options, callback) {
+    // if already aborted, reject immediately
+    if (options?.signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError')
+    }
+    /** @type {(()=>void) | undefined} */
+    let teardown
+
+    // The event handler
+    /**
+     * @param {MessageEvent} event
+     */
+    const idHandler = (event) => {
+      if (this.messagingContext.env === "production") {
+        if (event.origin !== null && event.origin !== undefined) {
+          console.warn("ignoring because evt.origin is not `null` or `undefined`");
+          return;
+        }
+      }
+      if (!event.data) {
+        console.warn('data absent from message')
+        return
+      }
+      if (comparator(event.data)) {
+        if (!teardown) throw new Error('unreachable')
+        callback(event.data, teardown)
+      } else {
+        console.warn('x comparator failed for ', event)
+      }
+    }
+
+    // what to do if this promise is aborted
+    const abortHandler = () => {
+      teardown?.()
+      throw new DOMException('Aborted', 'AbortError')
+    }
+
+    // console.log('DEBUG: handler setup', { config, comparator })
+    // eslint-disable-next-line no-undef
+    this.config.methods.addEventListener('message', idHandler)
+    options?.signal?.addEventListener('abort', abortHandler)
+
+    teardown = () => {
+      // console.log('DEBUG: handler teardown', { config, comparator })
+      // eslint-disable-next-line no-undef
+      this.config.methods.removeEventListener('message', idHandler)
+      options?.signal?.removeEventListener('abort', abortHandler)
+    }
+
+    return () => {
+      teardown?.()
+    }
   }
 }
 
@@ -217,60 +277,5 @@ export class WindowsRequestMessage {
       Id: msg.id,
     }
     return output;
-  }
-}
-
-/**
- * @typedef {import("../index.js").MessageResponse | import("../index.js").SubscriptionEvent} Incoming
- * @param {WindowsMessagingConfig} config
- * @param {(eventData: any) => boolean} comparator
- * @param {{signal?: AbortSignal}} options
- * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
- */
-function subscribe(config, comparator, options, callback) {
-  // if already aborted, reject immediately
-  if (options?.signal?.aborted) {
-    throw new DOMException('Aborted', 'AbortError')
-  }
-  /** @type {(()=>void) | undefined} */
-  let teardown
-
-  // The event handler
-  /**
-   * @param {MessageEvent} event
-   */
-  const idHandler = (event) => {
-    // console.log(`📩 windows, ${window.location.href}`)
-    // console.log("\t", {origin: event.origin, json: JSON.stringify(event.data, null, 2)});
-    if (!event.data) {
-      console.warn('data absent from message')
-      return
-    }
-    if (comparator(event.data)) {
-      if (!teardown) throw new Error('unreachable')
-      callback(event.data, teardown)
-    }
-  }
-
-  // what to do if this promise is aborted
-  const abortHandler = () => {
-    teardown?.()
-    throw new DOMException('Aborted', 'AbortError')
-  }
-
-  // console.log('DEBUG: handler setup', { config, comparator })
-  // eslint-disable-next-line no-undef
-  config.methods.addEventListener('message', idHandler)
-  options?.signal?.addEventListener('abort', abortHandler)
-
-  teardown = () => {
-    // console.log('DEBUG: handler teardown', { config, comparator })
-    // eslint-disable-next-line no-undef
-    config.methods.removeEventListener('message', idHandler)
-    options?.signal?.removeEventListener('abort', abortHandler)
-  }
-
-  return () => {
-    teardown?.()
   }
 }

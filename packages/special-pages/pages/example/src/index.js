@@ -30,7 +30,8 @@ const config = new WindowsMessagingConfig({
 
 const messagingContext = new MessagingContext({
     context: 'specialPages',
-    featureName: 'examplePage'
+    featureName: 'examplePage',
+    env: 'development'
 })
 
 const messages = new Messaging(messagingContext, config)

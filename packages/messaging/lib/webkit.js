@@ -73,7 +73,6 @@ export class WebkitMessagingTransport {
     this.messagingContext = messagingContext;
     this.config = config
     this.globals = captureGlobals()
-    this.installGlobalSubscriptionHandler()
     if (!this.config.hasModernWebkitAPI) {
       this.captureWebkitHandlers(this.config.webkitMessageHandlerNames)
     }
@@ -269,58 +268,28 @@ export class WebkitMessagingTransport {
    */
   subscribe(msg, callback) {
     if (!this.config.hasModernWebkitAPI) {
-      throw new Error('webkit.subscribe is not implemented yet for none-modern')
-    }
-    // ensure we only respond to messages we care about
-    const comparator = (data) => {
-      return data.context === msg.context
-        && data.featureName === msg.featureName
-        && data.subscriptionName === msg.subscriptionName
+      throw new Error('webkit.subscribe is not implemented yet for none-modern webkit')
     }
 
-    // store the handler
-    const handler = { comparator, cb: callback };
-    this.subscriptionHandlers.push(handler);
+    const methodName = 'webkitSubscriptionHandler_'
+        + this.messagingContext.context
+        + '_'
+        + this.messagingContext.featureName
+        + '_'
+        + msg.subscriptionName
+
+    Object.defineProperty(window, methodName, {
+      value: (payload) => {
+        callback(payload)
+      },
+      enumerable: false,
+      configurable: true,
+      writable: false,
+    })
 
     // return a cleanup function
     return () => {
-      const index = this.subscriptionHandlers.indexOf(handler);
-      if (index > -1) {
-        this.subscriptionHandlers.splice(index, 1);
-      }
-    }
-  }
-
-  /** @type {{comparator: (data) => boolean, cb: (data) => void}[]} */
-  subscriptionHandlers = [];
-
-  /**
-   * Attach a window method through which subscription events can be provided
-   * eg:
-   *
-   * ```
-   * window.webkitSubscriptionHandlerContentScopeScripts({
-   *     content: "contentScopeScripts",
-   *     featureName: "duckPlayerOverlays",
-   *     subscriptionName: "onUserValuesChanged",
-   *     params: {...}
-   * })
-   * ```
-   */
-  installGlobalSubscriptionHandler () {
-    const methodName = 'webkitSubscriptionHandler_' + this.messagingContext.context;
-    // console.log("SUB", {methodName})
-    window[methodName] = (payload) => {
-      // console.log('debug: webkit received subscription method', methodName);
-      if ('context' in payload && 'featureName' in payload && 'subscriptionName' in payload) {
-        for (let subscriptionHandler of this.subscriptionHandlers) {
-          if (subscriptionHandler.comparator(payload)) {
-            subscriptionHandler.cb(payload.params)
-          }
-        }
-      } else {
-        console.warn('ignoring', payload);
-      }
+      Reflect.deleteProperty(window, methodName)
     }
   }
 }
