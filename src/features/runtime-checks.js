@@ -110,6 +110,11 @@ class DDGRuntimeChecks extends HTMLElement {
     }
 
     computeScriptOverload (el) {
+        // Short circuit if we don't have any script text
+        if (el.innerText === '') return
+        // Short circuit if we're in a trusted script environment
+        if (el.innerText instanceof TrustedScript) return
+
         const config = scriptOverload
         const processedConfig = {}
         for (const [key, value] of Object.entries(config)) {
@@ -131,13 +136,112 @@ class DDGRuntimeChecks extends HTMLElement {
                 })
             }
         }
+
+        function overload (scope) {
+            return new Proxy(scope, {
+                get (target, property, receiver) {
+                    const targetObj = target[property]
+                    if (typeof targetObj === 'function') {
+                        return (...args) => {
+                            return target[property].apply(target, args)
+                        }
+                    } else {
+                        return targetObj
+                    }
+                },
+                defineProperty (target, property, descriptor) {
+                    return Reflect.defineProperty(target, property, descriptor)
+                },
+                getOwnPropertyDescriptor (target, property) {
+                    return Reflect.getOwnPropertyDescriptor(target, property)
+                }
+            })
+        }
+        function constructProxy (scope, outputs) {
+            return new Proxy(scope, {
+                get (target, property, receiver) {
+                    const targetObj = target[property]
+                    if (typeof targetObj === 'function') {
+                        return (...args) => {
+                            return target[property].apply(target, args)
+                        }
+                    } else {
+                        if (property in outputs) {
+                            return outputs[property]
+                        }
+                        return Reflect.get(target, property, receiver)
+                    }
+                }
+            })
+        }
+
+        function initCode (parentScope, config) {
+            console.log('init code', parentScope, config)
+            const lookup = new Map()
+            for (const [key, value] of Object.entries(config)) {
+                const path = key.split('.')
+                let currentScope = parentScope
+                for (let i = 0; i < path.length - 1; i++) {
+                    currentScope = currentScope[path[i]] = currentScope[path[i]] || {}
+                }
+                const scopePath = path.slice(0, -1)
+                const pathOut = path[path.length - 1]
+                if (lookup.has(scopePath)) {
+                    lookup.get(scopePath)[pathOut] = value
+                } else {
+                    lookup.set(scopePath, {
+                        [pathOut]: value
+                    })
+                }
+            }
+
+            for (const [scopePath, outputs] of lookup) {
+                const scopeName = scopePath[0]
+                /* TODO solve nested scopes */
+                const currentScope = parentScope[scopeName]
+                console.log('do do do2', [currentScope, outputs, scopeName])
+                parentScope[scopeName] = constructProxy(currentScope, outputs)
+            }
+            (function () {
+                /* code */
+            })()
+        }
+
+        console.log('sss', el.innerText instanceof TrustedScript ? 'trusted' : 'untrusted', el.innerText)
+        let prepend = ''
+        const aggregatedLookup = new Map()
+        /* Convert the config into a map of scopePath -> { key: value } */
+        for (const [key, value] of Object.entries(processedConfig)) {
+            const path = key.split('.')
+            const scopePath = path.slice(0, -1)
+            const pathOut = path[path.length - 1]
+            if (aggregatedLookup.has(scopePath)) {
+                aggregatedLookup.get(scopePath)[pathOut] = value
+            } else {
+                aggregatedLookup.set(scopePath, {
+                    [pathOut]: value
+                })
+            }
+        }
+
+        for (const [key, value] of Object.entries(aggregatedLookup)) {
+            console.log('processedConfig', { key, value })
+            const path = key.split('.')
+            if (path.length === 2) {
+                throw new Error('Invalid config, only one layer supported')
+            }
+            const scopeName = path[0]
+            const propName = path[1]
+            prepend += `
+                let ${scopeName} = constructProxy(window.${scopeName}, ${JSON.stringify(value)});
+            `
+        }
+        const innerCode = prepend + el.innerText
+        const codeOut = initCode.toString().replace('/* code */', innerCode)
+        console.log({codeOut, prepend, innerCode})
         // Trailing semicolon is important to prevent the script from coliding with other ASI issues in the output script.
-        el.innerText = `(function initCode(parentScope, config) {
-            let window = Object.assign(parentScope, {});
-            let globalThis = Object.assign(parentScope, {});
-            (${inject.toString()})(window, config);
-            ${el.innerText}
-        })(window, ${JSON.stringify(processedConfig)})`
+        el.innerText = `${constructProxy.toString()}(${codeOut})(window, ${JSON.stringify(processedConfig)})`
+        // console.log('out', el.innerText)
     }
 
     /**
