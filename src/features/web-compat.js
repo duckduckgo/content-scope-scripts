@@ -1,4 +1,5 @@
 import { defineProperty, getFeatureSettingEnabled } from '../utils'
+import ContentFeature from '../content-feature'
 
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
@@ -91,15 +92,17 @@ function safariObjectFix () {
     }
 }
 
-export function init (args) {
-    const featureName = 'web-compat'
-    if (getFeatureSettingEnabled(featureName, args, 'windowSizing')) {
-        windowSizingFix()
-    }
-    if (getFeatureSettingEnabled(featureName, args, 'navigatorCredentials')) {
-        navigatorCredentialsFix()
-    }
-    if (getFeatureSettingEnabled(featureName, args, 'safariObject')) {
-        safariObjectFix()
+export default class WebCompat extends ContentFeature {
+    init (args) {
+        const featureName = 'web-compat'
+        if (getFeatureSettingEnabled(featureName, args, 'windowSizing')) {
+            windowSizingFix()
+        }
+        if (getFeatureSettingEnabled(featureName, args, 'navigatorCredentials')) {
+            navigatorCredentialsFix()
+        }
+        if (getFeatureSettingEnabled(featureName, args, 'safariObject')) {
+            safariObjectFix()
+        }
     }
 }

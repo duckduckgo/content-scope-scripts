@@ -32,11 +32,12 @@ export async function load (args) {
         if (isInjectedFeature(featureName)) {
             continue
         }
-        const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
-            if (load) {
-                load(args)
-            }
-            return { featureName, init, update }
+        const feature = import(`./features/${filename}.js`).then((exported) => {
+            const ContentFeature = exported.default
+            const featureInstance = new ContentFeature(featureName)
+            featureInstance._args = args
+            featureInstance.load(args)
+            return { featureName, featureInstance }
         })
         features.push(feature)
     }
@@ -58,8 +59,10 @@ async function injectFeatures (args) {
             const codeImport = injectedFeaturesCode[featureName]
             const codeFeature = `((args) => {
                 ${codeImport}
-                ${featureName}.load()
-                ${featureName}.init(args)
+                const featureInstance = new ${featureName}('${featureName}')
+                featureInstance._args = args
+                featureInstance.load()
+                featureInstance.init(args)
             })(args)`
             codeFeatures.push(codeFeature)
         }
@@ -99,9 +102,10 @@ export async function init (args) {
     registerMessageSecret(args.messageSecret)
     initStringExemptionLists(args)
     const resolvedFeatures = await Promise.all(features)
-    resolvedFeatures.forEach(({ init, featureName }) => {
+    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-            init(args)
+            featureInstance._args = args
+            featureInstance.init(args)
         }
     })
     if (supportsInjectedFeatures()) {

@@ -1,4 +1,5 @@
 import { overrideProperty, defineProperty, getFeatureAttr } from '../utils'
+import ContentFeature from '../content-feature'
 const featureName = 'fingerprinting-screen-size'
 
 /**
@@ -83,45 +84,47 @@ function setWindowDimensions () {
     }
 }
 
-export function init (args) {
-    const Screen = globalThis.Screen
-    const screen = globalThis.screen
+export default class FingerprintingScreenSize extends ContentFeature {
+    init (args) {
+        const Screen = globalThis.Screen
+        const screen = globalThis.screen
 
-    origPropertyValues.availTop = overrideProperty('availTop', {
-        object: Screen.prototype,
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        origValue: screen.availTop,
-        targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
-    })
-    origPropertyValues.availLeft = overrideProperty('availLeft', {
-        object: Screen.prototype,
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        origValue: screen.availLeft,
-        targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
-    })
-    origPropertyValues.availWidth = overrideProperty('availWidth', {
-        object: Screen.prototype,
-        origValue: screen.availWidth,
-        targetValue: screen.width
-    })
-    origPropertyValues.availHeight = overrideProperty('availHeight', {
-        object: Screen.prototype,
-        origValue: screen.availHeight,
-        targetValue: screen.height
-    })
-    overrideProperty('colorDepth', {
-        object: Screen.prototype,
-        origValue: screen.colorDepth,
-        targetValue: getFeatureAttr(featureName, args, 'colorDepth', 24)
-    })
-    overrideProperty('pixelDepth', {
-        object: Screen.prototype,
-        origValue: screen.pixelDepth,
-        targetValue: getFeatureAttr(featureName, args, 'pixelDepth', 24)
-    })
+        origPropertyValues.availTop = overrideProperty('availTop', {
+            object: Screen.prototype,
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            origValue: screen.availTop,
+            targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
+        })
+        origPropertyValues.availLeft = overrideProperty('availLeft', {
+            object: Screen.prototype,
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            origValue: screen.availLeft,
+            targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
+        })
+        origPropertyValues.availWidth = overrideProperty('availWidth', {
+            object: Screen.prototype,
+            origValue: screen.availWidth,
+            targetValue: screen.width
+        })
+        origPropertyValues.availHeight = overrideProperty('availHeight', {
+            object: Screen.prototype,
+            origValue: screen.availHeight,
+            targetValue: screen.height
+        })
+        overrideProperty('colorDepth', {
+            object: Screen.prototype,
+            origValue: screen.colorDepth,
+            targetValue: getFeatureAttr(featureName, args, 'colorDepth', 24)
+        })
+        overrideProperty('pixelDepth', {
+            object: Screen.prototype,
+            origValue: screen.pixelDepth,
+            targetValue: getFeatureAttr(featureName, args, 'pixelDepth', 24)
+        })
 
-    window.addEventListener('resize', function () {
+        window.addEventListener('resize', function () {
+            setWindowDimensions()
+        })
         setWindowDimensions()
-    })
-    setWindowDimensions()
+    }
 }
