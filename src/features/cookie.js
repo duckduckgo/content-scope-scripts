@@ -56,7 +56,7 @@ function isNonTrackingCookie () {
 export default class CookieFeature extends ContentFeature {
     load (args) {
         // Feature is only relevant to the extension and windows, we should skip for other platforms for now as the config testing is broken.
-        if (args.platform.name !== 'extension' && args.platform.name !== 'windows') {
+        if (this.platform.name !== 'extension' && this.platform.name !== 'windows') {
             return
         }
         if (args.documentOriginIsTracker) {

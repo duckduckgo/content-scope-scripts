@@ -6,6 +6,17 @@ export default class ContentFeature {
         this._args = null
     }
 
+    /**
+     * @param {import('./utils').Platform} platform
+     */
+    set platform (platform) {
+        this._platform = platform
+    }
+
+    get platform () {
+        return this._platform
+    }
+
     getFeatureAttr (attrName, defaultValue) {
         return getFeatureAttr(this.name, this._args, attrName, defaultValue)
     }
@@ -25,10 +36,22 @@ export default class ContentFeature {
         })
     }
 
-    load () {
+    init (args) {
     }
 
-    init () {
+    callInit (args) {
+        this._args = args
+        this.platform = args.platform
+        this.init(args)
+    }
+
+    load (args) {
+    }
+
+    callLoad (args) {
+        this._args = args
+        this.platform = args.platform
+        this.load(args)
     }
 
     update () {

@@ -21,6 +21,18 @@ const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
 
+/**
+ * @typedef {object} LoadArgs
+ * @property {object} platform
+ * @property {string} platform.name
+ * @property {string} [platform.version]
+ * @property {boolean} [documentOriginIsTracker]
+ * @property {object} [bundledConfig]
+ */
+
+/**
+ * @param {LoadArgs} args
+ */
 export async function load (args) {
     if (!shouldRun()) {
         return
@@ -35,8 +47,7 @@ export async function load (args) {
         const feature = import(`./features/${filename}.js`).then((exported) => {
             const ContentFeature = exported.default
             const featureInstance = new ContentFeature(featureName)
-            featureInstance._args = args
-            featureInstance.load(args)
+            featureInstance.callLoad(args)
             return { featureName, featureInstance }
         })
         features.push(feature)
@@ -60,9 +71,8 @@ async function injectFeatures (args) {
             const codeFeature = `((args) => {
                 ${codeImport}
                 const featureInstance = new ${featureName}('${featureName}')
-                featureInstance._args = args
-                featureInstance.load()
-                featureInstance.init(args)
+                featureInstance.callLoad(args)
+                featureInstance.callInit(args)
             })(args)`
             codeFeatures.push(codeFeature)
         }
@@ -104,8 +114,7 @@ export async function init (args) {
     const resolvedFeatures = await Promise.all(features)
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-            featureInstance._args = args
-            featureInstance.init(args)
+            featureInstance.callInit(args)
         }
     })
     if (supportsInjectedFeatures()) {
@@ -135,9 +144,9 @@ function alwaysInitExtensionFeatures (args, featureName) {
 
 async function updateFeaturesInner (args) {
     const resolvedFeatures = await Promise.all(features)
-    resolvedFeatures.forEach(({ update, featureName }) => {
-        if (!isFeatureBroken(initArgs, featureName) && update) {
-            update(args)
+    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+        if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {
+            featureInstance.update(args)
         }
     })
 }

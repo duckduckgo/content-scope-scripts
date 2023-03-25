@@ -507,9 +507,23 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
 }
 
 /**
+ * @typedef {object} Platform
+ * @property {'ios' | 'macos' | 'extension' | 'android' | 'windows'} name
+ * @property {string} [version]
+ */
+
+/**
+ * @typedef {object} UserPreferences
+ * @property {Platform} platform
+ * @property {boolean} [debug]
+ * @property {boolean} [globalPrivacyControl]
+ * @property {string} sessionKey
+ */
+
+/**
  * @param {{ features: Record<string, { state: string; settings: any; exceptions: string[] }>; unprotectedTemporary: string; }} data
  * @param {string[]} userList
- * @param {Record<string, unknown>} preferences
+ * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
  */
 export function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
@@ -522,26 +536,28 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
         return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
     }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
     const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary)
-    preferences.site = {
+    /** @type {Record<string, any>} */
+    const output = Object.assign({}, preferences)
+    output.site = {
         domain: topLevelHostname,
         isBroken,
         allowlisted,
         enabledFeatures
     }
     // TODO
-    preferences.cookie = {}
+    output.cookie = {}
 
     // Copy feature settings from remote config to preferences object
-    preferences.featureSettings = {}
+    output.featureSettings = {}
     remoteFeatureNames.forEach((featureName) => {
         if (!enabledFeatures.includes(featureName)) {
             return
         }
 
-        preferences.featureSettings[featureName] = data.features[featureName].settings
+        output.featureSettings[featureName] = data.features[featureName].settings
     })
 
-    return preferences
+    return output
 }
 
 export function isGloballyDisabled (args) {
