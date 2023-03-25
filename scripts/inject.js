@@ -25,10 +25,8 @@ async function init () {
 }
 
 async function initOther (injectScriptPath, platformName) {
-    const replaceString = '/* global contentScopeFeatures */'
     const injectScript = await rollupScript(injectScriptPath, `inject${platformName}`)
-    const contentScope = await rollupScript(contentScopePath, contentScopeName)
-    const outputScript = injectScript.toString().replace(replaceString, contentScope.toString())
+    const outputScript = injectScript
     console.log(outputScript)
 }
 
