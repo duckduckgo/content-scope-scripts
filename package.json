@@ -60,7 +60,7 @@
     "fast-folder-size": "^1.7.1",
     "jasmine": "^4.6.0",
     "puppeteer": "^19.8.0",
-    "rollup": "^3.20.0",
+    "rollup": "^3.20.2",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
     "typedoc": "^0.23.28",
     "typescript": "^5.0.2"
