@@ -1,9 +1,13 @@
-import { getFeatureSetting, getFeatureSettingEnabled, matchHostname } from './utils'
+import { getFeatureSetting, getFeatureSettingEnabled, matchHostname, getFeatureAttr } from './utils'
 
 export default class ContentFeature {
     constructor (featureName) {
         this.name = featureName
         this._args = null
+    }
+
+    getFeatureAttr (attrName, defaultValue) {
+        return getFeatureAttr(this.name, this._args, attrName, defaultValue)
     }
 
     getFeatureSetting (featureKeyName) {

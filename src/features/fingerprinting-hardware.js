@@ -1,9 +1,8 @@
-import { overrideProperty, getFeatureAttr } from '../utils'
+import { overrideProperty } from '../utils'
 import ContentFeature from '../content-feature'
-const featureName = 'fingerprinting-hardware'
 
 export default class FingerprintingHardware extends ContentFeature {
-    init (args) {
+    init () {
         const Navigator = globalThis.Navigator
         const navigator = globalThis.navigator
 
@@ -11,18 +10,18 @@ export default class FingerprintingHardware extends ContentFeature {
             object: Navigator.prototype,
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             origValue: navigator.keyboard,
-            targetValue: getFeatureAttr(featureName, args, 'keyboard')
+            targetValue: this.getFeatureAttr('keyboard')
         })
         overrideProperty('hardwareConcurrency', {
             object: Navigator.prototype,
             origValue: navigator.hardwareConcurrency,
-            targetValue: getFeatureAttr(featureName, args, 'hardwareConcurrency', 2)
+            targetValue: this.getFeatureAttr('hardwareConcurrency', 2)
         })
         overrideProperty('deviceMemory', {
             object: Navigator.prototype,
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             origValue: navigator.deviceMemory,
-            targetValue: getFeatureAttr(featureName, args, 'deviceMemory', 8)
+            targetValue: this.getFeatureAttr('deviceMemory', 8)
         })
     }
 }

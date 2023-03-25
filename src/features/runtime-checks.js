@@ -457,7 +457,7 @@ export default class RuntimeChecks extends ContentFeature {
     init () {
         let enabled = this.getFeatureSettingEnabled('matchAllDomains')
         if (!enabled) {
-            enabled = this.matchDomainFeatureSetting('domains')
+            enabled = !!this.matchDomainFeatureSetting('domains')
         }
         if (!enabled) return
 

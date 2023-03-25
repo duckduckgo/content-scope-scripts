@@ -1,4 +1,4 @@
-import { defineProperty, getFeatureSettingEnabled } from '../utils'
+import { defineProperty } from '../utils'
 import ContentFeature from '../content-feature'
 
 /**
@@ -93,15 +93,14 @@ function safariObjectFix () {
 }
 
 export default class WebCompat extends ContentFeature {
-    init (args) {
-        const featureName = 'web-compat'
-        if (getFeatureSettingEnabled(featureName, args, 'windowSizing')) {
+    init () {
+        if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix()
         }
-        if (getFeatureSettingEnabled(featureName, args, 'navigatorCredentials')) {
+        if (this.getFeatureSettingEnabled('navigatorCredentials')) {
             navigatorCredentialsFix()
         }
-        if (getFeatureSettingEnabled(featureName, args, 'safariObject')) {
+        if (this.getFeatureSettingEnabled('safariObject')) {
             safariObjectFix()
         }
     }

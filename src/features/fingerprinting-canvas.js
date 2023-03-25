@@ -1,4 +1,4 @@
-import { DDGProxy, DDGReflect, getFeatureSettingEnabled } from '../utils'
+import { DDGProxy, DDGReflect } from '../utils'
 import { computeOffScreenCanvas } from '../canvas'
 import ContentFeature from '../content-feature'
 
@@ -7,7 +7,7 @@ export default class FingerprintingCanvas extends ContentFeature {
         const { sessionKey, site } = args
         const domainKey = site.domain
         const featureName = 'fingerprinting-canvas'
-        const supportsWebGl = getFeatureSettingEnabled(featureName, args, 'webGl')
+        const supportsWebGl = this.getFeatureSettingEnabled('webGl')
 
         const unsafeCanvases = new WeakSet()
         const canvasContexts = new WeakMap()

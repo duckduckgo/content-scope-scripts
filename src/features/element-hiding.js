@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature'
-import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils'
+import { isBeingFramed, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils'
 
 let adLabelStrings = []
 const parser = new DOMParser()
@@ -281,31 +281,24 @@ function unhideLoadedAds () {
 }
 
 export default class ElementHiding extends ContentFeature {
-    init (args) {
+    init () {
         if (isBeingFramed()) {
             return
         }
 
         const featureName = 'elementHiding'
-        const domain = args.site.domain
-        const domainRules = getFeatureSetting(featureName, args, 'domains')
-        const globalRules = getFeatureSetting(featureName, args, 'rules')
-        const styleTagExceptions = getFeatureSetting(featureName, args, 'styleTagExceptions')
-        adLabelStrings = getFeatureSetting(featureName, args, 'adLabelStrings')
-        shouldInjectStyleTag = getFeatureSetting(featureName, args, 'useStrictHideStyleTag')
-        mediaAndFormSelectors = getFeatureSetting(featureName, args, 'mediaAndFormSelectors') || mediaAndFormSelectors
+        const globalRules = this.getFeatureSetting('rules')
+        adLabelStrings = this.getFeatureSetting('adLabelStrings')
+        shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
+        mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors
 
         // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
-            shouldInjectStyleTag = !styleTagExceptions.some((exception) => {
-                return matchHostname(domain, exception.domain)
-            })
+            shouldInjectStyleTag = !this.matchDomainFeatureSetting('styleTagExceptions')
         }
 
         // collect all matching rules for domain
-        const activeDomainRules = domainRules.filter((rule) => {
-            return matchHostname(domain, rule.domain)
-        }).flatMap((item) => item.rules)
+        const activeDomainRules = this.matchDomainFeatureSetting('domains').flatMap((item) => item.rules)
 
         const overrideRules = activeDomainRules.filter((rule) => {
             return rule.type === 'override'

@@ -7,7 +7,7 @@ import { defineProperty } from '../utils'
  * as well as prevent any script from listening to events.
  */
 export default class FingerprintingBattery extends ContentFeature {
-    init (args) {
+    init () {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         if (globalThis.navigator.getBattery) {
             const BatteryManager = globalThis.BatteryManager

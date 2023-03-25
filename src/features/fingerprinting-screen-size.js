@@ -1,6 +1,5 @@
-import { overrideProperty, defineProperty, getFeatureAttr } from '../utils'
+import { overrideProperty, defineProperty } from '../utils'
 import ContentFeature from '../content-feature'
-const featureName = 'fingerprinting-screen-size'
 
 /**
  * normalize window dimensions, if more than one monitor is in play.
@@ -85,7 +84,7 @@ function setWindowDimensions () {
 }
 
 export default class FingerprintingScreenSize extends ContentFeature {
-    init (args) {
+    init () {
         const Screen = globalThis.Screen
         const screen = globalThis.screen
 
@@ -93,13 +92,13 @@ export default class FingerprintingScreenSize extends ContentFeature {
             object: Screen.prototype,
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             origValue: screen.availTop,
-            targetValue: getFeatureAttr(featureName, args, 'availTop', 0)
+            targetValue: this.getFeatureAttr('availTop', 0)
         })
         origPropertyValues.availLeft = overrideProperty('availLeft', {
             object: Screen.prototype,
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             origValue: screen.availLeft,
-            targetValue: getFeatureAttr(featureName, args, 'availLeft', 0)
+            targetValue: this.getFeatureAttr('availLeft', 0)
         })
         origPropertyValues.availWidth = overrideProperty('availWidth', {
             object: Screen.prototype,
@@ -114,12 +113,12 @@ export default class FingerprintingScreenSize extends ContentFeature {
         overrideProperty('colorDepth', {
             object: Screen.prototype,
             origValue: screen.colorDepth,
-            targetValue: getFeatureAttr(featureName, args, 'colorDepth', 24)
+            targetValue: this.getFeatureAttr('colorDepth', 24)
         })
         overrideProperty('pixelDepth', {
             object: Screen.prototype,
             origValue: screen.pixelDepth,
-            targetValue: getFeatureAttr(featureName, args, 'pixelDepth', 24)
+            targetValue: this.getFeatureAttr('pixelDepth', 24)
         })
 
         window.addEventListener('resize', function () {
