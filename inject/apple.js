@@ -1,8 +1,8 @@
-/**
- * @module Apple integration
- * @category Content Scope Scripts Integrations
- */
 /* global contentScopeFeatures */
+/**
+* @module Apple integration
+* @category Content Scope Scripts Integrations
+*/
 
 import { processConfig, isGloballyDisabled } from './../src/utils'
 
