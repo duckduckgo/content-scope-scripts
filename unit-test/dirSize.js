@@ -1,19 +1,45 @@
-// @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-import fastFolderSizeSync from 'fast-folder-size/sync.js'
+import { join, relative } from 'node:path'
+import { statSync } from 'node:fs'
 
-const buildDirs = ['android', 'chrome', 'chrome-mv3', 'firefox', 'integration', 'windows']
-// Lets sanity check build sizes, picking 512KB as a rather arbitrary limit
-// Higher for Chrome MV2 due to base64 encoding
-const quotas = [512000, 716800, 512000, 512000, 512000, 512000]
-const rootDir = 'build'
+// path helpers
+const ROOT = new URL('..', import.meta.url).pathname
+const BUILD = join(ROOT, 'build')
+const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
 
-describe('Expect build size of', () => {
-    for (const build in buildDirs) {
-        const dir = `${rootDir}/${buildDirs[build]}`
-        const sizeLimit = quotas[build]
+const checks = {
+    android: [
+        { kind: 'maxFileSize', value: 512000, path: join(BUILD, 'android/contentScope.js') }
+    ],
+    chrome: [
+        { kind: 'maxFileSize', value: 716800, path: join(BUILD, 'chrome/inject.js') }
+    ],
+    'chrome-mv3': [
+        { kind: 'maxFileSize', value: 512000, path: join(BUILD, 'chrome-mv3/inject.js') }
+    ],
+    firefox: [
+        { kind: 'maxFileSize', value: 512000, path: join(BUILD, 'firefox/inject.js') }
+    ],
+    integration: [
+        { kind: 'maxFileSize', value: 512000, path: join(BUILD, 'integration/contentScope.js') }
+    ],
+    windows: [
+        { kind: 'maxFileSize', value: 512000, path: join(BUILD, 'windows/contentScope.js') }
+    ],
+    apple: [
+        { kind: 'maxFileSize', value: 512000, path: join(APPLE_BUILD, 'contentScope.js') }
+    ]
+}
 
-        it(`${dir} to be less than ${sizeLimit}`, () => {
-            expect(fastFolderSizeSync(dir)).toBeLessThan(sizeLimit)
-        })
+describe('checks', () => {
+    for (const [platformName, platformChecks] of Object.entries(checks)) {
+        for (const check of platformChecks) {
+            if (check.kind === 'maxFileSize') {
+                const localPath = relative(ROOT, check.path)
+                it(`${platformName}: '${localPath}' is smaller than ${check.value}`, () => {
+                    const stats = statSync(check.path)
+                    expect(stats.size).toBeLessThan(check.value)
+                })
+            }
+        }
     }
 })
