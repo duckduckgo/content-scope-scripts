@@ -1,8 +1,8 @@
+/* global contentScopeFeatures */
 /**
  * @module Windows integration
  * @category Content Scope Scripts Integrations
  */
-/* global contentScopeFeatures */
 import { processConfig, isGloballyDisabled, windowsSpecificFeatures } from './../src/utils'
 
 function init () {
