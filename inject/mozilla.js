@@ -1,8 +1,8 @@
-/**
- * @module Mozilla integration
- * @category Content Scope Scripts Integrations
- */
 /* global contentScopeFeatures */
+/**
+* @module Mozilla integration
+* @category Content Scope Scripts Integrations
+*/
 import { isTrackerOrigin } from '../src/trackers'
 
 const allowedMessages = [
