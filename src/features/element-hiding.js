@@ -1,4 +1,4 @@
-import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect, getInjectionElement } from '../utils'
+import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils'
 
 let adLabelStrings = []
 const parser = new DOMParser()
@@ -233,9 +233,6 @@ function extractTimeoutRules (rules) {
  * @param {string} rules[].type
  */
 function injectStyleTag (rules) {
-    const styleTag = document.createElement('link')
-    styleTag.setAttribute('rel', 'stylesheet')
-    styleTag.setAttribute('type', 'text/css')
     let styleTagContents = ''
 
     rules.forEach((rule, i) => {
@@ -247,9 +244,7 @@ function injectStyleTag (rules) {
     })
 
     styleTagContents = styleTagContents.concat('{display:none!important;min-height:0!important;height:0!important;}')
-    styleTag.href = 'data:text/css,' + encodeURIComponent(styleTagContents)
-
-    getInjectionElement().appendChild(styleTag)
+    injectGlobalStyles(styleTagContents)
 }
 
 /**

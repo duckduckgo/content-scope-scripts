@@ -23,7 +23,8 @@ describe('Test integration pages', () => {
     it('Script that should not execute', async () => {
         const pages = {
             'runtime-checks/pages/basic-run.html': 'runtime-checks/config/basic-run.json',
-            'runtime-checks/pages/filter-props.html': 'runtime-checks/config/filter-props.json'
+            'runtime-checks/pages/filter-props.html': 'runtime-checks/config/filter-props.json',
+            'runtime-checks/pages/shadow-dom.html': 'runtime-checks/config/shadow-dom.json'
         }
         for (const pageName in pages) {
             const configName = pages[pageName]
