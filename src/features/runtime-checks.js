@@ -1,10 +1,11 @@
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement } from '../utils.js'
 
 let stackDomains = []
 let matchAllStackDomains = false
 let taintCheck = false
 let initialCreateElement
 let tagModifiers = {}
+let shadowDomEnabled = false
 
 /**
  * @param {string} tagName
@@ -38,6 +39,15 @@ class DDGRuntimeChecks extends HTMLElement {
         this.#listeners = []
         this.#connected = false
         this.#sinks = {}
+        if (shadowDomEnabled) {
+            const shadow = this.attachShadow({ mode: 'open' })
+            const style = createStyleElement(`
+                :host {
+                    display: none;
+                }
+            `)
+            shadow.appendChild(style)
+        }
     }
 
     /**
@@ -45,6 +55,7 @@ class DDGRuntimeChecks extends HTMLElement {
      **/
     setTagName (tagName) {
         this.#tagName = tagName
+
         // Clear the method so it can't be called again
         delete this.setTagName
     }
@@ -366,10 +377,19 @@ export function init (args) {
     stackDomains = getFeatureSetting(featureName, args, 'stackDomains') || []
     elementRemovalTimeout = getFeatureSetting(featureName, args, 'elementRemovalTimeout') || 1000
     tagModifiers = getFeatureSetting(featureName, args, 'tagModifiers') || {}
+    shadowDomEnabled = getFeatureSettingEnabled(featureName, args, 'shadowDom') || false
 
     overrideCreateElement()
 
     if (getFeatureSettingEnabled(featureName, args, 'overloadInstanceOf')) {
         overloadInstanceOfChecks(HTMLScriptElement)
+    }
+
+    if (getFeatureSettingEnabled(featureName, args, 'injectGlobalStyles')) {
+        injectGlobalStyles(`
+            ddg-runtime-checks {
+                display: none;
+            }
+        `)
     }
 }

@@ -1,4 +1,4 @@
-import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect } from '../utils'
+import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils'
 
 let adLabelStrings = []
 const parser = new DOMParser()
@@ -227,15 +227,12 @@ function extractTimeoutRules (rules) {
 }
 
 /**
- * Create styletag for strict hide rules and append it to document head
+ * Create styletag for strict hide rules and append it to the document
  * @param {Object[]} rules
  * @param {string} rules[].selector
  * @param {string} rules[].type
  */
 function injectStyleTag (rules) {
-    const styleTag = document.createElement('link')
-    styleTag.setAttribute('rel', 'stylesheet')
-    styleTag.setAttribute('type', 'text/css')
     let styleTagContents = ''
 
     rules.forEach((rule, i) => {
@@ -247,9 +244,7 @@ function injectStyleTag (rules) {
     })
 
     styleTagContents = styleTagContents.concat('{display:none!important;min-height:0!important;height:0!important;}')
-    styleTag.href = 'data:text/css,' + encodeURIComponent(styleTagContents)
-
-    document.head.appendChild(styleTag)
+    injectGlobalStyles(styleTagContents)
 }
 
 /**

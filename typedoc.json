@@ -1,0 +1,25 @@
+{
+    "entryPoints": [
+        "inject/android.js",
+        "inject/apple.js",
+        "inject/chrome.js",
+        "inject/chrome-mv3.js",
+        "inject/mozilla.js",
+        "inject/windows.js",
+        "packages/messaging",
+        "packages/special-pages",
+        "packages/special-pages/pages/example/src/index.js"
+    ],
+    "categoryOrder": [
+        "Special Pages",
+        "Content Scope Scripts Integrations",
+        "Other"
+    ],
+    "out": "docs",
+    "excludeExternals": true,
+    "excludeInternal": true,
+    "readme": "README.md",
+    "treatWarningsAsErrors": true,
+    "searchInComments": true,
+    "includes": "."
+}

@@ -1,4 +1,8 @@
-/* global contentScopeFeatures */
+/**
+ * @module Mozilla integration
+ * @category Content Scope Scripts Integrations
+ */
+import { load, init, update } from '../src/content-scope-features.js'
 import { isTrackerOrigin } from '../src/trackers'
 
 const allowedMessages = [
@@ -16,8 +20,8 @@ function randomString () {
     return num.toString().replace('0.', '')
 }
 
-function init () {
-    contentScopeFeatures.load({
+function initCode () {
+    load({
         platform: {
             name: 'extension'
         },
@@ -49,13 +53,13 @@ function init () {
             })
         }
         message.messageSecret = messageSecret
-        contentScopeFeatures.init(message)
+        init(message)
     })
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
         if (message && message.type === 'update') {
-            contentScopeFeatures.update(message)
+            update(message)
         }
     })
 
@@ -78,9 +82,9 @@ function init () {
                 response
             }
 
-            contentScopeFeatures.update(message)
+            update(message)
         })
     })
 }
 
-init()
+initCode()

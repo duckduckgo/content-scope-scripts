@@ -83,7 +83,6 @@ export async function setup (ops = {}) {
     function _startupServerInternal (pathName, port) {
         const server = http.createServer(function (req, res) {
             const url = new URL(req.url, `http://${req.headers.host}`)
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             const importUrl = new URL(import.meta.url)
             const dirname = importUrl.pathname.replace(/\/[^/]*$/, '')
             const pathname = path.join(dirname, pathName, url.pathname)

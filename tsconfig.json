@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2021",
+    "module": "ES2020",
     "moduleResolution": "node",
     "alwaysStrict": true,
     "allowJs": true,
@@ -13,10 +14,13 @@
     "scripts",
     "unit-test",
     "integration-test",
-    "inject"
+    "inject",
+    "packages"
   ],
   "exclude": [
     "integration-test/pages",
     "integration-test/extension",
+    "packages/special-pages/pages/**/public",
+    "docs"
   ]
 }

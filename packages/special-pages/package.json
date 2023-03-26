@@ -1,0 +1,24 @@
+{
+  "name": "special-pages",
+  "private": "true",
+  "version": "1.0.0",
+  "description": "A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like about: pages",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "npm run build.pages; node index.js",
+    "build.pages": "node scripts/build.js",
+    "test": "echo '✅ No tests yet'",
+    "test.headed": "playwright test --headed",
+    "test-int-x": "playwright test",
+    "test-int": "playwright test",
+    "serve": "serve pages -p 3210"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.32.0",
+    "serve": "^14.2.0",
+    "@duckduckgo/messaging": "*",
+    "esbuild": "^0.17.12"
+  }
+}

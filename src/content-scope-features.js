@@ -1,5 +1,5 @@
 /* global mozProxies */
-import { initStringExemptionLists, isFeatureBroken, registerMessageSecret } from './utils'
+import { initStringExemptionLists, isFeatureBroken, registerMessageSecret, getInjectionElement } from './utils'
 import { featureNames } from './features'
 // @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'ddg:runtimeInjects'
@@ -7,7 +7,7 @@ import injectedFeaturesCode from 'ddg:runtimeInjects'
 function shouldRun () {
     // don't inject into non-HTML documents (such as XML documents)
     // but do inject into XHTML documents
-    if (document instanceof HTMLDocument === false && (
+    if (document instanceof Document === false && (
         document instanceof XMLDocument === false ||
         document.createElement('div') instanceof HTMLDivElement === false
     )) {
@@ -32,7 +32,6 @@ export async function load (args) {
         if (isInjectedFeature(featureName)) {
             continue
         }
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
             if (load) {
                 load(args)
@@ -71,7 +70,7 @@ async function injectFeatures (args) {
         ${codeFeatures.join('\n')}
     })()`
     script.src = 'data:text/javascript;base64,' + btoa(code)
-    document.head.appendChild(script)
+    getInjectionElement().appendChild(script)
     script.remove()
 }
 

@@ -446,6 +446,13 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
             const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
             titleRowTextButton.style.display = 'block'
+
+            // Avoid the placeholder being taller than the containing element
+            // and overflowing.
+            const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
+            innerDiv.style.minHeight = ''
+            innerDiv.style.maxHeight = parentHeight
+            innerDiv.style.overflow = 'hidden'
         }
     }
 

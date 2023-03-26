@@ -14,6 +14,34 @@ export function registerMessageSecret (secret) {
 }
 
 /**
+ * @returns {HTMLElement} the element to inject the script into
+ */
+export function getInjectionElement () {
+    return document.head || document.documentElement
+}
+
+/**
+ * Creates a script element with the given code to avoid Firefox CSP restrictions.
+ * @param {string} css
+ * @returns {HTMLLinkElement}
+ */
+export function createStyleElement (css) {
+    const style = document.createElement('link')
+    style.href = 'data:text/css,' + encodeURIComponent(css)
+    style.setAttribute('rel', 'stylesheet')
+    style.setAttribute('type', 'text/css')
+    return style
+}
+
+/**
+ * Injects a script into the page, avoiding CSP restrictions if possible.
+ */
+export function injectGlobalStyles (css) {
+    const style = createStyleElement(css)
+    getInjectionElement().appendChild(style)
+}
+
+/**
  * Used for testing to override the globals used within this file.
  * @param {window} globalObjIn
  */

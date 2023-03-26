@@ -1,10 +1,13 @@
-/* global contentScopeFeatures */
-
+/**
+ * @module Chrome MV3 integration
+ * @category Content Scope Scripts Integrations
+ */
+import { load, init, update } from '../src/content-scope-features.js'
 import { isTrackerOrigin } from '../src/trackers'
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '')
 
-contentScopeFeatures.load({
+load({
     platform: {
         name: 'extension'
     },
@@ -20,12 +23,12 @@ window.addEventListener(secret, ({ detail: message }) => {
 
     switch (message.type) {
     case 'update':
-        contentScopeFeatures.update(message)
+        update(message)
         break
     case 'register':
         if (message.argumentsObject) {
             message.argumentsObject.messageSecret = secret
-            contentScopeFeatures.init(message.argumentsObject)
+            init(message.argumentsObject)
         }
         break
     }

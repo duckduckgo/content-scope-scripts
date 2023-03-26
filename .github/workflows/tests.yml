@@ -19,6 +19,7 @@ jobs:
             ${{ runner.os }}-node-
       - run: npm install
       - run: npm run build
+      - run: npm run docs
       - run: npm run lint
       - run: npm run test-unit
       - name: "Clean tree"
@@ -43,4 +44,6 @@ jobs:
         sudo apt-get install xvfb
         npm install
         npm run build
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
     - run: npm run test-int-x

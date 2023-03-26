@@ -20,6 +20,8 @@
     "build-windows": "mkdir -p build/windows/ && node scripts/inject.js windows > build/windows/contentScope.js",
     "build-integration": "mkdir -p build/integration/ && node scripts/inject.js integration > build/integration/contentScope.js && npm run copy-build-integration",
     "copy-build-integration": "cp build/integration/contentScope.js integration-test/extension",
+    "docs": "typedoc",
+    "postbuild": "npm run build --workspaces --if-present",
     "tsc": "tsc",
     "tsc.watch": "tsc --watch",
     "lint": "eslint . && npm run tsc",
@@ -29,9 +31,16 @@
     "test-int": "npm run build-integration && jasmine --config=integration-test/config.js",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
-    "test": "npm run lint && npm run lint-no-output-globals && npm run test-unit && npm run test-int"
+    "test": "npm run lint && npm run lint-no-output-globals && npm run test-unit && npm run test-int",
+    "posttest": "npm run test --workspaces --if-present",
+    "posttest-int": "npm run test-int --workspaces --if-present",
+    "posttest-int-x": "npm run test-int-x --workspaces --if-present"
   },
   "type": "module",
+  "workspaces": [
+    "packages/special-pages",
+    "packages/messaging"
+  ],
   "dependencies": {
     "seedrandom": "^3.0.5",
     "sjcl": "^1.0.8"
@@ -42,17 +51,17 @@
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-replace": "^5.0.2",
-    "@types/chrome": "^0.0.224",
+    "@types/chrome": "^0.0.225",
     "@types/jasmine": "^4.3.1",
     "eslint": "^8.36.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
-    "fast-folder-size": "^1.7.1",
-    "jasmine": "^4.5.0",
-    "puppeteer": "^19.7.5",
-    "rollup": "^3.19.1",
+    "jasmine": "^4.6.0",
+    "puppeteer": "^19.8.0",
+    "rollup": "^3.20.2",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
+    "typedoc": "^0.23.28",
     "typescript": "^5.0.2"
   }
 }

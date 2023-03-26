@@ -3,4 +3,5 @@ node_modules/
 .swiftpm
 .env
 build/
+docs/
 Sources/ContentScopeScripts/dist/
