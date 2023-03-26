@@ -31,6 +31,7 @@ const performanceMonitor = new PerformanceMonitor()
  * @property {boolean} [documentOriginIsTracker]
  * @property {object} [bundledConfig]
  * @property {string} [injectName]
+ * @property {object} [trackerLookup] - provided currently only by the extension
  */
 
 /**

@@ -99,12 +99,25 @@ export function isBeingFramed () {
  * Best guess effort if the document is third party
  * @returns {boolean} if we infer the document is third party
  */
-export function isThirdParty () {
+export function isThirdPartyFrame () {
     if (!isBeingFramed()) {
         return false
     }
     // @ts-expect-error - getTabHostname() is string|null here
     return !matchHostname(globalThis.location.hostname, getTabHostname())
+}
+
+function isThirdPartyOrigin (hostname) {
+    return matchHostname(globalThis.location.hostname, hostname)
+}
+
+export function hasThirdPartyOrigin (scriptOrigins) {
+    for (const origin of scriptOrigins) {
+        if (isThirdPartyOrigin(origin)) {
+            return true
+        }
+    }
+    return false
 }
 
 /**

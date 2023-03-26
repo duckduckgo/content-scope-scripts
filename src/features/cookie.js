@@ -1,6 +1,7 @@
-import { defineProperty, postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabHostname, matchHostname } from '../utils.js'
+import { defineProperty, postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdPartyFrame, getTabHostname, matchHostname } from '../utils.js'
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
+import { isTrackerOrigin } from '../trackers.js'
 
 // Initial cookie policy pre init
 let cookiePolicy = {
@@ -10,7 +11,8 @@ let cookiePolicy = {
     shouldBlock: true,
     shouldBlockTrackerCookie: true,
     shouldBlockNonTrackerCookie: false,
-    isThirdParty: isThirdParty(),
+    isThirdPartyFrame: isThirdPartyFrame(),
+    trackerLookup: {},
     policy: {
         threshold: 604800, // 7 days
         maxAge: 604800 // 7 days
@@ -35,20 +37,33 @@ function debugHelper (action, reason, ctx) {
     })
 }
 
-function shouldBlockTrackingCookie () {
-    return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
+/**
+ * @param {Set<string>} scriptOrigins
+ * @returns {boolean}
+ */
+function shouldBlockTrackingCookie (scriptOrigins) {
+    return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie(scriptOrigins)
 }
 
 function shouldBlockNonTrackingCookie () {
     return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
 }
 
-function isTrackingCookie () {
-    return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdParty
+/**
+ * @param {Set<string>} scriptOrigins
+ * @returns {boolean}
+ */
+function isTrackingCookie (scriptOrigins) {
+    for (const scriptOrigin of scriptOrigins) {
+        if (isTrackerOrigin(cookiePolicy.trackerLookup, scriptOrigin)) {
+            return true
+        }
+    }
+    return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
 }
 
 function isNonTrackingCookie () {
-    return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdParty
+    return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
 }
 
 export default class CookieFeature extends ContentFeature {
@@ -59,6 +74,9 @@ export default class CookieFeature extends ContentFeature {
         }
         if (args.documentOriginIsTracker) {
             cookiePolicy.isTracker = true
+        }
+        if (args.trackerLookup) {
+            cookiePolicy.trackerLookup = args.trackerLookup
         }
         if (args.bundledConfig) {
             // use the bundled config to get a best-effort at the policy, before the background sends the real one
@@ -102,10 +120,10 @@ export default class CookieFeature extends ContentFeature {
                 value: 'getter'
             }
 
-            if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+            if (shouldBlockTrackingCookie(scriptOrigins) || shouldBlockNonTrackingCookie()) {
                 debugHelper('block', '3p frame', getCookieContext)
                 return ''
-            } else if (isTrackingCookie() || isNonTrackingCookie()) {
+            } else if (isTrackingCookie(scriptOrigins) || isNonTrackingCookie()) {
                 debugHelper('ignore', '3p frame', getCookieContext)
             }
             // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
@@ -121,10 +139,10 @@ export default class CookieFeature extends ContentFeature {
                 value
             }
 
-            if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+            if (shouldBlockTrackingCookie(scriptOrigins) || shouldBlockNonTrackingCookie()) {
                 debugHelper('block', '3p frame', setCookieContext)
                 return
-            } else if (isTrackingCookie() || isNonTrackingCookie()) {
+            } else if (isTrackingCookie(scriptOrigins) || isNonTrackingCookie()) {
                 debugHelper('ignore', '3p frame', setCookieContext)
             }
             // call the native document.cookie implementation. This will set the cookie immediately
@@ -178,7 +196,9 @@ export default class CookieFeature extends ContentFeature {
 
     init (args) {
         if (args.cookie) {
+            const trackerLookup = cookiePolicy.trackerLookup
             cookiePolicy = args.cookie
+            cookiePolicy.trackerLookup = trackerLookup
             args.cookie.debug = args.debug
 
             cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie')

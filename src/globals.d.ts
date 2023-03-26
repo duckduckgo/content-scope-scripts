@@ -1,4 +1,5 @@
 declare const mozProxies: boolean
+declare const $TRACKER_LOOKUP$: string[]
 declare function exportFunction(fn: () => unknown, desc: object, out: object): void;
 declare function exportFunction(fn: () => unknown, desc: object): void;
 declare function cloneInto(fn: object, desc: object, out: object): void;
