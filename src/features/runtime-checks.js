@@ -33,6 +33,7 @@ const defaultElementMethods = {
     remove: HTMLElement.prototype.remove,
     removeChild: HTMLElement.prototype.removeChild
 }
+const supportedTrustedTypes = 'TrustedScriptURL' in window
 
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
@@ -113,7 +114,7 @@ class DDGRuntimeChecks extends HTMLElement {
         // Short circuit if we don't have any script text
         if (el.innerText === '') return
         // Short circuit if we're in a trusted script environment
-        if (el.innerText instanceof TrustedScript) return
+        if (supportedTrustedTypes && el.innerText instanceof TrustedScript) return
 
         const config = scriptOverload
         const processedConfig = {}
@@ -121,42 +122,6 @@ class DDGRuntimeChecks extends HTMLElement {
             processedConfig[key] = processAttr(value)
         }
 
-        function inject (parentScope, config) {
-            for (const [key, value] of Object.entries(config)) {
-                const path = key.split('.')
-                let currentScope = parentScope
-                for (let i = 0; i < path.length - 1; i++) {
-                    currentScope = currentScope[path[i]] = currentScope[path[i]] || {}
-                }
-                Object.defineProperty(currentScope, path[path.length - 1], {
-                    value,
-                    writable: true,
-                    configurable: true,
-                    enumerable: true
-                })
-            }
-        }
-
-        function overload (scope) {
-            return new Proxy(scope, {
-                get (target, property, receiver) {
-                    const targetObj = target[property]
-                    if (typeof targetObj === 'function') {
-                        return (...args) => {
-                            return target[property].apply(target, args)
-                        }
-                    } else {
-                        return targetObj
-                    }
-                },
-                defineProperty (target, property, descriptor) {
-                    return Reflect.defineProperty(target, property, descriptor)
-                },
-                getOwnPropertyDescriptor (target, property) {
-                    return Reflect.getOwnPropertyDescriptor(target, property)
-                }
-            })
-        }
         function constructProxy (scope, outputs) {
             return new Proxy(scope, {
                 get (target, property, receiver) {
@@ -175,45 +140,13 @@ class DDGRuntimeChecks extends HTMLElement {
             })
         }
 
-        function initCode (parentScope, config) {
-            console.log('init code', parentScope, config)
-            const lookup = new Map()
-            for (const [key, value] of Object.entries(config)) {
-                const path = key.split('.')
-                let currentScope = parentScope
-                for (let i = 0; i < path.length - 1; i++) {
-                    currentScope = currentScope[path[i]] = currentScope[path[i]] || {}
-                }
-                const scopePath = path.slice(0, -1)
-                const pathOut = path[path.length - 1]
-                if (lookup.has(scopePath)) {
-                    lookup.get(scopePath)[pathOut] = value
-                } else {
-                    lookup.set(scopePath, {
-                        [pathOut]: value
-                    })
-                }
-            }
-
-            for (const [scopePath, outputs] of lookup) {
-                const scopeName = scopePath[0]
-                /* TODO solve nested scopes */
-                const currentScope = parentScope[scopeName]
-                console.log('do do do2', [currentScope, outputs, scopeName])
-                parentScope[scopeName] = constructProxy(currentScope, outputs)
-            }
-            (function () {
-                /* code */
-            })()
-        }
-
-        console.log('sss', el.innerText instanceof TrustedScript ? 'trusted' : 'untrusted', el.innerText)
+        console.log('sss', el.innerText, processedConfig)
         let prepend = ''
         const aggregatedLookup = new Map()
         /* Convert the config into a map of scopePath -> { key: value } */
         for (const [key, value] of Object.entries(processedConfig)) {
             const path = key.split('.')
-            const scopePath = path.slice(0, -1)
+            const scopePath = path.slice(0, -1).join('.')
             const pathOut = path[path.length - 1]
             if (aggregatedLookup.has(scopePath)) {
                 aggregatedLookup.get(scopePath)[pathOut] = value
@@ -224,7 +157,7 @@ class DDGRuntimeChecks extends HTMLElement {
             }
         }
 
-        for (const [key, value] of Object.entries(aggregatedLookup)) {
+        for (const [key, value] of aggregatedLookup) {
             console.log('processedConfig', { key, value })
             const path = key.split('.')
             if (path.length === 2) {
@@ -233,14 +166,20 @@ class DDGRuntimeChecks extends HTMLElement {
             const scopeName = path[0]
             const propName = path[1]
             prepend += `
-                let ${scopeName} = constructProxy(window.${scopeName}, ${JSON.stringify(value)});
+            let ${scopeName} = constructProxy(parentScope.${scopeName}, ${JSON.stringify(value)});
             `
         }
+        prepend += `
+        const window = constructProxy(parentScope, {
+            navigator
+        });
+        const globalThis = constructProxy(parentScope, {
+            navigator
+        });
+        `
         const innerCode = prepend + el.innerText
-        const codeOut = initCode.toString().replace('/* code */', innerCode)
-        console.log({codeOut, prepend, innerCode})
-        // Trailing semicolon is important to prevent the script from coliding with other ASI issues in the output script.
-        el.innerText = `${constructProxy.toString()}(${codeOut})(window, ${JSON.stringify(processedConfig)})`
+        console.log({ prepend, innerCode, aggregatedLookup })
+        el.innerText = '(function (parentScope) {' + constructProxy.toString() + ' ' + innerCode + '})(globalThis)'
         // console.log('out', el.innerText)
     }
 
@@ -360,7 +299,7 @@ class DDGRuntimeChecks extends HTMLElement {
         }
         // @ts-expect-error TrustedScriptURL is not defined in the TS lib
         // eslint-disable-next-line no-undef
-        if ('TrustedScriptURL' in window && this.#sinks.src instanceof TrustedScriptURL) {
+        if (supportedTrustedTypes && this.#sinks.src instanceof TrustedScriptURL) {
             return this.#sinks.src.toString()
         }
         return this.#sinks.src

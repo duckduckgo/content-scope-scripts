@@ -16,6 +16,10 @@
                     "navigator.userAgent": {
                         "type": "string",
                         "value": "testingThisOut"
+                    },
+                    "document.cookie": {
+                        "type": "string",
+                        "value": "testingThisOut"
                     }
                 }
             }

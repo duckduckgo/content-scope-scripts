@@ -18,7 +18,14 @@
             window.scriptOutput = false;
             window.scriptyRan = false;
             const scriptElement = document.createElement('script');
-            scriptElement.innerText = 'window.scriptyRan = true; window.scriptOutput = navigator.userAgent';
+            scriptElement.innerText = `
+                window.scriptyRan = true;
+                window.scriptOutput = {
+                    n: navigator.userAgent,
+                    w: window.navigator.userAgent,
+                    g: globalThis.navigator.userAgent,
+                }
+            `;
             scriptElement.id = 'overloadedScript';
             scriptElement.setAttribute('type', 'application/javascript');
             document.body.appendChild(scriptElement);
@@ -34,7 +41,7 @@
                 { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
                 { name: 'script ran', result: window.scriptyRan, expected: true },
                 { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
-                { name: 'user agent is overloaded', result: window.scriptOutput, expected: expectedUserAgentOverload },
+                { name: 'user agent is overloaded', result: window.scriptOutput, expected: { n: expectedUserAgentOverload, w: expectedUserAgentOverload, g: expectedUserAgentOverload } },
                 { name: 'user agent doesnt match parent context', result: doesntMatchParentContext, expected: true }
             ];
         });

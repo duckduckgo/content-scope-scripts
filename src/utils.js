@@ -315,6 +315,14 @@ export function getFeatureAttr (featureName, args, prop, defaultValue) {
     return processAttr(configSetting, defaultValue)
 }
 
+const functionMap = {
+    /** Useful for debugging APIs in the wild, shouldn't be used */
+    debug: (...args) => {
+        console.log('debugger', ...args)
+        debugger
+    }
+}
+
 /**
  * Handles the processing of a config setting.
  * @param {*} configSetting
@@ -338,6 +346,12 @@ export function processAttr (configSetting, defaultValue) {
 
         if (!configSetting.type) {
             return defaultValue
+        }
+
+        if (configSetting.type === 'function') {
+            if (configSetting.functionName && functionMap[configSetting.functionName]) {
+                return functionMap[configSetting.functionName]
+            }
         }
 
         if (configSetting.type === 'undefined') {
