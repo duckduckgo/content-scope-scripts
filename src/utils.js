@@ -319,6 +319,7 @@ const functionMap = {
     /** Useful for debugging APIs in the wild, shouldn't be used */
     debug: (...args) => {
         console.log('debugger', ...args)
+        // eslint-disable-next-line no-debugger
         debugger
     }
 }

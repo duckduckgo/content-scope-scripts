@@ -20,7 +20,7 @@ describe('Test integration pages', () => {
         await teardown()
     })
 
-    fit('Script that should not execute', async () => {
+    it('Script that should not execute', async () => {
         const pages = {
             'runtime-checks/pages/basic-run.html': 'runtime-checks/config/basic-run.json',
             'runtime-checks/pages/filter-props.html': 'runtime-checks/config/filter-props.json',

@@ -1,3 +1,5 @@
+/* global TrustedScriptURL */
+
 import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement, processAttr } from '../utils.js'
 
 let stackDomains = []
@@ -114,13 +116,16 @@ class DDGRuntimeChecks extends HTMLElement {
         // Short circuit if we don't have any script text
         if (el.innerText === '') return
         // Short circuit if we're in a trusted script environment
-        if (supportedTrustedTypes && el.innerText instanceof TrustedScript) return
+        // @ts-expect-error TrustedScriptURL is not defined in the TS lib
+        if (supportedTrustedTypes && el.innerText instanceof TrustedScriptURL) return
 
         const config = scriptOverload
         const processedConfig = {}
         for (const [key, value] of Object.entries(config)) {
             processedConfig[key] = processAttr(value)
         }
+        // Don't do anything if the config is empty
+        if (Object.keys(processedConfig).length === 0) return
 
         function constructProxy (scope, outputs) {
             return new Proxy(scope, {
@@ -140,7 +145,6 @@ class DDGRuntimeChecks extends HTMLElement {
             })
         }
 
-        console.log('sss', el.innerText, processedConfig)
         let prepend = ''
         const aggregatedLookup = new Map()
         /* Convert the config into a map of scopePath -> { key: value } */
@@ -158,29 +162,27 @@ class DDGRuntimeChecks extends HTMLElement {
         }
 
         for (const [key, value] of aggregatedLookup) {
-            console.log('processedConfig', { key, value })
             const path = key.split('.')
-            if (path.length === 2) {
-                throw new Error('Invalid config, only one layer supported')
+            if (path.length !== 1) {
+                console.error('Invalid config, currently only one layer depth is supported')
+                continue
             }
             const scopeName = path[0]
-            const propName = path[1]
             prepend += `
             let ${scopeName} = constructProxy(parentScope.${scopeName}, ${JSON.stringify(value)});
             `
         }
+        const keysOut = [...aggregatedLookup.keys()].join(',\n')
         prepend += `
         const window = constructProxy(parentScope, {
-            navigator
+            ${keysOut}
         });
         const globalThis = constructProxy(parentScope, {
-            navigator
+            ${keysOut}
         });
         `
         const innerCode = prepend + el.innerText
-        console.log({ prepend, innerCode, aggregatedLookup })
         el.innerText = '(function (parentScope) {' + constructProxy.toString() + ' ' + innerCode + '})(globalThis)'
-        // console.log('out', el.innerText)
     }
 
     /**
@@ -298,7 +300,6 @@ class DDGRuntimeChecks extends HTMLElement {
             return el.src
         }
         // @ts-expect-error TrustedScriptURL is not defined in the TS lib
-        // eslint-disable-next-line no-undef
         if (supportedTrustedTypes && this.#sinks.src instanceof TrustedScriptURL) {
             return this.#sinks.src.toString()
         }
