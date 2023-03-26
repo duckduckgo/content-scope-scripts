@@ -1349,7 +1349,7 @@ const messageResponseHandlers = {
 
 const knownMessageResponseType = Object.prototype.hasOwnProperty.bind(messageResponseHandlers)
 
-export default class DuckPlayer extends ContentFeature {
+export default class ClickToLoad extends ContentFeature {
     init (args) {
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}

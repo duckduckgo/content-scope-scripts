@@ -17,18 +17,31 @@ export default class ContentFeature {
         return this._platform
     }
 
+    /**
+     * @param {string} attrName
+     * @param {any} defaultValue
+     */
     getFeatureAttr (attrName, defaultValue) {
         return getFeatureAttr(this.name, this._args, attrName, defaultValue)
     }
 
+    /**
+     * @param {string} featureKeyName
+     */
     getFeatureSetting (featureKeyName) {
         return getFeatureSetting(this.name, this._args, featureKeyName)
     }
 
+    /**
+     * @param {string} featureKeyName
+     */
     getFeatureSettingEnabled (featureKeyName) {
         return getFeatureSettingEnabled(this.name, this._args, featureKeyName)
     }
 
+    /**
+     * @param {string} featureKeyName
+     */
     matchDomainFeatureSetting (featureKeyName) {
         const domains = this.getFeatureSetting(featureKeyName)
         return domains.find((rule) => {

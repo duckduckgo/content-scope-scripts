@@ -537,7 +537,7 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
     const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary)
     /** @type {Record<string, any>} */
-    const output = Object.assign({}, preferences)
+    const output = { ...preferences }
     output.site = {
         domain: topLevelHostname,
         isBroken,
