@@ -32,6 +32,7 @@
                 { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
                 { name: 'expect script to match', result: scripty, expected: scriptElement },
                 { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'Element is hidden', result: window.getComputedStyle(scriptElement).display, expected: 'none' },
                 { name: 'scripty.integrity', result: scripty.integrity, expected: 'sha256-123' },
                 { name: 'scripty.madeUpProp', result: scripty.madeUpProp, expected: 'val' },
                 { name: 'scripty.type', result: scripty.type, expected: 'application/evilscript' },
