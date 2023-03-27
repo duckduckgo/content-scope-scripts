@@ -24,6 +24,14 @@ let elementRemovalTimeout
 const featureName = 'runtimeChecks'
 const taintSymbol = Symbol(featureName)
 const supportedSinks = ['src']
+// Store the original methods so we can call them without any side effects
+const defaultElementMethods = {
+    setAttribute: HTMLElement.prototype.setAttribute,
+    getAttribute: HTMLElement.prototype.getAttribute,
+    removeAttribute: HTMLElement.prototype.removeAttribute,
+    remove: HTMLElement.prototype.remove,
+    removeChild: HTMLElement.prototype.removeChild
+}
 
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
@@ -116,7 +124,7 @@ class DDGRuntimeChecks extends HTMLElement {
         // Reflect all attrs to the new element
         for (const attribute of this.getAttributeNames()) {
             if (shouldFilterKey(this.#tagName, 'attribute', attribute)) continue
-            el.setAttribute(attribute, this.getAttribute(attribute))
+            defaultElementMethods.setAttribute.call(el, attribute, this.getAttribute(attribute))
         }
 
         // Reflect all props to the new element
@@ -178,6 +186,22 @@ class DDGRuntimeChecks extends HTMLElement {
         return this.#el?.deref()
     }
 
+    /**
+     * Calls a method on the real element if it exists, otherwise calls the method on the DDGRuntimeChecks element.
+     * @template {keyof defaultElementMethods} E
+     * @param {E} method
+     * @param  {...Parameters<defaultElementMethods[E]>} args
+     * @return {ReturnType<defaultElementMethods[E]>}
+     */
+    _callMethod (method, ...args) {
+        const el = this._getElement()
+        if (el) {
+            return defaultElementMethods[method].call(el, ...args)
+        }
+        // @ts-expect-error TS doesn't like the spread operator
+        return super[method](...args)
+    }
+
     /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */
 
     set src (value) {
@@ -207,11 +231,7 @@ class DDGRuntimeChecks extends HTMLElement {
         if (supportedSinks.includes(name)) {
             return this[name]
         }
-        const el = this._getElement()
-        if (el) {
-            return el.getAttribute(name)
-        }
-        return super.getAttribute(name)
+        return this._callMethod('getAttribute', name, value)
     }
 
     setAttribute (name, value) {
@@ -220,11 +240,7 @@ class DDGRuntimeChecks extends HTMLElement {
             this[name] = value
             return
         }
-        const el = this._getElement()
-        if (el) {
-            return el.setAttribute(name, value)
-        }
-        return super.setAttribute(name, value)
+        return this._callMethod('setAttribute', name, value)
     }
 
     removeAttribute (name) {
@@ -233,11 +249,7 @@ class DDGRuntimeChecks extends HTMLElement {
             delete this[name]
             return
         }
-        const el = this._getElement()
-        if (el) {
-            return el.removeAttribute(name)
-        }
-        return super.removeAttribute(name)
+        return this._callMethod('removeAttribute', name)
     }
 
     addEventListener (...args) {
@@ -274,19 +286,12 @@ class DDGRuntimeChecks extends HTMLElement {
     }
 
     remove () {
-        const el = this._getElement()
-        if (el) {
-            return el.remove()
-        }
-        return super.remove()
+        return this._callMethod('remove')
     }
 
+    // @ts-expect-error TS node return here
     removeChild (child) {
-        const el = this._getElement()
-        if (el) {
-            return el.removeChild(child)
-        }
-        return super.removeChild(child)
+        return this._callMethod('removeChild', child)
     }
 }
 
@@ -357,6 +362,7 @@ function overrideCreateElement () {
 export function load () {
     // This shouldn't happen, but if it does we don't want to break the page
     try {
+        // @ts-expect-error TS node return here
         customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
     } catch {}
 }
