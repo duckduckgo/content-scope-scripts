@@ -114,10 +114,10 @@ class DDGRuntimeChecks extends HTMLElement {
 
     computeScriptOverload (el) {
         // Short circuit if we don't have any script text
-        if (el.innerText === '') return
+        if (el.textContent === '') return
         // Short circuit if we're in a trusted script environment
         // @ts-expect-error TrustedScriptURL is not defined in the TS lib
-        if (supportedTrustedTypes && el.innerText instanceof TrustedScriptURL) return
+        if (supportedTrustedTypes && el.textContent instanceof TrustedScriptURL) return
 
         const config = scriptOverload
         const processedConfig = {}
@@ -127,17 +127,22 @@ class DDGRuntimeChecks extends HTMLElement {
         // Don't do anything if the config is empty
         if (Object.keys(processedConfig).length === 0) return
 
+        /**
+         * @param {*} scope
+         * @param {Record<string, any>} outputs
+         * @returns {Proxy}
+         */
         function constructProxy (scope, outputs) {
             return new Proxy(scope, {
                 get (target, property, receiver) {
                     const targetObj = target[property]
                     if (typeof targetObj === 'function') {
                         return (...args) => {
-                            return target[property].apply(target, args)
+                            return Reflect.apply(target[property], target, args)
                         }
                     } else {
-                        if (property in outputs) {
-                            return outputs[property]
+                        if (typeof property === 'string' && property in outputs) {
+                            return Reflect.get(outputs, property, receiver)
                         }
                         return Reflect.get(target, property, receiver)
                     }
@@ -181,8 +186,8 @@ class DDGRuntimeChecks extends HTMLElement {
             ${keysOut}
         });
         `
-        const innerCode = prepend + el.innerText
-        el.innerText = '(function (parentScope) {' + constructProxy.toString() + ' ' + innerCode + '})(globalThis)'
+        const innerCode = prepend + el.textContent
+        el.textContent = '(function (parentScope) {' + constructProxy.toString() + ' ' + innerCode + '})(globalThis)'
     }
 
     /**

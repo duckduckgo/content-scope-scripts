@@ -46,6 +46,31 @@
             ];
         });
 
+        test('Window methods still work as expected', async () => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            window.scriptOutput = false;
+            window.scriptyRan = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.innerText = `
+                window.scriptyRan = true;
+                window.scriptOutput = window.btoa('testing');
+            `;
+            scriptElement.id = 'overloadedMethodScript';
+            scriptElement.setAttribute('type', 'application/javascript');
+            document.body.appendChild(scriptElement);
+            const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks#overloadedMethodScript');
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('script#overloadedScript');
+            const nodeAndFakeNodeMatch = scripty === scriptElement;
+            return [
+                //{ name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'script ran', result: window.scriptyRan, expected: true },
+                { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
+                { name: 'user agent is overloaded', result: window.scriptOutput, expected: 'dGVzdGluZw==' }
+            ];
+        });
+
         renderResults();
     </script>
 </body>
