@@ -1,4 +1,6 @@
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement } from '../utils.js'
+/* global TrustedScriptURL */
+
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement, processAttr } from '../utils.js'
 
 let stackDomains = []
 let matchAllStackDomains = false
@@ -6,6 +8,7 @@ let taintCheck = false
 let initialCreateElement
 let tagModifiers = {}
 let shadowDomEnabled = false
+let scriptOverload = {}
 
 /**
  * @param {string} tagName
@@ -32,6 +35,7 @@ const defaultElementMethods = {
     remove: HTMLElement.prototype.remove,
     removeChild: HTMLElement.prototype.removeChild
 }
+const supportedTrustedTypes = 'TrustedScriptURL' in window
 
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
@@ -108,6 +112,84 @@ class DDGRuntimeChecks extends HTMLElement {
         })
     }
 
+    computeScriptOverload (el) {
+        // Short circuit if we don't have any script text
+        if (el.textContent === '') return
+        // Short circuit if we're in a trusted script environment
+        // @ts-expect-error TrustedScriptURL is not defined in the TS lib
+        if (supportedTrustedTypes && el.textContent instanceof TrustedScriptURL) return
+
+        const config = scriptOverload
+        const processedConfig = {}
+        for (const [key, value] of Object.entries(config)) {
+            processedConfig[key] = processAttr(value)
+        }
+        // Don't do anything if the config is empty
+        if (Object.keys(processedConfig).length === 0) return
+
+        /**
+         * @param {*} scope
+         * @param {Record<string, any>} outputs
+         * @returns {Proxy}
+         */
+        function constructProxy (scope, outputs) {
+            return new Proxy(scope, {
+                get (target, property, receiver) {
+                    const targetObj = target[property]
+                    if (typeof targetObj === 'function') {
+                        return (...args) => {
+                            return Reflect.apply(target[property], target, args)
+                        }
+                    } else {
+                        if (typeof property === 'string' && property in outputs) {
+                            return Reflect.get(outputs, property, receiver)
+                        }
+                        return Reflect.get(target, property, receiver)
+                    }
+                }
+            })
+        }
+
+        let prepend = ''
+        const aggregatedLookup = new Map()
+        /* Convert the config into a map of scopePath -> { key: value } */
+        for (const [key, value] of Object.entries(processedConfig)) {
+            const path = key.split('.')
+            const scopePath = path.slice(0, -1).join('.')
+            const pathOut = path[path.length - 1]
+            if (aggregatedLookup.has(scopePath)) {
+                aggregatedLookup.get(scopePath)[pathOut] = value
+            } else {
+                aggregatedLookup.set(scopePath, {
+                    [pathOut]: value
+                })
+            }
+        }
+
+        for (const [key, value] of aggregatedLookup) {
+            const path = key.split('.')
+            if (path.length !== 1) {
+                console.error('Invalid config, currently only one layer depth is supported')
+                continue
+            }
+            const scopeName = path[0]
+            prepend += `
+            let ${scopeName} = constructProxy(parentScope.${scopeName}, ${JSON.stringify(value)});
+            `
+        }
+        const keysOut = [...aggregatedLookup.keys()].join(',\n')
+        prepend += `
+        const window = constructProxy(parentScope, {
+            ${keysOut}
+        });
+        const globalThis = constructProxy(parentScope, {
+            ${keysOut}
+        });
+        `
+        const innerCode = prepend + el.textContent
+        el.textContent = '(function (parentScope) {' + constructProxy.toString() + ' ' + innerCode + '})(globalThis)'
+    }
+
     /**
      * The element has been moved to the DOM, so we can now reflect all changes to a real element.
      * This is to allow us to interrogate the real element before it is moved to the DOM.
@@ -167,6 +249,10 @@ class DDGRuntimeChecks extends HTMLElement {
             el.appendChild(this.firstChild)
         }
 
+        if (this.#tagName === 'script') {
+            this.computeScriptOverload(el)
+        }
+
         // Move the new element to the DOM
         try {
             this.insertAdjacentElement('afterend', el)
@@ -219,8 +305,7 @@ class DDGRuntimeChecks extends HTMLElement {
             return el.src
         }
         // @ts-expect-error TrustedScriptURL is not defined in the TS lib
-        // eslint-disable-next-line no-undef
-        if ('TrustedScriptURL' in window && this.#sinks.src instanceof TrustedScriptURL) {
+        if (supportedTrustedTypes && this.#sinks.src instanceof TrustedScriptURL) {
             return this.#sinks.src.toString()
         }
         return this.#sinks.src
@@ -384,6 +469,7 @@ export function init (args) {
     elementRemovalTimeout = getFeatureSetting(featureName, args, 'elementRemovalTimeout') || 1000
     tagModifiers = getFeatureSetting(featureName, args, 'tagModifiers') || {}
     shadowDomEnabled = getFeatureSettingEnabled(featureName, args, 'shadowDom') || false
+    scriptOverload = getFeatureSetting(featureName, args, 'scriptOverload') || {}
 
     overrideCreateElement()
 
