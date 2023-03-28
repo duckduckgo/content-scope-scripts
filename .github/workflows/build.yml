@@ -44,7 +44,7 @@ jobs:
 
       - name: Collect commit ranges
         run: |
-          echo "$(git log main --since "$(git show -s --format=%ci $(git rev-list --tags --max-count=1))" --pretty='format:- %s')" > ${{ github.workspace }}-CHANGELOG.txt
+          echo "# ${{ github.event.inputs.version }} release\n\n$(git log main --since "$(git show -s --format=%ci $(git rev-list --tags --max-count=1))" --pretty='format:- %s')" > ${{ github.workspace }}-CHANGELOG.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v1

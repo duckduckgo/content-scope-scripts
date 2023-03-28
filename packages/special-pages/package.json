@@ -16,9 +16,9 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.32.0",
+    "@playwright/test": "^1.32.1",
     "serve": "^14.2.0",
     "@duckduckgo/messaging": "*",
-    "esbuild": "^0.17.12"
+    "esbuild": "^0.17.14"
   }
 }

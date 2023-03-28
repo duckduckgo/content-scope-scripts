@@ -1,4 +1,6 @@
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement } from '../utils.js'
+/* global TrustedScriptURL, TrustedScript */
+
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement, processAttr } from '../utils.js'
 
 let stackDomains = []
 let matchAllStackDomains = false
@@ -6,6 +8,7 @@ let taintCheck = false
 let initialCreateElement
 let tagModifiers = {}
 let shadowDomEnabled = false
+let scriptOverload = {}
 
 /**
  * @param {string} tagName
@@ -24,6 +27,15 @@ let elementRemovalTimeout
 const featureName = 'runtimeChecks'
 const taintSymbol = Symbol(featureName)
 const supportedSinks = ['src']
+// Store the original methods so we can call them without any side effects
+const defaultElementMethods = {
+    setAttribute: HTMLElement.prototype.setAttribute,
+    getAttribute: HTMLElement.prototype.getAttribute,
+    removeAttribute: HTMLElement.prototype.removeAttribute,
+    remove: HTMLElement.prototype.remove,
+    removeChild: HTMLElement.prototype.removeChild
+}
+const supportedTrustedTypes = 'TrustedScriptURL' in window
 
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
@@ -100,6 +112,84 @@ class DDGRuntimeChecks extends HTMLElement {
         })
     }
 
+    computeScriptOverload (el) {
+        // Short circuit if we don't have any script text
+        if (el.textContent === '') return
+        // Short circuit if we're in a trusted script environment
+        // @ts-expect-error TrustedScript is not defined in the TS lib
+        if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return
+
+        const config = scriptOverload
+        const processedConfig = {}
+        for (const [key, value] of Object.entries(config)) {
+            processedConfig[key] = processAttr(value)
+        }
+        // Don't do anything if the config is empty
+        if (Object.keys(processedConfig).length === 0) return
+
+        /**
+         * @param {*} scope
+         * @param {Record<string, any>} outputs
+         * @returns {Proxy}
+         */
+        function constructProxy (scope, outputs) {
+            return new Proxy(scope, {
+                get (target, property, receiver) {
+                    const targetObj = target[property]
+                    if (typeof targetObj === 'function') {
+                        return (...args) => {
+                            return Reflect.apply(target[property], target, args)
+                        }
+                    } else {
+                        if (typeof property === 'string' && property in outputs) {
+                            return Reflect.get(outputs, property, receiver)
+                        }
+                        return Reflect.get(target, property, receiver)
+                    }
+                }
+            })
+        }
+
+        let prepend = ''
+        const aggregatedLookup = new Map()
+        /* Convert the config into a map of scopePath -> { key: value } */
+        for (const [key, value] of Object.entries(processedConfig)) {
+            const path = key.split('.')
+            const scopePath = path.slice(0, -1).join('.')
+            const pathOut = path[path.length - 1]
+            if (aggregatedLookup.has(scopePath)) {
+                aggregatedLookup.get(scopePath)[pathOut] = value
+            } else {
+                aggregatedLookup.set(scopePath, {
+                    [pathOut]: value
+                })
+            }
+        }
+
+        for (const [key, value] of aggregatedLookup) {
+            const path = key.split('.')
+            if (path.length !== 1) {
+                console.error('Invalid config, currently only one layer depth is supported')
+                continue
+            }
+            const scopeName = path[0]
+            prepend += `
+            let ${scopeName} = constructProxy(parentScope.${scopeName}, ${JSON.stringify(value)});
+            `
+        }
+        const keysOut = [...aggregatedLookup.keys()].join(',\n')
+        prepend += `
+        const window = constructProxy(parentScope, {
+            ${keysOut}
+        });
+        const globalThis = constructProxy(parentScope, {
+            ${keysOut}
+        });
+        `
+        const innerCode = prepend + el.textContent
+        el.textContent = '(function (parentScope) {' + constructProxy.toString() + ' ' + innerCode + '})(globalThis)'
+    }
+
     /**
      * The element has been moved to the DOM, so we can now reflect all changes to a real element.
      * This is to allow us to interrogate the real element before it is moved to the DOM.
@@ -116,7 +206,7 @@ class DDGRuntimeChecks extends HTMLElement {
         // Reflect all attrs to the new element
         for (const attribute of this.getAttributeNames()) {
             if (shouldFilterKey(this.#tagName, 'attribute', attribute)) continue
-            el.setAttribute(attribute, this.getAttribute(attribute))
+            defaultElementMethods.setAttribute.call(el, attribute, this.getAttribute(attribute))
         }
 
         // Reflect all props to the new element
@@ -159,6 +249,10 @@ class DDGRuntimeChecks extends HTMLElement {
             el.appendChild(this.firstChild)
         }
 
+        if (this.#tagName === 'script') {
+            this.computeScriptOverload(el)
+        }
+
         // Move the new element to the DOM
         try {
             this.insertAdjacentElement('afterend', el)
@@ -178,6 +272,22 @@ class DDGRuntimeChecks extends HTMLElement {
         return this.#el?.deref()
     }
 
+    /**
+     * Calls a method on the real element if it exists, otherwise calls the method on the DDGRuntimeChecks element.
+     * @template {keyof defaultElementMethods} E
+     * @param {E} method
+     * @param  {...Parameters<defaultElementMethods[E]>} args
+     * @return {ReturnType<defaultElementMethods[E]>}
+     */
+    _callMethod (method, ...args) {
+        const el = this._getElement()
+        if (el) {
+            return defaultElementMethods[method].call(el, ...args)
+        }
+        // @ts-expect-error TS doesn't like the spread operator
+        return super[method](...args)
+    }
+
     /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */
 
     set src (value) {
@@ -195,8 +305,7 @@ class DDGRuntimeChecks extends HTMLElement {
             return el.src
         }
         // @ts-expect-error TrustedScriptURL is not defined in the TS lib
-        // eslint-disable-next-line no-undef
-        if ('TrustedScriptURL' in window && this.#sinks.src instanceof TrustedScriptURL) {
+        if (supportedTrustedTypes && this.#sinks.src instanceof TrustedScriptURL) {
             return this.#sinks.src.toString()
         }
         return this.#sinks.src
@@ -207,11 +316,7 @@ class DDGRuntimeChecks extends HTMLElement {
         if (supportedSinks.includes(name)) {
             return this[name]
         }
-        const el = this._getElement()
-        if (el) {
-            return el.getAttribute(name)
-        }
-        return super.getAttribute(name)
+        return this._callMethod('getAttribute', name, value)
     }
 
     setAttribute (name, value) {
@@ -220,11 +325,7 @@ class DDGRuntimeChecks extends HTMLElement {
             this[name] = value
             return
         }
-        const el = this._getElement()
-        if (el) {
-            return el.setAttribute(name, value)
-        }
-        return super.setAttribute(name, value)
+        return this._callMethod('setAttribute', name, value)
     }
 
     removeAttribute (name) {
@@ -233,11 +334,7 @@ class DDGRuntimeChecks extends HTMLElement {
             delete this[name]
             return
         }
-        const el = this._getElement()
-        if (el) {
-            return el.removeAttribute(name)
-        }
-        return super.removeAttribute(name)
+        return this._callMethod('removeAttribute', name)
     }
 
     addEventListener (...args) {
@@ -274,19 +371,12 @@ class DDGRuntimeChecks extends HTMLElement {
     }
 
     remove () {
-        const el = this._getElement()
-        if (el) {
-            return el.remove()
-        }
-        return super.remove()
+        return this._callMethod('remove')
     }
 
+    // @ts-expect-error TS node return here
     removeChild (child) {
-        const el = this._getElement()
-        if (el) {
-            return el.removeChild(child)
-        }
-        return super.removeChild(child)
+        return this._callMethod('removeChild', child)
     }
 }
 
@@ -357,6 +447,7 @@ function overrideCreateElement () {
 export function load () {
     // This shouldn't happen, but if it does we don't want to break the page
     try {
+        // @ts-expect-error TS node return here
         customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
     } catch {}
 }
@@ -378,6 +469,7 @@ export function init (args) {
     elementRemovalTimeout = getFeatureSetting(featureName, args, 'elementRemovalTimeout') || 1000
     tagModifiers = getFeatureSetting(featureName, args, 'tagModifiers') || {}
     shadowDomEnabled = getFeatureSettingEnabled(featureName, args, 'shadowDom') || false
+    scriptOverload = getFeatureSetting(featureName, args, 'scriptOverload') || {}
 
     overrideCreateElement()
 
