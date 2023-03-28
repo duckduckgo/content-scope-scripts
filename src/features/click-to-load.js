@@ -402,24 +402,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         replaceTrackingElement(
             widget, trackingElement, contentBlock
         )
-
-        // Show the extra unblock link in the header if the placeholder or
-        // its parent is too short for the normal unblock button to be visible.
-        // Note: This does not take into account the placeholder's vertical
-        //       position in the parent element.
-        const { height: placeholderHeight } = window.getComputedStyle(contentBlock)
-        const { height: parentHeight } = window.getComputedStyle(contentBlock.parentElement)
-        if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
-            const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
-            titleRowTextButton.style.display = 'block'
-
-            // Avoid the placeholder being taller than the containing element
-            // and overflowing.
-            const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
-            innerDiv.style.minHeight = ''
-            innerDiv.style.maxHeight = parentHeight
-            innerDiv.style.overflow = 'hidden'
-        }
+        showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
     }
 
     /** YouTube CTL */
@@ -475,19 +458,30 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
 }
 
 /**
- /* Show the extra unblock link in the header if the placeholder or
-/* its parent is too short for the normal unblock button to be visible.
-/* Note: This does not take into account the placeholder's vertical
-/*       position in the parent element.
-* @param {Element} shadowRoot
-* @param {Element} placeholder Placeholder for tracking element
-*/
+ * Show the extra unblock link in the header if the placeholder or
+ * its parent is too short for the normal unblock button to be visible.
+ * Note: This does not take into account the placeholder's vertical
+ *       position in the parent element.
+ * @param {Element} shadowRoot
+ * @param {Element} placeholder Placeholder for tracking element
+ */
 function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
+    if (!placeholder.parentElement) {
+        return
+    }
+
     const { height: placeholderHeight } = window.getComputedStyle(placeholder)
     const { height: parentHeight } = window.getComputedStyle(placeholder.parentElement)
     if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
         const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
         titleRowTextButton.style.display = 'block'
+
+        // Avoid the placeholder being taller than the containing element
+        // and overflowing.
+        const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
+        innerDiv.style.minHeight = ''
+        innerDiv.style.maxHeight = parentHeight
+        innerDiv.style.overflow = 'hidden'
     }
 }
 
