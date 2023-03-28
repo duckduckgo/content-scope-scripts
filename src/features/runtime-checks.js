@@ -1,4 +1,4 @@
-/* global TrustedScriptURL */
+/* global TrustedScriptURL, TrustedScript */
 
 import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement, processAttr } from '../utils.js'
 
@@ -116,8 +116,8 @@ class DDGRuntimeChecks extends HTMLElement {
         // Short circuit if we don't have any script text
         if (el.textContent === '') return
         // Short circuit if we're in a trusted script environment
-        // @ts-expect-error TrustedScriptURL is not defined in the TS lib
-        if (supportedTrustedTypes && el.textContent instanceof TrustedScriptURL) return
+        // @ts-expect-error TrustedScript is not defined in the TS lib
+        if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return
 
         const config = scriptOverload
         const processedConfig = {}
