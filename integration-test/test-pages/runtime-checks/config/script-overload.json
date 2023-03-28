@@ -1,0 +1,28 @@
+{
+    "features": {
+        "runtimeChecks": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "taintCheck": "enabled",
+                "matchAllDomains": "enabled",
+                "matchAllStackDomains": "enabled",
+                "overloadInstanceOf": "enabled",
+                "domains": [
+                ],
+                "stackDomains": [
+                ],               
+                "scriptOverload": {
+                    "navigator.userAgent": {
+                        "type": "string",
+                        "value": "testingThisOut"
+                    },
+                    "document.cookie": {
+                        "type": "string",
+                        "value": "testingThisOut"
+                    }
+                }
+            }
+        }
+    }
+}
