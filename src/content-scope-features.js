@@ -21,6 +21,18 @@ const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
 
+/**
+ * @typedef {object} LoadArgs
+ * @property {object} platform
+ * @property {string} platform.name
+ * @property {string} [platform.version]
+ * @property {boolean} [documentOriginIsTracker]
+ * @property {object} [bundledConfig]
+ */
+
+/**
+ * @param {LoadArgs} args
+ */
 export async function load (args) {
     if (!shouldRun()) {
         return
@@ -32,11 +44,11 @@ export async function load (args) {
         if (isInjectedFeature(featureName)) {
             continue
         }
-        const feature = import(`./features/${filename}.js`).then(({ init, load, update }) => {
-            if (load) {
-                load(args)
-            }
-            return { featureName, init, update }
+        const feature = import(`./features/${filename}.js`).then((exported) => {
+            const ContentFeature = exported.default
+            const featureInstance = new ContentFeature(featureName)
+            featureInstance.callLoad(args)
+            return { featureName, featureInstance }
         })
         features.push(feature)
     }
@@ -58,8 +70,9 @@ async function injectFeatures (args) {
             const codeImport = injectedFeaturesCode[featureName]
             const codeFeature = `((args) => {
                 ${codeImport}
-                ${featureName}.load()
-                ${featureName}.init(args)
+                const featureInstance = new ${featureName}('${featureName}')
+                featureInstance.callLoad(args)
+                featureInstance.callInit(args)
             })(args)`
             codeFeatures.push(codeFeature)
         }
@@ -99,9 +112,9 @@ export async function init (args) {
     registerMessageSecret(args.messageSecret)
     initStringExemptionLists(args)
     const resolvedFeatures = await Promise.all(features)
-    resolvedFeatures.forEach(({ init, featureName }) => {
+    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-            init(args)
+            featureInstance.callInit(args)
         }
     })
     if (supportsInjectedFeatures()) {
@@ -131,9 +144,9 @@ function alwaysInitExtensionFeatures (args, featureName) {
 
 async function updateFeaturesInner (args) {
     const resolvedFeatures = await Promise.all(features)
-    resolvedFeatures.forEach(({ update, featureName }) => {
-        if (!isFeatureBroken(initArgs, featureName) && update) {
-            update(args)
+    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+        if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {
+            featureInstance.update(args)
         }
     })
 }

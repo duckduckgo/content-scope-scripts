@@ -1,4 +1,5 @@
-import { isBeingFramed, getFeatureSetting, matchHostname, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils'
+import ContentFeature from '../content-feature'
+import { isBeingFramed, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils'
 
 let adLabelStrings = []
 const parser = new DOMParser()
@@ -279,64 +280,59 @@ function unhideLoadedAds () {
     })
 }
 
-export function init (args) {
-    if (isBeingFramed()) {
-        return
-    }
-
-    const featureName = 'elementHiding'
-    const domain = args.site.domain
-    const domainRules = getFeatureSetting(featureName, args, 'domains')
-    const globalRules = getFeatureSetting(featureName, args, 'rules')
-    const styleTagExceptions = getFeatureSetting(featureName, args, 'styleTagExceptions')
-    adLabelStrings = getFeatureSetting(featureName, args, 'adLabelStrings')
-    shouldInjectStyleTag = getFeatureSetting(featureName, args, 'useStrictHideStyleTag')
-    mediaAndFormSelectors = getFeatureSetting(featureName, args, 'mediaAndFormSelectors') || mediaAndFormSelectors
-
-    // determine whether strict hide rules should be injected as a style tag
-    if (shouldInjectStyleTag) {
-        shouldInjectStyleTag = !styleTagExceptions.some((exception) => {
-            return matchHostname(domain, exception.domain)
-        })
-    }
-
-    // collect all matching rules for domain
-    const activeDomainRules = domainRules.filter((rule) => {
-        return matchHostname(domain, rule.domain)
-    }).flatMap((item) => item.rules)
-
-    const overrideRules = activeDomainRules.filter((rule) => {
-        return rule.type === 'override'
-    })
-
-    let activeRules = activeDomainRules.concat(globalRules)
-
-    // remove overrides and rules that match overrides from array of rules to be applied to page
-    overrideRules.forEach((override) => {
-        activeRules = activeRules.filter((rule) => {
-            return rule.selector !== override.selector
-        })
-    })
-
-    // now have the final list of rules to apply, so we apply them when document is loaded
-    if (document.readyState === 'loading') {
-        window.addEventListener('DOMContentLoaded', (event) => {
-            applyRules(activeRules)
-        })
-    } else {
-        applyRules(activeRules)
-    }
-    // single page applications don't have a DOMContentLoaded event on navigations, so
-    // we use proxy/reflect on history.pushState to call applyRules on page navigations
-    const historyMethodProxy = new DDGProxy(featureName, History.prototype, 'pushState', {
-        apply (target, thisArg, args) {
-            applyRules(activeRules)
-            return DDGReflect.apply(target, thisArg, args)
+export default class ElementHiding extends ContentFeature {
+    init () {
+        if (isBeingFramed()) {
+            return
         }
-    })
-    historyMethodProxy.overload()
-    // listen for popstate events in order to run on back/forward navigations
-    window.addEventListener('popstate', (event) => {
-        applyRules(activeRules)
-    })
+
+        const featureName = 'elementHiding'
+        const globalRules = this.getFeatureSetting('rules')
+        adLabelStrings = this.getFeatureSetting('adLabelStrings')
+        shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
+        mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors
+
+        // determine whether strict hide rules should be injected as a style tag
+        if (shouldInjectStyleTag) {
+            shouldInjectStyleTag = !this.matchDomainFeatureSetting('styleTagExceptions')
+        }
+
+        // collect all matching rules for domain
+        const activeDomainRules = this.matchDomainFeatureSetting('domains').flatMap((item) => item.rules)
+
+        const overrideRules = activeDomainRules.filter((rule) => {
+            return rule.type === 'override'
+        })
+
+        let activeRules = activeDomainRules.concat(globalRules)
+
+        // remove overrides and rules that match overrides from array of rules to be applied to page
+        overrideRules.forEach((override) => {
+            activeRules = activeRules.filter((rule) => {
+                return rule.selector !== override.selector
+            })
+        })
+
+        // now have the final list of rules to apply, so we apply them when document is loaded
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', (event) => {
+                applyRules(activeRules)
+            })
+        } else {
+            applyRules(activeRules)
+        }
+        // single page applications don't have a DOMContentLoaded event on navigations, so
+        // we use proxy/reflect on history.pushState to call applyRules on page navigations
+        const historyMethodProxy = new DDGProxy(featureName, History.prototype, 'pushState', {
+            apply (target, thisArg, args) {
+                applyRules(activeRules)
+                return DDGReflect.apply(target, thisArg, args)
+            }
+        })
+        historyMethodProxy.overload()
+        // listen for popstate events in order to run on back/forward navigations
+        window.addEventListener('popstate', (event) => {
+            applyRules(activeRules)
+        })
+    }
 }

@@ -2,6 +2,7 @@
 import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { styles, getConfig } from './click-to-load/ctl-config.js'
+import ContentFeature from '../content-feature.js'
 
 let devMode = false
 let isYoutubePreviewsEnabled = false
@@ -1348,92 +1349,94 @@ const messageResponseHandlers = {
 
 const knownMessageResponseType = Object.prototype.hasOwnProperty.bind(messageResponseHandlers)
 
-export function init (args) {
-    const websiteOwner = args?.site?.parentEntity
-    const settings = args?.featureSettings?.clickToLoad || {}
-    const locale = args?.locale || 'en'
-    const localizedConfig = getConfig(locale)
-    config = localizedConfig.config
-    sharedStrings = localizedConfig.sharedStrings
+export default class ClickToLoad extends ContentFeature {
+    init (args) {
+        const websiteOwner = args?.site?.parentEntity
+        const settings = args?.featureSettings?.clickToLoad || {}
+        const locale = args?.locale || 'en'
+        const localizedConfig = getConfig(locale)
+        config = localizedConfig.config
+        sharedStrings = localizedConfig.sharedStrings
 
-    for (const entity of Object.keys(config)) {
-        // Strip config entities that are first-party, or aren't enabled in the
-        // extension's clickToLoad settings.
-        if ((websiteOwner && entity === websiteOwner) ||
-            !settings[entity] ||
-            settings[entity].state !== 'enabled') {
-            delete config[entity]
-            continue
+        for (const entity of Object.keys(config)) {
+            // Strip config entities that are first-party, or aren't enabled in the
+            // extension's clickToLoad settings.
+            if ((websiteOwner && entity === websiteOwner) ||
+                !settings[entity] ||
+                settings[entity].state !== 'enabled') {
+                delete config[entity]
+                continue
+            }
+
+            // Populate the entities and entityData data structures.
+            // TODO: Remove them and this logic, they seem unnecessary.
+
+            entities.push(entity)
+
+            const shouldShowLoginModal = !!config[entity].informationalModal
+            const currentEntityData = { shouldShowLoginModal }
+
+            if (shouldShowLoginModal) {
+                const { informationalModal } = config[entity]
+                currentEntityData.modalIcon = informationalModal.icon
+                currentEntityData.modalTitle = informationalModal.messageTitle
+                currentEntityData.modalText = informationalModal.messageBody
+                currentEntityData.modalAcceptText = informationalModal.confirmButtonText
+                currentEntityData.modalRejectText = informationalModal.rejectButtonText
+            }
+
+            entityData[entity] = currentEntityData
         }
 
-        // Populate the entities and entityData data structures.
-        // TODO: Remove them and this logic, they seem unnecessary.
+        // Listen for events from "surrogate" scripts.
+        addEventListener('ddg-ctp', (event) => {
+            if (!event.detail) return
+            const entity = event.detail.entity
+            if (!entities.includes(entity)) {
+                // Unknown entity, reject
+                return
+            }
+            if (event.detail.appID) {
+                appID = JSON.stringify(event.detail.appID).replace(/"/g, '')
+            }
+            // Handle login call
+            if (event.detail.action === 'login') {
+                if (entityData[entity].shouldShowLoginModal) {
+                    makeModal(entity, runLogin, entity)
+                } else {
+                    runLogin(entity)
+                }
+            }
+        })
 
-        entities.push(entity)
-
-        const shouldShowLoginModal = !!config[entity].informationalModal
-        const currentEntityData = { shouldShowLoginModal }
-
-        if (shouldShowLoginModal) {
-            const { informationalModal } = config[entity]
-            currentEntityData.modalIcon = informationalModal.icon
-            currentEntityData.modalTitle = informationalModal.messageTitle
-            currentEntityData.modalText = informationalModal.messageBody
-            currentEntityData.modalAcceptText = informationalModal.confirmButtonText
-            currentEntityData.modalRejectText = informationalModal.rejectButtonText
-        }
-
-        entityData[entity] = currentEntityData
+        // Request the current state of Click to Load from the platform.
+        // Note: When the response is received, the response handler finishes
+        //       starting up the feature.
+        sendMessage('getClickToLoadState')
     }
 
-    // Listen for events from "surrogate" scripts.
-    addEventListener('ddg-ctp', (event) => {
-        if (!event.detail) return
-        const entity = event.detail.entity
-        if (!entities.includes(entity)) {
-            // Unknown entity, reject
-            return
-        }
-        if (event.detail.appID) {
-            appID = JSON.stringify(event.detail.appID).replace(/"/g, '')
-        }
-        // Handle login call
-        if (event.detail.action === 'login') {
-            if (entityData[entity].shouldShowLoginModal) {
-                makeModal(entity, runLogin, entity)
-            } else {
-                runLogin(entity)
+    update (message) {
+        // TODO: Once all Click to Load messages include the feature property, drop
+        //       messages that don't include the feature property too.
+        if (message?.feature && message?.feature !== 'clickToLoad') return
+
+        const messageType = message?.messageType
+        if (!messageType) return
+
+        // Message responses.
+        if (messageType === 'response') {
+            const messageResponseType = message?.responseMessageType
+            if (messageResponseType && knownMessageResponseType(messageResponseType)) {
+                return messageResponseHandlers[messageResponseType](message.response)
             }
         }
-    })
 
-    // Request the current state of Click to Load from the platform.
-    // Note: When the response is received, the response handler finishes
-    //       starting up the feature.
-    sendMessage('getClickToLoadState')
-}
-
-export function update (message) {
-    // TODO: Once all Click to Load messages include the feature property, drop
-    //       messages that don't include the feature property too.
-    if (message?.feature && message?.feature !== 'clickToLoad') return
-
-    const messageType = message?.messageType
-    if (!messageType) return
-
-    // Message responses.
-    if (messageType === 'response') {
-        const messageResponseType = message?.responseMessageType
-        if (messageResponseType && knownMessageResponseType(messageResponseType)) {
-            return messageResponseHandlers[messageResponseType](message.response)
+        // Other known update messages.
+        if (messageType === 'displayClickToLoadPlaceholders') {
+            // TODO: Pass `message.options.ruleAction` through, that way only
+            //       content corresponding to the entity for that ruleAction need to
+            //       be replaced with a placeholder.
+            return replaceClickToLoadElements()
         }
-    }
-
-    // Other known update messages.
-    if (messageType === 'displayClickToLoadPlaceholders') {
-        // TODO: Pass `message.options.ruleAction` through, that way only
-        //       content corresponding to the entity for that ruleAction need to
-        //       be replaced with a placeholder.
-        return replaceClickToLoadElements()
     }
 }

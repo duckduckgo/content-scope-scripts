@@ -54,7 +54,14 @@ describe('Test integration pages', () => {
                 }
             }
 
-            const processedConfig = processConfig(config, /* userList */ [], /* preferences */ {}/*, platformSpecificFeatures = [] */)
+            /** @type {import('../src/utils.js').UserPreferences} */
+            const userPreferences = {
+                platform: {
+                    name: 'extension'
+                },
+                sessionKey: 'test'
+            }
+            const processedConfig = processConfig(config, /* userList */ [], /* preferences */ userPreferences/*, platformSpecificFeatures = [] */)
 
             await gotoAndWait(page, `http://localhost:${port}/${pageName}?automation=true`, processedConfig)
             // Check page results
