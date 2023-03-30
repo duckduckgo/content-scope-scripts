@@ -298,7 +298,7 @@ export default class ElementHiding extends ContentFeature {
         }
 
         // collect all matching rules for domain
-        const activeDomainRules = this.matchDomainFeatureSetting('domains').flatMap((item) => item.rules)
+        const activeDomainRules = this.matchDomainFeatureSetting('domains')?.flatMap((item) => item.rules) || []
 
         const overrideRules = activeDomainRules.filter((rule) => {
             return rule.type === 'override'
