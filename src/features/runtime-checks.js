@@ -106,6 +106,8 @@ class DDGRuntimeChecks extends HTMLElement {
                     },
                     set (value) {
                         if (shouldFilterKey(this.#tagName, 'property', prop)) return
+                        // Ignore any properties that start with 'on' as they are only relevant once and already handled
+                        if (prop.startsWith('on')) return
                         el[prop] = value
                     }
                 })
