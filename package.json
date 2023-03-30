@@ -58,7 +58,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
     "jasmine": "^4.6.0",
-    "puppeteer": "^19.8.0",
+    "puppeteer": "^19.8.2",
     "rollup": "^3.20.2",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
     "typedoc": "^0.23.28",
