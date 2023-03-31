@@ -29,7 +29,10 @@ function initCode () {
         platform: processedConfig.platform
     })
 
-    init(processedConfig)
+    init({
+        ...processedConfig,
+        messageSecret
+    })
 
     // Not supported:
     // update(message)
