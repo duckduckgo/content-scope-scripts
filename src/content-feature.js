@@ -36,6 +36,18 @@ export default class ContentFeature {
      * @returns {any}
      */
     getFeatureSetting (featureKeyName) {
+        const result = this._getFeatureSettingIndividual(featureKeyName)
+        if (featureKeyName === 'domains') {
+            throw new Error('domains is a reserved feature setting key name')
+        }
+        const domainResult = this.matchDomainFeatureSetting('domains')?.settings?.[featureKeyName]
+        if (domainResult !== undefined) {
+            return domainResult
+        }
+        return result
+    }
+
+    _getFeatureSettingIndividual (featureKeyName) {
         const camelFeatureName = camelcase(this.name)
         return this._args.featureSettings?.[camelFeatureName]?.[featureKeyName]
     }
