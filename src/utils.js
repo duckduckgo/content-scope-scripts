@@ -557,7 +557,19 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
         output.featureSettings[featureName] = data.features[featureName].settings
     })
 
+    output.stringExemptionLists = getBrokenScriptLists(data)
+
     return output
+}
+
+// We inject this into content scripts
+export function getBrokenScriptLists (data) {
+    const brokenScripts = {}
+    for (const key in data.features) {
+        const featureSettings = data.features[key]
+        brokenScripts[key] = featureSettings.scripts?.map(obj => obj.domain) || []
+    }
+    return brokenScripts
 }
 
 export function isGloballyDisabled (args) {
