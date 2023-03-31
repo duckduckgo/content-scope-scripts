@@ -16,6 +16,12 @@
                         "settings": {
                             "taintCheck": "enabled"
                         }
+                    },
+                    {
+                        "domain": "subdomain.localhost",
+                        "settings": {
+                            "taintCheck": "enabled"
+                        }
                     }
                 ],
                 "stackDomains": [

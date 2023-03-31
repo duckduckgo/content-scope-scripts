@@ -1,4 +1,4 @@
-import { camelcase, matchHostname, processAttr } from './utils'
+import { camelcase, matchHostname, processAttr } from './utils.js'
 
 export default class ContentFeature {
     constructor (featureName) {
@@ -40,10 +40,19 @@ export default class ContentFeature {
         if (featureKeyName === 'domains') {
             throw new Error('domains is a reserved feature setting key name')
         }
-        const domainResult = this.matchDomainFeatureSetting('domains')?.settings?.[featureKeyName]
-        if (domainResult !== undefined) {
-            return domainResult
+        const domainMatch = this.matchDomainFeatureSetting('domains').sort((a, b) => {
+            return b.domain.length - a.domain.length
+        })
+        if (domainMatch.length > 0) {
+            // Starting with the longest matching domain, find the first result that has a value for the feature key
+            const mostRelevantDomainResult = domainMatch.find((rule) => {
+                return rule?.settings[featureKeyName] !== undefined
+            })
+            if (mostRelevantDomainResult !== undefined) {
+                return mostRelevantDomainResult.settings[featureKeyName]
+            }
         }
+
         return result
     }
 
@@ -66,7 +75,7 @@ export default class ContentFeature {
      * @return {any[]}
      */
     matchDomainFeatureSetting (featureKeyName) {
-        const domains = this.getFeatureSetting(featureKeyName) || []
+        const domains = this._getFeatureSettingIndividual(featureKeyName) || []
         return domains.filter((rule) => {
             return matchHostname(this._args.site.domain, rule.domain)
         })
