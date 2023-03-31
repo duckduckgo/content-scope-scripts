@@ -62,6 +62,6 @@
     "rollup": "^3.20.2",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
     "typedoc": "^0.23.28",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.3"
   }
 }
