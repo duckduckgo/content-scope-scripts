@@ -21,6 +21,7 @@ jobs:
       - run: npm run build
       - run: npm run docs
       - run: npm run lint
+      - run: npm run lint-no-output-globals
       - run: npm run test-unit
       - name: "Clean tree"
         run: "npm run test-clean-tree"
