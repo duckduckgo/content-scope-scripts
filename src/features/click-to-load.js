@@ -21,6 +21,9 @@ let sharedStrings = null
 const entities = []
 const entityData = {}
 
+// Used to avoid displaying placeholders for the same tracking element twice.
+const knownTrackingElements = new WeakSet()
+
 let readyResolver
 const ready = new Promise(resolve => { readyResolver = resolve })
 
@@ -509,6 +512,12 @@ async function replaceClickToLoadElements (targetElement) {
             }
 
             await Promise.all(trackingElements.map(trackingElement => {
+                if (knownTrackingElements.has(trackingElement)) {
+                    return Promise.resolve()
+                }
+
+                knownTrackingElements.add(trackingElement)
+
                 const widget = new DuckWidget(widgetData, trackingElement, entity)
                 return createPlaceholderElementAndReplace(widget, trackingElement)
             }))
