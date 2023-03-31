@@ -10,6 +10,9 @@ let initialCreateElement
 let tagModifiers = {}
 let shadowDomEnabled = false
 let scriptOverload = {}
+// Ignore monitoring properties that are only relevant once and already handled
+const defaultIgnoreMonitorList = ['onerror', 'onload']
+let ignoreMonitorList = defaultIgnoreMonitorList
 
 /**
  * @param {string} tagName
@@ -106,6 +109,7 @@ class DDGRuntimeChecks extends HTMLElement {
                     },
                     set (value) {
                         if (shouldFilterKey(this.#tagName, 'property', prop)) return
+                        if (ignoreMonitorList.includes(prop)) return
                         el[prop] = value
                     }
                 })
@@ -468,6 +472,7 @@ export default class RuntimeChecks extends ContentFeature {
         tagModifiers = this.getFeatureSetting('tagModifiers') || {}
         shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false
         scriptOverload = this.getFeatureSetting('scriptOverload') || {}
+        ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
 
         overrideCreateElement()
 
