@@ -10,6 +10,8 @@ let initialCreateElement
 let tagModifiers = {}
 let shadowDomEnabled = false
 let scriptOverload = {}
+const defaultInterrogatedTags = ['script']
+let interrogatedTags = defaultInterrogatedTags
 // Ignore monitoring properties that are only relevant once and already handled
 const defaultIgnoreMonitorList = ['onerror', 'onload']
 let ignoreMonitorList = defaultIgnoreMonitorList
@@ -195,6 +197,32 @@ class DDGRuntimeChecks extends HTMLElement {
         el.textContent = '(function (parentScope) {' + constructProxy.toString() + ' ' + innerCode + '})(globalThis)'
     }
 
+    handleReferrerPolicy (el) {
+        const supportedTags = {
+            script: 'src',
+            iframe: 'src',
+            img: 'src',
+            link: 'href',
+            a: 'href'
+        }
+        if (!supportedTags[this.#tagName]) return
+        const attr = supportedTags[this.#tagName]
+        const val = el[attr]
+        // Short circuit if we don't have a value
+        if (val === '' || val === null) {
+            return
+        }
+        // Short circuit if the referrer policy is already set to no-referrer
+        if (el.referrerPolicy === 'no-referrer') {
+            return
+        }
+
+        if (tagModifiers[this.#tagName]?.referrerPolicy) {
+            // Set the referrer policy to origin to prevent leaking the referrer to the script
+            el.referrerPolicy = tagModifiers[this.#tagName].referrerPolicy
+        }
+    }
+
     /**
      * The element has been moved to the DOM, so we can now reflect all changes to a real element.
      * This is to allow us to interrogate the real element before it is moved to the DOM.
@@ -257,6 +285,7 @@ class DDGRuntimeChecks extends HTMLElement {
         if (this.#tagName === 'script') {
             this.computeScriptOverload(el)
         }
+        this.handleReferrerPolicy(el)
 
         // Move the new element to the DOM
         try {
@@ -412,8 +441,7 @@ function overloadInstanceOfChecks (elementInterface) {
  * @returns {boolean}
  */
 function shouldInterrogate (tagName) {
-    const interestingTags = ['script']
-    if (!interestingTags.includes(tagName)) {
+    if (!interrogatedTags.includes(tagName)) {
         return false
     }
     if (matchAllStackDomains) {
@@ -473,6 +501,7 @@ export default class RuntimeChecks extends ContentFeature {
         shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false
         scriptOverload = this.getFeatureSetting('scriptOverload') || {}
         ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
+        interrogatedTags = this.getFeatureSetting('interrogatedTags') || defaultInterrogatedTags
 
         overrideCreateElement()
 
