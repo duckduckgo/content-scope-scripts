@@ -16,7 +16,12 @@ let cookiePolicy = {
     policy: {
         threshold: 604800, // 7 days
         maxAge: 604800 // 7 days
-    }
+    },
+    trackerPolicy: {
+        threshold: 86400, // 1 day
+        maxAge: 86400 // 1 day
+    },
+    allowlist: []
 }
 
 let loadedPolicyResolve
@@ -38,11 +43,10 @@ function debugHelper (action, reason, ctx) {
 }
 
 /**
- * @param {Set<string>} scriptOrigins
  * @returns {boolean}
  */
-function shouldBlockTrackingCookie (scriptOrigins) {
-    return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie(scriptOrigins)
+function shouldBlockTrackingCookie () {
+    return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
 }
 
 function shouldBlockNonTrackingCookie () {
@@ -53,12 +57,23 @@ function shouldBlockNonTrackingCookie () {
  * @param {Set<string>} scriptOrigins
  * @returns {boolean}
  */
-function isTrackingCookie (scriptOrigins) {
+function isFirstPartyTrackerScript (scriptOrigins) {
+    let matched = false
     for (const scriptOrigin of scriptOrigins) {
+        if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
+            return false
+        }
         if (isTrackerOrigin(cookiePolicy.trackerLookup, scriptOrigin)) {
-            return true
+            matched = true
         }
     }
+    return matched
+}
+
+/**
+ * @returns {boolean}
+ */
+function isTrackingCookie () {
     return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
 }
 
@@ -94,6 +109,8 @@ export default class CookieFeature extends ContentFeature {
             })
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted
             cookiePolicy.policy = settings.firstPartyCookiePolicy
+            cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy
+            cookiePolicy.allowlist = args.bundledConfig.features.adClickAttribution.settings.allowlist
         }
 
         // The cookie policy is injected into every frame immediately so that no cookie will
@@ -120,10 +137,10 @@ export default class CookieFeature extends ContentFeature {
                 value: 'getter'
             }
 
-            if (shouldBlockTrackingCookie(scriptOrigins) || shouldBlockNonTrackingCookie()) {
+            if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
                 debugHelper('block', '3p frame', getCookieContext)
                 return ''
-            } else if (isTrackingCookie(scriptOrigins) || isNonTrackingCookie()) {
+            } else if (isTrackingCookie() || isNonTrackingCookie()) {
                 debugHelper('ignore', '3p frame', getCookieContext)
             }
             // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
@@ -139,10 +156,10 @@ export default class CookieFeature extends ContentFeature {
                 value
             }
 
-            if (shouldBlockTrackingCookie(scriptOrigins) || shouldBlockNonTrackingCookie()) {
+            if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
                 debugHelper('block', '3p frame', setCookieContext)
                 return
-            } else if (isTrackingCookie(scriptOrigins) || isNonTrackingCookie()) {
+            } else if (isTrackingCookie() || isNonTrackingCookie()) {
                 debugHelper('ignore', '3p frame', setCookieContext)
             }
             // call the native document.cookie implementation. This will set the cookie immediately
@@ -154,20 +171,20 @@ export default class CookieFeature extends ContentFeature {
             try {
                 // wait for config before doing same-site tests
                 loadPolicyThen(() => {
-                    const { shouldBlock, policy } = cookiePolicy
+                    const { shouldBlock, policy, trackerPolicy } = cookiePolicy
 
+                    const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy
                     if (!shouldBlock) {
                         debugHelper('ignore', 'disabled', setCookieContext)
                         return
                     }
-
                     // extract cookie expiry from cookie string
                     const cookie = new Cookie(value)
                     // apply cookie policy
-                    if (cookie.getExpiry() > policy.threshold) {
+                    if (cookie.getExpiry() > chosenPolicy.threshold) {
                         // check if the cookie still exists
                         if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
-                            cookie.maxAge = policy.maxAge
+                            cookie.maxAge = chosenPolicy.maxAge
 
                             debugHelper('restrict', 'expiry', setCookieContext)
 
@@ -204,8 +221,14 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie')
             cookiePolicy.shouldBlockNonTrackerCookie = this.getFeatureSettingEnabled('nonTrackerCookie')
             const policy = this.getFeatureSetting('firstPartyCookiePolicy')
+            cookiePolicy.allowlist = args.featureSettings.adClickAttribution.allowlist
+
             if (policy) {
                 cookiePolicy.policy = policy
+            }
+            const trackerPolicy = this.getFeatureSetting('firstPartyTrackerCookiePolicy')
+            if (trackerPolicy) {
+                cookiePolicy.trackerPolicy = trackerPolicy
             }
         } else {
             // no cookie information - disable protections

@@ -21,6 +21,7 @@ function randomString () {
 }
 
 function initCode () {
+    const trackerLookup = $TRACKER_LOOKUP$
     load({
         platform: {
             name: 'extension'
