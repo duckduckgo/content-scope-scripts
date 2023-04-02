@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { buildSync } from 'esbuild'
-const CWD = new URL('..', import.meta.url).pathname
+import { cwd } from '../../../scripts/script-utils.js'
+const CWD = join(cwd(import.meta.url), '..')
 
 // build example page js
 buildSync({
