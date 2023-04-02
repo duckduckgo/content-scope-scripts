@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "npm run build.pages; node index.js",
+    "build": "node index.js",
     "build.pages": "node scripts/build.js",
     "test": "echo '✅ No tests yet'",
     "test.headed": "playwright test --headed",
