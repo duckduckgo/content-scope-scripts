@@ -18,7 +18,7 @@ const ROOT = new URL('../../', import.meta.url).pathname
 const BUILD = join(ROOT, 'build')
 
 export const support = {
-    // example: ['windows']
+    example: ['windows']
 }
 
 /** @type {{src: string, dest: string}[]} */
