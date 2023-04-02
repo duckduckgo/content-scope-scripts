@@ -4,20 +4,22 @@ import minimist from 'minimist'
 
 /**
  * A cross-platform 'mkdirp' + writing to disk
- * @param filepath
- * @param content
+ * @param {string[] | string} filepaths
+ * @param {string} content
  */
-export function write (filepath, content) {
-    try {
-        const pathWithoutFile = dirname(filepath)
-        mkdirSync(pathWithoutFile, { recursive: true })
-    } catch (e) {
-        // EEXIST is expected, for anything else re-throw
-        if (e.code !== 'EEXIST') {
-            throw e
+export function write (filepaths, content) {
+    for (const filepath of [].concat(filepaths)) {
+        try {
+            const pathWithoutFile = dirname(filepath)
+            mkdirSync(pathWithoutFile, { recursive: true })
+        } catch (e) {
+            // EEXIST is expected, for anything else re-throw
+            if (e.code !== 'EEXIST') {
+                throw e
+            }
         }
+        writeFileSync(filepath, content)
     }
-    writeFileSync(filepath, content)
 }
 
 /**
