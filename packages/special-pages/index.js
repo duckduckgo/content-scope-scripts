@@ -13,8 +13,9 @@
  */
 import { join } from 'node:path'
 import { existsSync, cpSync, rmSync } from 'node:fs'
-const CWD = new URL('.', import.meta.url).pathname
-const ROOT = new URL('../../', import.meta.url).pathname
+import { cwd } from '../../scripts/script-utils.js'
+const CWD = cwd(import.meta.url)
+const ROOT = join(CWD, '../../')
 const BUILD = join(ROOT, 'build')
 
 export const support = {
