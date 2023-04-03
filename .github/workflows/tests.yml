@@ -4,7 +4,10 @@ on: [push, pull_request]
 
 jobs:
   unit:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest ]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js 18
