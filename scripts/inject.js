@@ -4,28 +4,39 @@ import { parseArgs, write } from './script-utils.js'
 const contentScopePath = 'src/content-scope-features.js'
 const contentScopeName = 'contentScopeFeatures'
 
-/**
- * @param {string} entry
- * @param {string} platformName
- */
-async function bundle (entry, platformName) {
-    if (platformName === 'firefox') {
-        return initOther(entry, platformName)
-    } else if (platformName === 'apple') {
-        return initOther(entry, platformName)
-    } else if (platformName === 'android') {
-        return initOther(entry, platformName)
-    } else if (platformName === 'windows') {
-        return initOther(entry, platformName)
-    } else if (platformName === 'integration') {
-        return initOther(entry, platformName)
-    } else if (platformName === 'chrome-mv3') {
-        return initOther(entry, 'chrome_mv3')
-    } else if (platformName === 'chrome') {
-        return initChrome(entry)
+const builds = {
+    firefox: {
+        input: 'inject/mozilla.js',
+        output: ['build/firefox/inject.js']
+    },
+    apple: {
+        input: 'inject/apple.js',
+        output: ['Sources/ContentScopeScripts/dist/contentScope.js']
+    },
+    android: {
+        input: 'inject/android.js',
+        output: ['build/android/contentScope.js']
+    },
+    windows: {
+        input: 'inject/windows.js',
+        output: ['build/windows/contentScope.js']
+    },
+    integration: {
+        input: 'inject/integration.js',
+        output: [
+            'build/integration/contentScope.js',
+            'integration-test/extension/contentScope.js',
+            'integration-test/pages/build/contentScope.js'
+        ]
+    },
+    'chrome-mv3': {
+        input: 'inject/chrome-mv3.js',
+        output: ['build/chrome-mv3/inject.js']
+    },
+    chrome: {
+        input: 'inject/chrome.js',
+        output: ['build/chrome/inject.js']
     }
-
-    throw new Error('unsupported platform: ' + platformName)
 }
 
 async function initOther (injectScriptPath, platformName) {
@@ -48,14 +59,25 @@ async function initChrome (entry) {
     return outputScript
 }
 
-// verify the input
-const requiredFields = ['entry', 'output', 'platform']
-const args = parseArgs(process.argv.slice(2), requiredFields)
+async function init () {
+    // verify the input
+    const requiredFields = ['platform']
+    const args = parseArgs(process.argv.slice(2), requiredFields)
+    const build = builds[args.platform]
 
-// run the build and write the files
-bundle(args.entry, args.platform)
-    .then((output) => write(args.output, output))
-    .catch((e) => {
-        console.error(e)
-        process.exit(1)
-    })
+    if (!build) {
+        throw new Error('unsupported platform: ' + args.platform)
+    }
+
+    let output
+    if (args.platform === 'chrome') {
+        output = await initChrome(build.input)
+    } else {
+        output = await initOther(build.input)
+    }
+
+    // bundle and write the output
+    write(build.output, output)
+}
+
+init()
