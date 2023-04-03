@@ -13,7 +13,7 @@ const allowedMessages = [
     'updateYouTubeCTLAddedFlag'
 ]
 
-const messageSecret = randomString()
+const secret = randomString()
 
 function randomString () {
     const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
@@ -31,6 +31,7 @@ function initCode () {
         platform: processedConfig.platform
     })
 
+    processedConfig.messageSecret = secret
     init(processedConfig)
 
     // @ts-ignore
