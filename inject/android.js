@@ -39,6 +39,7 @@ function initCode () {
         update(message)
     }
 
+    // @ts-ignore
     window.addEventListener('sendMessageProxy' + messageSecret, event => {
         event.stopImmediatePropagation()
 
