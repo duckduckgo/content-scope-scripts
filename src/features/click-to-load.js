@@ -35,6 +35,7 @@ class DuckWidget {
         this.clickAction = { ...widgetData.clickAction } // shallow copy
         this.replaceSettings = widgetData.replaceSettings
         this.originalElement = originalElement
+        this.placeholderElement = null
         this.dataElements = {}
         this.gatherDataElements()
         this.entity = entity
@@ -359,6 +360,8 @@ class DuckWidget {
 }
 
 function replaceTrackingElement (widget, trackingElement, placeholderElement, currentPlaceholder = null) {
+    widget.placeholderElement = placeholderElement
+
     widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
 
     const elementToReplace = currentPlaceholder || trackingElement
@@ -440,7 +443,7 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
     // Show YouTube Preview for embedded video
     if (isYoutubePreviewsEnabled === true) {
         const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-dialog-${widget.widgetID}`) : null
+        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
         resizeElementToMatch(currentPlaceholder || trackingElement, youTubePreview)
         replaceTrackingElement(
             widget, trackingElement, youTubePreview, currentPlaceholder
@@ -451,7 +454,7 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
     } else {
         widget.autoplay = false
         const { blockingDialog, shadowRoot } = await createYouTubeBlockingDialog(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-preview-${widget.widgetID}`) : null
+        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
         resizeElementToMatch(currentPlaceholder || trackingElement, blockingDialog)
         replaceTrackingElement(
             widget, trackingElement, blockingDialog, currentPlaceholder
@@ -1102,7 +1105,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
     const { contentBlock, shadowRoot } = await createContentBlock(
         widget, button, textButton, null, bottomRow
     )
-    contentBlock.id = `yt-ctl-dialog-${widget.widgetID}`
+    contentBlock.id = trackingElement.id
     contentBlock.style.cssText += styles.wrapperDiv + styles.youTubeWrapperDiv
 
     button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
@@ -1127,7 +1130,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
  */
 async function createYouTubePreview (originalElement, widget) {
     const youTubePreview = document.createElement('div')
-    youTubePreview.id = `yt-ctl-preview-${widget.widgetID}`
+    youTubePreview.id = originalElement.id
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
 
     youTubePreview.appendChild(makeFontFaceStyleElement())
