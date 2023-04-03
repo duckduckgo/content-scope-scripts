@@ -30,6 +30,7 @@ function initCode () {
 
     init(processedConfig)
 
+    // @ts-ignore
     window.clickToLoadMessageCallback = (message) => {
         update(message)
     }
@@ -51,6 +52,7 @@ function initCode () {
             options: event.detail?.options
         }
         const stringifiedArgs = JSON.stringify(message)
+        // @ts-ignore
         window.ClickToLoadAndroid.process(stringifiedArgs)
     })
 }
