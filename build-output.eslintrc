@@ -1,0 +1,9 @@
+{
+    "root": true,
+    "parserOptions": {
+      "ecmaVersion": "latest",
+    },
+    "rules": {
+        "no-implicit-globals": "error"
+    },
+}
