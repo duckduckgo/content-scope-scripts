@@ -12,11 +12,14 @@ const allowedMessages = [
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag'
 ]
+
 const messageSecret = randomString()
+
 function randomString () {
     const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
     return num.toString().replace('0.', '')
 }
+
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
