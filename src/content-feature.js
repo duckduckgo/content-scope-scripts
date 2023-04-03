@@ -41,10 +41,11 @@ export default class ContentFeature {
 
     /**
      * @param {string} featureKeyName
+     * @return {any[]}
      */
     matchDomainFeatureSetting (featureKeyName) {
-        const domains = this.getFeatureSetting(featureKeyName)
-        return domains.find((rule) => {
+        const domains = this.getFeatureSetting(featureKeyName) || []
+        return domains.filter((rule) => {
             return matchHostname(this._args.site.domain, rule.domain)
         })
     }
