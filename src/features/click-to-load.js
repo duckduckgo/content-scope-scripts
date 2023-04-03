@@ -21,6 +21,9 @@ let sharedStrings = null
 const entities = []
 const entityData = {}
 
+// Used to avoid displaying placeholders for the same tracking element twice.
+const knownTrackingElements = new WeakSet()
+
 let readyResolver
 const ready = new Promise(resolve => { readyResolver = resolve })
 
@@ -32,6 +35,7 @@ class DuckWidget {
         this.clickAction = { ...widgetData.clickAction } // shallow copy
         this.replaceSettings = widgetData.replaceSettings
         this.originalElement = originalElement
+        this.placeholderElement = null
         this.dataElements = {}
         this.gatherDataElements()
         this.entity = entity
@@ -356,6 +360,8 @@ class DuckWidget {
 }
 
 function replaceTrackingElement (widget, trackingElement, placeholderElement, currentPlaceholder = null) {
+    widget.placeholderElement = placeholderElement
+
     widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
 
     const elementToReplace = currentPlaceholder || trackingElement
@@ -402,24 +408,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         replaceTrackingElement(
             widget, trackingElement, contentBlock
         )
-
-        // Show the extra unblock link in the header if the placeholder or
-        // its parent is too short for the normal unblock button to be visible.
-        // Note: This does not take into account the placeholder's vertical
-        //       position in the parent element.
-        const { height: placeholderHeight } = window.getComputedStyle(contentBlock)
-        const { height: parentHeight } = window.getComputedStyle(contentBlock.parentElement)
-        if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
-            const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
-            titleRowTextButton.style.display = 'block'
-
-            // Avoid the placeholder being taller than the containing element
-            // and overflowing.
-            const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
-            innerDiv.style.minHeight = ''
-            innerDiv.style.maxHeight = parentHeight
-            innerDiv.style.overflow = 'hidden'
-        }
+        showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
     }
 
     /** YouTube CTL */
@@ -454,7 +443,7 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
     // Show YouTube Preview for embedded video
     if (isYoutubePreviewsEnabled === true) {
         const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-dialog-${widget.widgetID}`) : null
+        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
         resizeElementToMatch(currentPlaceholder || trackingElement, youTubePreview)
         replaceTrackingElement(
             widget, trackingElement, youTubePreview, currentPlaceholder
@@ -465,7 +454,7 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
     } else {
         widget.autoplay = false
         const { blockingDialog, shadowRoot } = await createYouTubeBlockingDialog(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-preview-${widget.widgetID}`) : null
+        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
         resizeElementToMatch(currentPlaceholder || trackingElement, blockingDialog)
         replaceTrackingElement(
             widget, trackingElement, blockingDialog, currentPlaceholder
@@ -475,19 +464,30 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
 }
 
 /**
- /* Show the extra unblock link in the header if the placeholder or
-/* its parent is too short for the normal unblock button to be visible.
-/* Note: This does not take into account the placeholder's vertical
-/*       position in the parent element.
-* @param {Element} shadowRoot
-* @param {Element} placeholder Placeholder for tracking element
-*/
+ * Show the extra unblock link in the header if the placeholder or
+ * its parent is too short for the normal unblock button to be visible.
+ * Note: This does not take into account the placeholder's vertical
+ *       position in the parent element.
+ * @param {Element} shadowRoot
+ * @param {Element} placeholder Placeholder for tracking element
+ */
 function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
+    if (!placeholder.parentElement) {
+        return
+    }
+
     const { height: placeholderHeight } = window.getComputedStyle(placeholder)
     const { height: parentHeight } = window.getComputedStyle(placeholder.parentElement)
     if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
         const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
         titleRowTextButton.style.display = 'block'
+
+        // Avoid the placeholder being taller than the containing element
+        // and overflowing.
+        const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
+        innerDiv.style.minHeight = ''
+        innerDiv.style.maxHeight = parentHeight
+        innerDiv.style.overflow = 'hidden'
     }
 }
 
@@ -515,6 +515,12 @@ async function replaceClickToLoadElements (targetElement) {
             }
 
             await Promise.all(trackingElements.map(trackingElement => {
+                if (knownTrackingElements.has(trackingElement)) {
+                    return Promise.resolve()
+                }
+
+                knownTrackingElements.add(trackingElement)
+
                 const widget = new DuckWidget(widgetData, trackingElement, entity)
                 return createPlaceholderElementAndReplace(widget, trackingElement)
             }))
@@ -1099,7 +1105,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
     const { contentBlock, shadowRoot } = await createContentBlock(
         widget, button, textButton, null, bottomRow
     )
-    contentBlock.id = `yt-ctl-dialog-${widget.widgetID}`
+    contentBlock.id = trackingElement.id
     contentBlock.style.cssText += styles.wrapperDiv + styles.youTubeWrapperDiv
 
     button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
@@ -1124,7 +1130,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
  */
 async function createYouTubePreview (originalElement, widget) {
     const youTubePreview = document.createElement('div')
-    youTubePreview.id = `yt-ctl-preview-${widget.widgetID}`
+    youTubePreview.id = originalElement.id
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
 
     youTubePreview.appendChild(makeFontFaceStyleElement())

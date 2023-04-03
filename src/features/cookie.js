@@ -18,8 +18,6 @@ let cookiePolicy = {
 }
 
 let loadedPolicyResolve
-// Listen for a message from the content script which will configure the policy for this context
-const trackerHosts = new Set()
 
 /**
  * @param {'ignore' | 'block' | 'restrict'} action
@@ -79,7 +77,6 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted
             cookiePolicy.policy = settings.firstPartyCookiePolicy
         }
-        trackerHosts.clear()
 
         // The cookie policy is injected into every frame immediately so that no cookie will
         // be missed.
@@ -192,11 +189,5 @@ export default class CookieFeature extends ContentFeature {
         }
 
         loadedPolicyResolve()
-    }
-
-    update (args) {
-        if (args.trackerDefinition) {
-            trackerHosts.add(args.hostname)
-        }
     }
 }
