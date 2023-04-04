@@ -34,7 +34,7 @@ function initCode () {
     init(processedConfig)
 
     // @ts-ignore
-    window.clickToLoadMessageCallback = (message) => {
+    window.legacyContentScopeScriptsMessageCallback = (message) => {
         update(message)
     }
 
@@ -56,7 +56,7 @@ function initCode () {
         }
         const stringifiedArgs = JSON.stringify(message)
         // @ts-ignore
-        window.ClickToLoadAndroid.process(stringifiedArgs)
+        window.legacyContentScopeScriptsMessageHandler.process(stringifiedArgs)
     })
 }
 
