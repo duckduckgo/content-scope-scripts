@@ -1,6 +1,7 @@
 /* global TrustedScriptURL, TrustedScript */
 
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, getFeatureSetting, getFeatureSettingEnabled, injectGlobalStyles, createStyleElement, processAttr } from '../utils.js'
+import ContentFeature from '../content-feature.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, processAttr } from '../utils.js'
 
 let stackDomains = []
 let matchAllStackDomains = false
@@ -9,6 +10,9 @@ let initialCreateElement
 let tagModifiers = {}
 let shadowDomEnabled = false
 let scriptOverload = {}
+// Ignore monitoring properties that are only relevant once and already handled
+const defaultIgnoreMonitorList = ['onerror', 'onload']
+let ignoreMonitorList = defaultIgnoreMonitorList
 
 /**
  * @param {string} tagName
@@ -105,6 +109,7 @@ class DDGRuntimeChecks extends HTMLElement {
                     },
                     set (value) {
                         if (shouldFilterKey(this.#tagName, 'property', prop)) return
+                        if (ignoreMonitorList.includes(prop)) return
                         el[prop] = value
                     }
                 })
@@ -444,44 +449,43 @@ function overrideCreateElement () {
     initialCreateElement = proxy._native
 }
 
-export function load () {
-    // This shouldn't happen, but if it does we don't want to break the page
-    try {
-        // @ts-expect-error TS node return here
-        customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
-    } catch {}
-}
-
-export function init (args) {
-    const domain = args.site.domain
-    const domains = getFeatureSetting(featureName, args, 'domains') || []
-    let enabled = getFeatureSettingEnabled(featureName, args, 'matchAllDomains')
-    if (!enabled) {
-        enabled = domains.find((rule) => {
-            return matchHostname(domain, rule.domain)
-        })
-    }
-    if (!enabled) return
-
-    taintCheck = getFeatureSettingEnabled(featureName, args, 'taintCheck')
-    matchAllStackDomains = getFeatureSettingEnabled(featureName, args, 'matchAllStackDomains')
-    stackDomains = getFeatureSetting(featureName, args, 'stackDomains') || []
-    elementRemovalTimeout = getFeatureSetting(featureName, args, 'elementRemovalTimeout') || 1000
-    tagModifiers = getFeatureSetting(featureName, args, 'tagModifiers') || {}
-    shadowDomEnabled = getFeatureSettingEnabled(featureName, args, 'shadowDom') || false
-    scriptOverload = getFeatureSetting(featureName, args, 'scriptOverload') || {}
-
-    overrideCreateElement()
-
-    if (getFeatureSettingEnabled(featureName, args, 'overloadInstanceOf')) {
-        overloadInstanceOfChecks(HTMLScriptElement)
+export default class RuntimeChecks extends ContentFeature {
+    load () {
+        // This shouldn't happen, but if it does we don't want to break the page
+        try {
+            // @ts-expect-error TS node return here
+            customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
+        } catch {}
     }
 
-    if (getFeatureSettingEnabled(featureName, args, 'injectGlobalStyles')) {
-        injectGlobalStyles(`
-            ddg-runtime-checks {
-                display: none;
-            }
-        `)
+    init () {
+        let enabled = this.getFeatureSettingEnabled('matchAllDomains')
+        if (!enabled) {
+            enabled = this.matchDomainFeatureSetting('domains').length > 0
+        }
+        if (!enabled) return
+
+        taintCheck = this.getFeatureSettingEnabled('taintCheck')
+        matchAllStackDomains = this.getFeatureSettingEnabled('matchAllStackDomains')
+        stackDomains = this.getFeatureSetting('stackDomains') || []
+        elementRemovalTimeout = this.getFeatureSetting('elementRemovalTimeout') || 1000
+        tagModifiers = this.getFeatureSetting('tagModifiers') || {}
+        shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false
+        scriptOverload = this.getFeatureSetting('scriptOverload') || {}
+        ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
+
+        overrideCreateElement()
+
+        if (this.getFeatureSettingEnabled('overloadInstanceOf')) {
+            overloadInstanceOfChecks(HTMLScriptElement)
+        }
+
+        if (this.getFeatureSettingEnabled('injectGlobalStyles')) {
+            injectGlobalStyles(`
+                ddg-runtime-checks {
+                    display: none;
+                }
+            `)
+        }
     }
 }

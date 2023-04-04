@@ -2,6 +2,7 @@
 import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { styles, getConfig } from './click-to-load/ctl-config.js'
+import ContentFeature from '../content-feature.js'
 
 let devMode = false
 let isYoutubePreviewsEnabled = false
@@ -20,6 +21,9 @@ let sharedStrings = null
 const entities = []
 const entityData = {}
 
+// Used to avoid displaying placeholders for the same tracking element twice.
+const knownTrackingElements = new WeakSet()
+
 let readyResolver
 const ready = new Promise(resolve => { readyResolver = resolve })
 
@@ -31,6 +35,7 @@ class DuckWidget {
         this.clickAction = { ...widgetData.clickAction } // shallow copy
         this.replaceSettings = widgetData.replaceSettings
         this.originalElement = originalElement
+        this.placeholderElement = null
         this.dataElements = {}
         this.gatherDataElements()
         this.entity = entity
@@ -316,19 +321,6 @@ class DuckWidget {
                         break
                     }
 
-                    // If hidden, restore the tracking element's styles to make
-                    // it visible again.
-                    if (this.originalElementStyle) {
-                        for (const key of ['display', 'visibility']) {
-                            const { value, priority } = this.originalElementStyle[key]
-                            if (value) {
-                                fbElement.style.setProperty(key, value, priority)
-                            } else {
-                                fbElement.style.removeProperty(key)
-                            }
-                        }
-                    }
-
                     /*
                     * Modify the overlay to include a Facebook iFrame, which
                     * starts invisible. Once loaded, fade out and remove the overlay
@@ -367,33 +359,13 @@ class DuckWidget {
     }
 }
 
-function replaceTrackingElement (widget, trackingElement, placeholderElement, hideTrackingElement = false, currentPlaceholder = null) {
+function replaceTrackingElement (widget, trackingElement, placeholderElement, currentPlaceholder = null) {
+    widget.placeholderElement = placeholderElement
+
     widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
 
-    // Usually the tracking element can simply be replaced with the
-    // placeholder, but in some situations that isn't possible and the
-    // tracking element must be hidden instead.
-    if (hideTrackingElement) {
-        // Don't save original element styles if we've already done it
-        if (!widget.originalElementStyle) {
-            // Take care to note existing styles so that they can be restored.
-            widget.originalElementStyle = getOriginalElementStyle(trackingElement, widget)
-        }
-        // Hide the tracking element and add the placeholder next to it in
-        // the DOM.
-        trackingElement.style.setProperty('display', 'none', 'important')
-        trackingElement.style.setProperty('visibility', 'hidden', 'important')
-        trackingElement.parentElement.insertBefore(placeholderElement, trackingElement)
-        if (currentPlaceholder) {
-            currentPlaceholder.remove()
-        }
-    } else {
-        if (currentPlaceholder) {
-            currentPlaceholder.replaceWith(placeholderElement)
-        } else {
-            trackingElement.replaceWith(placeholderElement)
-        }
-    }
+    const elementToReplace = currentPlaceholder || trackingElement
+    elementToReplace.replaceWith(placeholderElement)
 
     widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element')
 }
@@ -436,24 +408,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         replaceTrackingElement(
             widget, trackingElement, contentBlock
         )
-
-        // Show the extra unblock link in the header if the placeholder or
-        // its parent is too short for the normal unblock button to be visible.
-        // Note: This does not take into account the placeholder's vertical
-        //       position in the parent element.
-        const { height: placeholderHeight } = window.getComputedStyle(contentBlock)
-        const { height: parentHeight } = window.getComputedStyle(contentBlock.parentElement)
-        if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
-            const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
-            titleRowTextButton.style.display = 'block'
-
-            // Avoid the placeholder being taller than the containing element
-            // and overflowing.
-            const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
-            innerDiv.style.minHeight = ''
-            innerDiv.style.maxHeight = parentHeight
-            innerDiv.style.overflow = 'hidden'
-        }
+        showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
     }
 
     /** YouTube CTL */
@@ -486,14 +441,12 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
     }
 
     // Show YouTube Preview for embedded video
-    // TODO: Fix the hideTrackingElement option and reenable, or remove it. It's
-    //       disabled for YouTube videos so far since it caused multiple
-    //       placeholders to be displayed on the page.
     if (isYoutubePreviewsEnabled === true) {
         const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-dialog-${widget.widgetID}`) : null
+        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
+        resizeElementToMatch(currentPlaceholder || trackingElement, youTubePreview)
         replaceTrackingElement(
-            widget, trackingElement, youTubePreview, /* hideTrackingElement= */ false, currentPlaceholder
+            widget, trackingElement, youTubePreview, currentPlaceholder
         )
         showExtraUnblockIfShortPlaceholder(shadowRoot, youTubePreview)
 
@@ -501,28 +454,40 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
     } else {
         widget.autoplay = false
         const { blockingDialog, shadowRoot } = await createYouTubeBlockingDialog(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? document.getElementById(`yt-ctl-preview-${widget.widgetID}`) : null
+        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
+        resizeElementToMatch(currentPlaceholder || trackingElement, blockingDialog)
         replaceTrackingElement(
-            widget, trackingElement, blockingDialog, /* hideTrackingElement= */ false, currentPlaceholder
+            widget, trackingElement, blockingDialog, currentPlaceholder
         )
         showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
     }
 }
 
 /**
- /* Show the extra unblock link in the header if the placeholder or
-/* its parent is too short for the normal unblock button to be visible.
-/* Note: This does not take into account the placeholder's vertical
-/*       position in the parent element.
-* @param {Element} shadowRoot
-* @param {Element} placeholder Placeholder for tracking element
-*/
+ * Show the extra unblock link in the header if the placeholder or
+ * its parent is too short for the normal unblock button to be visible.
+ * Note: This does not take into account the placeholder's vertical
+ *       position in the parent element.
+ * @param {Element} shadowRoot
+ * @param {Element} placeholder Placeholder for tracking element
+ */
 function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
+    if (!placeholder.parentElement) {
+        return
+    }
+
     const { height: placeholderHeight } = window.getComputedStyle(placeholder)
     const { height: parentHeight } = window.getComputedStyle(placeholder.parentElement)
     if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
         const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
         titleRowTextButton.style.display = 'block'
+
+        // Avoid the placeholder being taller than the containing element
+        // and overflowing.
+        const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
+        innerDiv.style.minHeight = ''
+        innerDiv.style.maxHeight = parentHeight
+        innerDiv.style.overflow = 'hidden'
     }
 }
 
@@ -550,6 +515,12 @@ async function replaceClickToLoadElements (targetElement) {
             }
 
             await Promise.all(trackingElements.map(trackingElement => {
+                if (knownTrackingElements.has(trackingElement)) {
+                    return Promise.resolve()
+                }
+
+                knownTrackingElements.add(trackingElement)
+
                 const widget = new DuckWidget(widgetData, trackingElement, entity)
                 return createPlaceholderElementAndReplace(widget, trackingElement)
             }))
@@ -632,44 +603,32 @@ function getLearnMoreLink (mode) {
 }
 
 /**
- * Reads and stores a set of styles from the original tracking element, and then returns it.
- * @param {Element} originalElement Original tracking element (ie iframe)
- * @param {DuckWidget} widget The widget Object.
- * @returns {{[key: string]: string[]}} Object with styles read from original element.
+ * Resizes and positions the target element to match the source element.
+ * @param {Element} sourceElement
+ * @param {Element} targetElement
  */
-function getOriginalElementStyle (originalElement, widget) {
-    if (widget.originalElementStyle) {
-        return widget.originalElementStyle
-    }
-
-    const stylesToCopy = ['display', 'visibility', 'position', 'top', 'bottom', 'left', 'right',
+function resizeElementToMatch (sourceElement, targetElement) {
+    const computedStyle = window.getComputedStyle(sourceElement)
+    const stylesToCopy = ['position', 'top', 'bottom', 'left', 'right',
         'transform', 'margin']
-    widget.originalElementStyle = {}
-    const allOriginalElementStyles = getComputedStyle(originalElement)
-    for (const key of stylesToCopy) {
-        widget.originalElementStyle[key] = {
-            value: allOriginalElementStyles[key],
-            priority: originalElement.style.getPropertyPriority(key)
-        }
+
+    // It's apparently preferable to use the source element's size relative to
+    // the current viewport, when resizing the target element. However, the
+    // declarativeNetRequest API "collapses" (hides) blocked elements. When
+    // that happens, getBoundingClientRect will return all zeros.
+    // TODO: Remove this entirely, and always use the computed height/width of
+    //       the source element instead?
+    const { height, width } = sourceElement.getBoundingClientRect()
+    if (height > 0 && width > 0) {
+        targetElement.style.height = height + 'px'
+        targetElement.style.width = width + 'px'
+    } else {
+        stylesToCopy.push('height', 'width')
     }
 
-    // Copy current size of the element
-    const { height: heightViewValue, width: widthViewValue } = originalElement.getBoundingClientRect()
-    widget.originalElementStyle.height = { value: `${heightViewValue}px`, priority: '' }
-    widget.originalElementStyle.width = { value: `${widthViewValue}px`, priority: '' }
-
-    return widget.originalElementStyle
-}
-
-/**
- * Copy list of styles to provided element
- * @param {{[key: string]: string[]}} originalStyles Object with styles read from original element.
- * @param {Element} element Node element to have the styles copied to
- */
-function copyStylesTo (originalStyles, element) {
-    const { display, visibility, ...filteredStyles } = originalStyles
-    const cssText = Object.keys(filteredStyles).reduce((cssAcc, key) => (cssAcc + `${key}: ${filteredStyles[key].value};`), '')
-    element.style.cssText += cssText
+    for (const key of stylesToCopy) {
+        targetElement.style[key] = computedStyle[key]
+    }
 }
 
 /**
@@ -1146,16 +1105,11 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
     const { contentBlock, shadowRoot } = await createContentBlock(
         widget, button, textButton, null, bottomRow
     )
-    contentBlock.id = `yt-ctl-dialog-${widget.widgetID}`
+    contentBlock.id = trackingElement.id
     contentBlock.style.cssText += styles.wrapperDiv + styles.youTubeWrapperDiv
 
     button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
     textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
-
-    // Size the placeholder element to match the original video element styles.
-    // If no styles are in place, it will get its current size
-    const originalStyles = getOriginalElementStyle(trackingElement, widget)
-    copyStylesTo(originalStyles, contentBlock)
 
     return {
         blockingDialog: contentBlock,
@@ -1176,15 +1130,10 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
  */
 async function createYouTubePreview (originalElement, widget) {
     const youTubePreview = document.createElement('div')
-    youTubePreview.id = `yt-ctl-preview-${widget.widgetID}`
+    youTubePreview.id = originalElement.id
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
 
     youTubePreview.appendChild(makeFontFaceStyleElement())
-
-    // Size the placeholder element to match the original video element styles.
-    // If no styles are in place, it will get its current size
-    const originalStyles = getOriginalElementStyle(originalElement, widget)
-    copyStylesTo(originalStyles, youTubePreview)
 
     // Protect the contents of our placeholder inside a shadowRoot, to avoid
     // it being styled by the website's stylesheets.
@@ -1348,92 +1297,94 @@ const messageResponseHandlers = {
 
 const knownMessageResponseType = Object.prototype.hasOwnProperty.bind(messageResponseHandlers)
 
-export function init (args) {
-    const websiteOwner = args?.site?.parentEntity
-    const settings = args?.featureSettings?.clickToLoad || {}
-    const locale = args?.locale || 'en'
-    const localizedConfig = getConfig(locale)
-    config = localizedConfig.config
-    sharedStrings = localizedConfig.sharedStrings
+export default class ClickToLoad extends ContentFeature {
+    init (args) {
+        const websiteOwner = args?.site?.parentEntity
+        const settings = args?.featureSettings?.clickToLoad || {}
+        const locale = args?.locale || 'en'
+        const localizedConfig = getConfig(locale)
+        config = localizedConfig.config
+        sharedStrings = localizedConfig.sharedStrings
 
-    for (const entity of Object.keys(config)) {
-        // Strip config entities that are first-party, or aren't enabled in the
-        // extension's clickToLoad settings.
-        if ((websiteOwner && entity === websiteOwner) ||
-            !settings[entity] ||
-            settings[entity].state !== 'enabled') {
-            delete config[entity]
-            continue
+        for (const entity of Object.keys(config)) {
+            // Strip config entities that are first-party, or aren't enabled in the
+            // extension's clickToLoad settings.
+            if ((websiteOwner && entity === websiteOwner) ||
+                !settings[entity] ||
+                settings[entity].state !== 'enabled') {
+                delete config[entity]
+                continue
+            }
+
+            // Populate the entities and entityData data structures.
+            // TODO: Remove them and this logic, they seem unnecessary.
+
+            entities.push(entity)
+
+            const shouldShowLoginModal = !!config[entity].informationalModal
+            const currentEntityData = { shouldShowLoginModal }
+
+            if (shouldShowLoginModal) {
+                const { informationalModal } = config[entity]
+                currentEntityData.modalIcon = informationalModal.icon
+                currentEntityData.modalTitle = informationalModal.messageTitle
+                currentEntityData.modalText = informationalModal.messageBody
+                currentEntityData.modalAcceptText = informationalModal.confirmButtonText
+                currentEntityData.modalRejectText = informationalModal.rejectButtonText
+            }
+
+            entityData[entity] = currentEntityData
         }
 
-        // Populate the entities and entityData data structures.
-        // TODO: Remove them and this logic, they seem unnecessary.
+        // Listen for events from "surrogate" scripts.
+        addEventListener('ddg-ctp', (event) => {
+            if (!event.detail) return
+            const entity = event.detail.entity
+            if (!entities.includes(entity)) {
+                // Unknown entity, reject
+                return
+            }
+            if (event.detail.appID) {
+                appID = JSON.stringify(event.detail.appID).replace(/"/g, '')
+            }
+            // Handle login call
+            if (event.detail.action === 'login') {
+                if (entityData[entity].shouldShowLoginModal) {
+                    makeModal(entity, runLogin, entity)
+                } else {
+                    runLogin(entity)
+                }
+            }
+        })
 
-        entities.push(entity)
-
-        const shouldShowLoginModal = !!config[entity].informationalModal
-        const currentEntityData = { shouldShowLoginModal }
-
-        if (shouldShowLoginModal) {
-            const { informationalModal } = config[entity]
-            currentEntityData.modalIcon = informationalModal.icon
-            currentEntityData.modalTitle = informationalModal.messageTitle
-            currentEntityData.modalText = informationalModal.messageBody
-            currentEntityData.modalAcceptText = informationalModal.confirmButtonText
-            currentEntityData.modalRejectText = informationalModal.rejectButtonText
-        }
-
-        entityData[entity] = currentEntityData
+        // Request the current state of Click to Load from the platform.
+        // Note: When the response is received, the response handler finishes
+        //       starting up the feature.
+        sendMessage('getClickToLoadState')
     }
 
-    // Listen for events from "surrogate" scripts.
-    addEventListener('ddg-ctp', (event) => {
-        if (!event.detail) return
-        const entity = event.detail.entity
-        if (!entities.includes(entity)) {
-            // Unknown entity, reject
-            return
-        }
-        if (event.detail.appID) {
-            appID = JSON.stringify(event.detail.appID).replace(/"/g, '')
-        }
-        // Handle login call
-        if (event.detail.action === 'login') {
-            if (entityData[entity].shouldShowLoginModal) {
-                makeModal(entity, runLogin, entity)
-            } else {
-                runLogin(entity)
+    update (message) {
+        // TODO: Once all Click to Load messages include the feature property, drop
+        //       messages that don't include the feature property too.
+        if (message?.feature && message?.feature !== 'clickToLoad') return
+
+        const messageType = message?.messageType
+        if (!messageType) return
+
+        // Message responses.
+        if (messageType === 'response') {
+            const messageResponseType = message?.responseMessageType
+            if (messageResponseType && knownMessageResponseType(messageResponseType)) {
+                return messageResponseHandlers[messageResponseType](message.response)
             }
         }
-    })
 
-    // Request the current state of Click to Load from the platform.
-    // Note: When the response is received, the response handler finishes
-    //       starting up the feature.
-    sendMessage('getClickToLoadState')
-}
-
-export function update (message) {
-    // TODO: Once all Click to Load messages include the feature property, drop
-    //       messages that don't include the feature property too.
-    if (message?.feature && message?.feature !== 'clickToLoad') return
-
-    const messageType = message?.messageType
-    if (!messageType) return
-
-    // Message responses.
-    if (messageType === 'response') {
-        const messageResponseType = message?.responseMessageType
-        if (messageResponseType && knownMessageResponseType(messageResponseType)) {
-            return messageResponseHandlers[messageResponseType](message.response)
+        // Other known update messages.
+        if (messageType === 'displayClickToLoadPlaceholders') {
+            // TODO: Pass `message.options.ruleAction` through, that way only
+            //       content corresponding to the entity for that ruleAction need to
+            //       be replaced with a placeholder.
+            return replaceClickToLoadElements()
         }
-    }
-
-    // Other known update messages.
-    if (messageType === 'displayClickToLoadPlaceholders') {
-        // TODO: Pass `message.options.ruleAction` through, that way only
-        //       content corresponding to the entity for that ruleAction need to
-        //       be replaced with a placeholder.
-        return replaceClickToLoadElements()
     }
 }

@@ -1,8 +1,9 @@
 import { join, relative } from 'node:path'
 import { statSync } from 'node:fs'
+import { cwd } from '../scripts/script-utils.js'
 
 // path helpers
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = join(cwd(import.meta.url), '..')
 const BUILD = join(ROOT, 'build')
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
 const CSS_OUTPUT_SIZE = 512000

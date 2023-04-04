@@ -4,7 +4,10 @@ on: [push, pull_request]
 
 jobs:
   unit:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04, windows-latest ]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js 18
@@ -21,6 +24,7 @@ jobs:
       - run: npm run build
       - run: npm run docs
       - run: npm run lint
+      - run: npm run lint-no-output-globals
       - run: npm run test-unit
       - name: "Clean tree"
         run: "npm run test-clean-tree"

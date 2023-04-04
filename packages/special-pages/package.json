@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "npm run build.pages; node index.js",
+    "build": "npm run build.pages && node index.js",
     "build.pages": "node scripts/build.js",
     "test": "echo '✅ No tests yet'",
     "test.headed": "playwright test --headed",
@@ -19,6 +19,6 @@
     "@playwright/test": "^1.32.1",
     "serve": "^14.2.0",
     "@duckduckgo/messaging": "*",
-    "esbuild": "^0.17.14"
+    "esbuild": "^0.17.15"
   }
 }
