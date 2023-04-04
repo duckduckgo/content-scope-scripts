@@ -8,6 +8,7 @@ import { processConfig, isGloballyDisabled } from './../src/utils'
 const allowedMessages = [
     'getClickToLoadState',
     'getYouTubeVideoDetails',
+    'openShareFeedbackPage',
     'setYoutubePreviewsEnabled',
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag'
