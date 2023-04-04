@@ -18,6 +18,7 @@
     "packages"
   ],
   "exclude": [
+    "unit-test/script-overload-snapshots",
     "integration-test/pages",
     "integration-test/extension",
     "packages/special-pages/pages/**/public",
