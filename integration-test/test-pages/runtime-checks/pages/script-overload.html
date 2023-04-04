@@ -27,6 +27,7 @@
                     pb: navigator.mediaSession.playbackState,
                     wpb: window.navigator.mediaSession.playbackState,
                     gpb: globalThis.navigator.mediaSession.playbackState,
+                    undef: navigator.mediaSession.doesNotExist.depth.a.lot
                 }
             `;
             scriptElement.id = 'overloadedScript';
@@ -51,7 +52,8 @@
                     g: expectedUserAgentOverload,
                     pb: expectedPlaybackState,
                     wpb: expectedPlaybackState,
-                    gpb: expectedPlaybackState
+                    gpb: expectedPlaybackState,
+                    undef: 'boop'
                 } },
                 { name: 'user agent doesnt match parent context', result: doesntMatchParentContext, expected: true }
             ];

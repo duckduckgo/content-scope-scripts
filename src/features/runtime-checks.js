@@ -187,11 +187,20 @@ class DDGRuntimeChecks extends HTMLElement {
             for (const [key, value] of scope) {
                 const varOutName = [...scopePath, key].join('_')
                 if (value instanceof Map) {
+                    const proxyName = `_proxyFor_${varOutName}`
+                    output += `
+                    let ${proxyName}
+                    if (${scopePath.join('?.')}?.${key} === undefined) {
+                        ${proxyName} = Object.bind(null);
+                    } else {
+                        ${proxyName} = ${scopePath.join('.')}.${key};
+                    }
+                    `
                     const keys = Array.from(value.keys())
                     output += stringifyScope(value, [...scopePath, key])
                     const proxyOut = keys.map((keyName) => `${keyName}: ${[...scopePath, key, keyName].join('_')}`)
                     output += `
-                    let ${varOutName} = constructProxy(${scopePath.join('.')}.${key}, {${proxyOut.join(', ')}});
+                    let ${varOutName} = constructProxy(${proxyName}, {${proxyOut.join(', ')}});
                     `
                     // If we're at the top level, we need to add the window and globalThis variables (Eg: let navigator = parentScope_navigator)
                     if (scopePath.length === 1) {
