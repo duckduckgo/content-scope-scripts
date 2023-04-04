@@ -11,6 +11,11 @@ const configPath = join(ROOT, '../unit-test/script-overload-snapshots/config')
  * These are used in unit-test/script-overload.js and ran automatically in automation so that we verify the output is correct.
  */
 function generateOut () {
+    if (process.platform === 'win32') {
+        console.log('skipping test generation on windows')
+        return
+    }
+
     const files = readdirSync(configPath)
     for (const fileName of files) {
         const config = readFileSync(join(configPath, fileName)).toString()
