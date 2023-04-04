@@ -138,6 +138,11 @@ class DDGRuntimeChecks extends HTMLElement {
          * @returns {Proxy}
          */
         function constructProxy (scope, outputs) {
+            if (Object.is(scope)) {
+                // Should not happen, but just in case fail safely
+                console.error('Runtime checks: Scope must be an object', scope, outputs)
+                return scope
+            }
             return new Proxy(scope, {
                 get (target, property, receiver) {
                     const targetObj = target[property]
@@ -157,32 +162,55 @@ class DDGRuntimeChecks extends HTMLElement {
 
         let prepend = ''
         const aggregatedLookup = new Map()
+        let currentScope = null
         /* Convert the config into a map of scopePath -> { key: value } */
         for (const [key, value] of Object.entries(processedConfig)) {
             const path = key.split('.')
-            const scopePath = path.slice(0, -1).join('.')
+
+            currentScope = aggregatedLookup
             const pathOut = path[path.length - 1]
-            if (aggregatedLookup.has(scopePath)) {
-                aggregatedLookup.get(scopePath)[pathOut] = value
-            } else {
-                aggregatedLookup.set(scopePath, {
-                    [pathOut]: value
-                })
-            }
+            // Traverse the path and create the nested objects
+            path.slice(0, -1).forEach((pathPart, index) => {
+                if (!currentScope.has(pathPart)) {
+                    currentScope.set(pathPart, new Map())
+                }
+                currentScope = currentScope.get(pathPart)
+            })
+            currentScope.set(pathOut, value)
         }
 
-        for (const [key, value] of aggregatedLookup) {
-            const path = key.split('.')
-            if (path.length !== 1) {
-                console.error('Invalid config, currently only one layer depth is supported')
-                continue
+        /**
+         * Output scope variable definitions to arbitrary depth
+         */
+        function stringifyScope (scope, scopePath) {
+            let output = ''
+            for (const [key, value] of scope) {
+                const varOutName = [...scopePath, key].join('_')
+                if (value instanceof Map) {
+                    const keys = Array.from(value.keys())
+                    output += stringifyScope(value, [...scopePath, key])
+                    const proxyOut = keys.map((keyName) => `${keyName}: ${[...scopePath, key, keyName].join('_')}`)
+                    output += `
+                    let ${varOutName} = constructProxy(${scopePath.join('.')}.${key}, {${proxyOut.join(', ')}});
+                    `
+                    // If we're at the top level, we need to add the window and globalThis variables (Eg: let navigator = parentScope_navigator)
+                    if (scopePath.length === 1) {
+                        output += `
+                        let ${key} = ${varOutName};
+                        `
+                    }
+                } else {
+                    output += `
+                    let ${varOutName} = ${JSON.stringify(value)};
+                    `
+                }
             }
-            const scopeName = path[0]
-            prepend += `
-            let ${scopeName} = constructProxy(parentScope.${scopeName}, ${JSON.stringify(value)});
-            `
+            return output
         }
-        const keysOut = [...aggregatedLookup.keys()].join(',\n')
+
+        prepend += stringifyScope(aggregatedLookup, ['parentScope'])
+        // Stringify top level keys
+        const keysOut = [...aggregatedLookup.keys()].map((keyName) => `${keyName}: parentScope_${keyName}`).join(',\n')
         prepend += `
         const window = constructProxy(parentScope, {
             ${keysOut}
