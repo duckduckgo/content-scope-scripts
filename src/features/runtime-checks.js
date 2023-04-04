@@ -434,7 +434,8 @@ function overrideCreateElement () {
     const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
         apply (fn, scope, args) {
             if (args.length >= 1) {
-                const initialTagName = args[0].toLowerCase()
+                // String() is used to coerce the value to a string (For: ProseMirror/prosemirror-model/src/to_dom.ts)
+                const initialTagName = String(args[0]).toLowerCase()
                 if (shouldInterrogate(initialTagName)) {
                     args[0] = 'ddg-runtime-checks'
                     const el = Reflect.apply(fn, scope, args)

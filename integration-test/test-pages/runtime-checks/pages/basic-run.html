@@ -41,7 +41,6 @@
             ];
         });
 
-        // eslint-disable-next-line no-undef
         test('Script that should execute', async () => {
             window.scripty2Ran = false;
             const scriptElement = document.createElement('script');
@@ -66,7 +65,32 @@
             ];
         });
 
-        // eslint-disable-next-line no-undef
+        test('Script array createElement that should execute', async () => {
+            window.scripty2aRan = false;
+            let scriptElementArray
+            try {
+                scriptElementArray = document.createElement(['script']);
+                scriptElementArray.innerText = 'window.scripty2aRan = true';
+                scriptElementArray.id = 'scripty2a';
+                scriptElementArray.setAttribute('type', 'application/javascript');
+                document.body.appendChild(scriptElementArray);
+            } catch {
+                // We shouldn't ever get here unless the test is failing in which case the run check will fail.
+            }
+            const hadInspectorNode = scriptElementArray === document.querySelector('ddg-runtime-checks:last-of-type');
+            const instanceofResult = scriptElementArray instanceof HTMLScriptElement;
+            const scriptyArray = document.querySelector('#scripty2a');
+
+            return [
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'expect script to match', result: scriptyArray, expected: scriptElementArray },
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'scripty.type', result: scriptyArray?.type, expected: 'application/javascript' },
+                { name: 'scripty.id', result: scriptyArray?.id, expected: 'scripty2a' },
+                { name: 'script ran', result: window.scripty2aRan, expected: true }
+            ];
+        });
+
         test('Invalid external script should trigger error listeners', async () => {
             const scriptElement = document.createElement('script');
             scriptElement.id = 'scripty3';
