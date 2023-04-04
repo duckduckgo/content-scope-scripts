@@ -3,13 +3,12 @@ import { wrapScriptCodeOverload } from '../src/features/runtime-checks/script-ov
 import { join } from 'node:path'
 import { readFileSync, readdirSync } from 'node:fs'
 import { cwd } from '../scripts/script-utils.js'
-
-// path helpers
 const ROOT = join(cwd(import.meta.url))
 const configPath = join(ROOT, '/script-overload-snapshots/config')
 
 describe('Output validation', () => {
     it('Given the correct config we should generate expected code output', () => {
+        // Uses the snapshots generated in scripts/generateOverloadSnapshots.js to ensure we don't break the output.
         const files = readdirSync(configPath)
         for (const fileName of files) {
             const config = readFileSync(join(configPath, fileName)).toString()
