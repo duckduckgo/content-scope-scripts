@@ -1,7 +1,8 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, processAttr } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement } from '../utils.js'
+import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 
 let stackDomains = []
 let matchAllStackDomains = false
@@ -124,75 +125,7 @@ class DDGRuntimeChecks extends HTMLElement {
         // @ts-expect-error TrustedScript is not defined in the TS lib
         if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return
 
-        const config = scriptOverload
-        const processedConfig = {}
-        for (const [key, value] of Object.entries(config)) {
-            processedConfig[key] = processAttr(value)
-        }
-        // Don't do anything if the config is empty
-        if (Object.keys(processedConfig).length === 0) return
-
-        /**
-         * @param {*} scope
-         * @param {Record<string, any>} outputs
-         * @returns {Proxy}
-         */
-        function constructProxy (scope, outputs) {
-            return new Proxy(scope, {
-                get (target, property, receiver) {
-                    const targetObj = target[property]
-                    if (typeof targetObj === 'function') {
-                        return (...args) => {
-                            return Reflect.apply(target[property], target, args)
-                        }
-                    } else {
-                        if (typeof property === 'string' && property in outputs) {
-                            return Reflect.get(outputs, property, receiver)
-                        }
-                        return Reflect.get(target, property, receiver)
-                    }
-                }
-            })
-        }
-
-        let prepend = ''
-        const aggregatedLookup = new Map()
-        /* Convert the config into a map of scopePath -> { key: value } */
-        for (const [key, value] of Object.entries(processedConfig)) {
-            const path = key.split('.')
-            const scopePath = path.slice(0, -1).join('.')
-            const pathOut = path[path.length - 1]
-            if (aggregatedLookup.has(scopePath)) {
-                aggregatedLookup.get(scopePath)[pathOut] = value
-            } else {
-                aggregatedLookup.set(scopePath, {
-                    [pathOut]: value
-                })
-            }
-        }
-
-        for (const [key, value] of aggregatedLookup) {
-            const path = key.split('.')
-            if (path.length !== 1) {
-                console.error('Invalid config, currently only one layer depth is supported')
-                continue
-            }
-            const scopeName = path[0]
-            prepend += `
-            let ${scopeName} = constructProxy(parentScope.${scopeName}, ${JSON.stringify(value)});
-            `
-        }
-        const keysOut = [...aggregatedLookup.keys()].join(',\n')
-        prepend += `
-        const window = constructProxy(parentScope, {
-            ${keysOut}
-        });
-        const globalThis = constructProxy(parentScope, {
-            ${keysOut}
-        });
-        `
-        const innerCode = prepend + el.textContent
-        el.textContent = '(function (parentScope) {' + constructProxy.toString() + ' ' + innerCode + '})(globalThis)'
+        el.textContent = wrapScriptCodeOverload(el.textContent, scriptOverload)
     }
 
     /**
