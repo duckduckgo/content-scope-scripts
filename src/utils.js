@@ -258,7 +258,7 @@ export function defineProperty (object, propertyName, descriptor) {
     }
 }
 
-function camelcase (dashCaseText) {
+export function camelcase (dashCaseText) {
     return dashCaseText.replace(/-(.)/g, (match, letter) => {
         return letter.toUpperCase()
     })
@@ -296,23 +296,6 @@ function processAttrByCriteria (configSetting) {
     }
 
     return bestOption
-}
-
-/**
- * Get the value of a config setting.
- * If the value is not set, return the default value.
- * If the value is not an object, return the value.
- * If the value is an object, check its type property.
- *
- * @param {string} featureName
- * @param {object} args
- * @param {string} prop
- * @param {any} defaultValue - The default value to use if the config setting is not set
- * @returns The value of the config setting or the default value
- */
-export function getFeatureAttr (featureName, args, prop, defaultValue) {
-    const configSetting = getFeatureSetting(featureName, args, prop)
-    return processAttr(configSetting, defaultValue)
 }
 
 const functionMap = {
@@ -363,28 +346,6 @@ export function processAttr (configSetting, defaultValue) {
     default:
         return defaultValue
     }
-}
-
-/**
- * @param {string} featureName
- * @param {object} args
- * @param {string} prop
- * @returns {any}
- */
-export function getFeatureSetting (featureName, args, prop) {
-    const camelFeatureName = camelcase(featureName)
-    return args.featureSettings?.[camelFeatureName]?.[prop]
-}
-
-/**
- * @param {string} featureName
- * @param {object} args
- * @param {string} prop
- * @returns {boolean}
- */
-export function getFeatureSettingEnabled (featureName, args, prop) {
-    const result = getFeatureSetting(featureName, args, prop)
-    return result === 'enabled'
 }
 
 export function getStack () {

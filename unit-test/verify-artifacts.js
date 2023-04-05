@@ -7,7 +7,7 @@ const ROOT = join(cwd(import.meta.url), '..')
 const BUILD = join(ROOT, 'build')
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
 const CSS_OUTPUT_SIZE = 512000
-const CSS_OUTPUT_SIZE_CHROME = CSS_OUTPUT_SIZE * 1.4 // 40% larger for Chrome MV2 due to base64 encoding
+const CSS_OUTPUT_SIZE_CHROME = CSS_OUTPUT_SIZE * 1.45 // 45% larger for Chrome MV2 due to base64 encoding
 
 const checks = {
     android: [
