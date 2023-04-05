@@ -41,7 +41,7 @@ export default class ContentFeature {
         if (featureKeyName === 'domains') {
             throw new Error('domains is a reserved feature setting key name')
         }
-        const domainMatch = this.matchDomainFeatureSetting('domains').sort((a, b) => {
+        const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {
             return a.domain.length - b.domain.length
         })
         for (const match of domainMatch) {
