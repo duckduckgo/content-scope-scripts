@@ -43,6 +43,9 @@ function initCode () {
 
     init(processedConfig)
 
+    const sendMessageToAndroid = window[messageInterface].process.bind(window[messageInterface])
+    delete window[messageInterface]
+
     window.addEventListener('sendMessageProxy' + messageSecret, event => {
         event.stopImmediatePropagation()
 
@@ -61,7 +64,7 @@ function initCode () {
         }
         const stringifiedArgs = JSON.stringify(message)
         // @ts-ignore
-        window[messageInterface].process(stringifiedArgs, messageSecret)
+        sendMessageToAndroid(stringifiedArgs, messageSecret)
     })
 }
 
