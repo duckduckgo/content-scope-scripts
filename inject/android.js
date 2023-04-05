@@ -13,12 +13,6 @@ const allowedMessages = [
     'unblockClickToLoadContent',
     'updateYouTubeCTLAddedFlag'
 ]
-const messageSecret = randomString()
-
-function randomString () {
-    const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
-    return num.toString().replace('0.', '')
-}
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -31,13 +25,20 @@ function initCode () {
         platform: processedConfig.platform
     })
 
-    processedConfig.messageSecret = messageSecret
-    init(processedConfig)
+    const messageSecret = processedConfig.messageSecret
+    const messageCallback = processedConfig.messageCallback
 
-    // @ts-ignore
-    window.legacyContentScopeScriptsMessageCallback = (message) => {
-        update(message)
-    }
+    const wrappedUpdate = ((providedSecret, ...args) => {
+        if (providedSecret === messageSecret) {
+            update(...args)
+        }
+    }).bind()
+
+    Object.defineProperty(window, messageCallback, {
+        value: wrappedUpdate
+    })
+
+    init(processedConfig)
 
     window.addEventListener('sendMessageProxy' + messageSecret, event => {
         event.stopImmediatePropagation()
