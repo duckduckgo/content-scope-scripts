@@ -26,6 +26,7 @@
     "lint": "eslint . && npm run tsc",
     "lint-no-output-globals": "eslint --no-eslintrc --config=build-output.eslintrc --no-ignore Sources/ContentScopeScripts/dist/contentScope.js",
     "lint-fix": "eslint . --fix && npm run tsc",
+    "generate-snapshots": "node scripts/generateOverloadSnapshots.js",
     "test-unit": "jasmine --config=unit-test/config.json",
     "test-int": "npm run build-integration && jasmine --config=integration-test/config.js",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
@@ -50,18 +51,20 @@
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-replace": "^5.0.2",
-    "@types/chrome": "^0.0.226",
+    "@types/chrome": "^0.0.228",
     "@types/jasmine": "^4.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
     "eslint": "^8.37.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
+    "immutable-json-patch": "^5.1.2",
     "jasmine": "^4.6.0",
+    "minimist": "^1.2.8",
     "puppeteer": "^19.8.3",
     "rollup": "^3.20.2",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
     "typedoc": "^0.23.28",
-    "typescript": "^5.0.3",
-    "minimist": "^1.2.8"
+    "typescript": "^5.0.3"
   }
 }
