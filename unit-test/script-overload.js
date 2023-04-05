@@ -12,7 +12,7 @@ function replaceWindowsLineEndings (text) {
 
 describe('Output validation', () => {
     it('Given the correct config we should generate expected code output', () => {
-        // Uses the snapshots generated in scripts/generateOverloadSnapshots.js to ensure we don't break the output.
+        // Uses the snapshots generated in `npm run generate-snapshots` to ensure we don't break the output.
         const files = readdirSync(configPath)
         for (const fileName of files) {
             const config = readFileSync(join(configPath, fileName)).toString()
