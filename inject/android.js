@@ -26,7 +26,9 @@ function initCode () {
     })
 
     const messageSecret = processedConfig.messageSecret
+    // Receives messages from the platform
     const messageCallback = processedConfig.messageCallback
+    // Sends messages to the platform
     const messageInterface = processedConfig.messageInterface
 
     const wrappedUpdate = ((providedSecret, ...args) => {
