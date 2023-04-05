@@ -41,11 +41,11 @@ function initCode () {
         value: wrappedUpdate
     })
 
-    init(processedConfig)
-
     // @ts-ignore
     const sendMessageToAndroid = window[messageInterface].process.bind(window[messageInterface])
     delete window[messageInterface]
+
+    init(processedConfig)
 
     window.addEventListener('sendMessageProxy' + messageSecret, event => {
         event.stopImmediatePropagation()
