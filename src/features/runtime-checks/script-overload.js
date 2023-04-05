@@ -91,8 +91,14 @@ export function wrapScriptCodeOverload (code, config) {
                     `
                 }
             } else {
+                function valToString (val) {
+                    if (typeof val === 'function') {
+                        return val.toString()
+                    }
+                    return JSON.stringify(val)
+                }
                 output += `
-                let ${varOutName} = ${JSON.stringify(value)};
+                let ${varOutName} = ${valToString(value)};
                 `
             }
         }
