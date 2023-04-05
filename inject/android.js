@@ -43,6 +43,7 @@ function initCode () {
 
     init(processedConfig)
 
+    // @ts-ignore
     const sendMessageToAndroid = window[messageInterface].process.bind(window[messageInterface])
     delete window[messageInterface]
 
@@ -63,7 +64,6 @@ function initCode () {
             options: event.detail?.options
         }
         const stringifiedArgs = JSON.stringify(message)
-        // @ts-ignore
         sendMessageToAndroid(stringifiedArgs, messageSecret)
     })
 }
