@@ -55,12 +55,11 @@ function initCode () {
 
         const message = {
             type: messageType,
-            options: event.detail?.options,
-            secret: messageSecret
+            options: event.detail?.options
         }
         const stringifiedArgs = JSON.stringify(message)
         // @ts-ignore
-        window[messageInterface].process(stringifiedArgs)
+        window[messageInterface].process(stringifiedArgs, messageSecret)
     })
 }
 
