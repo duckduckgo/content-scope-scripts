@@ -53,16 +53,18 @@
     "@rollup/plugin-replace": "^5.0.2",
     "@types/chrome": "^0.0.228",
     "@types/jasmine": "^4.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
     "eslint": "^8.37.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
+    "immutable-json-patch": "^5.1.2",
     "jasmine": "^4.6.0",
+    "minimist": "^1.2.8",
     "puppeteer": "^19.8.3",
     "rollup": "^3.20.2",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
     "typedoc": "^0.23.28",
-    "typescript": "^5.0.3",
-    "minimist": "^1.2.8"
+    "typescript": "^5.0.3"
   }
 }

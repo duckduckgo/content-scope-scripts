@@ -1,4 +1,4 @@
-import { defineProperty, postDebugMessage, getFeatureSetting, getFeatureSettingEnabled, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabHostname, matchHostname } from '../utils.js'
+import { defineProperty, postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabHostname, matchHostname } from '../utils.js'
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
 
@@ -176,10 +176,9 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy = args.cookie
             args.cookie.debug = args.debug
 
-            const featureName = 'cookie'
-            cookiePolicy.shouldBlockTrackerCookie = getFeatureSettingEnabled(featureName, args, 'trackerCookie')
-            cookiePolicy.shouldBlockNonTrackerCookie = getFeatureSettingEnabled(featureName, args, 'nonTrackerCookie')
-            const policy = getFeatureSetting(featureName, args, 'firstPartyCookiePolicy')
+            cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie')
+            cookiePolicy.shouldBlockNonTrackerCookie = this.getFeatureSettingEnabled('nonTrackerCookie')
+            const policy = this.getFeatureSetting('firstPartyCookiePolicy')
             if (policy) {
                 cookiePolicy.policy = policy
             }
