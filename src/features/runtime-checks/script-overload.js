@@ -23,6 +23,30 @@ function removeIndent (string) {
     return indentedLines.filter(a => a.trim()).join('\n')
 }
 
+const lookup = {}
+function getOrGenerateIdentifier (path) {
+    if (!(path in lookup)) {
+        lookup[path] = generateAlphaIdentifier(Object.keys(lookup).length + 1)
+    }
+    return lookup[path]
+}
+
+function generateAlphaIdentifier (num) {
+    if (num < 1) {
+        throw new Error('Input must be a positive integer')
+    }
+    const charCodeOffset = 97
+    let identifier = ''
+    while (num > 0) {
+        num--
+        const remainder = num % 26
+        const charCode = remainder + charCodeOffset
+        identifier = String.fromCharCode(charCode) + identifier
+        num = Math.floor(num / 26)
+    }
+    return '_ddg_' + identifier
+}
+
 /**
  * @param {*} scope
  * @param {Record<string, any>} outputs
@@ -64,9 +88,9 @@ function valToString (val) {
 function stringifyScope (scope, scopePath) {
     let output = ''
     for (const [key, value] of scope) {
-        const varOutName = [...scopePath, key].join('_')
+        const varOutName = getOrGenerateIdentifier([...scopePath, key])
         if (value instanceof Map) {
-            const proxyName = `_proxyFor_${varOutName}`
+            const proxyName = getOrGenerateIdentifier(['_proxyFor_', varOutName])
             output += `
             let ${proxyName}
             if (${scopePath.join('?.')}?.${key} === undefined) {
@@ -77,7 +101,7 @@ function stringifyScope (scope, scopePath) {
             `
             const keys = Array.from(value.keys())
             output += stringifyScope(value, [...scopePath, key])
-            const proxyOut = keys.map((keyName) => `${keyName}: ${[...scopePath, key, keyName].join('_')}`)
+            const proxyOut = keys.map((keyName) => `${keyName}: ${getOrGenerateIdentifier([...scopePath, key, keyName])}`)
             output += `
             let ${varOutName} = constructProxy(${proxyName}, {
                 ${proxyOut.join(',\n')}
@@ -91,7 +115,7 @@ function stringifyScope (scope, scopePath) {
             }
         } else {
             output += `
-            let ${varOutName} = ${JSON.stringify(value)};
+            let ${varOutName} = ${valToString(value)};
             `
         }
     }
@@ -133,7 +157,7 @@ export function wrapScriptCodeOverload (code, config) {
 
     prepend += stringifyScope(aggregatedLookup, ['parentScope'])
     // Stringify top level keys
-    const keysOut = [...aggregatedLookup.keys()].map((keyName) => `${keyName}: parentScope_${keyName}`).join(',\n')
+    const keysOut = [...aggregatedLookup.keys()].map((keyName) => `${keyName}: ${getOrGenerateIdentifier(['parentScope', keyName])}`).join(',\n')
     prepend += `
     const window = constructProxy(parentScope, {
         ${keysOut}
