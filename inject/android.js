@@ -27,6 +27,7 @@ function initCode () {
 
     const messageSecret = processedConfig.messageSecret
     const messageCallback = processedConfig.messageCallback
+    const messageInterface = processedConfig.messageInterface
 
     const wrappedUpdate = ((providedSecret, ...args) => {
         if (providedSecret === messageSecret) {
@@ -54,11 +55,12 @@ function initCode () {
 
         const message = {
             type: messageType,
-            options: event.detail?.options
+            options: event.detail?.options,
+            secret: messageSecret
         }
         const stringifiedArgs = JSON.stringify(message)
         // @ts-ignore
-        window.legacyContentScopeScriptsMessageHandler.process(stringifiedArgs)
+        window[messageInterface].process(stringifiedArgs)
     })
 }
 
