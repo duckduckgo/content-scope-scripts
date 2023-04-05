@@ -115,7 +115,7 @@ function stringifyScope (scope, scopePath) {
             }
         } else {
             output += `
-            let ${varOutName} = ${valToString(value)};
+            let ${varOutName} = ${JSON.stringify(value)};
             `
         }
     }
