@@ -24,16 +24,16 @@ describe('Helpers checks', () => {
                     domains: [
                         {
                             domain: 'example.com',
-                            settings: {
-                                test: 'enabled2',
-                                otherTest: 'enabled'
-                            }
+                            patchSettings: [
+                                { op: 'replace', path: '/test', value: 'enabled2' },
+                                { op: 'replace', path: '/otherTest', value: 'enabled' }
+                            ]
                         },
                         {
                             domain: 'beep.example.com',
-                            settings: {
-                                test: 'enabled3'
-                            }
+                            patchSettings: [
+                                { op: 'replace', path: '/test', value: 'enabled3' }
+                            ]
                         }
                     ]
                 }

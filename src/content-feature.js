@@ -1,4 +1,5 @@
 import { camelcase, matchHostname, processAttr } from './utils.js'
+import { immutableJSONPatch } from 'immutable-json-patch'
 
 export default class ContentFeature {
     constructor (featureName) {
@@ -36,29 +37,29 @@ export default class ContentFeature {
      * @returns {any}
      */
     getFeatureSetting (featureKeyName) {
-        const result = this._getFeatureSettingIndividual(featureKeyName)
+        let result = this._getFeatureSetting()
         if (featureKeyName === 'domains') {
             throw new Error('domains is a reserved feature setting key name')
         }
         const domainMatch = this.matchDomainFeatureSetting('domains').sort((a, b) => {
-            return b.domain.length - a.domain.length
+            return a.domain.length - b.domain.length
         })
-        if (domainMatch.length > 0) {
-            // Starting with the longest matching domain, find the first result that has a value for the feature key
-            const mostRelevantDomainResult = domainMatch.find((rule) => {
-                return rule?.settings[featureKeyName] !== undefined
-            })
-            if (mostRelevantDomainResult !== undefined) {
-                return mostRelevantDomainResult.settings[featureKeyName]
+        for (const match of domainMatch) {
+            if (match.patchSettings === undefined) {
+                continue
+            }
+            try {
+                result = immutableJSONPatch(result, match.patchSettings)
+            } catch (e) {
+                console.error('Error applying patch settings', e)
             }
         }
-
-        return result
+        return result?.[featureKeyName]
     }
 
-    _getFeatureSettingIndividual (featureKeyName) {
+    _getFeatureSetting () {
         const camelFeatureName = camelcase(this.name)
-        return this._args.featureSettings?.[camelFeatureName]?.[featureKeyName]
+        return this._args.featureSettings?.[camelFeatureName]
     }
 
     /**
@@ -75,7 +76,7 @@ export default class ContentFeature {
      * @return {any[]}
      */
     matchDomainFeatureSetting (featureKeyName) {
-        const domains = this._getFeatureSettingIndividual(featureKeyName) || []
+        const domains = this._getFeatureSetting()?.[featureKeyName] || []
         return domains.filter((rule) => {
             return matchHostname(this._args.site.domain, rule.domain)
         })
