@@ -4,6 +4,7 @@ import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
 import dynamicImportVariables from 'rollup-plugin-dynamic-import-variables'
 import { runtimeInjected } from '../../src/features.js'
+import { parseArgs } from '../script-utils.js'
 
 /**
  * This is a helper function to require all files in a directory
@@ -46,7 +47,8 @@ function runtimeInjections () {
 export async function rollupScript (scriptPath, name, supportsMozProxies = true) {
     let mozProxies = false
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
-    if (process.argv[2] === 'firefox' && supportsMozProxies) {
+    const args = parseArgs(process.argv.slice(2), ['platform'])
+    if (args.platform === 'firefox' && supportsMozProxies) {
         mozProxies = true
     }
     const inputOptions = {
