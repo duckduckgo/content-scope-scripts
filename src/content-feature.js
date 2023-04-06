@@ -1,4 +1,5 @@
-import { getFeatureSetting, getFeatureSettingEnabled, matchHostname, getFeatureAttr } from './utils'
+import { camelcase, matchHostname, processAttr } from './utils.js'
+import { immutableJSONPatch } from 'immutable-json-patch'
 
 export default class ContentFeature {
     constructor (featureName) {
@@ -18,25 +19,56 @@ export default class ContentFeature {
     }
 
     /**
+     * Get the value of a config setting.
+     * If the value is not set, return the default value.
+     * If the value is not an object, return the value.
+     * If the value is an object, check its type property.
      * @param {string} attrName
-     * @param {any} defaultValue
+     * @param {any} defaultValue - The default value to use if the config setting is not set
+     * @returns The value of the config setting or the default value
      */
     getFeatureAttr (attrName, defaultValue) {
-        return getFeatureAttr(this.name, this._args, attrName, defaultValue)
+        const configSetting = this.getFeatureSetting(attrName)
+        return processAttr(configSetting, defaultValue)
     }
 
     /**
      * @param {string} featureKeyName
+     * @returns {any}
      */
     getFeatureSetting (featureKeyName) {
-        return getFeatureSetting(this.name, this._args, featureKeyName)
+        let result = this._getFeatureSetting()
+        if (featureKeyName === 'domains') {
+            throw new Error('domains is a reserved feature setting key name')
+        }
+        const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {
+            return a.domain.length - b.domain.length
+        })
+        for (const match of domainMatch) {
+            if (match.patchSettings === undefined) {
+                continue
+            }
+            try {
+                result = immutableJSONPatch(result, match.patchSettings)
+            } catch (e) {
+                console.error('Error applying patch settings', e)
+            }
+        }
+        return result?.[featureKeyName]
+    }
+
+    _getFeatureSetting () {
+        const camelFeatureName = camelcase(this.name)
+        return this._args.featureSettings?.[camelFeatureName]
     }
 
     /**
      * @param {string} featureKeyName
+     * @returns {boolean}
      */
     getFeatureSettingEnabled (featureKeyName) {
-        return getFeatureSettingEnabled(this.name, this._args, featureKeyName)
+        const result = this.getFeatureSetting(featureKeyName)
+        return result === 'enabled'
     }
 
     /**
@@ -44,7 +76,7 @@ export default class ContentFeature {
      * @return {any[]}
      */
     matchDomainFeatureSetting (featureKeyName) {
-        const domains = this.getFeatureSetting(featureKeyName) || []
+        const domains = this._getFeatureSetting()?.[featureKeyName] || []
         return domains.filter((rule) => {
             return matchHostname(this._args.site.domain, rule.domain)
         })

@@ -1,0 +1,32 @@
+{
+    "features": {
+        "runtimeChecks": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "taintCheck": "enabled",
+                "matchAllDomains": "enabled",
+                "matchAllStackDomains": "enabled",
+                "overloadInstanceOf": "enabled",
+                "elementRemovalTimeout": 1000,
+                "injectGlobalStyles": "enabled",
+                "domains": [
+                    {
+                        "domain": "localhost",
+                        "settings": {
+                            "taintCheck": "enabled"
+                        }
+                    },
+                    {
+                        "domain": "subdomain.localhost",
+                        "settings": {
+                            "taintCheck": "enabled"
+                        }
+                    }
+                ],
+                "stackDomains": [
+                ]
+            }
+        }
+    }
+}
