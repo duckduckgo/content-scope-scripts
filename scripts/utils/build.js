@@ -43,12 +43,10 @@ function runtimeInjections () {
     }
 }
 
-export async function rollupScript (scriptPath, name, supportsMozProxies = true) {
-    let mozProxies = false
+export async function rollupScript (scriptPath, name, supportsMozProxies = false) {
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
-    if (process.argv[2] === 'firefox' && supportsMozProxies) {
-        mozProxies = true
-    }
+    const mozProxies = supportsMozProxies
+
     const inputOptions = {
         input: scriptPath,
         plugins: [
