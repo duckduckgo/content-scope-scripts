@@ -470,7 +470,7 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
 /**
  * @typedef {object} Platform
  * @property {'ios' | 'macos' | 'extension' | 'android' | 'windows'} name
- * @property {string} [version]
+ * @property {string | number } [version]
  */
 
 /**
@@ -478,8 +478,23 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
  * @property {Platform} platform
  * @property {boolean} [debug]
  * @property {boolean} [globalPrivacyControl]
+ * @property {number} [versionNumber] - Android version number only
  * @property {string} sessionKey
  */
+
+/**
+ * Expansion point to add platform specific versioning logic
+ * @param {UserPreferences} preferences
+ * @returns {string | number | undefined}
+ */
+function getPlatformVersion (preferences) {
+    if (preferences.versionNumber) {
+        return preferences.versionNumber
+    }
+    if (preferences.versionString) {
+        return String(preferences.versionString)
+    }
+}
 
 /**
  * @param {{ features: Record<string, { state: string; settings: any; exceptions: string[] }>; unprotectedTemporary: string; }} data
@@ -499,6 +514,12 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary)
     /** @type {Record<string, any>} */
     const output = { ...preferences }
+    if (output.platform) {
+        const version = getPlatformVersion(preferences)
+        if (version) {
+            output.platform.version = version
+        }
+    }
     output.site = {
         domain: topLevelHostname,
         isBroken,
