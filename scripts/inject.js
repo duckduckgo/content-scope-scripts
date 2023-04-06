@@ -40,7 +40,8 @@ const builds = {
 }
 
 async function initOther (injectScriptPath, platformName) {
-    const injectScript = await rollupScript(injectScriptPath, `inject${platformName}`)
+    const supportsMozProxies = platformName === 'firefox'
+    const injectScript = await rollupScript(injectScriptPath, `inject${platformName}`, supportsMozProxies)
     const outputScript = injectScript
     return outputScript
 }
@@ -73,7 +74,7 @@ async function init () {
     if (args.platform === 'chrome') {
         output = await initChrome(build.input)
     } else {
-        output = await initOther(build.input)
+        output = await initOther(build.input, args.platform)
     }
 
     // bundle and write the output
