@@ -21,16 +21,16 @@
       }
     })
   }
-  let parentScope_fn = (...args) => {
+  let _ddg_r = (...args) => {
     console.log('debugger', ...args)
     // eslint-disable-next-line no-debugger
     debugger
   };
   const window = constructProxy(parentScope, {
-    fn: parentScope_fn
+    fn: _ddg_r
   });
   const globalThis = constructProxy(parentScope, {
-    fn: parentScope_fn
+    fn: _ddg_r
   });
   console.log(1)
 })(globalThis)

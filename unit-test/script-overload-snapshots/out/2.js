@@ -21,12 +21,12 @@
       }
     })
   }
-  let parentScope_single = "meep";
+  let _ddg_q = "meep";
   const window = constructProxy(parentScope, {
-    single: parentScope_single
+    single: _ddg_q
   });
   const globalThis = constructProxy(parentScope, {
-    single: parentScope_single
+    single: _ddg_q
   });
   console.log(1)
 })(globalThis)
