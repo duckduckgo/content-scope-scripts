@@ -1,5 +1,6 @@
 import { rollupScript } from './utils/build.js'
 import { parseArgs, write } from './script-utils.js'
+import { camelcase } from '../src/utils.js'
 
 const contentScopePath = 'src/content-scope-features.js'
 const contentScopeName = 'contentScopeFeatures'
@@ -41,7 +42,8 @@ const builds = {
 
 async function initOther (injectScriptPath, platformName) {
     const supportsMozProxies = platformName === 'firefox'
-    const injectScript = await rollupScript(injectScriptPath, `inject${platformName}`, supportsMozProxies)
+    const identName = `inject${camelcase(platformName)}`
+    const injectScript = await rollupScript(injectScriptPath, identName, supportsMozProxies)
     const outputScript = injectScript
     return outputScript
 }
