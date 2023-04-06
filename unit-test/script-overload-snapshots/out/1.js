@@ -21,38 +21,13 @@
       }
     })
   }
-  let _ddg_b
-  if (parentScope?.navigator === undefined) {
-    _ddg_b = Object.bind(null);
-  } else {
-    _ddg_b = parentScope.navigator;
-  }
+  let _ddg_b = parentScope?.navigator ? parentScope.navigator : Object.bind(null);
   let _ddg_c = "testingThisOut";
-  let _ddg_e
-  if (parentScope?.navigator?.mediaSession === undefined) {
-    _ddg_e = Object.bind(null);
-  } else {
-    _ddg_e = parentScope.navigator.mediaSession;
-  }
+  let _ddg_e = parentScope?.navigator?.mediaSession ? parentScope.navigator.mediaSession : Object.bind(null);
   let _ddg_f = "playing";
-  let _ddg_h
-  if (parentScope?.navigator?.mediaSession?.doesNotExist === undefined) {
-    _ddg_h = Object.bind(null);
-  } else {
-    _ddg_h = parentScope.navigator.mediaSession.doesNotExist;
-  }
-  let _ddg_j
-  if (parentScope?.navigator?.mediaSession?.doesNotExist?.depth === undefined) {
-    _ddg_j = Object.bind(null);
-  } else {
-    _ddg_j = parentScope.navigator.mediaSession.doesNotExist.depth;
-  }
-  let _ddg_l
-  if (parentScope?.navigator?.mediaSession?.doesNotExist?.depth?.a === undefined) {
-    _ddg_l = Object.bind(null);
-  } else {
-    _ddg_l = parentScope.navigator.mediaSession.doesNotExist.depth.a;
-  }
+  let _ddg_h = parentScope?.navigator?.mediaSession?.doesNotExist ? parentScope.navigator.mediaSession.doesNotExist : Object.bind(null);
+  let _ddg_j = parentScope?.navigator?.mediaSession?.doesNotExist?.depth ? parentScope.navigator.mediaSession.doesNotExist.depth : Object.bind(null);
+  let _ddg_l = parentScope?.navigator?.mediaSession?.doesNotExist?.depth?.a ? parentScope.navigator.mediaSession.doesNotExist.depth.a : Object.bind(null);
   let _ddg_m = "boop";
   let _ddg_k = constructProxy(_ddg_l, {
     lot: _ddg_m
@@ -72,12 +47,7 @@
     mediaSession: _ddg_d
   });
   let navigator = _ddg_a;
-  let _ddg_o
-  if (parentScope?.document === undefined) {
-    _ddg_o = Object.bind(null);
-  } else {
-    _ddg_o = parentScope.document;
-  }
+  let _ddg_o = parentScope?.document ? parentScope.document : Object.bind(null);
   let _ddg_p = "testingThisOut";
   let _ddg_n = constructProxy(_ddg_o, {
     cookie: _ddg_p
