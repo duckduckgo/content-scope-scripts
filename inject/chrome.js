@@ -3,6 +3,7 @@
  * @category Content Scope Scripts Integrations
  */
 import { isTrackerOrigin } from '../src/trackers'
+import { computeLimitedSiteObject } from '../src/utils'
 
 /**
  * Inject all the overwrites into the page.
@@ -46,6 +47,7 @@ function init () {
     const randomPassword = '_p' + randomString()
     const reusableMethodName = '_rm' + randomString()
     const reusableSecret = '_r' + randomString()
+    const siteObject = computeLimitedSiteObject()
     const initialScript = `
       /* global contentScopeFeatures */
       contentScopeFeatures.load({
@@ -53,6 +55,7 @@ function init () {
               name: 'extension'
           },
           trackerLookup: ${JSON.stringify(trackerLookup)},
+          site: ${JSON.stringify(siteObject)},
           documentOriginIsTracker: ${documentOriginIsTracker},
           bundledConfig: ${JSON.stringify(bundledConfig)}
       })

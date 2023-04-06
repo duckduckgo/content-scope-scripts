@@ -3,7 +3,7 @@
  * @category Content Scope Scripts Integrations
  */
 import { load, init } from '../src/content-scope-features.js'
-import { processConfig, isGloballyDisabled, windowsSpecificFeatures } from './../src/utils'
+import { processConfig, isGloballyDisabled, windowsSpecificFeatures, computeLimitedSiteObject } from './../src/utils'
 import { isTrackerOrigin } from '../src/trackers'
 
 function initCode () {
@@ -16,7 +16,8 @@ function initCode () {
     load({
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
-        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup)
+        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
+        site: computeLimitedSiteObject()
     })
 
     init(processedConfig)

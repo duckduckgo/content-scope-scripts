@@ -3,7 +3,7 @@
  * @category Content Scope Scripts Integrations
  */
 import { load, init, update } from '../src/content-scope-features.js'
-import { processConfig, isGloballyDisabled } from './../src/utils'
+import { processConfig, isGloballyDisabled, computeLimitedSiteObject } from './../src/utils'
 import { isTrackerOrigin } from '../src/trackers'
 
 const allowedMessages = [
@@ -25,7 +25,8 @@ function initCode () {
     load({
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
-        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup)
+        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
+        site: computeLimitedSiteObject()
     })
 
     const messageSecret = processedConfig.messageSecret

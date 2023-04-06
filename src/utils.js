@@ -507,6 +507,16 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
  */
 
 /**
+ * Used to inialize extension code in the load phase
+ */
+export function computeLimitedSiteObject () {
+    const topLevelHostname = getTabHostname()
+    return {
+        domain: topLevelHostname
+    }
+}
+
+/**
  * Expansion point to add platform specific versioning logic
  * @param {UserPreferences} preferences
  * @returns {string | number | undefined}
@@ -576,7 +586,10 @@ function isSupportedVersion (minSupportedVersion, currentVersion) {
  */
 export function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
     const topLevelHostname = getTabHostname()
+    const site = computeLimitedSiteObject()
     const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0
+    const remoteFeatureNames = Object.keys(data.features)
+    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
     /** @type {Record<string, any>} */
     const output = { ...preferences }
     if (output.platform) {
@@ -587,12 +600,11 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     }
     const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform?.version, platformSpecificFeatures)
     const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary)
-    output.site = {
-        domain: topLevelHostname,
+    output.site = Object.assign(site, {
         isBroken,
         allowlisted,
         enabledFeatures
-    }
+    })
     // TODO
     output.cookie = {}
 
