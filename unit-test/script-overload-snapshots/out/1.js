@@ -21,75 +21,75 @@
       }
     })
   }
-  let _proxyFor_parentScope_navigator
+  let _ddg_b
   if (parentScope?.navigator === undefined) {
-    _proxyFor_parentScope_navigator = Object.bind(null);
+    _ddg_b = Object.bind(null);
   } else {
-    _proxyFor_parentScope_navigator = parentScope.navigator;
+    _ddg_b = parentScope.navigator;
   }
-  let parentScope_navigator_userAgent = "testingThisOut";
-  let _proxyFor_parentScope_navigator_mediaSession
+  let _ddg_c = "testingThisOut";
+  let _ddg_e
   if (parentScope?.navigator?.mediaSession === undefined) {
-    _proxyFor_parentScope_navigator_mediaSession = Object.bind(null);
+    _ddg_e = Object.bind(null);
   } else {
-    _proxyFor_parentScope_navigator_mediaSession = parentScope.navigator.mediaSession;
+    _ddg_e = parentScope.navigator.mediaSession;
   }
-  let parentScope_navigator_mediaSession_playbackState = "playing";
-  let _proxyFor_parentScope_navigator_mediaSession_doesNotExist
+  let _ddg_f = "playing";
+  let _ddg_h
   if (parentScope?.navigator?.mediaSession?.doesNotExist === undefined) {
-    _proxyFor_parentScope_navigator_mediaSession_doesNotExist = Object.bind(null);
+    _ddg_h = Object.bind(null);
   } else {
-    _proxyFor_parentScope_navigator_mediaSession_doesNotExist = parentScope.navigator.mediaSession.doesNotExist;
+    _ddg_h = parentScope.navigator.mediaSession.doesNotExist;
   }
-  let _proxyFor_parentScope_navigator_mediaSession_doesNotExist_depth
+  let _ddg_j
   if (parentScope?.navigator?.mediaSession?.doesNotExist?.depth === undefined) {
-    _proxyFor_parentScope_navigator_mediaSession_doesNotExist_depth = Object.bind(null);
+    _ddg_j = Object.bind(null);
   } else {
-    _proxyFor_parentScope_navigator_mediaSession_doesNotExist_depth = parentScope.navigator.mediaSession.doesNotExist.depth;
+    _ddg_j = parentScope.navigator.mediaSession.doesNotExist.depth;
   }
-  let _proxyFor_parentScope_navigator_mediaSession_doesNotExist_depth_a
+  let _ddg_l
   if (parentScope?.navigator?.mediaSession?.doesNotExist?.depth?.a === undefined) {
-    _proxyFor_parentScope_navigator_mediaSession_doesNotExist_depth_a = Object.bind(null);
+    _ddg_l = Object.bind(null);
   } else {
-    _proxyFor_parentScope_navigator_mediaSession_doesNotExist_depth_a = parentScope.navigator.mediaSession.doesNotExist.depth.a;
+    _ddg_l = parentScope.navigator.mediaSession.doesNotExist.depth.a;
   }
-  let parentScope_navigator_mediaSession_doesNotExist_depth_a_lot = "boop";
-  let parentScope_navigator_mediaSession_doesNotExist_depth_a = constructProxy(_proxyFor_parentScope_navigator_mediaSession_doesNotExist_depth_a, {
-    lot: parentScope_navigator_mediaSession_doesNotExist_depth_a_lot
+  let _ddg_m = "boop";
+  let _ddg_k = constructProxy(_ddg_l, {
+    lot: _ddg_m
   });
-  let parentScope_navigator_mediaSession_doesNotExist_depth = constructProxy(_proxyFor_parentScope_navigator_mediaSession_doesNotExist_depth, {
-    a: parentScope_navigator_mediaSession_doesNotExist_depth_a
+  let _ddg_i = constructProxy(_ddg_j, {
+    a: _ddg_k
   });
-  let parentScope_navigator_mediaSession_doesNotExist = constructProxy(_proxyFor_parentScope_navigator_mediaSession_doesNotExist, {
-    depth: parentScope_navigator_mediaSession_doesNotExist_depth
+  let _ddg_g = constructProxy(_ddg_h, {
+    depth: _ddg_i
   });
-  let parentScope_navigator_mediaSession = constructProxy(_proxyFor_parentScope_navigator_mediaSession, {
-    playbackState: parentScope_navigator_mediaSession_playbackState,
-    doesNotExist: parentScope_navigator_mediaSession_doesNotExist
+  let _ddg_d = constructProxy(_ddg_e, {
+    playbackState: _ddg_f,
+    doesNotExist: _ddg_g
   });
-  let parentScope_navigator = constructProxy(_proxyFor_parentScope_navigator, {
-    userAgent: parentScope_navigator_userAgent,
-    mediaSession: parentScope_navigator_mediaSession
+  let _ddg_a = constructProxy(_ddg_b, {
+    userAgent: _ddg_c,
+    mediaSession: _ddg_d
   });
-  let navigator = parentScope_navigator;
-  let _proxyFor_parentScope_document
+  let navigator = _ddg_a;
+  let _ddg_o
   if (parentScope?.document === undefined) {
-    _proxyFor_parentScope_document = Object.bind(null);
+    _ddg_o = Object.bind(null);
   } else {
-    _proxyFor_parentScope_document = parentScope.document;
+    _ddg_o = parentScope.document;
   }
-  let parentScope_document_cookie = "testingThisOut";
-  let parentScope_document = constructProxy(_proxyFor_parentScope_document, {
-    cookie: parentScope_document_cookie
+  let _ddg_p = "testingThisOut";
+  let _ddg_n = constructProxy(_ddg_o, {
+    cookie: _ddg_p
   });
-  let document = parentScope_document;
+  let document = _ddg_n;
   const window = constructProxy(parentScope, {
-    navigator: parentScope_navigator,
-    document: parentScope_document
+    navigator: _ddg_a,
+    document: _ddg_n
   });
   const globalThis = constructProxy(parentScope, {
-    navigator: parentScope_navigator,
-    document: parentScope_document
+    navigator: _ddg_a,
+    document: _ddg_n
   });
   console.log(1)
 })(globalThis)
