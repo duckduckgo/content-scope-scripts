@@ -162,6 +162,11 @@ export function wrapScriptCodeOverload (code, config) {
     });
     `
     return removeIndent(`(function (parentScope) {
+        /**
+         * DuckDuckGo Runtime Checks injected code.
+         * If you're reading this, you're probably trying to debug a site that is breaking due to our runtime checks.
+         * Please raise an issues on our GitHub repo: https://github.com/duckduckgo/content-scope-scripts/
+         */
         ${constructProxy.toString()}
         ${prepend}
         ${code}
