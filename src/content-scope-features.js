@@ -1,6 +1,7 @@
 /* global mozProxies */
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret, getInjectionElement } from './utils'
 import { featureNames } from './features'
+import PerformanceMonitor from './performance'
 // @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'ddg:runtimeInjects'
 
@@ -20,6 +21,7 @@ let initArgs = null
 const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
+const performanceMonitor = new PerformanceMonitor()
 
 /**
  * @typedef {object} LoadArgs
@@ -34,6 +36,7 @@ const alwaysInitFeatures = new Set(['cookie'])
  * @param {LoadArgs} args
  */
 export async function load (args) {
+    performanceMonitor.mark('loadStart')
     if (!shouldRun()) {
         return
     }
@@ -52,6 +55,7 @@ export async function load (args) {
         })
         features.push(feature)
     }
+    performanceMonitor.mark('loadEnd')
 }
 
 /**
@@ -105,6 +109,7 @@ function supportsInjectedFeatures () {
 }
 
 export async function init (args) {
+    performanceMonitor.mark('initStart')
     initArgs = args
     if (!shouldRun()) {
         return
@@ -124,6 +129,10 @@ export async function init (args) {
     while (updates.length) {
         const update = updates.pop()
         await updateFeaturesInner(update)
+    }
+    performanceMonitor.mark('initEnd')
+    if (args.debug) {
+        performanceMonitor.measure()
     }
 }
 

@@ -85,19 +85,35 @@ export default class ContentFeature {
     init (args) {
     }
 
+    createPerformanceMarker (name) {
+        performance.mark(this.name + name)
+    }
+
     callInit (args) {
+        this.createPerformanceMarker('CallInitStart')
         this._args = args
         this.platform = args.platform
         this.init(args)
+        this.createPerformanceMarker('CallInitEnd')
+        this.measure()
     }
 
     load (args) {
     }
 
     callLoad (args) {
+        this.createPerformanceMarker('CallLoadStart')
         this._args = args
         this.platform = args.platform
         this.load(args)
+        this.createPerformanceMarker('CallLoadEnd')
+    }
+
+    measure () {
+        if (this._args.debug) {
+            performance.measure(this.name + 'Init', this.name + 'CallInitStart', this.name + 'CallInitEnd')
+            performance.measure(this.name + 'Load', this.name + 'CallLoadStart', this.name + 'CallLoadEnd')
+        }
     }
 
     update () {
