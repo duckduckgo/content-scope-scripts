@@ -13,7 +13,7 @@ async function getAllFeatureCode (pathName) {
     for (const featureName of runtimeInjected) {
         const fileName = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
         const fullPath = `${pathName}/${fileName}.js`
-        const code = await rollupScript(fullPath, 'runtimeChecks', false)
+        const code = await rollupScript(fullPath, featureName, false)
         fileContents[featureName] = code
     }
     return fileContents
