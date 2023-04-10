@@ -105,7 +105,7 @@ function isInjectedFeature (featureName) {
  * @returns {boolean} true if the browser supports injected features
  */
 function supportsInjectedFeatures () {
-    return true
+    return mozProxies
 }
 
 export async function init (args) {
