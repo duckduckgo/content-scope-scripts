@@ -72,20 +72,20 @@ async function injectFeatures (args) {
             // Clone back in supported injected feature settings
             argsCopy.featureSettings[featureName] = structuredClone(args.featureSettings[featureName])
             const codeImport = injectedFeaturesCode[featureName]
-            const codeFeature = `((args) => {
+            const codeFeature = `;((args) => {
                 ${codeImport}
                 const featureInstance = new ${featureName}('${featureName}')
                 featureInstance.callLoad(args)
                 featureInstance.callInit(args)
-            })(args)`
+            })(args);`
             codeFeatures.push(codeFeature)
         }
     }
     const script = document.createElement('script')
-    const code = `(() => {
+    const code = `;(() => {
         const args = ${JSON.stringify(argsCopy)};
         ${codeFeatures.join('\n')}
-    })()`
+    })();`
     script.src = 'data:text/javascript;base64,' + btoa(code)
     getInjectionElement().appendChild(script)
     script.remove()
