@@ -1,6 +1,7 @@
 /* global mozProxies */
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret, getInjectionElement } from './utils'
 import { featureNames } from './features'
+import { PerformanceMonitor } from './performance'
 // @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'ddg:runtimeInjects'
 
@@ -20,6 +21,7 @@ let initArgs = null
 const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
+const performanceMonitor = new PerformanceMonitor()
 
 /**
  * @typedef {object} LoadArgs
@@ -34,6 +36,7 @@ const alwaysInitFeatures = new Set(['cookie'])
  * @param {LoadArgs} args
  */
 export async function load (args) {
+    const mark = performanceMonitor.mark('load')
     if (!shouldRun()) {
         return
     }
@@ -52,6 +55,7 @@ export async function load (args) {
         })
         features.push(feature)
     }
+    mark.end()
 }
 
 /**
@@ -68,20 +72,20 @@ async function injectFeatures (args) {
             // Clone back in supported injected feature settings
             argsCopy.featureSettings[featureName] = structuredClone(args.featureSettings[featureName])
             const codeImport = injectedFeaturesCode[featureName]
-            const codeFeature = `((args) => {
+            const codeFeature = `;((args) => {
                 ${codeImport}
                 const featureInstance = new ${featureName}('${featureName}')
                 featureInstance.callLoad(args)
                 featureInstance.callInit(args)
-            })(args)`
+            })(args);`
             codeFeatures.push(codeFeature)
         }
     }
     const script = document.createElement('script')
-    const code = `(() => {
+    const code = `;(() => {
         const args = ${JSON.stringify(argsCopy)};
         ${codeFeatures.join('\n')}
-    })()`
+    })();`
     script.src = 'data:text/javascript;base64,' + btoa(code)
     getInjectionElement().appendChild(script)
     script.remove()
@@ -105,6 +109,7 @@ function supportsInjectedFeatures () {
 }
 
 export async function init (args) {
+    const mark = performanceMonitor.mark('init')
     initArgs = args
     if (!shouldRun()) {
         return
@@ -124,6 +129,10 @@ export async function init (args) {
     while (updates.length) {
         const update = updates.pop()
         await updateFeaturesInner(update)
+    }
+    mark.end()
+    if (args.debug) {
+        performanceMonitor.measureAll()
     }
 }
 

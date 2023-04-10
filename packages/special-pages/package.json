@@ -19,6 +19,6 @@
     "@playwright/test": "^1.32.2",
     "serve": "^14.2.0",
     "@duckduckgo/messaging": "*",
-    "esbuild": "^0.17.15"
+    "esbuild": "^0.17.16"
   }
 }

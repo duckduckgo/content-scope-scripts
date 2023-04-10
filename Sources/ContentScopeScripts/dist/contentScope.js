@@ -521,6 +521,56 @@
         'elementHiding'
     ];
 
+    /**
+     * Performance monitor, holds reference to PerformanceMark instances.
+     */
+    class PerformanceMonitor {
+        constructor () {
+            this.marks = [];
+        }
+
+        /**
+         * Create performance marker
+         * @param {string} name
+         * @returns {PerformanceMark}
+         */
+        mark (name) {
+            const mark = new PerformanceMark(name);
+            this.marks.push(mark);
+            return mark
+        }
+
+        /**
+         * Measure all performance markers
+         */
+        measureAll () {
+            this.marks.forEach((mark) => {
+                mark.measure();
+            });
+        }
+    }
+
+    /**
+     * Tiny wrapper around performance.mark and performance.measure
+     */
+    class PerformanceMark {
+        /**
+         * @param {string} name
+         */
+        constructor (name) {
+            this.name = name;
+            performance.mark(this.name + 'Start');
+        }
+
+        end () {
+            performance.mark(this.name + 'End');
+        }
+
+        measure () {
+            performance.measure(this.name, this.name + 'Start', this.name + 'End');
+        }
+    }
+
     function __variableDynamicImportRuntime0__(path) {
        switch (path) {
          case './features/click-to-load.js': return Promise.resolve().then(function () { return clickToLoad; });
@@ -560,6 +610,7 @@
     const updates = [];
     const features = [];
     const alwaysInitFeatures = new Set(['cookie']);
+    const performanceMonitor = new PerformanceMonitor();
 
     /**
      * @typedef {object} LoadArgs
@@ -574,6 +625,7 @@
      * @param {LoadArgs} args
      */
     async function load (args) {
+        const mark = performanceMonitor.mark('load');
         if (!shouldRun()) {
             return
         }
@@ -588,9 +640,11 @@
             });
             features.push(feature);
         }
+        mark.end();
     }
 
     async function init$1 (args) {
+        const mark = performanceMonitor.mark('init');
         initArgs = args;
         if (!shouldRun()) {
             return
@@ -607,6 +661,10 @@
         while (updates.length) {
             const update = updates.pop();
             await updateFeaturesInner(update);
+        }
+        mark.end();
+        if (args.debug) {
+            performanceMonitor.measureAll();
         }
     }
 
@@ -2137,6 +2195,7 @@
         constructor (featureName) {
             this.name = featureName;
             this._args = null;
+            this.monitor = new PerformanceMonitor();
         }
 
         /**
@@ -2218,18 +2277,29 @@
         }
 
         callInit (args) {
+            const mark = this.monitor.mark(this.name + 'CallInit');
             this._args = args;
             this.platform = args.platform;
             this.init(args);
+            mark.end();
+            this.measure();
         }
 
         load (args) {
         }
 
         callLoad (args) {
+            const mark = this.monitor.mark(this.name + 'CallLoad');
             this._args = args;
             this.platform = args.platform;
             this.load(args);
+            mark.end();
+        }
+
+        measure () {
+            if (this._args.debug) {
+                this.monitor.measureAll();
+            }
         }
 
         update () {
