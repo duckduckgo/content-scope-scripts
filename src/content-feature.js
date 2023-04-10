@@ -109,7 +109,7 @@ export default class ContentFeature {
 
     measure () {
         if (this._args.debug) {
-            this.monitor.measure()
+            this.monitor.measureAll()
         }
     }
 

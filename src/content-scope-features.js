@@ -132,7 +132,7 @@ export async function init (args) {
     }
     mark.end()
     if (args.debug) {
-        performanceMonitor.measure()
+        performanceMonitor.measureAll()
     }
 }
 

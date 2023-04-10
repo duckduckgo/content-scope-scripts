@@ -20,7 +20,7 @@ export class PerformanceMonitor {
     /**
      * Measure all performance markers
      */
-    measure () {
+    measureAll () {
         this.marks.forEach((mark) => {
             mark.measure()
         })
