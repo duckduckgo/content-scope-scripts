@@ -1,10 +1,12 @@
 import { camelcase, matchHostname, processAttr } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
+import { PerformanceMonitor } from './performance.js'
 
 export default class ContentFeature {
     constructor (featureName) {
         this.name = featureName
         this._args = null
+        this.monitor = new PerformanceMonitor()
     }
 
     /**
@@ -85,16 +87,12 @@ export default class ContentFeature {
     init (args) {
     }
 
-    createPerformanceMarker (name) {
-        performance.mark(this.name + name)
-    }
-
     callInit (args) {
-        this.createPerformanceMarker('CallInitStart')
+        const mark = this.monitor.mark(this.name + 'CallInit')
         this._args = args
         this.platform = args.platform
         this.init(args)
-        this.createPerformanceMarker('CallInitEnd')
+        mark.end()
         this.measure()
     }
 
@@ -102,17 +100,16 @@ export default class ContentFeature {
     }
 
     callLoad (args) {
-        this.createPerformanceMarker('CallLoadStart')
+        const mark = this.monitor.mark(this.name + 'CallLoad')
         this._args = args
         this.platform = args.platform
         this.load(args)
-        this.createPerformanceMarker('CallLoadEnd')
+        mark.end()
     }
 
     measure () {
         if (this._args.debug) {
-            performance.measure(this.name + 'Init', this.name + 'CallInitStart', this.name + 'CallInitEnd')
-            performance.measure(this.name + 'Load', this.name + 'CallLoadStart', this.name + 'CallLoadEnd')
+            this.monitor.measure()
         }
     }
 
