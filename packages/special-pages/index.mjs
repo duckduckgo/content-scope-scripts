@@ -12,8 +12,7 @@
  *
  */
 import { join, relative } from 'node:path'
-import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs'
-import inliner from 'web-resource-inliner'
+import { existsSync, cpSync, rmSync } from 'node:fs'
 import { buildSync } from 'esbuild'
 import { cwd } from '../../scripts/script-utils.js'
 
@@ -26,15 +25,12 @@ const NODE_ENV = JSON.stringify(process.env.NODE_ENV || 'production')
 export const support = {
     duckplayer: {
         'integration': ['copy', 'build-js'],
-        'apple': ['copy', 'build-js', 'inline'],
         'windows': ['copy', 'build-js']
     },
 }
 
 /** @type {{src: string, dest: string}[]} */
 const copyJobs = []
-/** @type {{src: string, kind: "html" | "css"}[]} */
-const inlineJobs = []
 /** @type {{src: string, dest: string, platform: string}[]} */
 const buildJobs = []
 const errors = []
@@ -75,13 +71,6 @@ for (const [pageName, platforms] of Object.entries(support)) {
                     platform
                 })
             }
-            if (job === 'inline') {
-                const builtHtmlSrc = join(pageOutputDirectory, 'index.html')
-                inlineJobs.push({
-                    src: builtHtmlSrc,
-                    kind: 'html'
-                })
-            }
         }
     }
 }
@@ -97,52 +86,33 @@ if (errors.length > 0) {
     process.exit(1)
 }
 
-if (errors.length === 0) {
-    for (const copyJob of copyJobs) {
-        console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest))
-        if (!DRY_RUN) {
-            rmSync(copyJob.dest, {
-                force: true,
-                recursive: true
-            })
-            cpSync(copyJob.src, copyJob.dest, {
-                force: true,
-                recursive: true
-            })
-        }
+for (const copyJob of copyJobs) {
+    console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest))
+    if (!DRY_RUN) {
+        rmSync(copyJob.dest, {
+            force: true,
+            recursive: true
+        })
+        cpSync(copyJob.src, copyJob.dest, {
+            force: true,
+            recursive: true
+        })
     }
-    for (const buildJob of buildJobs) {
-        console.log('BUILD:', relative(ROOT, buildJob.src), relative(ROOT, buildJob.dest))
-        console.log('\t- import.meta.env: ', NODE_ENV)
-        console.log('\t- import.meta.platform: ', buildJob.platform)
-        if (!DRY_RUN) {
-            buildSync({
-                entryPoints: [buildJob.src],
-                outfile: buildJob.dest,
-                bundle: true,
-                format: 'iife',
-                define: {
-                    'import.meta.env': NODE_ENV,
-                    'import.meta.platform': JSON.stringify(buildJob.platform),
-                }
-            })
-        }
-    }
-    for (const inlineJob of inlineJobs) {
-        console.log('INLINE:', relative(ROOT, inlineJob.src))
-        if (!DRY_RUN) {
-            // implement build step
-            if (inlineJob.kind === 'html') {
-                const src = readFileSync(inlineJob.src, 'utf8')
-                inliner.html({
-                    fileContent: src,
-                    relativeTo: join(inlineJob.src, '..'),
-                    images: true
-                },
-            function (err, result) {
-                    writeFileSync(inlineJob.src, result)
-                })
+}
+for (const buildJob of buildJobs) {
+    console.log('BUILD:', relative(ROOT, buildJob.src), relative(ROOT, buildJob.dest))
+    console.log('\t- import.meta.env: ', NODE_ENV)
+    console.log('\t- import.meta.platform: ', buildJob.platform)
+    if (!DRY_RUN) {
+        buildSync({
+            entryPoints: [buildJob.src],
+            outfile: buildJob.dest,
+            bundle: true,
+            format: 'iife',
+            define: {
+                'import.meta.env': NODE_ENV,
+                'import.meta.platform': JSON.stringify(buildJob.platform),
             }
-        }
+        })
     }
 }
