@@ -1,9 +1,12 @@
 {
-    "extends": "standard",
+    "extends": ["standard", "plugin:@typescript-eslint/recommended"],
     "root": true,
     "parserOptions": {
       "ecmaVersion": "latest",
+      "project": "./tsconfig.json"
     },
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["promise","@typescript-eslint"],
     "globals": {
         "$USER_PREFERENCES$": "readonly",
         "$USER_UNPROTECTED_DOMAINS$": "readonly",
@@ -12,7 +15,10 @@
         "$BUNDLED_CONFIG$": "readonly"
     },
     "rules": {
-        "indent": ["error", 4]
+        "indent": ["error", 4],
+        "require-await": ["error"],
+        "promise/prefer-await-to-then": ["error"],
+        "@typescript-eslint/await-thenable": "error"
     },
     "env": {
         "webextensions": true,

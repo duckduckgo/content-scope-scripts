@@ -70,7 +70,7 @@ async function initCode () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
 
-    await load({
+    load({
         platform: processedConfig.platform
     })
 

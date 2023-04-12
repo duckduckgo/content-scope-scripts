@@ -444,7 +444,8 @@
         'fingerprintingTemporaryStorage',
         'navigatorInterface',
         'clickToLoad',
-        'elementHiding'
+        'elementHiding',
+        'exceptionHandler'
     ];
 
     /**
@@ -503,6 +504,7 @@
          case './features/click-to-play.js': return Promise.resolve().then(function () { return clickToPlay; });
          case './features/cookie.js': return Promise.resolve().then(function () { return cookie; });
          case './features/element-hiding.js': return Promise.resolve().then(function () { return elementHiding; });
+         case './features/exception-handler.js': return Promise.resolve().then(function () { return exceptionHandler; });
          case './features/fingerprinting-audio.js': return Promise.resolve().then(function () { return fingerprintingAudio; });
          case './features/fingerprinting-battery.js': return Promise.resolve().then(function () { return fingerprintingBattery; });
          case './features/fingerprinting-canvas.js': return Promise.resolve().then(function () { return fingerprintingCanvas; });
@@ -550,7 +552,7 @@
     /**
      * @param {LoadArgs} args
      */
-    async function load (args) {
+    function load (args) {
         const mark = performanceMonitor.mark('load');
         if (!shouldRun()) {
             return
@@ -558,6 +560,7 @@
 
         for (const featureName of featureNames) {
             const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase();
+            // eslint-disable-next-line promise/prefer-await-to-then
             const feature = __variableDynamicImportRuntime0__(`./features/${filename}.js`).then((exported) => {
                 const ContentFeature = exported.default;
                 const featureInstance = new ContentFeature(featureName);
@@ -594,7 +597,7 @@
         }
     }
 
-    async function update$1 (args) {
+    function update$1 (args) {
         if (!shouldRun()) {
             return
         }
@@ -2245,6 +2248,7 @@
             })
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         init (args) {
         }
 
@@ -2257,6 +2261,7 @@
             this.measure();
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         load (args) {
         }
 
@@ -2274,11 +2279,12 @@
             }
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         update () {
         }
     }
 
-    // @ts-nocheck
+    // TODO - Remove these comments to enable full linting.
 
     let devMode$1 = false;
     let isYoutubePreviewsEnabled$1 = false;
@@ -2502,13 +2508,13 @@
         }
 
         /*
-            * Fades out the given element. Returns a promise that resolves when the fade is complete.
-            * @param {Element} element - the element to fade in or out
-            * @param {int} interval - frequency of opacity updates (ms)
-            * @param {bool} fadeIn - true if the element should fade in instead of out
-            */
+         * Fades out the given element. Returns a promise that resolves when the fade is complete.
+         * @param {Element} element - the element to fade in or out
+         * @param {int} interval - frequency of opacity updates (ms)
+         * @param {boolean} fadeIn - true if the element should fade in instead of out
+         */
         fadeElement (element, interval, fadeIn) {
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
                 let opacity = fadeIn ? 0 : 1;
                 const originStyle = element.style.cssText;
                 const fadeOut = setInterval(function () {
@@ -2532,7 +2538,7 @@
 
         clickFunction (originalElement, replacementElement) {
             let clicked = false;
-            const handleClick = async function handleClick (e) {
+            const handleClick = function handleClick (e) {
                 // Ensure that the click is created by a user event & prevent double clicks from adding more animations
                 if (e.isTrusted && !clicked) {
                     this.isUnblocked = true;
@@ -2605,15 +2611,13 @@
                         parent.replaceChild(fbContainer, replacementElement);
                         fbContainer.appendChild(replacementElement);
                         fadeIn.appendChild(fbElement);
-                        fbElement.addEventListener('load', () => {
-                            this.fadeOutElement(replacementElement)
-                                .then(v => {
-                                    fbContainer.replaceWith(fbElement);
-                                    this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
-                                    this.fadeInElement(fadeIn).then(() => {
-                                        fbElement.focus(); // focus on new element for screen readers
-                                    });
-                                });
+                        fbElement.addEventListener('load', async () => {
+                            await this.fadeOutElement(replacementElement);
+                            fbContainer.replaceWith(fbElement);
+                            this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked');
+                            await this.fadeInElement(fadeIn);
+                            // Focus on new element for screen readers.
+                            fbElement.focus();
                         }, { once: true });
                         // Note: This event only fires on Firefox, on Chrome the frame's
                         //       load event will always fire.
@@ -2812,7 +2816,7 @@
      * @typedef unblockClickToLoadContentRequest
      * @property {string} entity
      *   The entity to unblock requests for (e.g. "Facebook, Inc.").
-     * @property {bool} [isLogin=false]
+     * @property {boolean} [isLogin=false]
      *   True if we should "allow social login", defaults to false.
      * @property {string} action
      *   The Click to Load blocklist rule action (e.g. "block-ctl-fb") that should
@@ -2825,7 +2829,7 @@
      * Send a message to the background to unblock requests for the given entity for
      * the page.
      * @param {unblockClickToLoadContentRequest} message
-     * @see {@event ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
+     * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
      */
     function unblockClickToLoadContent$1 (message) {
         sendMessage('unblockClickToLoadContent', message);
@@ -6157,13 +6161,13 @@
         }
 
         getExpiry () {
-            // @ts-ignore
+            // @ts-expect-error expires is not defined in the type definition
             if (!this.maxAge && !this.expires) {
                 return NaN
             }
             const expiry = this.maxAge
                 ? parseInt(this.maxAge)
-                // @ts-ignore
+                // @ts-expect-error expires is not defined in the type definition
                 : (new Date(this.expires) - new Date()) / 1000;
             return expiry
         }
@@ -6715,6 +6719,28 @@
     var elementHiding = /*#__PURE__*/Object.freeze({
         __proto__: null,
         default: ElementHiding
+    });
+
+    class ExceptionHandler extends ContentFeature {
+        init () {
+            // Report to the debugger panel if an uncaught exception occurs
+            function handleUncaughtException (e) {
+                postDebugMessage('jsException', {
+                    documentUrl: document.location.href,
+                    message: e.message,
+                    filename: e.filename,
+                    lineno: e.lineno,
+                    colno: e.colno,
+                    stack: e.error.stack
+                });
+            }
+            globalThis.addEventListener('error', handleUncaughtException);
+        }
+    }
+
+    var exceptionHandler = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        default: ExceptionHandler
     });
 
     // @ts-nocheck
@@ -8940,6 +8966,7 @@
         try {
             defineProperty(globalThis, property, {
                 get: () => value,
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 set: () => {},
                 configurable: true
             });
@@ -10251,6 +10278,7 @@
                             return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'))
                         }
 
+                        // eslint-disable-next-line promise/prefer-await-to-then
                         return DDGReflect.apply(target, thisArg, args).then(function (stream) {
                             console.debug(`User stream ${stream.id} has been acquired`);
                             userMediaStreams.add(stream);

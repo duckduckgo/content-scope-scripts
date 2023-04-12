@@ -406,7 +406,7 @@ export class DDGProxy {
             const handler = new globalObj.wrappedJSObject.Object()
             handler.apply = exportFunction(outputHandler, globalObj)
             handler.get = exportFunction(getMethod, globalObj)
-            // @ts-ignore
+            // @ts-expect-error wrappedJSObject is not a property of objectScope
             this.internal = new globalObj.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
         } else {
             this._native = objectScope[property]
@@ -420,7 +420,7 @@ export class DDGProxy {
     // Actually apply the proxy to the native property
     overload () {
         if (hasMozProxies) {
-            // @ts-ignore
+            // @ts-expect-error wrappedJSObject is not a property of objectScope
             exportFunction(this.internal, this.objectScope, { defineAs: this.property })
         } else {
             this.objectScope[this.property] = this.internal
@@ -470,7 +470,7 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
 /**
  * @typedef {object} Platform
  * @property {'ios' | 'macos' | 'extension' | 'android' | 'windows'} name
- * @property {string} [version]
+ * @property {string | number } [version]
  */
 
 /**
@@ -478,11 +478,69 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
  * @property {Platform} platform
  * @property {boolean} [debug]
  * @property {boolean} [globalPrivacyControl]
+ * @property {number} [versionNumber] - Android version number only
+ * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
  */
 
 /**
- * @param {{ features: Record<string, { state: string; settings: any; exceptions: string[] }>; unprotectedTemporary: string; }} data
+ * Expansion point to add platform specific versioning logic
+ * @param {UserPreferences} preferences
+ * @returns {string | number | undefined}
+ */
+function getPlatformVersion (preferences) {
+    if (preferences.versionNumber) {
+        return preferences.versionNumber
+    }
+    if (preferences.versionString) {
+        return preferences.versionString
+    }
+    return undefined
+}
+
+export function parseVersionString (versionString) {
+    const [major = 0, minor = 0, patch = 0] = versionString.split('.').map(Number)
+    return {
+        major,
+        minor,
+        patch
+    }
+}
+
+/**
+ * @param {string} minVersionString
+ * @param {string} applicationVersionString
+ * @returns {boolean}
+ */
+export function satisfiesMinVersion (minVersionString, applicationVersionString) {
+    const { major: minMajor, minor: minMinor, patch: minPatch } = parseVersionString(minVersionString)
+    const { major, minor, patch } = parseVersionString(applicationVersionString)
+
+    return (major > minMajor ||
+            (major >= minMajor && minor > minMinor) ||
+            (major >= minMajor && minor >= minMinor && patch >= minPatch))
+}
+
+/**
+ * @param {string | number | undefined} minSupportedVersion
+ * @param {string | number | undefined} currentVersion
+ * @returns {boolean}
+ */
+function isSupportedVersion (minSupportedVersion, currentVersion) {
+    if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
+        if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
+            return true
+        }
+    } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {
+        if (minSupportedVersion <= currentVersion) {
+            return true
+        }
+    }
+    return false
+}
+
+/**
+ * @param {{ features: Record<string, { state: string; settings: any; exceptions: string[], minSupportedVersion?: string|number }>; unprotectedTemporary: string[]; }} data
  * @param {string[]} userList
  * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
@@ -492,13 +550,25 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0
     const remoteFeatureNames = Object.keys(data.features)
     const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
+    /** @type {Record<string, any>} */
+    const output = { ...preferences }
+    if (output.platform) {
+        const version = getPlatformVersion(preferences)
+        if (version) {
+            output.platform.version = version
+        }
+    }
     const enabledFeatures = remoteFeatureNames.filter((featureName) => {
         const feature = data.features[featureName]
+        // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+        if (feature.minSupportedVersion && preferences.platform?.version) {
+            if (!isSupportedVersion(feature.minSupportedVersion, preferences.platform.version)) {
+                return false
+            }
+        }
         return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
     }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
     const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary)
-    /** @type {Record<string, any>} */
-    const output = { ...preferences }
     output.site = {
         domain: topLevelHostname,
         isBroken,

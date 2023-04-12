@@ -437,7 +437,7 @@ var ExamplePageMessages = class {
       /**
        * @returns {Promise<boolean>}
        */
-      getOptions: async () => {
+      getOptions: () => {
         return this.messaging.request("hello", { world: "here" });
       }
     });

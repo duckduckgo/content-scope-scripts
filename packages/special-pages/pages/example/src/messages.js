@@ -11,7 +11,7 @@ export class ExamplePageMessages {
         /**
          * @returns {Promise<boolean>}
          */
-        getOptions: async () => {
+        getOptions: () => {
             return this.messaging.request('hello', { world: 'here' })
         }
     }

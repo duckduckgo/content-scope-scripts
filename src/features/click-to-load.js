@@ -1,4 +1,7 @@
+// TODO - Remove these comments to enable full linting.
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/await-thenable, require-await */
 // @ts-nocheck
+
 import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { styles, getConfig } from './click-to-load/ctl-config.js'
@@ -226,13 +229,13 @@ class DuckWidget {
     }
 
     /*
-        * Fades out the given element. Returns a promise that resolves when the fade is complete.
-        * @param {Element} element - the element to fade in or out
-        * @param {int} interval - frequency of opacity updates (ms)
-        * @param {bool} fadeIn - true if the element should fade in instead of out
-        */
+     * Fades out the given element. Returns a promise that resolves when the fade is complete.
+     * @param {Element} element - the element to fade in or out
+     * @param {int} interval - frequency of opacity updates (ms)
+     * @param {boolean} fadeIn - true if the element should fade in instead of out
+     */
     fadeElement (element, interval, fadeIn) {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             let opacity = fadeIn ? 0 : 1
             const originStyle = element.style.cssText
             const fadeOut = setInterval(function () {
@@ -256,7 +259,7 @@ class DuckWidget {
 
     clickFunction (originalElement, replacementElement) {
         let clicked = false
-        const handleClick = async function handleClick (e) {
+        const handleClick = function handleClick (e) {
             // Ensure that the click is created by a user event & prevent double clicks from adding more animations
             if (e.isTrusted && !clicked) {
                 this.isUnblocked = true
@@ -329,15 +332,13 @@ class DuckWidget {
                     parent.replaceChild(fbContainer, replacementElement)
                     fbContainer.appendChild(replacementElement)
                     fadeIn.appendChild(fbElement)
-                    fbElement.addEventListener('load', () => {
-                        this.fadeOutElement(replacementElement)
-                            .then(v => {
-                                fbContainer.replaceWith(fbElement)
-                                this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked')
-                                this.fadeInElement(fadeIn).then(() => {
-                                    fbElement.focus() // focus on new element for screen readers
-                                })
-                            })
+                    fbElement.addEventListener('load', async () => {
+                        await this.fadeOutElement(replacementElement)
+                        fbContainer.replaceWith(fbElement)
+                        this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked')
+                        await this.fadeInElement(fadeIn)
+                        // Focus on new element for screen readers.
+                        fbElement.focus()
                     }, { once: true })
                     // Note: This event only fires on Firefox, on Chrome the frame's
                     //       load event will always fire.
@@ -536,7 +537,7 @@ async function replaceClickToLoadElements (targetElement) {
  * @typedef unblockClickToLoadContentRequest
  * @property {string} entity
  *   The entity to unblock requests for (e.g. "Facebook, Inc.").
- * @property {bool} [isLogin=false]
+ * @property {boolean} [isLogin=false]
  *   True if we should "allow social login", defaults to false.
  * @property {string} action
  *   The Click to Load blocklist rule action (e.g. "block-ctl-fb") that should
@@ -549,7 +550,7 @@ async function replaceClickToLoadElements (targetElement) {
  * Send a message to the background to unblock requests for the given entity for
  * the page.
  * @param {unblockClickToLoadContentRequest} message
- * @see {@event ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
+ * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
  */
 function unblockClickToLoadContent (message) {
     sendMessage('unblockClickToLoadContent', message)

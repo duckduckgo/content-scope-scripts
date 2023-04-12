@@ -4,6 +4,7 @@
 import { processConfig } from '../src/utils.js'
 import { setup } from './helpers/harness.js'
 import * as fs from 'fs'
+import polyfillProcessGlobals from '../unit-test/helpers/pollyfil-for-process-globals.js'
 
 describe('Test integration pages', () => {
     let browser
@@ -35,24 +36,7 @@ describe('Test integration pages', () => {
             const res = fs.readFileSync(process.cwd() + '/integration-test/test-pages/' + configName)
             // @ts-expect-error - JSON.parse returns any
             const config = JSON.parse(res)
-            // Pollyfill for globalThis methods needed in processConfig
-            globalThis.document = {
-                referrer: 'http://localhost:8080',
-                location: {
-                    href: 'http://localhost:8080',
-                    // @ts-expect-error - ancestorOrigins is not defined in the type definition
-                    ancestorOrigins: {
-                        length: 0
-                    }
-                }
-            }
-            globalThis.location = {
-                href: 'http://localhost:8080',
-                // @ts-expect-error - ancestorOrigins is not defined in the type definition
-                ancestorOrigins: {
-                    length: 0
-                }
-            }
+            polyfillProcessGlobals()
 
             /** @type {import('../src/utils.js').UserPreferences} */
             const userPreferences = {
@@ -66,7 +50,7 @@ describe('Test integration pages', () => {
             await gotoAndWait(page, `http://localhost:${port}/${pageName}?automation=true`, processedConfig)
             // Check page results
             const pageResults = await page.evaluate(
-                async () => {
+                () => {
                     let res
                     const promise = new Promise(resolve => {
                         res = resolve

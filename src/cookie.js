@@ -22,13 +22,13 @@ export class Cookie {
     }
 
     getExpiry () {
-        // @ts-ignore
+        // @ts-expect-error expires is not defined in the type definition
         if (!this.maxAge && !this.expires) {
             return NaN
         }
         const expiry = this.maxAge
             ? parseInt(this.maxAge)
-            // @ts-ignore
+            // @ts-expect-error expires is not defined in the type definition
             : (new Date(this.expires) - new Date()) / 1000
         return expiry
     }
