@@ -322,6 +322,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                         return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'))
                     }
 
+                    // eslint-disable-next-line promise/prefer-await-to-then
                     return DDGReflect.apply(target, thisArg, args).then(function (stream) {
                         console.debug(`User stream ${stream.id} has been acquired`)
                         userMediaStreams.add(stream)

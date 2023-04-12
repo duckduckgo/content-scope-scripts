@@ -1,11 +1,12 @@
 {
     "root": true,
-    "plugins": ["@typescript-eslint"],
+    "plugins": ["promise", "@typescript-eslint"],
     "parserOptions": {
       "ecmaVersion": "latest",
     },
     "rules": {
         "no-implicit-globals": "error",
-        "typescript-eslint/ban-ts-comment": "off"
+        "typescript-eslint/ban-ts-comment": "off",
+        "promise/prefer-await-to-then": "off",
     }
 }

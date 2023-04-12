@@ -406,7 +406,7 @@ export class DDGProxy {
             const handler = new globalObj.wrappedJSObject.Object()
             handler.apply = exportFunction(outputHandler, globalObj)
             handler.get = exportFunction(getMethod, globalObj)
-            // @ts-ignore
+            // @ts-expect-error wrappedJSObject is not a property of objectScope
             this.internal = new globalObj.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
         } else {
             this._native = objectScope[property]
@@ -420,7 +420,7 @@ export class DDGProxy {
     // Actually apply the proxy to the native property
     overload () {
         if (hasMozProxies) {
-            // @ts-ignore
+            // @ts-expect-error wrappedJSObject is not a property of objectScope
             exportFunction(this.internal, this.objectScope, { defineAs: this.property })
         } else {
             this.objectScope[this.property] = this.internal

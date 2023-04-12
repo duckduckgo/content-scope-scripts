@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { styles, getConfig } from './click-to-load/ctl-config.js'
@@ -186,9 +185,11 @@ class DuckWidget {
     adjustYouTubeVideoElement (videoElement) {
         let onError = null
 
+        // @ts-expect-error inital fix of click-to-load (please remove)
         if (!videoElement.src) {
             return onError
         }
+        // @ts-expect-error inital fix of click-to-load (please remove)
         const url = new URL(videoElement.src)
         const { hostname: originalHostname } = url
 
@@ -202,6 +203,7 @@ class DuckWidget {
             url.hostname = 'www.youtube-nocookie.com'
             onError = (event) => {
                 url.hostname = originalHostname
+                // @ts-expect-error inital fix of click-to-load (please remove)
                 videoElement.src = url.href
                 event.stopImmediatePropagation()
             }
@@ -211,6 +213,7 @@ class DuckWidget {
         // loaded, otherwise it doesn't allow autoplay.
         let allowString = videoElement.getAttribute('allow') || ''
         const allowed = new Set(allowString.split(';').map(s => s.trim()))
+        // @ts-expect-error inital fix of click-to-load (please remove)
         if (this.autoplay) {
             allowed.add('autoplay')
             url.searchParams.set('autoplay', '1')
@@ -221,6 +224,7 @@ class DuckWidget {
         allowString = Array.from(allowed).join('; ')
         videoElement.setAttribute('allow', allowString)
 
+        // @ts-expect-error inital fix of click-to-load (please remove)
         videoElement.src = url.href
         return onError
     }
@@ -256,13 +260,14 @@ class DuckWidget {
 
     clickFunction (originalElement, replacementElement) {
         let clicked = false
-        const handleClick = async function handleClick (e) {
+        const handleClick = function handleClick (e) {
             // Ensure that the click is created by a user event & prevent double clicks from adding more animations
             if (e.isTrusted && !clicked) {
                 this.isUnblocked = true
                 clicked = true
                 let isLogin = false
                 const clickElement = e.srcElement // Object.assign({}, e)
+                // @ts-expect-error inital fix of click-to-load (please remove)
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true
                 }
@@ -271,8 +276,10 @@ class DuckWidget {
 
                     // If we allow everything when this element is clicked,
                     // notify surrogate to enable SDK and replace original element.
+                    // @ts-expect-error inital fix of click-to-load (please remove)
                     if (this.clickAction.type === 'allowFull') {
                         parent.replaceChild(originalElement, replacementElement)
+                        // @ts-expect-error inital fix of click-to-load (please remove)
                         this.dispatchEvent(window, 'ddg-ctp-load-sdk')
                         return
                     }
@@ -284,6 +291,7 @@ class DuckWidget {
 
                     // Loading animation (FB can take some time to load)
                     const loadingImg = document.createElement('img')
+                    // @ts-expect-error inital fix of click-to-load (please remove)
                     loadingImg.setAttribute('src', loadingImages[this.getMode()])
                     loadingImg.setAttribute('height', '14px')
                     loadingImg.style.cssText = styles.loadingImg
@@ -308,11 +316,14 @@ class DuckWidget {
 
                     let fbElement
                     let onError = null
+                    // @ts-expect-error inital fix of click-to-load (please remove)
                     switch (this.clickAction.type) {
                     case 'iFrame':
+                        // @ts-expect-error inital fix of click-to-load (please remove)
                         fbElement = this.createFBIFrame()
                         break
                     case 'youtube-video':
+                        // @ts-expect-error inital fix of click-to-load (please remove)
                         onError = this.adjustYouTubeVideoElement(originalElement)
                         fbElement = originalElement
                         break
@@ -329,15 +340,15 @@ class DuckWidget {
                     parent.replaceChild(fbContainer, replacementElement)
                     fbContainer.appendChild(replacementElement)
                     fadeIn.appendChild(fbElement)
-                    fbElement.addEventListener('load', () => {
-                        this.fadeOutElement(replacementElement)
-                            .then(v => {
-                                fbContainer.replaceWith(fbElement)
-                                this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked')
-                                this.fadeInElement(fadeIn).then(() => {
-                                    fbElement.focus() // focus on new element for screen readers
-                                })
-                            })
+                    fbElement.addEventListener('load', async () => {
+                        // @ts-expect-error inital fix of click-to-load (please remove)
+                        const v = await this.fadeOutElement(replacementElement)
+                        fbContainer.replaceWith(fbElement)
+                        // @ts-expect-error inital fix of click-to-load (please remove)
+                        this.dispatchEvent(fbElement, 'ddg-ctp-placeholder-clicked')
+                        // @ts-expect-error inital fix of click-to-load (please remove)
+                        await this.fadeInElement(fadeIn)
+                        fbElement.focus() // focus on new element for screen readers
                     }, { once: true })
                     // Note: This event only fires on Firefox, on Chrome the frame's
                     //       load event will always fire.
@@ -345,7 +356,9 @@ class DuckWidget {
                         fbElement.addEventListener('error', onError, { once: true })
                     }
                 }, { once: true })
+                // @ts-expect-error inital fix of click-to-load (please remove)
                 const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
+                // @ts-expect-error inital fix of click-to-load (please remove)
                 unblockClickToLoadContent({ entity: this.entity, action, isLogin })
             }
         }.bind(this)
@@ -378,7 +391,7 @@ function replaceTrackingElement (widget, trackingElement, placeholderElement, cu
  * @param {Element} trackingElement
  *   The tracking element on the page that should be replaced with a placeholder.
  */
-async function createPlaceholderElementAndReplace (widget, trackingElement) {
+function createPlaceholderElementAndReplace (widget, trackingElement) {
     if (widget.replaceSettings.type === 'blank') {
         replaceTrackingElement(widget, trackingElement, document.createElement('div'))
     }
@@ -397,9 +410,10 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
     /** Facebook CTL */
     if (widget.replaceSettings.type === 'dialog') {
         const icon = widget.replaceSettings.icon
+        // @ts-expect-error inital fix of click-to-load (please remove)
         const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
         const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
-        const { contentBlock, shadowRoot } = await createContentBlock(
+        const { contentBlock, shadowRoot } = createContentBlock(
             widget, button, textButton, icon
         )
         button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
@@ -408,16 +422,18 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         replaceTrackingElement(
             widget, trackingElement, contentBlock
         )
+        // @ts-expect-error inital fix of click-to-load (please remove)
         showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
     }
 
     /** YouTube CTL */
     if (widget.replaceSettings.type === 'youtube-video') {
         sendMessage('updateYouTubeCTLAddedFlag', true)
-        await replaceYouTubeCTL(trackingElement, widget)
+        replaceYouTubeCTL(trackingElement, widget)
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
+        // @ts-expect-error inital fix of click-to-load (please remove)
         window.addEventListener('ddg-settings-youtubePreviewsEnabled', ({ detail: value }) => {
             isYoutubePreviewsEnabled = value
             replaceYouTubeCTL(trackingElement, widget, true)
@@ -434,7 +450,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
  *   Boolean indicating if this function should toggle between placeholders,
  *   because tracking element has already been replaced
  */
-async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = false) {
+function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = false) {
     // Skip replacing tracking element if it has already been unblocked
     if (widget.isUnblocked) {
         return
@@ -442,7 +458,7 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
 
     // Show YouTube Preview for embedded video
     if (isYoutubePreviewsEnabled === true) {
-        const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
+        const { youTubePreview, shadowRoot } = createYouTubePreview(trackingElement, widget)
         const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
         resizeElementToMatch(currentPlaceholder || trackingElement, youTubePreview)
         replaceTrackingElement(
@@ -452,13 +468,15 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
 
         // Block YouTube embedded video and display blocking dialog
     } else {
+        // @ts-expect-error inital fix of click-to-load (please remove)
         widget.autoplay = false
-        const { blockingDialog, shadowRoot } = await createYouTubeBlockingDialog(trackingElement, widget)
+        const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
         const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
         resizeElementToMatch(currentPlaceholder || trackingElement, blockingDialog)
         replaceTrackingElement(
             widget, trackingElement, blockingDialog, currentPlaceholder
         )
+        // @ts-expect-error inital fix of click-to-load (please remove)
         showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
     }
 }
@@ -480,13 +498,17 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
     const { height: parentHeight } = window.getComputedStyle(placeholder.parentElement)
     if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
         const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
+        // @ts-expect-error inital fix of click-to-load (please remove)
         titleRowTextButton.style.display = 'block'
 
         // Avoid the placeholder being taller than the containing element
         // and overflowing.
         const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
+        // @ts-expect-error inital fix of click-to-load (please remove)
         innerDiv.style.minHeight = ''
+        // @ts-expect-error inital fix of click-to-load (please remove)
         innerDiv.style.maxHeight = parentHeight
+        // @ts-expect-error inital fix of click-to-load (please remove)
         innerDiv.style.overflow = 'hidden'
     }
 }
@@ -536,7 +558,7 @@ async function replaceClickToLoadElements (targetElement) {
  * @typedef unblockClickToLoadContentRequest
  * @property {string} entity
  *   The entity to unblock requests for (e.g. "Facebook, Inc.").
- * @property {bool} [isLogin=false]
+ * @property {boolean} [isLogin=false]
  *   True if we should "allow social login", defaults to false.
  * @property {string} action
  *   The Click to Load blocklist rule action (e.g. "block-ctl-fb") that should
@@ -549,7 +571,7 @@ async function replaceClickToLoadElements (targetElement) {
  * Send a message to the background to unblock requests for the given entity for
  * the page.
  * @param {unblockClickToLoadContentRequest} message
- * @see {@event ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
+ * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
  */
 function unblockClickToLoadContent (message) {
     sendMessage('unblockClickToLoadContent', message)
@@ -620,13 +642,16 @@ function resizeElementToMatch (sourceElement, targetElement) {
     //       the source element instead?
     const { height, width } = sourceElement.getBoundingClientRect()
     if (height > 0 && width > 0) {
+        // @ts-expect-error inital fix of click-to-load (please remove)
         targetElement.style.height = height + 'px'
+        // @ts-expect-error inital fix of click-to-load (please remove)
         targetElement.style.width = width + 'px'
     } else {
         stylesToCopy.push('height', 'width')
     }
 
     for (const key of stylesToCopy) {
+        // @ts-expect-error inital fix of click-to-load (please remove)
         targetElement.style[key] = computedStyle[key]
     }
 }
@@ -883,7 +908,7 @@ function makeLoginButton (buttonText, mode, hoverTextBody, icon, originalElement
     }
 }
 
-async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
+function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
     const icon = entityData[entity].modalIcon
 
     const modalContainer = document.createElement('div')
@@ -1007,7 +1032,7 @@ function createTitleRow (message, textButton, closeBtnFn) {
 }
 
 // Create the content block to replace other divs/iframes with
-async function createContentBlock (widget, button, textButton, img, bottomRow) {
+function createContentBlock (widget, button, textButton, img, bottomRow) {
     const contentBlock = document.createElement('div')
     contentBlock.style.cssText = styles.wrapperDiv
 
@@ -1082,7 +1107,7 @@ async function createContentBlock (widget, button, textButton, img, bottomRow) {
 }
 
 // Create the content block to replace embedded youtube videos/iframes with
-async function createYouTubeBlockingDialog (trackingElement, widget) {
+function createYouTubeBlockingDialog (trackingElement, widget) {
     const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
     const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
 
@@ -1102,7 +1127,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
     )
     bottomRow.appendChild(previewToggle)
 
-    const { contentBlock, shadowRoot } = await createContentBlock(
+    const { contentBlock, shadowRoot } = createContentBlock(
         widget, button, textButton, null, bottomRow
     )
     contentBlock.id = trackingElement.id
@@ -1128,7 +1153,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
  * @returns {{ youTubePreview: Element, shadowRoot: Element }}
  *   Object containing the YouTube Preview element and its shadowRoot.
  */
-async function createYouTubePreview (originalElement, widget) {
+function createYouTubePreview (originalElement, widget) {
     const youTubePreview = document.createElement('div')
     youTubePreview.id = originalElement.id
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
@@ -1138,6 +1163,7 @@ async function createYouTubePreview (originalElement, widget) {
     // Protect the contents of our placeholder inside a shadowRoot, to avoid
     // it being styled by the website's stylesheets.
     const shadowRoot = youTubePreview.attachShadow({ mode: devMode ? 'open' : 'closed' })
+    // @ts-expect-error inital fix of click-to-load (please remove)
     const { wrapperClass, styleElement } = makeBaseStyleElement(widget.getMode())
     shadowRoot.appendChild(styleElement)
 
@@ -1186,6 +1212,7 @@ async function createYouTubePreview (originalElement, widget) {
     const playButtonRow = document.createElement('div')
     playButtonRow.style.cssText = styles.youTubePlayButtonRow
 
+    // @ts-expect-error inital fix of click-to-load (please remove)
     const playButton = makeButton('', widget.getMode())
     playButton.style.cssText += styles.youTubePlayButton
 
@@ -1231,12 +1258,15 @@ async function createYouTubePreview (originalElement, widget) {
 
     youTubePreviewDiv.appendChild(innerDiv)
 
+    // @ts-expect-error inital fix of click-to-load (please remove)
     widget.autoplay = false
     // We use .then() instead of await here to show the placeholder right away
     // while the YouTube endpoint takes it time to respond.
+    // @ts-expect-error inital fix of click-to-load (please remove)
     const videoURL = originalElement.src || originalElement.getAttribute('data-src')
     getYouTubeVideoDetails(videoURL)
     window.addEventListener('ddg-ctp-youTubeVideoDetails',
+        // @ts-expect-error inital fix of click-to-load (please remove)
         ({ detail: { videoURL: videoURLResp, status, title, previewImage } }) => {
             if (videoURLResp !== videoURL) { return }
             if (status === 'success') {
@@ -1245,6 +1275,7 @@ async function createYouTubePreview (originalElement, widget) {
                 if (previewImage) {
                     previewImageElement.setAttribute('src', previewImage)
                 }
+                // @ts-expect-error inital fix of click-to-load (please remove)
                 widget.autoplay = true
             }
         }
@@ -1254,6 +1285,7 @@ async function createYouTubePreview (originalElement, widget) {
     const feedbackRow = makeShareFeedbackRow()
     shadowRoot.appendChild(feedbackRow)
 
+    // @ts-expect-error inital fix of click-to-load (please remove)
     return { youTubePreview, shadowRoot }
 }
 
@@ -1271,6 +1303,7 @@ const messageResponseHandlers = {
 
         // Start Click to Load
         window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
+            // @ts-expect-error inital fix of click-to-load (please remove)
             replaceClickToLoadElements(target)
         }, { capture: true })
 
@@ -1338,16 +1371,21 @@ export default class ClickToLoad extends ContentFeature {
 
         // Listen for events from "surrogate" scripts.
         addEventListener('ddg-ctp', (event) => {
+            // @ts-expect-error inital fix of click-to-load (please remove)
             if (!event.detail) return
+            // @ts-expect-error inital fix of click-to-load (please remove)
             const entity = event.detail.entity
             if (!entities.includes(entity)) {
                 // Unknown entity, reject
                 return
             }
+            // @ts-expect-error inital fix of click-to-load (please remove)
             if (event.detail.appID) {
+                // @ts-expect-error inital fix of click-to-load (please remove)
                 appID = JSON.stringify(event.detail.appID).replace(/"/g, '')
             }
             // Handle login call
+            // @ts-expect-error inital fix of click-to-load (please remove)
             if (event.detail.action === 'login') {
                 if (entityData[entity].shouldShowLoginModal) {
                     makeModal(entity, runLogin, entity)
