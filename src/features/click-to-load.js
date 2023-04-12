@@ -95,8 +95,7 @@ class DuckWidget {
         if (this.replaceSettings.type === 'loginButton') {
             return 'loginMode'
         }
-        const mode = this.originalElement.getAttribute('data-colorscheme')
-        if (mode === 'dark') {
+        if (window?.matchMedia('(prefers-color-scheme: dark)')?.matches) {
             return 'darkMode'
         }
         return 'lightMode'
