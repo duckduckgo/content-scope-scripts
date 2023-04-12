@@ -12,7 +12,6 @@ let cookiePolicy = {
     shouldBlockTrackerCookie: true,
     shouldBlockNonTrackerCookie: false,
     isThirdPartyFrame: isThirdPartyFrame(),
-    trackerLookup: {},
     policy: {
         threshold: 604800, // 7 days
         maxAge: 604800 // 7 days
@@ -23,6 +22,7 @@ let cookiePolicy = {
     },
     allowlist: []
 }
+let trackerLookup = {}
 
 let loadedPolicyResolve
 
@@ -63,7 +63,7 @@ function isFirstPartyTrackerScript (scriptOrigins) {
         if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
             return false
         }
-        if (isTrackerOrigin(cookiePolicy.trackerLookup, scriptOrigin)) {
+        if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
             matched = true
         }
     }
@@ -91,7 +91,7 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.isTracker = true
         }
         if (args.trackerLookup) {
-            cookiePolicy.trackerLookup = args.trackerLookup
+            trackerLookup = args.trackerLookup
         }
         if (args.bundledConfig) {
             // use the bundled config to get a best-effort at the policy, before the background sends the real one
@@ -213,9 +213,7 @@ export default class CookieFeature extends ContentFeature {
 
     init (args) {
         if (args.cookie) {
-            const trackerLookup = cookiePolicy.trackerLookup
             cookiePolicy = args.cookie
-            cookiePolicy.trackerLookup = trackerLookup
             args.cookie.debug = args.debug
 
             cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie')
