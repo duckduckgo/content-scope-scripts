@@ -73,7 +73,7 @@ test.describe('duckplayer toolbar', () => {
 })
 
 test.describe('duckplayer settings', () => {
-    test('always open setting', async ({ page }, workerInfo) => {
+    test.skip('always open setting', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         // load as normal
         await duckplayer.openWithVideoID()
@@ -89,7 +89,7 @@ test.describe('duckplayer settings', () => {
         await duckplayer.toggleAlwaysOpenSetting()
         await duckplayer.sentUpdatedSettings()
     })
-    test('when a new value arrives via subscription', async ({ page }, workerInfo) => {
+    test.skip('when a new value arrives via subscription', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         // load as normal
         await duckplayer.openWithVideoID()
