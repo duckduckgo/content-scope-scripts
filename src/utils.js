@@ -479,6 +479,7 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
  * @property {boolean} [debug]
  * @property {boolean} [globalPrivacyControl]
  * @property {number} [versionNumber] - Android version number only
+ * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
  */
 
@@ -490,6 +491,9 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
 function getPlatformVersion (preferences) {
     if (preferences.versionNumber) {
         return preferences.versionNumber
+    }
+    if (preferences.versionString) {
+        return preferences.versionString
     }
     return undefined
 }
@@ -503,6 +507,11 @@ export function parseVersionString (versionString) {
     }
 }
 
+/**
+ * @param {string} minVersionString
+ * @param {string} applicationVersionString
+ * @returns {boolean}
+ */
 export function satisfiesMinVersion (minVersionString, applicationVersionString) {
     const { major: minMajor, minor: minMinor, patch: minPatch } = parseVersionString(minVersionString)
     const { major, minor, patch } = parseVersionString(applicationVersionString)
