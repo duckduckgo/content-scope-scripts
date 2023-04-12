@@ -22,6 +22,7 @@ function setWindowPropertyValue (property, value) {
     try {
         defineProperty(globalThis, property, {
             get: () => value,
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             set: () => {},
             configurable: true
         })
