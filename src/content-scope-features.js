@@ -35,7 +35,7 @@ const performanceMonitor = new PerformanceMonitor()
 /**
  * @param {LoadArgs} args
  */
-export async function load (args) {
+export function load (args) {
     const mark = performanceMonitor.mark('load')
     if (!shouldRun()) {
         return
@@ -47,6 +47,7 @@ export async function load (args) {
         if (isInjectedFeature(featureName)) {
             continue
         }
+        // eslint-disable-next-line promise/prefer-await-to-then
         const feature = import(`./features/${filename}.js`).then((exported) => {
             const ContentFeature = exported.default
             const featureInstance = new ContentFeature(featureName)
@@ -62,7 +63,7 @@ export async function load (args) {
  * Injects features that we wish to inject into the page as a script tag and runs it.
  * This currently is for runtime-checks.js for Firefox only.
  */
-async function injectFeatures (args) {
+function injectFeatures (args) {
     const codeFeatures = []
     const argsCopy = structuredClone(args)
     // Clear out featureSettings to reduce injection overhead
@@ -136,7 +137,7 @@ export async function init (args) {
     }
 }
 
-export async function update (args) {
+export function update (args) {
     if (!shouldRun()) {
         return
     }

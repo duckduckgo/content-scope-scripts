@@ -66,7 +66,7 @@ describe('Test integration pages', () => {
             await gotoAndWait(page, `http://localhost:${port}/${pageName}?automation=true`, processedConfig)
             // Check page results
             const pageResults = await page.evaluate(
-                async () => {
+                () => {
                     let res
                     const promise = new Promise(resolve => {
                         res = resolve

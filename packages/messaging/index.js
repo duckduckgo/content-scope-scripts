@@ -90,7 +90,6 @@ export class MessagingTransport {
      * @param {Record<string, any>} [data]
      * @returns {void}
      */
-    // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
     notify (name, data = {}) {
         throw new Error("must implement 'notify'")
     }
@@ -101,7 +100,6 @@ export class MessagingTransport {
      * @param {{signal?: AbortSignal}} [options]
      * @return {Promise<any>}
      */
-    // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
     request (name, data = {}, options = {}) {
         throw new Error('must implement')
     }
@@ -111,7 +109,6 @@ export class MessagingTransport {
      * @param {(value: unknown) => void} callback
      * @return {() => void}
      */
-    // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
     subscribe (name, callback) {
         throw new Error('must implement')
     }
