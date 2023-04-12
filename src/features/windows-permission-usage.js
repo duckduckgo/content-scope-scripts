@@ -23,7 +23,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         function windowsPostMessage (name, data) {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            window.chrome.webview.postMessage({
+            windowsInteropPostMessage({
                 Feature: 'Permissions',
                 Name: name,
                 Data: data
@@ -372,7 +372,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // handle actions from browser
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        window.chrome.webview.addEventListener('message', function ({ data }) {
+        windowsInteropAddEventListener('message', function ({ data }) {
             if (data?.action && data?.permission) {
                 performAction(data?.action, data?.permission)
             }

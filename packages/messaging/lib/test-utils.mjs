@@ -9,11 +9,14 @@
  */
 /**
  * Install a mock interface for windows messaging
- * @param {{messagingContext: import('../index.js').MessagingContext}} params
+ * @param {{
+ *  messagingContext: import('../index.js').MessagingContext,
+ *  responses: Record<string, any>
+ * }} params
  */
-export function mockWindows(params) {
+export function mockWindowsMessaging(params) {
     window.__playwright_01 = {
-        mockResponses: {},
+        mockResponses: params.responses,
         subscriptionEvents: [],
         mocks: {
             outgoing: []
@@ -128,6 +131,32 @@ export function waitForCallCount(params) {
  */
 export function readOutgoingMessages() {
     return window.__playwright_01.mocks.outgoing
+}
+
+/**
+ * simulate what happens in Windows environment where globals get erased
+ * @param {string} js
+ * @param {Record<string, any>} replacements
+ */
+export function wrapWindowsScripts(js, replacements) {
+    for (let [find, replace] of Object.entries(replacements)) {
+        js = js.replace(find, JSON.stringify(replace));
+    }
+    return `
+        (() => {
+            try {
+                const windowsInteropPostMessage = window.chrome.webview.postMessage;
+                const windowsInteropAddEventListener = window.chrome.webview.addEventListener;
+                const windowsInteropRemoveEventListener = window.chrome.webview.removeEventListener;
+                delete window.chrome.webview.postMessage;
+                delete window.chrome.webview.addEventListener;
+                delete window.chrome.webview.removeEventListener;
+                ${js}
+            } catch (e) {
+                console.error(e)
+            }
+        })();
+    `
 }
 
 /**

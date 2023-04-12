@@ -1,0 +1,23 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "duckPlayer": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "overlays": [
+          {
+            "domain": "www.youtube.com",
+            "state": "enabled"
+          }
+        ],
+        "proxy": [
+          {
+            "domain": "duckduckgo.com",
+            "state": "enabled"
+          }
+        ]
+      }
+    }
+  }
+}

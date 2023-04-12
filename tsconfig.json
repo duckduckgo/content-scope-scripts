@@ -16,7 +16,8 @@
     "unit-test",
     "integration-test",
     "inject",
-    "packages"
+    "packages",
+    "playwright.config.js"
   ],
   "exclude": [
     "unit-test/script-overload-snapshots",

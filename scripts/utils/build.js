@@ -2,6 +2,8 @@ import * as rollup from 'rollup'
 import commonjs from '@rollup/plugin-commonjs'
 import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
+import css from 'rollup-plugin-import-css'
+import svg from 'rollup-plugin-svg-import'
 import { runtimeInjected, platformSupport } from '../../src/features.js'
 
 /**
@@ -83,6 +85,10 @@ export async function rollupScript (params) {
     const mozProxies = supportsMozProxies
 
     const plugins = [
+        css(),
+        svg({
+            stringify: true
+        }),
         loadFeatures(platform, featureNames),
         runtimeInjections(platform),
         resolve(),
@@ -92,7 +98,8 @@ export async function rollupScript (params) {
             values: {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 mozProxies,
-                'import.meta.injectName': JSON.stringify(platform)
+                'import.meta.injectName': JSON.stringify(platform),
+                'import.meta.env': JSON.stringify(process.env.NODE_ENV || 'production')
             }
         }),
         prefixPlugin(prefixMessage)
