@@ -7,9 +7,6 @@
  *
  * Note: If you wish to support Catalina then you'll need to implement the native
  * part of the message handling, see {@link WebkitMessagingTransport} for details.
- *
- * ```javascript
- * [[include:packages/messaging/lib/examples/webkit.example.js]]```
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MessagingTransport, MissingHandler } from '../index.js'
@@ -63,11 +60,14 @@ import { MessagingTransport, MissingHandler } from '../index.js'
 export class WebkitMessagingTransport {
   /** @type {WebkitMessagingConfig} */
   config
+  /** @internal */
   globals
   /**
    * @param {WebkitMessagingConfig} config
+   * @param {import("../index.js").MessagingContext} messagingContext
    */
-  constructor(config) {
+  constructor(config, messagingContext) {
+    this.messagingContext = messagingContext;
     this.config = config
     this.globals = captureGlobals()
     if (!this.config.hasModernWebkitAPI) {
@@ -142,25 +142,24 @@ export class WebkitMessagingTransport {
     }
   }
   /**
-   * @param {string} name
-   * @param {Record<string, any>} [data]
+   * @param {import("../index.js").NotificationMessage} msg
    */
-  notify(name, data = {}) {
-    this.wkSend(name, data)
+  notify(msg) {
+    this.wkSend(msg.context, msg)
   }
   /**
-   * @param {string} name
-   * @param {Record<string, any>} [data]
+   * @param {import("../index.js").RequestMessage} msg
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  request(name, data = {}) {
-    return this.wkSendAndWait(name, data)
+  async request(msg, _opts) {
+    return this.wkSendAndWait(msg.context, msg)
   }
   /**
    * Generate a random method name and adds it to the global scope
    * The native layer will use this method to send the response
    * @param {string | number} randomMethodName
    * @param {Function} callback
+   * @internal
    */
   generateRandomMethod(randomMethodName, callback) {
     this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
@@ -179,21 +178,31 @@ export class WebkitMessagingTransport {
     })
   }
 
+  /**
+   * @internal
+   * @return {string}
+   */
   randomString() {
     return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0]
   }
 
+  /**
+   * @internal
+   * @return {string}
+   */
   createRandMethodName() {
     return '_' + this.randomString()
   }
 
   /**
    * @type {{name: string, length: number}}
+   * @internal
    */
   algoObj = { name: 'AES-GCM', length: 256 }
 
   /**
    * @returns {Promise<Uint8Array>}
+   * @internal
    */
   async createRandKey() {
     const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt'])
@@ -203,6 +212,7 @@ export class WebkitMessagingTransport {
 
   /**
    * @returns {Uint8Array}
+   * @internal
    */
   createRandIv() {
     return this.globals.getRandomValues(new this.globals.Uint8Array(12))
@@ -213,6 +223,7 @@ export class WebkitMessagingTransport {
    * @param {BufferSource} key
    * @param {Uint8Array} iv
    * @returns {Promise<string>}
+   * @internal
    */
   async decrypt(ciphertext, key, iv) {
     const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt'])
@@ -248,11 +259,11 @@ export class WebkitMessagingTransport {
   }
 
   /**
-   * @param {string} name
+   * @param {import("../index.js").Subscription} msg
    * @param {(value: unknown) => void} callback
    */
-  subscribe(name, callback) {
-    console.warn('webkit.subscribe is not implemented yet!', name, callback)
+  subscribe(msg, callback) {
+    console.warn('webkit.subscribe is not implemented yet!', msg, callback)
     return () => {
       console.log('teardown')
     }
@@ -260,20 +271,16 @@ export class WebkitMessagingTransport {
 }
 
 /**
- * Use this configuration to create an instance of {@link Messaging} for WebKit
+ * Use this configuration to create an instance of {@link Messaging} for WebKit platforms
  *
- * ```js
- * import { fromConfig, WebkitMessagingConfig } from "@duckduckgo/content-scope-scripts/lib/messaging.js"
+ * We support modern WebKit environments *and* macOS Catalina.
  *
- * const config = new WebkitMessagingConfig({
- *   hasModernWebkitAPI: true,
- *   webkitMessageHandlerNames: ["foo", "bar", "baz"],
- *   secret: "dax",
- * });
+ * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
  *
- * const messaging = new Messaging(config)
- * const resp = await messaging.request("debugConfig")
- * ```
+ * @example Webkit Messaging
+ *
+ * ```javascript
+ * [[include:packages/messaging/lib/examples/webkit.example.js]]```
  */
 export class WebkitMessagingConfig {
   /**
@@ -281,6 +288,7 @@ export class WebkitMessagingConfig {
    * @param {boolean} params.hasModernWebkitAPI
    * @param {string[]} params.webkitMessageHandlerNames
    * @param {string} params.secret
+   * @internal
    */
   constructor(params) {
     /**
@@ -289,12 +297,24 @@ export class WebkitMessagingConfig {
      */
     this.hasModernWebkitAPI = params.hasModernWebkitAPI
     /**
-     * A list of WebKit message handler names that a user script can send
+     * A list of WebKit message handler names that a user script can send.
+     *
+     * For example, if the native platform can receive messages through this:
+     *
+     * ```js
+     * window.webkit.messageHandlers.foo.postMessage('...')
+     * ```
+     *
+     * then, this property would be:
+     *
+     * ```js
+     * webkitMessageHandlerNames: ['foo']
+     * ```
      */
     this.webkitMessageHandlerNames = params.webkitMessageHandlerNames
     /**
      * A string provided by native platforms to be sent with future outgoing
-     * messages
+     * messages.
      */
     this.secret = params.secret
   }

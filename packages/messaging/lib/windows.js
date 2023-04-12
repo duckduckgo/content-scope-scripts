@@ -11,19 +11,24 @@
  * [[include:packages/messaging/lib/examples/windows.example.js]]```
  *
  */
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport } from '../index.js'
+import { MessagingTransport, NotificationMessage, RequestMessage } from '../index.js'
 
 /**
+ * An implementation of {@link MessagingTransport} for Windows
+ *
+ * All messages go through `window.chrome.webview` APIs
+ *
  * @implements {MessagingTransport}
  */
 export class WindowsMessagingTransport {
   config
   /**
    * @param {WindowsMessagingConfig} config
+   * @param {import("../index.js").MessagingContext} messagingContext
+   * @internal
    */
-  constructor(config) {
+  constructor(config, messagingContext) {
+    this.messagingContext = messagingContext;
     this.config = config
     for (let [methodName, fn] of Object.entries(this.config.methods)) {
       if (typeof fn !== 'function') {
@@ -32,32 +37,130 @@ export class WindowsMessagingTransport {
     }
   }
   /**
-   * @param {string} name
-   * @param {Record<string, any>} [data]
+   * @param {import("../index.js").NotificationMessage} msg
    */
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  notify(name, data = {}) {
-    windowsTransport(this.config, name, data, {})
+  notify(msg) {
+    const notification = WindowsNotification.fromNotification(msg);
+    this.config.methods.postMessage(notification)
   }
   /**
-   * @param {string} name
-   * @param {Record<string, any>} [data]
+   * @param {import("../index.js").RequestMessage} msg
    * @param {{signal?: AbortSignal}} opts
    * @return {Promise<any>}
    */
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  request(name, data = {}, opts = {}) {
-    return windowsTransport(this.config, name, data, opts).withResponse(name + 'Response')
+  request(msg, opts = {}) {
+
+    // convert the message to window-specific naming
+    const outgoing = WindowsRequestMessage.fromRequest(msg);
+
+    // send the message
+    this.config.methods.postMessage(outgoing)
+
+    // compare incoming messages against the `msg.id`
+    const comparator = (eventData) => {
+      return eventData.featureName === msg.featureName
+          && eventData.context === msg.context
+          && eventData.id === msg.id
+    }
+
+    // now wait for a matching message
+    return new Promise((resolve, reject) => {
+      try {
+        this._subscribe(comparator, opts, (value, unsubscribe) => {
+          unsubscribe();
+          if ('result' in value) {
+            resolve(value['result']);
+          } else if ('error' in value) {
+            // @ts-expect-error
+            reject(new Error(value.error.message || 'unknown error'))
+          } else {
+            console.warn('unknown response type', value);
+            reject(new Error('unknown response'))
+          }
+        })
+      } catch (e) {
+        reject(e)
+      }
+    })
+  }
+  /**
+   * @param {import("../index.js").Subscription} msg
+   * @param {(value: unknown | undefined) => void} callback
+   */
+  subscribe(msg, callback) {
+
+    // compare incoming messages against the `msg.subscriptionName`
+    const comparator = (eventData) => {
+      return eventData.featureName === msg.featureName
+          && eventData.context === msg.context
+          && eventData.subscriptionName === msg.subscriptionName
+    }
+
+    // only forward the 'params' from a SubscriptionEvent
+    const cb = (eventData) => {
+      return callback(eventData['params']);
+    }
+
+    // now listen for matching incoming messages.
+    return this._subscribe(comparator, {}, cb)
   }
 
   /**
-   * @param {string} name
-   * @param {(value: unknown) => void} callback
+   * @typedef {import("../index.js").MessageResponse | import("../index.js").SubscriptionEvent} Incoming
+   * @param {(eventData: any) => boolean} comparator
+   * @param {{signal?: AbortSignal}} options
+   * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
+   * @internal
    */
-  subscribe(name, callback) {
-    return subscribe(this.config, name, {}, callback)
+  _subscribe(comparator, options, callback) {
+    // if already aborted, reject immediately
+    if (options?.signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError')
+    }
+    /** @type {(()=>void) | undefined} */
+    let teardown
+
+    /**
+     * @param {MessageEvent} event
+     */
+    const idHandler = (event) => {
+      if (this.messagingContext.env === "production") {
+        if (event.origin !== null && event.origin !== undefined) {
+          console.warn("ignoring because evt.origin is not `null` or `undefined`");
+          return;
+        }
+      }
+      if (!event.data) {
+        console.warn('data absent from message')
+        return
+      }
+      if (comparator(event.data)) {
+        if (!teardown) throw new Error('unreachable')
+        callback(event.data, teardown)
+      }
+    }
+
+    // what to do if this promise is aborted
+    const abortHandler = () => {
+      teardown?.()
+      throw new DOMException('Aborted', 'AbortError')
+    }
+
+    // console.log('DEBUG: handler setup', { config, comparator })
+    // eslint-disable-next-line no-undef
+    this.config.methods.addEventListener('message', idHandler)
+    options?.signal?.addEventListener('abort', abortHandler)
+
+    teardown = () => {
+      // console.log('DEBUG: handler teardown', { config, comparator })
+      // eslint-disable-next-line no-undef
+      this.config.methods.removeEventListener('message', idHandler)
+      options?.signal?.removeEventListener('abort', abortHandler)
+    }
+
+    return () => {
+      teardown?.()
+    }
   }
 }
 
@@ -74,22 +177,20 @@ export class WindowsMessagingTransport {
  * - `window.chrome.webview.addEventListener`
  * - `window.chrome.webview.removeEventListener`
  *
- * However, we may want to restrict access to those globals, which is why this configuration
- * requires direct access to the methods, without knowing where they came from - so they
- * are probably provided within a lexical scope.
+ * Depending on where the script is running, we may want to restrict access to those globals. On the native
+ * side those handlers `window.chrome.webview` handlers might be deleted and replaces with in-scope variables, such as:
+ *
+ * ```ts
+ * [[include:packages/messaging/lib/examples/windows.example.js]]```
  *
  */
 export class WindowsMessagingConfig {
   /**
    * @param {object} params
-   * @param {string} params.featureName
    * @param {WindowsInteropMethods} params.methods
+   * @internal
    */
   constructor(params) {
-    /**
-     * @type {string}
-     */
-    this.featureName = params.featureName
     /**
      * The methods required for communication
      */
@@ -98,16 +199,6 @@ export class WindowsMessagingConfig {
      * @type {"windows"}
      */
     this.platform = 'windows'
-    // /**
-    //  * These are the global method names that are expected to be
-    //  * available in the same lexical scope as the script running (eg: **not** attached to the
-    //  * global window object)
-    //  */
-    // this.methodNamesInScope = /** @type {const} */ ([
-    //   'windowsInteropPostMessage',
-    //   'windowsInteropAddEventListener',
-    //   'windowsInteropRemoveEventListener',
-    // ])
   }
 }
 
@@ -129,97 +220,93 @@ export class WindowsInteropMethods {
 }
 
 /**
- * @param {WindowsMessagingConfig} config
- * @param {string} name
- * @param {Record<string, any>} data
- * @param {{signal?: AbortSignal}} options
+ * This data type represents a message sent to the Windows
+ * platform via `window.chrome.webview.postMessage`.
+ *
+ * **NOTE**: This is sent when a response is *not* expected
  */
-function windowsTransport(config, name, data, options) {
-  // eslint-disable-next-line no-undef
-  config.methods.postMessage({
-    Feature: config.featureName,
-    Name: name,
-    Data: data,
-  })
-  return {
-    /**
-     * Sends a message and returns a Promise that resolves with the response
-     * @param {string} responseId
-     * @returns {Promise<*>}
-     */
-    withResponse(responseId) {
-      return waitForWindowsResponse(config, responseId, options)
-    },
-  }
-}
-/**
- * @param {WindowsMessagingConfig} config
- * @param {string} responseId
- * @param {{signal?: AbortSignal}} options
- * @returns {Promise<any>}
- */
-function waitForWindowsResponse(config, responseId, options) {
-  return new Promise((resolve, reject) => {
-    try {
-      subscribe(config, responseId, options, (value, unsubscribe) => {
-        resolve(value)
-        unsubscribe()
-      })
-    } catch (e) {
-      reject(e)
-    }
-  })
-}
-
-/**
- * @param {WindowsMessagingConfig} config
- * @param {string} name
- * @param {{signal?: AbortSignal}} options
- * @param {(value: unknown, unsubscribe: (()=>void)) => void} callback
- */
-function subscribe(config, name, options, callback) {
-  // if already aborted, reject immediately
-  if (options?.signal?.aborted) {
-    throw new DOMException('Aborted', 'AbortError')
-  }
-  /** @type {(()=>void) | undefined} */
-  let teardown
-
-  // The event handler
+export class WindowsNotification {
   /**
-   * @param {MessageEvent} event
+   * @param {object} params
+   * @param {string} params.Feature
+   * @param {string} params.SubFeatureName
+   * @param {string} params.Name
+   * @param {Record<string, any>} [params.Data]
+   * @internal
    */
-  const handler = (event) => {
-    console.log(`📩 windows, ${window.location.href}`, [event.origin, JSON.stringify(event.data)])
-    if (!event.data) {
-      console.warn('data absent from message')
-      return
+  constructor (params) {
+    /**
+     * Alias for: {@link NotificationMessage.context}
+     */
+    this.Feature = params.Feature
+    /**
+     * Alias for: {@link NotificationMessage.featureName}
+     */
+    this.SubFeatureName = params.SubFeatureName
+    /**
+     * Alias for: {@link NotificationMessage.method}
+     */
+    this.Name = params.Name
+    /**
+     * Alias for: {@link NotificationMessage.params}
+     */
+    this.Data = params.Data
+  }
+
+  /**
+   * Helper to convert a {@link NotificationMessage} to a format that Windows can support
+   * @param {NotificationMessage} notification
+   * @returns {WindowsNotification}
+   */
+  static fromNotification(notification) {
+    /** @type {WindowsNotification} */
+    const output = {
+      Data: JSON.parse(JSON.stringify(notification.params || {})),
+      Feature: notification.context,
+      SubFeatureName: notification.featureName,
+      Name: notification.method,
     }
-    if (event.data.Feature === config.featureName && event.data.Name === name) {
-      if (!teardown) throw new Error('unreachable')
-      callback(event.data.Data, teardown)
+    return output;
+  }
+}
+
+/**
+ * This data type represents a message sent to the Windows
+ * platform via `window.chrome.webview.postMessage` when it
+ * expects a response
+ */
+export class WindowsRequestMessage {
+  /**
+   * @param {object} params
+   * @param {string} params.Feature
+   * @param {string} params.SubFeatureName
+   * @param {string} params.Name
+   * @param {Record<string, any>} [params.Data]
+   * @param {string} [params.Id]
+   * @internal
+   */
+  constructor (params) {
+    this.Feature = params.Feature
+    this.SubFeatureName = params.SubFeatureName
+    this.Name = params.Name
+    this.Data = params.Data
+    this.Id = params.Id
+  }
+
+  /**
+   * Helper to convert a {@link RequestMessage} to a format that Windows can support
+   * @param {RequestMessage} msg
+   * @returns {WindowsRequestMessage}
+   */
+  static fromRequest(msg) {
+    /** @type {WindowsRequestMessage} */
+    const output = {
+      Data: JSON.parse(JSON.stringify(msg.params || {})),
+      Feature: msg.context,
+      SubFeatureName: msg.featureName,
+      Name: msg.method,
+      Id: msg.id,
     }
-  }
-
-  // what to do if this promise is aborted
-  const abortHandler = () => {
-    teardown?.()
-    throw new DOMException('Aborted', 'AbortError')
-  }
-
-  console.log('DEBUG: handler setup', { feature: config.featureName, name })
-  // eslint-disable-next-line no-undef
-  config.methods.addEventListener('message', handler)
-  options?.signal?.addEventListener('abort', abortHandler)
-
-  teardown = () => {
-    console.log('DEBUG: handler teardown', { feature: config.featureName, name })
-    // eslint-disable-next-line no-undef
-    config.methods.removeEventListener('message', handler)
-    options?.signal?.removeEventListener('abort', abortHandler)
-  }
-
-  return () => {
-    teardown?.()
+    return output;
   }
 }

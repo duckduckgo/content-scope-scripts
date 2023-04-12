@@ -12,28 +12,47 @@
  *     - For example, to learn what configuration is required for Webkit, see: {@link WebkitMessagingConfig}
  *     - Or, to learn about how messages are sent and received in Webkit, see {@link WebkitMessagingTransport}
  *
- * @example Webkit Messaging
+ * ## Links
+ * Please see the following links for examples
  *
- * ```javascript
- * [[include:packages/messaging/lib/examples/webkit.example.js]]```
+ * - Windows: {@link WindowsMessagingConfig}
+ * - Webkit: {@link WebkitMessagingConfig}
+ * - Schema: {@link "Messaging Schema"}
  *
- * @example Windows Messaging
- *
- * ```javascript
- * [[include:packages/messaging/lib/examples/windows.example.js]]```
  */
-import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods } from './lib/windows.js'
+import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods, WindowsNotification, WindowsRequestMessage } from './lib/windows.js'
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
+import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js'
 
 /**
- * @implements {MessagingTransport}
+ * Common options/config that are *not* transport specific.
+ */
+export class MessagingContext {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {"production" | "development"} params.env
+     * @internal
+     */
+    constructor (params) {
+        this.context = params.context
+        this.featureName = params.featureName
+        this.env = params.env
+    }
+}
+
+/**
+ *
  */
 export class Messaging {
     /**
-     * @param {WebkitMessagingConfig | WindowsMessagingConfig} config
+     * @param {MessagingContext} messagingContext
+     * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
      */
-    constructor (config) {
-        this.transport = getTransport(config)
+    constructor (messagingContext, config) {
+        this.messagingContext = messagingContext
+        this.transport = getTransport(config, this.messagingContext)
     }
 
     /**
@@ -50,7 +69,13 @@ export class Messaging {
      * @param {Record<string, any>} [data]
      */
     notify (name, data = {}) {
-        this.transport.notify(name, data)
+        const message = new NotificationMessage({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            method: name,
+            params: data
+        })
+        this.transport.notify(message)
     }
 
     /**
@@ -68,7 +93,15 @@ export class Messaging {
      * @return {Promise<any>}
      */
     request (name, data = {}) {
-        return this.transport.request(name, data)
+        const id = name + '.response'
+        const message = new RequestMessage({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            method: name,
+            params: data,
+            id
+        })
+        return this.transport.request(message)
     }
 
     /**
@@ -77,7 +110,12 @@ export class Messaging {
      * @return {() => void}
      */
     subscribe (name, callback) {
-        return this.transport.subscribe(name, callback)
+        const msg = new Subscription({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            subscriptionName: name
+        })
+        return this.transport.subscribe(msg, callback)
     }
 }
 
@@ -86,44 +124,93 @@ export class Messaging {
  */
 export class MessagingTransport {
     /**
-     * @param {string} name
-     * @param {Record<string, any>} [data]
+     * @param {NotificationMessage} msg
      * @returns {void}
      */
-    notify (name, data = {}) {
+    // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
+    notify (msg) {
         throw new Error("must implement 'notify'")
     }
 
     /**
-     * @param {string} name
-     * @param {Record<string, any>} [data]
+     * @param {RequestMessage} msg
      * @param {{signal?: AbortSignal}} [options]
      * @return {Promise<any>}
      */
-    request (name, data = {}, options = {}) {
+    // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
+    request (msg, options = {}) {
         throw new Error('must implement')
     }
 
     /**
-     * @param {string} name
+     * @param {Subscription} msg
      * @param {(value: unknown) => void} callback
      * @return {() => void}
      */
-    subscribe (name, callback) {
+    // @ts-ignore - ignoring a no-unused ts error, this is only an interface.
+    subscribe (msg, callback) {
         throw new Error('must implement')
     }
 }
 
 /**
- * @param {WebkitMessagingConfig | WindowsMessagingConfig} config
+ * Use this to create testing transport on the fly.
+ * It's useful for debugging, and for enabling scripts to run in
+ * other environments - for example, testing in a browser without the need
+ * for a full integration
+ *
+ * ```js
+ * [[include:packages/messaging/lib/examples/test.example.js]]```
+ */
+export class TestTransportConfig {
+    /**
+     * @param {MessagingTransport} impl
+     */
+    constructor (impl) {
+        this.impl = impl
+    }
+}
+
+/**
+ * @implements {MessagingTransport}
+ */
+export class TestTransport {
+    /**
+     * @param {TestTransportConfig} config
+     * @param {MessagingContext} messagingContext
+     */
+    constructor (config, messagingContext) {
+        this.config = config
+        this.messagingContext = messagingContext
+    }
+
+    notify (msg) {
+        return this.config.impl.notify(msg)
+    }
+
+    request (msg, options) {
+        return this.config.impl.request(msg)
+    }
+
+    subscribe (msg, callback) {
+        return this.config.impl.subscribe(msg, callback)
+    }
+}
+
+/**
+ * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
+ * @param {MessagingContext} messagingContext
  * @returns {MessagingTransport}
  */
-function getTransport (config) {
+function getTransport (config, messagingContext) {
     if (config instanceof WebkitMessagingConfig) {
-        return new WebkitMessagingTransport(config)
+        return new WebkitMessagingTransport(config, messagingContext)
     }
     if (config instanceof WindowsMessagingConfig) {
-        return new WindowsMessagingTransport(config)
+        return new WindowsMessagingTransport(config, messagingContext)
+    }
+    if (config instanceof TestTransportConfig) {
+        return new TestTransport(config, messagingContext)
     }
     throw new Error('unreachable')
 }
@@ -150,5 +237,13 @@ export {
     WebkitMessagingTransport,
     WindowsMessagingConfig,
     WindowsMessagingTransport,
-    WindowsInteropMethods
+    WindowsInteropMethods,
+    NotificationMessage,
+    RequestMessage,
+    Subscription,
+    MessageResponse,
+    MessageError,
+    SubscriptionEvent,
+    WindowsNotification,
+    WindowsRequestMessage
 }
