@@ -8,3 +8,21 @@ declare namespace contentScopeFeatures {
     function load(args: object): void;
     function update(args: object): void;
 }
+
+/**
+ * Allows checks like `import.meta.env === "development"'
+ */
+interface ImportMeta {
+    env?: 'production' | 'development'
+    platform?: 'windows' | 'integration'
+}
+
+declare module '*.svg' {
+    const content: string
+    export default content
+}
+
+declare module '*.css' {
+    const content: string
+    export default content
+}
