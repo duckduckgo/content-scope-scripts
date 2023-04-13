@@ -230,8 +230,12 @@ body.faded .toolbar {
     }
 }
 
+.settings-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
 .settings-checkbox {
-    margin-top: 2px;
     margin-right: 4px;
     width: 14px;
     height: 14px;
