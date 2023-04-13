@@ -8,7 +8,7 @@ import minimist from 'minimist'
  * @param {string} content
  */
 export function write (filepaths, content) {
-    for (const filepath of filepaths) {
+    for (const filepath of filepaths.flat()) {
         try {
             const pathWithoutFile = dirname(filepath)
             mkdirSync(pathWithoutFile, { recursive: true })
