@@ -32,20 +32,6 @@ export class DuckPlayerPageMessages {
     }
 
     /**
-     * This occurs when a user has clicked on the 'Settings Cog'
-     *
-     * **OpenSettings example**
-     * ```json
-     * { "target": "duckplayer" }
-     * ```
-     *
-     * @param {OpenSettings} openSettings
-     */
-    openSettings (openSettings) {
-        this.messaging.notify('openSettings', openSettings)
-    }
-
-    /**
      * This is a subscription that we set up when the page loads.
      * We use this value to show/hide the checkboxes.
      *
@@ -77,7 +63,7 @@ export class DuckPlayerPageMessages {
 }
 
 /**
- * This data structure is sent to enable settings to be updated
+ * This data structure is sent to enable user settings to be updated
  *
  * ```js
  * [[include:packages/special-pages/pages/duckplayer/src/js/messages.example.js]]```
@@ -103,15 +89,5 @@ export class UserValues {
          * @type {boolean}
          */
         this.overlayInteracted = params.overlayInteracted
-    }
-}
-
-export class OpenSettings {
-    /**
-     * @param {object} params
-     * @param {"duckplayer"} params.target
-     */
-    constructor (params) {
-        this.target = params.target
     }
 }

@@ -141,25 +141,18 @@ export class DuckPlayerPage {
         await expect(this.page.locator('.info-icon-tooltip')).toBeHidden()
     }
 
-    async clickToOpenSettings () {
-        await this.page.locator('.open-settings').click()
-    }
-
-    /**
-     * @param {import("@playwright/test").Page} otherPage
-     */
-    async didOpenSettingsInNewPage (otherPage) {
-        const calls = await this.mocks.waitForCallCount({ method: 'openSettings', count: 1 })
-        expect(calls[0]).toMatchObject({
-            payload: {
-                context: 'specialPages',
-                featureName: 'duckPlayerPage',
-                method: 'openSettings',
-                params: {
-                    target: 'duckplayer'
-                }
-            }
+    async opensSettingsInNewTab () {
+        // duck:// scheme will fail, but we can assert that it was tried and grab the URL
+        const failure = new Promise(resolve => {
+            this.page.context().on('requestfailed', f => {
+                resolve(f.url())
+            })
         })
+
+        await this.page.locator('.open-settings').click()
+
+        // this is for windows, we'll need to support more
+        expect(await failure).toEqual('duck://settings/duckplayer')
     }
 
     async clickPlayOnYouTube () {

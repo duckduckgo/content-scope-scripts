@@ -60,8 +60,7 @@ test.describe('duckplayer toolbar', () => {
         await duckplayer.hasLoadedIframe()
 
         await page.mouse.move(1, 1)
-        await duckplayer.clickToOpenSettings()
-        await duckplayer.didOpenSettingsInNewPage(page)
+        await duckplayer.opensSettingsInNewTab()
     })
     test('opening in youtube', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
