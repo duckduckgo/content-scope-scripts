@@ -25,22 +25,20 @@
  * On Page Load
  *   - {@link DuckPlayerPageMessages.onUserValuesChanged} begins immediately. It expects an initial value, and then will continue to listen for updates
  *
- * Then the following 2 messages can be sent at any time
+ * Then the following message can be sent at any time
  *   - {@link DuckPlayerPageMessages.setUserValues}
- *   - {@link DuckPlayerPageMessages.openSettings}
  *
  * Please see {@link DuckPlayerPageMessages} for the up-to-date list
  */
 import {
     Messaging,
     WindowsMessagingConfig,
-    WebkitMessagingConfig,
     MessagingContext, TestTransportConfig
 } from '../../../../../messaging/index.js'
-import { DuckPlayerPageMessages, UserValues, OpenSettings } from './messages'
+import { DuckPlayerPageMessages, UserValues } from './messages'
 
 // for docs
-export { DuckPlayerPageMessages, UserValues, OpenSettings }
+export { DuckPlayerPageMessages, UserValues }
 
 const VideoPlayer = {
     /**
@@ -520,10 +518,9 @@ const Setting = {
         })
 
         const settingsIcon = Setting.settingsIcon()
-        settingsIcon.addEventListener('click', (e) => {
-            e.preventDefault()
-            Comms.messaging.openSettings(new OpenSettings({ target: 'duckplayer' }))
-        })
+
+        // windows settings - we will need to alter for other platforms.
+        settingsIcon.setAttribute('href', 'duck://settings/duckplayer')
     }
 }
 
