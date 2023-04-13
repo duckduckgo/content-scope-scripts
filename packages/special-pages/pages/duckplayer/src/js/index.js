@@ -353,7 +353,7 @@ const Comms = {
                     if (msg.method === 'getUserValues') {
                         return Promise.resolve(new UserValues({
                             overlayInteracted: false,
-                            privatePlayerMode: { enabled: {} }
+                            privatePlayerMode: { alwaysAsk: {} }
                         }))
                     }
                     return Promise.resolve(null)
