@@ -17,6 +17,7 @@ export default class ContentFeature {
     }
 
     get platform () {
+        // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'
         return this._platform
     }
 

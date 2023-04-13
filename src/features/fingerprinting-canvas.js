@@ -33,6 +33,7 @@ export default class FingerprintingCanvas extends ContentFeature {
             apply (target, thisArg, args) {
                 const context = DDGReflect.apply(target, thisArg, args)
                 try {
+                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'.
                     canvasContexts.set(thisArg, context)
                 } catch {
                 }
@@ -50,6 +51,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                     if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
                         treatAsUnsafe(args[0])
                     } else {
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         clearCache(thisArg.canvas)
                     }
                     return DDGReflect.apply(target, thisArg, args)
@@ -84,6 +86,7 @@ export default class FingerprintingCanvas extends ContentFeature {
             if (methodName in CanvasRenderingContext2D.prototype) {
                 const unsafeProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
                     apply (target, thisArg, args) {
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         treatAsUnsafe(thisArg.canvas)
                         return DDGReflect.apply(target, thisArg, args)
                     }
@@ -115,6 +118,7 @@ export default class FingerprintingCanvas extends ContentFeature {
                     if (methodName in context.prototype) {
                         const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
                             apply (target, thisArg, args) {
+                                // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                                 treatAsUnsafe(thisArg.canvas)
                                 return DDGReflect.apply(target, thisArg, args)
                             }
@@ -128,11 +132,13 @@ export default class FingerprintingCanvas extends ContentFeature {
         // Using proxies here to swallow calls to toString etc
         const getImageDataProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, 'getImageData', {
             apply (target, thisArg, args) {
+                // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                 if (!unsafeCanvases.has(thisArg.canvas)) {
                     return DDGReflect.apply(target, thisArg, args)
                 }
                 // Anything we do here should be caught and ignored silently
                 try {
+                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     const { offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey)
                     // Call the original method on the modified off-screen canvas
                     return DDGReflect.apply(target, offScreenCtx, args)
@@ -168,10 +174,12 @@ export default class FingerprintingCanvas extends ContentFeature {
             const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, methodName, {
                 apply (target, thisArg, args) {
                     // Short circuit for low risk canvas calls
+                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     if (!unsafeCanvases.has(thisArg)) {
                         return DDGReflect.apply(target, thisArg, args)
                     }
                     try {
+                        // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         const { offScreenCanvas } = getCachedOffScreenCanvasOrCompute(thisArg, domainKey, sessionKey)
                         // Call the original method on the modified off-screen canvas
                         return DDGReflect.apply(target, offScreenCanvas, args)
