@@ -128,22 +128,26 @@ const VideoPlayer = {
     /**
      * Fires whenever the video player iframe <title> changes (the video doesn't have the <title> set to
      * the video title until after the video has loaded...)
-     * @param {Function} callback(title)
+     * @param {(title: string) => void} callback
      */
     onIframeTitleChange: (callback) => {
         const iframe = VideoPlayer.iframe()
 
+        if (iframe?.contentDocument?.title) {
+            // eslint-disable-next-line n/no-callback-literal
+            callback(iframe?.contentDocument?.title)
+        }
         if (iframe?.contentWindow && iframe?.contentDocument) {
-            const title = iframe.contentDocument.querySelector('title')
+            const titleElem = iframe.contentDocument.querySelector('title')
 
-            if (title) {
+            if (titleElem) {
                 // @ts-expect-error - typescript known about MutationObserver in this context
                 const observer = new iframe.contentWindow.MutationObserver(function (mutations) {
                     mutations.forEach(function (mutation) {
                         callback(mutation.target.textContent)
                     })
                 })
-                observer.observe(title, { childList: true })
+                observer.observe(titleElem, { childList: true })
             } else {
                 // console.warn('could not access title in iframe')
             }
@@ -555,7 +559,6 @@ const PlayOnYouTube = {
     init: (opts) => {
         const validVideoId = Comms.getValidVideoId()
         const timestamp = Comms.getSanitizedTimestamp()
-        console.log({ validVideoId })
 
         if (validVideoId) {
             const url = new URL(opts.base)
