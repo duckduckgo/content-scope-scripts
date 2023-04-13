@@ -49,7 +49,10 @@ export function mockWindows(params) {
 
             // add the Id if it was a RequestMessage
             if ('Id' in input) {
-                msg.id = input.Id
+                msg = {
+                    ...msg,
+                    id: input.Id,
+                }
             }
 
             // record the call
