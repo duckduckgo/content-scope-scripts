@@ -10,6 +10,7 @@ export default class FingerprintingHardware extends ContentFeature {
             object: Navigator.prototype,
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             origValue: navigator.keyboard,
+            // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
             targetValue: this.getFeatureAttr('keyboard')
         })
         overrideProperty('hardwareConcurrency', {

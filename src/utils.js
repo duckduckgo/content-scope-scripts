@@ -100,6 +100,7 @@ export function isThirdParty () {
     if (!isBeingFramed()) {
         return false
     }
+    // @ts-expect-error - getTabHostname() is string|null here
     return !matchHostname(globalThis.location.hostname, getTabHostname())
 }
 
@@ -110,6 +111,7 @@ export function isThirdParty () {
 export function getTabHostname () {
     let framingOrigin = null
     try {
+        // @ts-expect-error - globalThis.top is possibly 'null' here
         framingOrigin = globalThis.top.location.href
     } catch {
         framingOrigin = globalThis.document.referrer
@@ -122,6 +124,7 @@ export function getTabHostname () {
     }
 
     try {
+        // @ts-expect-error - framingOrigin is possibly 'null' here
         framingOrigin = new URL(framingOrigin).hostname
     } catch {
         framingOrigin = null
@@ -271,6 +274,7 @@ function isAppleSilicon () {
 
     // Best guess if the device is an Apple Silicon
     // https://stackoverflow.com/a/65412357
+    // @ts-expect-error - Object is possibly 'null'
     return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1
 }
 
@@ -609,6 +613,7 @@ export function createCustomEvent (eventName, eventDetail) {
         eventDetail = cloneInto(eventDetail, window)
     }
 
+    // @ts-expect-error - possibly null
     return new OriginalCustomEvent(eventName, eventDetail)
 }
 

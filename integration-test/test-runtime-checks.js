@@ -61,6 +61,7 @@ describe('Runtime checks: should allow element modification', () => {
                     integrity: scripty.integrity,
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     madeUpProp: scripty.madeUpProp,
+                    // @ts-expect-error - error TS18047: 'scripty' is possibly 'null'.
                     type: scripty.getAttribute('type')
                 }
             }
@@ -201,6 +202,7 @@ describe('Runtime checks: should allow element modification', () => {
                     scriptRan: window.scriptDocumentPrototypeRan,
                     hadInspectorNode,
                     instanceofResult,
+                    // @ts-expect-error - scripty is possibly null
                     type: scripty.getAttribute('type')
                 }
             }
@@ -247,6 +249,7 @@ describe('Runtime checks: should allow element modification', () => {
                 window.dispatchEvent(new Event('initialize'))
                 await new Promise(resolve => {
                     window.addEventListener('initializeFinished', () => {
+                        // @ts-expect-error - error TS2810: Expected 1 argument, but got 0. 'new Promise()' needs a JSDoc hint to produce a 'resolve' that can be called without arguments.
                         resolve()
                     })
                 })

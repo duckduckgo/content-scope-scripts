@@ -5,6 +5,7 @@
   * Please raise an issues on our GitHub repo: https://github.com/duckduckgo/content-scope-scripts/
   */
   function constructProxy (scope, outputs) {
+    // @ts-expect-error - Expected 2 arguments, but got 1
     if (Object.is(scope)) {
       // Should not happen, but just in case fail safely
       console.error('Runtime checks: Scope must be an object', scope, outputs)

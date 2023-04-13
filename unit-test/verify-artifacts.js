@@ -42,6 +42,7 @@ describe('checks', () => {
             if (check.kind === 'maxFileSize') {
                 it(`${platformName}: '${localPath}' is smaller than ${check.value}`, () => {
                     const stats = statSync(check.path)
+                    // @ts-expect-error - can't infer that value is a number without adding types
                     expect(stats.size).toBeLessThan(check.value)
                 })
             }
