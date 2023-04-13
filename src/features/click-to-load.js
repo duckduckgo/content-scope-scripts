@@ -40,6 +40,13 @@ const readyToDisplayPlaceholders = new Promise(resolve => {
 // essential messages to surrogate scripts.
 let afterPageLoadResolver
 const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve })
+// Then wait for the page to finish loading, and resolve the
+// afterPageLoad Promise.
+if (document.readyState === 'complete') {
+    afterPageLoadResolver()
+} else {
+    window.addEventListener('load', afterPageLoadResolver, { once: true })
+}
 
 /*********************************************************
  *  Widget Replacement logic
@@ -428,7 +435,7 @@ function replaceTrackingElement (widget, trackingElement, placeholderElement) {
     // synchronously, the events are dispatched (and original element removed
     // from the DOM) asynchronously after the page has finished loading.
     // eslint-disable-next-line promise/prefer-await-to-then
-    const finishedReplacing = afterPageLoad.then(() => {
+    const finishedReplacing = Promise.all([afterPageLoad, readyToDisplayPlaceholders]).then(() => {
         // With page load complete, and both elements in the DOM, the events can
         // be dispatched.
         widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
@@ -449,7 +456,7 @@ function replaceTrackingElement (widget, trackingElement, placeholderElement) {
  * @param {Element} trackingElement
  *   The tracking element on the page that should be replaced with a placeholder.
  */
-async function createPlaceholderElementAndReplace (widget, trackingElement) {
+function createPlaceholderElementAndReplace (widget, trackingElement) {
     if (widget.replaceSettings.type === 'blank') {
         replaceTrackingElement(widget, trackingElement, document.createElement('div'))
     }
@@ -470,7 +477,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         const icon = widget.replaceSettings.icon
         const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
         const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
-        const { contentBlock, shadowRoot } = await createContentBlock(
+        const { contentBlock, shadowRoot } = createContentBlock(
             widget, button, textButton, icon
         )
         button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
@@ -483,7 +490,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
     /** YouTube CTL */
     if (widget.replaceSettings.type === 'youtube-video') {
         sendMessage('updateYouTubeCTLAddedFlag', true)
-        await replaceYouTubeCTL(trackingElement, widget)
+        replaceYouTubeCTL(trackingElement, widget)
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
@@ -500,7 +507,7 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
  * @param {DuckWidget} widget
  *   The CTP 'widget' associated with the tracking element.
  */
-async function replaceYouTubeCTL (trackingElement, widget) {
+function replaceYouTubeCTL (trackingElement, widget) {
     // Skip replacing tracking element if it has already been unblocked
     if (widget.isUnblocked) {
         return
@@ -509,7 +516,7 @@ async function replaceYouTubeCTL (trackingElement, widget) {
     // Show YouTube Preview for embedded video
     if (isYoutubePreviewsEnabled === true) {
         const oldPlaceholder = widget.placeholderElement
-        const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
+        const { youTubePreview, shadowRoot } = createYouTubePreview(trackingElement, widget)
         resizeElementToMatch(oldPlaceholder || trackingElement, youTubePreview)
         replaceTrackingElement(widget, trackingElement, youTubePreview)
         showExtraUnblockIfShortPlaceholder(shadowRoot, youTubePreview)
@@ -518,7 +525,7 @@ async function replaceYouTubeCTL (trackingElement, widget) {
     } else {
         widget.autoplay = false
         const oldPlaceholder = widget.placeholderElement
-        const { blockingDialog, shadowRoot } = await createYouTubeBlockingDialog(trackingElement, widget)
+        const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
         resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
         replaceTrackingElement(widget, trackingElement, blockingDialog)
         showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
@@ -560,8 +567,7 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
  *   one of the expected CSS selectors). If omitted, all matching elements
  *   in the document will be replaced instead.
  */
-async function replaceClickToLoadElements (targetElement) {
-    await readyToDisplayPlaceholders
+function replaceClickToLoadElements (targetElement) {
 
     for (const entity of Object.keys(config)) {
         for (const widgetData of Object.values(config[entity].elementData)) {
@@ -576,16 +582,15 @@ async function replaceClickToLoadElements (targetElement) {
                 trackingElements = Array.from(document.querySelectorAll(selector))
             }
 
-            await Promise.all(trackingElements.map(trackingElement => {
+            trackingElements.forEach(trackingElement => {
                 if (knownTrackingElements.has(trackingElement)) {
-                    return Promise.resolve()
-                }
+                    return                }
 
                 knownTrackingElements.add(trackingElement)
 
                 const widget = new DuckWidget(widgetData, trackingElement, entity)
-                return createPlaceholderElementAndReplace(widget, trackingElement)
-            }))
+                createPlaceholderElementAndReplace(widget, trackingElement)
+            })
         }
     }
 }
@@ -945,7 +950,7 @@ function makeLoginButton (buttonText, mode, hoverTextBody, icon, originalElement
     }
 }
 
-async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
+function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
     const icon = entityData[entity].modalIcon
 
     const modalContainer = document.createElement('div')
@@ -1069,7 +1074,7 @@ function createTitleRow (message, textButton, closeBtnFn) {
 }
 
 // Create the content block to replace other divs/iframes with
-async function createContentBlock (widget, button, textButton, img, bottomRow) {
+function createContentBlock (widget, button, textButton, img, bottomRow) {
     const contentBlock = document.createElement('div')
     contentBlock.style.cssText = styles.wrapperDiv
 
@@ -1144,7 +1149,7 @@ async function createContentBlock (widget, button, textButton, img, bottomRow) {
 }
 
 // Create the content block to replace embedded youtube videos/iframes with
-async function createYouTubeBlockingDialog (trackingElement, widget) {
+function createYouTubeBlockingDialog (trackingElement, widget) {
     const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
     const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
 
@@ -1164,7 +1169,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
     )
     bottomRow.appendChild(previewToggle)
 
-    const { contentBlock, shadowRoot } = await createContentBlock(
+    const { contentBlock, shadowRoot } = createContentBlock(
         widget, button, textButton, null, bottomRow
     )
     contentBlock.id = trackingElement.id
@@ -1190,7 +1195,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
  * @returns {{ youTubePreview: Element, shadowRoot: Element }}
  *   Object containing the YouTube Preview element and its shadowRoot.
  */
-async function createYouTubePreview (originalElement, widget) {
+function createYouTubePreview (originalElement, widget) {
     const youTubePreview = document.createElement('div')
     youTubePreview.id = originalElement.id
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
@@ -1412,16 +1417,7 @@ export default class ClickToLoad extends ContentFeature {
         // Note: When the response is received, the response handler resolves
         //       the readyToDisplayPlaceholders Promise.
         sendMessage('getClickToLoadState')
-        await readyToDisplayPlaceholdersResolver
-
-        // Then wait for the page to finish loading, and resolve the
-        // afterPageLoad Promise.
-        if (document.readyState === 'complete') {
-            afterPageLoadResolver()
-        } else {
-            window.addEventListener('load', afterPageLoadResolver, { once: true })
-        }
-        await afterPageLoad
+        await Promise.all([afterPageLoad, readyToDisplayPlaceholders])
 
         // Then wait for any in-progress element replacements, before letting
         // the surrogate scripts know to start.
@@ -1451,7 +1447,7 @@ export default class ClickToLoad extends ContentFeature {
             // TODO: Pass `message.options.ruleAction` through, that way only
             //       content corresponding to the entity for that ruleAction need to
             //       be replaced with a placeholder.
-            return replaceClickToLoadElements()
+            return readyToDisplayPlaceholders.then(replaceClickToLoadElements)
         }
     }
 }
