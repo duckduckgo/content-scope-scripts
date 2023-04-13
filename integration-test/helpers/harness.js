@@ -42,6 +42,7 @@ export async function setup (ops = {}) {
             return new Promise((resolve) => {
                 browser.on('disconnected', async () => {
                     await teardownInternal()
+                    // @ts-expect-error - error TS2810: Expected 1 argument, but got 0. 'new Promise()'
                     resolve()
                 })
             })
@@ -82,6 +83,7 @@ export async function setup (ops = {}) {
      */
     function _startupServerInternal (pathName, port) {
         const server = http.createServer(function (req, res) {
+            // @ts-expect-error - error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string | URL'.
             const url = new URL(req.url, `http://${req.headers.host}`)
             const importUrl = new URL(import.meta.url)
             const dirname = importUrl.pathname.replace(/\/[^/]*$/, '')

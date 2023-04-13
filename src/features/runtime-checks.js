@@ -74,6 +74,7 @@ class DDGRuntimeChecks extends HTMLElement {
         this.#tagName = tagName
 
         // Clear the method so it can't be called again
+        // @ts-expect-error - error TS2790: The operand of a 'delete' operator must be optional.
         delete this.setTagName
     }
 
