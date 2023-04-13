@@ -43,6 +43,17 @@ function runtimeInjections () {
     }
 }
 
+function prefixPlugin (prefixMessage) {
+    return {
+        name: 'prefix-plugin',
+        renderChunk (code) {
+            return `${prefixMessage}\n${code}`
+        }
+    }
+}
+
+const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */'
+
 export async function rollupScript (scriptPath, name, supportsMozProxies = false) {
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     const mozProxies = supportsMozProxies
@@ -60,7 +71,8 @@ export async function rollupScript (scriptPath, name, supportsMozProxies = false
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     mozProxies
                 }
-            })
+            }),
+            prefixPlugin(prefixMessage)
         ]
     }
     const outputOptions = {
