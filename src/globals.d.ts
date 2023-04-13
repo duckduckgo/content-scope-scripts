@@ -13,7 +13,7 @@ declare namespace contentScopeFeatures {
  * Allows checks like `import.meta.env === "development"'
  */
 interface ImportMeta {
-    env?: 'production' | 'development'
+    env: 'production' | 'development'
     platform?: 'windows' | 'integration'
 }
 

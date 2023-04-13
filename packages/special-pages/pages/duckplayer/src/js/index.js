@@ -46,6 +46,7 @@ const VideoPlayer = {
      * @returns {HTMLIFrameElement}
      */
     iframe: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLIFrameElement'.
         return document.querySelector('#player')
     },
 
@@ -54,6 +55,7 @@ const VideoPlayer = {
      * @returns {HTMLElement}
      */
     playerContainer: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('.player-container')
     },
 
@@ -107,6 +109,7 @@ const VideoPlayer = {
     showVideoError: (errorMessage) => {
         VideoPlayer.playerContainer().innerHTML = '<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>'
 
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         document.querySelector('.player-error-message').textContent = errorMessage
     },
 
@@ -403,6 +406,7 @@ const Setting = {
      * @returns {HTMLInputElement}
      */
     settingsIcon: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('[aria-label="Open Settings"]')
     },
     /**
@@ -410,6 +414,7 @@ const Setting = {
      * @returns {HTMLInputElement}
      */
     checkbox: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('#setting')
     },
 
@@ -418,6 +423,7 @@ const Setting = {
      * @returns {HTMLElement}
      */
     container: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('.setting-container')
     },
 
@@ -496,6 +502,7 @@ const Setting = {
      * settings container is animating/sliding in behind it.
      */
     higlightSettingsButton: () => {
+        // @ts-expect-error - Object is possibly 'null'.
         const openSettingsClasses = document.querySelector('.open-settings').classList
 
         openSettingsClasses.add('active')
@@ -530,6 +537,7 @@ const PlayOnYouTube = {
      * @returns {HTMLElement}
      */
     button: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('.play-on-youtube')
     },
 
@@ -573,6 +581,7 @@ const Tooltip = {
      * @returns {HTMLElement}
      */
     icon: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('.info-icon')
     },
 
@@ -581,6 +590,7 @@ const Tooltip = {
      * @returns {HTMLElement}
      */
     tooltip: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('.info-icon-tooltip')
     },
 
@@ -684,6 +694,7 @@ const MouseMove = {
             MouseMove.fadeInContent()
         }
 
+        // @ts-expect-error - Type 'Timeout' is not assignable to type 'null'.
         MouseMove.timer = setTimeout(() => {
             // Only fade out if user is not hovering content or tooltip is shown
             if (!MouseMove.isHoveringContent && !Tooltip.visible) {
@@ -697,6 +708,7 @@ const MouseMove = {
      * @returns {HTMLElement}
      */
     bg: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('.bg')
     },
 
@@ -706,6 +718,7 @@ const MouseMove = {
      * @returns {HTMLElement}
      */
     contentHover: () => {
+        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('.content-hover')
     },
 
