@@ -108,6 +108,7 @@ body {
     padding: 12px;
     padding-top: 24px;
     height: 32px;
+    display: flex;
 }
 
 @media (prefers-reduced-motion) {
@@ -122,15 +123,14 @@ body.faded .toolbar {
 }
 
 .logo {
-    float: left;
     font-style: normal;
     font-weight: 600;
     color: #ffffff;
-    margin-top: 4px;
+    display: flex;
+    align-items: center;
 }
 
 .dax-icon {
-    margin-bottom: -7px;
     margin-right: 5px;
 }
 
@@ -195,15 +195,14 @@ body.faded .toolbar {
 }
 
 .options {
-    float: right;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
 }
 
 .setting-container {
-    position: absolute;
-    right: 207px;
     overflow: hidden;
     white-space: nowrap;
-    margin: 8px;
     margin-right: 0;
     width: 299px;
 }
