@@ -1,23 +1,37 @@
-import { Messaging, WebkitMessagingConfig } from '../../index.js'
+import { Messaging, MessagingContext, WebkitMessagingConfig } from '../../index.js'
 
 /**
- * Webkit messaging involves calling methods on `window.webkit.messageHandlers`.
- *
- * For catalina support we support encryption which is the bulk of this configuration
+ * Configuration for WebkitMessaging
  */
 const config = new WebkitMessagingConfig({
-  hasModernWebkitAPI: true,
-  secret: 'SECRET',
-  webkitMessageHandlerNames: ['helloWorld', 'sendPixel'],
+    hasModernWebkitAPI: true,
+    secret: 'SECRET',
+    webkitMessageHandlerNames: ['contentScopeScripts']
 })
 
 /**
- * Send notifications!
+ * Context for messaging - this helps native platforms differentiate between senders
  */
-const messaging = new Messaging(config)
-messaging.notify('sendPixel')
+const messagingContext = new MessagingContext({
+    context: 'contentScopeScripts',
+    featureName: 'hello-world',
+    env: 'development'
+})
 
 /**
- * Or request some data
+ * With config + context, now create an instance:
  */
-messaging.request('helloWorld', { foo: 'bar' }).then(console.log).catch(console.error)
+const messaging = new Messaging(messagingContext, config)
+
+/**
+ * send notifications (fire and forget)
+ */
+messaging.notify('sendPixel');
+
+/**
+ * request data
+ */
+(async () => {
+    const result = await messaging.request('helloWorld', { foo: 'bar' })
+    console.log(result)
+})()

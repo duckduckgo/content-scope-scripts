@@ -20,6 +20,7 @@
     "build-windows": "node scripts/inject.js --platform windows",
     "build-integration": "node scripts/inject.js --platform integration",
     "docs": "typedoc",
+    "docs.watch": "typedoc --watch",
     "postbuild": "npm run build --workspaces --if-present",
     "tsc": "tsc",
     "tsc.watch": "tsc --watch",
