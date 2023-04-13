@@ -11,13 +11,13 @@ const config = new TestTransportConfig({
     notify (msg) {
         console.log(msg)
     },
-    request: async (msg) => {
+    request: (msg) => {
         if (msg.method === 'getUserValues') {
-            return {
-              foo: "bar"
-            }
+            return Promise.resolve({
+                foo: 'bar'
+            })
         }
-        return null
+        return Promise.resolve(null)
     },
     subscribe (msg) {
         console.log(msg)

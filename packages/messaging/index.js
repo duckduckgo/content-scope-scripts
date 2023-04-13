@@ -98,7 +98,7 @@ export class Messaging {
             context: this.messagingContext.context,
             featureName: this.messagingContext.featureName,
             method: name,
-            params: data,
+            params: { data: '' },
             id
         })
         return this.transport.request(message)

@@ -90,7 +90,6 @@ export class MessageResponse {
         this.id = params.id
         /**
          * An optional error
-         * @type {MessageError}
          */
         this.error = params.error
     }

@@ -5,10 +5,10 @@ import { NotificationMessage, RequestMessage, MessageResponse, SubscriptionEvent
  * @type {NotificationMessage}
  */
 const notification = {
-  context: "contentScopeScripts",
-  featureName: "duckPlayerOverlays",
-  method: "setUserValues",
-  params: { }
+    context: 'contentScopeScripts',
+    featureName: 'duckPlayerOverlays',
+    method: 'setUserValues',
+    params: {}
 }
 
 /**
@@ -16,11 +16,11 @@ const notification = {
  * @type {RequestMessage}
  */
 const request = {
-  context: "contentScopeScripts",
-  featureName: "duckPlayerOverlays",
-  method: "setUserValues",
-  params: { },
-  id: 'setUserValues.response'
+    context: 'contentScopeScripts',
+    featureName: 'duckPlayerOverlays',
+    method: 'setUserValues',
+    params: {},
+    id: 'setUserValues.response'
 }
 
 /**
@@ -28,11 +28,11 @@ const request = {
  * @type {MessageResponse}
  */
 const messageResponse = {
-  context: "contentScopeScripts",
-  featureName: "duckPlayerOverlays",
-  result: {},
-  id: 'setUserValues.response',
-  error: undefined,
+    context: 'contentScopeScripts',
+    featureName: 'duckPlayerOverlays',
+    result: {},
+    id: 'setUserValues.response',
+    error: undefined
 }
 
 /**
@@ -40,11 +40,11 @@ const messageResponse = {
  * @type {MessageResponse}
  */
 const messageResponseError = {
-  context: "contentScopeScripts",
-  featureName: "duckPlayerOverlays",
-  result: undefined,
-  id: 'setUserValues.response',
-  error: { message: ""} ,
+    context: 'contentScopeScripts',
+    featureName: 'duckPlayerOverlays',
+    result: undefined,
+    id: 'setUserValues.response',
+    error: { message: '' }
 }
 
 /**
@@ -52,8 +52,8 @@ const messageResponseError = {
  * @type {SubscriptionEvent}
  */
 const event = {
-  context: "contentScopeScripts",
-  featureName: "duckPlayerOverlays",
-  subscriptionName: "setUserValues",
-  params: { },
+    context: 'contentScopeScripts',
+    featureName: 'duckPlayerOverlays',
+    subscriptionName: 'setUserValues',
+    params: {}
 }
