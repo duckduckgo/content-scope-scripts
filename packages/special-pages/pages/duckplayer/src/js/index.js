@@ -324,14 +324,18 @@ const Comms = {
      * To mock, use:
      *
      * `window.postMessage({ alwaysOpenSetting: false })`
+     *
+     * @param {object} opts
+     * @param {ImportMeta['env']} opts.env
+     * @param {ImportMeta['platform']} opts.platform
      */
-    init: () => {
+    init: (opts) => {
         const messageContext = new MessagingContext({
             context: 'specialPages',
             featureName: 'duckPlayerPage',
-            env: import.meta.env
+            env: opts.env
         })
-        if (import.meta.platform === 'windows') {
+        if (opts.platform === 'windows') {
             const opts = new WindowsMessagingConfig({
                 methods: {
                     // @ts-expect-error - not in @types/chrome
@@ -344,7 +348,7 @@ const Comms = {
             })
             const messaging = new Messaging(messageContext, opts)
             Comms.messaging = new DuckPlayerPageMessages(messaging)
-        } else if (import.meta.platform === 'integration') {
+        } else if (opts.platform === 'integration') {
             const config = new TestTransportConfig({
                 notify (msg) {
                     console.log(msg)
@@ -542,33 +546,27 @@ const PlayOnYouTube = {
     },
 
     /**
-     * Returns the full YouTube source URL for a video, based on video id
-     * @param {string} videoId
-     * @param {number|boolean} timestamp
-     * @returns {string}
-     */
-    getVideoLinkURL: (videoId, timestamp) => {
-        const url = new URL('/watch', 'https://www.youtube.com')
-
-        url.searchParams.set('v', videoId)
-
-        if (timestamp) {
-            url.searchParams.set('t', timestamp + 's')
-        }
-
-        return url.href
-    },
-
-    /**
      * If there is a valid video id, set the 'href' of the YouTube button to the
      * video link url
+     *
+     * @param {object} opts
+     * @param {string} opts.base
      */
-    init: () => {
+    init: (opts) => {
         const validVideoId = Comms.getValidVideoId()
         const timestamp = Comms.getSanitizedTimestamp()
+        console.log({ validVideoId })
 
         if (validVideoId) {
-            PlayOnYouTube.button().setAttribute('href', PlayOnYouTube.getVideoLinkURL(validVideoId, timestamp))
+            const url = new URL(opts.base)
+
+            url.searchParams.set('v', validVideoId)
+
+            if (timestamp) {
+                url.searchParams.set('t', timestamp + 's')
+            }
+
+            PlayOnYouTube.button().setAttribute('href', url.href)
         }
     }
 }
@@ -753,9 +751,15 @@ const MouseMove = {
  */
 document.addEventListener('DOMContentLoaded', () => {
     Setting.init()
-    Comms.init()
+    Comms.init({
+        platform: import.meta.platform,
+        env: import.meta.env
+    })
     VideoPlayer.init()
     Tooltip.init()
-    PlayOnYouTube.init()
+    PlayOnYouTube.init({
+        // todo(Shane): platform specific
+        base: 'duck://player/openInYoutube'
+    })
     MouseMove.init()
 })
