@@ -16,6 +16,7 @@ export class Cookie {
                 this.value = value
             } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
                 this[attribute.toLowerCase()] = value
+                // @ts-expect-error - Object is possibly 'undefined'.
                 this.attrIdx[attribute.toLowerCase()] = index
             }
         })
@@ -38,7 +39,9 @@ export class Cookie {
     }
 
     set maxAge (value) {
+        // @ts-expect-error - Object is possibly 'undefined'.
         if (this.attrIdx['max-age'] > 0) {
+            // @ts-expect-error - Object is possibly 'undefined'.
             this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`)
         } else {
             this.parts.push(`max-age=${value}`)

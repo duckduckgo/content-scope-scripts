@@ -10,6 +10,7 @@ import Seedrandom from 'seedrandom'
  */
 export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
     if (!ctx) {
+        // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
         ctx = canvas.getContext('2d')
     }
 
@@ -23,7 +24,9 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
     // If we're not a 2d canvas we need to rasterise first into 2d
     const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D)
     if (rasterizeToCanvas) {
+        // @ts-expect-error - Type 'CanvasRenderingContext2D | null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
         rasterizedCtx = offScreenCtx
+        // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
         offScreenCtx.drawImage(canvas, 0, 0)
     }
 
@@ -32,9 +35,11 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
     imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width)
 
     if (rasterizeToCanvas) {
+        // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
         clearCanvas(offScreenCtx)
     }
 
+    // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
     offScreenCtx.putImageData(imageData, 0, 0)
 
     return { offScreenCanvas, offScreenCtx }

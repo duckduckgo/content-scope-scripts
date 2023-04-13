@@ -81,7 +81,9 @@ export default class CookieFeature extends ContentFeature {
         // The cookie policy is injected into every frame immediately so that no cookie will
         // be missed.
         const document = globalThis.document
+        // @ts-expect-error - Object is possibly 'undefined'.
         const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set
+        // @ts-expect-error - Object is possibly 'undefined'.
         const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get
 
         const loadPolicy = new Promise((resolve) => {
@@ -106,6 +108,7 @@ export default class CookieFeature extends ContentFeature {
             } else if (isTrackingCookie() || isNonTrackingCookie()) {
                 debugHelper('ignore', '3p frame', getCookieContext)
             }
+            // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
             return cookieGetter.call(document)
         }
 
@@ -127,6 +130,7 @@ export default class CookieFeature extends ContentFeature {
             // call the native document.cookie implementation. This will set the cookie immediately
             // if the value is valid. We will override this set later if the policy dictates that
             // the expiry should be changed.
+            // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
             cookieSetter.call(document, value)
 
             try {
@@ -149,6 +153,7 @@ export default class CookieFeature extends ContentFeature {
 
                             debugHelper('restrict', 'expiry', setCookieContext)
 
+                            // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
                             cookieSetter.apply(document, [cookie.toString()])
                         } else {
                             debugHelper('ignore', 'dissappeared', setCookieContext)
