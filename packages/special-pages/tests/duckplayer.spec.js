@@ -66,8 +66,7 @@ test.describe('duckplayer toolbar', () => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()
-        await duckplayer.clickPlayOnYouTube()
-        await duckplayer.navigatedToYouTube()
+        await duckplayer.opensInYoutube()
     })
 })
 

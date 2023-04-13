@@ -155,14 +155,16 @@ export class DuckPlayerPage {
         expect(await failure).toEqual('duck://settings/duckplayer')
     }
 
-    async clickPlayOnYouTube () {
-        await this.page.getByText('Watch on YouTube').click()
-    }
-
-    async navigatedToYouTube (videoID = MOCK_VIDEO_ID) {
-        const youtubeSrc = new URL('https://www.youtube.com/watch')
-        youtubeSrc.searchParams.set('v', videoID)
-        await expect(this.page).toHaveURL(youtubeSrc.toString())
+    async opensInYoutube () {
+        // duck:// scheme will fail, but we can assert that it was tried and grab the URL
+        const failure = new Promise(resolve => {
+            this.page.context().on('requestfailed', f => {
+                resolve(f.url())
+            })
+        })
+        await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
+        // todo(Shane): platform specific
+        expect(await failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID')
     }
 
     /**
