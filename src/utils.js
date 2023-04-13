@@ -5,6 +5,8 @@
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
+// Capture prototype to prevent overloading
+const Set = globalObj.Set
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
