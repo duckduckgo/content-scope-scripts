@@ -4,11 +4,11 @@ import minimist from 'minimist'
 
 /**
  * A cross-platform 'mkdirp' + writing to disk
- * @param {string[] | string} filepaths
+ * @param {string[]} filepaths
  * @param {string} content
  */
 export function write (filepaths, content) {
-    for (const filepath of /** @type {string[]} */([]).concat(filepaths)) {
+    for (const filepath of filepaths) {
         try {
             const pathWithoutFile = dirname(filepath)
             mkdirSync(pathWithoutFile, { recursive: true })

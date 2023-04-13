@@ -39,4 +39,4 @@ const args = parseArgs(process.argv.slice(2), requiredFields, help)
 
 // run the build and write the files
 const bundled = bundle(args.dir)
-write(args.output, bundled)
+write([args.output], bundled)
