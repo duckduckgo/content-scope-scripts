@@ -9,7 +9,7 @@ interface UnstableWebkit {
 
 interface UnstableMockCall {
   payload: import('../index.js').RequestMessage;
-  response?: Record<string, any>;
+  response?: Record<string, unknown>;
 }
 
 interface Window {
@@ -23,6 +23,6 @@ interface Window {
   }
 }
 
-declare let windowsInteropPostMessage: any
-declare let windowsInteropAddEventListener: any
-declare let windowsInteropRemoveEventListener: any
+declare let windowsInteropPostMessage: unknown
+declare let windowsInteropAddEventListener: unknown
+declare let windowsInteropRemoveEventListener: unknown
