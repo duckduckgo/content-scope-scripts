@@ -310,7 +310,9 @@ const functionMap = {
         console.log('debugger', ...args)
         // eslint-disable-next-line no-debugger
         debugger
-    }
+    },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    noop: () => { }
 }
 
 /**
