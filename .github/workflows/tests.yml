@@ -56,7 +56,7 @@ jobs:
       uses: actions/cache@v3
       with:
           path: docs
-          key: build-output-${{ github.run_id }}
+          key: docs-output-${{ github.run_id }}
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - run: npm run test-int-x
@@ -66,8 +66,7 @@ jobs:
   deploy-docs:
     runs-on: ubuntu-20.04
     needs: integration
-# Whilst testing, going to deploy from current branch
-#    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
