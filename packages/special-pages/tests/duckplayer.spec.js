@@ -54,7 +54,7 @@ test.describe('duckplayer toolbar', () => {
         await page.mouse.move(1, 1)
         await duckplayer.infoTooltipIsHidden()
     })
-    test('clicking on cog icon opens settings', async ({ page, context }, workerInfo) => {
+    test('clicking on cog icon opens settings', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()

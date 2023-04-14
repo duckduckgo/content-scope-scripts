@@ -686,7 +686,7 @@ const MouseMove = {
     /**
      * Watch for inactivity and toggle toolbar accordingly
      */
-    handleFadeState: (e) => {
+    handleFadeState: () => {
         if (MouseMove.timer) {
             clearTimeout(MouseMove.timer)
         }
