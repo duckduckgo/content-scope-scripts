@@ -26,7 +26,6 @@ jobs:
             ${{ runner.os }}-node-
       - run: npm install
       - run: npm run build
-      - run: npm run docs
       - run: npm run lint
       - run: npm run lint-no-output-globals
       - run: npm run test-unit
@@ -52,6 +51,44 @@ jobs:
         sudo apt-get install xvfb
         npm install
         npm run build
+    - name: Cache docs output
+      id: docs-output
+      uses: actions/cache@v3
+      with:
+          path: docs
+          key: build-output-${{ github.run_id }}
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - run: npm run test-int-x
+    - name: Build docs
+      run: npm run docs
+
+  deploy-docs:
+    runs-on: ubuntu-20.04
+    needs: integration
+# Whilst testing, going to deploy from current branch
+#    if: ${{ github.ref == 'refs/heads/main' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 18
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18.x
+      - name: Cache build outputs
+        id: docs-output
+        uses: actions/cache@v3
+        with:
+          path: docs
+          key: docs-output-${{ github.run_id }}
+      - name: Setup Github Pages
+        uses: actions/configure-pages@v2
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
