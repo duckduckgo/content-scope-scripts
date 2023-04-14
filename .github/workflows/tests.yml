@@ -6,6 +6,12 @@ on:
     - main
   pull_request:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  deployments: write
+
 jobs:
   unit:
     runs-on: ${{ matrix.os }}
