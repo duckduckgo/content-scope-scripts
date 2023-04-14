@@ -95,8 +95,7 @@ class DuckWidget {
         if (this.replaceSettings.type === 'loginButton') {
             return 'loginMode'
         }
-        const mode = this.originalElement.getAttribute('data-colorscheme')
-        if (mode === 'dark') {
+        if (window?.matchMedia('(prefers-color-scheme: dark)')?.matches) {
             return 'darkMode'
         }
         return 'lightMode'
@@ -477,9 +476,11 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
         return
     }
 
-    const { height: placeholderHeight } = window.getComputedStyle(placeholder)
-    const { height: parentHeight } = window.getComputedStyle(placeholder.parentElement)
-    if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
+    const { height: placeholderHeight } = placeholder.getBoundingClientRect()
+    const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect()
+
+    if ((placeholderHeight > 0 && placeholderHeight <= 200) ||
+        (parentHeight > 0 && parentHeight <= 230)) {
         const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
         titleRowTextButton.style.display = 'block'
 
