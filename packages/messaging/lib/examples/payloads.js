@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NotificationMessage, RequestMessage, MessageResponse, SubscriptionEvent } from '../../index.js'
 
 /**

@@ -11,6 +11,7 @@
  * [[include:packages/messaging/lib/examples/windows.example.js]]```
  *
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MessagingTransport, NotificationMessage, RequestMessage } from '../index.js'
 
 /**
