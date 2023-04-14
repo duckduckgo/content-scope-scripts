@@ -98,7 +98,7 @@ export class Messaging {
             context: this.messagingContext.context,
             featureName: this.messagingContext.featureName,
             method: name,
-            params: { data: '' },
+            params: data,
             id
         })
         return this.transport.request(message)
@@ -127,6 +127,7 @@ export class MessagingTransport {
      * @param {NotificationMessage} msg
      * @returns {void}
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     notify (msg) {
         throw new Error("must implement 'notify'")
     }
@@ -136,6 +137,7 @@ export class MessagingTransport {
      * @param {{signal?: AbortSignal}} [options]
      * @return {Promise<any>}
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     request (msg, options = {}) {
         throw new Error('must implement')
     }
@@ -145,6 +147,7 @@ export class MessagingTransport {
      * @param {(value: unknown) => void} callback
      * @return {() => void}
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     subscribe (msg, callback) {
         throw new Error('must implement')
     }
@@ -185,7 +188,7 @@ export class TestTransport {
         return this.config.impl.notify(msg)
     }
 
-    request (msg, options) {
+    request (msg) {
         return this.config.impl.request(msg)
     }
 
