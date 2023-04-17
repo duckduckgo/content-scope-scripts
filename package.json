@@ -65,7 +65,7 @@
     "jasmine": "^4.6.0",
     "minimist": "^1.2.8",
     "puppeteer": "^19.8.5",
-    "rollup": "^3.20.2",
+    "rollup": "^3.20.4",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
     "typedoc": "^0.24.1",
     "typescript": "^5.0.4"
