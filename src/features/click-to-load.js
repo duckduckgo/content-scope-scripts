@@ -589,6 +589,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
         resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
         replaceTrackingElement(widget, trackingElement, blockingDialog)
         showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
+        hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460)
     }
 }
 
@@ -625,6 +626,44 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
             innerDiv.style.maxHeight = parentHeight + 'px'
             innerDiv.style.overflow = 'hidden'
         }
+    }
+}
+
+/**
+ * Hide the info text (and move the "Learn More" link) if the placeholder is too
+ * narrow.
+ * @param {ShadowRoot} shadowRoot
+ * @param {HTMLElement} placeholder Placeholder for tracking element
+ * @param {number} narrowWidth
+ *    Maximum placeholder width (in pixels) for the placeholder to be considered
+ *    narrow.
+ */
+function hideInfoTextIfNarrowPlaceholder (shadowRoot, placeholder, narrowWidth) {
+    const { width: placeholderWidth } = placeholder.getBoundingClientRect()
+    if (placeholderWidth > 0 && placeholderWidth <= narrowWidth) {
+        const buttonContainer =
+              shadowRoot.querySelector('.DuckDuckGoButton.primary')?.parentElement
+        const contentTitle = shadowRoot.getElementById('contentTitle')
+        const infoText = shadowRoot.getElementById('infoText')
+        /** @type {HTMLElement?} */
+        const learnMoreLink = shadowRoot.getElementById('learnMoreLink')
+
+        // These elements will exist, but this check keeps TypeScript happy.
+        if (!buttonContainer || !contentTitle || !infoText || !learnMoreLink) {
+            return
+        }
+
+        // Remove the information text.
+        infoText.remove()
+        learnMoreLink.remove()
+
+        // Append the "Learn More" link to the title.
+        contentTitle.innerText += '. '
+        learnMoreLink.style.removeProperty('font-size')
+        contentTitle.appendChild(learnMoreLink)
+
+        // Improve margin/padding, to ensure as much is displayed as possible.
+        buttonContainer.style.removeProperty('margin')
     }
 }
 
@@ -749,6 +788,7 @@ function getLearnMoreLink (mode = 'lightMode') {
     linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/'
     linkElement.target = '_blank'
     linkElement.textContent = sharedStrings.learnMore
+    linkElement.id = 'learnMoreLink'
     return linkElement
 }
 
@@ -1302,10 +1342,14 @@ function createContentBlock (widget, button, textButton, img, bottomRow) {
     const contentTitle = document.createElement('div')
     contentTitle.style.cssText = styles.contentTitle
     contentTitle.textContent = widget.replaceSettings.infoTitle
+    contentTitle.id = 'contentTitle'
     contentRow.appendChild(contentTitle)
     const contentText = document.createElement('div')
     contentText.style.cssText = styles.contentText
-    contentText.textContent = widget.replaceSettings.infoText + ' '
+    const contentTextSpan = document.createElement('span')
+    contentTextSpan.id = 'infoText'
+    contentTextSpan.textContent = widget.replaceSettings.infoText + ' '
+    contentText.appendChild(contentTextSpan)
     contentText.appendChild(getLearnMoreLink())
     contentRow.appendChild(contentText)
     element.appendChild(contentRow)
