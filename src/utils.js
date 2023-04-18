@@ -385,6 +385,7 @@ export class DDGProxy {
             const isExempt = shouldExemptMethod(this.camelFeatureName)
             if (debug) {
                 postDebugMessage(this.camelFeatureName, {
+                    isProxy: true,
                     action: isExempt ? 'ignore' : 'restrict',
                     kind: this.property,
                     documentUrl: document.location.href,
