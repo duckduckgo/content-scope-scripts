@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "Lülita DuckDuckGo täiendava privaatsuse tagamiseks eelvaated välja.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Lisateave</a> DuckDuckGo sisseehitatud sotsiaalmeediakaitse kohta",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }

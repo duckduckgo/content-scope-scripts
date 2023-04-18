@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "A DuckDuckGo fokozott adatvédelme érdekében kapcsold ki az előnézeteket.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">További tudnivalók</a> a DuckDuckGo beágyazott közösségi média elleni védelméről",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }
