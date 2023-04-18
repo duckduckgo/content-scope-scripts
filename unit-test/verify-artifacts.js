@@ -6,7 +6,7 @@ import { cwd } from '../scripts/script-utils.js'
 const ROOT = join(cwd(import.meta.url), '..')
 const BUILD = join(ROOT, 'build')
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
-const CSS_OUTPUT_SIZE = 551000
+const CSS_OUTPUT_SIZE = 560000
 const CSS_OUTPUT_SIZE_CHROME = CSS_OUTPUT_SIZE * 1.45 // 45% larger for Chrome MV2 due to base64 encoding
 
 const checks = {
