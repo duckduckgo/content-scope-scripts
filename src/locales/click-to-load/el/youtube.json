@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "Απενεργοποιήστε τις προεπισκοπήσεις για πρόσθετη προστασία των προσωπικών δεδομένων από το DuckDuckGo.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Μάθετε περισσότερα</a> για την ενσωματωμένη προστασία κοινωνικών μέσων DuckDuckGo",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }
