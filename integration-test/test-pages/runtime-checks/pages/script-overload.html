@@ -84,6 +84,37 @@
             ];
         });
 
+        test('Script should overload methods', async () => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            window.scriptOutput = false;
+            window.scriptyRan = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.innerText = `
+                window.scriptyRan = true;
+                /* Stringify to avoid undefined being trimmed */
+                window.scriptOutput = {
+                    b: ""+window.navigator.getBattery()
+                }
+            `;
+            scriptElement.id = 'overloadedScriptFn';
+            scriptElement.setAttribute('type', 'application/javascript');
+            document.body.appendChild(scriptElement);
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('script#overloadedScriptFn');
+            const nodeAndFakeNodeMatch = scripty === scriptElement;
+            // We shouldn't break out of the context we're overloading
+            const doesntMatchParentContext = navigator.userAgent !== 'testingThisOut';
+            return [
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'script ran', result: window.scriptyRan, expected: true },
+                { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
+                { name: 'battery API is overloaded', result: window.scriptOutput, expected: {
+                    b: 'undefined'
+                } },
+                { name: 'user agent doesnt match parent context', result: doesntMatchParentContext, expected: true }
+            ];
+        });
+
         renderResults();
     </script>
 </body>

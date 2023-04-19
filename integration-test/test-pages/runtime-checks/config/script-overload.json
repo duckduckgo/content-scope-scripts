@@ -28,6 +28,10 @@
                     "navigator.mediaSession.doesNotExist.depth.a.lot": {
                         "type": "string",
                         "value": "boop"
+                    },
+                    "navigator.getBattery": {
+                        "type": "function",
+                        "functionName": "noop"
                     }
                 }
             }

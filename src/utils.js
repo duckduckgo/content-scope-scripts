@@ -318,7 +318,7 @@ const functionMap = {
 /**
  * Handles the processing of a config setting.
  * @param {*} configSetting
- * @param {*} defaultValue
+ * @param {*} [defaultValue]
  * @returns
  */
 export function processAttr (configSetting, defaultValue) {
