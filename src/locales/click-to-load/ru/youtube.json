@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "DuckDuckGo рекомендует отключить предпросмотр для дополнительной защиты конфиденциальности.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Подробнее</a> о защите DuckDuckGo от внедренного контента соцсетей",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }

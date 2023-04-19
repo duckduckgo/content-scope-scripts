@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "Pre zvýšenú ochranu súkromia od DuckDuckGo vypnite ukážky.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Získajte viac informácií</a> o DuckDuckGo, vloženej ochrane sociálnych médií",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }

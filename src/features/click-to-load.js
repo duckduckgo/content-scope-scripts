@@ -1517,9 +1517,22 @@ function createYouTubePreview (originalElement, widget) {
     /** Preview Info Text */
     const previewText = document.createElement('div')
     previewText.style.cssText = styles.contentText + styles.toggleButtonText + styles.youTubePreviewInfoText
-    previewText.innerText = widget.replaceSettings.placeholder.previewInfoText + ' '
-    // Use darkMode styles because of preview background
-    previewText.appendChild(getLearnMoreLink('darkMode'))
+    // Since this string contains an anchor element, setting innerText won't
+    // work.
+    // Warning: This is not ideal! The translated (and original) strings must be
+    //          checked very carefully! Any HTML they contain will be inserted.
+    //          Ideally, the translation system would allow only certain element
+    //          types to be included, and would avoid the URLs for links being
+    //          included in the translations.
+    previewText.insertAdjacentHTML(
+        'beforeend', widget.replaceSettings.placeholder.previewInfoText
+    )
+    const previewTextLink = previewText.querySelector('a')
+    if (previewTextLink) {
+        const newPreviewTextLink = getLearnMoreLink()
+        newPreviewTextLink.innerText = previewTextLink.innerText
+        previewTextLink.replaceWith(newPreviewTextLink)
+    }
 
     previewToggleRow.appendChild(previewToggle)
     previewToggleRow.appendChild(previewText)

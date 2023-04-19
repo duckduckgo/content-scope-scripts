@@ -44,7 +44,7 @@
         "note": "Overlay toggle shown when Youtube previews are enabled"
     },
     "infoPreviewInfoText": {
-        "title": "Turn previews off for additional privacy from DuckDuckGo.",
+        "title": "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Learn more</a> about DuckDuckGo Embedded Social Media Protection",
         "note": "Overlay footer shown when Youtube previews are enabled"
     }
 }
