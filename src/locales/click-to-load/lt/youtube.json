@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "Išjunkite peržiūras, kad gautumėte papildomo privatumo iš „DuckDuckGo“.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Sužinokite daugiau</a> apie „DuckDuckGo“ įdėtąją socialinės žiniasklaidos apsaugą",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }

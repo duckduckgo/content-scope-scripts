@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "Izklopite predoglede za dodatno zasebnost v DuckDuckGo.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Več</a> o vgrajeni zaščiti družbenih medijev DuckDuckGo",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }
