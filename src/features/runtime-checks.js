@@ -1,7 +1,7 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage } from '../utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 
 let stackDomains = []
@@ -351,17 +351,33 @@ function shouldInterrogate (tagName) {
         return false
     }
     if (matchAllStackDomains) {
+        isInterrogatingDebugMessage('matchedAllStackDomain')
         return true
     }
     if (taintCheck && document.currentScript?.[taintSymbol]) {
+        isInterrogatingDebugMessage('taintCheck')
         return true
     }
     const stack = getStack()
     const scriptOrigins = [...getStackTraceOrigins(stack)]
-    const isInterestingHost = scriptOrigins.some(origin => {
+    const interestingHost = scriptOrigins.find(origin => {
         return stackDomains.some(rule => matchHostname(origin, rule.domain))
     })
+    const isInterestingHost = !!interestingHost
+    if (isInterestingHost) {
+        isInterrogatingDebugMessage('matchedStackDomain', interestingHost, stack, scriptOrigins)
+    }
     return isInterestingHost
+}
+
+function isInterrogatingDebugMessage (matchType, matchedStackDomain, stack, scriptOrigins) {
+    postDebugMessage('runtimeChecks', {
+        documentUrl: document.location.href,
+        matchedStackDomain,
+        matchType,
+        scriptOrigins,
+        stack
+    })
 }
 
 function overrideCreateElement () {
