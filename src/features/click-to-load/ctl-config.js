@@ -619,10 +619,10 @@ export function getConfig (locale) {
                 },
                 'FB Button iFrames': {
                     selectors: [
-                        "iframe[src*='://www.facebook.com/plugins/like.php']",
-                        "iframe[src*='://www.facebook.com/v2.0/plugins/like.php']",
-                        "iframe[src*='://www.facebook.com/plugins/share_button.php']",
-                        "iframe[src*='://www.facebook.com/v2.0/plugins/share_button.php']"
+                        "iframe[src*='//www.facebook.com/plugins/like.php']",
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/like.php']",
+                        "iframe[src*='//www.facebook.com/plugins/share_button.php']",
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/share_button.php']"
                     ],
                     replaceSettings: {
                         type: 'blank'
@@ -646,8 +646,8 @@ export function getConfig (locale) {
                 },
                 'FB Page iFrames': {
                     selectors: [
-                        "iframe[src*='://www.facebook.com/plugins/page.php']",
-                        "iframe[src*='://www.facebook.com/v2.0/plugins/page.php']"
+                        "iframe[src*='//www.facebook.com/plugins/page.php']",
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/page.php']"
                     ],
                     replaceSettings: {
                         type: 'dialog',
@@ -701,8 +701,8 @@ export function getConfig (locale) {
                 },
                 'FB Comment iFrames': {
                     selectors: [
-                        "iframe[src*='://www.facebook.com/plugins/comment_embed.php']",
-                        "iframe[src*='://www.facebook.com/v2.0/plugins/comment_embed.php']"
+                        "iframe[src*='//www.facebook.com/plugins/comment_embed.php']",
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/comment_embed.php']"
                     ],
                     replaceSettings: {
                         type: 'dialog',
@@ -777,8 +777,8 @@ export function getConfig (locale) {
                 },
                 'FB Post iFrames': {
                     selectors: [
-                        "iframe[src*='://www.facebook.com/plugins/post.php']",
-                        "iframe[src*='://www.facebook.com/v2.0/plugins/post.php']"
+                        "iframe[src*='//www.facebook.com/plugins/post.php']",
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/post.php']"
                     ],
                     replaceSettings: {
                         type: 'dialog',
@@ -827,8 +827,8 @@ export function getConfig (locale) {
                 },
                 'FB Video iFrames': {
                     selectors: [
-                        "iframe[src*='://www.facebook.com/plugins/video.php']",
-                        "iframe[src*='://www.facebook.com/v2.0/plugins/video.php']"
+                        "iframe[src*='//www.facebook.com/plugins/video.php']",
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/video.php']"
                     ],
                     replaceSettings: {
                         type: 'dialog',
@@ -877,8 +877,8 @@ export function getConfig (locale) {
                 },
                 'FB Group iFrames': {
                     selectors: [
-                        "iframe[src*='://www.facebook.com/plugins/group.php']",
-                        "iframe[src*='://www.facebook.com/v2.0/plugins/group.php']"
+                        "iframe[src*='//www.facebook.com/plugins/group.php']",
+                        "iframe[src*='//www.facebook.com/v2.0/plugins/group.php']"
                     ],
                     replaceSettings: {
                         type: 'dialog',
@@ -960,14 +960,14 @@ export function getConfig (locale) {
             elementData: {
                 'YouTube embedded video': {
                     selectors: [
-                        "iframe[src*='://youtube.com/embed']",
-                        "iframe[src*='://youtube-nocookie.com/embed']",
-                        "iframe[src*='://www.youtube.com/embed']",
-                        "iframe[src*='://www.youtube-nocookie.com/embed']",
-                        "iframe[data-src*='://youtube.com/embed']",
-                        "iframe[data-src*='://youtube-nocookie.com/embed']",
-                        "iframe[data-src*='://www.youtube.com/embed']",
-                        "iframe[data-src*='://www.youtube-nocookie.com/embed']"
+                        "iframe[src*='//youtube.com/embed']",
+                        "iframe[src*='//youtube-nocookie.com/embed']",
+                        "iframe[src*='//www.youtube.com/embed']",
+                        "iframe[src*='//www.youtube-nocookie.com/embed']",
+                        "iframe[data-src*='//youtube.com/embed']",
+                        "iframe[data-src*='//youtube-nocookie.com/embed']",
+                        "iframe[data-src*='//www.youtube.com/embed']",
+                        "iframe[data-src*='//www.youtube-nocookie.com/embed']"
                     ],
                     replaceSettings: {
                         type: 'youtube-video',
@@ -990,14 +990,14 @@ export function getConfig (locale) {
                 },
                 'YouTube embedded subscription button': {
                     selectors: [
-                        "iframe[src*='://youtube.com/subscribe_embed']",
-                        "iframe[src*='://youtube-nocookie.com/subscribe_embed']",
-                        "iframe[src*='://www.youtube.com/subscribe_embed']",
-                        "iframe[src*='://www.youtube-nocookie.com/subscribe_embed']",
-                        "iframe[data-src*='://youtube.com/subscribe_embed']",
-                        "iframe[data-src*='://youtube-nocookie.com/subscribe_embed']",
-                        "iframe[data-src*='://www.youtube.com/subscribe_embed']",
-                        "iframe[data-src*='://www.youtube-nocookie.com/subscribe_embed']"
+                        "iframe[src*='//youtube.com/subscribe_embed']",
+                        "iframe[src*='//youtube-nocookie.com/subscribe_embed']",
+                        "iframe[src*='//www.youtube.com/subscribe_embed']",
+                        "iframe[src*='//www.youtube-nocookie.com/subscribe_embed']",
+                        "iframe[data-src*='//youtube.com/subscribe_embed']",
+                        "iframe[data-src*='//youtube-nocookie.com/subscribe_embed']",
+                        "iframe[data-src*='//www.youtube.com/subscribe_embed']",
+                        "iframe[data-src*='//www.youtube-nocookie.com/subscribe_embed']"
                     ],
                     replaceSettings: {
                         type: 'blank'
