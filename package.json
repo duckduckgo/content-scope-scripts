@@ -67,7 +67,7 @@
     "puppeteer": "^19.8.5",
     "rollup": "^3.20.2",
     "rollup-plugin-dynamic-import-variables": "^1.1.0",
-    "typedoc": "^0.24.1",
+    "typedoc": "^0.24.4",
     "typescript": "^5.0.4"
   }
 }
