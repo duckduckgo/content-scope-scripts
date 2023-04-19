@@ -44,14 +44,14 @@ jobs:
 
       - name: Collect commit ranges
         run: |
-          echo "# ${{ github.event.inputs.version }} release\n\n$(git log main --since "$(git show -s --format=%ci $(git rev-list --tags --max-count=1))" --pretty='format:- %s')" > ${{ github.workspace }}-CHANGELOG.txt
+          echo "CHANGELOG=$(git log main --since "$(git show -s --format=%ci $(git rev-list --tags --max-count=1))" --pretty='format:- %s')" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          body_path: ${{ steps.version.outputs.CHANGELOG }}
           draft: false
           prerelease: false
           tag_name: ${{ github.event.inputs.version }}
