@@ -5,6 +5,8 @@
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
+// Capture prototype to prevent overloading
+const Set = globalObj.Set
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
@@ -100,6 +102,7 @@ export function isThirdParty () {
     if (!isBeingFramed()) {
         return false
     }
+    // @ts-expect-error - getTabHostname() is string|null here
     return !matchHostname(globalThis.location.hostname, getTabHostname())
 }
 
@@ -110,6 +113,7 @@ export function isThirdParty () {
 export function getTabHostname () {
     let framingOrigin = null
     try {
+        // @ts-expect-error - globalThis.top is possibly 'null' here
         framingOrigin = globalThis.top.location.href
     } catch {
         framingOrigin = globalThis.document.referrer
@@ -122,6 +126,7 @@ export function getTabHostname () {
     }
 
     try {
+        // @ts-expect-error - framingOrigin is possibly 'null' here
         framingOrigin = new URL(framingOrigin).hostname
     } catch {
         framingOrigin = null
@@ -271,6 +276,7 @@ function isAppleSilicon () {
 
     // Best guess if the device is an Apple Silicon
     // https://stackoverflow.com/a/65412357
+    // @ts-expect-error - Object is possibly 'null'
     return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1
 }
 
@@ -304,7 +310,9 @@ const functionMap = {
         console.log('debugger', ...args)
         // eslint-disable-next-line no-debugger
         debugger
-    }
+    },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    noop: () => { }
 }
 
 /**
@@ -377,6 +385,7 @@ export class DDGProxy {
             const isExempt = shouldExemptMethod(this.camelFeatureName)
             if (debug) {
                 postDebugMessage(this.camelFeatureName, {
+                    isProxy: true,
                     action: isExempt ? 'ignore' : 'restrict',
                     kind: this.property,
                     documentUrl: document.location.href,
@@ -609,6 +618,7 @@ export function createCustomEvent (eventName, eventDetail) {
         eventDetail = cloneInto(eventDetail, window)
     }
 
+    // @ts-expect-error - possibly null
     return new OriginalCustomEvent(eventName, eventDetail)
 }
 

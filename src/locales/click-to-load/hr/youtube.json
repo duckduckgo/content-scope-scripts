@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "Isključivanjem pretpregleda DuckDuckGo ti omogućava dodatnu privatnost.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Saznaj više</a> o uključenoj DuckDuckGo zaštiti od društvenih medija",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }

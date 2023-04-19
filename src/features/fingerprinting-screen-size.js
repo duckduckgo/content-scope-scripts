@@ -52,10 +52,13 @@ function setWindowDimensions () {
             setWindowPropertyValue('screenTop', normalizedY)
         }
 
+        // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
         if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
+            // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
             setWindowPropertyValue('outerHeight', top.window.screen.height)
         } else {
             try {
+                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
                 setWindowPropertyValue('outerHeight', top.window.outerHeight)
             } catch (e) {
                 // top not accessible to certain iFrames, so ignore.
@@ -70,10 +73,13 @@ function setWindowDimensions () {
             setWindowPropertyValue('screenLeft', normalizedX)
         }
 
+        // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
         if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
+            // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
             setWindowPropertyValue('outerWidth', top.window.screen.width)
         } else {
             try {
+                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
                 setWindowPropertyValue('outerWidth', top.window.outerWidth)
             } catch (e) {
                 // top not accessible to certain iFrames, so ignore.

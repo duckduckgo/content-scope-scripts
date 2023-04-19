@@ -45,7 +45,7 @@
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "Deaktiviere Vorschauen für zusätzlichen Datenschutz von DuckDuckGo.",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Erfahre mehr</a> über den DuckDuckGo-Schutz vor eingebetteten Social Media-Inhalten",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }

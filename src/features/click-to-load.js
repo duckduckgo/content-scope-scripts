@@ -1,11 +1,16 @@
-// TODO - Remove these comments to enable full linting.
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/await-thenable, require-await */
-// @ts-nocheck
-
-import { createCustomEvent, sendMessage, OriginalCustomEvent, originalWindowDispatchEvent } from '../utils.js'
+import { createCustomEvent, sendMessage, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { styles, getConfig } from './click-to-load/ctl-config.js'
 import ContentFeature from '../content-feature.js'
+
+/**
+ * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
+ *   Key for theme value to determine the styling of buttons/placeholders.
+ *   Matches `styles[mode]` keys:
+ *     - `'lightMode'`: Primary colors styling for light theme
+ *     - `'darkMode'`: Primary colors styling for dark theme
+ *     - `'cancelMode'`: Secondary colors styling for all themes
+ */
 
 let devMode = false
 let isYoutubePreviewsEnabled = false
@@ -27,13 +32,32 @@ const entityData = {}
 // Used to avoid displaying placeholders for the same tracking element twice.
 const knownTrackingElements = new WeakSet()
 
-let readyResolver
-const ready = new Promise(resolve => { readyResolver = resolve })
+// Promise that is resolved when the Click to Load feature init() function has
+// finished its work, enough that it's now safe to replace elements with
+// placeholders.
+let readyToDisplayPlaceholdersResolver
+const readyToDisplayPlaceholders = new Promise(resolve => {
+    readyToDisplayPlaceholdersResolver = resolve
+})
+
+// Promise that is resolved when the page has finished loading (and
+// readyToDisplayPlaceholders has resolved). Wait for this before sending
+// essential messages to surrogate scripts.
+let afterPageLoadResolver
+const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve })
 
 /*********************************************************
  *  Widget Replacement logic
  *********************************************************/
 class DuckWidget {
+    /**
+     * @param {Object} widgetData
+     *   The configuration for this "widget" as determined in ctl-config.js.
+     * @param {HTMLElement} originalElement
+     *   The original tracking element to replace with a placeholder.
+     * @param {string} entity
+     *   The entity behind the tracking element (e.g. "Facebook, Inc.").
+     */
     constructor (widgetData, originalElement, entity) {
         this.clickAction = { ...widgetData.clickAction } // shallow copy
         this.replaceSettings = widgetData.replaceSettings
@@ -43,10 +67,17 @@ class DuckWidget {
         this.gatherDataElements()
         this.entity = entity
         this.widgetID = Math.random()
+        this.autoplay = false
         // Boolean if widget is unblocked and content should not be blocked
         this.isUnblocked = false
     }
 
+    /**
+     * Dispatch an event on the target element, including the widget's ID and
+     * other details.
+     * @param {EventTarget} eventTarget
+     * @param {string} eventName
+     */
     dispatchEvent (eventTarget, eventName) {
         eventTarget.dispatchEvent(
             createCustomEvent(
@@ -61,8 +92,11 @@ class DuckWidget {
         )
     }
 
-    // Collect and store data elements from original widget. Store default values
-    // from config if not present.
+    /**
+     * Take note of some of the tracking element's attributes (as determined by
+     * clickAction.urlDataAttributesToPreserve) and store those in
+     * this.dataElement.
+     */
     gatherDataElements () {
         if (!this.clickAction.urlDataAttributesToPreserve) {
             return
@@ -71,7 +105,7 @@ class DuckWidget {
             let value = this.originalElement.getAttribute(attrName)
             if (!value) {
                 if (attrSettings.required) {
-                    // missing a required attribute means we won't be able to replace it
+                    // Missing a required attribute means we won't be able to replace it
                     // with a light version, replace with full version.
                     this.clickAction.type = 'allowFull'
                 }
@@ -81,7 +115,11 @@ class DuckWidget {
         }
     }
 
-    // Return the facebook content URL to use when a user has clicked.
+    /**
+     * Return the URL of the Facebook content, for use when a Facebook Click to
+     * Load placeholder has been clicked by the user.
+     * @returns {string}
+     */
     getTargetURL () {
         // Copying over data fields should be done lazily, since some required data may not be
         // captured until after page scripts run.
@@ -89,22 +127,27 @@ class DuckWidget {
         return this.clickAction.targetURL
     }
 
-    // Determine if element should render in dark mode
+    /**
+     * Determines which display mode the placeholder element should render in.
+     * @returns {displayMode}
+     */
     getMode () {
         // Login buttons are always the login style types
         if (this.replaceSettings.type === 'loginButton') {
             return 'loginMode'
         }
-        const mode = this.originalElement.getAttribute('data-colorscheme')
-        if (mode === 'dark') {
+        if (window?.matchMedia('(prefers-color-scheme: dark)')?.matches) {
             return 'darkMode'
         }
         return 'lightMode'
     }
 
-    // The config file offers the ability to style the replaced facebook widget. This
-    // collects the style from the original element & any specified in config for the element
-    // type and returns a CSS string.
+    /**
+     * Take note of some of the tracking element's style attributes (as
+     * determined by clickAction.styleDataAttributes) as a CSS string.
+     *
+     * @returns {string}
+     */
     getStyle () {
         let styleString = 'border: none;'
 
@@ -130,8 +173,11 @@ class DuckWidget {
         return styleString
     }
 
-    // Some data fields are 'kept' from the original element. These are used both in
-    // replacement styling (darkmode, width, height), and when returning to a FB element.
+    /**
+     * Store some attributes from the original tracking element, used for both
+     * placeholder element styling, and when restoring the original tracking
+     * element.
+     */
     copySocialDataFields () {
         if (!this.clickAction.urlDataAttributesToPreserve) {
             return
@@ -164,11 +210,11 @@ class DuckWidget {
         }
     }
 
-    /*
-        * Creates an iFrame for this facebook content.
-        *
-        * @returns {Element}
-        */
+    /**
+     * Creates an iFrame for this facebook content.
+     *
+     * @returns {HTMLIFrameElement}
+     */
     createFBIFrame () {
         const frame = document.createElement('iframe')
 
@@ -179,13 +225,13 @@ class DuckWidget {
     }
 
     /**
-    * Tweaks an embedded YouTube video element ready for when it's
-    * reloaded.
-    *
-    * @param {Element} videoElement
-    * @returns {Function?} onError
-    *   Function to be called if the video fails to load.
-    */
+     * Tweaks an embedded YouTube video element ready for when it's
+     * reloaded.
+     *
+     * @param {HTMLIFrameElement} videoElement
+     * @returns {EventListener?} onError
+     *   Function to be called if the video fails to load.
+     */
     adjustYouTubeVideoElement (videoElement) {
         let onError = null
 
@@ -228,11 +274,16 @@ class DuckWidget {
         return onError
     }
 
-    /*
-     * Fades out the given element. Returns a promise that resolves when the fade is complete.
-     * @param {Element} element - the element to fade in or out
-     * @param {int} interval - frequency of opacity updates (ms)
-     * @param {boolean} fadeIn - true if the element should fade in instead of out
+    /**
+     * Fades the given element in/out.
+     * @param {HTMLElement} element
+     *   The element to fade in or out.
+     * @param {number} interval
+     *   Frequency of opacity updates (ms).
+     * @param {boolean} fadeIn
+     *   True if the element should fade in instead of out.
+     * @returns {Promise<void>}
+     *    Promise that resolves when the fade in/out is complete.
      */
     fadeElement (element, interval, fadeIn) {
         return new Promise(resolve => {
@@ -249,17 +300,40 @@ class DuckWidget {
         })
     }
 
+    /**
+     * Fades the given element out.
+     * @param {HTMLElement} element
+     *   The element to fade out.
+     * @returns {Promise<void>}
+     *    Promise that resolves when the fade out is complete.
+     */
     fadeOutElement (element) {
         return this.fadeElement(element, 10, false)
     }
 
+    /**
+     * Fades the given element in.
+     * @param {HTMLElement} element
+     *   The element to fade in.
+     * @returns {Promise<void>}
+     *    Promise that resolves when the fade in is complete.
+     */
     fadeInElement (element) {
         return this.fadeElement(element, 10, true)
     }
 
+    /**
+     * The function that's called when the user clicks to load some content.
+     * Unblocks the content, puts it back in the page, and removes the
+     * placeholder.
+     * @param {HTMLIFrameElement} originalElement
+     *   The original tracking element.
+     * @param {HTMLElement} replacementElement
+     *   The placeholder element.
+     */
     clickFunction (originalElement, replacementElement) {
         let clicked = false
-        const handleClick = function handleClick (e) {
+        const handleClick = e => {
             // Ensure that the click is created by a user event & prevent double clicks from adding more animations
             if (e.isTrusted && !clicked) {
                 this.isUnblocked = true
@@ -271,6 +345,10 @@ class DuckWidget {
                 }
                 window.addEventListener('ddg-ctp-unblockClickToLoadContent-complete', () => {
                     const parent = replacementElement.parentNode
+
+                    // The placeholder was removed from the DOM while we loaded
+                    // the original content, give up.
+                    if (!parent) return
 
                     // If we allow everything when this element is clicked,
                     // notify surrogate to enable SDK and replace original element.
@@ -324,11 +402,9 @@ class DuckWidget {
                         break
                     }
 
-                    /*
-                    * Modify the overlay to include a Facebook iFrame, which
-                    * starts invisible. Once loaded, fade out and remove the overlay
-                    * then fade in the Facebook content
-                    */
+                    // Modify the overlay to include a Facebook iFrame, which
+                    // starts invisible. Once loaded, fade out and remove the
+                    // overlay then fade in the Facebook content.
                     parent.replaceChild(fbContainer, replacementElement)
                     fbContainer.appendChild(replacementElement)
                     fadeIn.appendChild(fbElement)
@@ -349,37 +425,96 @@ class DuckWidget {
                 const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
                 unblockClickToLoadContent({ entity: this.entity, action, isLogin })
             }
-        }.bind(this)
+        }
         // If this is a login button, show modal if needed
         if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
-            return function handleLoginClick (e) {
+            return e => {
                 makeModal(this.entity, handleClick, e)
-            }.bind(this)
+            }
         }
         return handleClick
     }
 }
 
-function replaceTrackingElement (widget, trackingElement, placeholderElement, currentPlaceholder = null) {
+/**
+ * Replace the given tracking element with the given placeholder.
+ * Notes:
+ *  1. This function also dispatches events targetting the original and
+ *     placeholder elements. That way, the surrogate scripts can use the event
+ *     targets to keep track of which placeholder corresponds to which tracking
+ *     element.
+ *  2. To achieve that, the original and placeholder elements must be in the DOM
+ *     at the time the events are dispatched. Otherwise, the events will not
+ *     bubble up and the surrogate script will miss them.
+ *  3. Placeholder must be shown immediately (to avoid a flicker for the user),
+ *     but the events must only be sent once the document (and therefore
+ *     surrogate scripts) have loaded.
+ *  4. Therefore, we hide the element until the page has loaded, then dispatch
+ *     the events after page load, and then remove the element from the DOM.
+ *  5. The "ddg-ctp-ready" event needs to be dispatched _after_ the element
+ *     replacement events have fired. That is why a setTimeout is required
+ *     before dispatching "ddg-ctp-ready".
+ *
+ *  Also note, this all assumes that the surrogate script that needs these
+ *  events will not be loaded asynchronously after the page has finished
+ *  loading.
+ *
+ * @param {DuckWidget} widget
+ *   The DuckWidget associated with the tracking element.
+ * @param {HTMLElement} trackingElement
+ *   The tracking element on the page to replace.
+ * @param {HTMLElement} placeholderElement
+ *   The placeholder element that should be shown instead.
+ */
+function replaceTrackingElement (widget, trackingElement, placeholderElement) {
+    // In some situations (e.g. YouTube Click to Load previews are
+    // enabled/disabled), a second placeholder will be shown for a tracking
+    // element.
+    const elementToReplace = widget.placeholderElement || trackingElement
+
+    // Note the placeholder element, so that it can also be replaced later if
+    // necessary.
     widget.placeholderElement = placeholderElement
 
-    widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
+    // First hide the element, since we need to keep it in the DOM until the
+    // events have been dispatched.
+    const originalDisplay = [
+        elementToReplace.style.getPropertyValue('display'),
+        elementToReplace.style.getPropertyPriority('display')
+    ]
+    elementToReplace.style.setProperty('display', 'none', 'important')
 
-    const elementToReplace = currentPlaceholder || trackingElement
-    elementToReplace.replaceWith(placeholderElement)
+    // Add the placeholder element to the page.
+    elementToReplace.parentElement.insertBefore(
+        placeholderElement, elementToReplace
+    )
 
-    widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element')
+    // While the placeholder is shown (and original element hidden)
+    // synchronously, the events are dispatched (and original element removed
+    // from the DOM) asynchronously after the page has finished loading.
+    // eslint-disable-next-line promise/prefer-await-to-then
+    afterPageLoad.then(() => {
+        // With page load complete, and both elements in the DOM, the events can
+        // be dispatched.
+        widget.dispatchEvent(trackingElement, 'ddg-ctp-tracking-element')
+        widget.dispatchEvent(placeholderElement, 'ddg-ctp-placeholder-element')
+
+        // Once the events are sent, the tracking element (or previous
+        // placeholder) can finally be removed from the DOM.
+        elementToReplace.remove()
+        elementToReplace.style.setProperty('display', ...originalDisplay)
+    })
 }
 
 /**
  * Creates a placeholder element for the given tracking element and replaces
  * it on the page.
  * @param {DuckWidget} widget
- *   The CTP 'widget' associated with the tracking element.
- * @param {Element} trackingElement
+ *   The CTL 'widget' associated with the tracking element.
+ * @param {HTMLIFrameElement} trackingElement
  *   The tracking element on the page that should be replaced with a placeholder.
  */
-async function createPlaceholderElementAndReplace (widget, trackingElement) {
+function createPlaceholderElementAndReplace (widget, trackingElement) {
     if (widget.replaceSettings.type === 'blank') {
         replaceTrackingElement(widget, trackingElement, document.createElement('div'))
     }
@@ -395,72 +530,66 @@ async function createPlaceholderElementAndReplace (widget, trackingElement) {
         replaceTrackingElement(widget, trackingElement, container)
     }
 
-    /** Facebook CTL */
+    // Facebook
     if (widget.replaceSettings.type === 'dialog') {
         const icon = widget.replaceSettings.icon
         const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
         const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
-        const { contentBlock, shadowRoot } = await createContentBlock(
+        const { contentBlock, shadowRoot } = createContentBlock(
             widget, button, textButton, icon
         )
         button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
         textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
 
-        replaceTrackingElement(
-            widget, trackingElement, contentBlock
-        )
+        replaceTrackingElement(widget, trackingElement, contentBlock)
         showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
     }
 
-    /** YouTube CTL */
+    // YouTube
     if (widget.replaceSettings.type === 'youtube-video') {
         sendMessage('updateYouTubeCTLAddedFlag', true)
-        await replaceYouTubeCTL(trackingElement, widget)
+        replaceYouTubeCTL(trackingElement, widget)
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
-        window.addEventListener('ddg-settings-youtubePreviewsEnabled', ({ detail: value }) => {
-            isYoutubePreviewsEnabled = value
-            replaceYouTubeCTL(trackingElement, widget, true)
-        })
+        window.addEventListener(
+            'ddg-settings-youtubePreviewsEnabled',
+            (/** @type CustomEvent */ { detail: value }) => {
+                isYoutubePreviewsEnabled = value
+                replaceYouTubeCTL(trackingElement, widget)
+            }
+        )
     }
 }
 
 /**
- * @param {Element} trackingElement
+ * @param {HTMLIFrameElement} trackingElement
  *   The original tracking element (YouTube video iframe)
  * @param {DuckWidget} widget
- *   The CTP 'widget' associated with the tracking element.
- * @param {boolean} togglePlaceholder
- *   Boolean indicating if this function should toggle between placeholders,
- *   because tracking element has already been replaced
+ *   The CTL 'widget' associated with the tracking element.
  */
-async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = false) {
+function replaceYouTubeCTL (trackingElement, widget) {
     // Skip replacing tracking element if it has already been unblocked
     if (widget.isUnblocked) {
         return
     }
 
-    // Show YouTube Preview for embedded video
     if (isYoutubePreviewsEnabled === true) {
-        const { youTubePreview, shadowRoot } = await createYouTubePreview(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
-        resizeElementToMatch(currentPlaceholder || trackingElement, youTubePreview)
-        replaceTrackingElement(
-            widget, trackingElement, youTubePreview, currentPlaceholder
-        )
+        // Show YouTube Preview for embedded video
+        const oldPlaceholder = widget.placeholderElement
+        const { youTubePreview, shadowRoot } = createYouTubePreview(trackingElement, widget)
+        resizeElementToMatch(oldPlaceholder || trackingElement, youTubePreview)
+        replaceTrackingElement(widget, trackingElement, youTubePreview)
         showExtraUnblockIfShortPlaceholder(shadowRoot, youTubePreview)
-
-        // Block YouTube embedded video and display blocking dialog
     } else {
+        // Block YouTube embedded video and display blocking dialog
         widget.autoplay = false
-        const { blockingDialog, shadowRoot } = await createYouTubeBlockingDialog(trackingElement, widget)
-        const currentPlaceholder = togglePlaceholder ? widget.placeholderElement : null
-        resizeElementToMatch(currentPlaceholder || trackingElement, blockingDialog)
-        replaceTrackingElement(
-            widget, trackingElement, blockingDialog, currentPlaceholder
-        )
+        const oldPlaceholder = widget.placeholderElement
+        const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
+        resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
+        replaceTrackingElement(widget, trackingElement, blockingDialog)
         showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
+        hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460)
     }
 }
 
@@ -469,38 +598,84 @@ async function replaceYouTubeCTL (trackingElement, widget, togglePlaceholder = f
  * its parent is too short for the normal unblock button to be visible.
  * Note: This does not take into account the placeholder's vertical
  *       position in the parent element.
- * @param {Element} shadowRoot
- * @param {Element} placeholder Placeholder for tracking element
+ * @param {ShadowRoot} shadowRoot
+ * @param {HTMLElement} placeholder Placeholder for tracking element
  */
 function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
     if (!placeholder.parentElement) {
         return
     }
 
-    const { height: placeholderHeight } = window.getComputedStyle(placeholder)
-    const { height: parentHeight } = window.getComputedStyle(placeholder.parentElement)
-    if (parseInt(placeholderHeight, 10) <= 200 || parseInt(parentHeight, 10) <= 200) {
+    const { height: placeholderHeight } = placeholder.getBoundingClientRect()
+    const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect()
+
+    if ((placeholderHeight > 0 && placeholderHeight <= 200) ||
+        (parentHeight > 0 && parentHeight <= 230)) {
+        /** @type {HTMLElement?} */
         const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
-        titleRowTextButton.style.display = 'block'
+        if (titleRowTextButton) {
+            titleRowTextButton.style.display = 'block'
+        }
 
         // Avoid the placeholder being taller than the containing element
         // and overflowing.
+        /** @type {HTMLElement?} */
         const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
-        innerDiv.style.minHeight = ''
-        innerDiv.style.maxHeight = parentHeight
-        innerDiv.style.overflow = 'hidden'
+        if (innerDiv) {
+            innerDiv.style.minHeight = ''
+            innerDiv.style.maxHeight = parentHeight + 'px'
+            innerDiv.style.overflow = 'hidden'
+        }
     }
 }
 
 /**
- * Replace the blocked CTP elements on the page with placeholders.
- * @param {Element} [targetElement]
+ * Hide the info text (and move the "Learn More" link) if the placeholder is too
+ * narrow.
+ * @param {ShadowRoot} shadowRoot
+ * @param {HTMLElement} placeholder Placeholder for tracking element
+ * @param {number} narrowWidth
+ *    Maximum placeholder width (in pixels) for the placeholder to be considered
+ *    narrow.
+ */
+function hideInfoTextIfNarrowPlaceholder (shadowRoot, placeholder, narrowWidth) {
+    const { width: placeholderWidth } = placeholder.getBoundingClientRect()
+    if (placeholderWidth > 0 && placeholderWidth <= narrowWidth) {
+        const buttonContainer =
+              shadowRoot.querySelector('.DuckDuckGoButton.primary')?.parentElement
+        const contentTitle = shadowRoot.getElementById('contentTitle')
+        const infoText = shadowRoot.getElementById('infoText')
+        /** @type {HTMLElement?} */
+        const learnMoreLink = shadowRoot.getElementById('learnMoreLink')
+
+        // These elements will exist, but this check keeps TypeScript happy.
+        if (!buttonContainer || !contentTitle || !infoText || !learnMoreLink) {
+            return
+        }
+
+        // Remove the information text.
+        infoText.remove()
+        learnMoreLink.remove()
+
+        // Append the "Learn More" link to the title.
+        contentTitle.innerText += '. '
+        learnMoreLink.style.removeProperty('font-size')
+        contentTitle.appendChild(learnMoreLink)
+
+        // Improve margin/padding, to ensure as much is displayed as possible.
+        buttonContainer.style.removeProperty('margin')
+    }
+}
+
+/**
+ * Replace the blocked CTL elements on the page with placeholders.
+ * @param {HTMLElement} [targetElement]
  *   If specified, only this element will be replaced (assuming it matches
  *   one of the expected CSS selectors). If omitted, all matching elements
  *   in the document will be replaced instead.
  */
 async function replaceClickToLoadElements (targetElement) {
-    await ready
+    await readyToDisplayPlaceholders
 
     for (const entity of Object.keys(config)) {
         for (const widgetData of Object.values(config[entity].elementData)) {
@@ -556,6 +731,12 @@ function unblockClickToLoadContent (message) {
     sendMessage('unblockClickToLoadContent', message)
 }
 
+/**
+ * Unblock the entity, close the login dialog and continue the Facebook login
+ * flow. Called after the user clicks to proceed after the warning dialog is
+ * shown.
+ * @param {string} entity
+ */
 function runLogin (entity) {
     const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
     unblockClickToLoadContent({ entity, action, isLogin: true })
@@ -568,6 +749,11 @@ function runLogin (entity) {
     )
 }
 
+/**
+ * Close the login dialog and abort. Called after the user clicks to cancel
+ * after the warning dialog is shown.
+ * @param {string} entity
+ */
 function cancelModal (entity) {
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-cancel-modal', {
@@ -589,24 +775,27 @@ function getYouTubeVideoDetails (videoURL) {
 /*********************************************************
  *  Widget building blocks
  *********************************************************/
-function getLearnMoreLink (mode) {
-    if (!mode) {
-        mode = 'lightMode'
-    }
 
+/**
+ * Creates a "Learn more" link element.
+ * @param {displayMode} [mode='lightMode']
+ * @returns {HTMLAnchorElement}
+ */
+function getLearnMoreLink (mode = 'lightMode') {
     const linkElement = document.createElement('a')
     linkElement.style.cssText = styles.generalLink + styles[mode].linkFont
     linkElement.ariaLabel = sharedStrings.readAbout
     linkElement.href = 'https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/'
     linkElement.target = '_blank'
     linkElement.textContent = sharedStrings.learnMore
+    linkElement.id = 'learnMoreLink'
     return linkElement
 }
 
 /**
  * Resizes and positions the target element to match the source element.
- * @param {Element} sourceElement
- * @param {Element} targetElement
+ * @param {HTMLElement} sourceElement
+ * @param {HTMLElement} targetElement
  */
 function resizeElementToMatch (sourceElement, targetElement) {
     const computedStyle = window.getComputedStyle(sourceElement)
@@ -650,7 +839,7 @@ function makeFontFaceStyleElement () {
  * Create a `<style/>` element with base styles for DDG social container and
  * button to be attached to DDG wrapper elements/shadowRoot, also returns a wrapper
  * class name for Social Container link styles
- * @param {"lightMode" | "darkMode"} mode Light or Dark mode value
+ * @param {displayMode} [mode='lightMode']
  * @returns {{wrapperClass: string, styleElement: HTMLStyleElement; }}
  */
 function makeBaseStyleElement (mode = 'lightMode') {
@@ -700,6 +889,13 @@ function makeBaseStyleElement (mode = 'lightMode') {
     return { wrapperClass, styleElement }
 }
 
+/**
+ * Creates an anchor element with no destination. It is expected that a click
+ * handler is added to the element later.
+ * @param {string} linkText
+ * @param {displayMode} [mode='lightMode']
+ * @returns {HTMLAnchorElement}
+ */
 function makeTextButton (linkText, mode) {
     const linkElement = document.createElement('a')
     linkElement.style.cssText = styles.headerLink + styles[mode].linkFont
@@ -709,11 +905,12 @@ function makeTextButton (linkText, mode) {
 
 /**
  * Create a button element.
- * @param {string} buttonText Text to be displayed inside the button
- * @param {'lightMode' | 'darkMode' | 'cancelMode'} mode Key for theme value to determine the styling of the button. Key matches `styles[mode]` keys.
- * - `'lightMode'`: Primary colors styling for light theme
- * - `'darkMode'`: Primary colors styling for dark theme
- * - `'cancelMode'`: Secondary colors styling for all themes
+ * @param {string} buttonText
+ *   Text to be displayed inside the button.
+ * @param {displayMode} [mode='lightMode']
+ *   The button is usually styled as the primary call to action, but if
+ *   'cancelMode' is specified the button is styled as a secondary call to
+ *   action.
  * @returns {HTMLButtonElement} Button element
  */
 function makeButton (buttonText, mode = 'lightMode') {
@@ -728,6 +925,16 @@ function makeButton (buttonText, mode = 'lightMode') {
     return button
 }
 
+/**
+ * Create a toggle button.
+ * @param {boolean} [isActive=false]
+ *   True if the button should be toggled by default.
+ * @param {string} [classNames='']
+ *   Class names to assign to the button (space delimited).
+ * @param {string} [dataKey='']
+ *   Value to assign to the button's 'data-key' attribute.
+ * @returns {HTMLButtonElement}
+ */
 function makeToggleButton (isActive = false, classNames = '', dataKey = '') {
     const toggleButton = document.createElement('button')
     toggleButton.className = classNames
@@ -748,11 +955,27 @@ function makeToggleButton (isActive = false, classNames = '', dataKey = '') {
     return toggleButton
 }
 
-function makeToggleButtonWithText (text, mode, isActive = false, toggleCssStyles = '', textCssStyles = '', dataKey = '') {
+/**
+ * Create a toggle button that's wrapped in a div with some text.
+ * @param {string} text
+ *   Text to display by the button.
+ * @param {displayMode} mode
+ * @param {boolean} [isActive=false]
+ *   True if the button should be toggled by default.
+ * @param {string} [toggleClassNames='']
+ *   Class names to assign to the toggle button.
+ * @param {string} [textCssStyles='']
+ *   Styles to apply to the wrapping div (on top of ones determined by the
+ *   display mode.)
+ * @param {string} [dataKey='']
+ *   Value to assign to the button's 'data-key' attribute.
+ * @returns {HTMLDivElement}
+ */
+function makeToggleButtonWithText (text, mode, isActive = false, toggleClassNames = '', textCssStyles = '', dataKey = '') {
     const wrapper = document.createElement('div')
     wrapper.style.cssText = styles.toggleButtonWrapper
 
-    const toggleButton = makeToggleButton(isActive, toggleCssStyles, dataKey)
+    const toggleButton = makeToggleButton(isActive, toggleClassNames, dataKey)
 
     const textDiv = document.createElement('div')
     textDiv.style.cssText = styles.contentText + styles.toggleButtonText + styles[mode].toggleButtonText + textCssStyles
@@ -763,7 +986,10 @@ function makeToggleButtonWithText (text, mode, isActive = false, toggleCssStyles
     return wrapper
 }
 
-/* If there isn't an image available, just make a default block symbol */
+/**
+ * Create the default block symbol, for when the image isn't available.
+ * @returns {HTMLDivElement}
+ */
 function makeDefaultBlockIcon () {
     const blockedIcon = document.createElement('div')
     const dash = document.createElement('div')
@@ -773,6 +999,10 @@ function makeDefaultBlockIcon () {
     return blockedIcon
 }
 
+/**
+ * Creates a share feedback link element.
+ * @returns {HTMLAnchorElement}
+ */
 function makeShareFeedbackLink () {
     const feedbackLink = document.createElement('a')
     feedbackLink.style.cssText = styles.feedbackLink
@@ -788,6 +1018,10 @@ function makeShareFeedbackLink () {
     return feedbackLink
 }
 
+/**
+ * Creates a share feedback link element, wrapped in a styled div.
+ * @returns {HTMLDivElement}
+ */
 function makeShareFeedbackRow () {
     const feedbackRow = document.createElement('div')
     feedbackRow.style.cssText = styles.feedbackRow
@@ -798,7 +1032,23 @@ function makeShareFeedbackRow () {
     return feedbackRow
 }
 
-/* FB login replacement button, with hover text */
+/**
+ * Creates a placeholder Facebook login button. When clicked, a warning dialog
+ * is displayed to the user. The login flow only continues if the user clicks to
+ * proceed.
+ * @param {string} buttonText
+ * @param {displayMode} mode
+ * @param {string} hoverTextBody
+ *   The hover text to display for the button.
+ * @param {string?} icon
+ *   The source of the icon to display in the button, if null the default block
+ *   icon is used instead.
+ * @param {HTMLElement} originalElement
+ *   The original Facebook login button that this placeholder is replacing.
+ *   Note: This function does not actually replace the button, the caller is
+ *         expected to do that.
+ * @returns {{ container: HTMLDivElement, button: HTMLButtonElement }}
+ */
 function makeLoginButton (buttonText, mode, hoverTextBody, icon, originalElement) {
     const container = document.createElement('div')
     container.style.cssText = 'position: relative;'
@@ -855,12 +1105,11 @@ function makeLoginButton (buttonText, mode, hoverTextBody, icon, originalElement
 
     hoverContainer.appendChild(hoverBox)
     const rect = originalElement.getBoundingClientRect()
-    /*
-    * The left side of the hover popup may go offscreen if the
-    * login button is all the way on the left side of the page. This
-    * If that is the case, dynamically shift the box right so it shows
-    * properly.
-    */
+
+    // The left side of the hover popup may go offscreen if the
+    // login button is all the way on the left side of the page. This
+    // If that is the case, dynamically shift the box right so it shows
+    // properly.
     if (rect.left < styles.textBubbleLeftShift) {
         const leftShift = -rect.left + 10 // 10px away from edge of the screen
         hoverBox.style.cssText += `left: ${leftShift}px;`
@@ -884,7 +1133,19 @@ function makeLoginButton (buttonText, mode, hoverTextBody, icon, originalElement
     }
 }
 
-async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
+/**
+ * Creates a privacy warning dialog for the user, so that the user can choose to
+ * proceed/abort.
+ * @param {string} entity
+ *   The entity to unblock requests for (e.g. "Facebook, Inc.") if the user
+ *   clicks to proceed.
+ * @param {function} acceptFunction
+ *   The function to call if the user has clicked to proceed.
+ * @param {...any} acceptFunctionParams
+ *   The parameters passed to acceptFunction when it is called.
+ *   TODO: Have the caller bind these arguments to the function instead.
+ */
+function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
     const icon = entityData[entity].modalIcon
 
     const modalContainer = document.createElement('div')
@@ -963,6 +1224,16 @@ async function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
     document.body.insertBefore(modalContainer, document.body.childNodes[0])
 }
 
+/**
+ * Create the "title row" div that contains a placeholder's heading.
+ * @param {string} message
+ *   The title text to display.
+ * @param {HTMLAnchorElement?} [textButton]
+ *   The link to display with the title, if any.
+ * @param {EventListener} [closeBtnFn]
+ *   If provided, a close button is added that calls this function when clicked.
+ * @returns {HTMLDivElement}
+ */
 function createTitleRow (message, textButton, closeBtnFn) {
     // Create row container
     const row = document.createElement('div')
@@ -1007,8 +1278,23 @@ function createTitleRow (message, textButton, closeBtnFn) {
     return row
 }
 
-// Create the content block to replace other divs/iframes with
-async function createContentBlock (widget, button, textButton, img, bottomRow) {
+/**
+ * Create a placeholder element (wrapped in a div and shadowRoot), to replace a
+ * tracking element with.
+ * @param {DuckWidget} widget
+ *   Widget corresponding to the tracking element.
+ * @param {HTMLButtonElement} button
+ *   Primary button that loads the original tracking element (and removed this
+ *   placeholder) when clicked.
+ * @param {HTMLAnchorElement?} textButton
+ *   Link to display next to the title, if any.
+ * @param {string?} img
+ *   Source of image to display in the placeholder (if any).
+ * @param {HTMLDivElement} [bottomRow]
+ *   Bottom row to append to the placeholder, if any.
+ * @returns {{ contentBlock: HTMLDivElement, shadowRoot: ShadowRoot }}
+ */
+function createContentBlock (widget, button, textButton, img, bottomRow) {
     const contentBlock = document.createElement('div')
     contentBlock.style.cssText = styles.wrapperDiv
 
@@ -1056,10 +1342,14 @@ async function createContentBlock (widget, button, textButton, img, bottomRow) {
     const contentTitle = document.createElement('div')
     contentTitle.style.cssText = styles.contentTitle
     contentTitle.textContent = widget.replaceSettings.infoTitle
+    contentTitle.id = 'contentTitle'
     contentRow.appendChild(contentTitle)
     const contentText = document.createElement('div')
     contentText.style.cssText = styles.contentText
-    contentText.textContent = widget.replaceSettings.infoText + ' '
+    const contentTextSpan = document.createElement('span')
+    contentTextSpan.id = 'infoText'
+    contentTextSpan.textContent = widget.replaceSettings.infoText + ' '
+    contentText.appendChild(contentTextSpan)
     contentText.appendChild(getLearnMoreLink())
     contentRow.appendChild(contentText)
     element.appendChild(contentRow)
@@ -1082,8 +1372,13 @@ async function createContentBlock (widget, button, textButton, img, bottomRow) {
     return { contentBlock, shadowRoot }
 }
 
-// Create the content block to replace embedded youtube videos/iframes with
-async function createYouTubeBlockingDialog (trackingElement, widget) {
+/**
+ * Create the content block to replace embedded YouTube videos/iframes with.
+ * @param {HTMLIFrameElement} trackingElement
+ * @param {DuckWidget} widget
+ * @returns {{ blockingDialog: HTMLElement, shadowRoot: ShadowRoot }}
+ */
+function createYouTubeBlockingDialog (trackingElement, widget) {
     const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
     const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
 
@@ -1103,7 +1398,7 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
     )
     bottomRow.appendChild(previewToggle)
 
-    const { contentBlock, shadowRoot } = await createContentBlock(
+    const { contentBlock, shadowRoot } = createContentBlock(
         widget, button, textButton, null, bottomRow
     )
     contentBlock.id = trackingElement.id
@@ -1122,14 +1417,14 @@ async function createYouTubeBlockingDialog (trackingElement, widget) {
  * Creates the placeholder element to replace a YouTube video iframe element
  * with a preview image. Mutates widget Object to set the autoplay property
  * as the preview details load.
- * @param {Element} originalElement
+ * @param {HTMLIFrameElement} originalElement
  *   The YouTube video iframe element.
  * @param {DuckWidget} widget
  *   The widget Object. We mutate this to set the autoplay property.
- * @returns {{ youTubePreview: Element, shadowRoot: Element }}
+ * @returns {{ youTubePreview: HTMLElement, shadowRoot: ShadowRoot }}
  *   Object containing the YouTube Preview element and its shadowRoot.
  */
-async function createYouTubePreview (originalElement, widget) {
+function createYouTubePreview (originalElement, widget) {
     const youTubePreview = document.createElement('div')
     youTubePreview.id = originalElement.id
     youTubePreview.style.cssText = styles.wrapperDiv + styles.placeholderWrapperDiv
@@ -1222,9 +1517,22 @@ async function createYouTubePreview (originalElement, widget) {
     /** Preview Info Text */
     const previewText = document.createElement('div')
     previewText.style.cssText = styles.contentText + styles.toggleButtonText + styles.youTubePreviewInfoText
-    previewText.innerText = widget.replaceSettings.placeholder.previewInfoText + ' '
-    // Use darkMode styles because of preview background
-    previewText.appendChild(getLearnMoreLink('darkMode'))
+    // Since this string contains an anchor element, setting innerText won't
+    // work.
+    // Warning: This is not ideal! The translated (and original) strings must be
+    //          checked very carefully! Any HTML they contain will be inserted.
+    //          Ideally, the translation system would allow only certain element
+    //          types to be included, and would avoid the URLs for links being
+    //          included in the translations.
+    previewText.insertAdjacentHTML(
+        'beforeend', widget.replaceSettings.placeholder.previewInfoText
+    )
+    const previewTextLink = previewText.querySelector('a')
+    if (previewTextLink) {
+        const newPreviewTextLink = getLearnMoreLink()
+        newPreviewTextLink.innerText = previewTextLink.innerText
+        previewTextLink.replaceWith(newPreviewTextLink)
+    }
 
     previewToggleRow.appendChild(previewToggle)
     previewToggleRow.appendChild(previewText)
@@ -1232,13 +1540,14 @@ async function createYouTubePreview (originalElement, widget) {
 
     youTubePreviewDiv.appendChild(innerDiv)
 
-    widget.autoplay = false
     // We use .then() instead of await here to show the placeholder right away
     // while the YouTube endpoint takes it time to respond.
     const videoURL = originalElement.src || originalElement.getAttribute('data-src')
     getYouTubeVideoDetails(videoURL)
     window.addEventListener('ddg-ctp-youTubeVideoDetails',
-        ({ detail: { videoURL: videoURLResp, status, title, previewImage } }) => {
+        (/** @type {CustomEvent} */ {
+            detail: { videoURL: videoURLResp, status, title, previewImage }
+        }) => {
             if (videoURLResp !== videoURL) { return }
             if (status === 'success') {
                 titleElement.innerText = title
@@ -1266,40 +1575,40 @@ const messageResponseHandlers = {
         devMode = response.devMode
         isYoutubePreviewsEnabled = response.youtubePreviewsEnabled
 
-        // TODO: Move the below init logic to the exported init() function,
-        //       somehow waiting for this response handler to have been called
-        //       first.
-
-        // Start Click to Load
-        window.addEventListener('ddg-ctp-replace-element', ({ target }) => {
-            replaceClickToLoadElements(target)
-        }, { capture: true })
-
-        // Inform surrogate scripts that CTP is ready
-        originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
-
-        // Mark the feature as ready, to allow placeholder replacements.
-        readyResolver()
+        // Mark the feature as ready, to allow placeholder replacements to
+        // start.
+        readyToDisplayPlaceholdersResolver()
     },
-    setYoutubePreviewsEnabled: function (resp) {
-        if (resp?.messageType && typeof resp?.value === 'boolean') {
-            originalWindowDispatchEvent(new OriginalCustomEvent(resp.messageType, { detail: resp.value }))
+    setYoutubePreviewsEnabled (response) {
+        if (response?.messageType && typeof response?.value === 'boolean') {
+            originalWindowDispatchEvent(
+                createCustomEvent(
+                    response.messageType, { detail: response.value }
+                )
+            )
         }
     },
-    getYouTubeVideoDetails: function (resp) {
-        if (resp?.status && typeof resp.videoURL === 'string') {
-            originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-youTubeVideoDetails', { detail: resp }))
+    getYouTubeVideoDetails (response) {
+        if (response?.status && typeof response.videoURL === 'string') {
+            originalWindowDispatchEvent(
+                createCustomEvent(
+                    'ddg-ctp-youTubeVideoDetails',
+                    { detail: response }
+                )
+            )
         }
     },
     unblockClickToLoadContent () {
-        originalWindowDispatchEvent(new OriginalCustomEvent('ddg-ctp-unblockClickToLoadContent-complete'))
+        originalWindowDispatchEvent(
+            createCustomEvent('ddg-ctp-unblockClickToLoadContent-complete')
+        )
     }
 }
 
 const knownMessageResponseType = Object.prototype.hasOwnProperty.bind(messageResponseHandlers)
 
 export default class ClickToLoad extends ContentFeature {
-    init (args) {
+    async init (args) {
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}
         const locale = args?.locale || 'en'
@@ -1338,18 +1647,19 @@ export default class ClickToLoad extends ContentFeature {
         }
 
         // Listen for events from "surrogate" scripts.
-        addEventListener('ddg-ctp', (event) => {
-            if (!event.detail) return
-            const entity = event.detail.entity
+        addEventListener('ddg-ctp', (/** @type {CustomEvent} */ event) => {
+            if (!('detail' in event)) return
+
+            const entity = event.detail?.entity
             if (!entities.includes(entity)) {
                 // Unknown entity, reject
                 return
             }
-            if (event.detail.appID) {
+            if (event.detail?.appID) {
                 appID = JSON.stringify(event.detail.appID).replace(/"/g, '')
             }
             // Handle login call
-            if (event.detail.action === 'login') {
+            if (event.detail?.action === 'login') {
                 if (entityData[entity].shouldShowLoginModal) {
                     makeModal(entity, runLogin, entity)
                 } else {
@@ -1359,9 +1669,25 @@ export default class ClickToLoad extends ContentFeature {
         })
 
         // Request the current state of Click to Load from the platform.
-        // Note: When the response is received, the response handler finishes
-        //       starting up the feature.
+        // Note: When the response is received, the response handler resolves
+        //       the readyToDisplayPlaceholders Promise.
         sendMessage('getClickToLoadState')
+        await readyToDisplayPlaceholders
+
+        // Then wait for the page to finish loading, and resolve the
+        // afterPageLoad Promise.
+        if (document.readyState === 'complete') {
+            afterPageLoadResolver()
+        } else {
+            window.addEventListener('load', afterPageLoadResolver, { once: true })
+        }
+        await afterPageLoad
+
+        // Then wait for any in-progress element replacements, before letting
+        // the surrogate scripts know to start.
+        window.setTimeout(() => {
+            originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
+        }, 0)
     }
 
     update (message) {

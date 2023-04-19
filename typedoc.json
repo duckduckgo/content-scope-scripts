@@ -7,8 +7,10 @@
         "inject/mozilla.js",
         "inject/windows.js",
         "packages/messaging",
+        "packages/messaging/schema.js",
         "packages/special-pages",
-        "packages/special-pages/pages/example/src/index.js"
+        "packages/special-pages/pages/example/src/index.js",
+        "packages/special-pages/pages/duckplayer/src/js/index.js"
     ],
     "categoryOrder": [
         "Special Pages",

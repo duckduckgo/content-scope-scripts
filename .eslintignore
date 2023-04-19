@@ -1,6 +1,6 @@
 build/
 docs/
-lib/
+/lib
 Sources/ContentScopeScripts/dist/
 integration-test/extension/contentScope.js
 integration-test/pages/build

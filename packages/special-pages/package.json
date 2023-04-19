@@ -4,21 +4,24 @@
   "version": "1.0.0",
   "description": "A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like about: pages",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "build": "npm run build.pages && node index.js",
-    "build.pages": "node scripts/build.js",
-    "test": "echo '✅ No tests yet'",
-    "test.headed": "playwright test --headed",
+    "build": "node index.mjs",
+    "build.dev": "NODE_ENV=development node index.mjs",
+    "test": "playwright test",
+    "test.windows": "npm run test -- --project duckplayer-windows",
+    "test.headed": "npm run test -- --headed",
+    "test.ui": "npm run test -- --ui",
+    "pretest": "npm run build.dev",
+    "pretest.headed": "npm run build.dev",
     "test-int-x": "playwright test",
     "test-int": "playwright test",
-    "serve": "serve pages -p 3210"
+    "serve": "http-server -c-1 --port 3210 ../../"
   },
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.32.2",
-    "serve": "^14.2.0",
+    "@playwright/test": "^1.32.3",
+    "http-server": "^14.1.1",
     "@duckduckgo/messaging": "*",
-    "esbuild": "^0.17.16"
+    "esbuild": "^0.17.17"
   }
 }

@@ -1,14 +1,14 @@
 import { WindowsMessagingConfig } from '../windows.js'
-import { Messaging } from '../../index.js'
+import { Messaging, MessagingContext } from '../../index.js'
 
 /**
  * These 3 required methods that get assigned by the Native side.
  */
-// @ts-ignore
+// @ts-expect-error - webview is not in @types/chrome
 const windowsInteropPostMessage = window.chrome.webview.postMessage
-// @ts-ignore
+// @ts-expect-error - webview is not in @types/chrome
 const windowsInteropAddEventListener = window.chrome.webview.addEventListener
-// @ts-ignore
+// @ts-expect-error - webview is not in @types/chrome
 const windowsInteropRemoveEventListener = window.chrome.webview.removeEventListener
 
 /**
@@ -16,18 +16,23 @@ const windowsInteropRemoveEventListener = window.chrome.webview.removeEventListe
  * our WindowsMessagingConfig
  */
 const config = new WindowsMessagingConfig({
-  featureName: 'ExamplePage',
-  methods: {
-    postMessage: windowsInteropPostMessage,
-    addEventListener: windowsInteropAddEventListener,
-    removeEventListener: windowsInteropRemoveEventListener,
-  },
+    methods: {
+        postMessage: windowsInteropPostMessage,
+        addEventListener: windowsInteropAddEventListener,
+        removeEventListener: windowsInteropRemoveEventListener
+    }
+})
+
+const messagingContext = new MessagingContext({
+    context: 'contentScopeScripts',
+    featureName: 'hello-world',
+    env: 'development'
 })
 
 /**
  * And then send notifications!
  */
-const messaging = new Messaging(config)
+const messaging = new Messaging(messagingContext, config)
 messaging.notify('helloWorld')
 
 /**

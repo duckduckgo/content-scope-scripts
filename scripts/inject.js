@@ -80,7 +80,7 @@ async function init () {
     }
 
     // bundle and write the output
-    write(build.output, output)
+    write([build.output], output)
 }
 
 init()

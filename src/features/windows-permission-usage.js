@@ -250,6 +250,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             apply (target, thisArg, args) {
                 const clonedTrack = DDGReflect.apply(target, thisArg, args)
                 if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
+                    // @ts-expect-error - thisArg is possibly undefined
                     console.debug(`Media stream track ${thisArg.id} has been cloned to track ${clonedTrack.id}`)
                     monitorTrack(clonedTrack)
                 }
@@ -261,12 +262,16 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // override MediaStreamTrack.enabled -> update active/paused status when enabled is set
         const trackEnabledPropertyDescriptor = Object.getOwnPropertyDescriptor(MediaStreamTrack.prototype, 'enabled')
         defineProperty(MediaStreamTrack.prototype, 'enabled', {
+            // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
             configurable: trackEnabledPropertyDescriptor.configurable,
+            // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
             enumerable: trackEnabledPropertyDescriptor.enumerable,
             get: function () {
+                // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
                 return trackEnabledPropertyDescriptor.get.bind(this)()
             },
             set: function (value) {
+                // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
                 const result = trackEnabledPropertyDescriptor.set.bind(this)(...arguments)
                 if (videoTracks.has(this)) {
                     signalVideoTracksState()
@@ -297,6 +302,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             apply (target, thisArg, args) {
                 const clonedStream = DDGReflect.apply(target, thisArg, args)
                 if (userMediaStreams.has(thisArg)) {
+                    // @ts-expect-error - thisArg is possibly 'undefined' here
                     console.debug(`User stream ${thisArg.id} has been cloned to stream ${clonedStream.id}`)
                     userMediaStreams.add(clonedStream)
                 }

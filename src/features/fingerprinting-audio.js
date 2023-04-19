@@ -39,13 +39,16 @@ export default class FingerprintingAudio extends ContentFeature {
                 const [source, channelNumber, startInChannel] = args
                 // This is implemented in a different way to canvas purely because calling the function copied the original value, which is not ideal
                 if (// If channelNumber is longer than arrayBuffer number of channels then call the default method to throw
+                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     channelNumber > thisArg.numberOfChannels ||
                     // If startInChannel is longer than the arrayBuffer length then call the default method to throw
+                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     startInChannel > thisArg.length) {
                     // The normal return value
                     return DDGReflect.apply(target, thisArg, args)
                 }
                 try {
+                    // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     // Call the protected getChannelData we implement, slice from the startInChannel value and assign to the source array
                     thisArg.getChannelData(channelNumber).slice(startInChannel).forEach((val, index) => {
                         source[index] = val

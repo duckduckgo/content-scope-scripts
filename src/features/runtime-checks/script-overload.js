@@ -53,6 +53,7 @@ function generateAlphaIdentifier (num) {
  * @returns {Proxy}
  */
 function constructProxy (scope, outputs) {
+    // @ts-expect-error - Expected 2 arguments, but got 1
     if (Object.is(scope)) {
         // Should not happen, but just in case fail safely
         console.error('Runtime checks: Scope must be an object', scope, outputs)
@@ -126,6 +127,7 @@ function stringifyScope (scope, scopePath) {
 export function wrapScriptCodeOverload (code, config) {
     const processedConfig = {}
     for (const [key, value] of Object.entries(config)) {
+        // @ts-expect-error - Expected 2 arguments, but got 1
         processedConfig[key] = processAttr(value)
     }
     // Don't do anything if the config is empty
