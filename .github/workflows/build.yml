@@ -44,7 +44,8 @@ jobs:
 
       - name: Collect commit ranges
         run: |
-          echo "CHANGELOG=$(git log main --since "$(git show -s --format=%ci $(git rev-list --tags --max-count=1))" --pretty='format:- %s')" >> $GITHUB_OUTPUT
+          CHANGELOG=$(git log main --since "$(git show -s --format=%ci $(git rev-list --tags --max-count=1))" --pretty='format:- %s')
+          echo "CHANGELOG=$CHANGELOG" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
