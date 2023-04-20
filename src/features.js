@@ -28,7 +28,6 @@ export const platformSupport = {
         ...baseFeatures,
         'webCompat'
     ],
-    'apple-isolated': [],
     android: [
         ...baseFeatures
     ],

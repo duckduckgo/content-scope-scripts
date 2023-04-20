@@ -14,10 +14,6 @@ const builds = {
         input: 'inject/apple.js',
         output: ['Sources/ContentScopeScripts/dist/contentScope.js']
     },
-    'apple-isolated': {
-        input: 'inject/apple.js',
-        output: ['Sources/ContentScopeScripts/dist/contentScopeIsolated.js']
-    },
     android: {
         input: 'inject/android.js',
         output: ['build/android/contentScope.js']
