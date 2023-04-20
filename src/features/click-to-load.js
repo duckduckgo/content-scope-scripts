@@ -927,6 +927,7 @@ function makeButton (buttonText, mode = 'lightMode') {
 
 /**
  * Create a toggle button.
+ * @param {displayMode} mode
  * @param {boolean} [isActive=false]
  *   True if the button should be toggled by default.
  * @param {string} [classNames='']
@@ -935,7 +936,7 @@ function makeButton (buttonText, mode = 'lightMode') {
  *   Value to assign to the button's 'data-key' attribute.
  * @returns {HTMLButtonElement}
  */
-function makeToggleButton (isActive = false, classNames = '', dataKey = '') {
+function makeToggleButton (mode, isActive = false, classNames = '', dataKey = '') {
     const toggleButton = document.createElement('button')
     toggleButton.className = classNames
     toggleButton.style.cssText = styles.toggleButton
@@ -943,11 +944,15 @@ function makeToggleButton (isActive = false, classNames = '', dataKey = '') {
     toggleButton.setAttribute('aria-pressed', isActive ? 'true' : 'false')
     toggleButton.setAttribute('data-key', dataKey)
 
+    const activeKey = isActive ? 'active' : 'inactive'
+
     const toggleBg = document.createElement('div')
-    toggleBg.style.cssText = styles.toggleButtonBg + (isActive ? styles.toggleButtonBgState.active : styles.toggleButtonBgState.inactive)
+    toggleBg.style.cssText =
+        styles.toggleButtonBg + styles[mode].toggleButtonBgState[activeKey]
 
     const toggleKnob = document.createElement('div')
-    toggleKnob.style.cssText = styles.toggleButtonKnob + (isActive ? styles.toggleButtonKnobState.active : styles.toggleButtonKnobState.inactive)
+    toggleKnob.style.cssText =
+        styles.toggleButtonKnob + styles.toggleButtonKnobState[activeKey]
 
     toggleButton.appendChild(toggleBg)
     toggleButton.appendChild(toggleKnob)
@@ -975,7 +980,7 @@ function makeToggleButtonWithText (text, mode, isActive = false, toggleClassName
     const wrapper = document.createElement('div')
     wrapper.style.cssText = styles.toggleButtonWrapper
 
-    const toggleButton = makeToggleButton(isActive, toggleClassNames, dataKey)
+    const toggleButton = makeToggleButton(mode, isActive, toggleClassNames, dataKey)
 
     const textDiv = document.createElement('div')
     textDiv.style.cssText = styles.contentText + styles.toggleButtonText + styles[mode].toggleButtonText + textCssStyles
@@ -1529,7 +1534,7 @@ function createYouTubePreview (originalElement, widget) {
     )
     const previewTextLink = previewText.querySelector('a')
     if (previewTextLink) {
-        const newPreviewTextLink = getLearnMoreLink()
+        const newPreviewTextLink = getLearnMoreLink(widget.getMode())
         newPreviewTextLink.innerText = previewTextLink.innerText
         previewTextLink.replaceWith(newPreviewTextLink)
     }

@@ -43,7 +43,15 @@ export const styles = {
         `,
         toggleButtonText: `
             color: #EEEEEE;
-        `
+        `,
+        toggleButtonBgState: {
+            active: `
+                background: #5784FF;
+            `,
+            inactive: `
+                background-color: #666666;
+            `
+        }
     },
     lightMode: {
         background: `
@@ -69,7 +77,15 @@ export const styles = {
         `,
         toggleButtonText: `
             color: #666666;
-        `
+        `,
+        toggleButtonBgState: {
+            active: `
+                background: #3969EF;
+            `,
+            inactive: `
+                background-color: #666666;
+            `
+        }
     },
     loginMode: {
         buttonBackground: `
@@ -459,14 +475,6 @@ export const styles = {
         margin: 0 0 0 7px;
         padding: 0;
     `,
-    toggleButtonBgState: {
-        active: `
-            background: #3969EF;
-        `,
-        inactive: `
-            background-color: #666666;
-        `
-    },
     toggleButtonKnob: `
         position: absolute;
         display: inline-block;
