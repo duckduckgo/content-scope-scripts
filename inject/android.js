@@ -35,7 +35,7 @@ function initCode () {
         if (providedSecret === messageSecret) {
             update(...args)
         }
-    }).bind()
+    }).bind(this)
 
     Object.defineProperty(window, messageCallback, {
         value: wrappedUpdate
