@@ -16,7 +16,7 @@ import localesJSON from '../../../build/locales/ctl-locales.js'
 /**
  * Get CSS style defintions for CTL, using the provided AssetConfig for any non-embedded assets
  * (e.g. fonts.)
- * @param {AssetConfig} assets
+ * @param {AssetConfig} [assets]
  */
 export function getStyles (assets) {
     let fontStyle = ''
@@ -624,15 +624,13 @@ export function getStyles (assets) {
 
 /**
  * @param {string} locale UI locale
- * @param {AssetConfig} assets Config for UI assets
  */
-export function getConfig (locale, assets) {
+export function getConfig (locale) {
     const locales = JSON.parse(localesJSON)
     const fbStrings = locales[locale]['facebook.json']
     const ytStrings = locales[locale]['youtube.json']
 
     const sharedStrings = locales[locale]['shared.json']
-    const styles = getStyles(assets)
     const config = {
         'Facebook, Inc.': {
             informationalModal: {
@@ -1041,5 +1039,5 @@ export function getConfig (locale, assets) {
         }
     }
 
-    return { config, sharedStrings, styles }
+    return { config, sharedStrings }
 }

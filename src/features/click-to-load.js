@@ -22,7 +22,7 @@ const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
 // @see {getConfig}
 let config = null
 let sharedStrings = null
-let styles = null
+let styles = getStyles()
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
@@ -1618,10 +1618,13 @@ export default class ClickToLoad extends ContentFeature {
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}
         const locale = args?.locale || 'en'
-        const localizedConfig = getConfig(locale, args?.assets)
+        const localizedConfig = getConfig(locale)
         config = localizedConfig.config
         sharedStrings = localizedConfig.sharedStrings
-        styles = localizedConfig.styles
+        // update styles if asset config was sent
+        if (args?.assets) {
+            styles = getStyles(args.assets)
+        }
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the
