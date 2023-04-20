@@ -1,9 +1,9 @@
 /* global mozProxies */
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret, getInjectionElement } from './utils'
-import { featureNames } from './features'
+import { platformSupport } from './features'
 import { PerformanceMonitor } from './performance'
-// @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'ddg:runtimeInjects'
+import platformFeatures from 'ddg:platformFeatures'
 
 function shouldRun () {
     // don't inject into non-HTML documents (such as XML documents)
@@ -30,6 +30,7 @@ const performanceMonitor = new PerformanceMonitor()
  * @property {string} [platform.version]
  * @property {boolean} [documentOriginIsTracker]
  * @property {object} [bundledConfig]
+ * @property {string} [injectName]
  */
 
 /**
@@ -41,20 +42,19 @@ export function load (args) {
         return
     }
 
+    const featureNames = typeof import.meta.injectName === 'string'
+        ? platformSupport[import.meta.injectName]
+        : []
+
     for (const featureName of featureNames) {
-        const filename = featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
         // Short circuit if the feature is injected later in load()
         if (isInjectedFeature(featureName)) {
             continue
         }
-        // eslint-disable-next-line promise/prefer-await-to-then
-        const feature = import(`./features/${filename}.js`).then((exported) => {
-            const ContentFeature = exported.default
-            const featureInstance = new ContentFeature(featureName)
-            featureInstance.callLoad(args)
-            return { featureName, featureInstance }
-        })
-        features.push(feature)
+        const ContentFeature = platformFeatures['ddg_feature_' + featureName]
+        const featureInstance = new ContentFeature(featureName)
+        featureInstance.callLoad(args)
+        features.push({ featureName, featureInstance })
     }
     mark.end()
 }
