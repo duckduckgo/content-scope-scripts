@@ -133,10 +133,10 @@ function loadFeatures (platform, featureNames = platformSupport[platform]) {
             if (id !== pluginId) return null
 
             // convert a list of feature names to
-            const imports = featureNames.map((f, index) => {
-                const fileName = f.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+            const imports = featureNames.map((featureName) => {
+                const fileName = getFileName(featureName)
                 const path = `./src/features/${fileName}.js`
-                const ident = `ddg_feature_${f}`
+                const ident = `ddg_feature_${featureName}`
                 return {
                     ident,
                     importPath: path
