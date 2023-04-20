@@ -66,6 +66,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - run: npm run test-int-x
+    - run: npm run playwright
     - name: Build docs
       run: npm run docs
 
