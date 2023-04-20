@@ -1,7 +1,5 @@
-export const featureNames = [
+const baseFeatures = /** @type {const} */([
     'runtimeChecks',
-    'windowsPermissionUsage',
-    'webCompat',
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
@@ -13,13 +11,52 @@ export const featureNames = [
     'fingerprintingScreenSize',
     'fingerprintingTemporaryStorage',
     'navigatorInterface',
-    'clickToLoad',
     'elementHiding',
     'exceptionHandler'
-]
+])
+
+const otherFeatures = /** @type {const} */([
+    'clickToLoad',
+    'windowsPermissionUsage',
+    'webCompat'
+])
+
+/** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
+/** @type {Record<string, FeatureName[]>} */
+export const platformSupport = {
+    apple: [
+        ...baseFeatures,
+        'webCompat'
+    ],
+    'apple-isolated': [],
+    android: [
+        ...baseFeatures
+    ],
+    windows: [
+        ...baseFeatures,
+        'windowsPermissionUsage'
+    ],
+    firefox: [
+        ...baseFeatures,
+        'clickToLoad'
+    ],
+    chrome: [
+        ...baseFeatures,
+        'clickToLoad'
+    ],
+    'chrome-mv3': [
+        ...baseFeatures,
+        'clickToLoad'
+    ],
+    integration: [
+        ...baseFeatures,
+        ...otherFeatures
+    ]
+}
 
 // Certain features are injected into the page in Firefox
 // This is because Firefox does not support proxies for custom elements, it's advided you don't use this without a good reason
+/** @type {FeatureName[]} */
 export const runtimeInjected = [
     'runtimeChecks'
 ]
