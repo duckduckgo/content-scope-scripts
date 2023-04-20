@@ -41,7 +41,7 @@ function initCode () {
         value: wrappedUpdate
     })
 
-    // @ts-ignore
+    // @ts-expect-error
     const sendMessageToAndroid = window[messageInterface].process.bind(window[messageInterface])
     delete window[messageInterface]
 
