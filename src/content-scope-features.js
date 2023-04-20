@@ -2,9 +2,7 @@
 import { initStringExemptionLists, isFeatureBroken, registerMessageSecret, getInjectionElement } from './utils'
 import { platformSupport } from './features'
 import { PerformanceMonitor } from './performance'
-// @ts-expect-error Special glob import for injected features see scripts/utils/build.js
 import injectedFeaturesCode from 'ddg:runtimeInjects'
-// @ts-expect-error Special import for platform-specific features see scripts/utils/build.js
 import platformFeatures from 'ddg:platformFeatures'
 
 function shouldRun () {
@@ -53,9 +51,7 @@ export function load (args) {
         if (isInjectedFeature(featureName)) {
             continue
         }
-        // eslint-disable-next-line promise/prefer-await-to-then
-        const exported = platformFeatures[featureName]
-        const ContentFeature = exported.default
+        const ContentFeature = platformFeatures['ddg_feature_' + featureName]
         const featureInstance = new ContentFeature(featureName)
         featureInstance.callLoad(args)
         features.push({ featureName, featureInstance })
