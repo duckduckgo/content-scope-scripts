@@ -35,13 +35,14 @@ function initCode () {
         if (providedSecret === messageSecret) {
             update(...args)
         }
+        // eslint-disable-next-line no-extra-bind
     }).bind(this)
 
     Object.defineProperty(window, messageCallback, {
         value: wrappedUpdate
     })
 
-    // @ts-expect-error
+    // @ts-expect-error - Android message interface defined elsewhere
     const sendMessageToAndroid = window[messageInterface].process.bind(window[messageInterface])
     delete window[messageInterface]
 
