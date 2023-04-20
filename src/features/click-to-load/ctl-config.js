@@ -1,5 +1,5 @@
 import {
-    blockedFBLogo, ddgFont, ddgFontBold, blockedYTVideo, videoPlayDark, videoPlayLight
+    blockedFBLogo, blockedYTVideo, videoPlayDark, videoPlayLight
 } from './ctl-assets.js'
 
 import localesJSON from '../../../build/locales/ctl-locales.js'
@@ -7,41 +7,61 @@ import localesJSON from '../../../build/locales/ctl-locales.js'
 /*********************************************************
  *  Style Definitions
  *********************************************************/
-export const styles = {
-    fontStyle: `
+/**
+ * @typedef {object} AssetConfig
+ * @property {string} regularFontUrl
+ * @property {string} boldFontUrl
+ */
+
+/**
+ * Get CSS style defintions for CTL, using the provided AssetConfig for any non-embedded assets
+ * (e.g. fonts.)
+ * @param {AssetConfig} assets
+ */
+export function getStyles (assets) {
+    let fontStyle = ''
+    let regularFontFamily = "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"
+    let boldFontFamily = regularFontFamily
+    if (assets?.regularFontUrl && assets?.boldFontUrl) {
+        fontStyle = `
         @font-face{
             font-family: DuckDuckGoPrivacyEssentials;
-            src: url(${ddgFont});
+            src: url(${assets.regularFontUrl});
         }
         @font-face{
             font-family: DuckDuckGoPrivacyEssentialsBold;
             font-weight: bold;
-            src: url(${ddgFontBold});
+            src: url(${assets.boldFontUrl});
         }
-    `,
-    darkMode: {
-        background: `
+    `
+        regularFontFamily = 'DuckDuckGoPrivacyEssentials'
+        boldFontFamily = 'DuckDuckGoPrivacyEssentialsBold'
+    }
+    return {
+        fontStyle,
+        darkMode: {
+            background: `
             background: #111111;
         `,
-        textFont: `
+            textFont: `
             color: rgba(255, 255, 255, 0.9);
         `,
-        buttonFont: `
+            buttonFont: `
             color: #111111;
         `,
-        linkFont: `
+            linkFont: `
             color: #7295F6;
         `,
-        buttonBackground: `
+            buttonBackground: `
             background: #5784FF;
         `,
-        buttonBackgroundHover: `
+            buttonBackgroundHover: `
             background: #557FF3;
         `,
-        buttonBackgroundPress: `
+            buttonBackgroundPress: `
             background: #3969EF;
         `,
-        toggleButtonText: `
+            toggleButtonText: `
             color: #EEEEEE;
         `,
         toggleButtonBgState: {
@@ -57,25 +77,25 @@ export const styles = {
         background: `
             background: #FFFFFF;
         `,
-        textFont: `
+            textFont: `
             color: #222222;
         `,
-        buttonFont: `
+            buttonFont: `
             color: #FFFFFF;
         `,
-        linkFont: `
+            linkFont: `
             color: #3969EF;
         `,
-        buttonBackground: `
+            buttonBackground: `
             background: #3969EF;
         `,
-        buttonBackgroundHover: `
+            buttonBackgroundHover: `
             background: #2B55CA;
         `,
-        buttonBackgroundPress: `
+            buttonBackgroundPress: `
             background: #1E42A4;
         `,
-        toggleButtonText: `
+            toggleButtonText: `
             color: #666666;
         `,
         toggleButtonBgState: {
@@ -91,25 +111,25 @@ export const styles = {
         buttonBackground: `
             background: #666666;
         `,
-        buttonFont: `
+            buttonFont: `
             color: #FFFFFF;
         `
-    },
-    cancelMode: {
-        buttonBackground: `
+        },
+        cancelMode: {
+            buttonBackground: `
             background: rgba(34, 34, 34, 0.1);
         `,
-        buttonFont: `
+            buttonFont: `
             color: #222222;
         `,
-        buttonBackgroundHover: `
+            buttonBackgroundHover: `
             background: rgba(0, 0, 0, 0.12);
         `,
-        buttonBackgroundPress: `
+            buttonBackgroundPress: `
             background: rgba(0, 0, 0, 0.18);
         `
-    },
-    button: `
+        },
+        button: `
         border-radius: 8px;
 
         padding: 11px 22px;
@@ -118,7 +138,7 @@ export const styles = {
         border-color: #3969EF;
         border: none;
 
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        font-family: ${boldFontFamily};
         font-size: 14px;
 
         position: relative;
@@ -126,7 +146,7 @@ export const styles = {
         box-shadow: none;
         z-index: 2147483646;
     `,
-    circle: `
+        circle: `
         border-radius: 50%;
         width: 18px;
         height: 18px;
@@ -136,14 +156,14 @@ export const styles = {
         top: -8px;
         right: -8px;
     `,
-    loginIcon: `
+        loginIcon: `
         position: absolute;
         top: -13px;
         right: -10px;
         height: 28px;
         width: 28px;
     `,
-    rectangle: `
+        rectangle: `
         width: 12px;
         height: 3px;
         background: #666666;
@@ -151,7 +171,7 @@ export const styles = {
         top: 42.5%;
         margin: auto;
     `,
-    textBubble: `
+        textBubble: `
         background: #FFFFFF;
         border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 16px;
@@ -162,9 +182,9 @@ export const styles = {
         position: absolute;
         line-height: normal;
     `,
-    textBubbleWidth: 360, // Should match the width rule in textBubble
-    textBubbleLeftShift: 100, // Should match the CSS left: rule in textBubble
-    textArrow: `
+        textBubbleWidth: 360, // Should match the width rule in textBubble
+        textBubbleLeftShift: 100, // Should match the CSS left: rule in textBubble
+        textArrow: `
         display: inline-block;
         background: #FFFFFF;
         border: solid rgba(0, 0, 0, 0.1);
@@ -175,23 +195,23 @@ export const styles = {
         position: relative;
         top: -9px;
     `,
-    arrowDefaultLocationPercent: 50,
-    hoverTextTitle: `
+        arrowDefaultLocationPercent: 50,
+        hoverTextTitle: `
         padding: 0px 12px 12px;
         margin-top: -5px;
     `,
-    hoverTextBody: `
-        font-family: DuckDuckGoPrivacyEssentials;
+        hoverTextBody: `
+        font-family: ${regularFontFamily};
         font-size: 14px;
         line-height: 21px;
         margin: auto;
         padding: 17px;
         text-align: left;
     `,
-    hoverContainer: `
+        hoverContainer: `
         padding-bottom: 10px;
     `,
-    buttonTextContainer: `
+        buttonTextContainer: `
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -199,10 +219,10 @@ export const styles = {
         padding: 0;
         margin: 0;
     `,
-    headerRow: `
+        headerRow: `
 
     `,
-    block: `
+        block: `
         box-sizing: border-box;
         border: 1px solid rgba(0,0,0,0.1);
         border-radius: 12px;
@@ -212,27 +232,27 @@ export const styles = {
         display: flex;
         flex-direction: column;
 
-        font-family: DuckDuckGoPrivacyEssentials;
+        font-family: ${regularFontFamily};
         line-height: 1;
     `,
-    youTubeDialogBlock: `
+        youTubeDialogBlock: `
         height: calc(100% - 30px);
         max-width: initial;
         min-height: initial;
     `,
-    imgRow: `
+        imgRow: `
         display: flex;
         flex-direction: column;
         margin: 20px 0px;
     `,
-    content: `
+        content: `
         display: flex;
         flex-direction: column;
         padding: 16px 0;
         flex: 1 1 1px;
     `,
-    feedbackLink: `
-        font-family: DuckDuckGoPrivacyEssentials;
+        feedbackLink: `
+        font-family: ${regularFontFamily};
         font-style: normal;
         font-weight: 400;
         font-size: 12px;
@@ -240,13 +260,13 @@ export const styles = {
         color: #ABABAB;
         text-decoration: none;
     `,
-    feedbackRow: `
+        feedbackRow: `
         height: 30px;
         display: flex;
         justify-content: flex-end;
         align-items: center;
     `,
-    titleBox: `
+        titleBox: `
         display: flex;
         padding: 12px;
         max-height: 44px;
@@ -255,8 +275,8 @@ export const styles = {
         margin: 0;
         margin-bottom: 4px;
     `,
-    title: `
-        font-family: DuckDuckGoPrivacyEssentials;
+        title: `
+        font-family: ${regularFontFamily};
         line-height: 1.4;
         font-size: 14px;
         margin: auto 10px;
@@ -268,7 +288,7 @@ export const styles = {
         border: none;
         padding: 0;
     `,
-    buttonRow: `
+        buttonRow: `
         display: flex;
         height: 100%
         flex-direction: row;
@@ -276,8 +296,8 @@ export const styles = {
         height: 100%;
         align-items: flex-start;
     `,
-    modalContentTitle: `
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        modalContentTitle: `
+        font-family: ${boldFontFamily};
         font-size: 17px;
         font-weight: bold;
         line-height: 21px;
@@ -286,8 +306,8 @@ export const styles = {
         border: none;
         padding: 0px 32px;
     `,
-    modalContentText: `
-        font-family: DuckDuckGoPrivacyEssentials;
+        modalContentText: `
+        font-family: ${regularFontFamily};
         font-size: 14px;
         line-height: 21px;
         margin: 0px auto 14px;
@@ -295,7 +315,7 @@ export const styles = {
         border: none;
         padding: 0;
     `,
-    modalButtonRow: `
+        modalButtonRow: `
         border: none;
         padding: 0;
         margin: auto;
@@ -304,17 +324,17 @@ export const styles = {
         flex-direction: column;
         align-items: center;
     `,
-    modalButton: `
+        modalButton: `
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
     `,
-    modalIcon: `
+        modalIcon: `
         display: block;
     `,
-    contentTitle: `
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        contentTitle: `
+        font-family: ${boldFontFamily};
         font-size: 17px;
         font-weight: bold;
         margin: 20px auto 10px;
@@ -322,25 +342,25 @@ export const styles = {
         text-align: center;
         margin-top: auto;
     `,
-    contentText: `
-        font-family: DuckDuckGoPrivacyEssentials;
+        contentText: `
+        font-family: ${regularFontFamily};
         font-size: 14px;
         line-height: 21px;
         padding: 0px 40px;
         text-align: center;
         margin: 0 auto auto;
     `,
-    icon: `
+        icon: `
         height: 80px;
         width: 80px;
         margin: auto;
     `,
-    closeIcon: `
+        closeIcon: `
         height: 12px;
         width: 12px;
         margin: auto;
     `,
-    closeButton: `
+        closeButton: `
         display: flex;
         justify-content: center;
         align-items: center;
@@ -350,7 +370,7 @@ export const styles = {
         background: transparent;
         cursor: pointer;
     `,
-    logo: `
+        logo: `
         flex-basis: 0%;
         min-width: 20px;
         height: 21px;
@@ -358,17 +378,17 @@ export const styles = {
         padding: 0;
         margin: 0;
     `,
-    logoImg: `
+        logoImg: `
         height: 21px;
         width: 21px;
     `,
-    loadingImg: `
+        loadingImg: `
         display: block;
         margin: 0px 8px 0px 0px;
         height: 14px;
         width: 14px;
     `,
-    modal: `
+        modal: `
         width: 340px;
         padding: 0;
         margin: auto;
@@ -382,14 +402,14 @@ export const styles = {
         border-radius: 12px;
         border: none;
     `,
-    modalContent: `
+        modalContent: `
         padding: 24px;
         display: flex;
         flex-direction: column;
         border: none;
         margin: 0;
     `,
-    overlay: `
+        overlay: `
         height: 100%;
         width: 100%;
         background-color: #666666;
@@ -402,7 +422,7 @@ export const styles = {
         padding: 0;
         margin: 0;
     `,
-    modalContainer: `
+        modalContainer: `
         height: 100vh;
         width: 100vw;
         box-sizing: border-box;
@@ -413,16 +433,16 @@ export const styles = {
         margin: 0;
         padding: 0;
     `,
-    headerLinkContainer: `
+        headerLinkContainer: `
         flex-basis: 100%;
         display: grid;
         justify-content: flex-end;
     `,
-    headerLink: `
+        headerLink: `
         line-height: 1.4;
         font-size: 14px;
         font-weight: bold;
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        font-family: ${boldFontFamily};
         text-decoration: none;
         cursor: pointer;
         min-width: 100px;
@@ -430,15 +450,15 @@ export const styles = {
         float: right;
         display: none;
     `,
-    generalLink: `
+        generalLink: `
         line-height: 1.4;
         font-size: 14px;
         font-weight: bold;
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        font-family: ${boldFontFamily};
         cursor: pointer;
         text-decoration: none;
     `,
-    wrapperDiv: `
+        wrapperDiv: `
         display: inline-block;
         border: 0;
         padding: 0;
@@ -446,12 +466,12 @@ export const styles = {
         max-width: 600px;
         min-height: 300px;
     `,
-    toggleButtonWrapper: `
+        toggleButtonWrapper: `
         display: flex;
         align-items: center;
         cursor: pointer;
     `,
-    toggleButton: `
+        toggleButton: `
         cursor: pointer;
         position: relative;
         width: 30px;
@@ -463,14 +483,14 @@ export const styles = {
         background-color: transparent;
         text-align: left;
     `,
-    toggleButtonBg: `
+        toggleButtonBg: `
         right: 0;
         width: 30px;
         height: 16px;
         overflow: visible;
         border-radius: 10px;
     `,
-    toggleButtonText: `
+        toggleButtonText: `
         display: inline-block;
         margin: 0 0 0 7px;
         padding: 0;
@@ -486,15 +506,15 @@ export const styles = {
         top: calc(50% - 14px/2 - 1px);
         box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.1);
     `,
-    toggleButtonKnobState: {
-        active: `
+        toggleButtonKnobState: {
+            active: `
             right: 1px;
         `,
-        inactive: `
+            inactive: `
             left: 1px;
         `
-    },
-    placeholderWrapperDiv: `
+        },
+        placeholderWrapperDiv: `
         position: relative;
         overflow: hidden;
         border-radius: 12px;
@@ -504,7 +524,7 @@ export const styles = {
         min-height: 300px;
         margin: auto;
     `,
-    youTubeWrapperDiv: `
+        youTubeWrapperDiv: `
         position: relative;
         overflow: hidden;
         max-width: initial;
@@ -512,7 +532,7 @@ export const styles = {
         min-height: 300px;
         height: 100%;
     `,
-    youTubeDialogDiv: `
+        youTubeDialogDiv: `
         position: relative;
         overflow: hidden;
         border-radius: 12px;
@@ -520,14 +540,14 @@ export const styles = {
         min-height: initial;
         height: calc(100% - 30px);
     `,
-    youTubeDialogBottomRow: `
+        youTubeDialogBottomRow: `
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-end;
         margin-top: auto;
     `,
-    youTubePlaceholder: `
+        youTubePlaceholder: `
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -536,7 +556,7 @@ export const styles = {
         height: 100%;
         background: rgba(45, 45, 45, 0.8);
     `,
-    youTubePreviewWrapperImg: `
+        youTubePreviewWrapperImg: `
         position: absolute;
         display: flex;
         justify-content: center;
@@ -544,20 +564,20 @@ export const styles = {
         width: 100%;
         height: 100%;
     `,
-    youTubePreviewImg: `
+        youTubePreviewImg: `
         min-width: 100%;
         min-height: 100%;
         height: auto;
     `,
-    youTubeTopSection: `
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        youTubeTopSection: `
+        font-family: ${boldFontFamily};
         flex: 1;
         display: flex;
         justify-content: space-between;
         position: relative;
         padding: 18px 12px 0;
     `,
-    youTubeTitle: `
+        youTubeTitle: `
         font-size: 14px;
         font-weight: bold;
         line-height: 14px;
@@ -569,13 +589,13 @@ export const styles = {
         text-overflow: ellipsis;
         box-sizing: border-box;
     `,
-    youTubePlayButtonRow: `
+        youTubePlayButtonRow: `
         flex: 2;
         display: flex;
         align-items: center;
         justify-content: center;
     `,
-    youTubePlayButton: `
+        youTubePlayButton: `
         display: flex;
         justify-content: center;
         align-items: center;
@@ -584,7 +604,7 @@ export const styles = {
         padding: 0px 24px;
         border-radius: 8px;
     `,
-    youTubePreviewToggleRow: `
+        youTubePreviewToggleRow: `
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -592,21 +612,27 @@ export const styles = {
         align-items: center;
         padding: 0 12px 18px;
     `,
-    youTubePreviewToggleText: `
+        youTubePreviewToggleText: `
         color: #EEEEEE;
         font-weight: 400;
     `,
-    youTubePreviewInfoText: `
+        youTubePreviewInfoText: `
         color: #ABABAB;
     `
+    }
 }
 
-export function getConfig (locale) {
+/**
+ * @param {string} locale UI locale
+ * @param {AssetConfig} assets Config for UI assets
+ */
+export function getConfig (locale, assets) {
     const locales = JSON.parse(localesJSON)
     const fbStrings = locales[locale]['facebook.json']
     const ytStrings = locales[locale]['youtube.json']
 
     const sharedStrings = locales[locale]['shared.json']
+    const styles = getStyles(assets)
     const config = {
         'Facebook, Inc.': {
             informationalModal: {
@@ -1015,5 +1041,5 @@ export function getConfig (locale) {
         }
     }
 
-    return { config, sharedStrings }
+    return { config, sharedStrings, styles }
 }

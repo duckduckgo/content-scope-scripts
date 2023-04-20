@@ -1,6 +1,6 @@
 import { createCustomEvent, sendMessage, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
-import { styles, getConfig } from './click-to-load/ctl-config.js'
+import { getStyles, getConfig } from './click-to-load/ctl-config.js'
 import ContentFeature from '../content-feature.js'
 
 /**
@@ -22,6 +22,7 @@ const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
 // @see {getConfig}
 let config = null
 let sharedStrings = null
+let styles = null
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
@@ -1617,9 +1618,10 @@ export default class ClickToLoad extends ContentFeature {
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}
         const locale = args?.locale || 'en'
-        const localizedConfig = getConfig(locale)
+        const localizedConfig = getConfig(locale, args?.assets)
         config = localizedConfig.config
         sharedStrings = localizedConfig.sharedStrings
+        styles = localizedConfig.styles
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the
