@@ -6,8 +6,10 @@ import { runtimeInjected, platformSupport } from '../../src/features.js'
 
 /**
  * This is a helper function to require all files in a directory
+ * @param {string} pathName
+ * @param {string} platform
  */
-async function getAllFeatureCode (pathName) {
+async function getAllFeatureCode (pathName, platform) {
     const fileContents = {}
     for (const featureName of runtimeInjected) {
         const fileName = getFileName(featureName)
@@ -15,7 +17,8 @@ async function getAllFeatureCode (pathName) {
         const code = await rollupScript({
             scriptPath: fullPath,
             name: featureName,
-            supportsMozProxies: false
+            supportsMozProxies: false,
+            platform
         })
         fileContents[featureName] = code
     }
@@ -24,9 +27,10 @@ async function getAllFeatureCode (pathName) {
 
 /**
  * Allows importing of all features into a custom runtimeInjects export
+ * @param {string} platform
  * @returns {import('rollup').Plugin}
  */
-function runtimeInjections () {
+function runtimeInjections (platform) {
     const customId = 'ddg:runtimeInjects'
     return {
         name: customId,
@@ -38,7 +42,7 @@ function runtimeInjections () {
         },
         async load (id) {
             if (id === customId) {
-                const code = await getAllFeatureCode('src/features')
+                const code = await getAllFeatureCode('src/features', platform)
                 return `export default ${JSON.stringify(code, undefined, 4)}`
             }
             return null
@@ -60,7 +64,7 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https:/
 /**
  * @param {object} params
  * @param {string} params.scriptPath
- * @param {string} [params.platform]
+ * @param {string} params.platform
  * @param {string[]} [params.featureNames]
  * @param {string} [params.name]
  * @param {boolean} [params.supportsMozProxies]
@@ -79,7 +83,8 @@ export async function rollupScript (params) {
     const mozProxies = supportsMozProxies
 
     const plugins = [
-        runtimeInjections(),
+        loadFeatures(platform, featureNames),
+        runtimeInjections(platform),
         resolve(),
         commonjs(),
         replace({
@@ -92,11 +97,6 @@ export async function rollupScript (params) {
         }),
         prefixPlugin(prefixMessage)
     ]
-
-    // if 'platform' was provided, ensure we include the dyn
-    if (platform) {
-        plugins.unshift(loadFeatures(platform, featureNames))
-    }
 
     const bundle = await rollup.rollup({
         input: scriptPath,

@@ -59,7 +59,7 @@ async function initOther (injectScriptPath, platformName) {
  */
 async function initChrome (entry, platformName) {
     const replaceString = '/* global contentScopeFeatures */'
-    const injectScript = await rollupScript({ scriptPath: entry })
+    const injectScript = await rollupScript({ scriptPath: entry, platform: platformName })
     const contentScope = await rollupScript({
         scriptPath: contentScopePath,
         name: contentScopeName,
