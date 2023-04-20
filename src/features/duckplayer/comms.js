@@ -3,21 +3,18 @@ import * as constants from './constants.js'
 
 /**
  * @typedef {import("@duckduckgo/messaging").Messaging} Messaging
- * A wrapper for cross-platform communications.
+ *
+ * A wrapper for all communications.
  *
  * Please see https://duckduckgo.github.io/content-scope-utils/modules/Webkit_Messaging for the underlying
  * messaging primitives.
  */
 export class Communications {
-    /** @type {Messaging} */
-    messaging
     /**
      * @param {Messaging} messaging
-     * @param {{updateStrategy: "window-method" | "polling"}} options
      */
-    constructor (messaging, options) {
+    constructor (messaging) {
         this.messaging = messaging
-        this.options = options
     }
 
     /**
@@ -52,7 +49,7 @@ export class Communications {
      * @param cb
      */
     onUserValuesNotification (cb) {
-        this.messaging.subscribe('onUserValuesChanged', cb)
+        return this.messaging.subscribe('onUserValuesChanged', cb)
     }
 
     /**

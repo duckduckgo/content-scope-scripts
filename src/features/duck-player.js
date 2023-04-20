@@ -413,7 +413,7 @@ export default class DuckPlayerFeature extends ContentFeature {
         if (!this.messaging) {
             throw new Error('cannot operate duck player without a messaging backend')
         }
-        const comms = new Communications(this.messaging, { updateStrategy: 'window-method' })
+        const comms = new Communications(this.messaging)
         const env = new Environment({
             debug: args.debug
         })
