@@ -1,6 +1,7 @@
 import { addTrustedEventListener, appendElement, VideoParams } from './util'
 import dax from './assets/dax.svg'
 import { i18n } from './text.js'
+import { OpenInDuckPlayerMsg } from './overlay-messages.js'
 
 export const IconOverlay = {
     /**
@@ -62,7 +63,7 @@ export const IconOverlay = {
             const link = event.target.closest('a')
             const href = link.getAttribute('href')
 
-            IconOverlay.comms?.openInDuckPlayerViaMessage(href)
+            IconOverlay.comms?.openInDuckPlayerViaMessage(new OpenInDuckPlayerMsg({ href }))
         })
 
         return overlayElement
