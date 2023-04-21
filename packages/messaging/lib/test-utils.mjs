@@ -147,9 +147,9 @@ export function wrapWindowsScripts(js, replacements) {
     return `
         (() => {
             try {
-                const windowsInteropPostMessage = window.chrome.webview.postMessage;
-                const windowsInteropAddEventListener = window.chrome.webview.addEventListener;
-                const windowsInteropRemoveEventListener = window.chrome.webview.removeEventListener;
+                window.windowsInteropPostMessage = window.chrome.webview.postMessage;
+                window.windowsInteropAddEventListener = window.chrome.webview.addEventListener;
+                window.windowsInteropRemoveEventListener = window.chrome.webview.removeEventListener;
                 delete window.chrome.webview.postMessage;
                 delete window.chrome.webview.addEventListener;
                 delete window.chrome.webview.removeEventListener;
@@ -172,7 +172,8 @@ export function simulateSubscriptionMessage(params) {
     switch (params.platform.name) {
     case "windows": {
         // @ts-expect-error
-        window.chrome.webview.postMessage({
+        const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage;
+        fn({
             context: params.messagingContext.context,
             featureName: params.messagingContext.featureName,
             subscriptionName: params.name,

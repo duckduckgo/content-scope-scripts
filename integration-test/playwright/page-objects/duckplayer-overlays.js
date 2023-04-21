@@ -3,7 +3,7 @@ import {
     mockResponses,
     mockWindowsMessaging,
     PlatformInfo,
-    readOutgoingMessages, waitForCallCount,
+    readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount,
     wrapWindowsScripts
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { expect } from '@playwright/test'
@@ -73,7 +73,6 @@ export class DuckplayerOverlays {
         expect(await this.page.locator('ddg-video-overlay').count()).toBe(0)
     }
 
-    // setting is always ask
     /**
      * @param {keyof userValues} setting
      * @return {Promise<void>}
@@ -86,7 +85,22 @@ export class DuckplayerOverlays {
         })
     }
 
-    // Given the "overlays" feature is disabled
+    /**
+     * @param {keyof userValues} setting
+     */
+    async userChangedSettingTo (setting) {
+        await this.page.evaluate(simulateSubscriptionMessage, {
+            messagingContext: {
+                context: 'contentScopeScripts',
+                featureName: 'duckPlayer',
+                env: 'development'
+            },
+            name: 'onUserValuesChanged',
+            payload: userValues[setting],
+            platform: this.platform
+        })
+    }
+
     async overlaysDisabled () {
         // load original config
         const config = loadConfig('overlays')

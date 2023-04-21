@@ -9,8 +9,6 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         await overlays.overlaysEnabled()
         await overlays.gotoThumbsPage()
 
-        await page.pause()
-
         // When I hover any video thumbnail
         await overlays.hoverAThumbnail()
 
@@ -18,7 +16,6 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         await overlays.isVisible()
     })
     test('Overlays don\'t show on thumbnails when disabled', async ({ page }, workerInfo) => {
-    // remove all domains for overlays feature, which disables the feature
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is disabled
@@ -29,7 +26,6 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         await overlays.overlaysDontShow()
     })
     test('Overlays link to Duck Player', async ({ page }, workerInfo) => {
-    // remove all domains for overlays feature, which disables the feature
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is enabled
@@ -41,6 +37,60 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
 
         // Then our player loads for the correct video
         await overlays.playerLoadsForCorrectVideo()
+    })
+    test('Overlays dont show when user setting is "enabled"', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+        // Given the "overlays" feature is enabled
+        await overlays.overlaysEnabled()
+        await overlays.userSettingIs('enabled')
+        await overlays.gotoThumbsPage()
+        await overlays.overlaysDontShow()
+    })
+    test('Overlays dont show when user setting is "disabled"', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+        // Given the "overlays" feature is enabled
+        await overlays.overlaysEnabled()
+        await overlays.userSettingIs('disabled')
+        await overlays.gotoThumbsPage()
+        await overlays.overlaysDontShow()
+    })
+    test('Overlays appear when updated settings arrive', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+        // Given the "overlays" feature is enabled
+        await overlays.overlaysEnabled()
+        await overlays.userSettingIs('disabled')
+        await overlays.gotoThumbsPage()
+
+        // Nothing shown initially
+        await overlays.overlaysDontShow()
+
+        // now receive an update
+        await overlays.userChangedSettingTo('always ask')
+
+        // overlays act as normal
+        await overlays.hoverAThumbnail()
+        await overlays.isVisible()
+    })
+    test('Overlays disappear when updated settings arrive', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+        // Given the "overlays" feature is enabled
+        await overlays.overlaysEnabled()
+        await overlays.userSettingIs('always ask')
+        await overlays.gotoThumbsPage()
+
+        // overlays act as normal initially
+        await overlays.hoverAThumbnail()
+        await overlays.isVisible()
+
+        // now receive an update
+        await overlays.userChangedSettingTo('disabled')
+
+        // overlays should be removed
+        await overlays.overlaysDontShow()
     })
 })
 
@@ -57,6 +107,27 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
 
         // Then then the overlay shows and blocks the video from playing
         await overlays.overlayBlocksVideo()
+    })
+    test('Overlay is removed when new settings arrive', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+        // Given overlays feature is enabled
+        await overlays.overlaysEnabled()
+
+        // And my setting is 'always ask'
+        await overlays.userSettingIs('always ask')
+        await overlays.gotoPlayerPage()
+
+        // then the overlay shows and blocks the video from playing
+        await overlays.overlayBlocksVideo()
+
+        // When the user changes settings though
+        await overlays.userChangedSettingTo('disabled')
+
+        // No small overlays
+        await overlays.overlaysDontShow()
+        // // No video overlay
+        await overlays.videoOverlayDoesntShow()
     })
     test('Small overlay is displayed on video', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
