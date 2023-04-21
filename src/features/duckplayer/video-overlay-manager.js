@@ -16,7 +16,7 @@ export class VideoOverlayManager {
     videoPlayerIcon = null
 
     /**
-     * @param {import("./overlays.js").UserValues} userValues
+     * @param {import("../duck-player.js").UserValues} userValues
      * @param {import("./overlays.js").Environment} environment
      * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms
      */
@@ -78,7 +78,7 @@ export class VideoOverlayManager {
 
     /**
      * Set up the overlay
-     * @param {import("./overlays.js").UserValues} userValues
+     * @param {import("../duck-player.js").UserValues} userValues
      * @param {import("./util").VideoParams} params
      */
     addLargeOverlay (userValues, params) {
@@ -232,7 +232,7 @@ export class VideoOverlayManager {
      *
      */
     userOptIn (remember, params) {
-        /** @type {import("./overlays.js").UserValues['privatePlayerMode']} */
+        /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
         let privatePlayerMode = { alwaysAsk: {} }
         if (remember) {
             this.comms.sendPixel(new Pixel({ name: 'play.use', remember: '1' }))
@@ -264,7 +264,7 @@ export class VideoOverlayManager {
          */
         if (remember) {
             this.comms.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '1' }))
-            /** @type {import("./overlays.js").UserValues['privatePlayerMode']} */
+            /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
             const privatePlayerMode = { alwaysAsk: {} }
             this.comms.setUserValues({
                 privatePlayerMode,

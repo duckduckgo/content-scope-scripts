@@ -12,6 +12,12 @@ import { Messaging, MessagingContext, WindowsMessagingConfig } from '@duckduckgo
 import { Environment, initOverlays } from './duckplayer/overlays.js'
 
 /**
+ * @typedef UserValues - A way to communicate user settings
+ * @property {{enabled: {}} | {alwaysAsk:{}} | {disabled:{}}} privatePlayerMode - one of 3 values
+ * @property {boolean} overlayInteracted - always a boolean
+ */
+
+/**
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {

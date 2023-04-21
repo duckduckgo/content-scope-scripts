@@ -4,12 +4,6 @@ import { IconOverlay } from './icon-overlay.js'
 import { onDOMLoaded, onDOMChanged, addTrustedEventListener, appendElement, VideoParams } from './util.js'
 
 /**
- * @typedef UserValues - A way to communicate user settings
- * @property {{enabled: {}} | {alwaysAsk:{}} | {disabled:{}}} privatePlayerMode - one of 3 values
- * @property {boolean} overlayInteracted - always a boolean
- */
-
-/**
  * @param {Environment} environment - methods to read environment-sensitive things like the current URL etc
  * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms - methods to communicate with a native backend
  */
