@@ -9,6 +9,10 @@
           {
             "domain": "www.youtube.com",
             "state": "enabled"
+          },
+          {
+            "domain": "localhost",
+            "state": "enabled"
           }
         ],
         "proxy": [

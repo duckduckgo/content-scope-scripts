@@ -1,3 +1,9 @@
+/**
+ * @module Duck PLayer Overlays
+ *
+ * @description
+ *
+ */
 import ContentFeature from '../content-feature.js'
 
 import css from './duckplayer/assets/styles.css'
@@ -344,7 +350,10 @@ export class Environment {
         this.debug = Boolean(params.debug)
     }
 
-    getHref () {
+    getPlayerPageHref () {
+        if (this.debug) {
+            return 'https://youtube.com/watch?v=123'
+        }
         return window.location.href
     }
 

@@ -31,13 +31,13 @@ export class VideoOverlayManager {
      */
     handleFirstPageLoad () {
         // don't continue unless we're in 'alwaysAsk' mode
-        if (!('alwaysAsk' in this.userValues.privatePlayerMode)) return
+        if ('disabled' in this.userValues.privatePlayerMode) return
 
         // don't continue if we've recorded a previous interaction
         if (this.userValues.overlayInteracted) return
 
         // don't continue if we can't derive valid video params
-        const validParams = VideoParams.forWatchPage(this.environment.getHref())
+        const validParams = VideoParams.forWatchPage(this.environment.getPlayerPageHref())
         if (!validParams) return
 
         /**
@@ -111,7 +111,7 @@ export class VideoOverlayManager {
      */
     // @ts-expect-error - Not all code paths return a value.
     watchForVideoBeingAdded (opts = {}) {
-        const params = VideoParams.forWatchPage(this.environment.getHref())
+        const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref())
 
         if (!params) {
             /**
