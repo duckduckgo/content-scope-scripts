@@ -1,7 +1,11 @@
 /**
- * @module Duck PLayer Overlays
+ * @module Duck Player Overlays
  *
  * @description
+ *
+ * Overlays will currently only show on YouTube.com
+ *
+ * See -
  *
  */
 import ContentFeature from '../content-feature.js'
@@ -10,18 +14,20 @@ import css from './duckplayer/assets/styles.css'
 import { VideoOverlayManager } from './duckplayer/video-overlay-manager.js'
 import { IconOverlay } from './duckplayer/icon-overlay.js'
 import { onDOMLoaded, onDOMChanged, addTrustedEventListener, appendElement, VideoParams } from './duckplayer/util.js'
-import { Communications } from './duckplayer/comms.js'
+import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg } from './duckplayer/overlay-messages.js'
 import { Messaging, MessagingContext, WindowsMessagingConfig } from '@duckduckgo/messaging'
 
+export { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg }
+
 /**
- * @typedef UserValues - A way to communicate some user state
- * @property {{enabled: {}} | {alwaysAsk:{}} | {disabled:{}}} privatePlayerMode - one of 3 values: 'enabled:{}', 'alwaysAsk:{}', 'disabled:{}'
+ * @typedef UserValues - A way to communicate user settings
+ * @property {{enabled: {}} | {alwaysAsk:{}} | {disabled:{}}} privatePlayerMode - one of 3 values
  * @property {boolean} overlayInteracted - always a boolean
  */
 
 /**
  * @param {Environment} environment - methods to read environment-sensitive things like the current URL etc
- * @param {Communications} comms - methods to communicate with a native backend
+ * @param {DuckPlayerOverlayMessages} comms - methods to communicate with a native backend
  */
 async function initWithEnvironment (environment, comms) {
     /**
@@ -42,17 +48,17 @@ async function initWithEnvironment (environment, comms) {
     // todo: make this a class + constructor arg
     IconOverlay.setComms(comms)
 
-    comms.onUserValuesNotification((userValues) => {
+    comms.onUserValuesChanged((userValues) => {
         videoPlayerOverlay.userValues = userValues
         videoPlayerOverlay.watchForVideoBeingAdded({ via: 'user notification', ignoreCache: true })
 
-        if (userValues.privatePlayerMode.disabled) {
+        if ('disabled' in userValues.privatePlayerMode) {
             AllIconOverlays.disable()
             OpenInDuckPlayer.disable()
-        } else if (userValues.privatePlayerMode.enabled) {
+        } else if ('enabled' in userValues.privatePlayerMode) {
             AllIconOverlays.disable()
             OpenInDuckPlayer.enable()
-        } else if (userValues.privatePlayerMode.alwaysAsk) {
+        } else if ('alwaysAsk' in userValues.privatePlayerMode) {
             AllIconOverlays.enable()
             OpenInDuckPlayer.disable()
         }
@@ -286,7 +292,9 @@ async function initWithEnvironment (environment, comms) {
 
                             if (link) {
                                 const href = VideoParams.fromHref(link.href)?.toPrivatePlayerUrl()
-                                comms.openInDuckPlayerViaMessage(href)
+                                if (href) {
+                                    comms.openInDuckPlayerViaMessage({ href })
+                                }
                             }
 
                             return false
@@ -389,6 +397,9 @@ export class Environment {
     }
 }
 
+/**
+ * @internal
+ */
 export default class DuckPlayerFeature extends ContentFeature {
     /**
      * Lazily create a messaging instance for the given Platform + feature combo
@@ -422,7 +433,7 @@ export default class DuckPlayerFeature extends ContentFeature {
         if (!this.messaging) {
             throw new Error('cannot operate duck player without a messaging backend')
         }
-        const comms = new Communications(this.messaging)
+        const comms = new DuckPlayerOverlayMessages(this.messaging)
         const env = new Environment({
             debug: args.debug
         })

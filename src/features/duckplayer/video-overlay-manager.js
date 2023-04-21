@@ -2,7 +2,7 @@
 import { applyEffect, execCleanups, VideoParams } from './util.js'
 import { VideoPlayerIcon } from './video-player-icon'
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js'
-import { Pixel } from './comms'
+import { Pixel } from './overlay-messages.js'
 
 /**
  * Handle the switch between small & large overlays
@@ -18,7 +18,7 @@ export class VideoOverlayManager {
     /**
      * @param {import("../duck-player.js").UserValues} userValues
      * @param {import("../duck-player.js").Environment} environment
-     * @param {import("./comms").Communications} comms
+     * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms
      */
     constructor (userValues, environment, comms) {
         this.userValues = userValues

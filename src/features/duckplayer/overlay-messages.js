@@ -9,11 +9,15 @@ import * as constants from './constants.js'
  * Please see https://duckduckgo.github.io/content-scope-utils/modules/Webkit_Messaging for the underlying
  * messaging primitives.
  */
-export class Communications {
+export class DuckPlayerOverlayMessages {
     /**
      * @param {Messaging} messaging
+     * @internal
      */
     constructor (messaging) {
+        /**
+         * @internal
+         */
         this.messaging = messaging
     }
 
@@ -26,6 +30,9 @@ export class Communications {
         return this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues)
     }
 
+    /**
+     * @returns {Promise<import("../duck-player.js").UserValues>}
+     */
     getUserValues () {
         return this.messaging.request(constants.MSG_NAME_READ_VALUES, {})
     }
@@ -40,15 +47,18 @@ export class Communications {
         })
     }
 
-    openInDuckPlayerViaMessage (href) {
-        return this.messaging.notify(constants.MSG_NAME_OPEN_PLAYER, { href })
+    /**
+     * @param {OpenInDuckPlayerMsg} params
+     */
+    openInDuckPlayerViaMessage (params) {
+        return this.messaging.notify(constants.MSG_NAME_OPEN_PLAYER, params)
     }
 
     /**
      * Get notification when preferences/state changed
-     * @param cb
+     * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
      */
-    onUserValuesNotification (cb) {
+    onUserValuesChanged (cb) {
         return this.messaging.subscribe('onUserValuesChanged', cb)
     }
 
@@ -65,7 +75,7 @@ export class Communications {
         }
 
         // listen for setting and forward to the SERP window
-        this.onUserValuesNotification((values) => {
+        this.onUserValuesChanged((values) => {
             respond(constants.MSG_NAME_PUSH_DATA, values)
         })
 
@@ -121,5 +131,15 @@ export class Pixel {
         }
         default: throw new Error('unreachable')
         }
+    }
+}
+
+export class OpenInDuckPlayerMsg {
+    /**
+     * @param {object} params
+     * @param {string} params.href
+     */
+    constructor (params) {
+        this.href = params.href
     }
 }

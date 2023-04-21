@@ -18,12 +18,12 @@ export const IconOverlay = {
     hoverOverlayVisible: false,
 
     /**
-     * @type {import("./comms.js").Communications | null}
+     * @type {import("./overlay-messages.js").DuckPlayerOverlayMessages | null}
      */
     comms: null,
     /**
      * // todo: when this is a class, pass this as a constructor arg
-     * @param {import("./comms.js").Communications} comms
+     * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms
      */
     setComms (comms) {
         IconOverlay.comms = comms
