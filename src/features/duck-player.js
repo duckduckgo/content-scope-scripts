@@ -14,10 +14,11 @@ import css from './duckplayer/assets/styles.css'
 import { VideoOverlayManager } from './duckplayer/video-overlay-manager.js'
 import { IconOverlay } from './duckplayer/icon-overlay.js'
 import { onDOMLoaded, onDOMChanged, addTrustedEventListener, appendElement, VideoParams } from './duckplayer/util.js'
-import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg } from './duckplayer/overlay-messages.js'
+import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckplayer/overlay-messages.js'
 import { Messaging, MessagingContext, WindowsMessagingConfig } from '@duckduckgo/messaging'
 
-export { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg }
+// for docs generation
+export { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel }
 
 /**
  * @typedef UserValues - A way to communicate user settings
