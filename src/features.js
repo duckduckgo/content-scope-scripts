@@ -33,6 +33,7 @@ export const platformSupport = {
         ...baseFeatures
     ],
     windows: [
+        ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer'
     ],
