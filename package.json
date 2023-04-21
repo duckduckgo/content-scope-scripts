@@ -66,7 +66,6 @@
     "minimist": "^1.2.8",
     "puppeteer": "^19.9.1",
     "rollup": "^3.20.6",
-    "rollup-plugin-dynamic-import-variables": "^1.1.0",
     "typedoc": "^0.24.4",
     "typescript": "^5.0.4"
   }

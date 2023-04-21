@@ -43,18 +43,28 @@ const builds = {
 async function initOther (injectScriptPath, platformName) {
     const supportsMozProxies = platformName === 'firefox'
     const identName = `inject${camelcase(platformName)}`
-    const injectScript = await rollupScript(injectScriptPath, identName, supportsMozProxies)
+    const injectScript = await rollupScript({
+        scriptPath: injectScriptPath,
+        name: identName,
+        supportsMozProxies,
+        platform: platformName
+    })
     const outputScript = injectScript
     return outputScript
 }
 
 /**
  * @param {string} entry
+ * @param {string} platformName
  */
-async function initChrome (entry) {
+async function initChrome (entry, platformName) {
     const replaceString = '/* global contentScopeFeatures */'
-    const injectScript = await rollupScript(entry)
-    const contentScope = await rollupScript(contentScopePath, contentScopeName)
+    const injectScript = await rollupScript({ scriptPath: entry, platform: platformName })
+    const contentScope = await rollupScript({
+        scriptPath: contentScopePath,
+        name: contentScopeName,
+        platform: platformName
+    })
     // Encode in URI format to prevent breakage (we could choose to just escape ` instead)
     // NB: .replace(/\r\n/g, "\n") is needed because in Windows rollup generates CRLF line endings
     const encodedString = encodeURI(contentScope.toString().replace(/\r\n/g, '\n'))
@@ -74,7 +84,7 @@ async function init () {
 
     let output
     if (args.platform === 'chrome') {
-        output = await initChrome(build.input)
+        output = await initChrome(build.input, args.platform)
     } else {
         output = await initOther(build.input, args.platform)
     }

@@ -5,8 +5,9 @@
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
+const CapturedSet = globalObj.Set
 // Capture prototype to prevent overloading
-const Set = globalObj.Set
+const createSet = () => hasMozProxies ? new Set() : new CapturedSet()
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
@@ -146,7 +147,7 @@ export function matchHostname (hostname, exceptionDomain) {
 
 const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
 export function getStackTraceUrls (stack) {
-    const urls = new Set()
+    const urls = createSet()
     try {
         const errorLines = stack.split('\n')
         // Should cater for Chrome and Firefox stacks, we only care about https? resources.
@@ -164,7 +165,7 @@ export function getStackTraceUrls (stack) {
 
 export function getStackTraceOrigins (stack) {
     const urls = getStackTraceUrls(stack)
-    const origins = new Set()
+    const origins = createSet()
     for (const url of urls) {
         origins.add(url.hostname)
     }

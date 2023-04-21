@@ -3,7 +3,8 @@
   "spec_files": [
     "**/*[sS]pec.?(m)js",
     "**/*.js",
-    "!unit-test/script-overload-snapshots/out/*.js"
+    "!unit-test/script-overload-snapshots/out/*.js",
+    "!./fixtures/**/*"
   ],
   "jsLoader": "import",
   "helpers": [

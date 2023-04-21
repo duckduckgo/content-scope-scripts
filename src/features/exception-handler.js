@@ -11,7 +11,7 @@ export default class ExceptionHandler extends ContentFeature {
                 filename: e.filename,
                 lineno: e.lineno,
                 colno: e.colno,
-                stack: e.error.stack
+                stack: e.error?.stack
             })
         }
         globalThis.addEventListener('error', handleUncaughtException)
