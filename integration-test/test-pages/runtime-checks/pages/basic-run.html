@@ -137,6 +137,45 @@
             ];
         });
 
+        test('Prevent src overloading', async () => {
+            window.scripty2Ran = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.id = 'scripty2';
+            scriptElement.setAttribute('type', 'application/javascript');
+            scriptElement.src = 'test://url'
+
+            let setCounter = 0
+            // Pretend to be page overloading the src attribute
+            Object.defineProperty(scriptElement, 'src', {
+                get: () => 'invalid',
+                set: () => {
+                    setCounter++
+                }
+            })
+
+            const getAttribute = scriptElement.getAttribute('src');
+            // Should increment setCounter
+            scriptElement.src = 'test://other'
+            // Should NOT increment setCounter
+            scriptElement.setAttribute('src', 'bloop');
+
+            document.body.appendChild(scriptElement);
+            const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
+            // Continue to modify the script element after it has been added to the DOM
+            scriptElement.madeUpProp = 'val';
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('#scripty2');
+
+            return [
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'expect script to match', result: scripty, expected: scriptElement },
+                { name: 'scripty.getAttribute', result: getAttribute, expected: 'test://url' },
+                { name: 'setAttribute does not loop', result: setCounter, expected: 1 },
+                { name: 'scripty.type', result: scripty.type, expected: 'application/javascript' },
+                { name: 'scripty.id', result: scripty.id, expected: 'scripty2' }
+            ];
+        });
+
         // eslint-disable-next-line no-undef
         renderResults();
     </script>
