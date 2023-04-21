@@ -42,9 +42,14 @@ function initCode () {
         value: wrappedUpdate
     })
 
-    // @ts-expect-error - Android message interface defined elsewhere
-    const sendMessageToAndroid = window[messageInterface].process.bind(window[messageInterface])
-    delete window[messageInterface]
+    let sendMessageToAndroid
+    if (Object.prototype.hasOwnProperty.call(window, messageInterface)) {
+        // @ts-expect-error - Defined on the platform using WebView.addJavascriptInterface()
+        sendMessageToAndroid = window[messageInterface].process.bind(window[messageInterface])
+        delete window[messageInterface]
+    } else {
+        sendMessageToAndroid = () => { console.error('Android messaging interface not available') }
+    }
 
     init(processedConfig)
 
