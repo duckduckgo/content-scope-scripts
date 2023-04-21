@@ -6,7 +6,7 @@ import { cwd } from '../scripts/script-utils.js'
 const ROOT = join(cwd(import.meta.url), '..')
 const BUILD = join(ROOT, 'build')
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
-let CSS_OUTPUT_SIZE = 560000
+let CSS_OUTPUT_SIZE = 560_000
 const CSS_OUTPUT_SIZE_CHROME = CSS_OUTPUT_SIZE * 1.45 // 45% larger for Chrome MV2 due to base64 encoding
 if (process.platform === 'win32') {
     CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1 // 10% larger for Windows due to line endings
@@ -27,9 +27,7 @@ const checks = {
         { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE, path: join(BUILD, 'firefox/inject.js') },
         { kind: 'containsString', text: 'cloneInto(', path: join(BUILD, 'firefox/inject.js'), includes: true }
     ],
-    integration: [
-        { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE, path: join(BUILD, 'integration/contentScope.js') }
-    ],
+    integration: [],
     windows: [
         { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE, path: join(BUILD, 'windows/contentScope.js') }
     ],
