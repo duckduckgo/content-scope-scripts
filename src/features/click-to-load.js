@@ -22,7 +22,7 @@ const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
 // @see {getConfig}
 let config = null
 let sharedStrings = null
-let styles = getStyles()
+let styles = null
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
@@ -894,10 +894,10 @@ function makeBaseStyleElement (mode = 'lightMode') {
  * Creates an anchor element with no destination. It is expected that a click
  * handler is added to the element later.
  * @param {string} linkText
- * @param {displayMode} [mode='lightMode']
+ * @param {displayMode} mode
  * @returns {HTMLAnchorElement}
  */
-function makeTextButton (linkText, mode) {
+function makeTextButton (linkText, mode = 'lightMode') {
     const linkElement = document.createElement('a')
     linkElement.style.cssText = styles.headerLink + styles[mode].linkFont
     linkElement.textContent = linkText
@@ -1622,9 +1622,7 @@ export default class ClickToLoad extends ContentFeature {
         config = localizedConfig.config
         sharedStrings = localizedConfig.sharedStrings
         // update styles if asset config was sent
-        if (args?.assets) {
-            styles = getStyles(args.assets)
-        }
+        styles = getStyles(this.assetConfig)
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the

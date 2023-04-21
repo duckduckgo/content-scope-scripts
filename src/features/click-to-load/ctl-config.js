@@ -8,15 +8,9 @@ import localesJSON from '../../../build/locales/ctl-locales.js'
  *  Style Definitions
  *********************************************************/
 /**
- * @typedef {object} AssetConfig
- * @property {string} regularFontUrl
- * @property {string} boldFontUrl
- */
-
-/**
  * Get CSS style defintions for CTL, using the provided AssetConfig for any non-embedded assets
  * (e.g. fonts.)
- * @param {AssetConfig} [assets]
+ * @param {import('../../content-feature.js').AssetConfig} [assets]
  */
 export function getStyles (assets) {
     let fontStyle = ''
