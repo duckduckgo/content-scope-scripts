@@ -23,15 +23,15 @@ export class DuckPlayerOverlayMessages {
 
     /**
      * Inform the native layer that an interaction occurred
-     * @param {import("../duck-player.js").UserValues} userValues
-     * @returns {Promise<import("../duck-player.js").UserValues>}
+     * @param {import("./overlays.js").UserValues} userValues
+     * @returns {Promise<import("./overlays.js").UserValues>}
      */
     setUserValues (userValues) {
         return this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues)
     }
 
     /**
-     * @returns {Promise<import("../duck-player.js").UserValues>}
+     * @returns {Promise<import("./overlays.js").UserValues>}
      */
     getUserValues () {
         return this.messaging.request(constants.MSG_NAME_READ_VALUES, {})
@@ -56,7 +56,7 @@ export class DuckPlayerOverlayMessages {
 
     /**
      * Get notification when preferences/state changed
-     * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
+     * @param {(userValues: import("./overlays.js").UserValues) => void} cb
      */
     onUserValuesChanged (cb) {
         return this.messaging.subscribe('onUserValuesChanged', cb)

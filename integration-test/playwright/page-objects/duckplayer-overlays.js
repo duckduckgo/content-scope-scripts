@@ -10,22 +10,22 @@ import { expect } from '@playwright/test'
 
 // Every possible combination of UserValues
 const userValues = {
-    /** @type {import("../../../src/features/duck-player.js").UserValues} */
+    /** @type {import("../../../src/features/duckplayer/overlays.js").UserValues} */
     'always ask': {
         privatePlayerMode: { alwaysAsk: {} },
         overlayInteracted: false
     },
-    /** @type {import("../../../src/features/duck-player.js").UserValues} */
+    /** @type {import("../../../src/features/duckplayer/overlays.js").UserValues} */
     'always ask remembered': {
         privatePlayerMode: { alwaysAsk: {} },
         overlayInteracted: true
     },
-    /** @type {import("../../../src/features/duck-player.js").UserValues} */
+    /** @type {import("../../../src/features/duckplayer/overlays.js").UserValues} */
     enabled: {
         privatePlayerMode: { enabled: {} },
         overlayInteracted: false
     },
-    /** @type {import("../../../src/features/duck-player.js").UserValues} */
+    /** @type {import("../../../src/features/duckplayer/overlays.js").UserValues} */
     disabled: {
         privatePlayerMode: { disabled: {} },
         overlayInteracted: false
