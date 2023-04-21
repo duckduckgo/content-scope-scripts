@@ -104,8 +104,8 @@ export class DuckplayerOverlays {
     async overlaysDisabled () {
         // load original config
         const config = loadConfig('overlays')
-        // remove all domains from 'overlays'
-        config.features.duckPlayer.settings.overlays = []
+        // remove all domains from 'overlays', this disables the feature
+        config.features.duckPlayer.settings.domains = []
         await this.setup({ config })
     }
 

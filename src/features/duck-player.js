@@ -30,7 +30,7 @@ export { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel }
  * @param {Environment} environment - methods to read environment-sensitive things like the current URL etc
  * @param {DuckPlayerOverlayMessages} comms - methods to communicate with a native backend
  */
-async function initWithEnvironment (environment, comms) {
+async function initOverlays (environment, comms) {
     /**
      * Entry point. Until this returns with initial user values, we cannot continue.
      */
@@ -442,37 +442,11 @@ export default class DuckPlayerFeature extends ContentFeature {
         /**
          * Overlays
          */
-        const overlaySetting = this.matchDomainFeatureSetting('overlays')
-        let overlaysEnabled = Boolean(overlaySetting.find(settings => settings.state === 'enabled'))
-
-        // if the settings key was empty, fall back to local checks
-        if (!overlaysEnabled && overlaySetting.length === 0) {
-            if (env.allowedOverlayOrigins.includes(globalThis.location.hostname)) {
-                overlaysEnabled = true
-            }
-        }
-
-        /**
-         * SERP Proxy
-         */
-        const proxySetting = this.matchDomainFeatureSetting('proxy')
-        let proxyEnabled = Boolean(proxySetting.find(settings => settings.state === 'enabled'))
-
-        // if the settings key was empty, fall back to local checks
-        if (!proxyEnabled && proxySetting.length === 0) {
-            if (env.allowedProxyOrigins.includes(globalThis.location.hostname)) {
-                proxyEnabled = true
-            }
-        }
+        const overlaySettings = this.getFeatureSetting('overlays')
+        const overlaysEnabled = overlaySettings.youtube.state === 'enabled'
 
         if (overlaysEnabled) {
-            console.log('🦆 ✅ overlays enabled for', globalThis.location.hostname)
-            initWithEnvironment(env, comms)
-        } else if (proxyEnabled) {
-            console.log('🦆 ✅ proxy enabled for', globalThis.location.hostname)
-            comms.serpProxy()
-        } else {
-            console.log('🦆 ❌ nothing enabled for', globalThis.location.hostname)
+            initOverlays(env, comms)
         }
     }
 

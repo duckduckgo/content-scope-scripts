@@ -5,20 +5,21 @@
       "state": "enabled",
       "exceptions": [],
       "settings": {
-        "overlays": [
-          {
-            "domain": "www.youtube.com",
-            "state": "enabled"
-          },
+        "overlays": {
+          "youtube": {
+            "state": "disabled"
+          }
+        },
+        "domains": [
           {
             "domain": "localhost",
-            "state": "enabled"
-          }
-        ],
-        "proxy": [
-          {
-            "domain": "duckduckgo.com",
-            "state": "enabled"
+            "patchSettings": [
+              {
+                "op": "replace",
+                "path": "/overlays/youtube/state",
+                "value": "enabled"
+              }
+            ]
           }
         ]
       }
