@@ -42,9 +42,9 @@ export class DuckplayerOverlays {
     constructor (page, platform) {
         this.page = page
         this.platform = platform
-        // page.on('console', (msg) => {
-        //     console.log(msg.type(), msg.text())
-        // })
+        page.on('console', (msg) => {
+            console.log(msg.type(), msg.text())
+        })
     }
 
     async gotoThumbsPage () {

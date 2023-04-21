@@ -1,12 +1,6 @@
 import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
-    webServer: {
-        reuseExistingServer: true,
-        ignoreHTTPSErrors: true,
-        command: 'npm run serve',
-        port: 3220
-    },
     projects: [
         {
             name: 'windows',
@@ -14,8 +8,36 @@ export default defineConfig({
             use: { platform: 'windows' }
         }
     ],
-    fullyParallel: false,
+    timeout: 30 * 1000,
+    expect: {
+        /**
+         * Maximum time expect() should wait for the condition to be met.
+         * For example in `await expect(locator).toHaveText();`
+         */
+        timeout: 5000
+    },
+    fullyParallel: !process.env.CI,
+    /* Run tests in files in parallel */
+    /* Fail the build on CI if you accidentally left test.only in the source code. */
+    /* Retry on CI only */
+    retries: process.env.CI ? 2 : 0,
+    /* Opt out of parallel tests on CI. */
+    workers: process.env.CI ? 1 : undefined,
+    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+    reporter: 'html',
+    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+    webServer: {
+        reuseExistingServer: true,
+        ignoreHTTPSErrors: true,
+        command: 'npm run serve',
+        port: 3220
+    },
     use: {
-        baseURL: 'http://localhost:3220/'
+        /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
+        actionTimeout: 1000,
+        /* Base URL to use in actions like `await page.goto('/')`. */
+        baseURL: 'http://localhost:3220/',
+        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+        trace: 'on-first-retry'
     }
 })

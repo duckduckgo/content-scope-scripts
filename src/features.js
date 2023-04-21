@@ -33,8 +33,7 @@ export const platformSupport = {
         ...baseFeatures
     ],
     windows: [
-        ...baseFeatures,
-        'windowsPermissionUsage',
+        // ...baseFeatures,
         'duckPlayer'
     ],
     firefox: [
