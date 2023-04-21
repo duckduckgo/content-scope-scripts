@@ -11,7 +11,6 @@
     "copy-sjcl": "node scripts/generateSJCL.js",
     "bundle-config": "node scripts/bundleConfig.mjs",
     "build": "npm run build-locales && npm run build-firefox && npm run build-chrome && npm run build-apple && npm run build-android && npm run build-windows && npm run build-integration && npm run build-chrome-mv3",
-    "build.dev": "NODE_ENV=development npm run build",
     "build-locales": "node scripts/buildLocales.js --dir src/locales/click-to-load --output build/locales/ctl-locales.js",
     "build-firefox": "node scripts/inject.js --platform firefox",
     "build-chrome": "node scripts/inject.js --platform chrome",
@@ -40,8 +39,8 @@
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
     "playwright": "playwright test",
     "playwright.headed": "playwright test --headed",
-    "preplaywright": "NODE_ENV=development npm run build-windows",
-    "preplaywright.headed": "NODE_ENV=development npm run build-windows"
+    "preplaywright": "npm run build-windows",
+    "preplaywright.headed": "npm run build-windows"
   },
   "type": "module",
   "workspaces": [

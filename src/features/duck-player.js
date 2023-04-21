@@ -411,7 +411,7 @@ export default class DuckPlayerFeature extends ContentFeature {
         if (this.platform.name === 'windows') {
             const context = new MessagingContext({
                 context: 'contentScopeScripts',
-                env: import.meta.env,
+                env: this._args.debug ? 'development' : 'production',
                 featureName: this.name
             })
             const config = new WindowsMessagingConfig({
