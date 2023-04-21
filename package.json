@@ -20,10 +20,10 @@
     "build-windows": "node scripts/inject.js --platform windows",
     "build-integration": "node scripts/inject.js --platform integration",
     "docs": "typedoc",
-    "docs.watch": "typedoc --watch",
+    "docs-watch": "typedoc --watch",
     "postbuild": "npm run build --workspaces --if-present",
     "tsc": "tsc",
-    "tsc.watch": "tsc --watch",
+    "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc",
     "lint-no-output-globals": "eslint --no-eslintrc --config=build-output.eslintrc --no-ignore Sources/ContentScopeScripts/dist/contentScope.js",
     "lint-fix": "eslint . --fix && npm run tsc",
@@ -38,9 +38,9 @@
     "posttest-int-x": "npm run test-int-x --workspaces --if-present",
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
     "playwright": "playwright test",
-    "playwright.headed": "playwright test --headed",
+    "playwright-headed": "playwright test --headed",
     "preplaywright": "npm run build-windows",
-    "preplaywright.headed": "npm run build-windows"
+    "preplaywright-headed": "npm run build-windows"
   },
   "type": "module",
   "workspaces": [
