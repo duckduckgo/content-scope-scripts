@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Duck Player - Player Overlay</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        .container {
+            width: 800px;
+            height: 600px;
+            background: blue;
+        }
+        .html5-video-player {
+            position: relative;
+        }
+        body {
+            max-width: 100%;
+        }
+        .tools {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+<script src="../../shared/utils.js"></script>
+<p><a href="../index.html">[Duck Player]</a></p>
+
+<div id="initial"></div>
+<div id="loaded"></div>
+
+<main></main>
+<template id="inner">
+    <div class="container">
+        <div id="player">
+            <div class="html5-video-player">
+                <video width="800px" height="600px"></video>
+            </div>
+        </div>
+    </div>
+</template>
+<script type="module">
+    document.querySelector('main').innerHTML = document.querySelector('template[id="inner"]').innerHTML;
+</script>
+</body>
+</html>

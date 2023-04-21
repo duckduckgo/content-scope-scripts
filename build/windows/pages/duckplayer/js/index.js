@@ -18,6 +18,14 @@
       __publicField(this, "config");
       this.messagingContext = messagingContext;
       this.config = config;
+      this.globals = {
+        window,
+        JSONparse: window.JSON.parse,
+        JSONstringify: window.JSON.stringify,
+        Promise: window.Promise,
+        Error: window.Error,
+        String: window.String
+      };
       for (const [methodName, fn] of Object.entries(this.config.methods)) {
         if (typeof fn !== "function") {
           throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
@@ -28,7 +36,8 @@
      * @param {import('../index.js').NotificationMessage} msg
      */
     notify(msg) {
-      const notification = WindowsNotification.fromNotification(msg);
+      const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+      const notification = WindowsNotification.fromNotification(msg, data);
       this.config.methods.postMessage(notification);
     }
     /**
@@ -37,31 +46,32 @@
      * @return {Promise<any>}
      */
     request(msg, opts = {}) {
-      const outgoing = WindowsRequestMessage.fromRequest(msg);
+      const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+      const outgoing = WindowsRequestMessage.fromRequest(msg, data);
       this.config.methods.postMessage(outgoing);
       const comparator = (eventData) => {
         return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
       };
-      function isMessageResponse(data) {
-        if ("result" in data)
+      function isMessageResponse(data2) {
+        if ("result" in data2)
           return true;
-        if ("error" in data)
+        if ("error" in data2)
           return true;
         return false;
       }
-      return new Promise((resolve, reject) => {
+      return new this.globals.Promise((resolve, reject) => {
         try {
           this._subscribe(comparator, opts, (value, unsubscribe) => {
             unsubscribe();
             if (!isMessageResponse(value)) {
               console.warn("unknown response type", value);
-              return reject(new Error("unknown response"));
+              return reject(new this.globals.Error("unknown response"));
             }
             if (value.result) {
               return resolve(value.result);
             }
-            const message = String(value.error?.message || "unknown error");
-            reject(new Error(message));
+            const message = this.globals.String(value.error?.message || "unknown error");
+            reject(new this.globals.Error(message));
           });
         } catch (e) {
           reject(e);
@@ -158,9 +168,9 @@
      * @param {NotificationMessage} notification
      * @returns {WindowsNotification}
      */
-    static fromNotification(notification) {
+    static fromNotification(notification, data) {
       const output = {
-        Data: JSON.parse(JSON.stringify(notification.params || {})),
+        Data: data,
         Feature: notification.context,
         SubFeatureName: notification.featureName,
         Name: notification.method
@@ -188,11 +198,12 @@
     /**
      * Helper to convert a {@link RequestMessage} to a format that Windows can support
      * @param {RequestMessage} msg
+     * @param {Record<string, any>} data
      * @returns {WindowsRequestMessage}
      */
-    static fromRequest(msg) {
+    static fromRequest(msg, data) {
       const output = {
-        Data: JSON.parse(JSON.stringify(msg.params || {})),
+        Data: data,
         Feature: msg.context,
         SubFeatureName: msg.featureName,
         Name: msg.method,
@@ -826,15 +837,11 @@
      * Sets the tab title to the title of the video once the video title has loaded.
      */
     setTabTitle: () => {
-      let hasGottenValidVideoTitle = false;
       VideoPlayer.onIframeLoaded(() => {
         VideoPlayer.onIframeTitleChange((title) => {
-          if (!hasGottenValidVideoTitle) {
-            const validTitle = VideoPlayer.getValidVideoTitle(title);
-            if (validTitle) {
-              document.title = "Duck Player - " + validTitle;
-              hasGottenValidVideoTitle = true;
-            }
+          const validTitle = VideoPlayer.getValidVideoTitle(title);
+          if (validTitle) {
+            document.title = "Duck Player - " + validTitle;
           }
         });
       });

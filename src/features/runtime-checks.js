@@ -253,7 +253,8 @@ class DDGRuntimeChecks extends HTMLElement {
     getAttribute (name, value) {
         if (shouldFilterKey(this.#tagName, 'attribute', name)) return
         if (supportedSinks.includes(name)) {
-            return this[name]
+            // Use Reflect to avoid infinite recursion
+            return Reflect.get(DDGRuntimeChecks.prototype, name, this)
         }
         return this._callMethod('getAttribute', name, value)
     }
@@ -261,8 +262,8 @@ class DDGRuntimeChecks extends HTMLElement {
     setAttribute (name, value) {
         if (shouldFilterKey(this.#tagName, 'attribute', name)) return
         if (supportedSinks.includes(name)) {
-            this[name] = value
-            return
+            // Use Reflect to avoid infinite recursion
+            return Reflect.set(DDGRuntimeChecks.prototype, name, value, this)
         }
         return this._callMethod('setAttribute', name, value)
     }

@@ -1,8 +1,10 @@
 import { Mocks } from './mocks.js'
 import { expect } from '@playwright/test'
 import { PlatformInfo } from '@duckduckgo/messaging/lib/test-utils.mjs'
+import { join } from 'node:path'
 
 const MOCK_VIDEO_ID = 'VIDEO_ID'
+const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube'
 const youtubeEmbed = (id) => 'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&rel=0&modestbranding=1'
 
 export class DuckPlayerPage {
@@ -30,16 +32,20 @@ export class DuckPlayerPage {
 
     /**
      * This ensures we can choose when to apply mocks based on the platform
-     * @param {string} url
+     * @param {URLSearchParams} urlParams
      * @return {Promise<void>}
      */
-    async openPage (url) {
+    async openPage (urlParams) {
+        const url = 'https://www.youtube-nocookie.com' + '?' + urlParams.toString()
+
         switch (this.platform.name) {
-        case 'windows':
+        case 'windows': {
             await this.mocks.install()
-            await this.installYoutubeIframeMock()
+            await this.installYoutubeMocks()
+            // construct the final url
             await this.page.goto(url)
             break
+        }
         default:
             throw new Error('unreachable')
         }
@@ -50,13 +56,31 @@ export class DuckPlayerPage {
      * By mocking the response, we make the tests about 10x faster and also ensure they work offline.
      * @return {Promise<void>}
      */
-    async installYoutubeIframeMock () {
+    async installYoutubeMocks () {
+        await this.page.route('https://www.youtube-nocookie.com/**', (route, req) => {
+            const url = new URL(req.url())
+            if (url.pathname.startsWith('/embed')) {
+                return route.continue()
+            }
+            // try to serve assets, but change `/` to 'index'
+            let filepath = url.pathname
+            if (filepath === '/') filepath = 'index.html'
+
+            return route.fulfill({
+                status: 200,
+                path: join(this.basePath, filepath)
+            })
+        })
+
+        // the iframe
         await this.page.route('https://www.youtube-nocookie.com/embed/**', (request) => {
             return request.fulfill({
                 status: 200,
-                body: 'youtube iframe src'
+                body: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head><body>Video Embed</body></html>`
             })
         })
+
+        // any navigations to actual youtube
         await this.page.route('https://www.youtube.com/**', (request) => {
             return request.fulfill({
                 status: 200,
@@ -71,7 +95,7 @@ export class DuckPlayerPage {
      */
     async openWithVideoID (videoID = MOCK_VIDEO_ID) {
         const params = new URLSearchParams(Object.entries({ videoID }))
-        await this.openPage(this.htmlPage + '?' + params.toString())
+        await this.openPage(params)
     }
 
     /**
@@ -81,7 +105,7 @@ export class DuckPlayerPage {
      */
     async openWithTimestamp (timestamp, videoID = MOCK_VIDEO_ID) {
         const params = new URLSearchParams(Object.entries({ videoID, t: timestamp }))
-        await this.openPage(this.htmlPage + '?' + params.toString())
+        await this.openPage(params)
     }
 
     /**
@@ -92,6 +116,15 @@ export class DuckPlayerPage {
         const expected = new URL(youtubeEmbed(videoID))
         await expect(this.page.locator('iframe'))
             .toHaveAttribute('src', expected.toString())
+    }
+
+    async hasTheSameTitleAsEmbed () {
+        const expected = 'Duck Player - Embedded Video'
+
+        // verify initial
+        await this.page.waitForFunction((expected) => {
+            return document.title === expected
+        }, expected)
     }
 
     /**
@@ -220,10 +253,9 @@ export class DuckPlayerPage {
      *
      * @returns {string}
      */
-    get htmlPage () {
+    get basePath () {
         return {
-            apple: '/Sources/ContentScopeScripts/dist/pages/duckplayer/index.html',
-            windows: '/build/windows/pages/duckplayer/index.html'
+            windows: '../../build/windows/pages/duckplayer'
         }[this.platform.name]
     }
 

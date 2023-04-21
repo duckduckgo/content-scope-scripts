@@ -7,6 +7,11 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()
     })
+    test('reflects title from embed', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasTheSameTitleAsEmbed()
+    })
     test('loads the iframe src with a timestamp', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithTimestamp('2h3m1s')

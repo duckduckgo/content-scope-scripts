@@ -1,0 +1,28 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "duckPlayer": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "overlays": {
+          "youtube": {
+            "state": "disabled"
+          }
+        },
+        "domains": [
+          {
+            "domain": "localhost",
+            "patchSettings": [
+              {
+                "op": "replace",
+                "path": "/overlays/youtube/state",
+                "value": "enabled"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

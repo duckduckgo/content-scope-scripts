@@ -20,10 +20,10 @@
     "build-windows": "node scripts/inject.js --platform windows",
     "build-integration": "node scripts/inject.js --platform integration",
     "docs": "typedoc",
-    "docs.watch": "typedoc --watch",
+    "docs-watch": "typedoc --watch",
     "postbuild": "npm run build --workspaces --if-present",
     "tsc": "tsc",
-    "tsc.watch": "tsc --watch",
+    "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc",
     "lint-no-output-globals": "eslint --no-eslintrc --config=build-output.eslintrc --no-ignore Sources/ContentScopeScripts/dist/contentScope.js",
     "lint-fix": "eslint . --fix && npm run tsc",
@@ -35,7 +35,12 @@
     "test": "npm run lint && npm run lint-no-output-globals && npm run test-unit && npm run test-int",
     "posttest": "npm run test --workspaces --if-present",
     "posttest-int": "npm run test-int --workspaces --if-present",
-    "posttest-int-x": "npm run test-int-x --workspaces --if-present"
+    "posttest-int-x": "npm run test-int-x --workspaces --if-present",
+    "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
+    "playwright": "playwright test",
+    "playwright-headed": "playwright test --headed",
+    "preplaywright": "npm run build-windows",
+    "preplaywright-headed": "npm run build-windows"
   },
   "type": "module",
   "workspaces": [
@@ -66,7 +71,8 @@
     "minimist": "^1.2.8",
     "puppeteer": "^19.9.1",
     "rollup": "^3.20.6",
-    "rollup-plugin-dynamic-import-variables": "^1.1.0",
+    "rollup-plugin-import-css": "^3.2.1",
+    "rollup-plugin-svg-import": "^2.0.0",
     "typedoc": "^0.24.4",
     "typescript": "^5.0.4"
   }

@@ -5,6 +5,7 @@ export default {
         '**/*.js',
         '!test-pages/**/*.js',
         '!pages/**/*.js',
+        '!playwright/**/*.js',
         '!extension/**/*.js'
     ],
     random: false
