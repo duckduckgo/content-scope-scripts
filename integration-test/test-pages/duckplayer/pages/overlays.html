@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Runtime checks</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        .thumbnail {
+            height: 100px;
+            width: 200px;
+            margin: 5px;
+            background: lightblue;
+            border: 1px solid black;
+            float: left;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .playlist {
+            clear: both;
+            width: 100px;
+
+        }
+
+        .playlist #items {
+            height: 150px;
+            overflow: auto;
+        }
+
+        .playlist #thumbnail {
+            width: 90px;
+            height: 50px;
+        }
+
+        #loaded {
+            clear: both;
+            float: none;
+            width: 300px;
+        }
+
+        h2 {
+            padding-top: 2em;
+        }
+    </style>
+</head>
+<body>
+<script src="../../shared/utils.js"></script>
+<p><a href="../index.html">[Duck Player]</a></p>
+
+<div id="initial">
+    <h2>THUMBNAILS</h2>
+    <div class="thumbnails">
+        <a class="thumbnail" href="/watch?v=1"><img src="thumbnail-dark.jpg"></a>
+        <a class="thumbnail" href="/watch?v=2"><img src="thumbnail-light.jpg"></a>
+        <a class="thumbnail" href="/watch?v=3"><img src="thumbnail-dark.jpg"></a>
+        <a class="thumbnail" href="/watch?v=4"><img src="thumbnail-light.jpg"></a>
+        <a class="thumbnail" href="/watch?v=5"><img src="thumbnail-dark.jpg"></a>
+    </div>
+    <div class="playlist"><h2>PLAYLIST</h2>
+        <div id="items" class="playlist-items">
+            <div class="thumbnails">
+                <a class="thumbnail" href="/watch?v=1"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" href="/watch?v=2"><img src="thumbnail-light.jpg"></a>
+                <a class="thumbnail" href="/watch?v=3"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" href="/watch?v=4"><img src="thumbnail-light.jpg"></a>
+                <a class="thumbnail" href="/watch?v=5"><img src="thumbnail-dark.jpg"></a>
+            </div>
+        </div>
+    </div>
+    <h2>MORE THUMBNAILS</h2>
+    <div class="thumbnails">
+        <a class="thumbnail" href="/watch?v=1"><img src="thumbnail-dark.jpg"></a>
+        <a class="thumbnail" href="/watch?v=2"><img src="thumbnail-light.jpg"></a>
+        <a class="thumbnail" href="/watch?v=3"><img src="thumbnail-dark.jpg"></a>
+        <a class="thumbnail" href="/watch?v=4"><img src="thumbnail-light.jpg"></a>
+        <a class="thumbnail" href="/watch?v=5"><img src="thumbnail-dark.jpg"></a>
+    </div>
+</div>
+
+<div id="loaded"></div>
+
+</body>
+</html>
