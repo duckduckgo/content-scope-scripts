@@ -58,17 +58,17 @@ export function getStyles (assets) {
             toggleButtonText: `
             color: #EEEEEE;
         `,
-        toggleButtonBgState: {
-            active: `
+            toggleButtonBgState: {
+                active: `
                 background: #5784FF;
             `,
-            inactive: `
+                inactive: `
                 background-color: #666666;
             `
-        }
-    },
-    lightMode: {
-        background: `
+            }
+        },
+        lightMode: {
+            background: `
             background: #FFFFFF;
         `,
             textFont: `
@@ -92,17 +92,17 @@ export function getStyles (assets) {
             toggleButtonText: `
             color: #666666;
         `,
-        toggleButtonBgState: {
-            active: `
+            toggleButtonBgState: {
+                active: `
                 background: #3969EF;
             `,
-            inactive: `
+                inactive: `
                 background-color: #666666;
             `
-        }
-    },
-    loginMode: {
-        buttonBackground: `
+            }
+        },
+        loginMode: {
+            buttonBackground: `
             background: #666666;
         `,
             buttonFont: `
@@ -489,7 +489,7 @@ export function getStyles (assets) {
         margin: 0 0 0 7px;
         padding: 0;
     `,
-    toggleButtonKnob: `
+        toggleButtonKnob: `
         position: absolute;
         display: inline-block;
         width: 14px;
