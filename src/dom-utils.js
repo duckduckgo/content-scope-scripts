@@ -52,6 +52,6 @@ class Template {
     }
 }
 
-export function escapeHTML (strings, ...values) {
+export function html (strings, ...values) {
     return new Template(strings, values)
 }

@@ -3,7 +3,7 @@ import dax from '../assets/dax.svg'
 import { i18n } from '../text.js'
 import { appendImageAsBackground } from '../util.js'
 import { VideoOverlayManager } from '../video-overlay-manager.js'
-import { escapeHTML } from '../../../dom-utils.js'
+import { html } from '../../../dom-utils.js'
 
 /**
  * The custom element that we use to present our UI elements
@@ -55,8 +55,8 @@ export class DDGVideoOverlay extends HTMLElement {
     createOverlay () {
         const overlayElement = document.createElement('div')
         overlayElement.classList.add('ddg-video-player-overlay')
-        const svgIcon = escapeHTML([dax], [])
-        overlayElement.innerHTML = escapeHTML`
+        const svgIcon = html([dax], [])
+        overlayElement.innerHTML = html`
             <div class="ddg-vpo-bg"></div>
             <div class="ddg-vpo-content">
                 <div class="ddg-eyeball">${svgIcon}</div>

@@ -2,7 +2,7 @@ import { addTrustedEventListener, appendElement, VideoParams } from './util'
 import dax from './assets/dax.svg'
 import { i18n } from './text.js'
 import { OpenInDuckPlayerMsg } from './overlay-messages.js'
-import { escapeHTML } from '../../dom-utils.js'
+import { html } from '../../dom-utils.js'
 
 export const IconOverlay = {
     /**
@@ -42,8 +42,8 @@ export const IconOverlay = {
 
         overlayElement.setAttribute('class', 'ddg-overlay' + (extraClass ? ' ' + extraClass : ''))
         overlayElement.setAttribute('data-size', size)
-        const svgIcon = escapeHTML([dax], [])
-        overlayElement.innerHTML = escapeHTML`
+        const svgIcon = html([dax], [])
+        overlayElement.innerHTML = html`
                 <a class="ddg-play-privately" href="#">
                     <div class="ddg-dax">
                     ${svgIcon}
