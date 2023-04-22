@@ -2,6 +2,7 @@ import { addTrustedEventListener, appendElement, VideoParams } from './util'
 import dax from './assets/dax.svg'
 import { i18n } from './text.js'
 import { OpenInDuckPlayerMsg } from './overlay-messages.js'
+import { html, trustedUnsafe } from '../../dom-utils.js'
 
 export const IconOverlay = {
     /**
@@ -41,20 +42,20 @@ export const IconOverlay = {
 
         overlayElement.setAttribute('class', 'ddg-overlay' + (extraClass ? ' ' + extraClass : ''))
         overlayElement.setAttribute('data-size', size)
-        overlayElement.innerHTML = `
+        const svgIcon = trustedUnsafe(dax)
+        overlayElement.innerHTML = html`
                 <a class="ddg-play-privately" href="#">
                     <div class="ddg-dax">
-                        ${dax}
+                    ${svgIcon}
                     </div>
                     <div class="ddg-play-text-container">
                         <div class="ddg-play-text">
                             ${i18n.t('playText')}
                         </div>
                     </div>
-                </a>`
+                </a>`.toString()
 
         overlayElement.querySelector('a.ddg-play-privately')?.setAttribute('href', href)
-
         overlayElement.querySelector('a.ddg-play-privately')?.addEventListener('click', (event) => {
             event.preventDefault()
             event.stopPropagation()
