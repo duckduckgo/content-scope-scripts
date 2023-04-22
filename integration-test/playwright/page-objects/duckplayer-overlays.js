@@ -58,6 +58,9 @@ export class DuckplayerOverlays {
     async overlayBlocksVideo () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
         await this.page.getByRole('link', { name: 'Watch in Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page
+            .getByText('Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.')
+            .waitFor({ timeout: 100 })
     }
 
     async smallOverlayShows () {

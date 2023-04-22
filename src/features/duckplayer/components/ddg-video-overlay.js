@@ -3,6 +3,7 @@ import dax from '../assets/dax.svg'
 import { i18n } from '../text.js'
 import { appendImageAsBackground } from '../util.js'
 import { VideoOverlayManager } from '../video-overlay-manager.js'
+import { html, trustedUnsafe } from '../../../dom-utils.js'
 
 /**
  * The custom element that we use to present our UI elements
@@ -54,12 +55,15 @@ export class DDGVideoOverlay extends HTMLElement {
     createOverlay () {
         const overlayElement = document.createElement('div')
         overlayElement.classList.add('ddg-video-player-overlay')
-        overlayElement.innerHTML = `
+        const svgIcon = trustedUnsafe(dax)
+        overlayElement.innerHTML = html`
             <div class="ddg-vpo-bg"></div>
             <div class="ddg-vpo-content">
-                <div class="ddg-eyeball">${dax}</div>
+                <div class="ddg-eyeball">${svgIcon}</div>
                 <div class="ddg-vpo-title">${i18n.t('videoOverlayTitle')}</div>
-                <div class="ddg-vpo-text">${i18n.t('videoOverlaySubtitle')}</div>
+                <div class="ddg-vpo-text">
+                    <b>${i18n.t('playText')}</b> ${i18n.t('videoOverlaySubtitle')}
+                </div>
                 <div class="ddg-vpo-buttons">
                     <button class="ddg-vpo-button ddg-vpo-cancel" type="button">${i18n.t('videoButtonOptOut')}</button>
                     <a class="ddg-vpo-button ddg-vpo-open" href="#">${i18n.t('videoButtonOpen')}</a>
@@ -70,7 +74,7 @@ export class DDGVideoOverlay extends HTMLElement {
                     </label>
                 </div>
             </div>
-            `
+            `.toString()
         /**
          * Set the link
          * @type {string}

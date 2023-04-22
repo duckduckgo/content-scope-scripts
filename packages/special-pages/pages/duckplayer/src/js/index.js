@@ -36,6 +36,7 @@ import {
     MessagingContext, TestTransportConfig
 } from '../../../../../messaging/index.js'
 import { DuckPlayerPageMessages, UserValues } from './messages'
+import { html } from '../../../../../../src/dom-utils'
 
 // for docs
 export { DuckPlayerPageMessages, UserValues }
@@ -107,7 +108,7 @@ const VideoPlayer = {
      * Show an error instead of the video player iframe
      */
     showVideoError: (errorMessage) => {
-        VideoPlayer.playerContainer().innerHTML = '<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>'
+        VideoPlayer.playerContainer().innerHTML = html`<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>`.toString()
 
         // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         document.querySelector('.player-error-message').textContent = errorMessage
