@@ -58,3 +58,11 @@ class Template {
 export function html (strings, ...values) {
     return new Template(strings, values)
 }
+
+/**
+ * @param {string} string
+ * @return {Template}
+ */
+export function trustedUnsafe (string) {
+    return html([string])
+}
