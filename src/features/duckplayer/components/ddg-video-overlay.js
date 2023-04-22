@@ -61,7 +61,9 @@ export class DDGVideoOverlay extends HTMLElement {
             <div class="ddg-vpo-content">
                 <div class="ddg-eyeball">${svgIcon}</div>
                 <div class="ddg-vpo-title">${i18n.t('videoOverlayTitle')}</div>
-                <div class="ddg-vpo-text">${i18n.t('videoOverlaySubtitle')}</div>
+                <div class="ddg-vpo-text">
+                    <b>${i18n.t('playText')}</b> ${i18n.t('videoOverlaySubtitle')}
+                </div>
                 <div class="ddg-vpo-buttons">
                     <button class="ddg-vpo-button ddg-vpo-cancel" type="button">${i18n.t('videoButtonOptOut')}</button>
                     <a class="ddg-vpo-button ddg-vpo-open" href="#">${i18n.t('videoButtonOpen')}</a>
