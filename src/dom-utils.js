@@ -1,3 +1,6 @@
+/**
+ * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
+ */
 class Template {
     constructor (strings, values) {
         this.values = values
