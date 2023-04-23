@@ -78,10 +78,11 @@ export default class ContentFeature {
 
     /**
      * @param {string} featureKeyName
+     * @param {string} [featureName]
      * @returns {any}
      */
-    getFeatureSetting (featureKeyName) {
-        let result = this._getFeatureSetting()
+    getFeatureSetting (featureKeyName, featureName) {
+        let result = this._getFeatureSetting(featureName)
         if (featureKeyName === 'domains') {
             throw new Error('domains is a reserved feature setting key name')
         }
@@ -101,17 +102,22 @@ export default class ContentFeature {
         return result?.[featureKeyName]
     }
 
-    _getFeatureSetting () {
-        const camelFeatureName = camelcase(this.name)
+    /**
+     * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
+     * @returns {any}
+     */
+    _getFeatureSetting (featureName) {
+        const camelFeatureName = featureName || camelcase(this.name)
         return this._args.featureSettings?.[camelFeatureName]
     }
 
     /**
      * @param {string} featureKeyName
+     * @param {string} [featureName]
      * @returns {boolean}
      */
-    getFeatureSettingEnabled (featureKeyName) {
-        const result = this.getFeatureSetting(featureKeyName)
+    getFeatureSettingEnabled (featureKeyName, featureName) {
+        const result = this.getFeatureSetting(featureKeyName, featureName)
         return result === 'enabled'
     }
 

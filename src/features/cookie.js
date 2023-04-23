@@ -219,7 +219,7 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie')
             cookiePolicy.shouldBlockNonTrackerCookie = this.getFeatureSettingEnabled('nonTrackerCookie')
             const policy = this.getFeatureSetting('firstPartyCookiePolicy')
-            cookiePolicy.allowlist = args.featureSettings.adClickAttribution?.allowlist || []
+            cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || []
 
             if (policy) {
                 cookiePolicy.policy = policy
