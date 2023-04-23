@@ -9,6 +9,13 @@ import { PerformanceMonitor } from './performance.js'
  */
 
 export default class ContentFeature {
+    /** @type {import('./utils.js').RemoteConfig | undefined} */
+    #bundledConfig
+    /** @type {object | undefined} */
+    #trackerLookup
+    /** @type {boolean | undefined} */
+    #documentOriginIsTracker
+
     constructor (featureName) {
         this.name = featureName
         this._args = null
@@ -32,6 +39,27 @@ export default class ContentFeature {
      */
     get assetConfig () {
         return this._args?.assets || {}
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    get documentOriginIsTracker () {
+        return !!this.#documentOriginIsTracker
+    }
+
+    /**
+     * @returns {object}
+     **/
+    get trackerLookup () {
+        return this.#trackerLookup || {}
+    }
+
+    /**
+     * @returns {import('./utils.js').RemoteConfig | undefined}
+     **/
+    get bundledConfig () {
+        return this.#bundledConfig
     }
 
     /**
@@ -119,6 +147,9 @@ export default class ContentFeature {
         const mark = this.monitor.mark(this.name + 'CallLoad')
         this._args = args
         this.platform = args.platform
+        this.#bundledConfig = args.bundledConfig
+        this.#trackerLookup = args.trackerLookup
+        this.#documentOriginIsTracker = args.documentOriginIsTracker
         this.load(args)
         mark.end()
     }

@@ -20,7 +20,7 @@ let cookiePolicy = {
         threshold: 86400, // 1 day
         maxAge: 86400 // 1 day
     },
-    allowlist: []
+    allowlist: /** @type {{ host: string }[]} */([])
 }
 let trackerLookup = {}
 
@@ -82,20 +82,20 @@ function isNonTrackingCookie () {
 }
 
 export default class CookieFeature extends ContentFeature {
-    load (args) {
+    load () {
         // Feature is only relevant to the extension and windows, we should skip for other platforms for now as the config testing is broken.
         if (this.platform.name !== 'extension' && this.platform.name !== 'windows') {
             return
         }
-        if (args.documentOriginIsTracker) {
+        if (this.documentOriginIsTracker) {
             cookiePolicy.isTracker = true
         }
-        if (args.trackerLookup) {
-            trackerLookup = args.trackerLookup
+        if (this.trackerLookup) {
+            trackerLookup = this.trackerLookup
         }
-        if (args.bundledConfig) {
+        if (this.bundledConfig) {
             // use the bundled config to get a best-effort at the policy, before the background sends the real one
-            const { exceptions, settings } = args.bundledConfig.features.cookie
+            const { exceptions, settings } = this.bundledConfig.features.cookie
             const tabHostname = getTabHostname()
             let tabExempted = true
 
@@ -110,7 +110,7 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted
             cookiePolicy.policy = settings.firstPartyCookiePolicy
             cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy
-            cookiePolicy.allowlist = args.bundledConfig.features.adClickAttribution.settings.allowlist
+            cookiePolicy.allowlist = this.bundledConfig.features.adClickAttribution.settings.allowlist
         }
 
         // The cookie policy is injected into every frame immediately so that no cookie will

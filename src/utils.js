@@ -563,7 +563,13 @@ function isSupportedVersion (minSupportedVersion, currentVersion) {
 }
 
 /**
- * @param {{ features: Record<string, { state: string; settings: any; exceptions: string[], minSupportedVersion?: string|number }>; unprotectedTemporary: string[]; }} data
+ * @typedef RemoteConfig
+ * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
+ * @property {string[]} unprotectedTemporary
+ */
+
+/**
+ * @param {RemoteConfig} data
  * @param {string[]} userList
  * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
