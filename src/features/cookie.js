@@ -110,7 +110,7 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted
             cookiePolicy.policy = settings.firstPartyCookiePolicy
             cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy
-            cookiePolicy.allowlist = this.bundledConfig.features.adClickAttribution.settings.allowlist
+            cookiePolicy.allowlist = this.bundledConfig?.features.adClickAttribution.settings.allowlist
         }
 
         // The cookie policy is injected into every frame immediately so that no cookie will
@@ -219,7 +219,7 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie')
             cookiePolicy.shouldBlockNonTrackerCookie = this.getFeatureSettingEnabled('nonTrackerCookie')
             const policy = this.getFeatureSetting('firstPartyCookiePolicy')
-            cookiePolicy.allowlist = args.featureSettings.adClickAttribution.allowlist
+            cookiePolicy.allowlist = args.featureSettings.adClickAttribution?.allowlist || []
 
             if (policy) {
                 cookiePolicy.policy = policy

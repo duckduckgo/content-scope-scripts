@@ -21,7 +21,7 @@ describe('Test integration pages', () => {
         await teardown()
     })
 
-    it('Script that should not execute', async () => {
+    it('Should be successful page script check', async () => {
         const pages = {
             'runtime-checks/pages/basic-run.html': 'runtime-checks/config/basic-run.json',
             'runtime-checks/pages/filter-props.html': 'runtime-checks/config/filter-props.json',
