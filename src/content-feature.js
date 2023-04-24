@@ -2,6 +2,12 @@ import { camelcase, matchHostname, processAttr } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 
+/**
+ * @typedef {object} AssetConfig
+ * @property {string} regularFontUrl
+ * @property {string} boldFontUrl
+ */
+
 export default class ContentFeature {
     constructor (featureName) {
         this.name = featureName
@@ -19,6 +25,13 @@ export default class ContentFeature {
     get platform () {
         // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'
         return this._platform
+    }
+
+    /**
+     * @type {AssetConfig}
+     */
+    get assetConfig () {
+        return this._args?.assets || {}
     }
 
     /**
