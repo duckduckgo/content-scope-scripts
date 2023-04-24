@@ -2,6 +2,8 @@ import * as rollup from 'rollup'
 import commonjs from '@rollup/plugin-commonjs'
 import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
+import css from 'rollup-plugin-import-css'
+import svg from 'rollup-plugin-svg-import'
 import { runtimeInjected, platformSupport } from '../../src/features.js'
 
 /**
@@ -83,6 +85,10 @@ export async function rollupScript (params) {
     const mozProxies = supportsMozProxies
 
     const plugins = [
+        css(),
+        svg({
+            stringify: true
+        }),
         loadFeatures(platform, featureNames),
         runtimeInjections(platform),
         resolve(),

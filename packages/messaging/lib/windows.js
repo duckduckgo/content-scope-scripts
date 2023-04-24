@@ -32,6 +32,14 @@ export class WindowsMessagingTransport {
     constructor (config, messagingContext) {
         this.messagingContext = messagingContext
         this.config = config
+        this.globals = {
+            window,
+            JSONparse: window.JSON.parse,
+            JSONstringify: window.JSON.stringify,
+            Promise: window.Promise,
+            Error: window.Error,
+            String: window.String
+        }
         for (const [methodName, fn] of Object.entries(this.config.methods)) {
             if (typeof fn !== 'function') {
                 throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName)
@@ -43,7 +51,8 @@ export class WindowsMessagingTransport {
      * @param {import('../index.js').NotificationMessage} msg
      */
     notify (msg) {
-        const notification = WindowsNotification.fromNotification(msg)
+        const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}))
+        const notification = WindowsNotification.fromNotification(msg, data)
         this.config.methods.postMessage(notification)
     }
 
@@ -54,7 +63,8 @@ export class WindowsMessagingTransport {
      */
     request (msg, opts = {}) {
         // convert the message to window-specific naming
-        const outgoing = WindowsRequestMessage.fromRequest(msg)
+        const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}))
+        const outgoing = WindowsRequestMessage.fromRequest(msg, data)
 
         // send the message
         this.config.methods.postMessage(outgoing)
@@ -77,22 +87,22 @@ export class WindowsMessagingTransport {
         }
 
         // now wait for a matching message
-        return new Promise((resolve, reject) => {
+        return new this.globals.Promise((resolve, reject) => {
             try {
                 this._subscribe(comparator, opts, (value, unsubscribe) => {
                     unsubscribe()
 
                     if (!isMessageResponse(value)) {
                         console.warn('unknown response type', value)
-                        return reject(new Error('unknown response'))
+                        return reject(new this.globals.Error('unknown response'))
                     }
 
                     if (value.result) {
                         return resolve(value.result)
                     }
 
-                    const message = String(value.error?.message || 'unknown error')
-                    reject(new Error(message))
+                    const message = this.globals.String(value.error?.message || 'unknown error')
+                    reject(new this.globals.Error(message))
                 })
             } catch (e) {
                 reject(e)
@@ -277,10 +287,10 @@ export class WindowsNotification {
      * @param {NotificationMessage} notification
      * @returns {WindowsNotification}
      */
-    static fromNotification (notification) {
+    static fromNotification (notification, data) {
         /** @type {WindowsNotification} */
         const output = {
-            Data: JSON.parse(JSON.stringify(notification.params || {})),
+            Data: data,
             Feature: notification.context,
             SubFeatureName: notification.featureName,
             Name: notification.method
@@ -315,12 +325,13 @@ export class WindowsRequestMessage {
     /**
      * Helper to convert a {@link RequestMessage} to a format that Windows can support
      * @param {RequestMessage} msg
+     * @param {Record<string, any>} data
      * @returns {WindowsRequestMessage}
      */
-    static fromRequest (msg) {
+    static fromRequest (msg, data) {
         /** @type {WindowsRequestMessage} */
         const output = {
-            Data: JSON.parse(JSON.stringify(msg.params || {})),
+            Data: data,
             Feature: msg.context,
             SubFeatureName: msg.featureName,
             Name: msg.method,
