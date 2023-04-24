@@ -26,8 +26,8 @@ function initCode () {
         platform: {
             name: 'extension'
         },
-        trackerLookup: $TRACKER_LOOKUP$,
-        documentOriginIsTracker: isTrackerOrigin($TRACKER_LOOKUP$),
+        trackerLookup,
+        documentOriginIsTracker: isTrackerOrigin(trackerLookup),
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         bundledConfig: $BUNDLED_CONFIG$
     })
