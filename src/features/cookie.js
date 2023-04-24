@@ -110,6 +110,8 @@ export default class CookieFeature extends ContentFeature {
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted
             cookiePolicy.policy = settings.firstPartyCookiePolicy
             cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy
+            // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
+            // This only applies when the resources that would set these cookies are unblocked.
             cookiePolicy.allowlist = this.bundledConfig?.features.adClickAttribution.settings.allowlist
         }
 
