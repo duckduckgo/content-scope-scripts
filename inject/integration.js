@@ -1,4 +1,5 @@
 import { load, init } from '../src/content-scope-features.js'
+import { isTrackerOrigin } from '../src/trackers'
 function getTopLevelURL () {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479
@@ -71,7 +72,9 @@ async function initCode () {
     const processedConfig = generateConfig()
 
     load({
-        platform: processedConfig.platform
+        platform: processedConfig.platform,
+        trackerLookup: processedConfig.trackerLookup,
+        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup)
     })
 
     // mark this phase as loaded

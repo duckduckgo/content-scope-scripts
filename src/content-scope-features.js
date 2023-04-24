@@ -28,10 +28,10 @@ const performanceMonitor = new PerformanceMonitor()
  * @property {object} platform
  * @property {string} platform.name
  * @property {string} [platform.version]
- * @property {boolean} [documentOriginIsTracker]
+ * @property {boolean} documentOriginIsTracker
  * @property {object} [bundledConfig]
  * @property {string} [injectName]
- * @property {object} [trackerLookup] - provided currently only by the extension
+ * @property {object} trackerLookup - provided currently only by the extension
  */
 
 /**

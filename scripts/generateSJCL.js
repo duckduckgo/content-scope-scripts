@@ -1,5 +1,4 @@
-// @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-import fs from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
 import util from 'util'
@@ -18,14 +17,14 @@ async function init () {
     }
 
     await exec('cd node_modules/sjcl/ && perl ./configure --no-export --compress=none --without-all --with-hmac --with-codecHex && make')
-    const sjclFileContents = await fs.readFile('node_modules/sjcl/sjcl.js')
+    const sjclFileContents = await readFile('node_modules/sjcl/sjcl.js')
     // Reexport the file as es6 module format
     const contents = `// @ts-nocheck
     export const sjcl = (() => {
     ${sjclFileContents}
     return sjcl;
   })()`
-    fs.writeFile('lib/sjcl.js', contents)
+    writeFile('lib/sjcl.js', contents)
 }
 
 init()

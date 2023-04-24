@@ -4,6 +4,7 @@ import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
 import css from 'rollup-plugin-import-css'
 import svg from 'rollup-plugin-svg-import'
+import json from '@rollup/plugin-json'
 import { runtimeInjected, platformSupport } from '../../src/features.js'
 
 /**
@@ -83,8 +84,8 @@ export async function rollupScript (params) {
 
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     const mozProxies = supportsMozProxies
-
     const plugins = [
+        json(),
         css(),
         svg({
             stringify: true
@@ -98,7 +99,9 @@ export async function rollupScript (params) {
             values: {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 mozProxies,
-                'import.meta.injectName': JSON.stringify(platform)
+                'import.meta.injectName': JSON.stringify(platform),
+                // To be replaced by the extension, but prevents tree shaking
+                'import.meta.trackerLookup': '$TRACKER_LOOKUP$'
             }
         }),
         prefixPlugin(prefixMessage)
