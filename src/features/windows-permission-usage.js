@@ -1,6 +1,6 @@
 /* global Bluetooth, Geolocation, HID, Serial, USB */
-import { DDGProxy, DDGReflect, defineProperty } from '../utils'
-import ContentFeature from '../content-feature'
+import { DDGProxy, DDGReflect, defineProperty } from '../utils.js'
+import ContentFeature from '../content-feature.js'
 
 export default class WindowsPermissionUsage extends ContentFeature {
     init () {

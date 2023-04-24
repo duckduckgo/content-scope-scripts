@@ -1,6 +1,6 @@
 /* eslint-disable promise/prefer-await-to-then */
 import { applyEffect, execCleanups, VideoParams } from './util.js'
-import { VideoPlayerIcon } from './video-player-icon'
+import { VideoPlayerIcon } from './video-player-icon.js'
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js'
 import { Pixel } from './overlay-messages.js'
 
@@ -12,7 +12,7 @@ export class VideoOverlayManager {
     /** @type {string | null} */
     lastVideoId = null
 
-    /** @type {import("./video-player-icon").VideoPlayerIcon | null} */
+    /** @type {import("./video-player-icon.js").VideoPlayerIcon | null} */
     videoPlayerIcon = null
 
     /**

@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature'
+import ContentFeature from '../content-feature.js'
 
 export default class GoogleRejected extends ContentFeature {
     init () {

@@ -3,7 +3,7 @@
  * @category Content Scope Scripts Integrations
  */
 import { load, init, update } from '../src/content-scope-features.js'
-import { isTrackerOrigin } from '../src/trackers'
+import { isTrackerOrigin } from '../src/trackers.js'
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '')
 

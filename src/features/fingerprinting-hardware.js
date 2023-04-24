@@ -1,5 +1,5 @@
-import { overrideProperty } from '../utils'
-import ContentFeature from '../content-feature'
+import { overrideProperty } from '../utils.js'
+import ContentFeature from '../content-feature.js'
 
 export default class FingerprintingHardware extends ContentFeature {
     init () {

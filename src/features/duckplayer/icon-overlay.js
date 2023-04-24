@@ -1,4 +1,4 @@
-import { addTrustedEventListener, appendElement, VideoParams } from './util'
+import { addTrustedEventListener, appendElement, VideoParams } from './util.js'
 import dax from './assets/dax.svg'
 import { i18n } from './text.js'
 import { OpenInDuckPlayerMsg } from './overlay-messages.js'

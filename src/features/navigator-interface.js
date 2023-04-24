@@ -1,5 +1,5 @@
-import { defineProperty, DDGPromise } from '../utils'
-import ContentFeature from '../content-feature'
+import { defineProperty, DDGPromise } from '../utils.js'
+import ContentFeature from '../content-feature.js'
 
 export default class NavigatorInterface extends ContentFeature {
     init (args) {

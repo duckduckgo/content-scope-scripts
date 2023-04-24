@@ -3,7 +3,7 @@
  * @category Content Scope Scripts Integrations
  */
 import { load, init, update } from '../src/content-scope-features.js'
-import { processConfig, isGloballyDisabled } from './../src/utils'
+import { processConfig, isGloballyDisabled } from './../src/utils.js'
 
 const allowedMessages = [
     'getClickToLoadState',

@@ -3,7 +3,7 @@
  * @category Content Scope Scripts Integrations
  */
 import { load, init, update } from '../src/content-scope-features.js'
-import { isTrackerOrigin } from '../src/trackers'
+import { isTrackerOrigin } from '../src/trackers.js'
 
 const allowedMessages = [
     'getClickToLoadState',

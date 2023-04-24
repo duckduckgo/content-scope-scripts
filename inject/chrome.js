@@ -2,7 +2,7 @@
  * @module Chrome integration
  * @category Content Scope Scripts Integrations
  */
-import { isTrackerOrigin } from '../src/trackers'
+import { isTrackerOrigin } from '../src/trackers.js'
 
 /**
  * Inject all the overwrites into the page.

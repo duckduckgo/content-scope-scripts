@@ -1,5 +1,5 @@
-import { overrideProperty, defineProperty } from '../utils'
-import ContentFeature from '../content-feature'
+import { overrideProperty, defineProperty } from '../utils.js'
+import ContentFeature from '../content-feature.js'
 
 /**
  * normalize window dimensions, if more than one monitor is in play.

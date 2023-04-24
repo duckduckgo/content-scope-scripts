@@ -1,7 +1,7 @@
 /* global mozProxies */
-import { initStringExemptionLists, isFeatureBroken, registerMessageSecret, getInjectionElement } from './utils'
-import { platformSupport } from './features'
-import { PerformanceMonitor } from './performance'
+import { initStringExemptionLists, isFeatureBroken, registerMessageSecret, getInjectionElement } from './utils.js'
+import { platformSupport } from './features.js'
+import { PerformanceMonitor } from './performance.js'
 import injectedFeaturesCode from 'ddg:runtimeInjects'
 import platformFeatures from 'ddg:platformFeatures'
 

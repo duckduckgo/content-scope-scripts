@@ -1,5 +1,5 @@
-import ContentFeature from '../content-feature'
-import { defineProperty } from '../utils'
+import ContentFeature from '../content-feature.js'
+import { defineProperty } from '../utils.js'
 
 /**
  * Overwrites the Battery API if present in the browser.

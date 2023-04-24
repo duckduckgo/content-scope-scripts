@@ -1,5 +1,5 @@
-import { defineProperty } from '../utils'
-import ContentFeature from '../content-feature'
+import { defineProperty } from '../utils.js'
+import ContentFeature from '../content-feature.js'
 
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth

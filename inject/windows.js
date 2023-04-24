@@ -3,7 +3,7 @@
  * @category Content Scope Scripts Integrations
  */
 import { load, init } from '../src/content-scope-features.js'
-import { processConfig, isGloballyDisabled, windowsSpecificFeatures } from './../src/utils'
+import { processConfig, isGloballyDisabled, windowsSpecificFeatures } from './../src/utils.js'
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f

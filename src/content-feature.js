@@ -16,7 +16,7 @@ export default class ContentFeature {
     }
 
     /**
-     * @param {import('./utils').Platform} platform
+     * @param {import('./utils.js').Platform} platform
      */
     set platform (platform) {
         this._platform = platform

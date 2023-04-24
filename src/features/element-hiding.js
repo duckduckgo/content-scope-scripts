@@ -1,5 +1,5 @@
-import ContentFeature from '../content-feature'
-import { isBeingFramed, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils'
+import ContentFeature from '../content-feature.js'
+import { isBeingFramed, DDGProxy, DDGReflect, injectGlobalStyles } from '../utils.js'
 
 let adLabelStrings = []
 const parser = new DOMParser()

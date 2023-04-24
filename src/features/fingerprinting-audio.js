@@ -1,6 +1,6 @@
-import { iterateDataKey, DDGProxy, DDGReflect } from '../utils'
-import { getDataKeySync } from '../crypto'
-import ContentFeature from '../content-feature'
+import { iterateDataKey, DDGProxy, DDGReflect } from '../utils.js'
+import { getDataKeySync } from '../crypto.js'
+import ContentFeature from '../content-feature.js'
 
 export default class FingerprintingAudio extends ContentFeature {
     init (args) {

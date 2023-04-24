@@ -1,5 +1,5 @@
-import { defineProperty } from '../utils'
-import ContentFeature from '../content-feature'
+import { defineProperty } from '../utils.js'
+import ContentFeature from '../content-feature.js'
 
 // Set Global Privacy Control property on DOM
 export default class GlobalPrivacyControl extends ContentFeature {

@@ -1,6 +1,6 @@
-import { DDGProxy, DDGReflect } from '../utils'
-import { computeOffScreenCanvas } from '../canvas'
-import ContentFeature from '../content-feature'
+import { DDGProxy, DDGReflect } from '../utils.js'
+import { computeOffScreenCanvas } from '../canvas.js'
+import ContentFeature from '../content-feature.js'
 
 export default class FingerprintingCanvas extends ContentFeature {
     init (args) {
