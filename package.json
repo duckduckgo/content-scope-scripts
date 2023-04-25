@@ -19,7 +19,7 @@
     "build-android": "node scripts/inject.js --platform android",
     "build-windows": "node scripts/inject.js --platform windows",
     "build-integration": "node scripts/inject.js --platform integration",
-    "bundle-trackers": "node scripts/bundleTrackers.mjs > build/tracker-lookup.json",
+    "bundle-trackers": "node scripts/bundleTrackers.mjs --output build/tracker-lookup.json",
     "docs": "typedoc",
     "docs-watch": "typedoc --watch",
     "postbuild": "npm run build --workspaces --if-present",

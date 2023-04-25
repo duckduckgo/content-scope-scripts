@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
 import { writeFileSync } from 'fs'
+import { parseArgs, write } from './script-utils.js'
 
 const tdsUrl = 'https://staticcdn.duckduckgo.com/trackerblocking/v4/tds.json'
 const resp = await fetch(tdsUrl)
@@ -22,4 +23,11 @@ Object.keys(tds.trackers).forEach((tracker) => {
     insert(tracker.split('.').reverse(), trackerLookupTrie)
 })
 
-console.log(JSON.stringify(trackerLookupTrie))
+const outputString = JSON.stringify(trackerLookupTrie)
+const args = parseArgs(process.argv.slice(2), [])
+if (args.output) {
+    write([args.output], outputString)
+} else {
+    // Used by the extension code
+    console.log(outputString)
+}
