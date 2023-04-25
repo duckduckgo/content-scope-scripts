@@ -9,11 +9,14 @@
  */
 /**
  * Install a mock interface for windows messaging
- * @param {{messagingContext: import('../index.js').MessagingContext}} params
+ * @param {{
+ *  messagingContext: import('../index.js').MessagingContext,
+ *  responses: Record<string, any>
+ * }} params
  */
-export function mockWindows(params) {
+export function mockWindowsMessaging(params) {
     window.__playwright_01 = {
-        mockResponses: {},
+        mockResponses: params.responses,
         subscriptionEvents: [],
         mocks: {
             outgoing: []
@@ -63,16 +66,18 @@ export function mockWindows(params) {
             // if there's no 'id' field, we don't need to respond
             if (!('id' in msg)) return;
 
-            // if the mocked response is absent, bail with an error
-            if (!(msg.method in window.__playwright_01.mockResponses)) {
-                throw new Error('response not found for ' + msg.method)
-            }
-
-            // now access the response
-            const response = window.__playwright_01.mockResponses[msg.method]
 
             // If we get here, it needed a response **and** we have a value for it
             setTimeout(() => {
+
+                // if the mocked response is absent, bail with an error
+                if (!(msg.method in window.__playwright_01.mockResponses)) {
+                    throw new Error('response not found for ' + msg.method)
+                }
+
+                // now access the response
+                const response = window.__playwright_01.mockResponses[msg.method]
+
                 for (const listener of listeners) {
                     listener({
                         origin: window.origin,
@@ -131,6 +136,32 @@ export function readOutgoingMessages() {
 }
 
 /**
+ * simulate what happens in Windows environment where globals get erased
+ * @param {string} js
+ * @param {Record<string, any>} replacements
+ */
+export function wrapWindowsScripts(js, replacements) {
+    for (let [find, replace] of Object.entries(replacements)) {
+        js = js.replace(find, JSON.stringify(replace));
+    }
+    return `
+        (() => {
+            try {
+                window.windowsInteropPostMessage = window.chrome.webview.postMessage;
+                window.windowsInteropAddEventListener = window.chrome.webview.addEventListener;
+                window.windowsInteropRemoveEventListener = window.chrome.webview.removeEventListener;
+                delete window.chrome.webview.postMessage;
+                delete window.chrome.webview.addEventListener;
+                delete window.chrome.webview.removeEventListener;
+                ${js}
+            } catch (e) {
+                console.error(e)
+            }
+        })();
+    `
+}
+
+/**
  * @param {object} params
  * @param {import('../index.js').MessagingContext} params.messagingContext
  * @param {string} params.name
@@ -141,7 +172,8 @@ export function simulateSubscriptionMessage(params) {
     switch (params.platform.name) {
     case "windows": {
         // @ts-expect-error
-        window.chrome.webview.postMessage({
+        const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage;
+        fn({
             context: params.messagingContext.context,
             featureName: params.messagingContext.featureName,
             subscriptionName: params.name,

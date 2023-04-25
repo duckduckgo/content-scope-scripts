@@ -1,6 +1,6 @@
 import {
     mockResponses,
-    mockWindows,
+    mockWindowsMessaging,
     readOutgoingMessages,
     simulateSubscriptionMessage,
     waitForCallCount
@@ -32,12 +32,12 @@ export class Mocks {
             console.log('->', msg.type(), msg.text())
         })
         await this.installMessagingMocks()
-        await this.installDefaultResponses()
     }
 
     async installMessagingMocks () {
-        await this.page.addInitScript(mockWindows, {
-            messagingContext: this.messagingContext
+        await this.page.addInitScript(mockWindowsMessaging, {
+            messagingContext: this.messagingContext,
+            responses: this._defaultResponses
         })
     }
 
@@ -82,9 +82,5 @@ export class Mocks {
     async waitForCallCount (params) {
         await this.page.waitForFunction(waitForCallCount, params, { timeout: 3000, polling: 100 })
         return this.outgoing({ names: [params.method] })
-    }
-
-    async installDefaultResponses () {
-        await this.page.addInitScript(mockResponses, { responses: this._defaultResponses })
     }
 }
