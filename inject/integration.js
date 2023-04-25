@@ -16,6 +16,7 @@ function getTopLevelURL () {
 
 function generateConfig (data, userList) {
     const topLevelUrl = getTopLevelURL()
+    const trackerLookup = import.meta.trackerLookup
     return {
         debug: false,
         sessionKey: 'randomVal',
@@ -31,7 +32,8 @@ function generateConfig (data, userList) {
                 'fingerprintingScreenSize',
                 'navigatorInterface'
             ]
-        }
+        },
+        trackerLookup
     }
 }
 

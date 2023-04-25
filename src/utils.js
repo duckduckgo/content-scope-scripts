@@ -1,8 +1,4 @@
 /* global cloneInto, exportFunction, mozProxies */
-import { camelcase } from '../scripts/script-utils.js'
-export { camelcase } from '../scripts/script-utils.js'
-
-const trackerLookup = import('../build/tracker-lookup.json', { assert: { type: 'json' } })
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
@@ -279,6 +275,12 @@ export function defineProperty (object, propertyName, descriptor) {
     } else {
         Object.defineProperty(object, propertyName, descriptor)
     }
+}
+
+export function camelcase (dashCaseText) {
+    return dashCaseText.replace(/-(.)/g, (match, letter) => {
+        return letter.toUpperCase()
+    })
 }
 
 // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
@@ -615,7 +617,7 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
         output.featureSettings[featureName] = data.features[featureName].settings
     })
 
-    output.trackerLookup = trackerLookup
+    output.trackerLookup = import.meta.trackerLookup
 
     return output
 }

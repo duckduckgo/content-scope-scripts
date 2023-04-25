@@ -16,7 +16,7 @@ interface ImportMeta {
     env: 'production' | 'development'
     platform?: 'windows' | 'integration'
     injectName?: string,
-    trackerLookup?: string[]
+    trackerLookup?: Record<string, unknown>
 }
 
 declare module '*.svg' {

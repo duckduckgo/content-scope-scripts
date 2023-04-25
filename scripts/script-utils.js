@@ -22,12 +22,6 @@ export function write (filepaths, content) {
     }
 }
 
-export function camelcase (dashCaseText) {
-    return dashCaseText.replace(/-(.)/g, (match, letter) => {
-        return letter.toUpperCase()
-    })
-}
-
 /**
  * Simple required args
  * @param {string[]} args - the input

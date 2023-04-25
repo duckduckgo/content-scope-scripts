@@ -1,5 +1,6 @@
 import { rollupScript } from './utils/build.js'
-import { parseArgs, write, camelcase } from './script-utils.js'
+import { parseArgs, write } from './script-utils.js'
+import { camelcase } from '../src/utils.js'
 
 const contentScopePath = 'src/content-scope-features.js'
 const contentScopeName = 'contentScopeFeatures'
