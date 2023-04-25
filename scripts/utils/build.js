@@ -62,6 +62,15 @@ function prefixPlugin (prefixMessage) {
     }
 }
 
+function suffixPlugin (suffixMessage) {
+    return {
+        name: 'suffix-plugin',
+        renderChunk (code) {
+            return `${code}\n${suffixMessage}`
+        }
+    }
+}
+
 const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */'
 
 /**
@@ -89,6 +98,7 @@ export async function rollupScript (params) {
         const trackerLookupData = readFileSync('./build/tracker-lookup.json', 'utf8')
         trackerLookup = trackerLookupData
     }
+    const suffixMessage = `/*# sourceURL=duckduckgo-privacy-protection.js?scope=${name} */`
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     const mozProxies = supportsMozProxies
     const plugins = [
@@ -112,6 +122,10 @@ export async function rollupScript (params) {
         }),
         prefixPlugin(prefixMessage)
     ]
+
+    if (platform === 'firefox') {
+        plugins.push(suffixPlugin(suffixMessage))
+    }
 
     const bundle = await rollup.rollup({
         input: scriptPath,
