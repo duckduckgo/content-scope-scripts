@@ -3,6 +3,14 @@ import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
 import { isTrackerOrigin } from '../trackers.js'
 
+/**
+ * @typedef ExtensionCookiePolicy
+ * @property {boolean} isFrame
+ * @property {boolean} isTracker
+ * @property {boolean} shouldBlock
+ * @property {boolean} isThirdPartyFrame
+ */
+
 // Initial cookie policy pre init
 let cookiePolicy = {
     debug: false,
@@ -83,10 +91,6 @@ function isNonTrackingCookie () {
 
 export default class CookieFeature extends ContentFeature {
     load () {
-        // Feature is only relevant to the extension and windows, we should skip for other platforms for now as the config testing is broken.
-        if (this.platform.name !== 'extension' && this.platform.name !== 'windows') {
-            return
-        }
         if (this.documentOriginIsTracker) {
             cookiePolicy.isTracker = true
         }
@@ -214,25 +218,23 @@ export default class CookieFeature extends ContentFeature {
     }
 
     init (args) {
+        const restOfPolicy = {
+            debug: this.isDebug,
+            shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
+            shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
+            allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
+            policy: this.getFeatureSetting('firstPartyCookiePolicy'),
+            trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy')
+        }
+        // The extension provides some additional info about the cookie policy, let's use that over our guesses
         if (args.cookie) {
-            cookiePolicy = args.cookie
-            args.cookie.debug = args.debug
-
-            cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie')
-            cookiePolicy.shouldBlockNonTrackerCookie = this.getFeatureSettingEnabled('nonTrackerCookie')
-            const policy = this.getFeatureSetting('firstPartyCookiePolicy')
-            cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || []
-
-            if (policy) {
-                cookiePolicy.policy = policy
-            }
-            const trackerPolicy = this.getFeatureSetting('firstPartyTrackerCookiePolicy')
-            if (trackerPolicy) {
-                cookiePolicy.trackerPolicy = trackerPolicy
+            const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */(args.cookie)
+            cookiePolicy = {
+                ...extensionCookiePolicy,
+                ...restOfPolicy
             }
         } else {
-            // no cookie information - disable protections
-            cookiePolicy.shouldBlock = false
+            cookiePolicy = Object.assign(cookiePolicy, restOfPolicy)
         }
 
         loadedPolicyResolve()
