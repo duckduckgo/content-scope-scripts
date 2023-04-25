@@ -14,15 +14,17 @@
     return new Proxy(scope, {
       get (target, property, receiver) {
         const targetObj = target[property]
+        let targetOut = target
+        if (typeof property === 'string' && property in outputs) {
+          targetOut = outputs
+        }
+        // Reflects functions with the correct 'this' scope
         if (typeof targetObj === 'function') {
           return (...args) => {
-            return Reflect.apply(target[property], target, args)
+            return Reflect.apply(targetOut[property], target, args)
           }
         } else {
-          if (typeof property === 'string' && property in outputs) {
-            return Reflect.get(outputs, property, receiver)
-          }
-          return Reflect.get(target, property, receiver)
+          return Reflect.get(targetOut, property, receiver)
         }
       }
     })
