@@ -1,4 +1,4 @@
-import { camelcase, matchHostname, processAttr } from './utils.js'
+import { camelcase, getTabHostname, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 
@@ -8,6 +8,14 @@ import { PerformanceMonitor } from './performance.js'
  * @property {string} boldFontUrl
  */
 
+/**
+ * @typedef {object} Site
+ * @property {string} domain
+ * @property {boolean} isBroken
+ * @property {boolean} allowlisted
+ * @property {string[]} enabledFeatures
+ */
+
 export default class ContentFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     #bundledConfig
@@ -15,11 +23,20 @@ export default class ContentFeature {
     #trackerLookup
     /** @type {boolean | undefined} */
     #documentOriginIsTracker
+    /** @type {Record<string, unknown> | undefined} */
+    #bundledfeatureSettings
+
+    /** @type {{ debug: boolean, featureSettings: Record<string, unknown>, assets: AssetConfig | undefined, site: Site  } | null} */
+    #args
 
     constructor (featureName) {
         this.name = featureName
-        this._args = null
+        this.#args = null
         this.monitor = new PerformanceMonitor()
+    }
+
+    get isDebug () {
+        return this.#args?.debug || false
     }
 
     /**
@@ -35,10 +52,10 @@ export default class ContentFeature {
     }
 
     /**
-     * @type {AssetConfig}
+     * @type {AssetConfig | undefined}
      */
     get assetConfig () {
-        return this._args?.assets || {}
+        return this.#args?.assets
     }
 
     /**
@@ -108,7 +125,7 @@ export default class ContentFeature {
      */
     _getFeatureSetting (featureName) {
         const camelFeatureName = featureName || camelcase(this.name)
-        return this._args.featureSettings?.[camelFeatureName]
+        return this.#args?.featureSettings?.[camelFeatureName]
     }
 
     /**
@@ -126,9 +143,11 @@ export default class ContentFeature {
      * @return {any[]}
      */
     matchDomainFeatureSetting (featureKeyName) {
+        const domain = this.#args?.site.domain
+        if (!domain) return []
         const domains = this._getFeatureSetting()?.[featureKeyName] || []
         return domains.filter((rule) => {
-            return matchHostname(this._args.site.domain, rule.domain)
+            return matchHostname(domain, rule.domain)
         })
     }
 
@@ -138,7 +157,7 @@ export default class ContentFeature {
 
     callInit (args) {
         const mark = this.monitor.mark(this.name + 'CallInit')
-        this._args = args
+        this.#args = args
         this.platform = args.platform
         this.init(args)
         mark.end()
@@ -151,9 +170,15 @@ export default class ContentFeature {
 
     callLoad (args) {
         const mark = this.monitor.mark(this.name + 'CallLoad')
-        this._args = args
+        this.#args = args
         this.platform = args.platform
         this.#bundledConfig = args.bundledConfig
+        // If we have a bundled config, treat it as a regular config
+        // This will be overriden by the remote config if it is available
+        if (this.#bundledConfig && this.#args) {
+            const enabledFeatures = computeEnabledFeatures(args.bundledConfig, getTabHostname(), this.platform.version)
+            this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures)
+        }
         this.#trackerLookup = args.trackerLookup
         this.#documentOriginIsTracker = args.documentOriginIsTracker
         this.load(args)
@@ -161,7 +186,7 @@ export default class ContentFeature {
     }
 
     measure () {
-        if (this._args.debug) {
+        if (this.#args?.debug) {
             this.monitor.measureAll()
         }
     }
