@@ -176,6 +176,32 @@
             ];
         });
 
+        test('Support namespaces', async () => {
+            const scriptElement = document.createElement('script');
+            scriptElement.id = 'scriptyNS';
+            scriptElement.setAttribute('type', 'application/javascript');
+            scriptElement.setAttributeNS(null, 'src', 'test://url');
+
+            const getAttributeNS = scriptElement.getAttributeNS(null, 'src');
+            const getAttribute = scriptElement.getAttribute('src');
+
+            document.body.appendChild(scriptElement);
+            const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
+            // Continue to modify the script element after it has been added to the DOM
+            scriptElement.madeUpProp = 'val';
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('#scriptyNS');
+
+            return [
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'expect script to match', result: scripty, expected: scriptElement },
+                { name: 'scripty.getAttribute', result: getAttribute, expected: 'test://url' },
+                { name: 'scripty.getAttributeNS', result: getAttribute, expected: 'test://url' },
+                { name: 'scripty.type', result: scripty.type, expected: 'application/javascript' },
+                { name: 'scripty.id', result: scripty.id, expected: 'scriptyNS' }
+            ];
+        });
+
         // eslint-disable-next-line no-undef
         renderResults();
     </script>
