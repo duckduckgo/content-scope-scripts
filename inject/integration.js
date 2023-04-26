@@ -1,4 +1,5 @@
 import { load, init } from '../src/content-scope-features.js'
+import { isTrackerOrigin } from '../src/trackers'
 function getTopLevelURL () {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479
@@ -15,6 +16,7 @@ function getTopLevelURL () {
 
 function generateConfig (data, userList) {
     const topLevelUrl = getTopLevelURL()
+    const trackerLookup = import.meta.trackerLookup
     return {
         debug: false,
         sessionKey: 'randomVal',
@@ -30,7 +32,8 @@ function generateConfig (data, userList) {
                 'fingerprintingScreenSize',
                 'navigatorInterface'
             ]
-        }
+        },
+        trackerLookup
     }
 }
 
@@ -71,7 +74,9 @@ async function initCode () {
     const processedConfig = generateConfig()
 
     load({
-        platform: processedConfig.platform
+        platform: processedConfig.platform,
+        trackerLookup: processedConfig.trackerLookup,
+        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup)
     })
 
     // mark this phase as loaded
