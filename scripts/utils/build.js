@@ -5,6 +5,7 @@ import resolve from '@rollup/plugin-node-resolve'
 import css from 'rollup-plugin-import-css'
 import svg from 'rollup-plugin-svg-import'
 import { runtimeInjected, platformSupport } from '../../src/features.js'
+import { readFileSync } from 'fs'
 
 /**
  * This is a helper function to require all files in a directory
@@ -81,9 +82,11 @@ export async function rollupScript (params) {
         supportsMozProxies = false
     } = params
 
+    const trackerLookupData = readFileSync('./build/tracker-lookup.json', 'utf8')
+    const extensions = ['firefox', 'chrome', 'chrome-mv3']
+    const trackerLookup = extensions.includes(platform) ? '$TRACKER_LOOKUP$' : trackerLookupData
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     const mozProxies = supportsMozProxies
-
     const plugins = [
         css(),
         svg({
@@ -98,7 +101,9 @@ export async function rollupScript (params) {
             values: {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 mozProxies,
-                'import.meta.injectName': JSON.stringify(platform)
+                'import.meta.injectName': JSON.stringify(platform),
+                // To be replaced by the extension, but prevents tree shaking
+                'import.meta.trackerLookup': trackerLookup
             }
         }),
         prefixPlugin(prefixMessage)

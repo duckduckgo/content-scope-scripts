@@ -4,8 +4,7 @@
  * @param {object} trackerLookup Trie lookup of tracker domains
  * @returns {boolean} True iff the origin is a tracker.
  */
-export function isTrackerOrigin (trackerLookup) {
-    const originHostname = document.location.hostname
+export function isTrackerOrigin (trackerLookup, originHostname = document.location.hostname) {
     const parts = originHostname.split('.').reverse()
     let node = trackerLookup
     for (const sub of parts) {

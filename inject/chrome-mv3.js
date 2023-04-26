@@ -7,12 +7,14 @@ import { isTrackerOrigin } from '../src/trackers'
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '')
 
+const trackerLookup = import.meta.trackerLookup
+
 load({
     platform: {
         name: 'extension'
     },
-    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    documentOriginIsTracker: isTrackerOrigin($TRACKER_LOOKUP$),
+    trackerLookup,
+    documentOriginIsTracker: isTrackerOrigin(trackerLookup),
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     bundledConfig: $BUNDLED_CONFIG$
 })

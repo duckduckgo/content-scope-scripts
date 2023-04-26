@@ -15,7 +15,8 @@ declare namespace contentScopeFeatures {
 interface ImportMeta {
     env: 'production' | 'development'
     platform?: 'windows' | 'integration'
-    injectName?: string
+    injectName?: string,
+    trackerLookup?: Record<string, unknown>
 }
 
 declare module '*.svg' {
