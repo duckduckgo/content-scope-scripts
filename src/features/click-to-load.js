@@ -1702,6 +1702,16 @@ export default class ClickToLoad extends ContentFeature {
         }
         await afterPageLoad
 
+        // On some websites, the "ddg-ctp-ready" event is occasionally
+        // dispatched too early, before the listener is ready to receive it.
+        // To counter that, catch "ddg-ctp-surrogate-load" events dispatched
+        // _after_ page, so the "ddg-ctp-ready" event can be dispatched again.
+        window.addEventListener(
+            'ddg-ctp-surrogate-load', () => {
+                originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
+            }
+        )
+
         // Then wait for any in-progress element replacements, before letting
         // the surrogate scripts know to start.
         window.setTimeout(() => {
