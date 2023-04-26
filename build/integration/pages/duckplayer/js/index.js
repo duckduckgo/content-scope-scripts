@@ -725,6 +725,57 @@
     }
   };
 
+  // ../../src/dom-utils.js
+  var Template = class {
+    constructor(strings, values) {
+      this.values = values;
+      this.strings = strings;
+    }
+    /**
+     * Escapes any occurrences of &, ", <, > or / with XML entities.
+     *
+     * @param {string} str
+     *        The string to escape.
+     * @return {string} The escaped string.
+     */
+    escapeXML(str) {
+      const replacements = {
+        "&": "&amp;",
+        '"': "&quot;",
+        "'": "&apos;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "/": "&#x2F;"
+      };
+      return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
+    }
+    potentiallyEscape(value) {
+      if (typeof value === "object") {
+        if (value instanceof Array) {
+          return value.map((val) => this.potentiallyEscape(val)).join("");
+        }
+        if (value instanceof Template) {
+          return value;
+        }
+        throw new Error("Unknown object to escape");
+      }
+      return this.escapeXML(value);
+    }
+    toString() {
+      const result = [];
+      for (const [i, string] of this.strings.entries()) {
+        result.push(string);
+        if (i < this.values.length) {
+          result.push(this.potentiallyEscape(this.values[i]));
+        }
+      }
+      return result.join("");
+    }
+  };
+  function html(strings, ...values) {
+    return new Template(strings, values);
+  }
+
   // pages/duckplayer/src/js/index.js
   var VideoPlayer = {
     /**
@@ -783,7 +834,7 @@
      * Show an error instead of the video player iframe
      */
     showVideoError: (errorMessage) => {
-      VideoPlayer.playerContainer().innerHTML = '<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>';
+      VideoPlayer.playerContainer().innerHTML = html`<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>`.toString();
       document.querySelector(".player-error-message").textContent = errorMessage;
     },
     /**

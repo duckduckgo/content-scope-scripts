@@ -4,6 +4,7 @@
  */
 import { load, init, update } from '../src/content-scope-features.js'
 import { processConfig, isGloballyDisabled } from './../src/utils'
+import { isTrackerOrigin } from '../src/trackers'
 
 const allowedMessages = [
     'getClickToLoadState',
@@ -22,7 +23,10 @@ function initCode () {
     }
 
     load({
-        platform: processedConfig.platform
+        platform: processedConfig.platform,
+        trackerLookup: processedConfig.trackerLookup,
+        documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
+        site: processedConfig.site
     })
 
     const messageSecret = processedConfig.messageSecret

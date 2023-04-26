@@ -1,6 +1,6 @@
 import { createCustomEvent, sendMessage, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
-import { styles, getConfig } from './click-to-load/ctl-config.js'
+import { getStyles, getConfig } from './click-to-load/ctl-config.js'
 import ContentFeature from '../content-feature.js'
 
 /**
@@ -22,6 +22,7 @@ const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
 // @see {getConfig}
 let config = null
 let sharedStrings = null
+let styles = null
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
@@ -484,6 +485,16 @@ function replaceTrackingElement (widget, trackingElement, placeholderElement) {
     ]
     elementToReplace.style.setProperty('display', 'none', 'important')
 
+    // When iframes are blocked by the declarativeNetRequest API, they are
+    // collapsed (hidden) automatically. Unfortunately however, there's a bug
+    // that stops them from being uncollapsed (shown again) if they are removed
+    // from the DOM after they are collapsed. As a workaround, have the iframe
+    // load a benign data URI, so that it's uncollapsed, before removing it from
+    // the DOM. See https://crbug.com/1428971
+    const originalSrc = elementToReplace.src
+    elementToReplace.src =
+        'data:text/plain;charset=utf-8;base64,' + btoa('https://crbug.com/1428971')
+
     // Add the placeholder element to the page.
     elementToReplace.parentElement.insertBefore(
         placeholderElement, elementToReplace
@@ -503,6 +514,7 @@ function replaceTrackingElement (widget, trackingElement, placeholderElement) {
         // placeholder) can finally be removed from the DOM.
         elementToReplace.remove()
         elementToReplace.style.setProperty('display', ...originalDisplay)
+        elementToReplace.src = originalSrc
     })
 }
 
@@ -893,10 +905,10 @@ function makeBaseStyleElement (mode = 'lightMode') {
  * Creates an anchor element with no destination. It is expected that a click
  * handler is added to the element later.
  * @param {string} linkText
- * @param {displayMode} [mode='lightMode']
+ * @param {displayMode} mode
  * @returns {HTMLAnchorElement}
  */
-function makeTextButton (linkText, mode) {
+function makeTextButton (linkText, mode = 'lightMode') {
     const linkElement = document.createElement('a')
     linkElement.style.cssText = styles.headerLink + styles[mode].linkFont
     linkElement.textContent = linkText
@@ -1620,6 +1632,8 @@ export default class ClickToLoad extends ContentFeature {
         const localizedConfig = getConfig(locale)
         config = localizedConfig.config
         sharedStrings = localizedConfig.sharedStrings
+        // update styles if asset config was sent
+        styles = getStyles(this.assetConfig)
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the
@@ -1687,6 +1701,16 @@ export default class ClickToLoad extends ContentFeature {
             window.addEventListener('load', afterPageLoadResolver, { once: true })
         }
         await afterPageLoad
+
+        // On some websites, the "ddg-ctp-ready" event is occasionally
+        // dispatched too early, before the listener is ready to receive it.
+        // To counter that, catch "ddg-ctp-surrogate-load" events dispatched
+        // _after_ page, so the "ddg-ctp-ready" event can be dispatched again.
+        window.addEventListener(
+            'ddg-ctp-surrogate-load', () => {
+                originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'))
+            }
+        )
 
         // Then wait for any in-progress element replacements, before letting
         // the surrogate scripts know to start.

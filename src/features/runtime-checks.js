@@ -35,7 +35,9 @@ const supportedSinks = ['src']
 // Store the original methods so we can call them without any side effects
 const defaultElementMethods = {
     setAttribute: HTMLElement.prototype.setAttribute,
+    setAttributeNS: HTMLElement.prototype.setAttributeNS,
     getAttribute: HTMLElement.prototype.getAttribute,
+    getAttributeNS: HTMLElement.prototype.getAttributeNS,
     removeAttribute: HTMLElement.prototype.removeAttribute,
     remove: HTMLElement.prototype.remove,
     removeChild: HTMLElement.prototype.removeChild
@@ -259,6 +261,13 @@ class DDGRuntimeChecks extends HTMLElement {
         return this._callMethod('getAttribute', name, value)
     }
 
+    getAttributeNS (namespace, name, value) {
+        if (namespace) {
+            return this._callMethod('getAttributeNS', namespace, name, value)
+        }
+        return Reflect.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])
+    }
+
     setAttribute (name, value) {
         if (shouldFilterKey(this.#tagName, 'attribute', name)) return
         if (supportedSinks.includes(name)) {
@@ -266,6 +275,13 @@ class DDGRuntimeChecks extends HTMLElement {
             return Reflect.set(DDGRuntimeChecks.prototype, name, value, this)
         }
         return this._callMethod('setAttribute', name, value)
+    }
+
+    setAttributeNS (namespace, name, value) {
+        if (namespace) {
+            return this._callMethod('setAttributeNS', namespace, name, value)
+        }
+        return Reflect.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])
     }
 
     removeAttribute (name) {

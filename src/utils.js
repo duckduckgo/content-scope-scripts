@@ -99,12 +99,25 @@ export function isBeingFramed () {
  * Best guess effort if the document is third party
  * @returns {boolean} if we infer the document is third party
  */
-export function isThirdParty () {
+export function isThirdPartyFrame () {
     if (!isBeingFramed()) {
         return false
     }
     // @ts-expect-error - getTabHostname() is string|null here
     return !matchHostname(globalThis.location.hostname, getTabHostname())
+}
+
+function isThirdPartyOrigin (hostname) {
+    return matchHostname(globalThis.location.hostname, hostname)
+}
+
+export function hasThirdPartyOrigin (scriptOrigins) {
+    for (const origin of scriptOrigins) {
+        if (isThirdPartyOrigin(origin)) {
+            return true
+        }
+    }
+    return false
 }
 
 /**
@@ -319,7 +332,7 @@ const functionMap = {
 /**
  * Handles the processing of a config setting.
  * @param {*} configSetting
- * @param {*} defaultValue
+ * @param {*} [defaultValue]
  * @returns
  */
 export function processAttr (configSetting, defaultValue) {
@@ -494,6 +507,16 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
  */
 
 /**
+ * Used to inialize extension code in the load phase
+ */
+export function computeLimitedSiteObject () {
+    const topLevelHostname = getTabHostname()
+    return {
+        domain: topLevelHostname
+    }
+}
+
+/**
  * Expansion point to add platform specific versioning logic
  * @param {UserPreferences} preferences
  * @returns {string | number | undefined}
@@ -550,13 +573,20 @@ function isSupportedVersion (minSupportedVersion, currentVersion) {
 }
 
 /**
- * @param {{ features: Record<string, { state: string; settings: any; exceptions: string[], minSupportedVersion?: string|number }>; unprotectedTemporary: string[]; }} data
+ * @typedef RemoteConfig
+ * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
+ * @property {string[]} unprotectedTemporary
+ */
+
+/**
+ * @param {RemoteConfig} data
  * @param {string[]} userList
  * @param {UserPreferences} preferences
  * @param {string[]} platformSpecificFeatures
  */
 export function processConfig (data, userList, preferences, platformSpecificFeatures = []) {
     const topLevelHostname = getTabHostname()
+    const site = computeLimitedSiteObject()
     const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0
     const remoteFeatureNames = Object.keys(data.features)
     const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
@@ -568,37 +598,65 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
             output.platform.version = version
         }
     }
+    const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform?.version, platformSpecificFeatures)
+    const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary)
+    output.site = Object.assign(site, {
+        isBroken,
+        allowlisted,
+        enabledFeatures
+    })
+    // TODO
+    output.cookie = {}
+
+    // Copy feature settings from remote config to preferences object
+    output.featureSettings = parseFeatureSettings(data, enabledFeatures)
+    output.trackerLookup = import.meta.trackerLookup
+
+    return output
+}
+
+/**
+ * Retutns a list of enabled features
+ * @param {RemoteConfig} data
+ * @param {string | null} topLevelHostname
+ * @param {Platform['version']} platformVersion
+ * @param {string[]} platformSpecificFeatures
+ * @returns {string[]}
+ */
+export function computeEnabledFeatures (data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+    const remoteFeatureNames = Object.keys(data.features)
+    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
     const enabledFeatures = remoteFeatureNames.filter((featureName) => {
         const feature = data.features[featureName]
         // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
-        if (feature.minSupportedVersion && preferences.platform?.version) {
-            if (!isSupportedVersion(feature.minSupportedVersion, preferences.platform.version)) {
+        if (feature.minSupportedVersion && platformVersion) {
+            if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
                 return false
             }
         }
         return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
     }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
-    const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary)
-    output.site = {
-        domain: topLevelHostname,
-        isBroken,
-        allowlisted,
-        enabledFeatures
-    }
-    // TODO
-    output.cookie = {}
+    return enabledFeatures
+}
 
-    // Copy feature settings from remote config to preferences object
-    output.featureSettings = {}
+/**
+ * Returns the relevant feature settings for the enabled features
+ * @param {RemoteConfig} data
+ * @param {string[]} enabledFeatures
+ * @returns {Record<string, unknown>}
+ */
+export function parseFeatureSettings (data, enabledFeatures) {
+    /** @type {Record<string, unknown>} */
+    const featureSettings = {}
+    const remoteFeatureNames = Object.keys(data.features)
     remoteFeatureNames.forEach((featureName) => {
         if (!enabledFeatures.includes(featureName)) {
             return
         }
 
-        output.featureSettings[featureName] = data.features[featureName].settings
+        featureSettings[featureName] = data.features[featureName].settings
     })
-
-    return output
+    return featureSettings
 }
 
 export function isGloballyDisabled (args) {

@@ -1,6 +1,15 @@
-import { defineProperty, postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdParty, getTabHostname, matchHostname } from '../utils.js'
+import { defineProperty, postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdPartyFrame, getTabHostname, matchHostname } from '../utils.js'
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
+import { isTrackerOrigin } from '../trackers.js'
+
+/**
+ * @typedef ExtensionCookiePolicy
+ * @property {boolean} isFrame
+ * @property {boolean} isTracker
+ * @property {boolean} shouldBlock
+ * @property {boolean} isThirdPartyFrame
+ */
 
 // Initial cookie policy pre init
 let cookiePolicy = {
@@ -10,12 +19,18 @@ let cookiePolicy = {
     shouldBlock: true,
     shouldBlockTrackerCookie: true,
     shouldBlockNonTrackerCookie: false,
-    isThirdParty: isThirdParty(),
+    isThirdPartyFrame: isThirdPartyFrame(),
     policy: {
         threshold: 604800, // 7 days
         maxAge: 604800 // 7 days
-    }
+    },
+    trackerPolicy: {
+        threshold: 86400, // 1 day
+        maxAge: 86400 // 1 day
+    },
+    allowlist: /** @type {{ host: string }[]} */([])
 }
+let trackerLookup = {}
 
 let loadedPolicyResolve
 
@@ -35,6 +50,9 @@ function debugHelper (action, reason, ctx) {
     })
 }
 
+/**
+ * @returns {boolean}
+ */
 function shouldBlockTrackingCookie () {
     return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
 }
@@ -43,26 +61,45 @@ function shouldBlockNonTrackingCookie () {
     return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
 }
 
+/**
+ * @param {Set<string>} scriptOrigins
+ * @returns {boolean}
+ */
+function isFirstPartyTrackerScript (scriptOrigins) {
+    let matched = false
+    for (const scriptOrigin of scriptOrigins) {
+        if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
+            return false
+        }
+        if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
+            matched = true
+        }
+    }
+    return matched
+}
+
+/**
+ * @returns {boolean}
+ */
 function isTrackingCookie () {
-    return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdParty
+    return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
 }
 
 function isNonTrackingCookie () {
-    return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdParty
+    return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
 }
 
 export default class CookieFeature extends ContentFeature {
-    load (args) {
-        // Feature is only relevant to the extension and windows, we should skip for other platforms for now as the config testing is broken.
-        if (this.platform.name !== 'extension' && this.platform.name !== 'windows') {
-            return
-        }
-        if (args.documentOriginIsTracker) {
+    load () {
+        if (this.documentOriginIsTracker) {
             cookiePolicy.isTracker = true
         }
-        if (args.bundledConfig) {
+        if (this.trackerLookup) {
+            trackerLookup = this.trackerLookup
+        }
+        if (this.bundledConfig) {
             // use the bundled config to get a best-effort at the policy, before the background sends the real one
-            const { exceptions, settings } = args.bundledConfig.features.cookie
+            const { exceptions, settings } = this.bundledConfig.features.cookie
             const tabHostname = getTabHostname()
             let tabExempted = true
 
@@ -76,6 +113,10 @@ export default class CookieFeature extends ContentFeature {
             })
             cookiePolicy.shouldBlock = !frameExempted && !tabExempted
             cookiePolicy.policy = settings.firstPartyCookiePolicy
+            cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy
+            // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
+            // This only applies when the resources that would set these cookies are unblocked.
+            cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || []
         }
 
         // The cookie policy is injected into every frame immediately so that no cookie will
@@ -136,20 +177,20 @@ export default class CookieFeature extends ContentFeature {
             try {
                 // wait for config before doing same-site tests
                 loadPolicyThen(() => {
-                    const { shouldBlock, policy } = cookiePolicy
+                    const { shouldBlock, policy, trackerPolicy } = cookiePolicy
 
+                    const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy
                     if (!shouldBlock) {
                         debugHelper('ignore', 'disabled', setCookieContext)
                         return
                     }
-
                     // extract cookie expiry from cookie string
                     const cookie = new Cookie(value)
                     // apply cookie policy
-                    if (cookie.getExpiry() > policy.threshold) {
+                    if (cookie.getExpiry() > chosenPolicy.threshold) {
                         // check if the cookie still exists
                         if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
-                            cookie.maxAge = policy.maxAge
+                            cookie.maxAge = chosenPolicy.maxAge
 
                             debugHelper('restrict', 'expiry', setCookieContext)
 
@@ -177,19 +218,23 @@ export default class CookieFeature extends ContentFeature {
     }
 
     init (args) {
+        const restOfPolicy = {
+            debug: this.isDebug,
+            shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
+            shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
+            allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
+            policy: this.getFeatureSetting('firstPartyCookiePolicy'),
+            trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy')
+        }
+        // The extension provides some additional info about the cookie policy, let's use that over our guesses
         if (args.cookie) {
-            cookiePolicy = args.cookie
-            args.cookie.debug = args.debug
-
-            cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie')
-            cookiePolicy.shouldBlockNonTrackerCookie = this.getFeatureSettingEnabled('nonTrackerCookie')
-            const policy = this.getFeatureSetting('firstPartyCookiePolicy')
-            if (policy) {
-                cookiePolicy.policy = policy
+            const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */(args.cookie)
+            cookiePolicy = {
+                ...extensionCookiePolicy,
+                ...restOfPolicy
             }
         } else {
-            // no cookie information - disable protections
-            cookiePolicy.shouldBlock = false
+            cookiePolicy = Object.assign(cookiePolicy, restOfPolicy)
         }
 
         loadedPolicyResolve()

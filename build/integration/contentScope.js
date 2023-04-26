@@ -91,7 +91,7 @@
      * Best guess effort if the document is third party
      * @returns {boolean} if we infer the document is third party
      */
-    function isThirdParty () {
+    function isThirdPartyFrame () {
         if (!isBeingFramed()) {
             return false
         }
@@ -293,7 +293,7 @@
     /**
      * Handles the processing of a config setting.
      * @param {*} configSetting
-     * @param {*} defaultValue
+     * @param {*} [defaultValue]
      * @returns
      */
     function processAttr (configSetting, defaultValue) {
@@ -420,6 +420,107 @@
     {
         DDGPromise = globalObj.Promise;
         DDGReflect = globalObj.Reflect;
+    }
+
+    function isUnprotectedDomain (topLevelHostname, featureList) {
+        let unprotectedDomain = false;
+        const domainParts = topLevelHostname.split('.');
+
+        // walk up the domain to see if it's unprotected
+        while (domainParts.length > 1 && !unprotectedDomain) {
+            const partialDomain = domainParts.join('.');
+
+            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;
+
+            domainParts.shift();
+        }
+
+        return unprotectedDomain
+    }
+
+    function parseVersionString (versionString) {
+        const [major = 0, minor = 0, patch = 0] = versionString.split('.').map(Number);
+        return {
+            major,
+            minor,
+            patch
+        }
+    }
+
+    /**
+     * @param {string} minVersionString
+     * @param {string} applicationVersionString
+     * @returns {boolean}
+     */
+    function satisfiesMinVersion (minVersionString, applicationVersionString) {
+        const { major: minMajor, minor: minMinor, patch: minPatch } = parseVersionString(minVersionString);
+        const { major, minor, patch } = parseVersionString(applicationVersionString);
+
+        return (major > minMajor ||
+                (major >= minMajor && minor > minMinor) ||
+                (major >= minMajor && minor >= minMinor && patch >= minPatch))
+    }
+
+    /**
+     * @param {string | number | undefined} minSupportedVersion
+     * @param {string | number | undefined} currentVersion
+     * @returns {boolean}
+     */
+    function isSupportedVersion (minSupportedVersion, currentVersion) {
+        if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
+            if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
+                return true
+            }
+        } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {
+            if (minSupportedVersion <= currentVersion) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Retutns a list of enabled features
+     * @param {RemoteConfig} data
+     * @param {string | null} topLevelHostname
+     * @param {Platform['version']} platformVersion
+     * @param {string[]} platformSpecificFeatures
+     * @returns {string[]}
+     */
+    function computeEnabledFeatures (data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+        const remoteFeatureNames = Object.keys(data.features);
+        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
+        const enabledFeatures = remoteFeatureNames.filter((featureName) => {
+            const feature = data.features[featureName];
+            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
+            if (feature.minSupportedVersion && platformVersion) {
+                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
+                    return false
+                }
+            }
+            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
+        }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
+        return enabledFeatures
+    }
+
+    /**
+     * Returns the relevant feature settings for the enabled features
+     * @param {RemoteConfig} data
+     * @param {string[]} enabledFeatures
+     * @returns {Record<string, unknown>}
+     */
+    function parseFeatureSettings (data, enabledFeatures) {
+        /** @type {Record<string, unknown>} */
+        const featureSettings = {};
+        const remoteFeatureNames = Object.keys(data.features);
+        remoteFeatureNames.forEach((featureName) => {
+            if (!enabledFeatures.includes(featureName)) {
+                return
+            }
+
+            featureSettings[featureName] = data.features[featureName].settings;
+        });
+        return featureSettings
     }
 
     const windowsSpecificFeatures = ['windowsPermissionUsage'];
@@ -1009,11 +1110,41 @@
       return parseJSONPointer(fromPointer);
     }
 
+    /**
+     * @typedef {object} AssetConfig
+     * @property {string} regularFontUrl
+     * @property {string} boldFontUrl
+     */
+
+    /**
+     * @typedef {object} Site
+     * @property {string} domain
+     * @property {boolean} isBroken
+     * @property {boolean} allowlisted
+     * @property {string[]} enabledFeatures
+     */
+
     class ContentFeature {
+        /** @type {import('./utils.js').RemoteConfig | undefined} */
+        #bundledConfig
+        /** @type {object | undefined} */
+        #trackerLookup
+        /** @type {boolean | undefined} */
+        #documentOriginIsTracker
+        /** @type {Record<string, unknown> | undefined} */
+        #bundledfeatureSettings
+
+        /** @type {{ debug: boolean, featureSettings: Record<string, unknown>, assets: AssetConfig | undefined, site: Site  } | null} */
+        #args
+
         constructor (featureName) {
             this.name = featureName;
-            this._args = null;
+            this.#args = null;
             this.monitor = new PerformanceMonitor();
+        }
+
+        get isDebug () {
+            return this.#args?.debug || false
         }
 
         /**
@@ -1026,6 +1157,34 @@
         get platform () {
             // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'
             return this._platform
+        }
+
+        /**
+         * @type {AssetConfig | undefined}
+         */
+        get assetConfig () {
+            return this.#args?.assets
+        }
+
+        /**
+         * @returns {boolean}
+         */
+        get documentOriginIsTracker () {
+            return !!this.#documentOriginIsTracker
+        }
+
+        /**
+         * @returns {object}
+         **/
+        get trackerLookup () {
+            return this.#trackerLookup || {}
+        }
+
+        /**
+         * @returns {import('./utils.js').RemoteConfig | undefined}
+         **/
+        get bundledConfig () {
+            return this.#bundledConfig
         }
 
         /**
@@ -1044,10 +1203,11 @@
 
         /**
          * @param {string} featureKeyName
+         * @param {string} [featureName]
          * @returns {any}
          */
-        getFeatureSetting (featureKeyName) {
-            let result = this._getFeatureSetting();
+        getFeatureSetting (featureKeyName, featureName) {
+            let result = this._getFeatureSetting(featureName);
             if (featureKeyName === 'domains') {
                 throw new Error('domains is a reserved feature setting key name')
             }
@@ -1067,17 +1227,22 @@
             return result?.[featureKeyName]
         }
 
-        _getFeatureSetting () {
-            const camelFeatureName = camelcase(this.name);
-            return this._args.featureSettings?.[camelFeatureName]
+        /**
+         * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
+         * @returns {any}
+         */
+        _getFeatureSetting (featureName) {
+            const camelFeatureName = featureName || camelcase(this.name);
+            return this.#args?.featureSettings?.[camelFeatureName]
         }
 
         /**
          * @param {string} featureKeyName
+         * @param {string} [featureName]
          * @returns {boolean}
          */
-        getFeatureSettingEnabled (featureKeyName) {
-            const result = this.getFeatureSetting(featureKeyName);
+        getFeatureSettingEnabled (featureKeyName, featureName) {
+            const result = this.getFeatureSetting(featureKeyName, featureName);
             return result === 'enabled'
         }
 
@@ -1086,9 +1251,11 @@
          * @return {any[]}
          */
         matchDomainFeatureSetting (featureKeyName) {
+            const domain = this.#args?.site.domain;
+            if (!domain) return []
             const domains = this._getFeatureSetting()?.[featureKeyName] || [];
             return domains.filter((rule) => {
-                return matchHostname(this._args.site.domain, rule.domain)
+                return matchHostname(domain, rule.domain)
             })
         }
 
@@ -1098,7 +1265,7 @@
 
         callInit (args) {
             const mark = this.monitor.mark(this.name + 'CallInit');
-            this._args = args;
+            this.#args = args;
             this.platform = args.platform;
             this.init(args);
             mark.end();
@@ -1111,14 +1278,23 @@
 
         callLoad (args) {
             const mark = this.monitor.mark(this.name + 'CallLoad');
-            this._args = args;
+            this.#args = args;
             this.platform = args.platform;
+            this.#bundledConfig = args.bundledConfig;
+            // If we have a bundled config, treat it as a regular config
+            // This will be overriden by the remote config if it is available
+            if (this.#bundledConfig && this.#args) {
+                const enabledFeatures = computeEnabledFeatures(args.bundledConfig, getTabHostname(), this.platform.version);
+                this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures);
+            }
+            this.#trackerLookup = args.trackerLookup;
+            this.#documentOriginIsTracker = args.documentOriginIsTracker;
             this.load(args);
             mark.end();
         }
 
         measure () {
-            if (this._args.debug) {
+            if (this.#args?.debug) {
                 this.monitor.measureAll();
             }
         }
@@ -1190,15 +1366,17 @@
         return new Proxy(scope, {
             get (target, property, receiver) {
                 const targetObj = target[property];
+                let targetOut = target;
+                if (typeof property === 'string' && property in outputs) {
+                    targetOut = outputs;
+                }
+                // Reflects functions with the correct 'this' scope
                 if (typeof targetObj === 'function') {
                     return (...args) => {
-                        return Reflect.apply(target[property], target, args)
+                        return Reflect.apply(targetOut[property], target, args)
                     }
                 } else {
-                    if (typeof property === 'string' && property in outputs) {
-                        return Reflect.get(outputs, property, receiver)
-                    }
-                    return Reflect.get(target, property, receiver)
+                    return Reflect.get(targetOut, property, receiver)
                 }
             }
         })
@@ -1255,7 +1433,6 @@
     function wrapScriptCodeOverload (code, config) {
         const processedConfig = {};
         for (const [key, value] of Object.entries(config)) {
-            // @ts-expect-error - Expected 2 arguments, but got 1
             processedConfig[key] = processAttr(value);
         }
         // Don't do anything if the config is empty
@@ -1337,7 +1514,9 @@
     // Store the original methods so we can call them without any side effects
     const defaultElementMethods = {
         setAttribute: HTMLElement.prototype.setAttribute,
+        setAttributeNS: HTMLElement.prototype.setAttributeNS,
         getAttribute: HTMLElement.prototype.getAttribute,
+        getAttributeNS: HTMLElement.prototype.getAttributeNS,
         removeAttribute: HTMLElement.prototype.removeAttribute,
         remove: HTMLElement.prototype.remove,
         removeChild: HTMLElement.prototype.removeChild
@@ -1561,6 +1740,13 @@
             return this._callMethod('getAttribute', name, value)
         }
 
+        getAttributeNS (namespace, name, value) {
+            if (namespace) {
+                return this._callMethod('getAttributeNS', namespace, name, value)
+            }
+            return Reflect.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])
+        }
+
         setAttribute (name, value) {
             if (shouldFilterKey(this.#tagName, 'attribute', name)) return
             if (supportedSinks.includes(name)) {
@@ -1568,6 +1754,13 @@
                 return Reflect.set(DDGRuntimeChecks.prototype, name, value, this)
             }
             return this._callMethod('setAttribute', name, value)
+        }
+
+        setAttributeNS (namespace, name, value) {
+            if (namespace) {
+                return this._callMethod('setAttributeNS', namespace, name, value)
+            }
+            return Reflect.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])
         }
 
         removeAttribute (name) {
@@ -3977,6 +4170,34 @@
         }
     }
 
+    /**
+     * Check if the current document origin is on the tracker list, using the provided lookup trie.
+     * @param {object} trackerLookup Trie lookup of tracker domains
+     * @returns {boolean} True iff the origin is a tracker.
+     */
+    function isTrackerOrigin (trackerLookup, originHostname = document.location.hostname) {
+        const parts = originHostname.split('.').reverse();
+        let node = trackerLookup;
+        for (const sub of parts) {
+            if (node[sub] === 1) {
+                return true
+            } else if (node[sub]) {
+                node = node[sub];
+            } else {
+                return false
+            }
+        }
+        return false
+    }
+
+    /**
+     * @typedef ExtensionCookiePolicy
+     * @property {boolean} isFrame
+     * @property {boolean} isTracker
+     * @property {boolean} shouldBlock
+     * @property {boolean} isThirdPartyFrame
+     */
+
     // Initial cookie policy pre init
     let cookiePolicy = {
         debug: false,
@@ -3985,12 +4206,18 @@
         shouldBlock: true,
         shouldBlockTrackerCookie: true,
         shouldBlockNonTrackerCookie: false,
-        isThirdParty: isThirdParty(),
+        isThirdPartyFrame: isThirdPartyFrame(),
         policy: {
             threshold: 604800, // 7 days
             maxAge: 604800 // 7 days
-        }
+        },
+        trackerPolicy: {
+            threshold: 86400, // 1 day
+            maxAge: 86400 // 1 day
+        },
+        allowlist: /** @type {{ host: string }[]} */([])
     };
+    let trackerLookup = {};
 
     let loadedPolicyResolve;
 
@@ -4010,6 +4237,9 @@
         });
     }
 
+    /**
+     * @returns {boolean}
+     */
     function shouldBlockTrackingCookie () {
         return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
     }
@@ -4018,26 +4248,45 @@
         return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
     }
 
+    /**
+     * @param {Set<string>} scriptOrigins
+     * @returns {boolean}
+     */
+    function isFirstPartyTrackerScript (scriptOrigins) {
+        let matched = false;
+        for (const scriptOrigin of scriptOrigins) {
+            if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
+                return false
+            }
+            if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
+                matched = true;
+            }
+        }
+        return matched
+    }
+
+    /**
+     * @returns {boolean}
+     */
     function isTrackingCookie () {
-        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdParty
+        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
     }
 
     function isNonTrackingCookie () {
-        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdParty
+        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
     }
 
     class CookieFeature extends ContentFeature {
-        load (args) {
-            // Feature is only relevant to the extension and windows, we should skip for other platforms for now as the config testing is broken.
-            if (this.platform.name !== 'extension' && this.platform.name !== 'windows') {
-                return
-            }
-            if (args.documentOriginIsTracker) {
+        load () {
+            if (this.documentOriginIsTracker) {
                 cookiePolicy.isTracker = true;
             }
-            if (args.bundledConfig) {
+            if (this.trackerLookup) {
+                trackerLookup = this.trackerLookup;
+            }
+            if (this.bundledConfig) {
                 // use the bundled config to get a best-effort at the policy, before the background sends the real one
-                const { exceptions, settings } = args.bundledConfig.features.cookie;
+                const { exceptions, settings } = this.bundledConfig.features.cookie;
                 const tabHostname = getTabHostname();
                 let tabExempted = true;
 
@@ -4051,6 +4300,10 @@
                 });
                 cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
                 cookiePolicy.policy = settings.firstPartyCookiePolicy;
+                cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
+                // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
+                // This only applies when the resources that would set these cookies are unblocked.
+                cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || [];
             }
 
             // The cookie policy is injected into every frame immediately so that no cookie will
@@ -4111,20 +4364,20 @@
                 try {
                     // wait for config before doing same-site tests
                     loadPolicyThen(() => {
-                        const { shouldBlock, policy } = cookiePolicy;
+                        const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
 
+                        const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
                         if (!shouldBlock) {
                             debugHelper('ignore', 'disabled', setCookieContext);
                             return
                         }
-
                         // extract cookie expiry from cookie string
                         const cookie = new Cookie(value);
                         // apply cookie policy
-                        if (cookie.getExpiry() > policy.threshold) {
+                        if (cookie.getExpiry() > chosenPolicy.threshold) {
                             // check if the cookie still exists
                             if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
-                                cookie.maxAge = policy.maxAge;
+                                cookie.maxAge = chosenPolicy.maxAge;
 
                                 debugHelper('restrict', 'expiry', setCookieContext);
 
@@ -4152,19 +4405,23 @@
         }
 
         init (args) {
+            const restOfPolicy = {
+                debug: this.isDebug,
+                shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
+                shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
+                allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
+                policy: this.getFeatureSetting('firstPartyCookiePolicy'),
+                trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy')
+            };
+            // The extension provides some additional info about the cookie policy, let's use that over our guesses
             if (args.cookie) {
-                cookiePolicy = args.cookie;
-                args.cookie.debug = args.debug;
-
-                cookiePolicy.shouldBlockTrackerCookie = this.getFeatureSettingEnabled('trackerCookie');
-                cookiePolicy.shouldBlockNonTrackerCookie = this.getFeatureSettingEnabled('nonTrackerCookie');
-                const policy = this.getFeatureSetting('firstPartyCookiePolicy');
-                if (policy) {
-                    cookiePolicy.policy = policy;
-                }
+                const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */(args.cookie);
+                cookiePolicy = {
+                    ...extensionCookiePolicy,
+                    ...restOfPolicy
+                };
             } else {
-                // no cookie information - disable protections
-                cookiePolicy.shouldBlock = false;
+                cookiePolicy = Object.assign(cookiePolicy, restOfPolicy);
             }
 
             loadedPolicyResolve();
@@ -4446,30 +4703,40 @@
         }
     }
 
-    class NavigatorInterface extends ContentFeature {
-        init (args) {
-            try {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                if (navigator.duckduckgo) {
-                    return
-                }
-                if (!args.platform || !args.platform.name) {
-                    return
-                }
-                defineProperty(Navigator.prototype, 'duckduckgo', {
-                    value: {
-                        platform: args.platform.name,
-                        isDuckDuckGo () {
-                            return DDGPromise.resolve(true)
-                        }
-                    },
-                    enumerable: true,
-                    configurable: false,
-                    writable: false
-                });
-            } catch {
-                // todo: Just ignore this exception?
+    function injectNavigatorInterface (args) {
+        try {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            if (navigator.duckduckgo) {
+                return
             }
+            if (!args.platform || !args.platform.name) {
+                return
+            }
+            defineProperty(Navigator.prototype, 'duckduckgo', {
+                value: {
+                    platform: args.platform.name,
+                    isDuckDuckGo () {
+                        return DDGPromise.resolve(true)
+                    }
+                },
+                enumerable: true,
+                configurable: false,
+                writable: false
+            });
+        } catch {
+            // todo: Just ignore this exception?
+        }
+    }
+
+    class NavigatorInterface extends ContentFeature {
+        load (args) {
+            if (this.matchDomainFeatureSetting('privilegedDomains').length) {
+                injectNavigatorInterface(args);
+            }
+        }
+
+        init (args) {
+            injectNavigatorInterface(args);
         }
     }
 
@@ -4822,7 +5089,7 @@
         }
     }
 
-    const logoImg = 'data:application/octet-stream;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAACECAMAAABmmnOVAAA0aXpUWHRSYXcgcHJvZmlsZSB0eXBlIGV4aWYAAHjarZxpkhw5kqX/4xR1BOzLcQAFIDI36OP392BB5lY9Uy0yyWQyMsLpbgaovkVVYe781/+57l//+lcIPXeXS+t11Or5J4884uSL7r9/xvtv8Pn99/3T88/Pwl+/737/IPKtxJ/p+982f14/+X750xv9ep/11++7/vOT2H/eKPx+4/dP0ifr6/3ni+T78ft++LkQN873RR29/flS188b2a8r7n/8zr8v6/tD/+/+8o3GKu3CB6UYTwrJv//m7wqSfoc0+TPx35Aar/Np8HVJ0b1vxZ83Y0H+cnu//vT+zwv0l0X+9ZX7++r//upvix/nz/fT39ay/qwRX/zbH4Tyt++n3x8T//zB6fcVxb/+IIS4/3E7P7/v3f3e893dzJUVrT8R9RY7/HobXrhY8vT+WuVX43fh6/Z+DX51P72x5dubX/yyMEJkV64LOewwww3n/WnBuMQcT2RPYozGRul7nT0a0dgldlG/wo2NHdups5cWj2Mrc4q/ryW8zx3v8yx0PnkHXhoDb8bu/s+/3P/th/+bX+5ee0vs+++14rqiIovL0M7pv7yKDQn3Z9/KW+Bfv3623/8pfhSqmZdpmTs3OP363mKV8EdspbfPidcV/vxSKLi2f96AJeKzCxcTEjvga0gl1OBbjC0E1rGzQZMrjynHxQ6EUuLmImNOqUbXYo/6bP5OC++1scQa9W2wiY0oqabG3pBTbFbOhfhpuRNDs6SSSym1tNJdGWXWVHMttdZWBXKzpZZbabW11ttosycgsPTaW+999DniSGBgGXW00ccYc0Y3+aDJe01eP/nOiiutvMqqq62+xppG+Fi2YtWadRs2d9xpAxO77rb7Hnue4A5IcfIpp552+hlnXmLtpptvufW22++48/eu/ezqP379L3Yt/OxafDul17Xfu8Z3XWu/3iIITor2jB2LObDjTTtAQEftme8h56id0575EUmKErnIor1xO2jH2MJ8Qiw3/N67P3buP9o3V/p/tG/x/7VzTlv3/2PnHFv3z337N7u2xXP2duzLQq2pT2QfPz99utinSG3++z9H9vER0ogNiCz11FFYzM3HZH6SY2UHQOvr7LCJx9/pYxrz3JXnZbdYl+pjGens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';
+    const logoImg = 'data:image/png;base64,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';
     const loadingImages = {
         darkMode: 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E',
         lightMode: 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%40keyframes%20rotate%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20from%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%280deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20to%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20transform%3A%20rotate%28359deg%29%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%20%20%20%20%3Cg%20style%3D%22transform-origin%3A%2050%25%2050%25%3B%20animation%3A%20rotate%201s%20infinite%20reverse%20linear%3B%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2218.0968%22%20y%3D%2216.0861%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%2018.0968%2016.0861%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2219.9976%22%20y%3D%228.37451%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%2019.9976%208.37451%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%2216.1727%22%20y%3D%221.9917%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%2016.1727%201.9917%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.91309%22%20y%3D%226.88501%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%28136.161%208.91309%206.88501%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%226.79602%22%20y%3D%2210.996%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2846.1607%206.79602%2010.996%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%227%22%20y%3D%228.62549%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20transform%3D%22rotate%2890%207%208.62549%29%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%228.49878%22%20y%3D%2213%22%20width%3D%223%22%20height%3D%227%22%20rx%3D%221.5%22%20fill%3D%22%23111111%22%20fill-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fsvg%3E' // 'data:application/octet-stream;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KCTxzdHlsZT4KCQlAa2V5ZnJhbWVzIHJvdGF0ZSB7CgkJCWZyb20gewoJCQkJdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7CgkJCX0KCQkJdG8gewoJCQkJdHJhbnNmb3JtOiByb3RhdGUoMzU5ZGVnKTsKCQkJfQoJCX0KCTwvc3R5bGU+Cgk8ZyBzdHlsZT0idHJhbnNmb3JtLW9yaWdpbjogNTAlIDUwJTsgYW5pbWF0aW9uOiByb3RhdGUgMXMgaW5maW5pdGUgcmV2ZXJzZSBsaW5lYXI7Ij4KCQk8cmVjdCB4PSIxOC4wOTY4IiB5PSIxNi4wODYxIiB3aWR0aD0iMyIgaGVpZ2h0PSI3IiByeD0iMS41IiB0cmFuc2Zvcm09InJvdGF0ZSgxMzYuMTYxIDE4LjA5NjggMTYuMDg2MSkiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIi8+CQoJCTxyZWN0IHg9IjguNDk4NzgiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC40Ii8+CgkJPHJlY3QgeD0iMTkuOTk3NiIgeT0iOC4zNzQ1MSIgd2lkdGg9IjMiIGhlaWdodD0iNyIgcng9IjEuNSIgdHJhbnNmb3JtPSJyb3RhdGUoOTAgMTkuOTk3NiA4LjM3NDUxKSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjIiLz4KCQk8cmVjdCB4PSIxNi4xNzI3IiB5PSIxLjk5MTciIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDQ2LjE2MDcgMTYuMTcyNyAxLjk5MTcpIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMyIvPgoJCTxyZWN0IHg9IjguOTEzMDkiIHk9IjYuODg1MDEiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDEzNi4xNjEgOC45MTMwOSA2Ljg4NTAxKSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjYiLz4KCQk8cmVjdCB4PSI2Ljc5NjAyIiB5PSIxMC45OTYiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDQ2LjE2MDcgNi43OTYwMiAxMC45OTYpIiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuNyIvPgoJCTxyZWN0IHg9IjciIHk9IjguNjI1NDkiIHdpZHRoPSIzIiBoZWlnaHQ9IjciIHJ4PSIxLjUiIHRyYW5zZm9ybT0icm90YXRlKDkwIDcgOC42MjU0OSkiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC44Ii8+CQkKCQk8cmVjdCB4PSI4LjQ5ODc4IiB5PSIxMyIgd2lkdGg9IjMiIGhlaWdodD0iNyIgcng9IjEuNSIgZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIwLjkiLz4KCTwvZz4KPC9zdmc+Cg=='
@@ -4835,117 +5102,128 @@
     const videoPlayDark = 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23222222%22%2F%3E%0A%3C%2Fsvg%3E%0A';
     const videoPlayLight = 'data:image/svg+xml;utf8,%3Csvg%20width%3D%2222%22%20height%3D%2226%22%20viewBox%3D%220%200%2022%2026%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22M21%2011.2679C22.3333%2012.0377%2022.3333%2013.9622%2021%2014.732L3%2025.1244C1.66667%2025.8942%202.59376e-06%2024.9319%202.66105e-06%2023.3923L3.56958e-06%202.60769C3.63688e-06%201.06809%201.66667%200.105844%203%200.875644L21%2011.2679Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%0A%3C%2Fsvg%3E';
 
-    const ddgFont = 'data:application/octet-stream;base64,d09GRgABAAAAAFzgABMAAAAAxMQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAABqAAAABwAAAAcZCfbMkdERUYAAAHEAAAALQAAADIDCwH4R1BPUwAAAfQAAAbeAAAkrOfEIAhHU1VCAAAI1AAAAgoAAAYUTOV1mE9TLzIAAArgAAAAWgAAAGBvZYm8Y21hcAAACzwAAAGIAAAB4hcHc2ZjdnQgAAAMxAAAACwAAAAsBNkGumZwZ20AAAzwAAABsQAAAmVTtC+nZ2FzcAAADqQAAAAIAAAACAAAABBnbHlmAAAOrAAARZYAAIZ0sNmfuWhlYWQAAFREAAAANAAAADYAiyjoaGhlYQAAVHgAAAAgAAAAJAdGA99obXR4AABUmAAAAjYAAAOqwg8hKGxvY2EAAFbQAAABzQAAAdgHVShObWF4cAAAWKAAAAAgAAAAIAIIAStuYW1lAABYwAAAAZwAAAN3s/mh+nBvc3QAAFpcAAAB8wAAAu6KrKjYcHJlcAAAXFAAAACIAAAAsxEhyEZ3ZWJmAABc2AAAAAYAAAAGwchSqQAAAAEAAAAAzD2izwAAAADJGsYbAAAAAM7Pckd42mNgZGBg4ANiLQYQYGJgYWBkqAPieoZGIK+J4RmQ/ZzhFVgGJM8AAF/9BQQAAAB42s1a629URRQ/baChVZAKVBvEFquyliKFapXS+oAg0RiN+gcYP+AXDTHGD8YPJhpfQdCESgJpk4IVYiUUYpHGNq3ULLRpzcqSdm3pSyptbFiyhGIbmqzH3zzu9u7t3t27r+I9md2ZuTNz5rzPzC5lEFEO3U8llPH2G+/tpiW0CD3ETOJNxlu73hV9pFp4lym/l1BmUZcYWVi5dpp2UgVm1LGfAzzITagNoj5I2VzDN3iC29jL3dzB0zzDHr7J/2CcX4xgLyX1ANeYXKuPT6H4eQx9Z1FmuBaYurmVp9Hqt8zqQ28WJf2ItcPaAVA4JfZgMz5gnRE3xr55PV0ofkUhT1IaHg5G6uN/+XqE3tlQLZgUzhmxknkN/gmcneEBux3Z79UxzuuGdNivv8ellvZHmTEGLRdyHbeXus1ciYP/FDrL46b+k2h7+LSsR1gTXAgAIGm+yt0pkvANWrCHzzkc18UDPCR2xh6U2WR0m4ec0ckXeVLhAZcnE9EmQ//DbAJWwTNOLCwx7eVr1nncO0dtcnbo3M7g3YPQ5dG0YOvjTl3r4X6r1sMOPIgxbmAfwFs34Ay3mK3UJAuPjFEjPOHc13LA5BH8PCzjjVxTeaOwORHimfAQjqj8ENT9gYj5FX+GuOblEfS9Kr1QLbfzMf6U/0brB0TUUUTOTsAeboqwzi1D2/mqA6xn1Cjezw3gnMD5pWwfgDXU8V5Zr02zT6h25sP5MKK8pJi/RSyYgH8YkTKZSuPemgyZ8vkEZgciUSRzkmmtQ0H7fCKktVNa98YieRg7y4TXCVo9k8IgMEOLhV+ajZbPGBEnYd61mq0vxXIZ5pO6dgX1cT5h4WUXX0b/cVkT0CjiiNTrWuSjw6jVo3RCx938Cx/hfbCxo/AP59gnZtlgjRjl+Up0P8vN8GDSC7BbeOdksl6+6XScsBD7PSeEu2vOE9plxFrDEsgolHwUJ6Hr9dZ8SUZkHyLzrCxeRRfk160iAh9D+Qs+tAdRvANSnRT+WeyXfdGzsPm6FWOnzcjRVP7mi5+/5vGg6lIke8P6Uzp38CvNgjf2KL3hNk3VqDjZACb5muaa/cljPCE6B0T+a8S1eP2AymF1vZ+/tnKbfxcyk5FbQAPXyd69OLN1hOTplj0D/Dl/BK7XwjpH1Zu47DMWnXXYn/IOLTLb6EnYQgIxR5wX59M0+URf2rP3IWv84W/Ar3benxZsoZMXnzXHJuQsF2ANR9WbtNHqDmvVCLzGbtLM5b0Oxx0CX2qSwnRx3h3GPplDf+Jg7q3E8txU3LQksdIp/d0I3+blhqhjB1XWF64JjjFNzsv7TqJvSHm3BTtve+I5dSfoE4KWfLcGOtTjxCdYdWhBOJIozi20PVTfTveQC/A04MmYM104S7ps78Rc9IK9Ds3rOY7cwGcfAeN4Ho3JqTZDh7D3MRWfbcd69c1rU8rkNAodqnZ2P5AijK3i/ofbnedQqs/JHQtkps7Zp+FdvXP5CtfjNNKAPOgGMLdIr9GLns4EtNiFOPwjX15QYzrsmLcHkZM3W7P6lOmKP+y8/J3zaMAHrblqtEzSwYoXxF2lcZaJOvJE9FvBKLdhllMLf48Muc8Zb1N1H8i/4RQ2kZ77vgXwfXGcecX9S/QMQJ+R2lKVAclz9mwMnCrS9qq73rgxBCPSOeuIzs746TTf2Ub8VWNMe8NeHgS47aJIPJ4+8i8Gsc6CTu4H0qhtC+u99ek3ZSu1y/jZHPe8Qfo/PLtvI+6i2yB3z22hNA94MyiLLlG57nkQNZFZP4xSRptQiJ4Jm/Os7FkPMD+ZtEj+ip9Nd8h2Pi2j5bKWRXejrKRVyNLzaTWtoaeogNaa8nfB8XVUjO8S5MEbJf830mbZL96sQ+sJZPZbqIK2UiVtoyrUzPOLHVFbgbLJ0veYpb1o3qwsWQwQ9XwNBbJdZIIS7KREg/Fs0DQoIJQKDVWoV0mqC2LufROgHFCmP10oGbSYJtBv/HviIVnbLCUgcAo+ltPjoTXKNbUbAOpZjFKIFbLl+sZ3jm6ptih3QppLIc+7oB+59ICcu1mv8Yjkv4AVWg5l8rMUUKxLCeVB/vdCA9aDb6Vh8+1kF/6fkFWSc9anMAyyQ/s2Q3YIhHYu1ZCr926G4hDM6VVpWG8x9qEgX+p4NnpyY8pOyF3oTpH+XBPmYQSdKzRk0n1ay3LA8wxwfRk0cjksaDEsaCUtgf2sBtY10JgcyNsFSorB01zYTSnml+EEnEc7aCcwPE8vwopfopcx4hV6HTLYBdhK7wMq6QNAFX1MX8Aa9wB2UDXgOTpAhzC7ho5gdj010mvURD9jdiv9Sm+Sm87BM/tolN75D8aGd70AAHjajZTPShxBEMa/6u7dGAkiWedPJipLCEFElpCTD6CwiIJkg+51YzAJ6EbUFZGERMjBJ/DsA4hP4APkmEPIIeSUS/48geSi1TWzk57Jjs5hu2eKX331dU/VggAM4yHaoI3ObhdDMBzB5aXsBAUNs77dWUO08fplBw/ebL/oYmqnt7WDBhNKKPuLeZ1k3cIopvAYs3iFLeyjyvHb/HSMc/ygIWrQMzqgE4kTncUa9EnePfpKFypSc6qrTtRn9VfX9Zxe1x/1mf6iL0xkZs1zc2ROzfe4qvkW75VqrFN5Ij40xhChnjis8ErwZK3J6peiwkIqKEW5WkEh5ZeiXK3xUr6KqXulqPs5KnZ6N2Gq6bev4T0+4JC//B2m3qKHPekGj/lA8sJcHmGeaeKaE1J7ENHKEErc2fesCknezWRrIDmOR8mpZhy27VD/bn6RMzRn1DEtOa76ojzns2yFEJNSl3jO4viqo+kl9ewNRJJN4r2vu5qj7Nkm/ztbO/kS/Zo+uySeQSTRptNlXsFtN9OpGOT5aUYh5os8u2yz0HMz9exf4zko4Tko8LySUbjes8uW8RxklKZzvaM4ajND7gVKe2ewZr9z8jkN/tn/42E+k+3nP6ywgGX8ln0JvzhjGT95XRJ+QXpYMV/ntYoRnkjNk+nzbNo9lEk9TJ8V30kgvMIm3klkHq0rJwFI+wAAeNpjYGLcyjiBgZWBhWkPUxcDA0MPhGa8y2DE6MvAwMTAysYMolgWMDC9D2B48JsBCnJziosZHBh4f7Mwi/3XY2Bg7mZUUWBgnA+SY3zMNBtIKTCwAABBMREMAAB42mNgYGBmgGAZBkYGELgD5DGC+SwMB4C0DoMCkMUDZPEy1DH8ZwxmrGA6xnRHgUtBREFKQU5BSUFNQV/BSiFeYY2ikuqf3yz//4PN4QXqW8AYBFXNoCCgIKEgA1VtCVfNCFTN+P/b/yf/D/8v/O/7j+Hv6wcnHhx+cODB/gd7Hux8sPHBigctDyzuH771ivUZ1IVEA0Y2BrgWRiaoP1EUMDCwsLKxc3BycfPw8vELCAoJi4iKiUtISknLyMrJKygqKauoqqlraGpp6+jq6RsYGhmbmJqZW1haWdvY2tk7ODo5u7i6uXt4enn7+Pr5BwQGBYeEhoVHREZFx8TGxSckJjG0d3T1TJk5f8nipcuXrVi1ZvXadRvWb9y0ZdvW7Tt37N2zbz9DcWpa1r3KRYU5T8uzGTpnM5QwMGRUgF2XW8uwcndTSj6InVd3P7m5bcbhI9eu375z4+YuhkNHGZ48fPT8BUPVrbsMrb0tfd0TJk7qnzadYerceXMYjh0vAmqqBmIARoqKjwAAAeMCmwBKADAANwA+AEUASwA8AEsATwBTAEIAWABRACcAQABHADoAIQJ5eNpdUbtOW0EQ3Q0PA4HE2CA52hSzmZDGe6EFCcTVjWJkO4XlCGk3cpGLcQEfQIFEDdqvGaChpEibBiEXSHxCPiESM2uIojQ7O7NzzpkzS8qRqnfpa89T5ySQwt0GzTb9Tki1swD3pOvrjYy0gwdabGb0ynX7/gsGm9GUO2oA5T1vKQ8ZTTuBWrSn/tH8Cob7/B/zOxi0NNP01DoJ6SEE5ptxS4PvGc26yw/6gtXhYjAwpJim4i4/plL+tzTnasuwtZHRvIMzEfnJNEBTa20Emv7UIdXzcRRLkMumsTaYmLL+JBPBhcl0VVO1zPjawV2ys+hggyrNgQfYw1Z5DB4ODyYU0rckyiwNEfZiq8QIEZMcCjnl3Mn+pED5SBLGvElKO+OGtQbGkdfAoDZPs/88m01tbx3C+FkcwXe/GUs6+MiG2hgRYjtiKYAJREJGVfmGGs+9LAbkUvvPQJSA5fGPf50ItO7YRDyXtXUOMVYIen7b3PLLirtWuc6LQndvqmqo0inN+17OvscDnh4Lw0FjwZvP+/5Kgfo8LK40aA4EQ3o3ev+iteqIq7wXPrIn07+xWgAAAAABAAH//wAPeNrFvQl4HGeVKFp/Ve+bunpV75vULanV3VIvarV2y4tsyZYdy3sc2/Ge2FlIQhYIIRDIBgnOxiSsAQIz4c7cVLU6IQnLhLDNsEyGC2OYCfAuy+SNGBgYEjITHm6/c/6/qhdZdhIe77tO1F29VZ1z/vOf/ZzieC7GcaSP/xAncHouKxMuN1bVa1y/zss67Y/GqgIPh5ws4NtafLuq17n/OFYl+H5BjImpgpiIEeO/feMb/IfOHI3xuziO58bOvsp9lv8wZ+Ss3KVc1cBx6ZogcE5NumriuTSRbDmJO13TWvAt5WnRouUMadlqXJKsOdliXFqMWk22dM1s4aKatNxB0rLFKjoWBd6g7/JWONkkiA7JUhkYLBeH8h63SxdPOgtCYiyajcb6Y4Z99omMNxr1emIx/j31KIdwDZGPkDj/ac7AiVyeA+S4tGQu1PQCZ9CkpY48kRwUMJuFM8I1nXBNGyc6ZK2xUuEGBp30QvpEsqweDPmTgUB34L5A0g9P/A3OQMD54nds7Imj1/TAQwVoEeAi3Bqu6gdaSO5CVc+uXdUSLi0brYWCrNEuyR3hfL7GEb/WmpbFILzJwZtObx4gi+bkGEkDFJOkUE6UC+WCnv7pE/QvUYY/+pFHPDF90n7l2MTYlWPj4yc6rlh9lf0tcHTV2MT45iunr3yy9I3iU/Cv+I3Sk/Cv9A2EU+D6zn6EjwocF+d6uQHuFFeNIaThgiwIS1JfvhoTTOnFqVjUmK7aEXZrQXbDJ6l81e7GT+w2IyzsYE4ynZYTliUpYZejJF0VrMl8Pi9HjEvVDncfHEoRu5wBwgYsS3IenhMmWEZSkQMZILTTAYSG84qOKSNHTA5nINkzAKuNWHu8paymVBwqlwpuj1efTLnDAqy63p0oJZ0u+NRGnBOkVEym+gY3nEjmJrp81+0dv2ljfnRXbmJt/PjJ8VOeibGhNZ9bNb5qfN/kVssrJnuka7hr01Ht3kssm8cnrf9s9WXWZjdeZdi920BeSaYd39ZU6nH9dG8m7wAaabnI2Vf4LwD/mDg35+O6uCz3Qa4KC5yuJuBB7tEsVb1AG8pYslOzVMuEEgIsZQYObUZ6aNMsESmHXCabgdXNdtkORNDBoc4u++GwGw677XIfHEaNS/IAPNvNoqNmMAoeH5BC7uuGV95QPNFJt0HGA3TzRysV2WmDIx1XqVBOLSh7ouzy5IeAKom4zkkKpHzuJ3FdZM+6mYsvvnf32PCukUqmf7ibfLZc3/41eHfPnnt3j1bg3T3D5OzM/v0z6y65ZN3AqlUD+VWrzrzAf/jMkb9Y9i7yUhfQ6QjQKQ4UqnBXctUg0iiKNErqlqoGJE9ZB4QYoYRImCm7aAHVHBzm7HIRDs2GJXkU39ICgwgVqSjWDNFkvx2wlsyOqivcU0FmKSdFx1Oc1uwL9w9STgEMy8mSgqaN13u8Hu9Q2auDg0QypUtQxAv5cjKVTAHLuLyUaYA8XfNrC5fOrN7mH0mno5mudH9w1WBffsvxcHrrlRe/9aLN5dnpaX82mStc0rNqdX8iNfQ/Z/Z075yc3r12oquS83v6C+nsqp3Ba0aKs/7+rZfuG1s7vTZaKoVWk2RuTXQs05UqcwRlEHcflUFRJoEU8UMkY07mAF8tbAwT3enOZWJGlS/Ai4TrP1vhXuL/BnjRyRHJTAmpg59a6E/LxbLXRly4T/rvyZQKhVLmnpf/+/n4Zc/+8vPHEl+G34vw+2/D783095acJJyWjfB7K/09I0qqDCTUi6VisZS5997Hjn3+rdc/ezz+5df+8BxHYYiT95I84CJyJa6qRVw6QI0gLiBHO05L2jywPecC2arLM2naARJco7fiIiKC5VTZmyroy169V5/yJsr6+NGjngParO6A9+hR7wFdVnuA/LRYTE1ce+1Eqljsmbz22km4bog7SE7zIwD7Vk7icpK+IBPtElyuCkIDZBFnAilFODwkAoolC4olic/LRthdmnzVaMLPjHr4msmIhybOmFZQd5YKIGEK7gQIltBzleeeq8CmeeGF4j/9E8W5cvZdcM3DnJ2bAJxRs5moZiOSmJMMpyUuX7NaOAfoNfYkOwBvqwG2pmBHfjUhO1srlMRl5EZ1Q+orvm5BY3IHIh5/d7brgL3UyYf6o72J/ov8cN0w910C7Aq7K444y0S/hH9E0lC2qQlMZ2nZ8gMG4d9+d3qarRPVxwCzHtdJ36KNW46JZMhJZJlSlo30dEPIiCAyULdGsx58iOJ5ubO/Ij38EwCTh0NAUHfyFuQABQ43aORfj/7axX/lzDjowgLIhUHKLyFuhqvaUCB4hCXKOnJQAGTCCIPsBP3htMs+oJwJWDICzz4nUNCmRQoGQeItEqOJo9vdUZzgC/kwD1s9Ec+SIVeY5CdIMUviukJo9Mj0qqOjodDo0VXTR0aHw1tu3BLGB2K99foj4+NHrr/1+qPj40frp65bWLju1HVbtzJ6ueFBCzpbx3VzVQ3KLkLNFn1O0pyWBQDJACAJGqq5KB+DFSTq3X+5YeEE+c1fnznCZ96C5ymhAQD4erl1XNWC2BoBW6od3IhtZ05y0F0rmfJVhw4Z0WEBRgTEOdiMlFEkt7jI6RxeiiwoOIVZYu5YaUKggktfSr595uL3PvoYmakPHb/2RP/WyrXT/Fi+fHTfJc+8a3Z666VXbO8bm9jGcAudfYW8CjD1cPu5ahJh0gBMfgWmWocp6Qc11YHg9cLOUpW5FIqeFmUHHDtycggo0IcwmoAEsOcSIImlDlGKArSOqrczVKlQlR0GaIcUGD2Nw5TK8GECj7ADQoPhgyMbFnZvGjWZR9bs3D51ZC67/QOH3rlruHzo1pNbbj5Y7BlYPTI2QjaScrk0flHx2P6F6c0m7Y4N209MIImBGXkbrJcJ7M1dXNWIK8ajOOLMRt6aljRgSIGtostTy9N4WrLkZQOgIuSrBrr9DTqQBEYDFQooCToQOTNH11fiRbpfyyVSEJlYAKM3SsLX7Nu38MtfPr6W/E1954bHH99A9iJ9p4HH/QCLn7uKq/qQvmBAVa1IXzvQ12n0WYG+TqRvICdZTsuiZakqWvDSYocxLYl2WQfM5QESB+FZBC6QzQToqxMXBaPTR5W+ESwksBPNFg9qQ6coicxEatJYBAZxK4ROxKcLa69ds2P7mj1T4+Th+ufHDuy6+fZjH9pf3rV1fNXmSTc5PvtvY9cePHyjskfDwB9B4JDLuWonYhAFDDQ8Y9+aI9mpAQwcCoeA2rECKUN5yWqXEwCxmzGHnEBr3ahxoJkCTCzrdbh5k1F418q5O9CUMTrQYtEziwVZG9RVIm4DtvCqjA57mvc2+UhXGH7HnmvX9Y1sn9iZIr7LRve//dbLV8MW36Hfunn9RTvWDO4hG/c9fGjLxJr5a9eKxp6pq45e/M7hS2/qmL1q59C62TLdAxF4eInu7ziT4XR/I4/gHsfNzYEnRM0O1AcxN0mQCPlG/Td7iZW/aLZy5mP8RWjnFIFWDqCVm0twBe4gV3UhtXxALSOebxDPV6QkguWUdLiDuuDAY1eWdknK4ntmoFgJ3sh2iY7PGYw2p8sXFeg6D/pEx5OczixGexu2TRY081DLBlLsGaBPlqRsvNMV5r2KZNAVL14zte3Op+/atmrNxXd9+66Fi1dNXTy5KhBYNWWOFntdrt5idGFicuvjk3tdjovGt+3evW38Iodr7+TWQwf3Fqemij3jPkHwjRNnMOOzagSbLxPMj41Rv2bw7O/5IP8ZyifHFekmqtItCXzij1rQ4PU3+SSEfGKX3YCqQWGSELpXto4KckjNIgr+BMXbLypvM34xuDlF/qGyDPNg15FEHKyTQh7tlBS+UqgA5AG8B2+9bA0whcorU7u6iO/46P6btwGDXOzXbd08s5V8e8+twwdvnNn3F8gsW65Z7UBmuWzd7FBm9updzHejepP8EvRmBzfarjnNhFk7VHPaUWtJhryiNUG8qPpTbNOffJsejbZoU/IZplR5sC9u4yS4pgge42bFwjCza7rxmn7lmkG0NmTOAQ6jjdkb7Eny5uUQmlrU5BBxz5nR5LC1mBylhs0hNHznSmdS0BlU6yPOvOj99qFOIeTxghWSucjHDygONdUj3B6wwdbAHuKcpW63lbhD5Jn6HeQmUiy9OPm5pyYAlxD3PXKa/D2NLfiZ1QJmGhgsWu0S2huKeVGGHdYNf3iCGfLM94rFL5dKy65RLmVISQtfubF+J3lmz8RTn5t8kapXx9lXyROwBwOwBy/jqCNWizB6oQrA3UikLmqOBvOyybBUi7FFMtllj2Jud6OhAaZpjbf6wsiBUkxctDgjcTz0OCQDENEXAUbktNYAY0TVvQBRpQd6TmiY3HUoK+zYfPfuE+PrxwPjqUBPricwXrl04ggQNNbPTx7dPV3Y3DcSDbr9sYFwPpoI9/l6SlvrVsWu4rnE2Wf5f+dv4YrcFPcLruqHdZcChUW332NLyxNAwnyultFwbsDCmJPsBTkG7w3npVSuJtC3ibSKGmN9zPrus1Pru2RYkkp2uQusRR39QJ4maWnI/+zEp373E86dNkn+rE0aeU4rB6yv2aTgc9KIfdE34nemF0fxsQqP0bujdyd04GlWJF+FW/QFR0az8I886fMHlONsVpryE7mrBNLMKNg9qcxAnmktdPFzA7CrJ2JUrjmtXX2qXFPFfTJH6HZmPOotFwSd29VQbOwYvDl1w08SuuETv/nY+6Tja3sGeRLYnl277dTF2dUd1jUVPuBKrvvoLad+8KmbL93tOHjlnU++UM7tnAiZSj0bjr/y6C8/d/tV78jFdcnBPRuOPtQfn6j/p8XoC+zZe/PH//memz457J988p7BiT13hzJvxXUBw4K/C/SGHiyNfq7KYYREKFDlUdMZOALiTofsZs5RN0wmsAclE+BXAM87kYrpyzHBSCzHiHX/aL02ukAC96AL/eCDPyHHUJ/Mw/kn4fw2sBgj3CF2BbTFmH6KgFTt9NLLdOJlolSqdoBU7cxLHWyNQZdIQVQqyNcxeCMIfE0Z2IsH5orUKcJLKeKQtAiYGGu1xVKMzmlSggN8nie9O46sGSxtOrbnx98emV41+u2/K4+ND/0d/+F9G8cWTIYDYxcdmp0oDU7Pju0bp7oV7Yc7QS+4gXuZPrSpWsGIQHuohW8B6LzUygVWepJwWp3ooJwwZB9CM4AuKhPouNaFr93/6CXrQgeHr3zggSuHD4ZmLv3o/U+SgS+/J5UeeuRXj5T6U+/B9UH63Qn0w/jesEI9o0o9Ea9O43vo50pGO/p7lExOBEQ0iipJFFZsEGP+F4988YuP3Hff9XffeeN9/Ie/dOq+L8w+eNXVD1J88ZoCXNOMHk37FcGwrmkZW2jx4pbGxdEFpe6p0QwmH59nvqjigBao7cb+mydP1j9GLq5/mhzkPzz7g9mXZluvaQT5QK+58vVMK1wP3GHlYub2i4mNS9EL1f+RruXL/ClYSx93nWIJtq5lzenqFFRb1q8uq2Sxo9ajFg845KKHWrZOuGBAMWerRqETHQaPKOmALzFsBeaDB96SjS507bQ683l4oZQANYH88PX7PnZkOnpsBPmhvD/0r2T42Mfvq5H8c+/o7cs/8qsPpUN3zv7ntSqt3kbXZ1LZsXq2YyVtoSaYKLWE5urg/uHzGJcDKxDoJusbMRFgDDEmoqcHxFogty8s1OHE9Z+SyJkjJF//B07lB+4TcD2Bi7WsjeIdU98R/7SNM84voAhgvzWDbwYSAbyYtGJRoe+gV0PmOhahoc6JHjwA8PsrTbsfzoXy05wuz4xvWLh+38lVk9ObJsl369njVyh0WE/pMLCMDppCO/IUXWr/yoKxwnaESApGkhD0bkA8dbz+S5I9dmY1IP+XZHf9K/VPkv6N/5tdg/wArqFVpSOFn+GvU/GvCpQTBS2whL5JWDzzEJDiidkGHfkX4VwW9J3puXTGQgvEVno+heH0GEMF0tjgWY8eE69BwwdxqAoGc0XBIkBw9YSEIM7f8MI/3rDw8/jPAAcTeRU89u4zL+Jf49rX0/2lXFvStVzZ1CpDBOXKZgwIoAjh0VOT9BWVggbl2gQ5h4jz28mtC1vqbwdM/4s3wnVdZ35FbU2Um38Pe80IknOG5Uxkq7rbnE3JacJogRI1ZkJUtpvgQgYBMXZa2QbimhvIYweuEFpUaOHpB+5/5pn7Hzh4+1VX3nHHlVfd/jTp++pX66e/SnZf/8gj19/w8MOqLE1TGoiYt2hKGZCjNQPbN4Z2kWrKI0VsbVIVQdNqKqqqcenSxEcaysVy6dVvOfDME6Ozs6NP8B++7rPX1f+LLMxcPUPp8VNKDytYgbuW+xeBZqzIBhe22eVOhR4YK+q0YZ7IaME8ES4Gaj/qRxtMIHYCIhCI07cSCKOPKpEwJNlKqL1TI6vmjyKxZob3j+wbbyHYpWvya/NItPixwaNzVyPhGN3ydA+7uZ0K9xgZ99AAi8VGSWdRVlRxn23UfXYopMNFdcBKgrmKi2pD2PUG6iS1a21nQki0kvOS6w5vqB387HtVil558Y6juvpviRHounU90JVwSeCzINjLXdznmbVM96jIs1Ackbpzku207AOYfCwSEQWAksxO/I/7nj+JdqIN5KNkfE4O2F6TQs/Bi0WT2egEG9W+GAyEwFCEx6ahWIUP4Yl70mgyB4IhZiKStlfUYPTZWLwFAx2ih5rhUYfsdCEJPAIajARc46iaDmIur5baiTRuALZhWMNsyMHt77hoY//a7dvW9r/70EO78htuHNs0uvPYztGb3vHJfZP712YTAwFPILluYOuxS8a3jOYSWU+se+vI1muY7EEj3E/tvBGuqmuND0hCngZKQRTDQlW1NGanBaVa1WnxUIfRI6MSR465EyBuouQP31/gL5qdPfMERg2ofIE1uBLO38FVlCioTpGTwCrUnWSiUhKoGqIBAtSpBhT6VhtLRqK896hyP5qcXzj41MGF99VffR8RyMP1yy+5/PJLyAfrl73zvvvoNVXbVYd6ieLE8dR8bYY8OB2VX3BulJQkYdz/05/ur798DGTVc/wUVVIEbFNOOEzl8qNqTNMMchlPtkgEja7LS4UzigFkmedTv7mbuhYcuBa8XStxdpkA2/B22WJ77dnxJ3+jpR8LWZnwBol/ziab9K9pJfNzzz4/p3xmzMpmk0EywWda/EzznMBVea0J2WgKJBEvaLTATZZs4x/wE6egAf8LCTNJ2PY++MjaRx7Y+6U9DzywBzD6Pt9P/47w/jMvAV6ACv9Oqh+Tyq41FKgHCXYC6kemFXmU6RoTlWdEoCcncHYL0fz+yNe/duQVIhz+p38iO8ja+u+Juf6F+uMkWP9Fg/6XUdt0gEUSmvQ30jirjuV9ZJ2ergIsh75tOYCVjJe+8MKl9T+AxVD/Jhmqv7P+EvHjuQfg3J1UVmcVXalXI3YCMwSptSfrWUQTDEV41iEOJRLD8FbMPUBuqN9Ffgp/t6zlLbNrz7yi6OGes9Pcz0AO67kyp5iZ4GxyDR8e3Uy9hTNr0I6VtcYl9ZWQVzaCF6Om8Nfz7K23fkk4XD5jKr+R3IFYcCZGfz3KP3FmnKP5qmnuWxQOsHkZagAHsC6nwKE/DZes6djFdcBlxiWJwE61qwDp1XiDFzRxCS2BW2999tk7+FfLf/wIw9VJNpGP0j0ico2QP90bA4OwBE5Yaefjlb+auOMO+OJ8vUq89SX43dkzZz/Bl8/+EHDxcpJAQWJgYaiD/hrj9QI/cubrPRR3vh9o+gX4fg9+v0YEzqZJt1BBzeTIBFeKqyA1vIn5Byv8F04B2wyAnfhV8huuk0twJ7mqE7kJ09ByULtUtdGKAt1STYh5bFZKJhoAAZHiM1Cpjn6iNpzPyw4Di334kKvNlgqGkkFx2jzUXRcws6wF8SsZRfqp4qd7W8P4QMlmSrWEUnjgyJpjlTVD2ycTm65bOD43fmj10U2ri3vS6T3F1Q9uXJjeOTC0urhly0K9Vl69Y0N2dOzisVHAaQ5kop36vn5uu2JvmBEnh56JRlYq4dWzwDlgYwPo+Y58HtU/jSmaWcjcjXlwrRnVhtcBBqDBKqgGoNgIM6TcpTBTnACyfm5u8vD+G284cGTCdVF6/bZt69MXuWCTnd3+vmuvu2vb+tui/ccfuyxD4145oP13gfYO9G9FaqUBgALCZkDYnNQqMQMsLlxAg1Xxb20dzOJoqiuQ3tS5zd1+4upV+eymjRdf/HAuv+rqE+/9l1PbspNwxcnsNmob4jVfadKG5jcsKm10tOIAr+9r0sZuXpLsduR3WeuGlTYYGG2MdrRJLUgbH9KGM2krzYVFE5Uu55DibqHrlbvhwOHJubmJIwdumN8207/F7b4oPfOf175vOyFnjqzfdtfXHzveH30xlmFw8lpKGx9Gw+0IolmnUMcLLOk02KnHqGUeIwAKiyY585LBjuSSdQAmuokuAxruZnuF5j2YyoOvKtoPEx5cI2oUIjFcSSUmFKPeYu7OoyfeUb9Ju29uz2jX7PUn795MxsnWjesXfnf5Aw9c7Zw5MD44e88HJg4dZPseACVbaRx/D4tZUKJS0AnG3joKIIyXJDFPTTYXzSQ7DWi1VZ0uVPtOESwAlxMPXWgB0NCGmcDeNSoWKMsrNxc/RArUOrBvmVs10RMJxLpTBw/OkU9Md88udA92Dma7p+v7ySc4Zf3HyMtAVx/oppOKJx7CpSfq0ncBeOacLGJRRYpyoB8I62dU1UYVDuiBF36iRtxdsNfNIqsi6WwE3LuAylWidVO2YNxaYp5lkgbch8ZpfC7VwiE6YJFDk3PvPjy1pzdZPrp6V2DH4IHebTOwiVxb+tcvvOulO7dvqKevOhTpHZ6emV2bHPjDRceyse/FMkcZ/efg4cfA3w41hqJazBRD2absK2AXkFjonjvsVFUaDXSXySYH1WccrdaiSRvM1GEKCeSTyLa4ODcX3Ff40NxwqXezF/Z2bPBD9f9BJsby/ZH6x4HGE3DdT/H30Jq1jVzVROUPLr4hhzF/l4b54OQ0qpiwJq08LVp1xJDGuDJqWauBuueyteGRYYIauRQJKMD+mgi73OGw2yXO8Wv7wuG+0Jkfkp/XQ3Sdz3707BiFwQp6ZB6sBLw8WB6Cbgn4riYqUHSySIBhaTGs67Clay4KCM2WG8GCk0UP7hbBQjWHpBdB44MCKrcGCZowHQpEkl19c7NrR69RIHu0Ekn3844z/zEzLxgpiI01eoXaR/n2+EFVQ7h0I4JgaEYQNO0RBGcB3JWU3j03V99/+gcH/ucWWIQZQl6s//c/b767wQfcB88fOwHi4l8zdjI314ydwG/5H8MeiWA2isVNvRgvIAoXSZaCHNCjsFEDpxHGSxHmPHrhlZf51R0GFjrtjFC2krwibmM7VhtycqANK8pkHm+D1Sinqc9zc449A6Vps2dP/o653V3rXXO7EzNu8vN1waF8T9fQ/fVPkfWH+8P1j+ETcqFK5x9RGdq6F8iffy/kYS8U+zZ7AJ7Y4Efqf0PGxgvKXkA5bgUY9CAZZ5m1KptVLdeBEIhUxqDwNihxVFB4aqXLoqDT81SsdJgxHKHRcqruo8mRFPotWHeWu+2Ht932w9LOB3fseHDn7T+8774f3l+fv+KKj5y8gsm9ubPreTvAgXpvG9diDjTIAeYA2KLnswiMrRaBrmERLBqMgpVC5FVXkJoEPtJmEgR25A/ccMOBo+NgE8xso+Lsaf7D65PZu/7t7u31s2Q8lrnsseOZKIO1/+x68tsmrFYVVj1pUc8gIyispKGhqcWPGtqoaGgT1dBWVUMvEk6NhrKECDVcAVq+RQD333Agv8M/Nzd+5EDPwkz/RU7nRf0zt/zbXdnk+jNHCNlOtqD18i/RjMJfZfJr8HcG1T1GVOOKxnOUwBrbyDZqw7Ry0lDBrfLQ6n02e3yLSH4+v2uTMBCqfxb5Nwa2yieBDnGML8RofQmoUTue3o3aKZGTrKflTjh9J4vbhQHxLiW+UHv+YGt8wa9/DbNQjfiC374Y8Aed6So8rhxf8AeCLfGFxisaX+i0sviCXlzU2N0xjC+EHbLDSUtONTS+YHU4w0p8Qak5yArtAQaBWo+xlG9nbmhsYueuiUsXrliXKFwyOIIvDu95+9RQqCfbHe12+sbzo1vWFcfTsVDM6V9VnNpK97cJ6BPhj4GtcUCxHy0KR4OjSc0Mfb6tdq1hcQCH0EC+q1G75jK2WxwW0OJSR0XiRJrubVSyic2kWUk0bZk7eNDXGXN4YpXSEFgc73nPdP37wbhrODJSJmNUBgGMPyI/ZzIIOZkBqlMBNRVUGQTyGIMUIAEkYx6ZhsogK3otIoZAdUrmuUyjFciw1MZEC2JurlwC8TM3F7648KF7yfb682P5vgg5VA+tiWeZTBfg4f8GOFpiFuSCMQshIVz0iUe3/v1W0KnXkfczvcp8+/8F57Fw72UxC/Tt8VSLBETV8ojFC7+ePCdiIbCIhfDas+ODyse6rGTIoqOp179mQzGo1b/GybwWeO9zHOG1Or3B0hKPIACrRUkHtgUmLPPXv3PqndfPf2jullvmAO53knfRvxB5T/3mBvzkRYC/PTZBLhCbKKcK3nJB7wWFa3nmiZ23377ziWd33nfff//700//+39//etIW7ApkbZ2zDUoZEWqWph4R2EODKVnJiwnyjw9MaOyTs+KL4YmCaX373qOhn0Wh9cft0QZ5c98/gCvX2PwhDYg/EV4eAyu1RKfAJmAdoMs6N9YfKJITPVXycn6K8Q+Qo5NV+p/sYrRRnt2mnuZ/wwX5bZwrLLYrAXLNyd7WZiCYMF1LCeFTmM2x2VEq12Oo48RUpiU82LleQgsYoKFVJIZvMcO6hSV0NotDo0SN7XYXXpwNlwe+jIJHyS1vsBcfnw8kMpmU4Hx8fxc4MV8KvydsblyJvG9NS7Xmu/Fs+W50X8Ip9S436+499KYh5drWDXGJfqnVWMl4nyZ1UuymMdZFbcOxM0GSEVpgAHMQNmr4KY5jbsvaETrhuIWxNJEzEF00vaFYIUaMfqKZHPIRifi5qWWfLFM8aD5XopbwU0R1aWJ2IqWjyJ6RzbOsEpkynNj3wmnANl/GJ1juAXIZ8iLtO5tG6sFRoOrU4v1gpK/IJu0Dd/Ub6SeiYXQbg+q9Cx+ZF1a/E/tFw7T1LIBDFlJy6plnRNCPiygFLMJiXgW/vQBrT1cXJfzOoLuVeKwtiNc7Epkvc6ge9JJ/ia/aX0yVRlOPacvbISj4eHU36o1Peu5z4L+08Nu2s9RzYwV2FgRYshRM3Z5EeyiSYsmPpYOG3Oyybi0GDMaWGdKTEOTtvBmq9WjN9BdQ01/avAIzoJzLNYfi2a9HRN28ijWgcTO/D3530pfSu7sR8h3+RLn4UJYc4fCVnIVcCtK/rxaHOg0KoasUEBjTArkqzozjTlrUE2EKW29ZmrFYoRH8GOEBznLjA0Y1CO1YCMBZ1RiEeWWZgqRlsi7E2BPlF0er2gjubfsHd03lu+ZmuzNjxwY3fuW+TWjo2t+d/B91g0zhrnskKF+j244O2fYfbHlfYfXHbaSk9ZDGEM7+zL5I/jSJe6vuGofYpIryF3C0mKmqw+oGNPTnhFaH2fXL9U40me0pqVO2uoC2BJpCN0baSCPVcBVnVONqmNBcAErxgxL1VAB3w35Qe+V4S0nej18DpilIMqREjyHHDVvZyCWocsRy4BHG+kZwGACCLJQAbxcO3jBVZ3FSr1c0JNZXqk3YdlmNxbRgeLE8nd8W61DoHEvWnLmvDzoDr5n75rLg6tta/tHtznEHt0H36bf6AvEdgYjRUvX4I7cga6+jeGptR3EMhQNrIpvvXa01BMfWDfiH/APGoa8rvkhY6+vY3Uu2zMR2pwJhykvBLgpvsJfAs9d3DUcVttGgGSJnKzRs+yM77QcBK0btFMfBbskkrjjfWgrur0BpXqJ19ldrFNiUW+0dlBCRNCetNldtGg0IS4arezrGscix+sMrLCp7EVzp+zVI+4sL5bSp7CjouxV7fZAbn5i+46x+ex8LrspuwmOJ+dymzLZyM4P7oT/+Vx2czYLn05uW1i1MTOXzW3MbJpa2DH+wMyRI/ceOtwWD/dgbYGtJR5es4s2zopuj2wHljDnay43fQPMIxeGfIFHvJikkhx5mjsz5KtWGzKEFYspdPmqzYqvbHZ45cpT585qU2Pq7jZzAct5WUlvAmwl+KMR9p//4A9/+MMC/J1WAu2LxROlt72tdKKI+b2GDNfDblUi4KhaBOzhoU/NuLcoUHleLrvIWP2r5A58hHPEzz5BPgl7pI8b5k5zVRetUwPUenMsWlvBwmBJzMtpXOi8lKaZOKmQl5PwRjwvjzBT5Tdnnjcye9lklwzPyRnra9Lgc/Bi0WgygL2csS9mM4PO9GIOH6tw3FK+latU4VtoOD+VGzQYTRnVWCHLXlPjOW1Rk3NPCR0uX6QLC1KlpEP2eKmrImAXDhE93uQQ86zKnqb9rPTjtBrRehaGdbrCBPtzsNnERuLJsQOlKTSkV+WvvXThrePx/N6BcXy9d+/xHddo+1MDes3CeHEiLwyuz/bGU27f+GB+lbVr58j8TGasvyuScPinijt7EzvWzpO3+7utFp50TaR6rHZMkZz9HZ8hYf5uzgBWzyiH5fwdBQzugBhHPmNH1Lll3Yn4vpb6aFhcGWXNHLCygiLXk6pHawsmA4Fk8B+CyWAwye914osAoe9hXVf/2d/zP+H/kl43xd2nVJJaaKke6wGy0+NaMqoXrPDEXrn89JVLKenroWCZWEmfiWaLayH2KkTT7jUtq+rrxfJPsG6mTLxObxZwwydZWW0U3rRisgw3hIfzJrrUstqox66LJh12T3TInozyxWbljbtZhtX/TRL+5jfrP/tm5Gmiefrp+h833rRzz7DPuTqx7sjRtV2rXP7Knp1k/gP0O98i9vofn8Yv1k8+9bbpTn/kyOZNx6N+3zSVc71kgozzd9IcxvXgKaIeZsWL1BfFgFdQLXFkXXNKDsO4LIdhvFAOA3tFaFchyESZc2GJkaB8T6kmbs1mhMg52Yze1ZnVPdnYaI+vuLmyvtKzun/NSDo2HAoNx9LkM4NDfeVwIts9NFT5XiI9PBDuSg4nuyl+YW6SPEIe47RgZ8AhtcWpRR5+dO7RR+fs9PFlWa7V4I/WurJaWS03oFbKqt1MVL/rWO+JEexm2omp4Rr1MzTTXAqRZ8rkwdKrX2b22J/eL6SBFTlDvgXyyQgeYJTr5f5W6VQT1QWpWdlRJCcFCrUYW7ZIDOGKgJ2CMqs312DcPmpTmRmrmuna1aLsVSwvRe24frVO9gb8stOOMVS1RDWNCt7M3JCoKFkqUrdjURRCVHOhkUhDJRHw7atmzlahK41Bu15Qhx2mTqVHSG165JkKS8SFkpIJgmVJuEtqqV/i5l27336zdODkwydObNykORTNZMRVPZP9q+3BgLia3CTd/Pbdu24m0YdPwjfqL7zcG0t0X3rgwDv8DmeA0Z3jx8gJ/iTLBTL/g/kgjVygiB7NCX5sAGUS5yUyMQOtzfD99ZzSHKShpmaHhvUIwa63MOpY2K5XSIMRXwfWhhhp7Y+749z+z0SzOwC52TuTL6xfX8jPDPaFI/39kXAfn86vX58vzMwUIul0JNzfz9G6bY6c5mcAhw7s36YeG6vclswFTPyCu1HV0IIHjQ3MUq2GlkHojawWHlQzKELs5G6qZgG4wtRQzWjPgcpk1fEFpEdr0x2WgdPGu2KRrMHWu9OnGW0HyafJdmGUc3HTHKY7DBrajsQjndxY4o35Z4Stg8LWAfYA1niz1BGyjkNc5LQdrtYSbp2+gK1UrAdUP5i/dGzh8JFv1X9882X5xIYU/8fJ8crwVesHM7suy3Z1FxkcfeRjZCfA0cVt4tA0EwAOA3jhDBzqlXXTIH0UwOnAalzwedBM42gJB+zrKDKqVZRCAJOj6nL7mSGqKE2lX2rldqm+aP/6dP54XKePHiwkpzKR8p6pLUOJ+MTWtcfI/5UcSkbXkjyZCscHuyZGBntyOiHfX5xSeFPNO0eRN8+fdwYmBVn14PzjfP+pU0p8/ex6vgt8eD9WNXnRrrcDK+iWJGueBYWMhZZIrJ/Fpv1K/YoS2zSAmyehUSpKLmBYLTjeko+63S4WjBVdSojIpcSraGtHyj03d2XvvGcuZzboPI5d9sDW/jn/02CcPX91P0aM7h3hV2l2dA8O/EjxRcGfehutUVF3FHBK1UDlpsEEvKfN0zin6XTNyDaW0V4jFs4ERySHRWy6pja1UXo4MAwgJuh/8cCRmcXM7swM+at7j5wh/P86kyV/SfssuS+Bb5nGSQpoXSi9Im+ywTLW/xP0D6O0RmIV9x0qGdZwqBCZfsSMlF0RrTQXVHM25AHL2qP/bBCrxORENrODvrMhe7mb7IWqqCEinImMr6vb2xGLZPx2d6h7rH/yE8mQ15kQndumzd3hrn6s+yGf5p4QSpwONAsoo0YzpPE8zZC2k6Wxaf4bV9avJtNrQab0gL6/AvQ91jeu5tTt4qSbp1HbaGzWNhpfp7axmcJKtQi4nt0bZnfvnt0QKucGhocHcmXy0ffv3//+/Z8uTE8XaHf6Cro5VfDqacRMH34U1fJa+jhZU5Uz1Yk2zC/R2hDs/u/k3sesOMmpVIYaCjWzR0+sNFts1mC2uOqh/rnHinLRp5IL46UuQvt0nMbz5JBRcPkVqsrExJK1BqOVGTUeRZoRUcZK6gbJsb+/u+RU5WiqUKKLMEo+O1zfTshfL4yMjN55J59ha3LmvzF5drifcP/P4OHDg18HqYA4/peCY4S7lc02wO5qp2apgaU15MECRquGdSA0kUKA7XDoylf9dkTD7wE0Ym1o+MWawWi2OikeTg8TByHxSY3ZLvgj2BNIsO5Rq2tHy0hWEtat2A0MHmwX3G1Ykp3LxLgGfC9OmOU/ATK8hytwQ9wzXLUbsR0s0BkOUrIgOwBrK2HSo9Zb7LbC4mYKci8sbi5fLfYijsW0ETZ4Aj9jnFw+R/CjhZOHBS/l5UF41Z+vDubxp4M5WPD8IB7me4FSw0CpPLa7JVPpIiVQsRcI1FehSmMRlAa6Vn+i1jiXNy6kR97JiMorLEPWnk+t1P+4jIno/oqcHSOfJ7/mAlw3dwVXjaBt38VibL6c7MIsU5KqCWyBVBpeMXMcw8L7WpD1ZwVzcgoDG0pOQycuagzhLhbTqBnBBWWtgl3YMsAZPaxB0FvE1kc6t8AmtPQKORt9bpGe4UqPfyzVXSp1jw8fGh+cv3v3iYdpa1ast291XzIbCLoCiVxiONU1GEqVLiod3c1HvbGY1xONwh6hdZTCIRo/tJ3bBWRpdgF15FCScTKxKEkQtQvIWfAmhLZOoOH5Byv3NrqBhEOn6mbsCOLarmda6XqGFa63QtcRyvtlnUcVVO9q99G9oObbryVe8Fpg5jgvcC3MOyy73G371x8sLGxpveLllzeueQlcMwKeyi3LrxlVryl5AT3YecAWZg3LIxpO1yJMfUeYU+FierAL2CaCgEXRGayBee2lnXwuhxTDpBTsMSleke0Y9zdEQCoFRdnmr7SuEOszxW1VYD3I6Ai3r9naQraz2xmwuwOZQtbX7cCjSGMN+R+MzYbioXRaearr6YJqFHwHaU+pA6ypk8sxtjcw7shJvgI2f2Icwp2ntpXxNM6VwDesVI3UOllgIkij6YCYHXUFnMqBqr9TScPZ4QNHC36NwHRMUE2PFsw20miGG3mEBTQYRr+l8Yy6iRz7H0pko4nPDZRnXLCG15yXa0DZ1zqZBRPK1WyKBQMqxHy65mbr6KZapGZn64iqw+8WHU8R3mpzOE10vyscJ4c6YfXs5soy3mvs85a5N8s48eDIlpHK1kpPfCAe83XGGxz5Qu/ISG/PyEhPZyLR6YvHmSwDJS+8g9ZqOzBjS7OHXKG9yctmtyCONtp/ZWn0Xzkx1Y1hPLUFy6pmbhuNX6xIUKNtrE+z9StWAowKop48Sk6rPWD1ufprF7/nJ0ormNI3iH1aa2nPXYZ7d0vPXZpTRxEBsEjyOCN+KlfzKsTPtjbRoBfuZ5TP4SAiC0aQjILN5faGIn1pSv1UHNwXf7S3QjNKsrsPIyo20VHTcmoHn7N4bgdfB2kWXrYaoVlyTmff/oc6mA061d2wS923P0E2PdzS7XerJkXt0rBipo6av6j2rAggv8ywWptfrxvP/nrdeFhxb+SoqbWsK49gMW6zM69+M1bmsjUB2c34phWWmT8HLMthAIneCsOvqDinMPDfo05bKwyO14fB+XowuFaCASV9KxiPqmK+AQlIebW3VQC5h/OGAtzNF4YGgfEXsL8eJZ0nT9vdLwjdotXIGdI1kclGI63/qfmYbMR2eGzvlG3OyvKl5BTxp4rBVlw+QOVgVZGBDCEmBIOqAOTPYtufBDTGfIA6LUZLq9YM1DjG/kEsw9VraBENRo9R/YOPmweu6V0AhjmToWVsPDcJmzn2ps4FJrIezzUJq9+3gORWTkZhewUez8D50J7vVboODPR8ZtpyYGLzomSTHms+eSwFRvjYqmKDiYWtZmqBLWTz3MLZnwGsNqrHcEU3sI41mtdDz9DRiKvbYPFcquOrBNSVnhaMBVoJXTRcJjflL3VGAl5eVVNhSu8tCx1sKdganOlHYJQXbM+Z4OEx6vf7uGNKvZi1ZeIOjkwRwIj3FGROh13TtArZTKtrMJPkzlet1GWzdoJpbqbi2oyxKivraUX6BxrNkXpRSR4qDcNpInrVOCKa2aYDtG/4Fwuscfjxx0l6nBSwe5ikf4r9w0vjyh69HuwfIxfj7j2n2xDtZXBDpHCOOVzx1t5DzEvElDgqY3gPe+Vp9iUmlOy0xFdkdwwLqH2V1t5E2eHDPrMYyPOwKNuxUsDqkN2e9q7Fle0htZcxsYIl1NrfuNwWovKA9jsCbxrpLL3ZFTse/St1PAaUqMCiQfCw4uU30vSINvc5jY+bYAee0/xIPn7q/wR8OMtxOXxfhF19Lnwd1FZvhS94HvhCK8EXboHP92bgQ6FwDojXMgmxIpTUvmdwXkLhzHB3rgCn1J2Tw8DjfTnZhzyebYXaA1ydYVydoRnvWpy9ijcxQmsFk/xPGqxOn9B9Dk5yuBt43JMB3u4T5WBP5fxYrsjn5yC9ewWGP5cCzmVcr1FoMUhpEQIJf/1K1IBF6yrUfEx6RvPUVW7SwwsUCDBBGrBjVUctQaUnDlBU6YFucySAK2x1Cm94hR3LNOE5WO9vUYfnYtvfphgJN8U9SBZ5gxJhK3vZjD/91IMPdj/4UDc8PvTgMw89mHzooSS8fOihpkwAO9YFHN3FXctVHahTaINkRFA7XZBOfqVTFWShG+W2nVY9mVmnquzmqDktxcXP6QSb6DR0hljYgJZEYRUEekl+sWZ2cl4aUdA5ZK2hmRKEvaiETVL6RBlcCS+h3MGIlQLK7J1zT/dVJp65/9KNnun+a3ZsID3Da2A3lOeuvGOebHroq32Ridw92x76aia26uBnb5kjT0cfrn808cj1756jNQSv8FfC3u0AzTm2Ugeoa6UOULfSAbpotdkdygDFZU2gKOWajaDHQLyd0wzK/0SxDf9/gwEN0wYMPwARdi4M82igtsLgWRkG70owdLbA4DwvDNQwbYBxLxNTK0KCBqqgwDIIsHRyUZzdthwaBCZSqDnZxgzkaeVdEzqwD2putjEVLzbMNma4CTkyqVtUBhnKYSx6s+pW7OZVNmOiaZc2UHk77jGna5Huw3MROtG2D9nMmsuAxgawivLLO0+tjc5Tm9J5KvO0Oezc3lMBI0hK/6md+hrNHlTyjLKeyswAC+zguZYOjprZSi17M5hggqs5csOtup8yb83n1ckhaGXRrJ3LSqsYWd25amO5G6NpFp5pmx5ww3U7tl97/4/WXb1eyVe9wk/zn+YGuR8qkLhph6ROaYzNYC48TwEYNCxJg9T/pWXvFjZ9Vw+HeipiaZ9kQSm5mXt+mJXcJOxS7DnZpn9Nsj+32AGsiDJ4MZ6IOdNVeNlSnw7v0fp0W4c9Fk+o9emtr2iJTfcgoNtZkSxiVePLoIfdB5YZaCtJD552EJclEwS21zs6fVSOF8RicwyVUpmeTJVbKtcneGVqkjh32Y71x3LDudFt20cv3T290J30bhoYGsWX2aHsWGpwmrw8d2xtpXs4lAkEYw7/quLE9p5kMZwaTES7Xb7xge6RcI872jWer1txv9AeVP4LsFuCXIp7S2sXarStC7W72YXaw8bAGegYOFrBEVe6UHuVWXBVs8VXoTUcT2ENhz8QfNOtqDS6esF21AGQi+8/b0sqf82p+jGlLbUNzwTg+dY31G3bc95u295llSoUy67uFCohh0NK/ulttyh2L9R6uwB79nztt+TyU6eW49r3BnFNnxfX/hVxTfYouKb+P+GK4v1C6BqYwL8QxkzuM5yfApwHuFHuo604F9twrqg4w/LKMbBXMzk5iPbqmCpEFn2DGIMYYAbqICVHVds1lGcEqXWz4No4VrQgr1tsbIR1xYk1AUiGlvIkOdYDR74BoE1GlCPpC/P8yvHqC+6C8RWM2NB5dwV5aVk8+5C6RcCuZTS8G2gYBxu/hJMhmlRMtlEx3aBiNCcVC7UgU6cDrPAXh4EjHRNIxzDTpgmFrXoYFSWHXSpET4u1HFOvuVytwOIHWAqcC4MbIBg9tiSLV6ZXIu2FCcn0Lo6UV4mnWsYrEHE1U8YBk0q4r1K1fK5QcbCawPqcwn93MAWt0u4XdM+luSHur9/AroNNV8uxYG4xV0spwdxy607EYG4/Y8R+uzwIr3rZq95luxSzjoP9GOoFsgVjyVRf2sbKplfkymIONFB3T29Xc27f62xWR2vXH1NHF9q4fTQ6LyrB+fPu3w9uHRnZWjmohurpPhbmyG+4JFg5oGuVbG60IPfpaK08klFyFpCSUjlfK3R2IzELWqDrQHdDmo1QXysFNEzR2xRI2jztVSvQsjQcS+9RxtKniCrZMrTesJvWozlkMV7BWfVVZ4DW+HgcciiMm7yzDzvMQuF4KovfLIgy0SqUBaUntrZbN8npXd7gnmr2Xo9Tn6SbNbwPHJu7enLD2L7Vic23TO2zjt1w5Nr6fdod67aVu9ZffmfFf2J6a2L96MRC8ZLR9WQ/6Saz66c3bfjgtqkdOSRusXTZ/W9xzuwbL8xeV5x6LFOez1vGy7OTBw9xbObBajrzoA/zc+qoA8mfq0UYE3Y1a/2YOjCbaXAP7N2alwk9VAZxM7KZATuTXf5giioCLw5XBqcMK4OCFalLrHpDSSScyyE7UhWsY6G5hZ4WfmuZnnD+xEL7VIWxQ3alsiXZyCp4DtzwuysakxY26fraUgrjxvdTn5TONACd6KDdGSeWTzUIwMb0sqkGXu2S2oaBjbFeOtWgU5lqgGYk7aN0YtXik4LZ7nJ7FNdz+XgD73nHG7DM8cojDtaCVfPxFcYc8KOn6r/AUQetuPgAl2OvN6EhfJ4JDRFlQgNi4Q+E2JStqtUWrLzJMQ1YFnveUQ2HwGBZPq7hx8xOacUjyh1+PTxi58EjruBRQzwUNN78rIlJQo2R8+LhY5bICqiAAaJRcLmb4hKHHfaBC2ODyPQWaiGmNrvz6o5rYoeuZ4Spzggb9trDNGVPE3PcjX7WpSR34WBbs93LIkVvAnHn8ir485JA31oev5wQxNpeLs/xZ/GWNI/TOsWWPAhpyYMYzpdTqcAm6J7jv3DqzPfpWAWeGwYB5n9T51JzKsPAgMk5rIBUTkZhw2l9v4fzteVUSEtOxfA6ORUX44d+eubLL2+eWzj7IsCqB14w0ulxG1qnUOhzkquRU7Hnldlx7U0KOH4CUxVYPe1kNpG3tV8BBUhLVqVbsV2unnO29S2ceRoh4jc01oPNA+C/CByaQAnYmD+CU+NqQrxTtCqNnF2to0dQTLjNrDqfTh2hI+wi4ud4ncbqMHayIrB4iDa5uzUYqBVxrr1Ob6VxHVYW6U1i+1GWB/GudCWxkj/l1jW5m5+bGLzqA47rzb6IoXd15qS449l3X3FiiM0UuPX779u9a+tkX1Fvd2knehMDvcmPffGa+16dO358bvb4cTpjAOctgP3vgL1313kmLkjxnBwAiz+Vkz2ahs/TmL8g9aE9yoowschBmbrcHMwghfELkaYmDIMxsKjz2OKUBIE4Nin0AXFSouzrrqw8s0FY0cZvneQQXsGiXz7dgR9YIRfD1vcLNJfn4haUiQ8d6sQHp57FanDAq7kx4BUnPuAAbQuhA4YlERw8nZ43mlmdhrNjpdEPAnPOW8c/jMOW/UTrCAj+707Vv66MgWiFzd4CW/s0CvdK0yg8yjQKChVYHCjftSLo39cdS0HVUutoiuMgCdrGU/y6qYdU2Lw4NWYF2DpXgs2nwPYkhc31RmZlqGqmFa4QEyXLQaN5FwbbUxS2Hu6eFWDDRmKfhqZfXBo2pL8JKYYzexgf99DbFbS0GqlYYJQs2KP0GQkmW4eZTmdsR0X2RXEmDYaxukXZm6ishFx5Rd5uw1W7AnO3If6fyxlbo9DgbkoDHxfjbluJCrBA0ULNxSRrME9zrO108DAh67Fjbg91a5TpVpUOmGP1iBiZM3VgBzBLvujMNuGNLOy5arQVbXOr6mzDl4SW6U2B3hfpZ/wYHOE+LmKPBPY2I/DK7H1XTimqoJtGS++EgtlkMU9DrqyXSNO8XQEtsY6HyNfqv/UjBH4/KIxgkpSLxWfxugHyCH3imnIE/AQnncavdDKzUSjhtnFVPn2jn8sFdHaxXlaToixcHMvQxMQnddYOwctigGGlENQnPmkwgTWeYNYzHYhaVtM2nrasjZP2vChZm9xtJzePeIcy6247uTDqHxpYNR9/MTk0u3Oyb3h2R/J3J+/rDVXWX33y/kxsfObKdQXiDl/xUvyK+Q1FdRbNK6AnmB+w9bxTMbznmYqBboCgmP9WcVFkxv+FB2Sgsd82JCNCq0TbB2WAsPxzwYdTOxZFJ2sPtoiS+/XgA3q3wfcBEJPnwDes1CI14fNxu88Ln/888AXa6FcD+nl9FEyH5Hl9MFFwtkG6hgnOlYCl5UrAywxetMsxF/mO80CMACcKNQ/bZJG8mpUEDBadAkaxOpnwaENnMW6xGpoJolwtzqw1TF6Gsa5RpPfKuSBWDZNOFRttCBYV247JjXPwPL5MdMD60HkgsD6oZVeYCOLOsZzMG5gIgubz8qkgIqYBl00G4QdPnWqZ86TMN2yb88T/+eY8iW9qzpOwcJZbadCToNDpbqCTH/y1Q8spheok1lAnoTwtVBZPt+gQ1KVRtt5diuLAZo4gEJTeIO4NUPictT+H3le2rf85lL/03PUvnH1FE6D3KkugteBQ7zxB45ABZQy9bFIrFeLCUs1s8wgsq6da/srYaAww6jDA2MFubdZBu1o6RGNaMuThwGpMU0HvxNojgY6ro3cG5Jw+HL8EigA1pq4z0lKu4C21lsbiFmidgFWondrwri7yVP2jZG/9MWDz2a53bTi1746rN98UCt20+eqnSd9X1kzeRGv4bpxcS/7xPx5emP/R/NaG3hIeBL0V5lJclvsI83CkUAEtX6qwsO0xpcfejVqPnd70oEfL7uMJSEfNtMWji96pc0nqyeNcL9qDbWD37+xCCygkYCuWKBsCFWxOrZqd9CYINpEWW4G9jPs+FqdfqnFuTwBNKanHIXWhW1AlEUMzRIh3eCLLvfIUGwrG/CKtEiS67WTf+lzI5Dm0CTzzt2kvmds93rXxuoXDvom7TpZ23b9z5/1kmEzw6KSDcRHM9HmLO1TvfKF8N9n0sStObtl84iMsfsRyyYP0/ho+bm97NhmLWDsLNQvjfBerrTPRm+nSOsDGlH6cmYTV+l62CQIXnnnML8+Eq0noE6158LZs9On2Gk3a90iM1GdP0/tFCoVG66OeutGCBW/B2XLjLzQqRKY4lIJW6qzTc/WRCtjVXm4Hhy0X2IPqUrrYWK8ui3jiGBYzYGlp9uqaseFA6KDxJezV5by0sUvWYX+6oOYmxJVrkFYosTvXlWvr++Zaurr/pPf5An3fe07/uLZx26Yw725+X0i8/vcFrfL9HPkK92l6L8g1yp2YO3J4K02XcvtQ7vSy+2iiULHSskU9nRPUwfocBVHSsMIdvOOpPq92BSZzma7uzm6BmHh3EG9qxXf0b/GH7aVOEuqP9LJ7eZLnOQlgoPfyxDtT17R/2r08nefcy7Mz2XIvT/LTtpt5/h+8jyjeA/srZCOle4I7olDeXcBekxi9Ezayri+vWOfKtSWNensC9H4ctCSbCnArvcEG3sGvQuuqZDetLtVTYW5xhNWGALo0hcbSlM95ZwgXK8lrtQKFu+tRtnj4OhiF1+2Ll2hbSR7XkWyh6xjDCb64kjiXgC0mFUXxdpoiNrAjwe1BIwypm2ilrhxGxeSKqXSWreHKSqtcvvCy3wwYaIyM+7KJdiaItHME3vftXWQL5QeKg5bNgFKYgpYb/Vlw8L4+Dm3s047DgQugADy9nruDRMm+1v5nE+t/NrX1P5tY/7PpnP7n9VO7pqZ2fR0fJkGSjJ19lb8eaGIEjzKEliG1SvSBQqFmpXSReU8+T99tNFmHW24trw5vsbNXdtYx5WOd1xHlRsmNhiHV20023xuL0lbsl6IebyyOz/SueOp95T1efIVPyl3xmBycJEbaW4xz7XWtnfV69f7tjSkgL7PZH83fxNTfSHy+pmn8jM7SZe3VrF053GxRxvtZgt/9Uf4zXC9WkCfVO3aa1bu1cCRptqZxChvO2Arma3odfcNTkPUYE8jTER0aar5VNT51uoiky0sau9SLbax460ZXvhqiPa+hoBH70ehojl6NcnsxDo2cRBcwnqhXUgh0rkiyWE6UCuzmntQmwVH4OpcXHqkVrhgvkTTPp0vhJ29k3UDb3x0gufrXBIGM1r/rv207u+fXTU+Gfl0MRsPFq+/AXqB9m4verLu4ZT/e/+uOa5gdK5K/JZ+i9+5wcTcqdywwWoBjOJarFBo3icZ7vhpsYj6fp8EQ3Wml43/lu3oofQtKjyGGLDDMzm5vTWONHS4spLewcr4Sa7P1lnAMIxzoEym3+PBE8Jb01FQ6OGeY49/l9z///PM/evTRHz0F/5TZIfDwr+RfgfNTLbNZ1fkMAr07gvKk6NRBMSbiT+oBtGNxjvmX6BzzCEj3T7FeMClaaIwzl3wYiA5TKU/PLXfECs3h5l1vZLg5DmKL4v1dcQB11GtLY8MuDqBGheDF2zTrsK8ggfwQpurA7MKbfnkwPSj5RNmLFrDOcYGh6ENtI7PtWzZOZQNOZycdkf5aY4A2G5YuVizqsPTH2gdq85QeMqWHj7tBoYaH9Xeff8K7/40SARfdp8QmPCrezbHv3guNfSfn4EV05yJU36/222gQF/5fKC5prsRVuJeUTr/eoQJbXylYoEscy0s5XOVic5UXO7zd5S4vxbEqelKU5UfeKJ59oGQ683IvfK0rX+3tw896U/C1PioN+jxGWlUyBGSoIE8MZYAn8ownsFKir8ETmV44CoIekvNDeCvIosodi8ZIP94jUsqJVUNmsMIYJHxe8hXeENu0Ttb/Vhux/7CMiVom7l+Yp+ge47+jrEOO+4K6Cv2wChmVr5pLwfJIQP5CoZ36A39m6mNWKQfMONhG8H6V4IwtZWOElZMZwpU3SVvyOhQl+tclpcLN/y/8zhRhAAB42mNgZGBgYGI46m+dtDye3+YrgzzzC6AIw7nzRe4w+v/c/5Ys0szlQC4HUC0QAAB68A0oeNpjYGRgYO7+d4eBgSXw/9z/x1mkGYAiKOAVAKAJByt42m2Tz2sTQRTHv+9NVFpLulX8AaGpbSVJQzQJmwZXQquCoI2uFH/hzYN4UXpQRPQmiAfxpHj05h9g9dCDXhSxerAgeigEhRbsQcWAFewlrt8ZtzWVLnzyJvvmvZn5fmflIvrBR47CPaL8WUBNTqOqIbbqOPLaQJ/ewE5Mo4olFEiPnMCALKKXcwMpIO1qcoCegy/HsUWPYFh3oVd3Ywf7HNBj8NWwz0FUOC7b+a6WPVaYwSbTjUG9iw69glAfsuYZY0Ay5A3/v0aIJkJpYKOeYfyN0Awx95K0mK/H8SzjGDK6l+vbHuxpLiOpd9Cll9j/MEpYRM7umbFHHmGzVqIW5nmGbpR0FHVposhYVB9FScHTEY5zqGMOI5iLHqi6cd3wnWZJjfmaiwUZY/079EsGnTYnX2D0E7pkgXAss6hIAuvwnmdIcP1fSK1ob9ddz/2cQsru1c35QL296IfpZO/rGJIppGWJmlF7+Y5BuUDvBrDN6XgTZZJ3Zxnm2s+Rcnq/Zf+vSMp9npv1RpE0WTKBvNymN1b3NTBPsMF5EcRexKAZzdCLUcafZF5nedZlH/6D+9rnxtaLdqwX1rOT1M3qvgbmGkpOE3819GCa+u9h/EYaTv9/PqxCIt7F5Xwbzpfa35gYh29ecA73JB3UMyBPAXO1LWap4UdyL2aCTJIyc9aLGH43abPffRdFe8/dXb+FKgkc53FIH9OTSdczbbF9dQp98or34TPft+BZzHZ48P4A/getbwAAeNpjYGDQgsMyhg2MLIzTmLSYdjDdYfrDLMccxTyD+QrzJxY5FjOWLpZ1LD9Yk1hXsHGwVbHNY5dh72M/wSHDocfhx5HAcYpzGucxLg2uNK4FXLe4+bgLuFdwH+P+wqPG48PTxXOEl4fXh3cF7w++Lr5dfF/4Jfhb+LfwPxIQELARCBFoE1gksEvglqCL4AzBS0JqQk1Cl4SdhFuEj4mIiLiJpIicEOUS9RNdIvpDTENshziXuJ94kfgl8T8SRhIJEtskzkmqSFYA4SEpDakT0jbSM6R3yZTJbJK1kV0je0T2jRyX3Aq5A/Jc8mHys+S/KYgoZCksUzinKKJoolilOEWJTalGWUt5hvIFFTYVB5UdqgqqE1QfqaWprVF7p26ivkD9mPo7DRmNNI0DmjaaPZp3tAy0tmnraLtp79L+o2On06LzQVdNN0dPRm+CPpt+g4GSwQHDFCMhowlG34yjjA+YeJkUmMwwOWYqZNpgxmQWYDbP7I15nvkzCzWLKRZPLE0se6xYrJysZlizWDfZiNkU2cyweYEDfrFlsOWxVbG1sa2z3WP7wy7J7oi9mr2f/QogPGT/yP6RQ4bDMYdnjnmOV5xmOFsBAOTolU0AAAAAAQAAAOsAQQAFAAAAAAACAAEAAgAWAAABAADmAAAAAHjarZLPSsNAEMa/pFUpatGDIr0YTypo0j8q2Jv452YpVSwIHtKaxmLTSJPGeuojePDgc4gvoW/ll8mmFMSezJDd3+x8Ozs7CYA1TYeG+Jkek7WEM0IJZ7E54XnOBqNaNkevjy3FGlWvinVG3hRnpjhLS3kOBbwrnueOD8ULuMWn4hwK2rLiRRxp24qXyHeK84i0NOcKNvSc4lXk9bS2L6zrluJvFPXzcX3gj7qebdT8yDYartFw3GHPHhhNp9Xx++EYp/DxhBcM0IWLB4S89A7a2OV8CZvrj6QrRj0q+whk3ONaGUXaIUzyCXo0YypLIJ7D2eEccbyn0sRY3htZDaiOs8W5TMlWYazOiI+RnGgzVqMXCXUla0whNTYzOqJJavTRmVmzOSMWVxyyD1VYtGcxc5I7+JWpzdn7510B9vmGGPJecV9SvYUL2R+yaptdjntqiT6g16XKkTMcRl3pedwVR3aYcppH3V9dbVDp8syeVN2k12Ifk/MMlOS7XDPLkN4Zo21ZLXMs4ph3KNKr4oBfLvkjSqj8ABsYggF42m3QR2wTURDG8f8kjp04vfdC7+Bd2yl0O8nSe+8EktiGkAQHA6EFBKGDQEjcQLQLIHoVCDgAojdRBBw408UBuIKTfdyYy0/znubTaIigvf60ksb/6gtIhESKhUgsRGHFRjQx2IkljngSSCSJZFJIDSekk0EmWWSTQy555FNAIUV0oCOd6EwXutKN7vSgJ73oTR/60g8HGjpOXLgppoRSyujPAAYyiMEMYSgevJRTQSUGwxjOCEYyitGMYSzjGM8EJjKJyUxhKtOYzgxmMovZzGEu85hPlURxlE20coP9fGQzu9nBAY5zTKxs5z0b2Sc2iWaXxLCV23wQOwc5wS9+8psjnOIB9zjNAhayh2oeUcN9HvKMxzzhKZ+o5SXPecEZfPxgL294xWv84Qt+YxuLCLCYJdRRzyEaWEojQZoIsYzlrOAzK1lFM6tZyxqucpgW1rGeDXzlO9c4yzmu85Z3EitxEi8JkihJkiwpkippki4ZkilZnOcCl7nCHS5yibts4aRkc5NbkiO57JQ8yZcCKZQiq6+uudGvmei2UH3A4XBUmHocStV71b/XqXQry9rUw4NKTakrnUqX0q0sVpYoS5X/8jymmsrVNHttwBcK1lRXNfnNJ90wdRuWylCwob1xG+VtGl5zj7C60ql0/QV2FaEtAHja28H4v3UDYy+D9waOgIiNjIx9kRvd2LQjFDcIRHpvEAkCMhoiZTewacdEMGxgVnDdwKztsoFdwXUTczGTNpjDBuSwG0A5rEAOmxKUwwLksAZBOIwbOKCaOYGiHPpM2huZ3cqAXC4F110MHPX/GeAi3EAFXDPgXB4gl9sTxo3cIKINAPUfNB0AAVKpwccAAA==';
-    const ddgFontBold = 'data:application/octet-stream;base64,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';
-
     var localesJSON = `{"bg":{"facebook.json":{"informationalModalMessageTitle":"При влизане разрешавате на Facebook да Ви проследява","informationalModalMessageBody":"След като влезете, DuckDuckGo не може да блокира проследяването от Facebook в съдържанието на този сайт.","informationalModalConfirmButtonText":"Вход","informationalModalRejectButtonText":"Назад","loginButtonText":"Вход във Facebook","loginBodyText":"Facebook проследява Вашата активност в съответния сайт, когато го използвате за вход.","buttonTextUnblockContent":"Разблокиране на съдържанието","buttonTextUnblockComment":"Разблокиране на коментара","buttonTextUnblockComments":"Разблокиране на коментарите","buttonTextUnblockPost":"Разблокиране на публикацията","buttonTextUnblockVideo":"Разблокиране на видеото","infoTitleUnblockContent":"DuckDuckGo блокира това съдържание, за да предотврати проследяване от Facebook","infoTitleUnblockComment":"DuckDuckGo блокира този коментар, за да предотврати проследяване от Facebook","infoTitleUnblockComments":"DuckDuckGo блокира тези коментари, за да предотврати проследяване от Facebook","infoTitleUnblockPost":"DuckDuckGo блокира тази публикация, за да предотврати проследяване от Facebook","infoTitleUnblockVideo":"DuckDuckGo блокира това видео, за да предотврати проследяване от Facebook","infoTextUnblockContent":"Блокирахме проследяването от Facebook при зареждане на страницата. Ако разблокирате това съдържание, Facebook ще следи Вашата активност."},"shared.json":{"learnMore":"Научете повече","readAbout":"Прочетете за тази защита на поверителността"},"youtube.json":{"informationalModalMessageTitle":"Активиране на всички прегледи в YouTube?","informationalModalMessageBody":"Показването на преглед позволява на Google (собственик на YouTube) да види част от информацията за Вашето устройство, но все пак осигурява повече поверителност отколкото при възпроизвеждане на видеоклипа.","informationalModalConfirmButtonText":"Активиране на всички прегледи","informationalModalRejectButtonText":"Не, благодаря","buttonTextUnblockVideo":"Разблокиране на видеото","infoTitleUnblockVideo":"DuckDuckGo блокира този видеоклип в YouTube, за да предотврати проследяване от Google","infoTextUnblockVideo":"Блокирахме проследяването от Google (собственик на YouTube) при зареждане на страницата. Ако разблокирате този видеоклип, Google ще следи Вашата активност.","infoPreviewToggleText":"Прегледите са деактивирани за осигуряване на допълнителна поверителност","infoPreviewToggleEnabledText":"Прегледите са активирани","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Научете повече</a> за вградената защита от социални медии на DuckDuckGo"}},"cs":{"facebook.json":{"informationalModalMessageTitle":"Když se přihlásíš přes Facebook, bude tě moct sledovat","informationalModalMessageBody":"Po přihlášení už DuckDuckGo nemůže bránit Facebooku, aby tě na téhle stránce sledoval.","informationalModalConfirmButtonText":"Přihlásit se","informationalModalRejectButtonText":"Zpět","loginButtonText":"Přihlásit se pomocí Facebooku","loginBodyText":"Facebook sleduje tvou aktivitu na webu, když se přihlásíš jeho prostřednictvím.","buttonTextUnblockContent":"Odblokovat obsah","buttonTextUnblockComment":"Odblokovat komentář","buttonTextUnblockComments":"Odblokovat komentáře","buttonTextUnblockPost":"Odblokovat příspěvek","buttonTextUnblockVideo":"Odblokovat video","infoTitleUnblockContent":"DuckDuckGo zablokoval tenhle obsah, aby Facebooku zabránil tě sledovat","infoTitleUnblockComment":"Služba DuckDuckGo zablokovala tento komentář, aby Facebooku zabránila ve tvém sledování","infoTitleUnblockComments":"Služba DuckDuckGo zablokovala tyto komentáře, aby Facebooku zabránila ve tvém sledování","infoTitleUnblockPost":"DuckDuckGo zablokoval tenhle příspěvek, aby Facebooku zabránil tě sledovat","infoTitleUnblockVideo":"DuckDuckGo zablokoval tohle video, aby Facebooku zabránil tě sledovat","infoTextUnblockContent":"Při načítání stránky jsme Facebooku zabránili, aby tě sledoval. Když tenhle obsah odblokuješ, Facebook bude mít přístup ke tvé aktivitě."},"shared.json":{"learnMore":"Více informací","readAbout":"Přečti si o téhle ochraně soukromí"},"youtube.json":{"informationalModalMessageTitle":"Zapnout všechny náhledy YouTube?","informationalModalMessageBody":"Zobrazování náhledů umožní společnosti Google (která vlastní YouTube) zobrazit některé informace o tvém zařízení, ale pořád jde o diskrétnější volbu, než je přehrávání videa.","informationalModalConfirmButtonText":"Zapnout všechny náhledy","informationalModalRejectButtonText":"Ne, děkuji","buttonTextUnblockVideo":"Odblokovat video","infoTitleUnblockVideo":"DuckDuckGo zablokoval tohle video z YouTube, aby Googlu zabránil tě sledovat","infoTextUnblockVideo":"Zabránili jsme společnosti Google (která vlastní YouTube), aby tě při načítání stránky sledovala. Pokud toto video odblokuješ, Google získá přístup ke tvé aktivitě.","infoPreviewToggleText":"Náhledy jsou pro větší soukromí vypnuté","infoPreviewToggleEnabledText":"Náhledy jsou zapnuté","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Další informace</a> o ochraně DuckDuckGo před sledováním prostřednictvím vloženého obsahu ze sociálních médií"}},"da":{"facebook.json":{"informationalModalMessageTitle":"Når du logger ind med Facebook, kan de spore dig","informationalModalMessageBody":"Når du er logget ind, kan DuckDuckGo ikke blokere for, at indhold fra Facebook sporer dig på dette websted.","informationalModalConfirmButtonText":"Log på","informationalModalRejectButtonText":"Gå tilbage","loginButtonText":"Log ind med Facebook","loginBodyText":"Facebook sporer din aktivitet på et websted, når du bruger dem til at logge ind.","buttonTextUnblockContent":"Fjern blokering af indhold","buttonTextUnblockComment":"Fjern blokering af kommentar","buttonTextUnblockComments":"Fjern blokering af kommentarer","buttonTextUnblockPost":"Fjern blokering af indlæg","buttonTextUnblockVideo":"Fjern blokering af video","infoTitleUnblockContent":"DuckDuckGo har blokeret dette indhold for at forhindre Facebook i at spore dig","infoTitleUnblockComment":"DuckDuckGo har blokeret denne kommentar for at forhindre Facebook i at spore dig","infoTitleUnblockComments":"DuckDuckGo har blokeret disse kommentarer for at forhindre Facebook i at spore dig","infoTitleUnblockPost":"DuckDuckGo blokerede dette indlæg for at forhindre Facebook i at spore dig","infoTitleUnblockVideo":"DuckDuckGo har blokeret denne video for at forhindre Facebook i at spore dig","infoTextUnblockContent":"Vi blokerede for, at Facebook sporede dig, da siden blev indlæst. Hvis du ophæver blokeringen af dette indhold, vil Facebook kende din aktivitet."},"shared.json":{"learnMore":"Mere info","readAbout":"Læs om denne beskyttelse af privatlivet"},"youtube.json":{"informationalModalMessageTitle":"Vil du aktivere alle YouTube-forhåndsvisninger?","informationalModalMessageBody":"Med forhåndsvisninger kan Google (som ejer YouTube) se nogle af enhedens oplysninger, men det er stadig mere privat end at afspille videoen.","informationalModalConfirmButtonText":"Aktivér alle forhåndsvisninger","informationalModalRejectButtonText":"Nej tak.","buttonTextUnblockVideo":"Fjern blokering af video","infoTitleUnblockVideo":"DuckDuckGo har blokeret denne YouTube-video for at forhindre Google i at spore dig","infoTextUnblockVideo":"Vi blokerede Google (som ejer YouTube) fra at spore dig, da siden blev indlæst. Hvis du fjerner blokeringen af denne video, vil Google få kendskab til din aktivitet.","infoPreviewToggleText":"Forhåndsvisninger er deaktiveret for at give yderligere privatliv","infoPreviewToggleEnabledText":"Forhåndsvisninger er deaktiveret","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Få mere at vide på</a> om DuckDuckGos indbyggede beskyttelse på sociale medier"}},"de":{"facebook.json":{"informationalModalMessageTitle":"Wenn du dich bei Facebook anmeldest, kann Facebook dich tracken","informationalModalMessageBody":"Sobald du angemeldet bist, kann DuckDuckGo nicht mehr verhindern, dass Facebook-Inhalte dich auf dieser Website tracken.","informationalModalConfirmButtonText":"Anmelden","informationalModalRejectButtonText":"Zurück","loginButtonText":"Mit Facebook anmelden","loginBodyText":"Facebook trackt deine Aktivität auf einer Website, wenn du dich über Facebook dort anmeldest.","buttonTextUnblockContent":"Blockierung aufheben","buttonTextUnblockComment":"Blockierung aufheben","buttonTextUnblockComments":"Blockierung aufheben","buttonTextUnblockPost":"Blockierung aufheben","buttonTextUnblockVideo":"Blockierung aufheben","infoTitleUnblockContent":"DuckDuckGo hat diesen Inhalt blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockComment":"DuckDuckGo hat diesen Kommentar blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockComments":"DuckDuckGo hat diese Kommentare blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockPost":"DuckDuckGo hat diesen Beitrag blockiert, um zu verhindern, dass Facebook dich trackt","infoTitleUnblockVideo":"DuckDuckGo hat dieses Video blockiert, um zu verhindern, dass Facebook dich trackt","infoTextUnblockContent":"Wir haben Facebook daran gehindert, dich zu tracken, als die Seite geladen wurde. Wenn du die Blockierung für diesen Inhalt aufhebst, kennt Facebook deine Aktivitäten."},"shared.json":{"learnMore":"Mehr erfahren","readAbout":"Weitere Informationen über diesen Datenschutz"},"youtube.json":{"informationalModalMessageTitle":"Alle YouTube-Vorschauen aktivieren?","informationalModalMessageBody":"Durch das Anzeigen von Vorschauen kann Google (dem YouTube gehört) einige Informationen zu deinem Gerät sehen. Dies ist aber immer noch privater als das Abspielen des Videos.","informationalModalConfirmButtonText":"Alle Vorschauen aktivieren","informationalModalRejectButtonText":"Nein, danke","buttonTextUnblockVideo":"Blockierung aufheben","infoTitleUnblockVideo":"DuckDuckGo hat dieses YouTube-Video blockiert, um zu verhindern, dass Google dich trackt.","infoTextUnblockVideo":"Wir haben Google (dem YouTube gehört) daran gehindert, dich beim Laden der Seite zu tracken. Wenn du die Blockierung für dieses Video aufhebst, kennt Google deine Aktivitäten.","infoPreviewToggleText":"Vorschau für mehr Privatsphäre deaktiviert","infoPreviewToggleEnabledText":"Vorschau aktiviert","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Erfahre mehr</a> über den DuckDuckGo-Schutz vor eingebetteten Social Media-Inhalten"}},"el":{"facebook.json":{"informationalModalMessageTitle":"Η σύνδεση μέσω Facebook τους επιτρέπει να σας παρακολουθούν","informationalModalMessageBody":"Μόλις συνδεθείτε, το DuckDuckGo δεν μπορεί να εμποδίσει το περιεχόμενο του Facebook από το να σας παρακολουθεί σε αυτόν τον ιστότοπο.","informationalModalConfirmButtonText":"Σύνδεση","informationalModalRejectButtonText":"Επιστροφή","loginButtonText":"Σύνδεση μέσω Facebook","loginBodyText":"Το Facebook παρακολουθεί τη δραστηριότητά σας σε έναν ιστότοπο όταν τον χρησιμοποιείτε για να συνδεθείτε.","buttonTextUnblockContent":"Άρση αποκλεισμού περιεχομένου","buttonTextUnblockComment":"Άρση αποκλεισμού σχολίου","buttonTextUnblockComments":"Άρση αποκλεισμού σχολίων","buttonTextUnblockPost":"Άρση αποκλεισμού ανάρτησης","buttonTextUnblockVideo":"Άρση αποκλεισμού βίντεο","infoTitleUnblockContent":"Το DuckDuckGo απέκλεισε το περιεχόμενο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockComment":"Το DuckDuckGo απέκλεισε το σχόλιο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockComments":"Το DuckDuckGo απέκλεισε τα σχόλια αυτά για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockPost":"Το DuckDuckGo απέκλεισε την ανάρτηση αυτή για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTitleUnblockVideo":"Το DuckDuckGo απέκλεισε το βίντεο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί","infoTextUnblockContent":"Αποκλείσαμε το Facebook από το να σας παρακολουθεί όταν φορτώθηκε η σελίδα. Εάν κάνετε άρση αποκλεισμού γι' αυτό το περιεχόμενο, το Facebook θα γνωρίζει τη δραστηριότητά σας."},"shared.json":{"learnMore":"Μάθετε περισσότερα","readAbout":"Διαβάστε σχετικά με την παρούσα προστασίας προσωπικών δεδομένων"},"youtube.json":{"informationalModalMessageTitle":"Ενεργοποίηση όλων των προεπισκοπήσεων του YouTube;","informationalModalMessageBody":"Η προβολή των προεπισκοπήσεων θα επιτρέψει στην Google (στην οποία ανήκει το YouTube) να βλέπει ορισμένες από τις πληροφορίες της συσκευής σας, ωστόσο εξακολουθεί να είναι πιο ιδιωτική από την αναπαραγωγή του βίντεο.","informationalModalConfirmButtonText":"Ενεργοποίηση όλων των προεπισκοπήσεων","informationalModalRejectButtonText":"Όχι, ευχαριστώ","buttonTextUnblockVideo":"Άρση αποκλεισμού βίντεο","infoTitleUnblockVideo":"Το DuckDuckGo απέκλεισε το βίντεο αυτό στο YouTube για να εμποδίσει την Google από το να σας παρακολουθεί","infoTextUnblockVideo":"Αποκλείσαμε την Google (στην οποία ανήκει το YouTube) από το να σας παρακολουθεί όταν φορτώθηκε η σελίδα. Εάν κάνετε άρση αποκλεισμού γι' αυτό το βίντεο, η Google θα γνωρίζει τη δραστηριότητά σας.","infoPreviewToggleText":"Οι προεπισκοπήσεις απενεργοποιήθηκαν για πρόσθετη προστασία των προσωπικών δεδομένων","infoPreviewToggleEnabledText":"Οι προεπισκοπήσεις ενεργοποιήθηκαν","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Μάθετε περισσότερα</a> για την ενσωματωμένη προστασία κοινωνικών μέσων DuckDuckGo"}},"en":{"facebook.json":{"informationalModalMessageTitle":"Logging in with Facebook lets them track you","informationalModalMessageBody":"Once you're logged in, DuckDuckGo can't block Facebook content from tracking you on this site.","informationalModalConfirmButtonText":"Log In","informationalModalRejectButtonText":"Go back","loginButtonText":"Log in with Facebook","loginBodyText":"Facebook tracks your activity on a site when you use them to login.","buttonTextUnblockContent":"Unblock Content","buttonTextUnblockComment":"Unblock Comment","buttonTextUnblockComments":"Unblock Comments","buttonTextUnblockPost":"Unblock Post","buttonTextUnblockVideo":"Unblock Video","infoTitleUnblockContent":"DuckDuckGo blocked this content to prevent Facebook from tracking you","infoTitleUnblockComment":"DuckDuckGo blocked this comment to prevent Facebook from tracking you","infoTitleUnblockComments":"DuckDuckGo blocked these comments to prevent Facebook from tracking you","infoTitleUnblockPost":"DuckDuckGo blocked this post to prevent Facebook from tracking you","infoTitleUnblockVideo":"DuckDuckGo blocked this video to prevent Facebook from tracking you","infoTextUnblockContent":"We blocked Facebook from tracking you when the page loaded. If you unblock this content, Facebook will know your activity."},"shared.json":{"learnMore":"Learn More","readAbout":"Read about this privacy protection"},"youtube.json":{"informationalModalMessageTitle":"Enable all YouTube previews?","informationalModalMessageBody":"Showing previews will allow Google (which owns YouTube) to see some of your device’s information, but is still more private than playing the video.","informationalModalConfirmButtonText":"Enable All Previews","informationalModalRejectButtonText":"No Thanks","buttonTextUnblockVideo":"Unblock Video","infoTitleUnblockVideo":"DuckDuckGo blocked this YouTube video to prevent Google from tracking you","infoTextUnblockVideo":"We blocked Google (which owns YouTube) from tracking you when the page loaded. If you unblock this video, Google will know your activity.","infoPreviewToggleText":"Previews disabled for additional privacy","infoPreviewToggleEnabledText":"Previews enabled","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Learn more</a> about DuckDuckGo Embedded Social Media Protection"}},"es":{"facebook.json":{"informationalModalMessageTitle":"Al iniciar sesión en Facebook, les permites que te rastreen","informationalModalMessageBody":"Una vez que hayas iniciado sesión, DuckDuckGo no puede bloquear el contenido de Facebook para que no te rastree en este sitio.","informationalModalConfirmButtonText":"Iniciar sesión","informationalModalRejectButtonText":"Volver atrás","loginButtonText":"Iniciar sesión con Facebook","loginBodyText":"Facebook rastrea tu actividad en un sitio web cuando lo usas para iniciar sesión.","buttonTextUnblockContent":"Desbloquear contenido","buttonTextUnblockComment":"Desbloquear comentario","buttonTextUnblockComments":"Desbloquear comentarios","buttonTextUnblockPost":"Desbloquear publicación","buttonTextUnblockVideo":"Desbloquear vídeo","infoTitleUnblockContent":"DuckDuckGo ha bloqueado este contenido para evitar que Facebook te rastree","infoTitleUnblockComment":"DuckDuckGo ha bloqueado este comentario para evitar que Facebook te rastree","infoTitleUnblockComments":"DuckDuckGo ha bloqueado estos comentarios para evitar que Facebook te rastree","infoTitleUnblockPost":"DuckDuckGo ha bloqueado esta publicación para evitar que Facebook te rastree","infoTitleUnblockVideo":"DuckDuckGo ha bloqueado este vídeo para evitar que Facebook te rastree","infoTextUnblockContent":"Hemos bloqueado el rastreo de Facebook cuando se ha cargado la página. Si desbloqueas este contenido, Facebook tendrá conocimiento de tu actividad."},"shared.json":{"learnMore":"Más información","readAbout":"Lee acerca de esta protección de privacidad"},"youtube.json":{"informationalModalMessageTitle":"¿Habilitar todas las vistas previas de YouTube?","informationalModalMessageBody":"Mostrar vistas previas permitirá a Google (que es el propietario de YouTube) ver parte de la información de tu dispositivo, pero sigue siendo más privado que reproducir el vídeo.","informationalModalConfirmButtonText":"Habilitar todas las vistas previas","informationalModalRejectButtonText":"No, gracias","buttonTextUnblockVideo":"Desbloquear vídeo","infoTitleUnblockVideo":"DuckDuckGo ha bloqueado este vídeo de YouTube para evitar que Google te rastree","infoTextUnblockVideo":"Hemos bloqueado el rastreo de Google (que es el propietario de YouTube) al cargarse la página. Si desbloqueas este vídeo, Goggle tendrá conocimiento de tu actividad.","infoPreviewToggleText":"Vistas previas desactivadas para mayor privacidad","infoPreviewToggleEnabledText":"Vistas previas activadas","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Más información</a> sobre la protección integrada de redes sociales DuckDuckGo"}},"et":{"facebook.json":{"informationalModalMessageTitle":"Kui logid Facebookiga sisse, saab Facebook sind jälgida","informationalModalMessageBody":"Kui oled sisse logitud, ei saa DuckDuckGo blokeerida Facebooki sisu sind jälgimast.","informationalModalConfirmButtonText":"Logi sisse","informationalModalRejectButtonText":"Mine tagasi","loginButtonText":"Logi sisse Facebookiga","loginBodyText":"Kui logid sisse Facebookiga, saab Facebook sinu tegevust saidil jälgida.","buttonTextUnblockContent":"Deblokeeri sisu","buttonTextUnblockComment":"Deblokeeri kommentaar","buttonTextUnblockComments":"Deblokeeri kommentaarid","buttonTextUnblockPost":"Deblokeeri postitus","buttonTextUnblockVideo":"Deblokeeri video","infoTitleUnblockContent":"DuckDuckGo blokeeris selle sisu, et Facebook ei saaks sind jälgida","infoTitleUnblockComment":"DuckDuckGo blokeeris selle kommentaari, et Facebook ei saaks sind jälgida","infoTitleUnblockComments":"DuckDuckGo blokeeris need kommentaarid, et Facebook ei saaks sind jälgida","infoTitleUnblockPost":"DuckDuckGo blokeeris selle postituse, et Facebook ei saaks sind jälgida","infoTitleUnblockVideo":"DuckDuckGo blokeeris selle video, et Facebook ei saaks sind jälgida","infoTextUnblockContent":"Blokeerisime lehe laadimise ajal Facebooki jaoks sinu jälgimise. Kui sa selle sisu deblokeerid, saab Facebook sinu tegevust jälgida."},"shared.json":{"learnMore":"Loe edasi","readAbout":"Loe selle privaatsuskaitse kohta"},"youtube.json":{"informationalModalMessageTitle":"Kas lubada kõik YouTube’i eelvaated?","informationalModalMessageBody":"Eelvaate näitamine võimaldab Google’il (kellele YouTube kuulub) näha osa sinu seadme teabest, kuid see on siiski privaatsem kui video esitamine.","informationalModalConfirmButtonText":"Luba kõik eelvaated","informationalModalRejectButtonText":"Ei aitäh","buttonTextUnblockVideo":"Deblokeeri video","infoTitleUnblockVideo":"DuckDuckGo blokeeris selle YouTube’i video, et takistada Google’it sind jälgimast","infoTextUnblockVideo":"Me blokeerisime lehe laadimise ajal Google’i (kellele YouTube kuulub) jälgimise. Kui sa selle video deblokeerid, saab Google sinu tegevusest teada.","infoPreviewToggleText":"Eelvaated on täiendava privaatsuse tagamiseks keelatud","infoPreviewToggleEnabledText":"Eelvaated on lubatud","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Lisateave</a> DuckDuckGo sisseehitatud sotsiaalmeediakaitse kohta"}},"fi":{"facebook.json":{"informationalModalMessageTitle":"Kun kirjaudut sisään Facebook-tunnuksilla, Facebook voi seurata sinua","informationalModalMessageBody":"Kun olet kirjautunut sisään, DuckDuckGo ei voi estää Facebook-sisältöä seuraamasta sinua tällä sivustolla.","informationalModalConfirmButtonText":"Kirjaudu sisään","informationalModalRejectButtonText":"Edellinen","loginButtonText":"Kirjaudu sisään Facebook-tunnuksilla","loginBodyText":"Facebook seuraa toimintaasi sivustolla, kun kirjaudut sisään sen kautta.","buttonTextUnblockContent":"Poista sisällön esto","buttonTextUnblockComment":"Poista kommentin esto","buttonTextUnblockComments":"Poista kommenttien esto","buttonTextUnblockPost":"Poista julkaisun esto","buttonTextUnblockVideo":"Poista videon esto","infoTitleUnblockContent":"DuckDuckGo esti tämän sisällön estääkseen Facebookia seuraamasta sinua","infoTitleUnblockComment":"DuckDuckGo esti tämän kommentin estääkseen Facebookia seuraamasta sinua","infoTitleUnblockComments":"DuckDuckGo esti nämä kommentit estääkseen Facebookia seuraamasta sinua","infoTitleUnblockPost":"DuckDuckGo esti tämän julkaisun estääkseen Facebookia seuraamasta sinua","infoTitleUnblockVideo":"DuckDuckGo esti tämän videon estääkseen Facebookia seuraamasta sinua","infoTextUnblockContent":"Estimme Facebookia seuraamasta sinua, kun sivua ladattiin. Jos poistat tämän sisällön eston, Facebook saa tietää toimintasi."},"shared.json":{"learnMore":"Lue lisää","readAbout":"Lue tästä yksityisyydensuojasta"},"youtube.json":{"informationalModalMessageTitle":"Otetaanko käyttöön kaikki YouTube-esikatselut?","informationalModalMessageBody":"Kun sallit esikatselun, Google (joka omistaa YouTuben) voi nähdä joitakin laitteesi tietoja, mutta se on silti yksityisempää kuin videon toistaminen.","informationalModalConfirmButtonText":"Ota käyttöön kaikki esikatselut","informationalModalRejectButtonText":"Ei kiitos","buttonTextUnblockVideo":"Poista videon esto","infoTitleUnblockVideo":"DuckDuckGo esti tämän YouTube-videon, jotta Google ei voi seurata sinua","infoTextUnblockVideo":"Estimme Googlea (joka omistaa YouTuben) seuraamasta sinua, kun sivua ladattiin. Jos poistat tämän videon eston, Google tietää toimintasi.","infoPreviewToggleText":"Esikatselut on poistettu käytöstä yksityisyyden lisäämiseksi","infoPreviewToggleEnabledText":"Esikatselut käytössä","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Lue lisää</a> DuckDuckGon upotetusta sosiaalisen median suojauksesta"}},"fr":{"facebook.json":{"informationalModalMessageTitle":"L'identification via Facebook leur permet de vous pister","informationalModalMessageBody":"Une fois que vous êtes connecté(e), DuckDuckGo ne peut pas empêcher le contenu Facebook de vous pister sur ce site.","informationalModalConfirmButtonText":"Connexion","informationalModalRejectButtonText":"Revenir en arrière","loginButtonText":"S'identifier avec Facebook","loginBodyText":"Facebook piste votre activité sur un site lorsque vous l'utilisez pour vous identifier.","buttonTextUnblockContent":"Débloquer le contenu","buttonTextUnblockComment":"Débloquer le commentaire","buttonTextUnblockComments":"Débloquer les commentaires","buttonTextUnblockPost":"Débloquer la publication","buttonTextUnblockVideo":"Débloquer la vidéo","infoTitleUnblockContent":"DuckDuckGo a bloqué ce contenu pour empêcher Facebook de vous suivre","infoTitleUnblockComment":"DuckDuckGo a bloqué ce commentaire pour empêcher Facebook de vous suivre","infoTitleUnblockComments":"DuckDuckGo a bloqué ces commentaires pour empêcher Facebook de vous suivre","infoTitleUnblockPost":"DuckDuckGo a bloqué cette publication pour empêcher Facebook de vous pister","infoTitleUnblockVideo":"DuckDuckGo a bloqué cette vidéo pour empêcher Facebook de vous pister","infoTextUnblockContent":"Nous avons empêché Facebook de vous pister lors du chargement de la page. Si vous débloquez ce contenu, Facebook connaîtra votre activité."},"shared.json":{"learnMore":"En savoir plus","readAbout":"En savoir plus sur cette protection de la confidentialité"},"youtube.json":{"informationalModalMessageTitle":"Activer tous les aperçus YouTube ?","informationalModalMessageBody":"L'affichage des aperçus permettra à Google (propriétaire de YouTube) de voir certaines informations de votre appareil, mais cela reste davantage confidentiel qu'en lisant la vidéo.","informationalModalConfirmButtonText":"Activer tous les aperçus","informationalModalRejectButtonText":"Non merci","buttonTextUnblockVideo":"Débloquer la vidéo","infoTitleUnblockVideo":"DuckDuckGo a bloqué cette vidéo YouTube pour empêcher Google de vous pister","infoTextUnblockVideo":"Nous avons empêché Google (propriétaire de YouTube) de vous pister lors du chargement de la page. Si vous débloquez cette vidéo, Google connaîtra votre activité.","infoPreviewToggleText":"Aperçus désactivés pour plus de confidentialité","infoPreviewToggleEnabledText":"Aperçus activés","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">En savoir plus</a> sur la protection intégrée DuckDuckGo des réseaux sociaux"}},"hr":{"facebook.json":{"informationalModalMessageTitle":"Prijava putem Facebooka omogućuje im da te prate","informationalModalMessageBody":"Nakon što se prijaviš, DuckDuckGo ne može blokirati Facebookov sadržaj da te prati na Facebooku.","informationalModalConfirmButtonText":"Prijavljivanje","informationalModalRejectButtonText":"Vrati se","loginButtonText":"Prijavi se putem Facebooka","loginBodyText":"Facebook prati tvoju aktivnost na toj web lokaciji kad je koristiš za prijavu.","buttonTextUnblockContent":"Deblokiranje sadržaja","buttonTextUnblockComment":"Deblokiranje komentara","buttonTextUnblockComments":"Deblokiranje komentara","buttonTextUnblockPost":"Deblokiranje objave","buttonTextUnblockVideo":"Deblokiranje videozapisa","infoTitleUnblockContent":"DuckDuckGo je blokirao ovaj sadržaj kako bi spriječio Facebook da te prati","infoTitleUnblockComment":"DuckDuckGo je blokirao ovaj komentar kako bi spriječio Facebook da te prati","infoTitleUnblockComments":"DuckDuckGo je blokirao ove komentare kako bi spriječio Facebook da te prati","infoTitleUnblockPost":"DuckDuckGo je blokirao ovu objavu kako bi spriječio Facebook da te prati","infoTitleUnblockVideo":"DuckDuckGo je blokirao ovaj video kako bi spriječio Facebook da te prati","infoTextUnblockContent":"Blokirali smo Facebook da te prati kad se stranica učita. Ako deblokiraš ovaj sadržaj, Facebook će znati tvoju aktivnost."},"shared.json":{"learnMore":"Saznajte više","readAbout":"Pročitaj više o ovoj zaštiti privatnosti"},"youtube.json":{"informationalModalMessageTitle":"Omogućiti sve YouTube pretpreglede?","informationalModalMessageBody":"Prikazivanje pretpregleda omogućit će Googleu (u čijem je vlasništvu YouTube) da vidi neke podatke o tvom uređaju, ali je i dalje privatnija opcija od reprodukcije videozapisa.","informationalModalConfirmButtonText":"Omogući sve pretpreglede","informationalModalRejectButtonText":"Ne, hvala","buttonTextUnblockVideo":"Deblokiranje videozapisa","infoTitleUnblockVideo":"DuckDuckGo je blokirao ovaj YouTube videozapis kako bi spriječio Google da te prati","infoTextUnblockVideo":"Blokirali smo Google (u čijem je vlasništvu YouTube) da te prati kad se stranica učita. Ako deblokiraš ovaj videozapis, Google će znati tvoju aktivnost.","infoPreviewToggleText":"Pretpregledi su onemogućeni radi dodatne privatnosti","infoPreviewToggleEnabledText":"Pretpregledi su omogućeni","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Saznaj više</a> o uključenoj DuckDuckGo zaštiti od društvenih medija"}},"hu":{"facebook.json":{"informationalModalMessageTitle":"A Facebookkal való bejelentkezéskor a Facebook nyomon követhet","informationalModalMessageBody":"Miután bejelentkezel, a DuckDuckGo nem fogja tudni blokkolni a Facebook-tartalmat, amely nyomon követ ezen az oldalon.","informationalModalConfirmButtonText":"Bejelentkezés","informationalModalRejectButtonText":"Visszalépés","loginButtonText":"Bejelentkezés Facebookkal","loginBodyText":"Ha a Facebookkal jelentkezel be, nyomon követik a webhelyen végzett tevékenységedet.","buttonTextUnblockContent":"Tartalom feloldása","buttonTextUnblockComment":"Hozzászólás feloldása","buttonTextUnblockComments":"Hozzászólások feloldása","buttonTextUnblockPost":"Bejegyzés feloldása","buttonTextUnblockVideo":"Videó feloldása","infoTitleUnblockContent":"A DuckDuckGo blokkolta ezt a tartalmat, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockComment":"A DuckDuckGo blokkolta ezt a hozzászólást, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockComments":"A DuckDuckGo blokkolta ezeket a hozzászólásokat, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockPost":"A DuckDuckGo blokkolta ezt a bejegyzést, hogy megakadályozza a Facebookot a nyomon követésedben","infoTitleUnblockVideo":"A DuckDuckGo blokkolta ezt a videót, hogy megakadályozza a Facebookot a nyomon követésedben","infoTextUnblockContent":"Az oldal betöltésekor blokkoltuk a Facebookot a nyomon követésedben. Ha feloldod ezt a tartalmat, a Facebook tudni fogja, hogy milyen tevékenységet végzel."},"shared.json":{"learnMore":"További részletek","readAbout":"Tudj meg többet erről az adatvédelemről"},"youtube.json":{"informationalModalMessageTitle":"Engedélyezed minden YouTube-videó előnézetét?","informationalModalMessageBody":"Az előnézetek megjelenítésével a Google (a YouTube tulajdonosa) láthatja a készülék néhány adatát, de ez adatvédelmi szempontból még mindig előnyösebb, mint a videó lejátszása.","informationalModalConfirmButtonText":"Minden előnézet engedélyezése","informationalModalRejectButtonText":"Nem, köszönöm","buttonTextUnblockVideo":"Videó feloldása","infoTitleUnblockVideo":"A DuckDuckGo blokkolta a YouTube-videót, hogy a Google ne követhessen nyomon","infoTextUnblockVideo":"Blokkoltuk, hogy a Google (a YouTube tulajdonosa) nyomon követhessen az oldal betöltésekor. Ha feloldod a videó blokkolását, a Google tudni fogja, hogy milyen tevékenységet végzel.","infoPreviewToggleText":"Az előnézetek a fokozott adatvédelem érdekében letiltva","infoPreviewToggleEnabledText":"Az előnézetek engedélyezve","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">További tudnivalók</a> a DuckDuckGo beágyazott közösségi média elleni védelméről"}},"it":{"facebook.json":{"informationalModalMessageTitle":"L'accesso con Facebook consente di tracciarti","informationalModalMessageBody":"Dopo aver effettuato l'accesso, DuckDuckGo non può bloccare il tracciamento dei contenuti di Facebook su questo sito.","informationalModalConfirmButtonText":"Accedi","informationalModalRejectButtonText":"Torna indietro","loginButtonText":"Accedi con Facebook","loginBodyText":"Facebook tiene traccia della tua attività su un sito quando lo usi per accedere.","buttonTextUnblockContent":"Sblocca contenuti","buttonTextUnblockComment":"Sblocca commento","buttonTextUnblockComments":"Sblocca commenti","buttonTextUnblockPost":"Sblocca post","buttonTextUnblockVideo":"Sblocca video","infoTitleUnblockContent":"DuckDuckGo ha bloccato questo contenuto per impedire a Facebook di tracciarti","infoTitleUnblockComment":"DuckDuckGo ha bloccato questo commento per impedire a Facebook di tracciarti","infoTitleUnblockComments":"DuckDuckGo ha bloccato questi commenti per impedire a Facebook di tracciarti","infoTitleUnblockPost":"DuckDuckGo ha bloccato questo post per impedire a Facebook di tracciarti","infoTitleUnblockVideo":"DuckDuckGo ha bloccato questo video per impedire a Facebook di tracciarti","infoTextUnblockContent":"Abbiamo impedito a Facebook di tracciarti al caricamento della pagina. Se sblocchi questo contenuto, Facebook conoscerà la tua attività."},"shared.json":{"learnMore":"Ulteriori informazioni","readAbout":"Leggi di più su questa protezione della privacy"},"youtube.json":{"informationalModalMessageTitle":"Abilitare tutte le anteprime di YouTube?","informationalModalMessageBody":"La visualizzazione delle anteprime consentirà a Google (che possiede YouTube) di vedere alcune delle informazioni del tuo dispositivo, ma è comunque più privato rispetto alla riproduzione del video.","informationalModalConfirmButtonText":"Abilita tutte le anteprime","informationalModalRejectButtonText":"No, grazie","buttonTextUnblockVideo":"Sblocca video","infoTitleUnblockVideo":"DuckDuckGo ha bloccato questo video di YouTube per impedire a Google di tracciarti","infoTextUnblockVideo":"Abbiamo impedito a Google (che possiede YouTube) di tracciarti quando la pagina è stata caricata. Se sblocchi questo video, Google conoscerà la tua attività.","infoPreviewToggleText":"Anteprime disabilitate per una maggiore privacy","infoPreviewToggleEnabledText":"Anteprime abilitate","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Scopri di più</a> sulla protezione dai social media integrata di DuckDuckGo"}},"lt":{"facebook.json":{"informationalModalMessageTitle":"Prisijungę prie „Facebook“ galite būti sekami","informationalModalMessageBody":"Kai esate prisijungę, „DuckDuckGo“ negali užblokuoti „Facebook“ turinio, todėl esate sekami šioje svetainėje.","informationalModalConfirmButtonText":"Prisijungti","informationalModalRejectButtonText":"Grįžti atgal","loginButtonText":"Prisijunkite su „Facebook“","loginBodyText":"„Facebook“ seka jūsų veiklą svetainėje, kai prisijungiate su šia svetaine.","buttonTextUnblockContent":"Atblokuoti turinį","buttonTextUnblockComment":"Atblokuoti komentarą","buttonTextUnblockComments":"Atblokuoti komentarus","buttonTextUnblockPost":"Atblokuoti įrašą","buttonTextUnblockVideo":"Atblokuoti vaizdo įrašą","infoTitleUnblockContent":"„DuckDuckGo“ užblokavo šį turinį, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockComment":"„DuckDuckGo“ užblokavo šį komentarą, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockComments":"„DuckDuckGo“ užblokavo šiuos komentarus, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockPost":"„DuckDuckGo“ užblokavo šį įrašą, kad „Facebook“ negalėtų jūsų sekti","infoTitleUnblockVideo":"„DuckDuckGo“ užblokavo šį vaizdo įrašą, kad „Facebook“ negalėtų jūsų sekti","infoTextUnblockContent":"Užblokavome „Facebook“, kad negalėtų jūsų sekti, kai puslapis buvo įkeltas. Jei atblokuosite šį turinį, „Facebook“ žinos apie jūsų veiklą."},"shared.json":{"learnMore":"Sužinoti daugiau","readAbout":"Skaitykite apie šią privatumo apsaugą"},"youtube.json":{"informationalModalMessageTitle":"Įjungti visas „YouTube“ peržiūras?","informationalModalMessageBody":"Peržiūrų rodymas leis „Google“ (kuriai priklauso „YouTube“) matyti tam tikrą jūsų įrenginio informaciją, tačiau ji vis tiek bus privatesnė nei leidžiant vaizdo įrašą.","informationalModalConfirmButtonText":"Įjungti visas peržiūras","informationalModalRejectButtonText":"Ne, dėkoju","buttonTextUnblockVideo":"Atblokuoti vaizdo įrašą","infoTitleUnblockVideo":"„DuckDuckGo“ užblokavo šį „YouTube“ vaizdo įrašą, kad „Google“ negalėtų jūsų sekti","infoTextUnblockVideo":"Užblokavome „Google“ (kuriai priklauso „YouTube“) galimybę sekti jus, kai puslapis buvo įkeltas. Jei atblokuosite šį vaizdo įrašą, „Google“ sužinos apie jūsų veiklą.","infoPreviewToggleText":"Peržiūros išjungtos dėl papildomo privatumo","infoPreviewToggleEnabledText":"Peržiūros įjungtos","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Sužinokite daugiau</a> apie „DuckDuckGo“ įdėtąją socialinės žiniasklaidos apsaugą"}},"lv":{"facebook.json":{"informationalModalMessageTitle":"Ja pieteiksies ar Facebook, viņi varēs tevi izsekot","informationalModalMessageBody":"Kad tu piesakies, DuckDuckGo nevar novērst, ka Facebook saturs tevi izseko šajā vietnē.","informationalModalConfirmButtonText":"Pieteikties","informationalModalRejectButtonText":"Atgriezties","loginButtonText":"Pieteikties ar Facebook","loginBodyText":"Facebook izseko tavas aktivitātes vietnē, kad esi pieteicies ar Facebook.","buttonTextUnblockContent":"Atbloķēt saturu","buttonTextUnblockComment":"Atbloķēt komentāru","buttonTextUnblockComments":"Atbloķēt komentārus","buttonTextUnblockPost":"Atbloķēt ziņu","buttonTextUnblockVideo":"Atbloķēt video","infoTitleUnblockContent":"DuckDuckGo bloķēja šo saturu, lai neļautu Facebook tevi izsekot","infoTitleUnblockComment":"DuckDuckGo bloķēja šo komentāru, lai neļautu Facebook tevi izsekot","infoTitleUnblockComments":"DuckDuckGo bloķēja šos komentārus, lai neļautu Facebook tevi izsekot","infoTitleUnblockPost":"DuckDuckGo bloķēja šo ziņu, lai neļautu Facebook tevi izsekot","infoTitleUnblockVideo":"DuckDuckGo bloķēja šo videoklipu, lai neļautu Facebook tevi izsekot","infoTextUnblockContent":"Mēs bloķējām Facebook iespēju tevi izsekot, ielādējot lapu. Ja atbloķēsi šo saturu, Facebook redzēs, ko tu dari."},"shared.json":{"learnMore":"Uzzināt vairāk","readAbout":"Lasi par šo privātuma aizsardzību"},"youtube.json":{"informationalModalMessageTitle":"Vai iespējot visus YouTube priekšskatījumus?","informationalModalMessageBody":"Priekšskatījumu rādīšana ļaus Google (kam pieder YouTube) redzēt daļu tavas ierīces informācijas, taču tas tāpat ir privātāk par videoklipa atskaņošanu.","informationalModalConfirmButtonText":"Iespējot visus priekšskatījumus","informationalModalRejectButtonText":"Nē, paldies","buttonTextUnblockVideo":"Atbloķēt video","infoTitleUnblockVideo":"DuckDuckGo bloķēja šo YouTube videoklipu, lai neļautu Google tevi izsekot","infoTextUnblockVideo":"Mēs neļāvām Google (kam pieder YouTube) tevi izsekot, kad lapa tika ielādēta. Ja atbloķēsi šo videoklipu, Google zinās, ko tu dari.","infoPreviewToggleText":"Priekšskatījumi ir atspējoti, lai nodrošinātu papildu konfidencialitāti","infoPreviewToggleEnabledText":"Priekšskatījumi ir iespējoti","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Uzzini vairāk</a> par DuckDuckGo iegulto sociālo mediju aizsardzību"}},"nb":{"facebook.json":{"informationalModalMessageTitle":"Når du logger på med Facebook, kan de spore deg","informationalModalMessageBody":"Når du er logget på, kan ikke DuckDuckGo hindre Facebook-innhold i å spore deg på dette nettstedet.","informationalModalConfirmButtonText":"Logg inn","informationalModalRejectButtonText":"Gå tilbake","loginButtonText":"Logg på med Facebook","loginBodyText":"Når du logger på med Facebook, sporer de aktiviteten din på nettstedet.","buttonTextUnblockContent":"Opphev blokkering av innhold","buttonTextUnblockComment":"Opphev blokkering av kommentar","buttonTextUnblockComments":"Opphev blokkering av kommentarer","buttonTextUnblockPost":"Opphev blokkering av innlegg","buttonTextUnblockVideo":"Opphev blokkering av video","infoTitleUnblockContent":"DuckDuckGo blokkerte dette innholdet for å hindre Facebook i å spore deg","infoTitleUnblockComment":"DuckDuckGo blokkerte denne kommentaren for å hindre Facebook i å spore deg","infoTitleUnblockComments":"DuckDuckGo blokkerte disse kommentarene for å hindre Facebook i å spore deg","infoTitleUnblockPost":"DuckDuckGo blokkerte dette innlegget for å hindre Facebook i å spore deg","infoTitleUnblockVideo":"DuckDuckGo blokkerte denne videoen for å hindre Facebook i å spore deg","infoTextUnblockContent":"Vi hindret Facebook i å spore deg da siden ble lastet. Hvis du opphever blokkeringen av dette innholdet, får Facebook vite om aktiviteten din."},"shared.json":{"learnMore":"Finn ut mer","readAbout":"Les om denne personvernfunksjonen"},"youtube.json":{"informationalModalMessageTitle":"Vil du aktivere alle YouTube-forhåndsvisninger?","informationalModalMessageBody":"Forhåndsvisninger gjør det mulig for Google (som eier YouTube) å se enkelte opplysninger om enheten din, men det er likevel mer privat enn å spille av videoen.","informationalModalConfirmButtonText":"Aktiver alle forhåndsvisninger","informationalModalRejectButtonText":"Nei takk","buttonTextUnblockVideo":"Opphev blokkering av video","infoTitleUnblockVideo":"DuckDuckGo blokkerte denne YouTube-videoen for å hindre Google i å spore deg","infoTextUnblockVideo":"Vi blokkerte Google (som eier YouTube) mot å spore deg da siden ble lastet. Hvis du opphever blokkeringen av denne videoen, får Google vite om aktiviteten din.","infoPreviewToggleText":"Forhåndsvisninger er deaktivert for å gi deg ekstra personvern","infoPreviewToggleEnabledText":"Forhåndsvisninger er aktivert","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Finn ut mer</a> om DuckDuckGos innebygde beskyttelse for sosiale medier"}},"nl":{"facebook.json":{"informationalModalMessageTitle":"Als je inlogt met Facebook, kunnen zij je volgen","informationalModalMessageBody":"Als je eenmaal bent ingelogd, kan DuckDuckGo niet voorkomen dat Facebook je op deze site volgt.","informationalModalConfirmButtonText":"Inloggen","informationalModalRejectButtonText":"Terug","loginButtonText":"Inloggen met Facebook","loginBodyText":"Facebook volgt je activiteit op een site als je Facebook gebruikt om in te loggen.","buttonTextUnblockContent":"Inhoud deblokkeren","buttonTextUnblockComment":"Opmerking deblokkeren","buttonTextUnblockComments":"Opmerkingen deblokkeren","buttonTextUnblockPost":"Bericht deblokkeren","buttonTextUnblockVideo":"Video deblokkeren","infoTitleUnblockContent":"DuckDuckGo heeft deze inhoud geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockComment":"DuckDuckGo heeft deze opmerking geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockComments":"DuckDuckGo heeft deze opmerkingen geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockPost":"DuckDuckGo heeft dit bericht geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTitleUnblockVideo":"DuckDuckGo heeft deze video geblokkeerd om te voorkomen dat Facebook je kan volgen","infoTextUnblockContent":"We hebben voorkomen dat Facebook je volgde toen de pagina werd geladen. Als je deze inhoud deblokkeert, kan Facebook je activiteit zien."},"shared.json":{"learnMore":"Meer informatie","readAbout":"Lees meer over deze privacybescherming"},"youtube.json":{"informationalModalMessageTitle":"Alle YouTube-voorbeelden inschakelen?","informationalModalMessageBody":"Bij het tonen van voorbeelden kan Google (eigenaar van YouTube) een deel van de informatie over je apparaat zien, maar blijft je privacy beter beschermd dan als je de video zou afspelen.","informationalModalConfirmButtonText":"Alle voorbeelden inschakelen","informationalModalRejectButtonText":"Nee, bedankt","buttonTextUnblockVideo":"Video deblokkeren","infoTitleUnblockVideo":"DuckDuckGo heeft deze YouTube-video geblokkeerd om te voorkomen dat Google je kan volgen","infoTextUnblockVideo":"We hebben voorkomen dat Google (eigenaar van YouTube) je volgde toen de pagina werd geladen. Als je deze video deblokkeert, kan Google je activiteit zien.","infoPreviewToggleText":"Voorbeelden uitgeschakeld voor extra privacy","infoPreviewToggleEnabledText":"Voorbeelden ingeschakeld","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Meer informatie</a> over DuckDuckGo's bescherming tegen ingesloten social media"}},"pl":{"facebook.json":{"informationalModalMessageTitle":"Jeśli zalogujesz się za pośrednictwem Facebooka, będzie on mógł śledzić Twoją aktywność","informationalModalMessageBody":"Po zalogowaniu się DuckDuckGo nie może zablokować możliwości śledzenia Cię przez Facebooka na tej stronie.","informationalModalConfirmButtonText":"Zaloguj się","informationalModalRejectButtonText":"Wróć","loginButtonText":"Zaloguj się za pośrednictwem Facebooka","loginBodyText":"Facebook śledzi Twoją aktywność na stronie, gdy logujesz się za jego pośrednictwem.","buttonTextUnblockContent":"Odblokuj treść","buttonTextUnblockComment":"Odblokuj komentarz","buttonTextUnblockComments":"Odblokuj komentarze","buttonTextUnblockPost":"Odblokuj post","buttonTextUnblockVideo":"Odblokuj wideo","infoTitleUnblockContent":"DuckDuckGo zablokował tę treść, aby Facebook nie mógł Cię śledzić","infoTitleUnblockComment":"DuckDuckGo zablokował ten komentarz, aby Facebook nie mógł Cię śledzić","infoTitleUnblockComments":"DuckDuckGo zablokował te komentarze, aby Facebook nie mógł Cię śledzić","infoTitleUnblockPost":"DuckDuckGo zablokował ten post, aby Facebook nie mógł Cię śledzić","infoTitleUnblockVideo":"DuckDuckGo zablokował tę treść wideo, aby Facebook nie mógł Cię śledzić.","infoTextUnblockContent":"Zablokowaliśmy Facebookowi możliwość śledzenia Cię podczas ładowania strony. Jeśli odblokujesz tę treść, Facebook uzyska informacje o Twojej aktywności."},"shared.json":{"learnMore":"Dowiedz się więcej","readAbout":"Dowiedz się więcej o tej ochronie prywatności"},"youtube.json":{"informationalModalMessageTitle":"Włączyć wszystkie podglądy w YouTube?","informationalModalMessageBody":"Wyświetlanie podglądu pozwala Google (który jest właścicielem YouTube) zobaczyć niektóre informacje o Twoim urządzeniu, ale nadal jest to bardziej prywatne niż odtwarzanie filmu.","informationalModalConfirmButtonText":"Włącz wszystkie podglądy","informationalModalRejectButtonText":"Nie, dziękuję","buttonTextUnblockVideo":"Odblokuj wideo","infoTitleUnblockVideo":"DuckDuckGo zablokował ten film w YouTube, aby uniemożliwić Google śledzenie Twojej aktywności","infoTextUnblockVideo":"Zablokowaliśmy możliwość śledzenia Cię przez Google (właściciela YouTube) podczas ładowania strony. Jeśli odblokujesz ten film, Google zobaczy Twoją aktywność.","infoPreviewToggleText":"Podglądy zostały wyłączone, aby zapewnić większą ptywatność","infoPreviewToggleEnabledText":"Podglądy włączone","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Dowiedz się więcej</a> o zabezpieczeniu osadzonych treści społecznościowych DuckDuckGo"}},"pt":{"facebook.json":{"informationalModalMessageTitle":"Iniciar sessão no Facebook permite que este te rastreie","informationalModalMessageBody":"Depois de iniciares sessão, o DuckDuckGo não poderá bloquear o rastreio por parte do conteúdo do Facebook neste site.","informationalModalConfirmButtonText":"Iniciar sessão","informationalModalRejectButtonText":"Retroceder","loginButtonText":"Iniciar sessão com o Facebook","loginBodyText":"O Facebook rastreia a tua atividade num site quando o usas para iniciares sessão.","buttonTextUnblockContent":"Desbloquear Conteúdo","buttonTextUnblockComment":"Desbloquear Comentário","buttonTextUnblockComments":"Desbloquear Comentários","buttonTextUnblockPost":"Desbloquear Publicação","buttonTextUnblockVideo":"Desbloquear Vídeo","infoTitleUnblockContent":"O DuckDuckGo bloqueou este conteúdo para evitar que o Facebook te rastreie","infoTitleUnblockComment":"O DuckDuckGo bloqueou este comentário para evitar que o Facebook te rastreie","infoTitleUnblockComments":"O DuckDuckGo bloqueou estes comentários para evitar que o Facebook te rastreie","infoTitleUnblockPost":"O DuckDuckGo bloqueou esta publicação para evitar que o Facebook te rastreie","infoTitleUnblockVideo":"O DuckDuckGo bloqueou este vídeo para evitar que o Facebook te rastreie","infoTextUnblockContent":"Bloqueámos o rastreio por parte do Facebook quando a página foi carregada. Se desbloqueares este conteúdo, o Facebook fica a saber a tua atividade."},"shared.json":{"learnMore":"Saiba mais","readAbout":"Ler mais sobre esta proteção de privacidade"},"youtube.json":{"informationalModalMessageTitle":"Ativar todas as pré-visualizações do YouTube?","informationalModalMessageBody":"Mostrar visualizações permite à Google (que detém o YouTube) ver algumas das informações do teu dispositivo, mas ainda é mais privado do que reproduzir o vídeo.","informationalModalConfirmButtonText":"Ativar todas as pré-visualizações","informationalModalRejectButtonText":"Não, obrigado","buttonTextUnblockVideo":"Desbloquear Vídeo","infoTitleUnblockVideo":"O DuckDuckGo bloqueou este vídeo do YouTube para impedir que a Google te rastreie","infoTextUnblockVideo":"Bloqueámos o rastreio por parte da Google (que detém o YouTube) quando a página foi carregada. Se desbloqueares este vídeo, a Google fica a saber a tua atividade.","infoPreviewToggleText":"Pré-visualizações desativadas para privacidade adicional","infoPreviewToggleEnabledText":"Pré-visualizações ativadas","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Saiba mais</a> sobre a Proteção contra conteúdos de redes sociais incorporados do DuckDuckGo"}},"ro":{"facebook.json":{"informationalModalMessageTitle":"Conectarea cu Facebook îi permite să te urmărească","informationalModalMessageBody":"Odată ce te-ai conectat, DuckDuckGo nu poate împiedica conținutul Facebook să te urmărească pe acest site.","informationalModalConfirmButtonText":"Autentificare","informationalModalRejectButtonText":"Înapoi","loginButtonText":"Conectează-te cu Facebook","loginBodyText":"Facebook urmărește activitatea ta pe un site atunci când îl utilizezi pentru a te conecta.","buttonTextUnblockContent":"Deblochează conținutul","buttonTextUnblockComment":"Deblochează comentariul","buttonTextUnblockComments":"Deblochează comentariile","buttonTextUnblockPost":"Deblochează postarea","buttonTextUnblockVideo":"Deblochează videoclipul","infoTitleUnblockContent":"DuckDuckGo a blocat acest conținut pentru a împiedica Facebook să te urmărească","infoTitleUnblockComment":"DuckDuckGo a blocat acest comentariu pentru a împiedica Facebook să te urmărească","infoTitleUnblockComments":"DuckDuckGo a blocat aceste comentarii pentru a împiedica Facebook să te urmărească","infoTitleUnblockPost":"DuckDuckGo a blocat această postare pentru a împiedica Facebook să te urmărească","infoTitleUnblockVideo":"DuckDuckGo a blocat acest videoclip pentru a împiedica Facebook să te urmărească","infoTextUnblockContent":"Am împiedicat Facebook să te urmărească atunci când pagina a fost încărcată. Dacă deblochezi acest conținut, Facebook îți va cunoaște activitatea."},"shared.json":{"learnMore":"Află mai multe","readAbout":"Citește despre această protecție a confidențialității"},"youtube.json":{"informationalModalMessageTitle":"Activezi toate previzualizările YouTube?","informationalModalMessageBody":"Afișarea previzualizărilor va permite ca Google (care deține YouTube) să vadă unele dintre informațiile despre dispozitivul tău, dar este totuși mai privată decât redarea videoclipului.","informationalModalConfirmButtonText":"Activează toate previzualizările","informationalModalRejectButtonText":"Nu, mulțumesc","buttonTextUnblockVideo":"Deblochează videoclipul","infoTitleUnblockVideo":"DuckDuckGo a blocat acest videoclip de pe YouTube pentru a împiedica Google să te urmărească","infoTextUnblockVideo":"Am împiedicat Google (care deține YouTube) să te urmărească atunci când s-a încărcat pagina. Dacă deblochezi acest videoclip, Google va cunoaște activitatea ta.","infoPreviewToggleText":"Previzualizările au fost dezactivate pentru o confidențialitate suplimentară","infoPreviewToggleEnabledText":"Previzualizări activate","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Află mai multe</a> despre Protecția integrată DuckDuckGo pentru rețelele sociale"}},"ru":{"facebook.json":{"informationalModalMessageTitle":"Вход через Facebook позволяет этой социальной сети отслеживать вас","informationalModalMessageBody":"После входа DuckDuckGo не сможет блокировать отслеживание ваших действий с контентом на Facebook.","informationalModalConfirmButtonText":"Войти","informationalModalRejectButtonText":"Вернуться","loginButtonText":"Войти через Facebook","loginBodyText":"При использовании учетной записи Facebook для входа на сайты эта социальная сеть сможет отслеживать на них ваши действия.","buttonTextUnblockContent":"Разблокировать","buttonTextUnblockComment":"Разблокировать","buttonTextUnblockComments":"Разблокировать","buttonTextUnblockPost":"Разблокировать","buttonTextUnblockVideo":"Разблокировать","infoTitleUnblockContent":"DuckDuckGo заблокировал этот контент, чтобы вас не отслеживал Facebook","infoTitleUnblockComment":"DuckDuckGo заблокировал этот комментарий, чтобы вас не отслеживал Facebook","infoTitleUnblockComments":"DuckDuckGo заблокировал эти комментарии, чтобы вас не отслеживал Facebook","infoTitleUnblockPost":"DuckDuckGo заблокировал эту публикацию, чтобы вас не отслеживал Facebook","infoTitleUnblockVideo":"DuckDuckGo заблокировал это видео, чтобы вас не отслеживал Facebook","infoTextUnblockContent":"Во время загрузки страницы мы помешали Facebook отследить ваши действия. Если разблокировать этот контент, Facebook сможет фиксировать вашу активность."},"shared.json":{"learnMore":"Узнать больше","readAbout":"Подробнее об этом виде защиты конфиденциальности"},"youtube.json":{"informationalModalMessageTitle":"Включить предпросмотр видео из YouTube?","informationalModalMessageBody":"Активация предварительного просмотра позволит Google (владельцу YouTube) получить некоторые сведения о вашем устройстве, однако это более безопасный вариант, чем воспроизведение видео целиком.","informationalModalConfirmButtonText":"Включить предпросмотр","informationalModalRejectButtonText":"Нет, спасибо","buttonTextUnblockVideo":"Разблокировать","infoTitleUnblockVideo":"DuckDuckGo заблокировал это видео из YouTube, чтобы вас не отслеживал Google","infoTextUnblockVideo":"Во время загрузки страницы мы помешали Google (владельцу YouTube) отследить ваши действия. Если разблокировать видео, Google сможет фиксировать вашу активность.","infoPreviewToggleText":"Предварительный просмотр отключен для дополнительной защиты конфиденциальности","infoPreviewToggleEnabledText":"Предварительный просмотр включен","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Подробнее</a> о защите DuckDuckGo от внедренного контента соцсетей"}},"sk":{"facebook.json":{"informationalModalMessageTitle":"Prihlásenie cez Facebook mu umožní sledovať vás","informationalModalMessageBody":"DuckDuckGo po prihlásení nemôže na tejto lokalite zablokovať sledovanie vašej osoby obsahom Facebooku.","informationalModalConfirmButtonText":"Prihlásiť sa","informationalModalRejectButtonText":"Prejsť späť","loginButtonText":"Prihláste sa pomocou služby Facebook","loginBodyText":"Keď použijete prihlasovanie cez Facebook, Facebook bude na lokalite sledovať vašu aktivitu.","buttonTextUnblockContent":"Odblokovať obsah","buttonTextUnblockComment":"Odblokovať komentár","buttonTextUnblockComments":"Odblokovať komentáre","buttonTextUnblockPost":"Odblokovať príspevok","buttonTextUnblockVideo":"Odblokovať video","infoTitleUnblockContent":"DuckDuckGo zablokoval tento obsah, aby vás Facebook nesledoval","infoTitleUnblockComment":"DuckDuckGo zablokoval tento komentár, aby zabránil sledovaniu zo strany Facebooku","infoTitleUnblockComments":"DuckDuckGo zablokoval tieto komentáre, aby vás Facebook nesledoval","infoTitleUnblockPost":"DuckDuckGo zablokoval tento príspevok, aby vás Facebook nesledoval","infoTitleUnblockVideo":"DuckDuckGo zablokoval toto video, aby vás Facebook nesledoval","infoTextUnblockContent":"Pri načítaní stránky sme zablokovali Facebook, aby vás nesledoval. Ak tento obsah odblokujete, Facebook bude vedieť o vašej aktivite."},"shared.json":{"learnMore":"Zistite viac","readAbout":"Prečítajte si o tejto ochrane súkromia"},"youtube.json":{"informationalModalMessageTitle":"Chcete povoliť všetky ukážky zo služby YouTube?","informationalModalMessageBody":"Zobrazenie ukážok umožní spoločnosti Google (ktorá vlastní YouTube) vidieť niektoré informácie o vašom zariadení, ale stále je to súkromnejšie ako prehrávanie videa.","informationalModalConfirmButtonText":"Povoliť všetky ukážky","informationalModalRejectButtonText":"Nie, ďakujem","buttonTextUnblockVideo":"Odblokovať video","infoTitleUnblockVideo":"DuckDuckGo toto video v službe YouTube zablokoval s cieľom predísť tomu, aby vás spoločnosť Google mohla sledovať","infoTextUnblockVideo":"Zablokovali sme pre spoločnosť Google (ktorá vlastní YouTube), aby vás nemohla sledovať, keď sa stránka načíta. Ak toto video odblokujete, Google bude poznať vašu aktivitu.","infoPreviewToggleText":"Ukážky sú zakázané s cieľom zvýšiť ochranu súkromia","infoPreviewToggleEnabledText":"Ukážky sú povolené","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Získajte viac informácií</a> o DuckDuckGo, vloženej ochrane sociálnych médií"}},"sl":{"facebook.json":{"informationalModalMessageTitle":"Če se prijavite s Facebookom, vam Facebook lahko sledi","informationalModalMessageBody":"Ko ste enkrat prijavljeni, DuckDuckGo ne more blokirati Facebookove vsebine, da bi vam sledila na tem spletnem mestu.","informationalModalConfirmButtonText":"Prijava","informationalModalRejectButtonText":"Pojdi nazaj","loginButtonText":"Prijavite se s Facebookom","loginBodyText":"Če se prijavite s Facebookom, bo nato spremljal vaša dejanja na spletnem mestu.","buttonTextUnblockContent":"Odblokiraj vsebino","buttonTextUnblockComment":"Odblokiraj komentar","buttonTextUnblockComments":"Odblokiraj komentarje","buttonTextUnblockPost":"Odblokiraj objavo","buttonTextUnblockVideo":"Odblokiraj videoposnetek","infoTitleUnblockContent":"DuckDuckGo je blokiral to vsebino, da bi Facebooku preprečil sledenje","infoTitleUnblockComment":"DuckDuckGo je blokiral ta komentar, da bi Facebooku preprečil sledenje","infoTitleUnblockComments":"DuckDuckGo je blokiral te komentarje, da bi Facebooku preprečil sledenje","infoTitleUnblockPost":"DuckDuckGo je blokiral to objavo, da bi Facebooku preprečil sledenje","infoTitleUnblockVideo":"DuckDuckGo je blokiral ta videoposnetek, da bi Facebooku preprečil sledenje","infoTextUnblockContent":"Ko se je stran naložila, smo Facebooku preprečili, da bi vam sledil. Če to vsebino odblokirate, bo Facebook izvedel za vaša dejanja."},"shared.json":{"learnMore":"Več","readAbout":"Preberite več o tej zaščiti zasebnosti"},"youtube.json":{"informationalModalMessageTitle":"Želite omogočiti vse YouTubove predoglede?","informationalModalMessageBody":"Prikaz predogledov omogoča Googlu (ki je lastnik YouTuba) vpogled v nekatere podatke o napravi, vendar je še vedno bolj zasebno kot predvajanje videoposnetka.","informationalModalConfirmButtonText":"Omogoči vse predoglede","informationalModalRejectButtonText":"Ne, hvala","buttonTextUnblockVideo":"Odblokiraj videoposnetek","infoTitleUnblockVideo":"DuckDuckGo je blokiral ta videoposnetek v YouTubu, da bi Googlu preprečil sledenje","infoTextUnblockVideo":"Googlu (ki je lastnik YouTuba) smo preprečili, da bi vam sledil, ko se je stran naložila. Če odblokirate ta videoposnetek, bo Google izvedel za vašo dejavnost.","infoPreviewToggleText":"Predogledi so zaradi dodatne zasebnosti onemogočeni","infoPreviewToggleEnabledText":"Predogledi so omogočeni","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Več</a> o vgrajeni zaščiti družbenih medijev DuckDuckGo"}},"sv":{"facebook.json":{"informationalModalMessageTitle":"Om du loggar in med Facebook kan de spåra dig","informationalModalMessageBody":"När du väl är inloggad kan DuckDuckGo inte hindra Facebooks innehåll från att spåra dig på den här webbplatsen.","informationalModalConfirmButtonText":"Logga in","informationalModalRejectButtonText":"Gå tillbaka","loginButtonText":"Logga in med Facebook","loginBodyText":"Facebook spårar din aktivitet på en webbplats om du använder det för att logga in.","buttonTextUnblockContent":"Avblockera innehåll","buttonTextUnblockComment":"Avblockera kommentar","buttonTextUnblockComments":"Avblockera kommentarer","buttonTextUnblockPost":"Avblockera inlägg","buttonTextUnblockVideo":"Avblockera video","infoTitleUnblockContent":"DuckDuckGo blockerade det här innehållet för att förhindra att Facebook spårar dig","infoTitleUnblockComment":"DuckDuckGo blockerade den här kommentaren för att förhindra att Facebook spårar dig","infoTitleUnblockComments":"DuckDuckGo blockerade de här kommentarerna för att förhindra att Facebook spårar dig","infoTitleUnblockPost":"DuckDuckGo blockerade det här inlägget för att förhindra att Facebook spårar dig","infoTitleUnblockVideo":"DuckDuckGo blockerade den här videon för att förhindra att Facebook spårar dig","infoTextUnblockContent":"Vi hindrade Facebook från att spåra dig när sidan lästes in. Om du avblockerar det här innehållet kommer Facebook att känna till din aktivitet."},"shared.json":{"learnMore":"Läs mer","readAbout":"Läs mer om detta integritetsskydd"},"youtube.json":{"informationalModalMessageTitle":"Aktivera alla förhandsvisningar för YouTube?","informationalModalMessageBody":"Genom att visa förhandsvisningar kan Google (som äger YouTube) se en del av enhetens information, men det är ändå mer privat än att spela upp videon.","informationalModalConfirmButtonText":"Aktivera alla förhandsvisningar","informationalModalRejectButtonText":"Nej tack","buttonTextUnblockVideo":"Avblockera video","infoTitleUnblockVideo":"DuckDuckGo blockerade den här YouTube-videon för att förhindra att Google spårar dig","infoTextUnblockVideo":"Vi hindrade Google (som äger YouTube) från att spåra dig när sidan laddades. Om du tar bort blockeringen av videon kommer Google att känna till din aktivitet.","infoPreviewToggleText":"Förhandsvisningar har inaktiverats för ytterligare integritet","infoPreviewToggleEnabledText":"Förhandsvisningar aktiverade","infoPreviewInfoText":"<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Läs mer</a> om DuckDuckGos skydd mot inbäddade sociala medier"}},"tr":{"facebook.json":{"informationalModalMessageTitle":"Facebook ile giriş yapmak, sizi takip etmelerini sağlar","informationalModalMessageBody":"Giriş yaptıktan sonra, DuckDuckGo Facebook içeriğinin sizi bu sitede izlemesini engelleyemez.","informationalModalConfirmButtonText":"Oturum Aç","informationalModalRejectButtonText":"Geri dön","loginButtonText":"Facebook ile giriş yapın","loginBodyText":"Facebook, giriş yapmak için kullandığınızda bir sitedeki etkinliğinizi izler.","buttonTextUnblockContent":"İçeriğin Engelini Kaldır","buttonTextUnblockComment":"Yorumun Engelini Kaldır","buttonTextUnblockComments":"Yorumların Engelini Kaldır","buttonTextUnblockPost":"Gönderinin Engelini Kaldır","buttonTextUnblockVideo":"Videonun Engelini Kaldır","infoTitleUnblockContent":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu içeriği engelledi","infoTitleUnblockComment":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu yorumu engelledi","infoTitleUnblockComments":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu yorumları engelledi","infoTitleUnblockPost":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu gönderiyi engelledi","infoTitleUnblockVideo":"DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu videoyu engelledi","infoTextUnblockContent":"Sayfa yüklendiğinde Facebook'un sizi izlemesini engelledik. Bu içeriğin engelini kaldırırsanız Facebook etkinliğinizi öğrenecektir."},"shared.json":{"learnMore":"Daha Fazla Bilgi","readAbout":"Bu gizlilik koruması hakkında bilgi edinin"},"youtube.json":{"informationalModalMessageTitle":"Tüm YouTube önizlemeleri etkinleştirilsin mi?","informationalModalMessageBody":"Önizlemelerin gösterilmesi Google'ın (YouTube'un sahibi) cihazınızın bazı bilgilerini görmesine izin verir, ancak yine de videoyu oynatmaktan daha özeldir.","informationalModalConfirmButtonText":"Tüm Önizlemeleri Etkinleştir","informationalModalRejectButtonText":"Hayır Teşekkürler","buttonTextUnblockVideo":"Videonun Engelini Kaldır","infoTitleUnblockVideo":"DuckDuckGo, Google'ın sizi izlemesini önlemek için bu YouTube videosunu engelledi","infoTextUnblockVideo":"Sayfa yüklendiğinde Google'ın (YouTube'un sahibi) sizi izlemesini engelledik. Bu videonun engelini kaldırırsanız, Google etkinliğinizi öğrenecektir.","infoPreviewToggleText":"Ek gizlilik için önizlemeler devre dışı bırakıldı","infoPreviewToggleEnabledText":"Önizlemeler etkinleştirildi","infoPreviewInfoText":"DuckDuckGo Yerleşik Sosyal Medya Koruması hakkında <a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">daha fazla bilgi edinin</a>"}}}`;
 
     /*********************************************************
      *  Style Definitions
      *********************************************************/
-    const styles = {
-        fontStyle: `
+    /**
+     * Get CSS style defintions for CTL, using the provided AssetConfig for any non-embedded assets
+     * (e.g. fonts.)
+     * @param {import('../../content-feature.js').AssetConfig} [assets]
+     */
+    function getStyles (assets) {
+        let fontStyle = '';
+        let regularFontFamily = "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'";
+        let boldFontFamily = regularFontFamily;
+        if (assets?.regularFontUrl && assets?.boldFontUrl) {
+            fontStyle = `
         @font-face{
             font-family: DuckDuckGoPrivacyEssentials;
-            src: url(${ddgFont});
+            src: url(${assets.regularFontUrl});
         }
         @font-face{
             font-family: DuckDuckGoPrivacyEssentialsBold;
             font-weight: bold;
-            src: url(${ddgFontBold});
+            src: url(${assets.boldFontUrl});
         }
-    `,
-        darkMode: {
-            background: `
+    `;
+            regularFontFamily = 'DuckDuckGoPrivacyEssentials';
+            boldFontFamily = 'DuckDuckGoPrivacyEssentialsBold';
+        }
+        return {
+            fontStyle,
+            darkMode: {
+                background: `
             background: #111111;
         `,
-            textFont: `
+                textFont: `
             color: rgba(255, 255, 255, 0.9);
         `,
-            buttonFont: `
+                buttonFont: `
             color: #111111;
         `,
-            linkFont: `
+                linkFont: `
             color: #7295F6;
         `,
-            buttonBackground: `
+                buttonBackground: `
             background: #5784FF;
         `,
-            buttonBackgroundHover: `
+                buttonBackgroundHover: `
             background: #557FF3;
         `,
-            buttonBackgroundPress: `
+                buttonBackgroundPress: `
             background: #3969EF;
         `,
-            toggleButtonText: `
+                toggleButtonText: `
             color: #EEEEEE;
         `,
-            toggleButtonBgState: {
-                active: `
+                toggleButtonBgState: {
+                    active: `
                 background: #5784FF;
             `,
-                inactive: `
+                    inactive: `
                 background-color: #666666;
             `
-            }
-        },
-        lightMode: {
-            background: `
+                }
+            },
+            lightMode: {
+                background: `
             background: #FFFFFF;
         `,
-            textFont: `
+                textFont: `
             color: #222222;
         `,
-            buttonFont: `
+                buttonFont: `
             color: #FFFFFF;
         `,
-            linkFont: `
+                linkFont: `
             color: #3969EF;
         `,
-            buttonBackground: `
+                buttonBackground: `
             background: #3969EF;
         `,
-            buttonBackgroundHover: `
+                buttonBackgroundHover: `
             background: #2B55CA;
         `,
-            buttonBackgroundPress: `
+                buttonBackgroundPress: `
             background: #1E42A4;
         `,
-            toggleButtonText: `
+                toggleButtonText: `
             color: #666666;
         `,
-            toggleButtonBgState: {
-                active: `
+                toggleButtonBgState: {
+                    active: `
                 background: #3969EF;
             `,
-                inactive: `
+                    inactive: `
                 background-color: #666666;
             `
-            }
-        },
-        loginMode: {
-            buttonBackground: `
+                }
+            },
+            loginMode: {
+                buttonBackground: `
             background: #666666;
         `,
-            buttonFont: `
+                buttonFont: `
             color: #FFFFFF;
         `
-        },
-        cancelMode: {
-            buttonBackground: `
+            },
+            cancelMode: {
+                buttonBackground: `
             background: rgba(34, 34, 34, 0.1);
         `,
-            buttonFont: `
+                buttonFont: `
             color: #222222;
         `,
-            buttonBackgroundHover: `
+                buttonBackgroundHover: `
             background: rgba(0, 0, 0, 0.12);
         `,
-            buttonBackgroundPress: `
+                buttonBackgroundPress: `
             background: rgba(0, 0, 0, 0.18);
         `
-        },
-        button: `
+            },
+            button: `
         border-radius: 8px;
 
         padding: 11px 22px;
@@ -4954,7 +5232,7 @@
         border-color: #3969EF;
         border: none;
 
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        font-family: ${boldFontFamily};
         font-size: 14px;
 
         position: relative;
@@ -4962,7 +5240,7 @@
         box-shadow: none;
         z-index: 2147483646;
     `,
-        circle: `
+            circle: `
         border-radius: 50%;
         width: 18px;
         height: 18px;
@@ -4972,14 +5250,14 @@
         top: -8px;
         right: -8px;
     `,
-        loginIcon: `
+            loginIcon: `
         position: absolute;
         top: -13px;
         right: -10px;
         height: 28px;
         width: 28px;
     `,
-        rectangle: `
+            rectangle: `
         width: 12px;
         height: 3px;
         background: #666666;
@@ -4987,7 +5265,7 @@
         top: 42.5%;
         margin: auto;
     `,
-        textBubble: `
+            textBubble: `
         background: #FFFFFF;
         border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 16px;
@@ -4998,9 +5276,9 @@
         position: absolute;
         line-height: normal;
     `,
-        textBubbleWidth: 360, // Should match the width rule in textBubble
-        textBubbleLeftShift: 100, // Should match the CSS left: rule in textBubble
-        textArrow: `
+            textBubbleWidth: 360, // Should match the width rule in textBubble
+            textBubbleLeftShift: 100, // Should match the CSS left: rule in textBubble
+            textArrow: `
         display: inline-block;
         background: #FFFFFF;
         border: solid rgba(0, 0, 0, 0.1);
@@ -5011,23 +5289,23 @@
         position: relative;
         top: -9px;
     `,
-        arrowDefaultLocationPercent: 50,
-        hoverTextTitle: `
+            arrowDefaultLocationPercent: 50,
+            hoverTextTitle: `
         padding: 0px 12px 12px;
         margin-top: -5px;
     `,
-        hoverTextBody: `
-        font-family: DuckDuckGoPrivacyEssentials;
+            hoverTextBody: `
+        font-family: ${regularFontFamily};
         font-size: 14px;
         line-height: 21px;
         margin: auto;
         padding: 17px;
         text-align: left;
     `,
-        hoverContainer: `
+            hoverContainer: `
         padding-bottom: 10px;
     `,
-        buttonTextContainer: `
+            buttonTextContainer: `
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -5035,10 +5313,10 @@
         padding: 0;
         margin: 0;
     `,
-        headerRow: `
+            headerRow: `
 
     `,
-        block: `
+            block: `
         box-sizing: border-box;
         border: 1px solid rgba(0,0,0,0.1);
         border-radius: 12px;
@@ -5048,27 +5326,27 @@
         display: flex;
         flex-direction: column;
 
-        font-family: DuckDuckGoPrivacyEssentials;
+        font-family: ${regularFontFamily};
         line-height: 1;
     `,
-        youTubeDialogBlock: `
+            youTubeDialogBlock: `
         height: calc(100% - 30px);
         max-width: initial;
         min-height: initial;
     `,
-        imgRow: `
+            imgRow: `
         display: flex;
         flex-direction: column;
         margin: 20px 0px;
     `,
-        content: `
+            content: `
         display: flex;
         flex-direction: column;
         padding: 16px 0;
         flex: 1 1 1px;
     `,
-        feedbackLink: `
-        font-family: DuckDuckGoPrivacyEssentials;
+            feedbackLink: `
+        font-family: ${regularFontFamily};
         font-style: normal;
         font-weight: 400;
         font-size: 12px;
@@ -5076,13 +5354,13 @@
         color: #ABABAB;
         text-decoration: none;
     `,
-        feedbackRow: `
+            feedbackRow: `
         height: 30px;
         display: flex;
         justify-content: flex-end;
         align-items: center;
     `,
-        titleBox: `
+            titleBox: `
         display: flex;
         padding: 12px;
         max-height: 44px;
@@ -5091,8 +5369,8 @@
         margin: 0;
         margin-bottom: 4px;
     `,
-        title: `
-        font-family: DuckDuckGoPrivacyEssentials;
+            title: `
+        font-family: ${regularFontFamily};
         line-height: 1.4;
         font-size: 14px;
         margin: auto 10px;
@@ -5104,7 +5382,7 @@
         border: none;
         padding: 0;
     `,
-        buttonRow: `
+            buttonRow: `
         display: flex;
         height: 100%
         flex-direction: row;
@@ -5112,8 +5390,8 @@
         height: 100%;
         align-items: flex-start;
     `,
-        modalContentTitle: `
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+            modalContentTitle: `
+        font-family: ${boldFontFamily};
         font-size: 17px;
         font-weight: bold;
         line-height: 21px;
@@ -5122,8 +5400,8 @@
         border: none;
         padding: 0px 32px;
     `,
-        modalContentText: `
-        font-family: DuckDuckGoPrivacyEssentials;
+            modalContentText: `
+        font-family: ${regularFontFamily};
         font-size: 14px;
         line-height: 21px;
         margin: 0px auto 14px;
@@ -5131,7 +5409,7 @@
         border: none;
         padding: 0;
     `,
-        modalButtonRow: `
+            modalButtonRow: `
         border: none;
         padding: 0;
         margin: auto;
@@ -5140,17 +5418,17 @@
         flex-direction: column;
         align-items: center;
     `,
-        modalButton: `
+            modalButton: `
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
     `,
-        modalIcon: `
+            modalIcon: `
         display: block;
     `,
-        contentTitle: `
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+            contentTitle: `
+        font-family: ${boldFontFamily};
         font-size: 17px;
         font-weight: bold;
         margin: 20px auto 10px;
@@ -5158,25 +5436,25 @@
         text-align: center;
         margin-top: auto;
     `,
-        contentText: `
-        font-family: DuckDuckGoPrivacyEssentials;
+            contentText: `
+        font-family: ${regularFontFamily};
         font-size: 14px;
         line-height: 21px;
         padding: 0px 40px;
         text-align: center;
         margin: 0 auto auto;
     `,
-        icon: `
+            icon: `
         height: 80px;
         width: 80px;
         margin: auto;
     `,
-        closeIcon: `
+            closeIcon: `
         height: 12px;
         width: 12px;
         margin: auto;
     `,
-        closeButton: `
+            closeButton: `
         display: flex;
         justify-content: center;
         align-items: center;
@@ -5186,7 +5464,7 @@
         background: transparent;
         cursor: pointer;
     `,
-        logo: `
+            logo: `
         flex-basis: 0%;
         min-width: 20px;
         height: 21px;
@@ -5194,17 +5472,17 @@
         padding: 0;
         margin: 0;
     `,
-        logoImg: `
+            logoImg: `
         height: 21px;
         width: 21px;
     `,
-        loadingImg: `
+            loadingImg: `
         display: block;
         margin: 0px 8px 0px 0px;
         height: 14px;
         width: 14px;
     `,
-        modal: `
+            modal: `
         width: 340px;
         padding: 0;
         margin: auto;
@@ -5218,14 +5496,14 @@
         border-radius: 12px;
         border: none;
     `,
-        modalContent: `
+            modalContent: `
         padding: 24px;
         display: flex;
         flex-direction: column;
         border: none;
         margin: 0;
     `,
-        overlay: `
+            overlay: `
         height: 100%;
         width: 100%;
         background-color: #666666;
@@ -5238,7 +5516,7 @@
         padding: 0;
         margin: 0;
     `,
-        modalContainer: `
+            modalContainer: `
         height: 100vh;
         width: 100vw;
         box-sizing: border-box;
@@ -5249,16 +5527,16 @@
         margin: 0;
         padding: 0;
     `,
-        headerLinkContainer: `
+            headerLinkContainer: `
         flex-basis: 100%;
         display: grid;
         justify-content: flex-end;
     `,
-        headerLink: `
+            headerLink: `
         line-height: 1.4;
         font-size: 14px;
         font-weight: bold;
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        font-family: ${boldFontFamily};
         text-decoration: none;
         cursor: pointer;
         min-width: 100px;
@@ -5266,15 +5544,15 @@
         float: right;
         display: none;
     `,
-        generalLink: `
+            generalLink: `
         line-height: 1.4;
         font-size: 14px;
         font-weight: bold;
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+        font-family: ${boldFontFamily};
         cursor: pointer;
         text-decoration: none;
     `,
-        wrapperDiv: `
+            wrapperDiv: `
         display: inline-block;
         border: 0;
         padding: 0;
@@ -5282,12 +5560,12 @@
         max-width: 600px;
         min-height: 300px;
     `,
-        toggleButtonWrapper: `
+            toggleButtonWrapper: `
         display: flex;
         align-items: center;
         cursor: pointer;
     `,
-        toggleButton: `
+            toggleButton: `
         cursor: pointer;
         position: relative;
         width: 30px;
@@ -5299,19 +5577,19 @@
         background-color: transparent;
         text-align: left;
     `,
-        toggleButtonBg: `
+            toggleButtonBg: `
         right: 0;
         width: 30px;
         height: 16px;
         overflow: visible;
         border-radius: 10px;
     `,
-        toggleButtonText: `
+            toggleButtonText: `
         display: inline-block;
         margin: 0 0 0 7px;
         padding: 0;
     `,
-        toggleButtonKnob: `
+            toggleButtonKnob: `
         position: absolute;
         display: inline-block;
         width: 14px;
@@ -5322,15 +5600,15 @@
         top: calc(50% - 14px/2 - 1px);
         box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.1);
     `,
-        toggleButtonKnobState: {
-            active: `
+            toggleButtonKnobState: {
+                active: `
             right: 1px;
         `,
-            inactive: `
+                inactive: `
             left: 1px;
         `
-        },
-        placeholderWrapperDiv: `
+            },
+            placeholderWrapperDiv: `
         position: relative;
         overflow: hidden;
         border-radius: 12px;
@@ -5340,7 +5618,7 @@
         min-height: 300px;
         margin: auto;
     `,
-        youTubeWrapperDiv: `
+            youTubeWrapperDiv: `
         position: relative;
         overflow: hidden;
         max-width: initial;
@@ -5348,7 +5626,7 @@
         min-height: 300px;
         height: 100%;
     `,
-        youTubeDialogDiv: `
+            youTubeDialogDiv: `
         position: relative;
         overflow: hidden;
         border-radius: 12px;
@@ -5356,14 +5634,14 @@
         min-height: initial;
         height: calc(100% - 30px);
     `,
-        youTubeDialogBottomRow: `
+            youTubeDialogBottomRow: `
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-end;
         margin-top: auto;
     `,
-        youTubePlaceholder: `
+            youTubePlaceholder: `
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -5372,7 +5650,7 @@
         height: 100%;
         background: rgba(45, 45, 45, 0.8);
     `,
-        youTubePreviewWrapperImg: `
+            youTubePreviewWrapperImg: `
         position: absolute;
         display: flex;
         justify-content: center;
@@ -5380,20 +5658,20 @@
         width: 100%;
         height: 100%;
     `,
-        youTubePreviewImg: `
+            youTubePreviewImg: `
         min-width: 100%;
         min-height: 100%;
         height: auto;
     `,
-        youTubeTopSection: `
-        font-family: DuckDuckGoPrivacyEssentialsBold;
+            youTubeTopSection: `
+        font-family: ${boldFontFamily};
         flex: 1;
         display: flex;
         justify-content: space-between;
         position: relative;
         padding: 18px 12px 0;
     `,
-        youTubeTitle: `
+            youTubeTitle: `
         font-size: 14px;
         font-weight: bold;
         line-height: 14px;
@@ -5405,13 +5683,13 @@
         text-overflow: ellipsis;
         box-sizing: border-box;
     `,
-        youTubePlayButtonRow: `
+            youTubePlayButtonRow: `
         flex: 2;
         display: flex;
         align-items: center;
         justify-content: center;
     `,
-        youTubePlayButton: `
+            youTubePlayButton: `
         display: flex;
         justify-content: center;
         align-items: center;
@@ -5420,7 +5698,7 @@
         padding: 0px 24px;
         border-radius: 8px;
     `,
-        youTubePreviewToggleRow: `
+            youTubePreviewToggleRow: `
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -5428,15 +5706,19 @@
         align-items: center;
         padding: 0 12px 18px;
     `,
-        youTubePreviewToggleText: `
+            youTubePreviewToggleText: `
         color: #EEEEEE;
         font-weight: 400;
     `,
-        youTubePreviewInfoText: `
+            youTubePreviewInfoText: `
         color: #ABABAB;
     `
-    };
+        }
+    }
 
+    /**
+     * @param {string} locale UI locale
+     */
     function getConfig (locale) {
         const locales = JSON.parse(localesJSON);
         const fbStrings = locales[locale]['facebook.json'];
@@ -5873,6 +6155,7 @@
     // @see {getConfig}
     let config = null;
     let sharedStrings = null;
+    let styles = null;
 
     // TODO: Remove these redundant data structures and refactor the related code.
     //       There should be no need to have the entity configuration stored in two
@@ -6335,6 +6618,16 @@
         ];
         elementToReplace.style.setProperty('display', 'none', 'important');
 
+        // When iframes are blocked by the declarativeNetRequest API, they are
+        // collapsed (hidden) automatically. Unfortunately however, there's a bug
+        // that stops them from being uncollapsed (shown again) if they are removed
+        // from the DOM after they are collapsed. As a workaround, have the iframe
+        // load a benign data URI, so that it's uncollapsed, before removing it from
+        // the DOM. See https://crbug.com/1428971
+        const originalSrc = elementToReplace.src;
+        elementToReplace.src =
+            'data:text/plain;charset=utf-8;base64,' + btoa('https://crbug.com/1428971');
+
         // Add the placeholder element to the page.
         elementToReplace.parentElement.insertBefore(
             placeholderElement, elementToReplace
@@ -6354,6 +6647,7 @@
             // placeholder) can finally be removed from the DOM.
             elementToReplace.remove();
             elementToReplace.style.setProperty('display', ...originalDisplay);
+            elementToReplace.src = originalSrc;
         });
     }
 
@@ -6744,10 +7038,10 @@
      * Creates an anchor element with no destination. It is expected that a click
      * handler is added to the element later.
      * @param {string} linkText
-     * @param {displayMode} [mode='lightMode']
+     * @param {displayMode} mode
      * @returns {HTMLAnchorElement}
      */
-    function makeTextButton (linkText, mode) {
+    function makeTextButton (linkText, mode = 'lightMode') {
         const linkElement = document.createElement('a');
         linkElement.style.cssText = styles.headerLink + styles[mode].linkFont;
         linkElement.textContent = linkText;
@@ -7471,6 +7765,8 @@
             const localizedConfig = getConfig(locale);
             config = localizedConfig.config;
             sharedStrings = localizedConfig.sharedStrings;
+            // update styles if asset config was sent
+            styles = getStyles(this.assetConfig);
 
             for (const entity of Object.keys(config)) {
                 // Strip config entities that are first-party, or aren't enabled in the
@@ -7538,6 +7834,16 @@
                 window.addEventListener('load', afterPageLoadResolver, { once: true });
             }
             await afterPageLoad;
+
+            // On some websites, the "ddg-ctp-ready" event is occasionally
+            // dispatched too early, before the listener is ready to receive it.
+            // To counter that, catch "ddg-ctp-surrogate-load" events dispatched
+            // _after_ page, so the "ddg-ctp-ready" event can be dispatched again.
+            window.addEventListener(
+                'ddg-ctp-surrogate-load', () => {
+                    originalWindowDispatchEvent(createCustomEvent('ddg-ctp-ready'));
+                }
+            );
 
             // Then wait for any in-progress element replacements, before letting
             // the surrogate scripts know to start.
@@ -9528,7 +9834,7 @@
             title: 'Tired of targeted YouTube ads and recommendations?'
         },
         videoOverlaySubtitle: {
-            title: '<b>Duck Player</b> provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'
+            title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'
         },
         videoButtonOpen: {
             title: 'Watch in Duck Player'
@@ -9558,6 +9864,75 @@
             return match.title
         }
     };
+
+    /**
+     * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
+     */
+    class Template {
+        constructor (strings, values) {
+            this.values = values;
+            this.strings = strings;
+        }
+
+        /**
+         * Escapes any occurrences of &, ", <, > or / with XML entities.
+         *
+         * @param {string} str
+         *        The string to escape.
+         * @return {string} The escaped string.
+         */
+        escapeXML (str) {
+            const replacements = {
+                '&': '&amp;',
+                '"': '&quot;',
+                "'": '&apos;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '/': '&#x2F;'
+            };
+            return String(str).replace(/[&"'<>/]/g, m => replacements[m])
+        }
+
+        potentiallyEscape (value) {
+            if (typeof value === 'object') {
+                if (value instanceof Array) {
+                    return value.map(val => this.potentiallyEscape(val)).join('')
+                }
+
+                // If we are an escaped template let join call toString on it
+                if (value instanceof Template) {
+                    return value
+                }
+
+                throw new Error('Unknown object to escape')
+            }
+            return this.escapeXML(value)
+        }
+
+        toString () {
+            const result = [];
+
+            for (const [i, string] of this.strings.entries()) {
+                result.push(string);
+                if (i < this.values.length) {
+                    result.push(this.potentiallyEscape(this.values[i]));
+                }
+            }
+            return result.join('')
+        }
+    }
+
+    function html (strings, ...values) {
+        return new Template(strings, values)
+    }
+
+    /**
+     * @param {string} string
+     * @return {Template}
+     */
+    function trustedUnsafe (string) {
+        return html([string])
+    }
 
     const IconOverlay = {
         /**
@@ -9597,20 +9972,20 @@
 
             overlayElement.setAttribute('class', 'ddg-overlay' + (extraClass ? ' ' + extraClass : ''));
             overlayElement.setAttribute('data-size', size);
-            overlayElement.innerHTML = `
+            const svgIcon = trustedUnsafe(dax);
+            overlayElement.innerHTML = html`
                 <a class="ddg-play-privately" href="#">
                     <div class="ddg-dax">
-                        ${dax}
+                    ${svgIcon}
                     </div>
                     <div class="ddg-play-text-container">
                         <div class="ddg-play-text">
                             ${i18n.t('playText')}
                         </div>
                     </div>
-                </a>`;
+                </a>`.toString();
 
             overlayElement.querySelector('a.ddg-play-privately')?.setAttribute('href', href);
-
             overlayElement.querySelector('a.ddg-play-privately')?.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -9941,12 +10316,15 @@
         createOverlay () {
             const overlayElement = document.createElement('div');
             overlayElement.classList.add('ddg-video-player-overlay');
-            overlayElement.innerHTML = `
+            const svgIcon = trustedUnsafe(dax);
+            overlayElement.innerHTML = html`
             <div class="ddg-vpo-bg"></div>
             <div class="ddg-vpo-content">
-                <div class="ddg-eyeball">${dax}</div>
+                <div class="ddg-eyeball">${svgIcon}</div>
                 <div class="ddg-vpo-title">${i18n.t('videoOverlayTitle')}</div>
-                <div class="ddg-vpo-text">${i18n.t('videoOverlaySubtitle')}</div>
+                <div class="ddg-vpo-text">
+                    <b>${i18n.t('playText')}</b> ${i18n.t('videoOverlaySubtitle')}
+                </div>
                 <div class="ddg-vpo-buttons">
                     <button class="ddg-vpo-button ddg-vpo-cancel" type="button">${i18n.t('videoButtonOptOut')}</button>
                     <a class="ddg-vpo-button ddg-vpo-open" href="#">${i18n.t('videoButtonOpen')}</a>
@@ -9957,7 +10335,7 @@
                     </label>
                 </div>
             </div>
-            `;
+            `.toString();
             /**
              * Set the link
              * @type {string}
@@ -10725,7 +11103,7 @@
             if (this.platform.name === 'windows') {
                 const context = new MessagingContext({
                     context: 'contentScopeScripts',
-                    env: this._args.debug ? 'development' : 'production',
+                    env: this.isDebug ? 'development' : 'production',
                     featureName: this.name
                 });
                 const config = new WindowsMessagingConfig({
@@ -10812,12 +11190,14 @@
 
     /**
      * @typedef {object} LoadArgs
+     * @property {object} site
      * @property {object} platform
      * @property {string} platform.name
      * @property {string} [platform.version]
-     * @property {boolean} [documentOriginIsTracker]
+     * @property {boolean} documentOriginIsTracker
      * @property {object} [bundledConfig]
      * @property {string} [injectName]
+     * @property {object} trackerLookup - provided currently only by the extension
      */
 
     /**
@@ -10895,6 +11275,7 @@
 
     function generateConfig (data, userList) {
         const topLevelUrl = getTopLevelURL();
+        const trackerLookup = {"org":{"cdn77":{"rsc":{"1666210260":1}},"adsrvr":1,"ampproject":1,"browser-update":1,"flowplayer":1,"privacy-center":1,"webvisor":1,"framasoft":1,"do-not-tracker":1,"trackersimulator":1},"io":{"1dmp":1,"1rx":1,"4dex":1,"adnami":1,"aidata":1,"arcspire":1,"bidr":1,"branch":1,"center":1,"concert":1,"connectad":1,"cordial":1,"dcmn":1,"extole":1,"getblue":1,"hbrd":1,"imbox":1,"instana":1,"karte":1,"lytics":1,"marchex":1,"mediago":1,"mrf":1,"myfidevs":1,"narrative":1,"ntv":1,"optad360":1,"oracleinfinity":1,"oribi":1,"p-n":1,"personalizer":1,"pghub":1,"piano":1,"powr":1,"pzz":1,"searchspring":1,"segment":1,"siteimproveanalytics":1,"sjv":1,"sspinc":1,"t13":1,"webgains":1,"wovn":1,"yellowblue":1,"zprk":1,"reviews":1,"appconsent":1,"leadsmonitor":1},"com":{"2020mustang":1,"33across":1,"360yield":1,"3lift":1,"4dsply":1,"4jnzhl0d0":1,"4strokemedia":1,"5d2d04464c":1,"a-mx":1,"a2z":1,"aamsitecertifier":1,"absorbingband":1,"abstractedauthority":1,"abtasty":1,"acexedge":1,"acidpigs":1,"acsbapp":1,"acuityplatform":1,"ad-score":1,"ad-stir":1,"adalyser":1,"adapf":1,"adara":1,"adblade":1,"addthis":1,"addtoany":1,"adelixir":1,"adentifi":1,"adextrem":1,"adgrx":1,"adhese":1,"adition":1,"adkernel":1,"adlightning":1,"adlooxtracking":1,"admanmedia":1,"admedo":1,"adnium":1,"adnxs":1,"adobedtm":1,"adotmob":1,"adpone":1,"adpushup":1,"adroll":1,"adrta":1,"ads-twitter":1,"ads3-adnow":1,"adsafeprotected":1,"adstanding":1,"adswizz":1,"adsymptotic":1,"adtdp":1,"adtechus":1,"adtelligent":1,"adthrive":1,"adtlgc":1,"adtng":1,"adultfriendfinder":1,"advangelists":1,"adventive":1,"advertising":1,"aegpresents":1,"affinity":1,"affirm":1,"agilone":1,"agkn":1,"aimbase":1,"albacross":1,"alcmpn":1,"alexametrics":1,"alicdn":1,"alikeaddition":1,"aliveachiever":1,"aliyuncs":1,"alluringbucket":1,"aloofvest":1,"amazon-adsystem":1,"amazon":1,"amplitude":1,"analytics-egain":1,"aniview":1,"anymind360":1,"amazonaws":{"ap-southeast-2":1,"elb":{"eu-west-2":{"collect-prd-alb-539115803":1},"us-east-1":{"data-allstate-com-715826933":1,"prod-lb-8-1772099769":1,"proxy-mycigna-prod-678433465":1,"www-u45-pnc-com-902993410":1,"www-u46-pnc-com-13593657":1},"eu-west-1":{"devservicesalb-471015105":1,"petfre-content-1201188928":1},"us-east-2":{"elbpiwik-public-1781721271":1},"eu-central-1":{"prod-lb-6-388533732":1,"prod-lb-7-718125029":1,"prod-pub-alb-654989386":1}},"us-east-2":{"s3":{"hb-gretsch-talk":1,"hb-jetpunk":1,"hb-obv2":1}},"eu-central-1":{"s3":{"headless-ssr-prod-bucket":1}}},"app-us1":1,"appboycdn":1,"appdynamics":1,"aralego":1,"arkoselabs":1,"aswpsdkus":1,"atemda":1,"att":1,"attentivemobile":1,"attractionbanana":1,"audioeye":1,"audrte":1,"automaticside":1,"avanser":1,"avmws":1,"aweber":1,"aweprt":1,"azure":1,"b0e8":1,"bagbeam":1,"bandborder":1,"batch":1,"bawdybalance":1,"bc0a":1,"bdstatic":1,"bedsberry":1,"beginnerpancake":1,"benchmarkemail":1,"betweendigital":1,"bfmio":1,"bidderstack":1,"bidtheatre":1,"bimbolive":1,"bing":1,"bizographics":1,"bizrate":1,"bkrtx":1,"blismedia":1,"blogherads":1,"bluecava":1,"bluekai":1,"boatwizard":1,"boilingcredit":1,"boldchat":1,"booking":1,"borderfree":1,"bounceexchange":1,"brainlyads":1,"brand-display":1,"brandmetrics":1,"brealtime":1,"breinify":1,"brightedge":1,"brightfunnel":1,"brightspotcdn":1,"btloader":1,"btstatic":1,"bttrack":1,"btttag":1,"butterbulb":1,"buzzoola":1,"byside":1,"cabnnr":1,"calculatorstatement":1,"callrail":1,"calltracks":1,"capablecup":1,"captcha-delivery":1,"carpentercomparison":1,"cartstack":1,"carvecakes":1,"casalemedia":1,"cdn-btsg":1,"cdnwidget":1,"channeladvisor":1,"chartbeat":1,"chatango":1,"chaturbate":1,"cheqzone":1,"cherriescare":1,"chickensstation":1,"childlikecrowd":1,"childlikeform":1,"cintnetworks":1,"circlelevel":1,"civiccomputing":1,"ck-ie":1,"clcktrax":1,"clearbit":1,"clearbitjs":1,"clickagy":1,"clickcease":1,"clickcertain":1,"clicktripz":1,"clientgear":1,"clksite":1,"cloudflare":1,"cloudflareinsights":1,"cloudflarestream":1,"cloudmaestro":1,"cobaltgroup":1,"cobrowser":1,"cognitivlabs":1,"colossusssp":1,"comm100":1,"googleapis":{"commondatastorage":1,"storage":1},"company-target":1,"condenastdigital":1,"confusedcart":1,"connatix":1,"consentframework":1,"contextweb":1,"conversionruler":1,"convertkit":1,"convertlanguage":1,"cookieinformation":1,"cookiepro":1,"coveo":1,"cpmstar":1,"cquotient":1,"crabbychin":1,"crazyegg":1,"creative-serving":1,"creativecdn":1,"criteo":1,"crowdedmass":1,"crowdriff":1,"crownpeak":1,"crsspxl":1,"ctnsnet":1,"cubchannel":1,"cudasvc":1,"cuddlethehyena":1,"cumbersomecarpenter":1,"curalate":1,"curvedhoney":1,"cutechin":1,"cxense":1,"dailymotion":1,"damdoor":1,"dampdock":1,"dapperfloor":1,"datadoghq-browser-agent":1,"decisivebase":1,"deepintent":1,"defybrick":1,"delivra":1,"demandbase":1,"detectdiscovery":1,"devilishdinner":1,"dimelochat":1,"discreetfield":1,"disqus":1,"dmpxs":1,"dockdigestion":1,"dollardelta":1,"dotomi":1,"doubleverify":1,"drainpaste":1,"dramaticdirection":1,"driftt":1,"dtscdn":1,"dtscout":1,"dwin1":1,"dynamics":1,"dynamicyield":1,"dynatrace":1,"dyntrk":1,"ebaystatic":1,"ecal":1,"eccmp":1,"elasticchange":1,"elfsight":1,"elitrack":1,"eloqua":1,"en25":1,"encouragingthread":1,"ensighten":1,"enviousshape":1,"eqads":1,"ero-advertising":1,"esputnik":1,"evergage":1,"evgnet":1,"exdynsrv":1,"exelator":1,"exoclick":1,"exosrv":1,"expansioneggnog":1,"expertrec":1,"exponea":1,"exponential":1,"extole":1,"ezodn":1,"ezoic":1,"ezoiccdn":1,"facebook":1,"fadewaves":1,"fallaciousfifth":1,"farmergoldfish":1,"fastly-insights":1,"fearlessfaucet":1,"fiftyt":1,"financefear":1,"fitanalytics":1,"five9":1,"fksnk":1,"flashtalking":1,"flipp":1,"floweryflavor":1,"flutteringfireman":1,"flux-cdn":1,"fomo":1,"foresee":1,"forter":1,"fortunatemark":1,"fouanalytics":1,"fox":1,"fqtag":1,"frailfruit":1,"freezingbuilding":1,"fronttoad":1,"fullstory":1,"functionalfeather":1,"fuzzybasketball":1,"gammamaximum":1,"gbqofs":1,"geetest":1,"geistm":1,"geniusmonkey":1,"geoip-js":1,"getbread":1,"getcandid":1,"getclicky":1,"getdrip":1,"getelevar":1,"getpublica":1,"getrockerbox":1,"getshogun":1,"getsitecontrol":1,"glassdoor":1,"gloriousbeef":1,"godpvqnszo":1,"gondolagnome":1,"google-analytics":1,"google":1,"googleadservices":1,"googlehosted":1,"googleoptimize":1,"googlesyndication":1,"googletagmanager":1,"googletagservices":1,"govx":1,"greylabeldelivery":1,"groovehq":1,"gstatic":1,"guarantee-cdn":1,"guiltlessbasketball":1,"gumgum":1,"haltingbadge":1,"hammerhearing":1,"handsomelyhealth":1,"hawksearch":1,"heapanalytics":1,"hellobar":1,"hiconversion":1,"highwebmedia":1,"histats":1,"hlserve":1,"hocgeese":1,"hollowafterthought":1,"honorableland":1,"hotjar":1,"hp":1,"hs-banner":1,"htlbid":1,"htplayground":1,"hubspot":1,"iadvize":1,"ib-ibi":1,"id5-sync":1,"iesnare":1,"igodigital":1,"iheart":1,"iljmp":1,"illiweb":1,"impactcdn":1,"impactradius-event":1,"impactradius-go":1,"impossibleexpansion":1,"impressionmonster":1,"improvedcontactform":1,"improvedigital":1,"imrworldwide":1,"indexww":1,"infolinks":1,"infusionsoft":1,"inmobi":1,"inmoment":1,"inq":1,"inside-graph":1,"instagram":1,"intentiq":1,"intergient":1,"investingchannel":1,"invocacdn":1,"iplsc":1,"ipredictive":1,"iteratehq":1,"ivitrack":1,"j93557g":1,"jaavnacsdw":1,"jimstatic":1,"journity":1,"js7k":1,"juicyads":1,"justanswer":1,"justpremium":1,"kakao":1,"kampyle":1,"kargo":1,"kissmetrics":1,"klarnaservices":1,"klaviyo":1,"knottyswing":1,"kount":1,"krushmedia":1,"ktkjmp":1,"kxcdn":1,"ladesk":1,"ladsp":1,"laughablelizards":1,"leadsrx":1,"lendingtree":1,"levexis":1,"liadm":1,"licdn":1,"lightboxcdn":1,"lijit":1,"linkedin":1,"linksynergy":1,"list-manage":1,"listrakbi":1,"livechatinc":1,"livejasmin":1,"localytics":1,"loggly":1,"loop11":1,"lovelydrum":1,"luckyorange":1,"lunchroomlock":1,"maddeningpowder":1,"mailchimp":1,"mailchimpapp":1,"mailerlite":1,"maillist-manage":1,"marinsm":1,"marketiq":1,"marketo":1,"marriedbelief":1,"matheranalytics":1,"mathtag":1,"maxmind":1,"mczbf":1,"measlymiddle":1,"medallia":1,"media6degrees":1,"mediacategory":1,"mediavine":1,"mediawallahscript":1,"medtargetsystem":1,"megpxs":1,"metricode":1,"metricswpsh":1,"mfadsrvr":1,"mgid":1,"micpn":1,"microadinc":1,"minutemedia-prebid":1,"minutemediaservices":1,"mixpo":1,"mktoresp":1,"mktoweb":1,"ml314":1,"moatads":1,"mobtrakk":1,"monsido":1,"mookie1":1,"mountain":1,"mouseflow":1,"mpeasylink":1,"mql5":1,"mrtnsvr":1,"murdoog":1,"mxpnl":1,"mybestpro":1,"myfinance":1,"myregistry":1,"nappyattack":1,"navistechnologies":1,"neodatagroup":1,"nervoussummer":1,"newrelic":1,"newscgp":1,"nextdoor":1,"ninthdecimal":1,"nitrocdn":1,"noibu":1,"nondescriptnote":1,"nosto":1,"npttech":1,"nuance":1,"nxsttv":1,"omappapi":1,"omnisnippet1":1,"omnisrc":1,"omnitagjs":1,"oneall":1,"onesignal":1,"onetag-sys":1,"oo-syringe":1,"ooyala":1,"opecloud":1,"opentext":1,"opera":1,"opmnstr":1,"optimicdn":1,"optinmonster":1,"optmnstr":1,"optmstr":1,"optnmnstr":1,"optnmstr":1,"oraclecloud":1,"osano":1,"otm-r":1,"outbrain":1,"overconfidentfood":1,"ownlocal":1,"pamelarandom":1,"panickypancake":1,"panoramicplane":1,"parastorage":1,"pardot":1,"parsely":1,"partplanes":1,"patreon":1,"paypal":1,"pbstck":1,"pcmag":1,"peerius":1,"perfdrive":1,"perfectmarket":1,"permutive":1,"picreel":1,"pinimg":1,"pippio":1,"piwikpro":1,"pixlee":1,"pleasantpump":1,"plotrabbit":1,"pluckypocket":1,"pocketfaucet":1,"possibleboats":1,"postaffiliatepro":1,"postrelease":1,"potatoinvention":1,"prepareplanes":1,"pricespider":1,"pricklydebt":1,"profusesupport":1,"proofpoint":1,"protoawe":1,"providesupport":1,"pswec":1,"psyma":1,"ptengine":1,"publir":1,"pubmatic":1,"pubmine":1,"pubnation":1,"puffypurpose":1,"qualaroo":1,"qualtrics":1,"quantcast":1,"quantserve":1,"quantummetric":1,"quietknowledge":1,"quizzicalzephyr":1,"quora":1,"r42tag":1,"railwayreason":1,"rakuten":1,"rambunctiousflock":1,"rangeplayground":1,"realsrv":1,"rebelswing":1,"reconditerake":1,"reconditerespect":1,"recruitics":1,"reddit":1,"redditstatic":1,"rehabilitatereason":1,"reson8":1,"resonantrock":1,"responsiveads":1,"restrainstorm":1,"retargetly":1,"revcontent":1,"rezync":1,"rfihub":1,"rhetoricalloss":1,"richaudience":1,"righteouscrayon":1,"rightfulfall":1,"riotgames":1,"rkdms":1,"rlcdn":1,"rmtag":1,"rncdn5":1,"rnengage":1,"rogersmedia":1,"rokt":1,"route":1,"rubiconproject":1,"s-onetag":1,"saambaa":1,"sablesong":1,"sail-horizon":1,"salesforceliveagent":1,"samestretch":1,"satisfycork":1,"savoryorange":1,"scarabresearch":1,"scaredsnakes":1,"scarfsmash":1,"scatteredstream":1,"scene7":1,"scholarlyiq":1,"scintillatingsilver":1,"scorecardresearch":1,"screechingstove":1,"screenpopper":1,"sddan":1,"sdiapi":1,"seatsmoke":1,"securedvisit":1,"seedtag":1,"sefsdvc":1,"segment":1,"sekindo":1,"selectivesummer":1,"selfishsnake":1,"servebom":1,"servedbyadbutler":1,"servenobid":1,"serverbid":1,"serving-sys":1,"shakegoldfish":1,"shappify":1,"shareaholic":1,"sharethis":1,"sharethrough":1,"shopifyapps":1,"shopperapproved":1,"shrillspoon":1,"sibautomation":1,"sicksmash":1,"sift":1,"siftscience":1,"signifyd":1,"siteimprove":1,"siteimproveanalytics":1,"sitescout":1,"skillfuldrop":1,"sli-spark":1,"slickstream":1,"slopesoap":1,"smadex":1,"smartadserver":1,"smashquartz":1,"smashsurprise":1,"smg":1,"smilewanted":1,"smoggysnakes":1,"snapchat":1,"snapkit":1,"snigelweb":1,"socdm":1,"sojern":1,"songsterritory":1,"sonobi":1,"speedcurve":1,"sphereup":1,"spiceworks":1,"spookyexchange":1,"spookyskate":1,"spookysleet":1,"sportradar":1,"sportradarserving":1,"sportslocalmedia":1,"spotxchange":1,"springserve":1,"srvmath":1,"stackadapt":1,"stakingsmile":1,"statcounter":1,"steadfastseat":1,"steadfastsound":1,"steadfastsystem":1,"steelhousemedia":1,"steepsquirrel":1,"stereoproxy":1,"stereotypedsugar":1,"stickyadstv":1,"stiffgame":1,"straightnest":1,"stripchat":1,"stupendoussleet":1,"stupendoussnow":1,"stupidscene":1,"sulkycook":1,"sumo":1,"sumologic":1,"sundaysky":1,"superficialeyes":1,"superficialsquare":1,"survicate":1,"svonm":1,"symantec":1,"taboola":1,"tagcommander":1,"tailtarget":1,"talkable":1,"taobao":1,"tapad":1,"taptapnetworks":1,"taskanalytics":1,"tealiumiq":1,"technoratimedia":1,"techtarget":1,"tediousticket":1,"teenytinyshirt":1,"tendertest":1,"the-ozone-project":1,"theadex":1,"themoneytizer":1,"theplatform":1,"thestar":1,"thomastorch":1,"threetruck":1,"thrtle":1,"tidaltv":1,"tidiochat":1,"tiktok":1,"tinypass":1,"tiqcdn":1,"tiresomethunder":1,"trackjs":1,"trafficjunky":1,"travelaudience":1,"treasuredata":1,"tremorhub":1,"trendemon":1,"tribalfusion":1,"trovit":1,"trueleadid":1,"truoptik":1,"truste":1,"trustedsite":1,"trustpilot":1,"tsyndicate":1,"tubemogul":1,"turn":1,"tvpixel":1,"tvsquared":1,"tweakwise":1,"twitter":1,"tynt":1,"typicalteeth":1,"u5e":1,"ubembed":1,"uidapi":1,"ultraoranges":1,"unbecominglamp":1,"unbxdapi":1,"undertone":1,"uninterestedquarter":1,"unpkg":1,"unrulymedia":1,"unwieldyhealth":1,"unwieldyplastic":1,"upsellit":1,"urbanairship":1,"usabilla":1,"usbrowserspeed":1,"usemessages":1,"userreport":1,"uservoice":1,"valuecommerce":1,"vengefulgrass":1,"vidazoo":1,"videoplayerhub":1,"vidoomy":1,"viglink":1,"visualwebsiteoptimizer":1,"vivaclix":1,"vk":1,"vlitag":1,"vocento":1,"voicefive":1,"volatilevessel":1,"voraciousgrip":1,"voxmedia":1,"vrtcal":1,"w3counter":1,"walkme":1,"warmafterthought":1,"warmquiver":1,"webcontentassessor":1,"webengage":1,"webeyez":1,"webflow":1,"webtraxs":1,"webtrends-optimize":1,"webtrends":1,"wgplayer":1,"wisepops":1,"worldoftulo":1,"wpadmngr":1,"wpshsdk":1,"wpushsdk":1,"wsod":1,"wt-safetag":1,"wysistat":1,"xg4ken":1,"xiti":1,"xlirdr":1,"xlivrdr":1,"xnxx-cdn":1,"y-track":1,"yahoo":1,"yandex":1,"yieldmo":1,"yieldoptimizer":1,"yimg":1,"yotpo":1,"yottaa":1,"youtube-nocookie":1,"youtube":1,"zatnoh":1,"zemanta":1,"zendesk":1,"zeotap":1,"zeronaught":1,"zestycrime":1,"zonos":1,"zoominfo":1,"zopim":1,"adnxs-simple":1,"createsend1":1,"adventori":1,"facil-iti":1,"provenexpert":1,"veoxa":1,"getflowbox":1,"parchedsofa":1,"adtraction":1,"bannerflow":1,"aboardamusement":1,"absorbingcorn":1,"abstractedamount":1,"actoramusement":1,"actuallysnake":1,"adorableanger":1,"agreeabletouch":1,"aheadday":1,"ancientact":1,"annoyedairport":1,"annoyingacoustics":1,"aquaticowl":1,"aspiringattempt":1,"audioarctic":1,"awarealley":1,"awesomeagreement":1,"awzbijw":1,"basketballbelieve":1,"begintrain":1,"bestboundary":1,"blushingbeast":1,"boredcrown":1,"breadbalance":1,"breakfastboat":1,"bulbbait":1,"burnbubble":1,"bustlingbath":1,"callousbrake":1,"calmcactus":1,"capriciouscorn":1,"caringcast":1,"catschickens":1,"causecherry":1,"chunkycactus":1,"cloisteredcord":1,"closedcows":1,"colossalclouds":1,"colossalcoat":1,"comfortablecheese":1,"conditioncrush":1,"consciouscheese":1,"consciousdirt":1,"coverapparatus":1,"cratecamera":1,"critictruck":1,"curvycry":1,"cushionpig":1,"damageddistance":1,"debonairdust":1,"decisivedrawer":1,"decisiveducks":1,"detailedkitten":1,"diplomahawaii":1,"dk4ywix":1,"dq95d35":1,"energeticladybug":1,"enormousearth":1,"evanescentedge":1,"fadedsnow":1,"fancyactivity":1,"farshake":1,"fastenfather":1,"fatcoil":1,"faultycanvas":1,"firstfrogs":1,"flimsycircle":1,"flimsythought":1,"friendwool":1,"fumblingform":1,"futuristicfifth":1,"giddycoat":1,"giraffepiano":1,"glisteningguide":1,"grayreceipt":1,"greasysquare":1,"grouchypush":1,"haltinggold":1,"handyfield":1,"handyfireman":1,"hearthorn":1,"historicalbeam":1,"horsenectar":1,"hystericalcloth":1,"impulsejewel":1,"incompetentjoke":1,"internalsink":1,"lameletters":1,"livelumber":1,"livelylaugh":1,"lorenzourban":1,"lumpylumber":1,"maliciousmusic":1,"meatydime":1,"memorizeneck":1,"mightyspiders":1,"mixedreading":1,"modularmental":1,"motionlessbag":1,"movemeal":1,"nondescriptcrowd":1,"nostalgicneed":1,"nuttyorganization":1,"optimallimit":1,"outstandingincome":1,"outstandingsnails":1,"panickycurtain":1,"petiteumbrella":1,"placidperson":1,"plantdigestion":1,"punyplant":1,"rabbitbreath":1,"rabbitrifle":1,"raintwig":1,"rainyhand":1,"rainyrule":1,"rangecake":1,"raresummer":1,"readymoon":1,"rebelsubway":1,"receptivereaction":1,"regularplants":1,"repeatsweater":1,"replaceroute":1,"resonantbrush":1,"respectrain":1,"richstring":1,"roofrelation":1,"rusticprice":1,"scaredcomfort":1,"scaredsnake":1,"scientificshirt":1,"scintillatingscissors":1,"screechingfurniture":1,"seashoresociety":1,"secretturtle":1,"shakysurprise":1,"shallowblade":1,"shesubscriptions":1,"shockingship":1,"sillyscrew":1,"sincerebuffalo":1,"sinceresubstance":1,"singroot":1,"sixscissors":1,"soggysponge":1,"somberscarecrow":1,"sordidsmile":1,"sortsail":1,"sortsummer":1,"spellsalsa":1,"spotlessstamp":1,"spottednoise":1,"stalesummer":1,"steadycopper":1,"stepplane":1,"strangesink":1,"stretchsister":1,"strivesidewalk":1,"superficialspring":1,"swellstocking":1,"synonymousrule":1,"tangyamount":1,"tastelesstrees":1,"teenytinycellar":1,"teenytinytongue":1,"terriblethumb":1,"terrifictooth":1,"thirdrespect":1,"ticketaunt":1,"tremendousplastic":1,"troubledtail":1,"typicalairplane":1,"ubiquitousyard":1,"unbecominghall":1,"uncoveredexpert":1,"unequalbrake":1,"unknowncrate":1,"untidyrice":1,"unusedstone":1,"venusgloria":1,"verdantanswer":1,"verseballs":1,"wearbasin":1,"cautiouscredit":1,"confesschairs":1,"chinsnakes":1,"wellgroomedhydrant":1,"heavyplayground":1,"bravecalculator":1,"workoperation":1,"secondhandfall":1,"unablehope":1,"tastelesstrucks":1,"losslace":1,"barbarousbase":1,"supportwaves":1,"protestcopy":1,"automaticturkey":1,"stretchsquirrel":1,"equablekettle":1,"discreetquarter":1,"peacefullimit":1,"gulliblegrip":1,"swelteringsleep":1,"muteknife":1,"aliasanvil":1,"operationchicken":1,"courageousbaby":1,"flowerstreatment":1,"scissorsstatement":1,"furryfork":1,"synonymoussticks":1,"deerbeginner":1,"rhetoricalveil":1,"farsnails":1,"kaputquill":1,"digestiondrawer":1,"meltmilk":1,"endurablebulb":1,"sugarfriction":1,"combcompetition":1,"stakingshock":1,"stretchsneeze":1,"sinkbooks":1,"brotherslocket":1,"cautiouscamera":1,"materialparcel":1,"inputicicle":1,"chargecracker":1,"fewjuice":1,"tumbleicicle":1,"serpentshampoo":1,"nutritiousbean":1,"scrapesleep":1,"bleachbubble":1,"longingtrees":1,"leftliquid":1,"handsomehose":1,"powerfulcopper":1,"painstakingpickle":1,"swankysquare":1,"soundstocking":1,"disagreeabledrop":1,"cushiondrum":1,"ruralrobin":1,"gorgeousedge":1,"strivesquirrel":1,"currentcollar":1,"combativecar":1,"ambiguousafternoon":1,"harborcaption":1,"blushingbread":1,"suggestionbridge":1,"spectacularstamp":1,"skisofa":1,"predictplate":1,"shakyseat":1,"priceypies":1,"livelyreward":1,"stealsteel":1,"shiveringspot":1,"memorizematch":1,"knitstamp":1,"bushesbag":1,"mundanenail":1,"coldbalance":1,"shapecomb":1,"shiverscissors":1,"broadborder":1,"quirkysugar":1,"stingyspoon":1,"billowybelief":1,"crookedcreature":1,"acceptableauthority":1,"sadloaf":1,"separatesort":1,"pailpatch":1,"scribblestring":1,"exhibitsneeze":1,"largebrass":1,"combcattle":1,"materialisticmoon":1,"fixedfold":1,"restructureinvention":1,"scaredstomach":1,"cautiouscherries":1,"tritebadge":1,"motionflowers":1,"ballsbanana":1,"meddleplant":1,"simulateswing":1,"marketspiders":1,"grumpydime":1,"neatshade":1,"samplesamba":1,"samesticks":1,"buttonladybug":1,"mentorsticks":1,"scaredsong":1,"annoyingclover":1,"grainmass":1,"tempertrick":1,"quizzicalpartner":1,"franticroof":1,"cattlecommittee":1,"tangycover":1,"looseloaf":1,"psychedelicarithmetic":1,"radiateprose":1,"shamerain":1,"cleanhaircut":1,"badgevolcano":1,"laboredlocket":1,"zipperxray":1,"stingycrush":1,"sixauthority":1,"thinkitten":1,"strokesystem":1,"hatefulrequest":1},"net":{"2mdn":1,"2o7":1,"incapdns":{"x":{"3exvfbh":1,"5t48cjc":1,"7xjpy4d":1,"dzm868l":1,"ttk8bbo":1}},"3gl":1,"a-mo":1,"acint":1,"adform":1,"adhigh":1,"admixer":1,"adobedc":1,"adspeed":1,"azureedge":{"adv-cloudfilse":1,"afw-static":1,"bayleys-pri-cdn-endpoint":1,"cdne-nxtevo-prd01-ms":1,"discountcodeexpress":1,"fp-cdn":1,"lefigaro":1,"ocpd-content":1,"sdtagging":1,"trenord-europe-trenord-endpoint-prd":1},"adverticum":1,"edgekey":{"akamai-111035":1,"com":{"alicdn":1,"ebay":1,"mtvnservices":1,"nbcuni":1,"nintendo":1,"oneindia":1,"scene7":1,"turner":1,"ziffdavis":1,"ziffdavisinternational":1},"ame":1,"au":1,"br":1,"ca":1,"com-v1":1,"com-v2":1,"gov":1,"in":1,"io":1,"it":1,"net":1,"org":1,"ppll":1,"rakuten":1,"uk":1},"apicit":1,"appier":1,"akamaized":{"assets-momentum":1,"com":{"media-rockstargames-":1,"ntd":1,"vocento":1}},"aticdn":1,"azure":1,"azurefd":1,"bannerflow":1,"bf-tools":1,"bidswitch":1,"bitsngo":1,"blueconic":1,"boldapps":1,"buysellads":1,"cedexis":1,"certona":1,"fastly":{"map":{"cidgroup":1,"condenast":1,"ihrinferno":1,"prisa-us-eu":1,"scribd":1,"target-opus":1,"thriftbooks":1,"ticketmaster4":1,"twitch":1,"vox":1,"appnexus":1},"global":{"shared":{"d2":1,"s2":1},"sni":{"j":1}},"ssl":{"global":{"igao-prod-herokuapp-com":1,"mslc-prod-herokuapp-com":1}}},"confiant-integrations":1,"consentmanager":1,"contentsquare":1,"criteo":1,"crwdcntrl":1,"cloudfront":{"d16jny3kjm2a1j":1,"d16kgn4efacaad":1,"d19l6uotjzm32g":1,"d1af033869koo7":1,"d1bxz6tua5hq87":1,"d1cr9zxt7u0sgu":1,"d1egjda7ggd2ew":1,"d1eh9yux7w8iql":1,"d1gwclp1pmzk26":1,"d1nhstnts0iwzs":1,"d1p5cqqchvbqmy":1,"d1pq45hly7zfel":1,"d1rhs7mhgydok3":1,"d1rw50yn65615p":1,"d1s87id6169zda":1,"d1snv67wdds0p2":1,"d1tprjo2w7krrh":1,"d1vg5xiq7qffdj":1,"d1vo8zfysxy97v":1,"d1y068gyog18cq":1,"d214hhm15p4t1d":1,"d21gpk1vhmjuf5":1,"d244lyzgucnepm":1,"d27cwqlgojh9yd":1,"d2aioe7l2jay46":1,"d2bj4wnxqmm2tk":1,"d2droglu4qf8st":1,"d2eanzqpmoo3ec":1,"d2f4zoo8hyailp":1,"d2hs2r19gv871k":1,"d2j6syf6c0cltf":1,"d2jpq2u2vrjftk":1,"d2qlgd5odkppg5":1,"d2qrdklrsxowl2":1,"d2s6j0ghajv79z":1,"d2tyltutevw8th":1,"d2wo2i8fdcw8of":1,"d2xbocf5uqnw0w":1,"d2y7rifa1cwopa":1,"d2zah9y47r7bi2":1,"d30jydkdo8eo9b":1,"d355prp56x5ntt":1,"d35mt2i8wrf9y1":1,"d38aqfmkl3ge26":1,"d38xvr37kwwhcm":1,"d3fv2pqyjay52z":1,"d3gxe0jmvtuxbc":1,"d3i4yxtzktqr9n":1,"d3jruqy3qmm3fd":1,"d3nn82uaxijpm6":1,"d3o8vwpyaorolj":1,"d3ochae1kou2ub":1,"d3odp2r1osuwn0":1,"d3owq2fdwtdp2j":1,"d3txh7prdum3s8":1,"d3v7mj6iyaqfac":1,"d4egga2bwam6h":1,"d5yoctgpv4cpx":1,"d6tizftlrpuof":1,"d9k0w0y3delq8":1,"dbukjj6eu5tsf":1,"de2pmm85odupd":1,"de7iszmjjjuya":1,"dfx0d9twj2ai":1,"dj28g4s0yd4ph":1,"dn0qt3r0xannq":1,"dokumfe7mps0i":1,"dowpznhhyvkm4":1,"dsh7ky7308k4b":1,"dsx863kqtdxrt":1,"dtpw88eywzb7u":1,"duube1y6ojsji":1,"dzlkq6toxiazj":1,"dzz1zjxa9ulpk":1,"d2638j3z8ek976":1},"akadns":{"com":{"dellcdn":1,"febsec-fidelity":1},"line-zero":1},"demdex":1,"dotmetrics":1,"doubleclick":1,"durationmedia":1,"e-planning":1,"edgecastcdn":1,"emsecure":1,"episerver":1,"esm1":1,"eulerian":1,"everestjs":1,"everesttech":1,"eyeota":1,"ezoic":1,"facebook":1,"fastclick":1,"fbcdn":1,"fonts":1,"edgesuite":{"com":{"fox":1,"iq":1,"tiktokcdn-us":1,"vidio":1,"sky":1},"linkedin":1,"stls":1},"fuseplatform":1,"fwmrm":1,"go-mpulse":1,"hadronid":1,"hs-analytics":1,"hsleadflows":1,"im-apps":1,"impervadns":1,"iocnt":1,"iprom":1,"jsdelivr":1,"kanade-ad":1,"azurewebsites":{"keha-matomo-te-palvelut-prod":1,"neuterbot-client":1,"app-ch-sgtm-prod":1,"app-fnsp-matomo-analytics-prod":1},"krxd":1,"line-scdn":1,"listhub":1,"livecom":1,"livedoor":1,"liveperson":1,"lkqd":1,"llnwd":1,"lpsnmedia":1,"magnetmail":1,"marketo":1,"maxymiser":1,"media":1,"microad":1,"monetate":1,"mxptint":1,"myfonts":1,"myvisualiq":1,"naver":1,"b-cdn":{"nnwwwlive":1,"speedy":1},"nr-data":1,"omtrdc":1,"onecount":1,"online-metrix":1,"openx":1,"opta":1,"owneriq":1,"pages02":1,"pages03":1,"pages04":1,"pages05":1,"pages06":1,"pages08":1,"perimeterx":1,"pingdom":1,"pmdstatic":1,"popads":1,"popcash":1,"primecaster":1,"pro-market":1,"px-cloud":1,"akamaihd":{"pxlclnmdecom-a":1},"r9cdn":1,"rfihub":1,"sancdn":1,"sc-static":1,"semasio":1,"sensic":1,"trafficmanager":{"serviceschipotlecom":1},"sexad":1,"smaato":1,"spreadshirts":1,"storygize":1,"tfaforms":1,"trackcmp":1,"trackedlink":1,"truste-svc":1,"uuidksinc":1,"viafoura":1,"visilabs":1,"visx":1,"w55c":1,"wdsvc":1,"witglobal":1,"yandex":1,"yastatic":1,"yieldlab":1,"ywxi":1,"zdbb":1,"zencdn":1,"zucks":1,"eviltracker":1},"co":{"6sc":1,"ayads":1,"datadome":1,"idio":1,"increasingly":1,"jads":1,"nanorep":1,"nc0":1,"pcdn":1,"prmutv":1,"resetdigital":1,"t":1,"tctm":1,"zip":1},"de":{"71i":1,"adscale":1,"auswaertiges-amt":1,"fiduciagad":1,"ioam":1,"itzbund":1,"werk21system":1},"gt":{"ad":1},"jp":{"adingo":1,"admatrix":1,"auone":1,"co":{"dmm":1,"google":1,"rakuten":1,"yahoo":1},"fout":1,"gmossp-sp":1,"gssprt":1,"ne":{"hatena":1},"impact-ad":1,"microad":1,"nakanohito":1,"ptengine":1,"r10s":1,"reemo-ad":1,"rtoaster":1,"shinobi":1,"team-rec":1,"uncn":1,"yimg":1,"yjtag":1},"pl":{"adocean":1,"dreamlab":1,"gemius":1,"nsaudience":1,"onet":1,"salesmanago":1,"wp":1},"pro":{"adpartner":1,"piwik":1,"usocial":1},"ru":{"adriver":1,"digitaltarget":1,"mail":1,"mindbox":1,"rambler":1,"sape":1,"smi2":1,"tns-counter":1,"top100":1,"ulogin":1,"yandex":1},"re":{"adsco":1},"info":{"adxbid":1,"bitrix":1,"navistechnologies":1,"usergram":1,"webantenna":1},"tv":{"affec":1,"attn":1,"iris":1,"ispot":1,"samba":1,"teads":1,"twitch":1},"dev":{"amazon":1},"us":{"amung":1,"samplicio":1,"slgnt":1,"trkn":1},"media":{"andbeyond":1,"nextday":1,"townsquare":1,"underdog":1},"link":{"app":1},"cloud":{"avct":1,"coremedia":1,"egain":1,"matomo":1},"delivery":{"ay":1,"monu":1},"br":{"com":{"btg360":1,"clearsale":1,"jsuol":1,"shopconvert":1,"shoptarget":1,"soclminer":1},"org":{"ivcbrasil":1}},"ch":{"ch":1,"da-services":1,"google":1},"ms":{"clarity":1},"my":{"cnt":1},"se":{"codigo":1},"me":{"contentexchange":1,"grow":1,"line":1,"loopme":1,"t":1,"channel":1},"to":{"cpx":1,"tawk":1},"chat":{"crisp":1,"gorgias":1},"fr":{"d-bi":1,"open-system":1,"weborama":1},"uk":{"co":{"dailymail":1,"hsbc":1}},"id":{"net":{"detik":1}},"ai":{"e-volution":1,"m2":1,"nrich":1,"wknd":1},"be":{"geoedge":1},"au":{"com":{"google":1,"news":1,"nine":1,"realestate":1,"zipmoney":1,"telstra":1}},"stream":{"ibclick":1},"cz":{"imedia":1,"seznam":1,"trackad":1},"app":{"infusionsoft":1,"permutive":1,"shop":1},"tech":{"ingage":1,"primis":1},"eu":{"kameleoon":1,"medallia":1,"media01":1,"ocdn":1,"rqtrk":1,"slgnt":1,"usercentrics":1},"fi":{"kesko":1,"simpli":1},"live":{"lura":1},"services":{"marketingautomation":1},"sg":{"mediacorp":1},"bi":{"newsroom":1},"fm":{"pdst":1},"ad":{"pixel":1},"xyz":{"playground":1},"it":{"plug":1,"repstatic":1,"stbm":1},"cc":{"popin":1},"network":{"pub":1},"nl":{"rijksoverheid":1,"google":1},"fyi":{"sda":1},"pe":{"shop":1},"es":{"socy":1},"im":{"spot":1},"market":{"spotim":1},"am":{"tru":1},"at":{"waust":1},"gov":{"weather":1},"in":{"zoho":1},"ca":{"bc":{"gov":1}},"no":{"acdn":1,"uio":1},"example":{"ad-company":1},"site":{"ad-company":1,"third-party":{"bad":1,"broken":1}},"pw":{"zlp6s":1}};
         return {
             debug: false,
             sessionKey: 'randomVal',
@@ -10910,7 +11291,8 @@
                     'fingerprintingScreenSize',
                     'navigatorInterface'
                 ]
-            }
+            },
+            trackerLookup
         }
     }
 
@@ -10951,7 +11333,10 @@
         const processedConfig = generateConfig();
 
         load({
-            platform: processedConfig.platform
+            platform: processedConfig.platform,
+            trackerLookup: processedConfig.trackerLookup,
+            documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
+            site: processedConfig.site
         });
 
         // mark this phase as loaded

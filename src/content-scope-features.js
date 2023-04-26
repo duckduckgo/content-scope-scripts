@@ -25,12 +25,14 @@ const performanceMonitor = new PerformanceMonitor()
 
 /**
  * @typedef {object} LoadArgs
+ * @property {object} site
  * @property {object} platform
  * @property {string} platform.name
  * @property {string} [platform.version]
- * @property {boolean} [documentOriginIsTracker]
+ * @property {boolean} documentOriginIsTracker
  * @property {object} [bundledConfig]
  * @property {string} [injectName]
+ * @property {object} trackerLookup - provided currently only by the extension
  */
 
 /**
