@@ -80,7 +80,6 @@ describe('Helpers checks', () => {
                     barp: true
                 }
             },
-            cookie: {},
             platform: {
                 name: 'android',
                 version: 99
@@ -157,7 +156,6 @@ describe('Helpers checks', () => {
                     barp: true
                 }
             },
-            cookie: {},
             platform: {
                 name: 'ios',
                 version: '0.9.9'
