@@ -605,8 +605,6 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
         allowlisted,
         enabledFeatures
     })
-    // TODO
-    output.cookie = {}
 
     // Copy feature settings from remote config to preferences object
     output.featureSettings = parseFeatureSettings(data, enabledFeatures)
