@@ -32,7 +32,7 @@ function shouldFilterKey (tagName, filterName, key) {
 
 let elementRemovalTimeout
 const featureName = 'runtimeChecks'
-const taintSymbol = Symbol(featureName)
+export const taintSymbol = Symbol(featureName)
 const supportedSinks = ['src']
 // Store the original methods so we can call them without any side effects
 const defaultElementMethods = {
@@ -163,9 +163,8 @@ class DDGRuntimeChecks extends HTMLElement {
      * This is to allow us to interrogate the real element before it is moved to the DOM.
      */
     _transplantElement () {
-        // Creeate the real element
+        // Create the real element
         const el = initialCreateElement.call(document, this.#tagName)
-
         if (taintCheck) {
             // Add a symbol to the element so we can identify it as a runtime checked element
             Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false })

@@ -1,6 +1,7 @@
 import { DDGProxy, DDGReflect } from '../utils'
 import { computeOffScreenCanvas } from '../canvas'
 import ContentFeature from '../content-feature'
+import { taintSymbol } from './runtime-checks'
 
 export default class FingerprintingCanvas extends ContentFeature {
     init (args) {
@@ -58,6 +59,21 @@ export default class FingerprintingCanvas extends ContentFeature {
                 }
             })
             safeMethodProxy.overload()
+        }
+
+        // TODO hack add config wrapper
+        const taintMethods = ['isPointInPath', 'isPointInStroke']
+        for (const methodName of taintMethods) {
+            const taintMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
+                apply (target, thisArg, args) {
+                    console.log('tainty', document?.currentScript?.[taintSymbol], window?.__ddg_taint__)
+                    if (document?.currentScript?.[taintSymbol] || window?.__ddg_taint__) {
+                        return false
+                    }
+                    return DDGReflect.apply(target, thisArg, args)
+                }
+            })
+            taintMethodProxy.overload()
         }
 
         const unsafeMethods = [

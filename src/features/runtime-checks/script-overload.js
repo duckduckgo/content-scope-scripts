@@ -53,6 +53,7 @@ function generateAlphaIdentifier (num) {
  * @returns {Proxy}
  */
 function constructProxy (scope, outputs) {
+    const taintString = '__ddg_taint__'
     // @ts-expect-error - Expected 2 arguments, but got 1
     if (Object.is(scope)) {
         // Should not happen, but just in case fail safely
@@ -74,6 +75,12 @@ function constructProxy (scope, outputs) {
             } else {
                 return Reflect.get(targetOut, property, scope)
             }
+        },
+        getOwnPropertyDescriptor (target, property) {
+            if (typeof property === 'string' && property === taintString) {
+                return { configurable: true, enumerable: false, value: true }
+            }
+            return Reflect.getOwnPropertyDescriptor(target, property)
         }
     })
 }
@@ -132,7 +139,7 @@ export function wrapScriptCodeOverload (code, config) {
         processedConfig[key] = processAttr(value)
     }
     // Don't do anything if the config is empty
-    if (Object.keys(processedConfig).length === 0) return code
+    // if (Object.keys(processedConfig).length === 0) return code
 
     let prepend = ''
     const aggregatedLookup = new Map()
@@ -160,9 +167,8 @@ export function wrapScriptCodeOverload (code, config) {
     const window = constructProxy(parentScope, {
         ${keysOut}
     });
-    const globalThis = constructProxy(parentScope, {
-        ${keysOut}
-    });
+    // Ensure globalThis === window
+    const globalThis = window
     `
     return removeIndent(`(function (parentScope) {
         /**
