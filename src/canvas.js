@@ -1,6 +1,12 @@
 import { getDataKeySync } from './crypto.js'
 import Seedrandom from 'seedrandom'
+import { postDebugMessage } from './utils.js'
 
+/**
+ * Copies the contents of a 2D canvas to a WebGL texture
+ * @param {CanvasRenderingContext2D} ctx2d
+ * @param {WebGLRenderingContext | WebGL2RenderingContext} ctx3d
+ */
 export function copy2dContextToWebGLContext (ctx2d, ctx3d) {
     const canvas2d = ctx2d.canvas
     const imageData = ctx2d.getImageData(0, 0, canvas2d.width, canvas2d.height)
@@ -35,12 +41,18 @@ export function copy2dContextToWebGLContext (ctx2d, ctx3d) {
     const fragmentShader = createShader(ctx3d, ctx3d.FRAGMENT_SHADER, fragmentShaderSource)
 
     const program = ctx3d.createProgram()
+    // Shouldn't happen but bail happy if it does
+    if (!program || !vertexShader || !fragmentShader) {
+        postDebugMessage('Unable to initialize the shader program')
+        return
+    }
     ctx3d.attachShader(program, vertexShader)
     ctx3d.attachShader(program, fragmentShader)
     ctx3d.linkProgram(program)
 
     if (!ctx3d.getProgramParameter(program, ctx3d.LINK_STATUS)) {
-        throw new Error('Unable to initialize the shader program: ' + ctx3d.getProgramInfoLog(program))
+        // Shouldn't happen but bail happy if it does
+        postDebugMessage('Unable to initialize the shader program: ' + ctx3d.getProgramInfoLog(program))
     }
     const positionAttributeLocation = ctx3d.getAttribLocation(program, 'a_position')
     const positionBuffer = ctx3d.createBuffer()
@@ -64,12 +76,22 @@ export function copy2dContextToWebGLContext (ctx2d, ctx3d) {
     ctx3d.drawArrays(ctx3d.TRIANGLE_STRIP, 0, 4)
 }
 
+/**
+ * @param {WebGLRenderingContext | WebGL2RenderingContext} gl
+ * @param {number} type
+ * @param {string} source
+ * @returns {WebGLShader | null}
+ */
 function createShader (gl, type, source) {
     const shader = gl.createShader(type)
+    if (!shader) {
+        return null
+    }
     gl.shaderSource(shader, source)
     gl.compileShader(shader)
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        throw new Error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader))
+        postDebugMessage('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader))
+        return null
     }
     return shader
 }
