@@ -1,5 +1,5 @@
 import { DDGProxy, DDGReflect } from '../utils'
-import { computeOffScreenCanvas } from '../canvas'
+import { computeOffScreenCanvas, copy2dContextToWebGLContext } from '../canvas'
 import ContentFeature from '../content-feature'
 
 export default class FingerprintingCanvas extends ContentFeature {
@@ -112,6 +112,7 @@ export default class FingerprintingCanvas extends ContentFeature {
             if ('WebGL2RenderingContext' in globalThis) {
                 glContexts.push(WebGL2RenderingContext)
             }
+            const webGLReadMethods = ['readPixels']
             for (const context of glContexts) {
                 for (const methodName of unsafeGlMethods) {
                     // Some methods are browser specific
@@ -124,6 +125,26 @@ export default class FingerprintingCanvas extends ContentFeature {
                             }
                         })
                         unsafeProxy.overload()
+                    }
+                }
+
+                if (this.getFeatureSettingEnabled('webGlReadMethods')) {
+                    for (const methodName of webGLReadMethods) {
+                        const webGLReadMethodsProxy = new DDGProxy(featureName, context.prototype, methodName, {
+                            apply (target, thisArg, args) {
+                                if (thisArg) {
+                                    const { offScreenCanvas, offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey)
+                                    try {
+                                        // Clone the 2d context back into the pages webgl context
+                                        copy2dContextToWebGLContext(offScreenCtx, thisArg)
+                                    } catch (e) {
+                                        console.log('Failed to call readPixels on offscreen canvas', e, target, offScreenCanvas, offScreenCtx, args)
+                                    }
+                                }
+                                return DDGReflect.apply(target, thisArg, args)
+                            }
+                        })
+                        webGLReadMethodsProxy.overload()
                     }
                 }
             }
@@ -153,7 +174,7 @@ export default class FingerprintingCanvas extends ContentFeature {
         /**
          * Get cached offscreen if one exists, otherwise compute one
          *
-         * @param {HTMLCanvasElement} canvas
+         * @param {HTMLCanvasElement | OffscreenCanvas} canvas
          * @param {string} domainKey
          * @param {string} sessionKey
          */

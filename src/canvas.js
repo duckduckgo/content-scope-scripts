@@ -1,8 +1,81 @@
 import { getDataKeySync } from './crypto.js'
 import Seedrandom from 'seedrandom'
 
+export function copy2dContextToWebGLContext (ctx2d, ctx3d) {
+    const canvas2d = ctx2d.canvas
+    const imageData = ctx2d.getImageData(0, 0, canvas2d.width, canvas2d.height)
+    const pixelData = new Uint8Array(imageData.data.buffer)
+
+    const texture = ctx3d.createTexture()
+    ctx3d.bindTexture(ctx3d.TEXTURE_2D, texture)
+    ctx3d.texImage2D(ctx3d.TEXTURE_2D, 0, ctx3d.RGBA, canvas2d.width, canvas2d.height, 0, ctx3d.RGBA, ctx3d.UNSIGNED_BYTE, pixelData)
+    ctx3d.texParameteri(ctx3d.TEXTURE_2D, ctx3d.TEXTURE_WRAP_S, ctx3d.CLAMP_TO_EDGE)
+    ctx3d.texParameteri(ctx3d.TEXTURE_2D, ctx3d.TEXTURE_WRAP_T, ctx3d.CLAMP_TO_EDGE)
+    ctx3d.texParameteri(ctx3d.TEXTURE_2D, ctx3d.TEXTURE_MIN_FILTER, ctx3d.LINEAR)
+    ctx3d.texParameteri(ctx3d.TEXTURE_2D, ctx3d.TEXTURE_MAG_FILTER, ctx3d.LINEAR)
+
+    const vertexShaderSource = `
+    attribute vec2 a_position;
+    varying vec2 v_texCoord;
+
+    void main() {
+        gl_Position = vec4(a_position, 0.0, 1.0);
+        v_texCoord = a_position * 0.5 + 0.5;
+    }`
+    const fragmentShaderSource = `
+    precision mediump float;
+    uniform sampler2D u_texture;
+    varying vec2 v_texCoord;
+
+    void main() {
+        gl_FragColor = texture2D(u_texture, v_texCoord);
+    }`
+
+    const vertexShader = createShader(ctx3d, ctx3d.VERTEX_SHADER, vertexShaderSource)
+    const fragmentShader = createShader(ctx3d, ctx3d.FRAGMENT_SHADER, fragmentShaderSource)
+
+    const program = ctx3d.createProgram()
+    ctx3d.attachShader(program, vertexShader)
+    ctx3d.attachShader(program, fragmentShader)
+    ctx3d.linkProgram(program)
+
+    if (!ctx3d.getProgramParameter(program, ctx3d.LINK_STATUS)) {
+        throw new Error('Unable to initialize the shader program: ' + ctx3d.getProgramInfoLog(program))
+    }
+    const positionAttributeLocation = ctx3d.getAttribLocation(program, 'a_position')
+    const positionBuffer = ctx3d.createBuffer()
+    ctx3d.bindBuffer(ctx3d.ARRAY_BUFFER, positionBuffer)
+    const positions = [
+        -1.0, -1.0,
+        1.0, -1.0,
+        -1.0, 1.0,
+        1.0, 1.0
+    ]
+    ctx3d.bufferData(ctx3d.ARRAY_BUFFER, new Float32Array(positions), ctx3d.STATIC_DRAW)
+
+    ctx3d.useProgram(program)
+    ctx3d.enableVertexAttribArray(positionAttributeLocation)
+    ctx3d.vertexAttribPointer(positionAttributeLocation, 2, ctx3d.FLOAT, false, 0, 0)
+
+    const textureUniformLocation = ctx3d.getUniformLocation(program, 'u_texture')
+    ctx3d.activeTexture(ctx3d.TEXTURE0)
+    ctx3d.bindTexture(ctx3d.TEXTURE_2D, texture)
+    ctx3d.uniform1i(textureUniformLocation, 0)
+    ctx3d.drawArrays(ctx3d.TRIANGLE_STRIP, 0, 4)
+}
+
+function createShader (gl, type, source) {
+    const shader = gl.createShader(type)
+    gl.shaderSource(shader, source)
+    gl.compileShader(shader)
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader))
+    }
+    return shader
+}
+
 /**
- * @param {HTMLCanvasElement} canvas
+ * @param {HTMLCanvasElement | OffscreenCanvas} canvas
  * @param {string} domainKey
  * @param {string} sessionKey
  * @param {any} getImageDataProxy
@@ -19,14 +92,16 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
     offScreenCanvas.width = canvas.width
     offScreenCanvas.height = canvas.height
     const offScreenCtx = offScreenCanvas.getContext('2d')
+    // Should not happen, but just in case
+    if (!offScreenCtx) {
+        return null
+    }
 
     let rasterizedCtx = ctx
     // If we're not a 2d canvas we need to rasterise first into 2d
     const rasterizeToCanvas = !(ctx instanceof CanvasRenderingContext2D)
     if (rasterizeToCanvas) {
-        // @ts-expect-error - Type 'CanvasRenderingContext2D | null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
         rasterizedCtx = offScreenCtx
-        // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
         offScreenCtx.drawImage(canvas, 0, 0)
     }
 
@@ -35,11 +110,9 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
     imageData = modifyPixelData(imageData, sessionKey, domainKey, canvas.width)
 
     if (rasterizeToCanvas) {
-        // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
         clearCanvas(offScreenCtx)
     }
 
-    // @ts-expect-error - 'offScreenCtx' is possibly 'null'.
     offScreenCtx.putImageData(imageData, 0, 0)
 
     return { offScreenCanvas, offScreenCtx }
