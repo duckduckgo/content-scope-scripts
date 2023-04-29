@@ -18,7 +18,8 @@ function injectNavigatorInterface (args, privileged) {
         }
         if (privileged) {
             interfaceOut.privileged = {
-                version: args.platform.version
+                version: args.platform.version,
+                configVersion: args.remoteConfigVersion
             }
         }
         defineProperty(Navigator.prototype, 'duckduckgo', {
