@@ -97,13 +97,22 @@ function createShader (gl, type, source) {
 }
 
 /**
+ * @typedef {Object} OffscreenCanvasInfo
+ * @property {HTMLCanvasElement | OffscreenCanvas} offScreenCanvas
+ * @property {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} offScreenCtx
+ * @property {WebGL2RenderingContext | WebGLRenderingContext} [offScreenWebGlCtx]
+ */
+
+/**
  * @param {HTMLCanvasElement | OffscreenCanvas} canvas
  * @param {string} domainKey
  * @param {string} sessionKey
  * @param {any} getImageDataProxy
  * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
+ * @param {boolean} [shouldCopy2dContextToWebGLContext]
+ * @returns {OffscreenCanvasInfo | null}
  */
-export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx, shouldCopy2dContextToWebGLContext = false) {
     if (!ctx) {
         // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
         ctx = canvas.getContext('2d')
@@ -137,7 +146,29 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
 
     offScreenCtx.putImageData(imageData, 0, 0)
 
-    return { offScreenCanvas, offScreenCtx }
+    /** @type {OffscreenCanvasInfo} */
+    const output = { offScreenCanvas, offScreenCtx }
+    if (shouldCopy2dContextToWebGLContext) {
+        const offScreenWebGlCanvas = document.createElement('canvas')
+        offScreenWebGlCanvas.width = canvas.width
+        offScreenWebGlCanvas.height = canvas.height
+        let offScreenWebGlCtx
+        if (ctx instanceof WebGLRenderingContext) {
+            offScreenWebGlCtx = offScreenWebGlCanvas.getContext('webgl')
+        } else {
+            offScreenWebGlCtx = offScreenWebGlCanvas.getContext('webgl2')
+        }
+        if (offScreenWebGlCtx) {
+            try {
+                // Clone the 2d context back into the pages webgl context
+                copy2dContextToWebGLContext(offScreenCtx, offScreenWebGlCtx)
+                output.offScreenWebGlCtx = offScreenWebGlCtx
+            } catch (e) {
+                postDebugMessage('Failed to call readPixels on offscreen canvas', e)
+            }
+        }
+    }
+    return output
 }
 
 /**
