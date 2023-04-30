@@ -1,0 +1,11 @@
+{
+    "features": {
+        "fingerprintingCanvas": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "webgl": "enabled"
+            }
+        }
+    }
+}
