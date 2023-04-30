@@ -1,4 +1,4 @@
-import { DDGProxy, DDGReflect } from '../utils'
+import { DDGProxy, DDGReflect, postDebugMessage } from '../utils'
 import { computeOffScreenCanvas, copy2dContextToWebGLContext } from '../canvas'
 import ContentFeature from '../content-feature'
 
@@ -133,12 +133,9 @@ export default class FingerprintingCanvas extends ContentFeature {
                         const webGLReadMethodsProxy = new DDGProxy(featureName, context.prototype, methodName, {
                             apply (target, thisArg, args) {
                                 if (thisArg) {
-                                    const { offScreenCanvas, offScreenCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey)
-                                    try {
-                                        // Clone the 2d context back into the pages webgl context
-                                        copy2dContextToWebGLContext(offScreenCtx, thisArg)
-                                    } catch (e) {
-                                        console.log('Failed to call readPixels on offscreen canvas', e, target, offScreenCanvas, offScreenCtx, args)
+                                    const { offScreenWebGlCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey, true)
+                                    if (offScreenWebGlCtx) {
+                                        return DDGReflect.apply(target, offScreenWebGlCtx, args)
                                     }
                                 }
                                 return DDGReflect.apply(target, thisArg, args)
@@ -177,14 +174,15 @@ export default class FingerprintingCanvas extends ContentFeature {
          * @param {HTMLCanvasElement | OffscreenCanvas} canvas
          * @param {string} domainKey
          * @param {string} sessionKey
+         * @returns {import('../canvas').OffscreenCanvasInfo}
          */
-        function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey) {
+        function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey, copy2dContextToWebGLContext) {
             let result
             if (canvasCache.has(canvas)) {
                 result = canvasCache.get(canvas)
             } else {
                 const ctx = canvasContexts.get(canvas)
-                result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx)
+                result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx, copy2dContextToWebGLContext)
                 canvasCache.set(canvas, result)
             }
             return result
