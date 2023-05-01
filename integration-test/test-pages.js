@@ -71,7 +71,15 @@ describe('Test integration pages', () => {
             )
             for (const key in pageResults) {
                 for (const result of pageResults[key]) {
-                    expect(result.result).withContext(key + ':\n ' + result.name).toEqual(result.expected)
+                    if (result.type === 'fail') {
+                        fail(result.args)
+                    } else if (result.type === 'pass') {
+                        expect(true).withContext(result.args).toEqual(true)
+                    } else if ('expected' in result) {
+                        expect(result.result).withContext(key + ':\n ' + result.name).toEqual(result.expected)
+                    } else {
+                        fail('Unexpected result: ' + JSON.stringify(result))
+                    }
                 }
             }
         }

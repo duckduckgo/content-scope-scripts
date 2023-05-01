@@ -74,6 +74,7 @@ function test (name, test) {
     window.ongoingTests.push({ name, test })
 }
 
+let currentResults = null
 // eslint-disable-next-line no-unused-vars
 async function renderResults () {
     const results = {}
@@ -82,7 +83,11 @@ async function renderResults () {
     }
     // @ts-expect-error - ongoingTests is not defined in the type definition
     for (const test of window.ongoingTests) {
-        const result = await test.test()
+        currentResults = []
+        let result = await test.test()
+        if (currentResults.length) {
+            result = currentResults
+        }
         results[test.name] = result
     }
     // @ts-expect-error - buildResultTable is not defined in the type definition
@@ -90,4 +95,59 @@ async function renderResults () {
     window.dispatchEvent(new CustomEvent('results-ready', { detail: results }))
     // @ts-expect-error - results is not defined in the type definition
     window.results = results
+}
+
+/*
+async function init () {
+    results.date = (new Date()).toUTCString()
+    for (const test of tests) {
+        insertResultRow('category', [test.category, test.id])
+        let value = null
+        try {
+            value = await Promise.resolve(test.value())
+        } catch (e) {
+            fail('Test code threw', e)
+        }
+        results.results.push({
+            id: test.id,
+            value,
+            category: test.category
+        })
+        await new Promise((resolve) => {
+            setTimeout(resolve, 100)
+        })
+    }
+    results.complete = true
+}
+*/
+
+/* test utils */
+function insertResultRow (type, args) {
+    const row = {
+        type,
+        args
+    }
+    if (currentResults) {
+        currentResults.push(row)
+    }
+}
+
+function fail (...args) {
+    insertResultRow('fail', args)
+}
+
+function pass (...args) {
+    insertResultRow('pass', args)
+}
+
+function eq (val1, val2, ...args) {
+    ok(val1 === val2, `Expect value '${val1}' to equal '${val2}'`)
+}
+
+function ok (val, ...args) {
+    if (!val) {
+        fail(...args)
+    } else {
+        pass(...args)
+    }
 }
