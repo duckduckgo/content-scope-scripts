@@ -41,6 +41,51 @@
             ];
         });
 
+        test('Script removal', async () => {
+            window.scripty1Ran = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.innerText = 'window.scripty1Ran = true';
+            scriptElement.id = 'scriptyRemove';
+            scriptElement.setAttribute('type', 'application/evilscript');
+
+            const section = document.createElement('section');
+            section.innerHTML = '<a id="anchorEl">hello</a><div id="me">world</div>';
+            document.body.appendChild(section);
+            const anchorEl = document.querySelector('#anchorEl');
+            anchorEl.insertAdjacentElement('afterend', scriptElement);
+
+            const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
+            // Continue to modify the script element after it has been added to the DOM
+            scriptElement.madeUpProp = 'val';
+            const childCount = section.children.length;
+            scriptElement.remove();
+            const childCountAfter = section.children.length;
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('#scriptyRemove');
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            const htmlCache = section.innerHTML;
+
+            const scriptElement2 = document.createElement('script');
+            scriptElement2.innerText = 'console.log(1)';
+            scriptElement2.id = 'scripty2Remove';
+            scriptElement2.setAttribute('type', 'application/javascript');
+            anchorEl.insertAdjacentElement('afterend', scriptElement2);
+            const childCountAfter2 = section.children.length;
+            await new Promise(resolve => setTimeout(resolve, 300));
+            const childCountAfter3 = section.children.length;
+
+            return [
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'script ran', result: window.scripty1Ran, expected: false },
+                { name: 'expected children', result: childCount, expected: 4 },
+                { name: 'expected children after remove', result: childCountAfter, expected: 2 },
+                { name: 'expected children after remove2', result: childCountAfter2, expected: 4 },
+                { name: 'expected children after remove3', result: childCountAfter3, expected: 3 },
+                { name: 'expected HTML content', result: htmlCache, expected: `<a id="anchorEl">hello</a><div id="me">world</div>` }
+            ];
+        });
+
         test('Script that should execute', async () => {
             window.scripty2Ran = false;
             const scriptElement = document.createElement('script');
