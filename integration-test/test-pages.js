@@ -20,15 +20,15 @@ describe('Test integration pages', () => {
         await server?.close()
         await teardown()
     })
-
+    const pages = {
+        'runtime-checks/pages/basic-run.html': 'runtime-checks/config/basic-run.json',
+        'runtime-checks/pages/filter-props.html': 'runtime-checks/config/filter-props.json',
+        'runtime-checks/pages/shadow-dom.html': 'runtime-checks/config/shadow-dom.json',
+        'runtime-checks/pages/script-overload.html': 'runtime-checks/config/script-overload.json',
+        'canvas/pages/canvas.html': 'canvas/config/canvas.json',
+        'canvas/pages/canvas-heavy.html': 'canvas/config/canvas.json'
+    }
     it('Should be successful page script check', async () => {
-        const pages = {
-            'runtime-checks/pages/basic-run.html': 'runtime-checks/config/basic-run.json',
-            'runtime-checks/pages/filter-props.html': 'runtime-checks/config/filter-props.json',
-            'runtime-checks/pages/shadow-dom.html': 'runtime-checks/config/shadow-dom.json',
-            'runtime-checks/pages/script-overload.html': 'runtime-checks/config/script-overload.json',
-            'canvas/pages/canvas.html': 'canvas/config/canvas.json'
-        }
         for (const pageName in pages) {
             const configName = pages[pageName]
 
@@ -83,5 +83,5 @@ describe('Test integration pages', () => {
                 }
             }
         }
-    })
+    }, Object.keys(pages).length * 3000)
 })

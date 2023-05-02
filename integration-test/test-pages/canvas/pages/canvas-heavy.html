@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fingerprinting canvas verification</title>
+
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../../">[Home]</a> ↣ <a href="../">[Privacy Protections Tests]</a> ↣ <strong>[Fingerprinting Test Page]</strong></p>
+    <p>These checks verify the correctness and performance of canvas rendering. This is to ensure the browser behaves as specified and is used in various identity sites. <a href="../../features/canvas-draw.html">Canvas drawing</a> is used to visually verify the correctness.</p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+    <script src="./helpers/canvas.js"></script>
+    <script>
+        test('fp example heavy draw performance', () => {
+    const limit = 250
+    const canvasElement = createCanvas(2000, 200)
+    const canvasContext = canvasElement.getContext('2d')
+    const before = performance.now()
+    const canvasData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+    const after = performance.now()
+    const time = after - before
+    ok(time < limit, `Getting image data must be under ${limit}ms (${time})`)
+    ok(canvasData.data.find((v) => v === 0) === 0, 'Data in image must be blank')
+
+    // Draw many times, the cost shouldn't be linear so after the first calls make each draw cost 1ms
+    const multiplier = 1000
+    const drawLimit = limit + ((multiplier - 1) * 1)
+    let timeDraw = 0
+    for (let i = 0; i < multiplier; i++) {
+        const beforeDraw = performance.now()
+        applyFpExampleDataToCanvas(canvasElement)
+        const afterDraw = performance.now()
+        timeDraw += afterDraw - beforeDraw
+    }
+    ok(timeDraw < drawLimit, `Drawing image data ${multiplier} times must be under ${drawLimit}ms (${timeDraw})`)
+
+    const before2 = performance.now()
+    const canvasData2 = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+    const after2 = performance.now()
+    const time2 = after2 - before2
+    ok(time2 < limit, `Getting image data must be under ${limit}ms (${time2})`)
+
+    // Validate canvas caching didn't return blank pixels here
+    // We can't check for equality as the browser may modify on put.
+    ok(canvasData2.data.find((v) => v !== 0), 'Data in image must not be blank')
+    return time2
+})
+
+test('fp example performance getImageData heavy', () => {
+    const limit = 200
+    const canvasElement = createCanvas(2000, 200)
+    const canvasContext = canvasElement.getContext('2d')
+    const before = performance.now()
+    const canvasData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+    const after = performance.now()
+    const time = after - before
+    ok(time < limit, `Getting image data must be under ${limit}ms (${time})`)
+    ok(canvasData.data.find((v) => v === 0) === 0, 'Data in image must be blank')
+
+    const beforeDraw = performance.now()
+    applyFpExampleDataToCanvas(canvasElement)
+    const afterDraw = performance.now()
+    const timeDraw = afterDraw - beforeDraw
+    ok(timeDraw < limit, `Drawing image data must be under ${limit}ms (${timeDraw})`)
+
+    let timeAll = 0
+    let canvasData2
+    const multiplier = 100
+    const multipleLimit = 4.5
+    // The cost for this shouldn't be linear based on `limit` there is a base cost that all browsers have but on successive calls the cost of hashing shouldn't add up to create slowdown.
+    const timeLimit = (multipleLimit * (multiplier - 1)) + limit
+    for (let i = 0; i < multiplier; i++) {
+        const before2 = performance.now()
+        canvasData2 = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+        const after2 = performance.now()
+        const time2 = after2 - before2
+        timeAll += time2
+    }
+    ok(timeAll < timeLimit, `Getting image data ${multiplier} times must be under ${timeLimit}ms (${timeAll})`)
+
+    // Validate canvas caching didn't return blank pixels here
+    // We can't check for equality as the browser may modify on put.
+    ok(canvasData2.data.find((v) => v !== 0), 'Data in image must not be blank')
+    return timeAll
+})
+
+renderResults()
+    </script>
+</body>
+</html>

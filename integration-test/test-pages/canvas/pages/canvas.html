@@ -14,6 +14,183 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
     <script src="./helpers/canvas.js"></script>
-    <script src="./canvas.js"></script>
+    <script>
+
+test('Ensures there is a distribution of differences on the canvas', () => {
+    const width = 2000
+    const height = 2000
+    const pixelChangeCounts = calculateDifferencesOnRandomCanvas(width, height)
+    const eligiblePixels = (width * height) - 1
+    const zeroChange = pixelChangeCounts.shift()
+    ok(zeroChange < eligiblePixels, 'Sanity check on pixels that match the reference data')
+    const changeCount = pixelChangeCounts.reduce((a, i) => a + i, 0)
+    ok(changeCount + zeroChange === eligiblePixels, 'Sanity check on counts matching')
+    // This is set purposefully low to avoid false positives and also our eligible pixel algo is more complex and may change over time.
+    ok(changeCount > (eligiblePixels * 0.2), 'Should have more than 20% of eligiblePixels that are changed across multiple canvases')
+    return pixelChangeCounts
+})
+
+test('Render a random 4k canvas and then get the performance of getting the pixels', () => {
+    const limit = 300
+    // eslint-disable-next-line new-cap
+    const rng = new Math.seedrandom('something')
+    const canvasElement = createCanvas(3840, 2160)
+    const canvasContext = canvasElement.getContext('2d')
+    const before = performance.now()
+    const canvasData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+    const after = performance.now()
+    const time = after - before
+    ok(time < limit, `Getting image data must be under ${limit}ms (${time})`)
+
+    for (let i = 0; i < canvasData.data.length; i++) {
+        canvasData.data[i] = Math.floor(rng() * 256)
+    }
+    canvasContext.putImageData(canvasData, 0, 0)
+
+    const before2 = performance.now()
+    const canvasData2 = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+    const after2 = performance.now()
+    const time2 = after2 - before2
+    ok(time2 < limit, `Getting image data must be under ${limit}ms (${time2})`)
+
+    // Validate canvas caching didn't return blank pixels here
+    // We can't check for equality as the browser may modify on put.
+    ok(canvasData2.data.find((v) => v !== 0), 'Data in image must not be blank')
+    return time2
+})
+
+test('fp example performance', () => {
+    const limit = 200
+    const canvasElement = createCanvas(2000, 200)
+    const canvasContext = canvasElement.getContext('2d')
+    const before = performance.now()
+    const canvasData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+    const after = performance.now()
+    const time = after - before
+    ok(time < limit, `Getting image data must be under ${limit}ms (${time})`)
+    ok(canvasData.data.find((v) => v === 0) === 0, 'Data in image must be blank')
+
+    const beforeDraw = performance.now()
+    applyFpExampleDataToCanvas(canvasElement)
+    const afterDraw = performance.now()
+    const timeDraw = afterDraw - beforeDraw
+    ok(timeDraw < limit, `Drawing image data must be under ${limit}ms (${timeDraw})`)
+
+    const before2 = performance.now()
+    const canvasData2 = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+    const after2 = performance.now()
+    const time2 = after2 - before2
+    ok(time2 < limit, `Getting image data must be under ${limit}ms (${time2})`)
+
+    // Validate canvas caching didn't return blank pixels here
+    // We can't check for equality as the browser may modify on put.
+    ok(canvasData2.data.find((v) => v !== 0), 'Data in image must not be blank')
+    return time2
+})
+
+test('Load a known pixel image and check the values when rendered to the canvas', () => {
+    const limit = 25
+    const image = document.createElement('img')
+    image.src = './pixel.gif'
+    let res
+    const promise = new Promise((resolve) => {
+        res = resolve
+    })
+    image.onload = (e) => {
+        const refImage = e.target
+        const canvasElement = createCanvas(refImage.width, refImage.height)
+        const canvasContext = canvasElement.getContext('2d')
+        canvasContext.drawImage(refImage, 0, 0)
+        const before = performance.now()
+        const canvasData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+        const after = performance.now()
+        eq(canvasData.data[0], 18, 'Red should be 18')
+        eq(canvasData.data[1], 18, 'Blue should be 18')
+        eq(canvasData.data[2], 255, 'Green should be 255')
+        eq(canvasData.data[3], 255, 'Alpha should be 255')
+        const time = after - before
+        ok(time < limit, `Getting image data must be under ${limit}ms (${time})`)
+        const knownOutputUrls = [
+            // Firefox
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWMQEvr/HwADgAIj6OBrXgAAAABJRU5ErkJggg==',
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2MQEvr/HwADgAIjVH8t0QAAAABJRU5ErkJggg==',
+
+            // Chrome
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdjEBL6/x8AA4ACI+VyxooAAAAASUVORK5CYII=',
+
+            // Safari
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAAD5Ip3+AAAADUlEQVQIHWMQEvr/HwADgAIjiyE/wQAAAABJRU5ErkJggg=='
+        ]
+        const value = canvasElement.toDataURL()
+        ok(knownOutputUrls.includes(value), `Output conversion has expected values ${value}`)
+        res(value)
+    }
+    document.body.appendChild(image)
+    return promise
+})
+
+// Writes code into a first canvas, to push it into an image.
+// The image is then placed into another canvas and the pixels are read to build an eval string.
+test('Read canvas into image and back into canvas', () => {
+    const secretKey = 'secretKeyHereJustCheckThatThisIsCorrect'
+    const dataURL = generateDataURLWithCode(`codeCallback('${secretKey}')`)
+    const image = document.createElement('img')
+    image.src = dataURL
+    let res
+    const promise = new Promise((resolve) => {
+        res = resolve
+    })
+    // Once the image has loaded we can push it into a new canvas
+    // to read the data back out and eval it
+    image.onload = (e) => {
+        const refImage = e.target
+        const canvasElement = createCanvas(refImage.width, refImage.height)
+        let codeOutput = ''
+        const canvasContext = canvasElement.getContext('2d')
+        canvasContext.drawImage(refImage, 0, 0)
+        const canvasData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height)
+        for (let i = 0; i < canvasData.data.length; i += 4) {
+            const item = canvasData.data[i]
+            codeOutput += (item && item < 250) ? String.fromCharCode(item) : ''
+        }
+        window.codeCallback = (value) => {
+            ok(value === secretKey, 'Triggered callback must pass correct key')
+            res(value)
+        };
+        try {
+            // Eval the code
+            // eslint-disable-next-line no-new-func
+            new Function(unescape(decodeURIComponent(window.atob(codeOutput))))()
+        } catch (e) {
+            fail('Threw error', e)
+        }
+    }
+    document.body.appendChild(image)
+    return promise
+})
+
+// Generate canvas data and compare the rendered output to known strings to check the effects of hardware and software within the rendering
+// If we end up with lots of different values here then this is a vector we should protect against.
+test('Known string render', () => {
+    // Use low alpha value
+    const dataURL = generateDataURLWithCode('let thisIsATest = true', 20)
+    // These hard coded values will break whenever rendering engines change.
+    const expectedValues = [
+        // Chrome
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAGRJREFUOE/tk8EJgFAMQ1/vevsXHcAFnMYF3NYFHEAH+N6VQESvgscGCqVNEyhtzFB2oAFWoOfBAFTH4XIHLEALKI8JinoibBa4h0YPyUBQX6LiiiPEaYGX8ac0BXKJeUg/PdMF1VQd3DIA/GoAAAAASUVORK5CYII=',
+
+        // Firefox
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAASUlEQVQ4jWNIY2AQ8WVgEIlkYBAxhrJh/GIGBpE0KDsSKp6GpC6SgUGEAVkBsgHGSAYgi8HUO0Axw38GBhFK8KgBowaMGkAlAwDBZP1nmrh9oAAAAABJRU5ErkJggg==',
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAWklEQVQ4T2NMY2AQec7AwMADxLeAWAqIQQDEB7E/QzFI7AsQSwLxWagcSA0jyACQIhBANuAZkO8A1QyyAARAYsZoYoz/gQZA5cmiRg0AxsJoII6GASg3UpoOAMsYHdyYTRXmAAAAAElFTkSuQmCC',
+
+        // Safari
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAAAX0lEQVQ4EWNMY2AQec7AwMADxLeAWAqIYUANyPgMxV+ggpJA+iwQ8wIxiM0EUgDSDFMAZII1PYPSID5MDiYGswRkMeN/oAtAisgFTORqhOkbNQAYjbDAIJceNWBYBCIAAnkQLFSUm0oAAAAASUVORK5CYII='
+    ]
+    ok(expectedValues.includes(dataURL), `Generated code should return expected response: ${dataURL}`)
+    return dataURL
+})
+
+renderResults()
+    </script>
 </body>
 </html>

@@ -76,7 +76,7 @@ function test (name, test) {
 
 let currentResults = null
 // eslint-disable-next-line no-unused-vars
-async function renderResults () {
+async function renderResults (delay) {
     const results = {}
     if (isInAutomation) {
         await isReadyPromise
@@ -92,7 +92,9 @@ async function renderResults () {
     }
     // @ts-expect-error - buildResultTable is not defined in the type definition
     document.body.appendChild(buildResultTable(results))
+    if (!delay) {
     window.dispatchEvent(new CustomEvent('results-ready', { detail: results }))
+    }
     // @ts-expect-error - results is not defined in the type definition
     window.results = results
 }
@@ -122,32 +124,34 @@ async function init () {
 */
 
 /* test utils */
-function insertResultRow (type, args) {
+function insertResultRow (type, name, args) {
     const row = {
         type,
-        args
+        name,
+        result: type,
+        expected: 'pass'
     }
     if (currentResults) {
         currentResults.push(row)
     }
 }
 
-function fail (...args) {
-    insertResultRow('fail', args)
+function fail (name, ...args) {
+    insertResultRow('fail', name, args)
 }
 
-function pass (...args) {
-    insertResultRow('pass', args)
+function pass (name, ...args) {
+    insertResultRow('pass', name, args)
 }
 
 function eq (val1, val2, ...args) {
     ok(val1 === val2, `Expect value '${val1}' to equal '${val2}'`)
 }
 
-function ok (val, ...args) {
+function ok (val, name, ...args) {
     if (!val) {
-        fail(...args)
+        fail(name, ...args)
     } else {
-        pass(...args)
+        pass(name, ...args)
     }
 }
