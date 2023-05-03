@@ -247,6 +247,21 @@ export class DuckPlayerPage {
         })
     }
 
+    async withStorageValues () {
+        await this.page.evaluate(() => {
+            localStorage.setItem('foo', 'bar')
+            localStorage.setItem('yt-player-other', 'baz')
+        })
+    }
+
+    async storageClearedAfterReload () {
+        await this.page.reload()
+        const storaget = await this.page.evaluate(() => localStorage)
+        expect(storaget).toMatchObject({
+            'yt-player-other': 'baz'
+        })
+    }
+
     /**
      * We test the fully built artifacts, so for each test run we need to
      * select the correct HTML file.
