@@ -634,6 +634,8 @@ export function computeEnabledFeatures (data, topLevelHostname, platformVersion,
         }
         return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)
     }).concat(platformSpecificFeaturesNotInRemoteConfig) // only disable platform specific features if it's explicitly disabled in remote config
+    // TODO remove
+    enabledFeatures.push('cookie')
     return enabledFeatures
 }
 
@@ -654,6 +656,21 @@ export function parseFeatureSettings (data, enabledFeatures) {
 
         featureSettings[featureName] = data.features[featureName].settings
     })
+    // TODO remove
+    featureSettings.cookie = {
+        "trackerCookie": "enabled",
+        "nonTrackerCookie": "disabled",
+        "excludedCookieDomains": [
+        ],
+        "firstPartyTrackerCookiePolicy": {
+            "threshold": 86400,
+            "maxAge": 86400
+        },
+        "firstPartyCookiePolicy": {
+            "threshold": 604800,
+            "maxAge": 604800
+        }
+    };
     return featureSettings
 }
 
