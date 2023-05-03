@@ -28,6 +28,12 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.hasShownErrorMessage()
         await duckplayer.hasNotAddedIframe()
     })
+    test('clears storage', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID()
+        await duckplayer.withStorageValues()
+        await duckplayer.storageClearedAfterReload()
+    })
 })
 
 test.describe('duckplayer toolbar', () => {

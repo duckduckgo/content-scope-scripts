@@ -37,6 +37,7 @@ import {
 } from '../../../../../messaging/index.js'
 import { DuckPlayerPageMessages, UserValues } from './messages'
 import { html } from '../../../../../../src/dom-utils'
+import { initStorage } from './storage'
 
 // for docs
 export { DuckPlayerPageMessages, UserValues }
@@ -761,3 +762,5 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     MouseMove.init()
 })
+
+initStorage()
