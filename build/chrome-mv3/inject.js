@@ -1710,7 +1710,9 @@
 
             // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.
             setTimeout(() => {
-                this.remove();
+                try {
+                    super.remove();
+                } catch {}
             }, elementRemovalTimeout);
         }
 
@@ -1832,7 +1834,12 @@
         }
 
         remove () {
-            return this._callMethod('remove')
+            let returnVal;
+            try {
+                returnVal = this._callMethod('remove');
+                super.remove();
+            } catch {}
+            return returnVal
         }
 
         // @ts-expect-error TS node return here

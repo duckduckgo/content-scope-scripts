@@ -82,9 +82,13 @@ export async function rollupScript (params) {
         supportsMozProxies = false
     } = params
 
-    const trackerLookupData = readFileSync('./build/tracker-lookup.json', 'utf8')
     const extensions = ['firefox', 'chrome', 'chrome-mv3']
-    const trackerLookup = extensions.includes(platform) ? '$TRACKER_LOOKUP$' : trackerLookupData
+    const isExtension = extensions.includes(platform)
+    let trackerLookup = '$TRACKER_LOOKUP$'
+    if (!isExtension) {
+        const trackerLookupData = readFileSync('./build/tracker-lookup.json', 'utf8')
+        trackerLookup = trackerLookupData
+    }
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     const mozProxies = supportsMozProxies
     const plugins = [

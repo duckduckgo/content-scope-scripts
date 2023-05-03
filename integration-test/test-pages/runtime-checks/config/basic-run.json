@@ -8,7 +8,7 @@
                 "matchAllDomains": "enabled",
                 "matchAllStackDomains": "enabled",
                 "overloadInstanceOf": "enabled",
-                "elementRemovalTimeout": 1000,
+                "elementRemovalTimeout": 100,
                 "injectGlobalStyles": "enabled",
                 "domains": [
                 ],
