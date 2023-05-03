@@ -44,18 +44,14 @@ jobs:
 
       - name: Collect commit ranges
         run: |
-          CHANGELOG="$(git log main --since "$(git show -s --format=%ci $(git rev-list --tags --max-count=1))" --pretty='format:- %s')"
-          DELIMITER=$(echo $RANDOM | md5sum | head -c 20;)
-          echo "CHANGELOG<<$DELIMITER" >> $GITHUB_ENV
-          echo "$CHANGELOG" >> $GITHUB_ENV
-          echo "$DELIMITER" >> $GITHUB_ENV
+          echo "CHANGELOG=$(git log main --since "$(git show -s --format=%ci $(git rev-list --tags --max-count=1))" --pretty='format:- %s')" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          body_path: ${{ env.CHANGELOG }}
+          body_path: ${{ steps.version.outputs.CHANGELOG }}
           draft: false
           prerelease: false
           tag_name: ${{ github.event.inputs.version }}
