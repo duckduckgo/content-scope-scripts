@@ -271,7 +271,7 @@ export async function initOverlays (environment, comms) {
                             if (link) {
                                 const href = VideoParams.fromHref(link.href)?.toPrivatePlayerUrl()
                                 if (href) {
-                                    comms.openInDuckPlayerViaMessage({ href })
+                                    comms.openDuckPlayer({ href })
                                 }
                             }
 
