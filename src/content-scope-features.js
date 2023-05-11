@@ -25,10 +25,8 @@ const performanceMonitor = new PerformanceMonitor()
 
 /**
  * @typedef {object} LoadArgs
- * @property {object} site
- * @property {object} platform
- * @property {string} platform.name
- * @property {string} [platform.version]
+ * @property {import('./content-feature').Site} site
+ * @property {import('./utils.js').Platform} platform
  * @property {boolean} documentOriginIsTracker
  * @property {object} [bundledConfig]
  * @property {string} [injectName]

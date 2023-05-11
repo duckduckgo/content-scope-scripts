@@ -103,8 +103,12 @@ export function isThirdPartyFrame () {
     if (!isBeingFramed()) {
         return false
     }
-    // @ts-expect-error - getTabHostname() is string|null here
-    return !matchHostname(globalThis.location.hostname, getTabHostname())
+    const tabHostname = getTabHostname()
+    // If we can't get the tab hostname, assume it's third party
+    if (!tabHostname) {
+        return true
+    }
+    return !matchHostname(globalThis.location.hostname, tabHostname)
 }
 
 function isThirdPartyOrigin (hostname) {
@@ -474,8 +478,16 @@ if (hasMozProxies) {
     DDGReflect = globalObj.Reflect
 }
 
+/**
+ * @param {string | null} topLevelHostname
+ * @param {object[]} featureList
+ * @returns {boolean}
+ */
 export function isUnprotectedDomain (topLevelHostname, featureList) {
     let unprotectedDomain = false
+    if (!topLevelHostname) {
+        return false
+    }
     const domainParts = topLevelHostname.split('.')
 
     // walk up the domain to see if it's unprotected
