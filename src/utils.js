@@ -23,16 +23,26 @@ export function getInjectionElement () {
     return document.head || document.documentElement
 }
 
+
+// Tests don't define this variable so fallback to behave like chrome
+const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
+
 /**
  * Creates a script element with the given code to avoid Firefox CSP restrictions.
  * @param {string} css
  * @returns {HTMLLinkElement}
  */
 export function createStyleElement (css) {
-    const style = document.createElement('link')
-    style.href = 'data:text/css,' + encodeURIComponent(css)
-    style.setAttribute('rel', 'stylesheet')
-    style.setAttribute('type', 'text/css')
+    let style
+    if (!!hasMozProxies) {
+        const style = document.createElement('link')
+        style.href = 'data:text/css,' + encodeURIComponent(css)
+        style.setAttribute('rel', 'stylesheet')
+        style.setAttribute('type', 'text/css')
+    } else {
+        style = document.createElement('style')
+        style.innerText = css
+    }
     return style
 }
 
@@ -52,9 +62,6 @@ export function setGlobal (globalObjIn) {
     globalObj = globalObjIn
     Error = globalObj.Error
 }
-
-// Tests don't define this variable so fallback to behave like chrome
-const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 
 // linear feedback shift register to find a random approximation
 export function nextRandom (v) {
