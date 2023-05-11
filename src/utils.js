@@ -34,7 +34,7 @@ const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 export function createStyleElement (css) {
     let style
     if (hasMozProxies) {
-        const style = document.createElement('link')
+        style = document.createElement('link')
         style.href = 'data:text/css,' + encodeURIComponent(css)
         style.setAttribute('rel', 'stylesheet')
         style.setAttribute('type', 'text/css')
