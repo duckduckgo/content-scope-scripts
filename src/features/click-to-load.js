@@ -2,6 +2,7 @@ import { createCustomEvent, sendMessage, originalWindowDispatchEvent } from '../
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
 import ContentFeature from '../content-feature.js'
+import { DDGCtlPlaceholderBlocked } from './click-to-load/components/ctl-placeholder-blocked.js'
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -46,6 +47,10 @@ const readyToDisplayPlaceholders = new Promise(resolve => {
 // essential messages to surrogate scripts.
 let afterPageLoadResolver
 const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve })
+
+// Used to choose between extension/desktop flow or mobile apps flow.
+// Updated on ClickToLoad.init()
+let isMobileApp
 
 /*********************************************************
  *  Widget Replacement logic
@@ -544,17 +549,32 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
 
     // Facebook
     if (widget.replaceSettings.type === 'dialog') {
-        const icon = widget.replaceSettings.icon
-        const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
-        const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
-        const { contentBlock, shadowRoot } = createContentBlock(
-            widget, button, textButton, icon
-        )
-        button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
-        textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
+        if (isMobileApp) {
+            const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlocked({
+                fontFaceStyle: styles.fontStyle, // DDG font-face family
+                devMode,
+                title: widget.replaceSettings.infoTitle, // Card title text
+                body: widget.replaceSettings.infoText, // Card body text
+                unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                useSlimCard: false, // Flag for using less padding on card (ie YT CTL on mobile)
+                originalElement: trackingElement, // The original element this placeholder is replacing.
+                sharedStrings, // Shared localized string
+                onButtonClick: widget.clickFunction.bind(widget)
+            })
+            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
+        } else {
+            const icon = widget.replaceSettings.icon
+            const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
+            const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
+            const { contentBlock, shadowRoot } = createContentBlock(
+                widget, button, textButton, icon
+            )
+            button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
+            textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
 
-        replaceTrackingElement(widget, trackingElement, contentBlock)
-        showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
+            replaceTrackingElement(widget, trackingElement, contentBlock)
+            showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
+        }
     }
 
     // YouTube
@@ -1652,6 +1672,8 @@ export default class ClickToLoad extends ContentFeature {
         sharedStrings = localizedConfig.sharedStrings
         // update styles if asset config was sent
         styles = getStyles(this.assetConfig)
+        this.isMobileApp = this.platform.name === 'ios' || this.platform.name === 'android'
+        isMobileApp = this.isMobileApp
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the

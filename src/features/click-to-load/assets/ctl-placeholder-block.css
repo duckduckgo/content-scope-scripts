@@ -1,0 +1,178 @@
+* {
+    font-family: DuckDuckGoPrivacyEssentials, system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
+/* SHARED STYLES */
+/* Button */
+.DuckDuckGoButton {
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 11px 22px;
+    margin: 0px auto;
+    border-color: #3969ef;
+    border: none;
+    height: 36px;
+    font-size: 14px;
+
+    position: relative;
+    cursor: pointer;
+    box-shadow: none;
+    z-index: 2147483646;
+}
+.DuckDuckGoButton > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+/* TODO: DARK THEME
+ * TODO: button states */
+.DuckDuckGoButton.tertiary {
+    color: rgba(0, 0, 0, 0.84);
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    @media (prefers-color-scheme: dark) {
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+    }
+}
+.DuckDuckGoButton.tertiary:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    @media (prefers-color-scheme: dark) {
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+    }
+}
+.DuckDuckGoButton.tertiary:active {
+    background: rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.36);
+    @media (prefers-color-scheme: dark) {
+        background: rgba(255, 255, 255, 0.24);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+    }
+}
+
+/* Link styles */
+.ddg-text-link {
+    line-height: 1.4;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    color: #3969ef;
+    @media (prefers-color-scheme: dark) {
+        color: #7295f6;
+    }
+}
+
+/* Styles for DDGCtlPlaceholderBlocked */
+.DuckDuckGoButton.ddg-ctl-unblock-btn {
+    width: 100%;
+    margin-top: 8px;
+    @media (min-width: 480px) {
+        width: auto;
+        margin-top: 12px;
+    }
+}
+
+.ddg-ctl-placeholder-container {
+    display: inline-block;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    max-width: 600px;
+    min-height: 200px;
+}
+
+.ddg-ctl-placeholder-card {
+    box-sizing: border-box;
+    padding: 16px;
+    color: rgba(0, 0, 0, 0.84);
+    background: #ffffff;
+    box-shadow: 0px 1px 0px rgba(125, 125, 125, 0.06), 0px 0px 0px 1px rgba(150, 150, 150, 0.3);
+    border-radius: 12px;
+    max-width: 600px;
+    min-height: 200px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    @media (prefers-color-scheme: dark) {
+        color: rgba(255, 255, 255, 0.84);
+        background: #222222;
+        box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.1), 0px 0px 0px 1px rgba(150, 150, 150, 0.3);
+    }
+}
+
+.ddg-ctl-placeholder-card.slim-card {
+    padding: 12px;
+}
+
+.ddg-ctl-placeholder-card-header {
+    display: flex;
+    align-items: center;
+    @media (min-width: 480px) {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+}
+/* Show Learn More link in the header on mobile and
+ * tablet size screens and hide it on desktop size */
+@media (min-width: 720px) {
+    .ddg-ctl-placeholder-card-header .ddg-learn-more {
+        display: none;
+        visibility: hidden;
+    }
+}
+
+.ddg-ctl-placeholder-card-title,
+.ddg-ctl-placeholder-card-title .ddg-text-link {
+    font-family: DuckDuckGoPrivacyEssentialsBold;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    @media (min-width: 480px) {
+        text-align: center;
+    }
+}
+
+.ddg-ctl-placeholder-card-header-dax {
+    align-self: flex-start;
+    width: 48px;
+    height: 48px;
+    margin: 0 8px 0 0;
+    @media (min-width: 480px) {
+        align-self: inherit;
+        margin: 0 0 12px 0;
+    }
+    @media (min-width: 720px) {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+.ddg-ctl-placeholder-card-body {
+    font-size: 14px;
+    line-height: 21px;
+    padding: 0px 40px;
+    text-align: center;
+    margin: 12px auto auto;
+    display: none;
+    visibility: hidden;
+    @media (min-width: 720px) {
+        display: block;
+        visibility: visible;
+    }
+}
