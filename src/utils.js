@@ -23,7 +23,6 @@ export function getInjectionElement () {
     return document.head || document.documentElement
 }
 
-
 // Tests don't define this variable so fallback to behave like chrome
 const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 
@@ -34,7 +33,7 @@ const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
  */
 export function createStyleElement (css) {
     let style
-    if (!!hasMozProxies) {
+    if (hasMozProxies) {
         const style = document.createElement('link')
         style.href = 'data:text/css,' + encodeURIComponent(css)
         style.setAttribute('rel', 'stylesheet')
