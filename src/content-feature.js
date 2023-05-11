@@ -147,6 +147,11 @@ export default class ContentFeature {
         if (!domain) return []
         const domains = this._getFeatureSetting()?.[featureKeyName] || []
         return domains.filter((rule) => {
+            if (Array.isArray(rule.domain)) {
+                return rule.domain.some((domainRule) => {
+                    return matchHostname(domain, domainRule)
+                })
+            }
             return matchHostname(domain, rule.domain)
         })
     }
