@@ -29,7 +29,7 @@ const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 /**
  * Creates a script element with the given code to avoid Firefox CSP restrictions.
  * @param {string} css
- * @returns {HTMLLinkElement}
+ * @returns {HTMLLinkElement | HTMLStyleElement}
  */
 export function createStyleElement (css) {
     let style
