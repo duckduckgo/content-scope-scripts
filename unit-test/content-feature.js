@@ -8,6 +8,7 @@ describe('Helpers checks', () => {
                 expect(this.getFeatureSetting('test')).toBe('enabled3')
                 expect(this.getFeatureSetting('otherTest')).toBe('enabled')
                 expect(this.getFeatureSetting('otherOtherTest')).toBe('ding')
+                expect(this.getFeatureSetting('arrayTest')).toBe('enabledArray')
                 didRun = true
             }
         }
@@ -21,6 +22,7 @@ describe('Helpers checks', () => {
                     test: 'enabled',
                     otherTest: 'disabled',
                     otherOtherTest: 'ding',
+                    arrayTest: 'enabled',
                     domains: [
                         {
                             domain: 'example.com',
@@ -33,6 +35,12 @@ describe('Helpers checks', () => {
                             domain: 'beep.example.com',
                             patchSettings: [
                                 { op: 'replace', path: '/test', value: 'enabled3' }
+                            ]
+                        },
+                        {
+                            domain: ['meep.com', 'example.com'],
+                            patchSettings: [
+                                { op: 'replace', path: '/arrayTest', value: 'enabledArray' }
                             ]
                         }
                     ]
