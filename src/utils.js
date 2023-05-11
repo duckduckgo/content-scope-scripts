@@ -1,5 +1,4 @@
 /* global cloneInto, exportFunction, mozProxies */
-
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
 let globalObj = typeof window === 'undefined' ? globalThis : window
@@ -8,6 +7,8 @@ let messageSecret
 const CapturedSet = globalObj.Set
 // Capture prototype to prevent overloading
 const createSet = () => hasMozProxies ? new Set() : new CapturedSet()
+
+export const taintSymbol = Symbol('taint')
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
@@ -384,6 +385,26 @@ export function getStack () {
     return new Error().stack
 }
 
+export function getContextId (scope) {
+    if (document.currentScript?.contextID) {
+        return document.currentScript.contextID
+    }
+    if (scope.contextID) {
+        return scope.contextID
+    }
+    if (typeof contextID !== 'undefined') {
+        return contextID
+    }
+}
+
+function hasTaintedMethod (scope) {
+    console.log('tainty', document?.currentScript?.[taintSymbol], window?.__ddg_taint__)
+    if (document?.currentScript?.[taintSymbol]) return true
+    if (window?.__ddg_taint__) return true
+    if (getContextId(scope)) return true
+    return false
+}
+
 /**
  * @template {object} P
  * @typedef {object} ProxyObject<P>
@@ -400,13 +421,18 @@ export class DDGProxy {
      * @param {string} property
      * @param {ProxyObject<P>} proxyObject
      */
-    constructor (featureName, objectScope, property, proxyObject) {
+    constructor (featureName, objectScope, property, proxyObject, taintCheck = false) {
         this.objectScope = objectScope
         this.property = property
         this.featureName = featureName
         this.camelFeatureName = camelcase(this.featureName)
-        const outputHandler = (...args) => {
-            const isExempt = shouldExemptMethod(this.camelFeatureName)
+        const outputHandler = function (...args) {
+            let isExempt = shouldExemptMethod(this.camelFeatureName)
+            // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't
+            if (taintCheck) {
+                const isTainted = hasTaintedMethod(arguments.callee.caller)
+                isExempt = isExempt || isTainted
+            }
             if (debug) {
                 postDebugMessage(this.camelFeatureName, {
                     isProxy: true,

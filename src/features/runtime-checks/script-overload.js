@@ -1,4 +1,61 @@
-import { processAttr } from '../../utils.js'
+import { processAttr, getContextId } from '../../utils.js'
+
+const globalStates = new Set()
+const debug = true
+
+function generateUniqueID () {
+    if (debug) {
+        // Easier to debug
+        return Symbol(crypto.randomUUID())
+    }
+    return Symbol(undefined)
+}
+
+function addTaint () {
+    const contextID = generateUniqueID()
+    if ('duckduckgo' in navigator &&
+        navigator.duckduckgo &&
+        typeof navigator.duckduckgo === 'object' &&
+        'taints' in navigator.duckduckgo &&
+        navigator.duckduckgo.taints instanceof Set) {
+        if (document.currentScript) {
+            document.currentScript.contextID = contextID
+        }
+        navigator?.duckduckgo?.taints.add(contextID)
+    }
+    return contextID
+}
+
+function createContextAwareFunction (fn) {
+    return function (...args) {
+        let scope = this
+        // Save the previous contextID and set the new one
+        const prevContextID = this?.contextID
+        const changeToContextID = getContextId(this) || contextID
+        if (typeof args[0] === 'function') {
+            args[0].contextID = changeToContextID
+        }
+        if (scope && scope !== globalThis) {
+            scope.contextID = changeToContextID
+        } else if (!scope) {
+            scope = new Proxy(scope, {
+                get (target, prop) {
+                    if (prop === 'contextID') {
+                        return changeToContextID
+                    }
+                    return Reflect.get(target, prop)
+                }
+            })
+        }
+        // Run the original function with the new contextID
+        const result = Reflect.apply(fn, scope, args)
+
+        // Restore the previous contextID
+        scope.contextID = prevContextID
+
+        return result
+    }
+}
 
 /**
  * Indent a code block using braces
@@ -176,6 +233,27 @@ export function wrapScriptCodeOverload (code, config) {
          * If you're reading this, you're probably trying to debug a site that is breaking due to our runtime checks.
          * Please raise an issues on our GitHub repo: https://github.com/duckduckgo/content-scope-scripts/
          */
+        ${getContextId.toString()}
+        ${generateUniqueID.toString()}
+        ${createContextAwareFunction.toString()}
+        ${addTaint.toString()}
+        const contextID = addTaint()
+        
+        const originalSetTimeout = setTimeout
+        setTimeout = createContextAwareFunction(originalSetTimeout)
+        
+        const originalSetInterval = setInterval
+        setInterval = createContextAwareFunction(originalSetInterval)
+        
+        const originalPromiseThen = Promise.prototype.then
+        Promise.prototype.then = createContextAwareFunction(originalPromiseThen)
+        
+        const originalPromiseCatch = Promise.prototype.catch
+        Promise.prototype.catch = createContextAwareFunction(originalPromiseCatch)
+        
+        const originalPromiseFinally = Promise.prototype.finally
+        Promise.prototype.finally = createContextAwareFunction(originalPromiseFinally)
+
         ${constructProxy.toString()}
         ${prepend}
         ${code}

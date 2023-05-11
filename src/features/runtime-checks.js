@@ -1,7 +1,7 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol } from '../utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 
 let stackDomains = []
@@ -32,7 +32,6 @@ function shouldFilterKey (tagName, filterName, key) {
 
 let elementRemovalTimeout
 const featureName = 'runtimeChecks'
-export const taintSymbol = Symbol(featureName)
 const supportedSinks = ['src']
 // Store the original methods so we can call them without any side effects
 const defaultElementMethods = {
