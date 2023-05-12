@@ -60,17 +60,6 @@ export default class FingerprintingCanvas extends ContentFeature {
             safeMethodProxy.overload()
         }
 
-        // TODO hack add config wrapper
-        const taintMethods = ['isPointInPath', 'isPointInStroke']
-        for (const methodName of taintMethods) {
-            const taintMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
-                apply (target, thisArg, args) {
-                    return false
-                }
-            }, true)
-            taintMethodProxy.overload()
-        }
-
         const unsafeMethods = [
             'strokeRect',
             'bezierCurveTo',

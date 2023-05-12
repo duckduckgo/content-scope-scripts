@@ -397,8 +397,8 @@ export function getContextId (scope) {
     }
 }
 
-function hasTaintedMethod (scope) {
-    console.log('tainty', document?.currentScript?.[taintSymbol], window?.__ddg_taint__)
+export function hasTaintedMethod (scope) {
+    console.log('tainty', document?.currentScript?.[taintSymbol], window?.__ddg_taint__, getContextId(scope))
     if (document?.currentScript?.[taintSymbol]) return true
     if (window?.__ddg_taint__) return true
     if (getContextId(scope)) return true
@@ -426,12 +426,19 @@ export class DDGProxy {
         this.property = property
         this.featureName = featureName
         this.camelFeatureName = camelcase(this.featureName)
-        const outputHandler = function (...args) {
+        const outputHandler = (...args) => {
             let isExempt = shouldExemptMethod(this.camelFeatureName)
             // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't
-            if (taintCheck) {
-                const isTainted = hasTaintedMethod(arguments.callee.caller)
-                isExempt = isExempt || isTainted
+            if (!isExempt && taintCheck) {
+                const scope = this
+                try {
+                    scope = arguments.callee.caller
+                } catch {
+                    console.log('taint: failed to get callers scope', arguments, new Error().stack)
+                }
+                const isTainted = hasTaintedMethod(scope)
+                isExempt = !isTainted
+                console.log('taint: isExempt', isTainted, isExempt)
             }
             if (debug) {
                 postDebugMessage(this.camelFeatureName, {
@@ -445,6 +452,7 @@ export class DDGProxy {
             }
             // The normal return value
             if (isExempt) {
+                console.log('exempt', this.camelFeatureName, this.property, args)
                 return DDGReflect.apply(...args)
             }
             return proxyObject.apply(...args)

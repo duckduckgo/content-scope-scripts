@@ -1,7 +1,7 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod } from '../utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 
 let stackDomains = []
@@ -469,6 +469,76 @@ function overrideCreateElement () {
     initialCreateElement = proxy._native
 }
 
+function injectGenericOverloads () {
+    function getTaintFromScope(scope, args) {
+        try {
+            scope = args.callee.caller
+        } catch {
+            console.log('taint: failed to get callers scope', args, scope)
+        }
+        return hasTaintedMethod(scope)
+    }
+
+    const taintMethods = ['isPointInPath', 'isPointInStroke']
+    for (const methodName of taintMethods) {
+        const taintMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
+            apply (target, thisArg, args) {
+                return false
+            }
+        }, true)
+        taintMethodProxy.overload()
+    }
+
+    if ('userAgentData' in navigator) {
+        /** @type {object} */
+        const originalUserAgentData = navigator.userAgentData
+        Object.defineProperty(navigator, 'userAgentData', {
+            get () {
+                const isTainted = getTaintFromScope(this, arguments)
+                if (!isTainted) {
+                    return originalUserAgentData
+                }
+                const pr = new Proxy(originalUserAgentData, {
+                    get (target, prop) {
+                        if (prop === 'getHighEntropyValues') {
+                            return Promise.resolve({
+                                platform: 'windows'
+                            })
+                        }
+                        return Reflect.get(target, prop)
+                    }
+                })
+                return pr
+            }
+        })
+    }
+
+    const offset = (new Date()).getTimezoneOffset()
+    window.Date = new Proxy(window.Date, {
+        construct (target, args) {
+            const constructed = Reflect.construct(target, args)
+            if (getTaintFromScope(this, arguments)) {
+                // Falible in that the page could brute force the offset to match. We should fix this.
+                if (constructed.getTimezoneOffset() === offset) {
+                    return constructed.getUTCDate()
+                }
+            }
+            return constructed
+        }
+    })
+
+    const defaultLanguage = navigator.language
+    Object.defineProperty(Navigator.prototype, 'language', {
+        get (target, prop) {
+            if (getTaintFromScope(this, arguments)) {
+                // TODO trim the language to the first two characters
+                return 'en-US'
+            }
+            return defaultLanguage
+        }
+    })
+}
+
 export default class RuntimeChecks extends ContentFeature {
     load () {
         // This shouldn't happen, but if it does we don't want to break the page
@@ -508,6 +578,11 @@ export default class RuntimeChecks extends ContentFeature {
                     display: none;
                 }
             `)
+        }
+
+        // TODO remove
+        if (true || this.getFeatureSettingEnabled('injectGenericOverloads')) {
+            injectGenericOverloads()
         }
     }
 }
