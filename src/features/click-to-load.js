@@ -551,8 +551,8 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
     if (widget.replaceSettings.type === 'dialog') {
         if (isMobileApp) {
             const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlocked({
-                fontFaceStyle: styles.fontStyle, // DDG font-face family
                 devMode,
+                isMobileApp,
                 title: widget.replaceSettings.infoTitle, // Card title text
                 body: widget.replaceSettings.infoText, // Card body text
                 unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
@@ -561,6 +561,7 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
                 sharedStrings, // Shared localized string
                 onButtonClick: widget.clickFunction.bind(widget)
             })
+            mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
             replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
         } else {
             const icon = widget.replaceSettings.icon
@@ -617,11 +618,38 @@ function replaceYouTubeCTL (trackingElement, widget) {
         // Block YouTube embedded video and display blocking dialog
         widget.autoplay = false
         const oldPlaceholder = widget.placeholderElement
-        const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
-        resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
-        replaceTrackingElement(widget, trackingElement, blockingDialog)
-        showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
-        hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460)
+
+        if (isMobileApp) {
+            const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlocked({
+                devMode,
+                isMobileApp,
+                title: widget.replaceSettings.infoTitle, // Card title text
+                body: widget.replaceSettings.infoText, // Card body text
+                unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                useSlimCard: true, // Flag for using less padding on card (ie YT CTL on mobile)
+                originalElement: trackingElement, // The original element this placeholder is replacing.
+                sharedStrings, // Shared localized string
+                withToggle: { // Toggle config to be displayed in the bottom of the placeholder
+                    isActive: false, // Toggle state
+                    dataKey: 'yt-preview-toggle', // data-key attribute for button
+                    label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
+                    onClick: () => sendMessage('setYoutubePreviewsEnabled', true) // Toggle click callback
+                },
+                withFeedback: {
+                    onClick: () => openShareFeedbackPage()
+                },
+                onButtonClick: widget.clickFunction.bind(widget)
+            })
+            mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
+            resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholder)
+            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
+        } else {
+            const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
+            resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
+            replaceTrackingElement(widget, trackingElement, blockingDialog)
+            showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
+            hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460)
+        }
     }
 }
 

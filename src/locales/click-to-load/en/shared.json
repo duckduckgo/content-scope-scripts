@@ -1,11 +1,13 @@
 {
     "smartling": {
-        "string_format" : "icu",
-        "translate_paths": [{
-            "path": "*/title",
-            "key": "{*}/title",
-            "instruction": "*/note"
-        }]
+        "string_format": "icu",
+        "translate_paths": [
+            {
+                "path": "*/title",
+                "key": "{*}/title",
+                "instruction": "*/note"
+            }
+        ]
     },
     "learnMore": {
         "title": "Learn More",
@@ -14,5 +16,9 @@
     "readAbout": {
         "title": "Read about this privacy protection",
         "note": "Alt text for learnMore link"
+    },
+    "shareFeedback": {
+        "title": "Share Feedback",
+        "note": "Link to open Share Feedback form"
     }
 }
