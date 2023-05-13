@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Runtime checks</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Runtime checks]</a></p>
+
+    <p>This page verifies referrer can be stripped <a href="../config/basic-run.json">config</a></p>
+
+    <script>
+        test('Script should have referrer policy set', async () => {
+            window.scripty1Ran = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.innerText = 'window.scripty1Ran = true';
+            scriptElement.id = 'scripty';
+            scriptElement.setAttribute('type', 'application/javascript');
+            document.body.appendChild(scriptElement);
+            const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('#scripty');
+
+            return [
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'expect script to match', result: scripty, expected: scriptElement },
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'scripty.type', result: scripty.type, expected: 'application/javascript' },
+                { name: 'scripty.id', result: scripty.id, expected: 'scripty' },
+                { name: 'scripty.referrerPolicy', result: scripty.referrerPolicy, expected: 'origin' },
+                { name: 'script ran', result: window.scripty1Ran, expected: true },
+                { name: 'script ran', result: scriptElement.innerText, expected: 'window.scripty1Ran = true' },
+            ];
+        });
+
+        test('Script ensure no downgrade', async () => {
+            window.scripty1Ran = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.innerText = 'window.scripty1Ran = true';
+            scriptElement.id = 'scripty';
+            scriptElement.referrerPolicy = 'no-referrer';
+            scriptElement.setAttribute('type', 'application/javascript');
+            document.body.appendChild(scriptElement);
+            const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('#scripty');
+
+            return [
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'expect script to match', result: scripty, expected: scriptElement },
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'scripty.type', result: scripty.type, expected: 'application/javascript' },
+                { name: 'scripty.id', result: scripty.id, expected: 'scripty' },
+                { name: 'scripty.referrerPolicy', result: scripty.referrerPolicy, expected: 'no-referrer' },
+                { name: 'script ran', result: window.scripty1Ran, expected: true },
+                { name: 'script ran', result: scriptElement.innerText, expected: 'window.scripty1Ran = true' },
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html>

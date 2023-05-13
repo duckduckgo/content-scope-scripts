@@ -1,0 +1,25 @@
+{
+    "features": {
+        "runtimeChecks": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "taintCheck": "enabled",
+                "matchAllDomains": "enabled",
+                "matchAllStackDomains": "enabled",
+                "overloadInstanceOf": "enabled",
+                "injectGlobalStyles": "disabled",
+                "shadowDom": "enabled",
+                "domains": [
+                ],
+                "stackDomains": [
+                ],
+                "tagModifiers": {
+                    "script": {
+                        "referrerPolicy": "origin"
+                    }
+                }
+            }
+        }
+    }
+}
