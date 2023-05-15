@@ -14,34 +14,7 @@
 
     <script>
         // eslint-disable-next-line no-undef
-        test('Script that should not execute', async () => {
-            window.scripty1Ran = false;
-            const scriptElement = document.createElement('script');
-            scriptElement.innerText = 'window.scripty1Ran = true';
-            scriptElement.id = 'scripty';
-            scriptElement.setAttribute('type', 'application/evilscript');
-            document.body.appendChild(scriptElement);
-            const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
-            // Continue to modify the script element after it has been added to the DOM
-            scriptElement.integrity = 'sha256-123';
-            scriptElement.setAttribute('madeUpAttr', 'val');
-            const instanceofResult = scriptElement instanceof HTMLScriptElement;
-            const scripty = document.querySelector('script#scripty');
-
-            return [
-                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
-                { name: 'expect script to match', result: scripty, expected: scriptElement },
-                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
-                { name: 'Element is hidden', result: window.getComputedStyle(scriptElement).display, expected: 'none' },
-                { name: 'scripty.integrity', result: scripty.integrity, expected: 'sha256-123' },
-                { name: 'scripty.madeUpAttr', result: scripty.getAttribute('madeUpAttr'), expected: 'val' },
-                { name: 'scripty.type', result: scripty.type, expected: 'application/evilscript' },
-                { name: 'scripty.id', result: scripty.id, expected: 'scripty' },
-                { name: 'script ran', result: window.scripty1Ran, expected: false }
-            ];
-        });
-
-        test('Script removal', async () => {
+        test('Replace: Script removal', async () => {
             window.scripty1Ran = false;
             const scriptElement = document.createElement('script');
             scriptElement.innerText = 'window.scripty1Ran = true';
@@ -61,7 +34,7 @@
             scriptElement.remove();
             const childCountAfter = section.children.length;
             const instanceofResult = scriptElement instanceof HTMLScriptElement;
-            const scripty = document.querySelector('script#scriptyRemove');
+            const scripty = document.querySelector('#scriptyRemove');
             await new Promise(resolve => setTimeout(resolve, 300));
 
             const htmlCache = section.innerHTML;
@@ -78,15 +51,15 @@
             return [
                 { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
                 { name: 'script ran', result: window.scripty1Ran, expected: false },
-                { name: 'expected children', result: childCount, expected: 4 },
+                { name: 'expected children', result: childCount, expected: 3 },
                 { name: 'expected children after remove', result: childCountAfter, expected: 2 },
-                { name: 'expected children after remove2', result: childCountAfter2, expected: 4 },
+                { name: 'expected children after remove2', result: childCountAfter2, expected: 3 },
                 { name: 'expected children after remove3', result: childCountAfter3, expected: 3 },
                 { name: 'expected HTML content', result: htmlCache, expected: `<a id="anchorEl">hello</a><div id="me">world</div>` }
             ];
         });
 
-        test('Script that should execute', async () => {
+        test('Replace: Script that should execute', async () => {
             window.scripty2Ran = false;
             const scriptElement = document.createElement('script');
             scriptElement.innerText = 'window.scripty2Ran = true';
@@ -95,12 +68,12 @@
             document.body.appendChild(scriptElement);
             const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
             // Continue to modify the script element after it has been added to the DOM
-            scriptElement.setAttribute('madeUpAttr', 'val')
+            scriptElement.setAttribute('madeUpAttr', 'val');
             const instanceofResult = scriptElement instanceof HTMLScriptElement;
-            const scripty = document.querySelector('script#scripty2');
+            const scripty = document.querySelector('#scripty2');
 
             return [
-                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: false },
                 { name: 'expect script to match', result: scripty, expected: scriptElement },
                 { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
                 { name: 'scripty.madeUpAttr', result: scripty.getAttribute('madeUpAttr'), expected: 'val' },
@@ -110,7 +83,7 @@
             ];
         });
 
-        test('Script array createElement that should execute', async () => {
+        test('Replace: Script array createElement that should execute', async () => {
             window.scripty2aRan = false;
             let scriptElementArray
             try {
@@ -124,10 +97,10 @@
             }
             const hadInspectorNode = scriptElementArray === document.querySelector('ddg-runtime-checks:last-of-type');
             const instanceofResult = scriptElementArray instanceof HTMLScriptElement;
-            const scriptyArray = document.querySelector('script#scripty2a');
+            const scriptyArray = document.querySelector('#scripty2a');
 
             return [
-                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: false },
                 { name: 'expect script to match', result: scriptyArray, expected: scriptElementArray },
                 { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
                 { name: 'scripty.type', result: scriptyArray?.type, expected: 'application/javascript' },
@@ -136,7 +109,7 @@
             ];
         });
 
-        test('Invalid external script should trigger error listeners', async () => {
+        test('Replace: Invalid external script should trigger error listeners', async () => {
             const scriptElement = document.createElement('script');
             scriptElement.id = 'scripty3';
             scriptElement.src = 'invalid://url';
@@ -169,11 +142,11 @@
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             scriptElement.setAttribute('madeUpAttr', 'val');
             const instanceofResult = scriptElement instanceof HTMLScriptElement;
-            const scripty = document.querySelector('script#scripty3');
+            const scripty = document.querySelector('#scripty3');
 
             return [
                 { name: 'listenerCount', result: listenerCount, expected: 2 },
-                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: false },
                 { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
                 { name: 'scripty.madeUpAttr', result: scripty.getAttribute('madeUpAttr'), expected: 'val' },
                 { name: 'scripty.type', result: scripty.type, expected: 'application/javascript' },
@@ -182,7 +155,7 @@
             ];
         });
 
-        test('Prevent src overloading', async () => {
+        test('Replace: Prevent src overloading', async () => {
             window.scripty2Ran = false;
             const scriptElement = document.createElement('script');
             scriptElement.id = 'scripty2';
@@ -209,10 +182,10 @@
             // Continue to modify the script element after it has been added to the DOM
             scriptElement.setAttribute('madeUpAttr', 'val');
             const instanceofResult = scriptElement instanceof HTMLScriptElement;
-            const scripty = document.querySelector('script#scripty2');
+            const scripty = document.querySelector('#scripty2');
 
             return [
-                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: false },
                 { name: 'expect script to match', result: scripty, expected: scriptElement },
                 { name: 'scripty.getAttribute', result: getAttribute, expected: 'test://url' },
                 { name: 'setAttribute does not loop', result: setCounter, expected: 1 },
@@ -221,7 +194,7 @@
             ];
         });
 
-        test('Support namespaces', async () => {
+        test('Replace: Support namespaces', async () => {
             const scriptElement = document.createElement('script');
             scriptElement.id = 'scriptyNS';
             scriptElement.setAttribute('type', 'application/javascript');
@@ -235,10 +208,10 @@
             // Continue to modify the script element after it has been added to the DOM
             scriptElement.setAttribute('madeUpAttr', 'val');
             const instanceofResult = scriptElement instanceof HTMLScriptElement;
-            const scripty = document.querySelector('script#scriptyNS');
+            const scripty = document.querySelector('#scriptyNS');
 
             return [
-                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: false },
                 { name: 'expect script to match', result: scripty, expected: scriptElement },
                 { name: 'scripty.getAttribute', result: getAttribute, expected: 'test://url' },
                 { name: 'scripty.getAttributeNS', result: getAttribute, expected: 'test://url' },
