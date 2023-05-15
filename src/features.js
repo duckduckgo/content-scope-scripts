@@ -30,7 +30,8 @@ export const platformSupport = {
         'webCompat'
     ],
     android: [
-        ...baseFeatures
+        ...baseFeatures,
+        'clickToLoad'
     ],
     windows: [
         ...baseFeatures,
