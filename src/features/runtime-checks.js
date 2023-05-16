@@ -44,6 +44,25 @@ const defaultElementMethods = {
 }
 const supportedTrustedTypes = 'TrustedScriptURL' in window
 
+const jsMimeTypes = [
+    'text/javascript',
+    'text/ecmascript',
+    'application/javascript',
+    'application/ecmascript',
+    'application/x-javascript',
+    'application/x-ecmascript',
+    'text/javascript1.0',
+    'text/javascript1.1',
+    'text/javascript1.2',
+    'text/javascript1.3',
+    'text/javascript1.4',
+    'text/javascript1.5',
+    'text/jscript',
+    'text/livescript',
+    'text/x-ecmascript',
+    'text/x-javascript'
+]
+
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
     #el
@@ -127,6 +146,12 @@ class DDGRuntimeChecks extends HTMLElement {
         // Short circuit if we're in a trusted script environment
         // @ts-expect-error TrustedScript is not defined in the TS lib
         if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return
+
+        // Short circuit if not a script type
+        const scriptType = el.type.toLowerCase()
+        if (!jsMimeTypes.includes(scriptType) &&
+            scriptType !== 'module' &&
+            scriptType !== '') return
 
         el.textContent = wrapScriptCodeOverload(el.textContent, scriptOverload)
     }
