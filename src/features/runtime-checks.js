@@ -11,6 +11,8 @@ let initialCreateElement
 let tagModifiers = {}
 let shadowDomEnabled = false
 let scriptOverload = {}
+let replaceElement = false
+let monitorProperties = true
 // Ignore monitoring properties that are only relevant once and already handled
 const defaultIgnoreMonitorList = ['onerror', 'onload']
 let ignoreMonitorList = defaultIgnoreMonitorList
@@ -219,14 +221,34 @@ class DDGRuntimeChecks extends HTMLElement {
             this.computeScriptOverload(el)
         }
 
+        // TODO pollyfill WeakRef
+        this.#el = new WeakRef(el)
+
+        if (replaceElement) {
+            this.replaceElement(el)
+        } else {
+            this.insertAfterAndRemove(el)
+        }
+    }
+
+    replaceElement (el) {
+        // @ts-expect-error - this is wrong node type
+        super.parentElement?.replaceChild(el, this)
+
+        if (monitorProperties) {
+            this._monitorProperties(el)
+        }
+    }
+
+    insertAfterAndRemove (el) {
         // Move the new element to the DOM
         try {
             this.insertAdjacentElement('afterend', el)
         } catch (e) { console.warn(e) }
 
-        this._monitorProperties(el)
-        // TODO pollyfill WeakRef
-        this.#el = new WeakRef(el)
+        if (monitorProperties) {
+            this._monitorProperties(el)
+        }
 
         // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.
         setTimeout(() => {
@@ -473,6 +495,8 @@ export default class RuntimeChecks extends ContentFeature {
         shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false
         scriptOverload = this.getFeatureSetting('scriptOverload') || {}
         ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
+        replaceElement = this.getFeatureSettingEnabled('replaceElement') || false
+        monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true
 
         overrideCreateElement()
 
