@@ -16,6 +16,7 @@ let monitorProperties = true
 // Ignore monitoring properties that are only relevant once and already handled
 const defaultIgnoreMonitorList = ['onerror', 'onload']
 let ignoreMonitorList = defaultIgnoreMonitorList
+let injectGenericOverloadsEnabled = true
 
 /**
  * @param {string} tagName
@@ -470,7 +471,7 @@ function overrideCreateElement () {
 }
 
 function injectGenericOverloads () {
-    function getTaintFromScope(scope, args) {
+    function getTaintFromScope (scope, args) {
         try {
             scope = args.callee.caller
         } catch {
@@ -565,6 +566,7 @@ export default class RuntimeChecks extends ContentFeature {
         ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
         replaceElement = this.getFeatureSettingEnabled('replaceElement') || false
         monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true
+        injectGenericOverloadsEnabled = this.getFeatureSettingEnabled('injectGenericOverloads') || true
 
         overrideCreateElement()
 
@@ -580,8 +582,7 @@ export default class RuntimeChecks extends ContentFeature {
             `)
         }
 
-        // TODO remove
-        if (true || this.getFeatureSettingEnabled('injectGenericOverloads')) {
+        if (injectGenericOverloadsEnabled) {
             injectGenericOverloads()
         }
     }

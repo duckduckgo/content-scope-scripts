@@ -1,12 +1,12 @@
 import { processAttr, getContextId } from '../../utils.js'
 
 const globalStates = new Set()
-const debug = true
 
 function generateUniqueID () {
+    const debug = true
     if (debug) {
         // Easier to debug
-        return Symbol(crypto.randomUUID())
+        return Symbol(globalThis?.crypto?.randomUUID())
     }
     return Symbol(undefined)
 }
@@ -19,6 +19,7 @@ function addTaint () {
         'taints' in navigator.duckduckgo &&
         navigator.duckduckgo.taints instanceof Set) {
         if (document.currentScript) {
+            // @ts-expect-error - contextID is undefined on cuttentScript
             document.currentScript.contextID = contextID
         }
         navigator?.duckduckgo?.taints.add(contextID)
@@ -28,13 +29,17 @@ function addTaint () {
 
 function createContextAwareFunction (fn) {
     return function (...args) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let scope = this
         // Save the previous contextID and set the new one
         const prevContextID = this?.contextID
+        // @ts-expect-error - contextID is undefined on window
+        // eslint-disable-next-line no-undef
         const changeToContextID = getContextId(this) || contextID
         if (typeof args[0] === 'function') {
             args[0].contextID = changeToContextID
         }
+        // @ts-expect-error - scope doesn't match window
         if (scope && scope !== globalThis) {
             scope.contextID = changeToContextID
         } else if (!scope) {
@@ -196,7 +201,7 @@ export function wrapScriptCodeOverload (code, config) {
         processedConfig[key] = processAttr(value)
     }
     // Don't do anything if the config is empty
-    // if (Object.keys(processedConfig).length === 0) return code
+    if (Object.keys(processedConfig).length === 0) return code
 
     let prepend = ''
     const aggregatedLookup = new Map()
@@ -233,6 +238,9 @@ export function wrapScriptCodeOverload (code, config) {
          * If you're reading this, you're probably trying to debug a site that is breaking due to our runtime checks.
          * Please raise an issues on our GitHub repo: https://github.com/duckduckgo/content-scope-scripts/
          */
+        ${constructProxy.toString()}
+        ${prepend}
+
         ${getContextId.toString()}
         ${generateUniqueID.toString()}
         ${createContextAwareFunction.toString()}
@@ -254,8 +262,6 @@ export function wrapScriptCodeOverload (code, config) {
         const originalPromiseFinally = Promise.prototype.finally
         Promise.prototype.finally = createContextAwareFunction(originalPromiseFinally)
 
-        ${constructProxy.toString()}
-        ${prepend}
         ${code}
     })(globalThis)
     `)

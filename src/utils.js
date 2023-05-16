@@ -386,21 +386,25 @@ export function getStack () {
 }
 
 export function getContextId (scope) {
-    if (document.currentScript?.contextID) {
+    if (document?.currentScript && 'contextID' in document.currentScript) {
         return document.currentScript.contextID
     }
     if (scope.contextID) {
         return scope.contextID
     }
+    // @ts-expect-error - contextID is a global variable
     if (typeof contextID !== 'undefined') {
+        // @ts-expect-error - contextID is a global variable
+        // eslint-disable-next-line no-undef
         return contextID
     }
 }
 
 export function hasTaintedMethod (scope) {
+    // @ts-expect-error - TODO remove debug
     console.log('tainty', document?.currentScript?.[taintSymbol], window?.__ddg_taint__, getContextId(scope))
     if (document?.currentScript?.[taintSymbol]) return true
-    if (window?.__ddg_taint__) return true
+    if ('__ddg_taint__' in window) return true
     if (getContextId(scope)) return true
     return false
 }
@@ -430,8 +434,11 @@ export class DDGProxy {
             let isExempt = shouldExemptMethod(this.camelFeatureName)
             // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't
             if (!isExempt && taintCheck) {
-                const scope = this
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
+                let scope = this
                 try {
+                    // @ts-expect-error - Caller doesn't match this
+                    // eslint-disable-next-line no-caller
                     scope = arguments.callee.caller
                 } catch {
                     console.log('taint: failed to get callers scope', arguments, new Error().stack)
