@@ -73,7 +73,7 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
      * Creates a placeholder for content blocked by Click to Load.
      * @returns {HTMLDivElement}
      */
-    createPlaceholder () {
+    createPlaceholder = () => {
         const { title, body, unblockBtnText, useSlimCard, withToggle, withFeedback } = this.params
 
         const container = document.createElement('div')
@@ -105,7 +105,7 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
     /**
      * Creates a template string for Learn More link.
      */
-    createLearnMoreLink () {
+    createLearnMoreLink = () => {
         const { sharedStrings } = this.params
 
         return html`<a
@@ -122,7 +122,7 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
      * Creates a Feedback Link container row
      * @returns {HTMLDivElement}
      */
-    createShareFeedbackLink () {
+    createShareFeedbackLink = () => {
         const { sharedStrings } = this.params
 
         const container = document.createElement('div')
@@ -138,7 +138,7 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
     /**
      * Creates a template string for a toggle button with text.
      */
-    createToggleButton () {
+    createToggleButton = () => {
         const { withToggle, isMobileApp } = this.params
         if (!withToggle) return
 
@@ -164,9 +164,9 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
     /**
      *
      * @param {HTMLElement} containerElement
-     * @param {HTMLElement} feedbackLink
+     * @param {HTMLElement?} feedbackLink
      */
-    setupEventListeners (containerElement, feedbackLink) {
+    setupEventListeners = (containerElement, feedbackLink) => {
         const { withToggle, withFeedback, originalElement, onButtonClick } = this.params
 
         containerElement
@@ -178,7 +178,7 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
                 .querySelector('.ddg-toggle-button-container')
                 ?.addEventListener('click', withToggle.onClick)
         }
-        if (withFeedback) {
+        if (withFeedback && feedbackLink) {
             feedbackLink.querySelector('.ddg-ctl-feedback-link')?.addEventListener('click', withFeedback.onClick)
         }
     }

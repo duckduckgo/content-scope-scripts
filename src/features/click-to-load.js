@@ -1700,8 +1700,7 @@ export default class ClickToLoad extends ContentFeature {
         sharedStrings = localizedConfig.sharedStrings
         // update styles if asset config was sent
         styles = getStyles(this.assetConfig)
-        this.isMobileApp = this.platform.name === 'ios' || this.platform.name === 'android'
-        isMobileApp = this.isMobileApp
+        isMobileApp = this.platform.name === 'ios' || this.platform.name === 'android'
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the
