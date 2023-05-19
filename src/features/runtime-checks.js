@@ -470,16 +470,16 @@ function overrideCreateElement () {
     initialCreateElement = proxy._native
 }
 
-function injectGenericOverloads () {
-    function getTaintFromScope (scope, args) {
-        try {
-            scope = args.callee.caller
-        } catch {
-            console.log('taint: failed to get callers scope', args, scope)
-        }
-        return hasTaintedMethod(scope)
+function getTaintFromScope (scope, args) {
+    try {
+        scope = args.callee.caller
+    } catch {
+        console.log('taint: failed to get callers scope', args, scope)
     }
+    return hasTaintedMethod(scope)
+}
 
+function injectGenericOverloads () {
     const taintMethods = ['isPointInPath', 'isPointInStroke']
     for (const methodName of taintMethods) {
         const taintMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
