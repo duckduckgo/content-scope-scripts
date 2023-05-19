@@ -74,6 +74,7 @@ async function initCode () {
     const processedConfig = generateConfig()
 
     load({
+        // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
