@@ -24,7 +24,7 @@
             return Reflect.apply(targetOut[property], target, args)
           }
         } else {
-          return Reflect.get(targetOut, property, receiver)
+          return Reflect.get(targetOut, property, scope)
         }
       }
     })
