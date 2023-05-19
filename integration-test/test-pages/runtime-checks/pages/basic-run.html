@@ -91,8 +91,10 @@
             const scriptElement = document.createElement('script');
             scriptElement.innerText = 'window.scripty2Ran = true';
             scriptElement.id = 'scripty2';
+            scriptElement.dataset.test = 'test';
             scriptElement.setAttribute('type', 'application/javascript');
             document.body.appendChild(scriptElement);
+            scriptElement.dataset.thing = 'thing';
             const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
             // Continue to modify the script element after it has been added to the DOM
             scriptElement.setAttribute('madeUpAttr', 'val')
@@ -106,9 +108,46 @@
                 { name: 'scripty.madeUpAttr', result: scripty.getAttribute('madeUpAttr'), expected: 'val' },
                 { name: 'scripty.type', result: scripty.type, expected: 'application/javascript' },
                 { name: 'scripty.id', result: scripty.id, expected: 'scripty2' },
+                { name: 'scripty.dataset', result: JSON.stringify(scripty.dataset), expected: JSON.stringify({test: 'test', thing: 'thing'})},
                 { name: 'script ran', result: window.scripty2Ran, expected: true }
             ];
         });
+
+        test('Script src that should execute', async () => {
+            window.externalScriptRan = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.src = '../../shared/scripty.js';
+            scriptElement.id = 'externalScript';
+            scriptElement.setAttribute('type', 'application/javascript');
+            let listenerCount = 0;
+            let resolver = null;
+            const promise = new Promise(resolve => {
+                resolver = resolve;
+            });
+            scriptElement.onload = () => {
+                listenerCount++;
+                resolver();
+            };
+            document.body.appendChild(scriptElement);
+            await promise;
+            const hadInspectorNode = scriptElement === document.querySelector('ddg-runtime-checks:last-of-type');
+            // Continue to modify the script element after it has been added to the DOM
+            scriptElement.setAttribute('madeUpAttr', 'val')
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('script#externalScript');
+
+            return [
+                { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
+                { name: 'scripty.onload listenerCount', result: listenerCount, expected: 1 },
+                { name: 'expect script to match', result: scripty, expected: scriptElement },
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'scripty.madeUpAttr', result: scripty.getAttribute('madeUpAttr'), expected: 'val' },
+                { name: 'scripty.type', result: scripty.type, expected: 'application/javascript' },
+                { name: 'scripty.id', result: scripty.id, expected: 'externalScript' },
+                { name: 'script ran', result: window.externalScriptRan, expected: true }
+            ];
+        });
+
 
         test('Script array createElement that should execute', async () => {
             window.scripty2aRan = false;
