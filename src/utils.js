@@ -401,8 +401,6 @@ export function getContextId (scope) {
 }
 
 export function hasTaintedMethod (scope) {
-    // @ts-expect-error - TODO remove debug
-    console.log('tainty', document?.currentScript?.[taintSymbol], window?.__ddg_taint__, getContextId(scope))
     if (document?.currentScript?.[taintSymbol]) return true
     if ('__ddg_taint__' in window) return true
     if (getContextId(scope)) return true
@@ -440,12 +438,9 @@ export class DDGProxy {
                     // @ts-expect-error - Caller doesn't match this
                     // eslint-disable-next-line no-caller
                     scope = arguments.callee.caller
-                } catch {
-                    console.log('taint: failed to get callers scope', arguments, new Error().stack)
-                }
+                } catch {}
                 const isTainted = hasTaintedMethod(scope)
                 isExempt = !isTainted
-                console.log('taint: isExempt', isTainted, isExempt)
             }
             if (debug) {
                 postDebugMessage(this.camelFeatureName, {
@@ -459,7 +454,6 @@ export class DDGProxy {
             }
             // The normal return value
             if (isExempt) {
-                console.log('exempt', this.camelFeatureName, this.property, args)
                 return DDGReflect.apply(...args)
             }
             return proxyObject.apply(...args)

@@ -480,64 +480,9 @@ function getTaintFromScope (scope, args) {
 }
 
 function injectGenericOverloads () {
-    const taintMethods = ['isPointInPath', 'isPointInStroke']
-    for (const methodName of taintMethods) {
-        const taintMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
-            apply (target, thisArg, args) {
-                return false
-            }
-        }, true)
-        taintMethodProxy.overload()
-    }
-
-    if ('userAgentData' in navigator) {
-        /** @type {object} */
-        const originalUserAgentData = navigator.userAgentData
-        Object.defineProperty(navigator, 'userAgentData', {
-            get () {
-                const isTainted = getTaintFromScope(this, arguments)
-                if (!isTainted) {
-                    return originalUserAgentData
-                }
-                const pr = new Proxy(originalUserAgentData, {
-                    get (target, prop) {
-                        if (prop === 'getHighEntropyValues') {
-                            return Promise.resolve({
-                                platform: 'windows'
-                            })
-                        }
-                        return Reflect.get(target, prop)
-                    }
-                })
-                return pr
-            }
-        })
-    }
-
-    const offset = (new Date()).getTimezoneOffset()
-    window.Date = new Proxy(window.Date, {
-        construct (target, args) {
-            const constructed = Reflect.construct(target, args)
-            if (getTaintFromScope(this, arguments)) {
-                // Falible in that the page could brute force the offset to match. We should fix this.
-                if (constructed.getTimezoneOffset() === offset) {
-                    return constructed.getUTCDate()
-                }
-            }
-            return constructed
-        }
-    })
-
-    const defaultLanguage = navigator.language
-    Object.defineProperty(Navigator.prototype, 'language', {
-        get (target, prop) {
-            if (getTaintFromScope(this, arguments)) {
-                // TODO trim the language to the first two characters
-                return 'en-US'
-            }
-            return defaultLanguage
-        }
-    })
+/*
+   TODO
+*/
 }
 
 export default class RuntimeChecks extends ContentFeature {

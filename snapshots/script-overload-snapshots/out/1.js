@@ -89,7 +89,7 @@
     }
   }
   function generateUniqueID () {
-    const debug = true
+    const debug = false
     if (debug) {
       // Easier to debug
       return Symbol(globalThis?.crypto?.randomUUID())
@@ -136,7 +136,7 @@
     'taints' in navigator.duckduckgo &&
     navigator.duckduckgo.taints instanceof Set) {
       if (document.currentScript) {
-        // @ts-expect-error - contextID is undefined on cuttentScript
+        // @ts-expect-error - contextID is undefined on currentScript
         document.currentScript.contextID = contextID
       }
       navigator?.duckduckgo?.taints.add(contextID)
