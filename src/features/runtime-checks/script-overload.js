@@ -1,4 +1,66 @@
-import { processAttr } from '../../utils.js'
+import { processAttr, getContextId } from '../../utils.js'
+
+const globalStates = new Set()
+
+function generateUniqueID () {
+    const debug = false
+    if (debug) {
+        // Easier to debug
+        return Symbol(globalThis?.crypto?.randomUUID())
+    }
+    return Symbol(undefined)
+}
+
+function addTaint () {
+    const contextID = generateUniqueID()
+    if ('duckduckgo' in navigator &&
+        navigator.duckduckgo &&
+        typeof navigator.duckduckgo === 'object' &&
+        'taints' in navigator.duckduckgo &&
+        navigator.duckduckgo.taints instanceof Set) {
+        if (document.currentScript) {
+            // @ts-expect-error - contextID is undefined on currentScript
+            document.currentScript.contextID = contextID
+        }
+        navigator?.duckduckgo?.taints.add(contextID)
+    }
+    return contextID
+}
+
+function createContextAwareFunction (fn) {
+    return function (...args) {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let scope = this
+        // Save the previous contextID and set the new one
+        const prevContextID = this?.contextID
+        // @ts-expect-error - contextID is undefined on window
+        // eslint-disable-next-line no-undef
+        const changeToContextID = getContextId(this) || contextID
+        if (typeof args[0] === 'function') {
+            args[0].contextID = changeToContextID
+        }
+        // @ts-expect-error - scope doesn't match window
+        if (scope && scope !== globalThis) {
+            scope.contextID = changeToContextID
+        } else if (!scope) {
+            scope = new Proxy(scope, {
+                get (target, prop) {
+                    if (prop === 'contextID') {
+                        return changeToContextID
+                    }
+                    return Reflect.get(target, prop)
+                }
+            })
+        }
+        // Run the original function with the new contextID
+        const result = Reflect.apply(fn, scope, args)
+
+        // Restore the previous contextID
+        scope.contextID = prevContextID
+
+        return result
+    }
+}
 
 /**
  * Indent a code block using braces
@@ -53,6 +115,7 @@ function generateAlphaIdentifier (num) {
  * @returns {Proxy}
  */
 function constructProxy (scope, outputs) {
+    const taintString = '__ddg_taint__'
     // @ts-expect-error - Expected 2 arguments, but got 1
     if (Object.is(scope)) {
         // Should not happen, but just in case fail safely
@@ -74,6 +137,12 @@ function constructProxy (scope, outputs) {
             } else {
                 return Reflect.get(targetOut, property, scope)
             }
+        },
+        getOwnPropertyDescriptor (target, property) {
+            if (typeof property === 'string' && property === taintString) {
+                return { configurable: true, enumerable: false, value: true }
+            }
+            return Reflect.getOwnPropertyDescriptor(target, property)
         }
     })
 }
@@ -160,9 +229,8 @@ export function wrapScriptCodeOverload (code, config) {
     const window = constructProxy(parentScope, {
         ${keysOut}
     });
-    const globalThis = constructProxy(parentScope, {
-        ${keysOut}
-    });
+    // Ensure globalThis === window
+    const globalThis = window
     `
     return removeIndent(`(function (parentScope) {
         /**
@@ -172,6 +240,28 @@ export function wrapScriptCodeOverload (code, config) {
          */
         ${constructProxy.toString()}
         ${prepend}
+
+        ${getContextId.toString()}
+        ${generateUniqueID.toString()}
+        ${createContextAwareFunction.toString()}
+        ${addTaint.toString()}
+        const contextID = addTaint()
+        
+        const originalSetTimeout = setTimeout
+        setTimeout = createContextAwareFunction(originalSetTimeout)
+        
+        const originalSetInterval = setInterval
+        setInterval = createContextAwareFunction(originalSetInterval)
+        
+        const originalPromiseThen = Promise.prototype.then
+        Promise.prototype.then = createContextAwareFunction(originalPromiseThen)
+        
+        const originalPromiseCatch = Promise.prototype.catch
+        Promise.prototype.catch = createContextAwareFunction(originalPromiseCatch)
+        
+        const originalPromiseFinally = Promise.prototype.finally
+        Promise.prototype.finally = createContextAwareFunction(originalPromiseFinally)
+
         ${code}
     })(globalThis)
     `)
