@@ -5,4 +5,4 @@ Sources/ContentScopeScripts/dist/
 integration-test/extension/contentScope.js
 integration-test/pages/build
 packages/special-pages/pages/**/public
-unit-test/script-overload-snapshots/
+script-overload-snapshots/

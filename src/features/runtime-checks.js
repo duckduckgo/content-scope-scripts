@@ -1,7 +1,7 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod } from '../utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 
 let stackDomains = []
@@ -16,6 +16,7 @@ let monitorProperties = true
 // Ignore monitoring properties that are only relevant once and already handled
 const defaultIgnoreMonitorList = ['onerror', 'onload']
 let ignoreMonitorList = defaultIgnoreMonitorList
+let injectGenericOverloadsEnabled = true
 
 /**
  * @param {string} tagName
@@ -32,7 +33,6 @@ function shouldFilterKey (tagName, filterName, key) {
 
 let elementRemovalTimeout
 const featureName = 'runtimeChecks'
-const taintSymbol = Symbol(featureName)
 const supportedSinks = ['src']
 // Store the original methods so we can call them without any side effects
 const defaultElementMethods = {
@@ -163,9 +163,8 @@ class DDGRuntimeChecks extends HTMLElement {
      * This is to allow us to interrogate the real element before it is moved to the DOM.
      */
     _transplantElement () {
-        // Creeate the real element
+        // Create the real element
         const el = initialCreateElement.call(document, this.#tagName)
-
         if (taintCheck) {
             // Add a symbol to the element so we can identify it as a runtime checked element
             Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false })
@@ -471,6 +470,21 @@ function overrideCreateElement () {
     initialCreateElement = proxy._native
 }
 
+function getTaintFromScope (scope, args) {
+    try {
+        scope = args.callee.caller
+    } catch {
+        console.log('taint: failed to get callers scope', args, scope)
+    }
+    return hasTaintedMethod(scope)
+}
+
+function injectGenericOverloads () {
+/*
+   TODO
+*/
+}
+
 export default class RuntimeChecks extends ContentFeature {
     load () {
         // This shouldn't happen, but if it does we don't want to break the page
@@ -497,6 +511,7 @@ export default class RuntimeChecks extends ContentFeature {
         ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
         replaceElement = this.getFeatureSettingEnabled('replaceElement') || false
         monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true
+        injectGenericOverloadsEnabled = this.getFeatureSettingEnabled('injectGenericOverloads') || true
 
         overrideCreateElement()
 
@@ -510,6 +525,10 @@ export default class RuntimeChecks extends ContentFeature {
                     display: none;
                 }
             `)
+        }
+
+        if (injectGenericOverloadsEnabled) {
+            injectGenericOverloads()
         }
     }
 }
