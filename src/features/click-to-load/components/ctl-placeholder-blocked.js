@@ -6,6 +6,19 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked'
 
     /**
+     * Set observed attributes that will trigger attributeChangedCallback()
+     */
+    static get observedAttributes () {
+        return ['style']
+    }
+
+    /**
+     * Placeholder element for blocked content
+     * @type {HTMLDivElement | null}
+     */
+    placeholderBlocked = null
+
+    /**
      *
      * @param {{
      *   devMode: boolean,
@@ -50,7 +63,7 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
          * Creates the placeholder for blocked content
          * @type {HTMLDivElement}
          */
-        const placeholderBlocked = this.createPlaceholder()
+        this.placeholderBlocked = this.createPlaceholder()
         /**
          * Creates the Share Feedback element
          * @type {HTMLDivElement | null}
@@ -59,13 +72,13 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
         /**
          * Setup the click handlers
          */
-        this.setupEventListeners(placeholderBlocked, feedbackLink)
+        this.setupEventListeners(this.placeholderBlocked, feedbackLink)
 
         /**
          * Append both to the shadow root
          */
-        shadow.appendChild(placeholderBlocked)
-        feedbackLink && shadow.appendChild(feedbackLink)
+        feedbackLink && this.placeholderBlocked.appendChild(feedbackLink)
+        shadow.appendChild(this.placeholderBlocked)
         shadow.appendChild(style)
     }
 
@@ -77,26 +90,26 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
         const { title, body, unblockBtnText, useSlimCard, withToggle, withFeedback } = this.params
 
         const container = document.createElement('div')
-        container.classList.add('DuckDuckGoSocialContainer', 'ddg-ctl-placeholder-card')
-        if (useSlimCard) {
-            container.classList.add('slim-card')
-        }
-        if (withFeedback) {
-            container.classList.add('with-feedback-link')
-        }
+        container.classList.add('DuckDuckGoSocialContainer')
 
         const learnMoreLink = this.createLearnMoreLink()
 
         container.innerHTML = html`
-            <div class="ddg-ctl-placeholder-card-header">
-                <img class="ddg-ctl-placeholder-card-header-dax" src=${daxImg} />
-                <div class="ddg-ctl-placeholder-card-title">${title}. ${learnMoreLink}</div>
+            <div
+                class="ddg-ctl-placeholder-card${useSlimCard ? ' slim-card' : ''}${withFeedback ? ' with-feedback-link' : ''}"
+            >
+                <div class="ddg-ctl-placeholder-card-header">
+                    <img class="ddg-ctl-placeholder-card-header-dax" src=${daxImg} />
+                    <div class="ddg-ctl-placeholder-card-title">${title}. ${learnMoreLink}</div>
+                </div>
+                <div class="ddg-ctl-placeholder-card-body">
+                    <div class="ddg-ctl-placeholder-card-body-text">${body} ${learnMoreLink}</div>
+                    <button class="DuckDuckGoButton tertiary ddg-ctl-unblock-btn"><div>${unblockBtnText}</div></button>
+                </div>
+                ${withToggle
+        ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> `
+        : ''}
             </div>
-            <div class="ddg-ctl-placeholder-card-body">
-                <div class="ddg-ctl-placeholder-card-body-text">${body} ${learnMoreLink}</div>
-                <button class="DuckDuckGoButton tertiary ddg-ctl-unblock-btn"><div>${unblockBtnText}</div></button>
-            </div>
-            ${withToggle ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> ` : ''}
         `.toString()
 
         return container
@@ -180,6 +193,48 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
         }
         if (withFeedback && feedbackLink) {
             feedbackLink.querySelector('.ddg-ctl-feedback-link')?.addEventListener('click', withFeedback.onClick)
+        }
+    }
+
+    /**
+     * Use JS to calculate the width of the root element placeholder. We could use a CSS Container Query, but full
+     * support to it was only added recently, so we're not using it for now.
+     * https://caniuse.com/css-container-queries
+     * @returns {'size-sm' | 'size-md' | 'size-lg' | null} Returns a string for the width calculated for the root element
+     */
+    calculatePlaceholderWidthSize = () => {
+        const { width } = this.getBoundingClientRect()
+        if (width) {
+            const size = width < 480 ? 'size-sm' : width < 720 ? 'size-md' : 'size-lg'
+            return size
+        }
+        return null
+    }
+
+    /**
+     * Web Component lifecycle function.
+     * When element is first added to the DOM, trigger this callback and
+     * update the element CSS size class.
+     */
+    connectedCallback () {
+        const size = this.calculatePlaceholderWidthSize()
+        if (size) {
+            this.placeholderBlocked?.classList.add(size)
+        }
+    }
+
+    /**
+     * Web Component lifecycle function.
+     * When the root element gets the 'style' attribute updated, reflect that in the container
+     * element inside the shadow root. This way, we can copy the size and other styles from the root
+     * element and have the inner context be able to use the same sizes to adapt the template layout.
+     * @param {string} attr Observed attribute key
+     * @param {*} _ Attribute old value, ignored
+     * @param {*} newValue Attribute new value
+     */
+    attributeChangedCallback (attr, _, newValue) {
+        if (this.placeholderBlocked && attr === 'style') {
+            this.placeholderBlocked[attr].cssText = newValue
         }
     }
 }

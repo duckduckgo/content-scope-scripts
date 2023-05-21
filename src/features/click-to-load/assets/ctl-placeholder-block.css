@@ -1,13 +1,17 @@
 * {
     font-family: DuckDuckGoPrivacyEssentials, system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,
         Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    box-sizing: border-box;
 }
 
-:host {
+:host,
+.DuckDuckGoSocialContainer {
     display: inline-block;
+    box-sizing: border-box;
     border: 0;
     padding: 0;
-    margin: 0;
+    margin: auto;
+    inset: initial;
     max-width: 600px;
     min-height: 180px;
 }
@@ -37,8 +41,6 @@
     padding: 0;
     margin: 0;
 }
-/* TODO: DARK THEME
- * TODO: button states */
 .DuckDuckGoButton.tertiary {
     color: rgba(0, 0, 0, 0.84);
     background-color: transparent;
@@ -180,14 +182,11 @@
 .DuckDuckGoButton.ddg-ctl-unblock-btn {
     width: 100%;
 }
-@media (min-width: 480px) {
-    .DuckDuckGoButton.ddg-ctl-unblock-btn {
-        width: auto;
-    }
+.DuckDuckGoSocialContainer:not(.size-sm) .DuckDuckGoButton.ddg-ctl-unblock-btn {
+    width: auto;
 }
 
 .ddg-ctl-placeholder-card {
-    min-height: 180px;
     height: 100%;
     overflow: auto;
     box-sizing: border-box;
@@ -212,12 +211,10 @@
 .ddg-ctl-placeholder-card.slim-card {
     padding: 12px;
 }
-@media (min-width: 480px) {
-    .ddg-ctl-placeholder-card.with-feedback-link {
-        height: calc(100% - 30px);
-        max-width: initial;
-        min-height: initial;
-    }
+.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card.with-feedback-link {
+    height: calc(100% - 30px);
+    max-width: initial;
+    min-height: initial;
 }
 
 .ddg-ctl-placeholder-card-header {
@@ -227,26 +224,25 @@
     margin: auto;
     margin-bottom: 8px;
 }
-@media (min-width: 480px) {
-    .ddg-ctl-placeholder-card-header {
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 12px;
-    }
+.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    text-align: left;
 }
-@media (min-width: 720px) {
-    .ddg-ctl-placeholder-card-header {
-        width: 70%;
-    }
+
+.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header,
+.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header .ddg-text-link {
+    text-align: center;
+    width: 80%;
 }
+
 /* Show Learn More link in the header on mobile and
  * tablet size screens and hide it on desktop size */
-@media (min-width: 720px) {
-    .ddg-ctl-placeholder-card-header .ddg-learn-more {
-        display: none;
-        visibility: hidden;
-    }
+.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-header .ddg-learn-more {
+    display: none;
+    visibility: hidden;
 }
 
 .ddg-ctl-placeholder-card-title,
@@ -255,13 +251,6 @@
     font-weight: 700;
     font-size: 16px;
     line-height: 24px;
-    text-align: left;
-}
-@media (min-width: 480px) {
-    .ddg-ctl-placeholder-card-title,
-    .ddg-ctl-placeholder-card-title .ddg-text-link {
-        text-align: center;
-    }
 }
 
 .ddg-ctl-placeholder-card-header-dax {
@@ -270,37 +259,32 @@
     height: 48px;
     margin: 0 8px 0 0;
 }
-@media (min-width: 480px) {
-    .ddg-ctl-placeholder-card-header-dax {
-        align-self: inherit;
-        margin: 0 0 12px 0;
-    }
+.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header-dax {
+    align-self: inherit;
+    margin: 0 0 12px 0;
 }
-@media (min-width: 720px) {
-    .ddg-ctl-placeholder-card-header-dax {
-        width: 56px;
-        height: 56px;
-    }
+
+.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-header-dax {
+    width: 56px;
+    height: 56px;
 }
 
 .ddg-ctl-placeholder-card-body {
-    width: 100%;
     margin-bottom: 12px;
 }
 .ddg-ctl-placeholder-card-body-text {
     font-size: 14px;
     line-height: 21px;
     text-align: center;
-    margin-bottom: 12px;
+    margin: 0 auto 12px;
 
     display: none;
     visibility: hidden;
 }
-@media (min-width: 720px) {
-    .ddg-ctl-placeholder-card-body-text {
-        display: block;
-        visibility: visible;
-    }
+.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-body-text {
+    width: 80%;
+    display: block;
+    visibility: visible;
 }
 
 .ddg-ctl-placeholder-card-footer {
@@ -316,16 +300,15 @@
     display: none;
     visibility: hidden;
 }
-@media (min-width: 480px) {
-    .ddg-ctl-feedback-row {
-        height: 30px;
-        justify-content: flex-end;
-        align-items: center;
-        display: flex;
-        display: flex;
-        visibility: visible;
-    }
+.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-feedback-row {
+    height: 30px;
+    justify-content: flex-end;
+    align-items: center;
+    display: flex;
+    display: flex;
+    visibility: visible;
 }
+
 .ddg-ctl-feedback-link {
     font-style: normal;
     font-weight: 400;
