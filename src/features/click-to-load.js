@@ -563,6 +563,7 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
             })
             mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
             replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
+            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder)
         } else {
             const icon = widget.replaceSettings.icon
             const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
@@ -641,8 +642,10 @@ function replaceYouTubeCTL (trackingElement, widget) {
                 onButtonClick: widget.clickFunction.bind(widget)
             })
             mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
+            mobileBlockedPlaceholder.id = trackingElement.id
             resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholder)
             replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
+            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder)
         } else {
             const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
             resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
@@ -658,7 +661,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
  * its parent is too short for the normal unblock button to be visible.
  * Note: This does not take into account the placeholder's vertical
  *       position in the parent element.
- * @param {ShadowRoot} shadowRoot
+ * @param {ShadowRoot?} shadowRoot
  * @param {HTMLElement} placeholder Placeholder for tracking element
  */
 function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
@@ -676,22 +679,25 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
     const { height: placeholderHeight } = placeholder.getBoundingClientRect()
     const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect()
 
-    if ((placeholderHeight > 0 && placeholderHeight <= 200) ||
-        (parentHeight > 0 && parentHeight <= 230)) {
-        /** @type {HTMLElement?} */
-        const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
-        if (titleRowTextButton) {
-            titleRowTextButton.style.display = 'block'
+    if (
+        (placeholderHeight > 0 && placeholderHeight <= 200) ||
+        (parentHeight > 0 && parentHeight <= 230)
+    ) {
+        if (shadowRoot) {
+            /** @type {HTMLElement?} */
+            const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
+            if (titleRowTextButton) {
+                titleRowTextButton.style.display = 'block'
+            }
         }
-
         // Avoid the placeholder being taller than the containing element
         // and overflowing.
         /** @type {HTMLElement?} */
-        const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
-        if (innerDiv) {
-            innerDiv.style.minHeight = 'initial'
-            innerDiv.style.maxHeight = parentHeight + 'px'
-            innerDiv.style.overflow = 'hidden'
+        const blockedDiv = shadowRoot?.querySelector('.DuckDuckGoSocialContainer') || placeholder
+        if (blockedDiv) {
+            blockedDiv.style.minHeight = 'initial'
+            blockedDiv.style.maxHeight = parentHeight + 'px'
+            blockedDiv.style.overflow = 'hidden'
         }
     }
 }
@@ -1701,6 +1707,7 @@ export default class ClickToLoad extends ContentFeature {
         // update styles if asset config was sent
         styles = getStyles(this.assetConfig)
         isMobileApp = this.platform.name === 'ios' || this.platform.name === 'android'
+        isMobileApp = true
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the
