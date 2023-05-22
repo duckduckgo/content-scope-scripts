@@ -186,7 +186,7 @@
 .DuckDuckGoButton.ddg-ctl-unblock-btn {
     width: 100%;
 }
-.DuckDuckGoSocialContainer:not(.size-sm) .DuckDuckGoButton.ddg-ctl-unblock-btn {
+.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .DuckDuckGoButton.ddg-ctl-unblock-btn {
     width: auto;
 }
 
@@ -214,7 +214,10 @@
 .ddg-ctl-placeholder-card.slim-card {
     padding: 12px;
 }
-.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card.with-feedback-link {
+.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-body {
+    margin: auto;
+}
+.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card.with-feedback-link {
     height: calc(100% - 30px);
     max-width: initial;
     min-height: initial;
@@ -228,7 +231,7 @@
     margin-bottom: 8px;
     text-align: left;
 }
-.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header {
+.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -237,8 +240,8 @@
     text-align: center;
 }
 
-.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header .ddg-ctl-placeholder-card-title,
-.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header .ddg-text-link {
+.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header .ddg-ctl-placeholder-card-title,
+.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header .ddg-text-link {
     text-align: center;
 }
 
@@ -262,7 +265,7 @@
     height: 48px;
     margin: 0 8px 0 0;
 }
-.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header-dax {
+.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header-dax {
     align-self: inherit;
     margin: 0 0 12px 0;
 }
@@ -272,9 +275,6 @@
     height: 56px;
 }
 
-.ddg-ctl-placeholder-card-body {
-    margin-bottom: 12px;
-}
 .ddg-ctl-placeholder-card-body-text {
     font-size: 14px;
     line-height: 21px;
@@ -290,16 +290,24 @@
 
 .ddg-ctl-placeholder-card-footer {
     width: 100%;
+    margin-top: 12px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     align-self: end;
 }
 
+/* Only display the unblock button on really small placeholders */
+.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-header,
+.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-body-text,
+.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-footer {
+    display: none;
+}
+
 .ddg-ctl-feedback-row {
     display: none;
 }
-.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-feedback-row {
+.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-feedback-row {
     height: 30px;
     justify-content: flex-end;
     align-items: center;

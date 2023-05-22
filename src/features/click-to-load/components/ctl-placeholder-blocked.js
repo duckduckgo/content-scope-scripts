@@ -3,6 +3,11 @@ import css from '../assets/ctl-placeholder-block.css'
 import { logoImg as daxImg } from '../ctl-assets'
 
 /**
+ * Size keys for a placeholder
+ * @typedef { 'size-xs' | 'size-sm' | 'size-md' | 'size-lg'| null } placeholderSize
+ */
+
+/**
  * The custom HTML element (Web Component) template with the placeholder for blocked
  * embedded content. The constructor gets a list of parameters with the
  * content and event handlers for this template.
@@ -10,7 +15,13 @@ import { logoImg as daxImg } from '../ctl-assets'
  */
 export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked'
-
+    /**
+     * Min height that the placeholder needs to have in order to
+     * have enough room to display content.
+     */
+    static MIN_CONTENT_HEIGHT = 140
+    static MAX_CONTENT_WIDTH_SMALL = 480
+    static MAX_CONTENT_WIDTH_MEDIUM = 720
     /**
      * Set observed attributes that will trigger attributeChangedCallback()
      */
@@ -23,6 +34,14 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @type {HTMLDivElement | null}
      */
     placeholderBlocked = null
+
+    /**
+     * Size variant of the latest calculated size of the placeholder.
+     * This is used to add the appropriate CSS class to the placeholder container
+     * and adapt the layout for each size.
+     * @type {placeholderSize}
+     */
+    size = null
 
     /**
      *
@@ -205,18 +224,32 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
     }
 
     /**
-     * Use JS to calculate the width of the root element placeholder. We could use a CSS Container Query, but full
+     * Use JS to calculate the width and height of the root element placeholder. We could use a CSS Container Query, but full
      * support to it was only added recently, so we're not using it for now.
      * https://caniuse.com/css-container-queries
-     * @returns {'size-sm' | 'size-md' | 'size-lg' | null} Returns a string for the width calculated for the root element
      */
-    calculatePlaceholderWidthSize = () => {
-        const { width } = this.getBoundingClientRect()
-        if (width) {
-            const size = width < 480 ? 'size-sm' : width < 720 ? 'size-md' : 'size-lg'
-            return size
+    updatePlaceholderSize = () => {
+        /** @type {placeholderSize} */
+        let size
+
+        const { height, width } = this.getBoundingClientRect()
+        if (height && height < DDGCtlPlaceholderBlockedElement.MIN_CONTENT_HEIGHT) {
+            size = 'size-xs'
+        } else if (width) {
+            if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_SMALL) {
+                size = 'size-sm'
+            } else if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_MEDIUM) {
+                size = 'size-md'
+            } else {
+                size = 'size-lg'
+            }
         }
-        return null
+
+        if (size && size !== this.placeholderSize) {
+            this.placeholderBlocked?.classList.remove(this.placeholderSize)
+            this.placeholderBlocked?.classList.add(size)
+            this.placeholderSize = size
+        }
     }
 
     /**
@@ -225,10 +258,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * update the element CSS size class.
      */
     connectedCallback () {
-        const size = this.calculatePlaceholderWidthSize()
-        if (size) {
-            this.placeholderBlocked?.classList.add(size)
-        }
+        this.updatePlaceholderSize()
     }
 
     /**
@@ -243,6 +273,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
     attributeChangedCallback (attr, _, newValue) {
         if (this.placeholderBlocked && attr === 'style') {
             this.placeholderBlocked[attr].cssText = newValue
+            this.updatePlaceholderSize()
         }
     }
 }
