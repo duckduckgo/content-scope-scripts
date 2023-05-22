@@ -38,7 +38,7 @@ export class WindowsPermissionsSpec {
      * version of chromium running there.
      */
     async installPolyfills () {
-        await this.page.evaluate(() => {
+        await this.page.addInitScript(() => {
             // @ts-expect-error - testing
             if (typeof Bluetooth === 'undefined') {
                 globalThis.Bluetooth = {}
