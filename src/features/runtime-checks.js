@@ -1,7 +1,8 @@
 /* global TrustedScriptURL, TrustedScript */
 
+import { glob } from 'typedoc/dist/lib/utils/fs.js'
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, defineProperty } from '../utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { Reflect } from '../captured-globals.js'
 
@@ -17,7 +18,6 @@ let monitorProperties = true
 // Ignore monitoring properties that are only relevant once and already handled
 const defaultIgnoreMonitorList = ['onerror', 'onload']
 let ignoreMonitorList = defaultIgnoreMonitorList
-let injectGenericOverloadsEnabled = true
 
 /**
  * @param {string} tagName
@@ -65,6 +65,15 @@ const jsMimeTypes = [
     'text/x-ecmascript',
     'text/x-javascript'
 ]
+
+function getTaintFromScope (scope, args) {
+    try {
+        scope = args.callee.caller
+    } catch {
+        console.log('taint: failed to get callers scope', args, scope)
+    }
+    return hasTaintedMethod(scope)
+}
 
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
@@ -472,22 +481,6 @@ function overrideCreateElement () {
     initialCreateElement = proxy._native
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getTaintFromScope (scope, args) {
-    try {
-        scope = args.callee.caller
-    } catch {
-        console.log('taint: failed to get callers scope', args, scope)
-    }
-    return hasTaintedMethod(scope)
-}
-
-function injectGenericOverloads () {
-/*
-   TODO
-*/
-}
-
 function overloadRemoveChild () {
     const proxy = new DDGProxy(featureName, Node.prototype, 'removeChild', {
         apply (fn, scope, args) {
@@ -547,7 +540,6 @@ export default class RuntimeChecks extends ContentFeature {
         ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
         replaceElement = this.getFeatureSettingEnabled('replaceElement') || false
         monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true
-        injectGenericOverloadsEnabled = this.getFeatureSettingEnabled('injectGenericOverloads') || true
 
         overrideCreateElement()
 
@@ -563,8 +555,8 @@ export default class RuntimeChecks extends ContentFeature {
             `)
         }
 
-        if (injectGenericOverloadsEnabled) {
-            injectGenericOverloads()
+        if (this.getFeatureSetting('injectGenericOverloads')) {
+            this.injectGenericOverloads()
         }
         if (this.getFeatureSettingEnabled('overloadRemoveChild')) {
             overloadRemoveChild()
@@ -573,4 +565,209 @@ export default class RuntimeChecks extends ContentFeature {
             overloadReplaceChild()
         }
     }
+
+    injectGenericOverloads () {
+        const genericOverloads = this.getFeatureSetting('injectGenericOverloads')
+        if ('Date' in genericOverloads) {
+            this.overloadDate()
+        }
+        if ('Date.prototype.getTimezoneOffset' in genericOverloads) {
+            this.overloadDateGetTimezoneOffset()
+        }
+        if ('NavigatorUAData.prototype.getHighEntropyValues' in genericOverloads) {
+            this.overloadHighEntropyValues()
+        }
+        ['localStorage', 'sessionStorage'].forEach(storageType => {
+            if (storageType in genericOverloads) {
+                const storageConfig = genericOverloads[storageType]
+                if (storageConfig.scheme === 'memory') {
+                    this.overloadStorageWithMemory(storageType)
+                } else if (storageConfig.scheme === 'session') {
+                    this.overloadStorageWithSession(storageType)
+                }
+            }
+        })
+        const breakpoints = this.getFeatureSetting('breakpoints')
+        const screenSize = { height: screen.height, width: screen.width };
+        ['innerHeight', 'innerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {
+            if (sizing in genericOverloads) {
+                const sizingConfig = genericOverloads[sizing]
+                this.overloadScreenSizes(breakpoints, screenSize, sizing, sizingConfig.offset || 0)
+            }
+        })
+    }
+
+    overloadDate () {
+        const offset = (new Date()).getTimezoneOffset()
+        globalThis.Date = new Proxy(globalThis.Date, {
+            construct (target, args) {
+                const constructed = Reflect.construct(target, args)
+                if (getTaintFromScope(this, arguments)) {
+                    // Falible in that the page could brute force the offset to match. We should fix this.
+                    if (constructed.getTimezoneOffset() === offset) {
+                        return constructed.getUTCDate()
+                    }
+                }
+                return constructed
+            }
+        })
+    }
+
+    overloadDateGetTimezoneOffset () {
+        const offset = (new Date()).getTimezoneOffset()
+        defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value () {
+                if (getTaintFromScope(this, arguments)) {
+                    return 0
+                }
+                return offset
+            }
+        })
+    }
+
+    overloadHighEntropyValues () {
+        if (!('NavigatorUAData' in globalThis)) {
+            return
+        }
+
+        const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues
+        defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value (hints) {
+                let hintsOut = hints
+                if (getTaintFromScope(this, arguments)) {
+                    // If tainted override with default values (using empty array)
+                    hintsOut = []
+                }
+                return Reflect.apply(originalGetHighEntropyValues, this, [hintsOut])
+            }
+        })
+    }
+
+    overloadStorageWithMemory (key) {
+        class MemoryStorage {
+            #data = {}
+
+            setItem (id, val) {
+                this.#data[id] = String(val)
+            }
+
+            getItem (id) {
+                return Object.prototype.hasOwnProperty.call(this.#data, id) ? this.#data[id] : undefined
+            }
+
+            removeItem (id) {
+                return delete this.#data[id]
+            }
+
+            clear () {
+                this.#data = {}
+            }
+
+            key (n) {
+                const keys = Object.keys(this.#data)
+                return keys[n]
+            }
+
+            get length () {
+                return Object.keys(this.#data).length
+            }
+        }
+
+        const storage = new MemoryStorage()
+        this.overrideStorage(key, storage)
+    }
+
+    overloadStorageWithSession (key) {
+        const storage = globalThis.sessionStorage
+        this.overrideStorage(key, storage)
+    }
+
+    overrideStorage (key, storage) {
+        const originalStorage = globalThis[key]
+        defineProperty(globalThis, key, {
+            get () {
+                if (getTaintFromScope(this, arguments)) {
+                    return storage
+                }
+                return originalStorage
+            }
+        })
+    }
+
+    /**
+     * @typedef {object} Sizing
+     * @property {number} height
+     * @property {number} width
+     */
+
+    /**
+     * Overloads the provided key with the closest breakpoint size
+     * @param {Sizing[]} breakpoints
+     * @param {Sizing} screenSize
+     * @param {string} key
+     * @param {number} [offset]
+     */
+    overloadScreenSizes (breakpoints, screenSize, key, offset) {
+        const closest = findClosestBreakpoint(breakpoints, screenSize)
+        if (!closest) {
+            return
+        }
+        let returnVal = null
+        /** @type {object} */
+        let scope = globalThis
+        let overrideKey = key
+        let receiver
+        switch (key) {
+        case 'innerHeight':
+            returnVal = closest.height - offset
+            break
+        case 'innerWidth':
+            returnVal = closest.width - offset
+            break
+        case 'Screen.prototype.height':
+            scope = Screen.prototype
+            overrideKey = 'height'
+            returnVal = closest.height - offset
+            receiver = globalThis.screen
+            break
+        case 'Screen.prototype.width':
+            scope = Screen.prototype
+            overrideKey = 'width'
+            returnVal = closest.width - offset
+            receiver = globalThis.screen
+            break
+        }
+        const defaultVal = Reflect.get(scope, overrideKey, receiver)
+        defineProperty(scope, overrideKey, {
+            get () {
+                if (getTaintFromScope(this, arguments)) {
+                    return returnVal
+                }
+                return defaultVal
+            }
+        })
+    }
+}
+
+function findClosestBreakpoint (breakpoints, screenSize) {
+    let closestBreakpoint = null
+    let closestDistance = Infinity
+
+    for (let i = 0; i < breakpoints.length; i++) {
+        const breakpoint = breakpoints[i]
+        const distance = Math.sqrt(Math.pow(breakpoint.height - screenSize.height, 2) + Math.pow(breakpoint.width - screenSize.width, 2))
+
+        if (distance < closestDistance) {
+            closestBreakpoint = breakpoint
+            closestDistance = distance
+        }
+    }
+
+    return closestBreakpoint
 }
