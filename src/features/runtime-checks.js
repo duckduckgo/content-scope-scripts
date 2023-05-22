@@ -1,7 +1,7 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod } from '../utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 
 let stackDomains = []
@@ -11,9 +11,12 @@ let initialCreateElement
 let tagModifiers = {}
 let shadowDomEnabled = false
 let scriptOverload = {}
+let replaceElement = false
+let monitorProperties = true
 // Ignore monitoring properties that are only relevant once and already handled
 const defaultIgnoreMonitorList = ['onerror', 'onload']
 let ignoreMonitorList = defaultIgnoreMonitorList
+let injectGenericOverloadsEnabled = true
 
 /**
  * @param {string} tagName
@@ -30,7 +33,6 @@ function shouldFilterKey (tagName, filterName, key) {
 
 let elementRemovalTimeout
 const featureName = 'runtimeChecks'
-const taintSymbol = Symbol(featureName)
 const supportedSinks = ['src']
 // Store the original methods so we can call them without any side effects
 const defaultElementMethods = {
@@ -43,6 +45,25 @@ const defaultElementMethods = {
     removeChild: HTMLElement.prototype.removeChild
 }
 const supportedTrustedTypes = 'TrustedScriptURL' in window
+
+const jsMimeTypes = [
+    'text/javascript',
+    'text/ecmascript',
+    'application/javascript',
+    'application/ecmascript',
+    'application/x-javascript',
+    'application/x-ecmascript',
+    'text/javascript1.0',
+    'text/javascript1.1',
+    'text/javascript1.2',
+    'text/javascript1.3',
+    'text/javascript1.4',
+    'text/javascript1.5',
+    'text/jscript',
+    'text/livescript',
+    'text/x-ecmascript',
+    'text/x-javascript'
+]
 
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
@@ -128,6 +149,12 @@ class DDGRuntimeChecks extends HTMLElement {
         // @ts-expect-error TrustedScript is not defined in the TS lib
         if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return
 
+        // Short circuit if not a script type
+        const scriptType = el.type.toLowerCase()
+        if (!jsMimeTypes.includes(scriptType) &&
+            scriptType !== 'module' &&
+            scriptType !== '') return
+
         el.textContent = wrapScriptCodeOverload(el.textContent, scriptOverload)
     }
 
@@ -136,9 +163,8 @@ class DDGRuntimeChecks extends HTMLElement {
      * This is to allow us to interrogate the real element before it is moved to the DOM.
      */
     _transplantElement () {
-        // Creeate the real element
+        // Create the real element
         const el = initialCreateElement.call(document, this.#tagName)
-
         if (taintCheck) {
             // Add a symbol to the element so we can identify it as a runtime checked element
             Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false })
@@ -194,14 +220,34 @@ class DDGRuntimeChecks extends HTMLElement {
             this.computeScriptOverload(el)
         }
 
+        // TODO pollyfill WeakRef
+        this.#el = new WeakRef(el)
+
+        if (replaceElement) {
+            this.replaceElement(el)
+        } else {
+            this.insertAfterAndRemove(el)
+        }
+    }
+
+    replaceElement (el) {
+        // @ts-expect-error - this is wrong node type
+        super.parentElement?.replaceChild(el, this)
+
+        if (monitorProperties) {
+            this._monitorProperties(el)
+        }
+    }
+
+    insertAfterAndRemove (el) {
         // Move the new element to the DOM
         try {
             this.insertAdjacentElement('afterend', el)
         } catch (e) { console.warn(e) }
 
-        this._monitorProperties(el)
-        // TODO pollyfill WeakRef
-        this.#el = new WeakRef(el)
+        if (monitorProperties) {
+            this._monitorProperties(el)
+        }
 
         // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.
         setTimeout(() => {
@@ -424,6 +470,21 @@ function overrideCreateElement () {
     initialCreateElement = proxy._native
 }
 
+function getTaintFromScope (scope, args) {
+    try {
+        scope = args.callee.caller
+    } catch {
+        console.log('taint: failed to get callers scope', args, scope)
+    }
+    return hasTaintedMethod(scope)
+}
+
+function injectGenericOverloads () {
+/*
+   TODO
+*/
+}
+
 export default class RuntimeChecks extends ContentFeature {
     load () {
         // This shouldn't happen, but if it does we don't want to break the page
@@ -448,6 +509,9 @@ export default class RuntimeChecks extends ContentFeature {
         shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false
         scriptOverload = this.getFeatureSetting('scriptOverload') || {}
         ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
+        replaceElement = this.getFeatureSettingEnabled('replaceElement') || false
+        monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true
+        injectGenericOverloadsEnabled = this.getFeatureSettingEnabled('injectGenericOverloads') || true
 
         overrideCreateElement()
 
@@ -461,6 +525,10 @@ export default class RuntimeChecks extends ContentFeature {
                     display: none;
                 }
             `)
+        }
+
+        if (injectGenericOverloadsEnabled) {
+            injectGenericOverloads()
         }
     }
 }

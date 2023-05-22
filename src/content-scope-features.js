@@ -8,7 +8,8 @@ import platformFeatures from 'ddg:platformFeatures'
 function shouldRun () {
     // don't inject into non-HTML documents (such as XML documents)
     // but do inject into XHTML documents
-    if (document instanceof Document === false && (
+    // Should check HTMLDocument as Document is an alias for XMLDocument also.
+    if (document instanceof HTMLDocument === false && (
         document instanceof XMLDocument === false ||
         document.createElement('div') instanceof HTMLDivElement === false
     )) {
@@ -25,10 +26,8 @@ const performanceMonitor = new PerformanceMonitor()
 
 /**
  * @typedef {object} LoadArgs
- * @property {object} site
- * @property {object} platform
- * @property {string} platform.name
- * @property {string} [platform.version]
+ * @property {import('./content-feature').Site} site
+ * @property {import('./utils.js').Platform} platform
  * @property {boolean} documentOriginIsTracker
  * @property {object} [bundledConfig]
  * @property {string} [injectName]

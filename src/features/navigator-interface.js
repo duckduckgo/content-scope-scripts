@@ -15,7 +15,8 @@ function injectNavigatorInterface (args) {
                 platform: args.platform.name,
                 isDuckDuckGo () {
                     return DDGPromise.resolve(true)
-                }
+                },
+                taints: new Set()
             },
             enumerable: true,
             configurable: false,

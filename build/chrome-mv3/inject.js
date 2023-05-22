@@ -3,7 +3,6 @@
     'use strict';
 
     /* global cloneInto, exportFunction, false */
-
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
     // eslint-disable-next-line no-global-assign
     let globalObj = typeof window === 'undefined' ? globalThis : window;
@@ -12,6 +11,8 @@
     const CapturedSet = globalObj.Set;
     // Capture prototype to prevent overloading
     const createSet = () => new CapturedSet();
+
+    const taintSymbol = Symbol('taint');
 
     // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
     const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
@@ -30,13 +31,14 @@
     /**
      * Creates a script element with the given code to avoid Firefox CSP restrictions.
      * @param {string} css
-     * @returns {HTMLLinkElement}
+     * @returns {HTMLLinkElement | HTMLStyleElement}
      */
     function createStyleElement (css) {
-        const style = document.createElement('link');
-        style.href = 'data:text/css,' + encodeURIComponent(css);
-        style.setAttribute('rel', 'stylesheet');
-        style.setAttribute('type', 'text/css');
+        let style;
+        {
+            style = document.createElement('style');
+            style.innerText = css;
+        }
         return style
     }
 
@@ -95,8 +97,12 @@
         if (!isBeingFramed()) {
             return false
         }
-        // @ts-expect-error - getTabHostname() is string|null here
-        return !matchHostname(globalThis.location.hostname, getTabHostname())
+        const tabHostname = getTabHostname();
+        // If we can't get the tab hostname, assume it's third party
+        if (!tabHostname) {
+            return true
+        }
+        return !matchHostname(globalThis.location.hostname, tabHostname)
     }
 
     /**
@@ -335,6 +341,28 @@
         return new Error$1().stack
     }
 
+    function getContextId (scope) {
+        if (document?.currentScript && 'contextID' in document.currentScript) {
+            return document.currentScript.contextID
+        }
+        if (scope.contextID) {
+            return scope.contextID
+        }
+        // @ts-expect-error - contextID is a global variable
+        if (typeof contextID !== 'undefined') {
+            // @ts-expect-error - contextID is a global variable
+            // eslint-disable-next-line no-undef
+            return contextID
+        }
+    }
+
+    function hasTaintedMethod (scope) {
+        if (document?.currentScript?.[taintSymbol]) return true
+        if ('__ddg_taint__' in window) return true
+        if (getContextId(scope)) return true
+        return false
+    }
+
     /**
      * @template {object} P
      * @typedef {object} ProxyObject<P>
@@ -351,13 +379,25 @@
          * @param {string} property
          * @param {ProxyObject<P>} proxyObject
          */
-        constructor (featureName, objectScope, property, proxyObject) {
+        constructor (featureName, objectScope, property, proxyObject, taintCheck = false) {
             this.objectScope = objectScope;
             this.property = property;
             this.featureName = featureName;
             this.camelFeatureName = camelcase(this.featureName);
             const outputHandler = (...args) => {
-                const isExempt = shouldExemptMethod(this.camelFeatureName);
+                let isExempt = shouldExemptMethod(this.camelFeatureName);
+                // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't
+                if (!isExempt && taintCheck) {
+                    // eslint-disable-next-line @typescript-eslint/no-this-alias
+                    let scope = this;
+                    try {
+                        // @ts-expect-error - Caller doesn't match this
+                        // eslint-disable-next-line no-caller
+                        scope = arguments.callee.caller;
+                    } catch {}
+                    const isTainted = hasTaintedMethod(scope);
+                    isExempt = !isTainted;
+                }
                 if (debug) {
                     postDebugMessage(this.camelFeatureName, {
                         isProxy: true,
@@ -422,8 +462,16 @@
         DDGReflect = globalObj.Reflect;
     }
 
+    /**
+     * @param {string | null} topLevelHostname
+     * @param {object[]} featureList
+     * @returns {boolean}
+     */
     function isUnprotectedDomain (topLevelHostname, featureList) {
         let unprotectedDomain = false;
+        if (!topLevelHostname) {
+            return false
+        }
         const domainParts = topLevelHostname.split('.');
 
         // walk up the domain to see if it's unprotected
@@ -599,7 +647,8 @@
             'webCompat'
         ],
         android: [
-            ...baseFeatures
+            ...baseFeatures,
+            'clickToLoad'
         ],
         windows: [
             ...baseFeatures,
@@ -1144,10 +1193,10 @@
 
     /**
      * @typedef {object} Site
-     * @property {string} domain
-     * @property {boolean} isBroken
-     * @property {boolean} allowlisted
-     * @property {string[]} enabledFeatures
+     * @property {string | null} domain
+     * @property {boolean} [isBroken]
+     * @property {boolean} [allowlisted]
+     * @property {string[]} [enabledFeatures]
      */
 
     class ContentFeature {
@@ -1160,7 +1209,7 @@
         /** @type {Record<string, unknown> | undefined} */
         #bundledfeatureSettings
 
-        /** @type {{ debug: boolean, featureSettings: Record<string, unknown>, assets: AssetConfig | undefined, site: Site  } | null} */
+        /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
         #args
 
         constructor (featureName) {
@@ -1281,6 +1330,11 @@
             if (!domain) return []
             const domains = this._getFeatureSetting()?.[featureKeyName] || [];
             return domains.filter((rule) => {
+                if (Array.isArray(rule.domain)) {
+                    return rule.domain.some((domainRule) => {
+                        return matchHostname(domain, domainRule)
+                    })
+                }
                 return matchHostname(domain, rule.domain)
             })
         }
@@ -1302,6 +1356,9 @@
         load (args) {
         }
 
+        /**
+         * @param {import('./content-scope-features.js').LoadArgs} args
+         */
         callLoad (args) {
             const mark = this.monitor.mark(this.name + 'CallLoad');
             this.#args = args;
@@ -1310,7 +1367,7 @@
             // If we have a bundled config, treat it as a regular config
             // This will be overriden by the remote config if it is available
             if (this.#bundledConfig && this.#args) {
-                const enabledFeatures = computeEnabledFeatures(args.bundledConfig, getTabHostname(), this.platform.version);
+                const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version);
                 this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures);
             }
             this.#trackerLookup = args.trackerLookup;
@@ -1327,6 +1384,63 @@
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         update () {
+        }
+    }
+
+    new Set();
+
+    function generateUniqueID () {
+        return Symbol(undefined)
+    }
+
+    function addTaint () {
+        const contextID = generateUniqueID();
+        if ('duckduckgo' in navigator &&
+            navigator.duckduckgo &&
+            typeof navigator.duckduckgo === 'object' &&
+            'taints' in navigator.duckduckgo &&
+            navigator.duckduckgo.taints instanceof Set) {
+            if (document.currentScript) {
+                // @ts-expect-error - contextID is undefined on currentScript
+                document.currentScript.contextID = contextID;
+            }
+            navigator?.duckduckgo?.taints.add(contextID);
+        }
+        return contextID
+    }
+
+    function createContextAwareFunction (fn) {
+        return function (...args) {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            let scope = this;
+            // Save the previous contextID and set the new one
+            const prevContextID = this?.contextID;
+            // @ts-expect-error - contextID is undefined on window
+            // eslint-disable-next-line no-undef
+            const changeToContextID = getContextId(this) || contextID;
+            if (typeof args[0] === 'function') {
+                args[0].contextID = changeToContextID;
+            }
+            // @ts-expect-error - scope doesn't match window
+            if (scope && scope !== globalThis) {
+                scope.contextID = changeToContextID;
+            } else if (!scope) {
+                scope = new Proxy(scope, {
+                    get (target, prop) {
+                        if (prop === 'contextID') {
+                            return changeToContextID
+                        }
+                        return Reflect.get(target, prop)
+                    }
+                });
+            }
+            // Run the original function with the new contextID
+            const result = Reflect.apply(fn, scope, args);
+
+            // Restore the previous contextID
+            scope.contextID = prevContextID;
+
+            return result
         }
     }
 
@@ -1383,6 +1497,7 @@
      * @returns {Proxy}
      */
     function constructProxy (scope, outputs) {
+        const taintString = '__ddg_taint__';
         // @ts-expect-error - Expected 2 arguments, but got 1
         if (Object.is(scope)) {
             // Should not happen, but just in case fail safely
@@ -1402,8 +1517,14 @@
                         return Reflect.apply(targetOut[property], target, args)
                     }
                 } else {
-                    return Reflect.get(targetOut, property, receiver)
+                    return Reflect.get(targetOut, property, scope)
                 }
+            },
+            getOwnPropertyDescriptor (target, property) {
+                if (typeof property === 'string' && property === taintString) {
+                    return { configurable: true, enumerable: false, value: true }
+                }
+                return Reflect.getOwnPropertyDescriptor(target, property)
             }
         })
     }
@@ -1490,9 +1611,8 @@
     const window = constructProxy(parentScope, {
         ${keysOut}
     });
-    const globalThis = constructProxy(parentScope, {
-        ${keysOut}
-    });
+    // Ensure globalThis === window
+    const globalThis = window
     `;
         return removeIndent(`(function (parentScope) {
         /**
@@ -1502,12 +1622,35 @@
          */
         ${constructProxy.toString()}
         ${prepend}
+
+        ${getContextId.toString()}
+        ${generateUniqueID.toString()}
+        ${createContextAwareFunction.toString()}
+        ${addTaint.toString()}
+        const contextID = addTaint()
+        
+        const originalSetTimeout = setTimeout
+        setTimeout = createContextAwareFunction(originalSetTimeout)
+        
+        const originalSetInterval = setInterval
+        setInterval = createContextAwareFunction(originalSetInterval)
+        
+        const originalPromiseThen = Promise.prototype.then
+        Promise.prototype.then = createContextAwareFunction(originalPromiseThen)
+        
+        const originalPromiseCatch = Promise.prototype.catch
+        Promise.prototype.catch = createContextAwareFunction(originalPromiseCatch)
+        
+        const originalPromiseFinally = Promise.prototype.finally
+        Promise.prototype.finally = createContextAwareFunction(originalPromiseFinally)
+
         ${code}
     })(globalThis)
     `)
     }
 
     /* global TrustedScriptURL, TrustedScript */
+
 
     let stackDomains = [];
     let matchAllStackDomains = false;
@@ -1516,6 +1659,8 @@
     let tagModifiers = {};
     let shadowDomEnabled = false;
     let scriptOverload = {};
+    let replaceElement = false;
+    let monitorProperties = true;
     // Ignore monitoring properties that are only relevant once and already handled
     const defaultIgnoreMonitorList = ['onerror', 'onload'];
     let ignoreMonitorList = defaultIgnoreMonitorList;
@@ -1535,7 +1680,6 @@
 
     let elementRemovalTimeout;
     const featureName = 'runtimeChecks';
-    const taintSymbol = Symbol(featureName);
     const supportedSinks = ['src'];
     // Store the original methods so we can call them without any side effects
     const defaultElementMethods = {
@@ -1548,6 +1692,25 @@
         removeChild: HTMLElement.prototype.removeChild
     };
     const supportedTrustedTypes = 'TrustedScriptURL' in window;
+
+    const jsMimeTypes = [
+        'text/javascript',
+        'text/ecmascript',
+        'application/javascript',
+        'application/ecmascript',
+        'application/x-javascript',
+        'application/x-ecmascript',
+        'text/javascript1.0',
+        'text/javascript1.1',
+        'text/javascript1.2',
+        'text/javascript1.3',
+        'text/javascript1.4',
+        'text/javascript1.5',
+        'text/jscript',
+        'text/livescript',
+        'text/x-ecmascript',
+        'text/x-javascript'
+    ];
 
     class DDGRuntimeChecks extends HTMLElement {
         #tagName
@@ -1633,6 +1796,12 @@
             // @ts-expect-error TrustedScript is not defined in the TS lib
             if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return
 
+            // Short circuit if not a script type
+            const scriptType = el.type.toLowerCase();
+            if (!jsMimeTypes.includes(scriptType) &&
+                scriptType !== 'module' &&
+                scriptType !== '') return
+
             el.textContent = wrapScriptCodeOverload(el.textContent, scriptOverload);
         }
 
@@ -1641,9 +1810,8 @@
          * This is to allow us to interrogate the real element before it is moved to the DOM.
          */
         _transplantElement () {
-            // Creeate the real element
+            // Create the real element
             const el = initialCreateElement.call(document, this.#tagName);
-
             if (taintCheck) {
                 // Add a symbol to the element so we can identify it as a runtime checked element
                 Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false });
@@ -1699,14 +1867,34 @@
                 this.computeScriptOverload(el);
             }
 
+            // TODO pollyfill WeakRef
+            this.#el = new WeakRef(el);
+
+            if (replaceElement) {
+                this.replaceElement(el);
+            } else {
+                this.insertAfterAndRemove(el);
+            }
+        }
+
+        replaceElement (el) {
+            // @ts-expect-error - this is wrong node type
+            super.parentElement?.replaceChild(el, this);
+
+            if (monitorProperties) {
+                this._monitorProperties(el);
+            }
+        }
+
+        insertAfterAndRemove (el) {
             // Move the new element to the DOM
             try {
                 this.insertAdjacentElement('afterend', el);
             } catch (e) { console.warn(e); }
 
-            this._monitorProperties(el);
-            // TODO pollyfill WeakRef
-            this.#el = new WeakRef(el);
+            if (monitorProperties) {
+                this._monitorProperties(el);
+            }
 
             // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.
             setTimeout(() => {
@@ -1953,6 +2141,9 @@
             shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false;
             scriptOverload = this.getFeatureSetting('scriptOverload') || {};
             ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList;
+            replaceElement = this.getFeatureSettingEnabled('replaceElement') || false;
+            monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true;
+            this.getFeatureSettingEnabled('injectGenericOverloads') || true;
 
             overrideCreateElement();
 
@@ -4750,7 +4941,8 @@
                     platform: args.platform.name,
                     isDuckDuckGo () {
                         return DDGPromise.resolve(true)
-                    }
+                    },
+                    taints: new Set()
                 },
                 enumerable: true,
                 configurable: false,
@@ -6783,7 +6975,14 @@
         if (!placeholder.parentElement) {
             return
         }
-
+        const parentStyles = window.getComputedStyle(placeholder.parentElement);
+        // Inline elements, like span or p, don't have a height value that we can use because they're
+        // not a "block" like element with defined sizes. Because we skip this check on "inline"
+        // parents, it might be necessary to traverse up the DOM tree until we find the nearest non
+        // "inline" parent to get a reliable height for this check.
+        if (parentStyles.display === 'inline') {
+            return
+        }
         const { height: placeholderHeight } = placeholder.getBoundingClientRect();
         const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect();
 
@@ -6800,7 +6999,7 @@
             /** @type {HTMLElement?} */
             const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer');
             if (innerDiv) {
-                innerDiv.style.minHeight = '';
+                innerDiv.style.minHeight = 'initial';
                 innerDiv.style.maxHeight = parentHeight + 'px';
                 innerDiv.style.overflow = 'hidden';
             }
@@ -6996,6 +7195,17 @@
 
         for (const key of stylesToCopy) {
             targetElement.style[key] = computedStyle[key];
+        }
+
+        // If the parent element is very small (and its dimensions can be trusted) set a max height/width
+        // to avoid the placeholder overflowing.
+        if (computedStyle.display !== 'inline') {
+            if (targetElement.style.maxHeight < computedStyle.height) {
+                targetElement.style.maxHeight = 'initial';
+            }
+            if (targetElement.style.maxWidth < computedStyle.width) {
+                targetElement.style.maxWidth = 'initial';
+            }
         }
     }
 
@@ -7934,7 +8144,8 @@
     function shouldRun () {
         // don't inject into non-HTML documents (such as XML documents)
         // but do inject into XHTML documents
-        if (document instanceof Document === false && (
+        // Should check HTMLDocument as Document is an alias for XMLDocument also.
+        if (document instanceof HTMLDocument === false && (
             document instanceof XMLDocument === false ||
             document.createElement('div') instanceof HTMLDivElement === false
         )) {
@@ -7951,10 +8162,8 @@
 
     /**
      * @typedef {object} LoadArgs
-     * @property {object} site
-     * @property {object} platform
-     * @property {string} platform.name
-     * @property {string} [platform.version]
+     * @property {import('./content-feature').Site} site
+     * @property {import('./utils.js').Platform} platform
      * @property {boolean} documentOriginIsTracker
      * @property {object} [bundledConfig]
      * @property {string} [injectName]

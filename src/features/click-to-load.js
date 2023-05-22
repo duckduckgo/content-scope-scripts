@@ -617,7 +617,14 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
     if (!placeholder.parentElement) {
         return
     }
-
+    const parentStyles = window.getComputedStyle(placeholder.parentElement)
+    // Inline elements, like span or p, don't have a height value that we can use because they're
+    // not a "block" like element with defined sizes. Because we skip this check on "inline"
+    // parents, it might be necessary to traverse up the DOM tree until we find the nearest non
+    // "inline" parent to get a reliable height for this check.
+    if (parentStyles.display === 'inline') {
+        return
+    }
     const { height: placeholderHeight } = placeholder.getBoundingClientRect()
     const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect()
 
@@ -634,7 +641,7 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
         /** @type {HTMLElement?} */
         const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
         if (innerDiv) {
-            innerDiv.style.minHeight = ''
+            innerDiv.style.minHeight = 'initial'
             innerDiv.style.maxHeight = parentHeight + 'px'
             innerDiv.style.overflow = 'hidden'
         }
@@ -830,6 +837,17 @@ function resizeElementToMatch (sourceElement, targetElement) {
 
     for (const key of stylesToCopy) {
         targetElement.style[key] = computedStyle[key]
+    }
+
+    // If the parent element is very small (and its dimensions can be trusted) set a max height/width
+    // to avoid the placeholder overflowing.
+    if (computedStyle.display !== 'inline') {
+        if (targetElement.style.maxHeight < computedStyle.height) {
+            targetElement.style.maxHeight = 'initial'
+        }
+        if (targetElement.style.maxWidth < computedStyle.width) {
+            targetElement.style.maxWidth = 'initial'
+        }
     }
 }
 

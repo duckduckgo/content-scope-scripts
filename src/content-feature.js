@@ -10,10 +10,10 @@ import { PerformanceMonitor } from './performance.js'
 
 /**
  * @typedef {object} Site
- * @property {string} domain
- * @property {boolean} isBroken
- * @property {boolean} allowlisted
- * @property {string[]} enabledFeatures
+ * @property {string | null} domain
+ * @property {boolean} [isBroken]
+ * @property {boolean} [allowlisted]
+ * @property {string[]} [enabledFeatures]
  */
 
 export default class ContentFeature {
@@ -26,7 +26,7 @@ export default class ContentFeature {
     /** @type {Record<string, unknown> | undefined} */
     #bundledfeatureSettings
 
-    /** @type {{ debug: boolean, featureSettings: Record<string, unknown>, assets: AssetConfig | undefined, site: Site  } | null} */
+    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
     #args
 
     constructor (featureName) {
@@ -147,6 +147,11 @@ export default class ContentFeature {
         if (!domain) return []
         const domains = this._getFeatureSetting()?.[featureKeyName] || []
         return domains.filter((rule) => {
+            if (Array.isArray(rule.domain)) {
+                return rule.domain.some((domainRule) => {
+                    return matchHostname(domain, domainRule)
+                })
+            }
             return matchHostname(domain, rule.domain)
         })
     }
@@ -168,6 +173,9 @@ export default class ContentFeature {
     load (args) {
     }
 
+    /**
+     * @param {import('./content-scope-features.js').LoadArgs} args
+     */
     callLoad (args) {
         const mark = this.monitor.mark(this.name + 'CallLoad')
         this.#args = args
@@ -176,7 +184,7 @@ export default class ContentFeature {
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(args.bundledConfig, getTabHostname(), this.platform.version)
+            const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version)
             this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures)
         }
         this.#trackerLookup = args.trackerLookup

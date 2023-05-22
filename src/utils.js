@@ -1,5 +1,4 @@
 /* global cloneInto, exportFunction, mozProxies */
-
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
 let globalObj = typeof window === 'undefined' ? globalThis : window
@@ -8,6 +7,8 @@ let messageSecret
 const CapturedSet = globalObj.Set
 // Capture prototype to prevent overloading
 const createSet = () => hasMozProxies ? new Set() : new CapturedSet()
+
+export const taintSymbol = Symbol('taint')
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
@@ -23,16 +24,25 @@ export function getInjectionElement () {
     return document.head || document.documentElement
 }
 
+// Tests don't define this variable so fallback to behave like chrome
+const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
+
 /**
  * Creates a script element with the given code to avoid Firefox CSP restrictions.
  * @param {string} css
- * @returns {HTMLLinkElement}
+ * @returns {HTMLLinkElement | HTMLStyleElement}
  */
 export function createStyleElement (css) {
-    const style = document.createElement('link')
-    style.href = 'data:text/css,' + encodeURIComponent(css)
-    style.setAttribute('rel', 'stylesheet')
-    style.setAttribute('type', 'text/css')
+    let style
+    if (hasMozProxies) {
+        style = document.createElement('link')
+        style.href = 'data:text/css,' + encodeURIComponent(css)
+        style.setAttribute('rel', 'stylesheet')
+        style.setAttribute('type', 'text/css')
+    } else {
+        style = document.createElement('style')
+        style.innerText = css
+    }
     return style
 }
 
@@ -52,9 +62,6 @@ export function setGlobal (globalObjIn) {
     globalObj = globalObjIn
     Error = globalObj.Error
 }
-
-// Tests don't define this variable so fallback to behave like chrome
-const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 
 // linear feedback shift register to find a random approximation
 export function nextRandom (v) {
@@ -103,8 +110,12 @@ export function isThirdPartyFrame () {
     if (!isBeingFramed()) {
         return false
     }
-    // @ts-expect-error - getTabHostname() is string|null here
-    return !matchHostname(globalThis.location.hostname, getTabHostname())
+    const tabHostname = getTabHostname()
+    // If we can't get the tab hostname, assume it's third party
+    if (!tabHostname) {
+        return true
+    }
+    return !matchHostname(globalThis.location.hostname, tabHostname)
 }
 
 function isThirdPartyOrigin (hostname) {
@@ -374,6 +385,28 @@ export function getStack () {
     return new Error().stack
 }
 
+export function getContextId (scope) {
+    if (document?.currentScript && 'contextID' in document.currentScript) {
+        return document.currentScript.contextID
+    }
+    if (scope.contextID) {
+        return scope.contextID
+    }
+    // @ts-expect-error - contextID is a global variable
+    if (typeof contextID !== 'undefined') {
+        // @ts-expect-error - contextID is a global variable
+        // eslint-disable-next-line no-undef
+        return contextID
+    }
+}
+
+export function hasTaintedMethod (scope) {
+    if (document?.currentScript?.[taintSymbol]) return true
+    if ('__ddg_taint__' in window) return true
+    if (getContextId(scope)) return true
+    return false
+}
+
 /**
  * @template {object} P
  * @typedef {object} ProxyObject<P>
@@ -390,13 +423,25 @@ export class DDGProxy {
      * @param {string} property
      * @param {ProxyObject<P>} proxyObject
      */
-    constructor (featureName, objectScope, property, proxyObject) {
+    constructor (featureName, objectScope, property, proxyObject, taintCheck = false) {
         this.objectScope = objectScope
         this.property = property
         this.featureName = featureName
         this.camelFeatureName = camelcase(this.featureName)
         const outputHandler = (...args) => {
-            const isExempt = shouldExemptMethod(this.camelFeatureName)
+            let isExempt = shouldExemptMethod(this.camelFeatureName)
+            // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't
+            if (!isExempt && taintCheck) {
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
+                let scope = this
+                try {
+                    // @ts-expect-error - Caller doesn't match this
+                    // eslint-disable-next-line no-caller
+                    scope = arguments.callee.caller
+                } catch {}
+                const isTainted = hasTaintedMethod(scope)
+                isExempt = !isTainted
+            }
             if (debug) {
                 postDebugMessage(this.camelFeatureName, {
                     isProxy: true,
@@ -474,8 +519,16 @@ if (hasMozProxies) {
     DDGReflect = globalObj.Reflect
 }
 
+/**
+ * @param {string | null} topLevelHostname
+ * @param {object[]} featureList
+ * @returns {boolean}
+ */
 export function isUnprotectedDomain (topLevelHostname, featureList) {
     let unprotectedDomain = false
+    if (!topLevelHostname) {
+        return false
+    }
     const domainParts = topLevelHostname.split('.')
 
     // walk up the domain to see if it's unprotected
