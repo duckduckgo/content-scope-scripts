@@ -618,7 +618,10 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
         return
     }
     const parentStyles = window.getComputedStyle(placeholder.parentElement)
-    // Inline elements, like span or p, don't have a set height that we can trust.
+    // Inline elements, like span or p, don't have a height value that we can use because they're
+    // not a "block" like element with defined sizes. Because we skip this check on "inline"
+    // parents, it might be necessary to traverse up the DOM tree until we find the nearest non
+    // "inline" parent to get a reliable height for this check.
     if (parentStyles.display === 'inline') {
         return
     }
@@ -835,11 +838,6 @@ function resizeElementToMatch (sourceElement, targetElement) {
     for (const key of stylesToCopy) {
         targetElement.style[key] = computedStyle[key]
     }
-    // Sometimes, after copying 'top', 'bottom', 'left', 'right' from an absolute
-    // positioned element, the 'inset' property is automatically set to a value
-    // trying to replicate that positioning. But that often is not accurate, so we
-    // make sure to reset it back to 'auto' here.
-    targetElement.style.inset = 'auto'
 
     // If the parent element is very small (and its dimensions can be trusted) set a max height/width
     // to avoid the placeholder overflowing.
