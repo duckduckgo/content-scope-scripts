@@ -617,7 +617,11 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
     if (!placeholder.parentElement) {
         return
     }
-
+    const parentStyles = window.getComputedStyle(placeholder.parentElement)
+    // Inline elements, like span or p, don't have a set height that we can trust.
+    if (parentStyles.display === 'inline') {
+        return
+    }
     const { height: placeholderHeight } = placeholder.getBoundingClientRect()
     const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect()
 
@@ -634,7 +638,7 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
         /** @type {HTMLElement?} */
         const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
         if (innerDiv) {
-            innerDiv.style.minHeight = ''
+            innerDiv.style.minHeight = 'initial'
             innerDiv.style.maxHeight = parentHeight + 'px'
             innerDiv.style.overflow = 'hidden'
         }
@@ -830,6 +834,21 @@ function resizeElementToMatch (sourceElement, targetElement) {
 
     for (const key of stylesToCopy) {
         targetElement.style[key] = computedStyle[key]
+    }
+    // Sometimes, after copying 'top', 'bottom', 'left', 'right' from an absolute
+    // positioned element, the 'inset' property is automatically set to a value
+    // trying to replicate that positioning. But that often is not accurate, so we
+    // make sure to reset it back to 'auto' here.
+    targetElement.style.inset = 'auto'
+
+    // Only update max height and width if element is doesn't have display 'inline'
+    if (computedStyle.display !== 'inline') {
+        if (targetElement.style.maxHeight < computedStyle.height) {
+            targetElement.style.maxHeight = 'initial'
+        }
+        if (targetElement.style.maxWidth < computedStyle.width) {
+            targetElement.style.maxWidth = 'initial'
+        }
     }
 }
 
