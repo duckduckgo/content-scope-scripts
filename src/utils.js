@@ -351,10 +351,21 @@ export function getContextId (scope) {
     }
 }
 
-export function hasTaintedMethod (scope) {
+const taintedOrigins = createSet()
+export function hasTaintedMethod (scope, shouldStackCheck = false) {
     if (document?.currentScript?.[taintSymbol]) return true
     if ('__ddg_taint__' in window) return true
     if (getContextId(scope)) return true
+    if (!shouldStackCheck || !navigator?.duckduckgo?.taintedOrigins) {
+        return false
+    }
+    const stackOrigins = getStackTraceOrigins(getStack())
+    for (const stackOrigin of stackOrigins) {
+        if (navigator.duckduckgo.taintedOrigins.has(stackOrigin)) {
+            console.log('found tainted origin', stackOrigin)
+            return true
+        }
+    }
     return false
 }
 

@@ -2,7 +2,7 @@
 
 import { glob } from 'typedoc/dist/lib/utils/fs.js'
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, defineProperty } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, defineProperty, getTabHostname } from '../utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { Reflect } from '../captured-globals.js'
 
@@ -66,13 +66,11 @@ const jsMimeTypes = [
     'text/x-javascript'
 ]
 
-function getTaintFromScope (scope, args) {
+function getTaintFromScope (scope, args, shouldStackCheck = false) {
     try {
         scope = args.callee.caller
-    } catch {
-        console.log('taint: failed to get callers scope', args, scope)
-    }
-    return hasTaintedMethod(scope)
+    } catch {}
+    return hasTaintedMethod(scope, shouldStackCheck)
 }
 
 class DDGRuntimeChecks extends HTMLElement {
@@ -81,6 +79,7 @@ class DDGRuntimeChecks extends HTMLElement {
     #listeners
     #connected
     #sinks
+    #debug
 
     constructor () {
         super()
@@ -89,6 +88,7 @@ class DDGRuntimeChecks extends HTMLElement {
         this.#listeners = []
         this.#connected = false
         this.#sinks = {}
+        this.#debug = false
         if (shadowDomEnabled) {
             const shadow = this.attachShadow({ mode: 'open' })
             const style = createStyleElement(`
@@ -103,8 +103,9 @@ class DDGRuntimeChecks extends HTMLElement {
     /**
      * This method is called once and externally so has to remain public.
      **/
-    setTagName (tagName) {
+    setTagName (tagName, debug = false) {
         this.#tagName = tagName
+        this.#debug = debug
 
         // Clear the method so it can't be called again
         // @ts-expect-error - error TS2790: The operand of a 'delete' operator must be optional.
@@ -178,6 +179,16 @@ class DDGRuntimeChecks extends HTMLElement {
         if (taintCheck) {
             // Add a symbol to the element so we can identify it as a runtime checked element
             Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false })
+            // Only show this attribute whilst debugging
+            if (this.#debug) {
+                el.setAttribute('data-ddg-runtime-checks', 'true')
+            }
+            try {
+                const origin = this.src && new URL(this.src, window.location.href).hostname
+                if (origin && navigator?.duckduckgo?.taintedOrigins) {
+                    navigator.duckduckgo.taintedOrigins.add(origin)
+                }
+            } catch {}
         }
 
         // Reflect all attrs to the new element
@@ -461,7 +472,7 @@ function isInterrogatingDebugMessage (matchType, matchedStackDomain, stack, scri
     })
 }
 
-function overrideCreateElement () {
+function overrideCreateElement (debug) {
     const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
         apply (fn, scope, args) {
             if (args.length >= 1) {
@@ -470,7 +481,7 @@ function overrideCreateElement () {
                 if (shouldInterrogate(initialTagName)) {
                     args[0] = 'ddg-runtime-checks'
                     const el = Reflect.apply(fn, scope, args)
-                    el.setTagName(initialTagName)
+                    el.setTagName(initialTagName, debug)
                     return el
                 }
             }
@@ -541,7 +552,7 @@ export default class RuntimeChecks extends ContentFeature {
         replaceElement = this.getFeatureSettingEnabled('replaceElement') || false
         monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true
 
-        overrideCreateElement()
+        overrideCreateElement(this.isDebug)
 
         if (this.getFeatureSettingEnabled('overloadInstanceOf')) {
             overloadInstanceOfChecks(HTMLScriptElement)
@@ -569,40 +580,40 @@ export default class RuntimeChecks extends ContentFeature {
     injectGenericOverloads () {
         const genericOverloads = this.getFeatureSetting('injectGenericOverloads')
         if ('Date' in genericOverloads) {
-            this.overloadDate()
+            this.overloadDate(genericOverloads.Date)
         }
         if ('Date.prototype.getTimezoneOffset' in genericOverloads) {
-            this.overloadDateGetTimezoneOffset()
+            this.overloadDateGetTimezoneOffset(genericOverloads['Date.prototype.getTimezoneOffset'])
         }
         if ('NavigatorUAData.prototype.getHighEntropyValues' in genericOverloads) {
-            this.overloadHighEntropyValues()
+            this.overloadHighEntropyValues(genericOverloads['NavigatorUAData.prototype.getHighEntropyValues'])
         }
         ['localStorage', 'sessionStorage'].forEach(storageType => {
             if (storageType in genericOverloads) {
                 const storageConfig = genericOverloads[storageType]
                 if (storageConfig.scheme === 'memory') {
-                    this.overloadStorageWithMemory(storageType)
+                    this.overloadStorageWithMemory(storageConfig, storageType)
                 } else if (storageConfig.scheme === 'session') {
-                    this.overloadStorageWithSession(storageType)
+                    this.overloadStorageWithSession(storageConfig, storageType)
                 }
             }
         })
         const breakpoints = this.getFeatureSetting('breakpoints')
         const screenSize = { height: screen.height, width: screen.width };
-        ['innerHeight', 'innerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {
+        ['innerHeight', 'innerWidth', 'outerHeight', 'outerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {
             if (sizing in genericOverloads) {
                 const sizingConfig = genericOverloads[sizing]
-                this.overloadScreenSizes(breakpoints, screenSize, sizing, sizingConfig.offset || 0)
+                this.overloadScreenSizes(sizingConfig, breakpoints, screenSize, sizing, sizingConfig.offset || 0)
             }
         })
     }
 
-    overloadDate () {
+    overloadDate (config) {
         const offset = (new Date()).getTimezoneOffset()
         globalThis.Date = new Proxy(globalThis.Date, {
             construct (target, args) {
                 const constructed = Reflect.construct(target, args)
-                if (getTaintFromScope(this, arguments)) {
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     // Falible in that the page could brute force the offset to match. We should fix this.
                     if (constructed.getTimezoneOffset() === offset) {
                         return constructed.getUTCDate()
@@ -613,14 +624,14 @@ export default class RuntimeChecks extends ContentFeature {
         })
     }
 
-    overloadDateGetTimezoneOffset () {
+    overloadDateGetTimezoneOffset (config) {
         const offset = (new Date()).getTimezoneOffset()
         defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
             configurable: true,
             enumerable: true,
             writable: true,
             value () {
-                if (getTaintFromScope(this, arguments)) {
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     return 0
                 }
                 return offset
@@ -628,7 +639,7 @@ export default class RuntimeChecks extends ContentFeature {
         })
     }
 
-    overloadHighEntropyValues () {
+    overloadHighEntropyValues (config) {
         if (!('NavigatorUAData' in globalThis)) {
             return
         }
@@ -640,7 +651,7 @@ export default class RuntimeChecks extends ContentFeature {
             writable: true,
             value (hints) {
                 let hintsOut = hints
-                if (getTaintFromScope(this, arguments)) {
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     // If tainted override with default values (using empty array)
                     hintsOut = []
                 }
@@ -649,7 +660,7 @@ export default class RuntimeChecks extends ContentFeature {
         })
     }
 
-    overloadStorageWithMemory (key) {
+    overloadStorageWithMemory (config, key) {
         class MemoryStorage {
             #data = {}
 
@@ -680,19 +691,19 @@ export default class RuntimeChecks extends ContentFeature {
         }
 
         const storage = new MemoryStorage()
-        this.overrideStorage(key, storage)
+        this.overrideStorage(config, key, storage)
     }
 
-    overloadStorageWithSession (key) {
+    overloadStorageWithSession (key, config) {
         const storage = globalThis.sessionStorage
-        this.overrideStorage(key, storage)
+        this.overrideStorage(config, key, storage)
     }
 
-    overrideStorage (key, storage) {
+    overrideStorage (config, key, storage) {
         const originalStorage = globalThis[key]
         defineProperty(globalThis, key, {
             get () {
-                if (getTaintFromScope(this, arguments)) {
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     return storage
                 }
                 return originalStorage
@@ -713,7 +724,7 @@ export default class RuntimeChecks extends ContentFeature {
      * @param {string} key
      * @param {number} [offset]
      */
-    overloadScreenSizes (breakpoints, screenSize, key, offset) {
+    overloadScreenSizes (config, breakpoints, screenSize, key, offset) {
         const closest = findClosestBreakpoint(breakpoints, screenSize)
         if (!closest) {
             return
@@ -725,9 +736,11 @@ export default class RuntimeChecks extends ContentFeature {
         let receiver
         switch (key) {
         case 'innerHeight':
+        case 'outerHeight':
             returnVal = closest.height - offset
             break
         case 'innerWidth':
+        case 'outerWidth':
             returnVal = closest.width - offset
             break
         case 'Screen.prototype.height':
@@ -746,7 +759,7 @@ export default class RuntimeChecks extends ContentFeature {
         const defaultVal = Reflect.get(scope, overrideKey, receiver)
         defineProperty(scope, overrideKey, {
             get () {
-                if (getTaintFromScope(this, arguments)) {
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     return returnVal
                 }
                 return defaultVal

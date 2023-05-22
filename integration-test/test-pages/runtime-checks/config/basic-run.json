@@ -23,23 +23,43 @@
                     {"height": 812, "width": 375}
                 ],
                 "injectGenericOverloads": {
-                    "Date": {},
-                    "Date.prototype.getTimezoneOffset": {},
-                    "NavigatorUAData.prototype.getHighEntropyValues": {},
+                    "Date": {
+                        "stackCheck": true
+                    },
+                    "Date.prototype.getTimezoneOffset": {
+                        "stackCheck": true
+                    },
+                    "NavigatorUAData.prototype.getHighEntropyValues": {
+                        "stackCheck": true
+                    },
                     "localStorage": {
+                        "stackCheck": true,
                         "scheme": "session"
                     },
                     "sessionStorage": {
+                        "stackCheck": true,
                         "scheme": "memory"
                     },
                     "innerHeight": {
+                        "stackCheck": true,
                         "offset": 100
                     },
                     "innerWidth":  {
+                        "stackCheck": true,
                         "offset": 100
                     },
-                    "Screen.prototype.height": {},
-                    "Screen.prototype.width": {}
+                    "outerHeight": {
+                        "stackCheck": true
+                    },
+                    "outerWidth":  {
+                        "stackCheck": true
+                    },
+                    "Screen.prototype.height": {
+                        "stackCheck": true
+                    },
+                    "Screen.prototype.width": {
+                        "stackCheck": true
+                    }
                 }
             }
         }
