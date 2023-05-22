@@ -2,7 +2,7 @@ import { createCustomEvent, sendMessage, originalWindowDispatchEvent } from '../
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
 import ContentFeature from '../content-feature.js'
-import { DDGCtlPlaceholderBlocked } from './click-to-load/components/ctl-placeholder-blocked.js'
+import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -550,7 +550,12 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
     // Facebook
     if (widget.replaceSettings.type === 'dialog') {
         if (isMobileApp) {
-            const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlocked({
+            /**
+             * Creates a custom HTML element with the placeholder element for blocked
+             * embedded content. The constructor gets a list of parameters with the
+             * content and event handlers for this HTML element.
+             */
+            const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlockedElement({
                 devMode,
                 isMobileApp,
                 title: widget.replaceSettings.infoTitle, // Card title text
@@ -621,7 +626,12 @@ function replaceYouTubeCTL (trackingElement, widget) {
         const oldPlaceholder = widget.placeholderElement
 
         if (isMobileApp) {
-            const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlocked({
+            /**
+             * Creates a custom HTML element with the placeholder element for blocked
+             * embedded content. The constructor gets a list of parameters with the
+             * content and event handlers for this HTML element.
+             */
+            const mobileBlockedPlaceholderElement = new DDGCtlPlaceholderBlockedElement({
                 devMode,
                 isMobileApp,
                 title: widget.replaceSettings.infoTitle, // Card title text
@@ -641,11 +651,11 @@ function replaceYouTubeCTL (trackingElement, widget) {
                 },
                 onButtonClick: widget.clickFunction.bind(widget)
             })
-            mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
-            mobileBlockedPlaceholder.id = trackingElement.id
-            resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholder)
-            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
-            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder)
+            mobileBlockedPlaceholderElement.appendChild(makeFontFaceStyleElement())
+            mobileBlockedPlaceholderElement.id = trackingElement.id
+            resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholderElement)
+            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholderElement)
+            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholderElement)
         } else {
             const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
             resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)

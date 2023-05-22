@@ -2,7 +2,13 @@ import { html } from '../../../dom-utils'
 import css from '../assets/ctl-placeholder-block.css'
 import { logoImg as daxImg } from '../ctl-assets'
 
-export class DDGCtlPlaceholderBlocked extends HTMLElement {
+/**
+ * The custom HTML element (Web Component) template with the placeholder for blocked
+ * embedded content. The constructor gets a list of parameters with the
+ * content and event handlers for this template.
+ * This is currently only used in our Mobile Apps, but can be expanded in the future.
+ */
+export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked'
 
     /**
@@ -99,12 +105,14 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
                 class="ddg-ctl-placeholder-card${useSlimCard ? ' slim-card' : ''}${withFeedback ? ' with-feedback-link' : ''}"
             >
                 <div class="ddg-ctl-placeholder-card-header">
-                    <img class="ddg-ctl-placeholder-card-header-dax" src=${daxImg} />
+                    <img class="ddg-ctl-placeholder-card-header-dax" src=${daxImg} alt="DuckDuckGo Dax" />
                     <div class="ddg-ctl-placeholder-card-title">${title}. ${learnMoreLink}</div>
                 </div>
                 <div class="ddg-ctl-placeholder-card-body">
                     <div class="ddg-ctl-placeholder-card-body-text">${body} ${learnMoreLink}</div>
-                    <button class="DuckDuckGoButton tertiary ddg-ctl-unblock-btn"><div>${unblockBtnText}</div></button>
+                    <button class="DuckDuckGoButton tertiary ddg-ctl-unblock-btn" type="button">
+                        <div>${unblockBtnText}</div>
+                    </button>
                 </div>
                 ${withToggle
         ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> `
@@ -142,7 +150,7 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
         container.classList.add('ddg-ctl-feedback-row')
 
         container.innerHTML = html`
-            <a class="ddg-ctl-feedback-link" target="_blank" href="#">${sharedStrings.shareFeedback}</a>
+            <button class="ddg-ctl-feedback-link" type="button">${sharedStrings.shareFeedback}</button>
         `.toString()
 
         return container
@@ -239,4 +247,4 @@ export class DDGCtlPlaceholderBlocked extends HTMLElement {
     }
 }
 
-customElements.define(DDGCtlPlaceholderBlocked.CUSTOM_TAG_NAME, DDGCtlPlaceholderBlocked)
+customElements.define(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME, DDGCtlPlaceholderBlockedElement)

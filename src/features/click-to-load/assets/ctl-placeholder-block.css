@@ -1,13 +1,18 @@
+:host,
 * {
     font-family: DuckDuckGoPrivacyEssentials, system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,
         Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     box-sizing: border-box;
+    font-weight: normal;
+    font-style: normal;
+    margin: 0;
+    padding: 0;
+    text-align: left;
 }
 
 :host,
 .DuckDuckGoSocialContainer {
     display: inline-block;
-    box-sizing: border-box;
     border: 0;
     padding: 0;
     margin: auto;
@@ -20,7 +25,6 @@
 /* Button */
 .DuckDuckGoButton {
     border-radius: 8px;
-    box-sizing: border-box;
     padding: 11px 22px;
     margin: 0px auto;
     border-color: #3969ef;
@@ -189,7 +193,6 @@
 .ddg-ctl-placeholder-card {
     height: 100%;
     overflow: auto;
-    box-sizing: border-box;
     padding: 16px;
     color: rgba(0, 0, 0, 0.84);
     background: #ffffff;
@@ -223,26 +226,26 @@
     align-items: center;
     margin: auto;
     margin-bottom: 8px;
+    text-align: left;
 }
 .DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
-    text-align: left;
+    width: 80%;
+    text-align: center;
 }
 
-.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header,
+.DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header .ddg-ctl-placeholder-card-title,
 .DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-placeholder-card-header .ddg-text-link {
     text-align: center;
-    width: 80%;
 }
 
 /* Show Learn More link in the header on mobile and
  * tablet size screens and hide it on desktop size */
 .DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-header .ddg-learn-more {
     display: none;
-    visibility: hidden;
 }
 
 .ddg-ctl-placeholder-card-title,
@@ -279,12 +282,10 @@
     margin: 0 auto 12px;
 
     display: none;
-    visibility: hidden;
 }
 .DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-body-text {
     width: 80%;
     display: block;
-    visibility: visible;
 }
 
 .ddg-ctl-placeholder-card-footer {
@@ -292,21 +293,17 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    justify-self: flex-end;
-    margin-top: auto;
+    align-self: end;
 }
 
 .ddg-ctl-feedback-row {
     display: none;
-    visibility: hidden;
 }
 .DuckDuckGoSocialContainer:not(.size-sm) .ddg-ctl-feedback-row {
     height: 30px;
     justify-content: flex-end;
     align-items: center;
     display: flex;
-    display: flex;
-    visibility: visible;
 }
 
 .ddg-ctl-feedback-link {
@@ -316,4 +313,9 @@
     line-height: 12px;
     color: #ababab;
     text-decoration: none;
+    display: inline;
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
 }
