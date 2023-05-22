@@ -841,7 +841,8 @@ function resizeElementToMatch (sourceElement, targetElement) {
     // make sure to reset it back to 'auto' here.
     targetElement.style.inset = 'auto'
 
-    // Only update max height and width if element is doesn't have display 'inline'
+    // If the parent element is very small (and its dimensions can be trusted) set a max height/width
+    // to avoid the placeholder overflowing.
     if (computedStyle.display !== 'inline') {
         if (targetElement.style.maxHeight < computedStyle.height) {
             targetElement.style.maxHeight = 'initial'
