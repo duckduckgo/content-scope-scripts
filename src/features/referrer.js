@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature'
-import { overrideProperty } from '../wrapper-utils'
+import { wrapProperty } from '../wrapper-utils'
 
 export default class Referrer extends ContentFeature {
     init (args) {
@@ -18,10 +18,8 @@ export default class Referrer extends ContentFeature {
                 // if we don't have a matching referrer, just trim it to origin.
                 trimmedReferer = new URL(document.referrer).origin + '/'
             }
-            overrideProperty('referrer', {
-                object: Document.prototype,
-                origValue: document.referrer,
-                targetValue: trimmedReferer
+            wrapProperty('Document.prototype.referrer', {
+                get: () => trimmedReferer
             })
         }
     }

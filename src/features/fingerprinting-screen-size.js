@@ -1,4 +1,4 @@
-import { defineProperty, overrideProperty } from '../wrapper-utils'
+import { defineProperty, wrapProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
 
 /**
@@ -92,40 +92,38 @@ function setWindowDimensions () {
 
 export default class FingerprintingScreenSize extends ContentFeature {
     init () {
-        const Screen = globalThis.Screen
-        const screen = globalThis.screen
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        origPropertyValues.availTop = globalThis.screen.availTop
+        wrapProperty('globalThis.Screen.prototype.availTop', {
+            get: () => this.getFeatureAttr('availTop', 0)
+        })
 
-        origPropertyValues.availTop = overrideProperty('availTop', {
-            object: Screen.prototype,
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            origValue: screen.availTop,
-            targetValue: this.getFeatureAttr('availTop', 0)
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        origPropertyValues.availLeft = globalThis.screen.availLeft
+        wrapProperty('globalThis.Screen.prototype.availLeft', {
+            get: () => this.getFeatureAttr('availLeft', 0)
         })
-        origPropertyValues.availLeft = overrideProperty('availLeft', {
-            object: Screen.prototype,
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            origValue: screen.availLeft,
-            targetValue: this.getFeatureAttr('availLeft', 0)
+
+        origPropertyValues.availWidth = globalThis.screen.availWidth
+        const forcedAvailWidthValue = globalThis.screen.width
+        wrapProperty('globalThis.Screen.prototype.availWidth', {
+            get: () => forcedAvailWidthValue
         })
-        origPropertyValues.availWidth = overrideProperty('availWidth', {
-            object: Screen.prototype,
-            origValue: screen.availWidth,
-            targetValue: screen.width
+
+        origPropertyValues.availHeight = globalThis.screen.availHeight
+        const forcedAvailHeightValue = globalThis.screen.height
+        wrapProperty('globalThis.Screen.prototype.availHeight', {
+            get: () => forcedAvailHeightValue
         })
-        origPropertyValues.availHeight = overrideProperty('availHeight', {
-            object: Screen.prototype,
-            origValue: screen.availHeight,
-            targetValue: screen.height
+
+        origPropertyValues.colorDepth = globalThis.screen.colorDepth
+        wrapProperty('globalThis.Screen.prototype.colorDepth', {
+            get: () => this.getFeatureAttr('colorDepth', 24)
         })
-        overrideProperty('colorDepth', {
-            object: Screen.prototype,
-            origValue: screen.colorDepth,
-            targetValue: this.getFeatureAttr('colorDepth', 24)
-        })
-        overrideProperty('pixelDepth', {
-            object: Screen.prototype,
-            origValue: screen.pixelDepth,
-            targetValue: this.getFeatureAttr('pixelDepth', 24)
+
+        origPropertyValues.pixelDepth = globalThis.screen.pixelDepth
+        wrapProperty('globalThis.Screen.prototype.pixelDepth', {
+            get: () => this.getFeatureAttr('pixelDepth', 24)
         })
 
         window.addEventListener('resize', function () {
