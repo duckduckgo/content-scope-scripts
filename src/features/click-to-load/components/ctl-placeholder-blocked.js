@@ -230,25 +230,25 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      */
     updatePlaceholderSize = () => {
         /** @type {placeholderSize} */
-        let size
+        let newSize = null
 
         const { height, width } = this.getBoundingClientRect()
         if (height && height < DDGCtlPlaceholderBlockedElement.MIN_CONTENT_HEIGHT) {
-            size = 'size-xs'
+            newSize = 'size-xs'
         } else if (width) {
             if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_SMALL) {
-                size = 'size-sm'
+                newSize = 'size-sm'
             } else if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_MEDIUM) {
-                size = 'size-md'
+                newSize = 'size-md'
             } else {
-                size = 'size-lg'
+                newSize = 'size-lg'
             }
         }
 
-        if (size && size !== this.placeholderSize) {
-            this.placeholderBlocked?.classList.remove(this.placeholderSize)
-            this.placeholderBlocked?.classList.add(size)
-            this.placeholderSize = size
+        if (newSize && newSize !== this.size) {
+            this.placeholderBlocked?.classList.remove(this.size)
+            this.placeholderBlocked?.classList.add(newSize)
+            this.size = newSize
         }
     }
 
