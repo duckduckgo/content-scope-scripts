@@ -1,4 +1,4 @@
-import { overrideProperty, defineProperty } from '../utils'
+import { defineProperty, overrideProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
 
 /**

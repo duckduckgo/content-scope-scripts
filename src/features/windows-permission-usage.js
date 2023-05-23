@@ -1,5 +1,6 @@
 /* global Bluetooth, Geolocation, HID, Serial, USB */
-import { DDGProxy, DDGReflect, defineProperty } from '../utils'
+import { DDGProxy, DDGReflect } from '../utils'
+import { defineProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
 
 export default class WindowsPermissionUsage extends ContentFeature {

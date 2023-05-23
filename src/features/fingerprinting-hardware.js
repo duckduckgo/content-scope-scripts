@@ -1,5 +1,5 @@
-import { overrideProperty } from '../utils'
 import ContentFeature from '../content-feature'
+import { overrideProperty } from '../wrapper-utils'
 
 export default class FingerprintingHardware extends ContentFeature {
     init () {
