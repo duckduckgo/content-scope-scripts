@@ -1,8 +1,8 @@
 /* global TrustedScriptURL, TrustedScript */
 
-import { glob } from 'typedoc/dist/lib/utils/fs.js'
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, defineProperty, getTabHostname } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins } from '../utils.js'
+import { defineProperty } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { Reflect } from '../captured-globals.js'
 
@@ -185,8 +185,8 @@ class DDGRuntimeChecks extends HTMLElement {
             }
             try {
                 const origin = this.src && new URL(this.src, window.location.href).hostname
-                if (origin && navigator?.duckduckgo?.taintedOrigins) {
-                    navigator.duckduckgo.taintedOrigins.add(origin)
+                if (origin && taintedOrigins()) {
+                    taintedOrigins()?.add(origin)
                 }
             } catch {}
         }
@@ -694,7 +694,7 @@ export default class RuntimeChecks extends ContentFeature {
         this.overrideStorage(config, key, storage)
     }
 
-    overloadStorageWithSession (key, config) {
+    overloadStorageWithSession (config, key) {
         const storage = globalThis.sessionStorage
         this.overrideStorage(config, key, storage)
     }
@@ -724,7 +724,7 @@ export default class RuntimeChecks extends ContentFeature {
      * @param {string} key
      * @param {number} [offset]
      */
-    overloadScreenSizes (config, breakpoints, screenSize, key, offset) {
+    overloadScreenSizes (config, breakpoints, screenSize, key, offset = 0) {
         const closest = findClosestBreakpoint(breakpoints, screenSize)
         if (!closest) {
             return

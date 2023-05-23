@@ -1,0 +1,26 @@
+{
+    "Basic Run": {
+        "html": "runtime-checks/pages/basic-run.html",
+        "config": "runtime-checks/config/basic-run.json"
+    },
+    "Replace element": {
+        "html": "runtime-checks/pages/replace-element.html",
+        "config": "runtime-checks/config/replace-element.json"
+    },
+    "Filter props": {
+        "html": "runtime-checks/pages/filter-props.html",
+        "config": "runtime-checks/config/filter-props.json"
+    },
+    "Shadow DOM": {
+        "html": "runtime-checks/pages/shadow-dom.html",
+        "config": "runtime-checks/config/shadow-dom.json"
+    },
+    "Script overload": {
+        "html": "runtime-checks/pages/script-overload.html",
+        "config": "runtime-checks/config/script-overload.json"
+    },
+    "Generic overload": {
+        "html": "runtime-checks/pages/generic-overload.html",
+        "config": "runtime-checks/config/generic-overload.json"
+    }
+}

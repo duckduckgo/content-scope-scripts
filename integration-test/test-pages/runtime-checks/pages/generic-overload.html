@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Runtime checks</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Runtime checks]</a></p>
+
+    <p>This page verifies that script overloading works <a href="../config/script-overload.json">config</a></p>
+
+    <script>
+        test('Script should have generic overloaded changes', async () => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            window.scriptOutput = false;
+            window.scriptyRan = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.src = './../../shared/replay.js';
+            scriptElement.id = 'overloadedScript';
+            let resolver
+            const promise = new Promise((resolve) => {
+                resolver = resolve
+            })
+            scriptElement.onload = () => {
+                resolver()
+            }
+            document.body.appendChild(scriptElement);
+            await promise
+            console.log(window.scriptyRan, window.replayScript)
+            localStorage.clear()
+            replayScript(`
+                localStorage.clear();
+                localStorage.setItem('test', 'test');
+                window.scriptyRan = true;
+                window.scriptOutput = {
+                    item: localStorage.getItem('test')
+                }
+            `)
+
+            const scripty = document.querySelector('script#overloadedScript');
+            const nodeAndFakeNodeMatch = scripty === scriptElement;
+
+            return [
+                { name: 'script ran', result: window.scriptyRan, expected: true },
+                { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
+                { name: 'expected localStorage first response', result: window.scriptOutput, expected: {
+                    item: 'test'
+                }},
+                { name: 'did not globally store', result: localStorage.getItem('test'), expected: null }
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>
