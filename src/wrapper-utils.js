@@ -4,6 +4,7 @@ const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 const globalObj = typeof window === 'undefined' ? globalThis : window
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor
 const functionToString = Function.prototype.toString
+const objectKeys = Object.keys
 
 export function defineProperty (object, propertyName, descriptor) {
     if (hasMozProxies) {
@@ -73,7 +74,7 @@ function wrapToString (newFn, origFn) {
 }
 
 /**
- * Wrap a get/set or value property descriptor. Only for properties that return values. For methods, use wrapMethod.
+ * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod.
  * @param {String} objPath
  * @param {Partial<PropertyDescriptor>} descriptor
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
@@ -113,6 +114,50 @@ export function wrapProperty (objPath, descriptor) {
         return origDescriptor
     } else {
         // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-        throw new Error(`Invalid descriptor type for property ${objPath}: ${JSON.stringify(origDescriptor)}`)
+        throw new Error(`Property descriptor for ${objPath} may only include the following keys: ${objectKeys(origDescriptor)}`)
     }
+}
+
+/**
+ * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty.
+ * @param {String} objPath
+ * @param {(originalFn, ...args) => any } wrapperFn
+ * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+ */
+export function wrapMethod (objPath, wrapperFn) {
+    const path = objPath.split('.')
+    const name = path.pop()
+    if (typeof name === 'undefined' || path.length === 0) {
+        throw new Error('Invalid object path')
+    }
+    let object = globalObj
+    for (const pathPart of path) {
+        if (!(pathPart in object)) {
+            // this happens if the object is not implemented in the browser
+            return
+        }
+        object = object[pathPart]
+    }
+    const origDescriptor = getOwnPropertyDescriptor(object, name)
+    if (!origDescriptor) {
+        // this happens if the property is not implemented in the browser
+        return
+    }
+
+    const origFn = origDescriptor.value
+    if (!origFn || typeof origFn !== 'function') {
+        // method properties are expected to be defined with a `value`
+        throw new Error(`Property ${objPath} does not look like a method`)
+    }
+
+    const newFn = function () {
+        return wrapperFn.call(this, origFn, ...arguments)
+    }
+    wrapToString(newFn, origFn)
+
+    defineProperty(object, name, {
+        ...origDescriptor,
+        value: newFn
+    })
+    return origDescriptor
 }
