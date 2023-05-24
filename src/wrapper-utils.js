@@ -75,25 +75,28 @@ function wrapToString (newFn, origFn) {
 
 /**
  * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod.
- * @param {String} objPath
+ * @param {any} object
+ * @param {string} propertyName
  * @param {Partial<PropertyDescriptor>} descriptor
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
-export function wrapProperty (objPath, descriptor) {
-    const path = objPath.split('.')
-    const name = path.pop()
-    if (typeof name === 'undefined' || path.length === 0) {
-        throw new Error('Invalid object path')
-    }
-    let object = globalObj
-    for (const pathPart of path) {
-        if (!(pathPart in object)) {
-            // this happens if the object is not implemented in the browser
-            return
+export function wrapProperty (object, propertyName, descriptor) {
+    if (typeof object === 'string') {
+        const path = object.split('.')
+        if (path.length === 0) {
+            throw new Error('Invalid object path')
         }
-        object = object[pathPart]
+
+        object = globalObj
+        for (const pathPart of path) {
+            if (!(pathPart in object)) {
+                // this happens if the object is not implemented in the browser
+                return
+            }
+            object = object[pathPart]
+        }
     }
-    const origDescriptor = getOwnPropertyDescriptor(object, name)
+    const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
     if (!origDescriptor) {
         // this happens if the property is not implemented in the browser
         return
@@ -107,14 +110,14 @@ export function wrapProperty (objPath, descriptor) {
         wrapToString(descriptor.get, origDescriptor.get)
         wrapToString(descriptor.set, origDescriptor.set)
 
-        defineProperty(object, name, {
+        defineProperty(object, propertyName, {
             ...origDescriptor,
             ...descriptor
         })
         return origDescriptor
     } else {
         // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-        throw new Error(`Property descriptor for ${objPath} may only include the following keys: ${objectKeys(origDescriptor)}`)
+        throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
     }
 }
 

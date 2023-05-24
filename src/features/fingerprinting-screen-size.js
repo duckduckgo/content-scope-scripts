@@ -94,35 +94,35 @@ export default class FingerprintingScreenSize extends ContentFeature {
     init () {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         origPropertyValues.availTop = globalThis.screen.availTop
-        wrapProperty('globalThis.Screen.prototype.availTop', {
+        wrapProperty(globalThis.Screen.prototype, 'availTop', {
             get: () => this.getFeatureAttr('availTop', 0)
         })
 
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         origPropertyValues.availLeft = globalThis.screen.availLeft
-        wrapProperty('globalThis.Screen.prototype.availLeft', {
+        wrapProperty(globalThis.Screen.prototype, 'availLeft', {
             get: () => this.getFeatureAttr('availLeft', 0)
         })
 
         origPropertyValues.availWidth = globalThis.screen.availWidth
         const forcedAvailWidthValue = globalThis.screen.width
-        wrapProperty('globalThis.Screen.prototype.availWidth', {
+        wrapProperty(globalThis.Screen.prototype, 'availWidth', {
             get: () => forcedAvailWidthValue
         })
 
         origPropertyValues.availHeight = globalThis.screen.availHeight
         const forcedAvailHeightValue = globalThis.screen.height
-        wrapProperty('globalThis.Screen.prototype.availHeight', {
+        wrapProperty(globalThis.Screen.prototype, 'availHeight', {
             get: () => forcedAvailHeightValue
         })
 
         origPropertyValues.colorDepth = globalThis.screen.colorDepth
-        wrapProperty('globalThis.Screen.prototype.colorDepth', {
+        wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
             get: () => this.getFeatureAttr('colorDepth', 24)
         })
 
         origPropertyValues.pixelDepth = globalThis.screen.pixelDepth
-        wrapProperty('globalThis.Screen.prototype.pixelDepth', {
+        wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
             get: () => this.getFeatureAttr('pixelDepth', 24)
         })
 
