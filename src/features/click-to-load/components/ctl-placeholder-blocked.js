@@ -18,7 +18,7 @@ import { logoImg as daxImg } from '../ctl-assets'
  */
 /**
  * @typedef WithFeedbackParams - Feedback link params
- * @property {string?} label - "Share Feedback" link text
+ * @property {string=} label - "Share Feedback" link text
  * @property {() => void} onClick - Feedback element on click callback
  */
 /**
@@ -70,11 +70,11 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @param {string} params.title - Card title text
      * @param {string} params.body - Card body text
      * @param {string} params.unblockBtnText - Unblock button text
-     * @param {boolean?} params.useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
+     * @param {boolean=} params.useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
      * @param {HTMLElement} params.originalElement - The original element this placeholder is replacing.
      * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
-     * @param {WithToggleParams?} params.withToggle - Toggle config to be displayed in the bottom of the placeholder
-     * @param {WithFeedbackParams?} params.withFeedback - Shows feedback link on tablet and desktop sizes,
+     * @param {WithToggleParams=} params.withToggle - Toggle config to be displayed in the bottom of the placeholder
+     * @param {WithFeedbackParams=} params.withFeedback - Shows feedback link on tablet and desktop sizes,
      * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onButtonClick
      */
     constructor (params) {
@@ -265,7 +265,9 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
         }
 
         if (newSize && newSize !== this.size) {
-            this.placeholderBlocked.classList.remove(this.size)
+            if (this.size) {
+                this.placeholderBlocked.classList.remove(this.size)
+            }
             this.placeholderBlocked.classList.add(newSize)
             this.size = newSize
         }
