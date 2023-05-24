@@ -557,7 +557,6 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
              */
             const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlockedElement({
                 devMode,
-                isMobileApp,
                 title: widget.replaceSettings.infoTitle, // Card title text
                 body: widget.replaceSettings.infoText, // Card body text
                 unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
@@ -567,6 +566,7 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
                 onButtonClick: widget.clickFunction.bind(widget)
             })
             mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
+
             replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
             showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder)
         } else {
@@ -633,7 +633,6 @@ function replaceYouTubeCTL (trackingElement, widget) {
              */
             const mobileBlockedPlaceholderElement = new DDGCtlPlaceholderBlockedElement({
                 devMode,
-                isMobileApp,
                 title: widget.replaceSettings.infoTitle, // Card title text
                 body: widget.replaceSettings.infoText, // Card body text
                 unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
@@ -644,6 +643,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
                     isActive: false, // Toggle state
                     dataKey: 'yt-preview-toggle', // data-key attribute for button
                     label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
+                    size: isMobileApp ? 'lg' : 'md',
                     onClick: () => sendMessage('setYoutubePreviewsEnabled', true) // Toggle click callback
                 },
                 withFeedback: {

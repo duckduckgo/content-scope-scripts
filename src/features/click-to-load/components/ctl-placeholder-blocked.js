@@ -8,6 +8,32 @@ import { logoImg as daxImg } from '../ctl-assets'
  */
 
 /**
+ * @typedef WithToggleParams - Toggle params
+ * @property {boolean} isActive - Toggle state
+ * @property {string} dataKey - data-key attribute for toggle button
+ * @property {string} label - Text to be presented with toggle
+ * @property {'md' | 'lg'} [size=md] - Toggle size variant, 'md' by default
+ * @property {() => void} onClick - Toggle on click callback
+ */
+/**
+ * @typedef WithFeedbackParams - Feedback link params
+ * @property {() => void} onClick - Feedback element on click callback
+ */
+/**
+ * @typedef DDGCtlPlaceholderBlockedParams - Params for building a custom element with a placeholder for blocked content
+ * @property {boolean} devMode - Used to create the Shadow DOM on 'open'(true) or 'closed'(false) mode
+ * @property {string} title - Card title text
+ * @property {string} body - Card body text
+ * @property {string} unblockBtnText - Unblock button text
+ * @property {boolean?} useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
+ * @property {HTMLElement} originalElement - The original element this placeholder is replacing.
+ * @property {{readAbout: string, learnMore: string, shareFeedback: string}} sharedStrings - Shared localized string
+ * @property {WithToggleParams?} withToggle - Toggle config to be displayed in the bottom of the placeholder
+ * @property {WithFeedbackParams?} withFeedback - Shows feedback link on tablet and desktop sizes,
+ * @property {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} onButtonClick
+ */
+
+/**
  * The custom HTML element (Web Component) template with the placeholder for blocked
  * embedded content. The constructor gets a list of parameters with the
  * content and event handlers for this template.
@@ -21,7 +47,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      */
     static MIN_CONTENT_HEIGHT = 140
     static MAX_CONTENT_WIDTH_SMALL = 480
-    static MAX_CONTENT_WIDTH_MEDIUM = 720
+    static MAX_CONTENT_WIDTH_MEDIUM = 650
     /**
      * Set observed attributes that will trigger attributeChangedCallback()
      */
@@ -31,9 +57,9 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
 
     /**
      * Placeholder element for blocked content
-     * @type {HTMLDivElement | null}
+     * @type {HTMLDivElement}
      */
-    placeholderBlocked = null
+    placeholderBlocked
 
     /**
      * Size variant of the latest calculated size of the placeholder.
@@ -44,27 +70,8 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
     size = null
 
     /**
-     *
-     * @param {{
-     *   devMode: boolean,
-     *   isMobileApp: boolean, // Flag if element is running on our mobile platforms
-     *   title: string, // Card title text
-     *   body: string, // Card body text
-     *   unblockBtnText: string, // Unblock button text
-     *   useSlimCard?: boolean, // Flag for using less padding on card (ie YT CTL on mobile)
-     *   originalElement: HTMLElement, // The original element this placeholder is replacing.
-     *   sharedStrings: {readAbout: string, learnMore: string, shareFeedback: string}, // Shared localized string
-     *   withToggle?: { // Toggle config to be displayed in the bottom of the placeholder
-     *      isActive: boolean,  // Toggle state
-     *      dataKey: string,    // data-key attribute for button
-     *      label: string,      // Text to be presented with toggle
-     *      onClick: () => void // Toggle click callback
-     *   },
-     *   withFeedback?: {
-     *      onClick: () => void // Share Feedback link click callback
-     *   }, // Shows feedback link on tablet and desktop sizes,
-     *   onButtonClick: (originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void,
-     * }} params
+     * @param {DDGCtlPlaceholderBlockedParams} params - Params for building a custom element
+     * with a placeholder for blocked content
      */
     constructor (params) {
         super()
@@ -116,13 +123,21 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
 
         const container = document.createElement('div')
         container.classList.add('DuckDuckGoSocialContainer')
+        const cardClassNames = [
+            ['slim-card', !!useSlimCard],
+            ['with-feedback-link', !!withFeedback]
+        ]
+            .map(([className, active]) => (active ? className : ''))
+            .join(' ')
 
+        // Only add a card footer if we have the toggle button to display
+        const cardFooterSection = withToggle
+            ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> `
+            : ''
         const learnMoreLink = this.createLearnMoreLink()
 
         container.innerHTML = html`
-            <div
-                class="ddg-ctl-placeholder-card${useSlimCard ? ' slim-card' : ''}${withFeedback ? ' with-feedback-link' : ''}"
-            >
+            <div class="ddg-ctl-placeholder-card ${cardClassNames}">
                 <div class="ddg-ctl-placeholder-card-header">
                     <img class="ddg-ctl-placeholder-card-header-dax" src=${daxImg} alt="DuckDuckGo Dax" />
                     <div class="ddg-ctl-placeholder-card-title">${title}. ${learnMoreLink}</div>
@@ -133,9 +148,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
                         <div>${unblockBtnText}</div>
                     </button>
                 </div>
-                ${withToggle
-        ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> `
-        : ''}
+                ${cardFooterSection}
             </div>
         `.toString()
 
@@ -179,15 +192,15 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * Creates a template string for a toggle button with text.
      */
     createToggleButton = () => {
-        const { withToggle, isMobileApp } = this.params
+        const { withToggle } = this.params
         if (!withToggle) return
 
-        const { isActive, dataKey, label } = withToggle
+        const { isActive, dataKey, label, size: toggleSize = 'md' } = withToggle
 
         const toggleButton = html`
             <div class="ddg-toggle-button-container">
                 <button
-                    class="ddg-toggle-button ${isActive ? 'active' : 'inactive'} ${isMobileApp ? 'mobile' : ''}"
+                    class="ddg-toggle-button ${isActive ? 'active' : 'inactive'} ${toggleSize}"
                     type="button"
                     aria-pressed=${!!isActive}
                     data-key=${dataKey}
@@ -246,8 +259,8 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
         }
 
         if (newSize && newSize !== this.size) {
-            this.placeholderBlocked?.classList.remove(this.size)
-            this.placeholderBlocked?.classList.add(newSize)
+            this.placeholderBlocked.classList.remove(this.size)
+            this.placeholderBlocked.classList.add(newSize)
             this.size = newSize
         }
     }
@@ -271,7 +284,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @param {*} newValue Attribute new value
      */
     attributeChangedCallback (attr, _, newValue) {
-        if (this.placeholderBlocked && attr === 'style') {
+        if (attr === 'style') {
             this.placeholderBlocked[attr].cssText = newValue
             this.updatePlaceholderSize()
         }
