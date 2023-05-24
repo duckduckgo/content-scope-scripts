@@ -120,6 +120,9 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
 
     /**
      * Creates a placeholder for content blocked by Click to Load.
+     * Note: We're using arrow functions () => {} in this class due to a bug
+     * found in Firefox where it is getting the wrong "this" context on calls in the constructor.
+     * This is a temporary workaround.
      * @returns {HTMLDivElement}
      */
     createPlaceholder = () => {
