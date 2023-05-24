@@ -562,7 +562,10 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
                 unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
                 useSlimCard: false, // Flag for using less padding on card (ie YT CTL on mobile)
                 originalElement: trackingElement, // The original element this placeholder is replacing.
-                sharedStrings, // Shared localized string
+                learnMore: { // Localized strings for "Learn More" link.
+                    readAbout: sharedStrings.readAbout,
+                    learnMore: sharedStrings.learnMore
+                },
                 onButtonClick: widget.clickFunction.bind(widget)
             })
             mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
@@ -638,7 +641,10 @@ function replaceYouTubeCTL (trackingElement, widget) {
                 unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
                 useSlimCard: true, // Flag for using less padding on card (ie YT CTL on mobile)
                 originalElement: trackingElement, // The original element this placeholder is replacing.
-                sharedStrings, // Shared localized string
+                learnMore: { // Localized strings for "Learn More" link.
+                    readAbout: sharedStrings.readAbout,
+                    learnMore: sharedStrings.learnMore
+                },
                 withToggle: { // Toggle config to be displayed in the bottom of the placeholder
                     isActive: false, // Toggle state
                     dataKey: 'yt-preview-toggle', // data-key attribute for button
@@ -647,6 +653,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
                     onClick: () => sendMessage('setYoutubePreviewsEnabled', true) // Toggle click callback
                 },
                 withFeedback: {
+                    label: sharedStrings.shareFeedback,
                     onClick: () => openShareFeedbackPage()
                 },
                 onButtonClick: widget.clickFunction.bind(widget)

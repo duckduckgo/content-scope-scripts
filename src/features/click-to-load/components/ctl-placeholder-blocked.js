@@ -1,4 +1,5 @@
 import { html } from '../../../dom-utils'
+import cssVars from '../assets/variables.css'
 import css from '../assets/ctl-placeholder-block.css'
 import { logoImg as daxImg } from '../ctl-assets'
 
@@ -17,20 +18,13 @@ import { logoImg as daxImg } from '../ctl-assets'
  */
 /**
  * @typedef WithFeedbackParams - Feedback link params
+ * @property {string?} label - "Share Feedback" link text
  * @property {() => void} onClick - Feedback element on click callback
  */
 /**
- * @typedef DDGCtlPlaceholderBlockedParams - Params for building a custom element with a placeholder for blocked content
- * @property {boolean} devMode - Used to create the Shadow DOM on 'open'(true) or 'closed'(false) mode
- * @property {string} title - Card title text
- * @property {string} body - Card body text
- * @property {string} unblockBtnText - Unblock button text
- * @property {boolean?} useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
- * @property {HTMLElement} originalElement - The original element this placeholder is replacing.
- * @property {{readAbout: string, learnMore: string, shareFeedback: string}} sharedStrings - Shared localized string
- * @property {WithToggleParams?} withToggle - Toggle config to be displayed in the bottom of the placeholder
- * @property {WithFeedbackParams?} withFeedback - Shows feedback link on tablet and desktop sizes,
- * @property {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} onButtonClick
+ * @typedef LearnMoreParams - "Learn More" link params
+ * @property {string} readAbout - "Learn More" aria-label text
+ * @property {string} learnMore - "Learn More" link text
  */
 
 /**
@@ -70,8 +64,18 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
     size = null
 
     /**
-     * @param {DDGCtlPlaceholderBlockedParams} params - Params for building a custom element
-     * with a placeholder for blocked content
+     * @param {object} params - Params for building a custom element
+     *                          with a placeholder for blocked content
+     * @param {boolean} params.devMode - Used to create the Shadow DOM on 'open'(true) or 'closed'(false) mode
+     * @param {string} params.title - Card title text
+     * @param {string} params.body - Card body text
+     * @param {string} params.unblockBtnText - Unblock button text
+     * @param {boolean?} params.useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
+     * @param {HTMLElement} params.originalElement - The original element this placeholder is replacing.
+     * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
+     * @param {WithToggleParams?} params.withToggle - Toggle config to be displayed in the bottom of the placeholder
+     * @param {WithFeedbackParams?} params.withFeedback - Shows feedback link on tablet and desktop sizes,
+     * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onButtonClick
      */
     constructor (params) {
         super()
@@ -89,7 +93,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
          * @type {HTMLStyleElement}
          */
         const style = document.createElement('style')
-        style.innerText = css
+        style.innerText = cssVars + css
 
         /**
          * Creates the placeholder for blocked content
@@ -159,16 +163,15 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * Creates a template string for Learn More link.
      */
     createLearnMoreLink = () => {
-        const { sharedStrings } = this.params
+        const { learnMore } = this.params
 
         return html`<a
             class="ddg-text-link ddg-learn-more"
-            aria-label="${sharedStrings.readAbout}"
+            aria-label="${learnMore.readAbout}"
             href="https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/"
             target="_blank"
-        >
-            ${sharedStrings.learnMore}
-        </a>`
+            >${learnMore.learnMore}</a
+        >`
     }
 
     /**
@@ -176,13 +179,13 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @returns {HTMLDivElement}
      */
     createShareFeedbackLink = () => {
-        const { sharedStrings } = this.params
+        const { withFeedback } = this.params
 
         const container = document.createElement('div')
         container.classList.add('ddg-ctl-feedback-row')
 
         container.innerHTML = html`
-            <button class="ddg-ctl-feedback-link" type="button">${sharedStrings.shareFeedback}</button>
+            <button class="ddg-ctl-feedback-link" type="button">${withFeedback?.label || 'Share Feedback'}</button>
         `.toString()
 
         return container
