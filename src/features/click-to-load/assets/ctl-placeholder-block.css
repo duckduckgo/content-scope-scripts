@@ -1,3 +1,32 @@
+:host {
+    /* Color palette */
+    --ddg-shade-06: rgba(0, 0, 0, 0.06);
+    --ddg-shade-12: rgba(0, 0, 0, 0.12);
+    --ddg-shade-18: rgba(0, 0, 0, 0.18);
+    --ddg-shade-36: rgba(0, 0, 0, 0.36);
+    --ddg-shade-84: rgba(0, 0, 0, 0.84);
+    --ddg-tint-12: rgba(255, 255, 255, 0.12);
+    --ddg-tint-18: rgba(255, 255, 255, 0.18);
+    --ddg-tint-24: rgba(255, 255, 255, 0.24);
+    --ddg-tint-84: rgba(255, 255, 255, 0.84);
+    /* Tokens */
+    --ddg-color-primary: #3969ef;
+    --ddg-color-bg-01: #ffffff;
+    --ddg-color-bg-02: #ababab;
+    --ddg-color-border: var(--ddg-shade-12);
+    --ddg-color-txt: var(--ddg-shade-84);
+    --ddg-color-txt-link-02: #ababab;
+}
+@media (prefers-color-scheme: dark) {
+    :host {
+        --ddg-color-primary: #7295f6;
+        --ddg-color-bg-01: #222222;
+        --ddg-color-bg-02: #444444;
+        --ddg-color-border: var(--ddg-tint-12);
+        --ddg-color-txt: var(--ddg-tint-84);
+    }
+}
+
 :host,
 * {
     font-family: DuckDuckGoPrivacyEssentials, system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,
@@ -27,7 +56,7 @@
     border-radius: 8px;
     padding: 11px 22px;
     margin: 0px auto;
-    border-color: #3969ef;
+    border-color: var(--ddg-color-primary);
     border: none;
     height: 36px;
     font-size: 14px;
@@ -46,39 +75,33 @@
     margin: 0;
 }
 .DuckDuckGoButton.tertiary {
-    color: rgba(0, 0, 0, 0.84);
+    color: var(--ddg-color-txt);
     background-color: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0px 16px;
-    border: 1px solid rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--ddg-color-border);
     border-radius: 8px;
 }
-@media (prefers-color-scheme: dark) {
-    .DuckDuckGoButton.tertiary {
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.24);
-    }
-}
 .DuckDuckGoButton.tertiary:hover {
-    background: rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: var(--ddg-shade-06);
+    border-color: var(--ddg-shade-18);
 }
 @media (prefers-color-scheme: dark) {
     .DuckDuckGoButton.tertiary:hover {
-        background: rgba(255, 255, 255, 0.18);
-        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: var(--ddg-tint-18);
+        border-color: var(--ddg-tint-24);
     }
 }
 .DuckDuckGoButton.tertiary:active {
-    background: rgba(0, 0, 0, 0.12);
-    border: 1px solid rgba(0, 0, 0, 0.36);
+    background: var(--ddg-shade-12);
+    border-color: var(--ddg-shade-36);
 }
 @media (prefers-color-scheme: dark) {
     .DuckDuckGoButton.tertiary:active {
-        background: rgba(255, 255, 255, 0.24);
-        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: var(--ddg-tint-24);
+        border-color: var(--ddg-tint-24);
     }
 }
 
@@ -91,8 +114,6 @@
 .ddg-toggle-button {
     cursor: pointer;
     position: relative;
-    width: 32px;
-    height: 16px;
     margin-top: -3px;
     margin: 0;
     padding: 0;
@@ -100,50 +121,45 @@
     background-color: transparent;
     text-align: left;
 }
-.ddg-toggle-button.mobile {
+.ddg-toggle-button,
+.ddg-toggle-button.md,
+.ddg-toggle-button-bg,
+.ddg-toggle-button.md .ddg-toggle-button-bg {
+    width: 32px;
+    height: 16px;
+    border-radius: 20px;
+}
+.ddg-toggle-button.lg,
+.ddg-toggle-button.lg .ddg-toggle-button-bg {
     width: 56px;
     height: 34px;
+    border-radius: 50px;
 }
 .ddg-toggle-button-bg {
     right: 0;
-    width: 32px;
-    height: 16px;
     overflow: visible;
-    border-radius: 50px;
-}
-.ddg-toggle-button.mobile .ddg-toggle-button-bg {
-    width: 56px;
-    height: 34px;
 }
 .ddg-toggle-button.active .ddg-toggle-button-bg {
-    background: #3969ef;
-}
-@media (prefers-color-scheme: dark) {
-    .ddg-toggle-button.active .ddg-toggle-button-bg {
-        background: #7295f6;
-    }
+    background: var(--ddg-color-primary);
 }
 .ddg-toggle-button.inactive .ddg-toggle-button-bg {
-    background: #ababab;
-}
-@media (prefers-color-scheme: dark) {
-    .ddg-toggle-button.inactive .ddg-toggle-button-bg {
-        background: #444444;
-    }
+    background: var(--ddg-color-bg-02);
 }
 .ddg-toggle-button-knob {
     --ddg-toggle-knob-margin: 2px;
     position: absolute;
     display: inline-block;
-    width: 12px;
-    height: 12px;
     border-radius: 50%;
     background-color: #ffffff;
     margin-top: var(--ddg-toggle-knob-margin);
-    top: calc(50% - 16px / 2);
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.1);
 }
-.ddg-toggle-button.mobile .ddg-toggle-button-knob {
+.ddg-toggle-button-knob,
+.ddg-toggle-button.md .ddg-toggle-button-knob {
+    width: 12px;
+    height: 12px;
+    top: calc(50% - 16px / 2);
+}
+.ddg-toggle-button.lg .ddg-toggle-button-knob {
     --ddg-toggle-knob-margin: 4px;
     width: 26px;
     height: 26px;
@@ -158,13 +174,8 @@
 .ddg-toggle-button-label {
     font-size: 14px;
     line-height: 20px;
-    color: rgba(0, 0, 0, 0.84);
+    color: var(--ddg-color-txt);
     margin-left: 12px;
-}
-@media (prefers-color-scheme: dark) {
-    .ddg-toggle-button-label {
-        color: rgba(255, 255, 255, 0.84);
-    }
 }
 
 /* Link styles */
@@ -174,12 +185,7 @@
     font-weight: 700;
     cursor: pointer;
     text-decoration: none;
-    color: #3969ef;
-}
-@media (prefers-color-scheme: dark) {
-    .ddg-text-link {
-        color: #7295f6;
-    }
+    color: var(--ddg-color-primary);
 }
 
 /* Styles for DDGCtlPlaceholderBlocked */
@@ -194,22 +200,15 @@
     height: 100%;
     overflow: auto;
     padding: 16px;
-    color: rgba(0, 0, 0, 0.84);
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.12);
+    color: var(--ddg-color-txt);
+    background: var(--ddg-color-bg-01);
+    border: 1px solid var(--ddg-color-border);
     border-radius: 12px;
     margin: auto;
     display: grid;
     justify-content: center;
     align-items: center;
     line-height: 1;
-}
-@media (prefers-color-scheme: dark) {
-    .ddg-ctl-placeholder-card {
-        color: rgba(255, 255, 255, 0.84);
-        background: #222222;
-        border: 1px solid rgba(255, 255, 255, 0.24);
-    }
 }
 .ddg-ctl-placeholder-card.slim-card {
     padding: 12px;
@@ -319,7 +318,7 @@
     font-weight: 400;
     font-size: 12px;
     line-height: 12px;
-    color: #ababab;
+    color: var(--ddg-color-txt-link-02);
     text-decoration: none;
     display: inline;
     background-color: transparent;
