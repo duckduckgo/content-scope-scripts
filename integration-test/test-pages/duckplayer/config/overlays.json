@@ -8,6 +8,9 @@
         "overlays": {
           "youtube": {
             "state": "disabled"
+          },
+          "serpProxy": {
+            "state": "disabled"
           }
         },
         "domains": [
@@ -17,6 +20,11 @@
               {
                 "op": "replace",
                 "path": "/overlays/youtube/state",
+                "value": "enabled"
+              },
+              {
+                "op": "replace",
+                "path": "/overlays/serpProxy/state",
                 "value": "enabled"
               }
             ]

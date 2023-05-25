@@ -48,9 +48,11 @@ export class DuckPlayerOverlayMessages {
     }
 
     /**
+     * This is sent when the user wants to open Duck Player.
+     * See {@link OpenInDuckPlayerMsg} for params
      * @param {OpenInDuckPlayerMsg} params
      */
-    openInDuckPlayerViaMessage (params) {
+    openDuckPlayer (params) {
         return this.messaging.notify(constants.MSG_NAME_OPEN_PLAYER, params)
     }
 
@@ -88,7 +90,7 @@ export class DuckPlayerOverlayMessages {
                         .then(updated => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch(console.error)
                 }
-                if (evt.detail.kind === constants.MSG_NAME_READ_VALUES) {
+                if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
                     this.getUserValues()
                         .then(updated => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch(console.error)
