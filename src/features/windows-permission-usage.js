@@ -393,7 +393,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
         ]
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {
-                if (typeof window[name] === 'undefined') continue
                 const proxy = new DDGProxy(featureName, prototype(), method, {
                     apply () {
                         if (isPromise) {
