@@ -122,14 +122,14 @@ class DuckWidget {
                     // We want to calculate the inner width of the parent element as the iframe, when added back,
                     // should not be bigger than the space available in the parent element. There is no straightforward way of
                     // doing this. We need to get the parent's .clientWidth and remove the paddings size from it.
-                    const parentInnerWidth = parentStyles && parentStyles.display !== 'inline'
+                    const parentInnerWidth = parentElement && parentStyles && parentStyles.display !== 'inline'
                         ? parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight)
                         : null
 
                     if (parentInnerWidth && parentInnerWidth < windowWidth) {
-                        value = parentInnerWidth
+                        value = parentInnerWidth.toString()
                     } else {
-                        value = window.innerWidth
+                        value = window.innerWidth.toString()
                     }
                 } else {
                     value = attrSettings.default
