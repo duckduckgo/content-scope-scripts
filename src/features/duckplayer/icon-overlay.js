@@ -64,7 +64,7 @@ export const IconOverlay = {
             const link = event.target.closest('a')
             const href = link.getAttribute('href')
 
-            IconOverlay.comms?.openInDuckPlayerViaMessage(new OpenInDuckPlayerMsg({ href }))
+            IconOverlay.comms?.openDuckPlayer(new OpenInDuckPlayerMsg({ href }))
         })
 
         return overlayElement
