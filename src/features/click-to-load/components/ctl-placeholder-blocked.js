@@ -39,7 +39,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * Min height that the placeholder needs to have in order to
      * have enough room to display content.
      */
-    static MIN_CONTENT_HEIGHT = 140
+    static MIN_CONTENT_HEIGHT = 110
     static MAX_CONTENT_WIDTH_SMALL = 480
     static MAX_CONTENT_WIDTH_MEDIUM = 650
     /**
