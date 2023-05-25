@@ -110,7 +110,30 @@ class DuckWidget {
                     // with a light version, replace with full version.
                     this.clickAction.type = 'allowFull'
                 }
-                value = attrSettings.default
+                // Our default value for width is often greater than the window size of smaller
+                // screens (ie mobile). When it is, use either the parent width (if reliable)
+                // or the window width instead.
+                if (attrName === 'data-width' && attrSettings.default > window.innerWidth) {
+                    const windowWidth = window.innerWidth
+                    const parentElement = this.originalElement.parentElement
+                    const parentStyles = parentElement
+                        ? window.getComputedStyle(parentElement)
+                        : null
+                    // We want to calculate the inner width of the parent element as the iframe, when added back,
+                    // should not be bigger than the space available in the parent element. There is no straightforward way of
+                    // doing this. We need to get the parent's .clientWidth and remove the paddings size from it.
+                    const parentInnerWidth = parentStyles && parentStyles.display !== 'inline'
+                        ? parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight)
+                        : null
+
+                    if (parentInnerWidth && parentInnerWidth < windowWidth) {
+                        value = parentInnerWidth
+                    } else {
+                        value = window.innerWidth
+                    }
+                } else {
+                    value = attrSettings.default
+                }
             }
             this.dataElements[attrName] = value
         }
