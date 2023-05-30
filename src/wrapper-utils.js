@@ -21,7 +21,7 @@ export function defineProperty (object, propertyName, descriptor) {
             }
         });
         ['get', 'set'].forEach((methodName) => {
-            if (methodName in descriptor) {
+            if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
                 exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName })
             }
         })
