@@ -62,7 +62,7 @@ export function overrideProperty (name, prop) {
  * @param {*} origFn
  */
 function wrapToString (newFn, origFn) {
-    if (!newFn || !origFn) {
+    if (typeof newFn !== 'function' || typeof origFn !== 'function') {
         return
     }
     newFn.toString = function () {
