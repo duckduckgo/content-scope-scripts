@@ -221,17 +221,18 @@ class DDGRuntimeChecks extends HTMLElement {
             this.computeScriptOverload(el)
         }
 
-        // TODO pollyfill WeakRef
-        this.#el = new WeakRef(el)
-
         if (replaceElement) {
             this.replaceElement(el)
         } else {
             this.insertAfterAndRemove(el)
         }
+
+        // TODO pollyfill WeakRef
+        this.#el = new WeakRef(el)
     }
 
     replaceElement (el) {
+        // This should be called before this.#el is set
         // @ts-expect-error - this is wrong node type
         super.parentElement?.replaceChild(el, this)
 
@@ -486,6 +487,39 @@ function injectGenericOverloads () {
 */
 }
 
+function overloadRemoveChild () {
+    const proxy = new DDGProxy(featureName, Node.prototype, 'removeChild', {
+        apply (fn, scope, args) {
+            const child = args[0]
+            if (child instanceof DDGRuntimeChecks) {
+                // Should call the real removeChild method if it's already replaced
+                const realNode = child._getElement()
+                if (realNode) {
+                    args[0] = realNode
+                }
+            }
+            return Reflect.apply(fn, scope, args)
+        }
+    })
+    proxy.overloadDescriptor()
+}
+
+function overloadReplaceChild () {
+    const proxy = new DDGProxy(featureName, Node.prototype, 'replaceChild', {
+        apply (fn, scope, args) {
+            const newChild = args[1]
+            if (newChild instanceof DDGRuntimeChecks) {
+                const realNode = newChild._getElement()
+                if (realNode) {
+                    args[1] = realNode
+                }
+            }
+            return Reflect.apply(fn, scope, args)
+        }
+    })
+    proxy.overloadDescriptor()
+}
+
 export default class RuntimeChecks extends ContentFeature {
     load () {
         // This shouldn't happen, but if it does we don't want to break the page
@@ -530,6 +564,12 @@ export default class RuntimeChecks extends ContentFeature {
 
         if (injectGenericOverloadsEnabled) {
             injectGenericOverloads()
+        }
+        if (this.getFeatureSettingEnabled('overloadRemoveChild')) {
+            overloadRemoveChild()
+        }
+        if (this.getFeatureSettingEnabled('overloadReplaceChild')) {
+            overloadReplaceChild()
         }
     }
 }

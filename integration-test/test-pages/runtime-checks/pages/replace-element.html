@@ -59,6 +59,85 @@
             ];
         });
 
+        test('Replace: Script that should be removable', async () => {
+            let thrownBefore = false;
+            let thrownAfter = false;
+            window.scriptyRemovableRan = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.innerText = 'window.scriptyRemovableRan = true';
+            scriptElement.id = 'scriptyRemovable';
+            document.body.appendChild(scriptElement);
+            const runtimeWasConnected = scriptElement.isConnected;
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('script#scriptyRemovable');
+            const connectedBeforeRemoval = scripty.isConnected
+            try {
+                document.body.removeChild(scriptElement);
+            } catch (e) {
+                thrownBefore = true
+            }
+            const connectedAfterRemoval = scripty.isConnected
+            const runtimeConnectedAfterRemoval = scriptElement.isConnected;
+            try {
+                document.body.removeChild(scriptElement);
+            } catch (e) {
+                thrownAfter = true
+            }
+            // Ensure real node is gone
+            const scripty2 = document.querySelector('script#scriptyRemovable');
+            return [
+                { name: 'expect script to match', result: scripty, expected: scriptElement },
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'was connected after append', result: runtimeWasConnected, expected: true },
+                { name: 'real script is connected after append', result: connectedBeforeRemoval, expected: true },
+                { name: 'scripty.id', result: scripty.id, expected: 'scriptyRemovable' },
+                { name: 'script ran', result: window.scriptyRemovableRan, expected: true },
+                { name: 'script is connected after removal', result: runtimeConnectedAfterRemoval, expected: false },
+                { name: 'real script is connected after removal', result: connectedAfterRemoval, expected: false },
+                { name: 'original node is connected after removal', result: scriptElement.isConnected, expected: false },
+                { name: 'script removal 1st throws', result: thrownBefore, expected: false },
+                { name: 'script removal 2nd throws', result: thrownAfter, expected: true },
+                { name: 'scripty2', result: scripty2, expected: null }
+            ];
+        });
+
+        test('Replace: Script that should be replaceable', async () => {
+            let thrownBefore = false;
+            let thrownAfter = false;
+            window.scriptyReplaceable = false;
+            const scriptElement = document.createElement('script');
+            scriptElement.innerText = 'window.scriptyReplaceableRan = true';
+            scriptElement.id = 'scriptyReplaceable';
+            document.body.appendChild(scriptElement);
+            const instanceofResult = scriptElement instanceof HTMLScriptElement;
+            const scripty = document.querySelector('script#scriptyReplaceable');
+            const someDivElement = document.createElement('div');
+            someDivElement.id = "thing"
+            try {
+                document.body.replaceChild(someDivElement, scriptElement);
+            } catch (e) {
+                thrownBefore = true
+            }
+            const connectedAfterRemoval = scripty.isConnected
+            try {
+                document.body.replaceChild(someDivElement, scriptElement);
+            } catch (e) {
+                thrownAfter = true
+            }
+            const divNode = document.querySelector('#thing');
+
+            return [
+                { name: 'expect script to match', result: scripty, expected: scriptElement },
+                { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
+                { name: 'scripty.id', result: scripty.id, expected: 'scriptyReplaceable' },
+                { name: 'script ran', result: window.scriptyReplaceableRan, expected: true },
+                { name: 'div node present', result: !!divNode, expected: true },
+                { name: 'script is connected after removal', result: connectedAfterRemoval, expected: false },
+                { name: 'script removal 1st throws', result: thrownBefore, expected: false },
+                { name: 'script removal 2nd throws', result: thrownAfter, expected: true }
+            ];
+        });
+
         test('Replace: Script that should execute', async () => {
             window.scripty2Ran = false;
             const scriptElement = document.createElement('script');
