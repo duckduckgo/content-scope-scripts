@@ -1,4 +1,4 @@
-/* global Bluetooth, Geolocation, HID, Serial, USB */
+/* global Geolocation */
 import { DDGProxy, DDGReflect } from '../utils'
 import { defineProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
@@ -381,8 +381,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // these permissions cannot be disabled using WebView2 or DevTools protocol
         const permissionsToDisable = [
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            { name: 'HID', prototype: () => HID.prototype, method: 'requestDevice', isPromise: true },
             { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
             { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true }
         ]

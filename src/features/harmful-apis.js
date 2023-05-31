@@ -5,7 +5,7 @@ import { defineProperty, stripVersion } from '../utils'
  * Blocks some privacy harmful APIs.
  */
 export default class HarmfulApis extends ContentFeature {
-    /* available values are listed here:
+    /* the set of available permissions is quickly changing over time. Up-to-date lists can be found here:
        - Chromium: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/third_party/blink/renderer/modules/permissions/permission_descriptor.idl
        - Gecko: https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
        - WebKit: https://github.com/WebKit/WebKit/blob/main/Source/WebCore/Modules/permissions/PermissionName.idl
@@ -36,6 +36,7 @@ export default class HarmfulApis extends ContentFeature {
         this.blockWebBluetoothApi()
         this.blockWebUsbApi()
         this.blockWebSerialApi()
+        this.blockWebHidApi()
     }
 
     initPermissionsFilter () {
@@ -237,6 +238,23 @@ export default class HarmfulApis extends ContentFeature {
                 writable: true,
                 value: function () {
                     return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
+                }
+            })
+        }
+    }
+
+    blockWebHidApi () {
+        if (!('HID' in globalThis)) {
+            return
+        }
+        if ('requestDevice' in globalThis.HID.prototype) {
+            defineProperty(globalThis.HID.prototype, 'requestDevice', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                // Chrome 113 does not throw errors, and only returns an empty array here
+                value: function () {
+                    return []
                 }
             })
         }
