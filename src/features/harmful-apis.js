@@ -67,7 +67,9 @@ export default class HarmfulApis extends ContentFeature {
             for (const eventName of eventsToBlock) {
                 const dom0HandlerName = `on${eventName}`
                 if (dom0HandlerName in globalThis) {
-                    delete globalThis[dom0HandlerName]
+                    wrapProperty(globalThis, dom0HandlerName, {
+                        set: () => { /* noop */ }
+                    })
                 }
             }
             wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
