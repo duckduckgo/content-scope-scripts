@@ -1,4 +1,4 @@
-import { defineProperty } from '../utils'
+import { defineProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
 
 /**
