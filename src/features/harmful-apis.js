@@ -30,6 +30,7 @@ export default class HarmfulApis extends ContentFeature {
 
     init (args) {
         console.log('INIT! from harmfulAPIs', args)
+        // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
         this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
         this.initPermissionsFilter()
