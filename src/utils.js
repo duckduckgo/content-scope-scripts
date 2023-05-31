@@ -1,5 +1,6 @@
 /* global cloneInto, exportFunction, mozProxies */
 import { Set } from './captured-globals.js'
+import { defineProperty } from './wrapper-utils.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
@@ -443,6 +444,12 @@ export class DDGProxy {
         } else {
             this.objectScope[this.property] = this.internal
         }
+    }
+
+    overloadDescriptor () {
+        defineProperty(this.objectScope, this.property, {
+            value: this.internal
+        })
     }
 }
 
