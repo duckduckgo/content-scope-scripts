@@ -14,6 +14,8 @@ export default class HarmfulApis extends ContentFeature {
 
     init (args) {
         console.log('INIT! from harmfulAPIs', args)
+        /** @type Navigator | WorkerNavigator */
+        this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
         this.initPermissionsFilter()
         this.blockGenericSensorApi()
         this.filterUAClientHints()
@@ -126,17 +128,17 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     removeNetworkInformationApi () {
-        if (!('connection' in Navigator.prototype)) {
+        if (!('connection' in this.navigatorPrototype)) {
             return
         }
-        delete Navigator.prototype.connection
+        delete this.navigatorPrototype.connection
     }
 
     blockGetInstalledRelatedApps () {
-        if (!('getInstalledRelatedApps' in Navigator.prototype)) {
+        if (!('getInstalledRelatedApps' in this.navigatorPrototype)) {
             return
         }
-        defineProperty(Navigator.prototype, 'getInstalledRelatedApps', {
+        defineProperty(this.navigatorPrototype, 'getInstalledRelatedApps', {
             configurable: true,
             enumerable: true,
             writable: true,
