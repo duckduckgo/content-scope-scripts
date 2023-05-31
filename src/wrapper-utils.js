@@ -73,26 +73,9 @@ function wrapToString (newFn, origFn) {
     }
 }
 
-function getObjectFromPath (objPath, base = globalObj) {
-    const path = objPath.split('.')
-    if (path.length === 0) {
-        throw new Error('Invalid object path')
-    }
-
-    let object = base
-    for (const pathPart of path) {
-        if (!(pathPart in object)) {
-            // this happens if the object is not implemented in the browser
-            return
-        }
-        object = object[pathPart]
-    }
-    return object
-}
-
 /**
  * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
- * @param {any} object - object or string object path within the global object
+ * @param {any} object - object whose property we are wrapping (most commonly a prototype)
  * @param {string} propertyName
  * @param {Partial<PropertyDescriptor>} descriptor
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
@@ -101,9 +84,7 @@ export function wrapProperty (object, propertyName, descriptor) {
     if (!object) {
         return
     }
-    if (typeof object === 'string') {
-        object = getObjectFromPath(object)
-    }
+
     const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
     if (!origDescriptor) {
         // this happens if the property is not implemented in the browser
