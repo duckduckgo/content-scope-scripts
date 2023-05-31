@@ -109,3 +109,47 @@ export function wrapProperty (object, propertyName, descriptor) {
         throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
     }
 }
+
+/**
+ * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty.
+ * @param {String} objPath
+ * @param {(originalFn, ...args) => any } wrapperFn
+ * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+ */
+export function wrapMethod (objPath, wrapperFn) {
+    const path = objPath.split('.')
+    const name = path.pop()
+    if (typeof name === 'undefined' || path.length === 0) {
+        throw new Error('Invalid object path')
+    }
+    let object = globalObj
+    for (const pathPart of path) {
+        if (!(pathPart in object)) {
+            // this happens if the object is not implemented in the browser
+            return
+        }
+        object = object[pathPart]
+    }
+    const origDescriptor = getOwnPropertyDescriptor(object, name)
+    if (!origDescriptor) {
+        // this happens if the property is not implemented in the browser
+        return
+    }
+
+    const origFn = origDescriptor.value
+    if (!origFn || typeof origFn !== 'function') {
+        // method properties are expected to be defined with a `value`
+        throw new Error(`Property ${objPath} does not look like a method`)
+    }
+
+    const newFn = function () {
+        return wrapperFn.call(this, origFn, ...arguments)
+    }
+    wrapToString(newFn, origFn)
+
+    defineProperty(object, name, {
+        ...origDescriptor,
+        value: newFn
+    })
+    return origDescriptor
+}
