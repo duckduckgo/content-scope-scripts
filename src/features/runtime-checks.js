@@ -3,6 +3,7 @@
 import ContentFeature from '../content-feature.js'
 import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod } from '../utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
+import { Reflect } from '../captured-globals.js'
 
 let stackDomains = []
 let matchAllStackDomains = false
@@ -490,7 +491,7 @@ export default class RuntimeChecks extends ContentFeature {
         // This shouldn't happen, but if it does we don't want to break the page
         try {
             // @ts-expect-error TS node return here
-            customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
+            globalThis.customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
         } catch {}
     }
 

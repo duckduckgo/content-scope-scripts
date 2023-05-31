@@ -35,6 +35,7 @@ const userValues = {
 export class DuckplayerOverlays {
     overlaysPage = '/duckplayer/pages/overlays.html'
     playerPage = '/duckplayer/pages/player.html'
+    serpProxyPage = '/duckplayer/pages/serp-proxy.html'
     /**
      * @param {import("@playwright/test").Page} page
      * @param {import("@duckduckgo/messaging/lib/test-utils.mjs").PlatformInfo} platform
@@ -55,6 +56,25 @@ export class DuckplayerOverlays {
         await this.page.goto(this.playerPage + '?videoID=123')
     }
 
+    async gotoSerpProxyPage () {
+        await this.page.goto(this.serpProxyPage)
+    }
+
+    async userValuesCallIsProxied () {
+        const calls = await this.page.evaluate(readOutgoingMessages)
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'contentScopeScripts',
+                    featureName: 'duckPlayer',
+                    params: {},
+                    method: 'getUserValues',
+                    id: 'getUserValues.response'
+                }
+            }
+        ])
+    }
+
     async overlayBlocksVideo () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
         await this.page.getByRole('link', { name: 'Watch in Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
@@ -70,6 +90,13 @@ export class DuckplayerOverlays {
     // Given the "overlays" feature is enabled
     async overlaysEnabled () {
         await this.setup({ config: loadConfig('overlays') })
+    }
+
+    async serpProxyEnabled () {
+        const config = loadConfig('overlays')
+        const domains = config.features.duckPlayer.settings.domains[0].patchSettings
+        config.features.duckPlayer.settings.domains[0].patchSettings = domains.filter(x => x.path === '/overlays/serpProxy/state')
+        await this.setup({ config })
     }
 
     async videoOverlayDoesntShow () {

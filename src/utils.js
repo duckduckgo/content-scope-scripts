@@ -1,12 +1,11 @@
 /* global cloneInto, exportFunction, mozProxies */
+import { Set } from './captured-globals.js'
+
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
-const CapturedSet = globalObj.Set
-// Capture prototype to prevent overloading
-const createSet = () => hasMozProxies ? new Set() : new CapturedSet()
 
 export const taintSymbol = Symbol('taint')
 
@@ -171,7 +170,7 @@ export function matchHostname (hostname, exceptionDomain) {
 
 const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
 export function getStackTraceUrls (stack) {
-    const urls = createSet()
+    const urls = new Set()
     try {
         const errorLines = stack.split('\n')
         // Should cater for Chrome and Firefox stacks, we only care about https? resources.
@@ -189,7 +188,7 @@ export function getStackTraceUrls (stack) {
 
 export function getStackTraceOrigins (stack) {
     const urls = getStackTraceUrls(stack)
-    const origins = createSet()
+    const origins = new Set()
     for (const url of urls) {
         origins.add(url.hostname)
     }

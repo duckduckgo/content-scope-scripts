@@ -224,3 +224,12 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         await overlays.userSettingWasUpdatedTo('always ask remembered') // updated
     })
 })
+
+test.describe('serp proxy', () => {
+    test('serp proxy is enabled', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+        await overlays.serpProxyEnabled()
+        await overlays.gotoSerpProxyPage()
+        await overlays.userValuesCallIsProxied()
+    })
+})
