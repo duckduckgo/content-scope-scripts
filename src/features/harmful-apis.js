@@ -48,6 +48,7 @@ export default class HarmfulApis extends ContentFeature {
         this.blockWebMidiApi()
         this.removeIdleDetectionApi()
         this.removeWebNfcApi()
+        this.filterStorageApi()
     }
 
     initPermissionsFilter () {
@@ -321,5 +322,31 @@ export default class HarmfulApis extends ContentFeature {
         if ('NDEFRecord' in globalThis) {
             delete globalThis.NDEFRecord
         }
+    }
+
+    filterStorageApi () {
+        if (!('StorageManager' in globalThis)) {
+            return
+        }
+        const nativeImpl = globalThis.StorageManager.prototype.estimate
+        defineProperty(globalThis.StorageManager.prototype, 'estimate', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: async function () {
+                const result = await nativeImpl.call(this)
+                const oneGb = 1_073_741_824
+                const fourGb = 4_294_967_296
+                const tenGb = 10_737_418_240
+                result.quota = result.quota >= tenGb
+                    ? tenGb
+                    : result.quota >= fourGb
+                        ? fourGb
+                        : result.quota > 0
+                            ? oneGb
+                            : 0
+                return result
+            }
+        })
     }
 }
