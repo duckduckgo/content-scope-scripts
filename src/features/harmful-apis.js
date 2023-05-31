@@ -10,8 +10,9 @@ import { wrapMethod, wrapProperty } from '../wrapper-utils'
  * @param {string[]} permissions permission names to auto-deny
  */
 function filterPermissionQuery (permissions) {
-    /*
-    */
+    if (!permissions || permissions.length === 0) {
+        return
+    }
     wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
         // call the original function first in case it throws an error
         const origResult = await nativeImpl.call(this, queryObject)
@@ -36,61 +37,82 @@ export default class HarmfulApis extends ContentFeature {
         // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
         this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
-        this.removeDeviceOrientationEvents()
-        this.blockGenericSensorApi()
-        this.filterUAClientHints()
-        this.removeNetworkInformationApi()
-        this.blockGetInstalledRelatedApps()
-        this.removeFileSystemAccessApi()
-        this.blockWindowPlacementApi()
-        this.blockWebBluetoothApi()
-        this.blockWebUsbApi()
-        this.blockWebSerialApi()
-        this.blockWebHidApi()
-        this.blockWebMidiApi()
-        this.removeIdleDetectionApi()
-        this.removeWebNfcApi()
-        this.filterStorageApi()
+
+        this.removeDeviceOrientationEvents(this.getFeatureSetting('deviceOrientation'))
+        this.blockGenericSensorApi(this.getFeatureSetting('GenericSensor'))
+        this.filterUAClientHints(this.getFeatureSetting('UaClientHints'))
+        this.removeNetworkInformationApi(this.getFeatureSetting('NetworkInformation'))
+        this.blockGetInstalledRelatedApps(this.getFeatureSetting('getInstalledRelatedApps'))
+        this.removeFileSystemAccessApi(this.getFeatureSetting('FileSystemAccess'))
+        this.blockWindowPlacementApi(this.getFeatureSetting('WindowPlacement'))
+        this.blockWebBluetoothApi(this.getFeatureSetting('WebBluetooth'))
+        this.blockWebUsbApi(this.getFeatureSetting('WebUsb'))
+        this.blockWebSerialApi(this.getFeatureSetting('WebSerial'))
+        this.blockWebHidApi(this.getFeatureSetting('WebHid'))
+        this.blockWebMidiApi(this.getFeatureSetting('WebMidi'))
+        this.removeIdleDetectionApi(this.getFeatureSetting('IdleDetection'))
+        this.removeWebNfcApi(this.getFeatureSetting('WebNfc'))
+        this.filterStorageManagerApi(this.getFeatureSetting('StorageManager'))
     }
 
-    removeDeviceOrientationEvents () {
-        const events = [
-            'deviceorientation',
-            'devicemotion'
-        ]
-        for (const eventName of events) {
-            const dom0HandlerName = `on${eventName}`
-            if (dom0HandlerName in globalThis) {
-                delete globalThis[dom0HandlerName]
-            }
+    /**
+     * @param {DeviceOrientationConfig} settings
+     */
+    removeDeviceOrientationEvents (settings) {
+        if (!settings.protected) {
+            return
         }
-        wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-            if (events.includes(type) && this === globalThis) {
-                return
+        const eventsToBlock = settings.filterEvents || []
+        if (eventsToBlock.length > 0) {
+            for (const eventName of eventsToBlock) {
+                const dom0HandlerName = `on${eventName}`
+                if (dom0HandlerName in globalThis) {
+                    delete globalThis[dom0HandlerName]
+                }
             }
-            return nativeImpl.call(this, type, ...restArgs)
-        })
+            wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+                if (eventsToBlock.includes(type) && this === globalThis) {
+                    return
+                }
+                return nativeImpl.call(this, type, ...restArgs)
+            })
+        }
     }
 
-    blockGenericSensorApi () {
-        filterPermissionQuery([
+    /**
+     * @param {GenericSensorConfig} settings
+     */
+    blockGenericSensorApi (settings) {
+        if (!settings.protected) {
+            return
+        }
+        const permissionsToFilter = settings.filterPermissions ?? [
             'accelerometer',
             'ambient-light-sensor',
             'gyroscope',
             'magnetometer'
-        ])
-        wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
-            // block all sensors
-            const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error
-            const error = new ErrorCls('error', {
-                error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError')
+        ]
+        filterPermissionQuery(permissionsToFilter)
+        if (settings.blockSensorStart) {
+            wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
+                // block all sensors
+                const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error
+                const error = new ErrorCls('error', {
+                    error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError')
+                })
+                // isTrusted will be false, but not much we can do here
+                this.dispatchEvent(error)
             })
-            // isTrusted will be false, but not much we can do here
-            this.dispatchEvent(error)
-        })
+        }
     }
 
-    filterUAClientHints () {
+    /**
+     * @param {UaClientHintsConfig} settings
+     */
+    filterUAClientHints (settings) {
+        if (!settings.protected) {
+            return
+        }
         wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
             const nativeResult = await nativeImpl.call(this, hints) // this may throw an error, and that is fine
             const filteredResult = {}
@@ -99,35 +121,60 @@ export default class HarmfulApis extends ContentFeature {
 
                 switch (key) {
                 case 'brands':
-                    result = value.map((brand) => {
-                        return {
-                            brand: brand.brand,
-                            version: stripVersion(brand.version)
-                        }
-                    })
+                    if (settings.trimBrands) {
+                        result = value.map((brand) => {
+                            return {
+                                brand: brand.brand,
+                                version: stripVersion(brand.version)
+                            }
+                        })
+                    }
                     break
                 case 'model':
-                    result = ''
+                    if (typeof settings.model !== 'undefined') {
+                        result = settings.model
+                    }
                     break
                 case 'platformVersion':
-                    result = stripVersion(value, 2)
+                    if (settings.trimPlatformVersion) {
+                        result = stripVersion(value, settings.trimPlatformVersion)
+                    }
                     break
                 case 'uaFullVersion':
-                    result = stripVersion(value)
+                    if (settings.trimUaFullVersion) {
+                        result = stripVersion(value, settings.trimUaFullVersion)
+                    }
                     break
                 case 'fullVersionList':
-                    result = value.map((brand) => {
-                        return {
-                            brand: brand.brand,
-                            version: stripVersion(brand.version)
-                        }
-                    })
+                    if (settings.trimFullVersionList) {
+                        result = value.map((brand) => {
+                            return {
+                                brand: brand.brand,
+                                version: stripVersion(brand.version, settings.trimFullVersionList)
+                            }
+                        })
+                    }
                     break
                 case 'architecture':
+                    if (typeof settings.architecture !== 'undefined') {
+                        result = settings.architecture
+                    }
+                    break
                 case 'bitness':
+                    if (typeof settings.bitness !== 'undefined') {
+                        result = settings.bitness
+                    }
+                    break
                 case 'platform':
+                    if (typeof settings.platform !== 'undefined') {
+                        result = settings.platform
+                    }
+                    break
                 case 'mobile':
-                default:
+                    if (typeof settings.mobile !== 'undefined') {
+                        result = settings.mobile
+                    }
+                    break
                 }
 
                 filteredResult[key] = result
@@ -136,119 +183,261 @@ export default class HarmfulApis extends ContentFeature {
         })
     }
 
-    removeNetworkInformationApi () {
+    /**
+     * @param {NetworkInformationConfig} settings
+     */
+    removeNetworkInformationApi (settings) {
+        if (!settings.protected) {
+            return
+        }
         if (!('connection' in this.navigatorPrototype)) {
             return
         }
         delete this.navigatorPrototype.connection
     }
 
-    blockGetInstalledRelatedApps () {
+    /**
+     * @param {GetInstalledRelatedAppsConfig} settings
+     */
+    blockGetInstalledRelatedApps (settings) {
+        if (!settings.protected) {
+            return
+        }
         wrapMethod(this.navigatorPrototype, 'getInstalledRelatedApps', function () {
-            return Promise.resolve([])
+            return Promise.resolve(settings.returnValue ?? [])
         })
     }
 
-    removeFileSystemAccessApi () {
-        if ('showOpenFilePicker' in globalThis) {
+    /**
+     * @param {FileSystemAccessConfig} settings
+     */
+    removeFileSystemAccessApi (settings) {
+        if (!settings.protected) {
+            return
+        }
+        if ('showOpenFilePicker' in globalThis && settings.disableOpenFilePicker) {
             delete globalThis.showOpenFilePicker
         }
-        if ('showSaveFilePicker' in globalThis) {
+        if ('showSaveFilePicker' in globalThis && settings.disableSaveFilePicker) {
             delete globalThis.showSaveFilePicker
         }
-        if ('showDirectoryPicker' in globalThis) {
+        if ('showDirectoryPicker' in globalThis && settings.disableDirectoryPicker) {
             delete globalThis.showDirectoryPicker
         }
-        if ('DataTransferItem' in globalThis && 'getAsFileSystemHandle' in globalThis.DataTransferItem.prototype) {
+        if ('DataTransferItem' in globalThis && 'getAsFileSystemHandle' in globalThis.DataTransferItem.prototype && settings.disableGetAsFileSystemHandle) {
             delete globalThis.DataTransferItem.prototype.getAsFileSystemHandle
         }
     }
 
-    blockWindowPlacementApi () {
-        wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => false })
-        filterPermissionQuery([
+    /**
+     * @param {WindowPlacementConfig} settings
+     */
+    blockWindowPlacementApi (settings) {
+        if (!settings.protected) {
+            return
+        }
+        if ('screenIsExtended' in settings) {
+            wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => settings.screenIsExtended })
+        }
+        filterPermissionQuery(settings.filterPermissions ?? [
             'window-placement',
             'window-management'
         ])
     }
 
-    blockWebBluetoothApi () {
+    /**
+     * @param {WebBluetoothConfig} settings
+     */
+    blockWebBluetoothApi (settings) {
+        if (!settings.protected) {
+            return
+        }
         if (!('Bluetooth' in globalThis)) {
             return
         }
-        wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-            if (type === 'availabilitychanged' && this === globalThis.Bluetooth) {
-                return
-            }
-            return nativeImpl.call(this, type, ...restArgs)
-        })
+        if (settings.filterEvents && settings.filterEvents.length > 0) {
+            wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+                if (settings.filterEvents?.includes(type) && this === globalThis.Bluetooth) {
+                    return
+                }
+                return nativeImpl.call(this, type, ...restArgs)
+            })
+        }
 
-        filterPermissionQuery(['bluetooth'])
+        filterPermissionQuery(settings.filterPermissions ?? ['bluetooth'])
 
-        wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
-            return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
-        })
+        if (settings.blockRequestDevice) {
+            wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
+                return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
+            })
+        }
 
-        wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false))
+        if (settings.blockGetAvailability) {
+            wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false))
+        }
     }
 
-    blockWebUsbApi () {
+    /**
+     * @param {WebUsbConfig} settings
+     */
+    blockWebUsbApi (settings) {
+        if (!settings.protected) {
+            return
+        }
         wrapMethod(globalThis.USB?.prototype, 'requestDevice', function () {
             return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
         })
     }
 
-    blockWebSerialApi () {
+    /**
+     * @param {WebSerialConfig} settings
+     */
+    blockWebSerialApi (settings) {
+        if (!settings.protected) {
+            return
+        }
         wrapMethod(globalThis.Serial?.prototype, 'requestPort', function () {
             return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
         })
     }
 
-    blockWebHidApi () {
+    /**
+     * @param {WebHidConfig} settings
+     */
+    blockWebHidApi (settings) {
+        if (!settings.protected) {
+            return
+        }
         // Chrome 113 does not throw errors, and only returns an empty array here
         wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => [])
     }
 
-    blockWebMidiApi () {
+    /**
+     * @param {WebMidiConfig} settings
+     */
+    blockWebMidiApi (settings) {
+        if (!settings.protected) {
+            return
+        }
         wrapMethod(this.navigatorPrototype, 'requestMIDIAccess', function () {
             return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'))
         })
-        filterPermissionQuery(['midi'])
+        filterPermissionQuery(settings.filterPermissions ?? ['midi'])
     }
 
-    removeIdleDetectionApi () {
+    /**
+     * @param {IdleDetectionConfig} settings
+     */
+    removeIdleDetectionApi (settings) {
+        if (!settings.protected) {
+            return
+        }
         if ('IdleDetector' in globalThis) {
             delete globalThis.IdleDetector
-            filterPermissionQuery(['idle-detection'])
+            filterPermissionQuery(settings.filterPermissions ?? ['idle-detection'])
         }
     }
 
-    removeWebNfcApi () {
-        if ('NDEFReader' in globalThis) {
+    /**
+     * @param {WebNfcConfig} settings
+     */
+    removeWebNfcApi (settings) {
+        if (!settings.protected) {
+            return
+        }
+        if ('NDEFReader' in globalThis && settings.disableNdefReader) {
             delete globalThis.NDEFReader
         }
-        if ('NDEFMessage' in globalThis) {
+        if ('NDEFMessage' in globalThis && settings.disableNdefMessage) {
             delete globalThis.NDEFMessage
         }
-        if ('NDEFRecord' in globalThis) {
+        if ('NDEFRecord' in globalThis && settings.disableNdefRecord) {
             delete globalThis.NDEFRecord
         }
     }
 
-    filterStorageApi () {
-        wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl) {
-            const result = await nativeImpl.call(this)
-            const oneGb = 1_073_741_824
-            const fourGb = 4_294_967_296
-            const tenGb = 10_737_418_240
-            result.quota = result.quota >= tenGb
-                ? tenGb
-                : result.quota >= fourGb
-                    ? fourGb
-                    : result.quota > 0
-                        ? oneGb
-                        : 0
-            return result
-        })
+    /**
+     * @param {StorageManagerConfig} settings
+     */
+    filterStorageManagerApi (settings) {
+        if (!settings.protected) {
+            return
+        }
+        if (settings.allowedQuotaValues) {
+            const values = settings.allowedQuotaValues.slice()
+            values.sort().filter(v => v > 0)
+            values.unshift(0)
+            // now, values is a sorted array of positive numbers, with 0 as the first element
+            if (values.length > 0) {
+                wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl) {
+                    const result = await nativeImpl.call(this)
+                    // find the first allowed value from the right that is smaller than the result
+                    let i = values.length - 1
+                    while (i > 0 && values[i] > result.quota) {
+                        i--
+                    }
+                    result.quota = values[i]
+                    return result
+                })
+            }
+        }
     }
 }
+
+/**
+@typedef {
+    {
+        protected: boolean;
+        filterPermissions?: string[];
+        filterEvents?: string[];
+    }
+} ApiConfig
+
+@typedef {ApiConfig} DeviceOrientationConfig
+
+// mixins are necessary because jsdoc doesn't support `extends`
+@typedef {{ blockSensorStart: boolean }} GenericSensorConfigMixin
+@typedef {{ trimBrands: boolean, model: string, trimPlatformVersion: number, trimUaFullVersion: number, trimFullVersionList: number, architecture: string, bitness: string, mobile: boolean, platform: string }} UaClientHintsConfigMixin
+@typedef {{ }} NetworkInformationConfigMixin
+@typedef {{ returnValue: any }} GetInstalledRelatedAppsConfigMixin
+@typedef {{ disableOpenFilePicker: boolean, disableSaveFilePicker: boolean, disableDirectoryPicker: boolean, disableGetAsFileSystemHandle: boolean }} FileSystemAccessConfigMixin
+@typedef {{ screenIsExtended?: boolean }} WindowPlacementConfigMixin
+@typedef {{ blockGetAvailability: boolean, blockRequestDevice: boolean }} WebBluetoothConfigMixin
+@typedef {{ disableNdefReader: boolean, disableNdefMessage: boolean, disableNdefRecord: boolean }} WebNfcConfigMixin
+@typedef {{ allowedQuotaValues: number[] }} StorageManagerConfigMixin
+
+@typedef {ApiConfig & UaClientHintsConfigMixin} UaClientHintsConfig
+@typedef {ApiConfig & GenericSensorConfigMixin} GenericSensorConfig
+@typedef {ApiConfig & NetworkInformationConfigMixin} NetworkInformationConfig
+@typedef {ApiConfig & GetInstalledRelatedAppsConfigMixin} GetInstalledRelatedAppsConfig
+@typedef {ApiConfig & FileSystemAccessConfigMixin} FileSystemAccessConfig
+@typedef {ApiConfig & WindowPlacementConfigMixin} WindowPlacementConfig
+@typedef {ApiConfig & WebBluetoothConfigMixin} WebBluetoothConfig
+@typedef {ApiConfig} WebUsbConfig
+@typedef {ApiConfig} WebSerialConfig
+@typedef {ApiConfig} WebHidConfig
+@typedef {ApiConfig} WebMidiConfig
+@typedef {ApiConfig} IdleDetectionConfig
+@typedef {ApiConfig & WebNfcConfigMixin} WebNfcConfig
+@typedef {ApiConfig & StorageManagerConfigMixin} StorageManagerConfig
+
+@typedef {
+    {
+        deviceOrientation: DeviceOrientationConfig;
+        UaClientHints: UaClientHintsConfig;
+        GenericSensor: GenericSensorConfig;
+        NetworkInformation: NetworkInformationConfig;
+        getInstalledRelatedApps: GetInstalledRelatedAppsConfig;
+        FileSystemAccess: FileSystemAccessConfig;
+        WindowPlacement: WindowPlacementConfig;
+        WebBluetooth: WebBluetoothConfig;
+        WebUsb: WebUsbConfig;
+        WebSerial: WebSerialConfig;
+        WebHid: WebHidConfig;
+        WebMidi: WebMidiConfig;
+        IdleDetection: IdleDetectionConfig;
+        WebNfc: WebNfcConfig;
+        StorageManager: StorageManagerConfig;
+    }
+} ApiProtections
+ */
