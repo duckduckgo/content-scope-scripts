@@ -38,6 +38,7 @@ export default class HarmfulApis extends ContentFeature {
         this.blockWebSerialApi()
         this.blockWebHidApi()
         this.blockWebMidiApi()
+        this.removeIdleDetectionApi()
     }
 
     initPermissionsFilter () {
@@ -271,6 +272,12 @@ export default class HarmfulApis extends ContentFeature {
                     return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'))
                 }
             })
+        }
+    }
+
+    removeIdleDetectionApi () {
+        if ('IdleDetector' in globalThis) {
+            delete globalThis.IdleDetector
         }
     }
 }
