@@ -1,5 +1,6 @@
 /* global Bluetooth, Geolocation, HID, Serial, USB */
-import { DDGProxy, DDGReflect, defineProperty } from '../utils'
+import { DDGProxy, DDGReflect } from '../utils'
+import { defineProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
 
 export default class WindowsPermissionUsage extends ContentFeature {
@@ -270,7 +271,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
                 return trackEnabledPropertyDescriptor.get.bind(this)()
             },
-            set: function (value) {
+            set: function () {
                 // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
                 const result = trackEnabledPropertyDescriptor.set.bind(this)(...arguments)
                 if (videoTracks.has(this)) {
@@ -393,7 +394,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
         ]
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {
-                if (typeof window[name] === 'undefined') continue
                 const proxy = new DDGProxy(featureName, prototype(), method, {
                     apply () {
                         if (isPromise) {

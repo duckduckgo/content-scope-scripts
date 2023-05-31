@@ -1,0 +1,23 @@
+{
+    "features": {
+        "runtimeChecks": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "taintCheck": "enabled",
+                "matchAllDomains": "enabled",
+                "matchAllStackDomains": "enabled",
+                "overloadInstanceOf": "enabled",
+                "overloadRemoveChild": "enabled",
+                "overloadReplaceChild": "enabled",
+                "elementRemovalTimeout": 100,
+                "injectGlobalStyles": "enabled",
+                "replaceElement": "enabled",
+                "domains": [
+                ],
+                "stackDomains": [
+                ]
+            }
+        }
+    }
+}

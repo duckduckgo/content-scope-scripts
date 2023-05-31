@@ -33,6 +33,7 @@
                 { name: 'scripty.type', result: scripty.type, expected: 'application/javascript' },
                 { name: 'scripty.id', result: scripty.id, expected: 'scripty' },
                 { name: 'script ran', result: window.scripty1Ran, expected: true },
+                // Ensure no script changes happen without scriptOverload properties
                 { name: 'script ran', result: scriptElement.innerText, expected: 'window.scripty1Ran = true' },
             ];
         });

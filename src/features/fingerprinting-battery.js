@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature'
-import { defineProperty } from '../utils'
+import { defineProperty } from '../wrapper-utils'
 
 /**
  * Overwrites the Battery API if present in the browser.

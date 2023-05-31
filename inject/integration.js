@@ -14,7 +14,7 @@ function getTopLevelURL () {
     }
 }
 
-function generateConfig (data, userList) {
+function generateConfig () {
     const topLevelUrl = getTopLevelURL()
     const trackerLookup = import.meta.trackerLookup
     return {
@@ -74,6 +74,7 @@ async function initCode () {
     const processedConfig = generateConfig()
 
     load({
+        // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),

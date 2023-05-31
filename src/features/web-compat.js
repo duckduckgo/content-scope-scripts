@@ -1,4 +1,4 @@
-import { defineProperty } from '../utils'
+import { defineProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
 
 /**
@@ -68,7 +68,7 @@ function safariObjectFix () {
         }
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         defineProperty(window.safari.pushNotification, 'permission', {
-            value: (name) => {
+            value: () => {
                 return new SafariRemoteNotificationPermission()
             },
             configurable: true,

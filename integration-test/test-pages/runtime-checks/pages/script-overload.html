@@ -21,6 +21,8 @@
             scriptElement.innerText = `
                 window.scriptyRan = true;
                 window.scriptOutput = {
+                    /* Ensure we can access the original value of object globals */
+                    r: window.crypto.randomUUID(),
                     n: navigator.userAgent,
                     w: window.navigator.userAgent,
                     g: globalThis.navigator.userAgent,
@@ -41,11 +43,15 @@
             const expectedPlaybackState = 'playing';
             // We shouldn't break out of the context we're overloading
             const doesntMatchParentContext = navigator.userAgent !== 'testingThisOut';
+            const getRandomVal = window.scriptOutput.r;
+            // delete as it's not deterministic
+            delete window.scriptOutput.r;
             return [
                 { name: 'hadInspectorNode', result: hadInspectorNode, expected: true },
                 { name: 'instanceof matches HTMLScriptElement', result: instanceofResult, expected: true },
                 { name: 'script ran', result: window.scriptyRan, expected: true },
                 { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
+                { name: 'random val present', result: getRandomVal.length, expected: 36 },
                 { name: 'user agent is overloaded', result: window.scriptOutput, expected: {
                     n: expectedUserAgentOverload,
                     w: expectedUserAgentOverload,
