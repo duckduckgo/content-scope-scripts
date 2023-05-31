@@ -39,6 +39,7 @@ export default class HarmfulApis extends ContentFeature {
         this.blockWebHidApi()
         this.blockWebMidiApi()
         this.removeIdleDetectionApi()
+        this.removeWebNfcApi()
     }
 
     initPermissionsFilter () {
@@ -278,6 +279,18 @@ export default class HarmfulApis extends ContentFeature {
     removeIdleDetectionApi () {
         if ('IdleDetector' in globalThis) {
             delete globalThis.IdleDetector
+        }
+    }
+
+    removeWebNfcApi () {
+        if ('NDEFReader' in globalThis) {
+            delete globalThis.NDEFReader
+        }
+        if ('NDEFMessage' in globalThis) {
+            delete globalThis.NDEFMessage
+        }
+        if ('NDEFRecord' in globalThis) {
+            delete globalThis.NDEFRecord
         }
     }
 }

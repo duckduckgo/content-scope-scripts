@@ -402,7 +402,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // these permissions can be disabled using DevTools protocol but it's not reliable and can throw exception sometimes
         const permissionsToDelete = [
-            { name: 'NFC', permission: 'NDEFReader' },
             { name: 'Orientation', permission: 'ondeviceorientation' },
             { name: 'Motion', permission: 'ondevicemotion' }
         ]
