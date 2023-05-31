@@ -5,7 +5,6 @@ const globalObj = typeof window === 'undefined' ? globalThis : window
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor
 const functionToString = Function.prototype.toString
 const objectKeys = Object.keys
-const NativeProxy = Proxy
 
 export function defineProperty (object, propertyName, descriptor) {
     if (hasMozProxies) {
