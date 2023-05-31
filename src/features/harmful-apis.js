@@ -15,12 +15,12 @@ export default class HarmfulApis extends ContentFeature {
     init (args) {
         console.log('INIT! from harmfulAPIs', args)
         this.initPermissionsFilter()
-        this.initSensorBlock()
-        this.initUAClientHintsBlock()
-        this.removeNetworkInformation()
+        this.blockGenericSensorApi()
+        this.filterUAClientHints()
+        this.removeNetworkInformationApi()
         this.blockGetInstalledRelatedApps()
-        this.removeFileSystemAccess()
-        this.blockWindowPlacement()
+        this.removeFileSystemAccessApi()
+        this.blockWindowPlacementApi()
     }
 
     initPermissionsFilter () {
@@ -48,7 +48,7 @@ export default class HarmfulApis extends ContentFeature {
         })
     }
 
-    initSensorBlock () {
+    blockGenericSensorApi () {
         if (!('Sensor' in globalThis) || !('start' in globalThis.Sensor.prototype)) {
             return
         }
@@ -69,7 +69,7 @@ export default class HarmfulApis extends ContentFeature {
         })
     }
 
-    initUAClientHintsBlock () {
+    filterUAClientHints () {
         if (!('NavigatorUAData' in globalThis)) {
             return
         }
@@ -125,7 +125,7 @@ export default class HarmfulApis extends ContentFeature {
         })
     }
 
-    removeNetworkInformation () {
+    removeNetworkInformationApi () {
         if (!('connection' in Navigator.prototype)) {
             return
         }
@@ -146,7 +146,7 @@ export default class HarmfulApis extends ContentFeature {
         })
     }
 
-    removeFileSystemAccess () {
+    removeFileSystemAccessApi () {
         if ('showOpenFilePicker' in globalThis) {
             delete globalThis.showOpenFilePicker
         }
@@ -161,7 +161,7 @@ export default class HarmfulApis extends ContentFeature {
         }
     }
 
-    blockWindowPlacement () {
+    blockWindowPlacementApi () {
         if ('Screen' in globalThis && 'isExtended' in globalThis.Screen.prototype) {
             defineProperty(globalThis.Screen.prototype, 'isExtended', {
                 configurable: true,
