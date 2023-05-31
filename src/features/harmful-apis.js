@@ -15,10 +15,11 @@ export default class HarmfulApis extends ContentFeature {
     init (args) {
         console.log('INIT! from harmfulAPIs', args)
         this.initPermissionsFilter()
+        this.initSensorBlock()
     }
 
     initPermissionsFilter () {
-        if (!('Permissions' in globalThis) || !('query' in Permissions.prototype)) {
+        if (!('Permissions' in globalThis) || !('query' in globalThis.Permissions.prototype)) {
             return
         }
         const nativeImpl = globalThis.Permissions.prototype.query
@@ -38,6 +39,27 @@ export default class HarmfulApis extends ContentFeature {
                     }
                 }
                 return origResult
+            }
+        })
+    }
+
+    initSensorBlock () {
+        if (!('Sensor' in globalThis) || !('start' in globalThis.Sensor.prototype)) {
+            return
+        }
+
+        defineProperty(globalThis.Sensor.prototype, 'start', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: function () {
+                // block all sensors
+                const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error
+                const error = new ErrorCls('error', {
+                    error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError')
+                })
+                // isTrusted will be false, but not much we can do here
+                this.dispatchEvent(error)
             }
         })
     }
