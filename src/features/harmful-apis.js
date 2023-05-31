@@ -23,19 +23,13 @@ export default class HarmfulApis extends ContentFeature {
         'window-management'
     ]
 
-    static removeEvents = [
-        'deviceorientation',
-        'devicemotion'
-    ]
-
     init (args) {
         console.log('INIT! from harmfulAPIs', args)
         // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
         this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
         this.initPermissionsFilter()
-        this.initEventFilter()
-
+        this.removeDeviceOrientationEvents()
         this.blockGenericSensorApi()
         this.filterUAClientHints()
         this.removeNetworkInformationApi()
@@ -68,15 +62,19 @@ export default class HarmfulApis extends ContentFeature {
         })
     }
 
-    initEventFilter () {
-        for (const eventName of HarmfulApis.removeEvents) {
+    removeDeviceOrientationEvents () {
+        const events = [
+            'deviceorientation',
+            'devicemotion'
+        ]
+        for (const eventName of events) {
             const dom0HandlerName = `on${eventName}`
             if (dom0HandlerName in globalThis) {
                 delete globalThis[dom0HandlerName]
             }
         }
         wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-            if (HarmfulApis.removeEvents.includes(type)) {
+            if (events.includes(type) && this === globalThis) {
                 return
             }
             return nativeImpl.call(this, type, ...restArgs)
@@ -174,7 +172,15 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     blockWebBluetoothApi () {
-        //TODO: remove 'availabilitychanged' event // for the Bluetooth API
+        if (!('Bluetooth' in globalThis)) {
+            return
+        }
+        wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+            if (type === 'availabilitychanged' && this === globalThis.Bluetooth) {
+                return
+            }
+            return nativeImpl.call(this, type, ...restArgs)
+        })
 
         wrapMethod(globalThis.Bluetooth.prototype, 'requestDevice', function () {
             return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
@@ -184,26 +190,18 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     blockWebUsbApi () {
-        // TODO: remove connect
-        // TODO: remove disconnect
-
         wrapMethod(globalThis.USB.prototype, 'requestDevice', function () {
             return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
         })
     }
 
     blockWebSerialApi () {
-        // TODO: remove connect
-        // TODO: remove disconnect
         wrapMethod(globalThis.Serial.prototype, 'requestPort', function () {
             return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
         })
     }
 
     blockWebHidApi () {
-        // TODO: remove connect
-        // TODO: remove disconnect
-
         // Chrome 113 does not throw errors, and only returns an empty array here
         wrapMethod(globalThis.HID.prototype, 'requestDevice', () => [])
     }
