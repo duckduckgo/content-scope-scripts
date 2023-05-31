@@ -271,7 +271,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
                 return trackEnabledPropertyDescriptor.get.bind(this)()
             },
-            set: function (value) {
+            set: function () {
                 // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
                 const result = trackEnabledPropertyDescriptor.set.bind(this)(...arguments)
                 if (videoTracks.has(this)) {

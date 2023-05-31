@@ -14,7 +14,7 @@ function getTopLevelURL () {
     }
 }
 
-function generateConfig (data, userList) {
+function generateConfig () {
     const topLevelUrl = getTopLevelURL()
     const trackerLookup = import.meta.trackerLookup
     return {
