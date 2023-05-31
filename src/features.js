@@ -19,7 +19,8 @@ const otherFeatures = /** @type {const} */([
     'clickToLoad',
     'windowsPermissionUsage',
     'webCompat',
-    'duckPlayer'
+    'duckPlayer',
+    'harmfulApis'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -48,7 +49,8 @@ export const platformSupport = {
     ],
     'chrome-mv3': [
         ...baseFeatures,
-        'clickToLoad'
+        'clickToLoad',
+        'harmfulApis'
     ],
     integration: [
         ...baseFeatures,
