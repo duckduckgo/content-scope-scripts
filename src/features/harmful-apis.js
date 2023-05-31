@@ -3,32 +3,39 @@ import { stripVersion } from '../utils'
 import { wrapMethod, wrapProperty } from '../wrapper-utils'
 
 /**
+ * block some Permission API queries. The set of available permissions is quickly changing over time. Up-to-date lists can be found here:
+ * - Chromium: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/third_party/blink/renderer/modules/permissions/permission_descriptor.idl
+ * - Gecko: https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
+ * - WebKit: https://github.com/WebKit/WebKit/blob/main/Source/WebCore/Modules/permissions/PermissionName.idl
+ * @param {string[]} permissions permission names to auto-deny
+ */
+function filterPermissionQuery (permissions) {
+    /*
+    */
+    wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
+        // call the original function first in case it throws an error
+        const origResult = await nativeImpl.call(this, queryObject)
+
+        if (permissions.includes(queryObject.name)) {
+            return {
+                name: queryObject.name,
+                state: 'denied',
+                status: 'denied'
+            }
+        }
+        return origResult
+    })
+}
+
+/**
  * Blocks some privacy harmful APIs.
  */
 export default class HarmfulApis extends ContentFeature {
-    /* the set of available permissions is quickly changing over time. Up-to-date lists can be found here:
-       - Chromium: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/third_party/blink/renderer/modules/permissions/permission_descriptor.idl
-       - Gecko: https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
-       - WebKit: https://github.com/WebKit/WebKit/blob/main/Source/WebCore/Modules/permissions/PermissionName.idl
-    */
-    static autoDenyPermissions = [
-        'accelerometer',
-        'ambient-light-sensor',
-        'gyroscope',
-        'magnetometer',
-        'bluetooth',
-        'midi',
-        'idle-detection',
-        'window-placement',
-        'window-management'
-    ]
-
     init (args) {
         console.log('INIT! from harmfulAPIs', args)
         // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
         this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
-        this.initPermissionsFilter()
         this.removeDeviceOrientationEvents()
         this.blockGenericSensorApi()
         this.filterUAClientHints()
@@ -44,22 +51,6 @@ export default class HarmfulApis extends ContentFeature {
         this.removeIdleDetectionApi()
         this.removeWebNfcApi()
         this.filterStorageApi()
-    }
-
-    initPermissionsFilter () {
-        wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
-            // call the original function first in case it throws an error
-            const origResult = await nativeImpl.call(this, queryObject)
-
-            if (HarmfulApis.autoDenyPermissions.includes(queryObject.name)) {
-                return {
-                    name: queryObject.name,
-                    state: 'denied',
-                    status: 'denied'
-                }
-            }
-            return origResult
-        })
     }
 
     removeDeviceOrientationEvents () {
@@ -82,6 +73,12 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     blockGenericSensorApi () {
+        filterPermissionQuery([
+            'accelerometer',
+            'ambient-light-sensor',
+            'gyroscope',
+            'magnetometer'
+        ])
         wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
             // block all sensors
             const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error
@@ -169,6 +166,10 @@ export default class HarmfulApis extends ContentFeature {
 
     blockWindowPlacementApi () {
         wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => false })
+        filterPermissionQuery([
+            'window-placement',
+            'window-management'
+        ])
     }
 
     blockWebBluetoothApi () {
@@ -181,6 +182,8 @@ export default class HarmfulApis extends ContentFeature {
             }
             return nativeImpl.call(this, type, ...restArgs)
         })
+
+        filterPermissionQuery(['bluetooth'])
 
         wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
             return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
@@ -210,11 +213,13 @@ export default class HarmfulApis extends ContentFeature {
         wrapMethod(this.navigatorPrototype, 'requestMIDIAccess', function () {
             return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'))
         })
+        filterPermissionQuery(['midi'])
     }
 
     removeIdleDetectionApi () {
         if ('IdleDetector' in globalThis) {
             delete globalThis.IdleDetector
+            filterPermissionQuery(['idle-detection'])
         }
     }
 
