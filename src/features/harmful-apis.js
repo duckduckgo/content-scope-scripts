@@ -35,6 +35,7 @@ export default class HarmfulApis extends ContentFeature {
         this.blockWindowPlacementApi()
         this.blockWebBluetoothApi()
         this.blockWebUsbApi()
+        this.blockWebSerialApi()
     }
 
     initPermissionsFilter () {
@@ -220,6 +221,22 @@ export default class HarmfulApis extends ContentFeature {
                 writable: true,
                 value: function () {
                     return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
+                }
+            })
+        }
+    }
+
+    blockWebSerialApi () {
+        if (!('Serial' in globalThis)) {
+            return
+        }
+        if ('requestPort' in globalThis.Serial.prototype) {
+            defineProperty(globalThis.Serial.prototype, 'requestPort', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: function () {
+                    return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
                 }
             })
         }
