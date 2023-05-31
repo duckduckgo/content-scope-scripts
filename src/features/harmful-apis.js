@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature'
-import { defineProperty, stripVersion } from '../utils'
+import { stripVersion } from '../utils'
+import { defineProperty } from '../wrapper-utils'
 
 /**
  * Blocks some privacy harmful APIs.
@@ -24,8 +25,7 @@ export default class HarmfulApis extends ContentFeature {
 
     static removeEvents = [
         'deviceorientation',
-        'devicemotion',
-        'availabilitychanged' // for the Bluetooth API
+        'devicemotion'
     ]
 
     init (args) {
@@ -225,6 +225,9 @@ export default class HarmfulApis extends ContentFeature {
         if (!('Bluetooth' in globalThis)) {
             return
         }
+
+        //TODO: remove 'availabilitychanged' event // for the Bluetooth API
+
         if ('requestDevice' in globalThis.Bluetooth.prototype) {
             defineProperty(globalThis.Bluetooth.prototype, 'requestDevice', {
                 configurable: true,
@@ -249,6 +252,9 @@ export default class HarmfulApis extends ContentFeature {
         if (!('USB' in globalThis)) {
             return
         }
+        // TODO: remove connect
+        // TODO: remove disconnect
+
         if ('requestDevice' in globalThis.USB.prototype) {
             defineProperty(globalThis.USB.prototype, 'requestDevice', {
                 configurable: true,
@@ -265,6 +271,8 @@ export default class HarmfulApis extends ContentFeature {
         if (!('Serial' in globalThis)) {
             return
         }
+        // TODO: remove connect
+        // TODO: remove disconnect
         if ('requestPort' in globalThis.Serial.prototype) {
             defineProperty(globalThis.Serial.prototype, 'requestPort', {
                 configurable: true,
@@ -281,6 +289,8 @@ export default class HarmfulApis extends ContentFeature {
         if (!('HID' in globalThis)) {
             return
         }
+        // TODO: remove connect
+        // TODO: remove disconnect
         if ('requestDevice' in globalThis.HID.prototype) {
             defineProperty(globalThis.HID.prototype, 'requestDevice', {
                 configurable: true,
