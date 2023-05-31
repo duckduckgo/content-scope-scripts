@@ -382,8 +382,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // these permissions cannot be disabled using WebView2 or DevTools protocol
         const permissionsToDisable = [
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            { name: 'Bluetooth', prototype: () => Bluetooth.prototype, method: 'requestDevice', isPromise: true },
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             { name: 'USB', prototype: () => USB.prototype, method: 'requestDevice', isPromise: true },
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             { name: 'Serial', prototype: () => Serial.prototype, method: 'requestPort', isPromise: true },

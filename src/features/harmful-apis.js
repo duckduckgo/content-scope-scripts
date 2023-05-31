@@ -23,6 +23,7 @@ export default class HarmfulApis extends ContentFeature {
         this.blockGetInstalledRelatedApps()
         this.removeFileSystemAccessApi()
         this.blockWindowPlacementApi()
+        this.blockWebBluetoothApi()
     }
 
     initPermissionsFilter () {
@@ -169,6 +170,30 @@ export default class HarmfulApis extends ContentFeature {
                 configurable: true,
                 enumerable: true,
                 get: () => false
+            })
+        }
+    }
+
+    blockWebBluetoothApi () {
+        if (!('Bluetooth' in globalThis)) {
+            return
+        }
+        if ('requestDevice' in globalThis.Bluetooth.prototype) {
+            defineProperty(globalThis.Bluetooth.prototype, 'requestDevice', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: function () {
+                    return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
+                }
+            })
+        }
+        if ('getAvailability' in globalThis.Bluetooth.prototype) {
+            defineProperty(globalThis.Bluetooth.prototype, 'getAvailability', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: () => Promise.resolve(false)
             })
         }
     }
