@@ -18,8 +18,9 @@
     "integration-test",
     "inject",
     "packages",
-    "playwright.config.js"
-, "script-overload-snapshots"  ],
+    "playwright.config.js",
+    "script-overload-snapshots"
+  ],
   "exclude": [
     "snapshots/script-overload-snapshots",
     "integration-test/pages",
