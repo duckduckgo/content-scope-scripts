@@ -1,4 +1,4 @@
-import { camelcase, getTabHostname, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
+import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 
@@ -156,7 +156,7 @@ export default class ContentFeature {
         })
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     init (args) {
     }
 
@@ -169,7 +169,7 @@ export default class ContentFeature {
         this.measure()
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     load (args) {
     }
 

@@ -7,6 +7,6 @@ function init () {
     document.body.appendChild(script)
 }
 // Wait for setup
-window.addEventListener('initialize', (e) => {
+window.addEventListener('initialize', () => {
     init()
 })
