@@ -5,11 +5,21 @@ import { defineProperty, stripVersion } from '../utils'
  * Blocks some privacy harmful APIs.
  */
 export default class HarmfulApis extends ContentFeature {
+    /* available values are listed here:
+       - Chromium: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/third_party/blink/renderer/modules/permissions/permission_descriptor.idl
+       - Gecko: https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
+       - WebKit: https://github.com/WebKit/WebKit/blob/main/Source/WebCore/Modules/permissions/PermissionName.idl
+    */
     static autoDenyPermissions = [
         'accelerometer',
         'ambient-light-sensor',
         'gyroscope',
-        'magnetometer'
+        'magnetometer',
+        'bluetooth',
+        'midi',
+        'idle-detection',
+        'window-placement',
+        'window-management'
     ]
 
     init (args) {
