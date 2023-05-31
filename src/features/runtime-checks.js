@@ -472,6 +472,7 @@ function overrideCreateElement () {
     initialCreateElement = proxy._native
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getTaintFromScope (scope, args) {
     try {
         scope = args.callee.caller

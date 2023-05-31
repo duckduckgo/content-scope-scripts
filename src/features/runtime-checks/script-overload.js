@@ -1,5 +1,6 @@
 import { processAttr, getContextId } from '../../utils.js'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const globalStates = new Set()
 
 function generateUniqueID () {
@@ -123,7 +124,7 @@ function constructProxy (scope, outputs) {
         return scope
     }
     return new Proxy(scope, {
-        get (target, property, receiver) {
+        get (target, property) {
             const targetObj = target[property]
             let targetOut = target
             if (typeof property === 'string' && property in outputs) {
@@ -213,7 +214,7 @@ export function wrapScriptCodeOverload (code, config) {
         currentScope = aggregatedLookup
         const pathOut = path[path.length - 1]
         // Traverse the path and create the nested objects
-        path.slice(0, -1).forEach((pathPart, index) => {
+        path.slice(0, -1).forEach((pathPart) => {
             if (!currentScope.has(pathPart)) {
                 currentScope.set(pathPart, new Map())
             }

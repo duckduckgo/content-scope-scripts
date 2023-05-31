@@ -13,7 +13,7 @@
       return scope
     }
     return new Proxy(scope, {
-      get (target, property, receiver) {
+      get (target, property) {
         const targetObj = target[property]
         let targetOut = target
         if (typeof property === 'string' && property in outputs) {

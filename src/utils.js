@@ -598,8 +598,6 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     const topLevelHostname = getTabHostname()
     const site = computeLimitedSiteObject()
     const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0
-    const remoteFeatureNames = Object.keys(data.features)
-    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
     /** @type {Record<string, any>} */
     const output = { ...preferences }
     if (output.platform) {
