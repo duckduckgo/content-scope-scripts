@@ -18,6 +18,7 @@ export default class HarmfulApis extends ContentFeature {
         this.initSensorBlock()
         this.initUAClientHintsBlock()
         this.removeNetworkInformation()
+        this.blockGetInstalledRelatedApps()
     }
 
     initPermissionsFilter () {
@@ -127,5 +128,19 @@ export default class HarmfulApis extends ContentFeature {
             return
         }
         delete Navigator.prototype.connection
+    }
+
+    blockGetInstalledRelatedApps () {
+        if (!('getInstalledRelatedApps' in Navigator.prototype)) {
+            return
+        }
+        defineProperty(Navigator.prototype, 'getInstalledRelatedApps', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: function () {
+                return Promise.resolve([])
+            }
+        })
     }
 }
