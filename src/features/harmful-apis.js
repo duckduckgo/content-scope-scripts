@@ -82,7 +82,7 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     blockGenericSensorApi () {
-        wrapMethod(globalThis.Sensor.prototype, 'start', function () {
+        wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
             // block all sensors
             const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error
             const error = new ErrorCls('error', {
@@ -94,7 +94,7 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     filterUAClientHints () {
-        wrapMethod(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
+        wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
             const nativeResult = await nativeImpl.call(this, hints) // this may throw an error, and that is fine
             const filteredResult = {}
             for (const [key, value] of Object.entries(nativeResult)) {
@@ -168,7 +168,7 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     blockWindowPlacementApi () {
-        wrapProperty(Screen.prototype, 'isExtended', { get: () => false })
+        wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => false })
     }
 
     blockWebBluetoothApi () {
@@ -182,28 +182,28 @@ export default class HarmfulApis extends ContentFeature {
             return nativeImpl.call(this, type, ...restArgs)
         })
 
-        wrapMethod(globalThis.Bluetooth.prototype, 'requestDevice', function () {
+        wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
             return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
         })
 
-        wrapMethod(globalThis.Bluetooth.prototype, 'getAvailability', () => Promise.resolve(false))
+        wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false))
     }
 
     blockWebUsbApi () {
-        wrapMethod(globalThis.USB.prototype, 'requestDevice', function () {
+        wrapMethod(globalThis.USB?.prototype, 'requestDevice', function () {
             return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
         })
     }
 
     blockWebSerialApi () {
-        wrapMethod(globalThis.Serial.prototype, 'requestPort', function () {
+        wrapMethod(globalThis.Serial?.prototype, 'requestPort', function () {
             return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
         })
     }
 
     blockWebHidApi () {
         // Chrome 113 does not throw errors, and only returns an empty array here
-        wrapMethod(globalThis.HID.prototype, 'requestDevice', () => [])
+        wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => [])
     }
 
     blockWebMidiApi () {
@@ -231,7 +231,7 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     filterStorageApi () {
-        wrapMethod(globalThis.StorageManager.prototype, 'estimate', async function (nativeImpl) {
+        wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl) {
             const result = await nativeImpl.call(this)
             const oneGb = 1_073_741_824
             const fourGb = 4_294_967_296
