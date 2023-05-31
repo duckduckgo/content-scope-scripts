@@ -34,6 +34,7 @@ export default class HarmfulApis extends ContentFeature {
         this.removeFileSystemAccessApi()
         this.blockWindowPlacementApi()
         this.blockWebBluetoothApi()
+        this.blockWebUsbApi()
     }
 
     initPermissionsFilter () {
@@ -204,6 +205,22 @@ export default class HarmfulApis extends ContentFeature {
                 enumerable: true,
                 writable: true,
                 value: () => Promise.resolve(false)
+            })
+        }
+    }
+
+    blockWebUsbApi () {
+        if (!('USB' in globalThis)) {
+            return
+        }
+        if ('requestDevice' in globalThis.USB.prototype) {
+            defineProperty(globalThis.USB.prototype, 'requestDevice', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: function () {
+                    return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
+                }
             })
         }
     }
