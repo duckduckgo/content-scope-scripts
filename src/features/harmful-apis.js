@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature'
 import { stripVersion } from '../utils'
-import { defineProperty } from '../wrapper-utils'
+import { wrapMethod, wrapProperty } from '../wrapper-utils'
 
 /**
  * Blocks some privacy harmful APIs.
@@ -53,27 +53,18 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     initPermissionsFilter () {
-        if (!('Permissions' in globalThis) || !('query' in globalThis.Permissions.prototype)) {
-            return
-        }
-        const nativeImpl = globalThis.Permissions.prototype.query
-        defineProperty(globalThis.Permissions.prototype, 'query', {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: async function (queryObject) {
-                // call the original function first in case it throws an error
-                const origResult = await nativeImpl.call(this, queryObject)
+        wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
+            // call the original function first in case it throws an error
+            const origResult = await nativeImpl.call(this, queryObject)
 
-                if (HarmfulApis.autoDenyPermissions.includes(queryObject.name)) {
-                    return {
-                        name: queryObject.name,
-                        state: 'denied',
-                        status: 'denied'
-                    }
+            if (HarmfulApis.autoDenyPermissions.includes(queryObject.name)) {
+                return {
+                    name: queryObject.name,
+                    state: 'denied',
+                    status: 'denied'
                 }
-                return origResult
             }
+            return origResult
         })
     }
 
@@ -84,94 +75,69 @@ export default class HarmfulApis extends ContentFeature {
                 delete globalThis[dom0HandlerName]
             }
         }
-        const nativeImpl = EventTarget.prototype.addEventListener
-        defineProperty(EventTarget.prototype, 'addEventListener', {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: function (type, ...restArgs) {
-                if (HarmfulApis.removeEvents.includes(type)) {
-                    return
-                }
-                return nativeImpl.call(this, type, ...restArgs)
+        wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+            if (HarmfulApis.removeEvents.includes(type)) {
+                return
             }
+            return nativeImpl.call(this, type, ...restArgs)
         })
     }
 
     blockGenericSensorApi () {
-        if (!('Sensor' in globalThis) || !('start' in globalThis.Sensor.prototype)) {
-            return
-        }
-
-        defineProperty(globalThis.Sensor.prototype, 'start', {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: function () {
-                // block all sensors
-                const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error
-                const error = new ErrorCls('error', {
-                    error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError')
-                })
-                // isTrusted will be false, but not much we can do here
-                this.dispatchEvent(error)
-            }
+        wrapMethod(globalThis.Sensor.prototype, 'start', function () {
+            // block all sensors
+            const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error
+            const error = new ErrorCls('error', {
+                error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError')
+            })
+            // isTrusted will be false, but not much we can do here
+            this.dispatchEvent(error)
         })
     }
 
     filterUAClientHints () {
-        if (!('NavigatorUAData' in globalThis)) {
-            return
-        }
+        wrapMethod(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
+            const nativeResult = await nativeImpl.call(this, hints) // this may throw an error, and that is fine
+            const filteredResult = {}
+            for (const [key, value] of Object.entries(nativeResult)) {
+                let result = value
 
-        const nativeImpl = globalThis.NavigatorUAData.prototype.getHighEntropyValues
-        defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: async function (hints) {
-                const nativeResult = await nativeImpl.call(this, hints) // this may throw an error, and that is fine
-                const filteredResult = {}
-                for (const [key, value] of Object.entries(nativeResult)) {
-                    let result = value
-
-                    switch (key) {
-                    case 'brands':
-                        result = value.map((brand) => {
-                            return {
-                                brand: brand.brand,
-                                version: stripVersion(brand.version)
-                            }
-                        })
-                        break
-                    case 'model':
-                        result = ''
-                        break
-                    case 'platformVersion':
-                        result = stripVersion(value, 2)
-                        break
-                    case 'uaFullVersion':
-                        result = stripVersion(value)
-                        break
-                    case 'fullVersionList':
-                        result = value.map((brand) => {
-                            return {
-                                brand: brand.brand,
-                                version: stripVersion(brand.version)
-                            }
-                        })
-                        break
-                    case 'architecture':
-                    case 'bitness':
-                    case 'platform':
-                    case 'mobile':
-                    default:
-                    }
-
-                    filteredResult[key] = result
+                switch (key) {
+                case 'brands':
+                    result = value.map((brand) => {
+                        return {
+                            brand: brand.brand,
+                            version: stripVersion(brand.version)
+                        }
+                    })
+                    break
+                case 'model':
+                    result = ''
+                    break
+                case 'platformVersion':
+                    result = stripVersion(value, 2)
+                    break
+                case 'uaFullVersion':
+                    result = stripVersion(value)
+                    break
+                case 'fullVersionList':
+                    result = value.map((brand) => {
+                        return {
+                            brand: brand.brand,
+                            version: stripVersion(brand.version)
+                        }
+                    })
+                    break
+                case 'architecture':
+                case 'bitness':
+                case 'platform':
+                case 'mobile':
+                default:
                 }
-                return filteredResult
+
+                filteredResult[key] = result
             }
+            return filteredResult
         })
     }
 
@@ -183,16 +149,8 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     blockGetInstalledRelatedApps () {
-        if (!('getInstalledRelatedApps' in this.navigatorPrototype)) {
-            return
-        }
-        defineProperty(this.navigatorPrototype, 'getInstalledRelatedApps', {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: function () {
-                return Promise.resolve([])
-            }
+        wrapMethod(this.navigatorPrototype, 'getInstalledRelatedApps', function () {
+            return Promise.resolve([])
         })
     }
 
@@ -212,109 +170,48 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     blockWindowPlacementApi () {
-        if ('Screen' in globalThis && 'isExtended' in globalThis.Screen.prototype) {
-            defineProperty(globalThis.Screen.prototype, 'isExtended', {
-                configurable: true,
-                enumerable: true,
-                get: () => false
-            })
-        }
+        wrapProperty(Screen.prototype, 'isExtended', { get: () => false })
     }
 
     blockWebBluetoothApi () {
-        if (!('Bluetooth' in globalThis)) {
-            return
-        }
-
         //TODO: remove 'availabilitychanged' event // for the Bluetooth API
 
-        if ('requestDevice' in globalThis.Bluetooth.prototype) {
-            defineProperty(globalThis.Bluetooth.prototype, 'requestDevice', {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: function () {
-                    return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
-                }
-            })
-        }
-        if ('getAvailability' in globalThis.Bluetooth.prototype) {
-            defineProperty(globalThis.Bluetooth.prototype, 'getAvailability', {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: () => Promise.resolve(false)
-            })
-        }
+        wrapMethod(globalThis.Bluetooth.prototype, 'requestDevice', function () {
+            return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
+        })
+
+        wrapMethod(globalThis.Bluetooth.prototype, 'getAvailability', () => Promise.resolve(false))
     }
 
     blockWebUsbApi () {
-        if (!('USB' in globalThis)) {
-            return
-        }
         // TODO: remove connect
         // TODO: remove disconnect
 
-        if ('requestDevice' in globalThis.USB.prototype) {
-            defineProperty(globalThis.USB.prototype, 'requestDevice', {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: function () {
-                    return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
-                }
-            })
-        }
+        wrapMethod(globalThis.USB.prototype, 'requestDevice', function () {
+            return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
+        })
     }
 
     blockWebSerialApi () {
-        if (!('Serial' in globalThis)) {
-            return
-        }
         // TODO: remove connect
         // TODO: remove disconnect
-        if ('requestPort' in globalThis.Serial.prototype) {
-            defineProperty(globalThis.Serial.prototype, 'requestPort', {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: function () {
-                    return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
-                }
-            })
-        }
+        wrapMethod(globalThis.Serial.prototype, 'requestPort', function () {
+            return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
+        })
     }
 
     blockWebHidApi () {
-        if (!('HID' in globalThis)) {
-            return
-        }
         // TODO: remove connect
         // TODO: remove disconnect
-        if ('requestDevice' in globalThis.HID.prototype) {
-            defineProperty(globalThis.HID.prototype, 'requestDevice', {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                // Chrome 113 does not throw errors, and only returns an empty array here
-                value: function () {
-                    return []
-                }
-            })
-        }
+
+        // Chrome 113 does not throw errors, and only returns an empty array here
+        wrapMethod(globalThis.HID.prototype, 'requestDevice', () => [])
     }
 
     blockWebMidiApi () {
-        if ('requestMIDIAccess' in this.navigatorPrototype) {
-            defineProperty(this.navigatorPrototype, 'requestMIDIAccess', {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: function () {
-                    return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'))
-                }
-            })
-        }
+        wrapMethod(this.navigatorPrototype, 'requestMIDIAccess', function () {
+            return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'))
+        })
     }
 
     removeIdleDetectionApi () {
@@ -336,28 +233,19 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     filterStorageApi () {
-        if (!('StorageManager' in globalThis)) {
-            return
-        }
-        const nativeImpl = globalThis.StorageManager.prototype.estimate
-        defineProperty(globalThis.StorageManager.prototype, 'estimate', {
-            configurable: true,
-            enumerable: true,
-            writable: true,
-            value: async function () {
-                const result = await nativeImpl.call(this)
-                const oneGb = 1_073_741_824
-                const fourGb = 4_294_967_296
-                const tenGb = 10_737_418_240
-                result.quota = result.quota >= tenGb
-                    ? tenGb
-                    : result.quota >= fourGb
-                        ? fourGb
-                        : result.quota > 0
-                            ? oneGb
-                            : 0
-                return result
-            }
+        wrapMethod(globalThis.StorageManager.prototype, 'estimate', async function (nativeImpl) {
+            const result = await nativeImpl.call(this)
+            const oneGb = 1_073_741_824
+            const fourGb = 4_294_967_296
+            const tenGb = 10_737_418_240
+            result.quota = result.quota >= tenGb
+                ? tenGb
+                : result.quota >= fourGb
+                    ? fourGb
+                    : result.quota > 0
+                        ? oneGb
+                        : 0
+            return result
         })
     }
 }
