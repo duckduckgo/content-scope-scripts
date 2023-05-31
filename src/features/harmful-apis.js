@@ -20,6 +20,7 @@ export default class HarmfulApis extends ContentFeature {
         this.removeNetworkInformation()
         this.blockGetInstalledRelatedApps()
         this.removeFileSystemAccess()
+        this.blockWindowPlacement()
     }
 
     initPermissionsFilter () {
@@ -157,6 +158,16 @@ export default class HarmfulApis extends ContentFeature {
         }
         if ('DataTransferItem' in globalThis && 'getAsFileSystemHandle' in globalThis.DataTransferItem.prototype) {
             delete globalThis.DataTransferItem.prototype.getAsFileSystemHandle
+        }
+    }
+
+    blockWindowPlacement () {
+        if ('Screen' in globalThis && 'isExtended' in globalThis.Screen.prototype) {
+            defineProperty(globalThis.Screen.prototype, 'isExtended', {
+                configurable: true,
+                enumerable: true,
+                get: () => false
+            })
         }
     }
 }
