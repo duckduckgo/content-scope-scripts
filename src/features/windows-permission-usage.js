@@ -382,7 +382,6 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // these permissions cannot be disabled using WebView2 or DevTools protocol
         const permissionsToDisable = [
             { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
-            { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true }
         ]
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {

@@ -37,6 +37,7 @@ export default class HarmfulApis extends ContentFeature {
         this.blockWebUsbApi()
         this.blockWebSerialApi()
         this.blockWebHidApi()
+        this.blockWebMidiApi()
     }
 
     initPermissionsFilter () {
@@ -255,6 +256,19 @@ export default class HarmfulApis extends ContentFeature {
                 // Chrome 113 does not throw errors, and only returns an empty array here
                 value: function () {
                     return []
+                }
+            })
+        }
+    }
+
+    blockWebMidiApi () {
+        if ('requestMIDIAccess' in this.navigatorPrototype) {
+            defineProperty(this.navigatorPrototype, 'requestMIDIAccess', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: function () {
+                    return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'))
                 }
             })
         }
