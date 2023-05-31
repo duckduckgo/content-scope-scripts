@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature'
 import { stripVersion } from '../utils'
-import { wrapMethod, wrapProperty } from '../wrapper-utils'
+import { hasMozProxies, wrapMethod, wrapProperty } from '../wrapper-utils'
 
 /**
  * block some Permission API queries. The set of available permissions is quickly changing over time. Up-to-date lists can be found here:
@@ -72,12 +72,16 @@ export default class HarmfulApis extends ContentFeature {
                     })
                 }
             }
-            wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-                if (eventsToBlock.includes(type) && this === globalThis) {
-                    return
-                }
-                return nativeImpl.call(this, type, ...restArgs)
-            })
+            // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
+            if (!hasMozProxies) {
+                wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+                    if (eventsToBlock.includes(type) && this === globalThis) {
+                        console.log('blocked event', type)
+                        return
+                    }
+                    return nativeImpl.call(this, type, ...restArgs)
+                })
+            }
         }
     }
 
@@ -257,7 +261,8 @@ export default class HarmfulApis extends ContentFeature {
         if (!('Bluetooth' in globalThis)) {
             return
         }
-        if (settings.filterEvents && settings.filterEvents.length > 0) {
+        // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
+        if (settings.filterEvents && settings.filterEvents.length > 0 && !hasMozProxies) {
             wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
                 if (settings.filterEvents?.includes(type) && this === globalThis.Bluetooth) {
                     return

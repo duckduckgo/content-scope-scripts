@@ -1,15 +1,14 @@
 /* global cloneInto, exportFunction, mozProxies */
 // Tests don't define this variable so fallback to behave like chrome
-const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
+export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 const globalObj = typeof window === 'undefined' ? globalThis : window
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor
 const functionToString = Function.prototype.toString
 const objectKeys = Object.keys
-const NativeProxy = Proxy
 
 export function defineProperty (object, propertyName, descriptor) {
     if (hasMozProxies) {
-        const usedObj = object.wrappedJSObject
+        const usedObj = object.wrappedJSObject || object
         const UsedObjectInterface = globalObj.wrappedJSObject.Object
         const definedDescriptor = new UsedObjectInterface();
         ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
@@ -85,6 +84,9 @@ export function wrapProperty (object, propertyName, descriptor) {
     if (!object) {
         return
     }
+    if (hasMozProxies) {
+        object = object.wrappedJSObject || object
+    }
 
     const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
     if (!origDescriptor) {
@@ -121,6 +123,9 @@ export function wrapProperty (object, propertyName, descriptor) {
 export function wrapMethod (object, propertyName, wrapperFn) {
     if (!object) {
         return
+    }
+    if (hasMozProxies) {
+        object = object.wrappedJSObject || object
     }
     const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
     if (!origDescriptor) {
