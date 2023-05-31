@@ -22,11 +22,19 @@ export default class HarmfulApis extends ContentFeature {
         'window-management'
     ]
 
+    static removeEvents = [
+        'deviceorientation',
+        'devicemotion',
+        'availabilitychanged' // for the Bluetooth API
+    ]
+
     init (args) {
         console.log('INIT! from harmfulAPIs', args)
         /** @type Navigator | WorkerNavigator */
         this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
         this.initPermissionsFilter()
+        this.initEventFilter()
+
         this.blockGenericSensorApi()
         this.filterUAClientHints()
         this.removeNetworkInformationApi()
@@ -63,6 +71,27 @@ export default class HarmfulApis extends ContentFeature {
                     }
                 }
                 return origResult
+            }
+        })
+    }
+
+    initEventFilter () {
+        for (const eventName of HarmfulApis.removeEvents) {
+            const dom0HandlerName = `on${eventName}`
+            if (dom0HandlerName in globalThis) {
+                delete globalThis[dom0HandlerName]
+            }
+        }
+        const nativeImpl = EventTarget.prototype.addEventListener
+        defineProperty(EventTarget.prototype, 'addEventListener', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: function (type, ...restArgs) {
+                if (HarmfulApis.removeEvents.includes(type)) {
+                    return
+                }
+                return nativeImpl.call(this, type, ...restArgs)
             }
         })
     }

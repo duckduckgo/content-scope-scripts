@@ -399,16 +399,5 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 console.info(`Could not disable access to ${name} because of error`, error)
             }
         }
-
-        // these permissions can be disabled using DevTools protocol but it's not reliable and can throw exception sometimes
-        const permissionsToDelete = [
-            { name: 'Orientation', permission: 'ondeviceorientation' },
-            { name: 'Motion', permission: 'ondevicemotion' }
-        ]
-        for (const { permission } of permissionsToDelete) {
-            if (permission in window) {
-                Reflect.deleteProperty(window, permission)
-            }
-        }
     }
 }
