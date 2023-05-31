@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature'
-import { defineProperty } from '../utils'
+import { defineProperty, stripVersion } from '../utils'
 
 /**
  * Blocks some privacy harmful APIs.
@@ -16,6 +16,7 @@ export default class HarmfulApis extends ContentFeature {
         console.log('INIT! from harmfulAPIs', args)
         this.initPermissionsFilter()
         this.initSensorBlock()
+        this.initUAClientHintsBlock()
     }
 
     initPermissionsFilter () {
@@ -60,6 +61,62 @@ export default class HarmfulApis extends ContentFeature {
                 })
                 // isTrusted will be false, but not much we can do here
                 this.dispatchEvent(error)
+            }
+        })
+    }
+
+    initUAClientHintsBlock () {
+        if (!('NavigatorUAData' in globalThis)) {
+            return
+        }
+
+        const nativeImpl = globalThis.NavigatorUAData.prototype.getHighEntropyValues
+        defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: async function (hints) {
+                const nativeResult = await nativeImpl.call(this, hints) // this may throw an error, and that is fine
+                const filteredResult = {}
+                for (const [key, value] of Object.entries(nativeResult)) {
+                    let result = value
+
+                    switch (key) {
+                    case 'brands':
+                        result = value.map((brand) => {
+                            return {
+                                brand: brand.brand,
+                                version: stripVersion(brand.version)
+                            }
+                        })
+                        break
+                    case 'model':
+                        result = ''
+                        break
+                    case 'platformVersion':
+                        result = stripVersion(value, 2)
+                        break
+                    case 'uaFullVersion':
+                        result = stripVersion(value)
+                        break
+                    case 'fullVersionList':
+                        result = value.map((brand) => {
+                            return {
+                                brand: brand.brand,
+                                version: stripVersion(brand.version)
+                            }
+                        })
+                        break
+                    case 'architecture':
+                    case 'bitness':
+                    case 'platform':
+                    case 'mobile':
+                    default:
+                    }
+
+                    filteredResult[key] = result
+                }
+                return filteredResult
             }
         })
     }

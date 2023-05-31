@@ -534,6 +534,28 @@ function getPlatformVersion (preferences) {
     return undefined
 }
 
+/**
+ * Takes a version string and nullifies all its components except for the first `keepComponents` ones
+ * @param {string} version
+ * @returns string
+ */
+export function stripVersion (version, keepComponents = 1) {
+    const splitVersion = version.split('.')
+    const filteredVersion = []
+    let foundNonZero = false
+    let keptComponents = 0
+    splitVersion.forEach((v) => {
+        if (v !== '0' && (!foundNonZero || keptComponents < keepComponents)) {
+            filteredVersion.push(v)
+            foundNonZero = true
+            keptComponents++
+        } else {
+            filteredVersion.push('0')
+        }
+    })
+    return filteredVersion.join('.')
+}
+
 export function parseVersionString (versionString) {
     const [major = 0, minor = 0, patch = 0] = versionString.split('.').map(Number)
     return {
