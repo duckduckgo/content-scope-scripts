@@ -74,23 +74,6 @@ function wrapToString (newFn, origFn) {
     }
 }
 
-function getObjectFromPath (objPath, base = globalObj) {
-    const path = objPath.split('.')
-    if (path.length === 0) {
-        throw new Error('Invalid object path')
-    }
-
-    let object = base
-    for (const pathPart of path) {
-        if (!(pathPart in object)) {
-            // this happens if the object is not implemented in the browser
-            return
-        }
-        object = object[pathPart]
-    }
-    return object
-}
-
 /**
  * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
  * @param {any} object - object whose property we are wrapping (most commonly a prototype)
@@ -128,10 +111,9 @@ export function wrapProperty (object, propertyName, descriptor) {
     }
 }
 
-
 /**
  * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
- * @param {any} object - object or string object path within the global object
+ * @param {any} object - object whose property we are wrapping (most commonly a prototype)
  * @param {string} propertyName
  * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
@@ -139,9 +121,6 @@ export function wrapProperty (object, propertyName, descriptor) {
 export function wrapMethod (object, propertyName, wrapperFn) {
     if (!object) {
         return
-    }
-    if (typeof object === 'string') {
-        object = getObjectFromPath(object)
     }
     const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
     if (!origDescriptor) {
@@ -164,61 +143,5 @@ export function wrapMethod (object, propertyName, wrapperFn) {
         ...origDescriptor,
         value: newFn
     })
-    return origDescriptor
-}
-
-/**
- * Wrap a constructor function descriptor. Only for constructor functions. For data properties, use wrapProperty(). For methods, use wrapMethod().
- * @param {any} object - object or string object path within the global object
- * @param {string} propertyName
- * @param {(originalConstructor, ...args) => any } wrapperFn - wrapper function receives the original constructor as the first argument
- * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
- */
-export function wrapConstructor (object, propertyName, wrapperFn) {
-    if (!object) {
-        return
-    }
-    if (typeof object === 'string') {
-        object = getObjectFromPath(object)
-    }
-    const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
-    if (!origDescriptor) {
-        // this happens if the property is not implemented in the browser
-        return
-    }
-
-    const origConstructor = origDescriptor.value
-    if (!origConstructor || typeof origConstructor !== 'function') {
-        // method properties are expected to be defined with a `value`
-        throw new Error(`Property ${propertyName} is not a function`)
-    }
-
-    /**
-     * @type ProxyHandler<Function>
-     */
-    const handler = {
-        construct (target, argArray) {
-            return wrapperFn(origConstructor, ...argArray)
-        }
-    }
-
-    const newFn = new NativeProxy(origConstructor, handler)
-
-    defineProperty(object, propertyName, {
-        ...origDescriptor,
-        value: newFn
-    })
-
-    if (origConstructor.prototype?.constructor === origConstructor) {
-        // .prototype may be absent, e.g. in Proxy
-        // .prototype.constructor may be different, e.g. in Audio
-
-        const descriptor = getOwnPropertyDescriptor(origConstructor.prototype, 'constructor')
-        defineProperty(origConstructor.prototype, 'constructor', {
-            ...descriptor,
-            value: newFn
-        })
-    }
-
     return origDescriptor
 }
