@@ -291,7 +291,7 @@ const functionMap = {
 }
 
 /**
- * Handles the processing of a config setting.
+ * Processes a structured config setting and returns the value according to its type
  * @param {*} configSetting
  * @param {*} [defaultValue]
  * @returns
