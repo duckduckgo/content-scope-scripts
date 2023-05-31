@@ -19,6 +19,7 @@ export default class HarmfulApis extends ContentFeature {
         this.initUAClientHintsBlock()
         this.removeNetworkInformation()
         this.blockGetInstalledRelatedApps()
+        this.removeFileSystemAccess()
     }
 
     initPermissionsFilter () {
@@ -142,5 +143,20 @@ export default class HarmfulApis extends ContentFeature {
                 return Promise.resolve([])
             }
         })
+    }
+
+    removeFileSystemAccess () {
+        if ('showOpenFilePicker' in globalThis) {
+            delete globalThis.showOpenFilePicker
+        }
+        if ('showSaveFilePicker' in globalThis) {
+            delete globalThis.showSaveFilePicker
+        }
+        if ('showDirectoryPicker' in globalThis) {
+            delete globalThis.showDirectoryPicker
+        }
+        if ('DataTransferItem' in globalThis && 'getAsFileSystemHandle' in globalThis.DataTransferItem.prototype) {
+            delete globalThis.DataTransferItem.prototype.getAsFileSystemHandle
+        }
     }
 }
