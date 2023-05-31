@@ -136,6 +136,9 @@ export function wrapProperty (object, propertyName, descriptor) {
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
 export function wrapMethod (object, propertyName, wrapperFn) {
+    if (!object) {
+        return
+    }
     if (typeof object === 'string') {
         object = getObjectFromPath(object)
     }
@@ -171,6 +174,9 @@ export function wrapMethod (object, propertyName, wrapperFn) {
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
 export function wrapConstructor (object, propertyName, wrapperFn) {
+    if (!object) {
+        return
+    }
     if (typeof object === 'string') {
         object = getObjectFromPath(object)
     }
