@@ -17,6 +17,7 @@ export default class HarmfulApis extends ContentFeature {
         this.initPermissionsFilter()
         this.initSensorBlock()
         this.initUAClientHintsBlock()
+        this.removeNetworkInformation()
     }
 
     initPermissionsFilter () {
@@ -119,5 +120,12 @@ export default class HarmfulApis extends ContentFeature {
                 return filteredResult
             }
         })
+    }
+
+    removeNetworkInformation () {
+        if (!('connection' in Navigator.prototype)) {
+            return
+        }
+        delete Navigator.prototype.connection
     }
 }
