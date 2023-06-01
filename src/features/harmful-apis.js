@@ -32,8 +32,7 @@ function filterPermissionQuery (permissions) {
  * Blocks some privacy harmful APIs.
  */
 export default class HarmfulApis extends ContentFeature {
-    init (args) {
-        console.log('INIT! from harmfulAPIs', args)
+    init () {
         // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
         this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
@@ -116,18 +115,20 @@ export default class HarmfulApis extends ContentFeature {
      * @param {UaClientHintsConfig} settings
      */
     filterUAClientHints (settings) {
+        console.log('uahints', settings)
         if (!settings.protected) {
             return
         }
         wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
             const nativeResult = await nativeImpl.call(this, hints) // this may throw an error, and that is fine
             const filteredResult = {}
+            const highEntropyValues = settings.highEntropyValues || {}
             for (const [key, value] of Object.entries(nativeResult)) {
                 let result = value
 
                 switch (key) {
                 case 'brands':
-                    if (settings.trimBrands) {
+                    if (highEntropyValues.trimBrands) {
                         result = value.map((brand) => {
                             return {
                                 brand: brand.brand,
@@ -137,48 +138,48 @@ export default class HarmfulApis extends ContentFeature {
                     }
                     break
                 case 'model':
-                    if (typeof settings.model !== 'undefined') {
-                        result = settings.model
+                    if (typeof highEntropyValues.model !== 'undefined') {
+                        result = highEntropyValues.model
                     }
                     break
                 case 'platformVersion':
-                    if (settings.trimPlatformVersion) {
-                        result = stripVersion(value, settings.trimPlatformVersion)
+                    if (highEntropyValues.trimPlatformVersion) {
+                        result = stripVersion(value, highEntropyValues.trimPlatformVersion)
                     }
                     break
                 case 'uaFullVersion':
-                    if (settings.trimUaFullVersion) {
-                        result = stripVersion(value, settings.trimUaFullVersion)
+                    if (highEntropyValues.trimUaFullVersion) {
+                        result = stripVersion(value, highEntropyValues.trimUaFullVersion)
                     }
                     break
                 case 'fullVersionList':
-                    if (settings.trimFullVersionList) {
+                    if (highEntropyValues.trimFullVersionList) {
                         result = value.map((brand) => {
                             return {
                                 brand: brand.brand,
-                                version: stripVersion(brand.version, settings.trimFullVersionList)
+                                version: stripVersion(brand.version, highEntropyValues.trimFullVersionList)
                             }
                         })
                     }
                     break
                 case 'architecture':
-                    if (typeof settings.architecture !== 'undefined') {
-                        result = settings.architecture
+                    if (typeof highEntropyValues.architecture !== 'undefined') {
+                        result = highEntropyValues.architecture
                     }
                     break
                 case 'bitness':
-                    if (typeof settings.bitness !== 'undefined') {
-                        result = settings.bitness
+                    if (typeof highEntropyValues.bitness !== 'undefined') {
+                        result = highEntropyValues.bitness
                     }
                     break
                 case 'platform':
-                    if (typeof settings.platform !== 'undefined') {
-                        result = settings.platform
+                    if (typeof highEntropyValues.platform !== 'undefined') {
+                        result = highEntropyValues.platform
                     }
                     break
                 case 'mobile':
-                    if (typeof settings.mobile !== 'undefined') {
-                        result = settings.mobile
+                    if (typeof highEntropyValues.mobile !== 'undefined') {
+                        result = highEntropyValues.mobile
                     }
                     break
                 }
@@ -404,7 +405,7 @@ export default class HarmfulApis extends ContentFeature {
 
 // mixins are necessary because jsdoc doesn't support `extends`
 @typedef {{ blockSensorStart: boolean }} GenericSensorConfigMixin
-@typedef {{ trimBrands: boolean, model: string, trimPlatformVersion: number, trimUaFullVersion: number, trimFullVersionList: number, architecture: string, bitness: string, mobile: boolean, platform: string }} UaClientHintsConfigMixin
+@typedef {{ alala: boolean, highEntropyValues: { trimBrands: boolean, model: string, trimPlatformVersion: number, trimUaFullVersion: number, trimFullVersionList: number, architecture: string, bitness: string, mobile: boolean, platform: string } }} UaClientHintsConfigMixin
 @typedef {{ }} NetworkInformationConfigMixin
 @typedef {{ returnValue: any }} GetInstalledRelatedAppsConfigMixin
 @typedef {{ disableOpenFilePicker: boolean, disableSaveFilePicker: boolean, disableDirectoryPicker: boolean, disableGetAsFileSystemHandle: boolean }} FileSystemAccessConfigMixin
