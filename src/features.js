@@ -37,7 +37,8 @@ export const platformSupport = {
     windows: [
         ...baseFeatures,
         'windowsPermissionUsage',
-        'duckPlayer'
+        'duckPlayer',
+        'harmfulApis'
     ],
     firefox: [
         ...baseFeatures,
@@ -49,8 +50,7 @@ export const platformSupport = {
     ],
     'chrome-mv3': [
         ...baseFeatures,
-        'clickToLoad',
-        'harmfulApis'
+        'clickToLoad'
     ],
     integration: [
         ...baseFeatures,

@@ -22,10 +22,14 @@
           "protected": true,
           "highEntropyValues": {
             "trimBrands": true,
-            "model": "",
             "trimPlatformVersion": 2,
             "trimUaFullVersion": 1,
-            "trimFullVersionList": 1
+            "trimFullVersionList": 1,
+            "model": "overridden-model",
+            "architecture": "overridden-architecture",
+            "bitness": "overridden-bitness",
+            "platform": "overridden-platform",
+            "mobile": "overridden-mobile"
           }
         },
         "NetworkInformation": {
@@ -33,7 +37,7 @@
         },
         "getInstalledRelatedApps": {
           "protected": true,
-          "returnValue": []
+          "returnValue": ["overridden-return-value"]
         },
         "FileSystemAccess": {
           "protected": true,
@@ -45,7 +49,7 @@
         "WindowPlacement": {
           "protected": true,
           "filterPermissions": ["window-placement", "window-management"],
-          "screenIsExtended": false
+          "screenIsExtended": true
         },
         "WebBluetooth": {
           "protected": true,
@@ -79,7 +83,7 @@
         },
         "StorageManager": {
           "protected": true,
-          "allowedQuotaValues": [1073741824, 4294967296, 9999999999]
+          "allowedQuotaValues": [1337]
         },
         "domains": []
       },

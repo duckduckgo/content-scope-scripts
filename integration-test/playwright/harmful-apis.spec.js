@@ -8,12 +8,30 @@ test('Harmful APIs protections', async ({ page }) => {
     // note that if protections are disabled, the browser will show a device selection pop-up, which will never be dismissed
     const results = await page.evaluate(() => {
         // @ts-expect-error - this is added by the test framework
-        return window.results['Harmful APIs']
-    })
+        return window.results
+    });
 
-    for (const result of results) {
-        expect(result.result).toEqual(result.expected)
-    }
+    [
+        'deviceOrientation',
+        'GenericSensor',
+        'UaClientHints',
+        'NetworkInformation',
+        'getInstalledRelatedApps',
+        'FileSystemAccess',
+        'WindowPlacement',
+        'WebBluetooth',
+        'WebUsb',
+        'WebSerial',
+        'WebHid',
+        'WebMidi',
+        'IdleDetection',
+        'WebNfc',
+        'StorageManager'
+    ].forEach((name) => {
+        for (const result of results[name]) {
+            expect(result.result).toEqual(result.expected)
+        }
+    })
 })
 
 export class HarmfulApisSpec {
