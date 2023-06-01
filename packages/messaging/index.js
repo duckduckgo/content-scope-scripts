@@ -23,7 +23,6 @@
 import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods, WindowsNotification, WindowsRequestMessage } from './lib/windows.js'
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js'
-import { SendMessageMessagingConfig, SendMessageMessagingTransport } from './lib/sendMessageWrapper.js'
 
 /**
  * Common options/config that are *not* transport specific.
@@ -213,9 +212,6 @@ function getTransport (config, messagingContext) {
     if (config instanceof TestTransportConfig) {
         return new TestTransport(config, messagingContext)
     }
-    if (config instanceof SendMessageMessagingConfig) {
-        return new SendMessageMessagingTransport(config, messagingContext)
-    }
     throw new Error('unreachable')
 }
 
@@ -249,7 +245,5 @@ export {
     MessageError,
     SubscriptionEvent,
     WindowsNotification,
-    WindowsRequestMessage,
-    SendMessageMessagingConfig,
-    SendMessageMessagingTransport
+    WindowsRequestMessage
 }

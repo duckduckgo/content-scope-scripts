@@ -1,9 +1,10 @@
+import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '@duckduckgo/messaging'
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
+import { ClickToLoadMessagingTransport } from './click-to-load/ctl-messaging-transport.js'
 import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
-import { Messaging, MessagingContext, SendMessageMessagingConfig } from '@duckduckgo/messaging'
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -52,10 +53,12 @@ const readyToDisplayPlaceholders = new Promise(resolve => {
 let afterPageLoadResolver
 const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve })
 
-// Messaging layer for Click to Load
+// Messaging layer for Click to Load. The messaging instance is initialized in
+// ClickToLoad.init() and updated here to be used outside ClickToLoad class
+// we need a module scoped reference.
 /** @type {import("@duckduckgo/messaging").Messaging} */
 let _messagingModuleScope
-const lazy = {
+const ctl = {
     /**
      * @return {import("@duckduckgo/messaging").Messaging}
      */
@@ -628,12 +631,12 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
 
     // YouTube
     if (widget.replaceSettings.type === 'youtube-video') {
-        lazy.messaging.notify('updateYouTubeCTLAddedFlag', true)
+        ctl.messaging.notify('updateYouTubeCTLAddedFlag', true)
         replaceYouTubeCTL(trackingElement, widget)
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
-        lazy.messaging.subscribe(
+        ctl.messaging.subscribe(
             'setYoutubePreviewsEnabled',
             ({ value }) => {
                 isYoutubePreviewsEnabled = value
@@ -689,7 +692,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
                     dataKey: 'yt-preview-toggle', // data-key attribute for button
                     label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
                     size: isMobileApp ? 'lg' : 'md',
-                    onClick: () => lazy.messaging.notify('setYoutubePreviewsEnabled', true) // Toggle click callback
+                    onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', true) // Toggle click callback
                 },
                 withFeedback: {
                     label: sharedStrings.shareFeedback,
@@ -858,7 +861,7 @@ async function replaceClickToLoadElements (targetElement) {
  * @return {Promise<any>}
  */
 function unblockClickToLoadContent (message) {
-    return lazy.messaging.request('unblockClickToLoadContent', message)
+    return ctl.messaging.request('unblockClickToLoadContent', message)
 }
 
 /**
@@ -896,7 +899,7 @@ function cancelModal (entity) {
 }
 
 function openShareFeedbackPage () {
-    lazy.messaging.notify('openShareFeedbackPage')
+    ctl.messaging.notify('openShareFeedbackPage')
 }
 
 /*********************************************************
@@ -1537,7 +1540,7 @@ function createYouTubeBlockingDialog (trackingElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => makeModal(widget.entity, () => lazy.messaging.notify('setYoutubePreviewsEnabled', true), widget.entity)
+        () => makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', true), widget.entity)
     )
     bottomRow.appendChild(previewToggle)
 
@@ -1654,7 +1657,7 @@ function createYouTubePreview (originalElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => lazy.messaging.notify('setYoutubePreviewsEnabled', false)
+        () => ctl.messaging.notify('setYoutubePreviewsEnabled', false)
     )
 
     /** Preview Info Text */
@@ -1686,7 +1689,7 @@ function createYouTubePreview (originalElement, widget) {
     // We use .then() instead of await here to show the placeholder right away
     // while the YouTube endpoint takes it time to respond.
     const videoURL = originalElement.src || originalElement.getAttribute('data-src')
-    lazy.messaging.request('getYouTubeVideoDetails', videoURL)
+    ctl.messaging.request('getYouTubeVideoDetails', { videoURL })
         // eslint-disable-next-line promise/prefer-await-to-then
         .then(({ videoURL: videoURLResp, status, title, previewImage }) => {
             if (!status || videoURLResp !== videoURL) { return }
@@ -1708,33 +1711,16 @@ function createYouTubePreview (originalElement, widget) {
 }
 
 export default class ClickToLoad extends ContentFeature {
-    // Messaging layer between Click to Load and the Platform
-    get messaging () {
-        if (this._messaging) return this._messaging
-
-        if (this.platform.name === 'android' || this.platform.name === 'extension') {
-            const messagingContext = new MessagingContext({
-                context: 'contentScopeScripts',
-                featureName: 'click-to-load',
-                env: this.isDebug ? 'development' : 'production'
-            })
-            const messagingConfig = new SendMessageMessagingConfig()
-            this._messaging = new Messaging(messagingContext, messagingConfig)
-            _messagingModuleScope = this._messaging
-            return this._messaging
-        } else {
-            throw new Error('Messaging not supported yet on platform: ' + this.name)
-        }
-    }
-
     async init (args) {
         /**
          * Bail if no messaging backend - this is a debugging feature to ensure we don't
          * accidentally enabled this
          */
         if (!this.messaging) {
-            throw new Error('cannot operate click to load without a messaging backend')
+            throw new Error('Cannot operate click to load without a messaging backend')
         }
+        _messagingModuleScope = this._messaging
+
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}
         const locale = args?.locale || 'en'
@@ -1842,6 +1828,12 @@ export default class ClickToLoad extends ContentFeature {
         }, 0)
     }
 
+    /**
+     * This is only called by the current integration between Android and Extension and is now
+     * used to connect only these Platforms responses with the temporary implementation of
+     * ClickToLoadMessagingTransport that wraps this communication.
+     * This can be removed once they have their own Messaging integration.
+     */
     update (message) {
         // TODO: Once all Click to Load messages include the feature property, drop
         //       messages that don't include the feature property too.
@@ -1852,7 +1844,7 @@ export default class ClickToLoad extends ContentFeature {
 
         // Send to Messaging layer the response or subscription message received
         // from the Platform.
-        return this.messaging.transport.onResponse(message)
+        return this._clickToLoadMessagingTransport.onResponse(message)
     }
 
     /**
@@ -1868,5 +1860,27 @@ export default class ClickToLoad extends ContentFeature {
         // Mark the feature as ready, to allow placeholder
         // replacements to start.
         readyToDisplayPlaceholdersResolver()
+    }
+
+    // Messaging layer between Click to Load and the Platform
+    get messaging () {
+        if (this._messaging) return this._messaging
+
+        if (this.platform.name === 'android' || this.platform.name === 'extension' || this.platform.name === 'macos') {
+            this._clickToLoadMessagingTransport = new ClickToLoadMessagingTransport()
+            const config = new TestTransportConfig(this._clickToLoadMessagingTransport)
+            this._messaging = new Messaging(this.messagingContext, config)
+            return this._messaging
+        } else if (this.platform.name === 'macos' || this.platform.name === 'ios') {
+            const config = new WebkitMessagingConfig({
+                secret: '',
+                hasModernWebkitAPI: true,
+                webkitMessageHandlerNames: ['contentScopeScripts']
+            })
+            this._messaging = new Messaging(this.messagingContext, config)
+            return this._messaging
+        } else {
+            throw new Error('Messaging not supported yet on platform: ' + this.name)
+        }
     }
 }
