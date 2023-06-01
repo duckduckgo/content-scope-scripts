@@ -317,7 +317,7 @@ export default class HarmfulApis extends ContentFeature {
             return
         }
         // Chrome 113 does not throw errors, and only returns an empty array here
-        wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => [])
+        wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => Promise.resolve([]))
     }
 
     /**
