@@ -2,12 +2,13 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import { mockWindowsMessaging, wrapWindowsScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
 
-test('Windows Permissions Usage', async ({ page }) => {
-    const perms = new WindowsPermissionsSpec(page)
+test('Harmful APIs protections', async ({ page }) => {
+    const perms = new HarmfulApisSpec(page)
     await perms.enabled()
+    // note that if protections are disabled, the browser will show a device selection pop-up, which will never be dismissed
     const results = await page.evaluate(() => {
         // @ts-expect-error - this is added by the test framework
-        return window.results['Disabled Windows Permissions']
+        return window.results['Harmful APIs']
     })
 
     for (const result of results) {
@@ -15,9 +16,9 @@ test('Windows Permissions Usage', async ({ page }) => {
     }
 })
 
-export class WindowsPermissionsSpec {
-    htmlPage = '/permissions/index.html'
-    config = './integration-test/test-pages/permissions/config/permissions.json'
+export class HarmfulApisSpec {
+    htmlPage = '/harmful-apis/index.html'
+    config = './integration-test/test-pages/harmful-apis/config/apis.json'
     build = './build/windows/contentScope.js'
     /**
      * @param {import("@playwright/test").Page} page
@@ -27,9 +28,44 @@ export class WindowsPermissionsSpec {
     }
 
     async enabled () {
+        await this.installPolyfills()
         const config = JSON.parse(readFileSync(this.config, 'utf8'))
         await this.setup({ config })
         await this.page.goto(this.htmlPage)
+        for (const button of await this.page.getByTestId('user-gesture-button').all()) {
+            await button.click()
+        }
+        await this.page.getByTestId('render-results').click()
+    }
+
+    /**
+     * In CI, the global objects such as USB might not be installed on the
+     * version of chromium running there.
+     */
+    async installPolyfills () {
+        await this.page.addInitScript(() => {
+            // @ts-expect-error - testing
+            if (typeof Bluetooth === 'undefined') {
+                globalThis.Bluetooth = {}
+                globalThis.Bluetooth.prototype = { requestDevice: async () => { /* noop */ } }
+            }
+            // @ts-expect-error - testing
+            if (typeof USB === 'undefined') {
+                globalThis.USB = {}
+                globalThis.USB.prototype = { requestDevice: async () => { /* noop */ } }
+            }
+
+            // @ts-expect-error - testing
+            if (typeof Serial === 'undefined') {
+                globalThis.Serial = {}
+                globalThis.Serial.prototype = { requestPort: async () => { /* noop */ } }
+            }
+            // @ts-expect-error - testing
+            if (typeof HID === 'undefined') {
+                globalThis.HID = {}
+                globalThis.HID.prototype = { requestDevice: async () => { /* noop */ } }
+            }
+        })
     }
 
     /**

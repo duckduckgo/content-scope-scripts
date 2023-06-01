@@ -14,19 +14,9 @@
 <script>
     test('Disabled Windows Permissions', async () => {
         const registerProtocolHandler = await captureError(() => Navigator.prototype.registerProtocolHandler())
-        const requestDevice = await captureError(() => Bluetooth.prototype.requestDevice())
-        const usbDevice = await captureError(() => USB.prototype.requestDevice())
-        const serialPort = await captureError(() => Serial.prototype.requestPort())
-        const hidDevice = await captureError(() => HID.prototype.requestDevice())
-        const midi = await captureError(() => Navigator.prototype.requestMIDIAccess())
 
         return [
-            { name: 'Bluetooth.prototype.requestDevice()', result: requestDevice.toString(), expected: 'Error: Permission denied' },
-            { name: 'USB.prototype.requestDevice', result: usbDevice.toString(), expected: 'Error: Permission denied' },
-            { name: 'Serial.prototype.requestPort', result: serialPort.toString(), expected: 'Error: Permission denied' },
-            { name: 'HID.prototype.requestDevice', result: hidDevice.toString(), expected: 'Error: Permission denied' },
             { name: 'Protocol handler: Navigator.prototype.registerProtocolHandler', result: registerProtocolHandler.toString(), expected: 'Error: Permission denied' },
-            { name: 'MIDI: Navigator.prototype.requestMIDIAccess', result: midi.toString(), expected: 'Error: Permission denied' },
         ];
     })
 

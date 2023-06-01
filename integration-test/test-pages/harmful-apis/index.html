@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Permissions</title>
+    <link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+<script src="../shared/utils.js"></script>
+
+<p>Harmful API usage</p>
+<h2>APIs requiring user gesture:</h2>
+<button data-testid="user-gesture-button" onclick="callBluetoothRequestDevice()">Bluetooth.prototype.requestDevice</button>
+<button data-testid="user-gesture-button" onclick="callUsbRequestDevice()">USB.prototype.requestDevice</button>
+<button data-testid="user-gesture-button" onclick="callSerialRequestPort()">Serial.prototype.requestPort</button>
+<button data-testid="user-gesture-button" onclick="callHidRequestDevice()">HID.prototype.requestDevice</button>
+
+<h2>Results:</h2>
+<button data-testid="render-results" onclick="renderResults()">Render results</button>
+<script>
+    function callBluetoothRequestDevice () {
+        console.log('calling navigator.bluetooth.requestDevice')
+        window.bluetoothRequestDevice = captureError(() => navigator.bluetooth.requestDevice({acceptAllDevices: true}))
+    }
+    function callUsbRequestDevice () {
+        console.log('calling navigator.usb.requestDevice')
+        window.usbRequestDevice = captureError(() => navigator.usb.requestDevice({filters: []}))
+    }
+    function callSerialRequestPort () {
+        console.log('calling navigator.serial.requestPort')
+        window.serialRequestPort = captureError(() => navigator.serial.requestPort())
+    }
+    function callHidRequestDevice () {
+        console.log('calling navigator.hid.requestDevice')
+        window.hidRequestDevice = captureError(() => navigator.hid.requestDevice({ filters: [] }))
+    }
+    test('Harmful APIs', async () => {
+        const registerProtocolHandler = captureError(() => navigator.registerProtocolHandler(
+            "web+burger",
+            "https://burgers.example.com/?burger=%s",
+            "Burger handler"
+        ))
+        const bluetoothGetAvailability = captureError(() => navigator.bluetooth.getAvailability())
+        const requestMidiAccess = captureError(() => navigator.requestMIDIAccess())
+
+        const result = [
+            { name: 'Protocol handler: Navigator.prototype.registerProtocolHandler', result: (await registerProtocolHandler).toString(), expected: 'Error: Permission denied' },
+            { name: 'Bluetooth.prototype.getAvailability()', result: (await bluetoothGetAvailability).toString(), expected: 'Error: Permission denied' },
+            { name: 'Bluetooth.prototype.requestDevice()', result: (await window.bluetoothRequestDevice).toString(), expected: 'Error: Permission denied' },
+            { name: 'USB.prototype.requestDevice', result: (await window.usbRequestDevice).toString(), expected: 'Error: Permission denied' },
+            { name: 'Serial.prototype.requestPort', result: (await window.serialRequestPort).toString(), expected: 'Error: Permission denied' },
+            { name: 'HID.prototype.requestDevice', result: (await window.hidRequestDevice).toString(), expected: 'Error: Permission denied' },
+            { name: 'MIDI: Navigator.prototype.requestMIDIAccess', result: (await requestMidiAccess).toString(), expected: 'Error: Permission denied' },
+        ]
+        console.log('results collected', result)
+        return result
+    })
+
+    async function captureError(fn) {
+        try {
+            // ensure Promise.reject is captured
+            return fn().catch(e => e)
+        } catch (e) {
+            return e
+        }
+    }
+</script>
+</body>
+</html>
