@@ -265,7 +265,7 @@ export default class HarmfulApis extends ContentFeature {
         // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
         if (settings.filterEvents && settings.filterEvents.length > 0 && !hasMozProxies) {
             wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
-                if (settings.filterEvents?.includes(type) && this === globalThis.Bluetooth) {
+                if (settings.filterEvents?.includes(type) && this instanceof globalThis.Bluetooth) {
                     return
                 }
                 return nativeImpl.call(this, type, ...restArgs)
