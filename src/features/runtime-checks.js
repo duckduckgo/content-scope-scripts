@@ -4,6 +4,7 @@ import ContentFeature from '../content-feature.js'
 import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname } from '../utils.js'
 import { defineProperty } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
+import { findClosestBreakpoint } from './runtime-checks/helpers.js'
 import { Reflect } from '../captured-globals.js'
 
 let stackDomains = []
@@ -724,9 +725,7 @@ export default class RuntimeChecks extends ContentFeature {
     }
 
     /**
-     * @typedef {object} Sizing
-     * @property {number} height
-     * @property {number} width
+     * @typedef {import('./runtime-checks/helpers.js').Sizing} Sizing
      */
 
     /**
@@ -778,21 +777,4 @@ export default class RuntimeChecks extends ContentFeature {
             }
         })
     }
-}
-
-function findClosestBreakpoint (breakpoints, screenSize) {
-    let closestBreakpoint = null
-    let closestDistance = Infinity
-
-    for (let i = 0; i < breakpoints.length; i++) {
-        const breakpoint = breakpoints[i]
-        const distance = Math.sqrt(Math.pow(breakpoint.height - screenSize.height, 2) + Math.pow(breakpoint.width - screenSize.width, 2))
-
-        if (distance < closestDistance) {
-            closestBreakpoint = breakpoint
-            closestDistance = distance
-        }
-    }
-
-    return closestBreakpoint
 }
