@@ -1,7 +1,7 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname } from '../utils.js'
 import { defineProperty } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { Reflect } from '../captured-globals.js'
@@ -185,7 +185,7 @@ class DDGRuntimeChecks extends HTMLElement {
             }
             try {
                 const origin = this.src && new URL(this.src, window.location.href).hostname
-                if (origin && taintedOrigins()) {
+                if (origin && taintedOrigins() && getTabHostname() !== origin) {
                     taintedOrigins()?.add(origin)
                 }
             } catch {}
@@ -690,7 +690,19 @@ export default class RuntimeChecks extends ContentFeature {
             }
         }
 
-        const storage = new MemoryStorage()
+        const instance = new MemoryStorage()
+        const storage = new Proxy(instance, {
+            set (target, prop, value, receiver) {
+                Reflect.apply(target.setItem, target, [prop, value], receiver)
+                return true
+            },
+            get (target, prop) {
+                if (typeof target[prop] === 'function') {
+                    return target[prop].bind(instance)
+                }
+                return Reflect.get(target, prop, instance)
+            }
+        })
         this.overrideStorage(config, key, storage)
     }
 

@@ -13,12 +13,13 @@
     <p>This page verifies that script overloading works <a href="../config/script-overload.json">config</a></p>
 
     <script>
-        test('Script should have generic overloaded changes', async () => {
+        test('Script should have generic overloaded localStorage changes', async () => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             window.scriptOutput = false;
             window.scriptyRan = false;
             const scriptElement = document.createElement('script');
-            scriptElement.src = './../../shared/replay.js';
+            // TODO fix with some URL injection import (needs to be a different URL than the tab)
+            scriptElement.src = `http://localhost:${window.location.port}/shared/replay.js`;
             scriptElement.id = 'overloadedScript';
             let resolver
             const promise = new Promise((resolve) => {
@@ -29,17 +30,17 @@
             }
             document.body.appendChild(scriptElement);
             await promise
-            console.log(window.scriptyRan, window.replayScript)
             localStorage.clear()
             replayScript(`
                 localStorage.clear();
                 localStorage.setItem('test', 'test');
+                localStorage.other = "test";
                 window.scriptyRan = true;
                 window.scriptOutput = {
-                    item: localStorage.getItem('test')
+                    item: localStorage.getItem('test'),
+                    other: localStorage.getItem('other'),
                 }
             `)
-
             const scripty = document.querySelector('script#overloadedScript');
             const nodeAndFakeNodeMatch = scripty === scriptElement;
 
@@ -47,9 +48,52 @@
                 { name: 'script ran', result: window.scriptyRan, expected: true },
                 { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
                 { name: 'expected localStorage first response', result: window.scriptOutput, expected: {
-                    item: 'test'
+                    item: 'test',
+                    other: 'test'
                 }},
-                { name: 'did not globally store', result: localStorage.getItem('test'), expected: null }
+                { name: 'did not globally store', result: localStorage.getItem('test'), expected: null },
+                { name: 'did session store', result: sessionStorage.getItem('test'), expected: 'test' },
+            ];
+        });
+
+        test('Script should have generic overloaded sessionStorage changes', async () => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            window.script2Output = false;
+            const scriptElement = document.createElement('script');
+            // TODO fix with some URL injection import (needs to be a different URL than the tab)
+            scriptElement.src = `http://localhost:${window.location.port}/shared/replay.js`;
+            scriptElement.id = 'overloadedScript2';
+            let resolver
+            const promise = new Promise((resolve) => {
+                resolver = resolve
+            })
+            scriptElement.onload = () => {
+                resolver()
+            }
+            document.body.appendChild(scriptElement);
+            await promise
+            sessionStorage.clear()
+            replayScript(`
+                sessionStorage.clear();
+                sessionStorage.setItem('test', 'test');
+                sessionStorage.other = "test";
+                window.script2Output = {
+                    item: sessionStorage.getItem('test'),
+                    other: sessionStorage.getItem('other'),
+                }
+            `)
+            const scripty = document.querySelector('script#overloadedScript');
+            const nodeAndFakeNodeMatch = scripty === scriptElement;
+
+            return [
+                { name: 'script ran', result: !!window.script2Output, expected: true },
+                { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
+                { name: 'expected localStorage first response', result: window.script2Output, expected: {
+                    item: 'test',
+                    other: 'test'
+                }},
+                { name: 'did not globally store', result: localStorage.getItem('test'), expected: null },
+                { name: 'did session store', result: sessionStorage.getItem('test'), expected: null },
             ];
         });
 
