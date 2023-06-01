@@ -1,5 +1,6 @@
 /* global cloneInto, exportFunction, mozProxies */
 import { Set } from './captured-globals.js'
+import { defineProperty } from './wrapper-utils.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
@@ -444,6 +445,12 @@ export class DDGProxy {
             this.objectScope[this.property] = this.internal
         }
     }
+
+    overloadDescriptor () {
+        defineProperty(this.objectScope, this.property, {
+            value: this.internal
+        })
+    }
 }
 
 export function postDebugMessage (feature, message) {
@@ -613,8 +620,6 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     const topLevelHostname = getTabHostname()
     const site = computeLimitedSiteObject()
     const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0
-    const remoteFeatureNames = Object.keys(data.features)
-    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
     /** @type {Record<string, any>} */
     const output = { ...preferences }
     if (output.platform) {

@@ -54,9 +54,8 @@ function collapseDomNode (element, rule, previousElement) {
  * Unhide previously hidden DOM element if content loaded into it
  * @param {HTMLElement} element
  * @param {Object} rule
- * @param {HTMLElement} [previousElement]
  */
-function expandNonEmptyDomNode (element, rule, previousElement) {
+function expandNonEmptyDomNode (element, rule) {
     if (!element) {
         return
     }
@@ -76,7 +75,7 @@ function expandNonEmptyDomNode (element, rule, previousElement) {
             // iterate upwards from matching DOM elements until we arrive at previously
             // hidden element. Unhide element if it contains visible content.
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            expandNonEmptyDomNode(element.parentNode, rule, element)
+            expandNonEmptyDomNode(element.parentNode, rule)
         }
         break
     default:
@@ -215,7 +214,7 @@ function extractTimeoutRules (rules) {
     const strictHideRules = []
     const timeoutRules = []
 
-    rules.forEach((rule, i) => {
+    rules.forEach((rule) => {
         if (rule.type === 'hide') {
             strictHideRules.push(rule)
         } else {
@@ -315,7 +314,7 @@ export default class ElementHiding extends ContentFeature {
 
         // now have the final list of rules to apply, so we apply them when document is loaded
         if (document.readyState === 'loading') {
-            window.addEventListener('DOMContentLoaded', (event) => {
+            window.addEventListener('DOMContentLoaded', () => {
                 applyRules(activeRules)
             })
         } else {
@@ -331,7 +330,7 @@ export default class ElementHiding extends ContentFeature {
         })
         historyMethodProxy.overload()
         // listen for popstate events in order to run on back/forward navigations
-        window.addEventListener('popstate', (event) => {
+        window.addEventListener('popstate', () => {
             applyRules(activeRules)
         })
     }

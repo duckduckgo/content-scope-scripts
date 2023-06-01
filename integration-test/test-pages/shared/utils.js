@@ -61,20 +61,20 @@ const isReadyPromise = new Promise((resolve) => {
 const url = new URL(window.location.href)
 if (url.searchParams.get('automation')) {
     isInAutomation = true
-    window.addEventListener('content-scope-init-complete', (e) => {
+    window.addEventListener('content-scope-init-complete', () => {
         isReadyPromiseResolve()
     })
 }
 
 // @ts-expect-error - ongoingTests is not defined in the type definition
 window.ongoingTests = []
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function test (name, test) {
     // @ts-expect-error - ongoingTests is not defined in the type definition
     window.ongoingTests.push({ name, test })
 }
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function renderResults () {
     const results = {}
     if (isInAutomation) {
