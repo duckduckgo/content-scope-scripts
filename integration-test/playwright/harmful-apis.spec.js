@@ -3,13 +3,9 @@ import { readFileSync } from 'fs'
 import { mockWindowsMessaging, wrapWindowsScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
 
 test('Harmful APIs protections', async ({ page }) => {
-    const perms = new HarmfulApisSpec(page)
-    await perms.enabled()
+    const protection = new HarmfulApisSpec(page)
+    const results = await protection.enabled();
     // note that if protections are disabled, the browser will show a device selection pop-up, which will never be dismissed
-    const results = await page.evaluate(() => {
-        // @ts-expect-error - this is added by the test framework
-        return window.results
-    });
 
     [
         'deviceOrientation',
@@ -53,7 +49,16 @@ export class HarmfulApisSpec {
         for (const button of await this.page.getByTestId('user-gesture-button').all()) {
             await button.click()
         }
+        const resultsPromise = this.page.evaluate(() => {
+            return new Promise(resolve => {
+                window.addEventListener('results-ready', (e) => {
+                    // @ts-expect-error - this is added by the test framework
+                    resolve(window.results)
+                })
+            })
+        })
         await this.page.getByTestId('render-results').click()
+        return await resultsPromise
     }
 
     /**

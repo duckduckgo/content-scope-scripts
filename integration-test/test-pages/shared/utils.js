@@ -87,7 +87,7 @@ async function renderResults () {
     }
     // @ts-expect-error - buildResultTable is not defined in the type definition
     document.body.appendChild(buildResultTable(results))
-    window.dispatchEvent(new CustomEvent('results-ready', { detail: results }))
     // @ts-expect-error - results is not defined in the type definition
     window.results = results
+    window.dispatchEvent(new CustomEvent('results-ready', { detail: results }))
 }
