@@ -58,18 +58,33 @@ export class ClickToLoadMessagingTransport {
         }
         let params = req.params
 
-        // Adapts request for getYouTubeVideoDetails by identifying the correct
+        switch (req.method) {
+        // Adapts request for 'getYouTubeVideoDetails' by identifying the correct
         // response for each request and updating params to expect current
         // implementation specifications.
-        if (req.method === 'getYouTubeVideoDetails') {
+        case 'getYouTubeVideoDetails': {
             comparator = (eventData) => {
                 return (
                     eventData.responseMessageType === req.method &&
-                    eventData.response &&
-                    eventData.response.videoURL === req.params?.videoURL
+                        eventData.response &&
+                        eventData.response.videoURL === req.params?.videoURL
                 )
             }
             params = req.params.videoURL
+            break
+        }
+        // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
+        // for sendMessage()
+        case 'updateYouTubeCTLAddedFlag': {
+            params = req.params.youTubeCTLAddedFlag
+            break
+        }
+        // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
+        // for sendMessage()
+        case 'setYoutubePreviewsEnabled': {
+            params = req.params.youtubePreviewsEnabled
+            break
+        }
         }
 
         sendMessage(req.method, params)

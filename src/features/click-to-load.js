@@ -631,7 +631,7 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
 
     // YouTube
     if (widget.replaceSettings.type === 'youtube-video') {
-        ctl.messaging.notify('updateYouTubeCTLAddedFlag', true)
+        ctl.messaging.notify('updateYouTubeCTLAddedFlag', { youTubeCTLAddedFlag: true })
         replaceYouTubeCTL(trackingElement, widget)
 
         // Subscribe to changes to youtubePreviewsEnabled setting
@@ -692,7 +692,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
                     dataKey: 'yt-preview-toggle', // data-key attribute for button
                     label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
                     size: isMobileApp ? 'lg' : 'md',
-                    onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', true) // Toggle click callback
+                    onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }) // Toggle click callback
                 },
                 withFeedback: {
                     label: sharedStrings.shareFeedback,
@@ -1540,7 +1540,7 @@ function createYouTubeBlockingDialog (trackingElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', true), widget.entity)
+        () => makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), widget.entity)
     )
     bottomRow.appendChild(previewToggle)
 
@@ -1657,7 +1657,7 @@ function createYouTubePreview (originalElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => ctl.messaging.notify('setYoutubePreviewsEnabled', false)
+        () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: false })
     )
 
     /** Preview Info Text */
