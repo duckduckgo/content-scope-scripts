@@ -51,7 +51,7 @@ export class HarmfulApisSpec {
         }
         const resultsPromise = this.page.evaluate(() => {
             return new Promise(resolve => {
-                window.addEventListener('results-ready', (e) => {
+                window.addEventListener('results-ready', () => {
                     // @ts-expect-error - this is added by the test framework
                     resolve(window.results)
                 })
