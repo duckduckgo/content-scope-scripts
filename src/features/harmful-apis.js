@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature'
-import { stripVersion } from '../utils'
+import { DDGReflect, stripVersion } from '../utils'
 import { hasMozProxies, wrapMethod, wrapProperty } from '../wrapper-utils'
 
 /**
@@ -15,7 +15,7 @@ function filterPermissionQuery (permissions) {
     }
     wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
         // call the original function first in case it throws an error
-        const origResult = await nativeImpl.call(this, queryObject)
+        const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject])
 
         if (permissions.includes(queryObject.name)) {
             return {
@@ -78,7 +78,7 @@ export default class HarmfulApis extends ContentFeature {
                         console.log('blocked event', type)
                         return
                     }
-                    return nativeImpl.call(this, type, ...restArgs)
+                    return DDGReflect.apply(nativeImpl, this, [type, ...restArgs])
                 })
             }
         }
@@ -120,7 +120,7 @@ export default class HarmfulApis extends ContentFeature {
             return
         }
         wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
-            const nativeResult = await nativeImpl.call(this, hints) // this may throw an error, and that is fine
+            const nativeResult = await DDGReflect.apply(nativeImpl, this, [hints]) // this may throw an error, and that is fine
             const filteredResult = {}
             const highEntropyValues = settings.highEntropyValues || {}
             for (const [key, value] of Object.entries(nativeResult)) {
@@ -268,7 +268,7 @@ export default class HarmfulApis extends ContentFeature {
                 if (settings.filterEvents?.includes(type) && this instanceof globalThis.Bluetooth) {
                     return
                 }
-                return nativeImpl.call(this, type, ...restArgs)
+                return DDGReflect.apply(nativeImpl, this, [type, ...restArgs])
             })
         }
 
@@ -377,8 +377,8 @@ export default class HarmfulApis extends ContentFeature {
             values.unshift(0)
             // now, values is a sorted array of positive numbers, with 0 as the first element
             if (values.length > 0) {
-                wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl) {
-                    const result = await nativeImpl.call(this)
+                wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl, ...args) {
+                    const result = await DDGReflect.apply(nativeImpl, this, args)
                     // find the first allowed value from the right that is smaller than the result
                     let i = values.length - 1
                     while (i > 0 && values[i] > result.quota) {
