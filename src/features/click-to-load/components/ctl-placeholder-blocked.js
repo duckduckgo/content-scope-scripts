@@ -298,7 +298,3 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
         }
     }
 }
-
-if (!customElements.get(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME)) {
-    customElements.define(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME, DDGCtlPlaceholderBlockedElement)
-}
