@@ -1,10 +1,13 @@
 import { sendMessage } from '../../utils'
 
+/** Workaround defining MessagingTransport locally because "import()" is not working in @implements
+ * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport */
+
 /**
  * A temporary implementation of {@link MessagingTransport} to communicate with Android and Extension.
  * It wraps the current messaging system that calls `sendMessage`
  *
- * @implements {import("@duckduckgo/messaging").MessagingTransport}
+ * @implements {MessagingTransport}
  * @deprecated - Use this only to communicate with Android and the Extension while support to {@link Messaging}
  * is not ready and we need to use `sendMessage()`.
  */
@@ -16,11 +19,10 @@ export class ClickToLoadMessagingTransport {
     _queue = new Set()
 
     /**
-     * @param {TestTransportConfig} config
-     * @param {import("@duckduckgo/messaging").MessagingContext} messagingContext
+     * @param {import('@duckduckgo/messaging').MessagingContext} messagingContext
      * @internal
      */
-    constructor (config, messagingContext) {
+    constructor (messagingContext) {
         this.messagingContext = messagingContext
         this.globals = {
             window,
@@ -42,14 +44,14 @@ export class ClickToLoadMessagingTransport {
     }
 
     /**
-     * @param {import("@duckduckgo/messaging").NotificationMessage} msg
+     * @param {import('@duckduckgo/messaging').NotificationMessage} msg
      */
     notify (msg) {
         sendMessage(msg.method, msg.params)
     }
 
     /**
-     * @param {import("@duckduckgo/messaging").RequestMessage} msg
+     * @param {import('@duckduckgo/messaging').RequestMessage} req
      * @return {Promise<any>}
      */
     request (req) {
@@ -70,19 +72,19 @@ export class ClickToLoadMessagingTransport {
                         eventData.response.videoURL === req.params?.videoURL
                 )
             }
-            params = req.params.videoURL
+            params = req.params?.videoURL
             break
         }
         // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
         // for sendMessage()
         case 'updateYouTubeCTLAddedFlag': {
-            params = req.params.youTubeCTLAddedFlag
+            params = req.params?.youTubeCTLAddedFlag
             break
         }
         // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
         // for sendMessage()
         case 'setYoutubePreviewsEnabled': {
-            params = req.params.youtubePreviewsEnabled
+            params = req.params?.youtubePreviewsEnabled
             break
         }
         }
@@ -99,7 +101,7 @@ export class ClickToLoadMessagingTransport {
     }
 
     /**
-     * @param {import("@duckduckgo/messaging").Subscription} msg
+     * @param {import('@duckduckgo/messaging').Subscription} msg
      * @param {(value: unknown | undefined) => void} callback
      */
     subscribe (msg, callback) {

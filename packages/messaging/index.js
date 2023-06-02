@@ -48,7 +48,7 @@ export class MessagingContext {
 export class Messaging {
     /**
      * @param {MessagingContext} messagingContext
-     * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig | SendMessageMessagingConfig} config
+     * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
      */
     constructor (messagingContext, config) {
         this.messagingContext = messagingContext

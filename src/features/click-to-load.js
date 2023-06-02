@@ -1719,7 +1719,7 @@ export default class ClickToLoad extends ContentFeature {
         if (!this.messaging) {
             throw new Error('Cannot operate click to load without a messaging backend')
         }
-        _messagingModuleScope = this._messaging
+        _messagingModuleScope = this.messaging
 
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}
@@ -1839,6 +1839,10 @@ export default class ClickToLoad extends ContentFeature {
         const messageType = message?.messageType
         if (!messageType) return
 
+        if (!this._clickToLoadMessagingTransport) {
+            throw new Error('_clickToLoadMessagingTransport not ready. Cannot operate click to load without a messaging backend')
+        }
+
         // Send to Messaging layer the response or subscription message received
         // from the Platform.
         return this._clickToLoadMessagingTransport.onResponse(message)
@@ -1864,11 +1868,11 @@ export default class ClickToLoad extends ContentFeature {
         if (this._messaging) return this._messaging
 
         if (this.platform.name === 'android' || this.platform.name === 'extension' || this.platform.name === 'macos') {
-            this._clickToLoadMessagingTransport = new ClickToLoadMessagingTransport()
+            this._clickToLoadMessagingTransport = new ClickToLoadMessagingTransport(this.messagingContext)
             const config = new TestTransportConfig(this._clickToLoadMessagingTransport)
             this._messaging = new Messaging(this.messagingContext, config)
             return this._messaging
-        } else if (this.platform.name === 'macos' || this.platform.name === 'ios') {
+        } else if (this.platform.name === 'ios') {
             const config = new WebkitMessagingConfig({
                 secret: '',
                 hasModernWebkitAPI: true,
