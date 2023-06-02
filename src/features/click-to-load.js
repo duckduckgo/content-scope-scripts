@@ -471,7 +471,7 @@ class DuckWidget {
                     if (onError) {
                         fbElement.addEventListener('error', onError, { once: true })
                     }
-                }, { once: true })
+                })
             }
         }
         // If this is a login button, show modal if needed
@@ -858,7 +858,7 @@ async function replaceClickToLoadElements (targetElement) {
  * the page.
  * @param {unblockClickToLoadContentRequest} message
  * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
- * @return {Promise<any>}
+ * @returns {Promise<void>}
  */
 function unblockClickToLoadContent (message) {
     return ctl.messaging.request('unblockClickToLoadContent', message)
@@ -870,9 +870,9 @@ function unblockClickToLoadContent (message) {
  * shown.
  * @param {string} entity
  */
-function runLogin (entity) {
+async function runLogin (entity) {
     const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
-    unblockClickToLoadContent({ entity, action, isLogin: true })
+    await unblockClickToLoadContent({ entity, action, isLogin: true })
     // Communicate with surrogate to run login
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-run-login', {
@@ -1782,13 +1782,6 @@ export default class ClickToLoad extends ContentFeature {
                 }
             }
         })
-
-        // Request the current state of Click to Load from the platform.
-        // Note: When the response is received, the response handler resolves
-        //       the readyToDisplayPlaceholders Promise.
-        const clickToLoadState = await this.messaging.request('getClickToLoadState')
-        this.onClickToLoadState(clickToLoadState)
-
         // Listen to message from Platform letting CTL know that we're ready to
         // replace elements in the page
         // eslint-disable-next-line promise/prefer-await-to-then
@@ -1797,10 +1790,14 @@ export default class ClickToLoad extends ContentFeature {
             // TODO: Pass `message.options.ruleAction` through, that way only
             //       content corresponding to the entity for that ruleAction need to
             //       be replaced with a placeholder.
-            (_) => replaceClickToLoadElements()
+            () => replaceClickToLoadElements()
         )
 
-        await readyToDisplayPlaceholders
+        // Request the current state of Click to Load from the platform.
+        // Note: When the response is received, the response handler resolves
+        //       the readyToDisplayPlaceholders Promise.
+        const clickToLoadState = await this.messaging.request('getClickToLoadState')
+        this.onClickToLoadState(clickToLoadState)
 
         // Then wait for the page to finish loading, and resolve the
         // afterPageLoad Promise.
