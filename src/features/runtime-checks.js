@@ -1,8 +1,10 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname } from '../utils.js'
+import { defineProperty } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
+import { findClosestBreakpoint } from './runtime-checks/helpers.js'
 import { Reflect } from '../captured-globals.js'
 
 let stackDomains = []
@@ -17,7 +19,6 @@ let monitorProperties = true
 // Ignore monitoring properties that are only relevant once and already handled
 const defaultIgnoreMonitorList = ['onerror', 'onload']
 let ignoreMonitorList = defaultIgnoreMonitorList
-let injectGenericOverloadsEnabled = true
 
 /**
  * @param {string} tagName
@@ -66,12 +67,20 @@ const jsMimeTypes = [
     'text/x-javascript'
 ]
 
+function getTaintFromScope (scope, args, shouldStackCheck = false) {
+    try {
+        scope = args.callee.caller
+    } catch {}
+    return hasTaintedMethod(scope, shouldStackCheck)
+}
+
 class DDGRuntimeChecks extends HTMLElement {
     #tagName
     #el
     #listeners
     #connected
     #sinks
+    #debug
 
     constructor () {
         super()
@@ -80,6 +89,7 @@ class DDGRuntimeChecks extends HTMLElement {
         this.#listeners = []
         this.#connected = false
         this.#sinks = {}
+        this.#debug = false
         if (shadowDomEnabled) {
             const shadow = this.attachShadow({ mode: 'open' })
             const style = createStyleElement(`
@@ -94,8 +104,9 @@ class DDGRuntimeChecks extends HTMLElement {
     /**
      * This method is called once and externally so has to remain public.
      **/
-    setTagName (tagName) {
+    setTagName (tagName, debug = false) {
         this.#tagName = tagName
+        this.#debug = debug
 
         // Clear the method so it can't be called again
         // @ts-expect-error - error TS2790: The operand of a 'delete' operator must be optional.
@@ -169,6 +180,16 @@ class DDGRuntimeChecks extends HTMLElement {
         if (taintCheck) {
             // Add a symbol to the element so we can identify it as a runtime checked element
             Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false })
+            // Only show this attribute whilst debugging
+            if (this.#debug) {
+                el.setAttribute('data-ddg-runtime-checks', 'true')
+            }
+            try {
+                const origin = this.src && new URL(this.src, window.location.href).hostname
+                if (origin && taintedOrigins() && getTabHostname() !== origin) {
+                    taintedOrigins()?.add(origin)
+                }
+            } catch {}
         }
 
         // Reflect all attrs to the new element
@@ -452,7 +473,7 @@ function isInterrogatingDebugMessage (matchType, matchedStackDomain, stack, scri
     })
 }
 
-function overrideCreateElement () {
+function overrideCreateElement (debug) {
     const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
         apply (fn, scope, args) {
             if (args.length >= 1) {
@@ -461,7 +482,7 @@ function overrideCreateElement () {
                 if (shouldInterrogate(initialTagName)) {
                     args[0] = 'ddg-runtime-checks'
                     const el = Reflect.apply(fn, scope, args)
-                    el.setTagName(initialTagName)
+                    el.setTagName(initialTagName, debug)
                     return el
                 }
             }
@@ -470,22 +491,6 @@ function overrideCreateElement () {
     })
     proxy.overload()
     initialCreateElement = proxy._native
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function getTaintFromScope (scope, args) {
-    try {
-        scope = args.callee.caller
-    } catch {
-        console.log('taint: failed to get callers scope', args, scope)
-    }
-    return hasTaintedMethod(scope)
-}
-
-function injectGenericOverloads () {
-/*
-   TODO
-*/
 }
 
 function overloadRemoveChild () {
@@ -547,9 +552,8 @@ export default class RuntimeChecks extends ContentFeature {
         ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList
         replaceElement = this.getFeatureSettingEnabled('replaceElement') || false
         monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true
-        injectGenericOverloadsEnabled = this.getFeatureSettingEnabled('injectGenericOverloads') || true
 
-        overrideCreateElement()
+        overrideCreateElement(this.isDebug)
 
         if (this.getFeatureSettingEnabled('overloadInstanceOf')) {
             overloadInstanceOfChecks(HTMLScriptElement)
@@ -563,8 +567,8 @@ export default class RuntimeChecks extends ContentFeature {
             `)
         }
 
-        if (injectGenericOverloadsEnabled) {
-            injectGenericOverloads()
+        if (this.getFeatureSetting('injectGenericOverloads')) {
+            this.injectGenericOverloads()
         }
         if (this.getFeatureSettingEnabled('overloadRemoveChild')) {
             overloadRemoveChild()
@@ -572,5 +576,229 @@ export default class RuntimeChecks extends ContentFeature {
         if (this.getFeatureSettingEnabled('overloadReplaceChild')) {
             overloadReplaceChild()
         }
+    }
+
+    injectGenericOverloads () {
+        const genericOverloads = this.getFeatureSetting('injectGenericOverloads')
+        if ('Date' in genericOverloads) {
+            this.overloadDate(genericOverloads.Date)
+        }
+        if ('Date.prototype.getTimezoneOffset' in genericOverloads) {
+            this.overloadDateGetTimezoneOffset(genericOverloads['Date.prototype.getTimezoneOffset'])
+        }
+        if ('NavigatorUAData.prototype.getHighEntropyValues' in genericOverloads) {
+            this.overloadHighEntropyValues(genericOverloads['NavigatorUAData.prototype.getHighEntropyValues'])
+        }
+        ['localStorage', 'sessionStorage'].forEach(storageType => {
+            if (storageType in genericOverloads) {
+                const storageConfig = genericOverloads[storageType]
+                if (storageConfig.scheme === 'memory') {
+                    this.overloadStorageWithMemory(storageConfig, storageType)
+                } else if (storageConfig.scheme === 'session') {
+                    this.overloadStorageWithSession(storageConfig, storageType)
+                }
+            }
+        })
+        const breakpoints = this.getFeatureSetting('breakpoints')
+        const screenSize = { height: screen.height, width: screen.width };
+        ['innerHeight', 'innerWidth', 'outerHeight', 'outerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {
+            if (sizing in genericOverloads) {
+                const sizingConfig = genericOverloads[sizing]
+                this.overloadScreenSizes(sizingConfig, breakpoints, screenSize, sizing, sizingConfig.offset || 0)
+            }
+        })
+    }
+
+    overloadDate (config) {
+        const offset = (new Date()).getTimezoneOffset()
+        globalThis.Date = new Proxy(globalThis.Date, {
+            construct (target, args) {
+                const constructed = Reflect.construct(target, args)
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                    // Falible in that the page could brute force the offset to match. We should fix this.
+                    if (constructed.getTimezoneOffset() === offset) {
+                        return constructed.getUTCDate()
+                    }
+                }
+                return constructed
+            }
+        })
+    }
+
+    overloadDateGetTimezoneOffset (config) {
+        const offset = (new Date()).getTimezoneOffset()
+        defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value () {
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                    return 0
+                }
+                return offset
+            }
+        })
+    }
+
+    overloadHighEntropyValues (config) {
+        if (!('NavigatorUAData' in globalThis)) {
+            return
+        }
+
+        const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues
+        defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value (hints) {
+                let hintsOut = hints
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                    // If tainted override with default values (using empty array)
+                    hintsOut = []
+                }
+                return Reflect.apply(originalGetHighEntropyValues, this, [hintsOut])
+            }
+        })
+    }
+
+    overloadStorageWithMemory (config, key) {
+        /**
+         * @implements {Storage}
+         */
+        class MemoryStorage {
+            #data = {}
+
+            /**
+             * @param {Parameters<Storage['setItem']>[0]} id
+             * @param {Parameters<Storage['setItem']>[1]} val
+             * @returns {ReturnType<Storage['setItem']>}
+             */
+            setItem (id, val) {
+                if (arguments.length < 2) throw new TypeError(`Failed to execute 'setItem' on 'Storage': 2 arguments required, but only ${arguments.length} present.`)
+                this.#data[id] = String(val)
+            }
+
+            /**
+             * @param {Parameters<Storage['getItem']>[0]} id
+             * @returns {ReturnType<Storage['getItem']>}
+             */
+            getItem (id) {
+                return Object.prototype.hasOwnProperty.call(this.#data, id) ? this.#data[id] : null
+            }
+
+            /**
+             * @param {Parameters<Storage['removeItem']>[0]} id
+             * @returns {ReturnType<Storage['removeItem']>}
+             */
+            removeItem (id) {
+                delete this.#data[id]
+            }
+
+            /**
+             * @returns {ReturnType<Storage['clear']>}
+             */
+            clear () {
+                this.#data = {}
+            }
+
+            /**
+             * @param {Parameters<Storage['key']>[0]} n
+             * @returns {ReturnType<Storage['key']>}
+             */
+            key (n) {
+                const keys = Object.keys(this.#data)
+                return keys[n]
+            }
+
+            get length () {
+                return Object.keys(this.#data).length
+            }
+        }
+        /** @satisfies {Storage} */
+        const instance = new MemoryStorage()
+        const storage = new Proxy(instance, {
+            set (target, prop, value, receiver) {
+                Reflect.apply(target.setItem, target, [prop, value], receiver)
+                return true
+            },
+            get (target, prop) {
+                if (typeof target[prop] === 'function') {
+                    return target[prop].bind(instance)
+                }
+                return Reflect.get(target, prop, instance)
+            }
+        })
+        this.overrideStorage(config, key, storage)
+    }
+
+    overloadStorageWithSession (config, key) {
+        const storage = globalThis.sessionStorage
+        this.overrideStorage(config, key, storage)
+    }
+
+    overrideStorage (config, key, storage) {
+        const originalStorage = globalThis[key]
+        defineProperty(globalThis, key, {
+            get () {
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                    return storage
+                }
+                return originalStorage
+            }
+        })
+    }
+
+    /**
+     * @typedef {import('./runtime-checks/helpers.js').Sizing} Sizing
+     */
+
+    /**
+     * Overloads the provided key with the closest breakpoint size
+     * @param {Sizing[]} breakpoints
+     * @param {Sizing} screenSize
+     * @param {string} key
+     * @param {number} [offset]
+     */
+    overloadScreenSizes (config, breakpoints, screenSize, key, offset = 0) {
+        const closest = findClosestBreakpoint(breakpoints, screenSize)
+        if (!closest) {
+            return
+        }
+        let returnVal = null
+        /** @type {object} */
+        let scope = globalThis
+        let overrideKey = key
+        let receiver
+        switch (key) {
+        case 'innerHeight':
+        case 'outerHeight':
+            returnVal = closest.height - offset
+            break
+        case 'innerWidth':
+        case 'outerWidth':
+            returnVal = closest.width - offset
+            break
+        case 'Screen.prototype.height':
+            scope = Screen.prototype
+            overrideKey = 'height'
+            returnVal = closest.height - offset
+            receiver = globalThis.screen
+            break
+        case 'Screen.prototype.width':
+            scope = Screen.prototype
+            overrideKey = 'width'
+            returnVal = closest.width - offset
+            receiver = globalThis.screen
+            break
+        }
+        const defaultVal = Reflect.get(scope, overrideKey, receiver)
+        defineProperty(scope, overrideKey, {
+            get () {
+                if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                    return returnVal
+                }
+                return defaultVal
+            }
+        })
     }
 }
