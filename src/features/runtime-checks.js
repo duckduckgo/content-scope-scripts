@@ -665,22 +665,43 @@ export default class RuntimeChecks extends ContentFeature {
         class MemoryStorage {
             #data = {}
 
+            /**
+             * @param {Parameters<Storage['setItem']>[0]} id
+             * @param {Parameters<Storage['setItem']>[1]} val
+             * @returns {ReturnType<Storage['setItem']>}
+             */
             setItem (id, val) {
+                if (arguments.length < 2) throw new TypeError(`Failed to execute 'setItem' on 'Storage': 2 arguments required, but only ${arguments.length} present.`)
                 this.#data[id] = String(val)
             }
 
+            /**
+             * @param {Parameters<Storage['getItem']>[0]} id
+             * @returns {ReturnType<Storage['getItem']>}
+             */
             getItem (id) {
-                return Object.prototype.hasOwnProperty.call(this.#data, id) ? this.#data[id] : undefined
+                return Object.prototype.hasOwnProperty.call(this.#data, id) ? this.#data[id] : null
             }
 
+            /**
+             * @param {Parameters<Storage['removeItem']>[0]} id
+             * @returns {ReturnType<Storage['removeItem']>}
+             */
             removeItem (id) {
-                return delete this.#data[id]
+                delete this.#data[id]
             }
 
+            /**
+             * @returns {ReturnType<Storage['clear']>}
+             */
             clear () {
                 this.#data = {}
             }
 
+            /**
+             * @param {Parameters<Storage['key']>[0]} n
+             * @returns {ReturnType<Storage['key']>}
+             */
             key (n) {
                 const keys = Object.keys(this.#data)
                 return keys[n]

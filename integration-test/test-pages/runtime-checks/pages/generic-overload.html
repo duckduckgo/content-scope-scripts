@@ -36,9 +36,16 @@
                 localStorage.setItem('test', 'test');
                 localStorage.other = "test";
                 window.scriptyRan = true;
+                let threw = false;
+                try {
+                    localStorage.setItem('test2'); // should throw
+                } catch (e) {
+                    threw = true;
+                }
                 window.scriptOutput = {
                     item: localStorage.getItem('test'),
                     other: localStorage.getItem('other'),
+                    threw
                 }
             `)
             const scripty = document.querySelector('script#overloadedScript');
@@ -49,7 +56,8 @@
                 { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
                 { name: 'expected localStorage first response', result: window.scriptOutput, expected: {
                     item: 'test',
-                    other: 'test'
+                    other: 'test',
+                    threw: true
                 }},
                 { name: 'did not globally store', result: localStorage.getItem('test'), expected: null },
                 { name: 'did session store', result: sessionStorage.getItem('test'), expected: 'test' },
@@ -77,6 +85,12 @@
                 sessionStorage.clear();
                 sessionStorage.setItem('test', 'test');
                 sessionStorage.other = "test";
+                let threw = false;
+                try {
+                    sessionStorage.setItem('test2'); // should throw
+                } catch (e) {
+                    threw = true;
+                }
                 window.script2Output = {
                     item: sessionStorage.getItem('test'),
                     other: sessionStorage.getItem('other'),
@@ -90,7 +104,8 @@
                 { name: 'node and fake node match', result: nodeAndFakeNodeMatch, expected: false },
                 { name: 'expected localStorage first response', result: window.script2Output, expected: {
                     item: 'test',
-                    other: 'test'
+                    other: 'test',
+                    threw: true
                 }},
                 { name: 'did not globally store', result: localStorage.getItem('test'), expected: null },
                 { name: 'did session store', result: sessionStorage.getItem('test'), expected: null },
