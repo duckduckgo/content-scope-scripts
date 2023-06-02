@@ -51,8 +51,7 @@ export const platformSupport = {
         'clickToLoad'
     ],
     integration: [
-        ...baseFeatures,
-        ...otherFeatures
+        ...baseFeatures
     ]
 }
 
