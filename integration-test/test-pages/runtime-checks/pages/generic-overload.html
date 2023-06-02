@@ -38,7 +38,7 @@
                 window.scriptyRan = true;
                 let threw = false;
                 try {
-                    localStorage.setItem('test2'); // should throw
+                    localStorage.setItem('test2'); /* should throw */
                 } catch (e) {
                     threw = true;
                 }
@@ -85,15 +85,16 @@
                 sessionStorage.clear();
                 sessionStorage.setItem('test', 'test');
                 sessionStorage.other = "test";
-                let threw = false;
+                let threw2 = false;
                 try {
-                    sessionStorage.setItem('test2'); // should throw
+                    sessionStorage.setItem('test2'); /* should throw */
                 } catch (e) {
-                    threw = true;
+                    threw2 = true;
                 }
                 window.script2Output = {
                     item: sessionStorage.getItem('test'),
                     other: sessionStorage.getItem('other'),
+                    threw: threw2
                 }
             `)
             const scripty = document.querySelector('script#overloadedScript');
