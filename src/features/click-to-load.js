@@ -1868,7 +1868,7 @@ export default class ClickToLoad extends ContentFeature {
         if (this._messaging) return this._messaging
 
         if (this.platform.name === 'android' || this.platform.name === 'extension' || this.platform.name === 'macos') {
-            this._clickToLoadMessagingTransport = new ClickToLoadMessagingTransport(this.messagingContext)
+            this._clickToLoadMessagingTransport = new ClickToLoadMessagingTransport()
             const config = new TestTransportConfig(this._clickToLoadMessagingTransport)
             this._messaging = new Messaging(this.messagingContext, config)
             return this._messaging

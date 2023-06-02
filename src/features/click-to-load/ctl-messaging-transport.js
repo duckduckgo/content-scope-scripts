@@ -18,12 +18,7 @@ export class ClickToLoadMessagingTransport {
      */
     _queue = new Set()
 
-    /**
-     * @param {import('@duckduckgo/messaging').MessagingContext} messagingContext
-     * @internal
-     */
-    constructor (messagingContext) {
-        this.messagingContext = messagingContext
+    constructor () {
         this.globals = {
             window,
             JSONparse: window.JSON.parse,
@@ -47,7 +42,20 @@ export class ClickToLoadMessagingTransport {
      * @param {import('@duckduckgo/messaging').NotificationMessage} msg
      */
     notify (msg) {
-        sendMessage(msg.method, msg.params)
+        let params = msg.params
+
+        // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
+        // for sendMessage()
+        if (msg.method === 'setYoutubePreviewsEnabled') {
+            params = msg.params?.youtubePreviewsEnabled
+        }
+        // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
+        // for sendMessage()
+        if (msg.method === 'updateYouTubeCTLAddedFlag') {
+            params = msg.params?.youTubeCTLAddedFlag
+        }
+
+        sendMessage(msg.method, params)
     }
 
     /**
@@ -60,11 +68,10 @@ export class ClickToLoadMessagingTransport {
         }
         let params = req.params
 
-        switch (req.method) {
         // Adapts request for 'getYouTubeVideoDetails' by identifying the correct
         // response for each request and updating params to expect current
         // implementation specifications.
-        case 'getYouTubeVideoDetails': {
+        if (req.method === 'getYouTubeVideoDetails') {
             comparator = (eventData) => {
                 return (
                     eventData.responseMessageType === req.method &&
@@ -73,20 +80,6 @@ export class ClickToLoadMessagingTransport {
                 )
             }
             params = req.params?.videoURL
-            break
-        }
-        // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
-        // for sendMessage()
-        case 'updateYouTubeCTLAddedFlag': {
-            params = req.params?.youTubeCTLAddedFlag
-            break
-        }
-        // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
-        // for sendMessage()
-        case 'setYoutubePreviewsEnabled': {
-            params = req.params?.youtubePreviewsEnabled
-            break
-        }
         }
 
         sendMessage(req.method, params)
