@@ -1,11 +1,23 @@
-import { defineConfig } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
     projects: [
         {
             name: 'windows',
-            testMatch: 'integration-test/playwright/*.spec.js',
+            testMatch: [
+                'integration-test/playwright/duckplayer.spec.js'
+            ],
             use: { platform: 'windows' }
+        },
+        {
+            name: 'chrome',
+            testMatch: 'integration-test/playwright/remote-pages.spec.js',
+            use: { platform: 'extension', ...devices['Desktop Chrome'] }
+        },
+        {
+            name: 'firefox',
+            testMatch: 'integration-test/playwright/remote-pages.spec.js',
+            use: { platform: 'extension', ...devices['Desktop Firefox'] }
         }
     ],
     timeout: 30 * 1000,
