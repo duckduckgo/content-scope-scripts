@@ -662,6 +662,9 @@ export default class RuntimeChecks extends ContentFeature {
     }
 
     overloadStorageWithMemory (config, key) {
+        /**
+         * @implements {Storage}
+         */
         class MemoryStorage {
             #data = {}
 
@@ -711,7 +714,7 @@ export default class RuntimeChecks extends ContentFeature {
                 return Object.keys(this.#data).length
             }
         }
-
+        /** @satisfies {Storage} */
         const instance = new MemoryStorage()
         const storage = new Proxy(instance, {
             set (target, prop, value, receiver) {
