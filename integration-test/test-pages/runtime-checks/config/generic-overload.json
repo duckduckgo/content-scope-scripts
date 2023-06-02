@@ -8,24 +8,12 @@
                 "matchAllDomains": "enabled",
                 "matchAllStackDomains": "enabled",
                 "overloadInstanceOf": "enabled",
-                "elementRemovalTimeout": 1000,
-                "injectGlobalStyles": "enabled",
                 "domains": [
-                    {
-                        "domain": "localhost",
-                        "settings": {
-                            "taintCheck": "enabled"
-                        }
-                    },
-                    {
-                        "domain": "subdomain.localhost",
-                        "settings": {
-                            "taintCheck": "enabled"
-                        }
-                    }
                 ],
                 "stackDomains": [
-                ],
+                ],               
+                "scriptOverload": {
+                },
                 "breakpoints": [
                     {"height": 768, "width": 1024},
                     {"height": 1024, "width": 768},
