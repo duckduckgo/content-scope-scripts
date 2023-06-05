@@ -2,6 +2,8 @@ import { createCustomEvent, sendMessage, originalWindowDispatchEvent } from '../
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
 import ContentFeature from '../content-feature.js'
+import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
+import { registerCustomElements } from './click-to-load/components'
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -46,6 +48,10 @@ const readyToDisplayPlaceholders = new Promise(resolve => {
 // essential messages to surrogate scripts.
 let afterPageLoadResolver
 const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve })
+
+// Used to choose between extension/desktop flow or mobile apps flow.
+// Updated on ClickToLoad.init()
+let isMobileApp
 
 /*********************************************************
  *  Widget Replacement logic
@@ -110,7 +116,33 @@ class DuckWidget {
                     // with a light version, replace with full version.
                     this.clickAction.type = 'allowFull'
                 }
-                value = attrSettings.default
+
+                // If the attribute is "width", try first to measure the parent's width and use that as a default value.
+                if (attrName === 'data-width') {
+                    const windowWidth = window.innerWidth
+                    const { parentElement } = this.originalElement
+                    const parentStyles = parentElement
+                        ? window.getComputedStyle(parentElement)
+                        : null
+                    let parentInnerWidth = null
+
+                    // We want to calculate the inner width of the parent element as the iframe, when added back,
+                    // should not be bigger than the space available in the parent element. There is no straightforward way of
+                    // doing this. We need to get the parent's .clientWidth and remove the paddings size from it.
+                    if (parentElement && parentStyles && parentStyles.display !== 'inline') {
+                        parentInnerWidth = parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight)
+                    }
+
+                    if (parentInnerWidth && parentInnerWidth < windowWidth) {
+                        value = parentInnerWidth.toString()
+                    } else {
+                        // Our default value for width is often greater than the window size of smaller
+                        // screens (ie mobile). Then use whatever is the smallest value.
+                        value = Math.min(attrSettings.default, windowWidth).toString()
+                    }
+                } else {
+                    value = attrSettings.default
+                }
             }
             this.dataElements[attrName] = value
         }
@@ -544,17 +576,42 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
 
     // Facebook
     if (widget.replaceSettings.type === 'dialog') {
-        const icon = widget.replaceSettings.icon
-        const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
-        const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
-        const { contentBlock, shadowRoot } = createContentBlock(
-            widget, button, textButton, icon
-        )
-        button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
-        textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
+        if (isMobileApp) {
+            /**
+             * Creates a custom HTML element with the placeholder element for blocked
+             * embedded content. The constructor gets a list of parameters with the
+             * content and event handlers for this HTML element.
+             */
+            const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlockedElement({
+                devMode,
+                title: widget.replaceSettings.infoTitle, // Card title text
+                body: widget.replaceSettings.infoText, // Card body text
+                unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                useSlimCard: false, // Flag for using less padding on card (ie YT CTL on mobile)
+                originalElement: trackingElement, // The original element this placeholder is replacing.
+                learnMore: { // Localized strings for "Learn More" link.
+                    readAbout: sharedStrings.readAbout,
+                    learnMore: sharedStrings.learnMore
+                },
+                onButtonClick: widget.clickFunction.bind(widget)
+            })
+            mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement())
 
-        replaceTrackingElement(widget, trackingElement, contentBlock)
-        showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
+            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder)
+            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder)
+        } else {
+            const icon = widget.replaceSettings.icon
+            const button = makeButton(widget.replaceSettings.buttonText, widget.getMode())
+            const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode())
+            const { contentBlock, shadowRoot } = createContentBlock(
+                widget, button, textButton, icon
+            )
+            button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
+            textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock))
+
+            replaceTrackingElement(widget, trackingElement, contentBlock)
+            showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock)
+        }
     }
 
     // YouTube
@@ -597,11 +654,49 @@ function replaceYouTubeCTL (trackingElement, widget) {
         // Block YouTube embedded video and display blocking dialog
         widget.autoplay = false
         const oldPlaceholder = widget.placeholderElement
-        const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
-        resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
-        replaceTrackingElement(widget, trackingElement, blockingDialog)
-        showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
-        hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460)
+
+        if (isMobileApp) {
+            /**
+             * Creates a custom HTML element with the placeholder element for blocked
+             * embedded content. The constructor gets a list of parameters with the
+             * content and event handlers for this HTML element.
+             */
+            const mobileBlockedPlaceholderElement = new DDGCtlPlaceholderBlockedElement({
+                devMode,
+                title: widget.replaceSettings.infoTitle, // Card title text
+                body: widget.replaceSettings.infoText, // Card body text
+                unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                useSlimCard: true, // Flag for using less padding on card (ie YT CTL on mobile)
+                originalElement: trackingElement, // The original element this placeholder is replacing.
+                learnMore: { // Localized strings for "Learn More" link.
+                    readAbout: sharedStrings.readAbout,
+                    learnMore: sharedStrings.learnMore
+                },
+                withToggle: { // Toggle config to be displayed in the bottom of the placeholder
+                    isActive: false, // Toggle state
+                    dataKey: 'yt-preview-toggle', // data-key attribute for button
+                    label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
+                    size: isMobileApp ? 'lg' : 'md',
+                    onClick: () => sendMessage('setYoutubePreviewsEnabled', true) // Toggle click callback
+                },
+                withFeedback: {
+                    label: sharedStrings.shareFeedback,
+                    onClick: () => openShareFeedbackPage()
+                },
+                onButtonClick: widget.clickFunction.bind(widget)
+            })
+            mobileBlockedPlaceholderElement.appendChild(makeFontFaceStyleElement())
+            mobileBlockedPlaceholderElement.id = trackingElement.id
+            resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholderElement)
+            replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholderElement)
+            showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholderElement)
+        } else {
+            const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget)
+            resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog)
+            replaceTrackingElement(widget, trackingElement, blockingDialog)
+            showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog)
+            hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460)
+        }
     }
 }
 
@@ -610,7 +705,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
  * its parent is too short for the normal unblock button to be visible.
  * Note: This does not take into account the placeholder's vertical
  *       position in the parent element.
- * @param {ShadowRoot} shadowRoot
+ * @param {ShadowRoot?} shadowRoot
  * @param {HTMLElement} placeholder Placeholder for tracking element
  */
 function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
@@ -628,22 +723,25 @@ function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
     const { height: placeholderHeight } = placeholder.getBoundingClientRect()
     const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect()
 
-    if ((placeholderHeight > 0 && placeholderHeight <= 200) ||
-        (parentHeight > 0 && parentHeight <= 230)) {
-        /** @type {HTMLElement?} */
-        const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
-        if (titleRowTextButton) {
-            titleRowTextButton.style.display = 'block'
+    if (
+        (placeholderHeight > 0 && placeholderHeight <= 200) ||
+        (parentHeight > 0 && parentHeight <= 230)
+    ) {
+        if (shadowRoot) {
+            /** @type {HTMLElement?} */
+            const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`)
+            if (titleRowTextButton) {
+                titleRowTextButton.style.display = 'block'
+            }
         }
-
         // Avoid the placeholder being taller than the containing element
         // and overflowing.
         /** @type {HTMLElement?} */
-        const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer')
-        if (innerDiv) {
-            innerDiv.style.minHeight = 'initial'
-            innerDiv.style.maxHeight = parentHeight + 'px'
-            innerDiv.style.overflow = 'hidden'
+        const blockedDiv = shadowRoot?.querySelector('.DuckDuckGoSocialContainer') || placeholder
+        if (blockedDiv) {
+            blockedDiv.style.minHeight = 'initial'
+            blockedDiv.style.maxHeight = parentHeight + 'px'
+            blockedDiv.style.overflow = 'hidden'
         }
     }
 }
@@ -1652,6 +1750,14 @@ export default class ClickToLoad extends ContentFeature {
         sharedStrings = localizedConfig.sharedStrings
         // update styles if asset config was sent
         styles = getStyles(this.assetConfig)
+        isMobileApp = this.platform.name === 'ios' || this.platform.name === 'android'
+
+        /**
+         * Register Custom Elements only when Click to Load is initialized, to ensure it is only
+         * called when config is ready and any previous context have been appropriately invalidated
+         * prior when applicable (ie Firefox when hot reloading the Extension)
+         */
+        registerCustomElements()
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the

@@ -1,4 +1,5 @@
-import { defineProperty, DDGPromise } from '../utils'
+import { DDGPromise } from '../utils'
+import { defineProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
 
 function injectNavigatorInterface (args) {
@@ -16,7 +17,8 @@ function injectNavigatorInterface (args) {
                 isDuckDuckGo () {
                     return DDGPromise.resolve(true)
                 },
-                taints: new Set()
+                taints: new Set(),
+                taintedOrigins: new Set()
             },
             enumerable: true,
             configurable: false,

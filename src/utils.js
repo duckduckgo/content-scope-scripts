@@ -1,12 +1,12 @@
 /* global cloneInto, exportFunction, mozProxies */
+import { Set } from './captured-globals.js'
+import { defineProperty } from './wrapper-utils.js'
+
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
-const CapturedSet = globalObj.Set
-// Capture prototype to prevent overloading
-const createSet = () => hasMozProxies ? new Set() : new CapturedSet()
 
 export const taintSymbol = Symbol('taint')
 
@@ -171,7 +171,7 @@ export function matchHostname (hostname, exceptionDomain) {
 
 const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
 export function getStackTraceUrls (stack) {
-    const urls = createSet()
+    const urls = new Set()
     try {
         const errorLines = stack.split('\n')
         // Should cater for Chrome and Firefox stacks, we only care about https? resources.
@@ -189,7 +189,7 @@ export function getStackTraceUrls (stack) {
 
 export function getStackTraceOrigins (stack) {
     const urls = getStackTraceUrls(stack)
-    const origins = createSet()
+    const origins = new Set()
     for (const url of urls) {
         origins.add(url.hostname)
     }
@@ -237,55 +237,6 @@ export function isFeatureBroken (args, feature) {
     return isWindowsSpecificFeature(feature)
         ? !args.site.enabledFeatures.includes(feature)
         : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
-}
-
-/**
- * For each property defined on the object, update it with the target value.
- */
-export function overrideProperty (name, prop) {
-    // Don't update if existing value is undefined or null
-    if (!(prop.origValue === undefined)) {
-        /**
-         * When re-defining properties, we bind the overwritten functions to null. This prevents
-         * sites from using toString to see if the function has been overwritten
-         * without this bind call, a site could run something like
-         * `Object.getOwnPropertyDescriptor(Screen.prototype, "availTop").get.toString()` and see
-         * the contents of the function. Appending .bind(null) to the function definition will
-         * have the same toString call return the default [native code]
-         */
-        try {
-            defineProperty(prop.object, name, {
-                // eslint-disable-next-line no-extra-bind
-                get: (() => prop.targetValue).bind(null)
-            })
-        } catch (e) {
-        }
-    }
-    return prop.origValue
-}
-
-export function defineProperty (object, propertyName, descriptor) {
-    if (hasMozProxies) {
-        const usedObj = object.wrappedJSObject
-        const UsedObjectInterface = globalObj.wrappedJSObject.Object
-        const definedDescriptor = new UsedObjectInterface();
-        ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-            if (propertyName in descriptor) {
-                definedDescriptor[propertyName] = cloneInto(
-                    descriptor[propertyName],
-                    definedDescriptor,
-                    { cloneFunctions: true })
-            }
-        });
-        ['get', 'set'].forEach((methodName) => {
-            if (methodName in descriptor) {
-                exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName })
-            }
-        })
-        UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor)
-    } else {
-        Object.defineProperty(object, propertyName, descriptor)
-    }
 }
 
 export function camelcase (dashCaseText) {
@@ -400,10 +351,50 @@ export function getContextId (scope) {
     }
 }
 
-export function hasTaintedMethod (scope) {
+/**
+ * Returns a set of origins that are tainted
+ * @returns {Set<string> | null}
+ */
+export function taintedOrigins () {
+    return getGlobalObject('taintedOrigins')
+}
+
+/**
+ * Returns a set of taints
+ * @returns {Set<string> | null}
+ */
+export function taints () {
+    return getGlobalObject('taints')
+}
+
+/**
+ * @param {string} name
+ * @returns {any | null}
+ */
+function getGlobalObject (name) {
+    if ('duckduckgo' in navigator &&
+        typeof navigator.duckduckgo === 'object' &&
+        navigator.duckduckgo &&
+        name in navigator.duckduckgo &&
+        navigator.duckduckgo[name]) {
+        return navigator.duckduckgo[name]
+    }
+    return null
+}
+
+export function hasTaintedMethod (scope, shouldStackCheck = false) {
     if (document?.currentScript?.[taintSymbol]) return true
     if ('__ddg_taint__' in window) return true
     if (getContextId(scope)) return true
+    if (!shouldStackCheck || !taintedOrigins()) {
+        return false
+    }
+    const stackOrigins = getStackTraceOrigins(getStack())
+    for (const stackOrigin of stackOrigins) {
+        if (taintedOrigins()?.has(stackOrigin)) {
+            return true
+        }
+    }
     return false
 }
 
@@ -493,6 +484,12 @@ export class DDGProxy {
         } else {
             this.objectScope[this.property] = this.internal
         }
+    }
+
+    overloadDescriptor () {
+        defineProperty(this.objectScope, this.property, {
+            value: this.internal
+        })
     }
 }
 
@@ -641,8 +638,6 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     const topLevelHostname = getTabHostname()
     const site = computeLimitedSiteObject()
     const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0
-    const remoteFeatureNames = Object.keys(data.features)
-    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName))
     /** @type {Record<string, any>} */
     const output = { ...preferences }
     if (output.platform) {

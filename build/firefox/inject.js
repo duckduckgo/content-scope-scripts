@@ -2,14 +2,146 @@
 (function () {
     'use strict';
 
+    /* global true */
+
+    let dummyWindow;
+    if ('document' in globalThis &&
+        // Prevent infinate recursion of injection into Chrome
+        globalThis.location.href !== 'about:blank') {
+        const injectionElement = getInjectionElement();
+        // injectionElement is null in some playwright context tests
+        if (injectionElement) {
+            dummyWindow = document.createElement('iframe');
+            dummyWindow.style.display = 'none';
+            injectionElement.appendChild(dummyWindow);
+        }
+    }
+
+    let dummyContentWindow = dummyWindow?.contentWindow;
+    {
+        // @ts-expect-error - true is not defined on window
+        dummyContentWindow = dummyContentWindow.wrappedJSObject;
+    }
+    // @ts-expect-error - Symbol is not defined on window
+    const dummySymbol = dummyContentWindow?.Symbol;
+    const iteratorSymbol = dummySymbol?.iterator;
+
+    // Capture prototype to prevent overloading
+    function captureGlobal (globalName) {
+        const global = dummyWindow?.contentWindow?.[globalName];
+
+        // if we were unable to create a dummy window, return the global
+        // this still has the advantage of preventing aliasing of the global through shawdowing
+        if (!global) {
+            return globalThis[globalName]
+        }
+
+        // Alias the iterator symbol to the local symbol so for loops work
+        if (iteratorSymbol &&
+            global?.prototype &&
+            iteratorSymbol in global.prototype) {
+            global.prototype[Symbol.iterator] = global.prototype[iteratorSymbol];
+        }
+        return global
+    }
+
+    const Set$1 = captureGlobal('Set');
+    const Reflect$1 = captureGlobal('Reflect');
+
+    // Clean up the dummy window
+    dummyWindow?.remove();
+
     /* global cloneInto, exportFunction, true */
+    // Tests don't define this variable so fallback to behave like chrome
+    const globalObj$1 = typeof window === 'undefined' ? globalThis : window;
+    const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+    const functionToString = Function.prototype.toString;
+    const objectKeys = Object.keys;
+
+    function defineProperty (object, propertyName, descriptor) {
+        {
+            const usedObj = object.wrappedJSObject;
+            const UsedObjectInterface = globalObj$1.wrappedJSObject.Object;
+            const definedDescriptor = new UsedObjectInterface();
+            ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
+                if (propertyName in descriptor) {
+                    definedDescriptor[propertyName] = cloneInto(
+                        descriptor[propertyName],
+                        definedDescriptor,
+                        { cloneFunctions: true });
+                }
+            });
+            ['get', 'set'].forEach((methodName) => {
+                if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
+                    exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName });
+                }
+            });
+            UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor);
+        }
+    }
+
+    /**
+     * add a fake toString() method to a wrapper function to resemble the original function
+     * @param {*} newFn
+     * @param {*} origFn
+     */
+    function wrapToString (newFn, origFn) {
+        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
+            return
+        }
+        newFn.toString = function () {
+            if (this === newFn) {
+                return functionToString.call(origFn)
+            } else {
+                return functionToString.call(this)
+            }
+        };
+    }
+
+    /**
+     * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {string} propertyName
+     * @param {Partial<PropertyDescriptor>} descriptor
+     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+     */
+    function wrapProperty (object, propertyName, descriptor) {
+        if (!object) {
+            return
+        }
+
+        const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+        if (!origDescriptor) {
+            // this happens if the property is not implemented in the browser
+            return
+        }
+
+        if (('value' in origDescriptor && 'value' in descriptor) ||
+            ('get' in origDescriptor && 'get' in descriptor) ||
+            ('set' in origDescriptor && 'set' in descriptor)
+        ) {
+            wrapToString(descriptor.value, origDescriptor.value);
+            wrapToString(descriptor.get, origDescriptor.get);
+            wrapToString(descriptor.set, origDescriptor.set);
+
+            defineProperty(object, propertyName, {
+                ...origDescriptor,
+                ...descriptor
+            });
+            return origDescriptor
+        } else {
+            // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
+            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+        }
+    }
+
+    /* global cloneInto, exportFunction, true */
+
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
     // eslint-disable-next-line no-global-assign
     let globalObj = typeof window === 'undefined' ? globalThis : window;
     let Error$1 = globalObj.Error;
     let messageSecret$1;
-    // Capture prototype to prevent overloading
-    const createSet = () => new Set() ;
 
     const taintSymbol = Symbol('taint');
 
@@ -146,7 +278,7 @@
 
     const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
     function getStackTraceUrls (stack) {
-        const urls = createSet();
+        const urls = new Set$1();
         try {
             const errorLines = stack.split('\n');
             // Should cater for Chrome and Firefox stacks, we only care about https? resources.
@@ -164,7 +296,7 @@
 
     function getStackTraceOrigins (stack) {
         const urls = getStackTraceUrls(stack);
-        const origins = createSet();
+        const origins = new Set$1();
         for (const url of urls) {
             origins.add(url.hostname);
         }
@@ -212,53 +344,6 @@
         return isWindowsSpecificFeature(feature)
             ? !args.site.enabledFeatures.includes(feature)
             : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
-    }
-
-    /**
-     * For each property defined on the object, update it with the target value.
-     */
-    function overrideProperty (name, prop) {
-        // Don't update if existing value is undefined or null
-        if (!(prop.origValue === undefined)) {
-            /**
-             * When re-defining properties, we bind the overwritten functions to null. This prevents
-             * sites from using toString to see if the function has been overwritten
-             * without this bind call, a site could run something like
-             * `Object.getOwnPropertyDescriptor(Screen.prototype, "availTop").get.toString()` and see
-             * the contents of the function. Appending .bind(null) to the function definition will
-             * have the same toString call return the default [native code]
-             */
-            try {
-                defineProperty(prop.object, name, {
-                    // eslint-disable-next-line no-extra-bind
-                    get: (() => prop.targetValue).bind(null)
-                });
-            } catch (e) {
-            }
-        }
-        return prop.origValue
-    }
-
-    function defineProperty (object, propertyName, descriptor) {
-        {
-            const usedObj = object.wrappedJSObject;
-            const UsedObjectInterface = globalObj.wrappedJSObject.Object;
-            const definedDescriptor = new UsedObjectInterface();
-            ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-                if (propertyName in descriptor) {
-                    definedDescriptor[propertyName] = cloneInto(
-                        descriptor[propertyName],
-                        definedDescriptor,
-                        { cloneFunctions: true });
-                }
-            });
-            ['get', 'set'].forEach((methodName) => {
-                if (methodName in descriptor) {
-                    exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName });
-                }
-            });
-            UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor);
-        }
     }
 
     function camelcase (dashCaseText) {
@@ -373,10 +458,42 @@
         }
     }
 
-    function hasTaintedMethod (scope) {
+    /**
+     * Returns a set of origins that are tainted
+     * @returns {Set<string> | null}
+     */
+    function taintedOrigins () {
+        return getGlobalObject('taintedOrigins')
+    }
+
+    /**
+     * @param {string} name
+     * @returns {any | null}
+     */
+    function getGlobalObject (name) {
+        if ('duckduckgo' in navigator &&
+            typeof navigator.duckduckgo === 'object' &&
+            navigator.duckduckgo &&
+            name in navigator.duckduckgo &&
+            navigator.duckduckgo[name]) {
+            return navigator.duckduckgo[name]
+        }
+        return null
+    }
+
+    function hasTaintedMethod (scope, shouldStackCheck = false) {
         if (document?.currentScript?.[taintSymbol]) return true
         if ('__ddg_taint__' in window) return true
         if (getContextId(scope)) return true
+        if (!shouldStackCheck || !taintedOrigins()) {
+            return false
+        }
+        const stackOrigins = getStackTraceOrigins(getStack());
+        for (const stackOrigin of stackOrigins) {
+            if (taintedOrigins()?.has(stackOrigin)) {
+                return true
+            }
+        }
         return false
     }
 
@@ -458,6 +575,12 @@
                 // @ts-expect-error wrappedJSObject is not a property of objectScope
                 exportFunction(this.internal, this.objectScope, { defineAs: this.property });
             }
+        }
+
+        overloadDescriptor () {
+            defineProperty(this.objectScope, this.property, {
+                value: this.internal
+            });
         }
     }
 
@@ -749,7 +872,7 @@
     }
 
     var injectedFeaturesCode = {
-        "runtimeChecks": "/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */\nvar runtimeChecks = (function () {\n    'use strict';\n\n    /* global cloneInto, exportFunction, false */\n    // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox\n    // eslint-disable-next-line no-global-assign\n    let globalObj = typeof window === 'undefined' ? globalThis : window;\n    let Error$1 = globalObj.Error;\n    const CapturedSet = globalObj.Set;\n    // Capture prototype to prevent overloading\n    const createSet = () => new CapturedSet();\n\n    const taintSymbol = Symbol('taint');\n    typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);\n\n    /**\n     * @returns {HTMLElement} the element to inject the script into\n     */\n    function getInjectionElement () {\n        return document.head || document.documentElement\n    }\n\n    /**\n     * Creates a script element with the given code to avoid Firefox CSP restrictions.\n     * @param {string} css\n     * @returns {HTMLLinkElement | HTMLStyleElement}\n     */\n    function createStyleElement (css) {\n        let style;\n        {\n            style = document.createElement('style');\n            style.innerText = css;\n        }\n        return style\n    }\n\n    /**\n     * Injects a script into the page, avoiding CSP restrictions if possible.\n     */\n    function injectGlobalStyles (css) {\n        const style = createStyleElement(css);\n        getInjectionElement().appendChild(style);\n    }\n\n    const exemptionLists = {};\n    function shouldExemptUrl (type, url) {\n        for (const regex of exemptionLists[type]) {\n            if (regex.test(url)) {\n                return true\n            }\n        }\n        return false\n    }\n\n    /**\n     * Returns true if hostname is a subset of exceptionDomain or an exact match.\n     * @param {string} hostname\n     * @param {string} exceptionDomain\n     * @returns {boolean}\n     */\n    function matchHostname (hostname, exceptionDomain) {\n        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)\n    }\n\n    const lineTest = /(\\()?(https?:[^)]+):[0-9]+:[0-9]+(\\))?/;\n    function getStackTraceUrls (stack) {\n        const urls = createSet();\n        try {\n            const errorLines = stack.split('\\n');\n            // Should cater for Chrome and Firefox stacks, we only care about https? resources.\n            for (const line of errorLines) {\n                const res = line.match(lineTest);\n                if (res) {\n                    urls.add(new URL(res[2], location.href));\n                }\n            }\n        } catch (e) {\n            // Fall through\n        }\n        return urls\n    }\n\n    function getStackTraceOrigins (stack) {\n        const urls = getStackTraceUrls(stack);\n        const origins = createSet();\n        for (const url of urls) {\n            origins.add(url.hostname);\n        }\n        return origins\n    }\n\n    // Checks the stack trace if there are known libraries that are broken.\n    function shouldExemptMethod (type) {\n        // Short circuit stack tracing if we don't have checks\n        if (!(type in exemptionLists) || exemptionLists[type].length === 0) {\n            return false\n        }\n        const stack = getStack();\n        const errorFiles = getStackTraceUrls(stack);\n        for (const path of errorFiles) {\n            if (shouldExemptUrl(type, path.href)) {\n                return true\n            }\n        }\n        return false\n    }\n\n    function camelcase (dashCaseText) {\n        return dashCaseText.replace(/-(.)/g, (match, letter) => {\n            return letter.toUpperCase()\n        })\n    }\n\n    // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections\n    function isAppleSilicon () {\n        const canvas = document.createElement('canvas');\n        const gl = canvas.getContext('webgl');\n\n        // Best guess if the device is an Apple Silicon\n        // https://stackoverflow.com/a/65412357\n        // @ts-expect-error - Object is possibly 'null'\n        return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1\n    }\n\n    /**\n     * Take configSeting which should be an array of possible values.\n     * If a value contains a criteria that is a match for this environment then return that value.\n     * Otherwise return the first value that doesn't have a criteria.\n     *\n     * @param {*[]} configSetting - Config setting which should contain a list of possible values\n     * @returns {*|undefined} - The value from the list that best matches the criteria in the config\n     */\n    function processAttrByCriteria (configSetting) {\n        let bestOption;\n        for (const item of configSetting) {\n            if (item.criteria) {\n                if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {\n                    bestOption = item;\n                    break\n                }\n            } else {\n                bestOption = item;\n            }\n        }\n\n        return bestOption\n    }\n\n    const functionMap = {\n        /** Useful for debugging APIs in the wild, shouldn't be used */\n        debug: (...args) => {\n            console.log('debugger', ...args);\n            // eslint-disable-next-line no-debugger\n            debugger\n        },\n        // eslint-disable-next-line @typescript-eslint/no-empty-function\n        noop: () => { }\n    };\n\n    /**\n     * Handles the processing of a config setting.\n     * @param {*} configSetting\n     * @param {*} [defaultValue]\n     * @returns\n     */\n    function processAttr (configSetting, defaultValue) {\n        if (configSetting === undefined) {\n            return defaultValue\n        }\n\n        const configSettingType = typeof configSetting;\n        switch (configSettingType) {\n        case 'object':\n            if (Array.isArray(configSetting)) {\n                configSetting = processAttrByCriteria(configSetting);\n                if (configSetting === undefined) {\n                    return defaultValue\n                }\n            }\n\n            if (!configSetting.type) {\n                return defaultValue\n            }\n\n            if (configSetting.type === 'function') {\n                if (configSetting.functionName && functionMap[configSetting.functionName]) {\n                    return functionMap[configSetting.functionName]\n                }\n            }\n\n            if (configSetting.type === 'undefined') {\n                return undefined\n            }\n\n            return configSetting.value\n        default:\n            return defaultValue\n        }\n    }\n\n    function getStack () {\n        return new Error$1().stack\n    }\n\n    function getContextId (scope) {\n        if (document?.currentScript && 'contextID' in document.currentScript) {\n            return document.currentScript.contextID\n        }\n        if (scope.contextID) {\n            return scope.contextID\n        }\n        // @ts-expect-error - contextID is a global variable\n        if (typeof contextID !== 'undefined') {\n            // @ts-expect-error - contextID is a global variable\n            // eslint-disable-next-line no-undef\n            return contextID\n        }\n    }\n\n    function hasTaintedMethod (scope) {\n        if (document?.currentScript?.[taintSymbol]) return true\n        if ('__ddg_taint__' in window) return true\n        if (getContextId(scope)) return true\n        return false\n    }\n\n    /**\n     * @template {object} P\n     * @typedef {object} ProxyObject<P>\n     * @property {(target?: object, thisArg?: P, args?: object) => void} apply\n     */\n\n    /**\n     * @template [P=object]\n     */\n    class DDGProxy {\n        /**\n         * @param {string} featureName\n         * @param {P} objectScope\n         * @param {string} property\n         * @param {ProxyObject<P>} proxyObject\n         */\n        constructor (featureName, objectScope, property, proxyObject, taintCheck = false) {\n            this.objectScope = objectScope;\n            this.property = property;\n            this.featureName = featureName;\n            this.camelFeatureName = camelcase(this.featureName);\n            const outputHandler = (...args) => {\n                let isExempt = shouldExemptMethod(this.camelFeatureName);\n                // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't\n                if (!isExempt && taintCheck) {\n                    // eslint-disable-next-line @typescript-eslint/no-this-alias\n                    let scope = this;\n                    try {\n                        // @ts-expect-error - Caller doesn't match this\n                        // eslint-disable-next-line no-caller\n                        scope = arguments.callee.caller;\n                    } catch {}\n                    const isTainted = hasTaintedMethod(scope);\n                    isExempt = !isTainted;\n                }\n                // The normal return value\n                if (isExempt) {\n                    return DDGReflect.apply(...args)\n                }\n                return proxyObject.apply(...args)\n            };\n            const getMethod = (target, prop, receiver) => {\n                if (prop === 'toString') {\n                    const method = Reflect.get(target, prop, receiver).bind(target);\n                    Object.defineProperty(method, 'toString', {\n                        value: String.toString.bind(String.toString),\n                        enumerable: false\n                    });\n                    return method\n                }\n                return DDGReflect.get(target, prop, receiver)\n            };\n            {\n                this._native = objectScope[property];\n                const handler = {};\n                handler.apply = outputHandler;\n                handler.get = getMethod;\n                this.internal = new globalObj.Proxy(objectScope[property], handler);\n            }\n        }\n\n        // Actually apply the proxy to the native property\n        overload () {\n            {\n                this.objectScope[this.property] = this.internal;\n            }\n        }\n    }\n\n    function postDebugMessage (feature, message) {\n        if (message.stack) {\n            const scriptOrigins = [...getStackTraceOrigins(message.stack)];\n            message.scriptOrigins = scriptOrigins;\n        }\n        globalObj.postMessage({\n            action: feature,\n            message\n        });\n    }\n\n    let DDGReflect;\n\n    // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts\n    {\n        DDGReflect = globalObj.Reflect;\n    }\n\n    /**\n     * @param {string | null} topLevelHostname\n     * @param {object[]} featureList\n     * @returns {boolean}\n     */\n    function isUnprotectedDomain (topLevelHostname, featureList) {\n        let unprotectedDomain = false;\n        if (!topLevelHostname) {\n            return false\n        }\n        const domainParts = topLevelHostname.split('.');\n\n        // walk up the domain to see if it's unprotected\n        while (domainParts.length > 1 && !unprotectedDomain) {\n            const partialDomain = domainParts.join('.');\n\n            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;\n\n            domainParts.shift();\n        }\n\n        return unprotectedDomain\n    }\n\n    function parseVersionString (versionString) {\n        const [major = 0, minor = 0, patch = 0] = versionString.split('.').map(Number);\n        return {\n            major,\n            minor,\n            patch\n        }\n    }\n\n    /**\n     * @param {string} minVersionString\n     * @param {string} applicationVersionString\n     * @returns {boolean}\n     */\n    function satisfiesMinVersion (minVersionString, applicationVersionString) {\n        const { major: minMajor, minor: minMinor, patch: minPatch } = parseVersionString(minVersionString);\n        const { major, minor, patch } = parseVersionString(applicationVersionString);\n\n        return (major > minMajor ||\n                (major >= minMajor && minor > minMinor) ||\n                (major >= minMajor && minor >= minMinor && patch >= minPatch))\n    }\n\n    /**\n     * @param {string | number | undefined} minSupportedVersion\n     * @param {string | number | undefined} currentVersion\n     * @returns {boolean}\n     */\n    function isSupportedVersion (minSupportedVersion, currentVersion) {\n        if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {\n            if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {\n                return true\n            }\n        } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {\n            if (minSupportedVersion <= currentVersion) {\n                return true\n            }\n        }\n        return false\n    }\n\n    /**\n     * Retutns a list of enabled features\n     * @param {RemoteConfig} data\n     * @param {string | null} topLevelHostname\n     * @param {Platform['version']} platformVersion\n     * @param {string[]} platformSpecificFeatures\n     * @returns {string[]}\n     */\n    function computeEnabledFeatures (data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {\n        const remoteFeatureNames = Object.keys(data.features);\n        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));\n        const enabledFeatures = remoteFeatureNames.filter((featureName) => {\n            const feature = data.features[featureName];\n            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion\n            if (feature.minSupportedVersion && platformVersion) {\n                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {\n                    return false\n                }\n            }\n            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)\n        }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config\n        return enabledFeatures\n    }\n\n    /**\n     * Returns the relevant feature settings for the enabled features\n     * @param {RemoteConfig} data\n     * @param {string[]} enabledFeatures\n     * @returns {Record<string, unknown>}\n     */\n    function parseFeatureSettings (data, enabledFeatures) {\n        /** @type {Record<string, unknown>} */\n        const featureSettings = {};\n        const remoteFeatureNames = Object.keys(data.features);\n        remoteFeatureNames.forEach((featureName) => {\n            if (!enabledFeatures.includes(featureName)) {\n                return\n            }\n\n            featureSettings[featureName] = data.features[featureName].settings;\n        });\n        return featureSettings\n    }\n\n    function _typeof$2(obj) { \"@babel/helpers - typeof\"; return _typeof$2 = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof$2(obj); }\n    function isJSONArray(value) {\n      return Array.isArray(value);\n    }\n    function isJSONObject(value) {\n      return value !== null && _typeof$2(value) === 'object' && value.constructor === Object // do not match on classes or Array\n      ;\n    }\n\n    function _typeof$1(obj) { \"@babel/helpers - typeof\"; return _typeof$1 = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof$1(obj); }\n    /**\r\n     * Test deep equality of two JSON values, objects, or arrays\r\n     */\n    // TODO: write unit tests\n    function isEqual(a, b) {\n      // FIXME: this function will return false for two objects with the same keys\n      //  but different order of keys\n      return JSON.stringify(a) === JSON.stringify(b);\n    }\n\n    /**\r\n     * Get all but the last items from an array\r\n     */\n    // TODO: write unit tests\n    function initial(array) {\n      return array.slice(0, array.length - 1);\n    }\n\n    /**\r\n     * Get the last item from an array\r\n     */\n    // TODO: write unit tests\n    function last(array) {\n      return array[array.length - 1];\n    }\n\n    /**\r\n     * Test whether a value is an Object or an Array (and not a primitive JSON value)\r\n     */\n    // TODO: write unit tests\n    function isObjectOrArray(value) {\n      return _typeof$1(value) === 'object' && value !== null;\n    }\n\n    function _typeof(obj) { \"@babel/helpers - typeof\"; return _typeof = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof(obj); }\n    function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }\n    function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }\n    function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n    function _toPropertyKey(arg) { var key = _toPrimitive(arg, \"string\"); return _typeof(key) === \"symbol\" ? key : String(key); }\n    function _toPrimitive(input, hint) { if (_typeof(input) !== \"object\" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || \"default\"); if (_typeof(res) !== \"object\") return res; throw new TypeError(\"@@toPrimitive must return a primitive value.\"); } return (hint === \"string\" ? String : Number)(input); }\n\n    /**\n     * Shallow clone of an Object, Array, or value\n     * Symbols are cloned too.\n     */\n    function shallowClone(value) {\n      if (isJSONArray(value)) {\n        // copy array items\n        var copy = value.slice();\n\n        // copy all symbols\n        Object.getOwnPropertySymbols(value).forEach(function (symbol) {\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          copy[symbol] = value[symbol];\n        });\n        return copy;\n      } else if (isJSONObject(value)) {\n        // copy object properties\n        var _copy = _objectSpread({}, value);\n\n        // copy all symbols\n        Object.getOwnPropertySymbols(value).forEach(function (symbol) {\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          _copy[symbol] = value[symbol];\n        });\n        return _copy;\n      } else {\n        return value;\n      }\n    }\n\n    /**\n     * Update a value in an object in an immutable way.\n     * If the value is unchanged, the original object will be returned\n     */\n    function applyProp(object, key, value) {\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      if (object[key] === value) {\n        // return original object unchanged when the new value is identical to the old one\n        return object;\n      } else {\n        var updatedObject = shallowClone(object);\n        // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n        // @ts-ignore\n        updatedObject[key] = value;\n        return updatedObject;\n      }\n    }\n\n    /**\n     * helper function to get a nested property in an object or array\n     *\n     * @return Returns the field when found, or undefined when the path doesn't exist\n     */\n    function getIn(object, path) {\n      var value = object;\n      var i = 0;\n      while (i < path.length) {\n        if (isJSONObject(value)) {\n          value = value[path[i]];\n        } else if (isJSONArray(value)) {\n          value = value[parseInt(path[i])];\n        } else {\n          value = undefined;\n        }\n        i++;\n      }\n      return value;\n    }\n\n    /**\n     * helper function to replace a nested property in an object with a new value\n     * without mutating the object itself.\n     *\n     * @param object\n     * @param path\n     * @param value\n     * @param [createPath=false]\n     *                    If true, `path` will be created when (partly) missing in\n     *                    the object. For correctly creating nested Arrays or\n     *                    Objects, the function relies on `path` containing number\n     *                    in case of array indexes.\n     *                    If false (default), an error will be thrown when the\n     *                    path doesn't exist.\n     * @return Returns a new, updated object or array\n     */\n    function setIn(object, path, value) {\n      var createPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;\n      if (path.length === 0) {\n        return value;\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = setIn(object ? object[key] : undefined, path.slice(1), value, createPath);\n      if (isJSONObject(object) || isJSONArray(object)) {\n        return applyProp(object, key, updatedValue);\n      } else {\n        if (createPath) {\n          var newObject = IS_INTEGER_REGEX.test(key) ? [] : {};\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          newObject[key] = updatedValue;\n          return newObject;\n        } else {\n          throw new Error('Path does not exist');\n        }\n      }\n    }\n    var IS_INTEGER_REGEX = /^\\d+$/;\n\n    /**\n     * helper function to replace a nested property in an object with a new value\n     * without mutating the object itself.\n     *\n     * @return  Returns a new, updated object or array\n     */\n    function updateIn(object, path, callback) {\n      if (path.length === 0) {\n        return callback(object);\n      }\n      if (!isObjectOrArray(object)) {\n        throw new Error('Path doesn\\'t exist');\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = updateIn(object[key], path.slice(1), callback);\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return applyProp(object, key, updatedValue);\n    }\n\n    /**\n     * helper function to delete a nested property in an object\n     * without mutating the object itself.\n     *\n     * @return Returns a new, updated object or array\n     */\n    function deleteIn(object, path) {\n      if (path.length === 0) {\n        return object;\n      }\n      if (!isObjectOrArray(object)) {\n        throw new Error('Path does not exist');\n      }\n      if (path.length === 1) {\n        var _key = path[0];\n        if (!(_key in object)) {\n          // key doesn't exist. return object unchanged\n          return object;\n        } else {\n          var updatedObject = shallowClone(object);\n          if (isJSONArray(updatedObject)) {\n            updatedObject.splice(parseInt(_key), 1);\n          }\n          if (isJSONObject(updatedObject)) {\n            delete updatedObject[_key];\n          }\n          return updatedObject;\n        }\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = deleteIn(object[key], path.slice(1));\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return applyProp(object, key, updatedValue);\n    }\n\n    /**\n     * Insert a new item in an array at a specific index.\n     * Example usage:\n     *\n     *     insertAt({arr: [1,2,3]}, ['arr', '2'], 'inserted')  // [1,2,'inserted',3]\n     */\n    function insertAt(document, path, value) {\n      var parentPath = path.slice(0, path.length - 1);\n      var index = path[path.length - 1];\n      return updateIn(document, parentPath, function (items) {\n        if (!Array.isArray(items)) {\n          throw new TypeError('Array expected at path ' + JSON.stringify(parentPath));\n        }\n        var updatedItems = shallowClone(items);\n        updatedItems.splice(parseInt(index), 0, value);\n        return updatedItems;\n      });\n    }\n\n    /**\n     * Test whether a path exists in a JSON object\n     * @return Returns true if the path exists, else returns false\n     */\n    function existsIn(document, path) {\n      if (document === undefined) {\n        return false;\n      }\n      if (path.length === 0) {\n        return true;\n      }\n      if (document === null) {\n        return false;\n      }\n\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return existsIn(document[path[0]], path.slice(1));\n    }\n\n    /**\n     * Parse a JSON Pointer\n     */\n    function parseJSONPointer(pointer) {\n      var path = pointer.split('/');\n      path.shift(); // remove the first empty entry\n\n      return path.map(function (p) {\n        return p.replace(/~1/g, '/').replace(/~0/g, '~');\n      });\n    }\n\n    /**\n     * Compile a JSON Pointer\n     */\n    function compileJSONPointer(path) {\n      return path.map(compileJSONPointerProp).join('');\n    }\n\n    /**\n     * Compile a single path property from a JSONPath\n     */\n    function compileJSONPointerProp(pathProp) {\n      return '/' + String(pathProp).replace(/~/g, '~0').replace(/\\//g, '~1');\n    }\n\n    /**\n     * Apply a patch to a JSON object\n     * The original JSON object will not be changed,\n     * instead, the patch is applied in an immutable way\n     */\n    function immutableJSONPatch(document, operations, options) {\n      var updatedDocument = document;\n      for (var i = 0; i < operations.length; i++) {\n        validateJSONPatchOperation(operations[i]);\n        var operation = operations[i];\n\n        // TODO: test before\n        if (options && options.before) {\n          var result = options.before(updatedDocument, operation);\n          if (result !== undefined) {\n            if (result.document !== undefined) {\n              updatedDocument = result.document;\n            }\n            // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n            // @ts-ignore\n            if (result.json !== undefined) {\n              // TODO: deprecated since v5.0.0. Cleanup this warning some day\n              throw new Error('Deprecation warning: returned object property \".json\" has been renamed to \".document\"');\n            }\n            if (result.operation !== undefined) {\n              operation = result.operation;\n            }\n          }\n        }\n        var previousDocument = updatedDocument;\n        var path = parsePath(updatedDocument, operation.path);\n        if (operation.op === 'add') {\n          updatedDocument = add(updatedDocument, path, operation.value);\n        } else if (operation.op === 'remove') {\n          updatedDocument = remove(updatedDocument, path);\n        } else if (operation.op === 'replace') {\n          updatedDocument = replace(updatedDocument, path, operation.value);\n        } else if (operation.op === 'copy') {\n          updatedDocument = copy(updatedDocument, path, parseFrom(operation.from));\n        } else if (operation.op === 'move') {\n          updatedDocument = move(updatedDocument, path, parseFrom(operation.from));\n        } else if (operation.op === 'test') {\n          test(updatedDocument, path, operation.value);\n        } else {\n          throw new Error('Unknown JSONPatch operation ' + JSON.stringify(operation));\n        }\n\n        // TODO: test after\n        if (options && options.after) {\n          var _result = options.after(updatedDocument, operation, previousDocument);\n          if (_result !== undefined) {\n            updatedDocument = _result;\n          }\n        }\n      }\n      return updatedDocument;\n    }\n\n    /**\n     * Replace an existing item\n     */\n    function replace(document, path, value) {\n      return setIn(document, path, value);\n    }\n\n    /**\n     * Remove an item or property\n     */\n    function remove(document, path) {\n      return deleteIn(document, path);\n    }\n\n    /**\n     * Add an item or property\n     */\n    function add(document, path, value) {\n      if (isArrayItem(document, path)) {\n        return insertAt(document, path, value);\n      } else {\n        return setIn(document, path, value);\n      }\n    }\n\n    /**\n     * Copy a value\n     */\n    function copy(document, path, from) {\n      var value = getIn(document, from);\n      if (isArrayItem(document, path)) {\n        return insertAt(document, path, value);\n      } else {\n        var _value = getIn(document, from);\n        return setIn(document, path, _value);\n      }\n    }\n\n    /**\n     * Move a value\n     */\n    function move(document, path, from) {\n      var value = getIn(document, from);\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var removedJson = deleteIn(document, from);\n      return isArrayItem(removedJson, path) ? insertAt(removedJson, path, value) : setIn(removedJson, path, value);\n    }\n\n    /**\n     * Test whether the data contains the provided value at the specified path.\n     * Throws an error when the test fails\n     */\n    function test(document, path, value) {\n      if (value === undefined) {\n        throw new Error(\"Test failed: no value provided (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n      if (!existsIn(document, path)) {\n        throw new Error(\"Test failed: path not found (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n      var actualValue = getIn(document, path);\n      if (!isEqual(actualValue, value)) {\n        throw new Error(\"Test failed, value differs (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n    }\n    function isArrayItem(document, path) {\n      if (path.length === 0) {\n        return false;\n      }\n      var parent = getIn(document, initial(path));\n      return Array.isArray(parent);\n    }\n\n    /**\n     * Resolve the path index of an array, resolves indexes '-'\n     * @returns Returns the resolved path\n     */\n    function resolvePathIndex(document, path) {\n      if (last(path) !== '-') {\n        return path;\n      }\n      var parentPath = initial(path);\n      var parent = getIn(document, parentPath);\n\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return parentPath.concat(parent.length);\n    }\n\n    /**\n     * Validate a JSONPatch operation.\n     * Throws an error when there is an issue\n     */\n    function validateJSONPatchOperation(operation) {\n      // TODO: write unit tests\n      var ops = ['add', 'remove', 'replace', 'copy', 'move', 'test'];\n      if (!ops.includes(operation.op)) {\n        throw new Error('Unknown JSONPatch op ' + JSON.stringify(operation.op));\n      }\n      if (typeof operation.path !== 'string') {\n        throw new Error('Required property \"path\" missing or not a string in operation ' + JSON.stringify(operation));\n      }\n      if (operation.op === 'copy' || operation.op === 'move') {\n        if (typeof operation.from !== 'string') {\n          throw new Error('Required property \"from\" missing or not a string in operation ' + JSON.stringify(operation));\n        }\n      }\n    }\n    function parsePath(document, pointer) {\n      return resolvePathIndex(document, parseJSONPointer(pointer));\n    }\n    function parseFrom(fromPointer) {\n      return parseJSONPointer(fromPointer);\n    }\n\n    /**\n     * Performance monitor, holds reference to PerformanceMark instances.\n     */\n    class PerformanceMonitor {\n        constructor () {\n            this.marks = [];\n        }\n\n        /**\n         * Create performance marker\n         * @param {string} name\n         * @returns {PerformanceMark}\n         */\n        mark (name) {\n            const mark = new PerformanceMark(name);\n            this.marks.push(mark);\n            return mark\n        }\n\n        /**\n         * Measure all performance markers\n         */\n        measureAll () {\n            this.marks.forEach((mark) => {\n                mark.measure();\n            });\n        }\n    }\n\n    /**\n     * Tiny wrapper around performance.mark and performance.measure\n     */\n    class PerformanceMark {\n        /**\n         * @param {string} name\n         */\n        constructor (name) {\n            this.name = name;\n            performance.mark(this.name + 'Start');\n        }\n\n        end () {\n            performance.mark(this.name + 'End');\n        }\n\n        measure () {\n            performance.measure(this.name, this.name + 'Start', this.name + 'End');\n        }\n    }\n\n    /**\n     * @typedef {object} AssetConfig\n     * @property {string} regularFontUrl\n     * @property {string} boldFontUrl\n     */\n\n    /**\n     * @typedef {object} Site\n     * @property {string | null} domain\n     * @property {boolean} [isBroken]\n     * @property {boolean} [allowlisted]\n     * @property {string[]} [enabledFeatures]\n     */\n\n    class ContentFeature {\n        /** @type {import('./utils.js').RemoteConfig | undefined} */\n        #bundledConfig\n        /** @type {object | undefined} */\n        #trackerLookup\n        /** @type {boolean | undefined} */\n        #documentOriginIsTracker\n        /** @type {Record<string, unknown> | undefined} */\n        #bundledfeatureSettings\n\n        /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */\n        #args\n\n        constructor (featureName) {\n            this.name = featureName;\n            this.#args = null;\n            this.monitor = new PerformanceMonitor();\n        }\n\n        get isDebug () {\n            return this.#args?.debug || false\n        }\n\n        /**\n         * @param {import('./utils').Platform} platform\n         */\n        set platform (platform) {\n            this._platform = platform;\n        }\n\n        get platform () {\n            // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'\n            return this._platform\n        }\n\n        /**\n         * @type {AssetConfig | undefined}\n         */\n        get assetConfig () {\n            return this.#args?.assets\n        }\n\n        /**\n         * @returns {boolean}\n         */\n        get documentOriginIsTracker () {\n            return !!this.#documentOriginIsTracker\n        }\n\n        /**\n         * @returns {object}\n         **/\n        get trackerLookup () {\n            return this.#trackerLookup || {}\n        }\n\n        /**\n         * @returns {import('./utils.js').RemoteConfig | undefined}\n         **/\n        get bundledConfig () {\n            return this.#bundledConfig\n        }\n\n        /**\n         * Get the value of a config setting.\n         * If the value is not set, return the default value.\n         * If the value is not an object, return the value.\n         * If the value is an object, check its type property.\n         * @param {string} attrName\n         * @param {any} defaultValue - The default value to use if the config setting is not set\n         * @returns The value of the config setting or the default value\n         */\n        getFeatureAttr (attrName, defaultValue) {\n            const configSetting = this.getFeatureSetting(attrName);\n            return processAttr(configSetting, defaultValue)\n        }\n\n        /**\n         * @param {string} featureKeyName\n         * @param {string} [featureName]\n         * @returns {any}\n         */\n        getFeatureSetting (featureKeyName, featureName) {\n            let result = this._getFeatureSetting(featureName);\n            if (featureKeyName === 'domains') {\n                throw new Error('domains is a reserved feature setting key name')\n            }\n            const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {\n                return a.domain.length - b.domain.length\n            });\n            for (const match of domainMatch) {\n                if (match.patchSettings === undefined) {\n                    continue\n                }\n                try {\n                    result = immutableJSONPatch(result, match.patchSettings);\n                } catch (e) {\n                    console.error('Error applying patch settings', e);\n                }\n            }\n            return result?.[featureKeyName]\n        }\n\n        /**\n         * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature\n         * @returns {any}\n         */\n        _getFeatureSetting (featureName) {\n            const camelFeatureName = featureName || camelcase(this.name);\n            return this.#args?.featureSettings?.[camelFeatureName]\n        }\n\n        /**\n         * @param {string} featureKeyName\n         * @param {string} [featureName]\n         * @returns {boolean}\n         */\n        getFeatureSettingEnabled (featureKeyName, featureName) {\n            const result = this.getFeatureSetting(featureKeyName, featureName);\n            return result === 'enabled'\n        }\n\n        /**\n         * @param {string} featureKeyName\n         * @return {any[]}\n         */\n        matchDomainFeatureSetting (featureKeyName) {\n            const domain = this.#args?.site.domain;\n            if (!domain) return []\n            const domains = this._getFeatureSetting()?.[featureKeyName] || [];\n            return domains.filter((rule) => {\n                if (Array.isArray(rule.domain)) {\n                    return rule.domain.some((domainRule) => {\n                        return matchHostname(domain, domainRule)\n                    })\n                }\n                return matchHostname(domain, rule.domain)\n            })\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-empty-function\n        init (args) {\n        }\n\n        callInit (args) {\n            const mark = this.monitor.mark(this.name + 'CallInit');\n            this.#args = args;\n            this.platform = args.platform;\n            this.init(args);\n            mark.end();\n            this.measure();\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-empty-function\n        load (args) {\n        }\n\n        /**\n         * @param {import('./content-scope-features.js').LoadArgs} args\n         */\n        callLoad (args) {\n            const mark = this.monitor.mark(this.name + 'CallLoad');\n            this.#args = args;\n            this.platform = args.platform;\n            this.#bundledConfig = args.bundledConfig;\n            // If we have a bundled config, treat it as a regular config\n            // This will be overriden by the remote config if it is available\n            if (this.#bundledConfig && this.#args) {\n                const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version);\n                this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures);\n            }\n            this.#trackerLookup = args.trackerLookup;\n            this.#documentOriginIsTracker = args.documentOriginIsTracker;\n            this.load(args);\n            mark.end();\n        }\n\n        measure () {\n            if (this.#args?.debug) {\n                this.monitor.measureAll();\n            }\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-empty-function\n        update () {\n        }\n    }\n\n    new Set();\n\n    function generateUniqueID () {\n        return Symbol(undefined)\n    }\n\n    function addTaint () {\n        const contextID = generateUniqueID();\n        if ('duckduckgo' in navigator &&\n            navigator.duckduckgo &&\n            typeof navigator.duckduckgo === 'object' &&\n            'taints' in navigator.duckduckgo &&\n            navigator.duckduckgo.taints instanceof Set) {\n            if (document.currentScript) {\n                // @ts-expect-error - contextID is undefined on currentScript\n                document.currentScript.contextID = contextID;\n            }\n            navigator?.duckduckgo?.taints.add(contextID);\n        }\n        return contextID\n    }\n\n    function createContextAwareFunction (fn) {\n        return function (...args) {\n            // eslint-disable-next-line @typescript-eslint/no-this-alias\n            let scope = this;\n            // Save the previous contextID and set the new one\n            const prevContextID = this?.contextID;\n            // @ts-expect-error - contextID is undefined on window\n            // eslint-disable-next-line no-undef\n            const changeToContextID = getContextId(this) || contextID;\n            if (typeof args[0] === 'function') {\n                args[0].contextID = changeToContextID;\n            }\n            // @ts-expect-error - scope doesn't match window\n            if (scope && scope !== globalThis) {\n                scope.contextID = changeToContextID;\n            } else if (!scope) {\n                scope = new Proxy(scope, {\n                    get (target, prop) {\n                        if (prop === 'contextID') {\n                            return changeToContextID\n                        }\n                        return Reflect.get(target, prop)\n                    }\n                });\n            }\n            // Run the original function with the new contextID\n            const result = Reflect.apply(fn, scope, args);\n\n            // Restore the previous contextID\n            scope.contextID = prevContextID;\n\n            return result\n        }\n    }\n\n    /**\n     * Indent a code block using braces\n     * @param {string} string\n     * @returns {string}\n     */\n    function removeIndent (string) {\n        const lines = string.split('\\n');\n        const indentSize = 2;\n        let currentIndent = 0;\n        const indentedLines = lines.map((line) => {\n            if (line.trim().startsWith('}')) {\n                currentIndent -= indentSize;\n            }\n            const indentedLine = ' '.repeat(currentIndent) + line.trim();\n            if (line.trim().endsWith('{')) {\n                currentIndent += indentSize;\n            }\n\n            return indentedLine\n        });\n        return indentedLines.filter(a => a.trim()).join('\\n')\n    }\n\n    const lookup = {};\n    function getOrGenerateIdentifier (path) {\n        if (!(path in lookup)) {\n            lookup[path] = generateAlphaIdentifier(Object.keys(lookup).length + 1);\n        }\n        return lookup[path]\n    }\n\n    function generateAlphaIdentifier (num) {\n        if (num < 1) {\n            throw new Error('Input must be a positive integer')\n        }\n        const charCodeOffset = 97;\n        let identifier = '';\n        while (num > 0) {\n            num--;\n            const remainder = num % 26;\n            const charCode = remainder + charCodeOffset;\n            identifier = String.fromCharCode(charCode) + identifier;\n            num = Math.floor(num / 26);\n        }\n        return '_ddg_' + identifier\n    }\n\n    /**\n     * @param {*} scope\n     * @param {Record<string, any>} outputs\n     * @returns {Proxy}\n     */\n    function constructProxy (scope, outputs) {\n        const taintString = '__ddg_taint__';\n        // @ts-expect-error - Expected 2 arguments, but got 1\n        if (Object.is(scope)) {\n            // Should not happen, but just in case fail safely\n            console.error('Runtime checks: Scope must be an object', scope, outputs);\n            return scope\n        }\n        return new Proxy(scope, {\n            get (target, property, receiver) {\n                const targetObj = target[property];\n                let targetOut = target;\n                if (typeof property === 'string' && property in outputs) {\n                    targetOut = outputs;\n                }\n                // Reflects functions with the correct 'this' scope\n                if (typeof targetObj === 'function') {\n                    return (...args) => {\n                        return Reflect.apply(targetOut[property], target, args)\n                    }\n                } else {\n                    return Reflect.get(targetOut, property, scope)\n                }\n            },\n            getOwnPropertyDescriptor (target, property) {\n                if (typeof property === 'string' && property === taintString) {\n                    return { configurable: true, enumerable: false, value: true }\n                }\n                return Reflect.getOwnPropertyDescriptor(target, property)\n            }\n        })\n    }\n\n    function valToString (val) {\n        if (typeof val === 'function') {\n            return val.toString()\n        }\n        return JSON.stringify(val)\n    }\n\n    /**\n     * Output scope variable definitions to arbitrary depth\n     */\n    function stringifyScope (scope, scopePath) {\n        let output = '';\n        for (const [key, value] of scope) {\n            const varOutName = getOrGenerateIdentifier([...scopePath, key]);\n            if (value instanceof Map) {\n                const proxyName = getOrGenerateIdentifier(['_proxyFor_', varOutName]);\n                output += `\n            let ${proxyName} = ${scopePath.join('?.')}?.${key} ? ${scopePath.join('.')}.${key} : Object.bind(null);\n            `;\n                const keys = Array.from(value.keys());\n                output += stringifyScope(value, [...scopePath, key]);\n                const proxyOut = keys.map((keyName) => `${keyName}: ${getOrGenerateIdentifier([...scopePath, key, keyName])}`);\n                output += `\n            let ${varOutName} = constructProxy(${proxyName}, {\n                ${proxyOut.join(',\\n')}\n            });\n            `;\n                // If we're at the top level, we need to add the window and globalThis variables (Eg: let navigator = parentScope_navigator)\n                if (scopePath.length === 1) {\n                    output += `\n                let ${key} = ${varOutName};\n                `;\n                }\n            } else {\n                output += `\n            let ${varOutName} = ${valToString(value)};\n            `;\n            }\n        }\n        return output\n    }\n\n    /**\n     * Code generates wrapping variables for code that is injected into the page\n     * @param {*} code\n     * @param {*} config\n     * @returns {string}\n     */\n    function wrapScriptCodeOverload (code, config) {\n        const processedConfig = {};\n        for (const [key, value] of Object.entries(config)) {\n            processedConfig[key] = processAttr(value);\n        }\n        // Don't do anything if the config is empty\n        if (Object.keys(processedConfig).length === 0) return code\n\n        let prepend = '';\n        const aggregatedLookup = new Map();\n        let currentScope = null;\n        /* Convert the config into a map of scopePath -> { key: value } */\n        for (const [key, value] of Object.entries(processedConfig)) {\n            const path = key.split('.');\n\n            currentScope = aggregatedLookup;\n            const pathOut = path[path.length - 1];\n            // Traverse the path and create the nested objects\n            path.slice(0, -1).forEach((pathPart, index) => {\n                if (!currentScope.has(pathPart)) {\n                    currentScope.set(pathPart, new Map());\n                }\n                currentScope = currentScope.get(pathPart);\n            });\n            currentScope.set(pathOut, value);\n        }\n\n        prepend += stringifyScope(aggregatedLookup, ['parentScope']);\n        // Stringify top level keys\n        const keysOut = [...aggregatedLookup.keys()].map((keyName) => `${keyName}: ${getOrGenerateIdentifier(['parentScope', keyName])}`).join(',\\n');\n        prepend += `\n    const window = constructProxy(parentScope, {\n        ${keysOut}\n    });\n    // Ensure globalThis === window\n    const globalThis = window\n    `;\n        return removeIndent(`(function (parentScope) {\n        /**\n         * DuckDuckGo Runtime Checks injected code.\n         * If you're reading this, you're probably trying to debug a site that is breaking due to our runtime checks.\n         * Please raise an issues on our GitHub repo: https://github.com/duckduckgo/content-scope-scripts/\n         */\n        ${constructProxy.toString()}\n        ${prepend}\n\n        ${getContextId.toString()}\n        ${generateUniqueID.toString()}\n        ${createContextAwareFunction.toString()}\n        ${addTaint.toString()}\n        const contextID = addTaint()\n        \n        const originalSetTimeout = setTimeout\n        setTimeout = createContextAwareFunction(originalSetTimeout)\n        \n        const originalSetInterval = setInterval\n        setInterval = createContextAwareFunction(originalSetInterval)\n        \n        const originalPromiseThen = Promise.prototype.then\n        Promise.prototype.then = createContextAwareFunction(originalPromiseThen)\n        \n        const originalPromiseCatch = Promise.prototype.catch\n        Promise.prototype.catch = createContextAwareFunction(originalPromiseCatch)\n        \n        const originalPromiseFinally = Promise.prototype.finally\n        Promise.prototype.finally = createContextAwareFunction(originalPromiseFinally)\n\n        ${code}\n    })(globalThis)\n    `)\n    }\n\n    /* global TrustedScriptURL, TrustedScript */\n\n\n    let stackDomains = [];\n    let matchAllStackDomains = false;\n    let taintCheck = false;\n    let initialCreateElement;\n    let tagModifiers = {};\n    let shadowDomEnabled = false;\n    let scriptOverload = {};\n    let replaceElement = false;\n    let monitorProperties = true;\n    // Ignore monitoring properties that are only relevant once and already handled\n    const defaultIgnoreMonitorList = ['onerror', 'onload'];\n    let ignoreMonitorList = defaultIgnoreMonitorList;\n\n    /**\n     * @param {string} tagName\n     * @param {'property' | 'attribute' | 'handler' | 'listener'} filterName\n     * @param {string} key\n     * @returns {boolean}\n     */\n    function shouldFilterKey (tagName, filterName, key) {\n        if (filterName === 'attribute') {\n            key = key.toLowerCase();\n        }\n        return tagModifiers?.[tagName]?.filters?.[filterName]?.includes(key)\n    }\n\n    let elementRemovalTimeout;\n    const featureName = 'runtimeChecks';\n    const supportedSinks = ['src'];\n    // Store the original methods so we can call them without any side effects\n    const defaultElementMethods = {\n        setAttribute: HTMLElement.prototype.setAttribute,\n        setAttributeNS: HTMLElement.prototype.setAttributeNS,\n        getAttribute: HTMLElement.prototype.getAttribute,\n        getAttributeNS: HTMLElement.prototype.getAttributeNS,\n        removeAttribute: HTMLElement.prototype.removeAttribute,\n        remove: HTMLElement.prototype.remove,\n        removeChild: HTMLElement.prototype.removeChild\n    };\n    const supportedTrustedTypes = 'TrustedScriptURL' in window;\n\n    const jsMimeTypes = [\n        'text/javascript',\n        'text/ecmascript',\n        'application/javascript',\n        'application/ecmascript',\n        'application/x-javascript',\n        'application/x-ecmascript',\n        'text/javascript1.0',\n        'text/javascript1.1',\n        'text/javascript1.2',\n        'text/javascript1.3',\n        'text/javascript1.4',\n        'text/javascript1.5',\n        'text/jscript',\n        'text/livescript',\n        'text/x-ecmascript',\n        'text/x-javascript'\n    ];\n\n    class DDGRuntimeChecks extends HTMLElement {\n        #tagName\n        #el\n        #listeners\n        #connected\n        #sinks\n\n        constructor () {\n            super();\n            this.#tagName = null;\n            this.#el = null;\n            this.#listeners = [];\n            this.#connected = false;\n            this.#sinks = {};\n            if (shadowDomEnabled) {\n                const shadow = this.attachShadow({ mode: 'open' });\n                const style = createStyleElement(`\n                :host {\n                    display: none;\n                }\n            `);\n                shadow.appendChild(style);\n            }\n        }\n\n        /**\n         * This method is called once and externally so has to remain public.\n         **/\n        setTagName (tagName) {\n            this.#tagName = tagName;\n\n            // Clear the method so it can't be called again\n            // @ts-expect-error - error TS2790: The operand of a 'delete' operator must be optional.\n            delete this.setTagName;\n        }\n\n        connectedCallback () {\n            // Solves re-entrancy issues from React\n            if (this.#connected) return\n            this.#connected = true;\n            if (!this._transplantElement) {\n                // Restore the 'this' object with the DDGRuntimeChecks prototype as sometimes pages will overwrite it.\n                Object.setPrototypeOf(this, DDGRuntimeChecks.prototype);\n            }\n            this._transplantElement();\n        }\n\n        _monitorProperties (el) {\n            // Mutation oberver and observedAttributes don't work on property accessors\n            // So instead we need to monitor all properties on the prototypes and forward them to the real element\n            let propertyNames = [];\n            let proto = Object.getPrototypeOf(el);\n            while (proto && proto !== Object.prototype) {\n                propertyNames.push(...Object.getOwnPropertyNames(proto));\n                proto = Object.getPrototypeOf(proto);\n            }\n            const classMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));\n            // Filter away the methods we don't want to monitor from our own class\n            propertyNames = propertyNames.filter(prop => !classMethods.includes(prop));\n            propertyNames.forEach(prop => {\n                if (prop === 'constructor') return\n                // May throw, but this is best effort monitoring.\n                try {\n                    Object.defineProperty(this, prop, {\n                        get () {\n                            return el[prop]\n                        },\n                        set (value) {\n                            if (shouldFilterKey(this.#tagName, 'property', prop)) return\n                            if (ignoreMonitorList.includes(prop)) return\n                            el[prop] = value;\n                        }\n                    });\n                } catch { }\n            });\n        }\n\n        computeScriptOverload (el) {\n            // Short circuit if we don't have any script text\n            if (el.textContent === '') return\n            // Short circuit if we're in a trusted script environment\n            // @ts-expect-error TrustedScript is not defined in the TS lib\n            if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return\n\n            // Short circuit if not a script type\n            const scriptType = el.type.toLowerCase();\n            if (!jsMimeTypes.includes(scriptType) &&\n                scriptType !== 'module' &&\n                scriptType !== '') return\n\n            el.textContent = wrapScriptCodeOverload(el.textContent, scriptOverload);\n        }\n\n        /**\n         * The element has been moved to the DOM, so we can now reflect all changes to a real element.\n         * This is to allow us to interrogate the real element before it is moved to the DOM.\n         */\n        _transplantElement () {\n            // Create the real element\n            const el = initialCreateElement.call(document, this.#tagName);\n            if (taintCheck) {\n                // Add a symbol to the element so we can identify it as a runtime checked element\n                Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false });\n            }\n\n            // Reflect all attrs to the new element\n            for (const attribute of this.getAttributeNames()) {\n                if (shouldFilterKey(this.#tagName, 'attribute', attribute)) continue\n                defaultElementMethods.setAttribute.call(el, attribute, this.getAttribute(attribute));\n            }\n\n            // Reflect all props to the new element\n            const props = Object.keys(this);\n\n            // Nonce isn't enumerable so we need to add it manually\n            props.push('nonce');\n\n            for (const prop of props) {\n                if (shouldFilterKey(this.#tagName, 'property', prop)) continue\n                el[prop] = this[prop];\n            }\n\n            for (const sink of supportedSinks) {\n                if (this.#sinks[sink]) {\n                    el[sink] = this.#sinks[sink];\n                }\n            }\n\n            // Reflect all listeners to the new element\n            for (const [...args] of this.#listeners) {\n                if (shouldFilterKey(this.#tagName, 'listener', args[0])) continue\n                el.addEventListener(...args);\n            }\n            this.#listeners = [];\n\n            // Reflect all 'on' event handlers to the new element\n            for (const propName in this) {\n                if (propName.startsWith('on')) {\n                    if (shouldFilterKey(this.#tagName, 'handler', propName)) continue\n                    const prop = this[propName];\n                    if (typeof prop === 'function') {\n                        el[propName] = prop;\n                    }\n                }\n            }\n\n            // Move all children to the new element\n            while (this.firstChild) {\n                el.appendChild(this.firstChild);\n            }\n\n            if (this.#tagName === 'script') {\n                this.computeScriptOverload(el);\n            }\n\n            // TODO pollyfill WeakRef\n            this.#el = new WeakRef(el);\n\n            if (replaceElement) {\n                this.replaceElement(el);\n            } else {\n                this.insertAfterAndRemove(el);\n            }\n        }\n\n        replaceElement (el) {\n            // @ts-expect-error - this is wrong node type\n            super.parentElement?.replaceChild(el, this);\n\n            if (monitorProperties) {\n                this._monitorProperties(el);\n            }\n        }\n\n        insertAfterAndRemove (el) {\n            // Move the new element to the DOM\n            try {\n                this.insertAdjacentElement('afterend', el);\n            } catch (e) { console.warn(e); }\n\n            if (monitorProperties) {\n                this._monitorProperties(el);\n            }\n\n            // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.\n            setTimeout(() => {\n                try {\n                    super.remove();\n                } catch {}\n            }, elementRemovalTimeout);\n        }\n\n        _getElement () {\n            return this.#el?.deref()\n        }\n\n        /**\n         * Calls a method on the real element if it exists, otherwise calls the method on the DDGRuntimeChecks element.\n         * @template {keyof defaultElementMethods} E\n         * @param {E} method\n         * @param  {...Parameters<defaultElementMethods[E]>} args\n         * @return {ReturnType<defaultElementMethods[E]>}\n         */\n        _callMethod (method, ...args) {\n            const el = this._getElement();\n            if (el) {\n                return defaultElementMethods[method].call(el, ...args)\n            }\n            // @ts-expect-error TS doesn't like the spread operator\n            return super[method](...args)\n        }\n\n        /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */\n\n        set src (value) {\n            const el = this._getElement();\n            if (el) {\n                el.src = value;\n                return\n            }\n            this.#sinks.src = value;\n        }\n\n        get src () {\n            const el = this._getElement();\n            if (el) {\n                return el.src\n            }\n            // @ts-expect-error TrustedScriptURL is not defined in the TS lib\n            if (supportedTrustedTypes && this.#sinks.src instanceof TrustedScriptURL) {\n                return this.#sinks.src.toString()\n            }\n            return this.#sinks.src\n        }\n\n        getAttribute (name, value) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                // Use Reflect to avoid infinite recursion\n                return Reflect.get(DDGRuntimeChecks.prototype, name, this)\n            }\n            return this._callMethod('getAttribute', name, value)\n        }\n\n        getAttributeNS (namespace, name, value) {\n            if (namespace) {\n                return this._callMethod('getAttributeNS', namespace, name, value)\n            }\n            return Reflect.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])\n        }\n\n        setAttribute (name, value) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                // Use Reflect to avoid infinite recursion\n                return Reflect.set(DDGRuntimeChecks.prototype, name, value, this)\n            }\n            return this._callMethod('setAttribute', name, value)\n        }\n\n        setAttributeNS (namespace, name, value) {\n            if (namespace) {\n                return this._callMethod('setAttributeNS', namespace, name, value)\n            }\n            return Reflect.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])\n        }\n\n        removeAttribute (name) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                delete this[name];\n                return\n            }\n            return this._callMethod('removeAttribute', name)\n        }\n\n        addEventListener (...args) {\n            if (shouldFilterKey(this.#tagName, 'listener', args[0])) return\n            const el = this._getElement();\n            if (el) {\n                return el.addEventListener(...args)\n            }\n            this.#listeners.push([...args]);\n        }\n\n        removeEventListener (...args) {\n            if (shouldFilterKey(this.#tagName, 'listener', args[0])) return\n            const el = this._getElement();\n            if (el) {\n                return el.removeEventListener(...args)\n            }\n            this.#listeners = this.#listeners.filter((listener) => {\n                return listener[0] !== args[0] || listener[1] !== args[1]\n            });\n        }\n\n        toString () {\n            const interfaceName = this.#tagName.charAt(0).toUpperCase() + this.#tagName.slice(1);\n            return `[object HTML${interfaceName}Element]`\n        }\n\n        get tagName () {\n            return this.#tagName.toUpperCase()\n        }\n\n        get nodeName () {\n            return this.tagName\n        }\n\n        remove () {\n            let returnVal;\n            try {\n                returnVal = this._callMethod('remove');\n                super.remove();\n            } catch {}\n            return returnVal\n        }\n\n        // @ts-expect-error TS node return here\n        removeChild (child) {\n            return this._callMethod('removeChild', child)\n        }\n    }\n\n    /**\n     * Overrides the instanceof checks to make the custom element interface pass an instanceof check\n     * @param {Object} elementInterface\n     */\n    function overloadInstanceOfChecks (elementInterface) {\n        const proxy = new Proxy(elementInterface[Symbol.hasInstance], {\n            apply (fn, scope, args) {\n                if (args[0] instanceof DDGRuntimeChecks) {\n                    return true\n                }\n                return Reflect.apply(fn, scope, args)\n            }\n        });\n        // May throw, but we can ignore it\n        try {\n            Object.defineProperty(elementInterface, Symbol.hasInstance, {\n                value: proxy\n            });\n        } catch {}\n    }\n\n    /**\n     * Returns true if the tag should be intercepted\n     * @param {string} tagName\n     * @returns {boolean}\n     */\n    function shouldInterrogate (tagName) {\n        const interestingTags = ['script'];\n        if (!interestingTags.includes(tagName)) {\n            return false\n        }\n        if (matchAllStackDomains) {\n            isInterrogatingDebugMessage('matchedAllStackDomain');\n            return true\n        }\n        if (taintCheck && document.currentScript?.[taintSymbol]) {\n            isInterrogatingDebugMessage('taintCheck');\n            return true\n        }\n        const stack = getStack();\n        const scriptOrigins = [...getStackTraceOrigins(stack)];\n        const interestingHost = scriptOrigins.find(origin => {\n            return stackDomains.some(rule => matchHostname(origin, rule.domain))\n        });\n        const isInterestingHost = !!interestingHost;\n        if (isInterestingHost) {\n            isInterrogatingDebugMessage('matchedStackDomain', interestingHost, stack, scriptOrigins);\n        }\n        return isInterestingHost\n    }\n\n    function isInterrogatingDebugMessage (matchType, matchedStackDomain, stack, scriptOrigins) {\n        postDebugMessage('runtimeChecks', {\n            documentUrl: document.location.href,\n            matchedStackDomain,\n            matchType,\n            scriptOrigins,\n            stack\n        });\n    }\n\n    function overrideCreateElement () {\n        const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {\n            apply (fn, scope, args) {\n                if (args.length >= 1) {\n                    // String() is used to coerce the value to a string (For: ProseMirror/prosemirror-model/src/to_dom.ts)\n                    const initialTagName = String(args[0]).toLowerCase();\n                    if (shouldInterrogate(initialTagName)) {\n                        args[0] = 'ddg-runtime-checks';\n                        const el = Reflect.apply(fn, scope, args);\n                        el.setTagName(initialTagName);\n                        return el\n                    }\n                }\n                return Reflect.apply(fn, scope, args)\n            }\n        });\n        proxy.overload();\n        initialCreateElement = proxy._native;\n    }\n\n    class RuntimeChecks extends ContentFeature {\n        load () {\n            // This shouldn't happen, but if it does we don't want to break the page\n            try {\n                // @ts-expect-error TS node return here\n                customElements.define('ddg-runtime-checks', DDGRuntimeChecks);\n            } catch {}\n        }\n\n        init () {\n            let enabled = this.getFeatureSettingEnabled('matchAllDomains');\n            if (!enabled) {\n                enabled = this.matchDomainFeatureSetting('domains').length > 0;\n            }\n            if (!enabled) return\n\n            taintCheck = this.getFeatureSettingEnabled('taintCheck');\n            matchAllStackDomains = this.getFeatureSettingEnabled('matchAllStackDomains');\n            stackDomains = this.getFeatureSetting('stackDomains') || [];\n            elementRemovalTimeout = this.getFeatureSetting('elementRemovalTimeout') || 1000;\n            tagModifiers = this.getFeatureSetting('tagModifiers') || {};\n            shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false;\n            scriptOverload = this.getFeatureSetting('scriptOverload') || {};\n            ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList;\n            replaceElement = this.getFeatureSettingEnabled('replaceElement') || false;\n            monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true;\n            this.getFeatureSettingEnabled('injectGenericOverloads') || true;\n\n            overrideCreateElement();\n\n            if (this.getFeatureSettingEnabled('overloadInstanceOf')) {\n                overloadInstanceOfChecks(HTMLScriptElement);\n            }\n\n            if (this.getFeatureSettingEnabled('injectGlobalStyles')) {\n                injectGlobalStyles(`\n                ddg-runtime-checks {\n                    display: none;\n                }\n            `);\n            }\n        }\n    }\n\n    return RuntimeChecks;\n\n})();\n/*# sourceURL=duckduckgo-privacy-protection.js?scope=runtimeChecks */\n"
+        "runtimeChecks": "/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */\nvar runtimeChecks = (function () {\n    'use strict';\n\n    /* global false */\n\n    let dummyWindow;\n    if ('document' in globalThis &&\n        // Prevent infinate recursion of injection into Chrome\n        globalThis.location.href !== 'about:blank') {\n        const injectionElement = getInjectionElement();\n        // injectionElement is null in some playwright context tests\n        if (injectionElement) {\n            dummyWindow = document.createElement('iframe');\n            dummyWindow.style.display = 'none';\n            injectionElement.appendChild(dummyWindow);\n        }\n    }\n\n    let dummyContentWindow = dummyWindow?.contentWindow;\n    // @ts-expect-error - Symbol is not defined on window\n    const dummySymbol = dummyContentWindow?.Symbol;\n    const iteratorSymbol = dummySymbol?.iterator;\n\n    // Capture prototype to prevent overloading\n    function captureGlobal (globalName) {\n        const global = dummyWindow?.contentWindow?.[globalName];\n\n        // if we were unable to create a dummy window, return the global\n        // this still has the advantage of preventing aliasing of the global through shawdowing\n        if (!global) {\n            return globalThis[globalName]\n        }\n\n        // Alias the iterator symbol to the local symbol so for loops work\n        if (iteratorSymbol &&\n            global?.prototype &&\n            iteratorSymbol in global.prototype) {\n            global.prototype[Symbol.iterator] = global.prototype[iteratorSymbol];\n        }\n        return global\n    }\n\n    const Set$1 = captureGlobal('Set');\n    const Reflect$1 = captureGlobal('Reflect');\n\n    // Clean up the dummy window\n    dummyWindow?.remove();\n\n    /* global cloneInto, exportFunction, false */\n    // Tests don't define this variable so fallback to behave like chrome\n\n    function defineProperty (object, propertyName, descriptor) {\n        {\n            Object.defineProperty(object, propertyName, descriptor);\n        }\n    }\n\n    /* global cloneInto, exportFunction, false */\n\n    // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox\n    // eslint-disable-next-line no-global-assign\n    let globalObj = typeof window === 'undefined' ? globalThis : window;\n    let Error$1 = globalObj.Error;\n\n    const taintSymbol = Symbol('taint');\n    typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);\n\n    /**\n     * @returns {HTMLElement} the element to inject the script into\n     */\n    function getInjectionElement () {\n        return document.head || document.documentElement\n    }\n\n    /**\n     * Creates a script element with the given code to avoid Firefox CSP restrictions.\n     * @param {string} css\n     * @returns {HTMLLinkElement | HTMLStyleElement}\n     */\n    function createStyleElement (css) {\n        let style;\n        {\n            style = document.createElement('style');\n            style.innerText = css;\n        }\n        return style\n    }\n\n    /**\n     * Injects a script into the page, avoiding CSP restrictions if possible.\n     */\n    function injectGlobalStyles (css) {\n        const style = createStyleElement(css);\n        getInjectionElement().appendChild(style);\n    }\n\n    const exemptionLists = {};\n    function shouldExemptUrl (type, url) {\n        for (const regex of exemptionLists[type]) {\n            if (regex.test(url)) {\n                return true\n            }\n        }\n        return false\n    }\n\n    /**\n     * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain\n     * @returns {string|null} inferred tab hostname\n     */\n    function getTabHostname () {\n        let framingOrigin = null;\n        try {\n            // @ts-expect-error - globalThis.top is possibly 'null' here\n            framingOrigin = globalThis.top.location.href;\n        } catch {\n            framingOrigin = globalThis.document.referrer;\n        }\n\n        // Not supported in Firefox\n        if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {\n            // ancestorOrigins is reverse order, with the last item being the top frame\n            framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);\n        }\n\n        try {\n            // @ts-expect-error - framingOrigin is possibly 'null' here\n            framingOrigin = new URL(framingOrigin).hostname;\n        } catch {\n            framingOrigin = null;\n        }\n        return framingOrigin\n    }\n\n    /**\n     * Returns true if hostname is a subset of exceptionDomain or an exact match.\n     * @param {string} hostname\n     * @param {string} exceptionDomain\n     * @returns {boolean}\n     */\n    function matchHostname (hostname, exceptionDomain) {\n        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)\n    }\n\n    const lineTest = /(\\()?(https?:[^)]+):[0-9]+:[0-9]+(\\))?/;\n    function getStackTraceUrls (stack) {\n        const urls = new Set$1();\n        try {\n            const errorLines = stack.split('\\n');\n            // Should cater for Chrome and Firefox stacks, we only care about https? resources.\n            for (const line of errorLines) {\n                const res = line.match(lineTest);\n                if (res) {\n                    urls.add(new URL(res[2], location.href));\n                }\n            }\n        } catch (e) {\n            // Fall through\n        }\n        return urls\n    }\n\n    function getStackTraceOrigins (stack) {\n        const urls = getStackTraceUrls(stack);\n        const origins = new Set$1();\n        for (const url of urls) {\n            origins.add(url.hostname);\n        }\n        return origins\n    }\n\n    // Checks the stack trace if there are known libraries that are broken.\n    function shouldExemptMethod (type) {\n        // Short circuit stack tracing if we don't have checks\n        if (!(type in exemptionLists) || exemptionLists[type].length === 0) {\n            return false\n        }\n        const stack = getStack();\n        const errorFiles = getStackTraceUrls(stack);\n        for (const path of errorFiles) {\n            if (shouldExemptUrl(type, path.href)) {\n                return true\n            }\n        }\n        return false\n    }\n\n    function camelcase (dashCaseText) {\n        return dashCaseText.replace(/-(.)/g, (match, letter) => {\n            return letter.toUpperCase()\n        })\n    }\n\n    // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections\n    function isAppleSilicon () {\n        const canvas = document.createElement('canvas');\n        const gl = canvas.getContext('webgl');\n\n        // Best guess if the device is an Apple Silicon\n        // https://stackoverflow.com/a/65412357\n        // @ts-expect-error - Object is possibly 'null'\n        return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1\n    }\n\n    /**\n     * Take configSeting which should be an array of possible values.\n     * If a value contains a criteria that is a match for this environment then return that value.\n     * Otherwise return the first value that doesn't have a criteria.\n     *\n     * @param {*[]} configSetting - Config setting which should contain a list of possible values\n     * @returns {*|undefined} - The value from the list that best matches the criteria in the config\n     */\n    function processAttrByCriteria (configSetting) {\n        let bestOption;\n        for (const item of configSetting) {\n            if (item.criteria) {\n                if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {\n                    bestOption = item;\n                    break\n                }\n            } else {\n                bestOption = item;\n            }\n        }\n\n        return bestOption\n    }\n\n    const functionMap = {\n        /** Useful for debugging APIs in the wild, shouldn't be used */\n        debug: (...args) => {\n            console.log('debugger', ...args);\n            // eslint-disable-next-line no-debugger\n            debugger\n        },\n        // eslint-disable-next-line @typescript-eslint/no-empty-function\n        noop: () => { }\n    };\n\n    /**\n     * Handles the processing of a config setting.\n     * @param {*} configSetting\n     * @param {*} [defaultValue]\n     * @returns\n     */\n    function processAttr (configSetting, defaultValue) {\n        if (configSetting === undefined) {\n            return defaultValue\n        }\n\n        const configSettingType = typeof configSetting;\n        switch (configSettingType) {\n        case 'object':\n            if (Array.isArray(configSetting)) {\n                configSetting = processAttrByCriteria(configSetting);\n                if (configSetting === undefined) {\n                    return defaultValue\n                }\n            }\n\n            if (!configSetting.type) {\n                return defaultValue\n            }\n\n            if (configSetting.type === 'function') {\n                if (configSetting.functionName && functionMap[configSetting.functionName]) {\n                    return functionMap[configSetting.functionName]\n                }\n            }\n\n            if (configSetting.type === 'undefined') {\n                return undefined\n            }\n\n            return configSetting.value\n        default:\n            return defaultValue\n        }\n    }\n\n    function getStack () {\n        return new Error$1().stack\n    }\n\n    function getContextId (scope) {\n        if (document?.currentScript && 'contextID' in document.currentScript) {\n            return document.currentScript.contextID\n        }\n        if (scope.contextID) {\n            return scope.contextID\n        }\n        // @ts-expect-error - contextID is a global variable\n        if (typeof contextID !== 'undefined') {\n            // @ts-expect-error - contextID is a global variable\n            // eslint-disable-next-line no-undef\n            return contextID\n        }\n    }\n\n    /**\n     * Returns a set of origins that are tainted\n     * @returns {Set<string> | null}\n     */\n    function taintedOrigins () {\n        return getGlobalObject('taintedOrigins')\n    }\n\n    /**\n     * @param {string} name\n     * @returns {any | null}\n     */\n    function getGlobalObject (name) {\n        if ('duckduckgo' in navigator &&\n            typeof navigator.duckduckgo === 'object' &&\n            navigator.duckduckgo &&\n            name in navigator.duckduckgo &&\n            navigator.duckduckgo[name]) {\n            return navigator.duckduckgo[name]\n        }\n        return null\n    }\n\n    function hasTaintedMethod (scope, shouldStackCheck = false) {\n        if (document?.currentScript?.[taintSymbol]) return true\n        if ('__ddg_taint__' in window) return true\n        if (getContextId(scope)) return true\n        if (!shouldStackCheck || !taintedOrigins()) {\n            return false\n        }\n        const stackOrigins = getStackTraceOrigins(getStack());\n        for (const stackOrigin of stackOrigins) {\n            if (taintedOrigins()?.has(stackOrigin)) {\n                return true\n            }\n        }\n        return false\n    }\n\n    /**\n     * @template {object} P\n     * @typedef {object} ProxyObject<P>\n     * @property {(target?: object, thisArg?: P, args?: object) => void} apply\n     */\n\n    /**\n     * @template [P=object]\n     */\n    class DDGProxy {\n        /**\n         * @param {string} featureName\n         * @param {P} objectScope\n         * @param {string} property\n         * @param {ProxyObject<P>} proxyObject\n         */\n        constructor (featureName, objectScope, property, proxyObject, taintCheck = false) {\n            this.objectScope = objectScope;\n            this.property = property;\n            this.featureName = featureName;\n            this.camelFeatureName = camelcase(this.featureName);\n            const outputHandler = (...args) => {\n                let isExempt = shouldExemptMethod(this.camelFeatureName);\n                // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't\n                if (!isExempt && taintCheck) {\n                    // eslint-disable-next-line @typescript-eslint/no-this-alias\n                    let scope = this;\n                    try {\n                        // @ts-expect-error - Caller doesn't match this\n                        // eslint-disable-next-line no-caller\n                        scope = arguments.callee.caller;\n                    } catch {}\n                    const isTainted = hasTaintedMethod(scope);\n                    isExempt = !isTainted;\n                }\n                // The normal return value\n                if (isExempt) {\n                    return DDGReflect.apply(...args)\n                }\n                return proxyObject.apply(...args)\n            };\n            const getMethod = (target, prop, receiver) => {\n                if (prop === 'toString') {\n                    const method = Reflect.get(target, prop, receiver).bind(target);\n                    Object.defineProperty(method, 'toString', {\n                        value: String.toString.bind(String.toString),\n                        enumerable: false\n                    });\n                    return method\n                }\n                return DDGReflect.get(target, prop, receiver)\n            };\n            {\n                this._native = objectScope[property];\n                const handler = {};\n                handler.apply = outputHandler;\n                handler.get = getMethod;\n                this.internal = new globalObj.Proxy(objectScope[property], handler);\n            }\n        }\n\n        // Actually apply the proxy to the native property\n        overload () {\n            {\n                this.objectScope[this.property] = this.internal;\n            }\n        }\n\n        overloadDescriptor () {\n            defineProperty(this.objectScope, this.property, {\n                value: this.internal\n            });\n        }\n    }\n\n    function postDebugMessage (feature, message) {\n        if (message.stack) {\n            const scriptOrigins = [...getStackTraceOrigins(message.stack)];\n            message.scriptOrigins = scriptOrigins;\n        }\n        globalObj.postMessage({\n            action: feature,\n            message\n        });\n    }\n\n    let DDGReflect;\n\n    // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts\n    {\n        DDGReflect = globalObj.Reflect;\n    }\n\n    /**\n     * @param {string | null} topLevelHostname\n     * @param {object[]} featureList\n     * @returns {boolean}\n     */\n    function isUnprotectedDomain (topLevelHostname, featureList) {\n        let unprotectedDomain = false;\n        if (!topLevelHostname) {\n            return false\n        }\n        const domainParts = topLevelHostname.split('.');\n\n        // walk up the domain to see if it's unprotected\n        while (domainParts.length > 1 && !unprotectedDomain) {\n            const partialDomain = domainParts.join('.');\n\n            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;\n\n            domainParts.shift();\n        }\n\n        return unprotectedDomain\n    }\n\n    function parseVersionString (versionString) {\n        const [major = 0, minor = 0, patch = 0] = versionString.split('.').map(Number);\n        return {\n            major,\n            minor,\n            patch\n        }\n    }\n\n    /**\n     * @param {string} minVersionString\n     * @param {string} applicationVersionString\n     * @returns {boolean}\n     */\n    function satisfiesMinVersion (minVersionString, applicationVersionString) {\n        const { major: minMajor, minor: minMinor, patch: minPatch } = parseVersionString(minVersionString);\n        const { major, minor, patch } = parseVersionString(applicationVersionString);\n\n        return (major > minMajor ||\n                (major >= minMajor && minor > minMinor) ||\n                (major >= minMajor && minor >= minMinor && patch >= minPatch))\n    }\n\n    /**\n     * @param {string | number | undefined} minSupportedVersion\n     * @param {string | number | undefined} currentVersion\n     * @returns {boolean}\n     */\n    function isSupportedVersion (minSupportedVersion, currentVersion) {\n        if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {\n            if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {\n                return true\n            }\n        } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {\n            if (minSupportedVersion <= currentVersion) {\n                return true\n            }\n        }\n        return false\n    }\n\n    /**\n     * Retutns a list of enabled features\n     * @param {RemoteConfig} data\n     * @param {string | null} topLevelHostname\n     * @param {Platform['version']} platformVersion\n     * @param {string[]} platformSpecificFeatures\n     * @returns {string[]}\n     */\n    function computeEnabledFeatures (data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {\n        const remoteFeatureNames = Object.keys(data.features);\n        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));\n        const enabledFeatures = remoteFeatureNames.filter((featureName) => {\n            const feature = data.features[featureName];\n            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion\n            if (feature.minSupportedVersion && platformVersion) {\n                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {\n                    return false\n                }\n            }\n            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)\n        }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config\n        return enabledFeatures\n    }\n\n    /**\n     * Returns the relevant feature settings for the enabled features\n     * @param {RemoteConfig} data\n     * @param {string[]} enabledFeatures\n     * @returns {Record<string, unknown>}\n     */\n    function parseFeatureSettings (data, enabledFeatures) {\n        /** @type {Record<string, unknown>} */\n        const featureSettings = {};\n        const remoteFeatureNames = Object.keys(data.features);\n        remoteFeatureNames.forEach((featureName) => {\n            if (!enabledFeatures.includes(featureName)) {\n                return\n            }\n\n            featureSettings[featureName] = data.features[featureName].settings;\n        });\n        return featureSettings\n    }\n\n    function _typeof$2(obj) { \"@babel/helpers - typeof\"; return _typeof$2 = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof$2(obj); }\n    function isJSONArray(value) {\n      return Array.isArray(value);\n    }\n    function isJSONObject(value) {\n      return value !== null && _typeof$2(value) === 'object' && value.constructor === Object // do not match on classes or Array\n      ;\n    }\n\n    function _typeof$1(obj) { \"@babel/helpers - typeof\"; return _typeof$1 = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof$1(obj); }\n    /**\r\n     * Test deep equality of two JSON values, objects, or arrays\r\n     */\n    // TODO: write unit tests\n    function isEqual(a, b) {\n      // FIXME: this function will return false for two objects with the same keys\n      //  but different order of keys\n      return JSON.stringify(a) === JSON.stringify(b);\n    }\n\n    /**\r\n     * Get all but the last items from an array\r\n     */\n    // TODO: write unit tests\n    function initial(array) {\n      return array.slice(0, array.length - 1);\n    }\n\n    /**\r\n     * Get the last item from an array\r\n     */\n    // TODO: write unit tests\n    function last(array) {\n      return array[array.length - 1];\n    }\n\n    /**\r\n     * Test whether a value is an Object or an Array (and not a primitive JSON value)\r\n     */\n    // TODO: write unit tests\n    function isObjectOrArray(value) {\n      return _typeof$1(value) === 'object' && value !== null;\n    }\n\n    function _typeof(obj) { \"@babel/helpers - typeof\"; return _typeof = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof(obj); }\n    function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }\n    function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }\n    function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n    function _toPropertyKey(arg) { var key = _toPrimitive(arg, \"string\"); return _typeof(key) === \"symbol\" ? key : String(key); }\n    function _toPrimitive(input, hint) { if (_typeof(input) !== \"object\" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || \"default\"); if (_typeof(res) !== \"object\") return res; throw new TypeError(\"@@toPrimitive must return a primitive value.\"); } return (hint === \"string\" ? String : Number)(input); }\n\n    /**\n     * Shallow clone of an Object, Array, or value\n     * Symbols are cloned too.\n     */\n    function shallowClone(value) {\n      if (isJSONArray(value)) {\n        // copy array items\n        var copy = value.slice();\n\n        // copy all symbols\n        Object.getOwnPropertySymbols(value).forEach(function (symbol) {\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          copy[symbol] = value[symbol];\n        });\n        return copy;\n      } else if (isJSONObject(value)) {\n        // copy object properties\n        var _copy = _objectSpread({}, value);\n\n        // copy all symbols\n        Object.getOwnPropertySymbols(value).forEach(function (symbol) {\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          _copy[symbol] = value[symbol];\n        });\n        return _copy;\n      } else {\n        return value;\n      }\n    }\n\n    /**\n     * Update a value in an object in an immutable way.\n     * If the value is unchanged, the original object will be returned\n     */\n    function applyProp(object, key, value) {\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      if (object[key] === value) {\n        // return original object unchanged when the new value is identical to the old one\n        return object;\n      } else {\n        var updatedObject = shallowClone(object);\n        // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n        // @ts-ignore\n        updatedObject[key] = value;\n        return updatedObject;\n      }\n    }\n\n    /**\n     * helper function to get a nested property in an object or array\n     *\n     * @return Returns the field when found, or undefined when the path doesn't exist\n     */\n    function getIn(object, path) {\n      var value = object;\n      var i = 0;\n      while (i < path.length) {\n        if (isJSONObject(value)) {\n          value = value[path[i]];\n        } else if (isJSONArray(value)) {\n          value = value[parseInt(path[i])];\n        } else {\n          value = undefined;\n        }\n        i++;\n      }\n      return value;\n    }\n\n    /**\n     * helper function to replace a nested property in an object with a new value\n     * without mutating the object itself.\n     *\n     * @param object\n     * @param path\n     * @param value\n     * @param [createPath=false]\n     *                    If true, `path` will be created when (partly) missing in\n     *                    the object. For correctly creating nested Arrays or\n     *                    Objects, the function relies on `path` containing number\n     *                    in case of array indexes.\n     *                    If false (default), an error will be thrown when the\n     *                    path doesn't exist.\n     * @return Returns a new, updated object or array\n     */\n    function setIn(object, path, value) {\n      var createPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;\n      if (path.length === 0) {\n        return value;\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = setIn(object ? object[key] : undefined, path.slice(1), value, createPath);\n      if (isJSONObject(object) || isJSONArray(object)) {\n        return applyProp(object, key, updatedValue);\n      } else {\n        if (createPath) {\n          var newObject = IS_INTEGER_REGEX.test(key) ? [] : {};\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          newObject[key] = updatedValue;\n          return newObject;\n        } else {\n          throw new Error('Path does not exist');\n        }\n      }\n    }\n    var IS_INTEGER_REGEX = /^\\d+$/;\n\n    /**\n     * helper function to replace a nested property in an object with a new value\n     * without mutating the object itself.\n     *\n     * @return  Returns a new, updated object or array\n     */\n    function updateIn(object, path, callback) {\n      if (path.length === 0) {\n        return callback(object);\n      }\n      if (!isObjectOrArray(object)) {\n        throw new Error('Path doesn\\'t exist');\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = updateIn(object[key], path.slice(1), callback);\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return applyProp(object, key, updatedValue);\n    }\n\n    /**\n     * helper function to delete a nested property in an object\n     * without mutating the object itself.\n     *\n     * @return Returns a new, updated object or array\n     */\n    function deleteIn(object, path) {\n      if (path.length === 0) {\n        return object;\n      }\n      if (!isObjectOrArray(object)) {\n        throw new Error('Path does not exist');\n      }\n      if (path.length === 1) {\n        var _key = path[0];\n        if (!(_key in object)) {\n          // key doesn't exist. return object unchanged\n          return object;\n        } else {\n          var updatedObject = shallowClone(object);\n          if (isJSONArray(updatedObject)) {\n            updatedObject.splice(parseInt(_key), 1);\n          }\n          if (isJSONObject(updatedObject)) {\n            delete updatedObject[_key];\n          }\n          return updatedObject;\n        }\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = deleteIn(object[key], path.slice(1));\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return applyProp(object, key, updatedValue);\n    }\n\n    /**\n     * Insert a new item in an array at a specific index.\n     * Example usage:\n     *\n     *     insertAt({arr: [1,2,3]}, ['arr', '2'], 'inserted')  // [1,2,'inserted',3]\n     */\n    function insertAt(document, path, value) {\n      var parentPath = path.slice(0, path.length - 1);\n      var index = path[path.length - 1];\n      return updateIn(document, parentPath, function (items) {\n        if (!Array.isArray(items)) {\n          throw new TypeError('Array expected at path ' + JSON.stringify(parentPath));\n        }\n        var updatedItems = shallowClone(items);\n        updatedItems.splice(parseInt(index), 0, value);\n        return updatedItems;\n      });\n    }\n\n    /**\n     * Test whether a path exists in a JSON object\n     * @return Returns true if the path exists, else returns false\n     */\n    function existsIn(document, path) {\n      if (document === undefined) {\n        return false;\n      }\n      if (path.length === 0) {\n        return true;\n      }\n      if (document === null) {\n        return false;\n      }\n\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return existsIn(document[path[0]], path.slice(1));\n    }\n\n    /**\n     * Parse a JSON Pointer\n     */\n    function parseJSONPointer(pointer) {\n      var path = pointer.split('/');\n      path.shift(); // remove the first empty entry\n\n      return path.map(function (p) {\n        return p.replace(/~1/g, '/').replace(/~0/g, '~');\n      });\n    }\n\n    /**\n     * Compile a JSON Pointer\n     */\n    function compileJSONPointer(path) {\n      return path.map(compileJSONPointerProp).join('');\n    }\n\n    /**\n     * Compile a single path property from a JSONPath\n     */\n    function compileJSONPointerProp(pathProp) {\n      return '/' + String(pathProp).replace(/~/g, '~0').replace(/\\//g, '~1');\n    }\n\n    /**\n     * Apply a patch to a JSON object\n     * The original JSON object will not be changed,\n     * instead, the patch is applied in an immutable way\n     */\n    function immutableJSONPatch(document, operations, options) {\n      var updatedDocument = document;\n      for (var i = 0; i < operations.length; i++) {\n        validateJSONPatchOperation(operations[i]);\n        var operation = operations[i];\n\n        // TODO: test before\n        if (options && options.before) {\n          var result = options.before(updatedDocument, operation);\n          if (result !== undefined) {\n            if (result.document !== undefined) {\n              updatedDocument = result.document;\n            }\n            // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n            // @ts-ignore\n            if (result.json !== undefined) {\n              // TODO: deprecated since v5.0.0. Cleanup this warning some day\n              throw new Error('Deprecation warning: returned object property \".json\" has been renamed to \".document\"');\n            }\n            if (result.operation !== undefined) {\n              operation = result.operation;\n            }\n          }\n        }\n        var previousDocument = updatedDocument;\n        var path = parsePath(updatedDocument, operation.path);\n        if (operation.op === 'add') {\n          updatedDocument = add(updatedDocument, path, operation.value);\n        } else if (operation.op === 'remove') {\n          updatedDocument = remove(updatedDocument, path);\n        } else if (operation.op === 'replace') {\n          updatedDocument = replace(updatedDocument, path, operation.value);\n        } else if (operation.op === 'copy') {\n          updatedDocument = copy(updatedDocument, path, parseFrom(operation.from));\n        } else if (operation.op === 'move') {\n          updatedDocument = move(updatedDocument, path, parseFrom(operation.from));\n        } else if (operation.op === 'test') {\n          test(updatedDocument, path, operation.value);\n        } else {\n          throw new Error('Unknown JSONPatch operation ' + JSON.stringify(operation));\n        }\n\n        // TODO: test after\n        if (options && options.after) {\n          var _result = options.after(updatedDocument, operation, previousDocument);\n          if (_result !== undefined) {\n            updatedDocument = _result;\n          }\n        }\n      }\n      return updatedDocument;\n    }\n\n    /**\n     * Replace an existing item\n     */\n    function replace(document, path, value) {\n      return setIn(document, path, value);\n    }\n\n    /**\n     * Remove an item or property\n     */\n    function remove(document, path) {\n      return deleteIn(document, path);\n    }\n\n    /**\n     * Add an item or property\n     */\n    function add(document, path, value) {\n      if (isArrayItem(document, path)) {\n        return insertAt(document, path, value);\n      } else {\n        return setIn(document, path, value);\n      }\n    }\n\n    /**\n     * Copy a value\n     */\n    function copy(document, path, from) {\n      var value = getIn(document, from);\n      if (isArrayItem(document, path)) {\n        return insertAt(document, path, value);\n      } else {\n        var _value = getIn(document, from);\n        return setIn(document, path, _value);\n      }\n    }\n\n    /**\n     * Move a value\n     */\n    function move(document, path, from) {\n      var value = getIn(document, from);\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var removedJson = deleteIn(document, from);\n      return isArrayItem(removedJson, path) ? insertAt(removedJson, path, value) : setIn(removedJson, path, value);\n    }\n\n    /**\n     * Test whether the data contains the provided value at the specified path.\n     * Throws an error when the test fails\n     */\n    function test(document, path, value) {\n      if (value === undefined) {\n        throw new Error(\"Test failed: no value provided (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n      if (!existsIn(document, path)) {\n        throw new Error(\"Test failed: path not found (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n      var actualValue = getIn(document, path);\n      if (!isEqual(actualValue, value)) {\n        throw new Error(\"Test failed, value differs (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n    }\n    function isArrayItem(document, path) {\n      if (path.length === 0) {\n        return false;\n      }\n      var parent = getIn(document, initial(path));\n      return Array.isArray(parent);\n    }\n\n    /**\n     * Resolve the path index of an array, resolves indexes '-'\n     * @returns Returns the resolved path\n     */\n    function resolvePathIndex(document, path) {\n      if (last(path) !== '-') {\n        return path;\n      }\n      var parentPath = initial(path);\n      var parent = getIn(document, parentPath);\n\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return parentPath.concat(parent.length);\n    }\n\n    /**\n     * Validate a JSONPatch operation.\n     * Throws an error when there is an issue\n     */\n    function validateJSONPatchOperation(operation) {\n      // TODO: write unit tests\n      var ops = ['add', 'remove', 'replace', 'copy', 'move', 'test'];\n      if (!ops.includes(operation.op)) {\n        throw new Error('Unknown JSONPatch op ' + JSON.stringify(operation.op));\n      }\n      if (typeof operation.path !== 'string') {\n        throw new Error('Required property \"path\" missing or not a string in operation ' + JSON.stringify(operation));\n      }\n      if (operation.op === 'copy' || operation.op === 'move') {\n        if (typeof operation.from !== 'string') {\n          throw new Error('Required property \"from\" missing or not a string in operation ' + JSON.stringify(operation));\n        }\n      }\n    }\n    function parsePath(document, pointer) {\n      return resolvePathIndex(document, parseJSONPointer(pointer));\n    }\n    function parseFrom(fromPointer) {\n      return parseJSONPointer(fromPointer);\n    }\n\n    /**\n     * Performance monitor, holds reference to PerformanceMark instances.\n     */\n    class PerformanceMonitor {\n        constructor () {\n            this.marks = [];\n        }\n\n        /**\n         * Create performance marker\n         * @param {string} name\n         * @returns {PerformanceMark}\n         */\n        mark (name) {\n            const mark = new PerformanceMark(name);\n            this.marks.push(mark);\n            return mark\n        }\n\n        /**\n         * Measure all performance markers\n         */\n        measureAll () {\n            this.marks.forEach((mark) => {\n                mark.measure();\n            });\n        }\n    }\n\n    /**\n     * Tiny wrapper around performance.mark and performance.measure\n     */\n    class PerformanceMark {\n        /**\n         * @param {string} name\n         */\n        constructor (name) {\n            this.name = name;\n            performance.mark(this.name + 'Start');\n        }\n\n        end () {\n            performance.mark(this.name + 'End');\n        }\n\n        measure () {\n            performance.measure(this.name, this.name + 'Start', this.name + 'End');\n        }\n    }\n\n    /**\n     * @typedef {object} AssetConfig\n     * @property {string} regularFontUrl\n     * @property {string} boldFontUrl\n     */\n\n    /**\n     * @typedef {object} Site\n     * @property {string | null} domain\n     * @property {boolean} [isBroken]\n     * @property {boolean} [allowlisted]\n     * @property {string[]} [enabledFeatures]\n     */\n\n    class ContentFeature {\n        /** @type {import('./utils.js').RemoteConfig | undefined} */\n        #bundledConfig\n        /** @type {object | undefined} */\n        #trackerLookup\n        /** @type {boolean | undefined} */\n        #documentOriginIsTracker\n        /** @type {Record<string, unknown> | undefined} */\n        #bundledfeatureSettings\n\n        /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */\n        #args\n\n        constructor (featureName) {\n            this.name = featureName;\n            this.#args = null;\n            this.monitor = new PerformanceMonitor();\n        }\n\n        get isDebug () {\n            return this.#args?.debug || false\n        }\n\n        /**\n         * @param {import('./utils').Platform} platform\n         */\n        set platform (platform) {\n            this._platform = platform;\n        }\n\n        get platform () {\n            // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'\n            return this._platform\n        }\n\n        /**\n         * @type {AssetConfig | undefined}\n         */\n        get assetConfig () {\n            return this.#args?.assets\n        }\n\n        /**\n         * @returns {boolean}\n         */\n        get documentOriginIsTracker () {\n            return !!this.#documentOriginIsTracker\n        }\n\n        /**\n         * @returns {object}\n         **/\n        get trackerLookup () {\n            return this.#trackerLookup || {}\n        }\n\n        /**\n         * @returns {import('./utils.js').RemoteConfig | undefined}\n         **/\n        get bundledConfig () {\n            return this.#bundledConfig\n        }\n\n        /**\n         * Get the value of a config setting.\n         * If the value is not set, return the default value.\n         * If the value is not an object, return the value.\n         * If the value is an object, check its type property.\n         * @param {string} attrName\n         * @param {any} defaultValue - The default value to use if the config setting is not set\n         * @returns The value of the config setting or the default value\n         */\n        getFeatureAttr (attrName, defaultValue) {\n            const configSetting = this.getFeatureSetting(attrName);\n            return processAttr(configSetting, defaultValue)\n        }\n\n        /**\n         * @param {string} featureKeyName\n         * @param {string} [featureName]\n         * @returns {any}\n         */\n        getFeatureSetting (featureKeyName, featureName) {\n            let result = this._getFeatureSetting(featureName);\n            if (featureKeyName === 'domains') {\n                throw new Error('domains is a reserved feature setting key name')\n            }\n            const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {\n                return a.domain.length - b.domain.length\n            });\n            for (const match of domainMatch) {\n                if (match.patchSettings === undefined) {\n                    continue\n                }\n                try {\n                    result = immutableJSONPatch(result, match.patchSettings);\n                } catch (e) {\n                    console.error('Error applying patch settings', e);\n                }\n            }\n            return result?.[featureKeyName]\n        }\n\n        /**\n         * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature\n         * @returns {any}\n         */\n        _getFeatureSetting (featureName) {\n            const camelFeatureName = featureName || camelcase(this.name);\n            return this.#args?.featureSettings?.[camelFeatureName]\n        }\n\n        /**\n         * @param {string} featureKeyName\n         * @param {string} [featureName]\n         * @returns {boolean}\n         */\n        getFeatureSettingEnabled (featureKeyName, featureName) {\n            const result = this.getFeatureSetting(featureKeyName, featureName);\n            return result === 'enabled'\n        }\n\n        /**\n         * @param {string} featureKeyName\n         * @return {any[]}\n         */\n        matchDomainFeatureSetting (featureKeyName) {\n            const domain = this.#args?.site.domain;\n            if (!domain) return []\n            const domains = this._getFeatureSetting()?.[featureKeyName] || [];\n            return domains.filter((rule) => {\n                if (Array.isArray(rule.domain)) {\n                    return rule.domain.some((domainRule) => {\n                        return matchHostname(domain, domainRule)\n                    })\n                }\n                return matchHostname(domain, rule.domain)\n            })\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function\n        init (args) {\n        }\n\n        callInit (args) {\n            const mark = this.monitor.mark(this.name + 'CallInit');\n            this.#args = args;\n            this.platform = args.platform;\n            this.init(args);\n            mark.end();\n            this.measure();\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function\n        load (args) {\n        }\n\n        /**\n         * @param {import('./content-scope-features.js').LoadArgs} args\n         */\n        callLoad (args) {\n            const mark = this.monitor.mark(this.name + 'CallLoad');\n            this.#args = args;\n            this.platform = args.platform;\n            this.#bundledConfig = args.bundledConfig;\n            // If we have a bundled config, treat it as a regular config\n            // This will be overriden by the remote config if it is available\n            if (this.#bundledConfig && this.#args) {\n                const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version);\n                this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures);\n            }\n            this.#trackerLookup = args.trackerLookup;\n            this.#documentOriginIsTracker = args.documentOriginIsTracker;\n            this.load(args);\n            mark.end();\n        }\n\n        measure () {\n            if (this.#args?.debug) {\n                this.monitor.measureAll();\n            }\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-empty-function\n        update () {\n        }\n    }\n\n    function generateUniqueID () {\n        return Symbol(undefined)\n    }\n\n    function addTaint () {\n        const contextID = generateUniqueID();\n        if ('duckduckgo' in navigator &&\n            navigator.duckduckgo &&\n            typeof navigator.duckduckgo === 'object' &&\n            'taints' in navigator.duckduckgo &&\n            navigator.duckduckgo.taints instanceof Set) {\n            if (document.currentScript) {\n                // @ts-expect-error - contextID is undefined on currentScript\n                document.currentScript.contextID = contextID;\n            }\n            navigator?.duckduckgo?.taints.add(contextID);\n        }\n        return contextID\n    }\n\n    function createContextAwareFunction (fn) {\n        return function (...args) {\n            // eslint-disable-next-line @typescript-eslint/no-this-alias\n            let scope = this;\n            // Save the previous contextID and set the new one\n            const prevContextID = this?.contextID;\n            // @ts-expect-error - contextID is undefined on window\n            // eslint-disable-next-line no-undef\n            const changeToContextID = getContextId(this) || contextID;\n            if (typeof args[0] === 'function') {\n                args[0].contextID = changeToContextID;\n            }\n            // @ts-expect-error - scope doesn't match window\n            if (scope && scope !== globalThis) {\n                scope.contextID = changeToContextID;\n            } else if (!scope) {\n                scope = new Proxy(scope, {\n                    get (target, prop) {\n                        if (prop === 'contextID') {\n                            return changeToContextID\n                        }\n                        return Reflect.get(target, prop)\n                    }\n                });\n            }\n            // Run the original function with the new contextID\n            const result = Reflect.apply(fn, scope, args);\n\n            // Restore the previous contextID\n            scope.contextID = prevContextID;\n\n            return result\n        }\n    }\n\n    /**\n     * Indent a code block using braces\n     * @param {string} string\n     * @returns {string}\n     */\n    function removeIndent (string) {\n        const lines = string.split('\\n');\n        const indentSize = 2;\n        let currentIndent = 0;\n        const indentedLines = lines.map((line) => {\n            if (line.trim().startsWith('}')) {\n                currentIndent -= indentSize;\n            }\n            const indentedLine = ' '.repeat(currentIndent) + line.trim();\n            if (line.trim().endsWith('{')) {\n                currentIndent += indentSize;\n            }\n\n            return indentedLine\n        });\n        return indentedLines.filter(a => a.trim()).join('\\n')\n    }\n\n    const lookup = {};\n    function getOrGenerateIdentifier (path) {\n        if (!(path in lookup)) {\n            lookup[path] = generateAlphaIdentifier(Object.keys(lookup).length + 1);\n        }\n        return lookup[path]\n    }\n\n    function generateAlphaIdentifier (num) {\n        if (num < 1) {\n            throw new Error('Input must be a positive integer')\n        }\n        const charCodeOffset = 97;\n        let identifier = '';\n        while (num > 0) {\n            num--;\n            const remainder = num % 26;\n            const charCode = remainder + charCodeOffset;\n            identifier = String.fromCharCode(charCode) + identifier;\n            num = Math.floor(num / 26);\n        }\n        return '_ddg_' + identifier\n    }\n\n    /**\n     * @param {*} scope\n     * @param {Record<string, any>} outputs\n     * @returns {Proxy}\n     */\n    function constructProxy (scope, outputs) {\n        const taintString = '__ddg_taint__';\n        // @ts-expect-error - Expected 2 arguments, but got 1\n        if (Object.is(scope)) {\n            // Should not happen, but just in case fail safely\n            console.error('Runtime checks: Scope must be an object', scope, outputs);\n            return scope\n        }\n        return new Proxy(scope, {\n            get (target, property) {\n                const targetObj = target[property];\n                let targetOut = target;\n                if (typeof property === 'string' && property in outputs) {\n                    targetOut = outputs;\n                }\n                // Reflects functions with the correct 'this' scope\n                if (typeof targetObj === 'function') {\n                    return (...args) => {\n                        return Reflect.apply(targetOut[property], target, args)\n                    }\n                } else {\n                    return Reflect.get(targetOut, property, scope)\n                }\n            },\n            getOwnPropertyDescriptor (target, property) {\n                if (typeof property === 'string' && property === taintString) {\n                    return { configurable: true, enumerable: false, value: true }\n                }\n                return Reflect.getOwnPropertyDescriptor(target, property)\n            }\n        })\n    }\n\n    function valToString (val) {\n        if (typeof val === 'function') {\n            return val.toString()\n        }\n        return JSON.stringify(val)\n    }\n\n    /**\n     * Output scope variable definitions to arbitrary depth\n     */\n    function stringifyScope (scope, scopePath) {\n        let output = '';\n        for (const [key, value] of scope) {\n            const varOutName = getOrGenerateIdentifier([...scopePath, key]);\n            if (value instanceof Map) {\n                const proxyName = getOrGenerateIdentifier(['_proxyFor_', varOutName]);\n                output += `\n            let ${proxyName} = ${scopePath.join('?.')}?.${key} ? ${scopePath.join('.')}.${key} : Object.bind(null);\n            `;\n                const keys = Array.from(value.keys());\n                output += stringifyScope(value, [...scopePath, key]);\n                const proxyOut = keys.map((keyName) => `${keyName}: ${getOrGenerateIdentifier([...scopePath, key, keyName])}`);\n                output += `\n            let ${varOutName} = constructProxy(${proxyName}, {\n                ${proxyOut.join(',\\n')}\n            });\n            `;\n                // If we're at the top level, we need to add the window and globalThis variables (Eg: let navigator = parentScope_navigator)\n                if (scopePath.length === 1) {\n                    output += `\n                let ${key} = ${varOutName};\n                `;\n                }\n            } else {\n                output += `\n            let ${varOutName} = ${valToString(value)};\n            `;\n            }\n        }\n        return output\n    }\n\n    /**\n     * Code generates wrapping variables for code that is injected into the page\n     * @param {*} code\n     * @param {*} config\n     * @returns {string}\n     */\n    function wrapScriptCodeOverload (code, config) {\n        const processedConfig = {};\n        for (const [key, value] of Object.entries(config)) {\n            processedConfig[key] = processAttr(value);\n        }\n        // Don't do anything if the config is empty\n        if (Object.keys(processedConfig).length === 0) return code\n\n        let prepend = '';\n        const aggregatedLookup = new Map();\n        let currentScope = null;\n        /* Convert the config into a map of scopePath -> { key: value } */\n        for (const [key, value] of Object.entries(processedConfig)) {\n            const path = key.split('.');\n\n            currentScope = aggregatedLookup;\n            const pathOut = path[path.length - 1];\n            // Traverse the path and create the nested objects\n            path.slice(0, -1).forEach((pathPart) => {\n                if (!currentScope.has(pathPart)) {\n                    currentScope.set(pathPart, new Map());\n                }\n                currentScope = currentScope.get(pathPart);\n            });\n            currentScope.set(pathOut, value);\n        }\n\n        prepend += stringifyScope(aggregatedLookup, ['parentScope']);\n        // Stringify top level keys\n        const keysOut = [...aggregatedLookup.keys()].map((keyName) => `${keyName}: ${getOrGenerateIdentifier(['parentScope', keyName])}`).join(',\\n');\n        prepend += `\n    const window = constructProxy(parentScope, {\n        ${keysOut}\n    });\n    // Ensure globalThis === window\n    const globalThis = window\n    `;\n        return removeIndent(`(function (parentScope) {\n        /**\n         * DuckDuckGo Runtime Checks injected code.\n         * If you're reading this, you're probably trying to debug a site that is breaking due to our runtime checks.\n         * Please raise an issues on our GitHub repo: https://github.com/duckduckgo/content-scope-scripts/\n         */\n        ${constructProxy.toString()}\n        ${prepend}\n\n        ${getContextId.toString()}\n        ${generateUniqueID.toString()}\n        ${createContextAwareFunction.toString()}\n        ${addTaint.toString()}\n        const contextID = addTaint()\n        \n        const originalSetTimeout = setTimeout\n        setTimeout = createContextAwareFunction(originalSetTimeout)\n        \n        const originalSetInterval = setInterval\n        setInterval = createContextAwareFunction(originalSetInterval)\n        \n        const originalPromiseThen = Promise.prototype.then\n        Promise.prototype.then = createContextAwareFunction(originalPromiseThen)\n        \n        const originalPromiseCatch = Promise.prototype.catch\n        Promise.prototype.catch = createContextAwareFunction(originalPromiseCatch)\n        \n        const originalPromiseFinally = Promise.prototype.finally\n        Promise.prototype.finally = createContextAwareFunction(originalPromiseFinally)\n\n        ${code}\n    })(globalThis)\n    `)\n    }\n\n    /**\n     * @typedef {object} Sizing\n     * @property {number} height\n     * @property {number} width\n     */\n\n    /**\n     * @param {Sizing[]} breakpoints\n     * @param {Sizing} screenSize\n     * @returns { Sizing | null}\n     */\n    function findClosestBreakpoint (breakpoints, screenSize) {\n        let closestBreakpoint = null;\n        let closestDistance = Infinity;\n\n        for (let i = 0; i < breakpoints.length; i++) {\n            const breakpoint = breakpoints[i];\n            const distance = Math.sqrt(Math.pow(breakpoint.height - screenSize.height, 2) + Math.pow(breakpoint.width - screenSize.width, 2));\n\n            if (distance < closestDistance) {\n                closestBreakpoint = breakpoint;\n                closestDistance = distance;\n            }\n        }\n\n        return closestBreakpoint\n    }\n\n    /* global TrustedScriptURL, TrustedScript */\n\n\n    let stackDomains = [];\n    let matchAllStackDomains = false;\n    let taintCheck = false;\n    let initialCreateElement;\n    let tagModifiers = {};\n    let shadowDomEnabled = false;\n    let scriptOverload = {};\n    let replaceElement = false;\n    let monitorProperties = true;\n    // Ignore monitoring properties that are only relevant once and already handled\n    const defaultIgnoreMonitorList = ['onerror', 'onload'];\n    let ignoreMonitorList = defaultIgnoreMonitorList;\n\n    /**\n     * @param {string} tagName\n     * @param {'property' | 'attribute' | 'handler' | 'listener'} filterName\n     * @param {string} key\n     * @returns {boolean}\n     */\n    function shouldFilterKey (tagName, filterName, key) {\n        if (filterName === 'attribute') {\n            key = key.toLowerCase();\n        }\n        return tagModifiers?.[tagName]?.filters?.[filterName]?.includes(key)\n    }\n\n    let elementRemovalTimeout;\n    const featureName = 'runtimeChecks';\n    const supportedSinks = ['src'];\n    // Store the original methods so we can call them without any side effects\n    const defaultElementMethods = {\n        setAttribute: HTMLElement.prototype.setAttribute,\n        setAttributeNS: HTMLElement.prototype.setAttributeNS,\n        getAttribute: HTMLElement.prototype.getAttribute,\n        getAttributeNS: HTMLElement.prototype.getAttributeNS,\n        removeAttribute: HTMLElement.prototype.removeAttribute,\n        remove: HTMLElement.prototype.remove,\n        removeChild: HTMLElement.prototype.removeChild\n    };\n    const supportedTrustedTypes = 'TrustedScriptURL' in window;\n\n    const jsMimeTypes = [\n        'text/javascript',\n        'text/ecmascript',\n        'application/javascript',\n        'application/ecmascript',\n        'application/x-javascript',\n        'application/x-ecmascript',\n        'text/javascript1.0',\n        'text/javascript1.1',\n        'text/javascript1.2',\n        'text/javascript1.3',\n        'text/javascript1.4',\n        'text/javascript1.5',\n        'text/jscript',\n        'text/livescript',\n        'text/x-ecmascript',\n        'text/x-javascript'\n    ];\n\n    function getTaintFromScope (scope, args, shouldStackCheck = false) {\n        try {\n            scope = args.callee.caller;\n        } catch {}\n        return hasTaintedMethod(scope, shouldStackCheck)\n    }\n\n    class DDGRuntimeChecks extends HTMLElement {\n        #tagName\n        #el\n        #listeners\n        #connected\n        #sinks\n        #debug\n\n        constructor () {\n            super();\n            this.#tagName = null;\n            this.#el = null;\n            this.#listeners = [];\n            this.#connected = false;\n            this.#sinks = {};\n            this.#debug = false;\n            if (shadowDomEnabled) {\n                const shadow = this.attachShadow({ mode: 'open' });\n                const style = createStyleElement(`\n                :host {\n                    display: none;\n                }\n            `);\n                shadow.appendChild(style);\n            }\n        }\n\n        /**\n         * This method is called once and externally so has to remain public.\n         **/\n        setTagName (tagName, debug = false) {\n            this.#tagName = tagName;\n            this.#debug = debug;\n\n            // Clear the method so it can't be called again\n            // @ts-expect-error - error TS2790: The operand of a 'delete' operator must be optional.\n            delete this.setTagName;\n        }\n\n        connectedCallback () {\n            // Solves re-entrancy issues from React\n            if (this.#connected) return\n            this.#connected = true;\n            if (!this._transplantElement) {\n                // Restore the 'this' object with the DDGRuntimeChecks prototype as sometimes pages will overwrite it.\n                Object.setPrototypeOf(this, DDGRuntimeChecks.prototype);\n            }\n            this._transplantElement();\n        }\n\n        _monitorProperties (el) {\n            // Mutation oberver and observedAttributes don't work on property accessors\n            // So instead we need to monitor all properties on the prototypes and forward them to the real element\n            let propertyNames = [];\n            let proto = Object.getPrototypeOf(el);\n            while (proto && proto !== Object.prototype) {\n                propertyNames.push(...Object.getOwnPropertyNames(proto));\n                proto = Object.getPrototypeOf(proto);\n            }\n            const classMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));\n            // Filter away the methods we don't want to monitor from our own class\n            propertyNames = propertyNames.filter(prop => !classMethods.includes(prop));\n            propertyNames.forEach(prop => {\n                if (prop === 'constructor') return\n                // May throw, but this is best effort monitoring.\n                try {\n                    Object.defineProperty(this, prop, {\n                        get () {\n                            return el[prop]\n                        },\n                        set (value) {\n                            if (shouldFilterKey(this.#tagName, 'property', prop)) return\n                            if (ignoreMonitorList.includes(prop)) return\n                            el[prop] = value;\n                        }\n                    });\n                } catch { }\n            });\n        }\n\n        computeScriptOverload (el) {\n            // Short circuit if we don't have any script text\n            if (el.textContent === '') return\n            // Short circuit if we're in a trusted script environment\n            // @ts-expect-error TrustedScript is not defined in the TS lib\n            if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return\n\n            // Short circuit if not a script type\n            const scriptType = el.type.toLowerCase();\n            if (!jsMimeTypes.includes(scriptType) &&\n                scriptType !== 'module' &&\n                scriptType !== '') return\n\n            el.textContent = wrapScriptCodeOverload(el.textContent, scriptOverload);\n        }\n\n        /**\n         * The element has been moved to the DOM, so we can now reflect all changes to a real element.\n         * This is to allow us to interrogate the real element before it is moved to the DOM.\n         */\n        _transplantElement () {\n            // Create the real element\n            const el = initialCreateElement.call(document, this.#tagName);\n            if (taintCheck) {\n                // Add a symbol to the element so we can identify it as a runtime checked element\n                Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false });\n                // Only show this attribute whilst debugging\n                if (this.#debug) {\n                    el.setAttribute('data-ddg-runtime-checks', 'true');\n                }\n                try {\n                    const origin = this.src && new URL(this.src, window.location.href).hostname;\n                    if (origin && taintedOrigins() && getTabHostname() !== origin) {\n                        taintedOrigins()?.add(origin);\n                    }\n                } catch {}\n            }\n\n            // Reflect all attrs to the new element\n            for (const attribute of this.getAttributeNames()) {\n                if (shouldFilterKey(this.#tagName, 'attribute', attribute)) continue\n                defaultElementMethods.setAttribute.call(el, attribute, this.getAttribute(attribute));\n            }\n\n            // Reflect all props to the new element\n            const props = Object.keys(this);\n\n            // Nonce isn't enumerable so we need to add it manually\n            props.push('nonce');\n\n            for (const prop of props) {\n                if (shouldFilterKey(this.#tagName, 'property', prop)) continue\n                el[prop] = this[prop];\n            }\n\n            for (const sink of supportedSinks) {\n                if (this.#sinks[sink]) {\n                    el[sink] = this.#sinks[sink];\n                }\n            }\n\n            // Reflect all listeners to the new element\n            for (const [...args] of this.#listeners) {\n                if (shouldFilterKey(this.#tagName, 'listener', args[0])) continue\n                el.addEventListener(...args);\n            }\n            this.#listeners = [];\n\n            // Reflect all 'on' event handlers to the new element\n            for (const propName in this) {\n                if (propName.startsWith('on')) {\n                    if (shouldFilterKey(this.#tagName, 'handler', propName)) continue\n                    const prop = this[propName];\n                    if (typeof prop === 'function') {\n                        el[propName] = prop;\n                    }\n                }\n            }\n\n            // Move all children to the new element\n            while (this.firstChild) {\n                el.appendChild(this.firstChild);\n            }\n\n            if (this.#tagName === 'script') {\n                this.computeScriptOverload(el);\n            }\n\n            if (replaceElement) {\n                this.replaceElement(el);\n            } else {\n                this.insertAfterAndRemove(el);\n            }\n\n            // TODO pollyfill WeakRef\n            this.#el = new WeakRef(el);\n        }\n\n        replaceElement (el) {\n            // This should be called before this.#el is set\n            // @ts-expect-error - this is wrong node type\n            super.parentElement?.replaceChild(el, this);\n\n            if (monitorProperties) {\n                this._monitorProperties(el);\n            }\n        }\n\n        insertAfterAndRemove (el) {\n            // Move the new element to the DOM\n            try {\n                this.insertAdjacentElement('afterend', el);\n            } catch (e) { console.warn(e); }\n\n            if (monitorProperties) {\n                this._monitorProperties(el);\n            }\n\n            // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.\n            setTimeout(() => {\n                try {\n                    super.remove();\n                } catch {}\n            }, elementRemovalTimeout);\n        }\n\n        _getElement () {\n            return this.#el?.deref()\n        }\n\n        /**\n         * Calls a method on the real element if it exists, otherwise calls the method on the DDGRuntimeChecks element.\n         * @template {keyof defaultElementMethods} E\n         * @param {E} method\n         * @param  {...Parameters<defaultElementMethods[E]>} args\n         * @return {ReturnType<defaultElementMethods[E]>}\n         */\n        _callMethod (method, ...args) {\n            const el = this._getElement();\n            if (el) {\n                return defaultElementMethods[method].call(el, ...args)\n            }\n            // @ts-expect-error TS doesn't like the spread operator\n            return super[method](...args)\n        }\n\n        /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */\n\n        set src (value) {\n            const el = this._getElement();\n            if (el) {\n                el.src = value;\n                return\n            }\n            this.#sinks.src = value;\n        }\n\n        get src () {\n            const el = this._getElement();\n            if (el) {\n                return el.src\n            }\n            // @ts-expect-error TrustedScriptURL is not defined in the TS lib\n            if (supportedTrustedTypes && this.#sinks.src instanceof TrustedScriptURL) {\n                return this.#sinks.src.toString()\n            }\n            return this.#sinks.src\n        }\n\n        getAttribute (name, value) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                // Use Reflect to avoid infinite recursion\n                return Reflect$1.get(DDGRuntimeChecks.prototype, name, this)\n            }\n            return this._callMethod('getAttribute', name, value)\n        }\n\n        getAttributeNS (namespace, name, value) {\n            if (namespace) {\n                return this._callMethod('getAttributeNS', namespace, name, value)\n            }\n            return Reflect$1.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])\n        }\n\n        setAttribute (name, value) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                // Use Reflect to avoid infinite recursion\n                return Reflect$1.set(DDGRuntimeChecks.prototype, name, value, this)\n            }\n            return this._callMethod('setAttribute', name, value)\n        }\n\n        setAttributeNS (namespace, name, value) {\n            if (namespace) {\n                return this._callMethod('setAttributeNS', namespace, name, value)\n            }\n            return Reflect$1.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])\n        }\n\n        removeAttribute (name) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                delete this[name];\n                return\n            }\n            return this._callMethod('removeAttribute', name)\n        }\n\n        addEventListener (...args) {\n            if (shouldFilterKey(this.#tagName, 'listener', args[0])) return\n            const el = this._getElement();\n            if (el) {\n                return el.addEventListener(...args)\n            }\n            this.#listeners.push([...args]);\n        }\n\n        removeEventListener (...args) {\n            if (shouldFilterKey(this.#tagName, 'listener', args[0])) return\n            const el = this._getElement();\n            if (el) {\n                return el.removeEventListener(...args)\n            }\n            this.#listeners = this.#listeners.filter((listener) => {\n                return listener[0] !== args[0] || listener[1] !== args[1]\n            });\n        }\n\n        toString () {\n            const interfaceName = this.#tagName.charAt(0).toUpperCase() + this.#tagName.slice(1);\n            return `[object HTML${interfaceName}Element]`\n        }\n\n        get tagName () {\n            return this.#tagName.toUpperCase()\n        }\n\n        get nodeName () {\n            return this.tagName\n        }\n\n        remove () {\n            let returnVal;\n            try {\n                returnVal = this._callMethod('remove');\n                super.remove();\n            } catch {}\n            return returnVal\n        }\n\n        // @ts-expect-error TS node return here\n        removeChild (child) {\n            return this._callMethod('removeChild', child)\n        }\n    }\n\n    /**\n     * Overrides the instanceof checks to make the custom element interface pass an instanceof check\n     * @param {Object} elementInterface\n     */\n    function overloadInstanceOfChecks (elementInterface) {\n        const proxy = new Proxy(elementInterface[Symbol.hasInstance], {\n            apply (fn, scope, args) {\n                if (args[0] instanceof DDGRuntimeChecks) {\n                    return true\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        // May throw, but we can ignore it\n        try {\n            Object.defineProperty(elementInterface, Symbol.hasInstance, {\n                value: proxy\n            });\n        } catch {}\n    }\n\n    /**\n     * Returns true if the tag should be intercepted\n     * @param {string} tagName\n     * @returns {boolean}\n     */\n    function shouldInterrogate (tagName) {\n        const interestingTags = ['script'];\n        if (!interestingTags.includes(tagName)) {\n            return false\n        }\n        if (matchAllStackDomains) {\n            isInterrogatingDebugMessage('matchedAllStackDomain');\n            return true\n        }\n        if (taintCheck && document.currentScript?.[taintSymbol]) {\n            isInterrogatingDebugMessage('taintCheck');\n            return true\n        }\n        const stack = getStack();\n        const scriptOrigins = [...getStackTraceOrigins(stack)];\n        const interestingHost = scriptOrigins.find(origin => {\n            return stackDomains.some(rule => matchHostname(origin, rule.domain))\n        });\n        const isInterestingHost = !!interestingHost;\n        if (isInterestingHost) {\n            isInterrogatingDebugMessage('matchedStackDomain', interestingHost, stack, scriptOrigins);\n        }\n        return isInterestingHost\n    }\n\n    function isInterrogatingDebugMessage (matchType, matchedStackDomain, stack, scriptOrigins) {\n        postDebugMessage('runtimeChecks', {\n            documentUrl: document.location.href,\n            matchedStackDomain,\n            matchType,\n            scriptOrigins,\n            stack\n        });\n    }\n\n    function overrideCreateElement (debug) {\n        const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {\n            apply (fn, scope, args) {\n                if (args.length >= 1) {\n                    // String() is used to coerce the value to a string (For: ProseMirror/prosemirror-model/src/to_dom.ts)\n                    const initialTagName = String(args[0]).toLowerCase();\n                    if (shouldInterrogate(initialTagName)) {\n                        args[0] = 'ddg-runtime-checks';\n                        const el = Reflect$1.apply(fn, scope, args);\n                        el.setTagName(initialTagName, debug);\n                        return el\n                    }\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        proxy.overload();\n        initialCreateElement = proxy._native;\n    }\n\n    function overloadRemoveChild () {\n        const proxy = new DDGProxy(featureName, Node.prototype, 'removeChild', {\n            apply (fn, scope, args) {\n                const child = args[0];\n                if (child instanceof DDGRuntimeChecks) {\n                    // Should call the real removeChild method if it's already replaced\n                    const realNode = child._getElement();\n                    if (realNode) {\n                        args[0] = realNode;\n                    }\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        proxy.overloadDescriptor();\n    }\n\n    function overloadReplaceChild () {\n        const proxy = new DDGProxy(featureName, Node.prototype, 'replaceChild', {\n            apply (fn, scope, args) {\n                const newChild = args[1];\n                if (newChild instanceof DDGRuntimeChecks) {\n                    const realNode = newChild._getElement();\n                    if (realNode) {\n                        args[1] = realNode;\n                    }\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        proxy.overloadDescriptor();\n    }\n\n    class RuntimeChecks extends ContentFeature {\n        load () {\n            // This shouldn't happen, but if it does we don't want to break the page\n            try {\n                // @ts-expect-error TS node return here\n                globalThis.customElements.define('ddg-runtime-checks', DDGRuntimeChecks);\n            } catch {}\n        }\n\n        init () {\n            let enabled = this.getFeatureSettingEnabled('matchAllDomains');\n            if (!enabled) {\n                enabled = this.matchDomainFeatureSetting('domains').length > 0;\n            }\n            if (!enabled) return\n\n            taintCheck = this.getFeatureSettingEnabled('taintCheck');\n            matchAllStackDomains = this.getFeatureSettingEnabled('matchAllStackDomains');\n            stackDomains = this.getFeatureSetting('stackDomains') || [];\n            elementRemovalTimeout = this.getFeatureSetting('elementRemovalTimeout') || 1000;\n            tagModifiers = this.getFeatureSetting('tagModifiers') || {};\n            shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false;\n            scriptOverload = this.getFeatureSetting('scriptOverload') || {};\n            ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList;\n            replaceElement = this.getFeatureSettingEnabled('replaceElement') || false;\n            monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true;\n\n            overrideCreateElement(this.isDebug);\n\n            if (this.getFeatureSettingEnabled('overloadInstanceOf')) {\n                overloadInstanceOfChecks(HTMLScriptElement);\n            }\n\n            if (this.getFeatureSettingEnabled('injectGlobalStyles')) {\n                injectGlobalStyles(`\n                ddg-runtime-checks {\n                    display: none;\n                }\n            `);\n            }\n\n            if (this.getFeatureSetting('injectGenericOverloads')) {\n                this.injectGenericOverloads();\n            }\n            if (this.getFeatureSettingEnabled('overloadRemoveChild')) {\n                overloadRemoveChild();\n            }\n            if (this.getFeatureSettingEnabled('overloadReplaceChild')) {\n                overloadReplaceChild();\n            }\n        }\n\n        injectGenericOverloads () {\n            const genericOverloads = this.getFeatureSetting('injectGenericOverloads');\n            if ('Date' in genericOverloads) {\n                this.overloadDate(genericOverloads.Date);\n            }\n            if ('Date.prototype.getTimezoneOffset' in genericOverloads) {\n                this.overloadDateGetTimezoneOffset(genericOverloads['Date.prototype.getTimezoneOffset']);\n            }\n            if ('NavigatorUAData.prototype.getHighEntropyValues' in genericOverloads) {\n                this.overloadHighEntropyValues(genericOverloads['NavigatorUAData.prototype.getHighEntropyValues']);\n            }\n            ['localStorage', 'sessionStorage'].forEach(storageType => {\n                if (storageType in genericOverloads) {\n                    const storageConfig = genericOverloads[storageType];\n                    if (storageConfig.scheme === 'memory') {\n                        this.overloadStorageWithMemory(storageConfig, storageType);\n                    } else if (storageConfig.scheme === 'session') {\n                        this.overloadStorageWithSession(storageConfig, storageType);\n                    }\n                }\n            });\n            const breakpoints = this.getFeatureSetting('breakpoints');\n            const screenSize = { height: screen.height, width: screen.width };\n            ['innerHeight', 'innerWidth', 'outerHeight', 'outerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {\n                if (sizing in genericOverloads) {\n                    const sizingConfig = genericOverloads[sizing];\n                    this.overloadScreenSizes(sizingConfig, breakpoints, screenSize, sizing, sizingConfig.offset || 0);\n                }\n            });\n        }\n\n        overloadDate (config) {\n            const offset = (new Date()).getTimezoneOffset();\n            globalThis.Date = new Proxy(globalThis.Date, {\n                construct (target, args) {\n                    const constructed = Reflect$1.construct(target, args);\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        // Falible in that the page could brute force the offset to match. We should fix this.\n                        if (constructed.getTimezoneOffset() === offset) {\n                            return constructed.getUTCDate()\n                        }\n                    }\n                    return constructed\n                }\n            });\n        }\n\n        overloadDateGetTimezoneOffset (config) {\n            const offset = (new Date()).getTimezoneOffset();\n            defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {\n                configurable: true,\n                enumerable: true,\n                writable: true,\n                value () {\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        return 0\n                    }\n                    return offset\n                }\n            });\n        }\n\n        overloadHighEntropyValues (config) {\n            if (!('NavigatorUAData' in globalThis)) {\n                return\n            }\n\n            const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues;\n            defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {\n                configurable: true,\n                enumerable: true,\n                writable: true,\n                value (hints) {\n                    let hintsOut = hints;\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        // If tainted override with default values (using empty array)\n                        hintsOut = [];\n                    }\n                    return Reflect$1.apply(originalGetHighEntropyValues, this, [hintsOut])\n                }\n            });\n        }\n\n        overloadStorageWithMemory (config, key) {\n            /**\n             * @implements {Storage}\n             */\n            class MemoryStorage {\n                #data = {}\n\n                /**\n                 * @param {Parameters<Storage['setItem']>[0]} id\n                 * @param {Parameters<Storage['setItem']>[1]} val\n                 * @returns {ReturnType<Storage['setItem']>}\n                 */\n                setItem (id, val) {\n                    if (arguments.length < 2) throw new TypeError(`Failed to execute 'setItem' on 'Storage': 2 arguments required, but only ${arguments.length} present.`)\n                    this.#data[id] = String(val);\n                }\n\n                /**\n                 * @param {Parameters<Storage['getItem']>[0]} id\n                 * @returns {ReturnType<Storage['getItem']>}\n                 */\n                getItem (id) {\n                    return Object.prototype.hasOwnProperty.call(this.#data, id) ? this.#data[id] : null\n                }\n\n                /**\n                 * @param {Parameters<Storage['removeItem']>[0]} id\n                 * @returns {ReturnType<Storage['removeItem']>}\n                 */\n                removeItem (id) {\n                    delete this.#data[id];\n                }\n\n                /**\n                 * @returns {ReturnType<Storage['clear']>}\n                 */\n                clear () {\n                    this.#data = {};\n                }\n\n                /**\n                 * @param {Parameters<Storage['key']>[0]} n\n                 * @returns {ReturnType<Storage['key']>}\n                 */\n                key (n) {\n                    const keys = Object.keys(this.#data);\n                    return keys[n]\n                }\n\n                get length () {\n                    return Object.keys(this.#data).length\n                }\n            }\n            /** @satisfies {Storage} */\n            const instance = new MemoryStorage();\n            const storage = new Proxy(instance, {\n                set (target, prop, value, receiver) {\n                    Reflect$1.apply(target.setItem, target, [prop, value], receiver);\n                    return true\n                },\n                get (target, prop) {\n                    if (typeof target[prop] === 'function') {\n                        return target[prop].bind(instance)\n                    }\n                    return Reflect$1.get(target, prop, instance)\n                }\n            });\n            this.overrideStorage(config, key, storage);\n        }\n\n        overloadStorageWithSession (config, key) {\n            const storage = globalThis.sessionStorage;\n            this.overrideStorage(config, key, storage);\n        }\n\n        overrideStorage (config, key, storage) {\n            const originalStorage = globalThis[key];\n            defineProperty(globalThis, key, {\n                get () {\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        return storage\n                    }\n                    return originalStorage\n                }\n            });\n        }\n\n        /**\n         * @typedef {import('./runtime-checks/helpers.js').Sizing} Sizing\n         */\n\n        /**\n         * Overloads the provided key with the closest breakpoint size\n         * @param {Sizing[]} breakpoints\n         * @param {Sizing} screenSize\n         * @param {string} key\n         * @param {number} [offset]\n         */\n        overloadScreenSizes (config, breakpoints, screenSize, key, offset = 0) {\n            const closest = findClosestBreakpoint(breakpoints, screenSize);\n            if (!closest) {\n                return\n            }\n            let returnVal = null;\n            /** @type {object} */\n            let scope = globalThis;\n            let overrideKey = key;\n            let receiver;\n            switch (key) {\n            case 'innerHeight':\n            case 'outerHeight':\n                returnVal = closest.height - offset;\n                break\n            case 'innerWidth':\n            case 'outerWidth':\n                returnVal = closest.width - offset;\n                break\n            case 'Screen.prototype.height':\n                scope = Screen.prototype;\n                overrideKey = 'height';\n                returnVal = closest.height - offset;\n                receiver = globalThis.screen;\n                break\n            case 'Screen.prototype.width':\n                scope = Screen.prototype;\n                overrideKey = 'width';\n                returnVal = closest.width - offset;\n                receiver = globalThis.screen;\n                break\n            }\n            const defaultVal = Reflect$1.get(scope, overrideKey, receiver);\n            defineProperty(scope, overrideKey, {\n                get () {\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        return returnVal\n                    }\n                    return defaultVal\n                }\n            });\n        }\n    }\n\n    return RuntimeChecks;\n\n})();\n/*# sourceURL=duckduckgo-privacy-protection.js?scope=runtimeChecks */\n"
     };
 
     function _typeof$2(obj) { "@babel/helpers - typeof"; return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$2(obj); }
@@ -1368,7 +1491,7 @@
             })
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
         init (args) {
         }
 
@@ -1381,7 +1504,7 @@
             this.measure();
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
         load (args) {
         }
 
@@ -1415,8 +1538,6 @@
         update () {
         }
     }
-
-    new Set();
 
     function generateUniqueID () {
         return Symbol(undefined)
@@ -1534,7 +1655,7 @@
             return scope
         }
         return new Proxy(scope, {
-            get (target, property, receiver) {
+            get (target, property) {
                 const targetObj = target[property];
                 let targetOut = target;
                 if (typeof property === 'string' && property in outputs) {
@@ -1624,7 +1745,7 @@
             currentScope = aggregatedLookup;
             const pathOut = path[path.length - 1];
             // Traverse the path and create the nested objects
-            path.slice(0, -1).forEach((pathPart, index) => {
+            path.slice(0, -1).forEach((pathPart) => {
                 if (!currentScope.has(pathPart)) {
                     currentScope.set(pathPart, new Map());
                 }
@@ -1676,6 +1797,34 @@
         ${code}
     })(globalThis)
     `)
+    }
+
+    /**
+     * @typedef {object} Sizing
+     * @property {number} height
+     * @property {number} width
+     */
+
+    /**
+     * @param {Sizing[]} breakpoints
+     * @param {Sizing} screenSize
+     * @returns { Sizing | null}
+     */
+    function findClosestBreakpoint (breakpoints, screenSize) {
+        let closestBreakpoint = null;
+        let closestDistance = Infinity;
+
+        for (let i = 0; i < breakpoints.length; i++) {
+            const breakpoint = breakpoints[i];
+            const distance = Math.sqrt(Math.pow(breakpoint.height - screenSize.height, 2) + Math.pow(breakpoint.width - screenSize.width, 2));
+
+            if (distance < closestDistance) {
+                closestBreakpoint = breakpoint;
+                closestDistance = distance;
+            }
+        }
+
+        return closestBreakpoint
     }
 
     /* global TrustedScriptURL, TrustedScript */
@@ -1741,12 +1890,20 @@
         'text/x-javascript'
     ];
 
+    function getTaintFromScope (scope, args, shouldStackCheck = false) {
+        try {
+            scope = args.callee.caller;
+        } catch {}
+        return hasTaintedMethod(scope, shouldStackCheck)
+    }
+
     class DDGRuntimeChecks extends HTMLElement {
         #tagName
         #el
         #listeners
         #connected
         #sinks
+        #debug
 
         constructor () {
             super();
@@ -1755,6 +1912,7 @@
             this.#listeners = [];
             this.#connected = false;
             this.#sinks = {};
+            this.#debug = false;
             if (shadowDomEnabled) {
                 const shadow = this.attachShadow({ mode: 'open' });
                 const style = createStyleElement(`
@@ -1769,8 +1927,9 @@
         /**
          * This method is called once and externally so has to remain public.
          **/
-        setTagName (tagName) {
+        setTagName (tagName, debug = false) {
             this.#tagName = tagName;
+            this.#debug = debug;
 
             // Clear the method so it can't be called again
             // @ts-expect-error - error TS2790: The operand of a 'delete' operator must be optional.
@@ -1844,6 +2003,16 @@
             if (taintCheck) {
                 // Add a symbol to the element so we can identify it as a runtime checked element
                 Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false });
+                // Only show this attribute whilst debugging
+                if (this.#debug) {
+                    el.setAttribute('data-ddg-runtime-checks', 'true');
+                }
+                try {
+                    const origin = this.src && new URL(this.src, window.location.href).hostname;
+                    if (origin && taintedOrigins() && getTabHostname() !== origin) {
+                        taintedOrigins()?.add(origin);
+                    }
+                } catch {}
             }
 
             // Reflect all attrs to the new element
@@ -1896,17 +2065,18 @@
                 this.computeScriptOverload(el);
             }
 
-            // TODO pollyfill WeakRef
-            this.#el = new WeakRef(el);
-
             if (replaceElement) {
                 this.replaceElement(el);
             } else {
                 this.insertAfterAndRemove(el);
             }
+
+            // TODO pollyfill WeakRef
+            this.#el = new WeakRef(el);
         }
 
         replaceElement (el) {
+            // This should be called before this.#el is set
             // @ts-expect-error - this is wrong node type
             super.parentElement?.replaceChild(el, this);
 
@@ -1980,7 +2150,7 @@
             if (shouldFilterKey(this.#tagName, 'attribute', name)) return
             if (supportedSinks.includes(name)) {
                 // Use Reflect to avoid infinite recursion
-                return Reflect.get(DDGRuntimeChecks.prototype, name, this)
+                return Reflect$1.get(DDGRuntimeChecks.prototype, name, this)
             }
             return this._callMethod('getAttribute', name, value)
         }
@@ -1989,14 +2159,14 @@
             if (namespace) {
                 return this._callMethod('getAttributeNS', namespace, name, value)
             }
-            return Reflect.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])
+            return Reflect$1.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])
         }
 
         setAttribute (name, value) {
             if (shouldFilterKey(this.#tagName, 'attribute', name)) return
             if (supportedSinks.includes(name)) {
                 // Use Reflect to avoid infinite recursion
-                return Reflect.set(DDGRuntimeChecks.prototype, name, value, this)
+                return Reflect$1.set(DDGRuntimeChecks.prototype, name, value, this)
             }
             return this._callMethod('setAttribute', name, value)
         }
@@ -2005,7 +2175,7 @@
             if (namespace) {
                 return this._callMethod('setAttributeNS', namespace, name, value)
             }
-            return Reflect.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])
+            return Reflect$1.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])
         }
 
         removeAttribute (name) {
@@ -2075,7 +2245,7 @@
                 if (args[0] instanceof DDGRuntimeChecks) {
                     return true
                 }
-                return Reflect.apply(fn, scope, args)
+                return Reflect$1.apply(fn, scope, args)
             }
         });
         // May throw, but we can ignore it
@@ -2126,7 +2296,7 @@
         });
     }
 
-    function overrideCreateElement () {
+    function overrideCreateElement (debug) {
         const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
             apply (fn, scope, args) {
                 if (args.length >= 1) {
@@ -2134,16 +2304,49 @@
                     const initialTagName = String(args[0]).toLowerCase();
                     if (shouldInterrogate(initialTagName)) {
                         args[0] = 'ddg-runtime-checks';
-                        const el = Reflect.apply(fn, scope, args);
-                        el.setTagName(initialTagName);
+                        const el = Reflect$1.apply(fn, scope, args);
+                        el.setTagName(initialTagName, debug);
                         return el
                     }
                 }
-                return Reflect.apply(fn, scope, args)
+                return Reflect$1.apply(fn, scope, args)
             }
         });
         proxy.overload();
         initialCreateElement = proxy._native;
+    }
+
+    function overloadRemoveChild () {
+        const proxy = new DDGProxy(featureName, Node.prototype, 'removeChild', {
+            apply (fn, scope, args) {
+                const child = args[0];
+                if (child instanceof DDGRuntimeChecks) {
+                    // Should call the real removeChild method if it's already replaced
+                    const realNode = child._getElement();
+                    if (realNode) {
+                        args[0] = realNode;
+                    }
+                }
+                return Reflect$1.apply(fn, scope, args)
+            }
+        });
+        proxy.overloadDescriptor();
+    }
+
+    function overloadReplaceChild () {
+        const proxy = new DDGProxy(featureName, Node.prototype, 'replaceChild', {
+            apply (fn, scope, args) {
+                const newChild = args[1];
+                if (newChild instanceof DDGRuntimeChecks) {
+                    const realNode = newChild._getElement();
+                    if (realNode) {
+                        args[1] = realNode;
+                    }
+                }
+                return Reflect$1.apply(fn, scope, args)
+            }
+        });
+        proxy.overloadDescriptor();
     }
 
     class RuntimeChecks extends ContentFeature {
@@ -2151,7 +2354,7 @@
             // This shouldn't happen, but if it does we don't want to break the page
             try {
                 // @ts-expect-error TS node return here
-                customElements.define('ddg-runtime-checks', DDGRuntimeChecks);
+                globalThis.customElements.define('ddg-runtime-checks', DDGRuntimeChecks);
             } catch {}
         }
 
@@ -2172,9 +2375,8 @@
             ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList;
             replaceElement = this.getFeatureSettingEnabled('replaceElement') || false;
             monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true;
-            this.getFeatureSettingEnabled('injectGenericOverloads') || true;
 
-            overrideCreateElement();
+            overrideCreateElement(this.isDebug);
 
             if (this.getFeatureSettingEnabled('overloadInstanceOf')) {
                 overloadInstanceOfChecks(HTMLScriptElement);
@@ -2187,6 +2389,240 @@
                 }
             `);
             }
+
+            if (this.getFeatureSetting('injectGenericOverloads')) {
+                this.injectGenericOverloads();
+            }
+            if (this.getFeatureSettingEnabled('overloadRemoveChild')) {
+                overloadRemoveChild();
+            }
+            if (this.getFeatureSettingEnabled('overloadReplaceChild')) {
+                overloadReplaceChild();
+            }
+        }
+
+        injectGenericOverloads () {
+            const genericOverloads = this.getFeatureSetting('injectGenericOverloads');
+            if ('Date' in genericOverloads) {
+                this.overloadDate(genericOverloads.Date);
+            }
+            if ('Date.prototype.getTimezoneOffset' in genericOverloads) {
+                this.overloadDateGetTimezoneOffset(genericOverloads['Date.prototype.getTimezoneOffset']);
+            }
+            if ('NavigatorUAData.prototype.getHighEntropyValues' in genericOverloads) {
+                this.overloadHighEntropyValues(genericOverloads['NavigatorUAData.prototype.getHighEntropyValues']);
+            }
+            ['localStorage', 'sessionStorage'].forEach(storageType => {
+                if (storageType in genericOverloads) {
+                    const storageConfig = genericOverloads[storageType];
+                    if (storageConfig.scheme === 'memory') {
+                        this.overloadStorageWithMemory(storageConfig, storageType);
+                    } else if (storageConfig.scheme === 'session') {
+                        this.overloadStorageWithSession(storageConfig, storageType);
+                    }
+                }
+            });
+            const breakpoints = this.getFeatureSetting('breakpoints');
+            const screenSize = { height: screen.height, width: screen.width };
+            ['innerHeight', 'innerWidth', 'outerHeight', 'outerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {
+                if (sizing in genericOverloads) {
+                    const sizingConfig = genericOverloads[sizing];
+                    this.overloadScreenSizes(sizingConfig, breakpoints, screenSize, sizing, sizingConfig.offset || 0);
+                }
+            });
+        }
+
+        overloadDate (config) {
+            const offset = (new Date()).getTimezoneOffset();
+            globalThis.Date = new Proxy(globalThis.Date, {
+                construct (target, args) {
+                    const constructed = Reflect$1.construct(target, args);
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        // Falible in that the page could brute force the offset to match. We should fix this.
+                        if (constructed.getTimezoneOffset() === offset) {
+                            return constructed.getUTCDate()
+                        }
+                    }
+                    return constructed
+                }
+            });
+        }
+
+        overloadDateGetTimezoneOffset (config) {
+            const offset = (new Date()).getTimezoneOffset();
+            defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value () {
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        return 0
+                    }
+                    return offset
+                }
+            });
+        }
+
+        overloadHighEntropyValues (config) {
+            if (!('NavigatorUAData' in globalThis)) {
+                return
+            }
+
+            const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues;
+            defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value (hints) {
+                    let hintsOut = hints;
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        // If tainted override with default values (using empty array)
+                        hintsOut = [];
+                    }
+                    return Reflect$1.apply(originalGetHighEntropyValues, this, [hintsOut])
+                }
+            });
+        }
+
+        overloadStorageWithMemory (config, key) {
+            /**
+             * @implements {Storage}
+             */
+            class MemoryStorage {
+                #data = {}
+
+                /**
+                 * @param {Parameters<Storage['setItem']>[0]} id
+                 * @param {Parameters<Storage['setItem']>[1]} val
+                 * @returns {ReturnType<Storage['setItem']>}
+                 */
+                setItem (id, val) {
+                    if (arguments.length < 2) throw new TypeError(`Failed to execute 'setItem' on 'Storage': 2 arguments required, but only ${arguments.length} present.`)
+                    this.#data[id] = String(val);
+                }
+
+                /**
+                 * @param {Parameters<Storage['getItem']>[0]} id
+                 * @returns {ReturnType<Storage['getItem']>}
+                 */
+                getItem (id) {
+                    return Object.prototype.hasOwnProperty.call(this.#data, id) ? this.#data[id] : null
+                }
+
+                /**
+                 * @param {Parameters<Storage['removeItem']>[0]} id
+                 * @returns {ReturnType<Storage['removeItem']>}
+                 */
+                removeItem (id) {
+                    delete this.#data[id];
+                }
+
+                /**
+                 * @returns {ReturnType<Storage['clear']>}
+                 */
+                clear () {
+                    this.#data = {};
+                }
+
+                /**
+                 * @param {Parameters<Storage['key']>[0]} n
+                 * @returns {ReturnType<Storage['key']>}
+                 */
+                key (n) {
+                    const keys = Object.keys(this.#data);
+                    return keys[n]
+                }
+
+                get length () {
+                    return Object.keys(this.#data).length
+                }
+            }
+            /** @satisfies {Storage} */
+            const instance = new MemoryStorage();
+            const storage = new Proxy(instance, {
+                set (target, prop, value, receiver) {
+                    Reflect$1.apply(target.setItem, target, [prop, value], receiver);
+                    return true
+                },
+                get (target, prop) {
+                    if (typeof target[prop] === 'function') {
+                        return target[prop].bind(instance)
+                    }
+                    return Reflect$1.get(target, prop, instance)
+                }
+            });
+            this.overrideStorage(config, key, storage);
+        }
+
+        overloadStorageWithSession (config, key) {
+            const storage = globalThis.sessionStorage;
+            this.overrideStorage(config, key, storage);
+        }
+
+        overrideStorage (config, key, storage) {
+            const originalStorage = globalThis[key];
+            defineProperty(globalThis, key, {
+                get () {
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        return storage
+                    }
+                    return originalStorage
+                }
+            });
+        }
+
+        /**
+         * @typedef {import('./runtime-checks/helpers.js').Sizing} Sizing
+         */
+
+        /**
+         * Overloads the provided key with the closest breakpoint size
+         * @param {Sizing[]} breakpoints
+         * @param {Sizing} screenSize
+         * @param {string} key
+         * @param {number} [offset]
+         */
+        overloadScreenSizes (config, breakpoints, screenSize, key, offset = 0) {
+            const closest = findClosestBreakpoint(breakpoints, screenSize);
+            if (!closest) {
+                return
+            }
+            let returnVal = null;
+            /** @type {object} */
+            let scope = globalThis;
+            let overrideKey = key;
+            let receiver;
+            switch (key) {
+            case 'innerHeight':
+            case 'outerHeight':
+                returnVal = closest.height - offset;
+                break
+            case 'innerWidth':
+            case 'outerWidth':
+                returnVal = closest.width - offset;
+                break
+            case 'Screen.prototype.height':
+                scope = Screen.prototype;
+                overrideKey = 'height';
+                returnVal = closest.height - offset;
+                receiver = globalThis.screen;
+                break
+            case 'Screen.prototype.width':
+                scope = Screen.prototype;
+                overrideKey = 'width';
+                returnVal = closest.width - offset;
+                receiver = globalThis.screen;
+                break
+            }
+            const defaultVal = Reflect$1.get(scope, overrideKey, receiver);
+            defineProperty(scope, overrideKey, {
+                get () {
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        return returnVal
+                    }
+                    return defaultVal
+                }
+            });
         }
     }
 
@@ -4740,26 +5176,17 @@
 
     class FingerprintingHardware extends ContentFeature {
         init () {
-            const Navigator = globalThis.Navigator;
-            const navigator = globalThis.navigator;
-
-            overrideProperty('keyboard', {
-                object: Navigator.prototype,
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                origValue: navigator.keyboard,
+            wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
                 // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
-                targetValue: this.getFeatureAttr('keyboard')
+                get: () => this.getFeatureAttr('keyboard')
             });
-            overrideProperty('hardwareConcurrency', {
-                object: Navigator.prototype,
-                origValue: navigator.hardwareConcurrency,
-                targetValue: this.getFeatureAttr('hardwareConcurrency', 2)
+
+            wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
+                get: () => this.getFeatureAttr('hardwareConcurrency', 2)
             });
-            overrideProperty('deviceMemory', {
-                object: Navigator.prototype,
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                origValue: navigator.deviceMemory,
-                targetValue: this.getFeatureAttr('deviceMemory', 8)
+
+            wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
+                get: () => this.getFeatureAttr('deviceMemory', 8)
             });
         }
     }
@@ -4781,10 +5208,8 @@
                     // if we don't have a matching referrer, just trim it to origin.
                     trimmedReferer = new URL(document.referrer).origin + '/';
                 }
-                overrideProperty('referrer', {
-                    object: Document.prototype,
-                    origValue: document.referrer,
-                    targetValue: trimmedReferer
+                wrapProperty(Document.prototype, 'referrer', {
+                    get: () => trimmedReferer
                 });
             }
         }
@@ -4881,40 +5306,38 @@
 
     class FingerprintingScreenSize extends ContentFeature {
         init () {
-            const Screen = globalThis.Screen;
-            const screen = globalThis.screen;
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            origPropertyValues.availTop = globalThis.screen.availTop;
+            wrapProperty(globalThis.Screen.prototype, 'availTop', {
+                get: () => this.getFeatureAttr('availTop', 0)
+            });
 
-            origPropertyValues.availTop = overrideProperty('availTop', {
-                object: Screen.prototype,
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                origValue: screen.availTop,
-                targetValue: this.getFeatureAttr('availTop', 0)
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            origPropertyValues.availLeft = globalThis.screen.availLeft;
+            wrapProperty(globalThis.Screen.prototype, 'availLeft', {
+                get: () => this.getFeatureAttr('availLeft', 0)
             });
-            origPropertyValues.availLeft = overrideProperty('availLeft', {
-                object: Screen.prototype,
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                origValue: screen.availLeft,
-                targetValue: this.getFeatureAttr('availLeft', 0)
+
+            origPropertyValues.availWidth = globalThis.screen.availWidth;
+            const forcedAvailWidthValue = globalThis.screen.width;
+            wrapProperty(globalThis.Screen.prototype, 'availWidth', {
+                get: () => forcedAvailWidthValue
             });
-            origPropertyValues.availWidth = overrideProperty('availWidth', {
-                object: Screen.prototype,
-                origValue: screen.availWidth,
-                targetValue: screen.width
+
+            origPropertyValues.availHeight = globalThis.screen.availHeight;
+            const forcedAvailHeightValue = globalThis.screen.height;
+            wrapProperty(globalThis.Screen.prototype, 'availHeight', {
+                get: () => forcedAvailHeightValue
             });
-            origPropertyValues.availHeight = overrideProperty('availHeight', {
-                object: Screen.prototype,
-                origValue: screen.availHeight,
-                targetValue: screen.height
+
+            origPropertyValues.colorDepth = globalThis.screen.colorDepth;
+            wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
+                get: () => this.getFeatureAttr('colorDepth', 24)
             });
-            overrideProperty('colorDepth', {
-                object: Screen.prototype,
-                origValue: screen.colorDepth,
-                targetValue: this.getFeatureAttr('colorDepth', 24)
-            });
-            overrideProperty('pixelDepth', {
-                object: Screen.prototype,
-                origValue: screen.pixelDepth,
-                targetValue: this.getFeatureAttr('pixelDepth', 24)
+
+            origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
+            wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
+                get: () => this.getFeatureAttr('pixelDepth', 24)
             });
 
             window.addEventListener('resize', function () {
@@ -4971,7 +5394,8 @@
                     isDuckDuckGo () {
                         return DDGPromise.resolve(true)
                     },
-                    taints: new Set()
+                    taints: new Set(),
+                    taintedOrigins: new Set()
                 },
                 enumerable: true,
                 configurable: false,
@@ -5045,9 +5469,8 @@
      * Unhide previously hidden DOM element if content loaded into it
      * @param {HTMLElement} element
      * @param {Object} rule
-     * @param {HTMLElement} [previousElement]
      */
-    function expandNonEmptyDomNode (element, rule, previousElement) {
+    function expandNonEmptyDomNode (element, rule) {
         if (!element) {
             return
         }
@@ -5204,7 +5627,7 @@
         const strictHideRules = [];
         const timeoutRules = [];
 
-        rules.forEach((rule, i) => {
+        rules.forEach((rule) => {
             if (rule.type === 'hide') {
                 strictHideRules.push(rule);
             } else {
@@ -5304,7 +5727,7 @@
 
             // now have the final list of rules to apply, so we apply them when document is loaded
             if (document.readyState === 'loading') {
-                window.addEventListener('DOMContentLoaded', (event) => {
+                window.addEventListener('DOMContentLoaded', () => {
                     applyRules(activeRules);
                 });
             } else {
@@ -5320,7 +5743,7 @@
             });
             historyMethodProxy.overload();
             // listen for popstate events in order to run on back/forward navigations
-            window.addEventListener('popstate', (event) => {
+            window.addEventListener('popstate', () => {
                 applyRules(activeRules);
             });
         }
@@ -6391,6 +6814,377 @@
     }
 
     /**
+     * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
+     */
+    class Template {
+        constructor (strings, values) {
+            this.values = values;
+            this.strings = strings;
+        }
+
+        /**
+         * Escapes any occurrences of &, ", <, > or / with XML entities.
+         *
+         * @param {string} str
+         *        The string to escape.
+         * @return {string} The escaped string.
+         */
+        escapeXML (str) {
+            const replacements = {
+                '&': '&amp;',
+                '"': '&quot;',
+                "'": '&apos;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '/': '&#x2F;'
+            };
+            return String(str).replace(/[&"'<>/]/g, m => replacements[m])
+        }
+
+        potentiallyEscape (value) {
+            if (typeof value === 'object') {
+                if (value instanceof Array) {
+                    return value.map(val => this.potentiallyEscape(val)).join('')
+                }
+
+                // If we are an escaped template let join call toString on it
+                if (value instanceof Template) {
+                    return value
+                }
+
+                throw new Error('Unknown object to escape')
+            }
+            return this.escapeXML(value)
+        }
+
+        toString () {
+            const result = [];
+
+            for (const [i, string] of this.strings.entries()) {
+                result.push(string);
+                if (i < this.values.length) {
+                    result.push(this.potentiallyEscape(this.values[i]));
+                }
+            }
+            return result.join('')
+        }
+    }
+
+    function html (strings, ...values) {
+        return new Template(strings, values)
+    }
+
+    var cssVars = ":host {\n    /* Color palette */\n    --ddg-shade-06: rgba(0, 0, 0, 0.06);\n    --ddg-shade-12: rgba(0, 0, 0, 0.12);\n    --ddg-shade-18: rgba(0, 0, 0, 0.18);\n    --ddg-shade-36: rgba(0, 0, 0, 0.36);\n    --ddg-shade-84: rgba(0, 0, 0, 0.84);\n    --ddg-tint-12: rgba(255, 255, 255, 0.12);\n    --ddg-tint-18: rgba(255, 255, 255, 0.18);\n    --ddg-tint-24: rgba(255, 255, 255, 0.24);\n    --ddg-tint-84: rgba(255, 255, 255, 0.84);\n    /* Tokens */\n    --ddg-color-primary: #3969ef;\n    --ddg-color-bg-01: #ffffff;\n    --ddg-color-bg-02: #ababab;\n    --ddg-color-border: var(--ddg-shade-12);\n    --ddg-color-txt: var(--ddg-shade-84);\n    --ddg-color-txt-link-02: #ababab;\n}\n@media (prefers-color-scheme: dark) {\n    :host {\n        --ddg-color-primary: #7295f6;\n        --ddg-color-bg-01: #222222;\n        --ddg-color-bg-02: #444444;\n        --ddg-color-border: var(--ddg-tint-12);\n        --ddg-color-txt: var(--ddg-tint-84);\n    }\n}\n";
+
+    var css = ":host,\n* {\n    font-family: DuckDuckGoPrivacyEssentials, system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,\n        Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';\n    box-sizing: border-box;\n    font-weight: normal;\n    font-style: normal;\n    margin: 0;\n    padding: 0;\n    text-align: left;\n}\n\n:host,\n.DuckDuckGoSocialContainer {\n    display: inline-block;\n    border: 0;\n    padding: 0;\n    margin: auto;\n    inset: initial;\n    max-width: 600px;\n    min-height: 180px;\n}\n\n/* SHARED STYLES */\n/* Button */\n.DuckDuckGoButton {\n    border-radius: 8px;\n    padding: 11px 22px;\n    margin: 0px auto;\n    border-color: var(--ddg-color-primary);\n    border: none;\n    height: 36px;\n    font-size: 14px;\n\n    position: relative;\n    cursor: pointer;\n    box-shadow: none;\n    z-index: 2147483646;\n}\n.DuckDuckGoButton > div {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n    border: none;\n    padding: 0;\n    margin: 0;\n}\n.DuckDuckGoButton.tertiary {\n    color: var(--ddg-color-txt);\n    background-color: transparent;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    padding: 0px 16px;\n    border: 1px solid var(--ddg-color-border);\n    border-radius: 8px;\n}\n.DuckDuckGoButton.tertiary:hover {\n    background: var(--ddg-shade-06);\n    border-color: var(--ddg-shade-18);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:hover {\n        background: var(--ddg-tint-18);\n        border-color: var(--ddg-tint-24);\n    }\n}\n.DuckDuckGoButton.tertiary:active {\n    background: var(--ddg-shade-12);\n    border-color: var(--ddg-shade-36);\n}\n@media (prefers-color-scheme: dark) {\n    .DuckDuckGoButton.tertiary:active {\n        background: var(--ddg-tint-24);\n        border-color: var(--ddg-tint-24);\n    }\n}\n\n/* Toggle Button */\n.ddg-toggle-button-container {\n    display: flex;\n    align-items: center;\n    cursor: pointer;\n}\n.ddg-toggle-button {\n    cursor: pointer;\n    position: relative;\n    margin-top: -3px;\n    margin: 0;\n    padding: 0;\n    border: none;\n    background-color: transparent;\n    text-align: left;\n}\n.ddg-toggle-button,\n.ddg-toggle-button.md,\n.ddg-toggle-button-bg,\n.ddg-toggle-button.md .ddg-toggle-button-bg {\n    width: 32px;\n    height: 16px;\n    border-radius: 20px;\n}\n.ddg-toggle-button.lg,\n.ddg-toggle-button.lg .ddg-toggle-button-bg {\n    width: 56px;\n    height: 34px;\n    border-radius: 50px;\n}\n.ddg-toggle-button-bg {\n    right: 0;\n    overflow: visible;\n}\n.ddg-toggle-button.active .ddg-toggle-button-bg {\n    background: var(--ddg-color-primary);\n}\n.ddg-toggle-button.inactive .ddg-toggle-button-bg {\n    background: var(--ddg-color-bg-02);\n}\n.ddg-toggle-button-knob {\n    --ddg-toggle-knob-margin: 2px;\n    position: absolute;\n    display: inline-block;\n    border-radius: 50%;\n    background-color: #ffffff;\n    margin-top: var(--ddg-toggle-knob-margin);\n}\n.ddg-toggle-button-knob,\n.ddg-toggle-button.md .ddg-toggle-button-knob {\n    width: 12px;\n    height: 12px;\n    top: calc(50% - 16px / 2);\n}\n.ddg-toggle-button.lg .ddg-toggle-button-knob {\n    --ddg-toggle-knob-margin: 4px;\n    width: 26px;\n    height: 26px;\n    top: calc(50% - 34px / 2);\n}\n.ddg-toggle-button.active .ddg-toggle-button-knob {\n    right: var(--ddg-toggle-knob-margin);\n}\n.ddg-toggle-button.inactive .ddg-toggle-button-knob {\n    left: var(--ddg-toggle-knob-margin);\n}\n.ddg-toggle-button-label {\n    font-size: 14px;\n    line-height: 20px;\n    color: var(--ddg-color-txt);\n    margin-left: 12px;\n}\n\n/* Link styles */\n.ddg-text-link {\n    line-height: 1.4;\n    font-size: 14px;\n    font-weight: 700;\n    cursor: pointer;\n    text-decoration: none;\n    color: var(--ddg-color-primary);\n}\n\n/* Styles for DDGCtlPlaceholderBlocked */\n.DuckDuckGoButton.ddg-ctl-unblock-btn {\n    width: 100%;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .DuckDuckGoButton.ddg-ctl-unblock-btn {\n    width: auto;\n}\n\n.ddg-ctl-placeholder-card {\n    height: 100%;\n    overflow: auto;\n    padding: 16px;\n    color: var(--ddg-color-txt);\n    background: var(--ddg-color-bg-01);\n    border: 1px solid var(--ddg-color-border);\n    border-radius: 12px;\n    margin: auto;\n    display: grid;\n    justify-content: center;\n    align-items: center;\n    line-height: 1;\n}\n.ddg-ctl-placeholder-card.slim-card {\n    padding: 12px;\n}\n.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-body {\n    margin: auto;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card.with-feedback-link {\n    height: calc(100% - 30px);\n    max-width: initial;\n    min-height: initial;\n}\n\n.ddg-ctl-placeholder-card-header {\n    width: 100%;\n    display: flex;\n    align-items: center;\n    margin: auto;\n    margin-bottom: 8px;\n    text-align: left;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header {\n    flex-direction: column;\n    align-items: center;\n    justify-content: center;\n    margin-bottom: 12px;\n    width: 80%;\n    text-align: center;\n}\n\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header .ddg-ctl-placeholder-card-title,\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header .ddg-text-link {\n    text-align: center;\n}\n\n/* Show Learn More link in the header on mobile and\n * tablet size screens and hide it on desktop size */\n.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-header .ddg-learn-more {\n    display: none;\n}\n\n.ddg-ctl-placeholder-card-title,\n.ddg-ctl-placeholder-card-title .ddg-text-link {\n    font-family: DuckDuckGoPrivacyEssentialsBold;\n    font-weight: 700;\n    font-size: 16px;\n    line-height: 24px;\n}\n\n.ddg-ctl-placeholder-card-header-dax {\n    align-self: flex-start;\n    width: 48px;\n    height: 48px;\n    margin: 0 8px 0 0;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-placeholder-card-header-dax {\n    align-self: inherit;\n    margin: 0 0 12px 0;\n}\n\n.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-header-dax {\n    width: 56px;\n    height: 56px;\n}\n\n.ddg-ctl-placeholder-card-body-text {\n    font-size: 14px;\n    line-height: 21px;\n    text-align: center;\n    margin: 0 auto 12px;\n\n    display: none;\n}\n.DuckDuckGoSocialContainer.size-lg .ddg-ctl-placeholder-card-body-text {\n    width: 80%;\n    display: block;\n}\n\n.ddg-ctl-placeholder-card-footer {\n    width: 100%;\n    margin-top: 12px;\n    display: flex;\n    align-items: center;\n    justify-content: flex-start;\n    align-self: end;\n}\n\n/* Only display the unblock button on really small placeholders */\n.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-header,\n.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-body-text,\n.DuckDuckGoSocialContainer.size-xs .ddg-ctl-placeholder-card-footer {\n    display: none;\n}\n\n.ddg-ctl-feedback-row {\n    display: none;\n}\n.DuckDuckGoSocialContainer:is(.size-md, .size-lg) .ddg-ctl-feedback-row {\n    height: 30px;\n    justify-content: flex-end;\n    align-items: center;\n    display: flex;\n}\n\n.ddg-ctl-feedback-link {\n    font-style: normal;\n    font-weight: 400;\n    font-size: 12px;\n    line-height: 12px;\n    color: var(--ddg-color-txt-link-02);\n    text-decoration: none;\n    display: inline;\n    background-color: transparent;\n    border: 0;\n    padding: 0;\n    cursor: pointer;\n}\n";
+
+    /**
+     * Size keys for a placeholder
+     * @typedef { 'size-xs' | 'size-sm' | 'size-md' | 'size-lg'| null } placeholderSize
+     */
+
+    /**
+     * @typedef WithToggleParams - Toggle params
+     * @property {boolean} isActive - Toggle state
+     * @property {string} dataKey - data-key attribute for toggle button
+     * @property {string} label - Text to be presented with toggle
+     * @property {'md' | 'lg'} [size=md] - Toggle size variant, 'md' by default
+     * @property {() => void} onClick - Toggle on click callback
+     */
+    /**
+     * @typedef WithFeedbackParams - Feedback link params
+     * @property {string=} label - "Share Feedback" link text
+     * @property {() => void} onClick - Feedback element on click callback
+     */
+    /**
+     * @typedef LearnMoreParams - "Learn More" link params
+     * @property {string} readAbout - "Learn More" aria-label text
+     * @property {string} learnMore - "Learn More" link text
+     */
+
+    /**
+     * The custom HTML element (Web Component) template with the placeholder for blocked
+     * embedded content. The constructor gets a list of parameters with the
+     * content and event handlers for this template.
+     * This is currently only used in our Mobile Apps, but can be expanded in the future.
+     */
+    class DDGCtlPlaceholderBlockedElement extends HTMLElement {
+        static CUSTOM_TAG_NAME = 'ddg-ctl-placeholder-blocked'
+        /**
+         * Min height that the placeholder needs to have in order to
+         * have enough room to display content.
+         */
+        static MIN_CONTENT_HEIGHT = 110
+        static MAX_CONTENT_WIDTH_SMALL = 480
+        static MAX_CONTENT_WIDTH_MEDIUM = 650
+        /**
+         * Set observed attributes that will trigger attributeChangedCallback()
+         */
+        static get observedAttributes () {
+            return ['style']
+        }
+
+        /**
+         * Placeholder element for blocked content
+         * @type {HTMLDivElement}
+         */
+        placeholderBlocked
+
+        /**
+         * Size variant of the latest calculated size of the placeholder.
+         * This is used to add the appropriate CSS class to the placeholder container
+         * and adapt the layout for each size.
+         * @type {placeholderSize}
+         */
+        size = null
+
+        /**
+         * @param {object} params - Params for building a custom element
+         *                          with a placeholder for blocked content
+         * @param {boolean} params.devMode - Used to create the Shadow DOM on 'open'(true) or 'closed'(false) mode
+         * @param {string} params.title - Card title text
+         * @param {string} params.body - Card body text
+         * @param {string} params.unblockBtnText - Unblock button text
+         * @param {boolean=} params.useSlimCard - Flag for using less padding on card (ie YT CTL on mobile)
+         * @param {HTMLElement} params.originalElement - The original element this placeholder is replacing.
+         * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
+         * @param {WithToggleParams=} params.withToggle - Toggle config to be displayed in the bottom of the placeholder
+         * @param {WithFeedbackParams=} params.withFeedback - Shows feedback link on tablet and desktop sizes,
+         * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onButtonClick
+         */
+        constructor (params) {
+            super();
+            this.params = params;
+            /**
+             * Create the shadow root, closed to prevent any outside observers
+             * @type {ShadowRoot}
+             */
+            const shadow = this.attachShadow({
+                mode: this.params.devMode ? 'open' : 'closed'
+            });
+
+            /**
+             * Add our styles
+             * @type {HTMLStyleElement}
+             */
+            const style = document.createElement('style');
+            style.innerText = cssVars + css;
+
+            /**
+             * Creates the placeholder for blocked content
+             * @type {HTMLDivElement}
+             */
+            this.placeholderBlocked = this.createPlaceholder();
+            /**
+             * Creates the Share Feedback element
+             * @type {HTMLDivElement | null}
+             */
+            const feedbackLink = this.params.withFeedback ? this.createShareFeedbackLink() : null;
+            /**
+             * Setup the click handlers
+             */
+            this.setupEventListeners(this.placeholderBlocked, feedbackLink);
+
+            /**
+             * Append both to the shadow root
+             */
+            feedbackLink && this.placeholderBlocked.appendChild(feedbackLink);
+            shadow.appendChild(this.placeholderBlocked);
+            shadow.appendChild(style);
+        }
+
+        /**
+         * Creates a placeholder for content blocked by Click to Load.
+         * Note: We're using arrow functions () => {} in this class due to a bug
+         * found in Firefox where it is getting the wrong "this" context on calls in the constructor.
+         * This is a temporary workaround.
+         * @returns {HTMLDivElement}
+         */
+        createPlaceholder = () => {
+            const { title, body, unblockBtnText, useSlimCard, withToggle, withFeedback } = this.params;
+
+            const container = document.createElement('div');
+            container.classList.add('DuckDuckGoSocialContainer');
+            const cardClassNames = [
+                ['slim-card', !!useSlimCard],
+                ['with-feedback-link', !!withFeedback]
+            ]
+                .map(([className, active]) => (active ? className : ''))
+                .join(' ');
+
+            // Only add a card footer if we have the toggle button to display
+            const cardFooterSection = withToggle
+                ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> `
+                : '';
+            const learnMoreLink = this.createLearnMoreLink();
+
+            container.innerHTML = html`
+            <div class="ddg-ctl-placeholder-card ${cardClassNames}">
+                <div class="ddg-ctl-placeholder-card-header">
+                    <img class="ddg-ctl-placeholder-card-header-dax" src=${logoImg} alt="DuckDuckGo Dax" />
+                    <div class="ddg-ctl-placeholder-card-title">${title}. ${learnMoreLink}</div>
+                </div>
+                <div class="ddg-ctl-placeholder-card-body">
+                    <div class="ddg-ctl-placeholder-card-body-text">${body} ${learnMoreLink}</div>
+                    <button class="DuckDuckGoButton tertiary ddg-ctl-unblock-btn" type="button">
+                        <div>${unblockBtnText}</div>
+                    </button>
+                </div>
+                ${cardFooterSection}
+            </div>
+        `.toString();
+
+            return container
+        }
+
+        /**
+         * Creates a template string for Learn More link.
+         */
+        createLearnMoreLink = () => {
+            const { learnMore } = this.params;
+
+            return html`<a
+            class="ddg-text-link ddg-learn-more"
+            aria-label="${learnMore.readAbout}"
+            href="https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/"
+            target="_blank"
+            >${learnMore.learnMore}</a
+        >`
+        }
+
+        /**
+         * Creates a Feedback Link container row
+         * @returns {HTMLDivElement}
+         */
+        createShareFeedbackLink = () => {
+            const { withFeedback } = this.params;
+
+            const container = document.createElement('div');
+            container.classList.add('ddg-ctl-feedback-row');
+
+            container.innerHTML = html`
+            <button class="ddg-ctl-feedback-link" type="button">${withFeedback?.label || 'Share Feedback'}</button>
+        `.toString();
+
+            return container
+        }
+
+        /**
+         * Creates a template string for a toggle button with text.
+         */
+        createToggleButton = () => {
+            const { withToggle } = this.params;
+            if (!withToggle) return
+
+            const { isActive, dataKey, label, size: toggleSize = 'md' } = withToggle;
+
+            const toggleButton = html`
+            <div class="ddg-toggle-button-container">
+                <button
+                    class="ddg-toggle-button ${isActive ? 'active' : 'inactive'} ${toggleSize}"
+                    type="button"
+                    aria-pressed=${!!isActive}
+                    data-key=${dataKey}
+                >
+                    <div class="ddg-toggle-button-bg"></div>
+                    <div class="ddg-toggle-button-knob"></div>
+                </button>
+                <div class="ddg-toggle-button-label">${label}</div>
+            </div>
+        `;
+            return toggleButton
+        }
+
+        /**
+         *
+         * @param {HTMLElement} containerElement
+         * @param {HTMLElement?} feedbackLink
+         */
+        setupEventListeners = (containerElement, feedbackLink) => {
+            const { withToggle, withFeedback, originalElement, onButtonClick } = this.params;
+
+            containerElement
+                .querySelector('button.ddg-ctl-unblock-btn')
+                ?.addEventListener('click', onButtonClick(originalElement, this));
+
+            if (withToggle) {
+                containerElement
+                    .querySelector('.ddg-toggle-button-container')
+                    ?.addEventListener('click', withToggle.onClick);
+            }
+            if (withFeedback && feedbackLink) {
+                feedbackLink.querySelector('.ddg-ctl-feedback-link')?.addEventListener('click', withFeedback.onClick);
+            }
+        }
+
+        /**
+         * Use JS to calculate the width and height of the root element placeholder. We could use a CSS Container Query, but full
+         * support to it was only added recently, so we're not using it for now.
+         * https://caniuse.com/css-container-queries
+         */
+        updatePlaceholderSize = () => {
+            /** @type {placeholderSize} */
+            let newSize = null;
+
+            const { height, width } = this.getBoundingClientRect();
+            if (height && height < DDGCtlPlaceholderBlockedElement.MIN_CONTENT_HEIGHT) {
+                newSize = 'size-xs';
+            } else if (width) {
+                if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_SMALL) {
+                    newSize = 'size-sm';
+                } else if (width < DDGCtlPlaceholderBlockedElement.MAX_CONTENT_WIDTH_MEDIUM) {
+                    newSize = 'size-md';
+                } else {
+                    newSize = 'size-lg';
+                }
+            }
+
+            if (newSize && newSize !== this.size) {
+                if (this.size) {
+                    this.placeholderBlocked.classList.remove(this.size);
+                }
+                this.placeholderBlocked.classList.add(newSize);
+                this.size = newSize;
+            }
+        }
+
+        /**
+         * Web Component lifecycle function.
+         * When element is first added to the DOM, trigger this callback and
+         * update the element CSS size class.
+         */
+        connectedCallback () {
+            this.updatePlaceholderSize();
+        }
+
+        /**
+         * Web Component lifecycle function.
+         * When the root element gets the 'style' attribute updated, reflect that in the container
+         * element inside the shadow root. This way, we can copy the size and other styles from the root
+         * element and have the inner context be able to use the same sizes to adapt the template layout.
+         * @param {string} attr Observed attribute key
+         * @param {*} _ Attribute old value, ignored
+         * @param {*} newValue Attribute new value
+         */
+        attributeChangedCallback (attr, _, newValue) {
+            if (attr === 'style') {
+                this.placeholderBlocked[attr].cssText = newValue;
+                this.updatePlaceholderSize();
+            }
+        }
+    }
+
+    /**
+     * Register custom elements in this wrapper function to be called only when we need to
+     * and also to allow remote-config later if needed.
+     */
+    function registerCustomElements () {
+        if (!customElements.get(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME)) {
+            customElements.define(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME, DDGCtlPlaceholderBlockedElement);
+        }
+    }
+
+    /**
      * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
      *   Key for theme value to determine the styling of buttons/placeholders.
      *   Matches `styles[mode]` keys:
@@ -6433,6 +7227,10 @@
     // essential messages to surrogate scripts.
     let afterPageLoadResolver;
     const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve; });
+
+    // Used to choose between extension/desktop flow or mobile apps flow.
+    // Updated on ClickToLoad.init()
+    let isMobileApp;
 
     /*********************************************************
      *  Widget Replacement logic
@@ -6497,7 +7295,33 @@
                         // with a light version, replace with full version.
                         this.clickAction.type = 'allowFull';
                     }
-                    value = attrSettings.default;
+
+                    // If the attribute is "width", try first to measure the parent's width and use that as a default value.
+                    if (attrName === 'data-width') {
+                        const windowWidth = window.innerWidth;
+                        const { parentElement } = this.originalElement;
+                        const parentStyles = parentElement
+                            ? window.getComputedStyle(parentElement)
+                            : null;
+                        let parentInnerWidth = null;
+
+                        // We want to calculate the inner width of the parent element as the iframe, when added back,
+                        // should not be bigger than the space available in the parent element. There is no straightforward way of
+                        // doing this. We need to get the parent's .clientWidth and remove the paddings size from it.
+                        if (parentElement && parentStyles && parentStyles.display !== 'inline') {
+                            parentInnerWidth = parentElement.clientWidth - parseFloat(parentStyles.paddingLeft) - parseFloat(parentStyles.paddingRight);
+                        }
+
+                        if (parentInnerWidth && parentInnerWidth < windowWidth) {
+                            value = parentInnerWidth.toString();
+                        } else {
+                            // Our default value for width is often greater than the window size of smaller
+                            // screens (ie mobile). Then use whatever is the smallest value.
+                            value = Math.min(attrSettings.default, windowWidth).toString();
+                        }
+                    } else {
+                        value = attrSettings.default;
+                    }
                 }
                 this.dataElements[attrName] = value;
             }
@@ -6931,17 +7755,42 @@
 
         // Facebook
         if (widget.replaceSettings.type === 'dialog') {
-            const icon = widget.replaceSettings.icon;
-            const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
-            const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
-            const { contentBlock, shadowRoot } = createContentBlock(
-                widget, button, textButton, icon
-            );
-            button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
-            textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+            if (isMobileApp) {
+                /**
+                 * Creates a custom HTML element with the placeholder element for blocked
+                 * embedded content. The constructor gets a list of parameters with the
+                 * content and event handlers for this HTML element.
+                 */
+                const mobileBlockedPlaceholder = new DDGCtlPlaceholderBlockedElement({
+                    devMode,
+                    title: widget.replaceSettings.infoTitle, // Card title text
+                    body: widget.replaceSettings.infoText, // Card body text
+                    unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                    useSlimCard: false, // Flag for using less padding on card (ie YT CTL on mobile)
+                    originalElement: trackingElement, // The original element this placeholder is replacing.
+                    learnMore: { // Localized strings for "Learn More" link.
+                        readAbout: sharedStrings.readAbout,
+                        learnMore: sharedStrings.learnMore
+                    },
+                    onButtonClick: widget.clickFunction.bind(widget)
+                });
+                mobileBlockedPlaceholder.appendChild(makeFontFaceStyleElement());
 
-            replaceTrackingElement(widget, trackingElement, contentBlock);
-            showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock);
+                replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholder);
+                showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholder);
+            } else {
+                const icon = widget.replaceSettings.icon;
+                const button = makeButton(widget.replaceSettings.buttonText, widget.getMode());
+                const textButton = makeTextButton(widget.replaceSettings.buttonText, widget.getMode());
+                const { contentBlock, shadowRoot } = createContentBlock(
+                    widget, button, textButton, icon
+                );
+                button.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+                textButton.addEventListener('click', widget.clickFunction(trackingElement, contentBlock));
+
+                replaceTrackingElement(widget, trackingElement, contentBlock);
+                showExtraUnblockIfShortPlaceholder(shadowRoot, contentBlock);
+            }
         }
 
         // YouTube
@@ -6984,11 +7833,49 @@
             // Block YouTube embedded video and display blocking dialog
             widget.autoplay = false;
             const oldPlaceholder = widget.placeholderElement;
-            const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget);
-            resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog);
-            replaceTrackingElement(widget, trackingElement, blockingDialog);
-            showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog);
-            hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460);
+
+            if (isMobileApp) {
+                /**
+                 * Creates a custom HTML element with the placeholder element for blocked
+                 * embedded content. The constructor gets a list of parameters with the
+                 * content and event handlers for this HTML element.
+                 */
+                const mobileBlockedPlaceholderElement = new DDGCtlPlaceholderBlockedElement({
+                    devMode,
+                    title: widget.replaceSettings.infoTitle, // Card title text
+                    body: widget.replaceSettings.infoText, // Card body text
+                    unblockBtnText: widget.replaceSettings.buttonText, // Unblock button text
+                    useSlimCard: true, // Flag for using less padding on card (ie YT CTL on mobile)
+                    originalElement: trackingElement, // The original element this placeholder is replacing.
+                    learnMore: { // Localized strings for "Learn More" link.
+                        readAbout: sharedStrings.readAbout,
+                        learnMore: sharedStrings.learnMore
+                    },
+                    withToggle: { // Toggle config to be displayed in the bottom of the placeholder
+                        isActive: false, // Toggle state
+                        dataKey: 'yt-preview-toggle', // data-key attribute for button
+                        label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
+                        size: isMobileApp ? 'lg' : 'md',
+                        onClick: () => sendMessage('setYoutubePreviewsEnabled', true) // Toggle click callback
+                    },
+                    withFeedback: {
+                        label: sharedStrings.shareFeedback,
+                        onClick: () => openShareFeedbackPage()
+                    },
+                    onButtonClick: widget.clickFunction.bind(widget)
+                });
+                mobileBlockedPlaceholderElement.appendChild(makeFontFaceStyleElement());
+                mobileBlockedPlaceholderElement.id = trackingElement.id;
+                resizeElementToMatch(oldPlaceholder || trackingElement, mobileBlockedPlaceholderElement);
+                replaceTrackingElement(widget, trackingElement, mobileBlockedPlaceholderElement);
+                showExtraUnblockIfShortPlaceholder(null, mobileBlockedPlaceholderElement);
+            } else {
+                const { blockingDialog, shadowRoot } = createYouTubeBlockingDialog(trackingElement, widget);
+                resizeElementToMatch(oldPlaceholder || trackingElement, blockingDialog);
+                replaceTrackingElement(widget, trackingElement, blockingDialog);
+                showExtraUnblockIfShortPlaceholder(shadowRoot, blockingDialog);
+                hideInfoTextIfNarrowPlaceholder(shadowRoot, blockingDialog, 460);
+            }
         }
     }
 
@@ -6997,7 +7884,7 @@
      * its parent is too short for the normal unblock button to be visible.
      * Note: This does not take into account the placeholder's vertical
      *       position in the parent element.
-     * @param {ShadowRoot} shadowRoot
+     * @param {ShadowRoot?} shadowRoot
      * @param {HTMLElement} placeholder Placeholder for tracking element
      */
     function showExtraUnblockIfShortPlaceholder (shadowRoot, placeholder) {
@@ -7015,22 +7902,25 @@
         const { height: placeholderHeight } = placeholder.getBoundingClientRect();
         const { height: parentHeight } = placeholder.parentElement.getBoundingClientRect();
 
-        if ((placeholderHeight > 0 && placeholderHeight <= 200) ||
-            (parentHeight > 0 && parentHeight <= 230)) {
-            /** @type {HTMLElement?} */
-            const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`);
-            if (titleRowTextButton) {
-                titleRowTextButton.style.display = 'block';
+        if (
+            (placeholderHeight > 0 && placeholderHeight <= 200) ||
+            (parentHeight > 0 && parentHeight <= 230)
+        ) {
+            if (shadowRoot) {
+                /** @type {HTMLElement?} */
+                const titleRowTextButton = shadowRoot.querySelector(`#${titleID + 'TextButton'}`);
+                if (titleRowTextButton) {
+                    titleRowTextButton.style.display = 'block';
+                }
             }
-
             // Avoid the placeholder being taller than the containing element
             // and overflowing.
             /** @type {HTMLElement?} */
-            const innerDiv = shadowRoot.querySelector('.DuckDuckGoSocialContainer');
-            if (innerDiv) {
-                innerDiv.style.minHeight = 'initial';
-                innerDiv.style.maxHeight = parentHeight + 'px';
-                innerDiv.style.overflow = 'hidden';
+            const blockedDiv = shadowRoot?.querySelector('.DuckDuckGoSocialContainer') || placeholder;
+            if (blockedDiv) {
+                blockedDiv.style.minHeight = 'initial';
+                blockedDiv.style.maxHeight = parentHeight + 'px';
+                blockedDiv.style.overflow = 'hidden';
             }
         }
     }
@@ -8039,6 +8929,14 @@
             sharedStrings = localizedConfig.sharedStrings;
             // update styles if asset config was sent
             styles = getStyles(this.assetConfig);
+            isMobileApp = this.platform.name === 'ios' || this.platform.name === 'android';
+
+            /**
+             * Register Custom Elements only when Click to Load is initialized, to ensure it is only
+             * called when config is ready and any previous context have been appropriately invalidated
+             * prior when applicable (ie Firefox when hot reloading the Extension)
+             */
+            registerCustomElements();
 
             for (const entity of Object.keys(config)) {
                 // Strip config entities that are first-party, or aren't enabled in the

@@ -1,4 +1,5 @@
-import { defineProperty, postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdPartyFrame, getTabHostname, matchHostname } from '../utils.js'
+import { postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdPartyFrame, getTabHostname, matchHostname } from '../utils.js'
+import { defineProperty } from '../wrapper-utils.js'
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
 import { isTrackerOrigin } from '../trackers.js'

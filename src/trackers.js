@@ -1,4 +1,3 @@
-
 /**
  * Check if the current document origin is on the tracker list, using the provided lookup trie.
  * @param {object} trackerLookup Trie lookup of tracker domains

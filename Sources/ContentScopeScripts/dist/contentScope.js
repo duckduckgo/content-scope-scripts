@@ -2,14 +2,124 @@
 (function () {
     'use strict';
 
+    /* global false */
+
+    let dummyWindow;
+    if ('document' in globalThis &&
+        // Prevent infinate recursion of injection into Chrome
+        globalThis.location.href !== 'about:blank') {
+        const injectionElement = getInjectionElement();
+        // injectionElement is null in some playwright context tests
+        if (injectionElement) {
+            dummyWindow = document.createElement('iframe');
+            dummyWindow.style.display = 'none';
+            injectionElement.appendChild(dummyWindow);
+        }
+    }
+
+    let dummyContentWindow = dummyWindow?.contentWindow;
+    // @ts-expect-error - Symbol is not defined on window
+    const dummySymbol = dummyContentWindow?.Symbol;
+    const iteratorSymbol = dummySymbol?.iterator;
+
+    // Capture prototype to prevent overloading
+    function captureGlobal (globalName) {
+        const global = dummyWindow?.contentWindow?.[globalName];
+
+        // if we were unable to create a dummy window, return the global
+        // this still has the advantage of preventing aliasing of the global through shawdowing
+        if (!global) {
+            return globalThis[globalName]
+        }
+
+        // Alias the iterator symbol to the local symbol so for loops work
+        if (iteratorSymbol &&
+            global?.prototype &&
+            iteratorSymbol in global.prototype) {
+            global.prototype[Symbol.iterator] = global.prototype[iteratorSymbol];
+        }
+        return global
+    }
+
+    const Set$1 = captureGlobal('Set');
+    const Reflect$1 = captureGlobal('Reflect');
+
+    // Clean up the dummy window
+    dummyWindow?.remove();
+
     /* global cloneInto, exportFunction, false */
+    // Tests don't define this variable so fallback to behave like chrome
+    const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+    const functionToString = Function.prototype.toString;
+    const objectKeys = Object.keys;
+
+    function defineProperty (object, propertyName, descriptor) {
+        {
+            Object.defineProperty(object, propertyName, descriptor);
+        }
+    }
+
+    /**
+     * add a fake toString() method to a wrapper function to resemble the original function
+     * @param {*} newFn
+     * @param {*} origFn
+     */
+    function wrapToString (newFn, origFn) {
+        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
+            return
+        }
+        newFn.toString = function () {
+            if (this === newFn) {
+                return functionToString.call(origFn)
+            } else {
+                return functionToString.call(this)
+            }
+        };
+    }
+
+    /**
+     * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {string} propertyName
+     * @param {Partial<PropertyDescriptor>} descriptor
+     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+     */
+    function wrapProperty (object, propertyName, descriptor) {
+        if (!object) {
+            return
+        }
+
+        const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+        if (!origDescriptor) {
+            // this happens if the property is not implemented in the browser
+            return
+        }
+
+        if (('value' in origDescriptor && 'value' in descriptor) ||
+            ('get' in origDescriptor && 'get' in descriptor) ||
+            ('set' in origDescriptor && 'set' in descriptor)
+        ) {
+            wrapToString(descriptor.value, origDescriptor.value);
+            wrapToString(descriptor.get, origDescriptor.get);
+            wrapToString(descriptor.set, origDescriptor.set);
+
+            defineProperty(object, propertyName, {
+                ...origDescriptor,
+                ...descriptor
+            });
+            return origDescriptor
+        } else {
+            // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
+            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+        }
+    }
+
+    /* global cloneInto, exportFunction, false */
+
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
     // eslint-disable-next-line no-global-assign
     let globalObj = typeof window === 'undefined' ? globalThis : window;
     let Error$1 = globalObj.Error;
-    const CapturedSet = globalObj.Set;
-    // Capture prototype to prevent overloading
-    const createSet = () => new CapturedSet();
 
     const taintSymbol = Symbol('taint');
     typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
@@ -140,7 +250,7 @@
 
     const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
     function getStackTraceUrls (stack) {
-        const urls = createSet();
+        const urls = new Set$1();
         try {
             const errorLines = stack.split('\n');
             // Should cater for Chrome and Firefox stacks, we only care about https? resources.
@@ -158,7 +268,7 @@
 
     function getStackTraceOrigins (stack) {
         const urls = getStackTraceUrls(stack);
-        const origins = createSet();
+        const origins = new Set$1();
         for (const url of urls) {
             origins.add(url.hostname);
         }
@@ -206,37 +316,6 @@
         return isWindowsSpecificFeature(feature)
             ? !args.site.enabledFeatures.includes(feature)
             : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature)
-    }
-
-    /**
-     * For each property defined on the object, update it with the target value.
-     */
-    function overrideProperty (name, prop) {
-        // Don't update if existing value is undefined or null
-        if (!(prop.origValue === undefined)) {
-            /**
-             * When re-defining properties, we bind the overwritten functions to null. This prevents
-             * sites from using toString to see if the function has been overwritten
-             * without this bind call, a site could run something like
-             * `Object.getOwnPropertyDescriptor(Screen.prototype, "availTop").get.toString()` and see
-             * the contents of the function. Appending .bind(null) to the function definition will
-             * have the same toString call return the default [native code]
-             */
-            try {
-                defineProperty(prop.object, name, {
-                    // eslint-disable-next-line no-extra-bind
-                    get: (() => prop.targetValue).bind(null)
-                });
-            } catch (e) {
-            }
-        }
-        return prop.origValue
-    }
-
-    function defineProperty (object, propertyName, descriptor) {
-        {
-            Object.defineProperty(object, propertyName, descriptor);
-        }
     }
 
     function camelcase (dashCaseText) {
@@ -351,10 +430,42 @@
         }
     }
 
-    function hasTaintedMethod (scope) {
+    /**
+     * Returns a set of origins that are tainted
+     * @returns {Set<string> | null}
+     */
+    function taintedOrigins () {
+        return getGlobalObject('taintedOrigins')
+    }
+
+    /**
+     * @param {string} name
+     * @returns {any | null}
+     */
+    function getGlobalObject (name) {
+        if ('duckduckgo' in navigator &&
+            typeof navigator.duckduckgo === 'object' &&
+            navigator.duckduckgo &&
+            name in navigator.duckduckgo &&
+            navigator.duckduckgo[name]) {
+            return navigator.duckduckgo[name]
+        }
+        return null
+    }
+
+    function hasTaintedMethod (scope, shouldStackCheck = false) {
         if (document?.currentScript?.[taintSymbol]) return true
         if ('__ddg_taint__' in window) return true
         if (getContextId(scope)) return true
+        if (!shouldStackCheck || !taintedOrigins()) {
+            return false
+        }
+        const stackOrigins = getStackTraceOrigins(getStack());
+        for (const stackOrigin of stackOrigins) {
+            if (taintedOrigins()?.has(stackOrigin)) {
+                return true
+            }
+        }
         return false
     }
 
@@ -434,6 +545,12 @@
             {
                 this.objectScope[this.property] = this.internal;
             }
+        }
+
+        overloadDescriptor () {
+            defineProperty(this.objectScope, this.property, {
+                value: this.internal
+            });
         }
     }
 
@@ -579,8 +696,6 @@
         const topLevelHostname = getTabHostname();
         const site = computeLimitedSiteObject();
         const allowlisted = userList.filter(domain => domain === topLevelHostname).length > 0;
-        const remoteFeatureNames = Object.keys(data.features);
-        platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));
         /** @type {Record<string, any>} */
         const output = { ...preferences };
         if (output.platform) {
@@ -1382,7 +1497,7 @@
             })
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
         init (args) {
         }
 
@@ -1395,7 +1510,7 @@
             this.measure();
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
         load (args) {
         }
 
@@ -1429,8 +1544,6 @@
         update () {
         }
     }
-
-    new Set();
 
     function generateUniqueID () {
         return Symbol(undefined)
@@ -1548,7 +1661,7 @@
             return scope
         }
         return new Proxy(scope, {
-            get (target, property, receiver) {
+            get (target, property) {
                 const targetObj = target[property];
                 let targetOut = target;
                 if (typeof property === 'string' && property in outputs) {
@@ -1638,7 +1751,7 @@
             currentScope = aggregatedLookup;
             const pathOut = path[path.length - 1];
             // Traverse the path and create the nested objects
-            path.slice(0, -1).forEach((pathPart, index) => {
+            path.slice(0, -1).forEach((pathPart) => {
                 if (!currentScope.has(pathPart)) {
                     currentScope.set(pathPart, new Map());
                 }
@@ -1690,6 +1803,34 @@
         ${code}
     })(globalThis)
     `)
+    }
+
+    /**
+     * @typedef {object} Sizing
+     * @property {number} height
+     * @property {number} width
+     */
+
+    /**
+     * @param {Sizing[]} breakpoints
+     * @param {Sizing} screenSize
+     * @returns { Sizing | null}
+     */
+    function findClosestBreakpoint (breakpoints, screenSize) {
+        let closestBreakpoint = null;
+        let closestDistance = Infinity;
+
+        for (let i = 0; i < breakpoints.length; i++) {
+            const breakpoint = breakpoints[i];
+            const distance = Math.sqrt(Math.pow(breakpoint.height - screenSize.height, 2) + Math.pow(breakpoint.width - screenSize.width, 2));
+
+            if (distance < closestDistance) {
+                closestBreakpoint = breakpoint;
+                closestDistance = distance;
+            }
+        }
+
+        return closestBreakpoint
     }
 
     /* global TrustedScriptURL, TrustedScript */
@@ -1755,12 +1896,20 @@
         'text/x-javascript'
     ];
 
+    function getTaintFromScope (scope, args, shouldStackCheck = false) {
+        try {
+            scope = args.callee.caller;
+        } catch {}
+        return hasTaintedMethod(scope, shouldStackCheck)
+    }
+
     class DDGRuntimeChecks extends HTMLElement {
         #tagName
         #el
         #listeners
         #connected
         #sinks
+        #debug
 
         constructor () {
             super();
@@ -1769,6 +1918,7 @@
             this.#listeners = [];
             this.#connected = false;
             this.#sinks = {};
+            this.#debug = false;
             if (shadowDomEnabled) {
                 const shadow = this.attachShadow({ mode: 'open' });
                 const style = createStyleElement(`
@@ -1783,8 +1933,9 @@
         /**
          * This method is called once and externally so has to remain public.
          **/
-        setTagName (tagName) {
+        setTagName (tagName, debug = false) {
             this.#tagName = tagName;
+            this.#debug = debug;
 
             // Clear the method so it can't be called again
             // @ts-expect-error - error TS2790: The operand of a 'delete' operator must be optional.
@@ -1858,6 +2009,16 @@
             if (taintCheck) {
                 // Add a symbol to the element so we can identify it as a runtime checked element
                 Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false });
+                // Only show this attribute whilst debugging
+                if (this.#debug) {
+                    el.setAttribute('data-ddg-runtime-checks', 'true');
+                }
+                try {
+                    const origin = this.src && new URL(this.src, window.location.href).hostname;
+                    if (origin && taintedOrigins() && getTabHostname() !== origin) {
+                        taintedOrigins()?.add(origin);
+                    }
+                } catch {}
             }
 
             // Reflect all attrs to the new element
@@ -1910,17 +2071,18 @@
                 this.computeScriptOverload(el);
             }
 
-            // TODO pollyfill WeakRef
-            this.#el = new WeakRef(el);
-
             if (replaceElement) {
                 this.replaceElement(el);
             } else {
                 this.insertAfterAndRemove(el);
             }
+
+            // TODO pollyfill WeakRef
+            this.#el = new WeakRef(el);
         }
 
         replaceElement (el) {
+            // This should be called before this.#el is set
             // @ts-expect-error - this is wrong node type
             super.parentElement?.replaceChild(el, this);
 
@@ -1994,7 +2156,7 @@
             if (shouldFilterKey(this.#tagName, 'attribute', name)) return
             if (supportedSinks.includes(name)) {
                 // Use Reflect to avoid infinite recursion
-                return Reflect.get(DDGRuntimeChecks.prototype, name, this)
+                return Reflect$1.get(DDGRuntimeChecks.prototype, name, this)
             }
             return this._callMethod('getAttribute', name, value)
         }
@@ -2003,14 +2165,14 @@
             if (namespace) {
                 return this._callMethod('getAttributeNS', namespace, name, value)
             }
-            return Reflect.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])
+            return Reflect$1.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])
         }
 
         setAttribute (name, value) {
             if (shouldFilterKey(this.#tagName, 'attribute', name)) return
             if (supportedSinks.includes(name)) {
                 // Use Reflect to avoid infinite recursion
-                return Reflect.set(DDGRuntimeChecks.prototype, name, value, this)
+                return Reflect$1.set(DDGRuntimeChecks.prototype, name, value, this)
             }
             return this._callMethod('setAttribute', name, value)
         }
@@ -2019,7 +2181,7 @@
             if (namespace) {
                 return this._callMethod('setAttributeNS', namespace, name, value)
             }
-            return Reflect.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])
+            return Reflect$1.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])
         }
 
         removeAttribute (name) {
@@ -2089,7 +2251,7 @@
                 if (args[0] instanceof DDGRuntimeChecks) {
                     return true
                 }
-                return Reflect.apply(fn, scope, args)
+                return Reflect$1.apply(fn, scope, args)
             }
         });
         // May throw, but we can ignore it
@@ -2140,7 +2302,7 @@
         });
     }
 
-    function overrideCreateElement () {
+    function overrideCreateElement (debug) {
         const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
             apply (fn, scope, args) {
                 if (args.length >= 1) {
@@ -2148,16 +2310,49 @@
                     const initialTagName = String(args[0]).toLowerCase();
                     if (shouldInterrogate(initialTagName)) {
                         args[0] = 'ddg-runtime-checks';
-                        const el = Reflect.apply(fn, scope, args);
-                        el.setTagName(initialTagName);
+                        const el = Reflect$1.apply(fn, scope, args);
+                        el.setTagName(initialTagName, debug);
                         return el
                     }
                 }
-                return Reflect.apply(fn, scope, args)
+                return Reflect$1.apply(fn, scope, args)
             }
         });
         proxy.overload();
         initialCreateElement = proxy._native;
+    }
+
+    function overloadRemoveChild () {
+        const proxy = new DDGProxy(featureName, Node.prototype, 'removeChild', {
+            apply (fn, scope, args) {
+                const child = args[0];
+                if (child instanceof DDGRuntimeChecks) {
+                    // Should call the real removeChild method if it's already replaced
+                    const realNode = child._getElement();
+                    if (realNode) {
+                        args[0] = realNode;
+                    }
+                }
+                return Reflect$1.apply(fn, scope, args)
+            }
+        });
+        proxy.overloadDescriptor();
+    }
+
+    function overloadReplaceChild () {
+        const proxy = new DDGProxy(featureName, Node.prototype, 'replaceChild', {
+            apply (fn, scope, args) {
+                const newChild = args[1];
+                if (newChild instanceof DDGRuntimeChecks) {
+                    const realNode = newChild._getElement();
+                    if (realNode) {
+                        args[1] = realNode;
+                    }
+                }
+                return Reflect$1.apply(fn, scope, args)
+            }
+        });
+        proxy.overloadDescriptor();
     }
 
     class RuntimeChecks extends ContentFeature {
@@ -2165,7 +2360,7 @@
             // This shouldn't happen, but if it does we don't want to break the page
             try {
                 // @ts-expect-error TS node return here
-                customElements.define('ddg-runtime-checks', DDGRuntimeChecks);
+                globalThis.customElements.define('ddg-runtime-checks', DDGRuntimeChecks);
             } catch {}
         }
 
@@ -2186,9 +2381,8 @@
             ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList;
             replaceElement = this.getFeatureSettingEnabled('replaceElement') || false;
             monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true;
-            this.getFeatureSettingEnabled('injectGenericOverloads') || true;
 
-            overrideCreateElement();
+            overrideCreateElement(this.isDebug);
 
             if (this.getFeatureSettingEnabled('overloadInstanceOf')) {
                 overloadInstanceOfChecks(HTMLScriptElement);
@@ -2201,6 +2395,240 @@
                 }
             `);
             }
+
+            if (this.getFeatureSetting('injectGenericOverloads')) {
+                this.injectGenericOverloads();
+            }
+            if (this.getFeatureSettingEnabled('overloadRemoveChild')) {
+                overloadRemoveChild();
+            }
+            if (this.getFeatureSettingEnabled('overloadReplaceChild')) {
+                overloadReplaceChild();
+            }
+        }
+
+        injectGenericOverloads () {
+            const genericOverloads = this.getFeatureSetting('injectGenericOverloads');
+            if ('Date' in genericOverloads) {
+                this.overloadDate(genericOverloads.Date);
+            }
+            if ('Date.prototype.getTimezoneOffset' in genericOverloads) {
+                this.overloadDateGetTimezoneOffset(genericOverloads['Date.prototype.getTimezoneOffset']);
+            }
+            if ('NavigatorUAData.prototype.getHighEntropyValues' in genericOverloads) {
+                this.overloadHighEntropyValues(genericOverloads['NavigatorUAData.prototype.getHighEntropyValues']);
+            }
+            ['localStorage', 'sessionStorage'].forEach(storageType => {
+                if (storageType in genericOverloads) {
+                    const storageConfig = genericOverloads[storageType];
+                    if (storageConfig.scheme === 'memory') {
+                        this.overloadStorageWithMemory(storageConfig, storageType);
+                    } else if (storageConfig.scheme === 'session') {
+                        this.overloadStorageWithSession(storageConfig, storageType);
+                    }
+                }
+            });
+            const breakpoints = this.getFeatureSetting('breakpoints');
+            const screenSize = { height: screen.height, width: screen.width };
+            ['innerHeight', 'innerWidth', 'outerHeight', 'outerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {
+                if (sizing in genericOverloads) {
+                    const sizingConfig = genericOverloads[sizing];
+                    this.overloadScreenSizes(sizingConfig, breakpoints, screenSize, sizing, sizingConfig.offset || 0);
+                }
+            });
+        }
+
+        overloadDate (config) {
+            const offset = (new Date()).getTimezoneOffset();
+            globalThis.Date = new Proxy(globalThis.Date, {
+                construct (target, args) {
+                    const constructed = Reflect$1.construct(target, args);
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        // Falible in that the page could brute force the offset to match. We should fix this.
+                        if (constructed.getTimezoneOffset() === offset) {
+                            return constructed.getUTCDate()
+                        }
+                    }
+                    return constructed
+                }
+            });
+        }
+
+        overloadDateGetTimezoneOffset (config) {
+            const offset = (new Date()).getTimezoneOffset();
+            defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value () {
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        return 0
+                    }
+                    return offset
+                }
+            });
+        }
+
+        overloadHighEntropyValues (config) {
+            if (!('NavigatorUAData' in globalThis)) {
+                return
+            }
+
+            const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues;
+            defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value (hints) {
+                    let hintsOut = hints;
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        // If tainted override with default values (using empty array)
+                        hintsOut = [];
+                    }
+                    return Reflect$1.apply(originalGetHighEntropyValues, this, [hintsOut])
+                }
+            });
+        }
+
+        overloadStorageWithMemory (config, key) {
+            /**
+             * @implements {Storage}
+             */
+            class MemoryStorage {
+                #data = {}
+
+                /**
+                 * @param {Parameters<Storage['setItem']>[0]} id
+                 * @param {Parameters<Storage['setItem']>[1]} val
+                 * @returns {ReturnType<Storage['setItem']>}
+                 */
+                setItem (id, val) {
+                    if (arguments.length < 2) throw new TypeError(`Failed to execute 'setItem' on 'Storage': 2 arguments required, but only ${arguments.length} present.`)
+                    this.#data[id] = String(val);
+                }
+
+                /**
+                 * @param {Parameters<Storage['getItem']>[0]} id
+                 * @returns {ReturnType<Storage['getItem']>}
+                 */
+                getItem (id) {
+                    return Object.prototype.hasOwnProperty.call(this.#data, id) ? this.#data[id] : null
+                }
+
+                /**
+                 * @param {Parameters<Storage['removeItem']>[0]} id
+                 * @returns {ReturnType<Storage['removeItem']>}
+                 */
+                removeItem (id) {
+                    delete this.#data[id];
+                }
+
+                /**
+                 * @returns {ReturnType<Storage['clear']>}
+                 */
+                clear () {
+                    this.#data = {};
+                }
+
+                /**
+                 * @param {Parameters<Storage['key']>[0]} n
+                 * @returns {ReturnType<Storage['key']>}
+                 */
+                key (n) {
+                    const keys = Object.keys(this.#data);
+                    return keys[n]
+                }
+
+                get length () {
+                    return Object.keys(this.#data).length
+                }
+            }
+            /** @satisfies {Storage} */
+            const instance = new MemoryStorage();
+            const storage = new Proxy(instance, {
+                set (target, prop, value, receiver) {
+                    Reflect$1.apply(target.setItem, target, [prop, value], receiver);
+                    return true
+                },
+                get (target, prop) {
+                    if (typeof target[prop] === 'function') {
+                        return target[prop].bind(instance)
+                    }
+                    return Reflect$1.get(target, prop, instance)
+                }
+            });
+            this.overrideStorage(config, key, storage);
+        }
+
+        overloadStorageWithSession (config, key) {
+            const storage = globalThis.sessionStorage;
+            this.overrideStorage(config, key, storage);
+        }
+
+        overrideStorage (config, key, storage) {
+            const originalStorage = globalThis[key];
+            defineProperty(globalThis, key, {
+                get () {
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        return storage
+                    }
+                    return originalStorage
+                }
+            });
+        }
+
+        /**
+         * @typedef {import('./runtime-checks/helpers.js').Sizing} Sizing
+         */
+
+        /**
+         * Overloads the provided key with the closest breakpoint size
+         * @param {Sizing[]} breakpoints
+         * @param {Sizing} screenSize
+         * @param {string} key
+         * @param {number} [offset]
+         */
+        overloadScreenSizes (config, breakpoints, screenSize, key, offset = 0) {
+            const closest = findClosestBreakpoint(breakpoints, screenSize);
+            if (!closest) {
+                return
+            }
+            let returnVal = null;
+            /** @type {object} */
+            let scope = globalThis;
+            let overrideKey = key;
+            let receiver;
+            switch (key) {
+            case 'innerHeight':
+            case 'outerHeight':
+                returnVal = closest.height - offset;
+                break
+            case 'innerWidth':
+            case 'outerWidth':
+                returnVal = closest.width - offset;
+                break
+            case 'Screen.prototype.height':
+                scope = Screen.prototype;
+                overrideKey = 'height';
+                returnVal = closest.height - offset;
+                receiver = globalThis.screen;
+                break
+            case 'Screen.prototype.width':
+                scope = Screen.prototype;
+                overrideKey = 'width';
+                returnVal = closest.width - offset;
+                receiver = globalThis.screen;
+                break
+            }
+            const defaultVal = Reflect$1.get(scope, overrideKey, receiver);
+            defineProperty(scope, overrideKey, {
+                get () {
+                    if (getTaintFromScope(this, arguments, config.stackCheck)) {
+                        return returnVal
+                    }
+                    return defaultVal
+                }
+            });
         }
     }
 
@@ -4754,26 +5182,17 @@
 
     class FingerprintingHardware extends ContentFeature {
         init () {
-            const Navigator = globalThis.Navigator;
-            const navigator = globalThis.navigator;
-
-            overrideProperty('keyboard', {
-                object: Navigator.prototype,
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                origValue: navigator.keyboard,
+            wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
                 // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
-                targetValue: this.getFeatureAttr('keyboard')
+                get: () => this.getFeatureAttr('keyboard')
             });
-            overrideProperty('hardwareConcurrency', {
-                object: Navigator.prototype,
-                origValue: navigator.hardwareConcurrency,
-                targetValue: this.getFeatureAttr('hardwareConcurrency', 2)
+
+            wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
+                get: () => this.getFeatureAttr('hardwareConcurrency', 2)
             });
-            overrideProperty('deviceMemory', {
-                object: Navigator.prototype,
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                origValue: navigator.deviceMemory,
-                targetValue: this.getFeatureAttr('deviceMemory', 8)
+
+            wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
+                get: () => this.getFeatureAttr('deviceMemory', 8)
             });
         }
     }
@@ -4795,10 +5214,8 @@
                     // if we don't have a matching referrer, just trim it to origin.
                     trimmedReferer = new URL(document.referrer).origin + '/';
                 }
-                overrideProperty('referrer', {
-                    object: Document.prototype,
-                    origValue: document.referrer,
-                    targetValue: trimmedReferer
+                wrapProperty(Document.prototype, 'referrer', {
+                    get: () => trimmedReferer
                 });
             }
         }
@@ -4895,40 +5312,38 @@
 
     class FingerprintingScreenSize extends ContentFeature {
         init () {
-            const Screen = globalThis.Screen;
-            const screen = globalThis.screen;
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            origPropertyValues.availTop = globalThis.screen.availTop;
+            wrapProperty(globalThis.Screen.prototype, 'availTop', {
+                get: () => this.getFeatureAttr('availTop', 0)
+            });
 
-            origPropertyValues.availTop = overrideProperty('availTop', {
-                object: Screen.prototype,
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                origValue: screen.availTop,
-                targetValue: this.getFeatureAttr('availTop', 0)
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            origPropertyValues.availLeft = globalThis.screen.availLeft;
+            wrapProperty(globalThis.Screen.prototype, 'availLeft', {
+                get: () => this.getFeatureAttr('availLeft', 0)
             });
-            origPropertyValues.availLeft = overrideProperty('availLeft', {
-                object: Screen.prototype,
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                origValue: screen.availLeft,
-                targetValue: this.getFeatureAttr('availLeft', 0)
+
+            origPropertyValues.availWidth = globalThis.screen.availWidth;
+            const forcedAvailWidthValue = globalThis.screen.width;
+            wrapProperty(globalThis.Screen.prototype, 'availWidth', {
+                get: () => forcedAvailWidthValue
             });
-            origPropertyValues.availWidth = overrideProperty('availWidth', {
-                object: Screen.prototype,
-                origValue: screen.availWidth,
-                targetValue: screen.width
+
+            origPropertyValues.availHeight = globalThis.screen.availHeight;
+            const forcedAvailHeightValue = globalThis.screen.height;
+            wrapProperty(globalThis.Screen.prototype, 'availHeight', {
+                get: () => forcedAvailHeightValue
             });
-            origPropertyValues.availHeight = overrideProperty('availHeight', {
-                object: Screen.prototype,
-                origValue: screen.availHeight,
-                targetValue: screen.height
+
+            origPropertyValues.colorDepth = globalThis.screen.colorDepth;
+            wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
+                get: () => this.getFeatureAttr('colorDepth', 24)
             });
-            overrideProperty('colorDepth', {
-                object: Screen.prototype,
-                origValue: screen.colorDepth,
-                targetValue: this.getFeatureAttr('colorDepth', 24)
-            });
-            overrideProperty('pixelDepth', {
-                object: Screen.prototype,
-                origValue: screen.pixelDepth,
-                targetValue: this.getFeatureAttr('pixelDepth', 24)
+
+            origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
+            wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
+                get: () => this.getFeatureAttr('pixelDepth', 24)
             });
 
             window.addEventListener('resize', function () {
@@ -4985,7 +5400,8 @@
                     isDuckDuckGo () {
                         return DDGPromise.resolve(true)
                     },
-                    taints: new Set()
+                    taints: new Set(),
+                    taintedOrigins: new Set()
                 },
                 enumerable: true,
                 configurable: false,
@@ -5059,9 +5475,8 @@
      * Unhide previously hidden DOM element if content loaded into it
      * @param {HTMLElement} element
      * @param {Object} rule
-     * @param {HTMLElement} [previousElement]
      */
-    function expandNonEmptyDomNode (element, rule, previousElement) {
+    function expandNonEmptyDomNode (element, rule) {
         if (!element) {
             return
         }
@@ -5218,7 +5633,7 @@
         const strictHideRules = [];
         const timeoutRules = [];
 
-        rules.forEach((rule, i) => {
+        rules.forEach((rule) => {
             if (rule.type === 'hide') {
                 strictHideRules.push(rule);
             } else {
@@ -5318,7 +5733,7 @@
 
             // now have the final list of rules to apply, so we apply them when document is loaded
             if (document.readyState === 'loading') {
-                window.addEventListener('DOMContentLoaded', (event) => {
+                window.addEventListener('DOMContentLoaded', () => {
                     applyRules(activeRules);
                 });
             } else {
@@ -5334,7 +5749,7 @@
             });
             historyMethodProxy.overload();
             // listen for popstate events in order to run on back/forward navigations
-            window.addEventListener('popstate', (event) => {
+            window.addEventListener('popstate', () => {
                 applyRules(activeRules);
             });
         }
@@ -5424,7 +5839,7 @@
             }
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             defineProperty(window.safari.pushNotification, 'permission', {
-                value: (name) => {
+                value: () => {
                     return new SafariRemoteNotificationPermission()
                 },
                 configurable: true,
