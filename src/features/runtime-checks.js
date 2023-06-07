@@ -717,8 +717,8 @@ export default class RuntimeChecks extends ContentFeature {
         /** @satisfies {Storage} */
         const instance = new MemoryStorage()
         const storage = new Proxy(instance, {
-            set (target, prop, value, receiver) {
-                Reflect.apply(target.setItem, target, [prop, value], receiver)
+            set (target, prop, value) {
+                Reflect.apply(target.setItem, target, [prop, value])
                 return true
             },
             get (target, prop) {
