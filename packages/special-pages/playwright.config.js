@@ -5,16 +5,15 @@ export default defineConfig({
         {
             name: 'duckplayer-windows',
             testMatch: 'duckplayer.spec.js',
-            use: { platform: 'windows' }
+            use: { injectName: 'windows', platform: 'windows' }
+        },
+        {
+            name: 'duckplayer-apple',
+            testMatch: 'duckplayer.spec.js',
+            use: { injectName: 'apple', platform: 'macos' }
         }
-        // Coming in a future PR
-        // {
-        //     name: 'duckplayer-apple',
-        //     testMatch: 'duckplayer.spec.js',
-        //     use: { platform: 'apple' }
-        // }
     ],
-    fullyParallel: false,
+    fullyParallel: true,
     // @ts-expect-error - Type 'undefined' is not assignable to type 'string'. process.env
     webServer: {
         command: 'npm run serve',

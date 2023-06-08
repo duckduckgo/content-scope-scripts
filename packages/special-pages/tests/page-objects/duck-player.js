@@ -1,7 +1,7 @@
 import { Mocks } from './mocks.js'
 import { expect } from '@playwright/test'
-import { PlatformInfo } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { join } from 'node:path'
+import { perPlatform } from '../../../../src/type-helpers.mjs'
 
 const MOCK_VIDEO_ID = 'VIDEO_ID'
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube'
@@ -10,12 +10,14 @@ const youtubeEmbed = (id) => 'https://www.youtube-nocookie.com/embed/' + id + '?
 export class DuckPlayerPage {
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {import("@duckduckgo/messaging/lib/test-utils.mjs").PlatformInfo} platform
+     * @param {import("../../../../src/type-helpers.mjs").Build} build
+     * @param {import("../../../../src/type-helpers.mjs").PlatformInfo} platform
      */
-    constructor (page, platform) {
+    constructor (page, build, platform) {
         this.page = page
+        this.build = build
         this.platform = platform
-        this.mocks = new Mocks(page, platform, {
+        this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
             featureName: 'duckPlayerPage',
             env: 'development'
@@ -37,18 +39,10 @@ export class DuckPlayerPage {
      */
     async openPage (urlParams) {
         const url = 'https://www.youtube-nocookie.com' + '?' + urlParams.toString()
-
-        switch (this.platform.name) {
-        case 'windows': {
-            await this.mocks.install()
-            await this.installYoutubeMocks()
-            // construct the final url
-            await this.page.goto(url)
-            break
-        }
-        default:
-            throw new Error('unreachable')
-        }
+        await this.mocks.install()
+        await this.installYoutubeMocks()
+        // construct the final url
+        await this.page.goto(url)
     }
 
     /**
@@ -175,29 +169,55 @@ export class DuckPlayerPage {
     }
 
     async opensSettingsInNewTab () {
-        // duck:// scheme will fail, but we can assert that it was tried and grab the URL
-        const failure = new Promise(resolve => {
-            this.page.context().on('requestfailed', f => {
-                resolve(f.url())
-            })
+        const newTab = new Promise(resolve => {
+            // on pages with about:preferences it will launch a new tab
+            this.page.context().on('page', resolve)
+
+            // on windows it will be a failed request
+            this.page.context().on('requestfailed', resolve)
         })
 
-        await this.page.locator('.open-settings').click()
+        const expected = this.build.switch({
+            windows: () => 'duck://settings/duckplayer',
+            apple: () => 'about:preferences/duckplayer'
+        })
 
-        // this is for windows, we'll need to support more
-        expect(await failure).toEqual('duck://settings/duckplayer')
+        const openSettings = this.page.locator('.open-settings')
+        expect(await openSettings.getAttribute('href')).toEqual(expected)
+        expect(await openSettings.getAttribute('target')).toEqual('_blank')
+
+        // click to ensure a new tab opens
+        await openSettings.click()
+
+        // ensure a new tab was opened (eg: that nothing in our JS stopped the regular click)
+        await newTab
     }
 
     async opensInYoutube () {
-        // duck:// scheme will fail, but we can assert that it was tried and grab the URL
-        const failure = new Promise(resolve => {
-            this.page.context().on('requestfailed', f => {
-                resolve(f.url())
+        switch (this.build.name) {
+        // Windows uses a special URL handler to exit duck player
+        case 'windows': {
+            const failure = new Promise(resolve => {
+                this.page.context().on('requestfailed', f => {
+                    resolve(f.url())
+                })
             })
-        })
-        await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
-        // todo(Shane): platform specific
-        expect(await failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID')
+            await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
+            expect(await failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID')
+            break
+        }
+        // the default is just a regular link
+        default: {
+            const nextNavigation = new Promise(resolve => {
+                this.page.context().on('request', f => {
+                    resolve(f.url())
+                })
+            })
+            await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
+            expect(await nextNavigation).toEqual('https://www.youtube.com/watch?v=VIDEO_ID')
+            break
+        }
+        }
     }
 
     /**
@@ -265,13 +285,13 @@ export class DuckPlayerPage {
     /**
      * We test the fully built artifacts, so for each test run we need to
      * select the correct HTML file.
-     *
-     * @returns {string}
+     * @return {string}
      */
     get basePath () {
-        return {
-            windows: '../../build/windows/pages/duckplayer'
-        }[this.platform.name]
+        return this.build.switch({
+            windows: () => '../../build/windows/pages/duckplayer',
+            apple: () => '../../Sources/ContentScopeScripts/dist/pages/duckplayer'
+        })
     }
 
     /**
@@ -280,16 +300,7 @@ export class DuckPlayerPage {
      */
     static create (page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
-        if (!('platform' in testInfo.project.use)) {
-            throw new Error('unsupported project - missing `use.platform`')
-        }
-
-        let testPlatform
-        if (testInfo.project.use.platform === 'apple' || testInfo.project.use.platform === 'windows') {
-            testPlatform = new PlatformInfo({ name: testInfo.project.use.platform })
-        } else {
-            throw new Error('unsupported platform name: ' + testInfo.project.use.platform)
-        }
-        return new DuckPlayerPage(page, testPlatform)
+        const { platformInfo, build } = perPlatform(testInfo.project.use)
+        return new DuckPlayerPage(page, build, platformInfo)
     }
 }

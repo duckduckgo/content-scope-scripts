@@ -1,12 +1,12 @@
 import { readFileSync } from 'fs'
 import {
-    mockResponses,
+    mockResponses, mockWebkitMessaging,
     mockWindowsMessaging,
-    PlatformInfo,
-    readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount,
+    readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount, wrapWebkitScripts,
     wrapWindowsScripts
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { expect } from '@playwright/test'
+import { perPlatform } from '../../../src/type-helpers.mjs'
 
 // Every possible combination of UserValues
 const userValues = {
@@ -38,10 +38,12 @@ export class DuckplayerOverlays {
     serpProxyPage = '/duckplayer/pages/serp-proxy.html'
     /**
      * @param {import("@playwright/test").Page} page
+     * @param {import("../../../src/type-helpers.mjs").Build} build
      * @param {import("@duckduckgo/messaging/lib/test-utils.mjs").PlatformInfo} platform
      */
-    constructor (page, platform) {
+    constructor (page, build, platform) {
         this.page = page
+        this.build = build
         this.platform = platform
         page.on('console', (msg) => {
             console.log(msg.type(), msg.text())
@@ -65,7 +67,7 @@ export class DuckplayerOverlays {
         expect(calls).toMatchObject([
             {
                 payload: {
-                    context: 'contentScopeScripts',
+                    context: this.messagingContext,
                     featureName: 'duckPlayer',
                     params: {},
                     method: 'getUserValues',
@@ -121,13 +123,13 @@ export class DuckplayerOverlays {
     async userChangedSettingTo (setting) {
         await this.page.evaluate(simulateSubscriptionMessage, {
             messagingContext: {
-                context: 'contentScopeScripts',
+                context: this.messagingContext,
                 featureName: 'duckPlayer',
                 env: 'development'
             },
             name: 'onUserValuesChanged',
             payload: userValues[setting],
-            platform: this.platform
+            injectName: this.build.name
         })
     }
 
@@ -188,7 +190,7 @@ export class DuckplayerOverlays {
         expect(messages).toMatchObject([
             {
                 payload: {
-                    context: 'contentScopeScripts',
+                    context: this.messagingContext,
                     featureName: 'duckPlayer',
                     params: {
                         href: 'duck://player/1'
@@ -197,15 +199,6 @@ export class DuckplayerOverlays {
                 }
             }
         ])
-    }
-
-    /**
-     * @return {string}
-     */
-    get buildArtefact () {
-        // we can add more platforms here later
-        const buildArtefact = readFileSync('./build/windows/contentScope.js', 'utf8')
-        return buildArtefact
     }
 
     /**
@@ -220,7 +213,12 @@ export class DuckplayerOverlays {
         const { config } = params
 
         // read the built file from disk and do replacements
-        const injectedJS = wrapWindowsScripts(this.buildArtefact, {
+        const wrapFn = this.build.switch({
+            'apple-isolated': () => wrapWebkitScripts,
+            windows: () => wrapWindowsScripts
+        })
+
+        const injectedJS = wrapFn(this.build.artifact, {
             $CONTENT_SCOPE$: config,
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
@@ -229,11 +227,15 @@ export class DuckplayerOverlays {
             }
         })
 
-        // setup shared messaging mocks
-        await this.page.addInitScript(mockWindowsMessaging, {
+        const mockMessaging = this.build.switch({
+            windows: () => mockWindowsMessaging,
+            'apple-isolated': () => mockWebkitMessaging
+        })
+
+        await this.page.addInitScript(mockMessaging, {
             messagingContext: {
                 env: 'development',
-                context: 'contentScopeScripts',
+                context: this.messagingContext,
                 featureName: 'duckPlayer'
             },
             responses: {
@@ -275,7 +277,7 @@ export class DuckplayerOverlays {
         expect(messages).toMatchObject([
             {
                 payload: {
-                    context: 'contentScopeScripts',
+                    context: this.messagingContext,
                     featureName: 'duckPlayer',
                     params: userValues[setting],
                     method: 'setUserValues'
@@ -291,17 +293,14 @@ export class DuckplayerOverlays {
      */
     static create (page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
-        if (!('platform' in testInfo.project.use)) {
-            throw new Error('unsupported project - missing `use.platform`')
-        }
+        const { platformInfo, build } = perPlatform(testInfo.project.use)
+        return new DuckplayerOverlays(page, build, platformInfo)
+    }
 
-        let testPlatform
-        if (testInfo.project.use.platform === 'windows') {
-            testPlatform = new PlatformInfo({ name: testInfo.project.use.platform })
-        } else {
-            throw new Error('unsupported platform name: ' + testInfo.project.use.platform)
-        }
-        return new DuckplayerOverlays(page, testPlatform)
+    get messagingContext () {
+        return this.build.name === 'apple-isolated'
+            ? 'contentScopeScriptsIsolated'
+            : 'contentScopeScripts'
     }
 }
 

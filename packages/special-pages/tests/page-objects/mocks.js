@@ -1,4 +1,5 @@
 import {
+    mockWebkitMessaging,
     mockWindowsMessaging,
     readOutgoingMessages,
     simulateSubscriptionMessage,
@@ -14,11 +15,13 @@ export class Mocks {
 
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {import("@duckduckgo/messaging/lib/test-utils.mjs").PlatformInfo} platform
+     * @param {import("../../../../src/type-helpers.mjs").Build} build
+     * @param {import("../../../../src/type-helpers.mjs").PlatformInfo} platform
      * @param {import("@duckduckgo/messaging").MessagingContext} messagingContext
      */
-    constructor (page, platform, messagingContext) {
+    constructor (page, build, platform, messagingContext) {
         this.page = page
+        this.build = build
         this.platform = platform
         this.messagingContext = messagingContext
     }
@@ -34,10 +37,17 @@ export class Mocks {
     }
 
     async installMessagingMocks () {
-        await this.page.addInitScript(mockWindowsMessaging, {
-            messagingContext: this.messagingContext,
-            responses: this._defaultResponses
-        })
+        if (this.platform.name === 'windows') {
+            await this.page.addInitScript(mockWindowsMessaging, {
+                messagingContext: this.messagingContext,
+                responses: this._defaultResponses
+            })
+        } else if (this.platform.name === 'macos') {
+            await this.page.addInitScript(mockWebkitMessaging, {
+                messagingContext: this.messagingContext,
+                responses: this._defaultResponses
+            })
+        }
     }
 
     /**
@@ -56,7 +66,7 @@ export class Mocks {
             messagingContext: this.messagingContext,
             name,
             payload,
-            platform: this.platform
+            injectName: this.build.name
         })
     }
 

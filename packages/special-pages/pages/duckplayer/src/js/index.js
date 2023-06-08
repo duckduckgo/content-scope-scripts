@@ -23,7 +23,8 @@
  * #### Messages:
  *
  * On Page Load
- *   - {@link DuckPlayerPageMessages.onUserValuesChanged} begins immediately. It expects an initial value, and then will continue to listen for updates
+ *   - {@link DuckPlayerPageMessages.getUserValues} is initially called to get the current settings
+ *   - {@link DuckPlayerPageMessages.onUserValuesChanged} subscription begins immediately - it will continue to listen for updates
  *
  * Then the following message can be sent at any time
  *   - {@link DuckPlayerPageMessages.setUserValues}
@@ -33,7 +34,7 @@
 import {
     Messaging,
     WindowsMessagingConfig,
-    MessagingContext, TestTransportConfig
+    MessagingContext, TestTransportConfig, WebkitMessagingConfig
 } from '../../../../../messaging/index.js'
 import { DuckPlayerPageMessages, UserValues } from './messages'
 import { html } from '../../../../../../src/dom-utils'
@@ -299,7 +300,7 @@ const Comms = {
             console.warn('Allowing all messages because we are in development mode')
             return true
         }
-        if (import.meta.platform === 'windows') {
+        if (import.meta.injectName === 'windows') {
             // todo(Shane): Verify this message
             console.log('WINDOWS: allowing message', e)
             return true
@@ -327,7 +328,7 @@ const Comms = {
      *
      * @param {object} opts
      * @param {ImportMeta['env']} opts.env
-     * @param {ImportMeta['platform']} opts.platform
+     * @param {ImportMeta['injectName']} opts.injectName
      */
     init: (opts) => {
         const messageContext = new MessagingContext({
@@ -335,7 +336,7 @@ const Comms = {
             featureName: 'duckPlayerPage',
             env: opts.env
         })
-        if (opts.platform === 'windows') {
+        if (opts.injectName === 'windows') {
             const opts = new WindowsMessagingConfig({
                 methods: {
                     // @ts-expect-error - not in @types/chrome
@@ -348,7 +349,15 @@ const Comms = {
             })
             const messaging = new Messaging(messageContext, opts)
             Comms.messaging = new DuckPlayerPageMessages(messaging)
-        } else if (opts.platform === 'integration') {
+        } else if (opts.injectName === 'apple') {
+            const opts = new WebkitMessagingConfig({
+                hasModernWebkitAPI: true,
+                secret: '',
+                webkitMessageHandlerNames: ['specialPages']
+            })
+            const messaging = new Messaging(messageContext, opts)
+            Comms.messaging = new DuckPlayerPageMessages(messaging)
+        } else if (opts.injectName === 'integration') {
             const config = new TestTransportConfig({
                 notify (msg) {
                     console.log(msg)
@@ -520,8 +529,10 @@ const Setting = {
      * Initializes the setting checkbox:
      * 1. Listens for (user) changes on the actual checkbox
      * 2. Listens for to clicks on the checkbox text
+     * @param {object} opts
+     * @param {string} opts.settingsUrl
      */
-    init: () => {
+    init: (opts) => {
         const checkbox = Setting.checkbox()
 
         checkbox.addEventListener('change', () => {
@@ -531,7 +542,7 @@ const Setting = {
         const settingsIcon = Setting.settingsIcon()
 
         // windows settings - we will need to alter for other platforms.
-        settingsIcon.setAttribute('href', 'duck://settings/duckplayer')
+        settingsIcon.setAttribute('href', opts.settingsUrl)
     }
 }
 
@@ -749,18 +760,41 @@ const MouseMove = {
  * Initializes all parts of the page on load.
  */
 document.addEventListener('DOMContentLoaded', () => {
-    Setting.init()
+    Setting.init({
+        settingsUrl: settingsUrl(import.meta.injectName)
+    })
     Comms.init({
-        platform: import.meta.platform,
+        injectName: import.meta.injectName,
         env: import.meta.env
     })
     VideoPlayer.init()
     Tooltip.init()
     PlayOnYouTube.init({
-        // todo(Shane): platform specific
-        base: 'duck://player/openInYoutube'
+        base: baseUrl(import.meta.injectName)
     })
     MouseMove.init()
 })
+
+/**
+ * @param {ImportMeta['injectName']} injectName
+ */
+function baseUrl (injectName) {
+    switch (injectName) {
+    // this is different on Windows to allow the native side to intercept the navigation more easily
+    case 'windows': return 'duck://player/openInYoutube'
+    default: return 'https://www.youtube.com/watch'
+    }
+}
+
+/**
+ * @param {ImportMeta['injectName']} injectName
+ */
+function settingsUrl (injectName) {
+    switch (injectName) {
+    // this is different on Windows to allow the native side to intercept the navigation more easily
+    case 'windows': return 'duck://settings/duckplayer'
+    default: return 'about:preferences/duckplayer'
+    }
+}
 
 initStorage()

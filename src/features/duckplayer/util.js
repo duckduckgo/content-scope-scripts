@@ -13,21 +13,6 @@ export function addTrustedEventListener (element, event, callback) {
     })
 }
 
-export function onDOMLoaded (callback) {
-    window.addEventListener('DOMContentLoaded', () => {
-        callback()
-    })
-}
-
-export function onDOMChanged (callback) {
-    const observer = new MutationObserver(callback)
-    observer.observe(document.body, {
-        subtree: true,
-        childList: true,
-        attributeFilter: ['src']
-    })
-}
-
 /**
  * Appends an element. This may change if we go with Shadow DOM approach
  * @param {Element} to - which element to append to
@@ -236,5 +221,34 @@ export class VideoParams {
         }
 
         return new VideoParams(id, time)
+    }
+}
+
+export class DomState {
+    loaded = false
+    callbacks = []
+    constructor () {
+        window.addEventListener('DOMContentLoaded', () => {
+            this.loaded = true
+            this.callbacks.forEach(cb => cb())
+        })
+    }
+
+    onLoaded (cb) {
+        if (this.loaded) return cb()
+        this.callbacks.push(cb)
+    }
+
+    /**
+     * @param {Element} element
+     * @param {MutationCallback} callback
+     */
+    onChanged (callback, element = document.body) {
+        const observer = new MutationObserver(callback)
+        observer.observe(element, {
+            subtree: true,
+            childList: true,
+            attributeFilter: ['src']
+        })
     }
 }
