@@ -5,6 +5,7 @@ import { getStyles, getConfig } from './click-to-load/ctl-config.js'
 import { ClickToLoadMessagingTransport } from './click-to-load/ctl-messaging-transport.js'
 import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
+import { registerCustomElements } from './click-to-load/components'
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -1730,6 +1731,13 @@ export default class ClickToLoad extends ContentFeature {
         // update styles if asset config was sent
         styles = getStyles(this.assetConfig)
         isMobileApp = this.platform.name === 'ios' || this.platform.name === 'android'
+
+        /**
+         * Register Custom Elements only when Click to Load is initialized, to ensure it is only
+         * called when config is ready and any previous context have been appropriately invalidated
+         * prior when applicable (ie Firefox when hot reloading the Extension)
+         */
+        registerCustomElements()
 
         for (const entity of Object.keys(config)) {
             // Strip config entities that are first-party, or aren't enabled in the

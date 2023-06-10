@@ -351,10 +351,50 @@ export function getContextId (scope) {
     }
 }
 
-export function hasTaintedMethod (scope) {
+/**
+ * Returns a set of origins that are tainted
+ * @returns {Set<string> | null}
+ */
+export function taintedOrigins () {
+    return getGlobalObject('taintedOrigins')
+}
+
+/**
+ * Returns a set of taints
+ * @returns {Set<string> | null}
+ */
+export function taints () {
+    return getGlobalObject('taints')
+}
+
+/**
+ * @param {string} name
+ * @returns {any | null}
+ */
+function getGlobalObject (name) {
+    if ('duckduckgo' in navigator &&
+        typeof navigator.duckduckgo === 'object' &&
+        navigator.duckduckgo &&
+        name in navigator.duckduckgo &&
+        navigator.duckduckgo[name]) {
+        return navigator.duckduckgo[name]
+    }
+    return null
+}
+
+export function hasTaintedMethod (scope, shouldStackCheck = false) {
     if (document?.currentScript?.[taintSymbol]) return true
     if ('__ddg_taint__' in window) return true
     if (getContextId(scope)) return true
+    if (!shouldStackCheck || !taintedOrigins()) {
+        return false
+    }
+    const stackOrigins = getStackTraceOrigins(getStack())
+    for (const stackOrigin of stackOrigins) {
+        if (taintedOrigins()?.has(stackOrigin)) {
+            return true
+        }
+    }
     return false
 }
 
