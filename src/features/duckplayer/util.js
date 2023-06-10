@@ -226,17 +226,17 @@ export class VideoParams {
 
 export class DomState {
     loaded = false
-    callbacks = []
+    loadedCallbacks = []
     constructor () {
         window.addEventListener('DOMContentLoaded', () => {
             this.loaded = true
-            this.callbacks.forEach(cb => cb())
+            this.loadedCallbacks.forEach(cb => cb())
         })
     }
 
-    onLoaded (cb) {
-        if (this.loaded) return cb()
-        this.callbacks.push(cb)
+    onLoaded (loadedCallback) {
+        if (this.loaded) return loadedCallback()
+        this.loadedCallbacks.push(loadedCallback)
     }
 
     /**

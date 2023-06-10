@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import { mockWindowsMessaging, wrapWindowsScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
-import { perPlatform } from '../../src/type-helpers.mjs'
+import { perPlatform } from './type-helpers.mjs'
 
 test('Windows Permissions Usage', async ({ page }, testInfo) => {
     const perms = WindowsPermissionsSpec.create(page, testInfo)
@@ -21,8 +21,8 @@ export class WindowsPermissionsSpec {
     config = './integration-test/test-pages/permissions/config/permissions.json'
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {import("../../src/type-helpers.mjs").Build} build
-     * @param {import("../../src/type-helpers.mjs").PlatformInfo} platform
+     * @param {import("./type-helpers.mjs").Build} build
+     * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
     constructor (page, build, platform) {
         this.page = page

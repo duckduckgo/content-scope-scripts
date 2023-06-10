@@ -31,12 +31,7 @@
  *
  * Please see {@link DuckPlayerPageMessages} for the up-to-date list
  */
-import {
-    Messaging,
-    WindowsMessagingConfig,
-    MessagingContext, TestTransportConfig, WebkitMessagingConfig
-} from '../../../../../messaging/index.js'
-import { DuckPlayerPageMessages, UserValues } from './messages'
+import { createDuckPlayerPageMessaging, DuckPlayerPageMessages, UserValues } from './messages'
 import { html } from '../../../../../../src/dom-utils'
 import { initStorage } from './storage'
 
@@ -331,61 +326,7 @@ const Comms = {
      * @param {ImportMeta['injectName']} opts.injectName
      */
     init: (opts) => {
-        const messageContext = new MessagingContext({
-            context: 'specialPages',
-            featureName: 'duckPlayerPage',
-            env: opts.env
-        })
-        if (opts.injectName === 'windows') {
-            const opts = new WindowsMessagingConfig({
-                methods: {
-                    // @ts-expect-error - not in @types/chrome
-                    postMessage: window.chrome.webview.postMessage,
-                    // @ts-expect-error - not in @types/chrome
-                    addEventListener: window.chrome.webview.addEventListener,
-                    // @ts-expect-error - not in @types/chrome
-                    removeEventListener: window.chrome.webview.removeEventListener
-                }
-            })
-            const messaging = new Messaging(messageContext, opts)
-            Comms.messaging = new DuckPlayerPageMessages(messaging)
-        } else if (opts.injectName === 'apple') {
-            const opts = new WebkitMessagingConfig({
-                hasModernWebkitAPI: true,
-                secret: '',
-                webkitMessageHandlerNames: ['specialPages']
-            })
-            const messaging = new Messaging(messageContext, opts)
-            Comms.messaging = new DuckPlayerPageMessages(messaging)
-        } else if (opts.injectName === 'integration') {
-            const config = new TestTransportConfig({
-                notify (msg) {
-                    console.log(msg)
-                },
-                request: (msg) => {
-                    console.log(msg)
-                    if (msg.method === 'getUserValues') {
-                        return Promise.resolve(new UserValues({
-                            overlayInteracted: false,
-                            privatePlayerMode: { alwaysAsk: {} }
-                        }))
-                    }
-                    return Promise.resolve(null)
-                },
-                subscribe (msg) {
-                    console.log(msg)
-                    return () => {
-                        console.log('teardown')
-                    }
-                }
-            })
-            const messaging = new Messaging(messageContext, config)
-            Comms.messaging = new DuckPlayerPageMessages(messaging)
-        }
-        if (!Comms.messaging) {
-            console.warn('Cannot establish communications')
-            return
-        }
+        Comms.messaging = createDuckPlayerPageMessaging(opts)
         // eslint-disable-next-line promise/prefer-await-to-then
         Comms.messaging.getUserValues().then((value) => {
             if ('enabled' in value.privatePlayerMode) {

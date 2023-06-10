@@ -17,6 +17,7 @@ export function createMessaging (feature, injectName) {
         featureName: feature.name
     })
 
+    /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
     const config = {
         windows: () => {
             return new WindowsMessagingConfig({
@@ -30,18 +31,20 @@ export function createMessaging (feature, injectName) {
                 }
             })
         },
-        macos: () => {
+        'apple-isolated': () => {
             return new WebkitMessagingConfig({
                 webkitMessageHandlerNames: [contextName],
                 secret: '',
                 hasModernWebkitAPI: true
             })
         }
-    }[feature.platform.name]
-
-    if (!config) {
-        throw new Error('Messaging not supported yet on platform: ' + feature.platform.name)
     }
 
-    return new Messaging(context, config())
+    const match = config[injectName]
+
+    if (!match) {
+        throw new Error('Messaging not supported yet on: ' + injectName)
+    }
+
+    return new Messaging(context, match())
 }

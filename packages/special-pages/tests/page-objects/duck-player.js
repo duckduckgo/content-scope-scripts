@@ -1,17 +1,22 @@
 import { Mocks } from './mocks.js'
 import { expect } from '@playwright/test'
 import { join } from 'node:path'
-import { perPlatform } from '../../../../src/type-helpers.mjs'
+import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 
 const MOCK_VIDEO_ID = 'VIDEO_ID'
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube'
 const youtubeEmbed = (id) => 'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&rel=0&modestbranding=1'
 
+/**
+ * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
+ * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').PlatformInfo} PlatformInfo
+ */
+
 export class DuckPlayerPage {
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {import("../../../../src/type-helpers.mjs").Build} build
-     * @param {import("../../../../src/type-helpers.mjs").PlatformInfo} platform
+     * @param {Build} build
+     * @param {PlatformInfo} platform
      */
     constructor (page, build, platform) {
         this.page = page

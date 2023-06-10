@@ -13,7 +13,7 @@ export default defineConfig({
             use: { injectName: 'apple', platform: 'macos' }
         }
     ],
-    fullyParallel: true,
+    fullyParallel: !process.env.CI,
     // @ts-expect-error - Type 'undefined' is not assignable to type 'string'. process.env
     webServer: {
         command: 'npm run serve',

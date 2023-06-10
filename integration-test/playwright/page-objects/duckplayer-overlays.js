@@ -6,7 +6,7 @@ import {
     wrapWindowsScripts
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { expect } from '@playwright/test'
-import { perPlatform } from '../../../src/type-helpers.mjs'
+import { perPlatform } from '../type-helpers.mjs'
 
 // Every possible combination of UserValues
 const userValues = {
@@ -38,7 +38,7 @@ export class DuckplayerOverlays {
     serpProxyPage = '/duckplayer/pages/serp-proxy.html'
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {import("../../../src/type-helpers.mjs").Build} build
+     * @param {import("../type-helpers.mjs").Build} build
      * @param {import("@duckduckgo/messaging/lib/test-utils.mjs").PlatformInfo} platform
      */
     constructor (page, build, platform) {
