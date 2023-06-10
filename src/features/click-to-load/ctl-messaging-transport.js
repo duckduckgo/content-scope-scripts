@@ -1,7 +1,9 @@
 import { sendMessage } from '../../utils'
 
-/** Workaround defining MessagingTransport locally because "import()" is not working in @implements
- * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport */
+/**
+ * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
+ * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport
+ */
 
 /**
  * A temporary implementation of {@link MessagingTransport} to communicate with Android and Extension.
