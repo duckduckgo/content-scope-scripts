@@ -132,5 +132,3 @@ export class DDGVideoOverlay extends HTMLElement {
         watchInPlayer.addEventListener('click', watchInPlayerHandler)
     }
 }
-
-customElements.define(DDGVideoOverlay.CUSTOM_TAG_NAME, DDGVideoOverlay)
