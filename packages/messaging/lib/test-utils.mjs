@@ -136,6 +136,11 @@ export function mockWebkitMessaging(params) {
                     // force a 'tick' to allow tests to reset mocks before reading responses
                     await new Promise(res => setTimeout(res, 0));
 
+                    // if it's a notification, simulate the empty response and don't check for a response
+                    if (!('id' in msg)) {
+                        return JSON.stringify({});
+                    }
+
                     if (!(msg.method in window.__playwright_01.mockResponses)) {
                         throw new Error('response not found for ' + msg.method)
                     }
