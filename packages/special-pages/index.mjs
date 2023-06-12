@@ -118,7 +118,7 @@ for (const buildJob of buildJobs) {
             bundle: true,
             format: 'iife',
             define: {
-                'import.meta.env': NODE_ENV,
+                'import.meta.env': JSON.stringify(NODE_ENV),
                 'import.meta.injectName': JSON.stringify(buildJob.injectName),
             }
         })
