@@ -5,6 +5,15 @@ import { camelcase } from '../src/utils.js'
 const contentScopePath = 'src/content-scope-features.js'
 const contentScopeName = 'contentScopeFeatures'
 
+/**
+ * @typedef Build
+ * @property {string} input
+ * @property {string[]} output
+ *
+ * @typedef {Record<NonNullable<ImportMeta['injectName']>, Build>} BuildManifest
+ */
+
+/** @satisfies {BuildManifest} */
 const builds = {
     firefox: {
         input: 'inject/mozilla.js',
@@ -13,6 +22,10 @@ const builds = {
     apple: {
         input: 'inject/apple.js',
         output: ['Sources/ContentScopeScripts/dist/contentScope.js']
+    },
+    'apple-isolated': {
+        input: 'inject/apple.js',
+        output: ['Sources/ContentScopeScripts/dist/contentScopeIsolated.js']
     },
     android: {
         input: 'inject/android.js',

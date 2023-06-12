@@ -7,17 +7,24 @@ export default defineConfig({
             testMatch: [
                 'integration-test/playwright/duckplayer.spec.js'
             ],
-            use: { platform: 'windows' }
+            use: { injectName: 'windows', platform: 'windows' }
+        },
+        {
+            name: 'apple-isolated',
+            testMatch: [
+                'integration-test/playwright/duckplayer.spec.js'
+            ],
+            use: { injectName: 'apple-isolated', platform: 'macos' }
         },
         {
             name: 'chrome',
             testMatch: 'integration-test/playwright/remote-pages.spec.js',
-            use: { platform: 'extension', ...devices['Desktop Chrome'] }
+            use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] }
         },
         {
             name: 'firefox',
             testMatch: 'integration-test/playwright/remote-pages.spec.js',
-            use: { platform: 'extension', ...devices['Desktop Firefox'] }
+            use: { injectName: 'firefox', platform: 'extension', ...devices['Desktop Firefox'] }
         }
     ],
     timeout: 30 * 1000,

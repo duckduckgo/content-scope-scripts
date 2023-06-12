@@ -176,3 +176,37 @@ export class MessageError {
         this.message = params.message
     }
 }
+
+/**
+ * @param {RequestMessage} request
+ * @param {Record<string, any>} data
+ * @return {data is MessageResponse}
+ */
+export function isResponseFor (request, data) {
+    if ('result' in data) {
+        return data.featureName === request.featureName &&
+            data.context === request.context &&
+            data.id === request.id
+    }
+    if ('error' in data) {
+        if ('message' in data.error) {
+            return true
+        }
+    }
+    return false
+}
+
+/**
+ * @param {Subscription} sub
+ * @param {Record<string, any>} data
+ * @return {data is SubscriptionEvent}
+ */
+export function isSubscriptionEventFor (sub, data) {
+    if ('subscriptionName' in data) {
+        return data.featureName === sub.featureName &&
+            data.context === sub.context &&
+            data.subscriptionName === sub.subscriptionName
+    }
+
+    return false
+}
