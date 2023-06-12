@@ -199,30 +199,26 @@ export class DuckPlayerPage {
     }
 
     async opensInYoutube () {
-        switch (this.build.name) {
-        // Windows uses a special URL handler to exit duck player
-        case 'windows': {
-            const failure = new Promise(resolve => {
-                this.page.context().on('requestfailed', f => {
-                    resolve(f.url())
+        await this.build.switch({
+            windows: async () => {
+                const failure = new Promise(resolve => {
+                    this.page.context().on('requestfailed', f => {
+                        resolve(f.url())
+                    })
                 })
-            })
-            await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
-            expect(await failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID')
-            break
-        }
-        // the default is just a regular link
-        default: {
-            const nextNavigation = new Promise(resolve => {
-                this.page.context().on('request', f => {
-                    resolve(f.url())
+                await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
+                expect(await failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID')
+            },
+            apple: async () => {
+                const nextNavigation = new Promise(resolve => {
+                    this.page.context().on('request', f => {
+                        resolve(f.url())
+                    })
                 })
-            })
-            await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
-            expect(await nextNavigation).toEqual('https://www.youtube.com/watch?v=VIDEO_ID')
-            break
-        }
-        }
+                await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
+                expect(await nextNavigation).toEqual('https://www.youtube.com/watch?v=VIDEO_ID')
+            }
+        })
     }
 
     /**

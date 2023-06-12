@@ -14,14 +14,16 @@
 import { join, relative } from 'node:path'
 import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs'
 import { buildSync } from 'esbuild'
-import { cwd } from '../../scripts/script-utils.js'
+import { cwd, parseArgs } from '../../scripts/script-utils.js'
 import inliner from 'web-resource-inliner'
 
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../../')
 const BUILD = join(ROOT, 'build')
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
-const NODE_ENV = JSON.stringify(process.env.NODE_ENV || 'production')
+const args = parseArgs(process.argv.slice(2), [])
+const NODE_ENV = args.env || 'production';
+const DEBUG = Boolean(args.debug);
 
 export const support = {
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
@@ -93,7 +95,7 @@ if (errors.length > 0) {
 }
 
 for (const copyJob of copyJobs) {
-    console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest))
+    if (DEBUG) console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest));
     if (!DRY_RUN) {
         rmSync(copyJob.dest, {
             force: true,
@@ -106,9 +108,9 @@ for (const copyJob of copyJobs) {
     }
 }
 for (const buildJob of buildJobs) {
-    console.log('BUILD:', relative(ROOT, buildJob.src), relative(ROOT, buildJob.dest))
-    console.log('\t- import.meta.env: ', NODE_ENV)
-    console.log('\t- import.meta.injectName: ', buildJob.injectName)
+    if (DEBUG) console.log('BUILD:', relative(ROOT, buildJob.src), relative(ROOT, buildJob.dest))
+    if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV)
+    if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName)
     if (!DRY_RUN) {
         buildSync({
             entryPoints: [buildJob.src],
@@ -123,7 +125,7 @@ for (const buildJob of buildJobs) {
     }
 }
 for (const inlineJob of inlineJobs) {
-    console.log('INLINE:', relative(ROOT, inlineJob.src))
+    if (DEBUG) console.log('INLINE:', relative(ROOT, inlineJob.src))
     if (!DRY_RUN) {
         inliner.html({
             fileContent: readFileSync(inlineJob.src, 'utf8'),
