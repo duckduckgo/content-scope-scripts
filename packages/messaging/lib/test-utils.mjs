@@ -6,6 +6,7 @@
  * @typedef {import("../../messaging/index.js").RequestMessage} RequestMessage
  * @typedef {import("../../messaging/index.js").NotificationMessage} NotificationMessage
  * @typedef {WindowsRequestMessage | WindowsNotification | SubscriptionEvent} AnyWindowsMessage
+ * @typedef {import("../../../integration-test/playwright/type-helpers.mjs").PlatformInfo} PlatformInfo
  */
 /**
  * Install a mock interface for windows messaging
@@ -105,6 +106,63 @@ export function mockWindowsMessaging(params) {
     }
 }
 
+
+/**
+ * Install a mock interface for windows messaging
+ * @param {{
+ *  messagingContext: import('../index.js').MessagingContext,
+ *  responses: Record<string, any>
+ * }} params
+ */
+export function mockWebkitMessaging(params) {
+    window.__playwright_01 = {
+        mockResponses: params.responses,
+        subscriptionEvents: [],
+        mocks: {
+            outgoing: []
+        }
+    }
+    window.webkit = {
+        messageHandlers: {
+            [params.messagingContext.context]: {
+                /**
+                 * @param {RequestMessage | NotificationMessage} msg
+                 */
+                async postMessage (msg) {
+                    window.__playwright_01.mocks.outgoing.push(JSON.parse(JSON.stringify({
+                        payload: msg
+                    })))
+
+                    // force a 'tick' to allow tests to reset mocks before reading responses
+                    await new Promise(res => setTimeout(res, 0));
+
+                    // if it's a notification, simulate the empty response and don't check for a response
+                    if (!('id' in msg)) {
+                        return JSON.stringify({});
+                    }
+
+                    if (!(msg.method in window.__playwright_01.mockResponses)) {
+                        throw new Error('response not found for ' + msg.method)
+                    }
+
+                    const response = window.__playwright_01.mockResponses[msg.method]
+
+                    /** @type {Omit<MessageResponse, 'error'>} */
+                    const r = {
+                        result: response,
+                        context: msg.context,
+                        featureName: msg.featureName,
+                        // @ts-ignore - shane: fix this
+                        id: msg.id,
+                    }
+
+                    return JSON.stringify(r)
+                }
+            }
+        }
+    }
+}
+
 /**
  * @param {object} params
  * @param {Record<string, any>} params.responses
@@ -162,35 +220,45 @@ export function wrapWindowsScripts(js, replacements) {
 }
 
 /**
+ * simulate what happens in Windows environment where globals get erased
+ * @param {string} js
+ * @param {Record<string, any>} replacements
+ */
+export function wrapWebkitScripts(js, replacements) {
+    for (let [find, replace] of Object.entries(replacements)) {
+        js = js.replace(find, JSON.stringify(replace));
+    }
+    return js;
+}
+
+/**
  * @param {object} params
  * @param {import('../index.js').MessagingContext} params.messagingContext
  * @param {string} params.name
  * @param {Record<string, any>} params.payload
- * @param {PlatformInfo} params.platform
+ * @param {NonNullable<ImportMeta['injectName']>} params.injectName
  */
 export function simulateSubscriptionMessage(params) {
-    switch (params.platform.name) {
+    const subscriptionEvent = {
+        context: params.messagingContext.context,
+        featureName: params.messagingContext.featureName,
+        subscriptionName: params.name,
+        params: params.payload,
+    }
+    switch (params.injectName) {
     case "windows": {
         // @ts-expect-error
         const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage;
-        fn({
-            context: params.messagingContext.context,
-            featureName: params.messagingContext.featureName,
-            subscriptionName: params.name,
-            params: params.payload,
-        })
+        fn(subscriptionEvent)
         break;
     }
-    default: throw new Error('platform not supported yet: ' + params.platform.name)
+    case "apple":
+    case "apple-isolated": {
+        if (!(params.name in window)) throw new Error('subscription fn not found for: ' + params.injectName);
+        window[params.name](subscriptionEvent);
+        break;
+    }
+    default: throw new Error('platform not supported yet: ' + params.injectName)
     }
 }
 
-export class PlatformInfo {
-    /**
-     * @param {object} params
-     * @param {"apple" | "windows"} params.name
-     */
-    constructor (params) {
-        this.name = params.name;
-    }
-}

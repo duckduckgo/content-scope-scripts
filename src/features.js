@@ -29,6 +29,9 @@ export const platformSupport = {
         ...baseFeatures,
         'webCompat'
     ],
+    'apple-isolated': [
+        'duckPlayer'
+    ],
     android: [
         ...baseFeatures,
         'clickToLoad'
