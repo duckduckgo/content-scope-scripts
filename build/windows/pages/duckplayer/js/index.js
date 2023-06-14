@@ -213,6 +213,73 @@
     }
   };
 
+  // ../messaging/schema.js
+  var RequestMessage = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.method
+     * @param {string} params.id
+     * @param {Record<string, any>} [params.params]
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.method = params.method;
+      this.id = params.id;
+      this.params = params.params;
+    }
+  };
+  var NotificationMessage = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.method
+     * @param {Record<string, any>} [params.params]
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.method = params.method;
+      this.params = params.params;
+    }
+  };
+  var Subscription = class {
+    /**
+     * @param {object} params
+     * @param {string} params.context
+     * @param {string} params.featureName
+     * @param {string} params.subscriptionName
+     * @internal
+     */
+    constructor(params) {
+      this.context = params.context;
+      this.featureName = params.featureName;
+      this.subscriptionName = params.subscriptionName;
+    }
+  };
+  function isResponseFor(request, data) {
+    if ("result" in data) {
+      return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
+    }
+    if ("error" in data) {
+      if ("message" in data.error) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function isSubscriptionEventFor(sub, data) {
+    if ("subscriptionName" in data) {
+      return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
+    }
+    return false;
+  }
+
   // ../messaging/lib/webkit.js
   var WebkitMessagingTransport = class {
     /**
@@ -249,30 +316,30 @@
       if (!(handler in this.globals.window.webkit.messageHandlers)) {
         throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
       }
-      const outgoing = {
-        ...data,
-        messageHandling: {
-          ...data.messageHandling,
-          secret: this.config.secret
-        }
-      };
       if (!this.config.hasModernWebkitAPI) {
+        const outgoing = {
+          ...data,
+          messageHandling: {
+            ...data.messageHandling,
+            secret: this.config.secret
+          }
+        };
         if (!(handler in this.globals.capturedWebkitHandlers)) {
           throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
         } else {
           return this.globals.capturedWebkitHandlers[handler](outgoing);
         }
       }
-      return this.globals.window.webkit.messageHandlers[handler].postMessage?.(outgoing);
+      return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
     }
     /**
      * Sends message to the webkit layer and waits for the specified response
      * @param {String} handler
-     * @param {*} data
+     * @param {import('../index.js').RequestMessage} data
      * @returns {Promise<*>}
      * @internal
      */
-    async wkSendAndWait(handler, data = {}) {
+    async wkSendAndWait(handler, data) {
       if (this.config.hasModernWebkitAPI) {
         const response = await this.wkSend(handler, data);
         return this.globals.JSONparse(response || "{}");
@@ -316,9 +383,17 @@
     /**
      * @param {import('../index.js').RequestMessage} msg
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    request(msg, _opts) {
-      return this.wkSendAndWait(msg.context, msg);
+    async request(msg) {
+      const data = await this.wkSendAndWait(msg.context, msg);
+      if (isResponseFor(msg, data)) {
+        if (data.result) {
+          return data.result || {};
+        }
+        if (data.error) {
+          throw new Error(data.error.message);
+        }
+      }
+      throw new Error("an unknown error occurred");
     }
     /**
      * Generate a random method name and adds it to the global scope
@@ -413,9 +488,23 @@
      * @param {(value: unknown) => void} callback
      */
     subscribe(msg, callback) {
-      console.warn("webkit.subscribe is not implemented yet!", msg, callback);
+      if (msg.subscriptionName in this.globals.window) {
+        throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+      }
+      this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+        enumerable: false,
+        configurable: true,
+        writable: false,
+        value: (data) => {
+          if (data && isSubscriptionEventFor(msg, data)) {
+            callback(data.params);
+          } else {
+            console.warn("Received a message that did not match the subscription", data);
+          }
+        }
+      });
       return () => {
-        console.log("teardown");
+        this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
       };
     }
   };
@@ -467,62 +556,14 @@
       JSONparse: window.JSON.parse,
       Arrayfrom: window.Array.from,
       Promise: window.Promise,
+      Error: window.Error,
+      ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
       ObjectDefineProperty: window.Object.defineProperty,
       addEventListener: window.addEventListener.bind(window),
       /** @type {Record<string, any>} */
       capturedWebkitHandlers: {}
     };
   }
-
-  // ../messaging/schema.js
-  var RequestMessage = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.method
-     * @param {string} params.id
-     * @param {Record<string, any>} [params.params]
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.method = params.method;
-      this.id = params.id;
-      this.params = params.params;
-    }
-  };
-  var NotificationMessage = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.method
-     * @param {Record<string, any>} [params.params]
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.method = params.method;
-      this.params = params.params;
-    }
-  };
-  var Subscription = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.subscriptionName
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.subscriptionName = params.subscriptionName;
-    }
-  };
 
   // ../messaging/index.js
   var MessagingContext = class {
@@ -724,6 +765,76 @@
       this.overlayInteracted = params.overlayInteracted;
     }
   };
+  function createDuckPlayerPageMessaging(opts) {
+    const messageContext = new MessagingContext({
+      context: "specialPages",
+      featureName: "duckPlayerPage",
+      env: opts.env
+    });
+    if (opts.injectName === "windows") {
+      const opts2 = new WindowsMessagingConfig({
+        methods: {
+          // @ts-expect-error - not in @types/chrome
+          postMessage: window.chrome.webview.postMessage,
+          // @ts-expect-error - not in @types/chrome
+          addEventListener: window.chrome.webview.addEventListener,
+          // @ts-expect-error - not in @types/chrome
+          removeEventListener: window.chrome.webview.removeEventListener
+        }
+      });
+      const messaging = new Messaging(messageContext, opts2);
+      return new DuckPlayerPageMessages(messaging);
+    } else if (opts.injectName === "apple") {
+      const opts2 = new WebkitMessagingConfig({
+        hasModernWebkitAPI: true,
+        secret: "",
+        webkitMessageHandlerNames: ["specialPages"]
+      });
+      const messaging = new Messaging(messageContext, opts2);
+      return new DuckPlayerPageMessages(messaging);
+    } else if (opts.injectName === "integration") {
+      const config = new TestTransportConfig({
+        notify(msg) {
+          console.log(msg);
+        },
+        request: (msg) => {
+          console.log(msg);
+          if (msg.method === "getUserValues") {
+            return Promise.resolve(new UserValues({
+              overlayInteracted: false,
+              privatePlayerMode: { alwaysAsk: {} }
+            }));
+          }
+          return Promise.resolve(null);
+        },
+        subscribe(msg) {
+          console.log(msg);
+          return () => {
+            console.log("teardown");
+          };
+        }
+      });
+      const messaging = new Messaging(messageContext, config);
+      return new DuckPlayerPageMessages(messaging);
+    }
+    throw new Error("unreachable - platform not supported");
+  }
+  async function callWithRetry(fn, params = {}) {
+    const { maxAttempts = 10, intervalMs = 300 } = params;
+    let attempt = 1;
+    while (attempt <= maxAttempts) {
+      try {
+        return { value: await fn(), attempt };
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          return { error: `Max attempts reached: ${error}` };
+        }
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        attempt++;
+      }
+    }
+    return { error: "Unreachable: value not retrieved" };
+  }
 
   // ../../src/dom-utils.js
   var Template = class {
@@ -1043,70 +1154,30 @@
      *
      * @param {object} opts
      * @param {ImportMeta['env']} opts.env
-     * @param {ImportMeta['platform']} opts.platform
+     * @param {ImportMeta['injectName']} opts.injectName
      */
-    init: (opts) => {
-      const messageContext = new MessagingContext({
-        context: "specialPages",
-        featureName: "duckPlayerPage",
-        env: opts.env
+    init: async (opts) => {
+      const messaging = createDuckPlayerPageMessaging(opts);
+      const result = await callWithRetry(() => {
+        return messaging.getUserValues();
       });
-      if (opts.platform === "windows") {
-        const opts2 = new WindowsMessagingConfig({
-          methods: {
-            // @ts-expect-error - not in @types/chrome
-            postMessage: window.chrome.webview.postMessage,
-            // @ts-expect-error - not in @types/chrome
-            addEventListener: window.chrome.webview.addEventListener,
-            // @ts-expect-error - not in @types/chrome
-            removeEventListener: window.chrome.webview.removeEventListener
-          }
-        });
-        const messaging = new Messaging(messageContext, opts2);
-        Comms.messaging = new DuckPlayerPageMessages(messaging);
-      } else if (opts.platform === "integration") {
-        const config = new TestTransportConfig({
-          notify(msg) {
-            console.log(msg);
-          },
-          request: (msg) => {
-            console.log(msg);
-            if (msg.method === "getUserValues") {
-              return Promise.resolve(new UserValues({
-                overlayInteracted: false,
-                privatePlayerMode: { alwaysAsk: {} }
-              }));
-            }
-            return Promise.resolve(null);
-          },
-          subscribe(msg) {
-            console.log(msg);
-            return () => {
-              console.log("teardown");
-            };
-          }
-        });
-        const messaging = new Messaging(messageContext, config);
-        Comms.messaging = new DuckPlayerPageMessages(messaging);
-      }
-      if (!Comms.messaging) {
-        console.warn("Cannot establish communications");
-        return;
-      }
-      Comms.messaging.getUserValues().then((value) => {
-        if ("enabled" in value.privatePlayerMode) {
+      if ("value" in result) {
+        Comms.messaging = messaging;
+        if ("enabled" in result.value.privatePlayerMode) {
           Setting.setState(true);
         } else {
           Setting.setState(false);
         }
-      });
-      Comms.messaging?.onUserValuesChanged((value) => {
-        if ("enabled" in value.privatePlayerMode) {
-          Setting.setState(true);
-        } else {
-          Setting.setState(false);
-        }
-      });
+        Comms.messaging?.onUserValuesChanged((value) => {
+          if ("enabled" in value.privatePlayerMode) {
+            Setting.setState(true);
+          } else {
+            Setting.setState(false);
+          }
+        });
+      } else {
+        console.error(result.error);
+      }
     },
     /**
      * From the player page, all we can do is 'setUserValues' to {enabled: {}}
@@ -1213,14 +1284,16 @@
      * Initializes the setting checkbox:
      * 1. Listens for (user) changes on the actual checkbox
      * 2. Listens for to clicks on the checkbox text
+     * @param {object} opts
+     * @param {string} opts.settingsUrl
      */
-    init: () => {
+    init: (opts) => {
       const checkbox = Setting.checkbox();
       checkbox.addEventListener("change", () => {
         Setting.updateAndSend(checkbox.checked);
       });
       const settingsIcon = Setting.settingsIcon();
-      settingsIcon.setAttribute("href", "duck://settings/duckplayer");
+      settingsIcon.setAttribute("href", opts.settingsUrl);
     }
   };
   var PlayOnYouTube = {
@@ -1389,19 +1462,40 @@
       }, MouseMove.fadeTransitionTime);
     }
   };
-  document.addEventListener("DOMContentLoaded", () => {
-    Setting.init();
-    Comms.init({
-      platform: "windows",
+  document.addEventListener("DOMContentLoaded", async () => {
+    Setting.init({
+      settingsUrl: settingsUrl("windows")
+    });
+    await Comms.init({
+      injectName: "windows",
       env: "production"
     });
+    if (!Comms.messaging) {
+      console.warn("cannot continue as messaging was not resolved");
+      return;
+    }
     VideoPlayer.init();
     Tooltip.init();
     PlayOnYouTube.init({
-      // todo(Shane): platform specific
-      base: "duck://player/openInYoutube"
+      base: baseUrl("windows")
     });
     MouseMove.init();
   });
+  function baseUrl(injectName) {
+    switch (injectName) {
+      case "windows":
+        return "duck://player/openInYoutube";
+      default:
+        return "https://www.youtube.com/watch";
+    }
+  }
+  function settingsUrl(injectName) {
+    switch (injectName) {
+      case "windows":
+        return "duck://settings/duckplayer";
+      default:
+        return "about:preferences/duckplayer";
+    }
+  }
   initStorage();
 })();

@@ -399,6 +399,27 @@ export function hasTaintedMethod (scope, shouldStackCheck = false) {
 }
 
 /**
+ * @param {*[]} argsArray
+ * @returns {string}
+ */
+function debugSerialize (argsArray) {
+    const maxSerializedSize = 1000
+    const serializedArgs = argsArray.map((arg) => {
+        try {
+            const serializableOut = JSON.stringify(arg)
+            if (serializableOut.length > maxSerializedSize) {
+                return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`
+            }
+            return serializableOut
+        } catch (e) {
+            // Sometimes this happens when we can't serialize an object to string but we still wish to log it and make other args readable
+            return '<unserializable>'
+        }
+    })
+    return JSON.stringify(serializedArgs)
+}
+
+/**
  * @template {object} P
  * @typedef {object} ProxyObject<P>
  * @property {(target?: object, thisArg?: P, args?: object) => void} apply
@@ -440,7 +461,7 @@ export class DDGProxy {
                     kind: this.property,
                     documentUrl: document.location.href,
                     stack: getStack(),
-                    args: JSON.stringify(args[2])
+                    args: debugSerialize(args[2])
                 })
             }
             // The normal return value
@@ -581,13 +602,8 @@ function getPlatformVersion (preferences) {
     return undefined
 }
 
-export function parseVersionString (versionString) {
-    const [major = 0, minor = 0, patch = 0] = versionString.split('.').map(Number)
-    return {
-        major,
-        minor,
-        patch
-    }
+function parseVersionString (versionString) {
+    return versionString.split('.').map(Number)
 }
 
 /**
@@ -596,12 +612,20 @@ export function parseVersionString (versionString) {
  * @returns {boolean}
  */
 export function satisfiesMinVersion (minVersionString, applicationVersionString) {
-    const { major: minMajor, minor: minMinor, patch: minPatch } = parseVersionString(minVersionString)
-    const { major, minor, patch } = parseVersionString(applicationVersionString)
-
-    return (major > minMajor ||
-            (major >= minMajor && minor > minMinor) ||
-            (major >= minMajor && minor >= minMinor && patch >= minPatch))
+    const minVersions = parseVersionString(minVersionString)
+    const currentVersions = parseVersionString(applicationVersionString)
+    const maxLength = Math.max(minVersions.length, currentVersions.length)
+    for (let i = 0; i < maxLength; i++) {
+        const minNumberPart = minVersions[i] || 0
+        const currentVersionPart = currentVersions[i] || 0
+        if (currentVersionPart > minNumberPart) {
+            return true
+        }
+        if (currentVersionPart < minNumberPart) {
+            return false
+        }
+    }
+    return true
 }
 
 /**

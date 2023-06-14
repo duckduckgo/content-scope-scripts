@@ -1,13 +1,18 @@
 import css from './assets/styles.css'
 import { VideoOverlayManager } from './video-overlay-manager.js'
 import { IconOverlay } from './icon-overlay.js'
-import { onDOMLoaded, onDOMChanged, addTrustedEventListener, appendElement, VideoParams } from './util.js'
+import { addTrustedEventListener, appendElement, DomState, VideoParams } from './util.js'
+import { registerCustomElements } from './components/index.js'
 
 /**
  * @param {Environment} environment - methods to read environment-sensitive things like the current URL etc
  * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms - methods to communicate with a native backend
  */
 export async function initOverlays (environment, comms) {
+    /**
+     * If we get here it's safe to register our custom elements
+     */
+    registerCustomElements()
     /**
      * Entry point. Until this returns with initial user values, we cannot continue.
      */
@@ -21,6 +26,8 @@ export async function initOverlays (environment, comms) {
 
     const videoPlayerOverlay = new VideoOverlayManager(userValues, environment, comms)
     videoPlayerOverlay.handleFirstPageLoad()
+
+    const domState = new DomState()
 
     // give access to macos communications
     // todo: make this a class + constructor arg
@@ -206,7 +213,7 @@ export async function initOverlays (environment, comms) {
         hasBeenEnabled: false,
 
         enableOnDOMLoaded: () => {
-            onDOMLoaded(() => {
+            domState.onLoaded(() => {
                 AllIconOverlays.enable()
             })
         },
@@ -215,7 +222,7 @@ export async function initOverlays (environment, comms) {
             if (!AllIconOverlays.hasBeenEnabled) {
                 CSS.init()
 
-                onDOMChanged(() => {
+                domState.onChanged(() => {
                     if (AllIconOverlays.enabled) {
                         VideoThumbnail.bindEventsToAll()
                         Preview.init()
@@ -298,7 +305,7 @@ export async function initOverlays (environment, comms) {
             OpenInDuckPlayer.enabled = true
             OpenInDuckPlayer.bindEventsToAll()
 
-            onDOMChanged(() => {
+            domState.onChanged(() => {
                 OpenInDuckPlayer.bindEventsToAll()
             })
         },
@@ -306,10 +313,10 @@ export async function initOverlays (environment, comms) {
         enableOnDOMLoaded: () => {
             OpenInDuckPlayer.enabled = true
 
-            onDOMLoaded(() => {
+            domState.onLoaded(() => {
                 OpenInDuckPlayer.bindEventsToAll()
 
-                onDOMChanged(() => {
+                domState.onChanged(() => {
                     OpenInDuckPlayer.bindEventsToAll()
                 })
             })
