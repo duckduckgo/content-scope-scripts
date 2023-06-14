@@ -31,7 +31,12 @@
  *
  * Please see {@link DuckPlayerPageMessages} for the up-to-date list
  */
-import { createDuckPlayerPageMessaging, DuckPlayerPageMessages, UserValues } from './messages'
+import {
+    callWithRetry,
+    createDuckPlayerPageMessaging,
+    DuckPlayerPageMessages,
+    UserValues
+} from './messages'
 import { html } from '../../../../../../src/dom-utils'
 import { initStorage } from './storage'
 
@@ -325,23 +330,31 @@ const Comms = {
      * @param {ImportMeta['env']} opts.env
      * @param {ImportMeta['injectName']} opts.injectName
      */
-    init: (opts) => {
-        Comms.messaging = createDuckPlayerPageMessaging(opts)
-        // eslint-disable-next-line promise/prefer-await-to-then
-        Comms.messaging.getUserValues().then((value) => {
-            if ('enabled' in value.privatePlayerMode) {
+    init: async (opts) => {
+        const messaging = createDuckPlayerPageMessaging(opts)
+        // try to make communication with the native side.
+        const result = await callWithRetry(() => {
+            return messaging.getUserValues()
+        })
+        // if we received a connection, use the initial values
+        if ('value' in result) {
+            Comms.messaging = messaging
+            if ('enabled' in result.value.privatePlayerMode) {
                 Setting.setState(true)
             } else {
                 Setting.setState(false)
             }
-        })
-        Comms.messaging?.onUserValuesChanged(value => {
-            if ('enabled' in value.privatePlayerMode) {
-                Setting.setState(true)
-            } else {
-                Setting.setState(false)
-            }
-        })
+            // eslint-disable-next-line promise/prefer-await-to-then
+            Comms.messaging?.onUserValuesChanged(value => {
+                if ('enabled' in value.privatePlayerMode) {
+                    Setting.setState(true)
+                } else {
+                    Setting.setState(false)
+                }
+            })
+        } else {
+            console.error(result.error)
+        }
     },
     /**
      * From the player page, all we can do is 'setUserValues' to {enabled: {}}
@@ -700,14 +713,18 @@ const MouseMove = {
 /**
  * Initializes all parts of the page on load.
  */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     Setting.init({
         settingsUrl: settingsUrl(import.meta.injectName)
     })
-    Comms.init({
+    await Comms.init({
         injectName: import.meta.injectName,
         env: import.meta.env
     })
+    if (!Comms.messaging) {
+        console.warn('cannot continue as messaging was not resolved')
+        return
+    }
     VideoPlayer.init()
     Tooltip.init()
     PlayOnYouTube.init({

@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node index.mjs",
-    "build.dev": "node index.mjs --debug",
+    "build.dev": "node index.mjs --env development",
     "test": "playwright test",
     "test.windows": "npm run test -- --project duckplayer-windows",
     "test.apple": "npm run test -- --project duckplayer-apple",
@@ -14,8 +14,8 @@
     "test.ui": "npm run test -- --ui",
     "pretest": "npm run build.dev",
     "pretest.headed": "npm run build.dev",
-    "test-int-x": "playwright test",
-    "test-int": "playwright test",
+    "test-int-x": "npm run test",
+    "test-int": "npm run test",
     "serve": "http-server -c-1 --port 3210 ../../"
   },
   "license": "ISC",
