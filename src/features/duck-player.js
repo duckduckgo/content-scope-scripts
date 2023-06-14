@@ -33,9 +33,9 @@
 import ContentFeature from '../content-feature.js'
 
 import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckplayer/overlay-messages.js'
-import { Messaging, MessagingContext, WindowsMessagingConfig } from '@duckduckgo/messaging'
 import { Environment, initOverlays } from './duckplayer/overlays.js'
 import { isBeingFramed } from '../utils.js'
+import { createMessaging } from '../create-messaging.js'
 
 /**
  * @typedef UserValues - A way to communicate user settings
@@ -55,26 +55,9 @@ export default class DuckPlayerFeature extends ContentFeature {
      */
     get messaging () {
         if (this._messaging) return this._messaging
-        if (this.platform.name === 'windows') {
-            const context = new MessagingContext({
-                context: 'contentScopeScripts',
-                env: this.isDebug ? 'development' : 'production',
-                featureName: this.name
-            })
-            const config = new WindowsMessagingConfig({
-                methods: {
-                    // @ts-expect-error - Type 'unknown' is not assignable to type...
-                    postMessage: windowsInteropPostMessage,
-                    // @ts-expect-error - Type 'unknown' is not assignable to type...
-                    addEventListener: windowsInteropAddEventListener,
-                    // @ts-expect-error - Type 'unknown' is not assignable to type...
-                    removeEventListener: windowsInteropRemoveEventListener
-                }
-            })
-            this._messaging = new Messaging(context, config)
-            return this._messaging
-        }
-        throw new Error('Messaging not supported yet on platform: ' + this.name)
+        if (typeof import.meta.injectName === 'undefined') throw new Error('import.meta.injectName missing')
+        this._messaging = createMessaging(this, import.meta.injectName)
+        return this._messaging
     }
 
     init (args) {

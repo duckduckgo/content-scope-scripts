@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import { mockWindowsMessaging, wrapWindowsScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
+import { perPlatform } from './type-helpers.mjs'
 
-test('Windows Permissions Usage', async ({ page }) => {
-    const perms = new WindowsPermissionsSpec(page)
+test('Windows Permissions Usage', async ({ page }, testInfo) => {
+    const perms = WindowsPermissionsSpec.create(page, testInfo)
     await perms.enabled()
     const results = await page.evaluate(() => {
         // @ts-expect-error - this is added by the test framework
@@ -18,12 +19,15 @@ test('Windows Permissions Usage', async ({ page }) => {
 export class WindowsPermissionsSpec {
     htmlPage = '/permissions/index.html'
     config = './integration-test/test-pages/permissions/config/permissions.json'
-    build = './build/windows/contentScope.js'
     /**
      * @param {import("@playwright/test").Page} page
+     * @param {import("./type-helpers.mjs").Build} build
+     * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
-    constructor (page) {
+    constructor (page, build, platform) {
         this.page = page
+        this.build = build
+        this.platform = platform
     }
 
     async enabled () {
@@ -72,7 +76,7 @@ export class WindowsPermissionsSpec {
         const { config } = params
 
         // read the built file from disk and do replacements
-        const injectedJS = wrapWindowsScripts(this.buildArtefact, {
+        const injectedJS = wrapWindowsScripts(this.build.artifact, {
             $CONTENT_SCOPE$: config,
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
@@ -95,10 +99,13 @@ export class WindowsPermissionsSpec {
     }
 
     /**
-     * @return {string}
+     * Helper for creating an instance per platform
+     * @param {import("@playwright/test").Page} page
+     * @param {import("@playwright/test").TestInfo} testInfo
      */
-    get buildArtefact () {
-        const buildArtefact = readFileSync(this.build, 'utf8')
-        return buildArtefact
+    static create (page, testInfo) {
+        // Read the configuration object to determine which platform we're testing against
+        const { platformInfo, build } = perPlatform(testInfo.project.use)
+        return new WindowsPermissionsSpec(page, build, platformInfo)
     }
 }

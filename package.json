@@ -15,7 +15,7 @@
     "build-firefox": "node scripts/inject.js --platform firefox",
     "build-chrome": "node scripts/inject.js --platform chrome",
     "build-chrome-mv3": "node scripts/inject.js --platform chrome-mv3",
-    "build-apple": "node scripts/inject.js --platform apple",
+    "build-apple": "node scripts/inject.js --platform apple && node scripts/inject.js --platform apple-isolated",
     "build-android": "node scripts/inject.js --platform android",
     "build-windows": "node scripts/inject.js --platform windows",
     "build-integration": "node scripts/inject.js --platform integration",
@@ -40,8 +40,8 @@
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
     "playwright": "playwright test",
     "playwright-headed": "playwright test --headed",
-    "preplaywright": "npm run build-windows",
-    "preplaywright-headed": "npm run build-windows"
+    "preplaywright": "npm run build-windows && npm run build-apple",
+    "preplaywright-headed": "npm run build-windows && npm run build-apple"
   },
   "type": "module",
   "workspaces": [
