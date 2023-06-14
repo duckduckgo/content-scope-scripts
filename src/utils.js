@@ -403,12 +403,17 @@ export function hasTaintedMethod (scope, shouldStackCheck = false) {
  * @returns {string}
  */
 function debugSerialize (argsArray) {
+    const maxSerializedSize = 1000
     const serializedArgs = argsArray.map((arg) => {
         try {
-            return JSON.stringify(arg)
+            const serializableOut = JSON.stringify(arg)
+            if (serializableOut.length > maxSerializedSize) {
+                return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`
+            }
+            return serializableOut
         } catch (e) {
             // Sometimes this happens when we can't serialize an object to string but we still wish to log it and make other args readable
-            return '[unserializable]'
+            return '<unserializable>'
         }
     })
     return JSON.stringify(serializedArgs)
