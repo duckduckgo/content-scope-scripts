@@ -399,6 +399,22 @@ export function hasTaintedMethod (scope, shouldStackCheck = false) {
 }
 
 /**
+ * @param {*[]} argsArray
+ * @returns {string}
+ */
+function debugSerialize (argsArray) {
+    const serializedArgs = argsArray.map((arg) => {
+        try {
+            return JSON.stringify(arg)
+        } catch (e) {
+            // Sometimes this happens when we can't serialize an object to string but we still wish to log it and make other args readable
+            return '[unserializable]'
+        }
+    })
+    return JSON.stringify(serializedArgs)
+}
+
+/**
  * @template {object} P
  * @typedef {object} ProxyObject<P>
  * @property {(target?: object, thisArg?: P, args?: object) => void} apply
@@ -440,7 +456,7 @@ export class DDGProxy {
                     kind: this.property,
                     documentUrl: document.location.href,
                     stack: getStack(),
-                    args: JSON.stringify(args[2])
+                    args: debugSerialize(args[2])
                 })
             }
             // The normal return value
