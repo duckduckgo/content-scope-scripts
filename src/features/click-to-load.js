@@ -524,7 +524,7 @@ function replaceTrackingElement (widget, trackingElement, placeholderElement) {
     // from the DOM after they are collapsed. As a workaround, have the iframe
     // load a benign data URI, so that it's uncollapsed, before removing it from
     // the DOM. See https://crbug.com/1428971
-    const originalSrc = elementToReplace.src
+    const originalSrc = elementToReplace.src || elementToReplace.getAttribute('data-src')
     elementToReplace.src =
         'data:text/plain;charset=utf-8;base64,' + btoa('https://crbug.com/1428971')
 
