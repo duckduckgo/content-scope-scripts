@@ -369,6 +369,7 @@ class DuckWidget {
         const handleClick = e => {
             // Ensure that the click is created by a user event & prevent double clicks from adding more animations
             if (e.isTrusted && !clicked) {
+                e.stopPropagation()
                 this.isUnblocked = true
                 clicked = true
                 let isLogin = false
