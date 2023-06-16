@@ -1,10 +1,11 @@
 import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../packages/messaging/index.js'
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
-import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
+import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
 import { ClickToLoadMessagingTransport } from './click-to-load/ctl-messaging-transport.js'
 import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
+import { DDGCtlLoginButton } from './click-to-load/components/ctl-login-button.js'
 import { registerCustomElements } from './click-to-load/components'
 
 /**
@@ -583,12 +584,29 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
     if (widget.replaceSettings.type === 'loginButton') {
         const icon = widget.replaceSettings.icon
         // Create a button to replace old element
-        const { button, container } = makeLoginButton(
-            widget.replaceSettings.buttonText, widget.getMode(),
-            widget.replaceSettings.popupBodyText, icon, trackingElement
-        )
-        button.addEventListener('click', widget.clickFunction(trackingElement, container))
-        replaceTrackingElement(widget, trackingElement, container)
+        if (isMobileApp) {
+            const facebookLoginButton = new DDGCtlLoginButton({
+                devMode,
+                label: widget.replaceSettings.buttonTextUnblockLogin,
+                hoverText: widget.replaceSettings.popupBodyText,
+                logoIcon: facebookLogo,
+                originalElement: trackingElement,
+                learnMore: { // Localized strings for "Learn More" link.
+                    readAbout: sharedStrings.readAbout,
+                    learnMore: sharedStrings.learnMore
+                },
+                onClick: widget.clickFunction.bind(widget)
+            })
+            facebookLoginButton.classList.add('fb-login-button', 'FacebookLogin__button')
+            replaceTrackingElement(widget, trackingElement, facebookLoginButton)
+        } else {
+            const { button, container } = makeLoginButton(
+                widget.replaceSettings.buttonText, widget.getMode(),
+                widget.replaceSettings.popupBodyText, icon, trackingElement
+            )
+            button.addEventListener('click', widget.clickFunction(trackingElement, container))
+            replaceTrackingElement(widget, trackingElement, container)
+        }
     }
 
     // Facebook
