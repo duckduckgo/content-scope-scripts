@@ -1329,6 +1329,47 @@
     }
 
     /**
+     * @module Messaging
+     * @category Libraries
+     * @description
+     *
+     * An abstraction for communications between JavaScript and host platforms.
+     *
+     * 1) First you construct your platform-specific configuration (eg: {@link WebkitMessagingConfig})
+     * 2) Then use that to get an instance of the Messaging utility which allows
+     * you to send and receive data in a unified way
+     * 3) Each platform implements {@link MessagingTransport} along with its own Configuration
+     *     - For example, to learn what configuration is required for Webkit, see: {@link WebkitMessagingConfig}
+     *     - Or, to learn about how messages are sent and received in Webkit, see {@link WebkitMessagingTransport}
+     *
+     * ## Links
+     * Please see the following links for examples
+     *
+     * - Windows: {@link WindowsMessagingConfig}
+     * - Webkit: {@link WebkitMessagingConfig}
+     * - Schema: {@link "Messaging Schema"}
+     *
+     */
+
+    /**
+     * Common options/config that are *not* transport specific.
+     */
+    class MessagingContext {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {"production" | "development"} params.env
+         * @internal
+         */
+        constructor (params) {
+            this.context = params.context;
+            this.featureName = params.featureName;
+            this.env = params.env;
+        }
+    }
+
+    /**
      * @typedef {object} AssetConfig
      * @property {string} regularFontUrl
      * @property {string} boldFontUrl
@@ -1351,6 +1392,8 @@
         #documentOriginIsTracker
         /** @type {Record<string, unknown> | undefined} */
         #bundledfeatureSettings
+        /** @type {MessagingContext} */
+        #messagingContext
 
         /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
         #args
@@ -1403,6 +1446,19 @@
          **/
         get bundledConfig () {
             return this.#bundledConfig
+        }
+
+        /**
+         * @returns {MessagingContext}
+         */
+        get messagingContext () {
+            if (this.#messagingContext) return this.#messagingContext
+            this.#messagingContext = new MessagingContext({
+                context: 'contentScopeScripts',
+                featureName: this.name,
+                env: this.isDebug ? 'development' : 'production'
+            });
+            return this.#messagingContext
         }
 
         /**

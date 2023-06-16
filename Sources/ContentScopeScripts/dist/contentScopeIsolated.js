@@ -944,6 +944,1096 @@
     }
 
     /**
+     * @description
+     *
+     * A wrapper for messaging on Windows.
+     *
+     * This requires 3 methods to be available, see {@link WindowsMessagingConfig} for details
+     *
+     * @example
+     *
+     * ```javascript
+     * [[include:packages/messaging/lib/examples/windows.example.js]]```
+     *
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * An implementation of {@link MessagingTransport} for Windows
+     *
+     * All messages go through `window.chrome.webview` APIs
+     *
+     * @implements {MessagingTransport}
+     */
+    class WindowsMessagingTransport {
+        config
+
+        /**
+         * @param {WindowsMessagingConfig} config
+         * @param {import('../index.js').MessagingContext} messagingContext
+         * @internal
+         */
+        constructor (config, messagingContext) {
+            this.messagingContext = messagingContext;
+            this.config = config;
+            this.globals = {
+                window,
+                JSONparse: window.JSON.parse,
+                JSONstringify: window.JSON.stringify,
+                Promise: window.Promise,
+                Error: window.Error,
+                String: window.String
+            };
+            for (const [methodName, fn] of Object.entries(this.config.methods)) {
+                if (typeof fn !== 'function') {
+                    throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName)
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').NotificationMessage} msg
+         */
+        notify (msg) {
+            const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+            const notification = WindowsNotification.fromNotification(msg, data);
+            this.config.methods.postMessage(notification);
+        }
+
+        /**
+         * @param {import('../index.js').RequestMessage} msg
+         * @param {{signal?: AbortSignal}} opts
+         * @return {Promise<any>}
+         */
+        request (msg, opts = {}) {
+            // convert the message to window-specific naming
+            const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+            const outgoing = WindowsRequestMessage.fromRequest(msg, data);
+
+            // send the message
+            this.config.methods.postMessage(outgoing);
+
+            // compare incoming messages against the `msg.id`
+            const comparator = (eventData) => {
+                return eventData.featureName === msg.featureName &&
+                    eventData.context === msg.context &&
+                    eventData.id === msg.id
+            };
+
+            /**
+             * @param data
+             * @return {data is import('../index.js').MessageResponse}
+             */
+            function isMessageResponse (data) {
+                if ('result' in data) return true
+                if ('error' in data) return true
+                return false
+            }
+
+            // now wait for a matching message
+            return new this.globals.Promise((resolve, reject) => {
+                try {
+                    this._subscribe(comparator, opts, (value, unsubscribe) => {
+                        unsubscribe();
+
+                        if (!isMessageResponse(value)) {
+                            console.warn('unknown response type', value);
+                            return reject(new this.globals.Error('unknown response'))
+                        }
+
+                        if (value.result) {
+                            return resolve(value.result)
+                        }
+
+                        const message = this.globals.String(value.error?.message || 'unknown error');
+                        reject(new this.globals.Error(message));
+                    });
+                } catch (e) {
+                    reject(e);
+                }
+            })
+        }
+
+        /**
+         * @param {import('../index.js').Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe (msg, callback) {
+            // compare incoming messages against the `msg.subscriptionName`
+            const comparator = (eventData) => {
+                return eventData.featureName === msg.featureName &&
+                    eventData.context === msg.context &&
+                    eventData.subscriptionName === msg.subscriptionName
+            };
+
+            // only forward the 'params' from a SubscriptionEvent
+            const cb = (eventData) => {
+                return callback(eventData.params)
+            };
+
+            // now listen for matching incoming messages.
+            return this._subscribe(comparator, {}, cb)
+        }
+
+        /**
+         * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
+         */
+        /**
+         * @param {(eventData: any) => boolean} comparator
+         * @param {{signal?: AbortSignal}} options
+         * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
+         * @internal
+         */
+        _subscribe (comparator, options, callback) {
+            // if already aborted, reject immediately
+            if (options?.signal?.aborted) {
+                throw new DOMException('Aborted', 'AbortError')
+            }
+            /** @type {(()=>void) | undefined} */
+            // eslint-disable-next-line prefer-const
+            let teardown;
+
+            /**
+             * @param {MessageEvent} event
+             */
+            const idHandler = (event) => {
+                if (this.messagingContext.env === 'production') {
+                    if (event.origin !== null && event.origin !== undefined) {
+                        console.warn('ignoring because evt.origin is not `null` or `undefined`');
+                        return
+                    }
+                }
+                if (!event.data) {
+                    console.warn('data absent from message');
+                    return
+                }
+                if (comparator(event.data)) {
+                    if (!teardown) throw new Error('unreachable')
+                    callback(event.data, teardown);
+                }
+            };
+
+            // what to do if this promise is aborted
+            const abortHandler = () => {
+                teardown?.();
+                throw new DOMException('Aborted', 'AbortError')
+            };
+
+            // console.log('DEBUG: handler setup', { config, comparator })
+            // eslint-disable-next-line no-undef
+            this.config.methods.addEventListener('message', idHandler);
+            options?.signal?.addEventListener('abort', abortHandler);
+
+            teardown = () => {
+                // console.log('DEBUG: handler teardown', { config, comparator })
+                // eslint-disable-next-line no-undef
+                this.config.methods.removeEventListener('message', idHandler);
+                options?.signal?.removeEventListener('abort', abortHandler);
+            };
+
+            return () => {
+                teardown?.();
+            }
+        }
+    }
+
+    /**
+     * To construct this configuration object, you need access to 3 methods
+     *
+     * - `postMessage`
+     * - `addEventListener`
+     * - `removeEventListener`
+     *
+     * These would normally be available on Windows via the following:
+     *
+     * - `window.chrome.webview.postMessage`
+     * - `window.chrome.webview.addEventListener`
+     * - `window.chrome.webview.removeEventListener`
+     *
+     * Depending on where the script is running, we may want to restrict access to those globals. On the native
+     * side those handlers `window.chrome.webview` handlers might be deleted and replaces with in-scope variables, such as:
+     *
+     * ```ts
+     * [[include:packages/messaging/lib/examples/windows.example.js]]```
+     *
+     */
+    class WindowsMessagingConfig {
+        /**
+         * @param {object} params
+         * @param {WindowsInteropMethods} params.methods
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * The methods required for communication
+             */
+            this.methods = params.methods;
+            /**
+             * @type {'windows'}
+             */
+            this.platform = 'windows';
+        }
+    }
+
+    /**
+     * This data type represents a message sent to the Windows
+     * platform via `window.chrome.webview.postMessage`.
+     *
+     * **NOTE**: This is sent when a response is *not* expected
+     */
+    class WindowsNotification {
+        /**
+         * @param {object} params
+         * @param {string} params.Feature
+         * @param {string} params.SubFeatureName
+         * @param {string} params.Name
+         * @param {Record<string, any>} [params.Data]
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * Alias for: {@link NotificationMessage.context}
+             */
+            this.Feature = params.Feature;
+            /**
+             * Alias for: {@link NotificationMessage.featureName}
+             */
+            this.SubFeatureName = params.SubFeatureName;
+            /**
+             * Alias for: {@link NotificationMessage.method}
+             */
+            this.Name = params.Name;
+            /**
+             * Alias for: {@link NotificationMessage.params}
+             */
+            this.Data = params.Data;
+        }
+
+        /**
+         * Helper to convert a {@link NotificationMessage} to a format that Windows can support
+         * @param {NotificationMessage} notification
+         * @returns {WindowsNotification}
+         */
+        static fromNotification (notification, data) {
+            /** @type {WindowsNotification} */
+            const output = {
+                Data: data,
+                Feature: notification.context,
+                SubFeatureName: notification.featureName,
+                Name: notification.method
+            };
+            return output
+        }
+    }
+
+    /**
+     * This data type represents a message sent to the Windows
+     * platform via `window.chrome.webview.postMessage` when it
+     * expects a response
+     */
+    class WindowsRequestMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.Feature
+         * @param {string} params.SubFeatureName
+         * @param {string} params.Name
+         * @param {Record<string, any>} [params.Data]
+         * @param {string} [params.Id]
+         * @internal
+         */
+        constructor (params) {
+            this.Feature = params.Feature;
+            this.SubFeatureName = params.SubFeatureName;
+            this.Name = params.Name;
+            this.Data = params.Data;
+            this.Id = params.Id;
+        }
+
+        /**
+         * Helper to convert a {@link RequestMessage} to a format that Windows can support
+         * @param {RequestMessage} msg
+         * @param {Record<string, any>} data
+         * @returns {WindowsRequestMessage}
+         */
+        static fromRequest (msg, data) {
+            /** @type {WindowsRequestMessage} */
+            const output = {
+                Data: data,
+                Feature: msg.context,
+                SubFeatureName: msg.featureName,
+                Name: msg.method,
+                Id: msg.id
+            };
+            return output
+        }
+    }
+
+    /**
+     * @module Messaging Schema
+     *
+     * @description
+     * These are all the shared data types used throughout. Transports receive these types and
+     * can choose how to deliver the message to their respective native platforms.
+     *
+     * - Notifications via {@link NotificationMessage}
+     * - Request -> Response via {@link RequestMessage} and {@link MessageResponse}
+     * - Subscriptions via {@link Subscription}
+     *
+     * Note: For backwards compatibility, some platforms may alter the data shape within the transport.
+     */
+
+    /**
+     * This is the format of an outgoing message.
+     *
+     * - See {@link MessageResponse} for what's expected in a response
+     *
+     * **NOTE**:
+     * - Windows will alter this before it's sent, see: {@link Messaging.WindowsRequestMessage}
+     */
+    class RequestMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
+             * @type {string}
+             */
+            this.context = params.context;
+            /**
+             * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
+             * @type {string}
+             */
+            this.featureName = params.featureName;
+            /**
+             * The name of the handler to be executed on the native side
+             */
+            this.method = params.method;
+            /**
+             * The `id` that native sides can use when sending back a response
+             */
+            this.id = params.id;
+            /**
+             * Optional data payload - must be a plain key/value object
+             */
+            this.params = params.params;
+        }
+    }
+
+    /**
+     * **NOTE**:
+     * - Windows will alter this before it's sent, see: {@link Messaging.WindowsNotification}
+     */
+    class NotificationMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
+             */
+            this.context = params.context;
+            /**
+             * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
+             */
+            this.featureName = params.featureName;
+            /**
+             * The name of the handler to be executed on the native side
+             */
+            this.method = params.method;
+            /**
+             * An optional payload
+             */
+            this.params = params.params;
+        }
+    }
+
+    class Subscription {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @internal
+         */
+        constructor (params) {
+            this.context = params.context;
+            this.featureName = params.featureName;
+            this.subscriptionName = params.subscriptionName;
+        }
+    }
+
+    /**
+     * @param {RequestMessage} request
+     * @param {Record<string, any>} data
+     * @return {data is MessageResponse}
+     */
+    function isResponseFor (request, data) {
+        if ('result' in data) {
+            return data.featureName === request.featureName &&
+                data.context === request.context &&
+                data.id === request.id
+        }
+        if ('error' in data) {
+            if ('message' in data.error) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * @param {Subscription} sub
+     * @param {Record<string, any>} data
+     * @return {data is SubscriptionEvent}
+     */
+    function isSubscriptionEventFor (sub, data) {
+        if ('subscriptionName' in data) {
+            return data.featureName === sub.featureName &&
+                data.context === sub.context &&
+                data.subscriptionName === sub.subscriptionName
+        }
+
+        return false
+    }
+
+    /**
+     *
+     * @description
+     *
+     * A wrapper for messaging on WebKit platforms. It supports modern WebKit messageHandlers
+     * along with encryption for older versions (like macOS Catalina)
+     *
+     * Note: If you wish to support Catalina then you'll need to implement the native
+     * part of the message handling, see {@link WebkitMessagingTransport} for details.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @example
+     * On macOS 11+, this will just call through to `window.webkit.messageHandlers.x.postMessage`
+     *
+     * Eg: for a `foo` message defined in Swift that accepted the payload `{"bar": "baz"}`, the following
+     * would occur:
+     *
+     * ```js
+     * const json = await window.webkit.messageHandlers.foo.postMessage({ bar: "baz" });
+     * const response = JSON.parse(json)
+     * ```
+     *
+     * @example
+     * On macOS 10 however, the process is a little more involved. A method will be appended to `window`
+     * that allows the response to be delivered there instead. It's not exactly this, but you can visualize the flow
+     * as being something along the lines of:
+     *
+     * ```js
+     * // add the window method
+     * window["_0123456"] = (response) => {
+     *    // decrypt `response` and deliver the result to the caller here
+     *    // then remove the temporary method
+     *    delete window['_0123456']
+     * };
+     *
+     * // send the data + `messageHanding` values
+     * window.webkit.messageHandlers.foo.postMessage({
+     *   bar: "baz",
+     *   messagingHandling: {
+     *     methodName: "_0123456",
+     *     secret: "super-secret",
+     *     key: [1, 2, 45, 2],
+     *     iv: [34, 4, 43],
+     *   }
+     * });
+     *
+     * // later in swift, the following JavaScript snippet will be executed
+     * (() => {
+     *   window['_0123456']({
+     *     ciphertext: [12, 13, 4],
+     *     tag: [3, 5, 67, 56]
+     *   })
+     * })()
+     * ```
+     * @implements {MessagingTransport}
+     */
+    class WebkitMessagingTransport {
+        /** @type {WebkitMessagingConfig} */
+        config
+        /** @internal */
+        globals
+
+        /**
+         * @param {WebkitMessagingConfig} config
+         * @param {import('../index.js').MessagingContext} messagingContext
+         */
+        constructor (config, messagingContext) {
+            this.messagingContext = messagingContext;
+            this.config = config;
+            this.globals = captureGlobals();
+            if (!this.config.hasModernWebkitAPI) {
+                this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
+            }
+        }
+
+        /**
+         * Sends message to the webkit layer (fire and forget)
+         * @param {String} handler
+         * @param {*} data
+         * @internal
+         */
+        wkSend (handler, data = {}) {
+            if (!(handler in this.globals.window.webkit.messageHandlers)) {
+                throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
+            }
+            if (!this.config.hasModernWebkitAPI) {
+                const outgoing = {
+                    ...data,
+                    messageHandling: {
+                        ...data.messageHandling,
+                        secret: this.config.secret
+                    }
+                };
+                if (!(handler in this.globals.capturedWebkitHandlers)) {
+                    throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler)
+                } else {
+                    return this.globals.capturedWebkitHandlers[handler](outgoing)
+                }
+            }
+            return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data)
+        }
+
+        /**
+         * Sends message to the webkit layer and waits for the specified response
+         * @param {String} handler
+         * @param {import('../index.js').RequestMessage} data
+         * @returns {Promise<*>}
+         * @internal
+         */
+        async wkSendAndWait (handler, data) {
+            if (this.config.hasModernWebkitAPI) {
+                const response = await this.wkSend(handler, data);
+                return this.globals.JSONparse(response || '{}')
+            }
+
+            try {
+                const randMethodName = this.createRandMethodName();
+                const key = await this.createRandKey();
+                const iv = this.createRandIv();
+
+                const {
+                    ciphertext,
+                    tag
+                } = await new this.globals.Promise((/** @type {any} */ resolve) => {
+                    this.generateRandomMethod(randMethodName, resolve);
+
+                    // @ts-expect-error - this is a carve-out for catalina that will be removed soon
+                    data.messageHandling = new SecureMessagingParams({
+                        methodName: randMethodName,
+                        secret: this.config.secret,
+                        key: this.globals.Arrayfrom(key),
+                        iv: this.globals.Arrayfrom(iv)
+                    });
+                    this.wkSend(handler, data);
+                });
+
+                const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
+                const decrypted = await this.decrypt(cipher, key, iv);
+                return this.globals.JSONparse(decrypted || '{}')
+            } catch (e) {
+                // re-throw when the error is just a 'MissingHandler'
+                if (e instanceof MissingHandler) {
+                    throw e
+                } else {
+                    console.error('decryption failed', e);
+                    console.error(e);
+                    return { error: e }
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').NotificationMessage} msg
+         */
+        notify (msg) {
+            this.wkSend(msg.context, msg);
+        }
+
+        /**
+         * @param {import('../index.js').RequestMessage} msg
+         */
+        async request (msg) {
+            const data = await this.wkSendAndWait(msg.context, msg);
+
+            if (isResponseFor(msg, data)) {
+                if (data.result) {
+                    return data.result || {}
+                }
+                // forward the error if one was given explicity
+                if (data.error) {
+                    throw new Error(data.error.message)
+                }
+            }
+
+            throw new Error('an unknown error occurred')
+        }
+
+        /**
+         * Generate a random method name and adds it to the global scope
+         * The native layer will use this method to send the response
+         * @param {string | number} randomMethodName
+         * @param {Function} callback
+         * @internal
+         */
+        generateRandomMethod (randomMethodName, callback) {
+            this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+                enumerable: false,
+                // configurable, To allow for deletion later
+                configurable: true,
+                writable: false,
+                /**
+                 * @param {any[]} args
+                 */
+                value: (...args) => {
+                    // eslint-disable-next-line n/no-callback-literal
+                    callback(...args);
+                    delete this.globals.window[randomMethodName];
+                }
+            });
+        }
+
+        /**
+         * @internal
+         * @return {string}
+         */
+        randomString () {
+            return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0]
+        }
+
+        /**
+         * @internal
+         * @return {string}
+         */
+        createRandMethodName () {
+            return '_' + this.randomString()
+        }
+
+        /**
+         * @type {{name: string, length: number}}
+         * @internal
+         */
+        algoObj = {
+            name: 'AES-GCM',
+            length: 256
+        }
+
+        /**
+         * @returns {Promise<Uint8Array>}
+         * @internal
+         */
+        async createRandKey () {
+            const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
+            const exportedKey = await this.globals.exportKey('raw', key);
+            return new this.globals.Uint8Array(exportedKey)
+        }
+
+        /**
+         * @returns {Uint8Array}
+         * @internal
+         */
+        createRandIv () {
+            return this.globals.getRandomValues(new this.globals.Uint8Array(12))
+        }
+
+        /**
+         * @param {BufferSource} ciphertext
+         * @param {BufferSource} key
+         * @param {Uint8Array} iv
+         * @returns {Promise<string>}
+         * @internal
+         */
+        async decrypt (ciphertext, key, iv) {
+            const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt']);
+            const algo = {
+                name: 'AES-GCM',
+                iv
+            };
+
+            const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
+
+            const dec = new this.globals.TextDecoder();
+            return dec.decode(decrypted)
+        }
+
+        /**
+         * When required (such as on macos 10.x), capture the `postMessage` method on
+         * each webkit messageHandler
+         *
+         * @param {string[]} handlerNames
+         */
+        captureWebkitHandlers (handlerNames) {
+            const handlers = window.webkit.messageHandlers;
+            if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all')
+            for (const webkitMessageHandlerName of handlerNames) {
+                if (typeof handlers[webkitMessageHandlerName]?.postMessage === 'function') {
+                    /**
+                     * `bind` is used here to ensure future calls to the captured
+                     * `postMessage` have the correct `this` context
+                     */
+                    const original = handlers[webkitMessageHandlerName];
+                    const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
+                    this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+                    delete handlers[webkitMessageHandlerName].postMessage;
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').Subscription} msg
+         * @param {(value: unknown) => void} callback
+         */
+        subscribe (msg, callback) {
+            // for now, bail if there's already a handler setup for this subscription
+            if (msg.subscriptionName in this.globals.window) {
+                throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`)
+            }
+            this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+                enumerable: false,
+                configurable: true,
+                writable: false,
+                value: (data) => {
+                    if (data && isSubscriptionEventFor(msg, data)) {
+                        callback(data.params);
+                    } else {
+                        console.warn('Received a message that did not match the subscription', data);
+                    }
+                }
+            });
+            return () => {
+                this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+            }
+        }
+    }
+
+    /**
+     * Use this configuration to create an instance of {@link Messaging} for WebKit platforms
+     *
+     * We support modern WebKit environments *and* macOS Catalina.
+     *
+     * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
+     *
+     * @example Webkit Messaging
+     *
+     * ```javascript
+     * [[include:packages/messaging/lib/examples/webkit.example.js]]```
+     */
+    class WebkitMessagingConfig {
+        /**
+         * @param {object} params
+         * @param {boolean} params.hasModernWebkitAPI
+         * @param {string[]} params.webkitMessageHandlerNames
+         * @param {string} params.secret
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * Whether or not the current WebKit Platform supports secure messaging
+             * by default (eg: macOS 11+)
+             */
+            this.hasModernWebkitAPI = params.hasModernWebkitAPI;
+            /**
+             * A list of WebKit message handler names that a user script can send.
+             *
+             * For example, if the native platform can receive messages through this:
+             *
+             * ```js
+             * window.webkit.messageHandlers.foo.postMessage('...')
+             * ```
+             *
+             * then, this property would be:
+             *
+             * ```js
+             * webkitMessageHandlerNames: ['foo']
+             * ```
+             */
+            this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
+            /**
+             * A string provided by native platforms to be sent with future outgoing
+             * messages.
+             */
+            this.secret = params.secret;
+        }
+    }
+
+    /**
+     * This is the additional payload that gets appended to outgoing messages.
+     * It's used in the Swift side to encrypt the response that comes back
+     */
+    class SecureMessagingParams {
+        /**
+         * @param {object} params
+         * @param {string} params.methodName
+         * @param {string} params.secret
+         * @param {number[]} params.key
+         * @param {number[]} params.iv
+         */
+        constructor (params) {
+            /**
+             * The method that's been appended to `window` to be called later
+             */
+            this.methodName = params.methodName;
+            /**
+             * The secret used to ensure message sender validity
+             */
+            this.secret = params.secret;
+            /**
+             * The CipherKey as number[]
+             */
+            this.key = params.key;
+            /**
+             * The Initial Vector as number[]
+             */
+            this.iv = params.iv;
+        }
+    }
+
+    /**
+     * Capture some globals used for messaging handling to prevent page
+     * scripts from tampering with this
+     */
+    function captureGlobals () {
+        // Create base with null prototype
+        return {
+            window,
+            // Methods must be bound to their interface, otherwise they throw Illegal invocation
+            encrypt: window.crypto.subtle.encrypt.bind(window.crypto.subtle),
+            decrypt: window.crypto.subtle.decrypt.bind(window.crypto.subtle),
+            generateKey: window.crypto.subtle.generateKey.bind(window.crypto.subtle),
+            exportKey: window.crypto.subtle.exportKey.bind(window.crypto.subtle),
+            importKey: window.crypto.subtle.importKey.bind(window.crypto.subtle),
+            getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
+            TextEncoder,
+            TextDecoder,
+            Uint8Array,
+            Uint16Array,
+            Uint32Array,
+            JSONstringify: window.JSON.stringify,
+            JSONparse: window.JSON.parse,
+            Arrayfrom: window.Array.from,
+            Promise: window.Promise,
+            Error: window.Error,
+            ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
+            ObjectDefineProperty: window.Object.defineProperty,
+            addEventListener: window.addEventListener.bind(window),
+            /** @type {Record<string, any>} */
+            capturedWebkitHandlers: {}
+        }
+    }
+
+    /**
+     * @module Messaging
+     * @category Libraries
+     * @description
+     *
+     * An abstraction for communications between JavaScript and host platforms.
+     *
+     * 1) First you construct your platform-specific configuration (eg: {@link WebkitMessagingConfig})
+     * 2) Then use that to get an instance of the Messaging utility which allows
+     * you to send and receive data in a unified way
+     * 3) Each platform implements {@link MessagingTransport} along with its own Configuration
+     *     - For example, to learn what configuration is required for Webkit, see: {@link WebkitMessagingConfig}
+     *     - Or, to learn about how messages are sent and received in Webkit, see {@link WebkitMessagingTransport}
+     *
+     * ## Links
+     * Please see the following links for examples
+     *
+     * - Windows: {@link WindowsMessagingConfig}
+     * - Webkit: {@link WebkitMessagingConfig}
+     * - Schema: {@link "Messaging Schema"}
+     *
+     */
+
+    /**
+     * Common options/config that are *not* transport specific.
+     */
+    class MessagingContext {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {"production" | "development"} params.env
+         * @internal
+         */
+        constructor (params) {
+            this.context = params.context;
+            this.featureName = params.featureName;
+            this.env = params.env;
+        }
+    }
+
+    /**
+     *
+     */
+    class Messaging {
+        /**
+         * @param {MessagingContext} messagingContext
+         * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
+         */
+        constructor (messagingContext, config) {
+            this.messagingContext = messagingContext;
+            this.transport = getTransport(config, this.messagingContext);
+        }
+
+        /**
+         * Send a 'fire-and-forget' message.
+         * @throws {MissingHandler}
+         *
+         * @example
+         *
+         * ```ts
+         * const messaging = new Messaging(config)
+         * messaging.notify("foo", {bar: "baz"})
+         * ```
+         * @param {string} name
+         * @param {Record<string, any>} [data]
+         */
+        notify (name, data = {}) {
+            const message = new NotificationMessage({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                method: name,
+                params: data
+            });
+            this.transport.notify(message);
+        }
+
+        /**
+         * Send a request, and wait for a response
+         * @throws {MissingHandler}
+         *
+         * @example
+         * ```
+         * const messaging = new Messaging(config)
+         * const response = await messaging.request("foo", {bar: "baz"})
+         * ```
+         *
+         * @param {string} name
+         * @param {Record<string, any>} [data]
+         * @return {Promise<any>}
+         */
+        request (name, data = {}) {
+            const id = name + '.response';
+            const message = new RequestMessage({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                method: name,
+                params: data,
+                id
+            });
+            return this.transport.request(message)
+        }
+
+        /**
+         * @param {string} name
+         * @param {(value: unknown) => void} callback
+         * @return {() => void}
+         */
+        subscribe (name, callback) {
+            const msg = new Subscription({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                subscriptionName: name
+            });
+            return this.transport.subscribe(msg, callback)
+        }
+    }
+
+    /**
+     * Use this to create testing transport on the fly.
+     * It's useful for debugging, and for enabling scripts to run in
+     * other environments - for example, testing in a browser without the need
+     * for a full integration
+     *
+     * ```js
+     * [[include:packages/messaging/lib/examples/test.example.js]]```
+     */
+    class TestTransportConfig {
+        /**
+         * @param {MessagingTransport} impl
+         */
+        constructor (impl) {
+            this.impl = impl;
+        }
+    }
+
+    /**
+     * @implements {MessagingTransport}
+     */
+    class TestTransport {
+        /**
+         * @param {TestTransportConfig} config
+         * @param {MessagingContext} messagingContext
+         */
+        constructor (config, messagingContext) {
+            this.config = config;
+            this.messagingContext = messagingContext;
+        }
+
+        notify (msg) {
+            return this.config.impl.notify(msg)
+        }
+
+        request (msg) {
+            return this.config.impl.request(msg)
+        }
+
+        subscribe (msg, callback) {
+            return this.config.impl.subscribe(msg, callback)
+        }
+    }
+
+    /**
+     * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
+     * @param {MessagingContext} messagingContext
+     * @returns {MessagingTransport}
+     */
+    function getTransport (config, messagingContext) {
+        if (config instanceof WebkitMessagingConfig) {
+            return new WebkitMessagingTransport(config, messagingContext)
+        }
+        if (config instanceof WindowsMessagingConfig) {
+            return new WindowsMessagingTransport(config, messagingContext)
+        }
+        if (config instanceof TestTransportConfig) {
+            return new TestTransport(config, messagingContext)
+        }
+        throw new Error('unreachable')
+    }
+
+    /**
+     * Thrown when a handler cannot be found
+     */
+    class MissingHandler extends Error {
+        /**
+         * @param {string} message
+         * @param {string} handlerName
+         */
+        constructor (message, handlerName) {
+            super(message);
+            this.handlerName = handlerName;
+        }
+    }
+
+    /**
      * @typedef {object} AssetConfig
      * @property {string} regularFontUrl
      * @property {string} boldFontUrl
@@ -966,6 +2056,8 @@
         #documentOriginIsTracker
         /** @type {Record<string, unknown> | undefined} */
         #bundledfeatureSettings
+        /** @type {MessagingContext} */
+        #messagingContext
 
         /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
         #args
@@ -1018,6 +2110,19 @@
          **/
         get bundledConfig () {
             return this.#bundledConfig
+        }
+
+        /**
+         * @returns {MessagingContext}
+         */
+        get messagingContext () {
+            if (this.#messagingContext) return this.#messagingContext
+            this.#messagingContext = new MessagingContext({
+                context: 'contentScopeScripts',
+                featureName: this.name,
+                env: this.isDebug ? 'development' : 'production'
+            });
+            return this.#messagingContext
         }
 
         /**
@@ -1499,7 +2604,13 @@
          * @returns {VideoParams|null}
          */
         static fromHref (href) {
-            const url = new URL(href);
+            let url;
+            try {
+                url = new URL(href);
+            } catch (e) {
+                return null
+            }
+
             const vParam = url.searchParams.get('v');
             const tParam = url.searchParams.get('t');
 
@@ -2691,7 +3802,8 @@
         const OpenInDuckPlayer = {
             clickBoundElements: new Map(),
             enabled: false,
-
+            /** @type {string|null} */
+            lastMouseOver: null,
             bindEventsToAll: () => {
                 if (!OpenInDuckPlayer.enabled) {
                     return
@@ -2702,38 +3814,67 @@
                     return VideoThumbnail.isSingleVideoURL(element?.getAttribute('href')) ||
                         element.getAttribute('id') === 'media-container-link'
                 };
-                const excludeAlreadyBound = (element) => !OpenInDuckPlayer.clickBoundElements.has(element);
-
                 videoLinksAndPreview
-                    .filter(excludeAlreadyBound)
-                    .forEach(element => {
-                        if (isValidVideoLinkOrPreview(element)) {
-                            const onClickOpenDuckPlayer = (event) => {
-                                event.preventDefault();
-                                event.stopPropagation();
+                    .forEach((/** @type {HTMLElement|HTMLAnchorElement} */element) => {
+                        // bail when this element was already seen
+                        if (OpenInDuckPlayer.clickBoundElements.has(element)) return
 
-                                const link = event.target.closest('a');
+                        // bail if it's not a valid element
+                        if (!isValidVideoLinkOrPreview(element)) return
 
-                                if (link) {
-                                    const href = VideoParams.fromHref(link.href)?.toPrivatePlayerUrl();
+                        // handle mouseover + click events
+                        const handler = {
+                            handleEvent (event) {
+                                switch (event.type) {
+                                case 'mouseover': {
+                                    /**
+                                     * Store the element's link value on hover - this occurs just in time
+                                     * before the youtube overlay take sover the event space
+                                     */
+                                    const href = element instanceof HTMLAnchorElement
+                                        ? VideoParams.fromHref(element.href)?.toPrivatePlayerUrl()
+                                        : null;
                                     if (href) {
-                                        comms.openDuckPlayer({ href });
+                                        OpenInDuckPlayer.lastMouseOver = href;
                                     }
+                                    break
                                 }
+                                case 'click': {
+                                    /**
+                                     * On click, the receiver might be the preview element - if
+                                     * it is, we want to use the last hovered `a` tag instead
+                                     */
+                                    event.preventDefault();
+                                    event.stopPropagation();
 
-                                return false
-                            };
+                                    const link = event.target.closest('a');
+                                    const fromClosest = VideoParams.fromHref(link?.href)?.toPrivatePlayerUrl();
 
-                            element.addEventListener('click', onClickOpenDuckPlayer, true);
+                                    if (fromClosest) {
+                                        comms.openDuckPlayer({ href: fromClosest });
+                                    } else if (OpenInDuckPlayer.lastMouseOver) {
+                                        comms.openDuckPlayer({ href: OpenInDuckPlayer.lastMouseOver });
+                                    } else ;
 
-                            OpenInDuckPlayer.clickBoundElements.set(element, onClickOpenDuckPlayer);
-                        }
+                                    break
+                                }
+                                }
+                            }
+                        };
+
+                        // register both handlers
+                        element.addEventListener('mouseover', handler, true);
+                        element.addEventListener('click', handler, true);
+
+                        // store the handler for removal later (eg: if settings change)
+                        OpenInDuckPlayer.clickBoundElements.set(element, handler);
                     });
             },
 
             disable: () => {
-                OpenInDuckPlayer.clickBoundElements.forEach((functionToRemove, element) => {
-                    element.removeEventListener('click', functionToRemove, true);
+                OpenInDuckPlayer.clickBoundElements.forEach((handler, element) => {
+                    element.removeEventListener('mouseover', handler, true);
+                    element.removeEventListener('click', handler, true);
                     OpenInDuckPlayer.clickBoundElements.delete(element);
                 });
 
@@ -2818,1096 +3959,6 @@
 
         isTestMode () {
             return this.debug === true
-        }
-    }
-
-    /**
-     * @description
-     *
-     * A wrapper for messaging on Windows.
-     *
-     * This requires 3 methods to be available, see {@link WindowsMessagingConfig} for details
-     *
-     * @example
-     *
-     * ```javascript
-     * [[include:packages/messaging/lib/examples/windows.example.js]]```
-     *
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
-    /**
-     * An implementation of {@link MessagingTransport} for Windows
-     *
-     * All messages go through `window.chrome.webview` APIs
-     *
-     * @implements {MessagingTransport}
-     */
-    class WindowsMessagingTransport {
-        config
-
-        /**
-         * @param {WindowsMessagingConfig} config
-         * @param {import('../index.js').MessagingContext} messagingContext
-         * @internal
-         */
-        constructor (config, messagingContext) {
-            this.messagingContext = messagingContext;
-            this.config = config;
-            this.globals = {
-                window,
-                JSONparse: window.JSON.parse,
-                JSONstringify: window.JSON.stringify,
-                Promise: window.Promise,
-                Error: window.Error,
-                String: window.String
-            };
-            for (const [methodName, fn] of Object.entries(this.config.methods)) {
-                if (typeof fn !== 'function') {
-                    throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName)
-                }
-            }
-        }
-
-        /**
-         * @param {import('../index.js').NotificationMessage} msg
-         */
-        notify (msg) {
-            const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
-            const notification = WindowsNotification.fromNotification(msg, data);
-            this.config.methods.postMessage(notification);
-        }
-
-        /**
-         * @param {import('../index.js').RequestMessage} msg
-         * @param {{signal?: AbortSignal}} opts
-         * @return {Promise<any>}
-         */
-        request (msg, opts = {}) {
-            // convert the message to window-specific naming
-            const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
-            const outgoing = WindowsRequestMessage.fromRequest(msg, data);
-
-            // send the message
-            this.config.methods.postMessage(outgoing);
-
-            // compare incoming messages against the `msg.id`
-            const comparator = (eventData) => {
-                return eventData.featureName === msg.featureName &&
-                    eventData.context === msg.context &&
-                    eventData.id === msg.id
-            };
-
-            /**
-             * @param data
-             * @return {data is import('../index.js').MessageResponse}
-             */
-            function isMessageResponse (data) {
-                if ('result' in data) return true
-                if ('error' in data) return true
-                return false
-            }
-
-            // now wait for a matching message
-            return new this.globals.Promise((resolve, reject) => {
-                try {
-                    this._subscribe(comparator, opts, (value, unsubscribe) => {
-                        unsubscribe();
-
-                        if (!isMessageResponse(value)) {
-                            console.warn('unknown response type', value);
-                            return reject(new this.globals.Error('unknown response'))
-                        }
-
-                        if (value.result) {
-                            return resolve(value.result)
-                        }
-
-                        const message = this.globals.String(value.error?.message || 'unknown error');
-                        reject(new this.globals.Error(message));
-                    });
-                } catch (e) {
-                    reject(e);
-                }
-            })
-        }
-
-        /**
-         * @param {import('../index.js').Subscription} msg
-         * @param {(value: unknown | undefined) => void} callback
-         */
-        subscribe (msg, callback) {
-            // compare incoming messages against the `msg.subscriptionName`
-            const comparator = (eventData) => {
-                return eventData.featureName === msg.featureName &&
-                    eventData.context === msg.context &&
-                    eventData.subscriptionName === msg.subscriptionName
-            };
-
-            // only forward the 'params' from a SubscriptionEvent
-            const cb = (eventData) => {
-                return callback(eventData.params)
-            };
-
-            // now listen for matching incoming messages.
-            return this._subscribe(comparator, {}, cb)
-        }
-
-        /**
-         * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
-         */
-        /**
-         * @param {(eventData: any) => boolean} comparator
-         * @param {{signal?: AbortSignal}} options
-         * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
-         * @internal
-         */
-        _subscribe (comparator, options, callback) {
-            // if already aborted, reject immediately
-            if (options?.signal?.aborted) {
-                throw new DOMException('Aborted', 'AbortError')
-            }
-            /** @type {(()=>void) | undefined} */
-            // eslint-disable-next-line prefer-const
-            let teardown;
-
-            /**
-             * @param {MessageEvent} event
-             */
-            const idHandler = (event) => {
-                if (this.messagingContext.env === 'production') {
-                    if (event.origin !== null && event.origin !== undefined) {
-                        console.warn('ignoring because evt.origin is not `null` or `undefined`');
-                        return
-                    }
-                }
-                if (!event.data) {
-                    console.warn('data absent from message');
-                    return
-                }
-                if (comparator(event.data)) {
-                    if (!teardown) throw new Error('unreachable')
-                    callback(event.data, teardown);
-                }
-            };
-
-            // what to do if this promise is aborted
-            const abortHandler = () => {
-                teardown?.();
-                throw new DOMException('Aborted', 'AbortError')
-            };
-
-            // console.log('DEBUG: handler setup', { config, comparator })
-            // eslint-disable-next-line no-undef
-            this.config.methods.addEventListener('message', idHandler);
-            options?.signal?.addEventListener('abort', abortHandler);
-
-            teardown = () => {
-                // console.log('DEBUG: handler teardown', { config, comparator })
-                // eslint-disable-next-line no-undef
-                this.config.methods.removeEventListener('message', idHandler);
-                options?.signal?.removeEventListener('abort', abortHandler);
-            };
-
-            return () => {
-                teardown?.();
-            }
-        }
-    }
-
-    /**
-     * To construct this configuration object, you need access to 3 methods
-     *
-     * - `postMessage`
-     * - `addEventListener`
-     * - `removeEventListener`
-     *
-     * These would normally be available on Windows via the following:
-     *
-     * - `window.chrome.webview.postMessage`
-     * - `window.chrome.webview.addEventListener`
-     * - `window.chrome.webview.removeEventListener`
-     *
-     * Depending on where the script is running, we may want to restrict access to those globals. On the native
-     * side those handlers `window.chrome.webview` handlers might be deleted and replaces with in-scope variables, such as:
-     *
-     * ```ts
-     * [[include:packages/messaging/lib/examples/windows.example.js]]```
-     *
-     */
-    class WindowsMessagingConfig {
-        /**
-         * @param {object} params
-         * @param {WindowsInteropMethods} params.methods
-         * @internal
-         */
-        constructor (params) {
-            /**
-             * The methods required for communication
-             */
-            this.methods = params.methods;
-            /**
-             * @type {'windows'}
-             */
-            this.platform = 'windows';
-        }
-    }
-
-    /**
-     * This data type represents a message sent to the Windows
-     * platform via `window.chrome.webview.postMessage`.
-     *
-     * **NOTE**: This is sent when a response is *not* expected
-     */
-    class WindowsNotification {
-        /**
-         * @param {object} params
-         * @param {string} params.Feature
-         * @param {string} params.SubFeatureName
-         * @param {string} params.Name
-         * @param {Record<string, any>} [params.Data]
-         * @internal
-         */
-        constructor (params) {
-            /**
-             * Alias for: {@link NotificationMessage.context}
-             */
-            this.Feature = params.Feature;
-            /**
-             * Alias for: {@link NotificationMessage.featureName}
-             */
-            this.SubFeatureName = params.SubFeatureName;
-            /**
-             * Alias for: {@link NotificationMessage.method}
-             */
-            this.Name = params.Name;
-            /**
-             * Alias for: {@link NotificationMessage.params}
-             */
-            this.Data = params.Data;
-        }
-
-        /**
-         * Helper to convert a {@link NotificationMessage} to a format that Windows can support
-         * @param {NotificationMessage} notification
-         * @returns {WindowsNotification}
-         */
-        static fromNotification (notification, data) {
-            /** @type {WindowsNotification} */
-            const output = {
-                Data: data,
-                Feature: notification.context,
-                SubFeatureName: notification.featureName,
-                Name: notification.method
-            };
-            return output
-        }
-    }
-
-    /**
-     * This data type represents a message sent to the Windows
-     * platform via `window.chrome.webview.postMessage` when it
-     * expects a response
-     */
-    class WindowsRequestMessage {
-        /**
-         * @param {object} params
-         * @param {string} params.Feature
-         * @param {string} params.SubFeatureName
-         * @param {string} params.Name
-         * @param {Record<string, any>} [params.Data]
-         * @param {string} [params.Id]
-         * @internal
-         */
-        constructor (params) {
-            this.Feature = params.Feature;
-            this.SubFeatureName = params.SubFeatureName;
-            this.Name = params.Name;
-            this.Data = params.Data;
-            this.Id = params.Id;
-        }
-
-        /**
-         * Helper to convert a {@link RequestMessage} to a format that Windows can support
-         * @param {RequestMessage} msg
-         * @param {Record<string, any>} data
-         * @returns {WindowsRequestMessage}
-         */
-        static fromRequest (msg, data) {
-            /** @type {WindowsRequestMessage} */
-            const output = {
-                Data: data,
-                Feature: msg.context,
-                SubFeatureName: msg.featureName,
-                Name: msg.method,
-                Id: msg.id
-            };
-            return output
-        }
-    }
-
-    /**
-     * @module Messaging Schema
-     *
-     * @description
-     * These are all the shared data types used throughout. Transports receive these types and
-     * can choose how to deliver the message to their respective native platforms.
-     *
-     * - Notifications via {@link NotificationMessage}
-     * - Request -> Response via {@link RequestMessage} and {@link MessageResponse}
-     * - Subscriptions via {@link Subscription}
-     *
-     * Note: For backwards compatibility, some platforms may alter the data shape within the transport.
-     */
-
-    /**
-     * This is the format of an outgoing message.
-     *
-     * - See {@link MessageResponse} for what's expected in a response
-     *
-     * **NOTE**:
-     * - Windows will alter this before it's sent, see: {@link Messaging.WindowsRequestMessage}
-     */
-    class RequestMessage {
-        /**
-         * @param {object} params
-         * @param {string} params.context
-         * @param {string} params.featureName
-         * @param {string} params.method
-         * @param {string} params.id
-         * @param {Record<string, any>} [params.params]
-         * @internal
-         */
-        constructor (params) {
-            /**
-             * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
-             * @type {string}
-             */
-            this.context = params.context;
-            /**
-             * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
-             * @type {string}
-             */
-            this.featureName = params.featureName;
-            /**
-             * The name of the handler to be executed on the native side
-             */
-            this.method = params.method;
-            /**
-             * The `id` that native sides can use when sending back a response
-             */
-            this.id = params.id;
-            /**
-             * Optional data payload - must be a plain key/value object
-             */
-            this.params = params.params;
-        }
-    }
-
-    /**
-     * **NOTE**:
-     * - Windows will alter this before it's sent, see: {@link Messaging.WindowsNotification}
-     */
-    class NotificationMessage {
-        /**
-         * @param {object} params
-         * @param {string} params.context
-         * @param {string} params.featureName
-         * @param {string} params.method
-         * @param {Record<string, any>} [params.params]
-         * @internal
-         */
-        constructor (params) {
-            /**
-             * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
-             */
-            this.context = params.context;
-            /**
-             * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
-             */
-            this.featureName = params.featureName;
-            /**
-             * The name of the handler to be executed on the native side
-             */
-            this.method = params.method;
-            /**
-             * An optional payload
-             */
-            this.params = params.params;
-        }
-    }
-
-    class Subscription {
-        /**
-         * @param {object} params
-         * @param {string} params.context
-         * @param {string} params.featureName
-         * @param {string} params.subscriptionName
-         * @internal
-         */
-        constructor (params) {
-            this.context = params.context;
-            this.featureName = params.featureName;
-            this.subscriptionName = params.subscriptionName;
-        }
-    }
-
-    /**
-     * @param {RequestMessage} request
-     * @param {Record<string, any>} data
-     * @return {data is MessageResponse}
-     */
-    function isResponseFor (request, data) {
-        if ('result' in data) {
-            return data.featureName === request.featureName &&
-                data.context === request.context &&
-                data.id === request.id
-        }
-        if ('error' in data) {
-            if ('message' in data.error) {
-                return true
-            }
-        }
-        return false
-    }
-
-    /**
-     * @param {Subscription} sub
-     * @param {Record<string, any>} data
-     * @return {data is SubscriptionEvent}
-     */
-    function isSubscriptionEventFor (sub, data) {
-        if ('subscriptionName' in data) {
-            return data.featureName === sub.featureName &&
-                data.context === sub.context &&
-                data.subscriptionName === sub.subscriptionName
-        }
-
-        return false
-    }
-
-    /**
-     *
-     * @description
-     *
-     * A wrapper for messaging on WebKit platforms. It supports modern WebKit messageHandlers
-     * along with encryption for older versions (like macOS Catalina)
-     *
-     * Note: If you wish to support Catalina then you'll need to implement the native
-     * part of the message handling, see {@link WebkitMessagingTransport} for details.
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
-    /**
-     * @example
-     * On macOS 11+, this will just call through to `window.webkit.messageHandlers.x.postMessage`
-     *
-     * Eg: for a `foo` message defined in Swift that accepted the payload `{"bar": "baz"}`, the following
-     * would occur:
-     *
-     * ```js
-     * const json = await window.webkit.messageHandlers.foo.postMessage({ bar: "baz" });
-     * const response = JSON.parse(json)
-     * ```
-     *
-     * @example
-     * On macOS 10 however, the process is a little more involved. A method will be appended to `window`
-     * that allows the response to be delivered there instead. It's not exactly this, but you can visualize the flow
-     * as being something along the lines of:
-     *
-     * ```js
-     * // add the window method
-     * window["_0123456"] = (response) => {
-     *    // decrypt `response` and deliver the result to the caller here
-     *    // then remove the temporary method
-     *    delete window['_0123456']
-     * };
-     *
-     * // send the data + `messageHanding` values
-     * window.webkit.messageHandlers.foo.postMessage({
-     *   bar: "baz",
-     *   messagingHandling: {
-     *     methodName: "_0123456",
-     *     secret: "super-secret",
-     *     key: [1, 2, 45, 2],
-     *     iv: [34, 4, 43],
-     *   }
-     * });
-     *
-     * // later in swift, the following JavaScript snippet will be executed
-     * (() => {
-     *   window['_0123456']({
-     *     ciphertext: [12, 13, 4],
-     *     tag: [3, 5, 67, 56]
-     *   })
-     * })()
-     * ```
-     * @implements {MessagingTransport}
-     */
-    class WebkitMessagingTransport {
-        /** @type {WebkitMessagingConfig} */
-        config
-        /** @internal */
-        globals
-
-        /**
-         * @param {WebkitMessagingConfig} config
-         * @param {import('../index.js').MessagingContext} messagingContext
-         */
-        constructor (config, messagingContext) {
-            this.messagingContext = messagingContext;
-            this.config = config;
-            this.globals = captureGlobals();
-            if (!this.config.hasModernWebkitAPI) {
-                this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
-            }
-        }
-
-        /**
-         * Sends message to the webkit layer (fire and forget)
-         * @param {String} handler
-         * @param {*} data
-         * @internal
-         */
-        wkSend (handler, data = {}) {
-            if (!(handler in this.globals.window.webkit.messageHandlers)) {
-                throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
-            }
-            if (!this.config.hasModernWebkitAPI) {
-                const outgoing = {
-                    ...data,
-                    messageHandling: {
-                        ...data.messageHandling,
-                        secret: this.config.secret
-                    }
-                };
-                if (!(handler in this.globals.capturedWebkitHandlers)) {
-                    throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler)
-                } else {
-                    return this.globals.capturedWebkitHandlers[handler](outgoing)
-                }
-            }
-            return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data)
-        }
-
-        /**
-         * Sends message to the webkit layer and waits for the specified response
-         * @param {String} handler
-         * @param {import('../index.js').RequestMessage} data
-         * @returns {Promise<*>}
-         * @internal
-         */
-        async wkSendAndWait (handler, data) {
-            if (this.config.hasModernWebkitAPI) {
-                const response = await this.wkSend(handler, data);
-                return this.globals.JSONparse(response || '{}')
-            }
-
-            try {
-                const randMethodName = this.createRandMethodName();
-                const key = await this.createRandKey();
-                const iv = this.createRandIv();
-
-                const {
-                    ciphertext,
-                    tag
-                } = await new this.globals.Promise((/** @type {any} */ resolve) => {
-                    this.generateRandomMethod(randMethodName, resolve);
-
-                    // @ts-expect-error - this is a carve-out for catalina that will be removed soon
-                    data.messageHandling = new SecureMessagingParams({
-                        methodName: randMethodName,
-                        secret: this.config.secret,
-                        key: this.globals.Arrayfrom(key),
-                        iv: this.globals.Arrayfrom(iv)
-                    });
-                    this.wkSend(handler, data);
-                });
-
-                const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-                const decrypted = await this.decrypt(cipher, key, iv);
-                return this.globals.JSONparse(decrypted || '{}')
-            } catch (e) {
-                // re-throw when the error is just a 'MissingHandler'
-                if (e instanceof MissingHandler) {
-                    throw e
-                } else {
-                    console.error('decryption failed', e);
-                    console.error(e);
-                    return { error: e }
-                }
-            }
-        }
-
-        /**
-         * @param {import('../index.js').NotificationMessage} msg
-         */
-        notify (msg) {
-            this.wkSend(msg.context, msg);
-        }
-
-        /**
-         * @param {import('../index.js').RequestMessage} msg
-         */
-        async request (msg) {
-            const data = await this.wkSendAndWait(msg.context, msg);
-
-            if (isResponseFor(msg, data)) {
-                if (data.result) {
-                    return data.result || {}
-                }
-                // forward the error if one was given explicity
-                if (data.error) {
-                    throw new Error(data.error.message)
-                }
-            }
-
-            throw new Error('an unknown error occurred')
-        }
-
-        /**
-         * Generate a random method name and adds it to the global scope
-         * The native layer will use this method to send the response
-         * @param {string | number} randomMethodName
-         * @param {Function} callback
-         * @internal
-         */
-        generateRandomMethod (randomMethodName, callback) {
-            this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
-                enumerable: false,
-                // configurable, To allow for deletion later
-                configurable: true,
-                writable: false,
-                /**
-                 * @param {any[]} args
-                 */
-                value: (...args) => {
-                    // eslint-disable-next-line n/no-callback-literal
-                    callback(...args);
-                    delete this.globals.window[randomMethodName];
-                }
-            });
-        }
-
-        /**
-         * @internal
-         * @return {string}
-         */
-        randomString () {
-            return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0]
-        }
-
-        /**
-         * @internal
-         * @return {string}
-         */
-        createRandMethodName () {
-            return '_' + this.randomString()
-        }
-
-        /**
-         * @type {{name: string, length: number}}
-         * @internal
-         */
-        algoObj = {
-            name: 'AES-GCM',
-            length: 256
-        }
-
-        /**
-         * @returns {Promise<Uint8Array>}
-         * @internal
-         */
-        async createRandKey () {
-            const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
-            const exportedKey = await this.globals.exportKey('raw', key);
-            return new this.globals.Uint8Array(exportedKey)
-        }
-
-        /**
-         * @returns {Uint8Array}
-         * @internal
-         */
-        createRandIv () {
-            return this.globals.getRandomValues(new this.globals.Uint8Array(12))
-        }
-
-        /**
-         * @param {BufferSource} ciphertext
-         * @param {BufferSource} key
-         * @param {Uint8Array} iv
-         * @returns {Promise<string>}
-         * @internal
-         */
-        async decrypt (ciphertext, key, iv) {
-            const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt']);
-            const algo = {
-                name: 'AES-GCM',
-                iv
-            };
-
-            const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
-
-            const dec = new this.globals.TextDecoder();
-            return dec.decode(decrypted)
-        }
-
-        /**
-         * When required (such as on macos 10.x), capture the `postMessage` method on
-         * each webkit messageHandler
-         *
-         * @param {string[]} handlerNames
-         */
-        captureWebkitHandlers (handlerNames) {
-            const handlers = window.webkit.messageHandlers;
-            if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all')
-            for (const webkitMessageHandlerName of handlerNames) {
-                if (typeof handlers[webkitMessageHandlerName]?.postMessage === 'function') {
-                    /**
-                     * `bind` is used here to ensure future calls to the captured
-                     * `postMessage` have the correct `this` context
-                     */
-                    const original = handlers[webkitMessageHandlerName];
-                    const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
-                    this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
-                    delete handlers[webkitMessageHandlerName].postMessage;
-                }
-            }
-        }
-
-        /**
-         * @param {import('../index.js').Subscription} msg
-         * @param {(value: unknown) => void} callback
-         */
-        subscribe (msg, callback) {
-            // for now, bail if there's already a handler setup for this subscription
-            if (msg.subscriptionName in this.globals.window) {
-                throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`)
-            }
-            this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
-                enumerable: false,
-                configurable: true,
-                writable: false,
-                value: (data) => {
-                    if (data && isSubscriptionEventFor(msg, data)) {
-                        callback(data.params);
-                    } else {
-                        console.warn('Received a message that did not match the subscription', data);
-                    }
-                }
-            });
-            return () => {
-                this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
-            }
-        }
-    }
-
-    /**
-     * Use this configuration to create an instance of {@link Messaging} for WebKit platforms
-     *
-     * We support modern WebKit environments *and* macOS Catalina.
-     *
-     * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
-     *
-     * @example Webkit Messaging
-     *
-     * ```javascript
-     * [[include:packages/messaging/lib/examples/webkit.example.js]]```
-     */
-    class WebkitMessagingConfig {
-        /**
-         * @param {object} params
-         * @param {boolean} params.hasModernWebkitAPI
-         * @param {string[]} params.webkitMessageHandlerNames
-         * @param {string} params.secret
-         * @internal
-         */
-        constructor (params) {
-            /**
-             * Whether or not the current WebKit Platform supports secure messaging
-             * by default (eg: macOS 11+)
-             */
-            this.hasModernWebkitAPI = params.hasModernWebkitAPI;
-            /**
-             * A list of WebKit message handler names that a user script can send.
-             *
-             * For example, if the native platform can receive messages through this:
-             *
-             * ```js
-             * window.webkit.messageHandlers.foo.postMessage('...')
-             * ```
-             *
-             * then, this property would be:
-             *
-             * ```js
-             * webkitMessageHandlerNames: ['foo']
-             * ```
-             */
-            this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
-            /**
-             * A string provided by native platforms to be sent with future outgoing
-             * messages.
-             */
-            this.secret = params.secret;
-        }
-    }
-
-    /**
-     * This is the additional payload that gets appended to outgoing messages.
-     * It's used in the Swift side to encrypt the response that comes back
-     */
-    class SecureMessagingParams {
-        /**
-         * @param {object} params
-         * @param {string} params.methodName
-         * @param {string} params.secret
-         * @param {number[]} params.key
-         * @param {number[]} params.iv
-         */
-        constructor (params) {
-            /**
-             * The method that's been appended to `window` to be called later
-             */
-            this.methodName = params.methodName;
-            /**
-             * The secret used to ensure message sender validity
-             */
-            this.secret = params.secret;
-            /**
-             * The CipherKey as number[]
-             */
-            this.key = params.key;
-            /**
-             * The Initial Vector as number[]
-             */
-            this.iv = params.iv;
-        }
-    }
-
-    /**
-     * Capture some globals used for messaging handling to prevent page
-     * scripts from tampering with this
-     */
-    function captureGlobals () {
-        // Create base with null prototype
-        return {
-            window,
-            // Methods must be bound to their interface, otherwise they throw Illegal invocation
-            encrypt: window.crypto.subtle.encrypt.bind(window.crypto.subtle),
-            decrypt: window.crypto.subtle.decrypt.bind(window.crypto.subtle),
-            generateKey: window.crypto.subtle.generateKey.bind(window.crypto.subtle),
-            exportKey: window.crypto.subtle.exportKey.bind(window.crypto.subtle),
-            importKey: window.crypto.subtle.importKey.bind(window.crypto.subtle),
-            getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
-            TextEncoder,
-            TextDecoder,
-            Uint8Array,
-            Uint16Array,
-            Uint32Array,
-            JSONstringify: window.JSON.stringify,
-            JSONparse: window.JSON.parse,
-            Arrayfrom: window.Array.from,
-            Promise: window.Promise,
-            Error: window.Error,
-            ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
-            ObjectDefineProperty: window.Object.defineProperty,
-            addEventListener: window.addEventListener.bind(window),
-            /** @type {Record<string, any>} */
-            capturedWebkitHandlers: {}
-        }
-    }
-
-    /**
-     * @module Messaging
-     * @category Libraries
-     * @description
-     *
-     * An abstraction for communications between JavaScript and host platforms.
-     *
-     * 1) First you construct your platform-specific configuration (eg: {@link WebkitMessagingConfig})
-     * 2) Then use that to get an instance of the Messaging utility which allows
-     * you to send and receive data in a unified way
-     * 3) Each platform implements {@link MessagingTransport} along with its own Configuration
-     *     - For example, to learn what configuration is required for Webkit, see: {@link WebkitMessagingConfig}
-     *     - Or, to learn about how messages are sent and received in Webkit, see {@link WebkitMessagingTransport}
-     *
-     * ## Links
-     * Please see the following links for examples
-     *
-     * - Windows: {@link WindowsMessagingConfig}
-     * - Webkit: {@link WebkitMessagingConfig}
-     * - Schema: {@link "Messaging Schema"}
-     *
-     */
-
-    /**
-     * Common options/config that are *not* transport specific.
-     */
-    class MessagingContext {
-        /**
-         * @param {object} params
-         * @param {string} params.context
-         * @param {string} params.featureName
-         * @param {"production" | "development"} params.env
-         * @internal
-         */
-        constructor (params) {
-            this.context = params.context;
-            this.featureName = params.featureName;
-            this.env = params.env;
-        }
-    }
-
-    /**
-     *
-     */
-    class Messaging {
-        /**
-         * @param {MessagingContext} messagingContext
-         * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
-         */
-        constructor (messagingContext, config) {
-            this.messagingContext = messagingContext;
-            this.transport = getTransport(config, this.messagingContext);
-        }
-
-        /**
-         * Send a 'fire-and-forget' message.
-         * @throws {MissingHandler}
-         *
-         * @example
-         *
-         * ```ts
-         * const messaging = new Messaging(config)
-         * messaging.notify("foo", {bar: "baz"})
-         * ```
-         * @param {string} name
-         * @param {Record<string, any>} [data]
-         */
-        notify (name, data = {}) {
-            const message = new NotificationMessage({
-                context: this.messagingContext.context,
-                featureName: this.messagingContext.featureName,
-                method: name,
-                params: data
-            });
-            this.transport.notify(message);
-        }
-
-        /**
-         * Send a request, and wait for a response
-         * @throws {MissingHandler}
-         *
-         * @example
-         * ```
-         * const messaging = new Messaging(config)
-         * const response = await messaging.request("foo", {bar: "baz"})
-         * ```
-         *
-         * @param {string} name
-         * @param {Record<string, any>} [data]
-         * @return {Promise<any>}
-         */
-        request (name, data = {}) {
-            const id = name + '.response';
-            const message = new RequestMessage({
-                context: this.messagingContext.context,
-                featureName: this.messagingContext.featureName,
-                method: name,
-                params: data,
-                id
-            });
-            return this.transport.request(message)
-        }
-
-        /**
-         * @param {string} name
-         * @param {(value: unknown) => void} callback
-         * @return {() => void}
-         */
-        subscribe (name, callback) {
-            const msg = new Subscription({
-                context: this.messagingContext.context,
-                featureName: this.messagingContext.featureName,
-                subscriptionName: name
-            });
-            return this.transport.subscribe(msg, callback)
-        }
-    }
-
-    /**
-     * Use this to create testing transport on the fly.
-     * It's useful for debugging, and for enabling scripts to run in
-     * other environments - for example, testing in a browser without the need
-     * for a full integration
-     *
-     * ```js
-     * [[include:packages/messaging/lib/examples/test.example.js]]```
-     */
-    class TestTransportConfig {
-        /**
-         * @param {MessagingTransport} impl
-         */
-        constructor (impl) {
-            this.impl = impl;
-        }
-    }
-
-    /**
-     * @implements {MessagingTransport}
-     */
-    class TestTransport {
-        /**
-         * @param {TestTransportConfig} config
-         * @param {MessagingContext} messagingContext
-         */
-        constructor (config, messagingContext) {
-            this.config = config;
-            this.messagingContext = messagingContext;
-        }
-
-        notify (msg) {
-            return this.config.impl.notify(msg)
-        }
-
-        request (msg) {
-            return this.config.impl.request(msg)
-        }
-
-        subscribe (msg, callback) {
-            return this.config.impl.subscribe(msg, callback)
-        }
-    }
-
-    /**
-     * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
-     * @param {MessagingContext} messagingContext
-     * @returns {MessagingTransport}
-     */
-    function getTransport (config, messagingContext) {
-        if (config instanceof WebkitMessagingConfig) {
-            return new WebkitMessagingTransport(config, messagingContext)
-        }
-        if (config instanceof WindowsMessagingConfig) {
-            return new WindowsMessagingTransport(config, messagingContext)
-        }
-        if (config instanceof TestTransportConfig) {
-            return new TestTransport(config, messagingContext)
-        }
-        throw new Error('unreachable')
-    }
-
-    /**
-     * Thrown when a handler cannot be found
-     */
-    class MissingHandler extends Error {
-        /**
-         * @param {string} message
-         * @param {string} handlerName
-         */
-        constructor (message, handlerName) {
-            super(message);
-            this.handlerName = handlerName;
         }
     }
 

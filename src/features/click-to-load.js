@@ -1,6 +1,8 @@
-import { createCustomEvent, sendMessage, originalWindowDispatchEvent } from '../utils.js'
+import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '@duckduckgo/messaging'
+import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
+import { ClickToLoadMessagingTransport } from './click-to-load/ctl-messaging-transport.js'
 import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
 import { registerCustomElements } from './click-to-load/components'
@@ -25,6 +27,9 @@ const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
 let config = null
 let sharedStrings = null
 let styles = null
+// Used to choose between extension/desktop flow or mobile apps flow.
+// Updated on ClickToLoad.init()
+let isMobileApp
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
@@ -49,9 +54,20 @@ const readyToDisplayPlaceholders = new Promise(resolve => {
 let afterPageLoadResolver
 const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve })
 
-// Used to choose between extension/desktop flow or mobile apps flow.
-// Updated on ClickToLoad.init()
-let isMobileApp
+// Messaging layer for Click to Load. The messaging instance is initialized in
+// ClickToLoad.init() and updated here to be used outside ClickToLoad class
+// we need a module scoped reference.
+/** @type {import("@duckduckgo/messaging").Messaging} */
+let _messagingModuleScope
+const ctl = {
+    /**
+     * @return {import("@duckduckgo/messaging").Messaging}
+     */
+    get messaging () {
+        if (!_messagingModuleScope) throw new Error('Messaging not initialized')
+        return _messagingModuleScope
+    }
+}
 
 /*********************************************************
  *  Widget Replacement logic
@@ -369,6 +385,7 @@ class DuckWidget {
         const handleClick = e => {
             // Ensure that the click is created by a user event & prevent double clicks from adding more animations
             if (e.isTrusted && !clicked) {
+                e.stopPropagation()
                 this.isUnblocked = true
                 clicked = true
                 let isLogin = false
@@ -376,7 +393,9 @@ class DuckWidget {
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true
                 }
-                window.addEventListener('ddg-ctp-unblockClickToLoadContent-complete', () => {
+                const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
+                // eslint-disable-next-line promise/prefer-await-to-then
+                unblockClickToLoadContent({ entity: this.entity, action, isLogin }).then(() => {
                     const parent = replacementElement.parentNode
 
                     // The placeholder was removed from the DOM while we loaded
@@ -454,9 +473,7 @@ class DuckWidget {
                     if (onError) {
                         fbElement.addEventListener('error', onError, { once: true })
                     }
-                }, { once: true })
-                const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
-                unblockClickToLoadContent({ entity: this.entity, action, isLogin })
+                })
             }
         }
         // If this is a login button, show modal if needed
@@ -523,7 +540,7 @@ function replaceTrackingElement (widget, trackingElement, placeholderElement) {
     // from the DOM after they are collapsed. As a workaround, have the iframe
     // load a benign data URI, so that it's uncollapsed, before removing it from
     // the DOM. See https://crbug.com/1428971
-    const originalSrc = elementToReplace.src
+    const originalSrc = elementToReplace.src || elementToReplace.getAttribute('data-src')
     elementToReplace.src =
         'data:text/plain;charset=utf-8;base64,' + btoa('https://crbug.com/1428971')
 
@@ -616,14 +633,14 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
 
     // YouTube
     if (widget.replaceSettings.type === 'youtube-video') {
-        sendMessage('updateYouTubeCTLAddedFlag', true)
+        ctl.messaging.notify('updateYouTubeCTLAddedFlag', { youTubeCTLAddedFlag: true })
         replaceYouTubeCTL(trackingElement, widget)
 
         // Subscribe to changes to youtubePreviewsEnabled setting
         // and update the CTL state
-        window.addEventListener(
-            'ddg-settings-youtubePreviewsEnabled',
-            (/** @type CustomEvent */ { detail: value }) => {
+        ctl.messaging.subscribe(
+            'setYoutubePreviewsEnabled',
+            ({ value }) => {
                 isYoutubePreviewsEnabled = value
                 replaceYouTubeCTL(trackingElement, widget)
             }
@@ -677,7 +694,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
                     dataKey: 'yt-preview-toggle', // data-key attribute for button
                     label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
                     size: isMobileApp ? 'lg' : 'md',
-                    onClick: () => sendMessage('setYoutubePreviewsEnabled', true) // Toggle click callback
+                    onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }) // Toggle click callback
                 },
                 withFeedback: {
                     label: sharedStrings.shareFeedback,
@@ -843,9 +860,10 @@ async function replaceClickToLoadElements (targetElement) {
  * the page.
  * @param {unblockClickToLoadContentRequest} message
  * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
+ * @returns {Promise<void>}
  */
 function unblockClickToLoadContent (message) {
-    sendMessage('unblockClickToLoadContent', message)
+    return ctl.messaging.request('unblockClickToLoadContent', message)
 }
 
 /**
@@ -854,9 +872,10 @@ function unblockClickToLoadContent (message) {
  * shown.
  * @param {string} entity
  */
-function runLogin (entity) {
+async function runLogin (entity) {
     const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
-    unblockClickToLoadContent({ entity, action, isLogin: true })
+    await unblockClickToLoadContent({ entity, action, isLogin: true })
+    // Communicate with surrogate to run login
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-run-login', {
             detail: {
@@ -867,8 +886,8 @@ function runLogin (entity) {
 }
 
 /**
- * Close the login dialog and abort. Called after the user clicks to cancel
- * after the warning dialog is shown.
+ * Close the login dialog and communicate with the surrogate to abort.
+ * Called after the user clicks to cancel after the warning dialog is shown.
  * @param {string} entity
  */
 function cancelModal (entity) {
@@ -882,11 +901,7 @@ function cancelModal (entity) {
 }
 
 function openShareFeedbackPage () {
-    sendMessage('openShareFeedbackPage', '')
-}
-
-function getYouTubeVideoDetails (videoURL) {
-    sendMessage('getYouTubeVideoDetails', videoURL)
+    ctl.messaging.notify('openShareFeedbackPage')
 }
 
 /*********************************************************
@@ -1527,7 +1542,7 @@ function createYouTubeBlockingDialog (trackingElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => makeModal(widget.entity, () => sendMessage('setYoutubePreviewsEnabled', true), widget.entity)
+        () => makeModal(widget.entity, () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }), widget.entity)
     )
     bottomRow.appendChild(previewToggle)
 
@@ -1644,7 +1659,7 @@ function createYouTubePreview (originalElement, widget) {
     )
     previewToggle.addEventListener(
         'click',
-        () => sendMessage('setYoutubePreviewsEnabled', false)
+        () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: false })
     )
 
     /** Preview Info Text */
@@ -1676,12 +1691,10 @@ function createYouTubePreview (originalElement, widget) {
     // We use .then() instead of await here to show the placeholder right away
     // while the YouTube endpoint takes it time to respond.
     const videoURL = originalElement.src || originalElement.getAttribute('data-src')
-    getYouTubeVideoDetails(videoURL)
-    window.addEventListener('ddg-ctp-youTubeVideoDetails',
-        (/** @type {CustomEvent} */ {
-            detail: { videoURL: videoURLResp, status, title, previewImage }
-        }) => {
-            if (videoURLResp !== videoURL) { return }
+    ctl.messaging.request('getYouTubeVideoDetails', { videoURL })
+        // eslint-disable-next-line promise/prefer-await-to-then
+        .then(({ videoURL: videoURLResp, status, title, previewImage }) => {
+            if (!status || videoURLResp !== videoURL) { return }
             if (status === 'success') {
                 titleElement.innerText = title
                 titleElement.title = title
@@ -1690,8 +1703,7 @@ function createYouTubePreview (originalElement, widget) {
                 }
                 widget.autoplay = true
             }
-        }
-    )
+        })
 
     /** Share Feedback Link */
     const feedbackRow = makeShareFeedbackRow()
@@ -1700,48 +1712,17 @@ function createYouTubePreview (originalElement, widget) {
     return { youTubePreview, shadowRoot }
 }
 
-// Convention is that each function should be named the same as the sendMessage
-// method we are calling into eg. calling `sendMessage('getClickToLoadState')`
-// will result in a response routed to `updateHandlers.getClickToLoadState()`.
-const messageResponseHandlers = {
-    getClickToLoadState (response) {
-        devMode = response.devMode
-        isYoutubePreviewsEnabled = response.youtubePreviewsEnabled
-
-        // Mark the feature as ready, to allow placeholder replacements to
-        // start.
-        readyToDisplayPlaceholdersResolver()
-    },
-    setYoutubePreviewsEnabled (response) {
-        if (response?.messageType && typeof response?.value === 'boolean') {
-            originalWindowDispatchEvent(
-                createCustomEvent(
-                    response.messageType, { detail: response.value }
-                )
-            )
-        }
-    },
-    getYouTubeVideoDetails (response) {
-        if (response?.status && typeof response.videoURL === 'string') {
-            originalWindowDispatchEvent(
-                createCustomEvent(
-                    'ddg-ctp-youTubeVideoDetails',
-                    { detail: response }
-                )
-            )
-        }
-    },
-    unblockClickToLoadContent () {
-        originalWindowDispatchEvent(
-            createCustomEvent('ddg-ctp-unblockClickToLoadContent-complete')
-        )
-    }
-}
-
-const knownMessageResponseType = Object.prototype.hasOwnProperty.bind(messageResponseHandlers)
-
 export default class ClickToLoad extends ContentFeature {
     async init (args) {
+        /**
+         * Bail if no messaging backend - this is a debugging feature to ensure we don't
+         * accidentally enabled this
+         */
+        if (!this.messaging) {
+            throw new Error('Cannot operate click to load without a messaging backend')
+        }
+        _messagingModuleScope = this.messaging
+
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}
         const locale = args?.locale || 'en'
@@ -1789,8 +1770,8 @@ export default class ClickToLoad extends ContentFeature {
             entityData[entity] = currentEntityData
         }
 
-        // Listen for events from "surrogate" scripts.
-        addEventListener('ddg-ctp', (/** @type {CustomEvent} */ event) => {
+        // Listen for window events from "surrogate" scripts.
+        window.addEventListener('ddg-ctp', (/** @type {CustomEvent} */ event) => {
             if (!('detail' in event)) return
 
             const entity = event.detail?.entity
@@ -1810,12 +1791,22 @@ export default class ClickToLoad extends ContentFeature {
                 }
             }
         })
+        // Listen to message from Platform letting CTL know that we're ready to
+        // replace elements in the page
+        // eslint-disable-next-line promise/prefer-await-to-then
+        this.messaging.subscribe(
+            'displayClickToLoadPlaceholders',
+            // TODO: Pass `message.options.ruleAction` through, that way only
+            //       content corresponding to the entity for that ruleAction need to
+            //       be replaced with a placeholder.
+            () => replaceClickToLoadElements()
+        )
 
         // Request the current state of Click to Load from the platform.
         // Note: When the response is received, the response handler resolves
         //       the readyToDisplayPlaceholders Promise.
-        sendMessage('getClickToLoadState')
-        await readyToDisplayPlaceholders
+        const clickToLoadState = await this.messaging.request('getClickToLoadState')
+        this.onClickToLoadState(clickToLoadState)
 
         // Then wait for the page to finish loading, and resolve the
         // afterPageLoad Promise.
@@ -1843,6 +1834,12 @@ export default class ClickToLoad extends ContentFeature {
         }, 0)
     }
 
+    /**
+     * This is only called by the current integration between Android and Extension and is now
+     * used to connect only these Platforms responses with the temporary implementation of
+     * ClickToLoadMessagingTransport that wraps this communication.
+     * This can be removed once they have their own Messaging integration.
+     */
     update (message) {
         // TODO: Once all Click to Load messages include the feature property, drop
         //       messages that don't include the feature property too.
@@ -1851,20 +1848,49 @@ export default class ClickToLoad extends ContentFeature {
         const messageType = message?.messageType
         if (!messageType) return
 
-        // Message responses.
-        if (messageType === 'response') {
-            const messageResponseType = message?.responseMessageType
-            if (messageResponseType && knownMessageResponseType(messageResponseType)) {
-                return messageResponseHandlers[messageResponseType](message.response)
-            }
+        if (!this._clickToLoadMessagingTransport) {
+            throw new Error('_clickToLoadMessagingTransport not ready. Cannot operate click to load without a messaging backend')
         }
 
-        // Other known update messages.
-        if (messageType === 'displayClickToLoadPlaceholders') {
-            // TODO: Pass `message.options.ruleAction` through, that way only
-            //       content corresponding to the entity for that ruleAction need to
-            //       be replaced with a placeholder.
-            return replaceClickToLoadElements()
+        // Send to Messaging layer the response or subscription message received
+        // from the Platform.
+        return this._clickToLoadMessagingTransport.onResponse(message)
+    }
+
+    /**
+     * Update Click to Load internal state
+     * @param {Object} state Click to Load state response from the Platform
+     * @param {boolean} state.devMode Developer or Production environment
+     * @param {boolean} state.youtubePreviewsEnabled YouTube Click to Load - YT Previews enabled flag
+     */
+    onClickToLoadState (state) {
+        devMode = state.devMode
+        isYoutubePreviewsEnabled = state.youtubePreviewsEnabled
+
+        // Mark the feature as ready, to allow placeholder
+        // replacements to start.
+        readyToDisplayPlaceholdersResolver()
+    }
+
+    // Messaging layer between Click to Load and the Platform
+    get messaging () {
+        if (this._messaging) return this._messaging
+
+        if (this.platform.name === 'android' || this.platform.name === 'extension' || this.platform.name === 'macos') {
+            this._clickToLoadMessagingTransport = new ClickToLoadMessagingTransport()
+            const config = new TestTransportConfig(this._clickToLoadMessagingTransport)
+            this._messaging = new Messaging(this.messagingContext, config)
+            return this._messaging
+        } else if (this.platform.name === 'ios') {
+            const config = new WebkitMessagingConfig({
+                secret: '',
+                hasModernWebkitAPI: true,
+                webkitMessageHandlerNames: ['contentScopeScripts']
+            })
+            this._messaging = new Messaging(this.messagingContext, config)
+            return this._messaging
+        } else {
+            throw new Error('Messaging not supported yet on platform: ' + this.name)
         }
     }
 }
