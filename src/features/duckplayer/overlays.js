@@ -245,7 +245,8 @@ export async function initOverlays (environment, comms) {
     const OpenInDuckPlayer = {
         clickBoundElements: new Map(),
         enabled: false,
-
+        /** @type {string|null} */
+        lastMouseOver: null,
         bindEventsToAll: () => {
             if (!OpenInDuckPlayer.enabled) {
                 return
@@ -256,38 +257,69 @@ export async function initOverlays (environment, comms) {
                 return VideoThumbnail.isSingleVideoURL(element?.getAttribute('href')) ||
                     element.getAttribute('id') === 'media-container-link'
             }
-            const excludeAlreadyBound = (element) => !OpenInDuckPlayer.clickBoundElements.has(element)
-
             videoLinksAndPreview
-                .filter(excludeAlreadyBound)
-                .forEach(element => {
-                    if (isValidVideoLinkOrPreview(element)) {
-                        const onClickOpenDuckPlayer = (event) => {
-                            event.preventDefault()
-                            event.stopPropagation()
+                .forEach((/** @type {HTMLElement|HTMLAnchorElement} */element) => {
+                    // bail when this element was already seen
+                    if (OpenInDuckPlayer.clickBoundElements.has(element)) return
 
-                            const link = event.target.closest('a')
+                    // bail if it's not a valid element
+                    if (!isValidVideoLinkOrPreview(element)) return
 
-                            if (link) {
-                                const href = VideoParams.fromHref(link.href)?.toPrivatePlayerUrl()
+                    // handle mouseover + click events
+                    const handler = {
+                        handleEvent (event) {
+                            switch (event.type) {
+                            case 'mouseover': {
+                                /**
+                                 * Store the element's link value on hover - this occurs just in time
+                                 * before the youtube overlay take sover the event space
+                                 */
+                                const href = element instanceof HTMLAnchorElement
+                                    ? VideoParams.fromHref(element.href)?.toPrivatePlayerUrl()
+                                    : null
                                 if (href) {
-                                    comms.openInDuckPlayerViaMessage({ href })
+                                    OpenInDuckPlayer.lastMouseOver = href
                                 }
+                                break
                             }
+                            case 'click': {
+                                /**
+                                 * On click, the receiver might be the preview element - if
+                                 * it is, we want to use the last hovered `a` tag instead
+                                 */
+                                event.preventDefault()
+                                event.stopPropagation()
 
-                            return false
+                                const link = event.target.closest('a')
+                                const fromClosest = VideoParams.fromHref(link?.href)?.toPrivatePlayerUrl()
+
+                                if (fromClosest) {
+                                    comms.openInDuckPlayerViaMessage({ href: fromClosest })
+                                } else if (OpenInDuckPlayer.lastMouseOver) {
+                                    comms.openInDuckPlayerViaMessage({ href: OpenInDuckPlayer.lastMouseOver })
+                                } else {
+                                    // could not navigate, doing nothing
+                                }
+
+                                break
+                            }
+                            }
                         }
-
-                        element.addEventListener('click', onClickOpenDuckPlayer, true)
-
-                        OpenInDuckPlayer.clickBoundElements.set(element, onClickOpenDuckPlayer)
                     }
+
+                    // register both handlers
+                    element.addEventListener('mouseover', handler, true)
+                    element.addEventListener('click', handler, true)
+
+                    // store the handler for removal later (eg: if settings change)
+                    OpenInDuckPlayer.clickBoundElements.set(element, handler)
                 })
         },
 
         disable: () => {
-            OpenInDuckPlayer.clickBoundElements.forEach((functionToRemove, element) => {
-                element.removeEventListener('click', functionToRemove, true)
+            OpenInDuckPlayer.clickBoundElements.forEach((handler, element) => {
+                element.removeEventListener('mouseover', handler, true)
+                element.removeEventListener('click', handler, true)
                 OpenInDuckPlayer.clickBoundElements.delete(element)
             })
 
