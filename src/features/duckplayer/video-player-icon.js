@@ -1,7 +1,15 @@
 import { appendElement, applyEffect, execCleanups } from './util'
-import { IconOverlay } from './icon-overlay'
 
 export class VideoPlayerIcon {
+    /**
+     * @param {import("./icon-overlay.js").IconOverlay} iconOverlay
+     */
+    constructor (iconOverlay) {
+        /** @type {{fn: () => void, name: string}[]} */
+        this._cleanups = []
+        this.iconOverlay = iconOverlay
+    }
+
     /**
      * This will only get called once everytime a new video is loaded.
      *
@@ -24,7 +32,7 @@ export class VideoPlayerIcon {
     appendOverlay (containerElement, params) {
         this.cleanup()
         const href = params.toPrivatePlayerUrl()
-        const iconElement = IconOverlay.create('video-player', href, 'hidden')
+        const iconElement = this.iconOverlay.create('video-player', href, 'hidden')
 
         this.sideEffect('dax 🐥 icon overlay', () => {
             /**
@@ -41,8 +49,6 @@ export class VideoPlayerIcon {
         })
     }
 
-    /** @type {{fn: () => void, name: string}[]} */
-    _cleanups = []
     /**
      * Wrap a side-effecting operation for easier debugging
      * and teardown/release of resources

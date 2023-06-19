@@ -3,6 +3,7 @@ import { applyEffect, execCleanups, VideoParams } from './util.js'
 import { VideoPlayerIcon } from './video-player-icon'
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js'
 import { Pixel } from './overlay-messages.js'
+import { IconOverlay } from './icon-overlay.js'
 
 /**
  * Handle the switch between small & large overlays
@@ -15,9 +16,12 @@ export class VideoOverlayManager {
     /** @type {import("./video-player-icon").VideoPlayerIcon | null} */
     videoPlayerIcon = null
 
+    /** @type {{fn: () => void, name: string}[]} */
+    _cleanups = []
+
     /**
      * @param {import("../duck-player.js").UserValues} userValues
-     * @param {import("./overlays.js").Environment} environment
+     * @param {import("./yt-overlays.js").Environment} environment
      * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms
      */
     constructor (userValues, environment, comms) {
@@ -101,7 +105,8 @@ export class VideoOverlayManager {
             return
         }
         if (!this.videoPlayerIcon) {
-            this.videoPlayerIcon = new VideoPlayerIcon()
+            const overlay = new IconOverlay(this.comms)
+            this.videoPlayerIcon = new VideoPlayerIcon(overlay)
         }
         this.videoPlayerIcon.init(containerElement, params)
     }
@@ -281,9 +286,6 @@ export class VideoOverlayManager {
             this.addSmallDaxOverlay(params)
         }
     }
-
-    /** @type {{fn: () => void, name: string}[]} */
-    _cleanups = []
 
     /**
      * Wrap a side-effecting operation for easier debugging

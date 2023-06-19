@@ -33,7 +33,8 @@
 import ContentFeature from '../content-feature.js'
 
 import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckplayer/overlay-messages.js'
-import { Environment, initOverlays } from './duckplayer/overlays.js'
+import { Environment, YTOverlays } from './duckplayer/yt-overlays.js'
+import { SerpProxy } from './duckplayer/serp-proxy.js'
 import { isBeingFramed } from '../utils.js'
 import { createMessaging } from '../create-messaging.js'
 
@@ -98,9 +99,12 @@ export default class DuckPlayerFeature extends ContentFeature {
         })
 
         if (overlaysEnabled) {
-            initOverlays(env, comms)
+            const overlays = new YTOverlays(env, comms)
+            // eslint-disable-next-line promise/prefer-await-to-then
+            overlays.init().catch(console.error)
         } else if (serpProxyEnabled) {
-            comms.serpProxy()
+            const serProxy = new SerpProxy(env, comms)
+            serProxy.init()
         }
     }
 

@@ -63,52 +63,6 @@ export class DuckPlayerOverlayMessages {
     onUserValuesChanged (cb) {
         return this.messaging.subscribe('onUserValuesChanged', cb)
     }
-
-    /**
-     * This allows our SERP to interact with Duck Player settings.
-     */
-    serpProxy () {
-        function respond (kind, data) {
-            window.dispatchEvent(new CustomEvent(constants.MSG_NAME_PROXY_RESPONSE, {
-                detail: { kind, data },
-                composed: true,
-                bubbles: true
-            }))
-        }
-
-        // listen for setting and forward to the SERP window
-        this.onUserValuesChanged((values) => {
-            respond(constants.MSG_NAME_PUSH_DATA, values)
-        })
-
-        // accept messages from the SERP and forward them to native
-        window.addEventListener(constants.MSG_NAME_PROXY_INCOMING, (evt) => {
-            try {
-                assertCustomEvent(evt)
-                if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
-                    this.setUserValues(evt.detail.data)
-                        .then(updated => respond(constants.MSG_NAME_PUSH_DATA, updated))
-                        .catch(console.error)
-                }
-                if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
-                    this.getUserValues()
-                        .then(updated => respond(constants.MSG_NAME_PUSH_DATA, updated))
-                        .catch(console.error)
-                }
-            } catch (e) {
-                console.warn('cannot handle this message', e)
-            }
-        })
-    }
-}
-
-/**
- * @param {any} event
- * @returns {asserts event is CustomEvent<{kind: string, data: any}>}
- */
-function assertCustomEvent (event) {
-    if (!('detail' in event)) throw new Error('none-custom event')
-    if (typeof event.detail.kind !== 'string') throw new Error('custom event requires detail.kind to be a string')
 }
 
 export class Pixel {

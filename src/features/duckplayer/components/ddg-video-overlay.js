@@ -12,7 +12,7 @@ import { html, trustedUnsafe } from '../../../dom-utils.js'
 export class DDGVideoOverlay extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-overlay'
     /**
-     * @param {import("../overlays.js").Environment} environment
+     * @param {import("../yt-overlays.js").Environment} environment
      * @param {import("../util").VideoParams} params
      * @param {VideoOverlayManager} manager
      */
