@@ -1,7 +1,7 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname } from '../utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname, isBeingFramed } from '../utils.js'
 import { defineProperty } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { findClosestBreakpoint } from './runtime-checks/helpers.js'
@@ -604,6 +604,7 @@ export default class RuntimeChecks extends ContentFeature {
         ['innerHeight', 'innerWidth', 'outerHeight', 'outerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {
             if (sizing in genericOverloads) {
                 const sizingConfig = genericOverloads[sizing]
+                if (isBeingFramed() && !sizingConfig.applyToFrames) return
                 this.overloadScreenSizes(sizingConfig, breakpoints, screenSize, sizing, sizingConfig.offset || 0)
             }
         })
@@ -791,9 +792,14 @@ export default class RuntimeChecks extends ContentFeature {
             receiver = globalThis.screen
             break
         }
-        const defaultVal = Reflect.get(scope, overrideKey, receiver)
+        const defaultGetter = Object.getOwnPropertyDescriptor(scope, overrideKey)?.get
+        // Should never happen
+        if (!defaultGetter) {
+            return
+        }
         defineProperty(scope, overrideKey, {
             get () {
+                const defaultVal = Reflect.apply(defaultGetter, receiver, [])
                 if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     return returnVal
                 }
