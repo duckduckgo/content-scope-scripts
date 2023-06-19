@@ -27,7 +27,8 @@ const otherFeatures = /** @type {const} */([
 export const platformSupport = {
     apple: [
         ...baseFeatures,
-        'webCompat'
+        'webCompat',
+        'clickToLoad'
     ],
     'apple-isolated': [
         'duckPlayer'
