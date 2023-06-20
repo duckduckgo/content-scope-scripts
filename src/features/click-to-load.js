@@ -396,13 +396,15 @@ class DuckWidget {
                 this.isUnblocked = true
                 clicked = true
                 let isLogin = false
+                // Logins triggered by user click means they were not triggered by the surrogate
+                const isSurrogateLogin = false
                 const clickElement = e.srcElement // Object.assign({}, e)
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true
                 }
                 const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
                 // eslint-disable-next-line promise/prefer-await-to-then
-                unblockClickToLoadContent({ entity: this.entity, action, isLogin }).then(() => {
+                unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then(() => {
                     const parent = replacementElement.parentNode
 
                     // The placeholder was removed from the DOM while we loaded
@@ -479,6 +481,11 @@ class DuckWidget {
                     //       load event will always fire.
                     if (onError) {
                         fbElement.addEventListener('error', onError, { once: true })
+                    }
+                // eslint-disable-next-line promise/prefer-await-to-then
+                }).catch((err) => {
+                    if (err === 'ddg-ctp-user-cancel') {
+                        abortSurrogateConfirmation()
                     }
                 })
             }
@@ -913,23 +920,29 @@ function handleUnblockConfirmation (platformName, entity, acceptFunction, ...acc
  */
 async function runLogin (entity) {
     const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
-    await unblockClickToLoadContent({ entity, action, isLogin: true })
-    // Communicate with surrogate to run login
-    originalWindowDispatchEvent(
-        createCustomEvent('ddg-ctp-run-login', {
-            detail: {
-                entity
-            }
-        })
-    )
+    try {
+        await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true })
+        // Communicate with surrogate to run login
+        originalWindowDispatchEvent(
+            createCustomEvent('ddg-ctp-run-login', {
+                detail: {
+                    entity
+                }
+            })
+        )
+    } catch (err) {
+        if (err === 'ddg-ctp-user-cancel') {
+            abortSurrogateConfirmation()
+        }
+    }
 }
 
 /**
- * Close the login dialog and communicate with the surrogate to abort.
- * Called after the user clicks to cancel after the warning dialog is shown.
+ * Communicate with the surrogate to abort (ie Abort login when user rejects confirmation dialog)
+ * Called after the user cancel from a warning dialog.
  * @param {string} entity
  */
-function cancelModal (entity) {
+function abortSurrogateConfirmation (entity) {
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-cancel-modal', {
             detail: {
@@ -1343,7 +1356,7 @@ function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
 
     const closeModal = () => {
         document.body.removeChild(modalContainer)
-        cancelModal(entity)
+        abortSurrogateConfirmation(entity)
     }
 
     // Protect the contents of our modal inside a shadowRoot, to avoid

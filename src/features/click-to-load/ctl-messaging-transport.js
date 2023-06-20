@@ -77,8 +77,8 @@ export class ClickToLoadMessagingTransport {
             comparator = (eventData) => {
                 return (
                     eventData.responseMessageType === req.method &&
-                        eventData.response &&
-                        eventData.response.videoURL === req.params?.videoURL
+                    eventData.response &&
+                    eventData.response.videoURL === req.params?.videoURL
                 )
             }
             params = req.params?.videoURL
@@ -86,11 +86,16 @@ export class ClickToLoadMessagingTransport {
 
         sendMessage(req.method, params)
 
-        return new this.globals.Promise((resolve) => {
+        return new this.globals.Promise((resolve, reject) => {
             this._subscribe(comparator, (msgRes, unsubscribe) => {
                 unsubscribe()
 
-                resolve(msgRes.response)
+                if ('error' in msgRes) {
+                    const message = this.globals.String(msgRes.error.message || 'unknown error')
+                    return reject(message)
+                }
+
+                return resolve(msgRes.response)
             })
         })
     }
