@@ -480,7 +480,9 @@ class DuckWidget {
         // If this is a login button, show modal if needed
         if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
             return e => {
-                makeModal(this.entity, handleClick, e)
+                handleUnblockConfirmation(
+                    this.entity, handleClick, e
+                )
             }
         }
         return handleClick
@@ -490,7 +492,7 @@ class DuckWidget {
 /**
  * Replace the given tracking element with the given placeholder.
  * Notes:
- *  1. This function also dispatches events targetting the original and
+ *  1. This function also dispatches events targeting the original and
  *     placeholder elements. That way, the surrogate scripts can use the event
  *     targets to keep track of which placeholder corresponds to which tracking
  *     element.
@@ -882,6 +884,31 @@ async function replaceClickToLoadElements (targetElement) {
  */
 function unblockClickToLoadContent (message) {
     return ctl.messaging.request('unblockClickToLoadContent', message)
+}
+
+/**
+ * Handle showing a web modal to request the user for a confirmation or, in some platforms,
+ * proceed with the "acceptFunction" call and let the platform handle with each request
+ * accordingly.
+ * @param {string} entity
+ *   The entity to unblock requests for (e.g. "Facebook, Inc.") if the user
+ *   clicks to proceed.
+ * @param {function} acceptFunction
+ *   The function to call if the user has clicked to proceed.
+ * @param {...any} acceptFunctionParams
+ *   The parameters passed to acceptFunction when it is called.
+ */
+function handleUnblockConfirmation (entity, acceptFunction, ...acceptFunctionParams) {
+    // In our mobile platforms, we want to show a native UI to request user unblock
+    // confirmation. In these cases we send directly the unblock request to the platform
+    // and the platform chooses how to best handle it.
+    if (isMobileApp) {
+        acceptFunction(...acceptFunctionParams)
+    // By default, for other platforms (ie Extension), we show a web modal with a
+    // confirmation request to the user before we proceed to unblock the content.
+    } else {
+        makeModal(entity, acceptFunction, ...acceptFunctionParams)
+    }
 }
 
 /**
@@ -1805,7 +1832,7 @@ export default class ClickToLoad extends ContentFeature {
             // Handle login call
             if (event.detail?.action === 'login') {
                 if (entityData[entity].shouldShowLoginModal) {
-                    makeModal(entity, runLogin, entity)
+                    handleUnblockConfirmation(entity, runLogin, entity)
                 } else {
                     runLogin(entity)
                 }
