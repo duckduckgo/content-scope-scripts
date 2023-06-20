@@ -72,9 +72,7 @@ export class WebkitMessagingTransport {
         this.messagingContext = messagingContext
         this.config = config
         this.globals = captureGlobals()
-        if (!this.config.hasModernWebkitAPI) {
-            this.captureWebkitHandlers(this.config.webkitMessageHandlerNames)
-        }
+        this.captureWebkitHandlers(this.config.webkitMessageHandlerNames)
     }
 
     /**
@@ -84,7 +82,7 @@ export class WebkitMessagingTransport {
      * @internal
      */
     wkSend (handler, data = {}) {
-        if (!(handler in this.globals.window.webkit.messageHandlers)) {
+        if (!(handler in this.globals.capturedWebkitHandlers)) {
             throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
         }
         if (!this.config.hasModernWebkitAPI) {
@@ -101,7 +99,7 @@ export class WebkitMessagingTransport {
                 return this.globals.capturedWebkitHandlers[handler](outgoing)
             }
         }
-        return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data)
+        return this.globals.capturedWebkitHandlers[handler](data)
     }
 
     /**
