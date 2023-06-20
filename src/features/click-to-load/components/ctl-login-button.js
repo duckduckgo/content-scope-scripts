@@ -64,7 +64,7 @@ export class DDGCtlLoginButton extends HTMLElement {
      * Creates a placeholder Facebook login button. When clicked, a warning dialog
      * is displayed to the user. The login flow only continues if the user clicks to
      * proceed.
-     * @returns {{ container: HTMLDivElement, button: HTMLButtonElement }}
+     * @returns {HTMLDivElement}
      */
     createLoginButton () {
         const { label, hoverText, logoIcon, learnMore } = this.params
@@ -160,7 +160,9 @@ export class DDGCtlLoginButton extends HTMLElement {
     setupEventListeners = (loginButton) => {
         const { originalElement, onClick } = this.params
 
-        loginButton.addEventListener('click', onClick(originalElement, this))
+        loginButton
+            .querySelector('ddg-ctl-fb-login-btn')
+            ?.addEventListener('click', onClick(originalElement, this))
     }
 }
 

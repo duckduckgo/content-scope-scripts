@@ -485,7 +485,7 @@ class DuckWidget {
                 // eslint-disable-next-line promise/prefer-await-to-then
                 }).catch((err) => {
                     if (err === 'ddg-ctp-user-cancel') {
-                        abortSurrogateConfirmation()
+                        abortSurrogateConfirmation(this.entity)
                     }
                 })
             }
@@ -868,6 +868,9 @@ function hideInfoTextIfNarrowPlaceholder (shadowRoot, placeholder, narrowWidth) 
  *   The entity to unblock requests for (e.g. "Facebook, Inc.").
  * @property {boolean} [isLogin=false]
  *   True if we should "allow social login", defaults to false.
+ * @property {boolean} [isSurrogateLogin=false]
+ *   True if logins triggered by the surrogate (custom login), False if login trigger
+ *   by user clicking in our Login button placeholder.
  * @property {string} action
  *   The Click to Load blocklist rule action (e.g. "block-ctl-fb") that should
  *   be allowed. Important since in the future there might be multiple types of
@@ -933,7 +936,7 @@ async function runLogin (entity) {
         )
     } catch (err) {
         if (err === 'ddg-ctp-user-cancel') {
-            abortSurrogateConfirmation()
+            abortSurrogateConfirmation(entity)
         }
     }
 }
