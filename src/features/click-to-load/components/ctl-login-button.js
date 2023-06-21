@@ -66,7 +66,7 @@ export class DDGCtlLoginButton extends HTMLElement {
      * proceed.
      * @returns {HTMLDivElement}
      */
-    createLoginButton () {
+    createLoginButton = () => {
         const { label, hoverText, logoIcon, learnMore } = this.params
 
         const { popoverStyle, arrowStyle } = this.calculatePopoverPosition()
@@ -123,7 +123,7 @@ export class DDGCtlLoginButton extends HTMLElement {
      *  arrowStyle: string,   // CSS styles to be applied in the Popover arrow
      * }}
      */
-    calculatePopoverPosition () {
+    calculatePopoverPosition = () => {
         const { originalElement } = this.params
         const rect = originalElement.getBoundingClientRect()
         const textBubbleWidth = 360 // Should match the width rule in .ddg-popover
@@ -161,7 +161,7 @@ export class DDGCtlLoginButton extends HTMLElement {
         const { originalElement, onClick } = this.params
 
         loginButton
-            .querySelector('ddg-ctl-fb-login-btn')
+            .querySelector('.ddg-ctl-fb-login-btn')
             ?.addEventListener('click', onClick(originalElement, this))
     }
 }
