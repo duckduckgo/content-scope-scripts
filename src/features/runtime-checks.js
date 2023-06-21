@@ -2,7 +2,7 @@
 
 import ContentFeature from '../content-feature.js'
 import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname, isBeingFramed } from '../utils.js'
-import { defineProperty } from '../wrapper-utils.js'
+import { defineProperty, wrapFunction } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { findClosestBreakpoint } from './runtime-checks/helpers.js'
 import { Reflect } from '../captured-globals.js'
@@ -473,6 +473,86 @@ function isInterrogatingDebugMessage (matchType, matchedStackDomain, stack, scri
     })
 }
 
+function isRuntimeElement (element) {
+    try {
+        return element instanceof DDGRuntimeChecks
+    } catch {}
+    return false
+}
+
+function overloadGetOwnPropertyDescriptor () {
+    const capturedDescriptors = {
+        HTMLScriptElement: Object.getOwnPropertyDescriptors(HTMLScriptElement),
+        HTMLScriptElementPrototype: Object.getOwnPropertyDescriptors(HTMLScriptElement.prototype)
+    }
+    /**
+     * @param {any} value
+     * @returns {string | undefined}
+     */
+    function getInterfaceName (value) {
+        let interfaceName
+        if (value === HTMLScriptElement) {
+            interfaceName = 'HTMLScriptElement'
+        }
+        if (value === HTMLScriptElement.prototype) {
+            interfaceName = 'HTMLScriptElementPrototype'
+        }
+        return interfaceName
+    }
+    // TODO: Consoldiate with wrapProperty code
+    function getInterfaceDescriptor (interfaceValue, interfaceName, propertyName) {
+        const capturedInterface = capturedDescriptors[interfaceName] && capturedDescriptors[interfaceName][propertyName]
+        const capturedInterfaceOut = { ...capturedInterface }
+        if (capturedInterface.get) {
+            capturedInterfaceOut.get = wrapFunction(function () {
+                if (isRuntimeElement(this)) {
+                    return this[propertyName]
+                }
+                return capturedInterface.get.call(this)
+            }, capturedInterface.get)
+        }
+        if (capturedInterface.set) {
+            capturedInterfaceOut.set = wrapFunction(function (value) {
+                if (isRuntimeElement(this)) {
+                    this[interfaceName] = value
+                    return
+                }
+                return capturedInterface.set.call(this, [value])
+            }, capturedInterface.set)
+        }
+        return capturedInterfaceOut
+    }
+    const proxy = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptor', {
+        apply (fn, scope, args) {
+            const interfaceValue = args[0]
+            const interfaceName = getInterfaceName(interfaceValue)
+            const propertyName = args[1]
+            const capturedInterface = capturedDescriptors[interfaceName] && capturedDescriptors[interfaceName][propertyName]
+            if (interfaceName && capturedInterface) {
+                return getInterfaceDescriptor(interfaceValue, interfaceName, propertyName)
+            }
+            return Reflect.apply(fn, scope, args)
+        }
+    })
+    proxy.overload()
+    const proxy2 = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptors', {
+        apply (fn, scope, args) {
+            const interfaceValue = args[0]
+            const interfaceName = getInterfaceName(interfaceValue)
+            const capturedInterface = capturedDescriptors[interfaceName]
+            if (interfaceName && capturedInterface) {
+                const out = {}
+                for (const propertyName of Object.getOwnPropertyNames(capturedInterface)) {
+                    out[propertyName] = getInterfaceDescriptor(interfaceValue, interfaceName, propertyName)
+                }
+                return out
+            }
+            return Reflect.apply(fn, scope, args)
+        }
+    })
+    proxy2.overload()
+}
+
 function overrideCreateElement (debug) {
     const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
         apply (fn, scope, args) {
@@ -575,6 +655,9 @@ export default class RuntimeChecks extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('overloadReplaceChild')) {
             overloadReplaceChild()
+        }
+        if (this.getFeatureSettingEnabled('overloadGetOwnPropertyDescriptor')) {
+            overloadGetOwnPropertyDescriptor()
         }
     }
 
