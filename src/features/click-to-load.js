@@ -1156,7 +1156,7 @@ function makeShareFeedbackLink () {
     feedbackLink.style.cssText = styles.feedbackLink
     feedbackLink.target = '_blank'
     feedbackLink.href = '#'
-    feedbackLink.text = 'Share Feedback'
+    feedbackLink.text = sharedStrings.shareFeedback
     // Open Feedback Form page through background event to avoid browser blocking extension link
     feedbackLink.addEventListener('click', function (e) {
         e.preventDefault()
@@ -1649,6 +1649,8 @@ function createYouTubePreview (originalElement, widget) {
     const previewToggleRow = document.createElement('div')
     previewToggleRow.style.cssText = styles.youTubePreviewToggleRow
 
+    // TODO: Use `widget.replaceSettings.placeholder.previewToggleEnabledDuckDuckGoText` for toggle
+    // copy when implementing mobile YT CTL Preview
     const previewToggle = makeToggleButtonWithText(
         widget.replaceSettings.placeholder.previewToggleEnabledText,
         widget.getMode(),
