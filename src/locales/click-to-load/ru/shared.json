@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Подробнее об этом виде защиты конфиденциальности",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Оставьте нам отзыв",
+    "note" : "Link to open Share Feedback form"
   }
 }

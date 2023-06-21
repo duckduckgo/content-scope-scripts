@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Opphev blokkering av innhold",
+    "title" : "Fjern blokkering av Facebook-innhold",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Opphev blokkering av kommentar",
+    "title" : "Fjern blokkering av Facebook-kommentar",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Opphev blokkering av kommentarer",
+    "title" : "Fjern blokkering av Facebook-kommentarer",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Opphev blokkering av innlegg",
+    "title" : "Fjern blokkering av Facebook-innlegg",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Opphev blokkering av video",
+    "title" : "Fjern blokkering av Facebook-video",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Fjern blokkering av Facebook-pålogging",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo blokkerte dette innholdet for å hindre Facebook i å spore deg",

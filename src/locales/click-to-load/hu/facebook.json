@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Tartalom feloldása",
+    "title" : "Facebook-tartalom feloldása",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Hozzászólás feloldása",
+    "title" : "Facebook-hozzászólás feloldása",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Hozzászólások feloldása",
+    "title" : "Facebook-hozzászólások feloldása",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Bejegyzés feloldása",
+    "title" : "Facebook-bejegyzés feloldása",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Videó feloldása",
+    "title" : "Facebook-videó feloldása",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Facebook-bejelentkezés feloldása",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "A DuckDuckGo blokkolta ezt a tartalmat, hogy megakadályozza a Facebookot a nyomon követésedben",

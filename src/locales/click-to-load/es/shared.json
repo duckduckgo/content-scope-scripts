@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Lee acerca de esta protección de privacidad",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Compartir opiniones",
+    "note" : "Link to open Share Feedback form"
   }
 }

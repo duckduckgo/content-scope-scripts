@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Odblokiraj vsebino",
+    "title" : "Odblokiraj vsebino na Facebooku",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Odblokiraj komentar",
+    "title" : "Odblokiraj komentar na Facebooku",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Odblokiraj komentarje",
+    "title" : "Odblokiraj komentarje na Facebooku",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Odblokiraj objavo",
+    "title" : "Odblokiraj objavo na Facebooku",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Odblokiraj videoposnetek",
+    "title" : "Odblokiraj videoposnetek na Facebooku",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Odblokiraj prijavo na Facebooku",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo je blokiral to vsebino, da bi Facebooku preprečil sledenje",
