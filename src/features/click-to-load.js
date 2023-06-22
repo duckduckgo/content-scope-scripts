@@ -1,4 +1,4 @@
-import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '@duckduckgo/messaging'
+import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../packages/messaging/index.js'
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
