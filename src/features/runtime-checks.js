@@ -300,6 +300,23 @@ class DDGRuntimeChecks extends HTMLElement {
         return super[method](...args)
     }
 
+    _callSetter (prop, value) {
+        const el = this._getElement()
+        if (el) {
+            el[prop] = value
+            return
+        }
+        super[prop] = value
+    }
+
+    _callGetter (prop) {
+        const el = this._getElement()
+        if (el) {
+            return el[prop]
+        }
+        return super[prop]
+    }
+
     /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */
 
     set src (value) {
@@ -505,19 +522,20 @@ function overloadGetOwnPropertyDescriptor () {
         const capturedInterfaceOut = { ...capturedInterface }
         if (capturedInterface.get) {
             capturedInterfaceOut.get = wrapFunction(function () {
+                let method = capturedInterface.get
                 if (isRuntimeElement(this)) {
-                    return this[propertyName]
+                    method = () => this._callGetter(propertyName)
                 }
-                return capturedInterface.get.call(this)
+                return method.call(this)
             }, capturedInterface.get)
         }
         if (capturedInterface.set) {
             capturedInterfaceOut.set = wrapFunction(function (value) {
+                let method = capturedInterface
                 if (isRuntimeElement(this)) {
-                    this[interfaceName] = value
-                    return
+                    method = (value) => this._callSetter(propertyName, value)
                 }
-                return capturedInterface.set.call(this, [value])
+                return method.call(this, [value])
             }, capturedInterface.set)
         }
         return capturedInterfaceOut
