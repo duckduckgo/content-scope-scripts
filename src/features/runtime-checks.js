@@ -1,8 +1,8 @@
 /* global TrustedScriptURL, TrustedScript */
 
 import ContentFeature from '../content-feature.js'
-import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname } from '../utils.js'
-import { defineProperty } from '../wrapper-utils.js'
+import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname, isBeingFramed } from '../utils.js'
+import { defineProperty, wrapFunction } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { findClosestBreakpoint } from './runtime-checks/helpers.js'
 import { Reflect } from '../captured-globals.js'
@@ -300,6 +300,23 @@ class DDGRuntimeChecks extends HTMLElement {
         return super[method](...args)
     }
 
+    _callSetter (prop, value) {
+        const el = this._getElement()
+        if (el) {
+            el[prop] = value
+            return
+        }
+        super[prop] = value
+    }
+
+    _callGetter (prop) {
+        const el = this._getElement()
+        if (el) {
+            return el[prop]
+        }
+        return super[prop]
+    }
+
     /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */
 
     set src (value) {
@@ -473,6 +490,87 @@ function isInterrogatingDebugMessage (matchType, matchedStackDomain, stack, scri
     })
 }
 
+function isRuntimeElement (element) {
+    try {
+        return element instanceof DDGRuntimeChecks
+    } catch {}
+    return false
+}
+
+function overloadGetOwnPropertyDescriptor () {
+    const capturedDescriptors = {
+        HTMLScriptElement: Object.getOwnPropertyDescriptors(HTMLScriptElement),
+        HTMLScriptElementPrototype: Object.getOwnPropertyDescriptors(HTMLScriptElement.prototype)
+    }
+    /**
+     * @param {any} value
+     * @returns {string | undefined}
+     */
+    function getInterfaceName (value) {
+        let interfaceName
+        if (value === HTMLScriptElement) {
+            interfaceName = 'HTMLScriptElement'
+        }
+        if (value === HTMLScriptElement.prototype) {
+            interfaceName = 'HTMLScriptElementPrototype'
+        }
+        return interfaceName
+    }
+    // TODO: Consoldiate with wrapProperty code
+    function getInterfaceDescriptor (interfaceValue, interfaceName, propertyName) {
+        const capturedInterface = capturedDescriptors[interfaceName] && capturedDescriptors[interfaceName][propertyName]
+        const capturedInterfaceOut = { ...capturedInterface }
+        if (capturedInterface.get) {
+            capturedInterfaceOut.get = wrapFunction(function () {
+                let method = capturedInterface.get
+                if (isRuntimeElement(this)) {
+                    method = () => this._callGetter(propertyName)
+                }
+                return method.call(this)
+            }, capturedInterface.get)
+        }
+        if (capturedInterface.set) {
+            capturedInterfaceOut.set = wrapFunction(function (value) {
+                let method = capturedInterface
+                if (isRuntimeElement(this)) {
+                    method = (value) => this._callSetter(propertyName, value)
+                }
+                return method.call(this, [value])
+            }, capturedInterface.set)
+        }
+        return capturedInterfaceOut
+    }
+    const proxy = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptor', {
+        apply (fn, scope, args) {
+            const interfaceValue = args[0]
+            const interfaceName = getInterfaceName(interfaceValue)
+            const propertyName = args[1]
+            const capturedInterface = capturedDescriptors[interfaceName] && capturedDescriptors[interfaceName][propertyName]
+            if (interfaceName && capturedInterface) {
+                return getInterfaceDescriptor(interfaceValue, interfaceName, propertyName)
+            }
+            return Reflect.apply(fn, scope, args)
+        }
+    })
+    proxy.overload()
+    const proxy2 = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptors', {
+        apply (fn, scope, args) {
+            const interfaceValue = args[0]
+            const interfaceName = getInterfaceName(interfaceValue)
+            const capturedInterface = capturedDescriptors[interfaceName]
+            if (interfaceName && capturedInterface) {
+                const out = {}
+                for (const propertyName of Object.getOwnPropertyNames(capturedInterface)) {
+                    out[propertyName] = getInterfaceDescriptor(interfaceValue, interfaceName, propertyName)
+                }
+                return out
+            }
+            return Reflect.apply(fn, scope, args)
+        }
+    })
+    proxy2.overload()
+}
+
 function overrideCreateElement (debug) {
     const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
         apply (fn, scope, args) {
@@ -576,6 +674,9 @@ export default class RuntimeChecks extends ContentFeature {
         if (this.getFeatureSettingEnabled('overloadReplaceChild')) {
             overloadReplaceChild()
         }
+        if (this.getFeatureSettingEnabled('overloadGetOwnPropertyDescriptor')) {
+            overloadGetOwnPropertyDescriptor()
+        }
     }
 
     injectGenericOverloads () {
@@ -604,6 +705,7 @@ export default class RuntimeChecks extends ContentFeature {
         ['innerHeight', 'innerWidth', 'outerHeight', 'outerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {
             if (sizing in genericOverloads) {
                 const sizingConfig = genericOverloads[sizing]
+                if (isBeingFramed() && !sizingConfig.applyToFrames) return
                 this.overloadScreenSizes(sizingConfig, breakpoints, screenSize, sizing, sizingConfig.offset || 0)
             }
         })
@@ -791,9 +893,14 @@ export default class RuntimeChecks extends ContentFeature {
             receiver = globalThis.screen
             break
         }
-        const defaultVal = Reflect.get(scope, overrideKey, receiver)
+        const defaultGetter = Object.getOwnPropertyDescriptor(scope, overrideKey)?.get
+        // Should never happen
+        if (!defaultGetter) {
+            return
+        }
         defineProperty(scope, overrideKey, {
             get () {
+                const defaultVal = Reflect.apply(defaultGetter, receiver, [])
                 if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     return returnVal
                 }

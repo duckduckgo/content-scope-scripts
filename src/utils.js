@@ -389,9 +389,13 @@ export function hasTaintedMethod (scope, shouldStackCheck = false) {
     if (!shouldStackCheck || !taintedOrigins()) {
         return false
     }
+    const currentTaintedOrigins = taintedOrigins()
+    if (!currentTaintedOrigins || currentTaintedOrigins.size === 0) {
+        return false
+    }
     const stackOrigins = getStackTraceOrigins(getStack())
     for (const stackOrigin of stackOrigins) {
-        if (taintedOrigins()?.has(stackOrigin)) {
+        if (currentTaintedOrigins.has(stackOrigin)) {
             return true
         }
     }

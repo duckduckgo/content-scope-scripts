@@ -1,4 +1,4 @@
-import { Messaging, MessagingContext, WebkitMessagingConfig, WindowsMessagingConfig } from '@duckduckgo/messaging'
+import { Messaging, MessagingContext, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
 
 /**
  * Extracted so we can iterate on the best way to bring this to all platforms
