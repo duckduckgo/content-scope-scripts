@@ -1,7 +1,7 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { MessagingContext } from '@duckduckgo/messaging'
+import { MessagingContext } from '../packages/messaging/index.js'
 
 /**
  * @typedef {object} AssetConfig
