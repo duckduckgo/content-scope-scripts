@@ -6,6 +6,7 @@ import { defineProperty, wrapFunction } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { findClosestBreakpoint } from './runtime-checks/helpers.js'
 import { Reflect } from '../captured-globals.js'
+import { PerformanceMonitor } from '../performance.js'
 
 let stackDomains = []
 let matchAllStackDomains = false
@@ -19,6 +20,8 @@ let monitorProperties = true
 // Ignore monitoring properties that are only relevant once and already handled
 const defaultIgnoreMonitorList = ['onerror', 'onload']
 let ignoreMonitorList = defaultIgnoreMonitorList
+const runtimeMonitor = new PerformanceMonitor()
+window.blahRuntime = runtimeMonitor
 
 /**
  * @param {string} tagName
@@ -715,6 +718,7 @@ export default class RuntimeChecks extends ContentFeature {
         const offset = (new Date()).getTimezoneOffset()
         globalThis.Date = new Proxy(globalThis.Date, {
             construct (target, args) {
+                const mark = runtimeMonitor.mark('Date' + crypto.randomUUID())
                 const constructed = Reflect.construct(target, args)
                 if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     // Falible in that the page could brute force the offset to match. We should fix this.
@@ -722,6 +726,7 @@ export default class RuntimeChecks extends ContentFeature {
                         return constructed.getUTCDate()
                     }
                 }
+                mark.end()
                 return constructed
             }
         })

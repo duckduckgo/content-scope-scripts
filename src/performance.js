@@ -21,9 +21,15 @@ export class PerformanceMonitor {
      * Measure all performance markers
      */
     measureAll () {
-        this.marks.forEach((mark) => {
-            mark.measure()
+        return this.marks.map((mark) => {
+            return mark.measure()
         })
+    }
+
+    totalDuration () {
+        return this.measureAll().reduce((total, mark) => {
+            return total + mark.duration
+        }, 0)
     }
 }
 
@@ -44,6 +50,6 @@ export class PerformanceMark {
     }
 
     measure () {
-        performance.measure(this.name, this.name + 'Start', this.name + 'End')
+        return performance.measure(this.name, this.name + 'Start', this.name + 'End')
     }
 }
