@@ -25,7 +25,7 @@
     "note" : "Button to not enable previews and close dialog"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Deblochează videoclipul",
+    "title" : "Deblochează videoclipul de pe YouTube",
     "note" : "Button user would click on to unblock a Youtube video"
   },
   "infoTitleUnblockVideo" : {
@@ -42,6 +42,10 @@
   },
   "infoPreviewToggleEnabledText" : {
     "title" : "Previzualizări activate",
+    "note" : "Overlay toggle shown when Youtube previews are enabled"
+  },
+  "infoPreviewToggleEnabledDuckDuckGoText" : {
+    "title" : "Previzualizările YouTube sunt activate în DuckDuckGo.",
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {

@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "İçeriğin Engelini Kaldır",
+    "title" : "Facebook İçeriğinin Engelini Kaldır",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Yorumun Engelini Kaldır",
+    "title" : "Facebook Yorumunun Engelini Kaldır",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Yorumların Engelini Kaldır",
+    "title" : "Facebook Yorumlarının Engelini Kaldır",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Gönderinin Engelini Kaldır",
+    "title" : "Facebook Gönderisinin Engelini Kaldır",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Videonun Engelini Kaldır",
+    "title" : "Facebook Videosunun Engelini Kaldır",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Facebook Girişinin Engelini Kaldır",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo, Facebook'un sizi izlemesini önlemek için bu içeriği engelledi",

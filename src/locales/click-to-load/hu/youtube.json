@@ -25,7 +25,7 @@
     "note" : "Button to not enable previews and close dialog"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Videó feloldása",
+    "title" : "YouTube-videó feloldása",
     "note" : "Button user would click on to unblock a Youtube video"
   },
   "infoTitleUnblockVideo" : {
@@ -42,6 +42,10 @@
   },
   "infoPreviewToggleEnabledText" : {
     "title" : "Az előnézetek engedélyezve",
+    "note" : "Overlay toggle shown when Youtube previews are enabled"
+  },
+  "infoPreviewToggleEnabledDuckDuckGoText" : {
+    "title" : "YouTube-előnézetek engedélyezve a DuckDuckGo-ban.",
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {

@@ -25,7 +25,7 @@
     "note" : "Button to not enable previews and close dialog"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Opphev blokkering av video",
+    "title" : "Fjern blokkering av YouTube-video",
     "note" : "Button user would click on to unblock a Youtube video"
   },
   "infoTitleUnblockVideo" : {
@@ -42,6 +42,10 @@
   },
   "infoPreviewToggleEnabledText" : {
     "title" : "Forhåndsvisninger er aktivert",
+    "note" : "Overlay toggle shown when Youtube previews are enabled"
+  },
+  "infoPreviewToggleEnabledDuckDuckGoText" : {
+    "title" : "YouTube-forhåndsvisninger er aktivert i DuckDuckGo.",
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {

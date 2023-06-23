@@ -25,7 +25,7 @@
     "note" : "Button to not enable previews and close dialog"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Atblokuoti vaizdo įrašą",
+    "title" : "Atblokuoti „YouTube“ vaizdo įrašą",
     "note" : "Button user would click on to unblock a Youtube video"
   },
   "infoTitleUnblockVideo" : {
@@ -42,6 +42,10 @@
   },
   "infoPreviewToggleEnabledText" : {
     "title" : "Peržiūros įjungtos",
+    "note" : "Overlay toggle shown when Youtube previews are enabled"
+  },
+  "infoPreviewToggleEnabledDuckDuckGoText" : {
+    "title" : "„YouTube“ peržiūros įjungtos „DuckDuckGo“.",
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {

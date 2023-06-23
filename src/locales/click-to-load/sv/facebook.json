@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Avblockera innehåll",
+    "title" : "Avblockera Facebook-innehåll",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Avblockera kommentar",
+    "title" : "Avblockera Facebook-kommentar",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Avblockera kommentarer",
+    "title" : "Avblockera Facebook-kommentarer",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Avblockera inlägg",
+    "title" : "Avblockera Facebook-inlägg",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Avblockera video",
+    "title" : "Avblockera Facebook-video",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Avblockera Facebook-inloggning",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo blockerade det här innehållet för att förhindra att Facebook spårar dig",
