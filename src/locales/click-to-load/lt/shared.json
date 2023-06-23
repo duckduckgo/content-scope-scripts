@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Skaitykite apie šią privatumo apsaugą",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Bendrinti atsiliepimą",
+    "note" : "Link to open Share Feedback form"
   }
 }

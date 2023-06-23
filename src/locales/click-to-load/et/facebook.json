@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Deblokeeri sisu",
+    "title" : "Deblokeeri Facebooki sisu",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Deblokeeri kommentaar",
+    "title" : "Deblokeeri Facebooki kommentaar",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Deblokeeri kommentaarid",
+    "title" : "Deblokeeri Facebooki kommentaarid",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Deblokeeri postitus",
+    "title" : "Deblokeeri Facebooki postitus",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Deblokeeri video",
+    "title" : "Deblokeeri Facebooki video",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Deblokeeri Facebooki sisselogimine",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo blokeeris selle sisu, et Facebook ei saaks sind jälgida",

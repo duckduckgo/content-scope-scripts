@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Deblochează conținutul",
+    "title" : "Deblochează conținutul Facebook",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Deblochează comentariul",
+    "title" : "Deblochează comentariul de pe Facebook",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Deblochează comentariile",
+    "title" : "Deblochează comentariile de pe Facebook",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Deblochează postarea",
+    "title" : "Deblochează postarea de pe Facebook",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Deblochează videoclipul",
+    "title" : "Deblochează videoclipul de pe Facebook",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Deblochează conectarea cu Facebook",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo a blocat acest conținut pentru a împiedica Facebook să te urmărească",

@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Prečítajte si o tejto ochrane súkromia",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Zdieľať spätnú väzbu",
+    "note" : "Link to open Share Feedback form"
   }
 }

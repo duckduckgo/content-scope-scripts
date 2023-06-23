@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Atbloķēt saturu",
+    "title" : "Atbloķēt Facebook saturu",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Atbloķēt komentāru",
+    "title" : "Atbloķēt Facebook komentāru",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Atbloķēt komentārus",
+    "title" : "Atbloķēt Facebook komentārus",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Atbloķēt ziņu",
+    "title" : "Atbloķēt Facebook ziņu",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Atbloķēt video",
+    "title" : "Atbloķēt Facebook video",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Atbloķēt Facebook pieteikšanos",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo bloķēja šo saturu, lai neļautu Facebook tevi izsekot",

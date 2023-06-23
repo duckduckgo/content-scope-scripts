@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Les om denne personvernfunksjonen",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Del tilbakemelding",
+    "note" : "Link to open Share Feedback form"
   }
 }

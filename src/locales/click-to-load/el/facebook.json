@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Άρση αποκλεισμού περιεχομένου",
+    "title" : "Άρση αποκλεισμού περιεχομένου στο Facebook",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Άρση αποκλεισμού σχολίου",
+    "title" : "Άρση αποκλεισμού σχόλιου στο Facebook",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Άρση αποκλεισμού σχολίων",
+    "title" : "Άρση αποκλεισμού σχολίων στο Facebook",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Άρση αποκλεισμού ανάρτησης",
+    "title" : "Άρση αποκλεισμού ανάρτησης στο Facebook",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Άρση αποκλεισμού βίντεο",
+    "title" : "Άρση αποκλεισμού βίντεο στο Facebook",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Άρση αποκλεισμού σύνδεσης στο Facebook",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "Το DuckDuckGo απέκλεισε το περιεχόμενο αυτό για να εμποδίσει το Facebook από το να σας παρακολουθεί",

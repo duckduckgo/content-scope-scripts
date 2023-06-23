@@ -1004,6 +1004,7 @@ export function getConfig (locale) {
                         placeholder: {
                             previewToggleEnabledText: ytStrings.infoPreviewToggleEnabledText,
                             previewInfoText: ytStrings.infoPreviewInfoText,
+                            previewToggleEnabledDuckDuckGoText: ytStrings.infoPreviewToggleEnabledText,
                             videoPlayIcon: {
                                 lightMode: videoPlayLight,
                                 darkMode: videoPlayDark

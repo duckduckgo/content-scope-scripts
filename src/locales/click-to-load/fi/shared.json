@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Lue tästä yksityisyydensuojasta",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Jaa palaute",
+    "note" : "Link to open Share Feedback form"
   }
 }

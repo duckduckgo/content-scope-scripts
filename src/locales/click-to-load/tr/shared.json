@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Bu gizlilik koruması hakkında bilgi edinin",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Geri Bildirim Paylaş",
+    "note" : "Link to open Share Feedback form"
   }
 }

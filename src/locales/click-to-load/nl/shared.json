@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Lees meer over deze privacybescherming",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Feedback delen",
+    "note" : "Link to open Share Feedback form"
   }
 }

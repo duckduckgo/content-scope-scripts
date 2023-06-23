@@ -15,5 +15,9 @@
   "readAbout" : {
     "title" : "Citește despre această protecție a confidențialității",
     "note" : "Alt text for learnMore link"
+  },
+  "shareFeedback" : {
+    "title" : "Partajează feedback",
+    "note" : "Link to open Share Feedback form"
   }
 }
