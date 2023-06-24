@@ -39,3 +39,8 @@ declare module 'ddg:runtimeInjects' {
     const output: Record<string, string>
     export default output
 }
+
+declare module 'ddg:contentScopeFeatures' {
+    const output: string
+    export default output
+}

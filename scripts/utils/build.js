@@ -4,6 +4,9 @@ import { cwd } from '../script-utils.js'
 import { join } from 'path'
 import * as esbuild from 'esbuild'
 const ROOT = join(cwd(import.meta.url), '..', '..')
+const contentScopePath = 'src/content-scope-features.js'
+const contentScopeName = 'contentScopeFeatures'
+const DEBUG = false
 
 /**
  * This is a helper function to require all files in a directory
@@ -93,6 +96,7 @@ export async function bundle (params) {
         outdir: 'build',
         bundle: true,
         metafile: true,
+        globalName: name,
         loader: {
             '.css': 'text',
             '.svg': 'text'
@@ -103,16 +107,22 @@ export async function bundle (params) {
             'import.meta.injectName': JSON.stringify(platform),
             'import.meta.trackerLookup': trackerLookup
         },
-        plugins: [loadFeaturesPlugin, runtimeInjectionsPlugin],
+        plugins: [loadFeaturesPlugin, runtimeInjectionsPlugin, contentFeaturesAsString(platform)],
         footer: {
             js: suffixMessage
         },
         banner: {
             js: prefixMessage
-        }
+        },
+        minifyWhitespace: false,
+        minifySyntax: true
     }
 
     const result = await esbuild.build(buildOptions)
+
+    if (result.metafile && DEBUG) {
+        console.log(await esbuild.analyzeMetafile(result.metafile))
+    }
 
     if (result.errors.length === 0 && result.outputFiles) {
         return result.outputFiles[0].text || ''
@@ -168,6 +178,43 @@ function loadFeatures (platform, featureNames = platformSupport[platform]) {
                     loader: 'js',
                     resolveDir: ROOT,
                     contents: [importString, exportString].join('\n')
+                }
+            })
+        }
+    }
+}
+
+/**
+ * @param {string} platform
+ * @return {import("esbuild").Plugin}
+ */
+function contentFeaturesAsString (platform) {
+    const pluginId = 'ddg:contentScopeFeatures'
+    return {
+        /**
+         * Load all platform features based on current
+         */
+        name: pluginId,
+        setup (build) {
+            build.onResolve({ filter: new RegExp(pluginId) }, async (args) => {
+                return {
+                    path: args.path,
+                    namespace: pluginId
+                }
+            })
+            build.onLoad({ filter: /.*/, namespace: pluginId }, async () => {
+                const result = await bundle({
+                    scriptPath: contentScopePath,
+                    name: contentScopeName,
+                    platform
+                })
+
+                const encodedString = result.replace(/\r\n/g, '\n')
+
+                return {
+                    loader: 'text',
+                    resolveDir: ROOT,
+                    contents: encodedString
                 }
             })
         }
