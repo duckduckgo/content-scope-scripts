@@ -76,7 +76,7 @@ function injectFeatures (args) {
             const codeImport = injectedFeaturesCode[featureName]
             const codeFeature = `;((args) => {
                 ${codeImport}
-                const featureInstance = new ${featureName}('${featureName}')
+                const featureInstance = new ${featureName}.default('${featureName}')
                 featureInstance.callLoad(args)
                 featureInstance.callInit(args)
             })(args);`
