@@ -1,12 +1,9 @@
-import * as rollup from 'rollup'
-import * as esbuild from 'esbuild'
-import commonjs from '@rollup/plugin-commonjs'
-import replace from '@rollup/plugin-replace'
-import resolve from '@rollup/plugin-node-resolve'
-import css from 'rollup-plugin-import-css'
-import svg from 'rollup-plugin-svg-import'
 import { runtimeInjected, platformSupport } from '../../src/features.js'
 import { readFileSync } from 'fs'
+import { cwd } from '../script-utils.js'
+import { join } from 'path'
+import * as esbuild from 'esbuild'
+const ROOT = join(cwd(import.meta.url), '..', '..')
 
 /**
  * This is a helper function to require all files in a directory
@@ -18,7 +15,7 @@ async function getAllFeatureCode (pathName, platform) {
     for (const featureName of runtimeInjected) {
         const fileName = getFileName(featureName)
         const fullPath = `${pathName}/${fileName}.js`
-        const code = await rollupScript({
+        const code = await bundle({
             scriptPath: fullPath,
             name: featureName,
             supportsMozProxies: false,
@@ -32,42 +29,26 @@ async function getAllFeatureCode (pathName, platform) {
 /**
  * Allows importing of all features into a custom runtimeInjects export
  * @param {string} platform
- * @returns {import('rollup').Plugin}
+ * @returns {import('esbuild').Plugin}
  */
 function runtimeInjections (platform) {
     const customId = 'ddg:runtimeInjects'
     return {
         name: customId,
-        resolveId (id) {
-            if (id === customId) {
-                return id
-            }
-            return null
-        },
-        async load (id) {
-            if (id === customId) {
+        setup (build) {
+            build.onResolve({ filter: new RegExp(customId) }, async (args) => {
+                return {
+                    path: args.path,
+                    namespace: customId
+                }
+            })
+            build.onLoad({ filter: /.*/, namespace: customId }, async () => {
                 const code = await getAllFeatureCode('src/features', platform)
-                return `export default ${JSON.stringify(code, undefined, 4)}`
-            }
-            return null
-        }
-    }
-}
-
-function prefixPlugin (prefixMessage) {
-    return {
-        name: 'prefix-plugin',
-        renderChunk (code) {
-            return `${prefixMessage}\n${code}`
-        }
-    }
-}
-
-function suffixPlugin (suffixMessage) {
-    return {
-        name: 'suffix-plugin',
-        renderChunk (code) {
-            return `${code}\n${suffixMessage}`
+                return {
+                    loader: 'js',
+                    contents: `export default ${JSON.stringify(code, undefined, 4)}`
+                }
+            })
         }
     }
 }
@@ -83,7 +64,7 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https:/
  * @param {boolean} [params.supportsMozProxies]
  * @return {Promise<string>}
  */
-export async function rollupScript (params) {
+export async function bundle (params) {
     const {
         scriptPath,
         platform,
@@ -99,50 +80,47 @@ export async function rollupScript (params) {
         const trackerLookupData = readFileSync('./build/tracker-lookup.json', 'utf8')
         trackerLookup = trackerLookupData
     }
-    const suffixMessage = `/*# sourceURL=duckduckgo-privacy-protection.js?scope=${name} */`
+    const suffixMessage = platform === 'firefox' ? `/*# sourceURL=duckduckgo-privacy-protection.js?scope=${name} */` : ''
+    const loadFeaturesPlugin = loadFeatures(platform, featureNames)
+    const runtimeInjectionsPlugin = runtimeInjections(platform)
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     const mozProxies = supportsMozProxies
-    const plugins = [
-        css(),
-        svg({
-            stringify: true
-        }),
-        loadFeatures(platform, featureNames),
-        runtimeInjections(platform),
-        resolve(),
-        commonjs(),
-        replace({
-            preventAssignment: true,
-            values: {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                mozProxies,
-                'import.meta.injectName': JSON.stringify(platform),
-                // To be replaced by the extension, but prevents tree shaking
-                'import.meta.trackerLookup': trackerLookup
-            }
-        }),
-        prefixPlugin(prefixMessage)
-    ]
 
-    if (platform === 'firefox') {
-        plugins.push(suffixPlugin(suffixMessage))
+    /** @type {import("esbuild").BuildOptions} */
+    const buildOptions = {
+        entryPoints: [scriptPath],
+        write: false,
+        outdir: 'build',
+        bundle: true,
+        metafile: true,
+        loader: {
+            '.css': 'text',
+            '.svg': 'text'
+        },
+        define: {
+            mozProxies: String(mozProxies),
+            'import.meta.env': 'development',
+            'import.meta.injectName': JSON.stringify(platform),
+            'import.meta.trackerLookup': trackerLookup
+        },
+        plugins: [loadFeaturesPlugin, runtimeInjectionsPlugin],
+        footer: {
+            js: suffixMessage
+        },
+        banner: {
+            js: prefixMessage
+        }
     }
 
-    const bundle = await rollup.rollup({
-        input: scriptPath,
-        plugins
-    })
+    const result = await esbuild.build(buildOptions)
 
-    const generated = await bundle.generate({
-        dir: 'build',
-        format: 'iife',
-        inlineDynamicImports: true,
-        name,
-        // This if for seedrandom causing build issues
-        globals: { crypto: 'undefined' }
-    })
-
-    return generated.output[0].code
+    if (result.errors.length === 0 && result.outputFiles) {
+        return result.outputFiles[0].text || ''
+    } else {
+        console.log(result.errors)
+        console.log(result.warnings)
+        throw new Error('could not continue')
+    }
 }
 
 /**
@@ -150,38 +128,48 @@ export async function rollupScript (params) {
  *
  * @param {string} platform
  * @param {string[]} featureNames
+ * @returns {import("esbuild").Plugin}
  */
 function loadFeatures (platform, featureNames = platformSupport[platform]) {
     const pluginId = 'ddg:platformFeatures'
     return {
-        name: pluginId,
-        resolveId (id) {
-            if (id === pluginId) return id
-            return null
-        },
-        load (id) {
-            if (id !== pluginId) return null
-
-            // convert a list of feature names to
-            const imports = featureNames.map((featureName) => {
-                const fileName = getFileName(featureName)
-                const path = `./src/features/${fileName}.js`
-                const ident = `ddg_feature_${featureName}`
+        /**
+         * Load all platform features based on current
+         */
+        name: 'ddg:platformFeatures',
+        setup (build) {
+            build.onResolve({ filter: new RegExp(pluginId) }, async (args) => {
                 return {
-                    ident,
-                    importPath: path
+                    path: args.path,
+                    namespace: pluginId
                 }
             })
+            build.onLoad({ filter: /.*/, namespace: pluginId }, async () => {
+                // convert a list of feature names to
+                const imports = featureNames.map((featureName) => {
+                    const fileName = getFileName(featureName)
+                    const path = `./src/features/${fileName}.js`
+                    const ident = `ddg_feature_${featureName}`
+                    return {
+                        ident,
+                        importPath: path
+                    }
+                })
 
-            const importString = imports.map(imp => `import ${imp.ident} from ${JSON.stringify(imp.importPath)}`)
-                .join(';\n')
+                const importString = imports.map(imp => `import ${imp.ident} from ${JSON.stringify(imp.importPath)}`)
+                    .join(';\n')
 
-            const exportsString = imports.map(imp => `${imp.ident}`)
-                .join(',\n    ')
+                const exportsString = imports.map(imp => `${imp.ident}`)
+                    .join(',\n    ')
 
-            const exportString = `export default {\n    ${exportsString}\n}`
+                const exportString = `export default {\n    ${exportsString}\n}`
 
-            return [importString, exportString].join('\n')
+                return {
+                    loader: 'js',
+                    resolveDir: ROOT,
+                    contents: [importString, exportString].join('\n')
+                }
+            })
         }
     }
 }
@@ -194,19 +182,4 @@ function loadFeatures (platform, featureNames = platformSupport[platform]) {
  */
 function getFileName (featureName) {
     return featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
-}
-
-/**
- * Apply additional processing to a bundle. This was
- * added to solve an issue where certain syntax caused
- * parsing to fail in macOS Catalina.
- *
- * `target: "es2021"` seems to be a 'low enough' target - it's also what's
- * used in Autoconsent too.
- *
- * @param {string} content
- * @return {Promise<import('esbuild').TransformResult>}
- */
-export function postProcess (content) {
-    return esbuild.transform(content, { target: 'es2021', format: 'iife' })
 }

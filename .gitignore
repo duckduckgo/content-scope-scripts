@@ -4,6 +4,7 @@ node_modules/
 .env
 .build/
 build/
+build_bak/
 docs/
 test-results/
 playwright-report/

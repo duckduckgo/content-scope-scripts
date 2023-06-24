@@ -1,4 +1,4 @@
-import { postProcess, rollupScript } from './utils/build.js'
+import { bundle } from './utils/build.js'
 import { parseArgs, write } from './script-utils.js'
 import { camelcase } from '../src/utils.js'
 
@@ -9,7 +9,6 @@ const contentScopeName = 'contentScopeFeatures'
  * @typedef Build
  * @property {string} input
  * @property {string[]} output
- * @property {boolean} [postProcess] - optional value to post-process an output file
  *
  * @typedef {Record<NonNullable<ImportMeta['injectName']>, Build>} BuildManifest
  */
@@ -22,7 +21,6 @@ const builds = {
     },
     apple: {
         input: 'inject/apple.js',
-        postProcess: true,
         output: ['Sources/ContentScopeScripts/dist/contentScope.js']
     },
     'apple-isolated': {
@@ -58,7 +56,7 @@ const builds = {
 async function initOther (injectScriptPath, platformName) {
     const supportsMozProxies = platformName === 'firefox'
     const identName = `inject${camelcase(platformName)}`
-    const injectScript = await rollupScript({
+    const injectScript = await bundle({
         scriptPath: injectScriptPath,
         name: identName,
         supportsMozProxies,
@@ -74,8 +72,8 @@ async function initOther (injectScriptPath, platformName) {
  */
 async function initChrome (entry, platformName) {
     const replaceString = '/* global contentScopeFeatures */'
-    const injectScript = await rollupScript({ scriptPath: entry, platform: platformName })
-    const contentScope = await rollupScript({
+    const injectScript = await bundle({ scriptPath: entry, platform: platformName })
+    const contentScope = await bundle({
         scriptPath: contentScopePath,
         name: contentScopeName,
         platform: platformName
@@ -102,10 +100,6 @@ async function init () {
         output = await initChrome(build.input, args.platform)
     } else {
         output = await initOther(build.input, args.platform)
-        if (build.postProcess) {
-            const processResult = await postProcess(output)
-            output = processResult.code
-        }
     }
 
     // bundle and write the output
