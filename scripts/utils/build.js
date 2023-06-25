@@ -46,10 +46,17 @@ function runtimeInjections (platform) {
                 }
             })
             build.onLoad({ filter: /.*/, namespace: customId }, async () => {
-                const code = await getAllFeatureCode('src/features', platform)
+                if (platform === 'firefox') {
+                    const code = await getAllFeatureCode('src/features', platform)
+                    return {
+                        loader: 'js',
+                        contents: `export default ${JSON.stringify(code, undefined, 4)}`
+                    }
+                }
+                // do nothing on other platforms
                 return {
                     loader: 'js',
-                    contents: `export default ${JSON.stringify(code, undefined, 4)}`
+                    contents: 'export default {}'
                 }
             })
         }
@@ -113,9 +120,7 @@ export async function bundle (params) {
         },
         banner: {
             js: prefixMessage
-        },
-        minifyWhitespace: false,
-        minifySyntax: true
+        }
     }
 
     const result = await esbuild.build(buildOptions)
