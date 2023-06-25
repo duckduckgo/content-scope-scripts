@@ -39,7 +39,7 @@ function runtimeInjections (platform) {
     return {
         name: customId,
         setup (build) {
-            build.onResolve({ filter: new RegExp(customId) }, async (args) => {
+            build.onResolve({ filter: new RegExp(customId) }, (args) => {
                 return {
                     path: args.path,
                     namespace: customId
@@ -153,13 +153,13 @@ function loadFeatures (platform, featureNames = platformSupport[platform]) {
          */
         name: 'ddg:platformFeatures',
         setup (build) {
-            build.onResolve({ filter: new RegExp(pluginId) }, async (args) => {
+            build.onResolve({ filter: new RegExp(pluginId) }, (args) => {
                 return {
                     path: args.path,
                     namespace: pluginId
                 }
             })
-            build.onLoad({ filter: /.*/, namespace: pluginId }, async () => {
+            build.onLoad({ filter: /.*/, namespace: pluginId }, () => {
                 // convert a list of feature names to
                 const imports = featureNames.map((featureName) => {
                     const fileName = getFileName(featureName)
@@ -201,7 +201,7 @@ function contentFeaturesAsString (platform) {
          */
         name: pluginId,
         setup (build) {
-            build.onResolve({ filter: new RegExp(pluginId) }, async (args) => {
+            build.onResolve({ filter: new RegExp(pluginId) }, (args) => {
                 return {
                     path: args.path,
                     namespace: pluginId
