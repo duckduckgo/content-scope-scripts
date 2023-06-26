@@ -10,6 +10,7 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MessagingTransport, MissingHandler } from '../index.js'
+import { isResponseFor, isSubscriptionEventFor } from '../schema.js'
 
 /**
  * @example
@@ -86,31 +87,31 @@ export class WebkitMessagingTransport {
         if (!(handler in this.globals.window.webkit.messageHandlers)) {
             throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
         }
-        const outgoing = {
-            ...data,
-            messageHandling: {
-                ...data.messageHandling,
-                secret: this.config.secret
-            }
-        }
         if (!this.config.hasModernWebkitAPI) {
+            const outgoing = {
+                ...data,
+                messageHandling: {
+                    ...data.messageHandling,
+                    secret: this.config.secret
+                }
+            }
             if (!(handler in this.globals.capturedWebkitHandlers)) {
                 throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler)
             } else {
                 return this.globals.capturedWebkitHandlers[handler](outgoing)
             }
         }
-        return this.globals.window.webkit.messageHandlers[handler].postMessage?.(outgoing)
+        return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data)
     }
 
     /**
      * Sends message to the webkit layer and waits for the specified response
      * @param {String} handler
-     * @param {*} data
+     * @param {import('../index.js').RequestMessage} data
      * @returns {Promise<*>}
      * @internal
      */
-    async wkSendAndWait (handler, data = {}) {
+    async wkSendAndWait (handler, data) {
         if (this.config.hasModernWebkitAPI) {
             const response = await this.wkSend(handler, data)
             return this.globals.JSONparse(response || '{}')
@@ -126,6 +127,8 @@ export class WebkitMessagingTransport {
                 tag
             } = await new this.globals.Promise((/** @type {any} */ resolve) => {
                 this.generateRandomMethod(randMethodName, resolve)
+
+                // @ts-expect-error - this is a carve-out for catalina that will be removed soon
                 data.messageHandling = new SecureMessagingParams({
                     methodName: randMethodName,
                     secret: this.config.secret,
@@ -160,9 +163,20 @@ export class WebkitMessagingTransport {
     /**
      * @param {import('../index.js').RequestMessage} msg
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    request (msg, _opts) {
-        return this.wkSendAndWait(msg.context, msg)
+    async request (msg) {
+        const data = await this.wkSendAndWait(msg.context, msg)
+
+        if (isResponseFor(msg, data)) {
+            if (data.result) {
+                return data.result || {}
+            }
+            // forward the error if one was given explicity
+            if (data.error) {
+                throw new Error(data.error.message)
+            }
+        }
+
+        throw new Error('an unknown error occurred')
     }
 
     /**
@@ -280,9 +294,24 @@ export class WebkitMessagingTransport {
      * @param {(value: unknown) => void} callback
      */
     subscribe (msg, callback) {
-        console.warn('webkit.subscribe is not implemented yet!', msg, callback)
+        // for now, bail if there's already a handler setup for this subscription
+        if (msg.subscriptionName in this.globals.window) {
+            throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`)
+        }
+        this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+            enumerable: false,
+            configurable: true,
+            writable: false,
+            value: (data) => {
+                if (data && isSubscriptionEventFor(msg, data)) {
+                    callback(data.params)
+                } else {
+                    console.warn('Received a message that did not match the subscription', data)
+                }
+            }
+        })
         return () => {
-            console.log('teardown')
+            this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName)
         }
     }
 }
@@ -393,6 +422,8 @@ function captureGlobals () {
         JSONparse: window.JSON.parse,
         Arrayfrom: window.Array.from,
         Promise: window.Promise,
+        Error: window.Error,
+        ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
         ObjectDefineProperty: window.Object.defineProperty,
         addEventListener: window.addEventListener.bind(window),
         /** @type {Record<string, any>} */

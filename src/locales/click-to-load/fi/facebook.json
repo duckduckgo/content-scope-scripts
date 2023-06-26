@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Poista sisällön esto",
+    "title" : "Poista Facebook-sisällön esto",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Poista kommentin esto",
+    "title" : "Poista Facebook-kommentin esto",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Poista kommenttien esto",
+    "title" : "Poista Facebook-kommenttien esto",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Poista julkaisun esto",
+    "title" : "Poista Facebook-julkaisun esto",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Poista videon esto",
+    "title" : "Poista Facebook-videon esto",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Poista Facebook-kirjautumisen esto",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo esti tämän sisällön estääkseen Facebookia seuraamasta sinua",

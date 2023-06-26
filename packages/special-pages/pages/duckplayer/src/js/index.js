@@ -23,7 +23,8 @@
  * #### Messages:
  *
  * On Page Load
- *   - {@link DuckPlayerPageMessages.onUserValuesChanged} begins immediately. It expects an initial value, and then will continue to listen for updates
+ *   - {@link DuckPlayerPageMessages.getUserValues} is initially called to get the current settings
+ *   - {@link DuckPlayerPageMessages.onUserValuesChanged} subscription begins immediately - it will continue to listen for updates
  *
  * Then the following message can be sent at any time
  *   - {@link DuckPlayerPageMessages.setUserValues}
@@ -31,11 +32,11 @@
  * Please see {@link DuckPlayerPageMessages} for the up-to-date list
  */
 import {
-    Messaging,
-    WindowsMessagingConfig,
-    MessagingContext, TestTransportConfig
-} from '../../../../../messaging/index.js'
-import { DuckPlayerPageMessages, UserValues } from './messages'
+    callWithRetry,
+    createDuckPlayerPageMessaging,
+    DuckPlayerPageMessages,
+    UserValues
+} from './messages'
 import { html } from '../../../../../../src/dom-utils'
 import { initStorage } from './storage'
 
@@ -299,7 +300,7 @@ const Comms = {
             console.warn('Allowing all messages because we are in development mode')
             return true
         }
-        if (import.meta.platform === 'windows') {
+        if (import.meta.injectName === 'windows') {
             // todo(Shane): Verify this message
             console.log('WINDOWS: allowing message', e)
             return true
@@ -327,71 +328,33 @@ const Comms = {
      *
      * @param {object} opts
      * @param {ImportMeta['env']} opts.env
-     * @param {ImportMeta['platform']} opts.platform
+     * @param {ImportMeta['injectName']} opts.injectName
      */
-    init: (opts) => {
-        const messageContext = new MessagingContext({
-            context: 'specialPages',
-            featureName: 'duckPlayerPage',
-            env: opts.env
+    init: async (opts) => {
+        const messaging = createDuckPlayerPageMessaging(opts)
+        // try to make communication with the native side.
+        const result = await callWithRetry(() => {
+            return messaging.getUserValues()
         })
-        if (opts.platform === 'windows') {
-            const opts = new WindowsMessagingConfig({
-                methods: {
-                    // @ts-expect-error - not in @types/chrome
-                    postMessage: window.chrome.webview.postMessage,
-                    // @ts-expect-error - not in @types/chrome
-                    addEventListener: window.chrome.webview.addEventListener,
-                    // @ts-expect-error - not in @types/chrome
-                    removeEventListener: window.chrome.webview.removeEventListener
-                }
-            })
-            const messaging = new Messaging(messageContext, opts)
-            Comms.messaging = new DuckPlayerPageMessages(messaging)
-        } else if (opts.platform === 'integration') {
-            const config = new TestTransportConfig({
-                notify (msg) {
-                    console.log(msg)
-                },
-                request: (msg) => {
-                    console.log(msg)
-                    if (msg.method === 'getUserValues') {
-                        return Promise.resolve(new UserValues({
-                            overlayInteracted: false,
-                            privatePlayerMode: { alwaysAsk: {} }
-                        }))
-                    }
-                    return Promise.resolve(null)
-                },
-                subscribe (msg) {
-                    console.log(msg)
-                    return () => {
-                        console.log('teardown')
-                    }
-                }
-            })
-            const messaging = new Messaging(messageContext, config)
-            Comms.messaging = new DuckPlayerPageMessages(messaging)
-        }
-        if (!Comms.messaging) {
-            console.warn('Cannot establish communications')
-            return
-        }
-        // eslint-disable-next-line promise/prefer-await-to-then
-        Comms.messaging.getUserValues().then((value) => {
-            if ('enabled' in value.privatePlayerMode) {
+        // if we received a connection, use the initial values
+        if ('value' in result) {
+            Comms.messaging = messaging
+            if ('enabled' in result.value.privatePlayerMode) {
                 Setting.setState(true)
             } else {
                 Setting.setState(false)
             }
-        })
-        Comms.messaging?.onUserValuesChanged(value => {
-            if ('enabled' in value.privatePlayerMode) {
-                Setting.setState(true)
-            } else {
-                Setting.setState(false)
-            }
-        })
+            // eslint-disable-next-line promise/prefer-await-to-then
+            Comms.messaging?.onUserValuesChanged(value => {
+                if ('enabled' in value.privatePlayerMode) {
+                    Setting.setState(true)
+                } else {
+                    Setting.setState(false)
+                }
+            })
+        } else {
+            console.error(result.error)
+        }
     },
     /**
      * From the player page, all we can do is 'setUserValues' to {enabled: {}}
@@ -520,8 +483,10 @@ const Setting = {
      * Initializes the setting checkbox:
      * 1. Listens for (user) changes on the actual checkbox
      * 2. Listens for to clicks on the checkbox text
+     * @param {object} opts
+     * @param {string} opts.settingsUrl
      */
-    init: () => {
+    init: (opts) => {
         const checkbox = Setting.checkbox()
 
         checkbox.addEventListener('change', () => {
@@ -531,7 +496,7 @@ const Setting = {
         const settingsIcon = Setting.settingsIcon()
 
         // windows settings - we will need to alter for other platforms.
-        settingsIcon.setAttribute('href', 'duck://settings/duckplayer')
+        settingsIcon.setAttribute('href', opts.settingsUrl)
     }
 }
 
@@ -748,19 +713,46 @@ const MouseMove = {
 /**
  * Initializes all parts of the page on load.
  */
-document.addEventListener('DOMContentLoaded', () => {
-    Setting.init()
-    Comms.init({
-        platform: import.meta.platform,
+document.addEventListener('DOMContentLoaded', async () => {
+    Setting.init({
+        settingsUrl: settingsUrl(import.meta.injectName)
+    })
+    await Comms.init({
+        injectName: import.meta.injectName,
         env: import.meta.env
     })
+    if (!Comms.messaging) {
+        console.warn('cannot continue as messaging was not resolved')
+        return
+    }
     VideoPlayer.init()
     Tooltip.init()
     PlayOnYouTube.init({
-        // todo(Shane): platform specific
-        base: 'duck://player/openInYoutube'
+        base: baseUrl(import.meta.injectName)
     })
     MouseMove.init()
 })
+
+/**
+ * @param {ImportMeta['injectName']} injectName
+ */
+function baseUrl (injectName) {
+    switch (injectName) {
+    // this is different on Windows to allow the native side to intercept the navigation more easily
+    case 'windows': return 'duck://player/openInYoutube'
+    default: return 'https://www.youtube.com/watch'
+    }
+}
+
+/**
+ * @param {ImportMeta['injectName']} injectName
+ */
+function settingsUrl (injectName) {
+    switch (injectName) {
+    // this is different on Windows to allow the native side to intercept the navigation more easily
+    case 'windows': return 'duck://settings/duckplayer'
+    default: return 'about:preferences/duckplayer'
+    }
+}
 
 initStorage()

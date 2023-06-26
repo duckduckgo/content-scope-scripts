@@ -15,7 +15,7 @@
     "build-firefox": "node scripts/inject.js --platform firefox",
     "build-chrome": "node scripts/inject.js --platform chrome",
     "build-chrome-mv3": "node scripts/inject.js --platform chrome-mv3",
-    "build-apple": "node scripts/inject.js --platform apple",
+    "build-apple": "node scripts/inject.js --platform apple && node scripts/inject.js --platform apple-isolated",
     "build-android": "node scripts/inject.js --platform android",
     "build-windows": "node scripts/inject.js --platform windows",
     "build-integration": "node scripts/inject.js --platform integration",
@@ -40,8 +40,8 @@
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
     "playwright": "playwright test",
     "playwright-headed": "playwright test --headed",
-    "preplaywright": "npm run build-windows",
-    "preplaywright-headed": "npm run build-windows"
+    "preplaywright": "npm run build-windows && npm run build-apple",
+    "preplaywright-headed": "npm run build-windows && npm run build-apple"
   },
   "type": "module",
   "workspaces": [
@@ -61,9 +61,9 @@
     "@rollup/plugin-replace": "^5.0.2",
     "@types/chrome": "^0.0.237",
     "@types/jasmine": "^4.3.1",
-    "@typescript-eslint/eslint-plugin": "^5.59.8",
-    "@typescript-eslint/parser": "^5.59.8",
-    "eslint": "^8.41.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.9",
+    "@typescript-eslint/parser": "^5.59.9",
+    "eslint": "^8.42.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
@@ -71,10 +71,10 @@
     "jasmine": "^4.6.0",
     "minimist": "^1.2.8",
     "puppeteer": "^20.5.0",
-    "rollup": "^3.23.0",
+    "rollup": "^3.24.0",
     "rollup-plugin-import-css": "^3.2.1",
     "rollup-plugin-svg-import": "^2.0.0",
-    "typedoc": "^0.24.7",
-    "typescript": "^5.0.4"
+    "typedoc": "^0.24.8",
+    "typescript": "^5.1.3"
   }
 }

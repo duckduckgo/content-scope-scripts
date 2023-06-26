@@ -21,6 +21,7 @@ let package = Package(
             dependencies: [],
             resources: [
                 .process("dist/contentScope.js"),
+                .process("dist/contentScopeIsolated.js"),
                 .copy("dist/pages"),
             ]
         ),

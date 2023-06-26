@@ -351,11 +351,76 @@ export function getContextId (scope) {
     }
 }
 
-export function hasTaintedMethod (scope) {
+/**
+ * Returns a set of origins that are tainted
+ * @returns {Set<string> | null}
+ */
+export function taintedOrigins () {
+    return getGlobalObject('taintedOrigins')
+}
+
+/**
+ * Returns a set of taints
+ * @returns {Set<string> | null}
+ */
+export function taints () {
+    return getGlobalObject('taints')
+}
+
+/**
+ * @param {string} name
+ * @returns {any | null}
+ */
+function getGlobalObject (name) {
+    if ('duckduckgo' in navigator &&
+        typeof navigator.duckduckgo === 'object' &&
+        navigator.duckduckgo &&
+        name in navigator.duckduckgo &&
+        navigator.duckduckgo[name]) {
+        return navigator.duckduckgo[name]
+    }
+    return null
+}
+
+export function hasTaintedMethod (scope, shouldStackCheck = false) {
     if (document?.currentScript?.[taintSymbol]) return true
     if ('__ddg_taint__' in window) return true
     if (getContextId(scope)) return true
+    if (!shouldStackCheck || !taintedOrigins()) {
+        return false
+    }
+    const currentTaintedOrigins = taintedOrigins()
+    if (!currentTaintedOrigins || currentTaintedOrigins.size === 0) {
+        return false
+    }
+    const stackOrigins = getStackTraceOrigins(getStack())
+    for (const stackOrigin of stackOrigins) {
+        if (currentTaintedOrigins.has(stackOrigin)) {
+            return true
+        }
+    }
     return false
+}
+
+/**
+ * @param {*[]} argsArray
+ * @returns {string}
+ */
+function debugSerialize (argsArray) {
+    const maxSerializedSize = 1000
+    const serializedArgs = argsArray.map((arg) => {
+        try {
+            const serializableOut = JSON.stringify(arg)
+            if (serializableOut.length > maxSerializedSize) {
+                return `<truncated, length: ${serializableOut.length}, value: ${serializableOut.substring(0, maxSerializedSize)}...>`
+            }
+            return serializableOut
+        } catch (e) {
+            // Sometimes this happens when we can't serialize an object to string but we still wish to log it and make other args readable
+            return '<unserializable>'
+        }
+    })
+    return JSON.stringify(serializedArgs)
 }
 
 /**
@@ -400,7 +465,7 @@ export class DDGProxy {
                     kind: this.property,
                     documentUrl: document.location.href,
                     stack: getStack(),
-                    args: JSON.stringify(args[2])
+                    args: debugSerialize(args[2])
                 })
             }
             // The normal return value
@@ -563,13 +628,8 @@ export function stripVersion (version, keepComponents = 1) {
     return filteredVersion.join('.')
 }
 
-export function parseVersionString (versionString) {
-    const [major = 0, minor = 0, patch = 0] = versionString.split('.').map(Number)
-    return {
-        major,
-        minor,
-        patch
-    }
+function parseVersionString (versionString) {
+    return versionString.split('.').map(Number)
 }
 
 /**
@@ -578,12 +638,20 @@ export function parseVersionString (versionString) {
  * @returns {boolean}
  */
 export function satisfiesMinVersion (minVersionString, applicationVersionString) {
-    const { major: minMajor, minor: minMinor, patch: minPatch } = parseVersionString(minVersionString)
-    const { major, minor, patch } = parseVersionString(applicationVersionString)
-
-    return (major > minMajor ||
-            (major >= minMajor && minor > minMinor) ||
-            (major >= minMajor && minor >= minMinor && patch >= minPatch))
+    const minVersions = parseVersionString(minVersionString)
+    const currentVersions = parseVersionString(applicationVersionString)
+    const maxLength = Math.max(minVersions.length, currentVersions.length)
+    for (let i = 0; i < maxLength; i++) {
+        const minNumberPart = minVersions[i] || 0
+        const currentVersionPart = currentVersions[i] || 0
+        if (currentVersionPart > minNumberPart) {
+            return true
+        }
+        if (currentVersionPart < minNumberPart) {
+            return false
+        }
+    }
+    return true
 }
 
 /**

@@ -12,42 +12,49 @@
  *
  */
 import { join, relative } from 'node:path'
-import { existsSync, cpSync, rmSync } from 'node:fs'
+import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs'
 import { buildSync } from 'esbuild'
-import { cwd } from '../../scripts/script-utils.js'
+import { cwd, parseArgs } from '../../scripts/script-utils.js'
+import inliner from 'web-resource-inliner'
 
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../../')
 const BUILD = join(ROOT, 'build')
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
-const NODE_ENV = JSON.stringify(process.env.NODE_ENV || 'production')
+const args = parseArgs(process.argv.slice(2), [])
+const NODE_ENV = args.env || 'production';
+const DEBUG = Boolean(args.debug);
 
 export const support = {
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     duckplayer: {
         'integration': ['copy', 'build-js'],
-        'windows': ['copy', 'build-js']
+        'windows': ['copy', 'build-js'],
+        'apple': ['copy', 'build-js', 'inline-html'],
     },
 }
 
 /** @type {{src: string, dest: string}[]} */
 const copyJobs = []
-/** @type {{src: string, dest: string, platform: string}[]} */
+/** @type {{src: string, dest: string, injectName: string}[]} */
 const buildJobs = []
+/** @type {{src: string}[]} */
+const inlineJobs = []
 const errors = []
 const DRY_RUN = false
 
-for (const [pageName, platforms] of Object.entries(support)) {
+for (const [pageName, injectNames] of Object.entries(support)) {
     const pageSrc = join(CWD, 'pages', pageName, 'src')
     if (!existsSync(pageSrc)) {
         errors.push(`${pageSrc} does not exist. Each page must have a 'src' directory`)
         continue
     }
-    for (const [platform, jobs] of Object.entries(platforms)) {
+    for (const [injectName, jobs] of Object.entries(injectNames)) {
 
         // output main dir
-        const buildDir = platform === 'apple'
+        const buildDir = injectName === 'apple'
             ? APPLE_BUILD
-            : join(BUILD, platform)
+            : join(BUILD, injectName)
 
         const pageOutputDirectory = join(buildDir, 'pages', pageName)
 
@@ -68,8 +75,12 @@ for (const [pageName, platforms] of Object.entries(support)) {
                 buildJobs.push({
                     src: jsSrc,
                     dest: jsDest,
-                    platform
+                    injectName: injectName
                 })
+            }
+            if (job === 'inline-html') {
+                const htmlSrc = join(pageOutputDirectory, 'index.html')
+                inlineJobs.push({src: htmlSrc})
             }
         }
     }
@@ -80,14 +91,11 @@ if (copyJobs.length === 0) {
 }
 
 if (errors.length > 0) {
-    for (const error of errors) {
-        console.log(error)
-    }
-    process.exit(1)
+    exitWithErrors(errors)
 }
 
 for (const copyJob of copyJobs) {
-    console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest))
+    if (DEBUG) console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest));
     if (!DRY_RUN) {
         rmSync(copyJob.dest, {
             force: true,
@@ -100,9 +108,9 @@ for (const copyJob of copyJobs) {
     }
 }
 for (const buildJob of buildJobs) {
-    console.log('BUILD:', relative(ROOT, buildJob.src), relative(ROOT, buildJob.dest))
-    console.log('\t- import.meta.env: ', NODE_ENV)
-    console.log('\t- import.meta.platform: ', buildJob.platform)
+    if (DEBUG) console.log('BUILD:', relative(ROOT, buildJob.src), relative(ROOT, buildJob.dest))
+    if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV)
+    if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName)
     if (!DRY_RUN) {
         buildSync({
             entryPoints: [buildJob.src],
@@ -110,9 +118,34 @@ for (const buildJob of buildJobs) {
             bundle: true,
             format: 'iife',
             define: {
-                'import.meta.env': NODE_ENV,
-                'import.meta.platform': JSON.stringify(buildJob.platform),
+                'import.meta.env': JSON.stringify(NODE_ENV),
+                'import.meta.injectName': JSON.stringify(buildJob.injectName),
             }
         })
     }
+}
+for (const inlineJob of inlineJobs) {
+    if (DEBUG) console.log('INLINE:', relative(ROOT, inlineJob.src))
+    if (!DRY_RUN) {
+        inliner.html({
+            fileContent: readFileSync(inlineJob.src, 'utf8'),
+            relativeTo: join(inlineJob.src, '..'),
+            images: true,
+        }, (error, result) => {
+            if (error) {
+                return exitWithErrors([error])
+            }
+            writeFileSync(inlineJob.src, result)
+        })
+    }
+}
+
+/**
+ * @param {string[]} errors
+ */
+function exitWithErrors(errors) {
+    for (const error of errors) {
+        console.log(error)
+    }
+    process.exit(1)
 }

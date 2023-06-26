@@ -74,6 +74,33 @@ function wrapToString (newFn, origFn) {
 }
 
 /**
+ * Wrap functions to fix toString but also behave as closely to their real function as possible like .name and .length etc.
+ * TODO: validate with firefox non runtimeChecks context and also consolidate with wrapToString
+ * @param {*} functionValue
+ * @param {*} realTarget
+ * @returns {Proxy} a proxy for the function
+ */
+export function wrapFunction (functionValue, realTarget) {
+    return new Proxy(realTarget, {
+        get (target, prop, receiver) {
+            if (prop === 'toString') {
+                const method = Reflect.get(target, prop, receiver).bind(target)
+                Object.defineProperty(method, 'toString', {
+                    value: functionToString.bind(functionToString),
+                    enumerable: false
+                })
+                return method
+            }
+            return Reflect.get(target, prop, receiver)
+        },
+        apply (target, thisArg, argumentsList) {
+            // This is where we call our real function
+            return Reflect.apply(functionValue, thisArg, argumentsList)
+        }
+    })
+}
+
+/**
  * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
  * @param {any} object - object whose property we are wrapping (most commonly a prototype)
  * @param {string} propertyName

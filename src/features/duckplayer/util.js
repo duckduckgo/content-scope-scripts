@@ -13,21 +13,6 @@ export function addTrustedEventListener (element, event, callback) {
     })
 }
 
-export function onDOMLoaded (callback) {
-    window.addEventListener('DOMContentLoaded', () => {
-        callback()
-    })
-}
-
-export function onDOMChanged (callback) {
-    const observer = new MutationObserver(callback)
-    observer.observe(document.body, {
-        subtree: true,
-        childList: true,
-        attributeFilter: ['src']
-    })
-}
-
 /**
  * Appends an element. This may change if we go with Shadow DOM approach
  * @param {Element} to - which element to append to
@@ -215,7 +200,13 @@ export class VideoParams {
      * @returns {VideoParams|null}
      */
     static fromHref (href) {
-        const url = new URL(href)
+        let url
+        try {
+            url = new URL(href)
+        } catch (e) {
+            return null
+        }
+
         const vParam = url.searchParams.get('v')
         const tParam = url.searchParams.get('t')
 
@@ -236,5 +227,34 @@ export class VideoParams {
         }
 
         return new VideoParams(id, time)
+    }
+}
+
+export class DomState {
+    loaded = false
+    loadedCallbacks = []
+    constructor () {
+        window.addEventListener('DOMContentLoaded', () => {
+            this.loaded = true
+            this.loadedCallbacks.forEach(cb => cb())
+        })
+    }
+
+    onLoaded (loadedCallback) {
+        if (this.loaded) return loadedCallback()
+        this.loadedCallbacks.push(loadedCallback)
+    }
+
+    /**
+     * @param {Element} element
+     * @param {MutationCallback} callback
+     */
+    onChanged (callback, element = document.body) {
+        const observer = new MutationObserver(callback)
+        observer.observe(element, {
+            subtree: true,
+            childList: true,
+            attributeFilter: ['src']
+        })
     }
 }

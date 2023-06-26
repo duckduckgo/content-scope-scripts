@@ -14,8 +14,9 @@ declare namespace contentScopeFeatures {
  */
 interface ImportMeta {
     env: 'production' | 'development'
-    platform?: 'windows' | 'integration'
-    injectName?: string,
+    platform?: 'windows' | 'macos'
+    // this represents the different build artifact names
+    injectName?: 'firefox' | 'apple' | 'apple-isolated' | 'android' | 'windows' | 'integration' | 'chrome-mv3' | 'chrome'
     trackerLookup?: Record<string, unknown>
 }
 
