@@ -33,24 +33,28 @@
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
-    "title" : "Débloquer le contenu",
+    "title" : "Débloquer le contenu Facebook",
     "note" : "Button user would click on to unblock generic Facebook content"
   },
   "buttonTextUnblockComment" : {
-    "title" : "Débloquer le commentaire",
+    "title" : "Débloquer le commentaire Facebook",
     "note" : "Button user would click on to unblock a single Facebook comment"
   },
   "buttonTextUnblockComments" : {
-    "title" : "Débloquer les commentaires",
+    "title" : "Débloquer les commentaires Facebook",
     "note" : "Button user would click on to unblock multiple Facebook comments"
   },
   "buttonTextUnblockPost" : {
-    "title" : "Débloquer la publication",
+    "title" : "Débloquer la publication Facebook",
     "note" : "Button user would click on to unblock a Facebook post"
   },
   "buttonTextUnblockVideo" : {
-    "title" : "Débloquer la vidéo",
+    "title" : "Débloquer la vidéo Facebook",
     "note" : "Button user would click on to unblock a Facebook video"
+  },
+  "buttonTextUnblockLogin" : {
+    "title" : "Débloquer la connexion Facebook",
+    "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
   },
   "infoTitleUnblockContent" : {
     "title" : "DuckDuckGo a bloqué ce contenu pour empêcher Facebook de vous suivre",

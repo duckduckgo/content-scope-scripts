@@ -32,24 +32,28 @@
         "note": "Mouse-over description for the Facebook login button "
     },
     "buttonTextUnblockContent": {
-        "title": "Unblock Content",
+        "title": "Unblock Facebook Content",
         "note": "Button user would click on to unblock generic Facebook content"
     },
     "buttonTextUnblockComment": {
-        "title": "Unblock Comment",
+        "title": "Unblock Facebook Comment",
         "note": "Button user would click on to unblock a single Facebook comment"
     },
     "buttonTextUnblockComments": {
-        "title": "Unblock Comments",
+        "title": "Unblock Facebook Comments",
         "note": "Button user would click on to unblock multiple Facebook comments"
     },
     "buttonTextUnblockPost": {
-        "title": "Unblock Post",
+        "title": "Unblock Facebook Post",
         "note": "Button user would click on to unblock a Facebook post"
     },
     "buttonTextUnblockVideo": {
-        "title": "Unblock Video",
+        "title": "Unblock Facebook Video",
         "note": "Button user would click on to unblock a Facebook video"
+    },
+    "buttonTextUnblockLogin": {
+        "title": "Unblock Facebook Login",
+        "note": "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to unblock and login with Facebook"
     },
     "infoTitleUnblockContent": {
         "title": "DuckDuckGo blocked this content to prevent Facebook from tracking you",
