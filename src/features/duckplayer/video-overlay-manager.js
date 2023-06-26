@@ -15,6 +15,11 @@ export class VideoOverlayManager {
     /** @type {import("./video-player-icon").VideoPlayerIcon | null} */
     videoPlayerIcon = null
 
+    selectors = {
+        videoElement: '#player video',
+        container: '#player .html5-video-player'
+    }
+
     /**
      * @param {import("../duck-player.js").UserValues} userValues
      * @param {import("./overlays.js").Environment} environment
@@ -80,7 +85,7 @@ export class VideoOverlayManager {
      * @param {import("./util").VideoParams} params
      */
     addSmallDaxOverlay (params) {
-        const containerElement = document.querySelector('#player .html5-video-player')
+        const containerElement = document.querySelector(this.selectors.container)
         if (!containerElement) {
             console.error('no container element')
             return
@@ -117,17 +122,11 @@ export class VideoOverlayManager {
         ]
 
         if (conditions.some(Boolean)) {
-            const playerElement = document.querySelector('#player')
-
-            if (!playerElement) {
-                return null
-            }
-
             /**
              * Don't continue until we've been able to find the HTML elements that we inject into
              */
-            const videoElement = playerElement.querySelector('video')
-            const playerContainer = playerElement.querySelector('.html5-video-player')
+            const videoElement = document.querySelector(this.selectors.videoElement)
+            const playerContainer = document.querySelector(this.selectors.container)
             if (!videoElement || !playerContainer) {
                 return null
             }
@@ -152,7 +151,7 @@ export class VideoOverlayManager {
             if ('alwaysAsk' in userValues.privatePlayerMode) {
                 if (!userValues.overlayInteracted) {
                     if (!this.environment.hasOneTimeOverride()) {
-                        this.stopVideoFromPlaying(videoElement)
+                        this.stopVideoFromPlaying()
                         this.appendOverlayToPage(playerContainer, params)
                     }
                 } else {
@@ -187,15 +186,16 @@ export class VideoOverlayManager {
     /**
      * Just brute-force calling video.pause() for as long as the user is seeing the overlay.
      */
-    stopVideoFromPlaying (videoElement) {
-        this.sideEffect('pausing the <video> element', () => {
+    stopVideoFromPlaying () {
+        this.sideEffect(`pausing the <video> element with selector '${this.selectors.videoElement}'`, () => {
             /**
              * Set up the interval - keep calling .pause() to prevent
              * the video from playing
              */
             const int = setInterval(() => {
-                if (videoElement instanceof HTMLVideoElement && videoElement.isConnected) {
-                    videoElement.pause()
+                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.selectors.videoElement))
+                if (video?.isConnected) {
+                    video.pause()
                 }
             }, 10)
 
@@ -206,13 +206,9 @@ export class VideoOverlayManager {
             return () => {
                 clearInterval(int)
 
-                if (videoElement?.isConnected) {
-                    videoElement.play()
-                } else {
-                    const video = document.querySelector('#player video')
-                    if (video instanceof HTMLVideoElement) {
-                        video.play()
-                    }
+                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.selectors.videoElement))
+                if (video?.isConnected) {
+                    video.play()
                 }
             }
         })
