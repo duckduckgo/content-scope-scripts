@@ -77,21 +77,6 @@ export class VideoOverlayManager {
     }
 
     /**
-     * Set up the overlay
-     * @param {import("../duck-player.js").UserValues} userValues
-     * @param {import("./util").VideoParams} params
-     */
-    addLargeOverlay (userValues, params) {
-        const playerVideo = document.querySelector('#player video')
-        const containerElement = document.querySelector('#player .html5-video-player')
-
-        if (playerVideo && containerElement) {
-            this.stopVideoFromPlaying(playerVideo)
-            this.appendOverlayToPage(containerElement, params)
-        }
-    }
-
-    /**
      * @param {import("./util").VideoParams} params
      */
     addSmallDaxOverlay (params) {
@@ -139,6 +124,15 @@ export class VideoOverlayManager {
             }
 
             /**
+             * Don't continue until we've been able to find the HTML elements that we inject into
+             */
+            const videoElement = playerElement.querySelector('video')
+            const playerContainer = playerElement.querySelector('.html5-video-player')
+            if (!videoElement || !playerContainer) {
+                return null
+            }
+
+            /**
              * If we get here, it's a valid situation
              */
             const userValues = this.userValues
@@ -158,7 +152,8 @@ export class VideoOverlayManager {
             if ('alwaysAsk' in userValues.privatePlayerMode) {
                 if (!userValues.overlayInteracted) {
                     if (!this.environment.hasOneTimeOverride()) {
-                        this.addLargeOverlay(userValues, params)
+                        this.stopVideoFromPlaying(videoElement)
+                        this.appendOverlayToPage(playerContainer, params)
                     }
                 } else {
                     this.addSmallDaxOverlay(params)
