@@ -9,8 +9,18 @@ import { logoImg } from '../ctl-assets'
  * @property {string} learnMore - "Learn More" link text
  */
 
-export class DDGCtlLoginButton extends HTMLElement {
-    static CUSTOM_TAG_NAME = 'ddg-ctl-login-btn'
+/**
+ * Template for creating a <div/> element placeholder for blocked login embedded buttons.
+ * The constructor gets a list of parameters with the
+ * content and event handlers for this template.
+ * This is currently only used in our Mobile Apps, but can be expanded in the future.
+ */
+export class DDGCtlLoginButton {
+    /**
+     * Placeholder container element for blocked login button
+     * @type {HTMLDivElement}
+     */
+    #element
 
     /**
      * @param {object} params - Params for building a custom element with
@@ -25,13 +35,19 @@ export class DDGCtlLoginButton extends HTMLElement {
      * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onClick
      */
     constructor (params) {
-        super()
         this.params = params
+
+        /**
+         * Create the placeholder element to be inject in the page
+         * @type {HTMLDivElement}
+         */
+        this.element = document.createElement('div')
+
         /**
          * Create the shadow root, closed to prevent any outside observers
          * @type {ShadowRoot}
          */
-        const shadow = this.attachShadow({
+        const shadow = this.element.attachShadow({
             mode: this.params.devMode ? 'open' : 'closed'
         })
 
@@ -46,12 +62,12 @@ export class DDGCtlLoginButton extends HTMLElement {
          * Create the Facebook login button
          * @type {HTMLDivElement}
          */
-        const loginButton = this.createLoginButton()
+        const loginButton = this.#createLoginButton()
 
         /**
          * Setup the click handlers
          */
-        this.setupEventListeners(loginButton)
+        this.#setupEventListeners(loginButton)
 
         /**
          * Append both to the shadow root
@@ -61,15 +77,29 @@ export class DDGCtlLoginButton extends HTMLElement {
     }
 
     /**
+     * @returns {HTMLDivElement}
+     */
+    get element () {
+        return this.#element
+    }
+
+    /**
+     * @param {HTMLDivElement} el - New placeholder element
+     */
+    set element (el) {
+        this.#element = el
+    }
+
+    /**
      * Creates a placeholder Facebook login button. When clicked, a warning dialog
      * is displayed to the user. The login flow only continues if the user clicks to
      * proceed.
      * @returns {HTMLDivElement}
      */
-    createLoginButton = () => {
+    #createLoginButton () {
         const { label, hoverText, logoIcon, learnMore } = this.params
 
-        const { popoverStyle, arrowStyle } = this.calculatePopoverPosition()
+        const { popoverStyle, arrowStyle } = this.#calculatePopoverPosition()
 
         const container = document.createElement('div')
         // Add our own styles and inherit any local class styles on the button
@@ -123,7 +153,7 @@ export class DDGCtlLoginButton extends HTMLElement {
      *  arrowStyle: string,   // CSS styles to be applied in the Popover arrow
      * }}
      */
-    calculatePopoverPosition = () => {
+    #calculatePopoverPosition () {
         const { originalElement } = this.params
         const rect = originalElement.getBoundingClientRect()
         const textBubbleWidth = 360 // Should match the width rule in .ddg-popover
@@ -157,13 +187,11 @@ export class DDGCtlLoginButton extends HTMLElement {
      *
      * @param {HTMLElement} loginButton
      */
-    setupEventListeners = (loginButton) => {
+    #setupEventListeners (loginButton) {
         const { originalElement, onClick } = this.params
 
         loginButton
             .querySelector('.ddg-ctl-fb-login-btn')
-            ?.addEventListener('click', onClick(originalElement, this))
+            ?.addEventListener('click', onClick(originalElement, this.element))
     }
 }
-
-customElements.define(DDGCtlLoginButton.CUSTOM_TAG_NAME, DDGCtlLoginButton)

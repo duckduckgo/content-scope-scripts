@@ -634,7 +634,7 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
                     learnMore: sharedStrings.learnMore
                 },
                 onClick: widget.clickFunction.bind(widget)
-            })
+            }).element
             facebookLoginButton.classList.add('fb-login-button', 'FacebookLogin__button')
             facebookLoginButton.appendChild(makeFontFaceStyleElement())
             replaceTrackingElement(widget, trackingElement, facebookLoginButton)

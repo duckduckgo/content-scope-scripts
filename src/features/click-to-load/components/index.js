@@ -1,4 +1,3 @@
-import { DDGCtlLoginButton } from './ctl-login-button.js'
 import { DDGCtlPlaceholderBlockedElement } from './ctl-placeholder-blocked.js'
 
 /**
@@ -8,8 +7,5 @@ import { DDGCtlPlaceholderBlockedElement } from './ctl-placeholder-blocked.js'
 export function registerCustomElements () {
     if (!customElements.get(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME)) {
         customElements.define(DDGCtlPlaceholderBlockedElement.CUSTOM_TAG_NAME, DDGCtlPlaceholderBlockedElement)
-    }
-    if (!customElements.get(DDGCtlLoginButton.CUSTOM_TAG_NAME)) {
-        customElements.define(DDGCtlLoginButton.CUSTOM_TAG_NAME, DDGCtlLoginButton)
     }
 }
