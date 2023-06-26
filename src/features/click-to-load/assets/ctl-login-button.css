@@ -93,8 +93,7 @@
     display: block;
 }
 
-.DuckDuckGoButton.tertiary.ddg-ctl-fb-login-btn,
-.ddg-ctl-fb-login-btn {
+button.ddg-ctl-fb-login-btn {
     background-color: var(--ddg-color-bg-01);
 }
 
