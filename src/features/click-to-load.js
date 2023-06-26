@@ -414,7 +414,12 @@ class DuckWidget {
                 }
                 const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
                 // eslint-disable-next-line promise/prefer-await-to-then
-                unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then(() => {
+                unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
+                    // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
+                    if (response && response.type === 'ddg-ctp-user-cancel') {
+                        return abortSurrogateConfirmation(this.entity)
+                    }
+
                     const parent = replacementElement.parentNode
 
                     // The placeholder was removed from the DOM while we loaded
@@ -491,11 +496,6 @@ class DuckWidget {
                     //       load event will always fire.
                     if (onError) {
                         fbElement.addEventListener('error', onError, { once: true })
-                    }
-                // eslint-disable-next-line promise/prefer-await-to-then
-                }).catch((err) => {
-                    if (err === 'ddg-ctp-user-cancel') {
-                        abortSurrogateConfirmation(this.entity)
                     }
                 })
             }
@@ -889,7 +889,7 @@ function hideInfoTextIfNarrowPlaceholder (shadowRoot, placeholder, narrowWidth) 
  * the page.
  * @param {unblockClickToLoadContentRequest} message
  * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
- * @returns {Promise<void>}
+ * @returns {Promise<any>}
  */
 function unblockClickToLoadContent (message) {
     return ctl.messaging.request('unblockClickToLoadContent', message)
@@ -930,21 +930,19 @@ function handleUnblockConfirmation (platformName, entity, acceptFunction, ...acc
  */
 async function runLogin (entity) {
     const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
-    try {
-        await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true })
-        // Communicate with surrogate to run login
-        originalWindowDispatchEvent(
-            createCustomEvent('ddg-ctp-run-login', {
-                detail: {
-                    entity
-                }
-            })
-        )
-    } catch (err) {
-        if (err === 'ddg-ctp-user-cancel') {
-            abortSurrogateConfirmation(entity)
-        }
+    const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true })
+    // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
+    if (response && response.type === 'ddg-ctp-user-cancel') {
+        return abortSurrogateConfirmation(this.entity)
     }
+    // Communicate with surrogate to run login
+    originalWindowDispatchEvent(
+        createCustomEvent('ddg-ctp-run-login', {
+            detail: {
+                entity
+            }
+        })
+    )
 }
 
 /**

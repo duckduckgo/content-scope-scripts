@@ -86,14 +86,9 @@ export class ClickToLoadMessagingTransport {
 
         sendMessage(req.method, params)
 
-        return new this.globals.Promise((resolve, reject) => {
+        return new this.globals.Promise((resolve) => {
             this._subscribe(comparator, (msgRes, unsubscribe) => {
                 unsubscribe()
-
-                if ('error' in msgRes) {
-                    const message = this.globals.String(msgRes.error.message || 'unknown error')
-                    return reject(message)
-                }
 
                 return resolve(msgRes.response)
             })
