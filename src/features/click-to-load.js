@@ -33,7 +33,17 @@ let styles = null
  * List of platforms where we can skip showing a Web Modal from C-S-S.
  * It is generally expected that the platform will show a native modal instead.
  * @type {import('../utils').Platform["name"][]} */
-const platformsToSkipCSSModal = ['android', 'ios']
+const platformsWithNativeModalSupport = ['android', 'ios']
+/**
+ * Platforms supporting the new layout using Web Components.
+ * @type {import('../utils').Platform["name"][]} */
+const platformsWithWebComponentsEnabled = ['android', 'ios']
+/**
+ * Based on the current Platform where the Widget is running, it will
+ * return if it is one of our mobile apps or not. This should be used to
+ * define which layout to use between Mobile and Desktop Platforms variations.
+ * @type {import('../utils').Platform["name"][]} */
+const mobilePlatforms = ['android', 'ios']
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
@@ -85,7 +95,7 @@ class DuckWidget {
      * @param {string} entity
      *   The entity behind the tracking element (e.g. "Facebook, Inc.").
      * @param {import('../utils').Platform} platform
-     *   The platform where Click to Load and the Duck Widget is running on.
+     *   The platform where Click to Load and the Duck Widget is running on (ie Extension, Android App, etc)
      */
     constructor (widgetData, originalElement, entity, platform) {
         this.clickAction = { ...widgetData.clickAction } // shallow copy
@@ -507,9 +517,7 @@ class DuckWidget {
      * @returns {boolean}
      */
     shouldUseCustomElement () {
-        /** @type {import('../utils').Platform["name"][]} */
-        const supportedPlatforms = ['android', 'ios']
-        return supportedPlatforms.includes(this.platform.name)
+        return platformsWithWebComponentsEnabled.includes(this.platform.name)
     }
 
     /**
@@ -519,8 +527,6 @@ class DuckWidget {
      * @returns {boolean}
      */
     isMobilePlatform () {
-        /** @type {import('../utils').Platform["name"][]} */
-        const mobilePlatforms = ['android', 'ios']
         return mobilePlatforms.includes(this.platform.name)
     }
 }
@@ -907,7 +913,7 @@ function handleUnblockConfirmation (platformName, entity, acceptFunction, ...acc
     // In our mobile platforms, we want to show a native UI to request user unblock
     // confirmation. In these cases we send directly the unblock request to the platform
     // and the platform chooses how to best handle it.
-    if (platformsToSkipCSSModal.includes(platformName)) {
+    if (platformsWithNativeModalSupport.includes(platformName)) {
         acceptFunction(...acceptFunctionParams)
     // By default, for other platforms (ie Extension), we show a web modal with a
     // confirmation request to the user before we proceed to unblock the content.
