@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import { mockWindowsMessaging, wrapWindowsScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
+import { perPlatform } from './type-helpers.mjs'
 
-test('Harmful APIs protections', async ({ page }) => {
-    const protection = new HarmfulApisSpec(page)
+test('Harmful APIs protections', async ({ page }, testInfo) => {
+    const protection = HarmfulApisSpec.create(page, testInfo)
     const results = await protection.enabled();
     // note that if protections are disabled, the browser will show a device selection pop-up, which will never be dismissed
 
@@ -33,12 +34,16 @@ test('Harmful APIs protections', async ({ page }) => {
 export class HarmfulApisSpec {
     htmlPage = '/harmful-apis/index.html'
     config = './integration-test/test-pages/harmful-apis/config/apis.json'
-    build = './build/windows/contentScope.js'
+
     /**
      * @param {import("@playwright/test").Page} page
+     * @param {import("./type-helpers.mjs").Build} build
+     * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
-    constructor (page) {
+    constructor (page, build, platform) {
         this.page = page
+        this.build = build
+        this.platform = platform
     }
 
     async enabled () {
@@ -100,7 +105,7 @@ export class HarmfulApisSpec {
         const { config } = params
 
         // read the built file from disk and do replacements
-        const injectedJS = wrapWindowsScripts(this.buildArtefact, {
+        const injectedJS = wrapWindowsScripts(this.build.artifact, {
             $CONTENT_SCOPE$: config,
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
@@ -123,10 +128,13 @@ export class HarmfulApisSpec {
     }
 
     /**
-     * @return {string}
+     * Helper for creating an instance per platform
+     * @param {import("@playwright/test").Page} page
+     * @param {import("@playwright/test").TestInfo} testInfo
      */
-    get buildArtefact () {
-        const buildArtefact = readFileSync(this.build, 'utf8')
-        return buildArtefact
+    static create (page, testInfo) {
+        // Read the configuration object to determine which platform we're testing against
+        const { platformInfo, build } = perPlatform(testInfo.project.use)
+        return new HarmfulApisSpec(page, build, platformInfo)
     }
 }
