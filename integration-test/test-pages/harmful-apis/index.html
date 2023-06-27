@@ -155,17 +155,19 @@
     test('WebBluetooth', async () => {
         const results = []
         const firedEvents = []
-        navigator.bluetooth.addEventListener('availabilitychanged', () => {
-            firedEvents.push('availabilitychanged')
-        })
-        navigator.bluetooth.dispatchEvent(new Event('availabilitychanged'))
-        results.push({ name: 'availabilitychanged', result: firedEvents.includes('availabilitychanged'), expected: false })
-
-        const bluetoothGetAvailability = captureError(() => navigator.bluetooth.getAvailability())
-        results.push(
-            { name: 'Bluetooth.prototype.getAvailability()', result: await bluetoothGetAvailability, expected: false },
-            { name: 'Bluetooth.prototype.requestDevice()', result: (await window.bluetoothRequestDevice).toString(), expected: "NotFoundError: Bluetooth permission has been blocked." }
-        )
+        if (navigator.bluetooth) {
+            navigator.bluetooth.addEventListener('availabilitychanged', () => {
+                firedEvents.push('availabilitychanged')
+            })
+            navigator.bluetooth.dispatchEvent(new Event('availabilitychanged'))
+            results.push({ name: 'availabilitychanged', result: firedEvents.includes('availabilitychanged'), expected: false })
+    
+            const bluetoothGetAvailability = captureError(() => navigator.bluetooth.getAvailability())
+            results.push(
+                { name: 'Bluetooth.prototype.getAvailability()', result: await bluetoothGetAvailability, expected: false },
+                { name: 'Bluetooth.prototype.requestDevice()', result: (await window.bluetoothRequestDevice).toString(), expected: "NotFoundError: Bluetooth permission has been blocked." }
+            )
+        }
         return results
     })
 
