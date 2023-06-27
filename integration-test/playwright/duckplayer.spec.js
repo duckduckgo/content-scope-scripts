@@ -108,6 +108,19 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         // Then then the overlay shows and blocks the video from playing
         await overlays.overlayBlocksVideo()
     })
+    test('Overlay blocks video from playing (supporting DOM appearing over time)', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+        // Given overlays feature is enabled
+        await overlays.overlaysEnabled()
+
+        // And my setting is 'always ask'
+        await overlays.userSettingIs('always ask')
+        await overlays.gotoPlayerPage({ variant: 'incremental-dom' })
+
+        // Then then the overlay shows and blocks the video from playing
+        await overlays.overlayBlocksVideo()
+    })
     test('Overlay is removed when new settings arrive', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
