@@ -54,8 +54,19 @@ export class DuckplayerOverlays {
         await this.page.goto(this.overlaysPage)
     }
 
-    async gotoPlayerPage () {
-        await this.page.goto(this.playerPage + '?videoID=123')
+    /**
+     * @param {object} [params]
+     * @param {"default" | "incremental-dom"} [params.variant]
+     *  - we are replicating different strategies in the HTML to capture regressions/bugs
+     */
+    async gotoPlayerPage (params = {}) {
+        const { variant = 'default' } = params
+        const urlParams = new URLSearchParams([
+            ['videoID', '123'],
+            ['variant', variant]
+        ])
+
+        await this.page.goto(this.playerPage + '?' + urlParams.toString())
     }
 
     async gotoSerpProxyPage () {
