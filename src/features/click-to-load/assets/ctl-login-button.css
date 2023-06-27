@@ -93,8 +93,33 @@
     display: block;
 }
 
-button.ddg-ctl-fb-login-btn {
+.DuckDuckGoButton.tertiary.ddg-ctl-fb-login-btn {
     background-color: var(--ddg-color-bg-01);
+}
+@media (prefers-color-scheme: dark) {
+    .DuckDuckGoButton.tertiary.ddg-ctl-fb-login-btn {
+        background: #111111;
+    }
+}
+.DuckDuckGoButton.tertiary:hover {
+    background: rgb(238, 238, 238);
+    border-color: var(--ddg-shade-18);
+}
+@media (prefers-color-scheme: dark) {
+    .DuckDuckGoButton.tertiary:hover {
+        background: rgb(39, 39, 39);
+        border-color: var(--ddg-tint-24);
+    }
+}
+.DuckDuckGoButton.tertiary:active {
+    background: rgb(220, 220, 220);
+    border-color: var(--ddg-shade-36);
+}
+@media (prefers-color-scheme: dark) {
+    .DuckDuckGoButton.tertiary:active {
+        background: rgb(65, 65, 65);
+        border-color: var(--ddg-tint-24);
+    }
 }
 
 .ddg-ctl-button-login-icon {
