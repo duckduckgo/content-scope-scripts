@@ -1,5 +1,5 @@
 import { html } from '../../../dom-utils'
-import cssVars from '../assets/variables.css'
+import cssVars from '../assets/shared.css'
 import css from '../assets/ctl-placeholder-block.css'
 import { logoImg as daxImg } from '../ctl-assets'
 
