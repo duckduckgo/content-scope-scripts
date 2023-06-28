@@ -1,0 +1,41 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "duckPlayer": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "overlays": {
+          "youtube": {
+            "state": "disabled"
+          },
+          "serpProxy": {
+            "state": "disabled"
+          }
+        },
+        "domains": [
+          {
+            "domain": "youtube.com",
+            "patchSettings": [
+              {
+                "op": "replace",
+                "path": "/overlays/youtube/state",
+                "value": "enabled"
+              }
+            ]
+          },
+          {
+            "domain": "duckduckgo.com",
+            "patchSettings": [
+              {
+                "op": "replace",
+                "path": "/overlays/serpProxy/state",
+                "value": "enabled"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
