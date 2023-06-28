@@ -115,7 +115,6 @@ export default class HarmfulApis extends ContentFeature {
      * @param {UaClientHintsConfig} settings
      */
     filterUAClientHints (settings) {
-        console.log('uahints', settings)
         if (!settings.protected) {
             return
         }
