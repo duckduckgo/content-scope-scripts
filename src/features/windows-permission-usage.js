@@ -313,7 +313,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         cloneMediaStreamProxy.overload()
 
         // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
-        if (MediaDevices) {
+        if (window.MediaDevices) {
             const getUserMediaProxy = new DDGProxy(featureName, MediaDevices.prototype, 'getUserMedia', {
                 apply (target, thisArg, args) {
                     if (isFrameInsideFrame) {
