@@ -54,6 +54,12 @@ export class DuckplayerOverlays {
         await this.page.goto(this.overlaysPage)
     }
 
+    async gotoYoutubeHomepage () {
+        await this.page.goto('https://www.youtube.com')
+        // cookie banner
+        await this.page.getByRole('button', { name: 'Reject the use of cookies and other data for the purposes described' }).click()
+    }
+
     /**
      * @param {object} [params]
      * @param {"default" | "incremental-dom"} [params.variant]
@@ -100,9 +106,14 @@ export class DuckplayerOverlays {
         await this.page.getByRole('link', { name: 'Duck Player', exact: true }).waitFor({ state: 'attached' })
     }
 
-    // Given the "overlays" feature is enabled
-    async overlaysEnabled () {
-        await this.setup({ config: loadConfig('overlays') })
+    /**
+     * @param {object} [params]
+     * @param {'overlays' | 'overlays-live'} [params.json="overlays"] - default is settings for localhost
+     */
+    async overlaysEnabled (params = {}) {
+        const { json = 'overlays' } = params
+
+        await this.setup({ config: loadConfig(json) })
     }
 
     async serpProxyEnabled () {
@@ -156,6 +167,16 @@ export class DuckplayerOverlays {
         await this.page.locator('.thumbnail[href="/watch?v=1"]').first().hover()
     }
 
+    async hoverAYouTubeThumbnail () {
+        await this.page.locator('a.ytd-thumbnail[href^="/watch"]').first().hover({ force: true })
+    }
+
+    async hoverShort () {
+        // this should auto-wait for our test code to modify the DOM like YouTube does
+        await this.page.getByRole('heading', { name: 'Shorts', exact: true }).scrollIntoViewIfNeeded()
+        await this.page.locator('a[href*="/shorts"]').first().hover({ force: true })
+    }
+
     async clickDDGOverlay () {
         await this.hoverAThumbnail()
         await this.page.locator('.ddg-play-privately').click({ force: true })
@@ -166,7 +187,21 @@ export class DuckplayerOverlays {
     }
 
     async overlaysDontShow () {
-        expect(await this.page.locator('.ddg-overlay.ddg-overlay-hover').count()).toEqual(0)
+        const elements = await this.page.locator('.ddg-overlay.ddg-overlay-hover').count()
+
+        // if the element exists, assert that it is hidden
+        if (elements > 0) {
+            const style = await this.page.evaluate(() => {
+                const div = /** @type {HTMLDivElement|null} */(document.querySelector('.ddg-overlay.ddg-overlay-hover'))
+                if (div) {
+                    return div.style.display
+                }
+                return ''
+            })
+            expect(style).toEqual('none')
+        }
+
+        // if we get here, the element was absent
     }
 
     async watchInDuckPlayer () {
@@ -316,7 +351,7 @@ export class DuckplayerOverlays {
 }
 
 /**
- * @param {"overlays"} name
+ * @param {"overlays" | "overlays-live"} name
  * @return {Record<string, any>}
  */
 function loadConfig (name) {

@@ -113,7 +113,15 @@ export async function initOverlays (environment, comms) {
          */
         bindEvents: (video) => {
             if (video) {
+                const before = video.href
                 addTrustedEventListener(video, 'mouseover', () => {
+                    // don't allow the hover overlay to be shown if the video has changed
+                    // this can occur with 'shorts'
+                    if (video.href !== before) {
+                        if (!VideoThumbnail.isSingleVideoURL(video.href)) {
+                            return console.log('bailing because the video has changed')
+                        }
+                    }
                     IconOverlay.moveHoverOverlayToVideoElement(video)
                 })
 

@@ -15,6 +15,19 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         // Then our overlay shows
         await overlays.isVisible()
     })
+    test('Overlays never appear on "shorts"', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+        await overlays.overlaysEnabled()
+        await overlays.gotoThumbsPage()
+
+        // Ensure the hover works normally to prevent false positives
+        await overlays.hoverAThumbnail()
+        await overlays.isVisible()
+
+        // now ensure the hover doesn't work on shorts
+        await overlays.hoverShort()
+        await overlays.overlaysDontShow()
+    })
     test('Overlays don\'t show on thumbnails when disabled', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
