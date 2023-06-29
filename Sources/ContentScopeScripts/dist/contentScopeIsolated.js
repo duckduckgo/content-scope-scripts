@@ -3654,7 +3654,15 @@
              */
             bindEvents: (video) => {
                 if (video) {
+                    const before = video.href;
                     addTrustedEventListener(video, 'mouseover', () => {
+                        // don't allow the hover overlay to be shown if the video has changed
+                        // this can occur with 'shorts'
+                        if (video.href !== before) {
+                            if (!VideoThumbnail.isSingleVideoURL(video.href)) {
+                                return console.log('bailing because the video has changed')
+                            }
+                        }
                         IconOverlay.moveHoverOverlayToVideoElement(video);
                     });
 
@@ -4031,7 +4039,7 @@
      * For example, to enable the Duck Player Overlay on YouTube, the following config is used:
      *
      * ```json
-     * [[include:integration-test/test-pages/duckplayer/config/overlays.json]]```
+     * [[include:integration-test/test-pages/duckplayer/config/overlays-live.json]]```
      *
      */
 

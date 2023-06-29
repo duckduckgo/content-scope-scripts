@@ -77,8 +77,8 @@ export class ClickToLoadMessagingTransport {
             comparator = (eventData) => {
                 return (
                     eventData.responseMessageType === req.method &&
-                        eventData.response &&
-                        eventData.response.videoURL === req.params?.videoURL
+                    eventData.response &&
+                    eventData.response.videoURL === req.params?.videoURL
                 )
             }
             params = req.params?.videoURL
@@ -90,7 +90,7 @@ export class ClickToLoadMessagingTransport {
             this._subscribe(comparator, (msgRes, unsubscribe) => {
                 unsubscribe()
 
-                resolve(msgRes.response)
+                return resolve(msgRes.response)
             })
         })
     }
