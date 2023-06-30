@@ -3,6 +3,13 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
     projects: [
         {
+            name: 'duckplayer-e2e',
+            testMatch: [
+                'integration-test/playwright/duckplayer.e2e.spec.js'
+            ],
+            use: { injectName: 'windows', platform: 'windows', e2e: process.env.E2E }
+        },
+        {
             name: 'windows',
             testMatch: [
                 'integration-test/playwright/duckplayer.spec.js',

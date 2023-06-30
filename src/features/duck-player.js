@@ -27,7 +27,7 @@
  * For example, to enable the Duck Player Overlay on YouTube, the following config is used:
  *
  * ```json
- * [[include:integration-test/test-pages/duckplayer/config/overlays.json]]```
+ * [[include:integration-test/test-pages/duckplayer/config/overlays-live.json]]```
  *
  */
 import ContentFeature from '../content-feature.js'

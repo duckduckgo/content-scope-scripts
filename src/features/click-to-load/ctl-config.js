@@ -954,6 +954,7 @@ export function getConfig (locale) {
                         type: 'loginButton',
                         icon: blockedFBLogo,
                         buttonText: fbStrings.loginButtonText,
+                        buttonTextUnblockLogin: fbStrings.buttonTextUnblockLogin,
                         popupBodyText: fbStrings.loginBodyText
                     },
                     clickAction: {

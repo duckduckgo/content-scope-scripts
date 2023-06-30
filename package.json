@@ -41,7 +41,8 @@
     "playwright": "playwright test",
     "playwright-headed": "playwright test --headed",
     "preplaywright": "npm run build-windows && npm run build-apple",
-    "preplaywright-headed": "npm run build-windows && npm run build-apple"
+    "preplaywright-headed": "npm run build-windows && npm run build-apple",
+    "playwright-e2e": "E2E=true playwright test --project duckplayer-e2e --headed"
   },
   "type": "module",
   "workspaces": [
@@ -56,12 +57,12 @@
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
     "@fingerprintjs/fingerprintjs": "^3.4.1",
-    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-commonjs": "^25.0.2",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-replace": "^5.0.2",
-    "@types/chrome": "^0.0.237",
+    "@types/chrome": "^0.0.238",
     "@types/jasmine": "^4.3.1",
-    "@typescript-eslint/eslint-plugin": "^5.59.9",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.59.9",
     "eslint": "^8.42.0",
     "eslint-config-standard": "^17.1.0",
@@ -70,9 +71,9 @@
     "eslint-plugin-promise": "^6.1.1",
     "jasmine": "^4.6.0",
     "minimist": "^1.2.8",
-    "puppeteer": "^20.5.0",
+    "puppeteer": "^20.7.3",
     "rollup": "^3.24.0",
-    "rollup-plugin-import-css": "^3.2.1",
+    "rollup-plugin-import-css": "^3.3.1",
     "rollup-plugin-svg-import": "^2.0.0",
     "typedoc": "^0.24.8",
     "typescript": "^5.1.3"
