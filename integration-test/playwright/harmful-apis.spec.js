@@ -5,7 +5,7 @@ import { perPlatform } from './type-helpers.mjs'
 
 test('Harmful APIs protections', async ({ page }, testInfo) => {
     const protection = HarmfulApisSpec.create(page, testInfo)
-    await protection.enabled();
+    await protection.enabled()
     const results = await protection.runTests();
     // note that if protections are disabled, the browser will show a device selection pop-up, which will never be dismissed
 
@@ -54,7 +54,7 @@ export class HarmfulApisSpec {
         await this.page.goto(this.htmlPage)
     }
 
-    async runTests() {
+    async runTests () {
         for (const button of await this.page.getByTestId('user-gesture-button').all()) {
             await button.click()
         }
