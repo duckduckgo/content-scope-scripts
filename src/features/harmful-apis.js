@@ -58,7 +58,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {DeviceOrientationConfig} settings
      */
     removeDeviceOrientationEvents (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         const eventsToBlock = settings.filterEvents || []
@@ -88,7 +88,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {GenericSensorConfig} settings
      */
     blockGenericSensorApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         const permissionsToFilter = settings.filterPermissions ?? [
@@ -115,7 +115,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {UaClientHintsConfig} settings
      */
     filterUAClientHints (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
@@ -193,7 +193,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {NetworkInformationConfig} settings
      */
     removeNetworkInformationApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         if (!('connection' in this.navigatorPrototype)) {
@@ -206,7 +206,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {GetInstalledRelatedAppsConfig} settings
      */
     blockGetInstalledRelatedApps (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         wrapMethod(this.navigatorPrototype, 'getInstalledRelatedApps', function () {
@@ -218,7 +218,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {FileSystemAccessConfig} settings
      */
     removeFileSystemAccessApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         if ('showOpenFilePicker' in globalThis && settings.disableOpenFilePicker) {
@@ -239,7 +239,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {WindowPlacementConfig} settings
      */
     blockWindowPlacementApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         if ('screenIsExtended' in settings) {
@@ -255,7 +255,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {WebBluetoothConfig} settings
      */
     blockWebBluetoothApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         if (!('Bluetooth' in globalThis)) {
@@ -288,7 +288,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {WebUsbConfig} settings
      */
     blockWebUsbApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         wrapMethod(globalThis.USB?.prototype, 'requestDevice', function () {
@@ -300,7 +300,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {WebSerialConfig} settings
      */
     blockWebSerialApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         wrapMethod(globalThis.Serial?.prototype, 'requestPort', function () {
@@ -312,7 +312,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {WebHidConfig} settings
      */
     blockWebHidApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         // Chrome 113 does not throw errors, and only returns an empty array here
@@ -323,7 +323,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {WebMidiConfig} settings
      */
     blockWebMidiApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         wrapMethod(this.navigatorPrototype, 'requestMIDIAccess', function () {
@@ -336,7 +336,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {IdleDetectionConfig} settings
      */
     removeIdleDetectionApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         if ('IdleDetector' in globalThis) {
@@ -349,7 +349,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {WebNfcConfig} settings
      */
     removeWebNfcApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         if ('NDEFReader' in globalThis && settings.disableNdefReader) {
@@ -367,7 +367,7 @@ export default class HarmfulApis extends ContentFeature {
      * @param {StorageManagerConfig} settings
      */
     filterStorageManagerApi (settings) {
-        if (!settings.protected) {
+        if (!settings?.protected) {
             return
         }
         if (settings.allowedQuotaValues) {
