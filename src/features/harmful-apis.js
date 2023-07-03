@@ -1,3 +1,17 @@
+/**
+ * @module Harmful APIs protection
+ *
+ * @description
+ *
+ * This protection changes or disables some web APIs that are known to be harmful to privacy.
+ * When an API is not removed from the globals, its behaviour is changed to reduce the amount of information it can leak.
+ *
+ * ## Remote Config
+ * The behaviour can be controlled with a remote config. Example:
+ * ```json
+ * [[include:integration-test/test-pages/harmful-apis/config/apis.json]]```
+ *
+ */
 import ContentFeature from '../content-feature'
 import { DDGReflect, stripVersion } from '../utils'
 import { hasMozProxies, wrapMethod, wrapProperty } from '../wrapper-utils'
