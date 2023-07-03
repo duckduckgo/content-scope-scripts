@@ -26,8 +26,8 @@ const otherFeatures = /** @type {const} */([
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: [
-        ...baseFeatures,
-        'webCompat'
+        'webCompat',
+        ...baseFeatures
     ],
     'apple-isolated': [
         'duckPlayer'
