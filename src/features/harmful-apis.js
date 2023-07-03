@@ -44,6 +44,7 @@ function filterPermissionQuery (permissions) {
 
 /**
  * Blocks some privacy harmful APIs.
+ * @internal
  */
 export default class HarmfulApis extends ContentFeature {
     init () {
