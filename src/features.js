@@ -19,7 +19,8 @@ const otherFeatures = /** @type {const} */([
     'clickToLoad',
     'windowsPermissionUsage',
     'webCompat',
-    'duckPlayer'
+    'duckPlayer',
+    'harmfulApis'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -39,7 +40,8 @@ export const platformSupport = {
     windows: [
         ...baseFeatures,
         'windowsPermissionUsage',
-        'duckPlayer'
+        'duckPlayer',
+        'harmfulApis'
     ],
     firefox: [
         ...baseFeatures,
