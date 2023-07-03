@@ -2,6 +2,7 @@
 node_modules/
 .swiftpm
 .env
+.build/
 build/
 docs/
 test-results/
