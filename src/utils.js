@@ -292,7 +292,7 @@ const functionMap = {
 }
 
 /**
- * Handles the processing of a config setting.
+ * Processes a structured config setting and returns the value according to its type
  * @param {*} configSetting
  * @param {*} [defaultValue]
  * @returns
@@ -604,6 +604,28 @@ function getPlatformVersion (preferences) {
         return preferences.versionString
     }
     return undefined
+}
+
+/**
+ * Takes a version string and nullifies all its components except for the first `keepComponents` ones
+ * @param {string} version
+ * @returns string
+ */
+export function stripVersion (version, keepComponents = 1) {
+    const splitVersion = version.split('.')
+    const filteredVersion = []
+    let foundNonZero = false
+    let keptComponents = 0
+    splitVersion.forEach((v) => {
+        if (v !== '0' && (!foundNonZero || keptComponents < keepComponents)) {
+            filteredVersion.push(v)
+            foundNonZero = true
+            keptComponents++
+        } else {
+            filteredVersion.push('0')
+        }
+    })
+    return filteredVersion.join('.')
 }
 
 function parseVersionString (versionString) {

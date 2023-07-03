@@ -12,7 +12,9 @@ export default defineConfig({
         {
             name: 'windows',
             testMatch: [
-                'integration-test/playwright/duckplayer.spec.js'
+                'integration-test/playwright/duckplayer.spec.js',
+                'integration-test/playwright/harmful-apis.spec.js',
+                'integration-test/playwright/windows-permissions.spec.js'
             ],
             use: { injectName: 'windows', platform: 'windows' }
         },

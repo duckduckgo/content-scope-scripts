@@ -31,40 +31,9 @@ export class WindowsPermissionsSpec {
     }
 
     async enabled () {
-        await this.installPolyfills()
         const config = JSON.parse(readFileSync(this.config, 'utf8'))
         await this.setup({ config })
         await this.page.goto(this.htmlPage)
-    }
-
-    /**
-     * In CI, the global objects such as USB might not be installed on the
-     * version of chromium running there.
-     */
-    async installPolyfills () {
-        await this.page.addInitScript(() => {
-            // @ts-expect-error - testing
-            if (typeof Bluetooth === 'undefined') {
-                globalThis.Bluetooth = {}
-                globalThis.Bluetooth.prototype = { requestDevice: async () => { /* noop */ } }
-            }
-            // @ts-expect-error - testing
-            if (typeof USB === 'undefined') {
-                globalThis.USB = {}
-                globalThis.USB.prototype = { requestDevice: async () => { /* noop */ } }
-            }
-
-            // @ts-expect-error - testing
-            if (typeof Serial === 'undefined') {
-                globalThis.Serial = {}
-                globalThis.Serial.prototype = { requestPort: async () => { /* noop */ } }
-            }
-            // @ts-expect-error - testing
-            if (typeof HID === 'undefined') {
-                globalThis.HID = {}
-                globalThis.HID.prototype = { requestDevice: async () => { /* noop */ } }
-            }
-        })
     }
 
     /**

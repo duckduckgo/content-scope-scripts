@@ -356,7 +356,7 @@
     };
 
     /**
-     * Handles the processing of a config setting.
+     * Processes a structured config setting and returns the value according to its type
      * @param {*} configSetting
      * @param {*} [defaultValue]
      * @returns
@@ -807,15 +807,16 @@
         'clickToLoad',
         'windowsPermissionUsage',
         'webCompat',
-        'duckPlayer'
+        'duckPlayer',
+        'harmfulApis'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
     /** @type {Record<string, FeatureName[]>} */
     const platformSupport = {
         apple: [
-            ...baseFeatures,
-            'webCompat'
+            'webCompat',
+            ...baseFeatures
         ],
         'apple-isolated': [
             'duckPlayer'
@@ -827,7 +828,8 @@
         windows: [
             ...baseFeatures,
             'windowsPermissionUsage',
-            'duckPlayer'
+            'duckPlayer',
+            'harmfulApis'
         ],
         firefox: [
             ...baseFeatures,
@@ -1507,12 +1509,13 @@
         }
 
         /**
+         * Return a specific setting from the feature settings
          * @param {string} featureKeyName
          * @param {string} [featureName]
          * @returns {any}
          */
         getFeatureSetting (featureKeyName, featureName) {
-            let result = this._getFeatureSetting(featureName);
+            let result = this._getFeatureSettings(featureName);
             if (featureKeyName === 'domains') {
                 throw new Error('domains is a reserved feature setting key name')
             }
@@ -1533,15 +1536,17 @@
         }
 
         /**
+         * Return the settings object for a feature
          * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
          * @returns {any}
          */
-        _getFeatureSetting (featureName) {
+        _getFeatureSettings (featureName) {
             const camelFeatureName = featureName || camelcase(this.name);
             return this.#args?.featureSettings?.[camelFeatureName]
         }
 
         /**
+         * For simple boolean settings, return true if the setting is 'enabled'
          * @param {string} featureKeyName
          * @param {string} [featureName]
          * @returns {boolean}
@@ -1552,13 +1557,14 @@
         }
 
         /**
+         * Given a config key, interpret the value as a list of domain overrides, and return the elements that match the current page
          * @param {string} featureKeyName
          * @return {any[]}
          */
         matchDomainFeatureSetting (featureKeyName) {
             const domain = this.#args?.site.domain;
             if (!domain) return []
-            const domains = this._getFeatureSetting()?.[featureKeyName] || [];
+            const domains = this._getFeatureSettings()?.[featureKeyName] || [];
             return domains.filter((rule) => {
                 if (Array.isArray(rule.domain)) {
                     return rule.domain.some((domainRule) => {
@@ -1614,6 +1620,111 @@
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         update () {
+        }
+    }
+
+    /**
+     * Fixes incorrect sizing value for outerHeight and outerWidth
+     */
+    function windowSizingFix () {
+        if (window.outerHeight !== 0 && window.outerWidth !== 0) {
+            return
+        }
+        window.outerHeight = window.innerHeight;
+        window.outerWidth = window.innerWidth;
+    }
+
+    /**
+     * Add missing navigator.credentials API
+     */
+    function navigatorCredentialsFix () {
+        try {
+            if ('credentials' in navigator && 'get' in navigator.credentials) {
+                return
+            }
+            const value = {
+                get () {
+                    return Promise.reject(new Error())
+                }
+            };
+            defineProperty(Navigator.prototype, 'credentials', {
+                value,
+                configurable: true,
+                enumerable: true
+            });
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    function safariObjectFix () {
+        try {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            if (window.safari) {
+                return
+            }
+            defineProperty(window, 'safari', {
+                value: {
+                },
+                configurable: true,
+                enumerable: true
+            });
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            defineProperty(window.safari, 'pushNotification', {
+                value: {
+                },
+                configurable: true,
+                enumerable: true
+            });
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            defineProperty(window.safari.pushNotification, 'toString', {
+                value: () => { return '[object SafariRemoteNotification]' },
+                configurable: true,
+                enumerable: true
+            });
+            class SafariRemoteNotificationPermission {
+                constructor () {
+                    this.deviceToken = null;
+                    this.permission = 'denied';
+                }
+            }
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            defineProperty(window.safari.pushNotification, 'permission', {
+                value: () => {
+                    return new SafariRemoteNotificationPermission()
+                },
+                configurable: true,
+                enumerable: true
+            });
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            defineProperty(window.safari.pushNotification, 'requestPermission', {
+                value: (name, domain, options, callback) => {
+                    if (typeof callback === 'function') {
+                        callback(new SafariRemoteNotificationPermission());
+                        return
+                    }
+                    const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function.";
+                    throw new Error(reason)
+                },
+                configurable: true,
+                enumerable: true
+            });
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    class WebCompat extends ContentFeature {
+        init () {
+            if (this.getFeatureSettingEnabled('windowSizing')) {
+                windowSizingFix();
+            }
+            if (this.getFeatureSettingEnabled('navigatorCredentials')) {
+                navigatorCredentialsFix();
+            }
+            if (this.getFeatureSettingEnabled('safariObject')) {
+                safariObjectFix();
+            }
         }
     }
 
@@ -5951,112 +6062,8 @@
         }
     }
 
-    /**
-     * Fixes incorrect sizing value for outerHeight and outerWidth
-     */
-    function windowSizingFix () {
-        if (window.outerHeight !== 0 && window.outerWidth !== 0) {
-            return
-        }
-        window.outerHeight = window.innerHeight;
-        window.outerWidth = window.innerWidth;
-    }
-
-    /**
-     * Add missing navigator.credentials API
-     */
-    function navigatorCredentialsFix () {
-        try {
-            if ('credentials' in navigator && 'get' in navigator.credentials) {
-                return
-            }
-            const value = {
-                get () {
-                    return Promise.reject(new Error())
-                }
-            };
-            defineProperty(Navigator.prototype, 'credentials', {
-                value,
-                configurable: true,
-                enumerable: true
-            });
-        } catch {
-            // Ignore exceptions that could be caused by conflicting with other extensions
-        }
-    }
-
-    function safariObjectFix () {
-        try {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            if (window.safari) {
-                return
-            }
-            defineProperty(window, 'safari', {
-                value: {
-                },
-                configurable: true,
-                enumerable: true
-            });
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            defineProperty(window.safari, 'pushNotification', {
-                value: {
-                },
-                configurable: true,
-                enumerable: true
-            });
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            defineProperty(window.safari.pushNotification, 'toString', {
-                value: () => { return '[object SafariRemoteNotification]' },
-                configurable: true,
-                enumerable: true
-            });
-            class SafariRemoteNotificationPermission {
-                constructor () {
-                    this.deviceToken = null;
-                    this.permission = 'denied';
-                }
-            }
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            defineProperty(window.safari.pushNotification, 'permission', {
-                value: () => {
-                    return new SafariRemoteNotificationPermission()
-                },
-                configurable: true,
-                enumerable: true
-            });
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            defineProperty(window.safari.pushNotification, 'requestPermission', {
-                value: (name, domain, options, callback) => {
-                    if (typeof callback === 'function') {
-                        callback(new SafariRemoteNotificationPermission());
-                        return
-                    }
-                    const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function.";
-                    throw new Error(reason)
-                },
-                configurable: true,
-                enumerable: true
-            });
-        } catch {
-            // Ignore exceptions that could be caused by conflicting with other extensions
-        }
-    }
-
-    class WebCompat extends ContentFeature {
-        init () {
-            if (this.getFeatureSettingEnabled('windowSizing')) {
-                windowSizingFix();
-            }
-            if (this.getFeatureSettingEnabled('navigatorCredentials')) {
-                navigatorCredentialsFix();
-            }
-            if (this.getFeatureSettingEnabled('safariObject')) {
-                safariObjectFix();
-            }
-        }
-    }
-
     var platformFeatures = {
+        ddg_feature_webCompat: WebCompat,
         ddg_feature_runtimeChecks: RuntimeChecks,
         ddg_feature_fingerprintingAudio: FingerprintingAudio,
         ddg_feature_fingerprintingBattery: FingerprintingBattery,
@@ -6070,8 +6077,7 @@
         ddg_feature_fingerprintingTemporaryStorage: FingerprintingTemporaryStorage,
         ddg_feature_navigatorInterface: NavigatorInterface,
         ddg_feature_elementHiding: ElementHiding,
-        ddg_feature_exceptionHandler: ExceptionHandler,
-        ddg_feature_webCompat: WebCompat
+        ddg_feature_exceptionHandler: ExceptionHandler
     };
 
     /* global false */

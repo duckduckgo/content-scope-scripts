@@ -19,15 +19,16 @@ const otherFeatures = /** @type {const} */([
     'clickToLoad',
     'windowsPermissionUsage',
     'webCompat',
-    'duckPlayer'
+    'duckPlayer',
+    'harmfulApis'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: [
-        ...baseFeatures,
-        'webCompat'
+        'webCompat',
+        ...baseFeatures
     ],
     'apple-isolated': [
         'duckPlayer'
@@ -39,7 +40,8 @@ export const platformSupport = {
     windows: [
         ...baseFeatures,
         'windowsPermissionUsage',
-        'duckPlayer'
+        'duckPlayer',
+        'harmfulApis'
     ],
     firefox: [
         ...baseFeatures,

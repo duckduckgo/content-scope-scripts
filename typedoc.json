@@ -7,6 +7,7 @@
         "inject/mozilla.js",
         "inject/windows.js",
         "src/features/duck-player.js",
+        "src/features/harmful-apis.js",
         "packages/messaging",
         "packages/messaging/schema.js",
         "packages/special-pages",
