@@ -1,0 +1,433 @@
+/*
+  1. Use a more-intuitive box-sizing model.
+*/
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+/*
+  2. Remove default margin
+*/
+* {
+    margin: 0;
+}
+/*
+  Typographic tweaks!
+  3. Add accessible line-height
+  4. Improve text rendering
+*/
+body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+/*
+  5. Improve media defaults
+*/
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+}
+/*
+  6. Remove built-in form typography styles
+*/
+input, button, textarea, select {
+    font: inherit;
+}
+/*
+  7. Avoid text overflows
+*/
+p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+}
+/*
+  8. Create a root stacking context
+*/
+#root, #__next {
+    isolation: isolate;
+}
+
+:root {
+    /* Color palette */
+    --ddg-shade-06: rgba(0, 0, 0, 0.06);
+    --ddg-shade-12: rgba(0, 0, 0, 0.12);
+    --ddg-shade-18: rgba(0, 0, 0, 0.18);
+    --ddg-shade-36: rgba(0, 0, 0, 0.36);
+    --ddg-shade-84: rgba(0, 0, 0, 0.84);
+    --ddg-tint-12: rgba(255, 255, 255, 0.12);
+    --ddg-tint-18: rgba(255, 255, 255, 0.18);
+    --ddg-tint-24: rgba(255, 255, 255, 0.24);
+    --ddg-tint-84: rgba(255, 255, 255, 0.84);
+    /* Tokens */
+    --ddg-color-primary: #3969ef;
+    --ddg-color-primary-bg: #1e3fa1;
+    --ddg-color-bg-01: #ffffff;
+    --ddg-color-bg-02: #ababab;
+    --ddg-color-border: var(--ddg-shade-12);
+    --ddg-color-txt: var(--ddg-shade-84);
+    --ddg-color-txt-link-02: #ababab;
+}
+@media (prefers-color-scheme: dark) {
+    :host {
+        --ddg-color-primary: #7295f6;
+        --ddg-color-bg-01: #222222;
+        --ddg-color-bg-02: #444444;
+        --ddg-color-border: var(--ddg-tint-12);
+        --ddg-color-txt: var(--ddg-tint-84);
+    }
+}
+
+dialog[open] {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, .95);
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    color: red;
+    z-index: 1;
+}
+dialog::backdrop {
+    background: black;
+}
+
+/* SHARED STYLES */
+/* Text Link */
+.ddg-text-link {
+    line-height: 1.4;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--ddg-color-primary);
+}
+
+/* Button */
+.DuckDuckGoButton {
+    border-radius: 8px;
+    padding: 8px 16px;
+    border-color: var(--ddg-color-primary);
+    border: none;
+    min-height: 36px;
+
+    position: relative;
+    cursor: pointer;
+    box-shadow: none;
+    z-index: 2147483646;
+}
+.DuckDuckGoButton > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.DuckDuckGoButton,
+.DuckDuckGoButton > div {
+    font-size: 14px;
+    font-family: DuckDuckGoPrivacyEssentialsBold;
+    font-weight: 600;
+}
+.DuckDuckGoButton.tertiary {
+    color: var(--ddg-color-txt);
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--ddg-color-border);
+    border-radius: 8px;
+}
+.DuckDuckGoButton.tertiary:hover {
+    background: var(--ddg-shade-06);
+    border-color: var(--ddg-shade-18);
+}
+@media (prefers-color-scheme: dark) {
+    .DuckDuckGoButton.tertiary:hover {
+        background: var(--ddg-tint-18);
+        border-color: var(--ddg-tint-24);
+    }
+}
+.DuckDuckGoButton.tertiary:active {
+    background: var(--ddg-shade-12);
+    border-color: var(--ddg-shade-36);
+}
+@media (prefers-color-scheme: dark) {
+    .DuckDuckGoButton.tertiary:active {
+        background: var(--ddg-tint-24);
+        border-color: var(--ddg-tint-24);
+    }
+}
+
+.header {
+    background: var(--ddg-color-primary);
+    padding: .7rem;
+}
+
+.feature-nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    column-gap: .5rem;
+    font-size: 0.8rem;
+}
+
+.feature-nav__link {
+    padding: .5rem 1rem;
+    border-radius: .2rem;
+    display: block;
+    color: white;
+    text-decoration: none;
+}
+
+.feature-nav__link:hover {
+    background: var(--ddg-color-primary-bg);
+}
+
+.feature-nav__link[data-active=true] {
+    background: var(--ddg-color-primary-bg);
+}
+
+.subheading {
+    padding: .7rem;
+    padding-bottom: 0;
+}
+
+.subnav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    column-gap: .5rem;
+    font-size: 0.8rem;
+}
+
+.subnav__link {
+    padding: .5rem 1rem;
+    border-radius: .2rem;
+    display: block;
+    text-decoration: none;
+    color: var(--ddg-color-primary);
+}
+
+.subnav__link[data-active=true], .subnav__link:hover {
+    background: var(--ddg-color-primary);
+    color: white;
+}
+
+.main {
+    padding-left: .7rem;
+    padding-right: .7rem;
+}
+
+.inline-fields {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+.inline-fields input {
+    border-radius: 0;
+    border: 1px solid var(--ddg-color-primary);
+    padding: .4rem;
+}
+.inline-fields button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    border-radius: 0;
+    border: 0;
+    background: var(--ddg-color-primary);
+    color: white;
+    cursor: pointer;
+}
+
+.editor__tools {
+    display: flex;
+    column-gap: .5rem;
+    margin-top: .7rem;
+}
+
+.editor__title {
+    margin-top: .7rem;
+}
+
+.editor__save {
+    margin-top: .7rem;
+    margin-bottom: .7rem;
+    display: flex;
+    column-gap: .7rem;
+}
+
+.button {
+    padding: .5rem 1rem;
+    border-radius: .2rem;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    background: #efefef;
+    border: 1px solid transparent;
+}
+
+.button:hover:not([disabled]), .button:focus-visible:not([disabled]) {
+    border-color: #737a7a;
+}
+
+.button:active:not([disabled]) {
+    background: #c8e3e3;
+    color: #c8e3e3
+}
+
+.button[disabled] {
+    cursor: not-allowed;
+    opacity: .6;
+}
+
+.button[data-variant=micro] {
+    font-size: 0.6rem;
+    padding: .1rem .3rem;
+    background: #eaf2ff;
+    border: 1px solid #d4dded;
+}
+
+.button[data-state="not-allowed"] {
+    cursor: not-allowed;
+}
+
+.row {
+    margin-top: .7rem;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+}
+.ml-1 {
+    margin-left: .25rem;
+}
+.ml-3\.5 {
+    margin-left: 0.875rem;
+}
+.text-grey {
+
+}
+.text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.text-base {
+    font-size: 1rem;
+    line-height: 1.5rem
+}
+
+.w-100 {
+    width: 100%;
+}
+.font-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.strikethrough {
+    text-decoration: line-through;
+}
+.font-bold {
+    font-weight: bold;
+}
+.card {
+    background: #f6f6f6;
+    padding: 1rem;
+    border: 1px solid #e9e9e9;
+    border-radius: 0.2rem;
+}
+
+.error {
+    color: #a80000;
+    font-size: 0.7rem;
+    padding: 1.4rem;
+    background: #ffbdbd;
+    border-radius: 0.2rem;
+}
+
+.floating {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: .7rem;
+    width: calc(100% - 1.4rem);
+    box-shadow: 1px 1px 16px black;
+}
+
+.initial-loader {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.app-shell {
+    opacity: 0;
+    visibility: hidden;
+    animation-name: fade-in;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+
+.inline-dl {
+    display: flex;
+    font-family: monospace;
+}
+
+.inline-dl + .inline-dl {
+    margin-top: .7rem;
+}
+
+.inline-dl__dt {
+    color: gray;
+    margin-right: .4rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.inline-dl__dd {
+    color: black;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-right: 1.2rem;
+}
+
+@keyframes fade-in {
+    0% { opacity: 0; visibility: hidden }
+    100% { opacity: 1; visibility: visible }
+}
+
+.inline-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.inline-form__label {
+    color: gray;
+    margin-right: 0.4rem;
+}
+.inline-form__control {
+    width: 100%;
+    display: flex;
+}
+.inline-form__input {
+    flex: 1;
+}
+.inline-form__button {
+    flex-shrink: 0;
+    margin-left: .4rem;
+}

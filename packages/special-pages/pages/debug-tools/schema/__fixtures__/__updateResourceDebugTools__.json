@@ -1,0 +1,8 @@
+{
+  "id": "privacy-configuration",
+  "source": {
+    "debugTools": {
+      "content": "{ \"foo\": \"baz\" }"
+    }
+  }
+}

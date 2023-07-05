@@ -16,6 +16,7 @@ import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs
 import { buildSync } from 'esbuild'
 import { cwd, parseArgs } from '../../scripts/script-utils.js'
 import inliner from 'web-resource-inliner'
+import { buildMonaco } from './monaco.mjs'
 
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../../')
@@ -32,11 +33,16 @@ export const support = {
         'windows': ['copy', 'build-js'],
         'apple': ['copy', 'build-js', 'inline-html'],
     },
+    'debug-tools': {
+        'integration': ['copy', 'build-js'],
+        'windows': ['copy', 'build-js'],
+        'apple': ['copy', 'build-js'],
+    },
 }
 
 /** @type {{src: string, dest: string}[]} */
 const copyJobs = []
-/** @type {{src: string, dest: string, injectName: string}[]} */
+/** @type {{src: string, dest: string, dir: string; injectName: string}[]} */
 const buildJobs = []
 /** @type {{src: string}[]} */
 const inlineJobs = []
@@ -71,10 +77,12 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                     errors.push(`${jsSrc} does not exist`)
                     continue
                 }
+                const jsDir = join(pageOutputDirectory, 'js')
                 const jsDest = join(pageOutputDirectory, 'js', 'index.js')
                 buildJobs.push({
                     src: jsSrc,
                     dest: jsDest,
+                    dir: jsDir,
                     injectName: injectName
                 })
             }
@@ -112,16 +120,23 @@ for (const buildJob of buildJobs) {
     if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV)
     if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName)
     if (!DRY_RUN) {
+        buildMonaco(buildJob.dir)
         buildSync({
             entryPoints: [buildJob.src],
             outfile: buildJob.dest,
             bundle: true,
             format: 'iife',
+            sourcemap: NODE_ENV === 'development' ? 'inline' : undefined,
+            loader: {
+                '.js': 'jsx',
+                '.ttf': 'file'
+            },
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),
                 'import.meta.injectName': JSON.stringify(buildJob.injectName),
             }
         })
+
     }
 }
 for (const inlineJob of inlineJobs) {

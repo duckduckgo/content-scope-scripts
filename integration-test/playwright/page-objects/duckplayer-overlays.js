@@ -442,7 +442,8 @@ export class DuckplayerOverlays {
                     overlayInteracted: false
                 },
                 sendDuckPlayerPixel: {}
-            }
+            },
+            errors: {}
         })
 
         // attach the JS

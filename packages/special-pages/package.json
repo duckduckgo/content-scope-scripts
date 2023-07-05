@@ -8,22 +8,39 @@
     "build": "node index.mjs",
     "build.dev": "node index.mjs --env development",
     "test": "playwright test",
+    "test.schema": "node pages/debug-tools/schema/schema.test.mjs",
     "test.windows": "npm run test -- --project duckplayer-windows",
-    "test.apple": "npm run test -- --project duckplayer-apple",
-    "test.headed": "npm run test -- --headed",
+    "test.apple": "npm run test -- --project duckplayer-apple --headed",
+    "test.headed": "npm run test -- --headed --project duckplayer-apple",
     "test.ui": "npm run test -- --ui",
-    "pretest": "npm run build.dev",
-    "pretest.headed": "npm run build.dev",
+    "pretest": "npm run build.dev && npm run test.schema",
+    "pretest.headed": "npm run build.dev && npm run test.schema",
     "test-int-x": "npm run test",
     "test-int": "npm run test",
-    "serve": "http-server -c-1 --port 3210 ../../"
+    "serve": "http-server -c-1 --port 3210 ../../",
+    "schema": "node schema.mjs"
   },
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.36.2",
-    "http-server": "^14.1.1",
     "@duckduckgo/messaging": "*",
+    "@playwright/test": "^1.36.2",
+    "@types/react": "^18.2.14",
+    "@xstate/inspect": "^0.8.0",
+    "@xstate/react": "^3.2.2",
     "esbuild": "^0.18.19",
-    "web-resource-inliner": "^6.0.1"
+    "http-server": "^14.1.1",
+    "json-schema-to-typescript": "^13.0.2",
+    "monaco-editor": "^0.39.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-to-zod": "^3.1.3",
+    "web-resource-inliner": "^6.0.1",
+    "xstate": "^4.38.0",
+    "zod": "^3.6.0",
+    "urlpattern-polyfill": "^9.0.0",
+    "history": "^5.3.0",
+    "tiny-invariant": "^1.3.1"
+  },
+  "dependencies": {
   }
 }

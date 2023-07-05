@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "RemoteResource",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "name": {
+      "type": "string",
+      "description": "How this resources is referred to in the UI."
+    },
+    "current": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/remoteSource"
+            },
+            {
+              "$ref": "#/definitions/debugToolsSource"
+            }
+          ]
+        },
+        "contents": {
+          "type": "string",
+          "description": "The contents of the resource - always as a string value."
+        },
+        "contentType": {
+          "type": "string",
+          "examples": ["application/json", "text/plain", "application/javascript"],
+          "description": "A mime type for the contents of the resource."
+        }
+      },
+      "required": ["source", "contents", "contentType"]
+    }
+  },
+  "required": ["id", "url", "current", "name"],
+  "definitions": {
+    "remoteSource": {
+      "type": "object",
+      "title": "RemoteSource",
+      "properties": {
+        "remote": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "fetchedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": ["fetchedAt", "url"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["remote"],
+      "additionalProperties": false
+    },
+    "debugToolsSource": {
+      "type": "object",
+      "title": "DebugToolsSource",
+      "properties": {
+        "debugTools": {
+          "type": "object",
+          "properties": {
+            "modifiedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": ["modifiedAt"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["debugTools"],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

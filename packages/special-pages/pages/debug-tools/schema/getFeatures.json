@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GetFeaturesResponse",
+  "additionalProperties": false,
+  "properties": {
+    "features": {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "remoteResources": {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "resources": {
+              "type": "array",
+              "items": {
+                "$ref": "remote-resource.json"
+              }
+            }
+          },
+          "required": ["resources"]
+        },
+        "userScripts": {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "scripts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "UserScript",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "contents": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "id", "contents"]
+              }
+            }
+          },
+          "required": ["scripts"]
+        }
+      },
+      "required": ["remoteResources"]
+    }
+  },
+  "required": ["features"]
+}

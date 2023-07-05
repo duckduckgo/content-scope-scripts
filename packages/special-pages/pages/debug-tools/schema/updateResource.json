@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "UpdateResourceParams",
+  "additionalProperties": false,
+  "required": ["id", "source", "content"],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "source": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/updatingRemoteSource"
+        },
+        {
+          "$ref": "#/definitions/updatingDebugToolsSource"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "updatingRemoteSource": {
+      "description": "This is not the same as the source in the remote-resource schema. This is a subset of that schema that omits the 'fetchedAt' key.",
+      "type": "object",
+      "properties": {
+        "remote": {
+          "type": "object",
+          "required": ["url"],
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        }
+      },
+      "required": ["remote"],
+      "additionalProperties": false
+    },
+    "updatingDebugToolsSource": {
+      "description": "",
+      "type": "object",
+      "properties": {
+        "debugTools": {
+          "type": "object",
+          "required": ["content"],
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": ["debugTools"],
+      "additionalProperties": false
+    }
+  }
+}

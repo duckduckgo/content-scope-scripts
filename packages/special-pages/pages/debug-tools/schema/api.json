@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "API",
+    "description": "This describes all of the top-level generated types\n@internal",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "getFeatures": {
+            "$ref": "./getFeatures.json"
+        },
+        "updateResource": {
+            "$ref": "./updateResource.json"
+        },
+        "getTabs": {
+            "$ref": "./getTabs.json"
+        }
+    }
+}

@@ -9,7 +9,9 @@
     "noEmit": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx"
   },
   "include": [
     "src",
@@ -20,15 +22,19 @@
     "packages",
     "playwright.config.js",
     "script-overload-snapshots",
-    "./src/features/duckplayer/duckplayer-settings.ts"
+    "./src/features/duckplayer/duckplayer-settings.ts",
+    "packages/special-pages/pages/debug-tools/schema/schema.test.mjs",
+    "packages/special-pages/pages/debug-tools/src/js/DebugToolsMessages.mjs"
   ],
   "exclude": [
+    "node_modules",
     "snapshots/script-overload-snapshots",
     "integration-test/pages",
     "integration-test/extension",
     "packages/special-pages/pages/**/public",
     "packages/special-pages/playwright-report",
     "packages/special-pages/test-results",
+    "packages/special-pages/pages/debug-tools/editor/__generated__",
     "docs"
   ]
 }

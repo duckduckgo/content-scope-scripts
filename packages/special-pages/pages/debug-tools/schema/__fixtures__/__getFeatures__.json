@@ -1,0 +1,52 @@
+{
+  "features": {
+    "remoteResources": {
+      "resources": [
+        {
+          "id": "privacy-configuration",
+          "url": "https://staticcdn.duckduckgo.com/trackerblocking/config/v2/macos-config.json",
+          "name": "Privacy Config",
+          "current": {
+            "source": {
+              "remote": {
+                "url": "https://staticcdn.duckduckgo.com/trackerblocking/config/v2/macos-config.json",
+                "fetchedAt": "2023-07-05T12:34:56Z"
+              }
+            },
+            "contents": "{\n    \"foo\": \"bar\"\n}",
+            "contentType": "application/json"
+          }
+        },
+        {
+          "id": "tracker-data-set",
+          "url": "https://staticcdn.duckduckgo.com/trackerblocking/v3/apple-tds.json",
+          "name": "Tracker Data Set (TDS)",
+          "current": {
+            "source": {
+              "debugTools": {
+                "modifiedAt": "2023-07-05T12:34:56Z"
+              }
+            },
+            "contents": "{\n    \"foo\": \"bar\"\n}",
+            "contentType": "application/json"
+          }
+        },
+        {
+          "id": "other-123",
+          "url": "https://staticcdn.duckduckgo.com/trackerblocking/v3/other.json",
+          "name": "Something overriden",
+          "current": {
+            "source": {
+              "remote": {
+                "url": "https://some-local-overide.com/my-file.json",
+                "fetchedAt": "2023-07-05T12:34:56Z"
+              }
+            },
+            "contents": "{\n    \"foo\": \"bar\"\n}",
+            "contentType": "application/json"
+          }
+        }
+      ]
+    }
+  }
+}

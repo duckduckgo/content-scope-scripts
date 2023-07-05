@@ -70,7 +70,8 @@ export class WindowsPermissionsSpec {
                 context: 'contentScopeScripts',
                 featureName: 'n/a'
             },
-            responses: {}
+            responses: {},
+            errors: {}
         })
 
         // attach the JS

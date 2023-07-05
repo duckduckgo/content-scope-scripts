@@ -4,12 +4,12 @@ export default defineConfig({
     projects: [
         {
             name: 'duckplayer-windows',
-            testMatch: 'duckplayer.spec.js',
+            testMatch: ['duckplayer.spec.js', 'debug-tools.spec.js'],
             use: { injectName: 'windows', platform: 'windows' }
         },
         {
             name: 'duckplayer-apple',
-            testMatch: 'duckplayer.spec.js',
+            testMatch: ['duckplayer.spec.js', 'debug-tools.spec.js'],
             use: { injectName: 'apple', platform: 'macos' }
         }
     ],

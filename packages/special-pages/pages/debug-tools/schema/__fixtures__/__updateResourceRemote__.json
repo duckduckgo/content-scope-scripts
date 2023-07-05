@@ -1,0 +1,8 @@
+{
+  "id": "privacy-configuration",
+  "source": {
+    "remote": {
+      "url": "https://example.com/macos-config.json"
+    }
+  }
+}

@@ -39,3 +39,8 @@ declare module 'ddg:runtimeInjects' {
     const output: Record<string, string>
     export default output
 }
+
+interface Window {
+    _test_editor_value: () => string
+    _test_editor_set_value: (value: string) => void
+}

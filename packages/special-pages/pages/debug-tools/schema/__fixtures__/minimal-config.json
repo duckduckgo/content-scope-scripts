@@ -1,0 +1,51 @@
+{
+  "readme": "https://github.com/duckduckgo/privacy-configuration",
+  "version": 1688540747387,
+  "features": {"ampLinks": {"exceptions": [
+        {
+          "domain": "freecodecamp.org",
+          "reason": "Clicking 'get started' reloads the page and does not progress to the login page."
+        },
+        {
+          "domain": "www.audiosciencereview.com",
+          "reason": "Pages on the site end up in redirect loops in Firefox."
+        },
+        {
+          "domain": "golf.com",
+          "reason": "https://github.com/duckduckgo/privacy-configuration/issues/812"
+        }
+      ],
+      "settings": {
+        "deepExtractionEnabled": true,
+        "deepExtractionTimeout": 1500,
+        "linkFormats": [
+          "^https?:\\/\\/(?:w{3}\\.)?google\\.\\S{2,}\\/amp\\/s\\/(\\S+)$",
+          "^https?:\\/\\/\\S+ampproject\\.org\\/\\S\\/s\\/(\\S+)$"
+        ],
+        "keywords": [
+          "=amp",
+          "amp=",
+          "&amp",
+          "amp&",
+          "/amp",
+          "amp/",
+          ".amp",
+          "amp.",
+          "%amp",
+          "amp%",
+          "_amp",
+          "amp_",
+          "?amp"
+        ]
+      },
+      "state": "enabled",
+      "hash": "15f5da5429e7fd7145c35ed920d28c35"
+    }
+  },
+  "unprotectedTemporary": [
+    {
+      "domain": "fidelity.com",
+      "reason": "https://github.com/duckduckgo/privacy-configuration/issues/794"
+    }
+  ]
+}
