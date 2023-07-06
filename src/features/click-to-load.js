@@ -1,11 +1,10 @@
 import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../packages/messaging/index.js'
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
-import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js'
+import { logoImg, loadingImages, closeIcon } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
 import { ClickToLoadMessagingTransport } from './click-to-load/ctl-messaging-transport.js'
 import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
-import { DDGCtlLoginButton } from './click-to-load/components/ctl-login-button.js'
 import { registerCustomElements } from './click-to-load/components'
 
 /**
@@ -28,22 +27,9 @@ const titleID = 'DuckDuckGoPrivacyEssentialsCTLElementTitle'
 let config = null
 let sharedStrings = null
 let styles = null
-
-/**
- * List of platforms where we can skip showing a Web Modal from C-S-S.
- * It is generally expected that the platform will show a native modal instead.
- * @type {import('../utils').Platform["name"][]} */
-const platformsWithNativeModalSupport = ['android', 'ios']
-/**
- * Platforms supporting the new layout using Web Components.
- * @type {import('../utils').Platform["name"][]} */
-const platformsWithWebComponentsEnabled = ['android', 'ios']
-/**
- * Based on the current Platform where the Widget is running, it will
- * return if it is one of our mobile apps or not. This should be used to
- * define which layout to use between Mobile and Desktop Platforms variations.
- * @type {import('../utils').Platform["name"][]} */
-const mobilePlatforms = ['android', 'ios']
+// Used to choose between extension/desktop flow or mobile apps flow.
+// Updated on ClickToLoad.init()
+let isMobileApp
 
 // TODO: Remove these redundant data structures and refactor the related code.
 //       There should be no need to have the entity configuration stored in two
@@ -94,10 +80,8 @@ class DuckWidget {
      *   The original tracking element to replace with a placeholder.
      * @param {string} entity
      *   The entity behind the tracking element (e.g. "Facebook, Inc.").
-     * @param {import('../utils').Platform} platform
-     *   The platform where Click to Load and the Duck Widget is running on (ie Extension, Android App, etc)
      */
-    constructor (widgetData, originalElement, entity, platform) {
+    constructor (widgetData, originalElement, entity) {
         this.clickAction = { ...widgetData.clickAction } // shallow copy
         this.replaceSettings = widgetData.replaceSettings
         this.originalElement = originalElement
@@ -109,7 +93,6 @@ class DuckWidget {
         this.autoplay = false
         // Boolean if widget is unblocked and content should not be blocked
         this.isUnblocked = false
-        this.platform = platform
     }
 
     /**
@@ -406,20 +389,13 @@ class DuckWidget {
                 this.isUnblocked = true
                 clicked = true
                 let isLogin = false
-                // Logins triggered by user click means they were not triggered by the surrogate
-                const isSurrogateLogin = false
                 const clickElement = e.srcElement // Object.assign({}, e)
                 if (this.replaceSettings.type === 'loginButton') {
                     isLogin = true
                 }
                 const action = this.entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
                 // eslint-disable-next-line promise/prefer-await-to-then
-                unblockClickToLoadContent({ entity: this.entity, action, isLogin, isSurrogateLogin }).then((response) => {
-                    // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
-                    if (response && response.type === 'ddg-ctp-user-cancel') {
-                        return abortSurrogateConfirmation(this.entity)
-                    }
-
+                unblockClickToLoadContent({ entity: this.entity, action, isLogin }).then(() => {
                     const parent = replacementElement.parentNode
 
                     // The placeholder was removed from the DOM while we loaded
@@ -503,38 +479,17 @@ class DuckWidget {
         // If this is a login button, show modal if needed
         if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
             return e => {
-                handleUnblockConfirmation(
-                    this.platform.name, this.entity, handleClick, e
-                )
+                makeModal(this.entity, handleClick, e)
             }
         }
         return handleClick
-    }
-
-    /**
-     * Based on the current Platform where the Widget is running, it will
-     * return if the new layout using Web Components is supported or not.
-     * @returns {boolean}
-     */
-    shouldUseCustomElement () {
-        return platformsWithWebComponentsEnabled.includes(this.platform.name)
-    }
-
-    /**
-     * Based on the current Platform where the Widget is running, it will
-     * return if it is one of our mobile apps or not. This should be used to
-     * define which layout to use between Mobile and Desktop Platforms variations.
-     * @returns {boolean}
-     */
-    isMobilePlatform () {
-        return mobilePlatforms.includes(this.platform.name)
     }
 }
 
 /**
  * Replace the given tracking element with the given placeholder.
  * Notes:
- *  1. This function also dispatches events targeting the original and
+ *  1. This function also dispatches events targetting the original and
  *     placeholder elements. That way, the surrogate scripts can use the event
  *     targets to keep track of which placeholder corresponds to which tracking
  *     element.
@@ -628,35 +583,17 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
     if (widget.replaceSettings.type === 'loginButton') {
         const icon = widget.replaceSettings.icon
         // Create a button to replace old element
-        if (widget.shouldUseCustomElement()) {
-            const facebookLoginButton = new DDGCtlLoginButton({
-                devMode,
-                label: widget.replaceSettings.buttonTextUnblockLogin,
-                hoverText: widget.replaceSettings.popupBodyText,
-                logoIcon: facebookLogo,
-                originalElement: trackingElement,
-                learnMore: { // Localized strings for "Learn More" link.
-                    readAbout: sharedStrings.readAbout,
-                    learnMore: sharedStrings.learnMore
-                },
-                onClick: widget.clickFunction.bind(widget)
-            }).element
-            facebookLoginButton.classList.add('fb-login-button', 'FacebookLogin__button')
-            facebookLoginButton.appendChild(makeFontFaceStyleElement())
-            replaceTrackingElement(widget, trackingElement, facebookLoginButton)
-        } else {
-            const { button, container } = makeLoginButton(
-                widget.replaceSettings.buttonText, widget.getMode(),
-                widget.replaceSettings.popupBodyText, icon, trackingElement
-            )
-            button.addEventListener('click', widget.clickFunction(trackingElement, container))
-            replaceTrackingElement(widget, trackingElement, container)
-        }
+        const { button, container } = makeLoginButton(
+            widget.replaceSettings.buttonText, widget.getMode(),
+            widget.replaceSettings.popupBodyText, icon, trackingElement
+        )
+        button.addEventListener('click', widget.clickFunction(trackingElement, container))
+        replaceTrackingElement(widget, trackingElement, container)
     }
 
     // Facebook
     if (widget.replaceSettings.type === 'dialog') {
-        if (widget.shouldUseCustomElement()) {
+        if (isMobileApp) {
             /**
              * Creates a custom HTML element with the placeholder element for blocked
              * embedded content. The constructor gets a list of parameters with the
@@ -735,7 +672,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
         widget.autoplay = false
         const oldPlaceholder = widget.placeholderElement
 
-        if (widget.shouldUseCustomElement()) {
+        if (isMobileApp) {
             /**
              * Creates a custom HTML element with the placeholder element for blocked
              * embedded content. The constructor gets a list of parameters with the
@@ -756,7 +693,7 @@ function replaceYouTubeCTL (trackingElement, widget) {
                     isActive: false, // Toggle state
                     dataKey: 'yt-preview-toggle', // data-key attribute for button
                     label: widget.replaceSettings.previewToggleText, // Text to be presented with toggle
-                    size: widget.isMobilePlatform() ? 'lg' : 'md',
+                    size: isMobileApp ? 'lg' : 'md',
                     onClick: () => ctl.messaging.notify('setYoutubePreviewsEnabled', { youtubePreviewsEnabled: true }) // Toggle click callback
                 },
                 withFeedback: {
@@ -864,6 +801,43 @@ function hideInfoTextIfNarrowPlaceholder (shadowRoot, placeholder, narrowWidth) 
     }
 }
 
+/**
+ * Replace the blocked CTL elements on the page with placeholders.
+ * @param {HTMLElement} [targetElement]
+ *   If specified, only this element will be replaced (assuming it matches
+ *   one of the expected CSS selectors). If omitted, all matching elements
+ *   in the document will be replaced instead.
+ */
+async function replaceClickToLoadElements (targetElement) {
+    await readyToDisplayPlaceholders
+
+    for (const entity of Object.keys(config)) {
+        for (const widgetData of Object.values(config[entity].elementData)) {
+            const selector = widgetData.selectors.join()
+
+            let trackingElements = []
+            if (targetElement) {
+                if (targetElement.matches(selector)) {
+                    trackingElements.push(targetElement)
+                }
+            } else {
+                trackingElements = Array.from(document.querySelectorAll(selector))
+            }
+
+            await Promise.all(trackingElements.map(trackingElement => {
+                if (knownTrackingElements.has(trackingElement)) {
+                    return Promise.resolve()
+                }
+
+                knownTrackingElements.add(trackingElement)
+
+                const widget = new DuckWidget(widgetData, trackingElement, entity)
+                return createPlaceholderElementAndReplace(widget, trackingElement)
+            }))
+        }
+    }
+}
+
 /*********************************************************
  *  Messaging to surrogates & extension
  *********************************************************/
@@ -874,9 +848,6 @@ function hideInfoTextIfNarrowPlaceholder (shadowRoot, placeholder, narrowWidth) 
  *   The entity to unblock requests for (e.g. "Facebook, Inc.").
  * @property {boolean} [isLogin=false]
  *   True if we should "allow social login", defaults to false.
- * @property {boolean} [isSurrogateLogin=false]
- *   True if logins triggered by the surrogate (custom login), False if login trigger
- *   by user clicking in our Login button placeholder.
  * @property {string} action
  *   The Click to Load blocklist rule action (e.g. "block-ctl-fb") that should
  *   be allowed. Important since in the future there might be multiple types of
@@ -889,37 +860,10 @@ function hideInfoTextIfNarrowPlaceholder (shadowRoot, placeholder, narrowWidth) 
  * the page.
  * @param {unblockClickToLoadContentRequest} message
  * @see {@link ddg-ctp-unblockClickToLoadContent-complete} for the response handler.
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 function unblockClickToLoadContent (message) {
     return ctl.messaging.request('unblockClickToLoadContent', message)
-}
-
-/**
- * Handle showing a web modal to request the user for a confirmation or, in some platforms,
- * proceed with the "acceptFunction" call and let the platform handle with each request
- * accordingly.
- * @param {import('../utils').Platform["name"]} platformName
- *   The current platform name where Click to Load is running
- * @param {string} entity
- *   The entity to unblock requests for (e.g. "Facebook, Inc.") if the user
- *   clicks to proceed.
- * @param {function} acceptFunction
- *   The function to call if the user has clicked to proceed.
- * @param {...any} acceptFunctionParams
- *   The parameters passed to acceptFunction when it is called.
- */
-function handleUnblockConfirmation (platformName, entity, acceptFunction, ...acceptFunctionParams) {
-    // In our mobile platforms, we want to show a native UI to request user unblock
-    // confirmation. In these cases we send directly the unblock request to the platform
-    // and the platform chooses how to best handle it.
-    if (platformsWithNativeModalSupport.includes(platformName)) {
-        acceptFunction(...acceptFunctionParams)
-    // By default, for other platforms (ie Extension), we show a web modal with a
-    // confirmation request to the user before we proceed to unblock the content.
-    } else {
-        makeModal(entity, acceptFunction, ...acceptFunctionParams)
-    }
 }
 
 /**
@@ -930,11 +874,7 @@ function handleUnblockConfirmation (platformName, entity, acceptFunction, ...acc
  */
 async function runLogin (entity) {
     const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
-    const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true })
-    // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
-    if (response && response.type === 'ddg-ctp-user-cancel') {
-        return abortSurrogateConfirmation(this.entity)
-    }
+    await unblockClickToLoadContent({ entity, action, isLogin: true })
     // Communicate with surrogate to run login
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-run-login', {
@@ -946,11 +886,11 @@ async function runLogin (entity) {
 }
 
 /**
- * Communicate with the surrogate to abort (ie Abort login when user rejects confirmation dialog)
- * Called after the user cancel from a warning dialog.
+ * Close the login dialog and communicate with the surrogate to abort.
+ * Called after the user clicks to cancel after the warning dialog is shown.
  * @param {string} entity
  */
-function abortSurrogateConfirmation (entity) {
+function cancelModal (entity) {
     originalWindowDispatchEvent(
         createCustomEvent('ddg-ctp-cancel-modal', {
             detail: {
@@ -1364,7 +1304,7 @@ function makeModal (entity, acceptFunction, ...acceptFunctionParams) {
 
     const closeModal = () => {
         document.body.removeChild(modalContainer)
-        abortSurrogateConfirmation(entity)
+        cancelModal(entity)
     }
 
     // Protect the contents of our modal inside a shadowRoot, to avoid
@@ -1793,6 +1733,7 @@ export default class ClickToLoad extends ContentFeature {
         sharedStrings = localizedConfig.sharedStrings
         // update styles if asset config was sent
         styles = getStyles(this.assetConfig)
+        isMobileApp = this.platform.name === 'ios' || this.platform.name === 'android'
 
         /**
          * Register Custom Elements only when Click to Load is initialized, to ensure it is only
@@ -1846,7 +1787,7 @@ export default class ClickToLoad extends ContentFeature {
             // Handle login call
             if (event.detail?.action === 'login') {
                 if (entityData[entity].shouldShowLoginModal) {
-                    handleUnblockConfirmation(this.platform.name, entity, runLogin, entity)
+                    makeModal(entity, runLogin, entity)
                 } else {
                     runLogin(entity)
                 }
@@ -1860,7 +1801,7 @@ export default class ClickToLoad extends ContentFeature {
             // TODO: Pass `message.options.ruleAction` through, that way only
             //       content corresponding to the entity for that ruleAction need to
             //       be replaced with a placeholder.
-            () => this.replaceClickToLoadElements()
+            () => replaceClickToLoadElements()
         )
 
         // Request the current state of Click to Load from the platform.
@@ -1931,43 +1872,6 @@ export default class ClickToLoad extends ContentFeature {
         // Mark the feature as ready, to allow placeholder
         // replacements to start.
         readyToDisplayPlaceholdersResolver()
-    }
-
-    /**
-     * Replace the blocked CTL elements on the page with placeholders.
-     * @param {HTMLElement} [targetElement]
-     *   If specified, only this element will be replaced (assuming it matches
-     *   one of the expected CSS selectors). If omitted, all matching elements
-     *   in the document will be replaced instead.
-     */
-    async replaceClickToLoadElements (targetElement) {
-        await readyToDisplayPlaceholders
-
-        for (const entity of Object.keys(config)) {
-            for (const widgetData of Object.values(config[entity].elementData)) {
-                const selector = widgetData.selectors.join()
-
-                let trackingElements = []
-                if (targetElement) {
-                    if (targetElement.matches(selector)) {
-                        trackingElements.push(targetElement)
-                    }
-                } else {
-                    trackingElements = Array.from(document.querySelectorAll(selector))
-                }
-
-                await Promise.all(trackingElements.map(trackingElement => {
-                    if (knownTrackingElements.has(trackingElement)) {
-                        return Promise.resolve()
-                    }
-
-                    knownTrackingElements.add(trackingElement)
-
-                    const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform)
-                    return createPlaceholderElementAndReplace(widget, trackingElement)
-                }))
-            }
-        }
     }
 
     // Messaging layer between Click to Load and the Platform

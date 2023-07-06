@@ -22,6 +22,60 @@
 }
 
 /* SHARED STYLES */
+/* Button */
+.DuckDuckGoButton {
+    border-radius: 8px;
+    padding: 11px 22px;
+    margin: 0px auto;
+    border-color: var(--ddg-color-primary);
+    border: none;
+    height: 36px;
+    font-size: 14px;
+
+    position: relative;
+    cursor: pointer;
+    box-shadow: none;
+    z-index: 2147483646;
+}
+.DuckDuckGoButton > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.DuckDuckGoButton.tertiary {
+    color: var(--ddg-color-txt);
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 16px;
+    border: 1px solid var(--ddg-color-border);
+    border-radius: 8px;
+}
+.DuckDuckGoButton.tertiary:hover {
+    background: var(--ddg-shade-06);
+    border-color: var(--ddg-shade-18);
+}
+@media (prefers-color-scheme: dark) {
+    .DuckDuckGoButton.tertiary:hover {
+        background: var(--ddg-tint-18);
+        border-color: var(--ddg-tint-24);
+    }
+}
+.DuckDuckGoButton.tertiary:active {
+    background: var(--ddg-shade-12);
+    border-color: var(--ddg-shade-36);
+}
+@media (prefers-color-scheme: dark) {
+    .DuckDuckGoButton.tertiary:active {
+        background: var(--ddg-tint-24);
+        border-color: var(--ddg-tint-24);
+    }
+}
+
 /* Toggle Button */
 .ddg-toggle-button-container {
     display: flex;
@@ -95,10 +149,19 @@
     margin-left: 12px;
 }
 
+/* Link styles */
+.ddg-text-link {
+    line-height: 1.4;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--ddg-color-primary);
+}
+
 /* Styles for DDGCtlPlaceholderBlocked */
 .DuckDuckGoButton.ddg-ctl-unblock-btn {
     width: 100%;
-    margin: 0 auto;
 }
 .DuckDuckGoSocialContainer:is(.size-md, .size-lg) .DuckDuckGoButton.ddg-ctl-unblock-btn {
     width: auto;
@@ -183,8 +246,8 @@
 }
 
 .ddg-ctl-placeholder-card-body-text {
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 14px;
+    line-height: 21px;
     text-align: center;
     margin: 0 auto 12px;
 
