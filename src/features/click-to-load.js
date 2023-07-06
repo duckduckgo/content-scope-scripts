@@ -503,6 +503,12 @@ class DuckWidget {
         // If this is a login button, show modal if needed
         if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
             return e => {
+                // Even if the user cancels the login attempt, consider Facebook Click to
+                // Load to have been active on the page if the user reports the page as broken.
+                if (this.entity === 'Facebook, Inc.') {
+                    notifyFacebookLogin()
+                }
+
                 handleUnblockConfirmation(
                     this.platform.name, this.entity, handleClick, e
                 )
@@ -656,6 +662,7 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
 
     // Facebook
     if (widget.replaceSettings.type === 'dialog') {
+        ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookPlaceholderShown: true })
         if (widget.shouldUseCustomElement()) {
             /**
              * Creates a custom HTML element with the placeholder element for blocked
@@ -923,12 +930,25 @@ function handleUnblockConfirmation (platformName, entity, acceptFunction, ...acc
 }
 
 /**
+ * Set the ctlFacebookLogin breakage flag for the page, to indicate that the
+ * Facebook Click to Load login flow had started if the user should then report
+ * the website as broken.
+ */
+function notifyFacebookLogin () {
+    ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookLogin: true })
+}
+
+/**
  * Unblock the entity, close the login dialog and continue the Facebook login
  * flow. Called after the user clicks to proceed after the warning dialog is
  * shown.
  * @param {string} entity
  */
 async function runLogin (entity) {
+    if (entity === 'Facebook, Inc.') {
+        notifyFacebookLogin()
+    }
+
     const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb'
     const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true })
     // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
@@ -1845,6 +1865,12 @@ export default class ClickToLoad extends ContentFeature {
             }
             // Handle login call
             if (event.detail?.action === 'login') {
+                // Even if the user cancels the login attempt, consider Facebook Click to
+                // Load to have been active on the page if the user reports the page as broken.
+                if (entity === 'Facebook, Inc.') {
+                    notifyFacebookLogin()
+                }
+
                 if (entityData[entity].shouldShowLoginModal) {
                     handleUnblockConfirmation(this.platform.name, entity, runLogin, entity)
                 } else {
