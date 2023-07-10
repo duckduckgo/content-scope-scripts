@@ -20,7 +20,7 @@ export class DDGCtlLoginButton {
      * Placeholder container element for blocked login button
      * @type {HTMLDivElement}
      */
-    _element
+    #element
 
     /**
      * @param {object} params - Params for building a custom element with
@@ -80,14 +80,14 @@ export class DDGCtlLoginButton {
      * @returns {HTMLDivElement}
      */
     get element () {
-        return this._element
+        return this.#element
     }
 
     /**
      * @param {HTMLDivElement} el - New placeholder element
      */
     set element (el) {
-        this._element = el
+        this.#element = el
     }
 
     /**
