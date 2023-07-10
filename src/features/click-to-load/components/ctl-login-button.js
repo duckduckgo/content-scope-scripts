@@ -20,7 +20,7 @@ export class DDGCtlLoginButton {
      * Placeholder container element for blocked login button
      * @type {HTMLDivElement}
      */
-    #element
+    _element
 
     /**
      * @param {object} params - Params for building a custom element with
@@ -62,12 +62,12 @@ export class DDGCtlLoginButton {
          * Create the Facebook login button
          * @type {HTMLDivElement}
          */
-        const loginButton = this.#createLoginButton()
+        const loginButton = this._createLoginButton()
 
         /**
          * Setup the click handlers
          */
-        this.#setupEventListeners(loginButton)
+        this._setupEventListeners(loginButton)
 
         /**
          * Append both to the shadow root
@@ -80,14 +80,14 @@ export class DDGCtlLoginButton {
      * @returns {HTMLDivElement}
      */
     get element () {
-        return this.#element
+        return this._element
     }
 
     /**
      * @param {HTMLDivElement} el - New placeholder element
      */
     set element (el) {
-        this.#element = el
+        this._element = el
     }
 
     /**
@@ -96,10 +96,10 @@ export class DDGCtlLoginButton {
      * proceed.
      * @returns {HTMLDivElement}
      */
-    #createLoginButton () {
+    _createLoginButton () {
         const { label, hoverText, logoIcon, learnMore } = this.params
 
-        const { popoverStyle, arrowStyle } = this.#calculatePopoverPosition()
+        const { popoverStyle, arrowStyle } = this._calculatePopoverPosition()
 
         const container = document.createElement('div')
         // Add our own styles and inherit any local class styles on the button
@@ -153,7 +153,7 @@ export class DDGCtlLoginButton {
      *  arrowStyle: string,   // CSS styles to be applied in the Popover arrow
      * }}
      */
-    #calculatePopoverPosition () {
+    _calculatePopoverPosition () {
         const { originalElement } = this.params
         const rect = originalElement.getBoundingClientRect()
         const textBubbleWidth = 360 // Should match the width rule in .ddg-popover
@@ -187,7 +187,7 @@ export class DDGCtlLoginButton {
      *
      * @param {HTMLElement} loginButton
      */
-    #setupEventListeners (loginButton) {
+    _setupEventListeners (loginButton) {
         const { originalElement, onClick } = this.params
 
         loginButton
