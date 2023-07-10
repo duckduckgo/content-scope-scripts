@@ -110,7 +110,7 @@ const VideoPlayer = {
      * Show an error instead of the video player iframe
      */
     showVideoError: (errorMessage) => {
-        VideoPlayer.playerContainer().innerHTML = html`<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>`.toString()
+        VideoPlayer.playerContainer().innerHTML = html`<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>`
 
         // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         document.querySelector('.player-error-message').textContent = errorMessage

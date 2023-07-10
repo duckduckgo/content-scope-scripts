@@ -157,7 +157,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
                 </div>
                 ${cardFooterSection}
             </div>
-        `.toString()
+        `
 
         return container
     }
@@ -189,7 +189,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
 
         container.innerHTML = html`
             <button class="ddg-ctl-feedback-link" type="button">${withFeedback?.label || 'Share Feedback'}</button>
-        `.toString()
+        `
 
         return container
     }

@@ -138,7 +138,7 @@ export class DDGCtlLoginButton {
                     </div>
                 </div>
             </div>
-        `.toString()
+        `
 
         return container
     }

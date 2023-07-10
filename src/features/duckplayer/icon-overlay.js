@@ -53,7 +53,7 @@ export const IconOverlay = {
                             ${i18n.t('playText')}
                         </div>
                     </div>
-                </a>`.toString()
+                </a>`
 
         overlayElement.querySelector('a.ddg-play-privately')?.setAttribute('href', href)
         overlayElement.querySelector('a.ddg-play-privately')?.addEventListener('click', (event) => {

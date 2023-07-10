@@ -74,7 +74,7 @@ export class DDGVideoOverlay extends HTMLElement {
                     </label>
                 </div>
             </div>
-            `.toString()
+            `
         /**
          * Set the link
          * @type {string}
