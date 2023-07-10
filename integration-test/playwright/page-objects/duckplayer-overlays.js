@@ -60,6 +60,20 @@ export class DuckplayerOverlays {
         await this.page.getByRole('button', { name: 'Reject the use of cookies and other data for the purposes described' }).click()
     }
 
+    async clicksFirstShortsThumbnail () {
+        await this.page.locator('[href*="/shorts"] img').first().click({ force: true })
+    }
+
+    async showsShortsPage () {
+        await this.page.waitForURL(/^https:\/\/www.youtube.com\/shorts/, { timeout: 5000 })
+    }
+
+    async opensShort (newTab) {
+        const tab = await newTab
+        const url = new URL(await tab.url())
+        expect(url.pathname).toBe('/shorts/1')
+    }
+
     /**
      * @param {object} [params]
      * @param {"default" | "incremental-dom"} [params.variant]
@@ -347,6 +361,19 @@ export class DuckplayerOverlays {
         return this.build.name === 'apple-isolated'
             ? 'contentScopeScriptsIsolated'
             : 'contentScopeScripts'
+    }
+
+    requestWillFail () {
+        return new Promise((resolve, reject) => {
+            // on windows it will be a failed request
+            const timer = setTimeout(() => {
+                reject(new Error('timed out'))
+            }, 5000)
+            this.page.context().on('requestfailed', (req) => {
+                clearTimeout(timer)
+                resolve(req)
+            })
+        })
     }
 }
 
