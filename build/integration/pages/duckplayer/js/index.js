@@ -1,21 +1,14 @@
 "use strict";
 (() => {
-  var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => {
-    __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
-
   // ../messaging/lib/windows.js
   var WindowsMessagingTransport = class {
+    config;
     /**
      * @param {WindowsMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext
      * @internal
      */
     constructor(config, messagingContext) {
-      __publicField(this, "config");
       this.messagingContext = messagingContext;
       this.config = config;
       this.globals = {
@@ -282,23 +275,15 @@
 
   // ../messaging/lib/webkit.js
   var WebkitMessagingTransport = class {
+    /** @type {WebkitMessagingConfig} */
+    config;
+    /** @internal */
+    globals;
     /**
      * @param {WebkitMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext
      */
     constructor(config, messagingContext) {
-      /** @type {WebkitMessagingConfig} */
-      __publicField(this, "config");
-      /** @internal */
-      __publicField(this, "globals");
-      /**
-       * @type {{name: string, length: number}}
-       * @internal
-       */
-      __publicField(this, "algoObj", {
-        name: "AES-GCM",
-        length: 256
-      });
       this.messagingContext = messagingContext;
       this.config = config;
       this.globals = captureGlobals();
@@ -431,6 +416,14 @@
     createRandMethodName() {
       return "_" + this.randomString();
     }
+    /**
+     * @type {{name: string, length: number}}
+     * @internal
+     */
+    algoObj = {
+      name: "AES-GCM",
+      length: 256
+    };
     /**
      * @returns {Promise<Uint8Array>}
      * @internal
@@ -837,7 +830,7 @@
   }
 
   // ../../src/dom-utils.js
-  var Template = class {
+  var Template = class _Template {
     constructor(strings, values) {
       this.values = values;
       this.strings = strings;
@@ -865,7 +858,7 @@
         if (value instanceof Array) {
           return value.map((val) => this.potentiallyEscape(val)).join("");
         }
-        if (value instanceof Template) {
+        if (value instanceof _Template) {
           return value;
         }
         throw new Error("Unknown object to escape");

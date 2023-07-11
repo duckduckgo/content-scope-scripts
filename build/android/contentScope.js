@@ -928,8 +928,7 @@
     function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
     /**
      * Test deep equality of two JSON values, objects, or arrays
-     */
-    // TODO: write unit tests
+     */ // TODO: write unit tests
     function isEqual(a, b) {
       // FIXME: this function will return false for two objects with the same keys
       //  but different order of keys
@@ -8645,12 +8644,12 @@
              * Create the Facebook login button
              * @type {HTMLDivElement}
              */
-            const loginButton = this.#createLoginButton();
+            const loginButton = this._createLoginButton();
 
             /**
              * Setup the click handlers
              */
-            this.#setupEventListeners(loginButton);
+            this._setupEventListeners(loginButton);
 
             /**
              * Append both to the shadow root
@@ -8679,10 +8678,10 @@
          * proceed.
          * @returns {HTMLDivElement}
          */
-        #createLoginButton () {
+        _createLoginButton () {
             const { label, hoverText, logoIcon, learnMore } = this.params;
 
-            const { popoverStyle, arrowStyle } = this.#calculatePopoverPosition();
+            const { popoverStyle, arrowStyle } = this._calculatePopoverPosition();
 
             const container = document.createElement('div');
             // Add our own styles and inherit any local class styles on the button
@@ -8736,7 +8735,7 @@
          *  arrowStyle: string,   // CSS styles to be applied in the Popover arrow
          * }}
          */
-        #calculatePopoverPosition () {
+        _calculatePopoverPosition () {
             const { originalElement } = this.params;
             const rect = originalElement.getBoundingClientRect();
             const textBubbleWidth = 360; // Should match the width rule in .ddg-popover
@@ -8770,7 +8769,7 @@
          *
          * @param {HTMLElement} loginButton
          */
-        #setupEventListeners (loginButton) {
+        _setupEventListeners (loginButton) {
             const { originalElement, onClick } = this.params;
 
             loginButton
@@ -9284,6 +9283,12 @@
             // If this is a login button, show modal if needed
             if (this.replaceSettings.type === 'loginButton' && entityData[this.entity].shouldShowLoginModal) {
                 return e => {
+                    // Even if the user cancels the login attempt, consider Facebook Click to
+                    // Load to have been active on the page if the user reports the page as broken.
+                    if (this.entity === 'Facebook, Inc.') {
+                        notifyFacebookLogin();
+                    }
+
                     handleUnblockConfirmation(
                         this.platform.name, this.entity, handleClick, e
                     );
@@ -9437,6 +9442,7 @@
 
         // Facebook
         if (widget.replaceSettings.type === 'dialog') {
+            ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookPlaceholderShown: true });
             if (widget.shouldUseCustomElement()) {
                 /**
                  * Creates a custom HTML element with the placeholder element for blocked
@@ -9704,12 +9710,25 @@
     }
 
     /**
+     * Set the ctlFacebookLogin breakage flag for the page, to indicate that the
+     * Facebook Click to Load login flow had started if the user should then report
+     * the website as broken.
+     */
+    function notifyFacebookLogin () {
+        ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookLogin: true });
+    }
+
+    /**
      * Unblock the entity, close the login dialog and continue the Facebook login
      * flow. Called after the user clicks to proceed after the warning dialog is
      * shown.
      * @param {string} entity
      */
     async function runLogin (entity) {
+        if (entity === 'Facebook, Inc.') {
+            notifyFacebookLogin();
+        }
+
         const action = entity === 'Youtube' ? 'block-ctl-yt' : 'block-ctl-fb';
         const response = await unblockClickToLoadContent({ entity, action, isLogin: true, isSurrogateLogin: true });
         // If user rejected confirmation modal and content was not unblocked, inform surrogate and stop.
@@ -10626,6 +10645,12 @@
                 }
                 // Handle login call
                 if (event.detail?.action === 'login') {
+                    // Even if the user cancels the login attempt, consider Facebook Click to
+                    // Load to have been active on the page if the user reports the page as broken.
+                    if (entity === 'Facebook, Inc.') {
+                        notifyFacebookLogin();
+                    }
+
                     if (entityData[entity].shouldShowLoginModal) {
                         handleUnblockConfirmation(this.platform.name, entity, runLogin, entity);
                     } else {
@@ -10904,7 +10929,8 @@
         'openShareFeedbackPage',
         'setYoutubePreviewsEnabled',
         'unblockClickToLoadContent',
-        'updateYouTubeCTLAddedFlag'
+        'updateYouTubeCTLAddedFlag',
+        'updateFacebookCTLBreakageFlags'
     ];
 
     function initCode () {

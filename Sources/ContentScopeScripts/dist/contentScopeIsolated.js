@@ -495,8 +495,7 @@
     function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
     /**
      * Test deep equality of two JSON values, objects, or arrays
-     */
-    // TODO: write unit tests
+     */ // TODO: write unit tests
     function isEqual(a, b) {
       // FIXME: this function will return false for two objects with the same keys
       //  but different order of keys

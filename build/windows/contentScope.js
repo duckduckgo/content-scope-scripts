@@ -969,8 +969,7 @@
     function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
     /**
      * Test deep equality of two JSON values, objects, or arrays
-     */
-    // TODO: write unit tests
+     */ // TODO: write unit tests
     function isEqual(a, b) {
       // FIXME: this function will return false for two objects with the same keys
       //  but different order of keys
@@ -9444,8 +9443,8 @@
             if (settings.blockSensorStart) {
                 wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
                     // block all sensors
-                    const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error;
-                    const error = new ErrorCls('error', {
+                    const EventCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Event;
+                    const error = new EventCls('error', {
                         error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError')
                     });
                     // isTrusted will be false, but not much we can do here
