@@ -116,8 +116,8 @@ export default class HarmfulApis extends ContentFeature {
         if (settings.blockSensorStart) {
             wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
                 // block all sensors
-                const ErrorCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Error
-                const error = new ErrorCls('error', {
+                const EventCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Event
+                const error = new EventCls('error', {
                     error: new DOMException('Permissions to access sensor are not granted', 'NotAllowedError')
                 })
                 // isTrusted will be false, but not much we can do here
