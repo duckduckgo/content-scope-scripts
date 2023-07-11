@@ -28,6 +28,19 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         await overlays.hoverShort()
         await overlays.overlaysDontShow()
     })
+    /**
+     * https://app.asana.com/0/1201048563534612/1204993915251837/f
+     */
+    test('Clicks are not intercepted on shorts when "enabled"', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+        await overlays.overlaysEnabled()
+        await overlays.userSettingIs('enabled')
+        await overlays.gotoThumbsPage()
+        const navigation = overlays.requestWillFail()
+        await overlays.clicksFirstShortsThumbnail()
+        const url = await navigation
+        await overlays.opensShort(url)
+    })
     test('Overlays don\'t show on thumbnails when disabled', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
