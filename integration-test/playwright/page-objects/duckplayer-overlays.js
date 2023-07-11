@@ -68,9 +68,13 @@ export class DuckplayerOverlays {
         await this.page.waitForURL(/^https:\/\/www.youtube.com\/shorts/, { timeout: 5000 })
     }
 
+    /**
+     * @param {Promise<import("@playwright/test").Request>} newTab
+     * @return {Promise<void>}
+     */
     async opensShort (newTab) {
         const tab = await newTab
-        const url = new URL(await tab.url())
+        const url = new URL(tab.url())
         expect(url.pathname).toBe('/shorts/1')
     }
 
@@ -363,6 +367,9 @@ export class DuckplayerOverlays {
             : 'contentScopeScripts'
     }
 
+    /**
+     * @return {Promise<import("@playwright/test").Request>}
+     */
     requestWillFail () {
         return new Promise((resolve, reject) => {
             // on windows it will be a failed request

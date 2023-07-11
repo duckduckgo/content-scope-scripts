@@ -28,12 +28,12 @@ test.describe('e2e: Duck Player Thumbnail Overlays on YouTube.com', () => {
         await overlays.clicksFirstShortsThumbnail()
         await overlays.showsShortsPage()
     })
-    test.only('e2e: when enabled, clicking shorts has no impact', async ({ page }, workerInfo) => {
+    test('e2e: when enabled, clicking shorts has no impact', async ({ page }, workerInfo) => {
         // @ts-expect-error - TS doesn't know about the "use.e2e" property
         workerInfo.skip(!workerInfo.project.use?.e2e)
         const overlays = DuckplayerOverlays.create(page, workerInfo)
         await overlays.overlaysEnabled({ json: 'overlays-live' })
-        await overlays.userSettingIs('always ask')
+        await overlays.userSettingIs('enabled')
         await overlays.gotoYoutubeHomepage()
         await page.waitForTimeout(2000)
         await overlays.clicksFirstShortsThumbnail()

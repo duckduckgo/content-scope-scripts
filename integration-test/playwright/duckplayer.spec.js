@@ -31,10 +31,10 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
     /**
      * https://app.asana.com/0/1201048563534612/1204993915251837/f
      */
-    test.only('Clicks are not intercepted on shorts when "enabled"', async ({ page }, workerInfo) => {
+    test('Clicks are not intercepted on shorts when "enabled"', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
         await overlays.overlaysEnabled()
-        await overlays.userSettingIs('always ask')
+        await overlays.userSettingIs('enabled')
         await overlays.gotoThumbsPage()
         const newTab = overlays.requestWillFail()
         await overlays.clicksFirstShortsThumbnail()
