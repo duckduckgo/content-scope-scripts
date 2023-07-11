@@ -817,8 +817,7 @@
         windows: [
             ...baseFeatures,
             'windowsPermissionUsage',
-            'duckPlayer',
-            'harmfulApis'
+            'duckPlayer'
         ],
         firefox: [
             ...baseFeatures,

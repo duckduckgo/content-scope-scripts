@@ -1,4 +1,4 @@
-/* global Geolocation */
+/* global Bluetooth, Geolocation, HID, Serial, USB */
 import { DDGProxy, DDGReflect } from '../utils'
 import { defineProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
@@ -381,7 +381,16 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // these permissions cannot be disabled using WebView2 or DevTools protocol
         const permissionsToDisable = [
-            { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false }
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            { name: 'Bluetooth', prototype: () => Bluetooth.prototype, method: 'requestDevice', isPromise: true },
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            { name: 'USB', prototype: () => USB.prototype, method: 'requestDevice', isPromise: true },
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            { name: 'Serial', prototype: () => Serial.prototype, method: 'requestPort', isPromise: true },
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            { name: 'HID', prototype: () => HID.prototype, method: 'requestDevice', isPromise: true },
+            { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
+            { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true }
         ]
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {
@@ -397,6 +406,19 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 proxy.overload()
             } catch (error) {
                 console.info(`Could not disable access to ${name} because of error`, error)
+            }
+        }
+
+        // these permissions can be disabled using DevTools protocol but it's not reliable and can throw exception sometimes
+        const permissionsToDelete = [
+            { name: 'Idle detection', permission: 'IdleDetector' },
+            { name: 'NFC', permission: 'NDEFReader' },
+            { name: 'Orientation', permission: 'ondeviceorientation' },
+            { name: 'Motion', permission: 'ondevicemotion' }
+        ]
+        for (const { permission } of permissionsToDelete) {
+            if (permission in window) {
+                Reflect.deleteProperty(window, permission)
             }
         }
     }
