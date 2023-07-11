@@ -1,6 +1,9 @@
 {
   "unprotectedTemporary": [],
   "features": {
+    "windowsPermissionUsage": {
+      "state": "disabled"
+    },
     "harmfulApis": {
       "state": "enabled",
       "settings": {
