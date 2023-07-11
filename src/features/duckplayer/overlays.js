@@ -291,7 +291,7 @@ export async function initOverlays (environment, comms) {
                         }
 
                         // select either closest `a` or defer to element.href
-                        const targetValue = event.target.closest('a')?.href || element.href
+                        const targetValue = event.target.closest('a')?.href || /** @type {HTMLAnchorElement} */(element).href
                         const validPrivatePlayerUrl = VideoParams.fromHref(targetValue)?.toPrivatePlayerUrl()
 
                         if (validPrivatePlayerUrl) {
