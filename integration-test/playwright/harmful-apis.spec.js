@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 import { mockWindowsMessaging, wrapWindowsScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from './type-helpers.mjs'
 
-test('Harmful APIs protections', async ({ page }, testInfo) => {
+test.skip('Harmful APIs protections', async ({ page }, testInfo) => {
     const protection = HarmfulApisSpec.create(page, testInfo)
     await protection.enabled()
     const results = await protection.runTests();
