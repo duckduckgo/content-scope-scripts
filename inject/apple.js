@@ -9,45 +9,12 @@ import { isTrackerOrigin } from '../src/trackers'
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
     const config = $CONTENT_SCOPE$
-    config.features.duckPlayer = {
-        state: 'enabled',
-        exceptions: [],
-        settings: {
-            overlays: {
-                youtube: {
-                    state: 'disabled'
-                },
-                serpProxy: {
-                    state: 'disabled'
-                }
-            },
-            domains: [
-                {
-                    domain: 'youtube.com',
-                    patchSettings: [
-                        {
-                            op: 'replace',
-                            path: '/overlays/youtube/state',
-                            value: 'enabled'
-                        }
-                    ]
-                },
-                {
-                    domain: 'duckduckgo.com',
-                    patchSettings: [
-                        {
-                            op: 'replace',
-                            path: '/overlays/serpProxy/state',
-                            value: 'enabled'
-                        }
-                    ]
-                }
-            ]
-        }
-    }
-
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const processedConfig = processConfig(config, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+    const userUnprotected = $USER_UNPROTECTED_DOMAINS$
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+    const userPreferences = $USER_PREFERENCES$
+
+    const processedConfig = processConfig(config, userUnprotected, userPreferences)
     if (isGloballyDisabled(processedConfig)) {
         return
     }

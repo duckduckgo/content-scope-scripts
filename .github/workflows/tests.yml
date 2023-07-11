@@ -64,6 +64,7 @@ jobs:
           key: docs-output-${{ github.run_id }}
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+    - run: npm run playwright-e2e
     - run: npm run playwright
     - uses: actions/upload-artifact@v2
       if: always()
