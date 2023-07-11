@@ -17,6 +17,13 @@
         "windowsInteropRemoveEventListener": "readonly"
     },
     "rules": {
+        "no-restricted-syntax": [
+            "error",
+            {
+                "selector": "MethodDefinition[key.type='PrivateIdentifier']",
+                "message": "Private methods are currently unsupported in older WebKit and ESR Firefox"
+            }
+        ],
         "indent": ["error", 4],
         "require-await": ["error"],
         "promise/prefer-await-to-then": ["error"],
