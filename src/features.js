@@ -3,7 +3,6 @@ const baseFeatures = /** @type {const} */([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
-    'cookie',
     'googleRejected',
     'gpc',
     'fingerprintingHardware',
@@ -17,6 +16,7 @@ const baseFeatures = /** @type {const} */([
 
 const otherFeatures = /** @type {const} */([
     'clickToLoad',
+    'cookie',
     'windowsPermissionUsage',
     'webCompat',
     'duckPlayer'
@@ -37,19 +37,23 @@ export const platformSupport = {
         'clickToLoad'
     ],
     windows: [
+        'cookie',
         ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer'
     ],
     firefox: [
+        'cookie',
         ...baseFeatures,
         'clickToLoad'
     ],
     chrome: [
+        'cookie',
         ...baseFeatures,
         'clickToLoad'
     ],
     'chrome-mv3': [
+        'cookie',
         ...baseFeatures,
         'clickToLoad'
     ],
