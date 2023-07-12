@@ -780,7 +780,6 @@
         'fingerprintingAudio',
         'fingerprintingBattery',
         'fingerprintingCanvas',
-        'cookie',
         'googleRejected',
         'gpc',
         'fingerprintingHardware',
@@ -794,6 +793,7 @@
 
     const otherFeatures = /** @type {const} */([
         'clickToLoad',
+        'cookie',
         'windowsPermissionUsage',
         'webCompat',
         'duckPlayer',
@@ -815,19 +815,23 @@
             'clickToLoad'
         ],
         windows: [
+            'cookie',
             ...baseFeatures,
             'windowsPermissionUsage',
             'duckPlayer'
         ],
         firefox: [
+            'cookie',
             ...baseFeatures,
             'clickToLoad'
         ],
         chrome: [
+            'cookie',
             ...baseFeatures,
             'clickToLoad'
         ],
         'chrome-mv3': [
+            'cookie',
             ...baseFeatures,
             'clickToLoad'
         ],
@@ -890,6 +894,62 @@
     var injectedFeaturesCode = {
         "runtimeChecks": "/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */\nvar runtimeChecks = (function () {\n    'use strict';\n\n    const Set$1 = globalThis.Set;\n    const Reflect$1 = globalThis.Reflect;\n\n    /* global cloneInto, exportFunction, false */\n    // Tests don't define this variable so fallback to behave like chrome\n    const functionToString = Function.prototype.toString;\n\n    function defineProperty (object, propertyName, descriptor) {\n        {\n            Object.defineProperty(object, propertyName, descriptor);\n        }\n    }\n\n    /**\n     * Wrap functions to fix toString but also behave as closely to their real function as possible like .name and .length etc.\n     * TODO: validate with firefox non runtimeChecks context and also consolidate with wrapToString\n     * @param {*} functionValue\n     * @param {*} realTarget\n     * @returns {Proxy} a proxy for the function\n     */\n    function wrapFunction (functionValue, realTarget) {\n        return new Proxy(realTarget, {\n            get (target, prop, receiver) {\n                if (prop === 'toString') {\n                    const method = Reflect.get(target, prop, receiver).bind(target);\n                    Object.defineProperty(method, 'toString', {\n                        value: functionToString.bind(functionToString),\n                        enumerable: false\n                    });\n                    return method\n                }\n                return Reflect.get(target, prop, receiver)\n            },\n            apply (target, thisArg, argumentsList) {\n                // This is where we call our real function\n                return Reflect.apply(functionValue, thisArg, argumentsList)\n            }\n        })\n    }\n\n    /* global cloneInto, exportFunction, false */\n\n    // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox\n    // eslint-disable-next-line no-global-assign\n    let globalObj = typeof window === 'undefined' ? globalThis : window;\n    let Error$1 = globalObj.Error;\n\n    const taintSymbol = Symbol('taint');\n    typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);\n\n    /**\n     * @returns {HTMLElement} the element to inject the script into\n     */\n    function getInjectionElement () {\n        return document.head || document.documentElement\n    }\n\n    /**\n     * Creates a script element with the given code to avoid Firefox CSP restrictions.\n     * @param {string} css\n     * @returns {HTMLLinkElement | HTMLStyleElement}\n     */\n    function createStyleElement (css) {\n        let style;\n        {\n            style = document.createElement('style');\n            style.innerText = css;\n        }\n        return style\n    }\n\n    /**\n     * Injects a script into the page, avoiding CSP restrictions if possible.\n     */\n    function injectGlobalStyles (css) {\n        const style = createStyleElement(css);\n        getInjectionElement().appendChild(style);\n    }\n\n    const exemptionLists = {};\n    function shouldExemptUrl (type, url) {\n        for (const regex of exemptionLists[type]) {\n            if (regex.test(url)) {\n                return true\n            }\n        }\n        return false\n    }\n\n    /**\n     * Best guess effort if the document is being framed\n     * @returns {boolean} if we infer the document is framed\n     */\n    function isBeingFramed () {\n        if ('ancestorOrigins' in globalThis.location) {\n            return globalThis.location.ancestorOrigins.length > 0\n        }\n        return globalThis.top !== globalThis.window\n    }\n\n    /**\n     * Best guess effort of the tabs hostname; where possible always prefer the args.site.domain\n     * @returns {string|null} inferred tab hostname\n     */\n    function getTabHostname () {\n        let framingOrigin = null;\n        try {\n            // @ts-expect-error - globalThis.top is possibly 'null' here\n            framingOrigin = globalThis.top.location.href;\n        } catch {\n            framingOrigin = globalThis.document.referrer;\n        }\n\n        // Not supported in Firefox\n        if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {\n            // ancestorOrigins is reverse order, with the last item being the top frame\n            framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);\n        }\n\n        try {\n            // @ts-expect-error - framingOrigin is possibly 'null' here\n            framingOrigin = new URL(framingOrigin).hostname;\n        } catch {\n            framingOrigin = null;\n        }\n        return framingOrigin\n    }\n\n    /**\n     * Returns true if hostname is a subset of exceptionDomain or an exact match.\n     * @param {string} hostname\n     * @param {string} exceptionDomain\n     * @returns {boolean}\n     */\n    function matchHostname (hostname, exceptionDomain) {\n        return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)\n    }\n\n    const lineTest = /(\\()?(https?:[^)]+):[0-9]+:[0-9]+(\\))?/;\n    function getStackTraceUrls (stack) {\n        const urls = new Set$1();\n        try {\n            const errorLines = stack.split('\\n');\n            // Should cater for Chrome and Firefox stacks, we only care about https? resources.\n            for (const line of errorLines) {\n                const res = line.match(lineTest);\n                if (res) {\n                    urls.add(new URL(res[2], location.href));\n                }\n            }\n        } catch (e) {\n            // Fall through\n        }\n        return urls\n    }\n\n    function getStackTraceOrigins (stack) {\n        const urls = getStackTraceUrls(stack);\n        const origins = new Set$1();\n        for (const url of urls) {\n            origins.add(url.hostname);\n        }\n        return origins\n    }\n\n    // Checks the stack trace if there are known libraries that are broken.\n    function shouldExemptMethod (type) {\n        // Short circuit stack tracing if we don't have checks\n        if (!(type in exemptionLists) || exemptionLists[type].length === 0) {\n            return false\n        }\n        const stack = getStack();\n        const errorFiles = getStackTraceUrls(stack);\n        for (const path of errorFiles) {\n            if (shouldExemptUrl(type, path.href)) {\n                return true\n            }\n        }\n        return false\n    }\n\n    function camelcase (dashCaseText) {\n        return dashCaseText.replace(/-(.)/g, (match, letter) => {\n            return letter.toUpperCase()\n        })\n    }\n\n    // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections\n    function isAppleSilicon () {\n        const canvas = document.createElement('canvas');\n        const gl = canvas.getContext('webgl');\n\n        // Best guess if the device is an Apple Silicon\n        // https://stackoverflow.com/a/65412357\n        // @ts-expect-error - Object is possibly 'null'\n        return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1\n    }\n\n    /**\n     * Take configSeting which should be an array of possible values.\n     * If a value contains a criteria that is a match for this environment then return that value.\n     * Otherwise return the first value that doesn't have a criteria.\n     *\n     * @param {*[]} configSetting - Config setting which should contain a list of possible values\n     * @returns {*|undefined} - The value from the list that best matches the criteria in the config\n     */\n    function processAttrByCriteria (configSetting) {\n        let bestOption;\n        for (const item of configSetting) {\n            if (item.criteria) {\n                if (item.criteria.arch === 'AppleSilicon' && isAppleSilicon()) {\n                    bestOption = item;\n                    break\n                }\n            } else {\n                bestOption = item;\n            }\n        }\n\n        return bestOption\n    }\n\n    const functionMap = {\n        /** Useful for debugging APIs in the wild, shouldn't be used */\n        debug: (...args) => {\n            console.log('debugger', ...args);\n            // eslint-disable-next-line no-debugger\n            debugger\n        },\n        // eslint-disable-next-line @typescript-eslint/no-empty-function\n        noop: () => { }\n    };\n\n    /**\n     * Processes a structured config setting and returns the value according to its type\n     * @param {*} configSetting\n     * @param {*} [defaultValue]\n     * @returns\n     */\n    function processAttr (configSetting, defaultValue) {\n        if (configSetting === undefined) {\n            return defaultValue\n        }\n\n        const configSettingType = typeof configSetting;\n        switch (configSettingType) {\n        case 'object':\n            if (Array.isArray(configSetting)) {\n                configSetting = processAttrByCriteria(configSetting);\n                if (configSetting === undefined) {\n                    return defaultValue\n                }\n            }\n\n            if (!configSetting.type) {\n                return defaultValue\n            }\n\n            if (configSetting.type === 'function') {\n                if (configSetting.functionName && functionMap[configSetting.functionName]) {\n                    return functionMap[configSetting.functionName]\n                }\n            }\n\n            if (configSetting.type === 'undefined') {\n                return undefined\n            }\n\n            return configSetting.value\n        default:\n            return defaultValue\n        }\n    }\n\n    function getStack () {\n        return new Error$1().stack\n    }\n\n    function getContextId (scope) {\n        if (document?.currentScript && 'contextID' in document.currentScript) {\n            return document.currentScript.contextID\n        }\n        if (scope.contextID) {\n            return scope.contextID\n        }\n        // @ts-expect-error - contextID is a global variable\n        if (typeof contextID !== 'undefined') {\n            // @ts-expect-error - contextID is a global variable\n            // eslint-disable-next-line no-undef\n            return contextID\n        }\n    }\n\n    /**\n     * Returns a set of origins that are tainted\n     * @returns {Set<string> | null}\n     */\n    function taintedOrigins () {\n        return getGlobalObject('taintedOrigins')\n    }\n\n    /**\n     * @param {string} name\n     * @returns {any | null}\n     */\n    function getGlobalObject (name) {\n        if ('duckduckgo' in navigator &&\n            typeof navigator.duckduckgo === 'object' &&\n            navigator.duckduckgo &&\n            name in navigator.duckduckgo &&\n            navigator.duckduckgo[name]) {\n            return navigator.duckduckgo[name]\n        }\n        return null\n    }\n\n    function hasTaintedMethod (scope, shouldStackCheck = false) {\n        if (document?.currentScript?.[taintSymbol]) return true\n        if ('__ddg_taint__' in window) return true\n        if (getContextId(scope)) return true\n        if (!shouldStackCheck || !taintedOrigins()) {\n            return false\n        }\n        const currentTaintedOrigins = taintedOrigins();\n        if (!currentTaintedOrigins || currentTaintedOrigins.size === 0) {\n            return false\n        }\n        const stackOrigins = getStackTraceOrigins(getStack());\n        for (const stackOrigin of stackOrigins) {\n            if (currentTaintedOrigins.has(stackOrigin)) {\n                return true\n            }\n        }\n        return false\n    }\n\n    /**\n     * @template {object} P\n     * @typedef {object} ProxyObject<P>\n     * @property {(target?: object, thisArg?: P, args?: object) => void} apply\n     */\n\n    /**\n     * @template [P=object]\n     */\n    class DDGProxy {\n        /**\n         * @param {string} featureName\n         * @param {P} objectScope\n         * @param {string} property\n         * @param {ProxyObject<P>} proxyObject\n         */\n        constructor (featureName, objectScope, property, proxyObject, taintCheck = false) {\n            this.objectScope = objectScope;\n            this.property = property;\n            this.featureName = featureName;\n            this.camelFeatureName = camelcase(this.featureName);\n            const outputHandler = (...args) => {\n                let isExempt = shouldExemptMethod(this.camelFeatureName);\n                // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't\n                if (!isExempt && taintCheck) {\n                    // eslint-disable-next-line @typescript-eslint/no-this-alias\n                    let scope = this;\n                    try {\n                        // @ts-expect-error - Caller doesn't match this\n                        // eslint-disable-next-line no-caller\n                        scope = arguments.callee.caller;\n                    } catch {}\n                    const isTainted = hasTaintedMethod(scope);\n                    isExempt = !isTainted;\n                }\n                // The normal return value\n                if (isExempt) {\n                    return DDGReflect.apply(...args)\n                }\n                return proxyObject.apply(...args)\n            };\n            const getMethod = (target, prop, receiver) => {\n                if (prop === 'toString') {\n                    const method = Reflect.get(target, prop, receiver).bind(target);\n                    Object.defineProperty(method, 'toString', {\n                        value: String.toString.bind(String.toString),\n                        enumerable: false\n                    });\n                    return method\n                }\n                return DDGReflect.get(target, prop, receiver)\n            };\n            {\n                this._native = objectScope[property];\n                const handler = {};\n                handler.apply = outputHandler;\n                handler.get = getMethod;\n                this.internal = new globalObj.Proxy(objectScope[property], handler);\n            }\n        }\n\n        // Actually apply the proxy to the native property\n        overload () {\n            {\n                this.objectScope[this.property] = this.internal;\n            }\n        }\n\n        overloadDescriptor () {\n            defineProperty(this.objectScope, this.property, {\n                value: this.internal\n            });\n        }\n    }\n\n    function postDebugMessage (feature, message) {\n        if (message.stack) {\n            const scriptOrigins = [...getStackTraceOrigins(message.stack)];\n            message.scriptOrigins = scriptOrigins;\n        }\n        globalObj.postMessage({\n            action: feature,\n            message\n        });\n    }\n\n    let DDGReflect;\n\n    // Exports for usage where we have to cross the xray boundary: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts\n    {\n        DDGReflect = globalObj.Reflect;\n    }\n\n    /**\n     * @param {string | null} topLevelHostname\n     * @param {object[]} featureList\n     * @returns {boolean}\n     */\n    function isUnprotectedDomain (topLevelHostname, featureList) {\n        let unprotectedDomain = false;\n        if (!topLevelHostname) {\n            return false\n        }\n        const domainParts = topLevelHostname.split('.');\n\n        // walk up the domain to see if it's unprotected\n        while (domainParts.length > 1 && !unprotectedDomain) {\n            const partialDomain = domainParts.join('.');\n\n            unprotectedDomain = featureList.filter(domain => domain.domain === partialDomain).length > 0;\n\n            domainParts.shift();\n        }\n\n        return unprotectedDomain\n    }\n\n    function parseVersionString (versionString) {\n        return versionString.split('.').map(Number)\n    }\n\n    /**\n     * @param {string} minVersionString\n     * @param {string} applicationVersionString\n     * @returns {boolean}\n     */\n    function satisfiesMinVersion (minVersionString, applicationVersionString) {\n        const minVersions = parseVersionString(minVersionString);\n        const currentVersions = parseVersionString(applicationVersionString);\n        const maxLength = Math.max(minVersions.length, currentVersions.length);\n        for (let i = 0; i < maxLength; i++) {\n            const minNumberPart = minVersions[i] || 0;\n            const currentVersionPart = currentVersions[i] || 0;\n            if (currentVersionPart > minNumberPart) {\n                return true\n            }\n            if (currentVersionPart < minNumberPart) {\n                return false\n            }\n        }\n        return true\n    }\n\n    /**\n     * @param {string | number | undefined} minSupportedVersion\n     * @param {string | number | undefined} currentVersion\n     * @returns {boolean}\n     */\n    function isSupportedVersion (minSupportedVersion, currentVersion) {\n        if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {\n            if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {\n                return true\n            }\n        } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {\n            if (minSupportedVersion <= currentVersion) {\n                return true\n            }\n        }\n        return false\n    }\n\n    /**\n     * Retutns a list of enabled features\n     * @param {RemoteConfig} data\n     * @param {string | null} topLevelHostname\n     * @param {Platform['version']} platformVersion\n     * @param {string[]} platformSpecificFeatures\n     * @returns {string[]}\n     */\n    function computeEnabledFeatures (data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {\n        const remoteFeatureNames = Object.keys(data.features);\n        const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter((featureName) => !remoteFeatureNames.includes(featureName));\n        const enabledFeatures = remoteFeatureNames.filter((featureName) => {\n            const feature = data.features[featureName];\n            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion\n            if (feature.minSupportedVersion && platformVersion) {\n                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {\n                    return false\n                }\n            }\n            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions)\n        }).concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config\n        return enabledFeatures\n    }\n\n    /**\n     * Returns the relevant feature settings for the enabled features\n     * @param {RemoteConfig} data\n     * @param {string[]} enabledFeatures\n     * @returns {Record<string, unknown>}\n     */\n    function parseFeatureSettings (data, enabledFeatures) {\n        /** @type {Record<string, unknown>} */\n        const featureSettings = {};\n        const remoteFeatureNames = Object.keys(data.features);\n        remoteFeatureNames.forEach((featureName) => {\n            if (!enabledFeatures.includes(featureName)) {\n                return\n            }\n\n            featureSettings[featureName] = data.features[featureName].settings;\n        });\n        return featureSettings\n    }\n\n    function _typeof$2(obj) { \"@babel/helpers - typeof\"; return _typeof$2 = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof$2(obj); }\n    function isJSONArray(value) {\n      return Array.isArray(value);\n    }\n    function isJSONObject(value) {\n      return value !== null && _typeof$2(value) === 'object' && value.constructor === Object // do not match on classes or Array\n      ;\n    }\n\n    function _typeof$1(obj) { \"@babel/helpers - typeof\"; return _typeof$1 = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof$1(obj); }\n    /**\r\n     * Test deep equality of two JSON values, objects, or arrays\r\n     */ // TODO: write unit tests\n    function isEqual(a, b) {\n      // FIXME: this function will return false for two objects with the same keys\n      //  but different order of keys\n      return JSON.stringify(a) === JSON.stringify(b);\n    }\n\n    /**\r\n     * Get all but the last items from an array\r\n     */\n    // TODO: write unit tests\n    function initial(array) {\n      return array.slice(0, array.length - 1);\n    }\n\n    /**\r\n     * Get the last item from an array\r\n     */\n    // TODO: write unit tests\n    function last(array) {\n      return array[array.length - 1];\n    }\n\n    /**\r\n     * Test whether a value is an Object or an Array (and not a primitive JSON value)\r\n     */\n    // TODO: write unit tests\n    function isObjectOrArray(value) {\n      return _typeof$1(value) === 'object' && value !== null;\n    }\n\n    function _typeof(obj) { \"@babel/helpers - typeof\"; return _typeof = \"function\" == typeof Symbol && \"symbol\" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && \"function\" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; }, _typeof(obj); }\n    function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }\n    function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }\n    function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n    function _toPropertyKey(arg) { var key = _toPrimitive(arg, \"string\"); return _typeof(key) === \"symbol\" ? key : String(key); }\n    function _toPrimitive(input, hint) { if (_typeof(input) !== \"object\" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || \"default\"); if (_typeof(res) !== \"object\") return res; throw new TypeError(\"@@toPrimitive must return a primitive value.\"); } return (hint === \"string\" ? String : Number)(input); }\n\n    /**\n     * Shallow clone of an Object, Array, or value\n     * Symbols are cloned too.\n     */\n    function shallowClone(value) {\n      if (isJSONArray(value)) {\n        // copy array items\n        var copy = value.slice();\n\n        // copy all symbols\n        Object.getOwnPropertySymbols(value).forEach(function (symbol) {\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          copy[symbol] = value[symbol];\n        });\n        return copy;\n      } else if (isJSONObject(value)) {\n        // copy object properties\n        var _copy = _objectSpread({}, value);\n\n        // copy all symbols\n        Object.getOwnPropertySymbols(value).forEach(function (symbol) {\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          _copy[symbol] = value[symbol];\n        });\n        return _copy;\n      } else {\n        return value;\n      }\n    }\n\n    /**\n     * Update a value in an object in an immutable way.\n     * If the value is unchanged, the original object will be returned\n     */\n    function applyProp(object, key, value) {\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      if (object[key] === value) {\n        // return original object unchanged when the new value is identical to the old one\n        return object;\n      } else {\n        var updatedObject = shallowClone(object);\n        // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n        // @ts-ignore\n        updatedObject[key] = value;\n        return updatedObject;\n      }\n    }\n\n    /**\n     * helper function to get a nested property in an object or array\n     *\n     * @return Returns the field when found, or undefined when the path doesn't exist\n     */\n    function getIn(object, path) {\n      var value = object;\n      var i = 0;\n      while (i < path.length) {\n        if (isJSONObject(value)) {\n          value = value[path[i]];\n        } else if (isJSONArray(value)) {\n          value = value[parseInt(path[i])];\n        } else {\n          value = undefined;\n        }\n        i++;\n      }\n      return value;\n    }\n\n    /**\n     * helper function to replace a nested property in an object with a new value\n     * without mutating the object itself.\n     *\n     * @param object\n     * @param path\n     * @param value\n     * @param [createPath=false]\n     *                    If true, `path` will be created when (partly) missing in\n     *                    the object. For correctly creating nested Arrays or\n     *                    Objects, the function relies on `path` containing number\n     *                    in case of array indexes.\n     *                    If false (default), an error will be thrown when the\n     *                    path doesn't exist.\n     * @return Returns a new, updated object or array\n     */\n    function setIn(object, path, value) {\n      var createPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;\n      if (path.length === 0) {\n        return value;\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = setIn(object ? object[key] : undefined, path.slice(1), value, createPath);\n      if (isJSONObject(object) || isJSONArray(object)) {\n        return applyProp(object, key, updatedValue);\n      } else {\n        if (createPath) {\n          var newObject = IS_INTEGER_REGEX.test(key) ? [] : {};\n          // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n          // @ts-ignore\n          newObject[key] = updatedValue;\n          return newObject;\n        } else {\n          throw new Error('Path does not exist');\n        }\n      }\n    }\n    var IS_INTEGER_REGEX = /^\\d+$/;\n\n    /**\n     * helper function to replace a nested property in an object with a new value\n     * without mutating the object itself.\n     *\n     * @return  Returns a new, updated object or array\n     */\n    function updateIn(object, path, callback) {\n      if (path.length === 0) {\n        return callback(object);\n      }\n      if (!isObjectOrArray(object)) {\n        throw new Error('Path doesn\\'t exist');\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = updateIn(object[key], path.slice(1), callback);\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return applyProp(object, key, updatedValue);\n    }\n\n    /**\n     * helper function to delete a nested property in an object\n     * without mutating the object itself.\n     *\n     * @return Returns a new, updated object or array\n     */\n    function deleteIn(object, path) {\n      if (path.length === 0) {\n        return object;\n      }\n      if (!isObjectOrArray(object)) {\n        throw new Error('Path does not exist');\n      }\n      if (path.length === 1) {\n        var _key = path[0];\n        if (!(_key in object)) {\n          // key doesn't exist. return object unchanged\n          return object;\n        } else {\n          var updatedObject = shallowClone(object);\n          if (isJSONArray(updatedObject)) {\n            updatedObject.splice(parseInt(_key), 1);\n          }\n          if (isJSONObject(updatedObject)) {\n            delete updatedObject[_key];\n          }\n          return updatedObject;\n        }\n      }\n      var key = path[0];\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var updatedValue = deleteIn(object[key], path.slice(1));\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return applyProp(object, key, updatedValue);\n    }\n\n    /**\n     * Insert a new item in an array at a specific index.\n     * Example usage:\n     *\n     *     insertAt({arr: [1,2,3]}, ['arr', '2'], 'inserted')  // [1,2,'inserted',3]\n     */\n    function insertAt(document, path, value) {\n      var parentPath = path.slice(0, path.length - 1);\n      var index = path[path.length - 1];\n      return updateIn(document, parentPath, function (items) {\n        if (!Array.isArray(items)) {\n          throw new TypeError('Array expected at path ' + JSON.stringify(parentPath));\n        }\n        var updatedItems = shallowClone(items);\n        updatedItems.splice(parseInt(index), 0, value);\n        return updatedItems;\n      });\n    }\n\n    /**\n     * Test whether a path exists in a JSON object\n     * @return Returns true if the path exists, else returns false\n     */\n    function existsIn(document, path) {\n      if (document === undefined) {\n        return false;\n      }\n      if (path.length === 0) {\n        return true;\n      }\n      if (document === null) {\n        return false;\n      }\n\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return existsIn(document[path[0]], path.slice(1));\n    }\n\n    /**\n     * Parse a JSON Pointer\n     */\n    function parseJSONPointer(pointer) {\n      var path = pointer.split('/');\n      path.shift(); // remove the first empty entry\n\n      return path.map(function (p) {\n        return p.replace(/~1/g, '/').replace(/~0/g, '~');\n      });\n    }\n\n    /**\n     * Compile a JSON Pointer\n     */\n    function compileJSONPointer(path) {\n      return path.map(compileJSONPointerProp).join('');\n    }\n\n    /**\n     * Compile a single path property from a JSONPath\n     */\n    function compileJSONPointerProp(pathProp) {\n      return '/' + String(pathProp).replace(/~/g, '~0').replace(/\\//g, '~1');\n    }\n\n    /**\n     * Apply a patch to a JSON object\n     * The original JSON object will not be changed,\n     * instead, the patch is applied in an immutable way\n     */\n    function immutableJSONPatch(document, operations, options) {\n      var updatedDocument = document;\n      for (var i = 0; i < operations.length; i++) {\n        validateJSONPatchOperation(operations[i]);\n        var operation = operations[i];\n\n        // TODO: test before\n        if (options && options.before) {\n          var result = options.before(updatedDocument, operation);\n          if (result !== undefined) {\n            if (result.document !== undefined) {\n              updatedDocument = result.document;\n            }\n            // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n            // @ts-ignore\n            if (result.json !== undefined) {\n              // TODO: deprecated since v5.0.0. Cleanup this warning some day\n              throw new Error('Deprecation warning: returned object property \".json\" has been renamed to \".document\"');\n            }\n            if (result.operation !== undefined) {\n              operation = result.operation;\n            }\n          }\n        }\n        var previousDocument = updatedDocument;\n        var path = parsePath(updatedDocument, operation.path);\n        if (operation.op === 'add') {\n          updatedDocument = add(updatedDocument, path, operation.value);\n        } else if (operation.op === 'remove') {\n          updatedDocument = remove(updatedDocument, path);\n        } else if (operation.op === 'replace') {\n          updatedDocument = replace(updatedDocument, path, operation.value);\n        } else if (operation.op === 'copy') {\n          updatedDocument = copy(updatedDocument, path, parseFrom(operation.from));\n        } else if (operation.op === 'move') {\n          updatedDocument = move(updatedDocument, path, parseFrom(operation.from));\n        } else if (operation.op === 'test') {\n          test(updatedDocument, path, operation.value);\n        } else {\n          throw new Error('Unknown JSONPatch operation ' + JSON.stringify(operation));\n        }\n\n        // TODO: test after\n        if (options && options.after) {\n          var _result = options.after(updatedDocument, operation, previousDocument);\n          if (_result !== undefined) {\n            updatedDocument = _result;\n          }\n        }\n      }\n      return updatedDocument;\n    }\n\n    /**\n     * Replace an existing item\n     */\n    function replace(document, path, value) {\n      return setIn(document, path, value);\n    }\n\n    /**\n     * Remove an item or property\n     */\n    function remove(document, path) {\n      return deleteIn(document, path);\n    }\n\n    /**\n     * Add an item or property\n     */\n    function add(document, path, value) {\n      if (isArrayItem(document, path)) {\n        return insertAt(document, path, value);\n      } else {\n        return setIn(document, path, value);\n      }\n    }\n\n    /**\n     * Copy a value\n     */\n    function copy(document, path, from) {\n      var value = getIn(document, from);\n      if (isArrayItem(document, path)) {\n        return insertAt(document, path, value);\n      } else {\n        var _value = getIn(document, from);\n        return setIn(document, path, _value);\n      }\n    }\n\n    /**\n     * Move a value\n     */\n    function move(document, path, from) {\n      var value = getIn(document, from);\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      var removedJson = deleteIn(document, from);\n      return isArrayItem(removedJson, path) ? insertAt(removedJson, path, value) : setIn(removedJson, path, value);\n    }\n\n    /**\n     * Test whether the data contains the provided value at the specified path.\n     * Throws an error when the test fails\n     */\n    function test(document, path, value) {\n      if (value === undefined) {\n        throw new Error(\"Test failed: no value provided (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n      if (!existsIn(document, path)) {\n        throw new Error(\"Test failed: path not found (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n      var actualValue = getIn(document, path);\n      if (!isEqual(actualValue, value)) {\n        throw new Error(\"Test failed, value differs (path: \\\"\".concat(compileJSONPointer(path), \"\\\")\"));\n      }\n    }\n    function isArrayItem(document, path) {\n      if (path.length === 0) {\n        return false;\n      }\n      var parent = getIn(document, initial(path));\n      return Array.isArray(parent);\n    }\n\n    /**\n     * Resolve the path index of an array, resolves indexes '-'\n     * @returns Returns the resolved path\n     */\n    function resolvePathIndex(document, path) {\n      if (last(path) !== '-') {\n        return path;\n      }\n      var parentPath = initial(path);\n      var parent = getIn(document, parentPath);\n\n      // eslint-disable-next-line @typescript-eslint/ban-ts-comment\n      // @ts-ignore\n      return parentPath.concat(parent.length);\n    }\n\n    /**\n     * Validate a JSONPatch operation.\n     * Throws an error when there is an issue\n     */\n    function validateJSONPatchOperation(operation) {\n      // TODO: write unit tests\n      var ops = ['add', 'remove', 'replace', 'copy', 'move', 'test'];\n      if (!ops.includes(operation.op)) {\n        throw new Error('Unknown JSONPatch op ' + JSON.stringify(operation.op));\n      }\n      if (typeof operation.path !== 'string') {\n        throw new Error('Required property \"path\" missing or not a string in operation ' + JSON.stringify(operation));\n      }\n      if (operation.op === 'copy' || operation.op === 'move') {\n        if (typeof operation.from !== 'string') {\n          throw new Error('Required property \"from\" missing or not a string in operation ' + JSON.stringify(operation));\n        }\n      }\n    }\n    function parsePath(document, pointer) {\n      return resolvePathIndex(document, parseJSONPointer(pointer));\n    }\n    function parseFrom(fromPointer) {\n      return parseJSONPointer(fromPointer);\n    }\n\n    /**\n     * Performance monitor, holds reference to PerformanceMark instances.\n     */\n    class PerformanceMonitor {\n        constructor () {\n            this.marks = [];\n        }\n\n        /**\n         * Create performance marker\n         * @param {string} name\n         * @returns {PerformanceMark}\n         */\n        mark (name) {\n            const mark = new PerformanceMark(name);\n            this.marks.push(mark);\n            return mark\n        }\n\n        /**\n         * Measure all performance markers\n         */\n        measureAll () {\n            this.marks.forEach((mark) => {\n                mark.measure();\n            });\n        }\n    }\n\n    /**\n     * Tiny wrapper around performance.mark and performance.measure\n     */\n    class PerformanceMark {\n        /**\n         * @param {string} name\n         */\n        constructor (name) {\n            this.name = name;\n            performance.mark(this.name + 'Start');\n        }\n\n        end () {\n            performance.mark(this.name + 'End');\n        }\n\n        measure () {\n            performance.measure(this.name, this.name + 'Start', this.name + 'End');\n        }\n    }\n\n    /**\n     * @module Messaging\n     * @category Libraries\n     * @description\n     *\n     * An abstraction for communications between JavaScript and host platforms.\n     *\n     * 1) First you construct your platform-specific configuration (eg: {@link WebkitMessagingConfig})\n     * 2) Then use that to get an instance of the Messaging utility which allows\n     * you to send and receive data in a unified way\n     * 3) Each platform implements {@link MessagingTransport} along with its own Configuration\n     *     - For example, to learn what configuration is required for Webkit, see: {@link WebkitMessagingConfig}\n     *     - Or, to learn about how messages are sent and received in Webkit, see {@link WebkitMessagingTransport}\n     *\n     * ## Links\n     * Please see the following links for examples\n     *\n     * - Windows: {@link WindowsMessagingConfig}\n     * - Webkit: {@link WebkitMessagingConfig}\n     * - Schema: {@link \"Messaging Schema\"}\n     *\n     */\n\n    /**\n     * Common options/config that are *not* transport specific.\n     */\n    class MessagingContext {\n        /**\n         * @param {object} params\n         * @param {string} params.context\n         * @param {string} params.featureName\n         * @param {\"production\" | \"development\"} params.env\n         * @internal\n         */\n        constructor (params) {\n            this.context = params.context;\n            this.featureName = params.featureName;\n            this.env = params.env;\n        }\n    }\n\n    /**\n     * @typedef {object} AssetConfig\n     * @property {string} regularFontUrl\n     * @property {string} boldFontUrl\n     */\n\n    /**\n     * @typedef {object} Site\n     * @property {string | null} domain\n     * @property {boolean} [isBroken]\n     * @property {boolean} [allowlisted]\n     * @property {string[]} [enabledFeatures]\n     */\n\n    class ContentFeature {\n        /** @type {import('./utils.js').RemoteConfig | undefined} */\n        #bundledConfig\n        /** @type {object | undefined} */\n        #trackerLookup\n        /** @type {boolean | undefined} */\n        #documentOriginIsTracker\n        /** @type {Record<string, unknown> | undefined} */\n        #bundledfeatureSettings\n        /** @type {MessagingContext} */\n        #messagingContext\n\n        /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */\n        #args\n\n        constructor (featureName) {\n            this.name = featureName;\n            this.#args = null;\n            this.monitor = new PerformanceMonitor();\n        }\n\n        get isDebug () {\n            return this.#args?.debug || false\n        }\n\n        /**\n         * @param {import('./utils').Platform} platform\n         */\n        set platform (platform) {\n            this._platform = platform;\n        }\n\n        get platform () {\n            // @ts-expect-error - Type 'Platform | undefined' is not assignable to type 'Platform'\n            return this._platform\n        }\n\n        /**\n         * @type {AssetConfig | undefined}\n         */\n        get assetConfig () {\n            return this.#args?.assets\n        }\n\n        /**\n         * @returns {boolean}\n         */\n        get documentOriginIsTracker () {\n            return !!this.#documentOriginIsTracker\n        }\n\n        /**\n         * @returns {object}\n         **/\n        get trackerLookup () {\n            return this.#trackerLookup || {}\n        }\n\n        /**\n         * @returns {import('./utils.js').RemoteConfig | undefined}\n         **/\n        get bundledConfig () {\n            return this.#bundledConfig\n        }\n\n        /**\n         * @returns {MessagingContext}\n         */\n        get messagingContext () {\n            if (this.#messagingContext) return this.#messagingContext\n            this.#messagingContext = new MessagingContext({\n                context: 'contentScopeScripts',\n                featureName: this.name,\n                env: this.isDebug ? 'development' : 'production'\n            });\n            return this.#messagingContext\n        }\n\n        /**\n         * Get the value of a config setting.\n         * If the value is not set, return the default value.\n         * If the value is not an object, return the value.\n         * If the value is an object, check its type property.\n         * @param {string} attrName\n         * @param {any} defaultValue - The default value to use if the config setting is not set\n         * @returns The value of the config setting or the default value\n         */\n        getFeatureAttr (attrName, defaultValue) {\n            const configSetting = this.getFeatureSetting(attrName);\n            return processAttr(configSetting, defaultValue)\n        }\n\n        /**\n         * Return a specific setting from the feature settings\n         * @param {string} featureKeyName\n         * @param {string} [featureName]\n         * @returns {any}\n         */\n        getFeatureSetting (featureKeyName, featureName) {\n            let result = this._getFeatureSettings(featureName);\n            if (featureKeyName === 'domains') {\n                throw new Error('domains is a reserved feature setting key name')\n            }\n            const domainMatch = [...this.matchDomainFeatureSetting('domains')].sort((a, b) => {\n                return a.domain.length - b.domain.length\n            });\n            for (const match of domainMatch) {\n                if (match.patchSettings === undefined) {\n                    continue\n                }\n                try {\n                    result = immutableJSONPatch(result, match.patchSettings);\n                } catch (e) {\n                    console.error('Error applying patch settings', e);\n                }\n            }\n            return result?.[featureKeyName]\n        }\n\n        /**\n         * Return the settings object for a feature\n         * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature\n         * @returns {any}\n         */\n        _getFeatureSettings (featureName) {\n            const camelFeatureName = featureName || camelcase(this.name);\n            return this.#args?.featureSettings?.[camelFeatureName]\n        }\n\n        /**\n         * For simple boolean settings, return true if the setting is 'enabled'\n         * @param {string} featureKeyName\n         * @param {string} [featureName]\n         * @returns {boolean}\n         */\n        getFeatureSettingEnabled (featureKeyName, featureName) {\n            const result = this.getFeatureSetting(featureKeyName, featureName);\n            return result === 'enabled'\n        }\n\n        /**\n         * Given a config key, interpret the value as a list of domain overrides, and return the elements that match the current page\n         * @param {string} featureKeyName\n         * @return {any[]}\n         */\n        matchDomainFeatureSetting (featureKeyName) {\n            const domain = this.#args?.site.domain;\n            if (!domain) return []\n            const domains = this._getFeatureSettings()?.[featureKeyName] || [];\n            return domains.filter((rule) => {\n                if (Array.isArray(rule.domain)) {\n                    return rule.domain.some((domainRule) => {\n                        return matchHostname(domain, domainRule)\n                    })\n                }\n                return matchHostname(domain, rule.domain)\n            })\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function\n        init (args) {\n        }\n\n        callInit (args) {\n            const mark = this.monitor.mark(this.name + 'CallInit');\n            this.#args = args;\n            this.platform = args.platform;\n            this.init(args);\n            mark.end();\n            this.measure();\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function\n        load (args) {\n        }\n\n        /**\n         * @param {import('./content-scope-features.js').LoadArgs} args\n         */\n        callLoad (args) {\n            const mark = this.monitor.mark(this.name + 'CallLoad');\n            this.#args = args;\n            this.platform = args.platform;\n            this.#bundledConfig = args.bundledConfig;\n            // If we have a bundled config, treat it as a regular config\n            // This will be overriden by the remote config if it is available\n            if (this.#bundledConfig && this.#args) {\n                const enabledFeatures = computeEnabledFeatures(args.bundledConfig, args.site.domain, this.platform.version);\n                this.#args.featureSettings = parseFeatureSettings(args.bundledConfig, enabledFeatures);\n            }\n            this.#trackerLookup = args.trackerLookup;\n            this.#documentOriginIsTracker = args.documentOriginIsTracker;\n            this.load(args);\n            mark.end();\n        }\n\n        measure () {\n            if (this.#args?.debug) {\n                this.monitor.measureAll();\n            }\n        }\n\n        // eslint-disable-next-line @typescript-eslint/no-empty-function\n        update () {\n        }\n    }\n\n    function generateUniqueID () {\n        return Symbol(undefined)\n    }\n\n    function addTaint () {\n        const contextID = generateUniqueID();\n        if ('duckduckgo' in navigator &&\n            navigator.duckduckgo &&\n            typeof navigator.duckduckgo === 'object' &&\n            'taints' in navigator.duckduckgo &&\n            navigator.duckduckgo.taints instanceof Set) {\n            if (document.currentScript) {\n                // @ts-expect-error - contextID is undefined on currentScript\n                document.currentScript.contextID = contextID;\n            }\n            navigator?.duckduckgo?.taints.add(contextID);\n        }\n        return contextID\n    }\n\n    function createContextAwareFunction (fn) {\n        return function (...args) {\n            // eslint-disable-next-line @typescript-eslint/no-this-alias\n            let scope = this;\n            // Save the previous contextID and set the new one\n            const prevContextID = this?.contextID;\n            // @ts-expect-error - contextID is undefined on window\n            // eslint-disable-next-line no-undef\n            const changeToContextID = getContextId(this) || contextID;\n            if (typeof args[0] === 'function') {\n                args[0].contextID = changeToContextID;\n            }\n            // @ts-expect-error - scope doesn't match window\n            if (scope && scope !== globalThis) {\n                scope.contextID = changeToContextID;\n            } else if (!scope) {\n                scope = new Proxy(scope, {\n                    get (target, prop) {\n                        if (prop === 'contextID') {\n                            return changeToContextID\n                        }\n                        return Reflect.get(target, prop)\n                    }\n                });\n            }\n            // Run the original function with the new contextID\n            const result = Reflect.apply(fn, scope, args);\n\n            // Restore the previous contextID\n            scope.contextID = prevContextID;\n\n            return result\n        }\n    }\n\n    /**\n     * Indent a code block using braces\n     * @param {string} string\n     * @returns {string}\n     */\n    function removeIndent (string) {\n        const lines = string.split('\\n');\n        const indentSize = 2;\n        let currentIndent = 0;\n        const indentedLines = lines.map((line) => {\n            if (line.trim().startsWith('}')) {\n                currentIndent -= indentSize;\n            }\n            const indentedLine = ' '.repeat(currentIndent) + line.trim();\n            if (line.trim().endsWith('{')) {\n                currentIndent += indentSize;\n            }\n\n            return indentedLine\n        });\n        return indentedLines.filter(a => a.trim()).join('\\n')\n    }\n\n    const lookup = {};\n    function getOrGenerateIdentifier (path) {\n        if (!(path in lookup)) {\n            lookup[path] = generateAlphaIdentifier(Object.keys(lookup).length + 1);\n        }\n        return lookup[path]\n    }\n\n    function generateAlphaIdentifier (num) {\n        if (num < 1) {\n            throw new Error('Input must be a positive integer')\n        }\n        const charCodeOffset = 97;\n        let identifier = '';\n        while (num > 0) {\n            num--;\n            const remainder = num % 26;\n            const charCode = remainder + charCodeOffset;\n            identifier = String.fromCharCode(charCode) + identifier;\n            num = Math.floor(num / 26);\n        }\n        return '_ddg_' + identifier\n    }\n\n    /**\n     * @param {*} scope\n     * @param {Record<string, any>} outputs\n     * @returns {Proxy}\n     */\n    function constructProxy (scope, outputs) {\n        const taintString = '__ddg_taint__';\n        // @ts-expect-error - Expected 2 arguments, but got 1\n        if (Object.is(scope)) {\n            // Should not happen, but just in case fail safely\n            console.error('Runtime checks: Scope must be an object', scope, outputs);\n            return scope\n        }\n        return new Proxy(scope, {\n            get (target, property) {\n                const targetObj = target[property];\n                let targetOut = target;\n                if (typeof property === 'string' && property in outputs) {\n                    targetOut = outputs;\n                }\n                // Reflects functions with the correct 'this' scope\n                if (typeof targetObj === 'function') {\n                    return (...args) => {\n                        return Reflect.apply(targetOut[property], target, args)\n                    }\n                } else {\n                    return Reflect.get(targetOut, property, scope)\n                }\n            },\n            getOwnPropertyDescriptor (target, property) {\n                if (typeof property === 'string' && property === taintString) {\n                    return { configurable: true, enumerable: false, value: true }\n                }\n                return Reflect.getOwnPropertyDescriptor(target, property)\n            }\n        })\n    }\n\n    function valToString (val) {\n        if (typeof val === 'function') {\n            return val.toString()\n        }\n        return JSON.stringify(val)\n    }\n\n    /**\n     * Output scope variable definitions to arbitrary depth\n     */\n    function stringifyScope (scope, scopePath) {\n        let output = '';\n        for (const [key, value] of scope) {\n            const varOutName = getOrGenerateIdentifier([...scopePath, key]);\n            if (value instanceof Map) {\n                const proxyName = getOrGenerateIdentifier(['_proxyFor_', varOutName]);\n                output += `\n            let ${proxyName} = ${scopePath.join('?.')}?.${key} ? ${scopePath.join('.')}.${key} : Object.bind(null);\n            `;\n                const keys = Array.from(value.keys());\n                output += stringifyScope(value, [...scopePath, key]);\n                const proxyOut = keys.map((keyName) => `${keyName}: ${getOrGenerateIdentifier([...scopePath, key, keyName])}`);\n                output += `\n            let ${varOutName} = constructProxy(${proxyName}, {\n                ${proxyOut.join(',\\n')}\n            });\n            `;\n                // If we're at the top level, we need to add the window and globalThis variables (Eg: let navigator = parentScope_navigator)\n                if (scopePath.length === 1) {\n                    output += `\n                let ${key} = ${varOutName};\n                `;\n                }\n            } else {\n                output += `\n            let ${varOutName} = ${valToString(value)};\n            `;\n            }\n        }\n        return output\n    }\n\n    /**\n     * Code generates wrapping variables for code that is injected into the page\n     * @param {*} code\n     * @param {*} config\n     * @returns {string}\n     */\n    function wrapScriptCodeOverload (code, config) {\n        const processedConfig = {};\n        for (const [key, value] of Object.entries(config)) {\n            processedConfig[key] = processAttr(value);\n        }\n        // Don't do anything if the config is empty\n        if (Object.keys(processedConfig).length === 0) return code\n\n        let prepend = '';\n        const aggregatedLookup = new Map();\n        let currentScope = null;\n        /* Convert the config into a map of scopePath -> { key: value } */\n        for (const [key, value] of Object.entries(processedConfig)) {\n            const path = key.split('.');\n\n            currentScope = aggregatedLookup;\n            const pathOut = path[path.length - 1];\n            // Traverse the path and create the nested objects\n            path.slice(0, -1).forEach((pathPart) => {\n                if (!currentScope.has(pathPart)) {\n                    currentScope.set(pathPart, new Map());\n                }\n                currentScope = currentScope.get(pathPart);\n            });\n            currentScope.set(pathOut, value);\n        }\n\n        prepend += stringifyScope(aggregatedLookup, ['parentScope']);\n        // Stringify top level keys\n        const keysOut = [...aggregatedLookup.keys()].map((keyName) => `${keyName}: ${getOrGenerateIdentifier(['parentScope', keyName])}`).join(',\\n');\n        prepend += `\n    const window = constructProxy(parentScope, {\n        ${keysOut}\n    });\n    // Ensure globalThis === window\n    const globalThis = window\n    `;\n        return removeIndent(`(function (parentScope) {\n        /**\n         * DuckDuckGo Runtime Checks injected code.\n         * If you're reading this, you're probably trying to debug a site that is breaking due to our runtime checks.\n         * Please raise an issues on our GitHub repo: https://github.com/duckduckgo/content-scope-scripts/\n         */\n        ${constructProxy.toString()}\n        ${prepend}\n\n        ${getContextId.toString()}\n        ${generateUniqueID.toString()}\n        ${createContextAwareFunction.toString()}\n        ${addTaint.toString()}\n        const contextID = addTaint()\n        \n        const originalSetTimeout = setTimeout\n        setTimeout = createContextAwareFunction(originalSetTimeout)\n        \n        const originalSetInterval = setInterval\n        setInterval = createContextAwareFunction(originalSetInterval)\n        \n        const originalPromiseThen = Promise.prototype.then\n        Promise.prototype.then = createContextAwareFunction(originalPromiseThen)\n        \n        const originalPromiseCatch = Promise.prototype.catch\n        Promise.prototype.catch = createContextAwareFunction(originalPromiseCatch)\n        \n        const originalPromiseFinally = Promise.prototype.finally\n        Promise.prototype.finally = createContextAwareFunction(originalPromiseFinally)\n\n        ${code}\n    })(globalThis)\n    `)\n    }\n\n    /**\n     * @typedef {object} Sizing\n     * @property {number} height\n     * @property {number} width\n     */\n\n    /**\n     * @param {Sizing[]} breakpoints\n     * @param {Sizing} screenSize\n     * @returns { Sizing | null}\n     */\n    function findClosestBreakpoint (breakpoints, screenSize) {\n        let closestBreakpoint = null;\n        let closestDistance = Infinity;\n\n        for (let i = 0; i < breakpoints.length; i++) {\n            const breakpoint = breakpoints[i];\n            const distance = Math.sqrt(Math.pow(breakpoint.height - screenSize.height, 2) + Math.pow(breakpoint.width - screenSize.width, 2));\n\n            if (distance < closestDistance) {\n                closestBreakpoint = breakpoint;\n                closestDistance = distance;\n            }\n        }\n\n        return closestBreakpoint\n    }\n\n    /* global TrustedScriptURL, TrustedScript */\n\n\n    let stackDomains = [];\n    let matchAllStackDomains = false;\n    let taintCheck = false;\n    let initialCreateElement;\n    let tagModifiers = {};\n    let shadowDomEnabled = false;\n    let scriptOverload = {};\n    let replaceElement = false;\n    let monitorProperties = true;\n    // Ignore monitoring properties that are only relevant once and already handled\n    const defaultIgnoreMonitorList = ['onerror', 'onload'];\n    let ignoreMonitorList = defaultIgnoreMonitorList;\n\n    /**\n     * @param {string} tagName\n     * @param {'property' | 'attribute' | 'handler' | 'listener'} filterName\n     * @param {string} key\n     * @returns {boolean}\n     */\n    function shouldFilterKey (tagName, filterName, key) {\n        if (filterName === 'attribute') {\n            key = key.toLowerCase();\n        }\n        return tagModifiers?.[tagName]?.filters?.[filterName]?.includes(key)\n    }\n\n    let elementRemovalTimeout;\n    const featureName = 'runtimeChecks';\n    const supportedSinks = ['src'];\n    // Store the original methods so we can call them without any side effects\n    const defaultElementMethods = {\n        setAttribute: HTMLElement.prototype.setAttribute,\n        setAttributeNS: HTMLElement.prototype.setAttributeNS,\n        getAttribute: HTMLElement.prototype.getAttribute,\n        getAttributeNS: HTMLElement.prototype.getAttributeNS,\n        removeAttribute: HTMLElement.prototype.removeAttribute,\n        remove: HTMLElement.prototype.remove,\n        removeChild: HTMLElement.prototype.removeChild\n    };\n    const supportedTrustedTypes = 'TrustedScriptURL' in window;\n\n    const jsMimeTypes = [\n        'text/javascript',\n        'text/ecmascript',\n        'application/javascript',\n        'application/ecmascript',\n        'application/x-javascript',\n        'application/x-ecmascript',\n        'text/javascript1.0',\n        'text/javascript1.1',\n        'text/javascript1.2',\n        'text/javascript1.3',\n        'text/javascript1.4',\n        'text/javascript1.5',\n        'text/jscript',\n        'text/livescript',\n        'text/x-ecmascript',\n        'text/x-javascript'\n    ];\n\n    function getTaintFromScope (scope, args, shouldStackCheck = false) {\n        try {\n            scope = args.callee.caller;\n        } catch {}\n        return hasTaintedMethod(scope, shouldStackCheck)\n    }\n\n    class DDGRuntimeChecks extends HTMLElement {\n        #tagName\n        #el\n        #listeners\n        #connected\n        #sinks\n        #debug\n\n        constructor () {\n            super();\n            this.#tagName = null;\n            this.#el = null;\n            this.#listeners = [];\n            this.#connected = false;\n            this.#sinks = {};\n            this.#debug = false;\n            if (shadowDomEnabled) {\n                const shadow = this.attachShadow({ mode: 'open' });\n                const style = createStyleElement(`\n                :host {\n                    display: none;\n                }\n            `);\n                shadow.appendChild(style);\n            }\n        }\n\n        /**\n         * This method is called once and externally so has to remain public.\n         **/\n        setTagName (tagName, debug = false) {\n            this.#tagName = tagName;\n            this.#debug = debug;\n\n            // Clear the method so it can't be called again\n            // @ts-expect-error - error TS2790: The operand of a 'delete' operator must be optional.\n            delete this.setTagName;\n        }\n\n        connectedCallback () {\n            // Solves re-entrancy issues from React\n            if (this.#connected) return\n            this.#connected = true;\n            if (!this._transplantElement) {\n                // Restore the 'this' object with the DDGRuntimeChecks prototype as sometimes pages will overwrite it.\n                Object.setPrototypeOf(this, DDGRuntimeChecks.prototype);\n            }\n            this._transplantElement();\n        }\n\n        _monitorProperties (el) {\n            // Mutation oberver and observedAttributes don't work on property accessors\n            // So instead we need to monitor all properties on the prototypes and forward them to the real element\n            let propertyNames = [];\n            let proto = Object.getPrototypeOf(el);\n            while (proto && proto !== Object.prototype) {\n                propertyNames.push(...Object.getOwnPropertyNames(proto));\n                proto = Object.getPrototypeOf(proto);\n            }\n            const classMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this));\n            // Filter away the methods we don't want to monitor from our own class\n            propertyNames = propertyNames.filter(prop => !classMethods.includes(prop));\n            propertyNames.forEach(prop => {\n                if (prop === 'constructor') return\n                // May throw, but this is best effort monitoring.\n                try {\n                    Object.defineProperty(this, prop, {\n                        get () {\n                            return el[prop]\n                        },\n                        set (value) {\n                            if (shouldFilterKey(this.#tagName, 'property', prop)) return\n                            if (ignoreMonitorList.includes(prop)) return\n                            el[prop] = value;\n                        }\n                    });\n                } catch { }\n            });\n        }\n\n        computeScriptOverload (el) {\n            // Short circuit if we don't have any script text\n            if (el.textContent === '') return\n            // Short circuit if we're in a trusted script environment\n            // @ts-expect-error TrustedScript is not defined in the TS lib\n            if (supportedTrustedTypes && el.textContent instanceof TrustedScript) return\n\n            // Short circuit if not a script type\n            const scriptType = el.type.toLowerCase();\n            if (!jsMimeTypes.includes(scriptType) &&\n                scriptType !== 'module' &&\n                scriptType !== '') return\n\n            el.textContent = wrapScriptCodeOverload(el.textContent, scriptOverload);\n        }\n\n        /**\n         * The element has been moved to the DOM, so we can now reflect all changes to a real element.\n         * This is to allow us to interrogate the real element before it is moved to the DOM.\n         */\n        _transplantElement () {\n            // Create the real element\n            const el = initialCreateElement.call(document, this.#tagName);\n            if (taintCheck) {\n                // Add a symbol to the element so we can identify it as a runtime checked element\n                Object.defineProperty(el, taintSymbol, { value: true, configurable: false, enumerable: false, writable: false });\n                // Only show this attribute whilst debugging\n                if (this.#debug) {\n                    el.setAttribute('data-ddg-runtime-checks', 'true');\n                }\n                try {\n                    const origin = this.src && new URL(this.src, window.location.href).hostname;\n                    if (origin && taintedOrigins() && getTabHostname() !== origin) {\n                        taintedOrigins()?.add(origin);\n                    }\n                } catch {}\n            }\n\n            // Reflect all attrs to the new element\n            for (const attribute of this.getAttributeNames()) {\n                if (shouldFilterKey(this.#tagName, 'attribute', attribute)) continue\n                defaultElementMethods.setAttribute.call(el, attribute, this.getAttribute(attribute));\n            }\n\n            // Reflect all props to the new element\n            const props = Object.keys(this);\n\n            // Nonce isn't enumerable so we need to add it manually\n            props.push('nonce');\n\n            for (const prop of props) {\n                if (shouldFilterKey(this.#tagName, 'property', prop)) continue\n                el[prop] = this[prop];\n            }\n\n            for (const sink of supportedSinks) {\n                if (this.#sinks[sink]) {\n                    el[sink] = this.#sinks[sink];\n                }\n            }\n\n            // Reflect all listeners to the new element\n            for (const [...args] of this.#listeners) {\n                if (shouldFilterKey(this.#tagName, 'listener', args[0])) continue\n                el.addEventListener(...args);\n            }\n            this.#listeners = [];\n\n            // Reflect all 'on' event handlers to the new element\n            for (const propName in this) {\n                if (propName.startsWith('on')) {\n                    if (shouldFilterKey(this.#tagName, 'handler', propName)) continue\n                    const prop = this[propName];\n                    if (typeof prop === 'function') {\n                        el[propName] = prop;\n                    }\n                }\n            }\n\n            // Move all children to the new element\n            while (this.firstChild) {\n                el.appendChild(this.firstChild);\n            }\n\n            if (this.#tagName === 'script') {\n                this.computeScriptOverload(el);\n            }\n\n            if (replaceElement) {\n                this.replaceElement(el);\n            } else {\n                this.insertAfterAndRemove(el);\n            }\n\n            // TODO pollyfill WeakRef\n            this.#el = new WeakRef(el);\n        }\n\n        replaceElement (el) {\n            // This should be called before this.#el is set\n            // @ts-expect-error - this is wrong node type\n            super.parentElement?.replaceChild(el, this);\n\n            if (monitorProperties) {\n                this._monitorProperties(el);\n            }\n        }\n\n        insertAfterAndRemove (el) {\n            // Move the new element to the DOM\n            try {\n                this.insertAdjacentElement('afterend', el);\n            } catch (e) { console.warn(e); }\n\n            if (monitorProperties) {\n                this._monitorProperties(el);\n            }\n\n            // Delay removal of the custom element so if the script calls removeChild it will still be in the DOM and not throw.\n            setTimeout(() => {\n                try {\n                    super.remove();\n                } catch {}\n            }, elementRemovalTimeout);\n        }\n\n        _getElement () {\n            return this.#el?.deref()\n        }\n\n        /**\n         * Calls a method on the real element if it exists, otherwise calls the method on the DDGRuntimeChecks element.\n         * @template {keyof defaultElementMethods} E\n         * @param {E} method\n         * @param  {...Parameters<defaultElementMethods[E]>} args\n         * @return {ReturnType<defaultElementMethods[E]>}\n         */\n        _callMethod (method, ...args) {\n            const el = this._getElement();\n            if (el) {\n                return defaultElementMethods[method].call(el, ...args)\n            }\n            // @ts-expect-error TS doesn't like the spread operator\n            return super[method](...args)\n        }\n\n        _callSetter (prop, value) {\n            const el = this._getElement();\n            if (el) {\n                el[prop] = value;\n                return\n            }\n            super[prop] = value;\n        }\n\n        _callGetter (prop) {\n            const el = this._getElement();\n            if (el) {\n                return el[prop]\n            }\n            return super[prop]\n        }\n\n        /* Native DOM element methods we're capturing to supplant values into the constructed node or store data for. */\n\n        set src (value) {\n            const el = this._getElement();\n            if (el) {\n                el.src = value;\n                return\n            }\n            this.#sinks.src = value;\n        }\n\n        get src () {\n            const el = this._getElement();\n            if (el) {\n                return el.src\n            }\n            // @ts-expect-error TrustedScriptURL is not defined in the TS lib\n            if (supportedTrustedTypes && this.#sinks.src instanceof TrustedScriptURL) {\n                return this.#sinks.src.toString()\n            }\n            return this.#sinks.src\n        }\n\n        getAttribute (name, value) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                // Use Reflect to avoid infinite recursion\n                return Reflect$1.get(DDGRuntimeChecks.prototype, name, this)\n            }\n            return this._callMethod('getAttribute', name, value)\n        }\n\n        getAttributeNS (namespace, name, value) {\n            if (namespace) {\n                return this._callMethod('getAttributeNS', namespace, name, value)\n            }\n            return Reflect$1.apply(DDGRuntimeChecks.prototype.getAttribute, this, [name, value])\n        }\n\n        setAttribute (name, value) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                // Use Reflect to avoid infinite recursion\n                return Reflect$1.set(DDGRuntimeChecks.prototype, name, value, this)\n            }\n            return this._callMethod('setAttribute', name, value)\n        }\n\n        setAttributeNS (namespace, name, value) {\n            if (namespace) {\n                return this._callMethod('setAttributeNS', namespace, name, value)\n            }\n            return Reflect$1.apply(DDGRuntimeChecks.prototype.setAttribute, this, [name, value])\n        }\n\n        removeAttribute (name) {\n            if (shouldFilterKey(this.#tagName, 'attribute', name)) return\n            if (supportedSinks.includes(name)) {\n                delete this[name];\n                return\n            }\n            return this._callMethod('removeAttribute', name)\n        }\n\n        addEventListener (...args) {\n            if (shouldFilterKey(this.#tagName, 'listener', args[0])) return\n            const el = this._getElement();\n            if (el) {\n                return el.addEventListener(...args)\n            }\n            this.#listeners.push([...args]);\n        }\n\n        removeEventListener (...args) {\n            if (shouldFilterKey(this.#tagName, 'listener', args[0])) return\n            const el = this._getElement();\n            if (el) {\n                return el.removeEventListener(...args)\n            }\n            this.#listeners = this.#listeners.filter((listener) => {\n                return listener[0] !== args[0] || listener[1] !== args[1]\n            });\n        }\n\n        toString () {\n            const interfaceName = this.#tagName.charAt(0).toUpperCase() + this.#tagName.slice(1);\n            return `[object HTML${interfaceName}Element]`\n        }\n\n        get tagName () {\n            return this.#tagName.toUpperCase()\n        }\n\n        get nodeName () {\n            return this.tagName\n        }\n\n        remove () {\n            let returnVal;\n            try {\n                returnVal = this._callMethod('remove');\n                super.remove();\n            } catch {}\n            return returnVal\n        }\n\n        // @ts-expect-error TS node return here\n        removeChild (child) {\n            return this._callMethod('removeChild', child)\n        }\n    }\n\n    /**\n     * Overrides the instanceof checks to make the custom element interface pass an instanceof check\n     * @param {Object} elementInterface\n     */\n    function overloadInstanceOfChecks (elementInterface) {\n        const proxy = new Proxy(elementInterface[Symbol.hasInstance], {\n            apply (fn, scope, args) {\n                if (args[0] instanceof DDGRuntimeChecks) {\n                    return true\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        // May throw, but we can ignore it\n        try {\n            Object.defineProperty(elementInterface, Symbol.hasInstance, {\n                value: proxy\n            });\n        } catch {}\n    }\n\n    /**\n     * Returns true if the tag should be intercepted\n     * @param {string} tagName\n     * @returns {boolean}\n     */\n    function shouldInterrogate (tagName) {\n        const interestingTags = ['script'];\n        if (!interestingTags.includes(tagName)) {\n            return false\n        }\n        if (matchAllStackDomains) {\n            isInterrogatingDebugMessage('matchedAllStackDomain');\n            return true\n        }\n        if (taintCheck && document.currentScript?.[taintSymbol]) {\n            isInterrogatingDebugMessage('taintCheck');\n            return true\n        }\n        const stack = getStack();\n        const scriptOrigins = [...getStackTraceOrigins(stack)];\n        const interestingHost = scriptOrigins.find(origin => {\n            return stackDomains.some(rule => matchHostname(origin, rule.domain))\n        });\n        const isInterestingHost = !!interestingHost;\n        if (isInterestingHost) {\n            isInterrogatingDebugMessage('matchedStackDomain', interestingHost, stack, scriptOrigins);\n        }\n        return isInterestingHost\n    }\n\n    function isInterrogatingDebugMessage (matchType, matchedStackDomain, stack, scriptOrigins) {\n        postDebugMessage('runtimeChecks', {\n            documentUrl: document.location.href,\n            matchedStackDomain,\n            matchType,\n            scriptOrigins,\n            stack\n        });\n    }\n\n    function isRuntimeElement (element) {\n        try {\n            return element instanceof DDGRuntimeChecks\n        } catch {}\n        return false\n    }\n\n    function overloadGetOwnPropertyDescriptor () {\n        const capturedDescriptors = {\n            HTMLScriptElement: Object.getOwnPropertyDescriptors(HTMLScriptElement),\n            HTMLScriptElementPrototype: Object.getOwnPropertyDescriptors(HTMLScriptElement.prototype)\n        };\n        /**\n         * @param {any} value\n         * @returns {string | undefined}\n         */\n        function getInterfaceName (value) {\n            let interfaceName;\n            if (value === HTMLScriptElement) {\n                interfaceName = 'HTMLScriptElement';\n            }\n            if (value === HTMLScriptElement.prototype) {\n                interfaceName = 'HTMLScriptElementPrototype';\n            }\n            return interfaceName\n        }\n        // TODO: Consoldiate with wrapProperty code\n        function getInterfaceDescriptor (interfaceValue, interfaceName, propertyName) {\n            const capturedInterface = capturedDescriptors[interfaceName] && capturedDescriptors[interfaceName][propertyName];\n            const capturedInterfaceOut = { ...capturedInterface };\n            if (capturedInterface.get) {\n                capturedInterfaceOut.get = wrapFunction(function () {\n                    let method = capturedInterface.get;\n                    if (isRuntimeElement(this)) {\n                        method = () => this._callGetter(propertyName);\n                    }\n                    return method.call(this)\n                }, capturedInterface.get);\n            }\n            if (capturedInterface.set) {\n                capturedInterfaceOut.set = wrapFunction(function (value) {\n                    let method = capturedInterface;\n                    if (isRuntimeElement(this)) {\n                        method = (value) => this._callSetter(propertyName, value);\n                    }\n                    return method.call(this, [value])\n                }, capturedInterface.set);\n            }\n            return capturedInterfaceOut\n        }\n        const proxy = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptor', {\n            apply (fn, scope, args) {\n                const interfaceValue = args[0];\n                const interfaceName = getInterfaceName(interfaceValue);\n                const propertyName = args[1];\n                const capturedInterface = capturedDescriptors[interfaceName] && capturedDescriptors[interfaceName][propertyName];\n                if (interfaceName && capturedInterface) {\n                    return getInterfaceDescriptor(interfaceValue, interfaceName, propertyName)\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        proxy.overload();\n        const proxy2 = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptors', {\n            apply (fn, scope, args) {\n                const interfaceValue = args[0];\n                const interfaceName = getInterfaceName(interfaceValue);\n                const capturedInterface = capturedDescriptors[interfaceName];\n                if (interfaceName && capturedInterface) {\n                    const out = {};\n                    for (const propertyName of Object.getOwnPropertyNames(capturedInterface)) {\n                        out[propertyName] = getInterfaceDescriptor(interfaceValue, interfaceName, propertyName);\n                    }\n                    return out\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        proxy2.overload();\n    }\n\n    function overrideCreateElement (debug) {\n        const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {\n            apply (fn, scope, args) {\n                if (args.length >= 1) {\n                    // String() is used to coerce the value to a string (For: ProseMirror/prosemirror-model/src/to_dom.ts)\n                    const initialTagName = String(args[0]).toLowerCase();\n                    if (shouldInterrogate(initialTagName)) {\n                        args[0] = 'ddg-runtime-checks';\n                        const el = Reflect$1.apply(fn, scope, args);\n                        el.setTagName(initialTagName, debug);\n                        return el\n                    }\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        proxy.overload();\n        initialCreateElement = proxy._native;\n    }\n\n    function overloadRemoveChild () {\n        const proxy = new DDGProxy(featureName, Node.prototype, 'removeChild', {\n            apply (fn, scope, args) {\n                const child = args[0];\n                if (child instanceof DDGRuntimeChecks) {\n                    // Should call the real removeChild method if it's already replaced\n                    const realNode = child._getElement();\n                    if (realNode) {\n                        args[0] = realNode;\n                    }\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        proxy.overloadDescriptor();\n    }\n\n    function overloadReplaceChild () {\n        const proxy = new DDGProxy(featureName, Node.prototype, 'replaceChild', {\n            apply (fn, scope, args) {\n                const newChild = args[1];\n                if (newChild instanceof DDGRuntimeChecks) {\n                    const realNode = newChild._getElement();\n                    if (realNode) {\n                        args[1] = realNode;\n                    }\n                }\n                return Reflect$1.apply(fn, scope, args)\n            }\n        });\n        proxy.overloadDescriptor();\n    }\n\n    class RuntimeChecks extends ContentFeature {\n        load () {\n            // This shouldn't happen, but if it does we don't want to break the page\n            try {\n                // @ts-expect-error TS node return here\n                globalThis.customElements.define('ddg-runtime-checks', DDGRuntimeChecks);\n            } catch {}\n        }\n\n        init () {\n            let enabled = this.getFeatureSettingEnabled('matchAllDomains');\n            if (!enabled) {\n                enabled = this.matchDomainFeatureSetting('domains').length > 0;\n            }\n            if (!enabled) return\n\n            taintCheck = this.getFeatureSettingEnabled('taintCheck');\n            matchAllStackDomains = this.getFeatureSettingEnabled('matchAllStackDomains');\n            stackDomains = this.getFeatureSetting('stackDomains') || [];\n            elementRemovalTimeout = this.getFeatureSetting('elementRemovalTimeout') || 1000;\n            tagModifiers = this.getFeatureSetting('tagModifiers') || {};\n            shadowDomEnabled = this.getFeatureSettingEnabled('shadowDom') || false;\n            scriptOverload = this.getFeatureSetting('scriptOverload') || {};\n            ignoreMonitorList = this.getFeatureSetting('ignoreMonitorList') || defaultIgnoreMonitorList;\n            replaceElement = this.getFeatureSettingEnabled('replaceElement') || false;\n            monitorProperties = this.getFeatureSettingEnabled('monitorProperties') || true;\n\n            overrideCreateElement(this.isDebug);\n\n            if (this.getFeatureSettingEnabled('overloadInstanceOf')) {\n                overloadInstanceOfChecks(HTMLScriptElement);\n            }\n\n            if (this.getFeatureSettingEnabled('injectGlobalStyles')) {\n                injectGlobalStyles(`\n                ddg-runtime-checks {\n                    display: none;\n                }\n            `);\n            }\n\n            if (this.getFeatureSetting('injectGenericOverloads')) {\n                this.injectGenericOverloads();\n            }\n            if (this.getFeatureSettingEnabled('overloadRemoveChild')) {\n                overloadRemoveChild();\n            }\n            if (this.getFeatureSettingEnabled('overloadReplaceChild')) {\n                overloadReplaceChild();\n            }\n            if (this.getFeatureSettingEnabled('overloadGetOwnPropertyDescriptor')) {\n                overloadGetOwnPropertyDescriptor();\n            }\n        }\n\n        injectGenericOverloads () {\n            const genericOverloads = this.getFeatureSetting('injectGenericOverloads');\n            if ('Date' in genericOverloads) {\n                this.overloadDate(genericOverloads.Date);\n            }\n            if ('Date.prototype.getTimezoneOffset' in genericOverloads) {\n                this.overloadDateGetTimezoneOffset(genericOverloads['Date.prototype.getTimezoneOffset']);\n            }\n            if ('NavigatorUAData.prototype.getHighEntropyValues' in genericOverloads) {\n                this.overloadHighEntropyValues(genericOverloads['NavigatorUAData.prototype.getHighEntropyValues']);\n            }\n            ['localStorage', 'sessionStorage'].forEach(storageType => {\n                if (storageType in genericOverloads) {\n                    const storageConfig = genericOverloads[storageType];\n                    if (storageConfig.scheme === 'memory') {\n                        this.overloadStorageWithMemory(storageConfig, storageType);\n                    } else if (storageConfig.scheme === 'session') {\n                        this.overloadStorageWithSession(storageConfig, storageType);\n                    }\n                }\n            });\n            const breakpoints = this.getFeatureSetting('breakpoints');\n            const screenSize = { height: screen.height, width: screen.width };\n            ['innerHeight', 'innerWidth', 'outerHeight', 'outerWidth', 'Screen.prototype.height', 'Screen.prototype.width'].forEach(sizing => {\n                if (sizing in genericOverloads) {\n                    const sizingConfig = genericOverloads[sizing];\n                    if (isBeingFramed() && !sizingConfig.applyToFrames) return\n                    this.overloadScreenSizes(sizingConfig, breakpoints, screenSize, sizing, sizingConfig.offset || 0);\n                }\n            });\n        }\n\n        overloadDate (config) {\n            const offset = (new Date()).getTimezoneOffset();\n            globalThis.Date = new Proxy(globalThis.Date, {\n                construct (target, args) {\n                    const constructed = Reflect$1.construct(target, args);\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        // Falible in that the page could brute force the offset to match. We should fix this.\n                        if (constructed.getTimezoneOffset() === offset) {\n                            return constructed.getUTCDate()\n                        }\n                    }\n                    return constructed\n                }\n            });\n        }\n\n        overloadDateGetTimezoneOffset (config) {\n            const offset = (new Date()).getTimezoneOffset();\n            defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {\n                configurable: true,\n                enumerable: true,\n                writable: true,\n                value () {\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        return 0\n                    }\n                    return offset\n                }\n            });\n        }\n\n        overloadHighEntropyValues (config) {\n            if (!('NavigatorUAData' in globalThis)) {\n                return\n            }\n\n            const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues;\n            defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {\n                configurable: true,\n                enumerable: true,\n                writable: true,\n                value (hints) {\n                    let hintsOut = hints;\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        // If tainted override with default values (using empty array)\n                        hintsOut = [];\n                    }\n                    return Reflect$1.apply(originalGetHighEntropyValues, this, [hintsOut])\n                }\n            });\n        }\n\n        overloadStorageWithMemory (config, key) {\n            /**\n             * @implements {Storage}\n             */\n            class MemoryStorage {\n                #data = {}\n\n                /**\n                 * @param {Parameters<Storage['setItem']>[0]} id\n                 * @param {Parameters<Storage['setItem']>[1]} val\n                 * @returns {ReturnType<Storage['setItem']>}\n                 */\n                setItem (id, val) {\n                    if (arguments.length < 2) throw new TypeError(`Failed to execute 'setItem' on 'Storage': 2 arguments required, but only ${arguments.length} present.`)\n                    this.#data[id] = String(val);\n                }\n\n                /**\n                 * @param {Parameters<Storage['getItem']>[0]} id\n                 * @returns {ReturnType<Storage['getItem']>}\n                 */\n                getItem (id) {\n                    return Object.prototype.hasOwnProperty.call(this.#data, id) ? this.#data[id] : null\n                }\n\n                /**\n                 * @param {Parameters<Storage['removeItem']>[0]} id\n                 * @returns {ReturnType<Storage['removeItem']>}\n                 */\n                removeItem (id) {\n                    delete this.#data[id];\n                }\n\n                /**\n                 * @returns {ReturnType<Storage['clear']>}\n                 */\n                clear () {\n                    this.#data = {};\n                }\n\n                /**\n                 * @param {Parameters<Storage['key']>[0]} n\n                 * @returns {ReturnType<Storage['key']>}\n                 */\n                key (n) {\n                    const keys = Object.keys(this.#data);\n                    return keys[n]\n                }\n\n                get length () {\n                    return Object.keys(this.#data).length\n                }\n            }\n            /** @satisfies {Storage} */\n            const instance = new MemoryStorage();\n            const storage = new Proxy(instance, {\n                set (target, prop, value) {\n                    Reflect$1.apply(target.setItem, target, [prop, value]);\n                    return true\n                },\n                get (target, prop) {\n                    if (typeof target[prop] === 'function') {\n                        return target[prop].bind(instance)\n                    }\n                    return Reflect$1.get(target, prop, instance)\n                }\n            });\n            this.overrideStorage(config, key, storage);\n        }\n\n        overloadStorageWithSession (config, key) {\n            const storage = globalThis.sessionStorage;\n            this.overrideStorage(config, key, storage);\n        }\n\n        overrideStorage (config, key, storage) {\n            const originalStorage = globalThis[key];\n            defineProperty(globalThis, key, {\n                get () {\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        return storage\n                    }\n                    return originalStorage\n                }\n            });\n        }\n\n        /**\n         * @typedef {import('./runtime-checks/helpers.js').Sizing} Sizing\n         */\n\n        /**\n         * Overloads the provided key with the closest breakpoint size\n         * @param {Sizing[]} breakpoints\n         * @param {Sizing} screenSize\n         * @param {string} key\n         * @param {number} [offset]\n         */\n        overloadScreenSizes (config, breakpoints, screenSize, key, offset = 0) {\n            const closest = findClosestBreakpoint(breakpoints, screenSize);\n            if (!closest) {\n                return\n            }\n            let returnVal = null;\n            /** @type {object} */\n            let scope = globalThis;\n            let overrideKey = key;\n            let receiver;\n            switch (key) {\n            case 'innerHeight':\n            case 'outerHeight':\n                returnVal = closest.height - offset;\n                break\n            case 'innerWidth':\n            case 'outerWidth':\n                returnVal = closest.width - offset;\n                break\n            case 'Screen.prototype.height':\n                scope = Screen.prototype;\n                overrideKey = 'height';\n                returnVal = closest.height - offset;\n                receiver = globalThis.screen;\n                break\n            case 'Screen.prototype.width':\n                scope = Screen.prototype;\n                overrideKey = 'width';\n                returnVal = closest.width - offset;\n                receiver = globalThis.screen;\n                break\n            }\n            const defaultGetter = Object.getOwnPropertyDescriptor(scope, overrideKey)?.get;\n            // Should never happen\n            if (!defaultGetter) {\n                return\n            }\n            defineProperty(scope, overrideKey, {\n                get () {\n                    const defaultVal = Reflect$1.apply(defaultGetter, receiver, []);\n                    if (getTaintFromScope(this, arguments, config.stackCheck)) {\n                        return returnVal\n                    }\n                    return defaultVal\n                }\n            });\n        }\n    }\n\n    return RuntimeChecks;\n\n})();\n/*# sourceURL=duckduckgo-privacy-protection.js?scope=runtimeChecks */\n"
     };
+
+    class Cookie {
+        constructor (cookieString) {
+            this.parts = cookieString.split(';');
+            this.parse();
+        }
+
+        parse () {
+            const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
+            this.attrIdx = {};
+            this.parts.forEach((part, index) => {
+                const kv = part.split('=', 1);
+                const attribute = kv[0].trim();
+                const value = part.slice(kv[0].length + 1);
+                if (index === 0) {
+                    this.name = attribute;
+                    this.value = value;
+                } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
+                    this[attribute.toLowerCase()] = value;
+                    // @ts-expect-error - Object is possibly 'undefined'.
+                    this.attrIdx[attribute.toLowerCase()] = index;
+                }
+            });
+        }
+
+        getExpiry () {
+            // @ts-expect-error expires is not defined in the type definition
+            if (!this.maxAge && !this.expires) {
+                return NaN
+            }
+            const expiry = this.maxAge
+                ? parseInt(this.maxAge)
+                // @ts-expect-error expires is not defined in the type definition
+                : (new Date(this.expires) - new Date()) / 1000;
+            return expiry
+        }
+
+        get maxAge () {
+            return this['max-age']
+        }
+
+        set maxAge (value) {
+            // @ts-expect-error - Object is possibly 'undefined'.
+            if (this.attrIdx['max-age'] > 0) {
+                // @ts-expect-error - Object is possibly 'undefined'.
+                this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
+            } else {
+                this.parts.push(`max-age=${value}`);
+            }
+            this.parse();
+        }
+
+        toString () {
+            return this.parts.join(';')
+        }
+    }
 
     function _typeof$2(obj) { "@babel/helpers - typeof"; return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$2(obj); }
     function isJSONArray(value) {
@@ -2660,6 +2720,264 @@
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         update () {
+        }
+    }
+
+    /**
+     * Check if the current document origin is on the tracker list, using the provided lookup trie.
+     * @param {object} trackerLookup Trie lookup of tracker domains
+     * @returns {boolean} True iff the origin is a tracker.
+     */
+    function isTrackerOrigin (trackerLookup, originHostname = document.location.hostname) {
+        const parts = originHostname.split('.').reverse();
+        let node = trackerLookup;
+        for (const sub of parts) {
+            if (node[sub] === 1) {
+                return true
+            } else if (node[sub]) {
+                node = node[sub];
+            } else {
+                return false
+            }
+        }
+        return false
+    }
+
+    /**
+     * @typedef ExtensionCookiePolicy
+     * @property {boolean} isFrame
+     * @property {boolean} isTracker
+     * @property {boolean} shouldBlock
+     * @property {boolean} isThirdPartyFrame
+     */
+
+    // Initial cookie policy pre init
+    let cookiePolicy = {
+        debug: false,
+        isFrame: isBeingFramed(),
+        isTracker: false,
+        shouldBlock: true,
+        shouldBlockTrackerCookie: true,
+        shouldBlockNonTrackerCookie: false,
+        isThirdPartyFrame: isThirdPartyFrame(),
+        policy: {
+            threshold: 604800, // 7 days
+            maxAge: 604800 // 7 days
+        },
+        trackerPolicy: {
+            threshold: 86400, // 1 day
+            maxAge: 86400 // 1 day
+        },
+        allowlist: /** @type {{ host: string }[]} */([])
+    };
+    let trackerLookup = {};
+
+    let loadedPolicyResolve;
+
+    /**
+     * @param {'ignore' | 'block' | 'restrict'} action
+     * @param {string} reason
+     * @param {any} ctx
+     */
+    function debugHelper (action, reason, ctx) {
+        cookiePolicy.debug && postDebugMessage('jscookie', {
+            action,
+            reason,
+            stack: ctx.stack,
+            documentUrl: globalThis.document.location.href,
+            scriptOrigins: [...ctx.scriptOrigins],
+            value: ctx.value
+        });
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    function shouldBlockTrackingCookie () {
+        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
+    }
+
+    function shouldBlockNonTrackingCookie () {
+        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
+    }
+
+    /**
+     * @param {Set<string>} scriptOrigins
+     * @returns {boolean}
+     */
+    function isFirstPartyTrackerScript (scriptOrigins) {
+        let matched = false;
+        for (const scriptOrigin of scriptOrigins) {
+            if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
+                return false
+            }
+            if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
+                matched = true;
+            }
+        }
+        return matched
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    function isTrackingCookie () {
+        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
+    }
+
+    function isNonTrackingCookie () {
+        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
+    }
+
+    class CookieFeature extends ContentFeature {
+        load () {
+            if (this.documentOriginIsTracker) {
+                cookiePolicy.isTracker = true;
+            }
+            if (this.trackerLookup) {
+                trackerLookup = this.trackerLookup;
+            }
+            if (this.bundledConfig) {
+                // use the bundled config to get a best-effort at the policy, before the background sends the real one
+                const { exceptions, settings } = this.bundledConfig.features.cookie;
+                const tabHostname = getTabHostname();
+                let tabExempted = true;
+
+                if (tabHostname != null) {
+                    tabExempted = exceptions.some((exception) => {
+                        return matchHostname(tabHostname, exception.domain)
+                    });
+                }
+                const frameExempted = settings.excludedCookieDomains.some((exception) => {
+                    return matchHostname(globalThis.location.hostname, exception.domain)
+                });
+                cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
+                cookiePolicy.policy = settings.firstPartyCookiePolicy;
+                cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
+                // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
+                // This only applies when the resources that would set these cookies are unblocked.
+                cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || [];
+            }
+
+            // The cookie policy is injected into every frame immediately so that no cookie will
+            // be missed.
+            const document = globalThis.document;
+            // @ts-expect-error - Object is possibly 'undefined'.
+            const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
+            // @ts-expect-error - Object is possibly 'undefined'.
+            const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
+
+            const loadPolicy = new Promise((resolve) => {
+                loadedPolicyResolve = resolve;
+            });
+            // Create the then callback now - this ensures that Promise.prototype.then changes won't break
+            // this call.
+            const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
+
+            function getCookiePolicy () {
+                const stack = getStack();
+                const scriptOrigins = getStackTraceOrigins(stack);
+                const getCookieContext = {
+                    stack,
+                    scriptOrigins,
+                    value: 'getter'
+                };
+
+                if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+                    debugHelper('block', '3p frame', getCookieContext);
+                    return ''
+                } else if (isTrackingCookie() || isNonTrackingCookie()) {
+                    debugHelper('ignore', '3p frame', getCookieContext);
+                }
+                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+                return cookieGetter.call(document)
+            }
+
+            function setCookiePolicy (value) {
+                const stack = getStack();
+                const scriptOrigins = getStackTraceOrigins(stack);
+                const setCookieContext = {
+                    stack,
+                    scriptOrigins,
+                    value
+                };
+
+                if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+                    debugHelper('block', '3p frame', setCookieContext);
+                    return
+                } else if (isTrackingCookie() || isNonTrackingCookie()) {
+                    debugHelper('ignore', '3p frame', setCookieContext);
+                }
+                // call the native document.cookie implementation. This will set the cookie immediately
+                // if the value is valid. We will override this set later if the policy dictates that
+                // the expiry should be changed.
+                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+                cookieSetter.call(document, value);
+
+                try {
+                    // wait for config before doing same-site tests
+                    loadPolicyThen(() => {
+                        const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
+
+                        const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
+                        if (!shouldBlock) {
+                            debugHelper('ignore', 'disabled', setCookieContext);
+                            return
+                        }
+                        // extract cookie expiry from cookie string
+                        const cookie = new Cookie(value);
+                        // apply cookie policy
+                        if (cookie.getExpiry() > chosenPolicy.threshold) {
+                            // check if the cookie still exists
+                            if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                                cookie.maxAge = chosenPolicy.maxAge;
+
+                                debugHelper('restrict', 'expiry', setCookieContext);
+
+                                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+                                cookieSetter.apply(document, [cookie.toString()]);
+                            } else {
+                                debugHelper('ignore', 'dissappeared', setCookieContext);
+                            }
+                        } else {
+                            debugHelper('ignore', 'expiry', setCookieContext);
+                        }
+                    });
+                } catch (e) {
+                    debugHelper('ignore', 'error', setCookieContext);
+                    // suppress error in cookie override to avoid breakage
+                    console.warn('Error in cookie override', e);
+                }
+            }
+
+            defineProperty(document, 'cookie', {
+                configurable: true,
+                set: setCookiePolicy,
+                get: getCookiePolicy
+            });
+        }
+
+        init (args) {
+            const restOfPolicy = {
+                debug: this.isDebug,
+                shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
+                shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
+                allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
+                policy: this.getFeatureSetting('firstPartyCookiePolicy'),
+                trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy')
+            };
+            // The extension provides some additional info about the cookie policy, let's use that over our guesses
+            if (args.cookie) {
+                const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */(args.cookie);
+                cookiePolicy = {
+                    ...extensionCookiePolicy,
+                    ...restOfPolicy
+                };
+            } else {
+                cookiePolicy = Object.assign(cookiePolicy, restOfPolicy);
+            }
+
+            loadedPolicyResolve();
         }
     }
 
@@ -6031,320 +6349,6 @@
                 });
                 proxy.overload();
             }
-        }
-    }
-
-    class Cookie {
-        constructor (cookieString) {
-            this.parts = cookieString.split(';');
-            this.parse();
-        }
-
-        parse () {
-            const EXTRACT_ATTRIBUTES = new Set(['max-age', 'expires', 'domain']);
-            this.attrIdx = {};
-            this.parts.forEach((part, index) => {
-                const kv = part.split('=', 1);
-                const attribute = kv[0].trim();
-                const value = part.slice(kv[0].length + 1);
-                if (index === 0) {
-                    this.name = attribute;
-                    this.value = value;
-                } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
-                    this[attribute.toLowerCase()] = value;
-                    // @ts-expect-error - Object is possibly 'undefined'.
-                    this.attrIdx[attribute.toLowerCase()] = index;
-                }
-            });
-        }
-
-        getExpiry () {
-            // @ts-expect-error expires is not defined in the type definition
-            if (!this.maxAge && !this.expires) {
-                return NaN
-            }
-            const expiry = this.maxAge
-                ? parseInt(this.maxAge)
-                // @ts-expect-error expires is not defined in the type definition
-                : (new Date(this.expires) - new Date()) / 1000;
-            return expiry
-        }
-
-        get maxAge () {
-            return this['max-age']
-        }
-
-        set maxAge (value) {
-            // @ts-expect-error - Object is possibly 'undefined'.
-            if (this.attrIdx['max-age'] > 0) {
-                // @ts-expect-error - Object is possibly 'undefined'.
-                this.parts.splice(this.attrIdx['max-age'], 1, `max-age=${value}`);
-            } else {
-                this.parts.push(`max-age=${value}`);
-            }
-            this.parse();
-        }
-
-        toString () {
-            return this.parts.join(';')
-        }
-    }
-
-    /**
-     * Check if the current document origin is on the tracker list, using the provided lookup trie.
-     * @param {object} trackerLookup Trie lookup of tracker domains
-     * @returns {boolean} True iff the origin is a tracker.
-     */
-    function isTrackerOrigin (trackerLookup, originHostname = document.location.hostname) {
-        const parts = originHostname.split('.').reverse();
-        let node = trackerLookup;
-        for (const sub of parts) {
-            if (node[sub] === 1) {
-                return true
-            } else if (node[sub]) {
-                node = node[sub];
-            } else {
-                return false
-            }
-        }
-        return false
-    }
-
-    /**
-     * @typedef ExtensionCookiePolicy
-     * @property {boolean} isFrame
-     * @property {boolean} isTracker
-     * @property {boolean} shouldBlock
-     * @property {boolean} isThirdPartyFrame
-     */
-
-    // Initial cookie policy pre init
-    let cookiePolicy = {
-        debug: false,
-        isFrame: isBeingFramed(),
-        isTracker: false,
-        shouldBlock: true,
-        shouldBlockTrackerCookie: true,
-        shouldBlockNonTrackerCookie: false,
-        isThirdPartyFrame: isThirdPartyFrame(),
-        policy: {
-            threshold: 604800, // 7 days
-            maxAge: 604800 // 7 days
-        },
-        trackerPolicy: {
-            threshold: 86400, // 1 day
-            maxAge: 86400 // 1 day
-        },
-        allowlist: /** @type {{ host: string }[]} */([])
-    };
-    let trackerLookup = {};
-
-    let loadedPolicyResolve;
-
-    /**
-     * @param {'ignore' | 'block' | 'restrict'} action
-     * @param {string} reason
-     * @param {any} ctx
-     */
-    function debugHelper (action, reason, ctx) {
-        cookiePolicy.debug && postDebugMessage('jscookie', {
-            action,
-            reason,
-            stack: ctx.stack,
-            documentUrl: globalThis.document.location.href,
-            scriptOrigins: [...ctx.scriptOrigins],
-            value: ctx.value
-        });
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    function shouldBlockTrackingCookie () {
-        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
-    }
-
-    function shouldBlockNonTrackingCookie () {
-        return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
-    }
-
-    /**
-     * @param {Set<string>} scriptOrigins
-     * @returns {boolean}
-     */
-    function isFirstPartyTrackerScript (scriptOrigins) {
-        let matched = false;
-        for (const scriptOrigin of scriptOrigins) {
-            if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
-                return false
-            }
-            if (isTrackerOrigin(trackerLookup, scriptOrigin)) {
-                matched = true;
-            }
-        }
-        return matched
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    function isTrackingCookie () {
-        return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
-    }
-
-    function isNonTrackingCookie () {
-        return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
-    }
-
-    class CookieFeature extends ContentFeature {
-        load () {
-            if (this.documentOriginIsTracker) {
-                cookiePolicy.isTracker = true;
-            }
-            if (this.trackerLookup) {
-                trackerLookup = this.trackerLookup;
-            }
-            if (this.bundledConfig) {
-                // use the bundled config to get a best-effort at the policy, before the background sends the real one
-                const { exceptions, settings } = this.bundledConfig.features.cookie;
-                const tabHostname = getTabHostname();
-                let tabExempted = true;
-
-                if (tabHostname != null) {
-                    tabExempted = exceptions.some((exception) => {
-                        return matchHostname(tabHostname, exception.domain)
-                    });
-                }
-                const frameExempted = settings.excludedCookieDomains.some((exception) => {
-                    return matchHostname(globalThis.location.hostname, exception.domain)
-                });
-                cookiePolicy.shouldBlock = !frameExempted && !tabExempted;
-                cookiePolicy.policy = settings.firstPartyCookiePolicy;
-                cookiePolicy.trackerPolicy = settings.firstPartyTrackerCookiePolicy;
-                // Allows for ad click conversion detection as described by https://help.duckduckgo.com/duckduckgo-help-pages/privacy/web-tracking-protections/.
-                // This only applies when the resources that would set these cookies are unblocked.
-                cookiePolicy.allowlist = this.getFeatureSetting('allowlist', 'adClickAttribution') || [];
-            }
-
-            // The cookie policy is injected into every frame immediately so that no cookie will
-            // be missed.
-            const document = globalThis.document;
-            // @ts-expect-error - Object is possibly 'undefined'.
-            const cookieSetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').set;
-            // @ts-expect-error - Object is possibly 'undefined'.
-            const cookieGetter = Object.getOwnPropertyDescriptor(globalThis.Document.prototype, 'cookie').get;
-
-            const loadPolicy = new Promise((resolve) => {
-                loadedPolicyResolve = resolve;
-            });
-            // Create the then callback now - this ensures that Promise.prototype.then changes won't break
-            // this call.
-            const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
-
-            function getCookiePolicy () {
-                const stack = getStack();
-                const scriptOrigins = getStackTraceOrigins(stack);
-                const getCookieContext = {
-                    stack,
-                    scriptOrigins,
-                    value: 'getter'
-                };
-
-                if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
-                    debugHelper('block', '3p frame', getCookieContext);
-                    return ''
-                } else if (isTrackingCookie() || isNonTrackingCookie()) {
-                    debugHelper('ignore', '3p frame', getCookieContext);
-                }
-                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-                return cookieGetter.call(document)
-            }
-
-            function setCookiePolicy (value) {
-                const stack = getStack();
-                const scriptOrigins = getStackTraceOrigins(stack);
-                const setCookieContext = {
-                    stack,
-                    scriptOrigins,
-                    value
-                };
-
-                if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
-                    debugHelper('block', '3p frame', setCookieContext);
-                    return
-                } else if (isTrackingCookie() || isNonTrackingCookie()) {
-                    debugHelper('ignore', '3p frame', setCookieContext);
-                }
-                // call the native document.cookie implementation. This will set the cookie immediately
-                // if the value is valid. We will override this set later if the policy dictates that
-                // the expiry should be changed.
-                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-                cookieSetter.call(document, value);
-
-                try {
-                    // wait for config before doing same-site tests
-                    loadPolicyThen(() => {
-                        const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
-
-                        const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
-                        if (!shouldBlock) {
-                            debugHelper('ignore', 'disabled', setCookieContext);
-                            return
-                        }
-                        // extract cookie expiry from cookie string
-                        const cookie = new Cookie(value);
-                        // apply cookie policy
-                        if (cookie.getExpiry() > chosenPolicy.threshold) {
-                            // check if the cookie still exists
-                            if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
-                                cookie.maxAge = chosenPolicy.maxAge;
-
-                                debugHelper('restrict', 'expiry', setCookieContext);
-
-                                // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-                                cookieSetter.apply(document, [cookie.toString()]);
-                            } else {
-                                debugHelper('ignore', 'dissappeared', setCookieContext);
-                            }
-                        } else {
-                            debugHelper('ignore', 'expiry', setCookieContext);
-                        }
-                    });
-                } catch (e) {
-                    debugHelper('ignore', 'error', setCookieContext);
-                    // suppress error in cookie override to avoid breakage
-                    console.warn('Error in cookie override', e);
-                }
-            }
-
-            defineProperty(document, 'cookie', {
-                configurable: true,
-                set: setCookiePolicy,
-                get: getCookiePolicy
-            });
-        }
-
-        init (args) {
-            const restOfPolicy = {
-                debug: this.isDebug,
-                shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
-                shouldBlockNonTrackerCookie: this.getFeatureSettingEnabled('nonTrackerCookie'),
-                allowlist: this.getFeatureSetting('allowlist', 'adClickAttribution') || [],
-                policy: this.getFeatureSetting('firstPartyCookiePolicy'),
-                trackerPolicy: this.getFeatureSetting('firstPartyTrackerCookiePolicy')
-            };
-            // The extension provides some additional info about the cookie policy, let's use that over our guesses
-            if (args.cookie) {
-                const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */(args.cookie);
-                cookiePolicy = {
-                    ...extensionCookiePolicy,
-                    ...restOfPolicy
-                };
-            } else {
-                cookiePolicy = Object.assign(cookiePolicy, restOfPolicy);
-            }
-
-            loadedPolicyResolve();
         }
     }
 
@@ -10775,11 +10779,11 @@
     }
 
     var platformFeatures = {
+        ddg_feature_cookie: CookieFeature,
         ddg_feature_runtimeChecks: RuntimeChecks,
         ddg_feature_fingerprintingAudio: FingerprintingAudio,
         ddg_feature_fingerprintingBattery: FingerprintingBattery,
         ddg_feature_fingerprintingCanvas: FingerprintingCanvas,
-        ddg_feature_cookie: CookieFeature,
         ddg_feature_googleRejected: GoogleRejected,
         ddg_feature_gpc: GlobalPrivacyControl,
         ddg_feature_fingerprintingHardware: FingerprintingHardware,

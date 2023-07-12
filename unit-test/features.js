@@ -9,7 +9,6 @@ describe('Features definition', () => {
             'fingerprintingAudio',
             'fingerprintingBattery',
             'fingerprintingCanvas',
-            'cookie',
             'googleRejected',
             'gpc',
             'fingerprintingHardware',
