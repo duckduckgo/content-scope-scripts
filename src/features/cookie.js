@@ -12,13 +12,18 @@ import { isTrackerOrigin } from '../trackers.js'
  * @property {boolean} isThirdPartyFrame
  */
 
+function initialShouldBlockTrackerCookie () {
+    const injectName = import.meta.injectName
+    return injectName === 'chrome' || injectName === 'firefox' || injectName === 'chrome-mv3'
+}
+
 // Initial cookie policy pre init
 let cookiePolicy = {
     debug: false,
     isFrame: isBeingFramed(),
     isTracker: false,
     shouldBlock: true,
-    shouldBlockTrackerCookie: true,
+    shouldBlockTrackerCookie: initialShouldBlockTrackerCookie(),
     shouldBlockNonTrackerCookie: false,
     isThirdPartyFrame: isThirdPartyFrame(),
     policy: {
