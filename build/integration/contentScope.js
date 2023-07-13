@@ -10554,13 +10554,18 @@
      * @property {boolean} isThirdPartyFrame
      */
 
+    function initialShouldBlockTrackerCookie () {
+        const injectName = "integration";
+        return injectName === 'chrome-mv3'
+    }
+
     // Initial cookie policy pre init
     let cookiePolicy = {
         debug: false,
         isFrame: isBeingFramed(),
         isTracker: false,
         shouldBlock: true,
-        shouldBlockTrackerCookie: true,
+        shouldBlockTrackerCookie: initialShouldBlockTrackerCookie(),
         shouldBlockNonTrackerCookie: false,
         isThirdPartyFrame: isThirdPartyFrame(),
         policy: {
