@@ -44,7 +44,7 @@ jobs:
 
       - name: Collect commit ranges
         run: |
-          echo "CHANGELOG=$(bash ./scripts/changelog.sh)" > ${{ github.workspace }}-CHANGELOG.txt
+          bash ./scripts/changelog.sh > ${{ github.workspace }}-CHANGELOG.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
