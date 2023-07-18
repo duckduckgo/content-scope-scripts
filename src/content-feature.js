@@ -148,12 +148,16 @@ export default class ContentFeature {
 
     /**
      * For simple boolean settings, return true if the setting is 'enabled'
+     * For objects, verify the 'state' field is 'enabled'.
      * @param {string} featureKeyName
      * @param {string} [featureName]
      * @returns {boolean}
      */
     getFeatureSettingEnabled (featureKeyName, featureName) {
         const result = this.getFeatureSetting(featureKeyName, featureName)
+        if (typeof result === 'object') {
+            return result.state === 'enabled'
+        }
         return result === 'enabled'
     }
 
