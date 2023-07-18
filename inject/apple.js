@@ -9,7 +9,18 @@ import { WebkitMessagingConfig, TestTransportConfig } from '../packages/messagin
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+    const json = $CONTENT_SCOPE$
+
+    // todo(dbp): replace this with remote-config integration
+    json.features.brokerProtection = {
+        state: 'enabled',
+        exceptions: [],
+        settings: {}
+    }
+
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+    const processedConfig = processConfig(json, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+
     if (isGloballyDisabled(processedConfig)) {
         return
     }
