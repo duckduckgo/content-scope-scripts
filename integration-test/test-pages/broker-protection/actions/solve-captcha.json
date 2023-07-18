@@ -1,0 +1,11 @@
+{
+  "state": {
+    "action": {
+      "actionType": "solveCaptcha",
+      "id": "83241"
+    },
+    "data": {
+      "token": "test_token"
+    }
+  }
+}
