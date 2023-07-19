@@ -29,7 +29,7 @@ const performanceMonitor = new PerformanceMonitor()
  * @property {import('./content-feature').Site} site
  * @property {import('./utils.js').Platform} platform
  * @property {boolean} documentOriginIsTracker
- * @property {object} [bundledConfig]
+ * @property {import('./utils.js').RemoteConfig} bundledConfig
  * @property {string} [injectName]
  * @property {object} trackerLookup - provided currently only by the extension
  */

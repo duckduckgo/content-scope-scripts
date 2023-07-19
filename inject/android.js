@@ -27,7 +27,8 @@ function initCode () {
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
-        site: processedConfig.site
+        site: processedConfig.site,
+        bundledConfig: processedConfig.bundledConfig
     })
 
     const messageSecret = processedConfig.messageSecret

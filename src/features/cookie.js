@@ -14,7 +14,7 @@ import { isTrackerOrigin } from '../trackers.js'
 
 function initialShouldBlockTrackerCookie () {
     const injectName = import.meta.injectName
-    return injectName === 'chrome' || injectName === 'firefox' || injectName === 'chrome-mv3'
+    return injectName === 'chrome' || injectName === 'firefox' || injectName === 'chrome-mv3' || injectName === 'windows'
 }
 
 // Initial cookie policy pre init
@@ -103,7 +103,7 @@ export default class CookieFeature extends ContentFeature {
         if (this.trackerLookup) {
             trackerLookup = this.trackerLookup
         }
-        if (this.bundledConfig) {
+        if (this.bundledConfig?.features?.cookie) {
             // use the bundled config to get a best-effort at the policy, before the background sends the real one
             const { exceptions, settings } = this.bundledConfig.features.cookie
             const tabHostname = getTabHostname()

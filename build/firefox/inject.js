@@ -2753,7 +2753,7 @@
 
     function initialShouldBlockTrackerCookie () {
         const injectName = "firefox";
-        return injectName === 'firefox' 
+        return injectName === 'firefox'  
     }
 
     // Initial cookie policy pre init
@@ -2842,7 +2842,7 @@
             if (this.trackerLookup) {
                 trackerLookup = this.trackerLookup;
             }
-            if (this.bundledConfig) {
+            if (this.bundledConfig?.features?.cookie) {
                 // use the bundled config to get a best-effort at the policy, before the background sends the real one
                 const { exceptions, settings } = this.bundledConfig.features.cookie;
                 const tabHostname = getTabHostname();
@@ -10827,7 +10827,7 @@
      * @property {import('./content-feature').Site} site
      * @property {import('./utils.js').Platform} platform
      * @property {boolean} documentOriginIsTracker
-     * @property {object} [bundledConfig]
+     * @property {import('./utils.js').RemoteConfig} bundledConfig
      * @property {string} [injectName]
      * @property {object} trackerLookup - provided currently only by the extension
      */

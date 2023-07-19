@@ -707,6 +707,7 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     // Copy feature settings from remote config to preferences object
     output.featureSettings = parseFeatureSettings(data, enabledFeatures)
     output.trackerLookup = import.meta.trackerLookup
+    output.bundledConfig = data
 
     return output
 }

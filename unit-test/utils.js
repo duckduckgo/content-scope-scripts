@@ -16,7 +16,7 @@ describe('Helpers checks', () => {
     })
 
     it('processes config in expected way for minSupportedVersion and numeric versions', () => {
-        const processedConfig = processConfig({
+        const configIn = {
             features: {
                 testFeature: {
                     state: 'enabled',
@@ -53,16 +53,19 @@ describe('Helpers checks', () => {
                 }
             },
             unprotectedTemporary: []
-        },
-        [],
-        {
-            platform: {
-                name: 'android'
+        }
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android'
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey'
             },
-            versionNumber: 99,
-            sessionKey: 'testSessionKey'
-        },
-        [])
+            []
+        )
         expect(processedConfig).toEqual({
             site: {
                 domain: 'localhost',
@@ -87,12 +90,13 @@ describe('Helpers checks', () => {
             versionNumber: 99,
             sessionKey: 'testSessionKey',
             // import.meta.trackerLookup is undefined because we've not overloaded it
-            trackerLookup: undefined
+            trackerLookup: undefined,
+            bundledConfig: configIn
         })
     })
 
     it('processes config in expected way for minSupportedVersion and string versions', () => {
-        const processedConfig = processConfig({
+        const configIn = {
             features: {
                 testFeature: {
                     state: 'enabled',
@@ -129,16 +133,19 @@ describe('Helpers checks', () => {
                 }
             },
             unprotectedTemporary: []
-        },
-        [],
-        {
-            platform: {
-                name: 'ios'
+        }
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'ios'
+                },
+                versionString: '0.9.9',
+                sessionKey: 'testSessionKey'
             },
-            versionString: '0.9.9',
-            sessionKey: 'testSessionKey'
-        },
-        [])
+            []
+        )
         expect(processedConfig).toEqual({
             site: {
                 domain: 'localhost',
@@ -162,7 +169,8 @@ describe('Helpers checks', () => {
             },
             versionString: '0.9.9',
             sessionKey: 'testSessionKey',
-            trackerLookup: undefined
+            trackerLookup: undefined,
+            bundledConfig: configIn
         })
     })
 
