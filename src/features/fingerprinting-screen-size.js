@@ -126,7 +126,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
             get: () => this.getFeatureAttr('pixelDepth', 24)
         })
 
-        window.addEventListener('resize', function () {
+        globalThis.window.addEventListener('resize', function () {
             setWindowDimensions()
         })
         setWindowDimensions()
