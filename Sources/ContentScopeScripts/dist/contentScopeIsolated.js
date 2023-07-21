@@ -25,7 +25,7 @@
      * @returns {boolean} if we infer the document is framed
      */
     function isBeingFramed () {
-        if ('ancestorOrigins' in globalThis.location) {
+        if (globalThis.location && 'ancestorOrigins' in globalThis.location) {
             return globalThis.location.ancestorOrigins.length > 0
         }
         return globalThis.top !== globalThis.window
