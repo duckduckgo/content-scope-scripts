@@ -1,4 +1,4 @@
-import { Messaging, MessagingContext, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
+import { Messaging, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
 
 /**
  * Extracted so we can iterate on the best way to bring this to all platforms
@@ -7,15 +7,7 @@ import { Messaging, MessagingContext, WebkitMessagingConfig, WindowsMessagingCon
  * @return {Messaging}
  */
 export function createMessaging (feature, injectName) {
-    const contextName = injectName === 'apple-isolated'
-        ? 'contentScopeScriptsIsolated'
-        : 'contentScopeScripts'
-
-    const context = new MessagingContext({
-        context: contextName,
-        env: feature.isDebug ? 'development' : 'production',
-        featureName: feature.name
-    })
+    const context = feature.messagingContext
 
     /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
     const config = {
@@ -33,7 +25,7 @@ export function createMessaging (feature, injectName) {
         },
         'apple-isolated': () => {
             return new WebkitMessagingConfig({
-                webkitMessageHandlerNames: [contextName],
+                webkitMessageHandlerNames: [context.context],
                 secret: '',
                 hasModernWebkitAPI: true
             })

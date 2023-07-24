@@ -87,10 +87,15 @@ export default class ContentFeature {
      */
     get messagingContext () {
         if (this.#messagingContext) return this.#messagingContext
+
+        const contextName = import.meta.injectName === 'apple-isolated'
+            ? 'contentScopeScriptsIsolated'
+            : 'contentScopeScripts'
+
         this.#messagingContext = new MessagingContext({
-            context: 'contentScopeScripts',
-            featureName: this.name,
-            env: this.isDebug ? 'development' : 'production'
+            context: contextName,
+            env: this.isDebug ? 'development' : 'production',
+            featureName: this.name
         })
         return this.#messagingContext
     }
