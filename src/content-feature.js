@@ -1,8 +1,8 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { MessagingContext, Messaging, TestTransportConfig } from '../packages/messaging/index.js'
-import { SendMessageMessagingTransport } from './sendmessage-transport.js'
+import { MessagingContext } from '../packages/messaging/index.js'
+import { createMessaging } from './create-messaging.js'
 
 /**
  * @typedef {object} AssetConfig
@@ -29,10 +29,8 @@ export default class ContentFeature {
     #bundledfeatureSettings
     /** @type {MessagingContext} */
     #messagingContext
-    /** @type {SendMessageMessagingTransport} */
-    #messagingTransport
-    /** @type {Messaging} */
-    #messaging
+    /** @type {import('../packages/messaging').Messaging} */
+    #debugMessaging
 
     /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
     #args
@@ -106,15 +104,13 @@ export default class ContentFeature {
     }
 
     // Messaging layer between the content feature and the Platform
-    get messaging () {
-        if (this.#messaging) return this.#messaging
+    get debugMessaging () {
+        if (this.#debugMessaging) return this.#debugMessaging
 
-        // TODO: use createMessaging() from create-messaging.js when all platforms are supported
         if (this.platform?.name === 'extension') {
-            this.#messagingTransport = new SendMessageMessagingTransport()
-            const config = new TestTransportConfig(this.#messagingTransport)
-            this.#messaging = new Messaging(this.messagingContext, config)
-            return this.#messaging
+            if (typeof import.meta.injectName === 'undefined') throw new Error('import.meta.injectName missing')
+            this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, import.meta.injectName)
+            return this.#debugMessaging
         } else {
             return null
         }
@@ -253,9 +249,8 @@ export default class ContentFeature {
      * @param {string} flag
      */
     addDebugFlag (flag = 'fired') {
-        this.messaging?.notify('addDebugFlag', {
+        this.debugMessaging?.notify('addDebugFlag', {
             flag: `${this.name}.${flag}`
         })
-        console.log('calling', this.messaging?.notify, `${this.name}.${flag}`)
     }
 }

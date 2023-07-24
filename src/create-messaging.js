@@ -1,13 +1,27 @@
-import { Messaging, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
+import { Messaging, MessagingContext, TestTransportConfig, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
+import { SendMessageMessagingTransport } from './sendmessage-transport.js'
 
 /**
  * Extracted so we can iterate on the best way to bring this to all platforms
- * @param {import('./content-feature.js').default} feature
+ * @param {{ name: string, isDebug: boolean }} feature
  * @param {string} injectName
  * @return {Messaging}
  */
 export function createMessaging (feature, injectName) {
-    const context = feature.messagingContext
+    const contextName = injectName === 'apple-isolated'
+        ? 'contentScopeScriptsIsolated'
+        : 'contentScopeScripts'
+
+    const context = new MessagingContext({
+        context: contextName,
+        env: feature.isDebug ? 'development' : 'production',
+        featureName: feature.name
+    })
+
+    const createExtensionConfig = () => {
+        const messagingTransport = new SendMessageMessagingTransport()
+        return new TestTransportConfig(messagingTransport)
+    }
 
     /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
     const config = {
@@ -29,7 +43,10 @@ export function createMessaging (feature, injectName) {
                 secret: '',
                 hasModernWebkitAPI: true
             })
-        }
+        },
+        firefox: createExtensionConfig,
+        chrome: createExtensionConfig,
+        'chrome-mv3': createExtensionConfig
     }
 
     const match = config[injectName]
