@@ -1,4 +1,4 @@
-import { sendMessage } from './utils'
+import { sendMessage } from './utils.js'
 
 /**
  * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
