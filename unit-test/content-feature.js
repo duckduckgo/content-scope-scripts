@@ -54,14 +54,14 @@ describe('ContentFeature class', () => {
         class MyTestFeature extends ContentFeature {
             // eslint-disable-next-line
             // @ts-ignore partial mock
-            messaging = {
-                notify () {
-                    console.log('AAAAA', arguments)
+            debugMessaging = {
+                notify (name, data) {
+                    console.log('notify', name, data)
                 }
             }
         }
         const feature = new MyTestFeature('someFeatureName')
-        const spyNotify = spyOn(feature.messaging, 'notify')
+        const spyNotify = spyOn(feature.debugMessaging, 'notify')
         feature.addDebugFlag('someflag')
         expect(spyNotify).toHaveBeenCalledWith(
             'addDebugFlag',
