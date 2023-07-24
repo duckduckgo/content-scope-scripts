@@ -110,7 +110,7 @@ export default class ContentFeature {
         if (this.#messaging) return this.#messaging
 
         // TODO: use createMessaging() from create-messaging.js when all platforms are supported
-        if (this.platform.name === 'extension') {
+        if (this.platform?.name === 'extension') {
             this.#messagingTransport = new SendMessageMessagingTransport()
             const config = new TestTransportConfig(this.#messagingTransport)
             this.#messaging = new Messaging(this.messagingContext, config)
@@ -256,5 +256,6 @@ export default class ContentFeature {
         this.messaging?.notify('addDebugFlag', {
             flag: `${this.name}.${flag}`
         })
+        console.log('calling', this.messaging?.notify, `${this.name}.${flag}`)
     }
 }
