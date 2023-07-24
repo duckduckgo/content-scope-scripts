@@ -1,7 +1,8 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { MessagingContext } from '../packages/messaging/index.js'
+import { MessagingContext, Messaging, TestTransportConfig } from '../packages/messaging/index.js'
+import { SendMessageMessagingTransport } from './sendmessage-transport.js'
 
 /**
  * @typedef {object} AssetConfig
@@ -28,6 +29,10 @@ export default class ContentFeature {
     #bundledfeatureSettings
     /** @type {MessagingContext} */
     #messagingContext
+    /** @type {SendMessageMessagingTransport} */
+    #messagingTransport
+    /** @type {Messaging} */
+    #messaging
 
     /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
     #args
@@ -98,6 +103,21 @@ export default class ContentFeature {
             featureName: this.name
         })
         return this.#messagingContext
+    }
+
+    // Messaging layer between the content feature and the Platform
+    get messaging () {
+        if (this.#messaging) return this.#messaging
+
+        // TODO: use createMessaging() from create-messaging.js when all platforms are supported
+        if (this.platform.name === 'extension') {
+            this.#messagingTransport = new SendMessageMessagingTransport()
+            const config = new TestTransportConfig(this.#messagingTransport)
+            this.#messaging = new Messaging(this.messagingContext, config)
+            return this.#messaging
+        } else {
+            return null
+        }
     }
 
     /**
@@ -226,5 +246,15 @@ export default class ContentFeature {
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     update () {
+    }
+
+    /**
+     * Register a string flag that will be added to page breakage reports
+     * @param {string} flag
+     */
+    addDebugFlag (flag = 'fired') {
+        this.messaging?.notify('addDebugFlag', {
+            flag: `${this.name}.${flag}`
+        })
     }
 }
