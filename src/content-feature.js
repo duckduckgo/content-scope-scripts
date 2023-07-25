@@ -31,6 +31,8 @@ export default class ContentFeature {
     #messagingContext
     /** @type {import('../packages/messaging').Messaging} */
     #debugMessaging
+    /** @type {Set<string>} */
+    #debugFlags
 
     /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
     #args
@@ -39,6 +41,7 @@ export default class ContentFeature {
         this.name = featureName
         this.#args = null
         this.monitor = new PerformanceMonitor()
+        this.#debugFlags = new Set()
     }
 
     get isDebug () {
@@ -249,6 +252,8 @@ export default class ContentFeature {
      * @param {string} flag
      */
     addDebugFlag (flag = 'fired') {
+        if (this.#debugFlags.has(flag)) return
+        this.#debugFlags.add(flag)
         this.debugMessaging?.notify('addDebugFlag', {
             flag: `${this.name}.${flag}`
         })

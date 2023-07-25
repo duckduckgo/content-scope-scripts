@@ -50,7 +50,7 @@ describe('ContentFeature class', () => {
         expect(didRun).withContext('Should run').toBeTrue()
     })
 
-    it('addDebugFlag should send a message to the background', () => {
+    describe('addDebugFlag', () => {
         class MyTestFeature extends ContentFeature {
             // eslint-disable-next-line
             // @ts-ignore partial mock
@@ -60,14 +60,29 @@ describe('ContentFeature class', () => {
                 }
             }
         }
-        const feature = new MyTestFeature('someFeatureName')
-        const spyNotify = spyOn(feature.debugMessaging, 'notify')
-        feature.addDebugFlag('someflag')
-        expect(spyNotify).toHaveBeenCalledWith(
-            'addDebugFlag',
-            {
-                flag: 'someFeatureName.someflag'
-            }
-        )
+        let feature
+        beforeEach(() => {
+            feature = new MyTestFeature('someFeatureName')
+        })
+
+        it('should send a message to the background', () => {
+            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            feature.addDebugFlag('someflag')
+            expect(spyNotify).toHaveBeenCalledWith(
+                'addDebugFlag',
+                {
+                    flag: 'someFeatureName.someflag'
+                }
+            )
+        })
+
+        it('should not send duplicate flags', () => {
+            // send some flag
+            feature.addDebugFlag('someflag')
+            // send it again
+            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            feature.addDebugFlag('someflag')
+            expect(spyNotify).not.toHaveBeenCalled()
+        })
     })
 })
