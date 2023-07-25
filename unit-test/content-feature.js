@@ -55,9 +55,8 @@ describe('ContentFeature class', () => {
             // eslint-disable-next-line
             // @ts-ignore partial mock
             debugMessaging = {
-                notify (name, data) {
-                    console.log('notify', name, data)
-                }
+                // eslint-disable-next-line
+                notify (name, data) {}
             }
         }
         let feature
@@ -83,6 +82,17 @@ describe('ContentFeature class', () => {
             const spyNotify = spyOn(feature.debugMessaging, 'notify')
             feature.addDebugFlag('someflag')
             expect(spyNotify).not.toHaveBeenCalled()
+        })
+
+        it('should send an empty suffix by default', () => {
+            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            feature.addDebugFlag()
+            expect(spyNotify).toHaveBeenCalledWith(
+                'addDebugFlag',
+                {
+                    flag: 'someFeatureName'
+                }
+            )
         })
     })
 })

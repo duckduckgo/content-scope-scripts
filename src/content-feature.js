@@ -251,11 +251,12 @@ export default class ContentFeature {
      * Register a string flag that will be added to page breakage reports
      * @param {string} flag
      */
-    addDebugFlag (flag = 'fired') {
+    addDebugFlag (flag = '') {
         if (this.#debugFlags.has(flag)) return
         this.#debugFlags.add(flag)
+        const suffix = flag ? `.${flag}` : ''
         this.debugMessaging?.notify('addDebugFlag', {
-            flag: `${this.name}.${flag}`
+            flag: `${this.name}${suffix}`
         })
     }
 }
