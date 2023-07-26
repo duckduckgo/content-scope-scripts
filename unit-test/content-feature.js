@@ -64,17 +64,6 @@ describe('ContentFeature class', () => {
             feature = new MyTestFeature('someFeatureName')
         })
 
-        it('should send a message to the background', () => {
-            const spyNotify = spyOn(feature.debugMessaging, 'notify')
-            feature.addDebugFlag('someflag')
-            expect(spyNotify).toHaveBeenCalledWith(
-                'addDebugFlag',
-                {
-                    flag: 'someFeatureName.someflag'
-                }
-            )
-        })
-
         it('should not send duplicate flags', () => {
             // send some flag
             feature.addDebugFlag('someflag')

@@ -31,8 +31,8 @@ export default class ContentFeature {
     #messagingContext
     /** @type {import('../packages/messaging').Messaging} */
     #debugMessaging
-    /** @type {Set<string>} */
-    #debugFlags
+    /** @type {boolean} */
+    #isDebugFlagSet = false
 
     /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
     #args
@@ -41,7 +41,6 @@ export default class ContentFeature {
         this.name = featureName
         this.#args = null
         this.monitor = new PerformanceMonitor()
-        this.#debugFlags = new Set()
     }
 
     get isDebug () {
@@ -248,15 +247,13 @@ export default class ContentFeature {
     }
 
     /**
-     * Register a string flag that will be added to page breakage reports
-     * @param {string} flag
+     * Register a flag that will be added to page breakage reports
      */
-    addDebugFlag (flag = '') {
-        if (this.#debugFlags.has(flag)) return
-        this.#debugFlags.add(flag)
-        const suffix = flag ? `.${flag}` : ''
+    addDebugFlag () {
+        if (this.#isDebugFlagSet) return
+        this.#isDebugFlagSet = true
         this.debugMessaging?.notify('addDebugFlag', {
-            flag: `${this.name}${suffix}`
+            flag: this.name
         })
     }
 }
