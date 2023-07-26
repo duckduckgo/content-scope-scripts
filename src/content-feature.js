@@ -275,10 +275,9 @@ export default class ContentFeature {
         ['value', 'get', 'set'].forEach((k) => {
             const descriptorProp = descriptor[k]
             if (typeof descriptorProp === 'function') {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias
-                const self = this
+                const addDebugFlag = this.addDebugFlag.bind(this)
                 descriptor[k] = function () {
-                    self.addDebugFlag()
+                    addDebugFlag()
                     return Reflect.apply(descriptorProp, this, arguments)
                 }
             }
