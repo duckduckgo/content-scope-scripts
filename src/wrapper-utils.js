@@ -6,6 +6,9 @@ const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor
 const functionToString = Function.prototype.toString
 const objectKeys = Object.keys
 
+/**
+ * @deprecated use the ContentFeature method instead
+ */
 export function defineProperty (object, propertyName, descriptor) {
     if (hasMozProxies) {
         const usedObj = object.wrappedJSObject || object
@@ -35,7 +38,7 @@ export function defineProperty (object, propertyName, descriptor) {
  * @param {*} newFn
  * @param {*} origFn
  */
-function wrapToString (newFn, origFn) {
+export function wrapToString (newFn, origFn) {
     if (typeof newFn !== 'function' || typeof origFn !== 'function') {
         return
     }
@@ -81,6 +84,7 @@ export function wrapFunction (functionValue, realTarget) {
  * @param {string} propertyName
  * @param {Partial<PropertyDescriptor>} descriptor
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+ * @deprecated use the ContentFeature method instead
  */
 export function wrapProperty (object, propertyName, descriptor) {
     if (!object) {
@@ -121,6 +125,7 @@ export function wrapProperty (object, propertyName, descriptor) {
  * @param {string} propertyName
  * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+ * @deprecated use the ContentFeature method instead
  */
 export function wrapMethod (object, propertyName, wrapperFn) {
     if (!object) {

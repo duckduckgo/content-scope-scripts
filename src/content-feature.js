@@ -1,8 +1,12 @@
+/* global cloneInto, exportFunction */
+
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { MessagingContext } from '../packages/messaging/index.js'
 import { createMessaging } from './create-messaging.js'
+import { hasMozProxies, wrapToString } from './wrapper-utils.js'
+import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
 
 /**
  * @typedef {object} AssetConfig
@@ -17,6 +21,8 @@ import { createMessaging } from './create-messaging.js'
  * @property {boolean} [allowlisted]
  * @property {string[]} [enabledFeatures]
  */
+
+const globalObj = typeof window === 'undefined' ? globalThis : window
 
 export default class ContentFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -255,5 +261,127 @@ export default class ContentFeature {
         this.debugMessaging?.notify('addDebugFlag', {
             flag: this.name
         })
+    }
+
+    /**
+     * Define a property descriptor. Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {string} propertyName
+     * @param {PropertyDescriptor} descriptor
+     */
+    defineProperty (object, propertyName, descriptor) {
+        // make sure to send a debug flag when the property is used
+        // NOTE: properties passing data in `value` would not be caught by this
+        ['value', 'get', 'set'].forEach((k) => {
+            const descriptorProp = descriptor[k]
+            if (typeof descriptorProp === 'function') {
+                // eslint-disable-next-line @typescript-eslint/no-this-alias
+                const self = this
+                descriptor[k] = function () {
+                    self.addDebugFlag()
+                    return Reflect.apply(descriptorProp, this, arguments)
+                }
+            }
+        })
+
+        if (hasMozProxies) {
+            const usedObj = object.wrappedJSObject || object
+            const UsedObjectInterface = globalObj.wrappedJSObject.Object
+            const definedDescriptor = new UsedObjectInterface();
+            ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
+                if (propertyName in descriptor) {
+                    definedDescriptor[propertyName] = cloneInto(
+                        descriptor[propertyName],
+                        definedDescriptor,
+                        { cloneFunctions: true })
+                }
+            });
+            ['get', 'set'].forEach((methodName) => {
+                if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
+                    exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName })
+                }
+            })
+            UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor)
+        } else {
+            Object.defineProperty(object, propertyName, descriptor)
+        }
+    }
+
+    /**
+     * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {string} propertyName
+     * @param {Partial<PropertyDescriptor>} descriptor
+     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+     */
+    wrapProperty (object, propertyName, descriptor) {
+        if (!object) {
+            return
+        }
+        if (hasMozProxies) {
+            object = object.wrappedJSObject || object
+        }
+
+        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
+        if (!origDescriptor) {
+            // this happens if the property is not implemented in the browser
+            return
+        }
+
+        if (('value' in origDescriptor && 'value' in descriptor) ||
+            ('get' in origDescriptor && 'get' in descriptor) ||
+            ('set' in origDescriptor && 'set' in descriptor)
+        ) {
+            wrapToString(descriptor.value, origDescriptor.value)
+            wrapToString(descriptor.get, origDescriptor.get)
+            wrapToString(descriptor.set, origDescriptor.set)
+
+            this.defineProperty(object, propertyName, {
+                ...origDescriptor,
+                ...descriptor
+            })
+            return origDescriptor
+        } else {
+            // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
+            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+        }
+    }
+
+    /**
+     * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {string} propertyName
+     * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+     */
+    wrapMethod (object, propertyName, wrapperFn) {
+        if (!object) {
+            return
+        }
+        if (hasMozProxies) {
+            object = object.wrappedJSObject || object
+        }
+        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
+        if (!origDescriptor) {
+            // this happens if the property is not implemented in the browser
+            return
+        }
+
+        const origFn = origDescriptor.value
+        if (!origFn || typeof origFn !== 'function') {
+            // method properties are expected to be defined with a `value`
+            throw new Error(`Property ${propertyName} does not look like a method`)
+        }
+
+        const newFn = function () {
+            return wrapperFn.call(this, origFn, ...arguments)
+        }
+        wrapToString(newFn, origFn)
+
+        this.defineProperty(object, propertyName, {
+            ...origDescriptor,
+            value: newFn
+        })
+        return origDescriptor
     }
 }
