@@ -46,7 +46,22 @@ export function createMessaging (feature, injectName) {
         },
         firefox: createExtensionConfig,
         chrome: createExtensionConfig,
-        'chrome-mv3': createExtensionConfig
+        'chrome-mv3': createExtensionConfig,
+        integration: () => {
+            return new TestTransportConfig({
+                notify () {
+                    // noop
+                },
+                request: async () => {
+                    // noop
+                },
+                subscribe () {
+                    return () => {
+                        // noop
+                    }
+                }
+            })
+        }
     }
 
     const match = config[injectName]
