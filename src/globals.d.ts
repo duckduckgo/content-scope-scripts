@@ -31,7 +31,7 @@ declare module '*.css' {
 }
 
 declare module 'ddg:platformFeatures' {
-    const output: Record<string, new (featureName: string) => import('./content-feature').default>
+    const output: Record<string, new (featureName: string, globalContext: import('./context').GlobalContext) => import('./content-feature').default>
     export default output
 }
 

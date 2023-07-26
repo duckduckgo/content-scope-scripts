@@ -2,7 +2,6 @@ import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFea
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { MessagingContext } from '../packages/messaging/index.js'
-import { createMessaging } from './create-messaging.js'
 
 /**
  * @typedef {object} AssetConfig
@@ -29,16 +28,19 @@ export default class ContentFeature {
     #bundledfeatureSettings
     /** @type {MessagingContext} */
     #messagingContext
-    /** @type {import('../packages/messaging').Messaging} */
-    #debugMessaging
     /** @type {Set<string>} */
     #debugFlags
 
     /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
     #args
 
-    constructor (featureName) {
+    /**
+     * @param {string} featureName
+     * @param {import('./context').GlobalContext} globalContext
+     */
+    constructor (featureName, globalContext) {
         this.name = featureName
+        this.globalContext = globalContext
         this.#args = null
         this.monitor = new PerformanceMonitor()
         this.#debugFlags = new Set()
@@ -104,19 +106,6 @@ export default class ContentFeature {
             featureName: this.name
         })
         return this.#messagingContext
-    }
-
-    // Messaging layer between the content feature and the Platform
-    get debugMessaging () {
-        if (this.#debugMessaging) return this.#debugMessaging
-
-        if (this.platform?.name === 'extension') {
-            if (typeof import.meta.injectName === 'undefined') throw new Error('import.meta.injectName missing')
-            this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, import.meta.injectName)
-            return this.#debugMessaging
-        } else {
-            return null
-        }
     }
 
     /**
@@ -255,7 +244,7 @@ export default class ContentFeature {
         if (this.#debugFlags.has(flag)) return
         this.#debugFlags.add(flag)
         const suffix = flag ? `.${flag}` : ''
-        this.debugMessaging?.notify('addDebugFlag', {
+        this.globalContext.debugMessaging?.notify('addDebugFlag', {
             flag: `${this.name}${suffix}`
         })
     }

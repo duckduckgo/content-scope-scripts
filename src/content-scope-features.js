@@ -4,6 +4,7 @@ import { platformSupport } from './features'
 import { PerformanceMonitor } from './performance'
 import injectedFeaturesCode from 'ddg:runtimeInjects'
 import platformFeatures from 'ddg:platformFeatures'
+import { GlobalContext } from './context'
 
 function shouldRun () {
     // don't inject into non-HTML documents (such as XML documents)
@@ -23,6 +24,8 @@ const updates = []
 const features = []
 const alwaysInitFeatures = new Set(['cookie'])
 const performanceMonitor = new PerformanceMonitor()
+/** @type {GlobalContext|null} */
+let globalContext = null
 
 /**
  * @typedef {object} LoadArgs
@@ -43,6 +46,8 @@ export function load (args) {
         return
     }
 
+    globalContext = new GlobalContext(args)
+
     const featureNames = typeof import.meta.injectName === 'string'
         ? platformSupport[import.meta.injectName]
         : []
@@ -53,7 +58,7 @@ export function load (args) {
             continue
         }
         const ContentFeature = platformFeatures['ddg_feature_' + featureName]
-        const featureInstance = new ContentFeature(featureName)
+        const featureInstance = new ContentFeature(featureName, globalContext)
         featureInstance.callLoad(args)
         features.push({ featureName, featureInstance })
     }

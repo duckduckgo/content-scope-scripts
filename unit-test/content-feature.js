@@ -1,6 +1,12 @@
 import ContentFeature from '../src/content-feature.js'
 
 describe('ContentFeature class', () => {
+    const contextMock = {
+        debugMessaging: {
+            // eslint-disable-next-line
+            notify (name, data) {}
+        }
+    }
     it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
         let didRun = false
         class MyTestFeature extends ContentFeature {
@@ -12,7 +18,12 @@ describe('ContentFeature class', () => {
                 didRun = true
             }
         }
-        const me = new MyTestFeature('test')
+        const me = new MyTestFeature(
+            'test',
+            // eslint-disable-next-line
+            // @ts-ignore - mock
+            contextMock
+        )
         me.callInit({
             site: {
                 domain: 'beep.example.com'
@@ -51,21 +62,19 @@ describe('ContentFeature class', () => {
     })
 
     describe('addDebugFlag', () => {
-        class MyTestFeature extends ContentFeature {
-            // eslint-disable-next-line
-            // @ts-ignore partial mock
-            debugMessaging = {
-                // eslint-disable-next-line
-                notify (name, data) {}
-            }
-        }
+        class MyTestFeature extends ContentFeature {}
         let feature
         beforeEach(() => {
-            feature = new MyTestFeature('someFeatureName')
+            feature = new MyTestFeature(
+                'someFeatureName',
+                // eslint-disable-next-line
+                // @ts-ignore - mock
+                contextMock
+            )
         })
 
         it('should send a message to the background', () => {
-            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            const spyNotify = spyOn(contextMock.debugMessaging, 'notify')
             feature.addDebugFlag('someflag')
             expect(spyNotify).toHaveBeenCalledWith(
                 'addDebugFlag',
@@ -79,13 +88,13 @@ describe('ContentFeature class', () => {
             // send some flag
             feature.addDebugFlag('someflag')
             // send it again
-            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            const spyNotify = spyOn(contextMock.debugMessaging, 'notify')
             feature.addDebugFlag('someflag')
             expect(spyNotify).not.toHaveBeenCalled()
         })
 
         it('should send an empty suffix by default', () => {
-            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            const spyNotify = spyOn(contextMock.debugMessaging, 'notify')
             feature.addDebugFlag()
             expect(spyNotify).toHaveBeenCalledWith(
                 'addDebugFlag',
