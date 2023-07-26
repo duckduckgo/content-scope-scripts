@@ -14,33 +14,7 @@
  */
 import ContentFeature from '../content-feature'
 import { DDGReflect, stripVersion } from '../utils'
-import { hasMozProxies, wrapMethod, wrapProperty } from '../wrapper-utils'
-
-/**
- * block some Permission API queries. The set of available permissions is quickly changing over time. Up-to-date lists can be found here:
- * - Chromium: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/third_party/blink/renderer/modules/permissions/permission_descriptor.idl
- * - Gecko: https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
- * - WebKit: https://github.com/WebKit/WebKit/blob/main/Source/WebCore/Modules/permissions/PermissionName.idl
- * @param {string[]} permissions permission names to auto-deny
- */
-function filterPermissionQuery (permissions) {
-    if (!permissions || permissions.length === 0) {
-        return
-    }
-    wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
-        // call the original function first in case it throws an error
-        const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject])
-
-        if (permissions.includes(queryObject.name)) {
-            return {
-                name: queryObject.name,
-                state: 'denied',
-                status: 'denied'
-            }
-        }
-        return origResult
-    })
-}
+import { hasMozProxies } from '../wrapper-utils'
 
 /**
  * Blocks some privacy harmful APIs.
@@ -70,6 +44,32 @@ export default class HarmfulApis extends ContentFeature {
     }
 
     /**
+     * block some Permission API queries. The set of available permissions is quickly changing over time. Up-to-date lists can be found here:
+     * - Chromium: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/third_party/blink/renderer/modules/permissions/permission_descriptor.idl
+     * - Gecko: https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
+     * - WebKit: https://github.com/WebKit/WebKit/blob/main/Source/WebCore/Modules/permissions/PermissionName.idl
+     * @param {string[]} permissions permission names to auto-deny
+     */
+    filterPermissionQuery (permissions) {
+        if (!permissions || permissions.length === 0) {
+            return
+        }
+        this.wrapMethod(globalThis.Permissions.prototype, 'query', async function (nativeImpl, queryObject) {
+            // call the original function first in case it throws an error
+            const origResult = await DDGReflect.apply(nativeImpl, this, [queryObject])
+
+            if (permissions.includes(queryObject.name)) {
+                return {
+                    name: queryObject.name,
+                    state: 'denied',
+                    status: 'denied'
+                }
+            }
+            return origResult
+        })
+    }
+
+    /**
      * @param {DeviceOrientationConfig} settings
      */
     removeDeviceOrientationEvents (settings) {
@@ -81,14 +81,14 @@ export default class HarmfulApis extends ContentFeature {
             for (const eventName of eventsToBlock) {
                 const dom0HandlerName = `on${eventName}`
                 if (dom0HandlerName in globalThis) {
-                    wrapProperty(globalThis, dom0HandlerName, {
+                    this.wrapProperty(globalThis, dom0HandlerName, {
                         set: () => { /* noop */ }
                     })
                 }
             }
             // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
             if (!hasMozProxies) {
-                wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+                this.wrapMethod(globalThis.EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
                     if (eventsToBlock.includes(type) && this === globalThis) {
                         console.log('blocked event', type)
                         return
@@ -112,9 +112,9 @@ export default class HarmfulApis extends ContentFeature {
             'gyroscope',
             'magnetometer'
         ]
-        filterPermissionQuery(permissionsToFilter)
+        this.filterPermissionQuery(permissionsToFilter)
         if (settings.blockSensorStart) {
-            wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
+            this.wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
                 // block all sensors
                 const EventCls = 'SensorErrorEvent' in globalThis ? globalThis.SensorErrorEvent : Event
                 const error = new EventCls('error', {
@@ -133,7 +133,7 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return
         }
-        wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
+        this.wrapMethod(globalThis.NavigatorUAData?.prototype, 'getHighEntropyValues', async function (nativeImpl, hints) {
             const nativeResult = await DDGReflect.apply(nativeImpl, this, [hints]) // this may throw an error, and that is fine
             const filteredResult = {}
             const highEntropyValues = settings.highEntropyValues || {}
@@ -224,7 +224,7 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return
         }
-        wrapMethod(this.navigatorPrototype, 'getInstalledRelatedApps', function () {
+        this.wrapMethod(this.navigatorPrototype, 'getInstalledRelatedApps', function () {
             return Promise.resolve(settings.returnValue ?? [])
         })
     }
@@ -258,9 +258,9 @@ export default class HarmfulApis extends ContentFeature {
             return
         }
         if ('screenIsExtended' in settings) {
-            wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => settings.screenIsExtended })
+            this.wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => settings.screenIsExtended })
         }
-        filterPermissionQuery(settings.filterPermissions ?? [
+        this.filterPermissionQuery(settings.filterPermissions ?? [
             'window-placement',
             'window-management'
         ])
@@ -278,7 +278,7 @@ export default class HarmfulApis extends ContentFeature {
         }
         // FIXME: in Firefox, EventTarget.prototype.wrappedJSObject is undefined which breaks defineProperty
         if (settings.filterEvents && settings.filterEvents.length > 0 && !hasMozProxies) {
-            wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
+            this.wrapMethod(EventTarget.prototype, 'addEventListener', function (nativeImpl, type, ...restArgs) {
                 if (settings.filterEvents?.includes(type) && this instanceof globalThis.Bluetooth) {
                     return
                 }
@@ -286,16 +286,16 @@ export default class HarmfulApis extends ContentFeature {
             })
         }
 
-        filterPermissionQuery(settings.filterPermissions ?? ['bluetooth'])
+        this.filterPermissionQuery(settings.filterPermissions ?? ['bluetooth'])
 
         if (settings.blockRequestDevice) {
-            wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
+            this.wrapMethod(globalThis.Bluetooth?.prototype, 'requestDevice', function () {
                 return Promise.reject(new DOMException('Bluetooth permission has been blocked.', 'NotFoundError'))
             })
         }
 
         if (settings.blockGetAvailability) {
-            wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false))
+            this.wrapMethod(globalThis.Bluetooth?.prototype, 'getAvailability', () => Promise.resolve(false))
         }
     }
 
@@ -306,7 +306,7 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return
         }
-        wrapMethod(globalThis.USB?.prototype, 'requestDevice', function () {
+        this.wrapMethod(globalThis.USB?.prototype, 'requestDevice', function () {
             return Promise.reject(new DOMException('No device selected.', 'NotFoundError'))
         })
     }
@@ -318,7 +318,7 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return
         }
-        wrapMethod(globalThis.Serial?.prototype, 'requestPort', function () {
+        this.wrapMethod(globalThis.Serial?.prototype, 'requestPort', function () {
             return Promise.reject(new DOMException('No port selected.', 'NotFoundError'))
         })
     }
@@ -331,7 +331,7 @@ export default class HarmfulApis extends ContentFeature {
             return
         }
         // Chrome 113 does not throw errors, and only returns an empty array here
-        wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => Promise.resolve([]))
+        this.wrapMethod(globalThis.HID?.prototype, 'requestDevice', () => Promise.resolve([]))
     }
 
     /**
@@ -341,10 +341,10 @@ export default class HarmfulApis extends ContentFeature {
         if (settings?.state !== 'enabled') {
             return
         }
-        wrapMethod(this.navigatorPrototype, 'requestMIDIAccess', function () {
+        this.wrapMethod(this.navigatorPrototype, 'requestMIDIAccess', function () {
             return Promise.reject(new DOMException('Permission is denied.', 'SecurityError'))
         })
-        filterPermissionQuery(settings.filterPermissions ?? ['midi'])
+        this.filterPermissionQuery(settings.filterPermissions ?? ['midi'])
     }
 
     /**
@@ -356,7 +356,7 @@ export default class HarmfulApis extends ContentFeature {
         }
         if ('IdleDetector' in globalThis) {
             delete globalThis.IdleDetector
-            filterPermissionQuery(settings.filterPermissions ?? ['idle-detection'])
+            this.filterPermissionQuery(settings.filterPermissions ?? ['idle-detection'])
         }
     }
 
@@ -391,7 +391,7 @@ export default class HarmfulApis extends ContentFeature {
             values.unshift(0)
             // now, values is a sorted array of positive numbers, with 0 as the first element
             if (values.length > 0) {
-                wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl, ...args) {
+                this.wrapMethod(globalThis.StorageManager?.prototype, 'estimate', async function (nativeImpl, ...args) {
                     const result = await DDGReflect.apply(nativeImpl, this, args)
                     // find the first allowed value from the right that is smaller than the result
                     let i = values.length - 1
