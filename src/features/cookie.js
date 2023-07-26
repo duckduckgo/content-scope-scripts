@@ -1,5 +1,4 @@
 import { postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdPartyFrame, getTabHostname, matchHostname } from '../utils.js'
-import { defineProperty } from '../wrapper-utils.js'
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
 import { isTrackerOrigin } from '../trackers.js'
@@ -216,7 +215,7 @@ export default class CookieFeature extends ContentFeature {
             }
         }
 
-        defineProperty(document, 'cookie', {
+        this.defineProperty(document, 'cookie', {
             configurable: true,
             set: setCookiePolicy,
             get: getCookiePolicy
