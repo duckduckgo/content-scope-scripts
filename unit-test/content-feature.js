@@ -1,6 +1,6 @@
 import ContentFeature from '../src/content-feature.js'
 
-describe('Helpers checks', () => {
+describe('ContentFeature class', () => {
     it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
         let didRun = false
         class MyTestFeature extends ContentFeature {
@@ -48,5 +48,40 @@ describe('Helpers checks', () => {
             }
         })
         expect(didRun).withContext('Should run').toBeTrue()
+    })
+
+    describe('addDebugFlag', () => {
+        class MyTestFeature extends ContentFeature {
+            // eslint-disable-next-line
+            // @ts-ignore partial mock
+            debugMessaging = {
+                // eslint-disable-next-line
+                notify (name, data) {}
+            }
+        }
+        let feature
+        beforeEach(() => {
+            feature = new MyTestFeature('someFeatureName')
+        })
+
+        it('should not send duplicate flags', () => {
+            // send some flag
+            feature.addDebugFlag('someflag')
+            // send it again
+            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            feature.addDebugFlag('someflag')
+            expect(spyNotify).not.toHaveBeenCalled()
+        })
+
+        it('should send an empty suffix by default', () => {
+            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            feature.addDebugFlag()
+            expect(spyNotify).toHaveBeenCalledWith(
+                'addDebugFlag',
+                {
+                    flag: 'someFeatureName'
+                }
+            )
+        })
     })
 })
