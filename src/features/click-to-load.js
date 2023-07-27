@@ -2,7 +2,7 @@ import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../pac
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
-import { ClickToLoadMessagingTransport } from './click-to-load/ctl-messaging-transport.js'
+import { SendMessageMessagingTransport } from '../sendmessage-transport.js'
 import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
 import { DDGCtlLoginButton } from './click-to-load/components/ctl-login-button.js'
@@ -1924,7 +1924,7 @@ export default class ClickToLoad extends ContentFeature {
     /**
      * This is only called by the current integration between Android and Extension and is now
      * used to connect only these Platforms responses with the temporary implementation of
-     * ClickToLoadMessagingTransport that wraps this communication.
+     * SendMessageMessagingTransport that wraps this communication.
      * This can be removed once they have their own Messaging integration.
      */
     update (message) {
@@ -2001,7 +2001,7 @@ export default class ClickToLoad extends ContentFeature {
         if (this._messaging) return this._messaging
 
         if (this.platform.name === 'android' || this.platform.name === 'extension' || this.platform.name === 'macos') {
-            this._clickToLoadMessagingTransport = new ClickToLoadMessagingTransport()
+            this._clickToLoadMessagingTransport = new SendMessageMessagingTransport()
             const config = new TestTransportConfig(this._clickToLoadMessagingTransport)
             this._messaging = new Messaging(this.messagingContext, config)
             return this._messaging

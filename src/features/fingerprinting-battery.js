@@ -22,12 +22,22 @@ export default class FingerprintingBattery extends ContentFeature {
 
             for (const [prop, val] of Object.entries(spoofedValues)) {
                 try {
-                    defineProperty(BatteryManager.prototype, prop, { get: () => val })
+                    defineProperty(BatteryManager.prototype, prop, {
+                        get: () => {
+                            this.addDebugFlag()
+                            return val
+                        }
+                    })
                 } catch (e) { }
             }
             for (const eventProp of eventProperties) {
                 try {
-                    defineProperty(BatteryManager.prototype, eventProp, { get: () => null })
+                    defineProperty(BatteryManager.prototype, eventProp, {
+                        get: () => {
+                            this.addDebugFlag()
+                            return null
+                        }
+                    })
                 } catch (e) { }
             }
         }

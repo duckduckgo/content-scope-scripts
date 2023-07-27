@@ -1,6 +1,6 @@
 {
     "root": true,
-    "plugins": ["promise", "@typescript-eslint"],
+    "plugins": ["promise", "@typescript-eslint", "eslint-plugin-n"],
     "parserOptions": {
       "ecmaVersion": "latest",
     },
