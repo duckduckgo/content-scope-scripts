@@ -71,7 +71,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "jasmine": "^4.6.0",
     "minimist": "^1.2.8",
-    "puppeteer": "^20.8.0",
+    "puppeteer": "^20.9.0",
     "rollup": "^3.26.2",
     "rollup-plugin-import-css": "^3.3.1",
     "rollup-plugin-svg-import": "^2.0.0",
