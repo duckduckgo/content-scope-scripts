@@ -1,4 +1,4 @@
-import { sendMessage } from '../../utils'
+import { sendMessage } from './utils.js'
 
 /**
  * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
@@ -13,7 +13,7 @@ import { sendMessage } from '../../utils'
  * @deprecated - Use this only to communicate with Android and the Extension while support to {@link Messaging}
  * is not ready and we need to use `sendMessage()`.
  */
-export class ClickToLoadMessagingTransport {
+export class SendMessageMessagingTransport {
     /**
      * Queue of callbacks to be called with messages sent from the Platform.
      * This is used to connect requests with responses and to trigger subscriptions callbacks.
