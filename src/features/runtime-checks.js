@@ -2,7 +2,7 @@
 
 import ContentFeature from '../content-feature.js'
 import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalStyles, createStyleElement, postDebugMessage, taintSymbol, hasTaintedMethod, taintedOrigins, getTabHostname, isBeingFramed } from '../utils.js'
-import { defineProperty, wrapFunction } from '../wrapper-utils.js'
+import { wrapFunction } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { findClosestBreakpoint } from './runtime-checks/helpers.js'
 import { Reflect } from '../captured-globals.js'
@@ -729,7 +729,7 @@ export default class RuntimeChecks extends ContentFeature {
 
     overloadDateGetTimezoneOffset (config) {
         const offset = (new Date()).getTimezoneOffset()
-        defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
+        this.defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
             configurable: true,
             enumerable: true,
             writable: true,
@@ -748,7 +748,7 @@ export default class RuntimeChecks extends ContentFeature {
         }
 
         const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues
-        defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
+        this.defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
             configurable: true,
             enumerable: true,
             writable: true,
@@ -840,7 +840,7 @@ export default class RuntimeChecks extends ContentFeature {
 
     overrideStorage (config, key, storage) {
         const originalStorage = globalThis[key]
-        defineProperty(globalThis, key, {
+        this.defineProperty(globalThis, key, {
             get () {
                 if (getTaintFromScope(this, arguments, config.stackCheck)) {
                     return storage
@@ -898,7 +898,7 @@ export default class RuntimeChecks extends ContentFeature {
         if (!defaultGetter) {
             return
         }
-        defineProperty(scope, overrideKey, {
+        this.defineProperty(scope, overrideKey, {
             get () {
                 const defaultVal = Reflect.apply(defaultGetter, receiver, [])
                 if (getTaintFromScope(this, arguments, config.stackCheck)) {

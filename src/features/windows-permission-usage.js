@@ -1,6 +1,5 @@
 /* global Bluetooth, Geolocation, HID, Serial, USB */
 import { DDGProxy, DDGReflect } from '../utils'
-import { defineProperty } from '../wrapper-utils'
 import ContentFeature from '../content-feature'
 
 export default class WindowsPermissionUsage extends ContentFeature {
@@ -262,7 +261,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // override MediaStreamTrack.enabled -> update active/paused status when enabled is set
         const trackEnabledPropertyDescriptor = Object.getOwnPropertyDescriptor(MediaStreamTrack.prototype, 'enabled')
-        defineProperty(MediaStreamTrack.prototype, 'enabled', {
+        this.defineProperty(MediaStreamTrack.prototype, 'enabled', {
             // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
             configurable: trackEnabledPropertyDescriptor.configurable,
             // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
