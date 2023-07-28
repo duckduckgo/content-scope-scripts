@@ -22,12 +22,13 @@ export class SendMessageMessagingTransport {
 
     constructor () {
         this.globals = {
-            window,
-            JSONparse: window.JSON.parse,
-            JSONstringify: window.JSON.stringify,
-            Promise: window.Promise,
-            Error: window.Error,
-            String: window.String
+            window: globalThis,
+            globalThis,
+            JSONparse: globalThis.JSON.parse,
+            JSONstringify: globalThis.JSON.stringify,
+            Promise: globalThis.Promise,
+            Error: globalThis.Error,
+            String: globalThis.String
         }
     }
 

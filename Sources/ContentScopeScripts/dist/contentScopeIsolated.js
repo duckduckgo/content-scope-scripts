@@ -6,28 +6,6 @@
     const objectKeys = Object.keys;
 
     /* global cloneInto, exportFunction, false */
-    // Tests don't define this variable so fallback to behave like chrome
-    const functionToString = Function.prototype.toString;
-
-    /**
-     * add a fake toString() method to a wrapper function to resemble the original function
-     * @param {*} newFn
-     * @param {*} origFn
-     */
-    function wrapToString (newFn, origFn) {
-        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
-            return
-        }
-        newFn.toString = function () {
-            if (this === newFn) {
-                return functionToString.call(origFn)
-            } else {
-                return functionToString.call(this)
-            }
-        };
-    }
-
-    /* global cloneInto, exportFunction, false */
     let messageSecret;
 
     // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
@@ -2103,12 +2081,13 @@
 
         constructor () {
             this.globals = {
-                window,
-                JSONparse: window.JSON.parse,
-                JSONstringify: window.JSON.stringify,
-                Promise: window.Promise,
-                Error: window.Error,
-                String: window.String
+                window: globalThis,
+                globalThis,
+                JSONparse: globalThis.JSON.parse,
+                JSONstringify: globalThis.JSON.stringify,
+                Promise: globalThis.Promise,
+                Error: globalThis.Error,
+                String: globalThis.String
             };
         }
 
@@ -2303,6 +2282,28 @@
         return new Messaging(context, match())
     }
 
+    /* global false */
+    // Tests don't define this variable so fallback to behave like chrome
+    const functionToString = Function.prototype.toString;
+
+    /**
+     * add a fake toString() method to a wrapper function to resemble the original function
+     * @param {*} newFn
+     * @param {*} origFn
+     */
+    function wrapToString (newFn, origFn) {
+        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
+            return
+        }
+        newFn.toString = function () {
+            if (this === newFn) {
+                return functionToString.call(origFn)
+            } else {
+                return functionToString.call(this)
+            }
+        };
+    }
+
     /* global cloneInto, exportFunction */
 
 
@@ -2396,7 +2397,7 @@
         get debugMessaging () {
             if (this.#debugMessaging) return this.#debugMessaging
 
-            if (this.platform?.name === 'extension') {
+            if (this.platform?.name === 'extension' && typeof "apple-isolated" !== 'undefined') {
                 this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, "apple-isolated");
                 return this.#debugMessaging
             } else {

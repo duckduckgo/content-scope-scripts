@@ -8,65 +8,6 @@
     const objectKeys = Object.keys;
 
     /* global cloneInto, exportFunction, false */
-    // Tests don't define this variable so fallback to behave like chrome
-    const hasMozProxies = false ;
-    const functionToString = Function.prototype.toString;
-
-    /**
-     * @deprecated use the ContentFeature method instead
-     */
-    function defineProperty (object, propertyName, descriptor) {
-        {
-            Object.defineProperty(object, propertyName, descriptor);
-        }
-    }
-
-    /**
-     * add a fake toString() method to a wrapper function to resemble the original function
-     * @param {*} newFn
-     * @param {*} origFn
-     */
-    function wrapToString (newFn, origFn) {
-        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
-            return
-        }
-        newFn.toString = function () {
-            if (this === newFn) {
-                return functionToString.call(origFn)
-            } else {
-                return functionToString.call(this)
-            }
-        };
-    }
-
-    /**
-     * Wrap functions to fix toString but also behave as closely to their real function as possible like .name and .length etc.
-     * TODO: validate with firefox non runtimeChecks context and also consolidate with wrapToString
-     * @param {*} functionValue
-     * @param {*} realTarget
-     * @returns {Proxy} a proxy for the function
-     */
-    function wrapFunction (functionValue, realTarget) {
-        return new Proxy(realTarget, {
-            get (target, prop, receiver) {
-                if (prop === 'toString') {
-                    const method = Reflect.get(target, prop, receiver).bind(target);
-                    Object.defineProperty(method, 'toString', {
-                        value: functionToString.bind(functionToString),
-                        enumerable: false
-                    });
-                    return method
-                }
-                return Reflect.get(target, prop, receiver)
-            },
-            apply (target, thisArg, argumentsList) {
-                // This is where we call our real function
-                return Reflect.apply(functionValue, thisArg, argumentsList)
-            }
-        })
-    }
-
-    /* global cloneInto, exportFunction, false */
 
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
     // eslint-disable-next-line no-global-assign
@@ -462,17 +403,19 @@
      */
     class DDGProxy {
         /**
-         * @param {string} featureName
+         * @param {import('./content-feature').default} feature
          * @param {P} objectScope
          * @param {string} property
          * @param {ProxyObject<P>} proxyObject
          */
-        constructor (featureName, objectScope, property, proxyObject, taintCheck = false) {
+        constructor (feature, objectScope, property, proxyObject, taintCheck = false) {
             this.objectScope = objectScope;
             this.property = property;
-            this.featureName = featureName;
+            this.feature = feature;
+            this.featureName = feature.name;
             this.camelFeatureName = camelcase(this.featureName);
             const outputHandler = (...args) => {
+                this.feature.addDebugFlag();
                 let isExempt = shouldExemptMethod(this.camelFeatureName);
                 // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't
                 if (!isExempt && taintCheck) {
@@ -503,6 +446,7 @@
                 return proxyObject.apply(...args)
             };
             const getMethod = (target, prop, receiver) => {
+                this.feature.addDebugFlag();
                 if (prop === 'toString') {
                     const method = Reflect.get(target, prop, receiver).bind(target);
                     Object.defineProperty(method, 'toString', {
@@ -530,7 +474,7 @@
         }
 
         overloadDescriptor () {
-            defineProperty(this.objectScope, this.property, {
+            this.feature.defineProperty(this.objectScope, this.property, {
                 value: this.internal
             });
         }
@@ -2398,12 +2342,13 @@
 
         constructor () {
             this.globals = {
-                window,
-                JSONparse: window.JSON.parse,
-                JSONstringify: window.JSON.stringify,
-                Promise: window.Promise,
-                Error: window.Error,
-                String: window.String
+                window: globalThis,
+                globalThis,
+                JSONparse: globalThis.JSON.parse,
+                JSONstringify: globalThis.JSON.stringify,
+                Promise: globalThis.Promise,
+                Error: globalThis.Error,
+                String: globalThis.String
             };
         }
 
@@ -2598,6 +2543,56 @@
         return new Messaging(context, match())
     }
 
+    /* global false */
+    // Tests don't define this variable so fallback to behave like chrome
+    const hasMozProxies = false ;
+    const functionToString = Function.prototype.toString;
+
+    /**
+     * add a fake toString() method to a wrapper function to resemble the original function
+     * @param {*} newFn
+     * @param {*} origFn
+     */
+    function wrapToString (newFn, origFn) {
+        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
+            return
+        }
+        newFn.toString = function () {
+            if (this === newFn) {
+                return functionToString.call(origFn)
+            } else {
+                return functionToString.call(this)
+            }
+        };
+    }
+
+    /**
+     * Wrap functions to fix toString but also behave as closely to their real function as possible like .name and .length etc.
+     * TODO: validate with firefox non runtimeChecks context and also consolidate with wrapToString
+     * @param {*} functionValue
+     * @param {*} realTarget
+     * @returns {Proxy} a proxy for the function
+     */
+    function wrapFunction (functionValue, realTarget) {
+        return new Proxy(realTarget, {
+            get (target, prop, receiver) {
+                if (prop === 'toString') {
+                    const method = Reflect.get(target, prop, receiver).bind(target);
+                    Object.defineProperty(method, 'toString', {
+                        value: functionToString.bind(functionToString),
+                        enumerable: false
+                    });
+                    return method
+                }
+                return Reflect.get(target, prop, receiver)
+            },
+            apply (target, thisArg, argumentsList) {
+                // This is where we call our real function
+                return Reflect.apply(functionValue, thisArg, argumentsList)
+            }
+        })
+    }
+
     /* global cloneInto, exportFunction */
 
 
@@ -2690,7 +2685,7 @@
         get debugMessaging () {
             if (this.#debugMessaging) return this.#debugMessaging
 
-            if (this.platform?.name === 'extension') {
+            if (this.platform?.name === 'extension' && typeof "integration" !== 'undefined') {
                 this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, "integration");
                 return this.#debugMessaging
             } else {
@@ -3256,8 +3251,11 @@
         return tagModifiers?.[tagName]?.filters?.[filterName]?.includes(key)
     }
 
+    // use a module-scoped variable to extract some methods from the class https://github.com/duckduckgo/content-scope-scripts/pull/654#discussion_r1277375832
+    /** @type {RuntimeChecks} */
+    let featureInstance$1;
+
     let elementRemovalTimeout;
-    const featureName = 'runtimeChecks';
     const supportedSinks = ['src'];
     // Store the original methods so we can call them without any side effects
     const defaultElementMethods = {
@@ -3763,7 +3761,7 @@
             }
             return capturedInterfaceOut
         }
-        const proxy = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptor', {
+        const proxy = new DDGProxy(featureInstance$1, Object, 'getOwnPropertyDescriptor', {
             apply (fn, scope, args) {
                 const interfaceValue = args[0];
                 const interfaceName = getInterfaceName(interfaceValue);
@@ -3776,7 +3774,7 @@
             }
         });
         proxy.overload();
-        const proxy2 = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptors', {
+        const proxy2 = new DDGProxy(featureInstance$1, Object, 'getOwnPropertyDescriptors', {
             apply (fn, scope, args) {
                 const interfaceValue = args[0];
                 const interfaceName = getInterfaceName(interfaceValue);
@@ -3795,7 +3793,7 @@
     }
 
     function overrideCreateElement (debug) {
-        const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
+        const proxy = new DDGProxy(featureInstance$1, Document.prototype, 'createElement', {
             apply (fn, scope, args) {
                 if (args.length >= 1) {
                     // String() is used to coerce the value to a string (For: ProseMirror/prosemirror-model/src/to_dom.ts)
@@ -3815,7 +3813,7 @@
     }
 
     function overloadRemoveChild () {
-        const proxy = new DDGProxy(featureName, Node.prototype, 'removeChild', {
+        const proxy = new DDGProxy(featureInstance$1, Node.prototype, 'removeChild', {
             apply (fn, scope, args) {
                 const child = args[0];
                 if (child instanceof DDGRuntimeChecks) {
@@ -3832,7 +3830,7 @@
     }
 
     function overloadReplaceChild () {
-        const proxy = new DDGProxy(featureName, Node.prototype, 'replaceChild', {
+        const proxy = new DDGProxy(featureInstance$1, Node.prototype, 'replaceChild', {
             apply (fn, scope, args) {
                 const newChild = args[1];
                 if (newChild instanceof DDGRuntimeChecks) {
@@ -3854,6 +3852,8 @@
                 // @ts-expect-error TS node return here
                 globalThis.customElements.define('ddg-runtime-checks', DDGRuntimeChecks);
             } catch {}
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            featureInstance$1 = this;
         }
 
         init () {
@@ -4809,7 +4809,6 @@
         init (args) {
             const { sessionKey, site } = args;
             const domainKey = site.domain;
-            const featureName = 'fingerprinting-audio';
 
             // In place modify array data to remove fingerprinting
             function transformArrayData (channelData, domainKey, sessionKey, thisArg) {
@@ -4837,7 +4836,7 @@
                 });
             }
 
-            const copyFromChannelProxy = new DDGProxy(featureName, AudioBuffer.prototype, 'copyFromChannel', {
+            const copyFromChannelProxy = new DDGProxy(this, AudioBuffer.prototype, 'copyFromChannel', {
                 apply (target, thisArg, args) {
                     const [source, channelNumber, startInChannel] = args;
                     // This is implemented in a different way to canvas purely because calling the function copied the original value, which is not ideal
@@ -4882,7 +4881,7 @@
                 cacheData.set(thisArg, { args: JSON.stringify(args), expires: Date.now() + cacheExpiry, audioKey });
             }
 
-            const getChannelDataProxy = new DDGProxy(featureName, AudioBuffer.prototype, 'getChannelData', {
+            const getChannelDataProxy = new DDGProxy(this, AudioBuffer.prototype, 'getChannelData', {
                 apply (target, thisArg, args) {
                     // The normal return value
                     const channelData = DDGReflect.apply(target, thisArg, args);
@@ -4899,7 +4898,7 @@
 
             const audioMethods = ['getByteTimeDomainData', 'getFloatTimeDomainData', 'getByteFrequencyData', 'getFloatFrequencyData'];
             for (const methodName of audioMethods) {
-                const proxy = new DDGProxy(featureName, AnalyserNode.prototype, methodName, {
+                const proxy = new DDGProxy(this, AnalyserNode.prototype, methodName, {
                     apply (target, thisArg, args) {
                         DDGReflect.apply(target, thisArg, args);
                         // Anything we do here should be caught and ignored silently
@@ -6130,7 +6129,6 @@
         init (args) {
             const { sessionKey, site } = args;
             const domainKey = site.domain;
-            const featureName = 'fingerprinting-canvas';
             const supportsWebGl = this.getFeatureSettingEnabled('webGl');
 
             const unsafeCanvases = new WeakSet();
@@ -6153,7 +6151,7 @@
                 clearCache(canvas);
             }
 
-            const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, 'getContext', {
+            const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, 'getContext', {
                 apply (target, thisArg, args) {
                     const context = DDGReflect.apply(target, thisArg, args);
                     try {
@@ -6169,7 +6167,7 @@
             // Known data methods
             const safeMethods = ['putImageData', 'drawImage'];
             for (const methodName of safeMethods) {
-                const safeMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
+                const safeMethodProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
                     apply (target, thisArg, args) {
                         // Don't apply escape hatch for canvases
                         if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
@@ -6208,7 +6206,7 @@
             for (const methodName of unsafeMethods) {
                 // Some methods are browser specific
                 if (methodName in CanvasRenderingContext2D.prototype) {
-                    const unsafeProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
+                    const unsafeProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
                         apply (target, thisArg, args) {
                             // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                             treatAsUnsafe(thisArg.canvas);
@@ -6240,7 +6238,7 @@
                     for (const methodName of unsafeGlMethods) {
                         // Some methods are browser specific
                         if (methodName in context.prototype) {
-                            const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
+                            const unsafeProxy = new DDGProxy(this, context.prototype, methodName, {
                                 apply (target, thisArg, args) {
                                     // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                                     treatAsUnsafe(thisArg.canvas);
@@ -6254,7 +6252,7 @@
             }
 
             // Using proxies here to swallow calls to toString etc
-            const getImageDataProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, 'getImageData', {
+            const getImageDataProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, 'getImageData', {
                 apply (target, thisArg, args) {
                     // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     if (!unsafeCanvases.has(thisArg.canvas)) {
@@ -6295,7 +6293,7 @@
 
             const canvasMethods = ['toDataURL', 'toBlob'];
             for (const methodName of canvasMethods) {
-                const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, methodName, {
+                const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, methodName, {
                     apply (target, thisArg, args) {
                         // Short circuit for low risk canvas calls
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
@@ -6621,6 +6619,9 @@
     let shouldInjectStyleTag = false;
     let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 
+    /** @type {ElementHiding} */
+    let featureInstance;
+
     /**
      * Hide DOM element if rule conditions met
      * @param {HTMLElement} element
@@ -6637,6 +6638,8 @@
         if (alreadyHidden) {
             return
         }
+
+        featureInstance.addDebugFlag();
 
         switch (type) {
         case 'hide':
@@ -6772,44 +6775,6 @@
     }
 
     /**
-     * Apply relevant hiding rules to page at set intervals
-     * @param {Object[]} rules
-     * @param {string} rules[].selector
-     * @param {string} rules[].type
-     */
-    function applyRules (rules) {
-        const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
-        const unhideTimeouts = [750, 1500, 2250, 3000];
-        const timeoutRules = extractTimeoutRules(rules);
-
-        // several passes are made to hide & unhide elements. this is necessary because we're not using
-        // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
-        // frequently take from several hundred milliseconds to several seconds to load
-        // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
-        hideTimeouts.forEach((timeout) => {
-            setTimeout(() => {
-                hideAdNodes(timeoutRules);
-            }, timeout);
-        });
-
-        // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
-        // we do this in order to display non-tracking ads that aren't blocked at the request level
-        // check at 750ms, 1500ms, 2250ms, 3000ms
-        unhideTimeouts.forEach((timeout) => {
-            setTimeout(() => {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                unhideLoadedAds();
-            }, timeout);
-        });
-
-        // clear appliedRules and hiddenElements caches once all checks have run
-        setTimeout(() => {
-            appliedRules = new Set();
-            hiddenElements = new WeakMap();
-        }, 3100);
-    }
-
-    /**
      * Separate strict hide rules to inject as style tag if enabled
      * @param {Object[]} rules
      * @param {string} rules[].selector
@@ -6890,11 +6855,13 @@
 
     class ElementHiding extends ContentFeature {
         init () {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            featureInstance = this;
+
             if (isBeingFramed()) {
                 return
             }
 
-            const featureName = 'elementHiding';
             const globalRules = this.getFeatureSetting('rules');
             adLabelStrings = this.getFeatureSetting('adLabelStrings');
             shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag');
@@ -6921,6 +6888,8 @@
                 });
             });
 
+            const applyRules = this.applyRules.bind(this);
+
             // now have the final list of rules to apply, so we apply them when document is loaded
             if (document.readyState === 'loading') {
                 window.addEventListener('DOMContentLoaded', () => {
@@ -6931,7 +6900,7 @@
             }
             // single page applications don't have a DOMContentLoaded event on navigations, so
             // we use proxy/reflect on history.pushState to call applyRules on page navigations
-            const historyMethodProxy = new DDGProxy(featureName, History.prototype, 'pushState', {
+            const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
                 apply (target, thisArg, args) {
                     applyRules(activeRules);
                     return DDGReflect.apply(target, thisArg, args)
@@ -6943,12 +6912,50 @@
                 applyRules(activeRules);
             });
         }
+
+        /**
+         * Apply relevant hiding rules to page at set intervals
+         * @param {Object[]} rules
+         * @param {string} rules[].selector
+         * @param {string} rules[].type
+         */
+        applyRules (rules) {
+            const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000];
+            const unhideTimeouts = [750, 1500, 2250, 3000];
+            const timeoutRules = extractTimeoutRules(rules);
+
+            // several passes are made to hide & unhide elements. this is necessary because we're not using
+            // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
+            // frequently take from several hundred milliseconds to several seconds to load
+            // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
+            hideTimeouts.forEach((timeout) => {
+                setTimeout(() => {
+                    hideAdNodes(timeoutRules);
+                }, timeout);
+            });
+
+            // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
+            // we do this in order to display non-tracking ads that aren't blocked at the request level
+            // check at 750ms, 1500ms, 2250ms, 3000ms
+            unhideTimeouts.forEach((timeout) => {
+                setTimeout(() => {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    unhideLoadedAds();
+                }, timeout);
+            });
+
+            // clear appliedRules and hiddenElements caches once all checks have run
+            setTimeout(() => {
+                appliedRules = new Set();
+                hiddenElements = new WeakMap();
+            }, 3100);
+        }
     }
 
     class ExceptionHandler extends ContentFeature {
         init () {
             // Report to the debugger panel if an uncaught exception occurs
-            function handleUncaughtException (e) {
+            const handleUncaughtException = (e) => {
                 postDebugMessage('jsException', {
                     documentUrl: document.location.href,
                     message: e.message,
@@ -6957,7 +6964,8 @@
                     colno: e.colno,
                     stack: e.error?.stack
                 });
-            }
+                this.addDebugFlag();
+            };
             globalThis.addEventListener('error', handleUncaughtException);
         }
     }
@@ -8651,6 +8659,8 @@
     // we need a module scoped reference.
     /** @type {import("@duckduckgo/messaging").Messaging} */
     let _messagingModuleScope;
+    /** @type function */
+    let _addDebugFlag;
     const ctl = {
         /**
          * @return {import("@duckduckgo/messaging").Messaging}
@@ -8658,6 +8668,11 @@
         get messaging () {
             if (!_messagingModuleScope) throw new Error('Messaging not initialized')
             return _messagingModuleScope
+        },
+
+        addDebugFlag () {
+            if (!_addDebugFlag) throw new Error('addDebugFlag not initialized')
+            return _addDebugFlag()
         }
     };
 
@@ -9240,6 +9255,7 @@
 
         // Facebook
         if (widget.replaceSettings.type === 'dialog') {
+            ctl.addDebugFlag();
             ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookPlaceholderShown: true });
             if (widget.shouldUseCustomElement()) {
                 /**
@@ -9281,6 +9297,7 @@
 
         // YouTube
         if (widget.replaceSettings.type === 'youtube-video') {
+            ctl.addDebugFlag();
             ctl.messaging.notify('updateYouTubeCTLAddedFlag', { youTubeCTLAddedFlag: true });
             replaceYouTubeCTL(trackingElement, widget);
 
@@ -9513,6 +9530,7 @@
      * the website as broken.
      */
     function notifyFacebookLogin () {
+        ctl.addDebugFlag();
         ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookLogin: true });
     }
 
@@ -10382,6 +10400,7 @@
                 throw new Error('Cannot operate click to load without a messaging backend')
             }
             _messagingModuleScope = this.messaging;
+            _addDebugFlag = this.addDebugFlag.bind(this);
 
             const websiteOwner = args?.site?.parentEntity;
             const settings = args?.featureSettings?.clickToLoad || {};
@@ -10920,8 +10939,6 @@
 
     class WindowsPermissionUsage extends ContentFeature {
         init () {
-            const featureName = 'windows-permission-usage';
-
             const Permission = {
                 Geolocation: 'geolocation',
                 Camera: 'camera',
@@ -10954,7 +10971,7 @@
             let pauseWatchedPositions = false;
             const watchedPositions = new Set();
             // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
-            const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
+            const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, 'watchPosition', {
                 apply (target, thisArg, args) {
                     if (isFrameInsideFrame) {
                         // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
@@ -10978,7 +10995,7 @@
             watchPositionProxy.overload();
 
             // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
-            const clearWatchProxy = new DDGProxy(featureName, Geolocation.prototype, 'clearWatch', {
+            const clearWatchProxy = new DDGProxy(this, Geolocation.prototype, 'clearWatch', {
                 apply (target, thisArg, args) {
                     DDGReflect.apply(target, thisArg, args);
                     if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
@@ -10989,7 +11006,7 @@
             clearWatchProxy.overload();
 
             // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
-            const getCurrentPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'getCurrentPosition', {
+            const getCurrentPositionProxy = new DDGProxy(this, Geolocation.prototype, 'getCurrentPosition', {
                 apply (target, thisArg, args) {
                     const successHandler = args[0];
                     args[0] = function (position) {
@@ -11153,7 +11170,7 @@
             }
 
             // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
-            const stopTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'stop', {
+            const stopTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'stop', {
                 apply (target, thisArg, args) {
                     handleTrackEnded(thisArg);
                     return DDGReflect.apply(target, thisArg, args)
@@ -11162,7 +11179,7 @@
             stopTrackProxy.overload();
 
             // proxy for track.clone -> monitor the cloned track
-            const cloneTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'clone', {
+            const cloneTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'clone', {
                 apply (target, thisArg, args) {
                     const clonedTrack = DDGReflect.apply(target, thisArg, args);
                     if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
@@ -11201,7 +11218,7 @@
             // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
             const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks'];
             for (const methodName of getTracksMethodNames) {
-                const getTracksProxy = new DDGProxy(featureName, MediaStream.prototype, methodName, {
+                const getTracksProxy = new DDGProxy(this, MediaStream.prototype, methodName, {
                     apply (target, thisArg, args) {
                         const tracks = DDGReflect.apply(target, thisArg, args);
                         if (userMediaStreams.has(thisArg)) {
@@ -11214,7 +11231,7 @@
             }
 
             // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
-            const cloneMediaStreamProxy = new DDGProxy(featureName, MediaStream.prototype, 'clone', {
+            const cloneMediaStreamProxy = new DDGProxy(this, MediaStream.prototype, 'clone', {
                 apply (target, thisArg, args) {
                     const clonedStream = DDGReflect.apply(target, thisArg, args);
                     if (userMediaStreams.has(thisArg)) {
@@ -11229,7 +11246,7 @@
 
             // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
             if (window.MediaDevices) {
-                const getUserMediaProxy = new DDGProxy(featureName, MediaDevices.prototype, 'getUserMedia', {
+                const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
                     apply (target, thisArg, args) {
                         if (isFrameInsideFrame) {
                             // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
@@ -11309,7 +11326,7 @@
             ];
             for (const { name, prototype, method, isPromise } of permissionsToDisable) {
                 try {
-                    const proxy = new DDGProxy(featureName, prototype(), method, {
+                    const proxy = new DDGProxy(this, prototype(), method, {
                         apply () {
                             if (isPromise) {
                                 return Promise.reject(new DOMException('Permission denied'))
@@ -11411,7 +11428,6 @@
         };
     }
 
-    // TODO: verify that all descriptor shapes match the original (i.e. we're not overriding value descriptors with get/set descriptors)
     class WebCompat extends ContentFeature {
         init () {
             if (this.getFeatureSettingEnabled('windowSizing')) {
@@ -11433,6 +11449,7 @@
                 if ('credentials' in navigator && 'get' in navigator.credentials) {
                     return
                 }
+                // TODO: change the property descriptor shape to match the original
                 const value = {
                     get () {
                         return Promise.reject(new Error())

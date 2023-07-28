@@ -6,7 +6,6 @@ export default class FingerprintingAudio extends ContentFeature {
     init (args) {
         const { sessionKey, site } = args
         const domainKey = site.domain
-        const featureName = 'fingerprinting-audio'
 
         // In place modify array data to remove fingerprinting
         function transformArrayData (channelData, domainKey, sessionKey, thisArg) {
@@ -34,7 +33,7 @@ export default class FingerprintingAudio extends ContentFeature {
             })
         }
 
-        const copyFromChannelProxy = new DDGProxy(featureName, AudioBuffer.prototype, 'copyFromChannel', {
+        const copyFromChannelProxy = new DDGProxy(this, AudioBuffer.prototype, 'copyFromChannel', {
             apply (target, thisArg, args) {
                 const [source, channelNumber, startInChannel] = args
                 // This is implemented in a different way to canvas purely because calling the function copied the original value, which is not ideal
@@ -79,7 +78,7 @@ export default class FingerprintingAudio extends ContentFeature {
             cacheData.set(thisArg, { args: JSON.stringify(args), expires: Date.now() + cacheExpiry, audioKey })
         }
 
-        const getChannelDataProxy = new DDGProxy(featureName, AudioBuffer.prototype, 'getChannelData', {
+        const getChannelDataProxy = new DDGProxy(this, AudioBuffer.prototype, 'getChannelData', {
             apply (target, thisArg, args) {
                 // The normal return value
                 const channelData = DDGReflect.apply(target, thisArg, args)
@@ -96,7 +95,7 @@ export default class FingerprintingAudio extends ContentFeature {
 
         const audioMethods = ['getByteTimeDomainData', 'getFloatTimeDomainData', 'getByteFrequencyData', 'getFloatFrequencyData']
         for (const methodName of audioMethods) {
-            const proxy = new DDGProxy(featureName, AnalyserNode.prototype, methodName, {
+            const proxy = new DDGProxy(this, AnalyserNode.prototype, methodName, {
                 apply (target, thisArg, args) {
                     DDGReflect.apply(target, thisArg, args)
                     // Anything we do here should be caught and ignored silently
