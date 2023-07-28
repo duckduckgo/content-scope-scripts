@@ -8,6 +8,9 @@ let appliedRules = new Set()
 let shouldInjectStyleTag = false
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button'
 
+/** @type {ElementHiding} */
+let featureInstance
+
 /**
  * Hide DOM element if rule conditions met
  * @param {HTMLElement} element
@@ -24,6 +27,8 @@ function collapseDomNode (element, rule, previousElement) {
     if (alreadyHidden) {
         return
     }
+
+    featureInstance.addDebugFlag()
 
     switch (type) {
     case 'hide':
@@ -243,6 +248,9 @@ function unhideLoadedAds () {
 
 export default class ElementHiding extends ContentFeature {
     init () {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        featureInstance = this
+
         if (isBeingFramed()) {
             return
         }
@@ -305,7 +313,6 @@ export default class ElementHiding extends ContentFeature {
      * @param {string} rules[].type
      */
     applyRules (rules) {
-        this.addDebugFlag()
         const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000]
         const unhideTimeouts = [750, 1500, 2250, 3000]
         const timeoutRules = extractTimeoutRules(rules)
