@@ -1,8 +1,9 @@
-import { Messaging, MessagingContext, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
+import { Messaging, MessagingContext, TestTransportConfig, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
+import { SendMessageMessagingTransport } from './sendmessage-transport.js'
 
 /**
  * Extracted so we can iterate on the best way to bring this to all platforms
- * @param {import('./content-feature.js').default} feature
+ * @param {{ name: string, isDebug: boolean }} feature
  * @param {string} injectName
  * @return {Messaging}
  */
@@ -16,6 +17,11 @@ export function createMessaging (feature, injectName) {
         env: feature.isDebug ? 'development' : 'production',
         featureName: feature.name
     })
+
+    const createExtensionConfig = () => {
+        const messagingTransport = new SendMessageMessagingTransport()
+        return new TestTransportConfig(messagingTransport)
+    }
 
     /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
     const config = {
@@ -33,9 +39,27 @@ export function createMessaging (feature, injectName) {
         },
         'apple-isolated': () => {
             return new WebkitMessagingConfig({
-                webkitMessageHandlerNames: [contextName],
+                webkitMessageHandlerNames: [context.context],
                 secret: '',
                 hasModernWebkitAPI: true
+            })
+        },
+        firefox: createExtensionConfig,
+        chrome: createExtensionConfig,
+        'chrome-mv3': createExtensionConfig,
+        integration: () => {
+            return new TestTransportConfig({
+                notify () {
+                    // noop
+                },
+                request: async () => {
+                    // noop
+                },
+                subscribe () {
+                    return () => {
+                        // noop
+                    }
+                }
             })
         }
     }

@@ -4,13 +4,16 @@
 
     const Set$1 = globalThis.Set;
     const Reflect$1 = globalThis.Reflect;
+    const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+    const objectKeys = Object.keys;
 
     /* global cloneInto, exportFunction, false */
     // Tests don't define this variable so fallback to behave like chrome
-    const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
     const functionToString = Function.prototype.toString;
-    const objectKeys = Object.keys;
 
+    /**
+     * @deprecated use the ContentFeature method instead
+     */
     function defineProperty (object, propertyName, descriptor) {
         {
             Object.defineProperty(object, propertyName, descriptor);
@@ -60,43 +63,6 @@
                 return Reflect.apply(functionValue, thisArg, argumentsList)
             }
         })
-    }
-
-    /**
-     * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
-     * @param {string} propertyName
-     * @param {Partial<PropertyDescriptor>} descriptor
-     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
-     */
-    function wrapProperty (object, propertyName, descriptor) {
-        if (!object) {
-            return
-        }
-
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
-        if (!origDescriptor) {
-            // this happens if the property is not implemented in the browser
-            return
-        }
-
-        if (('value' in origDescriptor && 'value' in descriptor) ||
-            ('get' in origDescriptor && 'get' in descriptor) ||
-            ('set' in origDescriptor && 'set' in descriptor)
-        ) {
-            wrapToString(descriptor.value, origDescriptor.value);
-            wrapToString(descriptor.get, origDescriptor.get);
-            wrapToString(descriptor.set, origDescriptor.set);
-
-            defineProperty(object, propertyName, {
-                ...origDescriptor,
-                ...descriptor
-            });
-            return origDescriptor
-        } else {
-            // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
-        }
     }
 
     /* global cloneInto, exportFunction, false */
@@ -782,6 +748,7 @@
         ],
         android: [
             ...baseFeatures,
+            'webCompat',
             'clickToLoad'
         ],
         windows: [
@@ -2469,18 +2436,229 @@
     }
 
     /**
-     * @typedef {object} AssetConfig
-     * @property {string} regularFontUrl
-     * @property {string} boldFontUrl
+     * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
+     * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport
      */
 
     /**
-     * @typedef {object} Site
-     * @property {string | null} domain
-     * @property {boolean} [isBroken]
-     * @property {boolean} [allowlisted]
-     * @property {string[]} [enabledFeatures]
+     * A temporary implementation of {@link MessagingTransport} to communicate with Android and Extension.
+     * It wraps the current messaging system that calls `sendMessage`
+     *
+     * @implements {MessagingTransport}
+     * @deprecated - Use this only to communicate with Android and the Extension while support to {@link Messaging}
+     * is not ready and we need to use `sendMessage()`.
      */
+    class SendMessageMessagingTransport {
+        /**
+         * Queue of callbacks to be called with messages sent from the Platform.
+         * This is used to connect requests with responses and to trigger subscriptions callbacks.
+         */
+        _queue = new Set()
+
+        constructor () {
+            this.globals = {
+                window,
+                JSONparse: window.JSON.parse,
+                JSONstringify: window.JSON.stringify,
+                Promise: window.Promise,
+                Error: window.Error,
+                String: window.String
+            };
+        }
+
+        /**
+         * Callback for update() handler. This connects messages sent from the Platform
+         * with callback functions in the _queue.
+         * @param {any} response
+         */
+        onResponse (response) {
+            this._queue.forEach((subscription) => subscription(response));
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').NotificationMessage} msg
+         */
+        notify (msg) {
+            let params = msg.params;
+
+            // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
+            // for sendMessage()
+            if (msg.method === 'setYoutubePreviewsEnabled') {
+                params = msg.params?.youtubePreviewsEnabled;
+            }
+            // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
+            // for sendMessage()
+            if (msg.method === 'updateYouTubeCTLAddedFlag') {
+                params = msg.params?.youTubeCTLAddedFlag;
+            }
+
+            sendMessage(msg.method, params);
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').RequestMessage} req
+         * @return {Promise<any>}
+         */
+        request (req) {
+            let comparator = (eventData) => {
+                return eventData.responseMessageType === req.method
+            };
+            let params = req.params;
+
+            // Adapts request for 'getYouTubeVideoDetails' by identifying the correct
+            // response for each request and updating params to expect current
+            // implementation specifications.
+            if (req.method === 'getYouTubeVideoDetails') {
+                comparator = (eventData) => {
+                    return (
+                        eventData.responseMessageType === req.method &&
+                        eventData.response &&
+                        eventData.response.videoURL === req.params?.videoURL
+                    )
+                };
+                params = req.params?.videoURL;
+            }
+
+            sendMessage(req.method, params);
+
+            return new this.globals.Promise((resolve) => {
+                this._subscribe(comparator, (msgRes, unsubscribe) => {
+                    unsubscribe();
+
+                    return resolve(msgRes.response)
+                });
+            })
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe (msg, callback) {
+            const comparator = (eventData) => {
+                return (
+                    eventData.messageType === msg.subscriptionName ||
+                    eventData.responseMessageType === msg.subscriptionName
+                )
+            };
+
+            // only forward the 'params' ('response' in current format), to match expected
+            // callback from a SubscriptionEvent
+            const cb = (eventData) => {
+                return callback(eventData.response)
+            };
+            return this._subscribe(comparator, cb)
+        }
+
+        /**
+         * @param {(eventData: any) => boolean} comparator
+         * @param {(value: any, unsubscribe: (()=>void)) => void} callback
+         * @internal
+         */
+        _subscribe (comparator, callback) {
+            /** @type {(()=>void) | undefined} */
+            // eslint-disable-next-line prefer-const
+            let teardown;
+
+            /**
+             * @param {MessageEvent} event
+             */
+            const idHandler = (event) => {
+                if (!event) {
+                    console.warn('no message available');
+                    return
+                }
+                if (comparator(event)) {
+                    if (!teardown) throw new this.globals.Error('unreachable')
+                    callback(event, teardown);
+                }
+            };
+            this._queue.add(idHandler);
+
+            teardown = () => {
+                this._queue.delete(idHandler);
+            };
+
+            return () => {
+                teardown?.();
+            }
+        }
+    }
+
+    /**
+     * Extracted so we can iterate on the best way to bring this to all platforms
+     * @param {{ name: string, isDebug: boolean }} feature
+     * @param {string} injectName
+     * @return {Messaging}
+     */
+    function createMessaging (feature, injectName) {
+        const contextName = injectName === 'apple-isolated'
+            ? 'contentScopeScriptsIsolated'
+            : 'contentScopeScripts';
+
+        const context = new MessagingContext({
+            context: contextName,
+            env: feature.isDebug ? 'development' : 'production',
+            featureName: feature.name
+        });
+
+        const createExtensionConfig = () => {
+            const messagingTransport = new SendMessageMessagingTransport();
+            return new TestTransportConfig(messagingTransport)
+        };
+
+        /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
+        const config = {
+            windows: () => {
+                return new WindowsMessagingConfig({
+                    methods: {
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        postMessage: windowsInteropPostMessage,
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        addEventListener: windowsInteropAddEventListener,
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        removeEventListener: windowsInteropRemoveEventListener
+                    }
+                })
+            },
+            'apple-isolated': () => {
+                return new WebkitMessagingConfig({
+                    webkitMessageHandlerNames: [context.context],
+                    secret: '',
+                    hasModernWebkitAPI: true
+                })
+            },
+            firefox: createExtensionConfig,
+            chrome: createExtensionConfig,
+            'chrome-mv3': createExtensionConfig,
+            integration: () => {
+                return new TestTransportConfig({
+                    notify () {
+                        // noop
+                    },
+                    request: async () => {
+                        // noop
+                    },
+                    subscribe () {
+                        return () => {
+                            // noop
+                        }
+                    }
+                })
+            }
+        };
+
+        const match = config[injectName];
+
+        if (!match) {
+            throw new Error('Messaging not supported yet on: ' + injectName)
+        }
+
+        return new Messaging(context, match())
+    }
+
+    /* global cloneInto, exportFunction */
+
 
     class ContentFeature {
         /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -2493,6 +2671,10 @@
         #bundledfeatureSettings
         /** @type {MessagingContext} */
         #messagingContext
+        /** @type {import('../packages/messaging').Messaging} */
+        #debugMessaging
+        /** @type {boolean} */
+        #isDebugFlagSet = false
 
         /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
         #args
@@ -2552,12 +2734,27 @@
          */
         get messagingContext () {
             if (this.#messagingContext) return this.#messagingContext
+
+            const contextName = 'contentScopeScripts';
+
             this.#messagingContext = new MessagingContext({
-                context: 'contentScopeScripts',
-                featureName: this.name,
-                env: this.isDebug ? 'development' : 'production'
+                context: contextName,
+                env: this.isDebug ? 'development' : 'production',
+                featureName: this.name
             });
             return this.#messagingContext
+        }
+
+        // Messaging layer between the content feature and the Platform
+        get debugMessaging () {
+            if (this.#debugMessaging) return this.#debugMessaging
+
+            if (this.platform?.name === 'extension') {
+                this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, "chrome-mv3");
+                return this.#debugMessaging
+            } else {
+                return null
+            }
         }
 
         /**
@@ -2613,12 +2810,16 @@
 
         /**
          * For simple boolean settings, return true if the setting is 'enabled'
+         * For objects, verify the 'state' field is 'enabled'.
          * @param {string} featureKeyName
          * @param {string} [featureName]
          * @returns {boolean}
          */
         getFeatureSettingEnabled (featureKeyName, featureName) {
             const result = this.getFeatureSetting(featureKeyName, featureName);
+            if (typeof result === 'object') {
+                return result.state === 'enabled'
+            }
             return result === 'enabled'
         }
 
@@ -2686,6 +2887,114 @@
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         update () {
+        }
+
+        /**
+         * Register a flag that will be added to page breakage reports
+         */
+        addDebugFlag () {
+            if (this.#isDebugFlagSet) return
+            this.#isDebugFlagSet = true;
+            this.debugMessaging?.notify('addDebugFlag', {
+                flag: this.name
+            });
+        }
+
+        /**
+         * Define a property descriptor. Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {PropertyDescriptor} descriptor
+         */
+        defineProperty (object, propertyName, descriptor) {
+            // make sure to send a debug flag when the property is used
+            // NOTE: properties passing data in `value` would not be caught by this
+            ['value', 'get', 'set'].forEach((k) => {
+                const descriptorProp = descriptor[k];
+                if (typeof descriptorProp === 'function') {
+                    const addDebugFlag = this.addDebugFlag.bind(this);
+                    descriptor[k] = function () {
+                        addDebugFlag();
+                        return Reflect.apply(descriptorProp, this, arguments)
+                    };
+                }
+            });
+
+            {
+                Object.defineProperty(object, propertyName, descriptor);
+            }
+        }
+
+        /**
+         * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {Partial<PropertyDescriptor>} descriptor
+         * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+         */
+        wrapProperty (object, propertyName, descriptor) {
+            if (!object) {
+                return
+            }
+
+            const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+            if (!origDescriptor) {
+                // this happens if the property is not implemented in the browser
+                return
+            }
+
+            if (('value' in origDescriptor && 'value' in descriptor) ||
+                ('get' in origDescriptor && 'get' in descriptor) ||
+                ('set' in origDescriptor && 'set' in descriptor)
+            ) {
+                wrapToString(descriptor.value, origDescriptor.value);
+                wrapToString(descriptor.get, origDescriptor.get);
+                wrapToString(descriptor.set, origDescriptor.set);
+
+                this.defineProperty(object, propertyName, {
+                    ...origDescriptor,
+                    ...descriptor
+                });
+                return origDescriptor
+            } else {
+                // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
+                throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+            }
+        }
+
+        /**
+         * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+         * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+         */
+        wrapMethod (object, propertyName, wrapperFn) {
+            if (!object) {
+                return
+            }
+            const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+            if (!origDescriptor) {
+                // this happens if the property is not implemented in the browser
+                return
+            }
+
+            const origFn = origDescriptor.value;
+            if (!origFn || typeof origFn !== 'function') {
+                // method properties are expected to be defined with a `value`
+                throw new Error(`Property ${propertyName} does not look like a method`)
+            }
+
+            const newFn = function () {
+                return wrapperFn.call(this, origFn, ...arguments)
+            };
+            wrapToString(newFn, origFn);
+
+            this.defineProperty(object, propertyName, {
+                ...origDescriptor,
+                value: newFn
+            });
+            return origDescriptor
         }
     }
 
@@ -2921,7 +3230,7 @@
                 }
             }
 
-            defineProperty(document, 'cookie', {
+            this.defineProperty(document, 'cookie', {
                 configurable: true,
                 set: setCookiePolicy,
                 get: getCookiePolicy
@@ -3965,7 +4274,7 @@
 
         overloadDateGetTimezoneOffset (config) {
             const offset = (new Date()).getTimezoneOffset();
-            defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
+            this.defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
                 configurable: true,
                 enumerable: true,
                 writable: true,
@@ -3984,7 +4293,7 @@
             }
 
             const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues;
-            defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
+            this.defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
                 configurable: true,
                 enumerable: true,
                 writable: true,
@@ -4076,7 +4385,7 @@
 
         overrideStorage (config, key, storage) {
             const originalStorage = globalThis[key];
-            defineProperty(globalThis, key, {
+            this.defineProperty(globalThis, key, {
                 get () {
                     if (getTaintFromScope(this, arguments, config.stackCheck)) {
                         return storage
@@ -4134,7 +4443,7 @@
             if (!defaultGetter) {
                 return
             }
-            defineProperty(scope, overrideKey, {
+            this.defineProperty(scope, overrideKey, {
                 get () {
                     const defaultVal = Reflect$1.apply(defaultGetter, receiver, []);
                     if (getTaintFromScope(this, arguments, config.stackCheck)) {
@@ -4949,12 +5258,20 @@
 
                 for (const [prop, val] of Object.entries(spoofedValues)) {
                     try {
-                        defineProperty(BatteryManager.prototype, prop, { get: () => val });
+                        this.defineProperty(BatteryManager.prototype, prop, {
+                            get: () => {
+                                return val
+                            }
+                        });
                     } catch (e) { }
                 }
                 for (const eventProp of eventProperties) {
                     try {
-                        defineProperty(BatteryManager.prototype, eventProp, { get: () => null });
+                        this.defineProperty(BatteryManager.prototype, eventProp, {
+                            get: () => {
+                                return null
+                            }
+                        });
                     } catch (e) { }
                 }
             }
@@ -6358,7 +6675,7 @@
                 if (args.globalPrivacyControlValue) {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     if (navigator.globalPrivacyControl) return
-                    defineProperty(Navigator.prototype, 'globalPrivacyControl', {
+                    this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                         get: () => true,
                         configurable: true,
                         enumerable: true
@@ -6368,7 +6685,7 @@
                     // this may be overwritten by the user agent or other extensions
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     if (typeof navigator.globalPrivacyControl !== 'undefined') return
-                    defineProperty(Navigator.prototype, 'globalPrivacyControl', {
+                    this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                         get: () => false,
                         configurable: true,
                         enumerable: true
@@ -6382,174 +6699,169 @@
 
     class FingerprintingHardware extends ContentFeature {
         init () {
-            wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
-                // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
-                get: () => this.getFeatureAttr('keyboard')
+            this.wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
+                get: () => {
+                    // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
+                    return this.getFeatureAttr('keyboard')
+                }
             });
 
-            wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
-                get: () => this.getFeatureAttr('hardwareConcurrency', 2)
+            this.wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
+                get: () => {
+                    return this.getFeatureAttr('hardwareConcurrency', 2)
+                }
             });
 
-            wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
-                get: () => this.getFeatureAttr('deviceMemory', 8)
+            this.wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
+                get: () => {
+                    return this.getFeatureAttr('deviceMemory', 8)
+                }
             });
         }
     }
 
     class Referrer extends ContentFeature {
-        init (args) {
-            // Unfortunately, we only have limited information about the referrer and current frame. A single
-            // page may load many requests and sub frames, all with different referrers. Since we
-            if (args.referrer && // make sure the referrer was set correctly
-                args.referrer.referrer !== undefined && // referrer value will be undefined when it should be unchanged.
-                document.referrer && // don't change the value if it isn't set
-                document.referrer !== '' && // don't add referrer information
-                new URL(document.URL).hostname !== new URL(document.referrer).hostname) { // don't replace the referrer for the current host.
-                let trimmedReferer = document.referrer;
-                if (new URL(document.referrer).hostname === args.referrer.referrerHost) {
-                    // make sure the real referrer & replacement referrer match if we're going to replace it
-                    trimmedReferer = args.referrer.referrer;
-                } else {
-                    // if we don't have a matching referrer, just trim it to origin.
-                    trimmedReferer = new URL(document.referrer).origin + '/';
-                }
-                wrapProperty(Document.prototype, 'referrer', {
+        init () {
+            // If the referer is a different host to the current one, trim it.
+            if (document.referrer && new URL(document.URL).hostname !== new URL(document.referrer).hostname) {
+                // trim referrer to origin.
+                const trimmedReferer = new URL(document.referrer).origin + '/';
+                this.wrapProperty(Document.prototype, 'referrer', {
                     get: () => trimmedReferer
                 });
             }
         }
     }
 
-    /**
-     * normalize window dimensions, if more than one monitor is in play.
-     *  X/Y values are set in the browser based on distance to the main monitor top or left, which
-     * can mean second or more monitors have very large or negative values. This function maps a given
-     * given coordinate value to the proper place on the main screen.
-     */
-    function normalizeWindowDimension (value, targetDimension) {
-        if (value > targetDimension) {
-            return value % targetDimension
-        }
-        if (value < 0) {
-            return targetDimension + value
-        }
-        return value
-    }
-
-    function setWindowPropertyValue (property, value) {
-        // Here we don't update the prototype getter because the values are updated dynamically
-        try {
-            defineProperty(globalThis, property, {
-                get: () => value,
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                set: () => {},
-                configurable: true
-            });
-        } catch (e) {}
-    }
-
-    const origPropertyValues = {};
-
-    /**
-     * Fix window dimensions. The extension runs in a different JS context than the
-     * page, so we can inject the correct screen values as the window is resized,
-     * ensuring that no information is leaked as the dimensions change, but also that the
-     * values change correctly for valid use cases.
-     */
-    function setWindowDimensions () {
-        try {
-            const window = globalThis;
-            const top = globalThis.top;
-
-            const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height);
-            const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width);
-            if (normalizedY <= origPropertyValues.availTop) {
-                setWindowPropertyValue('screenY', 0);
-                setWindowPropertyValue('screenTop', 0);
-            } else {
-                setWindowPropertyValue('screenY', normalizedY);
-                setWindowPropertyValue('screenTop', normalizedY);
-            }
-
-            // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-            if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
-                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-                setWindowPropertyValue('outerHeight', top.window.screen.height);
-            } else {
-                try {
-                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-                    setWindowPropertyValue('outerHeight', top.window.outerHeight);
-                } catch (e) {
-                    // top not accessible to certain iFrames, so ignore.
-                }
-            }
-
-            if (normalizedX <= origPropertyValues.availLeft) {
-                setWindowPropertyValue('screenX', 0);
-                setWindowPropertyValue('screenLeft', 0);
-            } else {
-                setWindowPropertyValue('screenX', normalizedX);
-                setWindowPropertyValue('screenLeft', normalizedX);
-            }
-
-            // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-            if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
-                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-                setWindowPropertyValue('outerWidth', top.window.screen.width);
-            } else {
-                try {
-                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-                    setWindowPropertyValue('outerWidth', top.window.outerWidth);
-                } catch (e) {
-                    // top not accessible to certain iFrames, so ignore.
-                }
-            }
-        } catch (e) {
-            // in a cross domain iFrame, top.window is not accessible.
-        }
-    }
-
     class FingerprintingScreenSize extends ContentFeature {
+        origPropertyValues = {}
+
         init () {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            origPropertyValues.availTop = globalThis.screen.availTop;
-            wrapProperty(globalThis.Screen.prototype, 'availTop', {
+            this.origPropertyValues.availTop = globalThis.screen.availTop;
+            this.wrapProperty(globalThis.Screen.prototype, 'availTop', {
                 get: () => this.getFeatureAttr('availTop', 0)
             });
 
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            origPropertyValues.availLeft = globalThis.screen.availLeft;
-            wrapProperty(globalThis.Screen.prototype, 'availLeft', {
+            this.origPropertyValues.availLeft = globalThis.screen.availLeft;
+            this.wrapProperty(globalThis.Screen.prototype, 'availLeft', {
                 get: () => this.getFeatureAttr('availLeft', 0)
             });
 
-            origPropertyValues.availWidth = globalThis.screen.availWidth;
+            this.origPropertyValues.availWidth = globalThis.screen.availWidth;
             const forcedAvailWidthValue = globalThis.screen.width;
-            wrapProperty(globalThis.Screen.prototype, 'availWidth', {
+            this.wrapProperty(globalThis.Screen.prototype, 'availWidth', {
                 get: () => forcedAvailWidthValue
             });
 
-            origPropertyValues.availHeight = globalThis.screen.availHeight;
+            this.origPropertyValues.availHeight = globalThis.screen.availHeight;
             const forcedAvailHeightValue = globalThis.screen.height;
-            wrapProperty(globalThis.Screen.prototype, 'availHeight', {
+            this.wrapProperty(globalThis.Screen.prototype, 'availHeight', {
                 get: () => forcedAvailHeightValue
             });
 
-            origPropertyValues.colorDepth = globalThis.screen.colorDepth;
-            wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
+            this.origPropertyValues.colorDepth = globalThis.screen.colorDepth;
+            this.wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
                 get: () => this.getFeatureAttr('colorDepth', 24)
             });
 
-            origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
-            wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
+            this.origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
+            this.wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
                 get: () => this.getFeatureAttr('pixelDepth', 24)
             });
 
-            globalThis.window.addEventListener('resize', function () {
-                setWindowDimensions();
+            globalThis.window.addEventListener('resize', () => {
+                this.setWindowDimensions();
             });
-            setWindowDimensions();
+            this.setWindowDimensions();
+        }
+
+        /**
+         * normalize window dimensions, if more than one monitor is in play.
+         *  X/Y values are set in the browser based on distance to the main monitor top or left, which
+         * can mean second or more monitors have very large or negative values. This function maps a given
+         * given coordinate value to the proper place on the main screen.
+         */
+        normalizeWindowDimension (value, targetDimension) {
+            if (value > targetDimension) {
+                return value % targetDimension
+            }
+            if (value < 0) {
+                return targetDimension + value
+            }
+            return value
+        }
+
+        setWindowPropertyValue (property, value) {
+            // Here we don't update the prototype getter because the values are updated dynamically
+            try {
+                this.defineProperty(globalThis, property, {
+                    get: () => value,
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    set: () => {},
+                    configurable: true
+                });
+            } catch (e) {}
+        }
+
+        /**
+         * Fix window dimensions. The extension runs in a different JS context than the
+         * page, so we can inject the correct screen values as the window is resized,
+         * ensuring that no information is leaked as the dimensions change, but also that the
+         * values change correctly for valid use cases.
+         */
+        setWindowDimensions () {
+            try {
+                const window = globalThis;
+                const top = globalThis.top;
+
+                const normalizedY = this.normalizeWindowDimension(window.screenY, window.screen.height);
+                const normalizedX = this.normalizeWindowDimension(window.screenX, window.screen.width);
+                if (normalizedY <= this.origPropertyValues.availTop) {
+                    this.setWindowPropertyValue('screenY', 0);
+                    this.setWindowPropertyValue('screenTop', 0);
+                } else {
+                    this.setWindowPropertyValue('screenY', normalizedY);
+                    this.setWindowPropertyValue('screenTop', normalizedY);
+                }
+
+                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                if (top.window.outerHeight >= this.origPropertyValues.availHeight - 1) {
+                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                    this.setWindowPropertyValue('outerHeight', top.window.screen.height);
+                } else {
+                    try {
+                        // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                        this.setWindowPropertyValue('outerHeight', top.window.outerHeight);
+                    } catch (e) {
+                        // top not accessible to certain iFrames, so ignore.
+                    }
+                }
+
+                if (normalizedX <= this.origPropertyValues.availLeft) {
+                    this.setWindowPropertyValue('screenX', 0);
+                    this.setWindowPropertyValue('screenLeft', 0);
+                } else {
+                    this.setWindowPropertyValue('screenX', normalizedX);
+                    this.setWindowPropertyValue('screenLeft', normalizedX);
+                }
+
+                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                if (top.window.outerWidth >= this.origPropertyValues.availWidth - 1) {
+                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                    this.setWindowPropertyValue('outerWidth', top.window.screen.width);
+                } else {
+                    try {
+                        // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                        this.setWindowPropertyValue('outerWidth', top.window.outerWidth);
+                    } catch (e) {
+                        // top not accessible to certain iFrames, so ignore.
+                    }
+                }
+            } catch (e) {
+                // in a cross domain iFrame, top.window is not accessible.
+            }
         }
     }
 
@@ -6579,48 +6891,48 @@
                         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                         org.call(navigator.webkitTemporaryStorage, modifiedCallback, err);
                     };
-                    defineProperty(Navigator.prototype, 'webkitTemporaryStorage', { get: () => tStorage });
+                    this.defineProperty(Navigator.prototype, 'webkitTemporaryStorage', { get: () => tStorage });
                 } catch (e) {}
             }
-        }
-    }
-
-    function injectNavigatorInterface (args) {
-        try {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            if (navigator.duckduckgo) {
-                return
-            }
-            if (!args.platform || !args.platform.name) {
-                return
-            }
-            defineProperty(Navigator.prototype, 'duckduckgo', {
-                value: {
-                    platform: args.platform.name,
-                    isDuckDuckGo () {
-                        return DDGPromise.resolve(true)
-                    },
-                    taints: new Set(),
-                    taintedOrigins: new Set()
-                },
-                enumerable: true,
-                configurable: false,
-                writable: false
-            });
-        } catch {
-            // todo: Just ignore this exception?
         }
     }
 
     class NavigatorInterface extends ContentFeature {
         load (args) {
             if (this.matchDomainFeatureSetting('privilegedDomains').length) {
-                injectNavigatorInterface(args);
+                this.injectNavigatorInterface(args);
             }
         }
 
         init (args) {
-            injectNavigatorInterface(args);
+            this.injectNavigatorInterface(args);
+        }
+
+        injectNavigatorInterface (args) {
+            try {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                if (navigator.duckduckgo) {
+                    return
+                }
+                if (!args.platform || !args.platform.name) {
+                    return
+                }
+                this.defineProperty(Navigator.prototype, 'duckduckgo', {
+                    value: {
+                        platform: args.platform.name,
+                        isDuckDuckGo () {
+                            return DDGPromise.resolve(true)
+                        },
+                        taints: new Set(),
+                        taintedOrigins: new Set()
+                    },
+                    enumerable: true,
+                    configurable: false,
+                    writable: false
+                });
+            } catch {
+                // todo: Just ignore this exception?
+            }
         }
     }
 
@@ -8020,156 +8332,6 @@
         };
 
         return { config, sharedStrings }
-    }
-
-    /**
-     * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
-     * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport
-     */
-
-    /**
-     * A temporary implementation of {@link MessagingTransport} to communicate with Android and Extension.
-     * It wraps the current messaging system that calls `sendMessage`
-     *
-     * @implements {MessagingTransport}
-     * @deprecated - Use this only to communicate with Android and the Extension while support to {@link Messaging}
-     * is not ready and we need to use `sendMessage()`.
-     */
-    class ClickToLoadMessagingTransport {
-        /**
-         * Queue of callbacks to be called with messages sent from the Platform.
-         * This is used to connect requests with responses and to trigger subscriptions callbacks.
-         */
-        _queue = new Set()
-
-        constructor () {
-            this.globals = {
-                window,
-                JSONparse: window.JSON.parse,
-                JSONstringify: window.JSON.stringify,
-                Promise: window.Promise,
-                Error: window.Error,
-                String: window.String
-            };
-        }
-
-        /**
-         * Callback for update() handler. This connects messages sent from the Platform
-         * with callback functions in the _queue.
-         * @param {any} response
-         */
-        onResponse (response) {
-            this._queue.forEach((subscription) => subscription(response));
-        }
-
-        /**
-         * @param {import('@duckduckgo/messaging').NotificationMessage} msg
-         */
-        notify (msg) {
-            let params = msg.params;
-
-            // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
-            // for sendMessage()
-            if (msg.method === 'setYoutubePreviewsEnabled') {
-                params = msg.params?.youtubePreviewsEnabled;
-            }
-            // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
-            // for sendMessage()
-            if (msg.method === 'updateYouTubeCTLAddedFlag') {
-                params = msg.params?.youTubeCTLAddedFlag;
-            }
-
-            sendMessage(msg.method, params);
-        }
-
-        /**
-         * @param {import('@duckduckgo/messaging').RequestMessage} req
-         * @return {Promise<any>}
-         */
-        request (req) {
-            let comparator = (eventData) => {
-                return eventData.responseMessageType === req.method
-            };
-            let params = req.params;
-
-            // Adapts request for 'getYouTubeVideoDetails' by identifying the correct
-            // response for each request and updating params to expect current
-            // implementation specifications.
-            if (req.method === 'getYouTubeVideoDetails') {
-                comparator = (eventData) => {
-                    return (
-                        eventData.responseMessageType === req.method &&
-                        eventData.response &&
-                        eventData.response.videoURL === req.params?.videoURL
-                    )
-                };
-                params = req.params?.videoURL;
-            }
-
-            sendMessage(req.method, params);
-
-            return new this.globals.Promise((resolve) => {
-                this._subscribe(comparator, (msgRes, unsubscribe) => {
-                    unsubscribe();
-
-                    return resolve(msgRes.response)
-                });
-            })
-        }
-
-        /**
-         * @param {import('@duckduckgo/messaging').Subscription} msg
-         * @param {(value: unknown | undefined) => void} callback
-         */
-        subscribe (msg, callback) {
-            const comparator = (eventData) => {
-                return (
-                    eventData.messageType === msg.subscriptionName ||
-                    eventData.responseMessageType === msg.subscriptionName
-                )
-            };
-
-            // only forward the 'params' ('response' in current format), to match expected
-            // callback from a SubscriptionEvent
-            const cb = (eventData) => {
-                return callback(eventData.response)
-            };
-            return this._subscribe(comparator, cb)
-        }
-
-        /**
-         * @param {(eventData: any) => boolean} comparator
-         * @param {(value: any, unsubscribe: (()=>void)) => void} callback
-         * @internal
-         */
-        _subscribe (comparator, callback) {
-            /** @type {(()=>void) | undefined} */
-            // eslint-disable-next-line prefer-const
-            let teardown;
-
-            /**
-             * @param {MessageEvent} event
-             */
-            const idHandler = (event) => {
-                if (!event) {
-                    console.warn('no message available');
-                    return
-                }
-                if (comparator(event)) {
-                    if (!teardown) throw new this.globals.Error('unreachable')
-                    callback(event, teardown);
-                }
-            };
-            this._queue.add(idHandler);
-
-            teardown = () => {
-                this._queue.delete(idHandler);
-            };
-
-            return () => {
-                teardown?.();
-            }
-        }
     }
 
     /**
@@ -10654,7 +10816,7 @@
         /**
          * This is only called by the current integration between Android and Extension and is now
          * used to connect only these Platforms responses with the temporary implementation of
-         * ClickToLoadMessagingTransport that wraps this communication.
+         * SendMessageMessagingTransport that wraps this communication.
          * This can be removed once they have their own Messaging integration.
          */
         update (message) {
@@ -10731,7 +10893,7 @@
             if (this._messaging) return this._messaging
 
             if (this.platform.name === 'android' || this.platform.name === 'extension' || this.platform.name === 'macos') {
-                this._clickToLoadMessagingTransport = new ClickToLoadMessagingTransport();
+                this._clickToLoadMessagingTransport = new SendMessageMessagingTransport();
                 const config = new TestTransportConfig(this._clickToLoadMessagingTransport);
                 this._messaging = new Messaging(this.messagingContext, config);
                 return this._messaging

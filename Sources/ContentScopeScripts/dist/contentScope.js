@@ -4,13 +4,16 @@
 
     const Set$1 = globalThis.Set;
     const Reflect$1 = globalThis.Reflect;
+    const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+    const objectKeys = Object.keys;
 
     /* global cloneInto, exportFunction, false */
     // Tests don't define this variable so fallback to behave like chrome
-    const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
     const functionToString = Function.prototype.toString;
-    const objectKeys = Object.keys;
 
+    /**
+     * @deprecated use the ContentFeature method instead
+     */
     function defineProperty (object, propertyName, descriptor) {
         {
             Object.defineProperty(object, propertyName, descriptor);
@@ -62,53 +65,21 @@
         })
     }
 
-    /**
-     * Wrap a get/set or value property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
-     * @param {string} propertyName
-     * @param {Partial<PropertyDescriptor>} descriptor
-     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
-     */
-    function wrapProperty (object, propertyName, descriptor) {
-        if (!object) {
-            return
-        }
-
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
-        if (!origDescriptor) {
-            // this happens if the property is not implemented in the browser
-            return
-        }
-
-        if (('value' in origDescriptor && 'value' in descriptor) ||
-            ('get' in origDescriptor && 'get' in descriptor) ||
-            ('set' in origDescriptor && 'set' in descriptor)
-        ) {
-            wrapToString(descriptor.value, origDescriptor.value);
-            wrapToString(descriptor.get, origDescriptor.get);
-            wrapToString(descriptor.set, origDescriptor.set);
-
-            defineProperty(object, propertyName, {
-                ...origDescriptor,
-                ...descriptor
-            });
-            return origDescriptor
-        } else {
-            // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
-        }
-    }
-
     /* global cloneInto, exportFunction, false */
 
     // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
     // eslint-disable-next-line no-global-assign
     let globalObj = typeof window === 'undefined' ? globalThis : window;
     let Error$1 = globalObj.Error;
+    let messageSecret;
 
     const taintSymbol = Symbol('taint');
-    typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
+
+    // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
+    const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
+    const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
     function registerMessageSecret (secret) {
+        messageSecret = secret;
     }
 
     /**
@@ -771,6 +742,18 @@
         return windowsSpecificFeatures.includes(featureName)
     }
 
+    function createCustomEvent (eventName, eventDetail) {
+
+        // @ts-expect-error - possibly null
+        return new OriginalCustomEvent(eventName, eventDetail)
+    }
+
+    function sendMessage (messageType, options) {
+        // FF & Chrome
+        return originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+        // TBD other platforms
+    }
+
     const baseFeatures = /** @type {const} */([
         'runtimeChecks',
         'fingerprintingAudio',
@@ -808,6 +791,7 @@
         ],
         android: [
             ...baseFeatures,
+            'webCompat',
             'clickToLoad'
         ],
         windows: [
@@ -1349,6 +1333,902 @@
     }
 
     /**
+     * @description
+     *
+     * A wrapper for messaging on Windows.
+     *
+     * This requires 3 methods to be available, see {@link WindowsMessagingConfig} for details
+     *
+     * @example
+     *
+     * ```javascript
+     * [[include:packages/messaging/lib/examples/windows.example.js]]```
+     *
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * An implementation of {@link MessagingTransport} for Windows
+     *
+     * All messages go through `window.chrome.webview` APIs
+     *
+     * @implements {MessagingTransport}
+     */
+    class WindowsMessagingTransport {
+        config
+
+        /**
+         * @param {WindowsMessagingConfig} config
+         * @param {import('../index.js').MessagingContext} messagingContext
+         * @internal
+         */
+        constructor (config, messagingContext) {
+            this.messagingContext = messagingContext;
+            this.config = config;
+            this.globals = {
+                window,
+                JSONparse: window.JSON.parse,
+                JSONstringify: window.JSON.stringify,
+                Promise: window.Promise,
+                Error: window.Error,
+                String: window.String
+            };
+            for (const [methodName, fn] of Object.entries(this.config.methods)) {
+                if (typeof fn !== 'function') {
+                    throw new Error('cannot create WindowsMessagingTransport, missing the method: ' + methodName)
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').NotificationMessage} msg
+         */
+        notify (msg) {
+            const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+            const notification = WindowsNotification.fromNotification(msg, data);
+            this.config.methods.postMessage(notification);
+        }
+
+        /**
+         * @param {import('../index.js').RequestMessage} msg
+         * @param {{signal?: AbortSignal}} opts
+         * @return {Promise<any>}
+         */
+        request (msg, opts = {}) {
+            // convert the message to window-specific naming
+            const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+            const outgoing = WindowsRequestMessage.fromRequest(msg, data);
+
+            // send the message
+            this.config.methods.postMessage(outgoing);
+
+            // compare incoming messages against the `msg.id`
+            const comparator = (eventData) => {
+                return eventData.featureName === msg.featureName &&
+                    eventData.context === msg.context &&
+                    eventData.id === msg.id
+            };
+
+            /**
+             * @param data
+             * @return {data is import('../index.js').MessageResponse}
+             */
+            function isMessageResponse (data) {
+                if ('result' in data) return true
+                if ('error' in data) return true
+                return false
+            }
+
+            // now wait for a matching message
+            return new this.globals.Promise((resolve, reject) => {
+                try {
+                    this._subscribe(comparator, opts, (value, unsubscribe) => {
+                        unsubscribe();
+
+                        if (!isMessageResponse(value)) {
+                            console.warn('unknown response type', value);
+                            return reject(new this.globals.Error('unknown response'))
+                        }
+
+                        if (value.result) {
+                            return resolve(value.result)
+                        }
+
+                        const message = this.globals.String(value.error?.message || 'unknown error');
+                        reject(new this.globals.Error(message));
+                    });
+                } catch (e) {
+                    reject(e);
+                }
+            })
+        }
+
+        /**
+         * @param {import('../index.js').Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe (msg, callback) {
+            // compare incoming messages against the `msg.subscriptionName`
+            const comparator = (eventData) => {
+                return eventData.featureName === msg.featureName &&
+                    eventData.context === msg.context &&
+                    eventData.subscriptionName === msg.subscriptionName
+            };
+
+            // only forward the 'params' from a SubscriptionEvent
+            const cb = (eventData) => {
+                return callback(eventData.params)
+            };
+
+            // now listen for matching incoming messages.
+            return this._subscribe(comparator, {}, cb)
+        }
+
+        /**
+         * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
+         */
+        /**
+         * @param {(eventData: any) => boolean} comparator
+         * @param {{signal?: AbortSignal}} options
+         * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
+         * @internal
+         */
+        _subscribe (comparator, options, callback) {
+            // if already aborted, reject immediately
+            if (options?.signal?.aborted) {
+                throw new DOMException('Aborted', 'AbortError')
+            }
+            /** @type {(()=>void) | undefined} */
+            // eslint-disable-next-line prefer-const
+            let teardown;
+
+            /**
+             * @param {MessageEvent} event
+             */
+            const idHandler = (event) => {
+                if (this.messagingContext.env === 'production') {
+                    if (event.origin !== null && event.origin !== undefined) {
+                        console.warn('ignoring because evt.origin is not `null` or `undefined`');
+                        return
+                    }
+                }
+                if (!event.data) {
+                    console.warn('data absent from message');
+                    return
+                }
+                if (comparator(event.data)) {
+                    if (!teardown) throw new Error('unreachable')
+                    callback(event.data, teardown);
+                }
+            };
+
+            // what to do if this promise is aborted
+            const abortHandler = () => {
+                teardown?.();
+                throw new DOMException('Aborted', 'AbortError')
+            };
+
+            // console.log('DEBUG: handler setup', { config, comparator })
+            // eslint-disable-next-line no-undef
+            this.config.methods.addEventListener('message', idHandler);
+            options?.signal?.addEventListener('abort', abortHandler);
+
+            teardown = () => {
+                // console.log('DEBUG: handler teardown', { config, comparator })
+                // eslint-disable-next-line no-undef
+                this.config.methods.removeEventListener('message', idHandler);
+                options?.signal?.removeEventListener('abort', abortHandler);
+            };
+
+            return () => {
+                teardown?.();
+            }
+        }
+    }
+
+    /**
+     * To construct this configuration object, you need access to 3 methods
+     *
+     * - `postMessage`
+     * - `addEventListener`
+     * - `removeEventListener`
+     *
+     * These would normally be available on Windows via the following:
+     *
+     * - `window.chrome.webview.postMessage`
+     * - `window.chrome.webview.addEventListener`
+     * - `window.chrome.webview.removeEventListener`
+     *
+     * Depending on where the script is running, we may want to restrict access to those globals. On the native
+     * side those handlers `window.chrome.webview` handlers might be deleted and replaces with in-scope variables, such as:
+     *
+     * ```ts
+     * [[include:packages/messaging/lib/examples/windows.example.js]]```
+     *
+     */
+    class WindowsMessagingConfig {
+        /**
+         * @param {object} params
+         * @param {WindowsInteropMethods} params.methods
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * The methods required for communication
+             */
+            this.methods = params.methods;
+            /**
+             * @type {'windows'}
+             */
+            this.platform = 'windows';
+        }
+    }
+
+    /**
+     * This data type represents a message sent to the Windows
+     * platform via `window.chrome.webview.postMessage`.
+     *
+     * **NOTE**: This is sent when a response is *not* expected
+     */
+    class WindowsNotification {
+        /**
+         * @param {object} params
+         * @param {string} params.Feature
+         * @param {string} params.SubFeatureName
+         * @param {string} params.Name
+         * @param {Record<string, any>} [params.Data]
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * Alias for: {@link NotificationMessage.context}
+             */
+            this.Feature = params.Feature;
+            /**
+             * Alias for: {@link NotificationMessage.featureName}
+             */
+            this.SubFeatureName = params.SubFeatureName;
+            /**
+             * Alias for: {@link NotificationMessage.method}
+             */
+            this.Name = params.Name;
+            /**
+             * Alias for: {@link NotificationMessage.params}
+             */
+            this.Data = params.Data;
+        }
+
+        /**
+         * Helper to convert a {@link NotificationMessage} to a format that Windows can support
+         * @param {NotificationMessage} notification
+         * @returns {WindowsNotification}
+         */
+        static fromNotification (notification, data) {
+            /** @type {WindowsNotification} */
+            const output = {
+                Data: data,
+                Feature: notification.context,
+                SubFeatureName: notification.featureName,
+                Name: notification.method
+            };
+            return output
+        }
+    }
+
+    /**
+     * This data type represents a message sent to the Windows
+     * platform via `window.chrome.webview.postMessage` when it
+     * expects a response
+     */
+    class WindowsRequestMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.Feature
+         * @param {string} params.SubFeatureName
+         * @param {string} params.Name
+         * @param {Record<string, any>} [params.Data]
+         * @param {string} [params.Id]
+         * @internal
+         */
+        constructor (params) {
+            this.Feature = params.Feature;
+            this.SubFeatureName = params.SubFeatureName;
+            this.Name = params.Name;
+            this.Data = params.Data;
+            this.Id = params.Id;
+        }
+
+        /**
+         * Helper to convert a {@link RequestMessage} to a format that Windows can support
+         * @param {RequestMessage} msg
+         * @param {Record<string, any>} data
+         * @returns {WindowsRequestMessage}
+         */
+        static fromRequest (msg, data) {
+            /** @type {WindowsRequestMessage} */
+            const output = {
+                Data: data,
+                Feature: msg.context,
+                SubFeatureName: msg.featureName,
+                Name: msg.method,
+                Id: msg.id
+            };
+            return output
+        }
+    }
+
+    /**
+     * @module Messaging Schema
+     *
+     * @description
+     * These are all the shared data types used throughout. Transports receive these types and
+     * can choose how to deliver the message to their respective native platforms.
+     *
+     * - Notifications via {@link NotificationMessage}
+     * - Request -> Response via {@link RequestMessage} and {@link MessageResponse}
+     * - Subscriptions via {@link Subscription}
+     *
+     * Note: For backwards compatibility, some platforms may alter the data shape within the transport.
+     */
+
+    /**
+     * This is the format of an outgoing message.
+     *
+     * - See {@link MessageResponse} for what's expected in a response
+     *
+     * **NOTE**:
+     * - Windows will alter this before it's sent, see: {@link Messaging.WindowsRequestMessage}
+     */
+    class RequestMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
+             * @type {string}
+             */
+            this.context = params.context;
+            /**
+             * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
+             * @type {string}
+             */
+            this.featureName = params.featureName;
+            /**
+             * The name of the handler to be executed on the native side
+             */
+            this.method = params.method;
+            /**
+             * The `id` that native sides can use when sending back a response
+             */
+            this.id = params.id;
+            /**
+             * Optional data payload - must be a plain key/value object
+             */
+            this.params = params.params;
+        }
+    }
+
+    /**
+     * **NOTE**:
+     * - Windows will alter this before it's sent, see: {@link Messaging.WindowsNotification}
+     */
+    class NotificationMessage {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
+             */
+            this.context = params.context;
+            /**
+             * The name of the sub-feature, such as `duckPlayer` or `clickToLoad`
+             */
+            this.featureName = params.featureName;
+            /**
+             * The name of the handler to be executed on the native side
+             */
+            this.method = params.method;
+            /**
+             * An optional payload
+             */
+            this.params = params.params;
+        }
+    }
+
+    class Subscription {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @internal
+         */
+        constructor (params) {
+            this.context = params.context;
+            this.featureName = params.featureName;
+            this.subscriptionName = params.subscriptionName;
+        }
+    }
+
+    /**
+     * @param {RequestMessage} request
+     * @param {Record<string, any>} data
+     * @return {data is MessageResponse}
+     */
+    function isResponseFor (request, data) {
+        if ('result' in data) {
+            return data.featureName === request.featureName &&
+                data.context === request.context &&
+                data.id === request.id
+        }
+        if ('error' in data) {
+            if ('message' in data.error) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * @param {Subscription} sub
+     * @param {Record<string, any>} data
+     * @return {data is SubscriptionEvent}
+     */
+    function isSubscriptionEventFor (sub, data) {
+        if ('subscriptionName' in data) {
+            return data.featureName === sub.featureName &&
+                data.context === sub.context &&
+                data.subscriptionName === sub.subscriptionName
+        }
+
+        return false
+    }
+
+    /**
+     *
+     * @description
+     *
+     * A wrapper for messaging on WebKit platforms. It supports modern WebKit messageHandlers
+     * along with encryption for older versions (like macOS Catalina)
+     *
+     * Note: If you wish to support Catalina then you'll need to implement the native
+     * part of the message handling, see {@link WebkitMessagingTransport} for details.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @example
+     * On macOS 11+, this will just call through to `window.webkit.messageHandlers.x.postMessage`
+     *
+     * Eg: for a `foo` message defined in Swift that accepted the payload `{"bar": "baz"}`, the following
+     * would occur:
+     *
+     * ```js
+     * const json = await window.webkit.messageHandlers.foo.postMessage({ bar: "baz" });
+     * const response = JSON.parse(json)
+     * ```
+     *
+     * @example
+     * On macOS 10 however, the process is a little more involved. A method will be appended to `window`
+     * that allows the response to be delivered there instead. It's not exactly this, but you can visualize the flow
+     * as being something along the lines of:
+     *
+     * ```js
+     * // add the window method
+     * window["_0123456"] = (response) => {
+     *    // decrypt `response` and deliver the result to the caller here
+     *    // then remove the temporary method
+     *    delete window['_0123456']
+     * };
+     *
+     * // send the data + `messageHanding` values
+     * window.webkit.messageHandlers.foo.postMessage({
+     *   bar: "baz",
+     *   messagingHandling: {
+     *     methodName: "_0123456",
+     *     secret: "super-secret",
+     *     key: [1, 2, 45, 2],
+     *     iv: [34, 4, 43],
+     *   }
+     * });
+     *
+     * // later in swift, the following JavaScript snippet will be executed
+     * (() => {
+     *   window['_0123456']({
+     *     ciphertext: [12, 13, 4],
+     *     tag: [3, 5, 67, 56]
+     *   })
+     * })()
+     * ```
+     * @implements {MessagingTransport}
+     */
+    class WebkitMessagingTransport {
+        /** @type {WebkitMessagingConfig} */
+        config
+        /** @internal */
+        globals
+
+        /**
+         * @param {WebkitMessagingConfig} config
+         * @param {import('../index.js').MessagingContext} messagingContext
+         */
+        constructor (config, messagingContext) {
+            this.messagingContext = messagingContext;
+            this.config = config;
+            this.globals = captureGlobals();
+            if (!this.config.hasModernWebkitAPI) {
+                this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
+            }
+        }
+
+        /**
+         * Sends message to the webkit layer (fire and forget)
+         * @param {String} handler
+         * @param {*} data
+         * @internal
+         */
+        wkSend (handler, data = {}) {
+            if (!(handler in this.globals.window.webkit.messageHandlers)) {
+                throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler)
+            }
+            if (!this.config.hasModernWebkitAPI) {
+                const outgoing = {
+                    ...data,
+                    messageHandling: {
+                        ...data.messageHandling,
+                        secret: this.config.secret
+                    }
+                };
+                if (!(handler in this.globals.capturedWebkitHandlers)) {
+                    throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler)
+                } else {
+                    return this.globals.capturedWebkitHandlers[handler](outgoing)
+                }
+            }
+            return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data)
+        }
+
+        /**
+         * Sends message to the webkit layer and waits for the specified response
+         * @param {String} handler
+         * @param {import('../index.js').RequestMessage} data
+         * @returns {Promise<*>}
+         * @internal
+         */
+        async wkSendAndWait (handler, data) {
+            if (this.config.hasModernWebkitAPI) {
+                const response = await this.wkSend(handler, data);
+                return this.globals.JSONparse(response || '{}')
+            }
+
+            try {
+                const randMethodName = this.createRandMethodName();
+                const key = await this.createRandKey();
+                const iv = this.createRandIv();
+
+                const {
+                    ciphertext,
+                    tag
+                } = await new this.globals.Promise((/** @type {any} */ resolve) => {
+                    this.generateRandomMethod(randMethodName, resolve);
+
+                    // @ts-expect-error - this is a carve-out for catalina that will be removed soon
+                    data.messageHandling = new SecureMessagingParams({
+                        methodName: randMethodName,
+                        secret: this.config.secret,
+                        key: this.globals.Arrayfrom(key),
+                        iv: this.globals.Arrayfrom(iv)
+                    });
+                    this.wkSend(handler, data);
+                });
+
+                const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
+                const decrypted = await this.decrypt(cipher, key, iv);
+                return this.globals.JSONparse(decrypted || '{}')
+            } catch (e) {
+                // re-throw when the error is just a 'MissingHandler'
+                if (e instanceof MissingHandler) {
+                    throw e
+                } else {
+                    console.error('decryption failed', e);
+                    console.error(e);
+                    return { error: e }
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').NotificationMessage} msg
+         */
+        notify (msg) {
+            this.wkSend(msg.context, msg);
+        }
+
+        /**
+         * @param {import('../index.js').RequestMessage} msg
+         */
+        async request (msg) {
+            const data = await this.wkSendAndWait(msg.context, msg);
+
+            if (isResponseFor(msg, data)) {
+                if (data.result) {
+                    return data.result || {}
+                }
+                // forward the error if one was given explicity
+                if (data.error) {
+                    throw new Error(data.error.message)
+                }
+            }
+
+            throw new Error('an unknown error occurred')
+        }
+
+        /**
+         * Generate a random method name and adds it to the global scope
+         * The native layer will use this method to send the response
+         * @param {string | number} randomMethodName
+         * @param {Function} callback
+         * @internal
+         */
+        generateRandomMethod (randomMethodName, callback) {
+            this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+                enumerable: false,
+                // configurable, To allow for deletion later
+                configurable: true,
+                writable: false,
+                /**
+                 * @param {any[]} args
+                 */
+                value: (...args) => {
+                    // eslint-disable-next-line n/no-callback-literal
+                    callback(...args);
+                    delete this.globals.window[randomMethodName];
+                }
+            });
+        }
+
+        /**
+         * @internal
+         * @return {string}
+         */
+        randomString () {
+            return '' + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0]
+        }
+
+        /**
+         * @internal
+         * @return {string}
+         */
+        createRandMethodName () {
+            return '_' + this.randomString()
+        }
+
+        /**
+         * @type {{name: string, length: number}}
+         * @internal
+         */
+        algoObj = {
+            name: 'AES-GCM',
+            length: 256
+        }
+
+        /**
+         * @returns {Promise<Uint8Array>}
+         * @internal
+         */
+        async createRandKey () {
+            const key = await this.globals.generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
+            const exportedKey = await this.globals.exportKey('raw', key);
+            return new this.globals.Uint8Array(exportedKey)
+        }
+
+        /**
+         * @returns {Uint8Array}
+         * @internal
+         */
+        createRandIv () {
+            return this.globals.getRandomValues(new this.globals.Uint8Array(12))
+        }
+
+        /**
+         * @param {BufferSource} ciphertext
+         * @param {BufferSource} key
+         * @param {Uint8Array} iv
+         * @returns {Promise<string>}
+         * @internal
+         */
+        async decrypt (ciphertext, key, iv) {
+            const cryptoKey = await this.globals.importKey('raw', key, 'AES-GCM', false, ['decrypt']);
+            const algo = {
+                name: 'AES-GCM',
+                iv
+            };
+
+            const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
+
+            const dec = new this.globals.TextDecoder();
+            return dec.decode(decrypted)
+        }
+
+        /**
+         * When required (such as on macos 10.x), capture the `postMessage` method on
+         * each webkit messageHandler
+         *
+         * @param {string[]} handlerNames
+         */
+        captureWebkitHandlers (handlerNames) {
+            const handlers = window.webkit.messageHandlers;
+            if (!handlers) throw new MissingHandler('window.webkit.messageHandlers was absent', 'all')
+            for (const webkitMessageHandlerName of handlerNames) {
+                if (typeof handlers[webkitMessageHandlerName]?.postMessage === 'function') {
+                    /**
+                     * `bind` is used here to ensure future calls to the captured
+                     * `postMessage` have the correct `this` context
+                     */
+                    const original = handlers[webkitMessageHandlerName];
+                    const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
+                    this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+                    delete handlers[webkitMessageHandlerName].postMessage;
+                }
+            }
+        }
+
+        /**
+         * @param {import('../index.js').Subscription} msg
+         * @param {(value: unknown) => void} callback
+         */
+        subscribe (msg, callback) {
+            // for now, bail if there's already a handler setup for this subscription
+            if (msg.subscriptionName in this.globals.window) {
+                throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`)
+            }
+            this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+                enumerable: false,
+                configurable: true,
+                writable: false,
+                value: (data) => {
+                    if (data && isSubscriptionEventFor(msg, data)) {
+                        callback(data.params);
+                    } else {
+                        console.warn('Received a message that did not match the subscription', data);
+                    }
+                }
+            });
+            return () => {
+                this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+            }
+        }
+    }
+
+    /**
+     * Use this configuration to create an instance of {@link Messaging} for WebKit platforms
+     *
+     * We support modern WebKit environments *and* macOS Catalina.
+     *
+     * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
+     *
+     * @example Webkit Messaging
+     *
+     * ```javascript
+     * [[include:packages/messaging/lib/examples/webkit.example.js]]```
+     */
+    class WebkitMessagingConfig {
+        /**
+         * @param {object} params
+         * @param {boolean} params.hasModernWebkitAPI
+         * @param {string[]} params.webkitMessageHandlerNames
+         * @param {string} params.secret
+         * @internal
+         */
+        constructor (params) {
+            /**
+             * Whether or not the current WebKit Platform supports secure messaging
+             * by default (eg: macOS 11+)
+             */
+            this.hasModernWebkitAPI = params.hasModernWebkitAPI;
+            /**
+             * A list of WebKit message handler names that a user script can send.
+             *
+             * For example, if the native platform can receive messages through this:
+             *
+             * ```js
+             * window.webkit.messageHandlers.foo.postMessage('...')
+             * ```
+             *
+             * then, this property would be:
+             *
+             * ```js
+             * webkitMessageHandlerNames: ['foo']
+             * ```
+             */
+            this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
+            /**
+             * A string provided by native platforms to be sent with future outgoing
+             * messages.
+             */
+            this.secret = params.secret;
+        }
+    }
+
+    /**
+     * This is the additional payload that gets appended to outgoing messages.
+     * It's used in the Swift side to encrypt the response that comes back
+     */
+    class SecureMessagingParams {
+        /**
+         * @param {object} params
+         * @param {string} params.methodName
+         * @param {string} params.secret
+         * @param {number[]} params.key
+         * @param {number[]} params.iv
+         */
+        constructor (params) {
+            /**
+             * The method that's been appended to `window` to be called later
+             */
+            this.methodName = params.methodName;
+            /**
+             * The secret used to ensure message sender validity
+             */
+            this.secret = params.secret;
+            /**
+             * The CipherKey as number[]
+             */
+            this.key = params.key;
+            /**
+             * The Initial Vector as number[]
+             */
+            this.iv = params.iv;
+        }
+    }
+
+    /**
+     * Capture some globals used for messaging handling to prevent page
+     * scripts from tampering with this
+     */
+    function captureGlobals () {
+        // Create base with null prototype
+        return {
+            window,
+            // Methods must be bound to their interface, otherwise they throw Illegal invocation
+            encrypt: window.crypto.subtle.encrypt.bind(window.crypto.subtle),
+            decrypt: window.crypto.subtle.decrypt.bind(window.crypto.subtle),
+            generateKey: window.crypto.subtle.generateKey.bind(window.crypto.subtle),
+            exportKey: window.crypto.subtle.exportKey.bind(window.crypto.subtle),
+            importKey: window.crypto.subtle.importKey.bind(window.crypto.subtle),
+            getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
+            TextEncoder,
+            TextDecoder,
+            Uint8Array,
+            Uint16Array,
+            Uint32Array,
+            JSONstringify: window.JSON.stringify,
+            JSONparse: window.JSON.parse,
+            Arrayfrom: window.Array.from,
+            Promise: window.Promise,
+            Error: window.Error,
+            ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
+            ObjectDefineProperty: window.Object.defineProperty,
+            addEventListener: window.addEventListener.bind(window),
+            /** @type {Record<string, any>} */
+            capturedWebkitHandlers: {}
+        }
+    }
+
+    /**
      * @module Messaging
      * @category Libraries
      * @description
@@ -1390,18 +2270,382 @@
     }
 
     /**
-     * @typedef {object} AssetConfig
-     * @property {string} regularFontUrl
-     * @property {string} boldFontUrl
+     *
+     */
+    class Messaging {
+        /**
+         * @param {MessagingContext} messagingContext
+         * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
+         */
+        constructor (messagingContext, config) {
+            this.messagingContext = messagingContext;
+            this.transport = getTransport(config, this.messagingContext);
+        }
+
+        /**
+         * Send a 'fire-and-forget' message.
+         * @throws {MissingHandler}
+         *
+         * @example
+         *
+         * ```ts
+         * const messaging = new Messaging(config)
+         * messaging.notify("foo", {bar: "baz"})
+         * ```
+         * @param {string} name
+         * @param {Record<string, any>} [data]
+         */
+        notify (name, data = {}) {
+            const message = new NotificationMessage({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                method: name,
+                params: data
+            });
+            this.transport.notify(message);
+        }
+
+        /**
+         * Send a request, and wait for a response
+         * @throws {MissingHandler}
+         *
+         * @example
+         * ```
+         * const messaging = new Messaging(config)
+         * const response = await messaging.request("foo", {bar: "baz"})
+         * ```
+         *
+         * @param {string} name
+         * @param {Record<string, any>} [data]
+         * @return {Promise<any>}
+         */
+        request (name, data = {}) {
+            const id = name + '.response';
+            const message = new RequestMessage({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                method: name,
+                params: data,
+                id
+            });
+            return this.transport.request(message)
+        }
+
+        /**
+         * @param {string} name
+         * @param {(value: unknown) => void} callback
+         * @return {() => void}
+         */
+        subscribe (name, callback) {
+            const msg = new Subscription({
+                context: this.messagingContext.context,
+                featureName: this.messagingContext.featureName,
+                subscriptionName: name
+            });
+            return this.transport.subscribe(msg, callback)
+        }
+    }
+
+    /**
+     * Use this to create testing transport on the fly.
+     * It's useful for debugging, and for enabling scripts to run in
+     * other environments - for example, testing in a browser without the need
+     * for a full integration
+     *
+     * ```js
+     * [[include:packages/messaging/lib/examples/test.example.js]]```
+     */
+    class TestTransportConfig {
+        /**
+         * @param {MessagingTransport} impl
+         */
+        constructor (impl) {
+            this.impl = impl;
+        }
+    }
+
+    /**
+     * @implements {MessagingTransport}
+     */
+    class TestTransport {
+        /**
+         * @param {TestTransportConfig} config
+         * @param {MessagingContext} messagingContext
+         */
+        constructor (config, messagingContext) {
+            this.config = config;
+            this.messagingContext = messagingContext;
+        }
+
+        notify (msg) {
+            return this.config.impl.notify(msg)
+        }
+
+        request (msg) {
+            return this.config.impl.request(msg)
+        }
+
+        subscribe (msg, callback) {
+            return this.config.impl.subscribe(msg, callback)
+        }
+    }
+
+    /**
+     * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
+     * @param {MessagingContext} messagingContext
+     * @returns {MessagingTransport}
+     */
+    function getTransport (config, messagingContext) {
+        if (config instanceof WebkitMessagingConfig) {
+            return new WebkitMessagingTransport(config, messagingContext)
+        }
+        if (config instanceof WindowsMessagingConfig) {
+            return new WindowsMessagingTransport(config, messagingContext)
+        }
+        if (config instanceof TestTransportConfig) {
+            return new TestTransport(config, messagingContext)
+        }
+        throw new Error('unreachable')
+    }
+
+    /**
+     * Thrown when a handler cannot be found
+     */
+    class MissingHandler extends Error {
+        /**
+         * @param {string} message
+         * @param {string} handlerName
+         */
+        constructor (message, handlerName) {
+            super(message);
+            this.handlerName = handlerName;
+        }
+    }
+
+    /**
+     * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
+     * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport
      */
 
     /**
-     * @typedef {object} Site
-     * @property {string | null} domain
-     * @property {boolean} [isBroken]
-     * @property {boolean} [allowlisted]
-     * @property {string[]} [enabledFeatures]
+     * A temporary implementation of {@link MessagingTransport} to communicate with Android and Extension.
+     * It wraps the current messaging system that calls `sendMessage`
+     *
+     * @implements {MessagingTransport}
+     * @deprecated - Use this only to communicate with Android and the Extension while support to {@link Messaging}
+     * is not ready and we need to use `sendMessage()`.
      */
+    class SendMessageMessagingTransport {
+        /**
+         * Queue of callbacks to be called with messages sent from the Platform.
+         * This is used to connect requests with responses and to trigger subscriptions callbacks.
+         */
+        _queue = new Set()
+
+        constructor () {
+            this.globals = {
+                window,
+                JSONparse: window.JSON.parse,
+                JSONstringify: window.JSON.stringify,
+                Promise: window.Promise,
+                Error: window.Error,
+                String: window.String
+            };
+        }
+
+        /**
+         * Callback for update() handler. This connects messages sent from the Platform
+         * with callback functions in the _queue.
+         * @param {any} response
+         */
+        onResponse (response) {
+            this._queue.forEach((subscription) => subscription(response));
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').NotificationMessage} msg
+         */
+        notify (msg) {
+            let params = msg.params;
+
+            // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
+            // for sendMessage()
+            if (msg.method === 'setYoutubePreviewsEnabled') {
+                params = msg.params?.youtubePreviewsEnabled;
+            }
+            // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
+            // for sendMessage()
+            if (msg.method === 'updateYouTubeCTLAddedFlag') {
+                params = msg.params?.youTubeCTLAddedFlag;
+            }
+
+            sendMessage(msg.method, params);
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').RequestMessage} req
+         * @return {Promise<any>}
+         */
+        request (req) {
+            let comparator = (eventData) => {
+                return eventData.responseMessageType === req.method
+            };
+            let params = req.params;
+
+            // Adapts request for 'getYouTubeVideoDetails' by identifying the correct
+            // response for each request and updating params to expect current
+            // implementation specifications.
+            if (req.method === 'getYouTubeVideoDetails') {
+                comparator = (eventData) => {
+                    return (
+                        eventData.responseMessageType === req.method &&
+                        eventData.response &&
+                        eventData.response.videoURL === req.params?.videoURL
+                    )
+                };
+                params = req.params?.videoURL;
+            }
+
+            sendMessage(req.method, params);
+
+            return new this.globals.Promise((resolve) => {
+                this._subscribe(comparator, (msgRes, unsubscribe) => {
+                    unsubscribe();
+
+                    return resolve(msgRes.response)
+                });
+            })
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe (msg, callback) {
+            const comparator = (eventData) => {
+                return (
+                    eventData.messageType === msg.subscriptionName ||
+                    eventData.responseMessageType === msg.subscriptionName
+                )
+            };
+
+            // only forward the 'params' ('response' in current format), to match expected
+            // callback from a SubscriptionEvent
+            const cb = (eventData) => {
+                return callback(eventData.response)
+            };
+            return this._subscribe(comparator, cb)
+        }
+
+        /**
+         * @param {(eventData: any) => boolean} comparator
+         * @param {(value: any, unsubscribe: (()=>void)) => void} callback
+         * @internal
+         */
+        _subscribe (comparator, callback) {
+            /** @type {(()=>void) | undefined} */
+            // eslint-disable-next-line prefer-const
+            let teardown;
+
+            /**
+             * @param {MessageEvent} event
+             */
+            const idHandler = (event) => {
+                if (!event) {
+                    console.warn('no message available');
+                    return
+                }
+                if (comparator(event)) {
+                    if (!teardown) throw new this.globals.Error('unreachable')
+                    callback(event, teardown);
+                }
+            };
+            this._queue.add(idHandler);
+
+            teardown = () => {
+                this._queue.delete(idHandler);
+            };
+
+            return () => {
+                teardown?.();
+            }
+        }
+    }
+
+    /**
+     * Extracted so we can iterate on the best way to bring this to all platforms
+     * @param {{ name: string, isDebug: boolean }} feature
+     * @param {string} injectName
+     * @return {Messaging}
+     */
+    function createMessaging (feature, injectName) {
+        const contextName = injectName === 'apple-isolated'
+            ? 'contentScopeScriptsIsolated'
+            : 'contentScopeScripts';
+
+        const context = new MessagingContext({
+            context: contextName,
+            env: feature.isDebug ? 'development' : 'production',
+            featureName: feature.name
+        });
+
+        const createExtensionConfig = () => {
+            const messagingTransport = new SendMessageMessagingTransport();
+            return new TestTransportConfig(messagingTransport)
+        };
+
+        /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
+        const config = {
+            windows: () => {
+                return new WindowsMessagingConfig({
+                    methods: {
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        postMessage: windowsInteropPostMessage,
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        addEventListener: windowsInteropAddEventListener,
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        removeEventListener: windowsInteropRemoveEventListener
+                    }
+                })
+            },
+            'apple-isolated': () => {
+                return new WebkitMessagingConfig({
+                    webkitMessageHandlerNames: [context.context],
+                    secret: '',
+                    hasModernWebkitAPI: true
+                })
+            },
+            firefox: createExtensionConfig,
+            chrome: createExtensionConfig,
+            'chrome-mv3': createExtensionConfig,
+            integration: () => {
+                return new TestTransportConfig({
+                    notify () {
+                        // noop
+                    },
+                    request: async () => {
+                        // noop
+                    },
+                    subscribe () {
+                        return () => {
+                            // noop
+                        }
+                    }
+                })
+            }
+        };
+
+        const match = config[injectName];
+
+        if (!match) {
+            throw new Error('Messaging not supported yet on: ' + injectName)
+        }
+
+        return new Messaging(context, match())
+    }
+
+    /* global cloneInto, exportFunction */
+
 
     class ContentFeature {
         /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -1414,6 +2658,10 @@
         #bundledfeatureSettings
         /** @type {MessagingContext} */
         #messagingContext
+        /** @type {import('../packages/messaging').Messaging} */
+        #debugMessaging
+        /** @type {boolean} */
+        #isDebugFlagSet = false
 
         /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
         #args
@@ -1473,12 +2721,27 @@
          */
         get messagingContext () {
             if (this.#messagingContext) return this.#messagingContext
+
+            const contextName = 'contentScopeScripts';
+
             this.#messagingContext = new MessagingContext({
-                context: 'contentScopeScripts',
-                featureName: this.name,
-                env: this.isDebug ? 'development' : 'production'
+                context: contextName,
+                env: this.isDebug ? 'development' : 'production',
+                featureName: this.name
             });
             return this.#messagingContext
+        }
+
+        // Messaging layer between the content feature and the Platform
+        get debugMessaging () {
+            if (this.#debugMessaging) return this.#debugMessaging
+
+            if (this.platform?.name === 'extension') {
+                this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, "apple");
+                return this.#debugMessaging
+            } else {
+                return null
+            }
         }
 
         /**
@@ -1534,12 +2797,16 @@
 
         /**
          * For simple boolean settings, return true if the setting is 'enabled'
+         * For objects, verify the 'state' field is 'enabled'.
          * @param {string} featureKeyName
          * @param {string} [featureName]
          * @returns {boolean}
          */
         getFeatureSettingEnabled (featureKeyName, featureName) {
             const result = this.getFeatureSetting(featureKeyName, featureName);
+            if (typeof result === 'object') {
+                return result.state === 'enabled'
+            }
             return result === 'enabled'
         }
 
@@ -1608,6 +2875,114 @@
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         update () {
         }
+
+        /**
+         * Register a flag that will be added to page breakage reports
+         */
+        addDebugFlag () {
+            if (this.#isDebugFlagSet) return
+            this.#isDebugFlagSet = true;
+            this.debugMessaging?.notify('addDebugFlag', {
+                flag: this.name
+            });
+        }
+
+        /**
+         * Define a property descriptor. Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {PropertyDescriptor} descriptor
+         */
+        defineProperty (object, propertyName, descriptor) {
+            // make sure to send a debug flag when the property is used
+            // NOTE: properties passing data in `value` would not be caught by this
+            ['value', 'get', 'set'].forEach((k) => {
+                const descriptorProp = descriptor[k];
+                if (typeof descriptorProp === 'function') {
+                    const addDebugFlag = this.addDebugFlag.bind(this);
+                    descriptor[k] = function () {
+                        addDebugFlag();
+                        return Reflect.apply(descriptorProp, this, arguments)
+                    };
+                }
+            });
+
+            {
+                Object.defineProperty(object, propertyName, descriptor);
+            }
+        }
+
+        /**
+         * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {Partial<PropertyDescriptor>} descriptor
+         * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+         */
+        wrapProperty (object, propertyName, descriptor) {
+            if (!object) {
+                return
+            }
+
+            const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+            if (!origDescriptor) {
+                // this happens if the property is not implemented in the browser
+                return
+            }
+
+            if (('value' in origDescriptor && 'value' in descriptor) ||
+                ('get' in origDescriptor && 'get' in descriptor) ||
+                ('set' in origDescriptor && 'set' in descriptor)
+            ) {
+                wrapToString(descriptor.value, origDescriptor.value);
+                wrapToString(descriptor.get, origDescriptor.get);
+                wrapToString(descriptor.set, origDescriptor.set);
+
+                this.defineProperty(object, propertyName, {
+                    ...origDescriptor,
+                    ...descriptor
+                });
+                return origDescriptor
+            } else {
+                // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
+                throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+            }
+        }
+
+        /**
+         * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+         * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+         */
+        wrapMethod (object, propertyName, wrapperFn) {
+            if (!object) {
+                return
+            }
+            const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+            if (!origDescriptor) {
+                // this happens if the property is not implemented in the browser
+                return
+            }
+
+            const origFn = origDescriptor.value;
+            if (!origFn || typeof origFn !== 'function') {
+                // method properties are expected to be defined with a `value`
+                throw new Error(`Property ${propertyName} does not look like a method`)
+            }
+
+            const newFn = function () {
+                return wrapperFn.call(this, origFn, ...arguments)
+            };
+            wrapToString(newFn, origFn);
+
+            this.defineProperty(object, propertyName, {
+                ...origDescriptor,
+                value: newFn
+            });
+            return origDescriptor
+        }
     }
 
     /**
@@ -1622,95 +2997,164 @@
     }
 
     /**
-     * Add missing navigator.credentials API
+     * Notification fix for adding missing API for Android WebView.
      */
-    function navigatorCredentialsFix () {
-        try {
-            if ('credentials' in navigator && 'get' in navigator.credentials) {
-                return
-            }
-            const value = {
-                get () {
-                    return Promise.reject(new Error())
-                }
-            };
-            defineProperty(Navigator.prototype, 'credentials', {
-                value,
-                configurable: true,
-                enumerable: true
-            });
-        } catch {
-            // Ignore exceptions that could be caused by conflicting with other extensions
+    function notificationFix () {
+        if (window.Notification) {
+            return
         }
+        const Notification = () => {
+            // noop
+        };
+        Notification.requestPermission = () => {
+            return Promise.resolve({ permission: 'denied' })
+        };
+        Notification.permission = 'denied';
+        Notification.maxActions = 2;
+
+        // Expose the API
+        // @ts-expect-error window.Notification isn't assignable
+        window.Notification = Notification;
     }
 
-    function safariObjectFix () {
-        try {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            if (window.safari) {
-                return
-            }
-            defineProperty(window, 'safari', {
-                value: {
-                },
-                configurable: true,
-                enumerable: true
-            });
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            defineProperty(window.safari, 'pushNotification', {
-                value: {
-                },
-                configurable: true,
-                enumerable: true
-            });
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            defineProperty(window.safari.pushNotification, 'toString', {
-                value: () => { return '[object SafariRemoteNotification]' },
-                configurable: true,
-                enumerable: true
-            });
-            class SafariRemoteNotificationPermission {
-                constructor () {
-                    this.deviceToken = null;
-                    this.permission = 'denied';
-                }
-            }
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            defineProperty(window.safari.pushNotification, 'permission', {
-                value: () => {
-                    return new SafariRemoteNotificationPermission()
-                },
-                configurable: true,
-                enumerable: true
-            });
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            defineProperty(window.safari.pushNotification, 'requestPermission', {
-                value: (name, domain, options, callback) => {
-                    if (typeof callback === 'function') {
-                        callback(new SafariRemoteNotificationPermission());
-                        return
-                    }
-                    const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function.";
-                    throw new Error(reason)
-                },
-                configurable: true,
-                enumerable: true
-            });
-        } catch {
-            // Ignore exceptions that could be caused by conflicting with other extensions
+    /**
+     * Adds missing permissions API for Android WebView.
+     */
+    function permissionsFix (settings) {
+        if (window.navigator.permissions) {
+            return
         }
+        // @ts-expect-error window.navigator isn't assignable
+        window.navigator.permissions = {};
+        class PermissionStatus extends EventTarget {
+            constructor (name, state) {
+                super();
+                this.name = name;
+                this.state = state;
+                this.onchange = null; // noop
+            }
+        }
+        // Default subset based upon Firefox (the full list is pretty large right now and these are the common ones)
+        const defaultValidPermissionNames = [
+            'geolocation',
+            'notifications',
+            'push',
+            'persistent-storage',
+            'midi'
+        ];
+        const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames;
+        window.navigator.permissions.query = (query) => {
+            if (!query) {
+                throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
+            }
+            if (!query.name) {
+                throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.")
+            }
+            if (!validPermissionNames.includes(query.name)) {
+                throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value 's' is not a valid enum value of type PermissionName.")
+            }
+            return Promise.resolve(new PermissionStatus(query.name, 'denied'))
+        };
     }
 
+    // TODO: verify that all descriptor shapes match the original (i.e. we're not overriding value descriptors with get/set descriptors)
     class WebCompat extends ContentFeature {
         init () {
             if (this.getFeatureSettingEnabled('windowSizing')) {
                 windowSizingFix();
             }
             if (this.getFeatureSettingEnabled('navigatorCredentials')) {
-                navigatorCredentialsFix();
+                this.navigatorCredentialsFix();
             }
             if (this.getFeatureSettingEnabled('safariObject')) {
-                safariObjectFix();
+                this.safariObjectFix();
+            }
+        }
+
+        /**
+         * Add missing navigator.credentials API
+         */
+        navigatorCredentialsFix () {
+            try {
+                if ('credentials' in navigator && 'get' in navigator.credentials) {
+                    return
+                }
+                const value = {
+                    get () {
+                        return Promise.reject(new Error())
+                    }
+                };
+                this.defineProperty(Navigator.prototype, 'credentials', {
+                    value,
+                    configurable: true,
+                    enumerable: true
+                });
+            } catch {
+                // Ignore exceptions that could be caused by conflicting with other extensions
+            }
+        }
+
+        safariObjectFix () {
+            try {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                if (window.safari) {
+                    return
+                }
+                this.defineProperty(window, 'safari', {
+                    value: {
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                this.defineProperty(window.safari, 'pushNotification', {
+                    value: {
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                this.defineProperty(window.safari.pushNotification, 'toString', {
+                    value: () => { return '[object SafariRemoteNotification]' },
+                    configurable: true,
+                    enumerable: true
+                });
+                class SafariRemoteNotificationPermission {
+                    constructor () {
+                        this.deviceToken = null;
+                        this.permission = 'denied';
+                    }
+                }
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                this.defineProperty(window.safari.pushNotification, 'permission', {
+                    value: () => {
+                        return new SafariRemoteNotificationPermission()
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                this.defineProperty(window.safari.pushNotification, 'requestPermission', {
+                    value: (name, domain, options, callback) => {
+                        if (typeof callback === 'function') {
+                            callback(new SafariRemoteNotificationPermission());
+                            return
+                        }
+                        const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function.";
+                        throw new Error(reason)
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+            } catch {
+                // Ignore exceptions that could be caused by conflicting with other extensions
+            }
+            if (this.getFeatureSettingEnabled('notification')) {
+                notificationFix();
+            }
+            if (this.getFeatureSettingEnabled('permissions')) {
+                const settings = this.getFeatureSettingEnabled('permissions');
+                permissionsFix(settings);
             }
         }
     }
@@ -2728,7 +4172,7 @@
 
         overloadDateGetTimezoneOffset (config) {
             const offset = (new Date()).getTimezoneOffset();
-            defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
+            this.defineProperty(globalThis.Date.prototype, 'getTimezoneOffset', {
                 configurable: true,
                 enumerable: true,
                 writable: true,
@@ -2747,7 +4191,7 @@
             }
 
             const originalGetHighEntropyValues = globalThis.NavigatorUAData.prototype.getHighEntropyValues;
-            defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
+            this.defineProperty(globalThis.NavigatorUAData.prototype, 'getHighEntropyValues', {
                 configurable: true,
                 enumerable: true,
                 writable: true,
@@ -2839,7 +4283,7 @@
 
         overrideStorage (config, key, storage) {
             const originalStorage = globalThis[key];
-            defineProperty(globalThis, key, {
+            this.defineProperty(globalThis, key, {
                 get () {
                     if (getTaintFromScope(this, arguments, config.stackCheck)) {
                         return storage
@@ -2897,7 +4341,7 @@
             if (!defaultGetter) {
                 return
             }
-            defineProperty(scope, overrideKey, {
+            this.defineProperty(scope, overrideKey, {
                 get () {
                     const defaultVal = Reflect$1.apply(defaultGetter, receiver, []);
                     if (getTaintFromScope(this, arguments, config.stackCheck)) {
@@ -3712,12 +5156,20 @@
 
                 for (const [prop, val] of Object.entries(spoofedValues)) {
                     try {
-                        defineProperty(BatteryManager.prototype, prop, { get: () => val });
+                        this.defineProperty(BatteryManager.prototype, prop, {
+                            get: () => {
+                                return val
+                            }
+                        });
                     } catch (e) { }
                 }
                 for (const eventProp of eventProperties) {
                     try {
-                        defineProperty(BatteryManager.prototype, eventProp, { get: () => null });
+                        this.defineProperty(BatteryManager.prototype, eventProp, {
+                            get: () => {
+                                return null
+                            }
+                        });
                     } catch (e) { }
                 }
             }
@@ -5121,7 +6573,7 @@
                 if (args.globalPrivacyControlValue) {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     if (navigator.globalPrivacyControl) return
-                    defineProperty(Navigator.prototype, 'globalPrivacyControl', {
+                    this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                         get: () => true,
                         configurable: true,
                         enumerable: true
@@ -5131,7 +6583,7 @@
                     // this may be overwritten by the user agent or other extensions
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     if (typeof navigator.globalPrivacyControl !== 'undefined') return
-                    defineProperty(Navigator.prototype, 'globalPrivacyControl', {
+                    this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                         get: () => false,
                         configurable: true,
                         enumerable: true
@@ -5145,174 +6597,169 @@
 
     class FingerprintingHardware extends ContentFeature {
         init () {
-            wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
-                // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
-                get: () => this.getFeatureAttr('keyboard')
+            this.wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
+                get: () => {
+                    // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.
+                    return this.getFeatureAttr('keyboard')
+                }
             });
 
-            wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
-                get: () => this.getFeatureAttr('hardwareConcurrency', 2)
+            this.wrapProperty(globalThis.Navigator.prototype, 'hardwareConcurrency', {
+                get: () => {
+                    return this.getFeatureAttr('hardwareConcurrency', 2)
+                }
             });
 
-            wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
-                get: () => this.getFeatureAttr('deviceMemory', 8)
+            this.wrapProperty(globalThis.Navigator.prototype, 'deviceMemory', {
+                get: () => {
+                    return this.getFeatureAttr('deviceMemory', 8)
+                }
             });
         }
     }
 
     class Referrer extends ContentFeature {
-        init (args) {
-            // Unfortunately, we only have limited information about the referrer and current frame. A single
-            // page may load many requests and sub frames, all with different referrers. Since we
-            if (args.referrer && // make sure the referrer was set correctly
-                args.referrer.referrer !== undefined && // referrer value will be undefined when it should be unchanged.
-                document.referrer && // don't change the value if it isn't set
-                document.referrer !== '' && // don't add referrer information
-                new URL(document.URL).hostname !== new URL(document.referrer).hostname) { // don't replace the referrer for the current host.
-                let trimmedReferer = document.referrer;
-                if (new URL(document.referrer).hostname === args.referrer.referrerHost) {
-                    // make sure the real referrer & replacement referrer match if we're going to replace it
-                    trimmedReferer = args.referrer.referrer;
-                } else {
-                    // if we don't have a matching referrer, just trim it to origin.
-                    trimmedReferer = new URL(document.referrer).origin + '/';
-                }
-                wrapProperty(Document.prototype, 'referrer', {
+        init () {
+            // If the referer is a different host to the current one, trim it.
+            if (document.referrer && new URL(document.URL).hostname !== new URL(document.referrer).hostname) {
+                // trim referrer to origin.
+                const trimmedReferer = new URL(document.referrer).origin + '/';
+                this.wrapProperty(Document.prototype, 'referrer', {
                     get: () => trimmedReferer
                 });
             }
         }
     }
 
-    /**
-     * normalize window dimensions, if more than one monitor is in play.
-     *  X/Y values are set in the browser based on distance to the main monitor top or left, which
-     * can mean second or more monitors have very large or negative values. This function maps a given
-     * given coordinate value to the proper place on the main screen.
-     */
-    function normalizeWindowDimension (value, targetDimension) {
-        if (value > targetDimension) {
-            return value % targetDimension
-        }
-        if (value < 0) {
-            return targetDimension + value
-        }
-        return value
-    }
-
-    function setWindowPropertyValue (property, value) {
-        // Here we don't update the prototype getter because the values are updated dynamically
-        try {
-            defineProperty(globalThis, property, {
-                get: () => value,
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                set: () => {},
-                configurable: true
-            });
-        } catch (e) {}
-    }
-
-    const origPropertyValues = {};
-
-    /**
-     * Fix window dimensions. The extension runs in a different JS context than the
-     * page, so we can inject the correct screen values as the window is resized,
-     * ensuring that no information is leaked as the dimensions change, but also that the
-     * values change correctly for valid use cases.
-     */
-    function setWindowDimensions () {
-        try {
-            const window = globalThis;
-            const top = globalThis.top;
-
-            const normalizedY = normalizeWindowDimension(window.screenY, window.screen.height);
-            const normalizedX = normalizeWindowDimension(window.screenX, window.screen.width);
-            if (normalizedY <= origPropertyValues.availTop) {
-                setWindowPropertyValue('screenY', 0);
-                setWindowPropertyValue('screenTop', 0);
-            } else {
-                setWindowPropertyValue('screenY', normalizedY);
-                setWindowPropertyValue('screenTop', normalizedY);
-            }
-
-            // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-            if (top.window.outerHeight >= origPropertyValues.availHeight - 1) {
-                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-                setWindowPropertyValue('outerHeight', top.window.screen.height);
-            } else {
-                try {
-                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-                    setWindowPropertyValue('outerHeight', top.window.outerHeight);
-                } catch (e) {
-                    // top not accessible to certain iFrames, so ignore.
-                }
-            }
-
-            if (normalizedX <= origPropertyValues.availLeft) {
-                setWindowPropertyValue('screenX', 0);
-                setWindowPropertyValue('screenLeft', 0);
-            } else {
-                setWindowPropertyValue('screenX', normalizedX);
-                setWindowPropertyValue('screenLeft', normalizedX);
-            }
-
-            // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-            if (top.window.outerWidth >= origPropertyValues.availWidth - 1) {
-                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-                setWindowPropertyValue('outerWidth', top.window.screen.width);
-            } else {
-                try {
-                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
-                    setWindowPropertyValue('outerWidth', top.window.outerWidth);
-                } catch (e) {
-                    // top not accessible to certain iFrames, so ignore.
-                }
-            }
-        } catch (e) {
-            // in a cross domain iFrame, top.window is not accessible.
-        }
-    }
-
     class FingerprintingScreenSize extends ContentFeature {
+        origPropertyValues = {}
+
         init () {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            origPropertyValues.availTop = globalThis.screen.availTop;
-            wrapProperty(globalThis.Screen.prototype, 'availTop', {
+            this.origPropertyValues.availTop = globalThis.screen.availTop;
+            this.wrapProperty(globalThis.Screen.prototype, 'availTop', {
                 get: () => this.getFeatureAttr('availTop', 0)
             });
 
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            origPropertyValues.availLeft = globalThis.screen.availLeft;
-            wrapProperty(globalThis.Screen.prototype, 'availLeft', {
+            this.origPropertyValues.availLeft = globalThis.screen.availLeft;
+            this.wrapProperty(globalThis.Screen.prototype, 'availLeft', {
                 get: () => this.getFeatureAttr('availLeft', 0)
             });
 
-            origPropertyValues.availWidth = globalThis.screen.availWidth;
+            this.origPropertyValues.availWidth = globalThis.screen.availWidth;
             const forcedAvailWidthValue = globalThis.screen.width;
-            wrapProperty(globalThis.Screen.prototype, 'availWidth', {
+            this.wrapProperty(globalThis.Screen.prototype, 'availWidth', {
                 get: () => forcedAvailWidthValue
             });
 
-            origPropertyValues.availHeight = globalThis.screen.availHeight;
+            this.origPropertyValues.availHeight = globalThis.screen.availHeight;
             const forcedAvailHeightValue = globalThis.screen.height;
-            wrapProperty(globalThis.Screen.prototype, 'availHeight', {
+            this.wrapProperty(globalThis.Screen.prototype, 'availHeight', {
                 get: () => forcedAvailHeightValue
             });
 
-            origPropertyValues.colorDepth = globalThis.screen.colorDepth;
-            wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
+            this.origPropertyValues.colorDepth = globalThis.screen.colorDepth;
+            this.wrapProperty(globalThis.Screen.prototype, 'colorDepth', {
                 get: () => this.getFeatureAttr('colorDepth', 24)
             });
 
-            origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
-            wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
+            this.origPropertyValues.pixelDepth = globalThis.screen.pixelDepth;
+            this.wrapProperty(globalThis.Screen.prototype, 'pixelDepth', {
                 get: () => this.getFeatureAttr('pixelDepth', 24)
             });
 
-            globalThis.window.addEventListener('resize', function () {
-                setWindowDimensions();
+            globalThis.window.addEventListener('resize', () => {
+                this.setWindowDimensions();
             });
-            setWindowDimensions();
+            this.setWindowDimensions();
+        }
+
+        /**
+         * normalize window dimensions, if more than one monitor is in play.
+         *  X/Y values are set in the browser based on distance to the main monitor top or left, which
+         * can mean second or more monitors have very large or negative values. This function maps a given
+         * given coordinate value to the proper place on the main screen.
+         */
+        normalizeWindowDimension (value, targetDimension) {
+            if (value > targetDimension) {
+                return value % targetDimension
+            }
+            if (value < 0) {
+                return targetDimension + value
+            }
+            return value
+        }
+
+        setWindowPropertyValue (property, value) {
+            // Here we don't update the prototype getter because the values are updated dynamically
+            try {
+                this.defineProperty(globalThis, property, {
+                    get: () => value,
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    set: () => {},
+                    configurable: true
+                });
+            } catch (e) {}
+        }
+
+        /**
+         * Fix window dimensions. The extension runs in a different JS context than the
+         * page, so we can inject the correct screen values as the window is resized,
+         * ensuring that no information is leaked as the dimensions change, but also that the
+         * values change correctly for valid use cases.
+         */
+        setWindowDimensions () {
+            try {
+                const window = globalThis;
+                const top = globalThis.top;
+
+                const normalizedY = this.normalizeWindowDimension(window.screenY, window.screen.height);
+                const normalizedX = this.normalizeWindowDimension(window.screenX, window.screen.width);
+                if (normalizedY <= this.origPropertyValues.availTop) {
+                    this.setWindowPropertyValue('screenY', 0);
+                    this.setWindowPropertyValue('screenTop', 0);
+                } else {
+                    this.setWindowPropertyValue('screenY', normalizedY);
+                    this.setWindowPropertyValue('screenTop', normalizedY);
+                }
+
+                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                if (top.window.outerHeight >= this.origPropertyValues.availHeight - 1) {
+                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                    this.setWindowPropertyValue('outerHeight', top.window.screen.height);
+                } else {
+                    try {
+                        // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                        this.setWindowPropertyValue('outerHeight', top.window.outerHeight);
+                    } catch (e) {
+                        // top not accessible to certain iFrames, so ignore.
+                    }
+                }
+
+                if (normalizedX <= this.origPropertyValues.availLeft) {
+                    this.setWindowPropertyValue('screenX', 0);
+                    this.setWindowPropertyValue('screenLeft', 0);
+                } else {
+                    this.setWindowPropertyValue('screenX', normalizedX);
+                    this.setWindowPropertyValue('screenLeft', normalizedX);
+                }
+
+                // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                if (top.window.outerWidth >= this.origPropertyValues.availWidth - 1) {
+                    // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                    this.setWindowPropertyValue('outerWidth', top.window.screen.width);
+                } else {
+                    try {
+                        // @ts-expect-error -  error TS18047: 'top' is possibly 'null'.
+                        this.setWindowPropertyValue('outerWidth', top.window.outerWidth);
+                    } catch (e) {
+                        // top not accessible to certain iFrames, so ignore.
+                    }
+                }
+            } catch (e) {
+                // in a cross domain iFrame, top.window is not accessible.
+            }
         }
     }
 
@@ -5342,48 +6789,48 @@
                         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                         org.call(navigator.webkitTemporaryStorage, modifiedCallback, err);
                     };
-                    defineProperty(Navigator.prototype, 'webkitTemporaryStorage', { get: () => tStorage });
+                    this.defineProperty(Navigator.prototype, 'webkitTemporaryStorage', { get: () => tStorage });
                 } catch (e) {}
             }
-        }
-    }
-
-    function injectNavigatorInterface (args) {
-        try {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            if (navigator.duckduckgo) {
-                return
-            }
-            if (!args.platform || !args.platform.name) {
-                return
-            }
-            defineProperty(Navigator.prototype, 'duckduckgo', {
-                value: {
-                    platform: args.platform.name,
-                    isDuckDuckGo () {
-                        return DDGPromise.resolve(true)
-                    },
-                    taints: new Set(),
-                    taintedOrigins: new Set()
-                },
-                enumerable: true,
-                configurable: false,
-                writable: false
-            });
-        } catch {
-            // todo: Just ignore this exception?
         }
     }
 
     class NavigatorInterface extends ContentFeature {
         load (args) {
             if (this.matchDomainFeatureSetting('privilegedDomains').length) {
-                injectNavigatorInterface(args);
+                this.injectNavigatorInterface(args);
             }
         }
 
         init (args) {
-            injectNavigatorInterface(args);
+            this.injectNavigatorInterface(args);
+        }
+
+        injectNavigatorInterface (args) {
+            try {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                if (navigator.duckduckgo) {
+                    return
+                }
+                if (!args.platform || !args.platform.name) {
+                    return
+                }
+                this.defineProperty(Navigator.prototype, 'duckduckgo', {
+                    value: {
+                        platform: args.platform.name,
+                        isDuckDuckGo () {
+                            return DDGPromise.resolve(true)
+                        },
+                        taints: new Set(),
+                        taintedOrigins: new Set()
+                    },
+                    enumerable: true,
+                    configurable: false,
+                    writable: false
+                });
+            } catch {
+                // todo: Just ignore this exception?
+            }
         }
     }
 

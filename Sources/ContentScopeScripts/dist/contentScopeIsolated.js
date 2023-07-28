@@ -2,9 +2,39 @@
 (function () {
     'use strict';
 
+    const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+    const objectKeys = Object.keys;
+
     /* global cloneInto, exportFunction, false */
-    typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
+    // Tests don't define this variable so fallback to behave like chrome
+    const functionToString = Function.prototype.toString;
+
+    /**
+     * add a fake toString() method to a wrapper function to resemble the original function
+     * @param {*} newFn
+     * @param {*} origFn
+     */
+    function wrapToString (newFn, origFn) {
+        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
+            return
+        }
+        newFn.toString = function () {
+            if (this === newFn) {
+                return functionToString.call(origFn)
+            } else {
+                return functionToString.call(this)
+            }
+        };
+    }
+
+    /* global cloneInto, exportFunction, false */
+    let messageSecret;
+
+    // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
+    const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
+    const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
     function registerMessageSecret (secret) {
+        messageSecret = secret;
     }
 
     const exemptionLists = {};
@@ -371,6 +401,18 @@
         return windowsSpecificFeatures.includes(featureName)
     }
 
+    function createCustomEvent (eventName, eventDetail) {
+
+        // @ts-expect-error - possibly null
+        return new OriginalCustomEvent(eventName, eventDetail)
+    }
+
+    function sendMessage (messageType, options) {
+        // FF & Chrome
+        return originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+        // TBD other platforms
+    }
+
     const baseFeatures = /** @type {const} */([
         'runtimeChecks',
         'fingerprintingAudio',
@@ -408,6 +450,7 @@
         ],
         android: [
             ...baseFeatures,
+            'webCompat',
             'clickToLoad'
         ],
         windows: [
@@ -2039,18 +2082,229 @@
     }
 
     /**
-     * @typedef {object} AssetConfig
-     * @property {string} regularFontUrl
-     * @property {string} boldFontUrl
+     * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
+     * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport
      */
 
     /**
-     * @typedef {object} Site
-     * @property {string | null} domain
-     * @property {boolean} [isBroken]
-     * @property {boolean} [allowlisted]
-     * @property {string[]} [enabledFeatures]
+     * A temporary implementation of {@link MessagingTransport} to communicate with Android and Extension.
+     * It wraps the current messaging system that calls `sendMessage`
+     *
+     * @implements {MessagingTransport}
+     * @deprecated - Use this only to communicate with Android and the Extension while support to {@link Messaging}
+     * is not ready and we need to use `sendMessage()`.
      */
+    class SendMessageMessagingTransport {
+        /**
+         * Queue of callbacks to be called with messages sent from the Platform.
+         * This is used to connect requests with responses and to trigger subscriptions callbacks.
+         */
+        _queue = new Set()
+
+        constructor () {
+            this.globals = {
+                window,
+                JSONparse: window.JSON.parse,
+                JSONstringify: window.JSON.stringify,
+                Promise: window.Promise,
+                Error: window.Error,
+                String: window.String
+            };
+        }
+
+        /**
+         * Callback for update() handler. This connects messages sent from the Platform
+         * with callback functions in the _queue.
+         * @param {any} response
+         */
+        onResponse (response) {
+            this._queue.forEach((subscription) => subscription(response));
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').NotificationMessage} msg
+         */
+        notify (msg) {
+            let params = msg.params;
+
+            // Unwrap 'setYoutubePreviewsEnabled' params to match expected payload
+            // for sendMessage()
+            if (msg.method === 'setYoutubePreviewsEnabled') {
+                params = msg.params?.youtubePreviewsEnabled;
+            }
+            // Unwrap 'updateYouTubeCTLAddedFlag' params to match expected payload
+            // for sendMessage()
+            if (msg.method === 'updateYouTubeCTLAddedFlag') {
+                params = msg.params?.youTubeCTLAddedFlag;
+            }
+
+            sendMessage(msg.method, params);
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').RequestMessage} req
+         * @return {Promise<any>}
+         */
+        request (req) {
+            let comparator = (eventData) => {
+                return eventData.responseMessageType === req.method
+            };
+            let params = req.params;
+
+            // Adapts request for 'getYouTubeVideoDetails' by identifying the correct
+            // response for each request and updating params to expect current
+            // implementation specifications.
+            if (req.method === 'getYouTubeVideoDetails') {
+                comparator = (eventData) => {
+                    return (
+                        eventData.responseMessageType === req.method &&
+                        eventData.response &&
+                        eventData.response.videoURL === req.params?.videoURL
+                    )
+                };
+                params = req.params?.videoURL;
+            }
+
+            sendMessage(req.method, params);
+
+            return new this.globals.Promise((resolve) => {
+                this._subscribe(comparator, (msgRes, unsubscribe) => {
+                    unsubscribe();
+
+                    return resolve(msgRes.response)
+                });
+            })
+        }
+
+        /**
+         * @param {import('@duckduckgo/messaging').Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe (msg, callback) {
+            const comparator = (eventData) => {
+                return (
+                    eventData.messageType === msg.subscriptionName ||
+                    eventData.responseMessageType === msg.subscriptionName
+                )
+            };
+
+            // only forward the 'params' ('response' in current format), to match expected
+            // callback from a SubscriptionEvent
+            const cb = (eventData) => {
+                return callback(eventData.response)
+            };
+            return this._subscribe(comparator, cb)
+        }
+
+        /**
+         * @param {(eventData: any) => boolean} comparator
+         * @param {(value: any, unsubscribe: (()=>void)) => void} callback
+         * @internal
+         */
+        _subscribe (comparator, callback) {
+            /** @type {(()=>void) | undefined} */
+            // eslint-disable-next-line prefer-const
+            let teardown;
+
+            /**
+             * @param {MessageEvent} event
+             */
+            const idHandler = (event) => {
+                if (!event) {
+                    console.warn('no message available');
+                    return
+                }
+                if (comparator(event)) {
+                    if (!teardown) throw new this.globals.Error('unreachable')
+                    callback(event, teardown);
+                }
+            };
+            this._queue.add(idHandler);
+
+            teardown = () => {
+                this._queue.delete(idHandler);
+            };
+
+            return () => {
+                teardown?.();
+            }
+        }
+    }
+
+    /**
+     * Extracted so we can iterate on the best way to bring this to all platforms
+     * @param {{ name: string, isDebug: boolean }} feature
+     * @param {string} injectName
+     * @return {Messaging}
+     */
+    function createMessaging (feature, injectName) {
+        const contextName = injectName === 'apple-isolated'
+            ? 'contentScopeScriptsIsolated'
+            : 'contentScopeScripts';
+
+        const context = new MessagingContext({
+            context: contextName,
+            env: feature.isDebug ? 'development' : 'production',
+            featureName: feature.name
+        });
+
+        const createExtensionConfig = () => {
+            const messagingTransport = new SendMessageMessagingTransport();
+            return new TestTransportConfig(messagingTransport)
+        };
+
+        /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
+        const config = {
+            windows: () => {
+                return new WindowsMessagingConfig({
+                    methods: {
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        postMessage: windowsInteropPostMessage,
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        addEventListener: windowsInteropAddEventListener,
+                        // @ts-expect-error - Type 'unknown' is not assignable to type...
+                        removeEventListener: windowsInteropRemoveEventListener
+                    }
+                })
+            },
+            'apple-isolated': () => {
+                return new WebkitMessagingConfig({
+                    webkitMessageHandlerNames: [context.context],
+                    secret: '',
+                    hasModernWebkitAPI: true
+                })
+            },
+            firefox: createExtensionConfig,
+            chrome: createExtensionConfig,
+            'chrome-mv3': createExtensionConfig,
+            integration: () => {
+                return new TestTransportConfig({
+                    notify () {
+                        // noop
+                    },
+                    request: async () => {
+                        // noop
+                    },
+                    subscribe () {
+                        return () => {
+                            // noop
+                        }
+                    }
+                })
+            }
+        };
+
+        const match = config[injectName];
+
+        if (!match) {
+            throw new Error('Messaging not supported yet on: ' + injectName)
+        }
+
+        return new Messaging(context, match())
+    }
+
+    /* global cloneInto, exportFunction */
+
 
     class ContentFeature {
         /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -2063,6 +2317,10 @@
         #bundledfeatureSettings
         /** @type {MessagingContext} */
         #messagingContext
+        /** @type {import('../packages/messaging').Messaging} */
+        #debugMessaging
+        /** @type {boolean} */
+        #isDebugFlagSet = false
 
         /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
         #args
@@ -2122,12 +2380,28 @@
          */
         get messagingContext () {
             if (this.#messagingContext) return this.#messagingContext
+
+            const contextName = 'contentScopeScriptsIsolated'
+                ;
+
             this.#messagingContext = new MessagingContext({
-                context: 'contentScopeScripts',
-                featureName: this.name,
-                env: this.isDebug ? 'development' : 'production'
+                context: contextName,
+                env: this.isDebug ? 'development' : 'production',
+                featureName: this.name
             });
             return this.#messagingContext
+        }
+
+        // Messaging layer between the content feature and the Platform
+        get debugMessaging () {
+            if (this.#debugMessaging) return this.#debugMessaging
+
+            if (this.platform?.name === 'extension') {
+                this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, "apple-isolated");
+                return this.#debugMessaging
+            } else {
+                return null
+            }
         }
 
         /**
@@ -2183,12 +2457,16 @@
 
         /**
          * For simple boolean settings, return true if the setting is 'enabled'
+         * For objects, verify the 'state' field is 'enabled'.
          * @param {string} featureKeyName
          * @param {string} [featureName]
          * @returns {boolean}
          */
         getFeatureSettingEnabled (featureKeyName, featureName) {
             const result = this.getFeatureSetting(featureKeyName, featureName);
+            if (typeof result === 'object') {
+                return result.state === 'enabled'
+            }
             return result === 'enabled'
         }
 
@@ -2256,6 +2534,114 @@
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         update () {
+        }
+
+        /**
+         * Register a flag that will be added to page breakage reports
+         */
+        addDebugFlag () {
+            if (this.#isDebugFlagSet) return
+            this.#isDebugFlagSet = true;
+            this.debugMessaging?.notify('addDebugFlag', {
+                flag: this.name
+            });
+        }
+
+        /**
+         * Define a property descriptor. Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {PropertyDescriptor} descriptor
+         */
+        defineProperty (object, propertyName, descriptor) {
+            // make sure to send a debug flag when the property is used
+            // NOTE: properties passing data in `value` would not be caught by this
+            ['value', 'get', 'set'].forEach((k) => {
+                const descriptorProp = descriptor[k];
+                if (typeof descriptorProp === 'function') {
+                    const addDebugFlag = this.addDebugFlag.bind(this);
+                    descriptor[k] = function () {
+                        addDebugFlag();
+                        return Reflect.apply(descriptorProp, this, arguments)
+                    };
+                }
+            });
+
+            {
+                Object.defineProperty(object, propertyName, descriptor);
+            }
+        }
+
+        /**
+         * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {Partial<PropertyDescriptor>} descriptor
+         * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+         */
+        wrapProperty (object, propertyName, descriptor) {
+            if (!object) {
+                return
+            }
+
+            const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+            if (!origDescriptor) {
+                // this happens if the property is not implemented in the browser
+                return
+            }
+
+            if (('value' in origDescriptor && 'value' in descriptor) ||
+                ('get' in origDescriptor && 'get' in descriptor) ||
+                ('set' in origDescriptor && 'set' in descriptor)
+            ) {
+                wrapToString(descriptor.value, origDescriptor.value);
+                wrapToString(descriptor.get, origDescriptor.get);
+                wrapToString(descriptor.set, origDescriptor.set);
+
+                this.defineProperty(object, propertyName, {
+                    ...origDescriptor,
+                    ...descriptor
+                });
+                return origDescriptor
+            } else {
+                // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
+                throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+            }
+        }
+
+        /**
+         * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+         * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+         * @param {string} propertyName
+         * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+         * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+         */
+        wrapMethod (object, propertyName, wrapperFn) {
+            if (!object) {
+                return
+            }
+            const origDescriptor = getOwnPropertyDescriptor(object, propertyName);
+            if (!origDescriptor) {
+                // this happens if the property is not implemented in the browser
+                return
+            }
+
+            const origFn = origDescriptor.value;
+            if (!origFn || typeof origFn !== 'function') {
+                // method properties are expected to be defined with a `value`
+                throw new Error(`Property ${propertyName} does not look like a method`)
+            }
+
+            const newFn = function () {
+                return wrapperFn.call(this, origFn, ...arguments)
+            };
+            wrapToString(newFn, origFn);
+
+            this.defineProperty(object, propertyName, {
+                ...origDescriptor,
+                value: newFn
+            });
+            return origDescriptor
         }
     }
 
@@ -3944,55 +4330,6 @@
         isTestMode () {
             return this.debug === true
         }
-    }
-
-    /**
-     * Extracted so we can iterate on the best way to bring this to all platforms
-     * @param {import('./content-feature.js').default} feature
-     * @param {string} injectName
-     * @return {Messaging}
-     */
-    function createMessaging (feature, injectName) {
-        const contextName = injectName === 'apple-isolated'
-            ? 'contentScopeScriptsIsolated'
-            : 'contentScopeScripts';
-
-        const context = new MessagingContext({
-            context: contextName,
-            env: feature.isDebug ? 'development' : 'production',
-            featureName: feature.name
-        });
-
-        /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
-        const config = {
-            windows: () => {
-                return new WindowsMessagingConfig({
-                    methods: {
-                        // @ts-expect-error - Type 'unknown' is not assignable to type...
-                        postMessage: windowsInteropPostMessage,
-                        // @ts-expect-error - Type 'unknown' is not assignable to type...
-                        addEventListener: windowsInteropAddEventListener,
-                        // @ts-expect-error - Type 'unknown' is not assignable to type...
-                        removeEventListener: windowsInteropRemoveEventListener
-                    }
-                })
-            },
-            'apple-isolated': () => {
-                return new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: [contextName],
-                    secret: '',
-                    hasModernWebkitAPI: true
-                })
-            }
-        };
-
-        const match = config[injectName];
-
-        if (!match) {
-            throw new Error('Messaging not supported yet on: ' + injectName)
-        }
-
-        return new Messaging(context, match())
     }
 
     /**
