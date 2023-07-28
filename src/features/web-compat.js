@@ -72,7 +72,6 @@ function permissionsFix (settings) {
     }
 }
 
-// TODO: verify that all descriptor shapes match the original (i.e. we're not overriding value descriptors with get/set descriptors)
 export default class WebCompat extends ContentFeature {
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
@@ -94,6 +93,7 @@ export default class WebCompat extends ContentFeature {
             if ('credentials' in navigator && 'get' in navigator.credentials) {
                 return
             }
+            // TODO: change the property descriptor shape to match the original
             const value = {
                 get () {
                     return Promise.reject(new Error())
