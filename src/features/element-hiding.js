@@ -306,6 +306,7 @@ export default class ElementHiding extends ContentFeature {
      * @param {string} rules[].type
      */
     applyRules (rules) {
+        this.addDebugFlag()
         const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000]
         const unhideTimeouts = [750, 1500, 2250, 3000]
         const timeoutRules = extractTimeoutRules(rules)
