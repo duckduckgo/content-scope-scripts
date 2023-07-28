@@ -72,7 +72,7 @@
     "jasmine": "^4.6.0",
     "minimist": "^1.2.8",
     "puppeteer": "^20.9.0",
-    "rollup": "^3.26.2",
+    "rollup": "^3.26.3",
     "rollup-plugin-import-css": "^3.3.1",
     "rollup-plugin-svg-import": "^2.0.0",
     "typedoc": "^0.24.8",
