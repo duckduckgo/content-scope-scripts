@@ -33,8 +33,11 @@ function shouldFilterKey (tagName, filterName, key) {
     return tagModifiers?.[tagName]?.filters?.[filterName]?.includes(key)
 }
 
+// use a module-scoped variable to extract some methods from the class https://github.com/duckduckgo/content-scope-scripts/pull/654#discussion_r1277375832
+/** @type {RuntimeChecks} */
+let featureInstance
+
 let elementRemovalTimeout
-const featureName = 'runtimeChecks'
 const supportedSinks = ['src']
 // Store the original methods so we can call them without any side effects
 const defaultElementMethods = {
@@ -540,7 +543,7 @@ function overloadGetOwnPropertyDescriptor () {
         }
         return capturedInterfaceOut
     }
-    const proxy = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptor', {
+    const proxy = new DDGProxy(featureInstance, Object, 'getOwnPropertyDescriptor', {
         apply (fn, scope, args) {
             const interfaceValue = args[0]
             const interfaceName = getInterfaceName(interfaceValue)
@@ -553,7 +556,7 @@ function overloadGetOwnPropertyDescriptor () {
         }
     })
     proxy.overload()
-    const proxy2 = new DDGProxy(featureName, Object, 'getOwnPropertyDescriptors', {
+    const proxy2 = new DDGProxy(featureInstance, Object, 'getOwnPropertyDescriptors', {
         apply (fn, scope, args) {
             const interfaceValue = args[0]
             const interfaceName = getInterfaceName(interfaceValue)
@@ -572,7 +575,7 @@ function overloadGetOwnPropertyDescriptor () {
 }
 
 function overrideCreateElement (debug) {
-    const proxy = new DDGProxy(featureName, Document.prototype, 'createElement', {
+    const proxy = new DDGProxy(featureInstance, Document.prototype, 'createElement', {
         apply (fn, scope, args) {
             if (args.length >= 1) {
                 // String() is used to coerce the value to a string (For: ProseMirror/prosemirror-model/src/to_dom.ts)
@@ -592,7 +595,7 @@ function overrideCreateElement (debug) {
 }
 
 function overloadRemoveChild () {
-    const proxy = new DDGProxy(featureName, Node.prototype, 'removeChild', {
+    const proxy = new DDGProxy(featureInstance, Node.prototype, 'removeChild', {
         apply (fn, scope, args) {
             const child = args[0]
             if (child instanceof DDGRuntimeChecks) {
@@ -609,7 +612,7 @@ function overloadRemoveChild () {
 }
 
 function overloadReplaceChild () {
-    const proxy = new DDGProxy(featureName, Node.prototype, 'replaceChild', {
+    const proxy = new DDGProxy(featureInstance, Node.prototype, 'replaceChild', {
         apply (fn, scope, args) {
             const newChild = args[1]
             if (newChild instanceof DDGRuntimeChecks) {
@@ -631,6 +634,8 @@ export default class RuntimeChecks extends ContentFeature {
             // @ts-expect-error TS node return here
             globalThis.customElements.define('ddg-runtime-checks', DDGRuntimeChecks)
         } catch {}
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        featureInstance = this
     }
 
     init () {
