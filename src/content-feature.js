@@ -115,8 +115,7 @@ export default class ContentFeature {
     get debugMessaging () {
         if (this.#debugMessaging) return this.#debugMessaging
 
-        if (this.platform?.name === 'extension') {
-            if (typeof import.meta.injectName === 'undefined') throw new Error('import.meta.injectName missing')
+        if (this.platform?.name === 'extension' && typeof import.meta.injectName !== 'undefined') {
             this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, import.meta.injectName)
             return this.#debugMessaging
         } else {
