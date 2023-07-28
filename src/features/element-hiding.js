@@ -8,6 +8,9 @@ let appliedRules = new Set()
 let shouldInjectStyleTag = false
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button'
 
+/** @type {ElementHiding} */
+let featureInstance
+
 /**
  * Hide DOM element if rule conditions met
  * @param {HTMLElement} element
@@ -24,6 +27,8 @@ function collapseDomNode (element, rule, previousElement) {
     if (alreadyHidden) {
         return
     }
+
+    featureInstance.addDebugFlag()
 
     switch (type) {
     case 'hide':
@@ -163,44 +168,6 @@ function isDomNodeEmpty (node) {
 }
 
 /**
- * Apply relevant hiding rules to page at set intervals
- * @param {Object[]} rules
- * @param {string} rules[].selector
- * @param {string} rules[].type
- */
-function applyRules (rules) {
-    const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000]
-    const unhideTimeouts = [750, 1500, 2250, 3000]
-    const timeoutRules = extractTimeoutRules(rules)
-
-    // several passes are made to hide & unhide elements. this is necessary because we're not using
-    // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
-    // frequently take from several hundred milliseconds to several seconds to load
-    // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
-    hideTimeouts.forEach((timeout) => {
-        setTimeout(() => {
-            hideAdNodes(timeoutRules)
-        }, timeout)
-    })
-
-    // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
-    // we do this in order to display non-tracking ads that aren't blocked at the request level
-    // check at 750ms, 1500ms, 2250ms, 3000ms
-    unhideTimeouts.forEach((timeout) => {
-        setTimeout(() => {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            unhideLoadedAds(timeoutRules)
-        }, timeout)
-    })
-
-    // clear appliedRules and hiddenElements caches once all checks have run
-    setTimeout(() => {
-        appliedRules = new Set()
-        hiddenElements = new WeakMap()
-    }, 3100)
-}
-
-/**
  * Separate strict hide rules to inject as style tag if enabled
  * @param {Object[]} rules
  * @param {string} rules[].selector
@@ -281,11 +248,13 @@ function unhideLoadedAds () {
 
 export default class ElementHiding extends ContentFeature {
     init () {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        featureInstance = this
+
         if (isBeingFramed()) {
             return
         }
 
-        const featureName = 'elementHiding'
         const globalRules = this.getFeatureSetting('rules')
         adLabelStrings = this.getFeatureSetting('adLabelStrings')
         shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
@@ -312,6 +281,8 @@ export default class ElementHiding extends ContentFeature {
             })
         })
 
+        const applyRules = this.applyRules.bind(this)
+
         // now have the final list of rules to apply, so we apply them when document is loaded
         if (document.readyState === 'loading') {
             window.addEventListener('DOMContentLoaded', () => {
@@ -322,7 +293,7 @@ export default class ElementHiding extends ContentFeature {
         }
         // single page applications don't have a DOMContentLoaded event on navigations, so
         // we use proxy/reflect on history.pushState to call applyRules on page navigations
-        const historyMethodProxy = new DDGProxy(featureName, History.prototype, 'pushState', {
+        const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
             apply (target, thisArg, args) {
                 applyRules(activeRules)
                 return DDGReflect.apply(target, thisArg, args)
@@ -333,5 +304,43 @@ export default class ElementHiding extends ContentFeature {
         window.addEventListener('popstate', () => {
             applyRules(activeRules)
         })
+    }
+
+    /**
+     * Apply relevant hiding rules to page at set intervals
+     * @param {Object[]} rules
+     * @param {string} rules[].selector
+     * @param {string} rules[].type
+     */
+    applyRules (rules) {
+        const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000]
+        const unhideTimeouts = [750, 1500, 2250, 3000]
+        const timeoutRules = extractTimeoutRules(rules)
+
+        // several passes are made to hide & unhide elements. this is necessary because we're not using
+        // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
+        // frequently take from several hundred milliseconds to several seconds to load
+        // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
+        hideTimeouts.forEach((timeout) => {
+            setTimeout(() => {
+                hideAdNodes(timeoutRules)
+            }, timeout)
+        })
+
+        // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
+        // we do this in order to display non-tracking ads that aren't blocked at the request level
+        // check at 750ms, 1500ms, 2250ms, 3000ms
+        unhideTimeouts.forEach((timeout) => {
+            setTimeout(() => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                unhideLoadedAds(timeoutRules)
+            }, timeout)
+        })
+
+        // clear appliedRules and hiddenElements caches once all checks have run
+        setTimeout(() => {
+            appliedRules = new Set()
+            hiddenElements = new WeakMap()
+        }, 3100)
     }
 }

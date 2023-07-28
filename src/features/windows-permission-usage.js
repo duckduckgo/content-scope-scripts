@@ -4,8 +4,6 @@ import ContentFeature from '../content-feature'
 
 export default class WindowsPermissionUsage extends ContentFeature {
     init () {
-        const featureName = 'windows-permission-usage'
-
         const Permission = {
             Geolocation: 'geolocation',
             Camera: 'camera',
@@ -38,7 +36,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         let pauseWatchedPositions = false
         const watchedPositions = new Set()
         // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
-        const watchPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'watchPosition', {
+        const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, 'watchPosition', {
             apply (target, thisArg, args) {
                 if (isFrameInsideFrame) {
                     // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
@@ -62,7 +60,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         watchPositionProxy.overload()
 
         // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
-        const clearWatchProxy = new DDGProxy(featureName, Geolocation.prototype, 'clearWatch', {
+        const clearWatchProxy = new DDGProxy(this, Geolocation.prototype, 'clearWatch', {
             apply (target, thisArg, args) {
                 DDGReflect.apply(target, thisArg, args)
                 if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
@@ -73,7 +71,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         clearWatchProxy.overload()
 
         // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
-        const getCurrentPositionProxy = new DDGProxy(featureName, Geolocation.prototype, 'getCurrentPosition', {
+        const getCurrentPositionProxy = new DDGProxy(this, Geolocation.prototype, 'getCurrentPosition', {
             apply (target, thisArg, args) {
                 const successHandler = args[0]
                 args[0] = function (position) {
@@ -237,7 +235,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         }
 
         // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
-        const stopTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'stop', {
+        const stopTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'stop', {
             apply (target, thisArg, args) {
                 handleTrackEnded(thisArg)
                 return DDGReflect.apply(target, thisArg, args)
@@ -246,7 +244,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         stopTrackProxy.overload()
 
         // proxy for track.clone -> monitor the cloned track
-        const cloneTrackProxy = new DDGProxy(featureName, MediaStreamTrack.prototype, 'clone', {
+        const cloneTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'clone', {
             apply (target, thisArg, args) {
                 const clonedTrack = DDGReflect.apply(target, thisArg, args)
                 if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
@@ -285,7 +283,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
         const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks']
         for (const methodName of getTracksMethodNames) {
-            const getTracksProxy = new DDGProxy(featureName, MediaStream.prototype, methodName, {
+            const getTracksProxy = new DDGProxy(this, MediaStream.prototype, methodName, {
                 apply (target, thisArg, args) {
                     const tracks = DDGReflect.apply(target, thisArg, args)
                     if (userMediaStreams.has(thisArg)) {
@@ -298,7 +296,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         }
 
         // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
-        const cloneMediaStreamProxy = new DDGProxy(featureName, MediaStream.prototype, 'clone', {
+        const cloneMediaStreamProxy = new DDGProxy(this, MediaStream.prototype, 'clone', {
             apply (target, thisArg, args) {
                 const clonedStream = DDGReflect.apply(target, thisArg, args)
                 if (userMediaStreams.has(thisArg)) {
@@ -313,7 +311,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
         if (window.MediaDevices) {
-            const getUserMediaProxy = new DDGProxy(featureName, MediaDevices.prototype, 'getUserMedia', {
+            const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
                 apply (target, thisArg, args) {
                     if (isFrameInsideFrame) {
                         // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
@@ -393,7 +391,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         ]
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {
-                const proxy = new DDGProxy(featureName, prototype(), method, {
+                const proxy = new DDGProxy(this, prototype(), method, {
                     apply () {
                         if (isPromise) {
                             return Promise.reject(new DOMException('Permission denied'))

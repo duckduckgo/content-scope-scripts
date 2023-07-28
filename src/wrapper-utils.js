@@ -1,35 +1,7 @@
-/* global cloneInto, exportFunction, mozProxies */
+/* global mozProxies */
 // Tests don't define this variable so fallback to behave like chrome
 export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
-const globalObj = typeof window === 'undefined' ? globalThis : window
 const functionToString = Function.prototype.toString
-
-/**
- * @deprecated use the ContentFeature method instead
- */
-export function defineProperty (object, propertyName, descriptor) {
-    if (hasMozProxies) {
-        const usedObj = object.wrappedJSObject || object
-        const UsedObjectInterface = globalObj.wrappedJSObject.Object
-        const definedDescriptor = new UsedObjectInterface();
-        ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-            if (propertyName in descriptor) {
-                definedDescriptor[propertyName] = cloneInto(
-                    descriptor[propertyName],
-                    definedDescriptor,
-                    { cloneFunctions: true })
-            }
-        });
-        ['get', 'set'].forEach((methodName) => {
-            if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
-                exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName })
-            }
-        })
-        UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor)
-    } else {
-        Object.defineProperty(object, propertyName, descriptor)
-    }
-}
 
 /**
  * add a fake toString() method to a wrapper function to resemble the original function

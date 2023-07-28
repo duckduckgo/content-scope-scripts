@@ -1,6 +1,5 @@
 /* global cloneInto, exportFunction, mozProxies */
 import { Set } from './captured-globals.js'
-import { defineProperty } from './wrapper-utils.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
@@ -434,17 +433,19 @@ function debugSerialize (argsArray) {
  */
 export class DDGProxy {
     /**
-     * @param {string} featureName
+     * @param {import('./content-feature').default} feature
      * @param {P} objectScope
      * @param {string} property
      * @param {ProxyObject<P>} proxyObject
      */
-    constructor (featureName, objectScope, property, proxyObject, taintCheck = false) {
+    constructor (feature, objectScope, property, proxyObject, taintCheck = false) {
         this.objectScope = objectScope
         this.property = property
-        this.featureName = featureName
+        this.feature = feature
+        this.featureName = feature.name
         this.camelFeatureName = camelcase(this.featureName)
         const outputHandler = (...args) => {
+            this.feature.addDebugFlag()
             let isExempt = shouldExemptMethod(this.camelFeatureName)
             // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't
             if (!isExempt && taintCheck) {
@@ -475,6 +476,7 @@ export class DDGProxy {
             return proxyObject.apply(...args)
         }
         const getMethod = (target, prop, receiver) => {
+            this.feature.addDebugFlag()
             if (prop === 'toString') {
                 const method = Reflect.get(target, prop, receiver).bind(target)
                 Object.defineProperty(method, 'toString', {
@@ -512,7 +514,7 @@ export class DDGProxy {
     }
 
     overloadDescriptor () {
-        defineProperty(this.objectScope, this.property, {
+        this.feature.defineProperty(this.objectScope, this.property, {
             value: this.internal
         })
     }
