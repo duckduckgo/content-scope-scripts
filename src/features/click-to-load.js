@@ -73,6 +73,8 @@ const afterPageLoad = new Promise(resolve => { afterPageLoadResolver = resolve }
 // we need a module scoped reference.
 /** @type {import("@duckduckgo/messaging").Messaging} */
 let _messagingModuleScope
+/** @type function */
+let _addDebugFlag
 const ctl = {
     /**
      * @return {import("@duckduckgo/messaging").Messaging}
@@ -80,6 +82,11 @@ const ctl = {
     get messaging () {
         if (!_messagingModuleScope) throw new Error('Messaging not initialized')
         return _messagingModuleScope
+    },
+
+    addDebugFlag () {
+        if (!_addDebugFlag) throw new Error('addDebugFlag not initialized')
+        return _addDebugFlag()
     }
 }
 
@@ -662,6 +669,7 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
 
     // Facebook
     if (widget.replaceSettings.type === 'dialog') {
+        ctl.addDebugFlag()
         ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookPlaceholderShown: true })
         if (widget.shouldUseCustomElement()) {
             /**
@@ -703,6 +711,7 @@ function createPlaceholderElementAndReplace (widget, trackingElement) {
 
     // YouTube
     if (widget.replaceSettings.type === 'youtube-video') {
+        ctl.addDebugFlag()
         ctl.messaging.notify('updateYouTubeCTLAddedFlag', { youTubeCTLAddedFlag: true })
         replaceYouTubeCTL(trackingElement, widget)
 
@@ -935,6 +944,7 @@ function handleUnblockConfirmation (platformName, entity, acceptFunction, ...acc
  * the website as broken.
  */
 function notifyFacebookLogin () {
+    ctl.addDebugFlag()
     ctl.messaging.notify('updateFacebookCTLBreakageFlags', { ctlFacebookLogin: true })
 }
 
@@ -1804,6 +1814,7 @@ export default class ClickToLoad extends ContentFeature {
             throw new Error('Cannot operate click to load without a messaging backend')
         }
         _messagingModuleScope = this.messaging
+        _addDebugFlag = this.addDebugFlag.bind(this)
 
         const websiteOwner = args?.site?.parentEntity
         const settings = args?.featureSettings?.clickToLoad || {}
@@ -1980,10 +1991,6 @@ export default class ClickToLoad extends ContentFeature {
                     }
                 } else {
                     trackingElements = Array.from(document.querySelectorAll(selector))
-                }
-
-                if (trackingElements.length > 0) {
-                    this.addDebugFlag()
                 }
 
                 await Promise.all(trackingElements.map(trackingElement => {
