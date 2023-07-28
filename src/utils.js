@@ -514,7 +514,7 @@ export class DDGProxy {
     }
 
     overloadDescriptor () {
-        defineProperty(this.objectScope, this.property, {
+        this.feature.defineProperty(this.objectScope, this.property, {
             value: this.internal
         })
     }
