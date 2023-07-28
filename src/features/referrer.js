@@ -1,5 +1,4 @@
 import ContentFeature from '../content-feature'
-import { wrapProperty } from '../wrapper-utils'
 
 export default class Referrer extends ContentFeature {
     init () {
@@ -7,7 +6,7 @@ export default class Referrer extends ContentFeature {
         if (document.referrer && new URL(document.URL).hostname !== new URL(document.referrer).hostname) {
             // trim referrer to origin.
             const trimmedReferer = new URL(document.referrer).origin + '/'
-            wrapProperty(Document.prototype, 'referrer', {
+            this.wrapProperty(Document.prototype, 'referrer', {
                 get: () => trimmedReferer
             })
         }

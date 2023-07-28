@@ -1,5 +1,4 @@
 import ContentFeature from '../content-feature'
-import { defineProperty } from '../wrapper-utils'
 
 /**
  * Overwrites the Battery API if present in the browser.
@@ -22,9 +21,8 @@ export default class FingerprintingBattery extends ContentFeature {
 
             for (const [prop, val] of Object.entries(spoofedValues)) {
                 try {
-                    defineProperty(BatteryManager.prototype, prop, {
+                    this.defineProperty(BatteryManager.prototype, prop, {
                         get: () => {
-                            this.addDebugFlag()
                             return val
                         }
                     })
@@ -32,9 +30,8 @@ export default class FingerprintingBattery extends ContentFeature {
             }
             for (const eventProp of eventProperties) {
                 try {
-                    defineProperty(BatteryManager.prototype, eventProp, {
+                    this.defineProperty(BatteryManager.prototype, eventProp, {
                         get: () => {
-                            this.addDebugFlag()
                             return null
                         }
                     })
