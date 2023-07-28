@@ -1982,6 +1982,10 @@ export default class ClickToLoad extends ContentFeature {
                     trackingElements = Array.from(document.querySelectorAll(selector))
                 }
 
+                if (trackingElements.length > 0) {
+                    this.addDebugFlag()
+                }
+
                 await Promise.all(trackingElements.map(trackingElement => {
                     if (knownTrackingElements.has(trackingElement)) {
                         return Promise.resolve()
