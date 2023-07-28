@@ -6,7 +6,6 @@ export default class FingerprintingCanvas extends ContentFeature {
     init (args) {
         const { sessionKey, site } = args
         const domainKey = site.domain
-        const featureName = 'fingerprinting-canvas'
         const supportsWebGl = this.getFeatureSettingEnabled('webGl')
 
         const unsafeCanvases = new WeakSet()
@@ -29,11 +28,8 @@ export default class FingerprintingCanvas extends ContentFeature {
             clearCache(canvas)
         }
 
-        // proxy methods are bound to the handler, so we need a closure reference to `this`
-        const addDebugFlag = this.addDebugFlag.bind(this)
-        const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, 'getContext', {
+        const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, 'getContext', {
             apply (target, thisArg, args) {
-                addDebugFlag()
                 const context = DDGReflect.apply(target, thisArg, args)
                 try {
                     // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'.
@@ -48,9 +44,8 @@ export default class FingerprintingCanvas extends ContentFeature {
         // Known data methods
         const safeMethods = ['putImageData', 'drawImage']
         for (const methodName of safeMethods) {
-            const safeMethodProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
+            const safeMethodProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
                 apply (target, thisArg, args) {
-                    addDebugFlag()
                     // Don't apply escape hatch for canvases
                     if (methodName === 'drawImage' && args[0] && args[0] instanceof HTMLCanvasElement) {
                         treatAsUnsafe(args[0])
@@ -88,9 +83,8 @@ export default class FingerprintingCanvas extends ContentFeature {
         for (const methodName of unsafeMethods) {
             // Some methods are browser specific
             if (methodName in CanvasRenderingContext2D.prototype) {
-                const unsafeProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, methodName, {
+                const unsafeProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
                     apply (target, thisArg, args) {
-                        addDebugFlag()
                         // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                         treatAsUnsafe(thisArg.canvas)
                         return DDGReflect.apply(target, thisArg, args)
@@ -121,9 +115,8 @@ export default class FingerprintingCanvas extends ContentFeature {
                 for (const methodName of unsafeGlMethods) {
                     // Some methods are browser specific
                     if (methodName in context.prototype) {
-                        const unsafeProxy = new DDGProxy(featureName, context.prototype, methodName, {
+                        const unsafeProxy = new DDGProxy(this, context.prototype, methodName, {
                             apply (target, thisArg, args) {
-                                addDebugFlag()
                                 // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                                 treatAsUnsafe(thisArg.canvas)
                                 return DDGReflect.apply(target, thisArg, args)
@@ -136,9 +129,8 @@ export default class FingerprintingCanvas extends ContentFeature {
         }
 
         // Using proxies here to swallow calls to toString etc
-        const getImageDataProxy = new DDGProxy(featureName, CanvasRenderingContext2D.prototype, 'getImageData', {
+        const getImageDataProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, 'getImageData', {
             apply (target, thisArg, args) {
-                addDebugFlag()
                 // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                 if (!unsafeCanvases.has(thisArg.canvas)) {
                     return DDGReflect.apply(target, thisArg, args)
@@ -178,9 +170,8 @@ export default class FingerprintingCanvas extends ContentFeature {
 
         const canvasMethods = ['toDataURL', 'toBlob']
         for (const methodName of canvasMethods) {
-            const proxy = new DDGProxy(featureName, HTMLCanvasElement.prototype, methodName, {
+            const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, methodName, {
                 apply (target, thisArg, args) {
-                    addDebugFlag()
                     // Short circuit for low risk canvas calls
                     // @ts-expect-error - error TS18048: 'thisArg' is possibly 'undefined'
                     if (!unsafeCanvases.has(thisArg)) {

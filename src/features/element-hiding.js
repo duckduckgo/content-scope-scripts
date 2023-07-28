@@ -247,7 +247,6 @@ export default class ElementHiding extends ContentFeature {
             return
         }
 
-        const featureName = 'elementHiding'
         const globalRules = this.getFeatureSetting('rules')
         adLabelStrings = this.getFeatureSetting('adLabelStrings')
         shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
@@ -286,7 +285,7 @@ export default class ElementHiding extends ContentFeature {
         }
         // single page applications don't have a DOMContentLoaded event on navigations, so
         // we use proxy/reflect on history.pushState to call applyRules on page navigations
-        const historyMethodProxy = new DDGProxy(featureName, History.prototype, 'pushState', {
+        const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
             apply (target, thisArg, args) {
                 applyRules(activeRules)
                 return DDGReflect.apply(target, thisArg, args)
