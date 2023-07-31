@@ -58,6 +58,7 @@ export class Build {
     get artifact () {
         const path = this.switch({
             windows: () => 'build/windows/contentScope.js',
+            'apple': () => './Sources/ContentScopeScripts/dist/contentScope.js',
             'apple-isolated': () => './Sources/ContentScopeScripts/dist/contentScopeIsolated.js'
         })
         return readFileSync(path, 'utf8')
