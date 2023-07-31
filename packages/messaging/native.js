@@ -23,7 +23,7 @@
  * For example, in Android this would be what happens within a `@Javascript` Interface, but on macOS it would be within
  * the WebKit messaging protocol, etc.
  *
- * ## Algorithm
+ * ### Algorithm
  *
  * 1. let `s` be an incoming raw `JSON` payload
  * 2. let `msg` be the result of parsing `s` into key/value pairs
@@ -45,6 +45,11 @@
  *
  *
  * ## Step 2) Choosing and executing a handler
+ *
+ * Once you've completed Step 1), you'll know whether you are dealing with a notification or a request (something you need
+ * to respond to). At this point you don't know which feature will attempt the message, you just know the format was correct.
+ *
+ * ### Algorithm
  *
  * 1. let `feature` be the result of looking up a feature that matches name `msg.featureName`
  * 2. if `feature` is not found, throw a "feature not found" Exception
