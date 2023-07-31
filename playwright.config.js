@@ -26,6 +26,13 @@ export default defineConfig({
             use: { injectName: 'apple-isolated', platform: 'macos' }
         },
         {
+            name: 'apple',
+            testMatch: [
+                'integration-test/playwright/webcompat.spec.js'
+            ],
+            use: { injectName: 'apple', platform: 'macos' }
+        },
+        {
             name: 'chrome',
             testMatch: 'integration-test/playwright/remote-pages.spec.js',
             use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] }
