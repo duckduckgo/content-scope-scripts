@@ -1,6 +1,13 @@
-import { RemoteResource, Tab, UpdateResourceParams, GetFeaturesResponse } from '../../schema/__generated__/schema.types'
+import {
+    RemoteResource,
+    Tab,
+    UpdateResourceParams,
+    GetFeaturesResponse,
+    GetTabsResponse
+} from '../../schema/__generated__/schema.types'
 import { ActorRefFrom } from 'xstate'
 import { appMachine } from './app/app.machine-impl'
+import { EditorKind, ToggleKind } from './remote-resources/remote-resources.machine'
 
 export type AppEvents =
   | { type: 'routes resolved' }
@@ -15,10 +22,13 @@ export type AppEvents =
   | { type: 'clearErrors' }
 
 export type RemoteResourcesEvents =
-  | { type: 'set editor kind', payload: 'diff' | 'inline' }
+  | { type: 'set editor kind', payload: EditorKind }
+  | { type: 'set toggle kind', payload: ToggleKind }
+  | { type: 'set current domain', payload: string }
   | { type: 'error' }
   | { type: 'nav_resource' }
   | { type: 'nav_other' }
+  | { type: 'tabs_received', payload: GetTabsResponse }
   | { type: 'clearErrors' }
   | { type: 'hide url editor' }
   | { type: 'show url editor' }
@@ -32,15 +42,20 @@ export type RemoteResourcesEvents =
   | { type: 'save new remote', payload: UpdateResourceParams }
   | { type: 'save edited', payload: UpdateResourceParams }
 
+export type TabWithHostname = Tab & { hostname: string }
+
 export interface RemoteResourcesCtx {
   messages: import('./DebugToolsMessages.mjs').DebugToolsMessages,
   parent: ActorRefFrom<typeof appMachine>,
   error?: string | null
-  editorKind?: 'inline' | 'diff' | 'toggles'
+  editorKind?: EditorKind
+  toggleKind?: ToggleKind
+  currentDomain?: string
   resourceKey?: number
   resources?: RemoteResource[]
   currentResource?: import('./remote-resources/remote-resources.machine').CurrentResource
   contentMarkers?: import('monaco-editor').editor.IMarker[]
+  tabs: TabWithHostname[]
 }
 
 export interface RouteDefinition {

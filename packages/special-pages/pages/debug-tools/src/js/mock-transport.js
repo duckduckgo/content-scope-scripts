@@ -105,13 +105,24 @@ export class MockImpl {
             }
             return next
         }
+        case 'getTabs': {
+            /** @type {import('../../schema/__generated__/schema.types').GetTabsResponse} */
+            const response = { tabs: [{ url: 'https://example.com/123/abc' }, { url: 'https://duckduckgo.com/?q=123' }, { url: 'https://abc.duckduckgo.com/?q=123' }] }
+            return response
+        }
         default:
             throw new Error('unhandled message:' + msg.method)
         }
     }
 
-    subscribe (msg) {
-        console.log(msg)
+    subscribe (msg, callback) {
+        // const count = 0
+        //
+        // if (msg.subscriptionName === 'onTabsUpdated') {
+        //     setInterval(() => {
+        //
+        //     }, 1000)
+        // }
         return () => {
             console.log('teardown')
         }

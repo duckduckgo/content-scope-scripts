@@ -16,7 +16,7 @@ export default function RemoteResourcesPage () {
     const parent = AppMachineContext.useActorRef()
 
     return (
-        <RemoteResourcesContext.Provider machine={() => remoteResourcesMachine.withContext({ messages, parent })}>
+        <RemoteResourcesContext.Provider machine={() => remoteResourcesMachine.withContext({ messages, parent, tabs: [] })}>
             <RemoteResourcesLoader />
         </RemoteResourcesContext.Provider>
     )

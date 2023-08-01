@@ -7,6 +7,7 @@ import { createContext } from 'react'
 
 /**
  * @typedef {import("../../schema/__generated__/schema.types").RemoteResource} RemoteResource
+ * @typedef {import("../../schema/__generated__/schema.types").GetTabsResponse} GetTabsResponse
  */
 
 /**
@@ -64,6 +65,20 @@ export class DebugToolsMessages {
         }
         console.log(featuresResponse.error)
         throw new Error('todo: error handling');
+    }
+
+    /**
+     * @param {(data: GetTabsResponse) => void} callback
+     */
+    onTabsUpdated(callback) {
+        return this.messaging.subscribe('onTabsUpdated', (params) => {
+            const featuresResponse = getTabsResponseSchema.safeParse(params)
+            if (featuresResponse.success) {
+                callback(featuresResponse.data)
+            } else {
+                console.error(featuresResponse.error)
+            }
+        })
     }
 }
 

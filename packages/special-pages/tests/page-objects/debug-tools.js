@@ -33,7 +33,10 @@ export class DebugToolsPage {
             diffEditorModified: () => page.locator('.editor.modified'),
             inlineEditor: () => page.locator('.monaco-editor'),
             editorToggle: () => page.getByLabel('Editor kind:'),
+            togglesSwitcher: () => page.getByLabel('Editor kind:'),
             togglesEditor: () => page.getByTestId('TogglesEditor'),
+            globalToggleList: () => page.getByTestId('FeatureToggleListGlobal'),
+            featureToggle: (named) => page.getByLabel('toggle ' + named),
             domainExceptionInput: () => page.getByPlaceholder('enter a domain'),
             domainExceptionToggles: () => page.getByTestId('domain-exceptions')
         }
@@ -304,6 +307,20 @@ export class DebugToolsPage {
         }
     }
 
+    /**
+     * @param {'global' | 'domain-exceptions'} kind
+     * @return {Promise<void>}
+     */
+    // eslint-disable-next-line require-await
+    async switchesTogglesTo (kind) {
+        if (kind === 'global') {
+            await this.locators.editorToggle().selectOption('diff')
+            await this.locators.diffEditorModified().waitFor()
+        } else {
+            throw new Error('unreachable')
+        }
+    }
+
     async stillHasEditedValue (expected = '{ "foo": "baz" }') {
         const actual = await this.values.editorValue()
         expect(actual).toBe(expected)
@@ -321,9 +338,21 @@ export class DebugToolsPage {
         await this.locators.remoteFormInput().waitFor({ state: 'detached' })
     }
 
-    async togglesGlobally (buttonText, expected) {
-        await this.page.getByRole('button', { name: buttonText }).click()
-        await this.page.getByRole('button', { name: expected }).waitFor()
+    /**
+     * @param {string} featureName
+     */
+    async togglesGlobally (featureName) {
+        // toggle inside the 'global part'
+        const element = this.locators.globalToggleList().locator(this.locators.featureToggle(featureName))
+
+        // control -> ensure we're testing what we think
+        expect(await element.getAttribute('data-state')).toBe('on')
+
+        // now perform the toggle
+        await element.click()
+
+        // ensure the local state is updated, this is just a sanity check
+        expect(await element.getAttribute('data-state')).toBe('off')
     }
 
     /**

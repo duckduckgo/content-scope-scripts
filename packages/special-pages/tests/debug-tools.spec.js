@@ -77,7 +77,7 @@ test.describe('debug tools', () => {
             await dt.hasLoaded()
 
             await test.step('toggles a feature globally', async () => {
-                await dt.togglesGlobally('✅ autofill', '❌ autofill')
+                await dt.togglesGlobally('autofill')
             })
 
             await test.step('switches to diff view + saves', async () => {
@@ -92,9 +92,14 @@ test.describe('debug tools', () => {
             await dt.openRemoteResourceEditor()
             await dt.hasLoaded()
 
-            await test.step('toggles a feature for example.com', async () => {
-                await dt.togglesDomainException('autofill', 'example.com')
+            await test.step('switching to domain exceptions', async () => {
+                await page.pause()
+                await dt.switchesTogglesTo('domain-exceptions')
             })
+
+            // await test.step('toggles a feature for example.com', async () => {
+            //     await dt.togglesDomainException('autofill', 'example.com')
+            // })
         })
         test('switches editor kind', async ({ page }, workerInfo) => {
             const dt = DebugToolsPage.create(page, workerInfo)

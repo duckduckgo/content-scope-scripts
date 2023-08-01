@@ -92,8 +92,8 @@ export interface GetTabsResponse {
   tabs: Tab[];
 }
 export interface Tab {
-  id: string;
+  id?: string;
   url: string;
-  title: string;
+  title?: string;
 }
 

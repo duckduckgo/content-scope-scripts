@@ -3,10 +3,16 @@ import { remoteResourceSchema } from '../../../schema/__generated__/schema.parse
 import * as z from 'zod'
 import { DebugToolsMessages } from '../DebugToolsMessages.mjs'
 
-/** @type {Record<string, EditorKind[]>} */
+/** @type {Record<string, {editorKinds: EditorKind[], toggleKinds: ToggleKind[]}>} */
 const editorKindsMapping = {
-    'privacy-configuration': ['toggles', 'inline', 'diff'],
-    default: ['inline', 'diff']
+    'privacy-configuration': {
+        editorKinds: ['toggles', 'inline', 'diff'],
+        toggleKinds: ['global-feature', 'domain-exceptions']
+    },
+    default: {
+        editorKinds: ['inline', 'diff'],
+        toggleKinds: []
+    }
 }
 
 const _remoteResourcesMachine = createMachine({
@@ -35,15 +41,23 @@ const _remoteResourcesMachine = createMachine({
         'showing editor': {
             id: 'showing editor',
             type: 'parallel',
-            invoke: {
-                src: 'nav-listener'
-            },
+            invoke: [
+                {
+                    src: 'nav-listener'
+                },
+                {
+                    src: 'tab-listener'
+                }
+            ],
             on: {
                 nav_resource: {
                     actions: ['assignCurrentResource', 'assignEditorKind']
                 },
                 nav_other: {
                     actions: ['assignCurrentResource', 'assignEditorKind']
+                },
+                tabs_received: {
+                    actions: ['assignTabs']
                 }
             },
             states: {
@@ -91,6 +105,12 @@ const _remoteResourcesMachine = createMachine({
                     initial: 'editor has original content',
                     on: {
                         'set editor kind': {
+                            actions: ['pushToRoute']
+                        },
+                        'set toggle kind': {
+                            actions: ['pushToRoute']
+                        },
+                        'set current domain': {
                             actions: ['pushToRoute']
                         },
                         'save new remote': {
@@ -185,6 +205,19 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                 sub.unsubscribe()
             }
         },
+        'tab-listener': (ctx) => (send) => {
+            ctx.messages.getTabs()
+                // eslint-disable-next-line promise/prefer-await-to-then
+                .then(params => {
+                    send({ type: 'tabs_received', payload: params })
+                })
+            const unsub = ctx.messages.onTabsUpdated((tabs) => {
+                send({ type: 'tabs_received', payload: tabs })
+            })
+            return () => {
+                unsub()
+            }
+        },
         // eslint-disable-next-line require-await
         loadResources: async (ctx) => {
             const parsed = z.object({ messages: z.instanceof(DebugToolsMessages) }).parse(ctx)
@@ -218,6 +251,27 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
         removeContentMarkers: assign({
             contentMarkers: () => []
         }),
+        assignTabs: assign({
+            tabs: (ctx, evt) => {
+                if (evt.type === 'tabs_received') {
+                    /** @type {(import("../types.js").TabWithHostname|null)[] } */
+                    const withHostname = evt.payload.tabs.map(tab => {
+                        try {
+                            const url = new URL(tab.url)
+                            return {
+                                ...tab,
+                                hostname: url.hostname
+                            }
+                        } catch (e) {
+                            console.error(e, tab.url)
+                            return null
+                        }
+                    })
+                    return /** @type {import("../types.js").TabWithHostname[]} */(withHostname.filter(Boolean))
+                }
+                return ctx.tabs
+            }
+        }),
         assignResources: assign({
             resources: (ctx, evt) => {
                 const resources = z.array(remoteResourceSchema).parse(/** @type {any} */(evt).data)
@@ -240,7 +294,8 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
 
                 return {
                     id: matchingId,
-                    editorKinds: kinds
+                    editorKinds: kinds.editorKinds,
+                    toggleKinds: kinds.toggleKinds
                 }
             }
         }),
@@ -263,6 +318,29 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                     }
                 }
                 return 'inline' // default
+            },
+            toggleKind: (ctx) => {
+                const parentState = ctx.parent?.state?.context
+                const search = parentState.search
+                const parsed = ToggleKind.safeParse(search?.get('toggleKind'))
+                if (parsed.success) {
+                    if (ctx.currentResource?.toggleKinds.includes(parsed.data)) {
+                        return parsed.data
+                    }
+                }
+                {
+                    const parsed = ToggleKind.safeParse(ctx.currentResource?.toggleKinds[0])
+                    if (parsed.success) {
+                        return parsed.data
+                    }
+                }
+                return 'global-feature' // default
+            },
+            currentDomain: (ctx) => {
+                const parentState = ctx.parent?.state?.context
+                const search = parentState.search
+                const domain = search?.get('currentDomain')
+                return tryCreateDomain(domain)
             }
         }),
         updateCurrentResource: assign({
@@ -299,8 +377,25 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
         pushToRoute: (ctx, evt) => {
             const search = z.string().parse(ctx.parent.state?.context?.history?.location?.search)
             const next = new URLSearchParams(search)
-            if (evt.type === 'set editor kind' && ctx.currentResource) {
+
+            if (!ctx.currentResource) return console.warn('pushToRoute - missing currentResource')
+
+            if (evt.type === 'set editor kind') {
                 next.set('editorKind', evt.payload) // setting the editor kind
+                const pathname = '/remoteResources/' + ctx.currentResource.id
+                ctx.parent.state.context.history.push({
+                    pathname,
+                    search: next.toString()
+                })
+            } else if (evt.type === 'set toggle kind') {
+                next.set('toggleKind', evt.payload) // setting the toggle kind
+                const pathname = '/remoteResources/' + ctx.currentResource.id
+                ctx.parent.state.context.history.push({
+                    pathname,
+                    search: next.toString()
+                })
+            } else if (evt.type === 'set current domain') {
+                next.set('currentDomain', evt.payload) // setting the toggle kind
                 const pathname = '/remoteResources/' + ctx.currentResource.id
                 ctx.parent.state.context.history.push({
                     pathname,
@@ -347,6 +442,29 @@ async function minDuration (cb, minTime = 500) {
 }
 
 export const EditorKind = z.enum(['inline', 'diff', 'toggles'])
-export const CurrentResource = z.object({ id: z.string(), editorKinds: z.array(EditorKind) })
+export const ToggleKind = z.enum(['global-feature', 'domain-exceptions'])
+export const CurrentResource = z.object({
+    id: z.string(),
+    editorKinds: z.array(EditorKind),
+    toggleKinds: z.array(ToggleKind)
+})
 /** @typedef {import("zod").infer<typeof EditorKind>} EditorKind */
+/** @typedef {import("zod").infer<typeof ToggleKind>} ToggleKind */
 /** @typedef {import("zod").infer<typeof CurrentResource>} CurrentResource */
+
+/**
+ * @param {unknown} input
+ * @return {undefined|string}
+ */
+export function tryCreateDomain (input) {
+    if (!input) return undefined
+    if (typeof input !== 'string') return undefined
+    try {
+        const subject = input.startsWith('http') ? input : 'https://' + input
+        const parsed = new URL(subject)
+        return parsed.hostname
+    } catch (e) {
+        console.warn('could not use url param for currentDomain', input)
+        return undefined
+    }
+}

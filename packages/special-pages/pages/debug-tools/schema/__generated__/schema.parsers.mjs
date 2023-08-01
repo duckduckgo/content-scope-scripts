@@ -33,9 +33,9 @@ export const updatingDebugToolsSourceSchema = z.object({
 });
 
 export const tabSchema = z.object({
-    id: z.string(),
+    id: z.string().optional(),
     url: z.string(),
-    title: z.string()
+    title: z.string().optional()
 });
 
 export const updateResourceParamsSchema = z.object({

@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react'
 import { ToggleList } from './toggle-list'
+import { tryCreateDomain } from '../remote-resources.machine'
+import { useMachine } from '@xstate/react'
+import { domainMachine } from '../domain-exceptions.machine'
+import { assign } from 'xstate'
 
 /**
  * @typedef {import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
+ * @typedef {import('../../../../schema/__generated__/schema.types').Tab} Tab
+ * @typedef {import('../../types').TabWithHostname} TabWithHostname
+ * @typedef {import('monaco-editor').editor.ITextModel} ITextModel
  */
 
 /**
@@ -33,13 +40,17 @@ export function FeatureToggleListGlobal (props) {
     }
 
     if ('value' in globalList) {
-        return <ToggleList onClick={toggleItem} items={globalList.value} renderInfo={(item) => {
-            return (
-                <small className="toggle-list__small" data-count={item.exceptions.length}>
-                    {item.exceptions.length} exceptions
-                </small>
-            )
-        }}/>
+        return (
+            <div data-testid="FeatureToggleListGlobal">
+                <ToggleList onClick={toggleItem} items={globalList.value} renderInfo={(item) => {
+                    return (
+                        <small className="toggle-list__small" data-count={item.exceptions.length}>
+                            {item.exceptions.length} exceptions
+                        </small>
+                    )
+                }}/>
+            </div>
+        )
     }
 
     return <p>{globalList.error}</p>
@@ -47,21 +58,60 @@ export function FeatureToggleListGlobal (props) {
 
 /**
  * @param {object} props
- * @param {import('monaco-editor').editor.ITextModel} props.model
+ * @param {ITextModel} props.model
+ * @param {TabWithHostname[]} props.tabs
+ * @param {string|undefined} props.currentDomain
+ * @param {(domain: string) => void} props.setCurrentDomain
  */
-export function FeatureToggleListDomainExceptions (props) {
+export function FeatureToggleListDomainExceptions2 (props) {
     // some local state not stored in xstate (yet)
-    const [inputValue, setInputValue] = useState('')
-    const list = domainExceptionsFromJsonString(props.model.getValue(), inputValue)
+    const current = props.currentDomain || ''
+    const tabs = props.tabs.map(x => x.hostname)
+    const uniqueTabs = Array.from(new Set(tabs)).sort()
+    const list = domainExceptionsFromJsonString(props.model.getValue(), current)
+
+    const [state, send] = useMachine(domainMachine, {
+        actions: {
+            pushToUrl: (context, event) => {
+                props.setCurrentDomain(event.domain)
+            },
+            assignTabs: assign({
+                domains: (context, event) => {
+                    return event.domains || []
+                },
+                current: (context, event) => {
+                    return event.current || ''
+                }
+            })
+        },
+        services: {},
+        guards: {
+            'has new domain in url': (ctx, event) => {
+                if (ctx.current && ctx.domains.includes(current)) {
+                    return false
+                }
+                return true
+            },
+            'has unique domain': (ctx, event) => {
+                return ctx.current !== event.domain
+            }
+        },
+        delays: {}
+    })
+
+    // console.log('->', state.context.domains)
+    useEffect(() => {
+        send({ type: 'tabs', domains: props.tabs.map(x => x.hostname), current })
+    }, [current, props.tabs])
 
     /**
      * @param {string} key - a feature name, like `duckPlayer`
      */
     function toggleItem (key) {
         const parsed = JSON.parse(props.model.getValue())
-        const prev = parsed.features[key].exceptions.findIndex(x => x.domain === inputValue)
+        const prev = parsed.features[key].exceptions.findIndex(x => x.domain === current)
         if (prev === -1) {
-            parsed.features[key].exceptions.push({ domain: inputValue, reason: 'debug tools' })
+            parsed.features[key].exceptions.push({ domain: current, reason: 'debug tools' })
         } else {
             parsed.features[key].exceptions.splice(prev, 1)
         }
@@ -72,28 +122,61 @@ export function FeatureToggleListDomainExceptions (props) {
     if ('error' in list) {
         return <p>{list.error}</p>
     }
-
     return (
-        <div data-testid="domain-exceptions">
+        <div>
+            {state.matches('showing temp domain') && (
+                <>
+                    <p>Showing <code>{state.context.current}</code></p>
+                    <button type="button" onClick={() => send({ type: '👆 edit' })}>Edit</button>
+                </>
+            )}
             <form>
-                <input placeholder="enter a domain" value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
-                <label htmlFor="">
-                    Select an existing domain
-                    <select name="domain-select" id="" onChange={(e) => setInputValue(e.target.value)} defaultValue="none">
-                        <option disabled value="none">Select an existing domain</option>
-                        {list.value.domains.map(domain => {
-                            return <option key={domain} value={domain}>{domain}</option>
+                <label>
+                Select from an open tab
+                    <select name="tab-select"
+                        id=""
+                        onChange={(e) => send({ type: '👆 select', domain: e.target.value })}
+                        value={state.matches('showing temp domain') ? 'none' : state.context.current}>
+                        <option disabled value="none">Select from tabs</option>
+                        {uniqueTabs.map((tab) => {
+                            return <option key={tab} value={tab}>{tab}</option>
                         })}
                     </select>
                 </label>
             </form>
-            <br/>
-            <h3>Domain Exceptions <small>(disabled for this domain explicity)</small></h3>
-            {list.value.exceptions.length > 0 && <ToggleList onClick={toggleItem} items={list.value.exceptions}/>}
-            {list.value.exceptions.length === 0 && <p>No exceptions yet for this site</p>}
-            <br/>
-            <h3>Global state <small>(not tied to any domain)</small></h3>
-            <ToggleList onClick={toggleItem} items={list.value.global}/>
+            {state.matches('showing tab selector') && (
+                <button type="button" onClick={() => send({ type: '👆 add new' })}>Enter domain manually</button>
+            )}
+            {(state.matches('editing temp domain') || state.matches('adding a new domain')) && (
+                <form action="" onSubmit={(e) => {
+                    e.preventDefault()
+                    // @ts-expect-error - ts cannot see 'elements'
+                    const value = e.target.elements[0].value
+                    const domain = tryCreateDomain(value)
+                    if (domain) {
+                        send({ type: '💾 update', domain })
+                    }
+                }}>
+                    <label>
+                        <input placeholder="enter a domain" defaultValue={''} autoFocus={true}/>
+                    </label>
+                    <button type="submit">Update</button>
+                    <button type="button" onClick={() => send({ type: 'cancel' })}>Cancel</button>
+                </form>
+            )}
+            <div className="row">
+                <h3>Current Exceptions <small>(features disabled for <code>{current}</code> explicitly)</small></h3>
+                <div className="row">
+                    {list.value.exceptions.length > 0 && <ToggleList onClick={toggleItem} items={list.value.exceptions} />}
+                    {list.value.exceptions.length === 0 && <div><p>No exceptions yet for this site</p></div>}
+                </div>
+            </div>
+            <div className="row">
+                <h3>Add a new exception<small> (disable a feature for <code>{current}</code>)</small></h3>
+                <div className="row">
+                    <ToggleList onClick={toggleItem} items={list.value.global}/>
+                </div>
+            </div>
         </div>
     )
 }
