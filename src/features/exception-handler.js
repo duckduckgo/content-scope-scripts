@@ -12,7 +12,7 @@ export default class ExceptionHandler extends ContentFeature {
                 lineno: e.lineno,
                 colno: e.colno,
                 stack: e.error?.stack
-            })
+            }, true)
             this.addDebugFlag()
         }
         globalThis.addEventListener('error', handleUncaughtException)

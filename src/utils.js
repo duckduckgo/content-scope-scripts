@@ -537,8 +537,8 @@ function numberOfTimesDebugged (feature, message) {
 
 const DEBUG_MAX_TIMES = 1000
 
-export function postDebugMessage (feature, message) {
-    if (!debug) {
+export function postDebugMessage (feature, message, allowNonDebug = false) {
+    if (!debug && !allowNonDebug) {
         return
     }
     if (numberOfTimesDebugged(feature, message) > DEBUG_MAX_TIMES) {

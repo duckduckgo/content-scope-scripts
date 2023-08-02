@@ -1,4 +1,4 @@
-import { matchHostname, postDebugMessage, processConfig, satisfiesMinVersion } from '../src/utils.js'
+import { matchHostname, postDebugMessage, initStringExemptionLists, processConfig, satisfiesMinVersion } from '../src/utils.js'
 import polyfillProcessGlobals from './helpers/pollyfil-for-process-globals.js'
 
 polyfillProcessGlobals()
@@ -218,14 +218,30 @@ describe('Helpers checks', () => {
         globalThis.postMessage = message => {
             counters.set(message.action, (counters.get(message.action) || 0) + 1)
         }
-        for (let i = 0; i < 2000; i++) {
+        initStringExemptionLists({ debug: false })
+        for (let i = 0; i < 10; i++) {
             postDebugMessage('testa', { ding: 1 })
             postDebugMessage('testa', { ding: 2 })
             postDebugMessage('testb', { boop: true })
+            postDebugMessage('testc', { boop: true }, true)
+        }
+        it('does not trigger post messages without debug flag', () => {
+            expect(counters.get('testa')).toEqual(undefined)
+            expect(counters.get('testb')).toEqual(undefined)
+            expect(counters.get('testc')).toEqual(10)
+        })
+
+        initStringExemptionLists({ debug: true })
+        for (let i = 0; i < 2000; i++) {
+            postDebugMessage('testd', { ding: 1 })
+            postDebugMessage('testd', { ding: 2 })
+            postDebugMessage('teste', { boop: true })
+            postDebugMessage('testf', { boop: true }, true)
         }
         it('posts messages', () => {
-            expect(counters.get('testa')).toEqual(2000)
-            expect(counters.get('testb')).toEqual(1000)
+            expect(counters.get('testd')).toEqual(2000)
+            expect(counters.get('teste')).toEqual(1000)
+            expect(counters.get('testf')).toEqual(1000)
         })
     })
 })
