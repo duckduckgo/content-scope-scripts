@@ -520,7 +520,29 @@ export class DDGProxy {
     }
 }
 
+const maxCounter = new Map()
+function numberOfTimesDebugged (feature, message) {
+    let key
+    try {
+        // Could throw if message is not serializable
+        key = JSON.stringify({ feature, message })
+    } catch {
+        return 0
+    }
+    if (!maxCounter.has(key)) {
+        maxCounter.set(key, 1)
+    } else {
+        maxCounter.set(key, maxCounter.get(key) + 1)
+    }
+    return maxCounter.get(key)
+}
+
+const DEBUG_MAX_TIMES = 1000
+
 export function postDebugMessage (feature, message) {
+    if (numberOfTimesDebugged(feature, message) > DEBUG_MAX_TIMES) {
+        return
+    }
     if (message.stack) {
         const scriptOrigins = [...getStackTraceOrigins(message.stack)]
         message.scriptOrigins = scriptOrigins

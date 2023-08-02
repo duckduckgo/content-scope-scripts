@@ -1,4 +1,4 @@
-import { matchHostname, processConfig, satisfiesMinVersion } from '../src/utils.js'
+import { matchHostname, postDebugMessage, processConfig, satisfiesMinVersion } from '../src/utils.js'
 import polyfillProcessGlobals from './helpers/pollyfil-for-process-globals.js'
 
 polyfillProcessGlobals()
@@ -211,5 +211,21 @@ describe('Helpers checks', () => {
                 expect(satisfiesMinVersion(versionString, extensionVersionString)).toEqual(expectedOutcome)
             })
         }
+    })
+
+    describe('utils.postDebugMessage', () => {
+        const counters = new Map()
+        globalThis.postMessage = message => {
+            counters.set(message.action, (counters.get(message.action) || 0) + 1)
+        }
+        for (let i = 0; i < 2000; i++) {
+            postDebugMessage('testa', { ding: 1 })
+            postDebugMessage('testa', { ding: 2 })
+            postDebugMessage('testb', { boop: true })
+        }
+        it('posts messages', () => {
+            expect(counters.get('testa')).toEqual(2000)
+            expect(counters.get('testb')).toEqual(1000)
+        })
     })
 })
