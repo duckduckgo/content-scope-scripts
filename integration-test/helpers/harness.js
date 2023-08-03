@@ -113,7 +113,7 @@ export async function setup (ops = {}) {
      * @param {Record<string, any>} [args]
      * @returns {Promise<void>}
      */
-    async function gotoAndWait (page, urlString, args = {}) {
+    async function gotoAndWait (page, urlString, args = {}, evalBeforeInit = null) {
         const url = new URL(urlString)
 
         // Append the flag so that the script knows to wait for incoming args.
@@ -126,6 +126,10 @@ export async function setup (ops = {}) {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             return window.__content_scope_status === 'loaded'
         })
+
+        if (evalBeforeInit) {
+            await page.evaluate(evalBeforeInit)
+        }
 
         const evalString = `
             const detail = ${JSON.stringify(args)}

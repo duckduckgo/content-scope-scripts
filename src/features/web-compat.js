@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature'
+import ContentFeature from '../content-feature.js'
 
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
@@ -9,67 +9,6 @@ function windowSizingFix () {
     }
     window.outerHeight = window.innerHeight
     window.outerWidth = window.innerWidth
-}
-
-/**
- * Notification fix for adding missing API for Android WebView.
- */
-function notificationFix () {
-    if (window.Notification) {
-        return
-    }
-    const Notification = () => {
-        // noop
-    }
-    Notification.requestPermission = () => {
-        return Promise.resolve({ permission: 'denied' })
-    }
-    Notification.permission = 'denied'
-    Notification.maxActions = 2
-
-    // Expose the API
-    // @ts-expect-error window.Notification isn't assignable
-    window.Notification = Notification
-}
-
-/**
- * Adds missing permissions API for Android WebView.
- */
-function permissionsFix (settings) {
-    if (window.navigator.permissions) {
-        return
-    }
-    // @ts-expect-error window.navigator isn't assignable
-    window.navigator.permissions = {}
-    class PermissionStatus extends EventTarget {
-        constructor (name, state) {
-            super()
-            this.name = name
-            this.state = state
-            this.onchange = null // noop
-        }
-    }
-    // Default subset based upon Firefox (the full list is pretty large right now and these are the common ones)
-    const defaultValidPermissionNames = [
-        'geolocation',
-        'notifications',
-        'push',
-        'persistent-storage',
-        'midi'
-    ]
-    const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames
-    window.navigator.permissions.query = (query) => {
-        if (!query) {
-            throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
-        }
-        if (!query.name) {
-            throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.")
-        }
-        if (!validPermissionNames.includes(query.name)) {
-            throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value 's' is not a valid enum value of type PermissionName.")
-        }
-        return Promise.resolve(new PermissionStatus(query.name, 'denied'))
-    }
 }
 
 export default class WebCompat extends ContentFeature {
@@ -86,6 +25,81 @@ export default class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('messageHandlers')) {
             this.messageHandlersFix()
         }
+        if (this.getFeatureSettingEnabled('notification')) {
+            this.notificationFix()
+        }
+        if (this.getFeatureSettingEnabled('permissions')) {
+            const settings = this.getFeatureSettingEnabled('permissions')
+            this.permissionsFix(settings)
+        }
+    }
+
+    /**
+     * Notification fix for adding missing API for Android WebView.
+     */
+    notificationFix () {
+        if (window.Notification) {
+            return
+        }
+        const Notification = () => {
+            // noop
+        }
+        Notification.requestPermission = () => {
+            return Promise.resolve({ permission: 'denied' })
+        }
+        Notification.permission = 'denied'
+        Notification.maxActions = 2
+
+        // Expose the API
+        this.defineProperty(window, 'Notification', {
+            value: Notification,
+            writable: true,
+            configurable: true,
+            enumerable: false
+        })
+    }
+
+    /**
+     * Adds missing permissions API for Android WebView.
+     */
+    permissionsFix (settings) {
+        if (window.navigator.permissions) {
+            return
+        }
+        const permissions = {}
+        class PermissionStatus extends EventTarget {
+            constructor (name, state) {
+                super()
+                this.name = name
+                this.state = state
+                this.onchange = null // noop
+            }
+        }
+        // Default subset based upon Firefox (the full list is pretty large right now and these are the common ones)
+        const defaultValidPermissionNames = [
+            'geolocation',
+            'notifications',
+            'push',
+            'persistent-storage',
+            'midi'
+        ]
+        const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames
+        permissions.query = (query) => {
+            this.addDebugFlag()
+            if (!query) {
+                throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
+            }
+            if (!query.name) {
+                throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.")
+            }
+            if (!validPermissionNames.includes(query.name)) {
+                throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value 's' is not a valid enum value of type PermissionName.")
+            }
+            return Promise.resolve(new PermissionStatus(query.name, 'denied'))
+        }
+        // Expose the API
+        // @ts-expect-error window.navigator isn't assignable
+        window.navigator.permissions = permissions
     }
 
     /**
@@ -166,13 +180,6 @@ export default class WebCompat extends ContentFeature {
             })
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
-        }
-        if (this.getFeatureSettingEnabled('notification')) {
-            notificationFix()
-        }
-        if (this.getFeatureSettingEnabled('permissions')) {
-            const settings = this.getFeatureSettingEnabled('permissions')
-            permissionsFix(settings)
         }
     }
 
