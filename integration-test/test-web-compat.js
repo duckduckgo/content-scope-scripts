@@ -79,3 +79,87 @@ describe('Ensure safari interface is injected', () => {
         expect(pushNotificationRequestPermission.permission).toEqual('denied')
     })
 })
+
+describe('Ensure Notification and Permissions interface is injected', () => {
+    let browser
+    let server
+    let teardown
+    let setupServer
+    let gotoAndWait
+    beforeAll(async () => {
+        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
+        server = setupServer()
+    })
+    afterAll(async () => {
+        await server?.close()
+        await teardown()
+    })
+
+    it('should expose window.Notification when enabled', async () => {
+        const port = server.address().port
+        const page = await browser.newPage()
+        // Fake the Notification API not existing in this browser
+        const removeNotificationScript = `
+            delete window.Notification
+        `
+
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removeNotificationScript)
+        const noNotification = await page.evaluate(() => {
+            return 'Notification' in window
+        })
+        expect(noNotification).toEqual(false)
+
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+            site: {
+                enabledFeatures: ['webCompat']
+            },
+            featureSettings: {
+                webCompat: {
+                    notification: 'enabled'
+                }
+            }
+        }, removeNotificationScript)
+        const hasNotification = await page.evaluate(() => {
+            return 'Notification' in window
+        })
+        expect(hasNotification).toEqual(true)
+    })
+
+    it('should expose window.navigator.permissions when enabled', async () => {
+        const port = server.address().port
+        const page = await browser.newPage()
+        // Fake the Notification API not existing in this browser
+        const removePermissionsScript = `
+            Object.defineProperty(window.navigator, 'permissions', { writable: true })
+        `
+        function checkForPermissions () {
+            return !!window.navigator.permissions
+        }
+
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removePermissionsScript)
+        const noPermissions = await page.evaluate(checkForPermissions)
+        expect(noPermissions).toEqual(false)
+
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+            site: {
+                enabledFeatures: ['webCompat']
+            },
+            featureSettings: {
+                webCompat: {
+                    permissions: {
+                        state: 'enabled',
+                        validPermissionNames: [
+                            'geolocation',
+                            'notifications',
+                            'push',
+                            'persistent-storage',
+                            'midi'
+                        ]
+                    }
+                }
+            }
+        }, removePermissionsScript)
+        const hasPermissions = await page.evaluate(checkForPermissions)
+        expect(hasPermissions).toEqual(true)
+    })
+})

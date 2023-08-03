@@ -86,6 +86,13 @@ export default class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('messageHandlers')) {
             this.messageHandlersFix()
         }
+        if (this.getFeatureSettingEnabled('notification')) {
+            notificationFix()
+        }
+        if (this.getFeatureSettingEnabled('permissions')) {
+            const settings = this.getFeatureSettingEnabled('permissions')
+            permissionsFix(settings)
+        }
     }
 
     /**
@@ -166,13 +173,6 @@ export default class WebCompat extends ContentFeature {
             })
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
-        }
-        if (this.getFeatureSettingEnabled('notification')) {
-            notificationFix()
-        }
-        if (this.getFeatureSettingEnabled('permissions')) {
-            const settings = this.getFeatureSettingEnabled('permissions')
-            permissionsFix(settings)
         }
     }
 
