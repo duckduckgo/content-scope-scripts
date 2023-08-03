@@ -65,7 +65,7 @@ export class DuckplayerOverlays {
     }
 
     async showsShortsPage () {
-        await this.page.waitForURL(/^https:\/\/www.youtube.com\/shorts/, { timeout: 5000 })
+        await this.page.waitForURL(/^https:\/\/www\.youtube\.com\/shorts/, { timeout: 5000 })
     }
 
     /**
