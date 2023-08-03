@@ -102,6 +102,22 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         const removeNotificationScript = `
             delete window.Notification
         `
+        function checkForNotification () {
+            return 'Notification' in window
+        }
+        function checkObjectDescriptorSerializedValue () {
+            const descriptor = Object.getOwnPropertyDescriptor(window, 'Notification')
+            const out = {}
+            for (const key in descriptor) {
+                out[key] = !!descriptor[key]
+            }
+            return out
+        }
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+        const initialNotification = await page.evaluate(checkForNotification)
+        // Base implementation of the test env should have it.
+        expect(initialNotification).toEqual(true)
+        const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorSerializedValue)
 
         await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removeNotificationScript)
         const noNotification = await page.evaluate(() => {
@@ -119,10 +135,11 @@ describe('Ensure Notification and Permissions interface is injected', () => {
                 }
             }
         }, removeNotificationScript)
-        const hasNotification = await page.evaluate(() => {
-            return 'Notification' in window
-        })
+        const hasNotification = await page.evaluate(checkForNotification)
         expect(hasNotification).toEqual(true)
+
+        const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorSerializedValue)
+        expect(modifiedDescriptorSerialization).toEqual(initialDescriptorSerialization)
     })
 
     it('should expose window.navigator.permissions when enabled', async () => {

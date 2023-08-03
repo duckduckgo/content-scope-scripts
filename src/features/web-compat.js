@@ -51,8 +51,12 @@ export default class WebCompat extends ContentFeature {
         Notification.maxActions = 2
 
         // Expose the API
-        // @ts-expect-error window.Notification isn't assignable
-        window.Notification = Notification
+        this.defineProperty(window, 'Notification', {
+            value: Notification,
+            writable: true,
+            configurable: true,
+            enumerable: false
+        })
     }
 
     /**
