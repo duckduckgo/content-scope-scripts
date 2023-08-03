@@ -1,4 +1,4 @@
-import ContentFeature from '../content-feature'
+import ContentFeature from '../content-feature.js'
 
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
@@ -66,8 +66,7 @@ export default class WebCompat extends ContentFeature {
         if (window.navigator.permissions) {
             return
         }
-        // @ts-expect-error window.navigator isn't assignable
-        window.navigator.permissions = {}
+        const permissions = {}
         class PermissionStatus extends EventTarget {
             constructor (name, state) {
                 super()
@@ -85,7 +84,8 @@ export default class WebCompat extends ContentFeature {
             'midi'
         ]
         const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames
-        window.navigator.permissions.query = (query) => {
+        permissions.query = (query) => {
+            this.addDebugFlag()
             if (!query) {
                 throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
             }
@@ -97,6 +97,9 @@ export default class WebCompat extends ContentFeature {
             }
             return Promise.resolve(new PermissionStatus(query.name, 'denied'))
         }
+        // Expose the API
+        // @ts-expect-error window.navigator isn't assignable
+        window.navigator.permissions = permissions
     }
 
     /**

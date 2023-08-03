@@ -152,6 +152,17 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         function checkForPermissions () {
             return !!window.navigator.permissions
         }
+        function checkObjectDescriptorIsNotPresent () {
+            const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'permissions')
+            return descriptor === undefined
+        }
+
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+        const initialPermissions = await page.evaluate(checkForPermissions)
+        // Base implementation of the test env should have it.
+        expect(initialPermissions).toEqual(true)
+        const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
+        expect(initialDescriptorSerialization).toEqual(true)
 
         await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removePermissionsScript)
         const noPermissions = await page.evaluate(checkForPermissions)
@@ -178,5 +189,9 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         }, removePermissionsScript)
         const hasPermissions = await page.evaluate(checkForPermissions)
         expect(hasPermissions).toEqual(true)
+
+        const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
+        // This fails in a test condition purely because we have to add a descriptor to modify the prop
+        expect(modifiedDescriptorSerialization).toEqual(false)
     })
 })
