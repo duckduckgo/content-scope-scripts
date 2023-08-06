@@ -80,8 +80,8 @@ export function DomainForm (props) {
                         )
                     }}/>
             )}
-            <div className="row">
-                {state.matches(['tab selector', 'single tab']) && (
+            {state.matches(['tab selector', 'single tab']) && (
+                <div className="row">
                     <InlineDL>
                         <DT><label htmlFor="only-open-tab">Use open tab domain:</label></DT>
                         <DD>
@@ -93,8 +93,10 @@ export function DomainForm (props) {
                             </MicroButton>
                         </DD>
                     </InlineDL>
-                )}
-                {state.matches(['tab selector', 'multi tabs']) && (
+                </div>
+            )}
+            {state.matches(['tab selector', 'multi tabs']) && (
+                <div className="row">
                     <InlineDL>
                         <DT><label htmlFor="tab-select"></label>Select from an open tab:</DT>
                         <DD>
@@ -109,8 +111,8 @@ export function DomainForm (props) {
                             </select>
                         </DD>
                     </InlineDL>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     )
 }

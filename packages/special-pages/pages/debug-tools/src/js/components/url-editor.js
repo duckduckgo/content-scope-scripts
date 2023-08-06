@@ -13,7 +13,7 @@ export function URLEditor (props) {
     }
 
     return (
-        <form className="row font-mono text-xs" onSubmit={props.save} onKeyUp={onKeyUp}>
+        <form className="font-mono text-xs" onSubmit={props.save} onKeyUp={onKeyUp}>
             <label className="inline-form">
                 <span className="inline-form__label">NEW: </span>
                 <div className="inline-form__control">

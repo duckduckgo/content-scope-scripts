@@ -1,6 +1,6 @@
 import { RemoteResourcesContext } from '../remote-resources.page'
 import { DomainForm } from './domain-form'
-import { ToggleList } from './toggle-list'
+import { MicroButton } from '../../components/micro-button'
 
 /**
  * @typedef {import('monaco-editor').editor.ITextModel} ITextModel
@@ -42,9 +42,67 @@ export function FeatureToggleListDomainExceptions (props) {
         return <p>{list.error}</p>
     }
 
+    let inner = <div className="row"><p>Select, or add a domain to see current exceptions</p></div>
+    if (current) {
+        inner = <>
+            <div className="row">
+                <h3>Current Exceptions ({list.value.exceptions.length})</h3>
+                {list.value.exceptions.length === 0 && <p>Exceptions will show here once you add some.</p>}
+                {list.value.exceptions.length !== 0 && (
+                    <>
+                        <p>These features contain a domain exception for <code>{current}</code></p>
+                        <div className="row">
+                            <ul className="list col-3">
+                                {list.value.exceptions.map(ex => {
+                                    return (
+                                        <li key={ex.id} className="flex list__item">
+                                            <MicroButton className="mr-3.5" onClick={() => toggleItem(ex.id)}>❌ Remove</MicroButton>
+                                            <code>{ex.id}</code>
+                                        </li>
+                                    )
+                                })}
+                            </ul>
+                        </div>
+                    </>
+                )}
+            </div>
+            <div className="row">
+                <h3>Add a new exception</h3>
+                <p>Add a new exception for <code>{current}</code></p>
+                <div className="row">
+                    <ul className="list col-3">
+                        {list.value.global.filter(x => x.state === 'on').map(feature => {
+                            return (
+                                <li key={feature.id} className="flex list__item">
+                                    <MicroButton className="mr-3.5" data-testid={'add-exception-' + feature.id} onClick={() => toggleItem(feature.id)}>Add</MicroButton>
+                                    <code>{feature.id}</code>
+                                </li>
+                            )
+                        })}
+                    </ul>
+                </div>
+            </div>
+            <div className="row">
+                <h3>Already disabled</h3>
+                <p>These features are already disabled, adding an exception would have no effect</p>
+                <div className="row">
+                    <ul className="list col-3">
+                        {list.value.global.filter(x => x.state === 'off').map(feature => {
+                            return (
+                                <li key={feature.id} className="flex list__item">
+                                    <code>{feature.id}</code>
+                                </li>
+                            )
+                        })}
+                    </ul>
+                </div>
+            </div>
+        </>
+    }
+
     return (
         <div data-testid="domain-exceptions">
-            <div className="row">
+            <div className="row card">
                 <DomainForm
                     current={current}
                     domains={uniqueTabs}
@@ -52,20 +110,7 @@ export function FeatureToggleListDomainExceptions (props) {
                     clearCurrentDomain={clearCurrentDomain}
                 />
             </div>
-            <div className="row">
-                <h3>Current Exceptions <small>(features disabled for <code>{current}</code> explicitly)</small></h3>
-                <div className="row">
-                    {list.value.exceptions.length > 0 &&
-                        <ToggleList onClick={toggleItem} items={list.value.exceptions}/>}
-                    {list.value.exceptions.length === 0 && <div><p>No exceptions yet for this site</p></div>}
-                </div>
-            </div>
-            <div className="row">
-                <h3>Add a new exception<small> (disable a feature for <code>{current}</code>)</small></h3>
-                <div className="row">
-                    <ToggleList onClick={toggleItem} items={list.value.global}/>
-                </div>
-            </div>
+            {inner}
         </div>
     )
 }

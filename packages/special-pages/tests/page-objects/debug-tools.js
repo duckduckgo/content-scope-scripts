@@ -45,6 +45,7 @@ export class DebugToolsPage {
             domainExceptionNew: () => page.getByRole('button', { name: 'New' }),
             domainExceptionToggles: () => page.getByTestId('domain-exceptions'),
             domainExceptionsTab: () => page.locator('label').filter({ hasText: 'Domain Exceptions' }),
+            domainExceptionsAddForFeature: (featureName) => page.getByTestId('add-exception-' + featureName),
             tabSelector: () => page.locator('[name="tab-select"]'),
             singleTabButton: () => page.getByLabel('Use open tab domain:'),
             domainFormShowing: () => page.getByTestId('DomainForm.showing')
@@ -403,13 +404,16 @@ export class DebugToolsPage {
         expect(json.features[featureName].state).toBe('enabled')
     }
 
-    async togglesDomainException (buttonText, domain) {
+    /**
+     * @param {string} featureName
+     * @param {string} domain
+     */
+    async togglesDomainException (featureName, domain) {
         await this.locators.domainExceptionInput().fill(domain)
         await this.locators.domainExceptionUpdate().click()
 
-        // now click the toggle
-        await this.locators.domainExceptionToggles()
-            .locator(this.page.getByRole('button', { name: buttonText })).click()
+        // now click the toggle for this feature
+        await this.locators.domainExceptionsAddForFeature(featureName).click()
     }
 
     /**
@@ -510,5 +514,14 @@ export class DebugToolsPage {
         expect(await this.locators.domainExceptionInput().inputValue()).toBe('')
         await this.locators.domainExceptionInput().fill(domain)
         await this.locators.domainExceptionUpdate().click()
+    }
+
+    async showsEmptyStateForDomainExceptions (msg) {
+        // message is there
+        await this.locators.domainExceptionToggles()
+            .locator(this.page.getByText(msg)).waitFor()
+
+        expect(await this.page.getByText('Current Exceptions', { exact: true }).count())
+            .toBe(0)
     }
 }

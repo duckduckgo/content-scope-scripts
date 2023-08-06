@@ -94,6 +94,15 @@ test.describe.only('debug tools', () => {
                 dt.featureWasDisabledGlobally(saved.source.debugTools.content, 'autofill')
             })
         })
+        test('shows an empty state when no domain is selected', async ({ page }, workerInfo) => {
+            const dt = DebugToolsPage.create(page, workerInfo)
+            await dt.enabled()
+            await dt.openRemoteResourceEditor()
+            await dt.hasLoaded()
+
+            await dt.switchesTogglesTo('domain-exceptions')
+            await dt.showsEmptyStateForDomainExceptions('Select, or add a domain to see current exceptions')
+        })
         test('handles adding a first domain exception', async ({ page }, workerInfo) => {
             const dt = DebugToolsPage.create(page, workerInfo)
             await dt.enabled()

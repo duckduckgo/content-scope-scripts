@@ -195,6 +195,23 @@ dialog::backdrop {
     padding-bottom: 0;
 }
 
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.list__item + .list__item {
+    margin-top: .5rem;
+}
+.col-3 {
+    column-count: 3;
+    column-gap: 10px;
+    column-fill: balance;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
 .subnav {
     list-style: none;
     margin: 0;
@@ -310,6 +327,9 @@ dialog::backdrop {
 }
 .ml-3\.5 {
     margin-left: 0.875rem;
+}
+.mr-3\.5 {
+    margin-right: 0.875rem;
 }
 .text-grey {
 
@@ -431,3 +451,4 @@ dialog::backdrop {
     flex-shrink: 0;
     margin-left: .4rem;
 }
+

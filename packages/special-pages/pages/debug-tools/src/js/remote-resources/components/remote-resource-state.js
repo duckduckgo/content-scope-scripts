@@ -87,13 +87,15 @@ export function RemoteResourceState (props) {
                 </DD>
             </InlineDL>
             {props.showingUrlEditor && (
-                <URLEditor pending={props.pending} save={saveNewRemote} cancel={hideOverride}
-                    input={({ className }) => {
-                        return (
-                            <input autoFocus className={className} type="text" name="resource-url" placeholder="enter a url" />
-                        )
-                    }}
-                />
+                <div className="row">
+                    <URLEditor pending={props.pending} save={saveNewRemote} cancel={hideOverride}
+                        input={({ className }) => {
+                            return (
+                                <input autoFocus className={className} type="text" name="resource-url" placeholder="enter a url" />
+                            )
+                        }}
+                    />
+                </div>
             )}
             <Override
                 resource={props.resource}
