@@ -40,13 +40,13 @@ export class DebugToolsPage {
             featureToggle: (named) => page.getByLabel('toggle ' + named),
             domainExceptionAddButton: () => page.getByRole('button', { name: 'Add a domain' }),
             domainExceptionInput: () => page.getByPlaceholder('enter a domain'),
-            domainExceptionUpdate: () => page.getByRole('button', { name: 'Update' }),
+            domainExceptionUpdate: () => page.getByTestId('DomainForm').getByRole('button', { name: 'Save' }),
             domainExceptionEdit: () => page.getByRole('button', { name: 'Edit' }),
             domainExceptionNew: () => page.getByRole('button', { name: 'New' }),
             domainExceptionToggles: () => page.getByTestId('domain-exceptions'),
             domainExceptionsTab: () => page.locator('label').filter({ hasText: 'Domain Exceptions' }),
-            tabSelector: () => page.getByLabel('Select from an open tab'),
-            singleTabButton: (domain) => page.getByLabel('Use open tab domain:' + domain),
+            tabSelector: () => page.locator('[name="tab-select"]'),
+            singleTabButton: () => page.getByLabel('Use open tab domain:'),
             domainFormShowing: () => page.getByTestId('DomainForm.showing')
         }
     }
@@ -466,11 +466,8 @@ export class DebugToolsPage {
         await this.locators.tabSelector().selectOption(domain)
     }
 
-    /**
-     * @param {string} domain
-     */
-    async chooseTheOnlyOpenTab (domain) {
-        await this.locators.singleTabButton(domain).click()
+    async chooseTheOnlyOpenTab () {
+        await this.locators.singleTabButton().click()
     }
 
     /**

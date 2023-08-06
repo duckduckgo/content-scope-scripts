@@ -110,7 +110,7 @@ export class MockImpl {
         }
         case 'getTabs': {
             return {
-                tabs: tabData.tabs
+                tabs: tabData.tabs.slice(0, 2)
             }
         }
         default:
@@ -125,7 +125,7 @@ export class MockImpl {
             setInterval(() => {
                 const num = count % 3
                 const next = {
-                    tabs: tabData.tabs.slice(0, num)
+                    tabs: tabData.tabs.slice(0, 2)
                 }
                 callback(next)
                 count = count + 1

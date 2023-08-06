@@ -1,4 +1,7 @@
 import * as z from 'zod'
+import { DD, DT, InlineDL } from '../../components/definition-list.js'
+import { MicroButton } from '../../components/micro-button'
+import { URLEditor } from '../../components/url-editor'
 
 /**
  * @typedef{ import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
@@ -57,12 +60,6 @@ export function RemoteResourceState (props) {
         props.hideOverrideForm()
     }
 
-    function onKeyUp (e) {
-        if (e.code === 'Escape') {
-            props.hideOverrideForm()
-        }
-    }
-
     return (
         <div className="row card">
             <InlineDL>
@@ -90,9 +87,16 @@ export function RemoteResourceState (props) {
                 </DD>
             </InlineDL>
             {props.showingUrlEditor && (
-                <URLEditor pending={props.pending} save={saveNewRemote} cancel={hideOverride} onKeyup={onKeyUp} />
+                <URLEditor pending={props.pending} save={saveNewRemote} cancel={hideOverride}>
+                    <input autoFocus className="inline-form__input" type="text" name="resource-url" placeholder="enter a url" />
+                </URLEditor>
             )}
-            <Override resource={props.resource} remove={() => props.setUrl(props.resource.url)} pending={props.pending} copy={copy} setUrl={props.setUrl} />
+            <Override
+                resource={props.resource}
+                remove={() => props.setUrl(props.resource.url)}
+                pending={props.pending}
+                copy={copy}
+                setUrl={props.setUrl} />
         </div>
     )
 }
@@ -153,56 +157,6 @@ function Override (props) {
     }
 
     return null
-}
-
-/**
- * @param {object} props
- * @param {(evt: any) => void} props.save
- * @param {(evt: any) => void} props.onKeyup
- * @param {boolean} props.pending
- * @param {(evt: any) => void} props.cancel
- */
-function URLEditor (props) {
-    return (
-        <form className="row font-mono text-xs" onSubmit={props.save} onKeyUp={props.onKeyup}>
-            <label className="inline-form">
-                <span className="inline-form__label">NEW: </span>
-                <div className="inline-form__control">
-                    <input autoFocus className="inline-form__input" type="text" name="resource-url" placeholder="enter a url" />
-                    <button className="inline-form__button" type="submit">{props.pending ? 'Saving...' : 'Save'}</button>
-                    <button className="inline-form__button" type="button" onClick={props.cancel}>Cancel</button>
-                </div>
-            </label>
-        </form>
-    )
-}
-
-function InlineDL (props) {
-    const { children, ...rest } = props
-    return <dl className="inline-dl text-xs font-mono" {...rest}>{children}</dl>
-}
-
-function DT (props) {
-    const { children, ...rest } = props
-    return <dt className="inline-dl__dt" {...rest}>{children}</dt>
-}
-
-function DD (props) {
-    const { children, ...rest } = props
-    return <dd className="inline-dl__dd" {...rest}>{children}</dd>
-}
-
-function MicroButton (props) {
-    const { children, className, ...rest } = props
-    return (
-        <button
-            type="button"
-            className={['button'].concat(className || '').join(' ')}
-            data-variant="micro"
-            {...rest}>
-            {children}
-        </button>
-    )
 }
 
 function date (input) {

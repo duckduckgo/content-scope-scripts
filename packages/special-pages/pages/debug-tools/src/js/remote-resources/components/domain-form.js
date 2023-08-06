@@ -1,5 +1,8 @@
 import { useDomainState } from '../domain-exceptions.machine'
 import { useEffect } from 'react'
+import { DD, DT, InlineDL } from '../../components/definition-list'
+import { MicroButton } from '../../components/micro-button'
+import { URLEditor } from '../../components/url-editor'
 
 /**
  * Helper for syncing state with domains
@@ -24,26 +27,38 @@ export function DomainForm (props) {
         send({ type: 'DOMAINS', domains: props.domains, current })
     }, [current, props.domains])
 
+    const currenInDomains = props.domains.find(x => state.context.current === x)
+
     const views = {
         'no entries': null,
         'single matching current': null,
-        '1 entry': <label>
-            Use open tab domain:
-            <button onClick={() => send({ type: 'SELECT_TAB_DOMAIN', domain: state.context.domains[0] })}>{state.context.domains[0]}</button>
-        </label>,
+        '1 entry':
+            <InlineDL>
+                <DT><label htmlFor="only-open-tab">Use open tab domain:</label></DT>
+                <DD>
+                    <MicroButton
+                        onClick={() => send({ type: 'SELECT_TAB_DOMAIN', domain: state.context.domains[0] })}
+                        id="only-open-tab"
+                    >
+                        {state.context.domains[0]}
+                    </MicroButton>
+                </DD>
+            </InlineDL>,
         'more than 1 entry': (
-            <label>
-                Select from an open tab
-                <select name="tab-select"
-                    id=""
-                    onChange={(e) => send({ type: 'SELECT_TAB_DOMAIN', domain: e.target.value })}
-                    value={state.context.current || 'none'}>
-                    <option disabled value="none">Select from tabs</option>
-                    {state.context.domains.map((tab) => {
-                        return <option key={tab} value={tab}>{tab}</option>
-                    })}
-                </select>
-            </label>
+            <InlineDL>
+                <DT><label htmlFor="tab-select"></label>Select from an open tab:</DT>
+                <DD>
+                    <select name="tab-select"
+                        id="tab-select"
+                        onChange={(e) => send({ type: 'SELECT_TAB_DOMAIN', domain: e.target.value })}
+                        value={currenInDomains ? state.context.current : 'none'}>
+                        <option disabled value="none">Select from tabs</option>
+                        {state.context.domains.map((tab) => {
+                            return <option key={tab} value={tab}>{tab}</option>
+                        })}
+                    </select>
+                </DD>
+            </InlineDL>
         )
     }
 
@@ -62,39 +77,52 @@ export function DomainForm (props) {
     // show the editor when we are adding or editing
     const showingEditor = state.matches(['current domain', 'editing domain']) || state.matches(['current domain', 'adding new domain'])
 
+    function onSubmit (e) {
+        e.preventDefault()
+        const fd = new FormData(/** @type {HTMLFormElement} */(e.target))
+        const domain = /** @type {string} */(fd.get('domain'))
+        send({ type: 'SAVE_NEW', domain })
+    }
+    const cancel = () => send({ type: 'CANCEL' })
+
     return (
         <div data-testid="DomainForm">
             {/* <pre><code>{JSON.stringify({ value: state.value, context: state.context }, null, 2)}</code></pre> */}
             {state.matches(['current domain', 'idle']) && (
-                <>
-                    <button type="button" onClick={() => send({ type: 'ADD_NEW' })}>Add a domain</button>
-                </>
+                <InlineDL>
+                    <DT>CURRENT DOMAIN:</DT>
+                    <DD>
+                        <span>NONE</span>
+                        <MicroButton
+                            className="ml-3.5"
+                            type="button"
+                            onClick={() => send({ type: 'ADD_NEW' })}>Add a domain</MicroButton>
+                    </DD>
+                </InlineDL>
             )}
-            {state.matches(['current domain', 'showing current domain']) && (
-                <>
-                    <p data-testid="DomainForm.showing">Showing <code>{state.context.current}</code></p>
-                    <button type="button" onClick={() => send({ type: 'EDIT' })}>Edit</button>
-                    <button type="button" onClick={() => send({ type: 'ADD_NEW' })}>New</button>
-                    <button type="button" onClick={() => send({ type: 'CLEAR' })}>Clear</button>
-                </>
+            {(state.matches(['current domain', 'showing current domain'])) && (
+                <InlineDL>
+                    <DT>CURRENT DOMAIN:</DT>
+                    <DD data-testid="DomainForm.showing">
+                        <code>{state.context.current}</code>
+                        <MicroButton className="ml-3.5" onClick={() => send({ type: 'EDIT' })}>✏️ Edit</MicroButton>
+                        <MicroButton className="ml-3.5" onClick={() => send({ type: 'ADD_NEW' })}>📄 New</MicroButton>
+                        <MicroButton className="ml-3.5" onClick={() => send({ type: 'CLEAR' })}>❌ Remove</MicroButton>
+                    </DD>
+                </InlineDL>
             )}
             {showingEditor && (
-                <form action="" onSubmit={(e) => {
-                    e.preventDefault()
-                    const fd = new FormData(/** @type {HTMLFormElement} */(e.target))
-                    const domain = /** @type {string} */(fd.get('domain'))
-                    send({ type: 'SAVE_NEW', domain })
-                }}>
-                    <label>
-                        <input placeholder="enter a domain" name="domain" defaultValue={state.context.nextDefault} autoFocus={true}/>
-                    </label>
-                    <button type="submit">Update</button>
-                    <button type="button" onClick={() => send({ type: 'CANCEL' })}>Cancel</button>
-                </form>
+                <URLEditor cancel={cancel} save={onSubmit} pending={false}>
+                    <input placeholder="enter a domain"
+                        className="inline-form__input"
+                        name="domain"
+                        defaultValue={state.context.nextDefault}
+                        autoFocus={true} />
+                </URLEditor>
             )}
-            <form>
+            <div className="row">
                 {listView}
-            </form>
+            </div>
         </div>
     )
 }
