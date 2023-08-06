@@ -14,6 +14,7 @@ export function FeatureToggleListDomainExceptions (props) {
     // xstate stuff
     const [state, send] = RemoteResourcesContext.useActor()
     const current = state.context.currentDomain || ''
+
     /** @type {(domain: string) => void} */
     const setCurrentDomain = (domain) => send({ type: 'set current domain', payload: domain })
     const clearCurrentDomain = () => send({ type: 'clear current domain' })

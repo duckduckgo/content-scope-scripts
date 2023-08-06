@@ -7,7 +7,7 @@ import { DebugToolsMessages } from '../DebugToolsMessages.mjs'
 const editorKindsMapping = {
     'privacy-configuration': {
         editorKinds: ['toggles', 'inline', 'diff'],
-        toggleKinds: ['global-feature', 'domain-exceptions']
+        toggleKinds: ['global-feature', 'domain-exceptions', 'unprotected']
     },
     default: {
         editorKinds: ['inline', 'diff'],
@@ -450,7 +450,7 @@ async function minDuration (cb, minTime = 500) {
 }
 
 export const EditorKind = z.enum(['inline', 'diff', 'toggles'])
-export const ToggleKind = z.enum(['global-feature', 'domain-exceptions'])
+export const ToggleKind = z.enum(['global-feature', 'domain-exceptions', 'unprotected'])
 export const CurrentResource = z.object({
     id: z.string(),
     editorKinds: z.array(EditorKind),
