@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test'
 import { Mocks } from './mocks.js'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
-import { mockErrors, mockResponses } from '@duckduckgo/messaging/lib/test-utils.mjs'
+import { mockErrors, mockResponses, simulateSubscriptionMessage } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { readFileSync } from 'node:fs'
 
 /**
@@ -435,6 +435,22 @@ export class DebugToolsPage {
             responses: {
                 getTabs: params
             }
+        })
+    }
+
+    /**
+     * @param {GetTabsResponse} params
+     */
+    async receivesNewTabs (params) {
+        await this.page.evaluate(simulateSubscriptionMessage, {
+            messagingContext: {
+                context: 'specialPages',
+                featureName: 'debugToolsPage',
+                env: 'development'
+            },
+            name: 'onTabsUpdated',
+            payload: params,
+            injectName: this.build.name
         })
     }
 

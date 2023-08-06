@@ -155,6 +155,17 @@ test.describe.only('debug tools', () => {
             await dt.exceptionsShownFor('example.ca')
             await dt.currentDomainIsStoredInUrl('example.ca')
         })
+        test('handles tabs arriving after page load', async ({ page }, workerInfo) => {
+            const dt = DebugToolsPage.create(page, workerInfo)
+            await dt.enabled()
+            await dt.openRemoteResourceEditor()
+            await dt.hasLoaded()
+            await dt.switchesTogglesTo('domain-exceptions')
+            await dt.receivesNewTabs({ tabs: [{ url: 'https://example.com/123/abc' }, { url: 'https://duckduckgo.com/?q=123' }] })
+            await dt.selectTab('duckduckgo.com')
+            await dt.currentDomainIsStoredInUrl('duckduckgo.com')
+            await dt.exceptionsShownFor('duckduckgo.com')
+        })
         test('handles choosing an open tab from many', async ({ page }, workerInfo) => {
             const dt = DebugToolsPage.create(page, workerInfo)
             await dt.enabled()
