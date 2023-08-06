@@ -184,7 +184,7 @@ test.describe.only('debug tools', () => {
             await dt.openRemoteResourceEditor()
             await dt.hasLoaded()
             await dt.switchesTogglesTo('domain-exceptions')
-            await dt.chooseTheOnlyOpenTab('example.com')
+            await dt.chooseTheOnlyOpenTab()
             await dt.currentDomainIsStoredInUrl('example.com')
             await dt.exceptionsShownFor('example.com')
         })

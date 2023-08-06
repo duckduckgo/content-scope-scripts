@@ -3,7 +3,7 @@
  * @param {(evt: any) => void} props.save
  * @param {boolean} props.pending
  * @param {() => void} props.cancel
- * @param {import("react").ReactNode} props.children
+ * @param {(args: { className: string }) => import("react").ReactNode} props.input
  */
 export function URLEditor (props) {
     function onKeyUp (e) {
@@ -17,7 +17,7 @@ export function URLEditor (props) {
             <label className="inline-form">
                 <span className="inline-form__label">NEW: </span>
                 <div className="inline-form__control">
-                    {props.children}
+                    {props.input({ className: 'inline-form__input' })}
                     <button className="inline-form__button" type="submit">{props.pending ? 'Saving...' : 'Save'}</button>
                     <button className="inline-form__button" type="button" onClick={props.cancel}>Cancel</button>
                 </div>

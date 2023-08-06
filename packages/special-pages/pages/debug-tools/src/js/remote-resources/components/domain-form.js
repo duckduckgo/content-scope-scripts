@@ -112,13 +112,19 @@ export function DomainForm (props) {
                 </InlineDL>
             )}
             {showingEditor && (
-                <URLEditor cancel={cancel} save={onSubmit} pending={false}>
-                    <input placeholder="enter a domain"
-                        className="inline-form__input"
-                        name="domain"
-                        defaultValue={state.context.nextDefault}
-                        autoFocus={true} />
-                </URLEditor>
+                <URLEditor
+                    cancel={cancel}
+                    save={onSubmit}
+                    pending={false}
+                    input={({ className }) => {
+                        return (
+                            <input placeholder="enter a domain"
+                                className={className}
+                                name="domain"
+                                defaultValue={state.context.nextDefault}
+                                autoFocus={true}/>
+                        )
+                    }}/>
             )}
             <div className="row">
                 {listView}
