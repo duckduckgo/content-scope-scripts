@@ -120,6 +120,41 @@ test.describe.only('debug tools', () => {
                 await page.pause()
             })
         })
+        test('edits the current domain in domain exceptions', async ({ page }, workerInfo) => {
+            const dt = DebugToolsPage.create(page, workerInfo)
+            await dt.enabled()
+            await dt.openDomainExceptions({
+                currentDomain: 'example.com'
+            })
+
+            // control, to ensure we're starting in the correct state
+            await dt.exceptionsShownFor('example.com')
+
+            // change it with the 'edit' button
+            await dt.editCurrentDomain({ from: 'example.com', to: 'example.ca' })
+
+            // now assert it's changed in URL + page
+            await dt.exceptionsShownFor('example.ca')
+            await dt.currentDomainIsStoredInUrl('example.ca')
+        })
+        test('adds a new domain when one already exists', async ({ page }, workerInfo) => {
+            const dt = DebugToolsPage.create(page, workerInfo)
+            await dt.enabled()
+
+            await dt.openDomainExceptions({
+                currentDomain: 'example.com'
+            })
+
+            // control, to ensure we're starting in the correct state
+            await dt.exceptionsShownFor('example.com')
+
+            // adding new domain, by clicking 'new'
+            await dt.addNewDomain('example.ca')
+
+            // now assert it's changed in URL + page
+            await dt.exceptionsShownFor('example.ca')
+            await dt.currentDomainIsStoredInUrl('example.ca')
+        })
         test('handles choosing an open tab from many', async ({ page }, workerInfo) => {
             const dt = DebugToolsPage.create(page, workerInfo)
             await dt.enabled()
@@ -129,7 +164,7 @@ test.describe.only('debug tools', () => {
             await dt.switchesTogglesTo('domain-exceptions')
             await dt.selectTab('duckduckgo.com')
             await dt.currentDomainIsStoredInUrl('duckduckgo.com')
-            await dt.exceptionsForCurrentDomainShown('duckduckgo.com')
+            await dt.exceptionsShownFor('duckduckgo.com')
         })
         test('handles choosing an open tab from single', async ({ page }, workerInfo) => {
             const dt = DebugToolsPage.create(page, workerInfo)
@@ -140,7 +175,7 @@ test.describe.only('debug tools', () => {
             await dt.switchesTogglesTo('domain-exceptions')
             await dt.chooseTheOnlyOpenTab('example.com')
             await dt.currentDomainIsStoredInUrl('example.com')
-            await dt.exceptionsForCurrentDomainShown('example.com')
+            await dt.exceptionsShownFor('example.com')
         })
         test('switches editor kind', async ({ page }, workerInfo) => {
             const dt = DebugToolsPage.create(page, workerInfo)

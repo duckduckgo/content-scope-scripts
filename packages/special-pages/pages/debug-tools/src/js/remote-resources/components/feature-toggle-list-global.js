@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ToggleList } from './toggle-list'
 import { DomainForm } from './domain-form'
+import { RemoteResourcesContext } from '../remote-resources.page'
 
 /**
  * @typedef {import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
@@ -56,15 +57,15 @@ export function FeatureToggleListGlobal (props) {
 /**
  * @param {object} props
  * @param {ITextModel} props.model
- * @param {TabWithHostname[]} props.tabs
- * @param {string|undefined} props.currentDomain
- * @param {(domain: string) => void} props.setCurrentDomain
- * @param {() => void} props.clearCurrentDomain
  */
 export function FeatureToggleListDomainExceptions (props) {
     // some local state not stored in xstate (yet)
-    const current = props.currentDomain || ''
-    const tabs = props.tabs.map(x => x.hostname)
+    const [state, send] = RemoteResourcesContext.useActor()
+    const current = state.context.currentDomain || ''
+    /** @type {(domain: string) => void} */
+    const setCurrentDomain = (domain) => send({ type: 'set current domain', payload: domain })
+    const clearCurrentDomain = () => send({ type: 'clear current domain' })
+    const tabs = state.context.tabs.map(x => x.hostname)
     const uniqueTabs = Array.from(new Set(tabs)).sort()
     const list = domainExceptionsFromJsonString(props.model.getValue(), current)
 
@@ -86,13 +87,14 @@ export function FeatureToggleListDomainExceptions (props) {
     if ('error' in list) {
         return <p>{list.error}</p>
     }
+
     return (
         <div data-testid="domain-exceptions">
             <div className="row">
                 <DomainForm current={current}
                     domains={uniqueTabs}
-                    setCurrentDomain={props.setCurrentDomain}
-                    clearCurrentDomain={props.clearCurrentDomain}
+                    setCurrentDomain={setCurrentDomain}
+                    clearCurrentDomain={clearCurrentDomain}
                 />
             </div>
             <div className="row">

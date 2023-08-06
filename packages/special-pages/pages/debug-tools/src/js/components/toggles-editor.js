@@ -15,10 +15,6 @@ import {
 /**
  * @typedef ToggleComponentProps
  * @property {ITextModel} model
- * @property {TabWithHostname[]} tabs
- * @property {string|undefined} currentDomain
- * @property {(domain: string) => void} setCurrentDomain
- * @property {() => void} clearCurrentDomain
  */
 
 /** @type {Record<ToggleKind, string>} */
@@ -41,13 +37,9 @@ const components = {
  * @param {boolean} props.edited
  * @param {boolean} props.invalid
  * @param {(kind: ToggleKind) => void} props.onToggleKind
- * @param {(domain: string) => void} props.setCurrentDomain
- * @param {() => void} props.clearCurrentDomain
  * @param {ToggleKind} props.toggleKind
  * @param {ToggleKind[]} props.toggleKinds
- * @param {string | undefined} props.currentDomain
  * @param {RemoteResource} props.resource
- * @param {TabWithHostname[]} props.tabs
  * @param {ReactNode} props.buttons
  */
 export function TogglesEditor (props) {

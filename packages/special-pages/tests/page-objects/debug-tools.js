@@ -41,6 +41,8 @@ export class DebugToolsPage {
             domainExceptionAddButton: () => page.getByRole('button', { name: 'Add a domain' }),
             domainExceptionInput: () => page.getByPlaceholder('enter a domain'),
             domainExceptionUpdate: () => page.getByRole('button', { name: 'Update' }),
+            domainExceptionEdit: () => page.getByRole('button', { name: 'Edit' }),
+            domainExceptionNew: () => page.getByRole('button', { name: 'New' }),
             domainExceptionToggles: () => page.getByTestId('domain-exceptions'),
             domainExceptionsTab: () => page.locator('label').filter({ hasText: 'Domain Exceptions' }),
             tabSelector: () => page.getByLabel('Select from an open tab'),
@@ -126,7 +128,7 @@ export class DebugToolsPage {
      * @return {Promise<void>}
      */
     async openPage (urlParams) {
-        const url = this.basePath + '?' + urlParams.toString()
+        const url = this.basePath + '#?' + urlParams.toString()
         await this.page.goto(url)
     }
 
@@ -154,6 +156,19 @@ export class DebugToolsPage {
     async openRemoteResourceEditor () {
         const params = new URLSearchParams({})
         await this.openPage(params)
+    }
+
+    /**
+     * @param {object} [params]
+     * @param {string} [params.currentDomain]
+     */
+    async openDomainExceptions (params) {
+        const hashParams = new URLSearchParams({
+            toggleKind: 'domain-exceptions',
+            editorKind: 'toggles',
+            ...params
+        })
+        await this.openPage(hashParams)
     }
 
     /**
@@ -458,7 +473,29 @@ export class DebugToolsPage {
     /**
      * @param {string} domain
      */
-    async exceptionsForCurrentDomainShown (domain) {
-        await this.locators.domainFormShowing().filter({ hasText: domain }).waitFor()
+    async exceptionsShownFor (domain) {
+        await this.locators.domainFormShowing().filter({ hasText: domain }).waitFor({ timeout: 5000 })
+    }
+
+    /**
+     * @param {object} params
+     * @param {string} params.from
+     * @param {string} params.to
+     */
+    async editCurrentDomain ({ from, to }) {
+        await this.locators.domainExceptionEdit().click()
+        expect(await this.locators.domainExceptionInput().inputValue()).toBe(from)
+        await this.locators.domainExceptionInput().fill(to)
+        await this.locators.domainExceptionUpdate().click()
+    }
+
+    /**
+     * @param {string} domain
+     */
+    async addNewDomain (domain) {
+        await this.locators.domainExceptionNew().click()
+        expect(await this.locators.domainExceptionInput().inputValue()).toBe('')
+        await this.locators.domainExceptionInput().fill(domain)
+        await this.locators.domainExceptionUpdate().click()
     }
 }

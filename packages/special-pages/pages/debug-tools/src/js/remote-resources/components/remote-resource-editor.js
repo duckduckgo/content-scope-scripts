@@ -28,9 +28,6 @@ export function RemoteResourceEditor (props) {
     const setEditorKind = (kind) => send({ type: 'set editor kind', payload: kind })
     /** @type {(kind: ToggleKind) => void} */
     const setToggleKind = (kind) => send({ type: 'set toggle kind', payload: kind })
-    /** @type {(domain: string) => void} */
-    const setCurrentDomain = (domain) => send({ type: 'set current domain', payload: domain })
-    const clearCurrentDomain = () => send({ type: 'clear current domain' })
     const showOverrideForm = () => send({ type: 'show url editor' })
     const hideOverrideForm = () => send({ type: 'hide url editor' })
     const revertEdited = () => props.model.setValue(originalContents)
@@ -89,8 +86,6 @@ export function RemoteResourceEditor (props) {
     }) || []
 
     const editorState = contentIsInvalid ? 'not-allowed' : 'enabled'
-    const tabs = state.context.tabs || []
-    const currentDomain = state.context.currentDomain
 
     // Buttons above the editor
     const buttons = <>
@@ -149,10 +144,6 @@ export function RemoteResourceEditor (props) {
                     toggleKind={toggleKind}
                     toggleKinds={validToggleKinds}
                     onToggleKind={setToggleKind}
-                    tabs={tabs}
-                    setCurrentDomain={setCurrentDomain}
-                    clearCurrentDomain={clearCurrentDomain}
-                    currentDomain={currentDomain}
                 />}
             </div>
         </div>

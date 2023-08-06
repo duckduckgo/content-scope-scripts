@@ -64,7 +64,7 @@ export function DomainForm (props) {
 
     return (
         <div data-testid="DomainForm">
-            <pre><code>{JSON.stringify({ value: state.value, context: state.context }, null, 2)}</code></pre>
+            {/* <pre><code>{JSON.stringify({ value: state.value, context: state.context }, null, 2)}</code></pre> */}
             {state.matches(['current domain', 'idle']) && (
                 <>
                     <button type="button" onClick={() => send({ type: 'ADD_NEW' })}>Add a domain</button>
