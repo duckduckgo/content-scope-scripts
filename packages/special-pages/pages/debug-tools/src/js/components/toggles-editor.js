@@ -1,7 +1,7 @@
 import {
-    FeatureToggleListDomainExceptions,
     FeatureToggleListGlobal
 } from '../remote-resources/components/feature-toggle-list-global'
+import { FeatureToggleListDomainExceptions } from '../remote-resources/components/feature-toggle-list-domain-exceptions'
 
 /**
  * @typedef {import('../../../schema/__generated__/schema.types').RemoteResource} RemoteResource

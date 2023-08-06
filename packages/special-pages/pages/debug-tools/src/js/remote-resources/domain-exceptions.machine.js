@@ -69,24 +69,47 @@ export const domainMachine = createMachine({
             }
         },
         'tab selector': {
-            initial: 'showing tab list',
+            initial: 'reading domains',
             states: {
-                'showing tab list': {
+                'reading domains': {
                     description: 'this could be empty',
-                    on: {
-                        SELECT_TAB_DOMAIN: {
-                            actions: {
-                                type: 'push to URL'
-                            }
+                    always: [
+                        {
+                            target: 'single matching',
+                            cond: 'tabs.length is 1 + matches current'
+                        },
+                        {
+                            target: 'single tab',
+                            cond: 'tabs.length is 1'
+                        },
+                        {
+                            target: 'multi tabs',
+                            cond: 'tabs.length > 1'
+                        },
+                        {
+                            target: 'empty list'
                         }
-                    }
-                }
+                    ]
+                },
+                'empty list': {},
+                'single matching': {},
+                'single tab': {},
+                'multi tabs': {}
             },
             on: {
                 DOMAINS: {
                     actions: {
                         type: 'assignTabs'
-                    }
+                    },
+                    target: '.reading domains',
+                    internal: true
+                },
+                SELECT_TAB_DOMAIN: {
+                    actions: {
+                        type: 'push to URL',
+                        params: {}
+                    },
+                    internal: true
                 }
             }
         }
@@ -170,6 +193,15 @@ export function useDomainState (params) {
                     }
                 }
                 return false
+            },
+            'tabs.length is 1 + matches current': (context, event) => {
+                return context.domains.length === 1 && context.domains[0] === context.current
+            },
+            'tabs.length is 1': (context, event) => {
+                return context.domains.length === 1
+            },
+            'tabs.length > 1': (context, event) => {
+                return context.domains.length > 1
             }
         }
     })

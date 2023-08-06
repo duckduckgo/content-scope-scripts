@@ -23,56 +23,10 @@ export function DomainForm (props) {
     })
 
     useEffect(() => {
-        // keep tabs up to date with parent
         send({ type: 'DOMAINS', domains: props.domains, current })
     }, [current, props.domains])
 
     const currenInDomains = props.domains.find(x => state.context.current === x)
-
-    const views = {
-        'no entries': null,
-        'single matching current': null,
-        '1 entry':
-            <InlineDL>
-                <DT><label htmlFor="only-open-tab">Use open tab domain:</label></DT>
-                <DD>
-                    <MicroButton
-                        onClick={() => send({ type: 'SELECT_TAB_DOMAIN', domain: state.context.domains[0] })}
-                        id="only-open-tab"
-                    >
-                        {state.context.domains[0]}
-                    </MicroButton>
-                </DD>
-            </InlineDL>,
-        'more than 1 entry': (
-            <InlineDL>
-                <DT><label htmlFor="tab-select"></label>Select from an open tab:</DT>
-                <DD>
-                    <select name="tab-select"
-                        id="tab-select"
-                        onChange={(e) => send({ type: 'SELECT_TAB_DOMAIN', domain: e.target.value })}
-                        value={currenInDomains ? state.context.current : 'none'}>
-                        <option disabled value="none">Select from tabs</option>
-                        {state.context.domains.map((tab) => {
-                            return <option key={tab} value={tab}>{tab}</option>
-                        })}
-                    </select>
-                </DD>
-            </InlineDL>
-        )
-    }
-
-    const len = state.context.domains.length
-    let listView
-    if (len === 0) listView = views['no entries']
-    if (len === 1) {
-        if (state.context.domains[0] === current) {
-            listView = views['single matching current']
-        } else {
-            listView = views['1 entry']
-        }
-    }
-    if (len > 1) listView = views['more than 1 entry']
 
     // show the editor when we are adding or editing
     const showingEditor = state.matches(['current domain', 'editing domain']) || state.matches(['current domain', 'adding new domain'])
@@ -127,7 +81,35 @@ export function DomainForm (props) {
                     }}/>
             )}
             <div className="row">
-                {listView}
+                {state.matches(['tab selector', 'single tab']) && (
+                    <InlineDL>
+                        <DT><label htmlFor="only-open-tab">Use open tab domain:</label></DT>
+                        <DD>
+                            <MicroButton
+                                onClick={() => send({ type: 'SELECT_TAB_DOMAIN', domain: state.context.domains[0] })}
+                                id="only-open-tab"
+                            >
+                                {state.context.domains[0]}
+                            </MicroButton>
+                        </DD>
+                    </InlineDL>
+                )}
+                {state.matches(['tab selector', 'multi tabs']) && (
+                    <InlineDL>
+                        <DT><label htmlFor="tab-select"></label>Select from an open tab:</DT>
+                        <DD>
+                            <select name="tab-select"
+                                id="tab-select"
+                                onChange={(e) => send({ type: 'SELECT_TAB_DOMAIN', domain: e.target.value })}
+                                value={currenInDomains ? state.context.current : 'none'}>
+                                <option disabled value="none">Select from tabs</option>
+                                {state.context.domains.map((tab) => {
+                                    return <option key={tab} value={tab}>{tab}</option>
+                                })}
+                            </select>
+                        </DD>
+                    </InlineDL>
+                )}
             </div>
         </div>
     )
