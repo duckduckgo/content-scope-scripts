@@ -25,6 +25,7 @@ export type RemoteResourcesEvents =
   | { type: 'set editor kind', payload: EditorKind }
   | { type: 'set toggle kind', payload: ToggleKind }
   | { type: 'set current domain', payload: string }
+  | { type: 'clear current domain' }
   | { type: 'error' }
   | { type: 'nav_resource' }
   | { type: 'nav_other' }
@@ -41,6 +42,16 @@ export type RemoteResourcesEvents =
 
   | { type: 'save new remote', payload: UpdateResourceParams }
   | { type: 'save edited', payload: UpdateResourceParams }
+
+export type DomainExceptionEvents =
+    | { type: 'DOMAINS', domains: string[]; current: string }
+    | { type: 'SELECT_TAB_DOMAIN'; domain: string }
+    | { type: 'ADD_NEW'; }
+    | { type: 'SAVE_NEW'; domain: string }
+    | { type: 'CANCEL' }
+    | { type: 'CLEAR' }
+    | { type: '🌐 url updated' }
+    | { type: 'EDIT' }
 
 export type TabWithHostname = Tab & { hostname: string }
 

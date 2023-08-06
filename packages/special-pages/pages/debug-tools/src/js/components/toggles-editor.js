@@ -1,5 +1,5 @@
 import {
-    FeatureToggleListDomainExceptions2,
+    FeatureToggleListDomainExceptions,
     FeatureToggleListGlobal
 } from '../remote-resources/components/feature-toggle-list-global'
 
@@ -12,17 +12,26 @@ import {
  * @typedef {import('react').ReactNode} ReactNode
  */
 
+/**
+ * @typedef ToggleComponentProps
+ * @property {ITextModel} model
+ * @property {TabWithHostname[]} tabs
+ * @property {string|undefined} currentDomain
+ * @property {(domain: string) => void} setCurrentDomain
+ * @property {() => void} clearCurrentDomain
+ */
+
 /** @type {Record<ToggleKind, string>} */
 const titles = {
     'global-feature': 'Global Feature Toggles',
     'domain-exceptions': 'Domain Exceptions'
 }
 
-/** @type {Record<ToggleKind, (props: { model: ITextModel; tabs: TabWithHostname[]; currentDomain: string|undefined; setCurrentDomain: (domain: string) => void}) => ReactNode>} */
+/** @type {Record<ToggleKind, (props: ToggleComponentProps) => ReactNode>} */
 const components = {
     'global-feature': (props) => <FeatureToggleListGlobal {...props}/>,
     // 'domain-exceptions': (props) => <FeatureToggleListDomainExceptions {...props} />
-    'domain-exceptions': (props) => <FeatureToggleListDomainExceptions2 {...props} />
+    'domain-exceptions': (props) => <FeatureToggleListDomainExceptions {...props} />
 }
 
 /**
@@ -33,6 +42,7 @@ const components = {
  * @param {boolean} props.invalid
  * @param {(kind: ToggleKind) => void} props.onToggleKind
  * @param {(domain: string) => void} props.setCurrentDomain
+ * @param {() => void} props.clearCurrentDomain
  * @param {ToggleKind} props.toggleKind
  * @param {ToggleKind[]} props.toggleKinds
  * @param {string | undefined} props.currentDomain

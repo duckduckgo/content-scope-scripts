@@ -4,6 +4,9 @@
  */
 import { updateResourceParamsSchema } from '../../schema/__generated__/schema.parsers.mjs'
 
+/** @type {import('../../schema/__generated__/schema.types').GetTabsResponse} */
+const tabData = { tabs: [{ url: 'https://example.com/123/abc' }, { url: 'https://duckduckgo.com/?q=123' }, { url: 'https://abc.duckduckgo.com/?q=123' }] }
+
 /**
  * @implements MessagingTransport
  */
@@ -106,9 +109,9 @@ export class MockImpl {
             return next
         }
         case 'getTabs': {
-            /** @type {import('../../schema/__generated__/schema.types').GetTabsResponse} */
-            const response = { tabs: [{ url: 'https://example.com/123/abc' }, { url: 'https://duckduckgo.com/?q=123' }, { url: 'https://abc.duckduckgo.com/?q=123' }] }
-            return response
+            return {
+                tabs: tabData.tabs
+            }
         }
         default:
             throw new Error('unhandled message:' + msg.method)
@@ -116,15 +119,21 @@ export class MockImpl {
     }
 
     subscribe (msg, callback) {
-        // const count = 0
-        //
-        // if (msg.subscriptionName === 'onTabsUpdated') {
-        //     setInterval(() => {
-        //
-        //     }, 1000)
-        // }
+        let interval
+        let count = 0
+        if (msg.subscriptionName === 'onTabsUpdated') {
+            setInterval(() => {
+                const num = count % 3
+                const next = {
+                    tabs: tabData.tabs.slice(0, num)
+                }
+                callback(next)
+                count = count + 1
+            }, 5000)
+        }
         return () => {
-            console.log('teardown')
+            console.log('teardown of onTabsUpdated')
+            clearInterval(interval)
         }
     }
 }

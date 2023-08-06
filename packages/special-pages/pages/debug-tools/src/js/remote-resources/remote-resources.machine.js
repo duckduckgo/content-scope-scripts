@@ -113,6 +113,9 @@ const _remoteResourcesMachine = createMachine({
                         'set current domain': {
                             actions: ['pushToRoute']
                         },
+                        'clear current domain': {
+                            actions: ['pushToRoute']
+                        },
                         'save new remote': {
                             target: '.saving new remote'
                         }
@@ -306,13 +309,11 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                 const parsed = EditorKind.safeParse(search?.get('editorKind'))
                 if (parsed.success) {
                     if (ctx.currentResource?.editorKinds.includes(parsed.data)) {
-                        console.log('setting from URL')
                         return parsed.data
                     }
                 }
                 {
                     const parsed = EditorKind.safeParse(ctx.currentResource?.editorKinds[0])
-                    console.log('setting from from supported editor kind')
                     if (parsed.success) {
                         return parsed.data
                     }
@@ -401,6 +402,13 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                     pathname,
                     search: next.toString()
                 })
+            } else if (evt.type === 'clear current domain') {
+                next.delete('currentDomain')
+                const pathname = '/remoteResources/' + ctx.currentResource.id
+                ctx.parent.state.context.history.push({
+                    pathname,
+                    search: next.toString()
+                })
             } else {
                 console.warn('could not react to pushToRoute - missing')
             }
@@ -459,8 +467,9 @@ export const CurrentResource = z.object({
 export function tryCreateDomain (input) {
     if (!input) return undefined
     if (typeof input !== 'string') return undefined
+    const [prefix] = input.split('?')
     try {
-        const subject = input.startsWith('http') ? input : 'https://' + input
+        const subject = prefix.startsWith('http') ? prefix : 'https://' + prefix
         const parsed = new URL(subject)
         return parsed.hostname
     } catch (e) {

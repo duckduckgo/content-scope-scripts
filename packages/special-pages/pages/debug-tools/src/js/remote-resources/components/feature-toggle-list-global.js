@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ToggleList } from './toggle-list'
-import { tryCreateDomain } from '../remote-resources.machine'
-import { useMachine } from '@xstate/react'
-import { domainMachine } from '../domain-exceptions.machine'
-import { assign } from 'xstate'
+import { DomainForm } from './domain-form'
 
 /**
  * @typedef {import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
@@ -62,47 +59,14 @@ export function FeatureToggleListGlobal (props) {
  * @param {TabWithHostname[]} props.tabs
  * @param {string|undefined} props.currentDomain
  * @param {(domain: string) => void} props.setCurrentDomain
+ * @param {() => void} props.clearCurrentDomain
  */
-export function FeatureToggleListDomainExceptions2 (props) {
+export function FeatureToggleListDomainExceptions (props) {
     // some local state not stored in xstate (yet)
     const current = props.currentDomain || ''
     const tabs = props.tabs.map(x => x.hostname)
     const uniqueTabs = Array.from(new Set(tabs)).sort()
     const list = domainExceptionsFromJsonString(props.model.getValue(), current)
-
-    const [state, send] = useMachine(domainMachine, {
-        actions: {
-            pushToUrl: (context, event) => {
-                props.setCurrentDomain(event.domain)
-            },
-            assignTabs: assign({
-                domains: (context, event) => {
-                    return event.domains || []
-                },
-                current: (context, event) => {
-                    return event.current || ''
-                }
-            })
-        },
-        services: {},
-        guards: {
-            'has new domain in url': (ctx, event) => {
-                if (ctx.current && ctx.domains.includes(current)) {
-                    return false
-                }
-                return true
-            },
-            'has unique domain': (ctx, event) => {
-                return ctx.current !== event.domain
-            }
-        },
-        delays: {}
-    })
-
-    // console.log('->', state.context.domains)
-    useEffect(() => {
-        send({ type: 'tabs', domains: props.tabs.map(x => x.hostname), current })
-    }, [current, props.tabs])
 
     /**
      * @param {string} key - a feature name, like `duckPlayer`
@@ -123,47 +87,14 @@ export function FeatureToggleListDomainExceptions2 (props) {
         return <p>{list.error}</p>
     }
     return (
-        <div>
-            {state.matches('showing temp domain') && (
-                <>
-                    <p>Showing <code>{state.context.current}</code></p>
-                    <button type="button" onClick={() => send({ type: '👆 edit' })}>Edit</button>
-                </>
-            )}
-            <form>
-                <label>
-                Select from an open tab
-                    <select name="tab-select"
-                        id=""
-                        onChange={(e) => send({ type: '👆 select', domain: e.target.value })}
-                        value={state.matches('showing temp domain') ? 'none' : state.context.current}>
-                        <option disabled value="none">Select from tabs</option>
-                        {uniqueTabs.map((tab) => {
-                            return <option key={tab} value={tab}>{tab}</option>
-                        })}
-                    </select>
-                </label>
-            </form>
-            {state.matches('showing tab selector') && (
-                <button type="button" onClick={() => send({ type: '👆 add new' })}>Enter domain manually</button>
-            )}
-            {(state.matches('editing temp domain') || state.matches('adding a new domain')) && (
-                <form action="" onSubmit={(e) => {
-                    e.preventDefault()
-                    // @ts-expect-error - ts cannot see 'elements'
-                    const value = e.target.elements[0].value
-                    const domain = tryCreateDomain(value)
-                    if (domain) {
-                        send({ type: '💾 update', domain })
-                    }
-                }}>
-                    <label>
-                        <input placeholder="enter a domain" defaultValue={''} autoFocus={true}/>
-                    </label>
-                    <button type="submit">Update</button>
-                    <button type="button" onClick={() => send({ type: 'cancel' })}>Cancel</button>
-                </form>
-            )}
+        <div data-testid="domain-exceptions">
+            <div className="row">
+                <DomainForm current={current}
+                    domains={uniqueTabs}
+                    setCurrentDomain={props.setCurrentDomain}
+                    clearCurrentDomain={props.clearCurrentDomain}
+                />
+            </div>
             <div className="row">
                 <h3>Current Exceptions <small>(features disabled for <code>{current}</code> explicitly)</small></h3>
                 <div className="row">

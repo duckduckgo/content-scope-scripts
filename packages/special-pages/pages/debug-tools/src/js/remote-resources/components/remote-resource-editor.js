@@ -30,6 +30,7 @@ export function RemoteResourceEditor (props) {
     const setToggleKind = (kind) => send({ type: 'set toggle kind', payload: kind })
     /** @type {(domain: string) => void} */
     const setCurrentDomain = (domain) => send({ type: 'set current domain', payload: domain })
+    const clearCurrentDomain = () => send({ type: 'clear current domain' })
     const showOverrideForm = () => send({ type: 'show url editor' })
     const hideOverrideForm = () => send({ type: 'hide url editor' })
     const revertEdited = () => props.model.setValue(originalContents)
@@ -150,6 +151,7 @@ export function RemoteResourceEditor (props) {
                     onToggleKind={setToggleKind}
                     tabs={tabs}
                     setCurrentDomain={setCurrentDomain}
+                    clearCurrentDomain={clearCurrentDomain}
                     currentDomain={currentDomain}
                 />}
             </div>

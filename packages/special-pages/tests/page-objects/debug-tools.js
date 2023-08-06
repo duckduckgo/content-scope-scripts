@@ -1,13 +1,14 @@
 import { expect } from '@playwright/test'
 import { Mocks } from './mocks.js'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
-import { mockErrors } from '@duckduckgo/messaging/lib/test-utils.mjs'
+import { mockErrors, mockResponses } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { readFileSync } from 'node:fs'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').PlatformInfo} PlatformInfo
  * @typedef {import('../../pages/debug-tools/schema/__generated__/schema.types').GetFeaturesResponse} GetFeaturesResponse
+ * @typedef {import('../../pages/debug-tools/schema/__generated__/schema.types').GetTabsResponse} GetTabsResponse
  * @typedef {import('../../pages/debug-tools/schema/__generated__/schema.types').RemoteResource} RemoteResource
  */
 
@@ -37,8 +38,14 @@ export class DebugToolsPage {
             togglesEditor: () => page.getByTestId('TogglesEditor'),
             globalToggleList: () => page.getByTestId('FeatureToggleListGlobal'),
             featureToggle: (named) => page.getByLabel('toggle ' + named),
+            domainExceptionAddButton: () => page.getByRole('button', { name: 'Add a domain' }),
             domainExceptionInput: () => page.getByPlaceholder('enter a domain'),
-            domainExceptionToggles: () => page.getByTestId('domain-exceptions')
+            domainExceptionUpdate: () => page.getByRole('button', { name: 'Update' }),
+            domainExceptionToggles: () => page.getByTestId('domain-exceptions'),
+            domainExceptionsTab: () => page.locator('label').filter({ hasText: 'Domain Exceptions' }),
+            tabSelector: () => page.getByLabel('Select from an open tab'),
+            singleTabButton: (domain) => page.getByLabel('Use open tab domain:' + domain),
+            domainFormShowing: () => page.getByTestId('DomainForm.showing')
         }
     }
 
@@ -91,8 +98,14 @@ export class DebugToolsPage {
             }
         }
 
+        /** @type {GetTabsResponse} */
+        const getTabs = {
+            tabs: []
+        }
+
         this.mocks.defaultResponses({
             getFeatures,
+            getTabs,
             updateResource: {
                 ...resource,
                 current: {
@@ -114,8 +127,6 @@ export class DebugToolsPage {
      */
     async openPage (urlParams) {
         const url = this.basePath + '?' + urlParams.toString()
-        await this.installRemoteMocks()
-        await this.mocks.install()
         await this.page.goto(url)
     }
 
@@ -316,6 +327,10 @@ export class DebugToolsPage {
         if (kind === 'global') {
             await this.locators.editorToggle().selectOption('diff')
             await this.locators.diffEditorModified().waitFor()
+        } else if (kind === 'domain-exceptions') {
+            await this.locators.editorToggle().selectOption('toggles')
+            await this.locators.domainExceptionsTab().click()
+            await this.locators.domainExceptionToggles().waitFor()
         } else {
             throw new Error('unreachable')
         }
@@ -373,18 +388,77 @@ export class DebugToolsPage {
         expect(json.features[featureName].state).toBe('enabled')
     }
 
-    /**
-     * @param {string | Record<string, any>} contents
-     * @param {string} featureName
-     */
-    domainExceptionAddedFor (contents, featureName, domain) {
-        const json = typeof contents === 'string' ? JSON.parse(contents) : contents
-        expect(json.features[featureName].state).toBe('enabled')
-    }
-
     async togglesDomainException (buttonText, domain) {
         await this.locators.domainExceptionInput().fill(domain)
+        await this.locators.domainExceptionUpdate().click()
+
+        // now click the toggle
         await this.locators.domainExceptionToggles()
             .locator(this.page.getByRole('button', { name: buttonText })).click()
+    }
+
+    /**
+     * @param {string} contents
+     * @param {string} featureName
+     * @param {string} domain
+     */
+    featureWasDisabledForDomain (contents, featureName, domain) {
+        const json = typeof contents === 'string' ? JSON.parse(contents) : contents
+        const exception = json.features[featureName].exceptions.find(x => x.domain === domain)
+        expect(exception.reason).toBe('debug tools')
+    }
+
+    async addFirstDomain () {
+        await this.locators.domainExceptionAddButton().click()
+    }
+
+    /**
+     * @param {GetTabsResponse} params
+     */
+    async withTabsResponse (params) {
+        await this.page.addInitScript(mockResponses, {
+            responses: {
+                getTabs: params
+            }
+        })
+    }
+
+    async enabled () {
+        await this.installRemoteMocks()
+        await this.mocks.install()
+    }
+
+    /**
+     * @param {string} domain
+     */
+    async selectTab (domain) {
+        await this.locators.tabSelector().selectOption(domain)
+    }
+
+    /**
+     * @param {string} domain
+     */
+    async chooseTheOnlyOpenTab (domain) {
+        await this.locators.singleTabButton(domain).click()
+    }
+
+    /**
+     * @param {string} domain
+     */
+    async currentDomainIsStoredInUrl (domain) {
+        await this.page.waitForFunction(({ expected }) => {
+            const hash = new URL(window.location.href).hash
+            const [, search] = hash.split('?')
+            const params = new URLSearchParams(search)
+            const currentDomain = params.get('currentDomain')
+            return currentDomain === expected
+        }, { expected: domain })
+    }
+
+    /**
+     * @param {string} domain
+     */
+    async exceptionsForCurrentDomainShown (domain) {
+        await this.locators.domainFormShowing().filter({ hasText: domain }).waitFor()
     }
 }
