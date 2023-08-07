@@ -33,7 +33,10 @@ export async function buildTypes(mapping = defaultMapping) {
             /**
              * @module ${featureName} Schema
              * @description 
-             * These types are auto-generated from schema files within https://github.com/duckduckgo/privacy-configuration
+             * These types are auto-generated from schema files.
+             * scripts/build-types.mjs is responsible for type generation.
+             * See the privacy-configuration repo for the schema files:
+             * https://github.com/duckduckgo/privacy-configuration
              * **DO NOT** edit this file directly as your changes will be lost.
              */
             `
