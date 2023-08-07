@@ -9,14 +9,14 @@
           "youtube": {
             "state": "disabled",
             "selectors": {
-              "thumbLink": "a[href^='/watch']:has(img)",
+              "thumbLink": "a[href^='/watch']",
               "excludedRegions": [
                 "#playlist"
               ],
               "videoElement": "#player video",
               "videoElementContainer": "#player .html5-video-player",
-              "hoverExcluded": [".ytd-consent-bump-v2-lightbox", "ytd-consent-bump-v2-lightbox"],
-              "clickExcluded": [".ytd-consent-bump-v2-lightbox", "ytd-consent-bump-v2-lightbox"]
+              "hoverExcluded": [".an-overlay-causing-breakage"],
+              "clickExcluded": [".an-overlay-causing-breakage"]
             },
             "thumbnailOverlays": {
               "state": "enabled"

@@ -59,6 +59,20 @@ export class Thumbnails {
 
             parentNode.addEventListener('click', clickHandler, true)
 
+            const removeOverlay = () => {
+                const overlay = icon.getHoverOverlay()
+                if (overlay) {
+                    icon.hideOverlay(overlay)
+                    icon.hoverOverlayVisible = false
+                }
+            }
+
+            const appendOverlay = (element) => {
+                if (element && element.isConnected) {
+                    icon.moveHoverOverlayToVideoElement(element)
+                }
+            }
+
             // detect hovers and decide to show hover icon, or not
             const mouseOverHandler = (e) => {
                 if (clicked) return
@@ -67,22 +81,29 @@ export class Thumbnails {
 
                 // if it's not an element we care about, bail early and remove the overlay
                 if (!hoverElement || !validLink) {
-                    const overlay = icon.getHoverOverlay()
-                    if (overlay) {
-                        icon.hideOverlay(overlay)
-                        icon.hoverOverlayVisible = false
-                    }
-                    return
+                    return removeOverlay()
                 }
 
-                // also ensure it doesn't contain sub-links
+                // ensure it doesn't contain sub-links
                 if (hoverElement.querySelector('a[href]')) {
-                    return
+                    return removeOverlay()
                 }
 
-                // if we get here, we're confident that we can link to this video + it's a valid element to append to
-                if (validLink) {
-                    icon.moveHoverOverlayToVideoElement(hoverElement)
+                // only add Dax when this link also contained an img
+                if (!hoverElement.querySelector('img')) {
+                    return removeOverlay()
+                }
+
+                // if the hover target is the match, or contains the match, all good
+                if (e.target === hoverElement || hoverElement?.contains(e.target)) {
+                    return appendOverlay(hoverElement)
+                }
+
+                // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
+                // that we know to be a thumbnail overlay, like a preview
+                const matched = selectors.allowedEventTargets.find(css => e.target.matches(css))
+                if (matched) {
+                    appendOverlay(hoverElement)
                 }
             }
 
@@ -121,13 +142,30 @@ export class ClickInterception {
             const parentNode = document.documentElement || document.body
 
             const clickHandler = (e) => {
-                const clickedElement = findElementFromEvent(selectors.thumbLink, selectors.clickExcluded, e)
-                const validLink = isValidLink(clickedElement, this.settings)
+                const elementInStack = findElementFromEvent(selectors.thumbLink, selectors.clickExcluded, e)
+                const validLink = isValidLink(elementInStack, this.settings)
 
-                if (validLink) {
+                const block = (href) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    this.messages.openDuckPlayer({ href: validLink })
+                    this.messages.openDuckPlayer({ href })
+                }
+
+                // if there's no match, return early
+                if (!validLink) {
+                    return
+                }
+
+                // if the hover target is the match, or contains the match, all good
+                if (e.target === elementInStack || elementInStack?.contains(e.target)) {
+                    return block(validLink)
+                }
+
+                // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
+                // that we know to be a thumbnail overlay, like a preview
+                const matched = selectors.allowedEventTargets.find(css => e.target.matches(css))
+                if (matched) {
+                    block(validLink)
                 }
             }
 
@@ -154,14 +192,21 @@ function findElementFromEvent (selector, excludedSelectors, e) {
     /** @type {HTMLElement | null} */
     let matched = null
 
+    const fastPath = excludedSelectors.length === 0
+
+    // console.log('element stack', document.elementsFromPoint(e.clientX, e.clientY))
     for (const element of document.elementsFromPoint(e.clientX, e.clientY)) {
-        // bail early if this item was excluded anywhere in the stack
+        // bail early if this item was excluded anywhere in the element stack
         if (excludedSelectors.some(ex => element.matches(ex))) {
             return null
         }
+
         // we cannot return this immediately, because another element in the stack
         // might have been excluded
         if (element.matches(selector)) {
+            // in lots of cases we can just return the element as soon as it's found, to prevent
+            // checking the entire stack
+            if (fastPath) return matched
             matched = /** @type {HTMLElement} */(element)
         }
     }

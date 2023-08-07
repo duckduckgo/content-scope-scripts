@@ -9,7 +9,7 @@
           "youtube": {
             "state": "disabled",
             "selectors": {
-              "thumbLink": "a[href^='/watch']:has(img)",
+              "thumbLink": "a[href^='/watch']",
               "excludedRegions": [
                 "#playlist"
               ],

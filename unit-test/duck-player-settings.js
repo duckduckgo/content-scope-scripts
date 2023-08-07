@@ -13,7 +13,8 @@ describe('Duck Player - settings', () => {
                 videoElement: '#player video',
                 videoElementContainer: '#player .html5-video-player',
                 clickExcluded: [],
-                hoverExcluded: []
+                hoverExcluded: [],
+                allowedEventTargets: []
             },
             thumbnailOverlays: {
                 state: 'enabled'
@@ -36,7 +37,8 @@ describe('Duck Player - settings', () => {
                 videoElement: '#player video',
                 videoElementContainer: '#player .html5-video-player',
                 clickExcluded: [],
-                hoverExcluded: []
+                hoverExcluded: [],
+                allowedEventTargets: []
             },
             thumbnailOverlays: {
                 state: 'enabled'

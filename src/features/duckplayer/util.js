@@ -285,7 +285,8 @@ export function validateSettings (input) {
             videoElement: input.selectors?.videoElement || '#player video',
             videoElementContainer: input.selectors?.videoElementContainer || '#player .html5-video-player',
             clickExcluded: input.selectors?.clickExcluded || [],
-            hoverExcluded: input.selectors?.hoverExcluded || []
+            hoverExcluded: input.selectors?.hoverExcluded || [],
+            allowedEventTargets: input.selectors?.allowedEventTargets || []
         },
         thumbnailOverlays: {
             state: input.thumbnailOverlays?.state || 'enabled'
