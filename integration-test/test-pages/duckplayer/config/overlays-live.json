@@ -7,7 +7,24 @@
       "settings": {
         "overlays": {
           "youtube": {
-            "state": "disabled"
+            "state": "disabled",
+            "selectors": {
+              "thumbLink": "a[href^='/watch']:has(img)",
+              "excludedRegions": [
+                "#playlist"
+              ],
+              "videoElement": "#player video",
+              "videoElementContainer": "#player .html5-video-player"
+            },
+            "thumbnailOverlays": {
+              "state": "enabled"
+            },
+            "clickInterception": {
+              "state": "enabled"
+            },
+            "videoOverlays": {
+              "state": "enabled"
+            }
           },
           "serpProxy": {
             "state": "disabled"

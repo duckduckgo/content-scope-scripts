@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import { mockWindowsMessaging, wrapWindowsScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from './type-helpers.mjs'
+import { windowsGlobalPolyfills } from './shared.mjs'
 
 test.skip('Harmful APIs protections', async ({ page }, testInfo) => {
     const protection = HarmfulApisSpec.create(page, testInfo)
@@ -75,29 +76,7 @@ export class HarmfulApisSpec {
      * version of chromium running there.
      */
     async installPolyfills () {
-        await this.page.addInitScript(() => {
-            // @ts-expect-error - testing
-            if (typeof Bluetooth === 'undefined') {
-                globalThis.Bluetooth = {}
-                globalThis.Bluetooth.prototype = { requestDevice: async () => { /* noop */ } }
-            }
-            // @ts-expect-error - testing
-            if (typeof USB === 'undefined') {
-                globalThis.USB = {}
-                globalThis.USB.prototype = { requestDevice: async () => { /* noop */ } }
-            }
-
-            // @ts-expect-error - testing
-            if (typeof Serial === 'undefined') {
-                globalThis.Serial = {}
-                globalThis.Serial.prototype = { requestPort: async () => { /* noop */ } }
-            }
-            // @ts-expect-error - testing
-            if (typeof HID === 'undefined') {
-                globalThis.HID = {}
-                globalThis.HID.prototype = { requestDevice: async () => { /* noop */ } }
-            }
-        })
+        await this.page.addInitScript(windowsGlobalPolyfills)
     }
 
     /**

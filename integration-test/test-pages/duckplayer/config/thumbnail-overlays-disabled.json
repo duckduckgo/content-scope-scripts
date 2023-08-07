@@ -17,7 +17,7 @@
               "videoElementContainer": "#player .html5-video-player"
             },
             "thumbnailOverlays": {
-              "state": "enabled"
+              "state": "disabled"
             },
             "clickInterception": {
               "state": "enabled"

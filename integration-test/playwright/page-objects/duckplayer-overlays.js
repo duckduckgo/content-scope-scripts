@@ -7,6 +7,7 @@ import {
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { expect } from '@playwright/test'
 import { perPlatform } from '../type-helpers.mjs'
+import { windowsGlobalPolyfills } from '../shared.mjs'
 
 // Every possible combination of UserValues
 const userValues = {
@@ -32,9 +33,21 @@ const userValues = {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const configFiles = /** @type {const} */([
+    'overlays.json',
+    'overlays-live.json',
+    'disabled.json',
+    'thumbnail-overlays-disabled.json',
+    'click-interceptions-disabled.json',
+    'video-overlays-disabled.json',
+    'video-alt-selectors.json'
+])
+
 export class DuckplayerOverlays {
     overlaysPage = '/duckplayer/pages/overlays.html'
     playerPage = '/duckplayer/pages/player.html'
+    videoAltSelectors = '/duckplayer/pages/video-alt-selectors.html'
     serpProxyPage = '/duckplayer/pages/serp-proxy.html'
     /**
      * @param {import("@playwright/test").Page} page
@@ -54,10 +67,38 @@ export class DuckplayerOverlays {
         await this.page.goto(this.overlaysPage)
     }
 
-    async gotoYoutubeHomepage () {
-        await this.page.goto('https://www.youtube.com')
+    async dismissCookies () {
         // cookie banner
         await this.page.getByRole('button', { name: 'Reject the use of cookies and other data for the purposes described' }).click()
+    }
+
+    async gotoYoutubeHomepage () {
+        await this.page.goto('https://www.youtube.com')
+        // await this.dismissCookies()
+    }
+
+    async gotoYoutubeVideo () {
+        await this.page.goto('https://www.youtube.com/watch?v=nfWlot6h_JM')
+        // await this.dismissCookies()
+    }
+
+    async gotoYoutubeSearchPAge () {
+        await this.page.goto('https://www.youtube.com/results?search_query=taylor+swift')
+        // await this.dismissCookies()
+    }
+
+    /**
+     * @return {Promise<string>}
+     */
+    async clicksFirstThumbnail () {
+        const elem = await this.page.locator('a[href^="/watch?v"]:has(img)').first()
+        const link = await elem.getAttribute('href')
+        if (!link) throw new Error('link must exist')
+        await elem.click({ force: true })
+        const url = new URL(link, 'https://youtube.com')
+        const v = url.searchParams.get('v')
+        if (!v) throw new Error('v param must exist')
+        return v
     }
 
     async clicksFirstShortsThumbnail () {
@@ -66,6 +107,17 @@ export class DuckplayerOverlays {
 
     async showsShortsPage () {
         await this.page.waitForURL(/^https:\/\/www\.youtube\.com\/shorts/, { timeout: 5000 })
+    }
+
+    /**
+     */
+    async showsVideoPageFor (videoID) {
+        await this.page.waitForURL((url) => {
+            if (url.pathname === '/watch') {
+                if (url.searchParams.get('v') === videoID) return true
+            }
+            return false
+        }, { timeout: 1000 })
     }
 
     /**
@@ -79,16 +131,20 @@ export class DuckplayerOverlays {
     /**
      * @param {object} [params]
      * @param {"default" | "incremental-dom"} [params.variant]
+     * @param {string} [params.videoID]
+     * @param {'playerPage' | 'videoAltSelectors'} [params.pageType]
      *  - we are replicating different strategies in the HTML to capture regressions/bugs
      */
     async gotoPlayerPage (params = {}) {
-        const { variant = 'default' } = params
+        const { variant = 'default', videoID = '123', pageType = 'playerPage' } = params
         const urlParams = new URLSearchParams([
-            ['videoID', '123'],
+            ['v', videoID],
             ['variant', variant]
         ])
 
-        await this.page.goto(this.playerPage + '?' + urlParams.toString())
+        const page = this[pageType]
+
+        await this.page.goto(page + '?' + urlParams.toString())
     }
 
     async gotoSerpProxyPage () {
@@ -118,22 +174,42 @@ export class DuckplayerOverlays {
             .waitFor({ timeout: 100 })
     }
 
+    /**
+     * @param {object} [params]
+     * @param {string} [params.videoID]
+     */
+    async hasWatchLinkFor (params = {}) {
+        const { videoID = '123' } = params
+        const link = await this.page.getByRole('link', { name: 'Watch in Duck Player' }).getAttribute('href')
+        expect(link).toEqual('duck://player/' + videoID)
+    }
+
+    /**
+     * @param {object} [params]
+     * @param {string} [params.videoID]
+     */
+    async clickRelatedThumb (params = {}) {
+        const { videoID = '123' } = params
+        await this.page.locator(`a[href="/watch?v=${videoID}"]`).click({ force: true })
+        await this.page.waitForURL((url) => url.searchParams.get('v') === videoID)
+    }
+
     async smallOverlayShows () {
         await this.page.getByRole('link', { name: 'Duck Player', exact: true }).waitFor({ state: 'attached' })
     }
 
     /**
      * @param {object} [params]
-     * @param {'overlays' | 'overlays-live'} [params.json="overlays"] - default is settings for localhost
+     * @param {configFiles[number]} [params.json="overlays"] - default is settings for localhost
      */
-    async overlaysEnabled (params = {}) {
-        const { json = 'overlays' } = params
+    async withRemoteConfig (params = {}) {
+        const { json = 'overlays.json' } = params
 
         await this.setup({ config: loadConfig(json) })
     }
 
     async serpProxyEnabled () {
-        const config = loadConfig('overlays')
+        const config = loadConfig('overlays.json')
         const domains = config.features.duckPlayer.settings.domains[0].patchSettings
         config.features.duckPlayer.settings.domains[0].patchSettings = domains.filter(x => x.path === '/overlays/serpProxy/state')
         await this.setup({ config })
@@ -173,14 +249,21 @@ export class DuckplayerOverlays {
 
     async overlaysDisabled () {
         // load original config
-        const config = loadConfig('overlays')
+        const config = loadConfig('overlays.json')
         // remove all domains from 'overlays', this disables the feature
         config.features.duckPlayer.settings.domains = []
         await this.setup({ config })
     }
 
     async hoverAThumbnail () {
-        await this.page.locator('.thumbnail[href="/watch?v=1"]').first().hover()
+        await this.page.locator('.thumbnail[href^="/watch"]').first().hover()
+    }
+
+    /**
+     * @param {string} regionSelector
+     */
+    async hoverAThumbnailInExcludedRegion (regionSelector) {
+        await this.page.locator(`${regionSelector} a[href^="/watch"]`).first().hover()
     }
 
     async hoverAYouTubeThumbnail () {
@@ -202,6 +285,12 @@ export class DuckplayerOverlays {
         await this.page.locator('.ddg-play-privately').waitFor({ state: 'attached', timeout: 1000 })
     }
 
+    async secondOverlayExistsOnVideo () {
+        const elements = await this.page.$$('.ddg-play-privately')
+        expect(elements.length).toBe(2)
+        await this.page.locator('#player .html5-video-player .ddg-overlay[data-size="video-player"]').waitFor({ timeout: 1000 })
+    }
+
     async overlaysDontShow () {
         const elements = await this.page.locator('.ddg-overlay.ddg-overlay-hover').count()
 
@@ -214,7 +303,8 @@ export class DuckplayerOverlays {
                 }
                 return ''
             })
-            expect(style).toEqual('none')
+
+            expect(style).not.toEqual('block')
         }
 
         // if we get here, the element was absent
@@ -245,9 +335,10 @@ export class DuckplayerOverlays {
      * To say 'our player loads' means to verify that the correct message is communicated
      * to native platforms
      *
+     * @param {string} id
      * @return {Promise<void>}
      */
-    async playerLoadsForCorrectVideo () {
+    async duckPlayerLoadsFor (id) {
         const messages = await this.waitForMessage('openDuckPlayer')
         expect(messages).toMatchObject([
             {
@@ -255,7 +346,7 @@ export class DuckplayerOverlays {
                     context: this.messagingContext,
                     featureName: 'duckPlayer',
                     params: {
-                        href: 'duck://player/1'
+                        href: 'duck://player/' + id
                     },
                     method: 'openDuckPlayer'
                 }
@@ -273,6 +364,19 @@ export class DuckplayerOverlays {
      */
     async setup (params) {
         const { config } = params
+
+        await this.build.switch({
+            windows: async () => {
+                /**
+                 * In CI, the global objects such as USB might not be installed on the
+                 * version of chromium running there.
+                 */
+                await this.page.addInitScript(windowsGlobalPolyfills)
+            },
+            'apple-isolated': async () => {
+                // noop
+            }
+        })
 
         // read the built file from disk and do replacements
         const wrapFn = this.build.switch({
@@ -383,9 +487,9 @@ export class DuckplayerOverlays {
 }
 
 /**
- * @param {"overlays" | "overlays-live"} name
+ * @param {configFiles[number]} name
  * @return {Record<string, any>}
  */
 function loadConfig (name) {
-    return JSON.parse(readFileSync(`./integration-test/test-pages/duckplayer/config/${name}.json`, 'utf8'))
+    return JSON.parse(readFileSync(`./integration-test/test-pages/duckplayer/config/${name}`, 'utf8'))
 }

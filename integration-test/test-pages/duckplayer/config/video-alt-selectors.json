@@ -13,8 +13,8 @@
               "excludedRegions": [
                 "#playlist"
               ],
-              "videoElement": "#player video",
-              "videoElementContainer": "#player .html5-video-player"
+              "videoElement": "#TEST_CUSTOM_ID video",
+              "videoElementContainer": "#TEST_CUSTOM_ID .TEST_CUSTOM_HTML_5_WRAPPER_DIV"
             },
             "thumbnailOverlays": {
               "state": "enabled"

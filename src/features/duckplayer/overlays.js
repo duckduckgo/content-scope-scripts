@@ -1,352 +1,126 @@
-import css from './assets/styles.css'
+import { DomState } from './util.js'
+import { ClickInterception, Thumbnails } from './thumbnails.js'
 import { VideoOverlayManager } from './video-overlay-manager.js'
-import { IconOverlay } from './icon-overlay.js'
-import { addTrustedEventListener, appendElement, DomState, VideoParams } from './util.js'
 import { registerCustomElements } from './components/index.js'
 
 /**
- * @param {Environment} environment - methods to read environment-sensitive things like the current URL etc
- * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms - methods to communicate with a native backend
+ * @param {import("../duck-player.js").OverlaysFeatureSettings} settings - methods to read environment-sensitive things like the current URL etc
+ * @param {import("./overlays.js").Environment} environment - methods to read environment-sensitive things like the current URL etc
+ * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} messages - methods to communicate with a native backend
  */
-export async function initOverlays (environment, comms) {
-    /**
-     * If we get here it's safe to register our custom elements
-     */
-    registerCustomElements()
-    /**
-     * Entry point. Until this returns with initial user values, we cannot continue.
-     */
+export async function initOverlays (settings, environment, messages) {
+    // bind early to attach all listeners
+    const domState = new DomState()
+
+    /** @type {import("../duck-player.js").UserValues} */
     let userValues
     try {
-        userValues = await comms.getUserValues()
+        userValues = await messages.getUserValues()
     } catch (e) {
         console.error(e)
         return
     }
 
-    const videoPlayerOverlay = new VideoOverlayManager(userValues, environment, comms)
-    videoPlayerOverlay.handleFirstPageLoad()
-
-    const domState = new DomState()
-
-    // give access to macos communications
-    // todo: make this a class + constructor arg
-    IconOverlay.setComms(comms)
-
-    comms.onUserValuesChanged((userValues) => {
-        videoPlayerOverlay.userValues = userValues
-        videoPlayerOverlay.watchForVideoBeingAdded({ via: 'user notification', ignoreCache: true })
-
-        if ('disabled' in userValues.privatePlayerMode) {
-            AllIconOverlays.disable()
-            OpenInDuckPlayer.disable()
-        } else if ('enabled' in userValues.privatePlayerMode) {
-            AllIconOverlays.disable()
-            OpenInDuckPlayer.enable()
-        } else if ('alwaysAsk' in userValues.privatePlayerMode) {
-            AllIconOverlays.enable()
-            OpenInDuckPlayer.disable()
-        }
-    } /* userValues */)
-
-    const CSS = {
-        styles: css,
-        /**
-         * Initialize the CSS by adding it to the page in a <style> tag
-         */
-        init: () => {
-            const style = document.createElement('style')
-            style.textContent = CSS.styles
-            appendElement(document.head, style)
-        }
+    if (!userValues) {
+        console.error('cannot continue without user settings')
+        return
     }
 
-    const VideoThumbnail = {
-        hoverBoundElements: new WeakMap(),
+    /**
+     * Create the instance - this might fail if settings or user preferences prevent it
+     * @type {Thumbnails|undefined}
+     */
+    let thumbnails = thumbnailsFeatureFromSettings(userValues, settings, messages, environment)
+    let videoOverlays = videoOverlaysFeatureFromSettings(userValues, settings, messages, environment)
 
-        isSingleVideoURL: (href) => {
-            return href && (
-                (href.includes('/watch?v=') && !href.includes('&list=')) ||
-                (href.includes('/watch?v=') && href.includes('&list=') && href.includes('&index='))
-            ) && !href.includes('&pp=') // exclude movies for rent
-        },
+    if (thumbnails || videoOverlays) {
+        if (videoOverlays) {
+            registerCustomElements()
+            videoOverlays?.init('page-load')
+        }
+        domState.onLoaded(() => {
+            // start initially
+            thumbnails?.init()
 
-        /**
-         * Find all video thumbnails on the page
-         * @returns {array} array of videoElement(s)
-         */
-        findAll: () => {
-            const linksToVideos = item => {
-                const href = item.getAttribute('href')
-                return VideoThumbnail.isSingleVideoURL(href)
-            }
-
-            const linksWithImages = item => {
-                return item.querySelector('img')
-            }
-
-            const linksWithoutSubLinks = item => {
-                return !item.querySelector('a[href^="/watch?v="]')
-            }
-
-            const linksNotInVideoPreview = item => {
-                const linksInVideoPreview = Array.from(document.querySelectorAll('#preview a'))
-
-                return linksInVideoPreview.indexOf(item) === -1
-            }
-
-            const linksNotAlreadyBound = item => {
-                return !VideoThumbnail.hoverBoundElements.has(item)
-            }
-
-            return Array.from(document.querySelectorAll('a[href^="/watch?v="]'))
-                .filter(linksNotAlreadyBound)
-                .filter(linksToVideos)
-                .filter(linksWithoutSubLinks)
-                .filter(linksNotInVideoPreview)
-                .filter(linksWithImages)
-        },
-
-        /**
-         * Bind hover events and make sure hovering the video will correctly show the hover
-         * overlay and mouse-out will hide it.
-         */
-        bindEvents: (video) => {
-            if (video) {
-                const before = video.href
-                addTrustedEventListener(video, 'mouseover', () => {
-                    // don't allow the hover overlay to be shown if the video has changed
-                    // this can occur with 'shorts'
-                    if (video.href !== before) {
-                        if (!VideoThumbnail.isSingleVideoURL(video.href)) {
-                            return
-                        }
+            // now add video overlay specific stuff
+            if (videoOverlays) {
+                // there was an issue capturing history.pushState, so just falling back to
+                let prev = globalThis.location.href
+                setInterval(() => {
+                    if (globalThis.location.href !== prev) {
+                        videoOverlays?.init('href-changed')
                     }
-                    IconOverlay.moveHoverOverlayToVideoElement(video)
-                })
-
-                addTrustedEventListener(video, 'mouseout', IconOverlay.hideHoverOverlay)
-
-                VideoThumbnail.hoverBoundElements.set(video, true)
+                    prev = globalThis.location.href
+                }, 500)
             }
-        },
-
-        /**
-         * Bind events to all video thumbnails on the page (that hasn't already been bound)
-         */
-        bindEventsToAll: () => {
-            VideoThumbnail.findAll().forEach(VideoThumbnail.bindEvents)
-        }
+        })
     }
 
-    const Preview = {
-        previewContainer: false,
+    function update () {
+        thumbnails?.destroy()
+        videoOverlays?.destroy()
 
-        /**
-         * Get the video hover preview link
-         * @returns {HTMLElement | null | undefined}
-         */
-        getPreviewVideoLink: () => {
-            const linkSelector = 'a[href^="/watch?v="]'
-            const previewVideo = document.querySelector('#preview ' + linkSelector + ' video')
+        // re-create thumbs
+        thumbnails = thumbnailsFeatureFromSettings(userValues, settings, messages, environment)
+        thumbnails?.init()
 
-            return previewVideo?.closest(linkSelector)
-        },
-
-        /**
-         * Append icon overlay to the video hover preview unless it's already been appended
-         * @returns {HTMLElement|boolean}
-         */
-        appendIfNotAppended: () => {
-            const previewVideo = Preview.getPreviewVideoLink()
-
-            if (previewVideo) {
-                return IconOverlay.appendToVideo(previewVideo)
-            }
-
-            return false
-        },
-
-        /**
-         * Updates the icon overlay to use the correct video url in the preview hover link whenever it is hovered
-         */
-        update: () => {
-            const updateOverlayVideoId = (element) => {
-                const overlay = element?.querySelector('.ddg-overlay')
-                const href = element?.getAttribute('href')
-                if (href) {
-                    const privateUrl = VideoParams.fromPathname(href)?.toPrivatePlayerUrl()
-                    if (overlay && privateUrl) {
-                        overlay.querySelector('a.ddg-play-privately')?.setAttribute('href', privateUrl)
-                    }
-                }
-            }
-
-            const videoElement = Preview.getPreviewVideoLink()
-
-            updateOverlayVideoId(videoElement)
-        },
-
-        /**
-         * YouTube does something weird to links added within ytd-app. Needs to set this up to
-         * be able to make the preview link clickable.
-         */
-        fixLinkClick: () => {
-            const previewLink = Preview.getPreviewVideoLink()?.querySelector('a.ddg-play-privately')
-            if (!previewLink) return
-            addTrustedEventListener(previewLink, 'click', () => {
-                const href = previewLink?.getAttribute('href')
-                if (href) {
-                    environment.setHref(href)
-                }
-            })
-        },
-
-        /**
-         * Initiate the preview hover overlay
-         */
-        init: () => {
-            const appended = Preview.appendIfNotAppended()
-
-            if (appended) {
-                Preview.fixLinkClick()
-            } else {
-                Preview.update()
-            }
-        }
+        // re-create video overlay
+        videoOverlays = videoOverlaysFeatureFromSettings(userValues, settings, messages, environment)
+        videoOverlays?.init('preferences-changed')
     }
 
-    const AllIconOverlays = {
-        enabled: false,
-        hasBeenEnabled: false,
+    /**
+     * Continue to listen for updated preferences and try to re-initiate
+     */
+    messages.onUserValuesChanged(_userValues => {
+        userValues = _userValues
+        update()
+    })
+}
 
-        enableOnDOMLoaded: () => {
-            domState.onLoaded(() => {
-                AllIconOverlays.enable()
-            })
-        },
+/**
+ * @param {import("../duck-player.js").UserValues} userPreferences
+ * @param {import("../duck-player.js").OverlaysFeatureSettings} settings
+ * @param {import("../duck-player.js").DuckPlayerOverlayMessages} messages
+ * @param {Environment} environment
+ * @returns {Thumbnails | ClickInterception | undefined}
+ */
+function thumbnailsFeatureFromSettings (userPreferences, settings, messages, environment) {
+    const showThumbs = 'alwaysAsk' in userPreferences.privatePlayerMode && settings.thumbnailOverlays.state === 'enabled'
+    const interceptClicks = 'enabled' in userPreferences.privatePlayerMode && settings.clickInterception.state === 'enabled'
 
-        enable: () => {
-            if (!AllIconOverlays.hasBeenEnabled) {
-                CSS.init()
-
-                domState.onChanged(() => {
-                    if (AllIconOverlays.enabled) {
-                        VideoThumbnail.bindEventsToAll()
-                        Preview.init()
-                    }
-
-                    videoPlayerOverlay.watchForVideoBeingAdded({ via: 'mutation observer' })
-                })
-
-                window.addEventListener('resize', IconOverlay.repositionHoverOverlay)
-
-                window.addEventListener('scroll', IconOverlay.hidePlaylistOverlayOnScroll, true)
-            }
-
-            IconOverlay.appendHoverOverlay()
-            VideoThumbnail.bindEventsToAll()
-
-            AllIconOverlays.enabled = true
-            AllIconOverlays.hasBeenEnabled = true
-        },
-
-        disable: () => {
-            AllIconOverlays.enabled = false
-            IconOverlay.removeAll()
-        }
+    if (showThumbs) {
+        return new Thumbnails({
+            environment,
+            settings,
+            messages
+        })
+    }
+    if (interceptClicks) {
+        return new ClickInterception({
+            environment,
+            settings,
+            messages
+        })
     }
 
-    const OpenInDuckPlayer = {
-        clickBoundElements: new Map(),
-        enabled: false,
-        /** @type {string|null} */
-        lastMouseOver: null,
-        bindEventsToAll: () => {
-            if (!OpenInDuckPlayer.enabled) {
-                return
-            }
+    return undefined
+}
 
-            const videoLinksAndPreview = Array.from(document.querySelectorAll('a[href^="/watch?v="], #media-container-link'))
-            const isValidVideoLinkOrPreview = (element) => {
-                return VideoThumbnail.isSingleVideoURL(element?.getAttribute('href')) ||
-                    element.getAttribute('id') === 'media-container-link'
-            }
-            videoLinksAndPreview
-                .forEach((/** @type {HTMLElement|HTMLAnchorElement} */element) => {
-                    // bail when this element was already seen
-                    if (OpenInDuckPlayer.clickBoundElements.has(element)) return
+/**
+ * @param {import("../duck-player.js").UserValues} userValues
+ * @param {import("../duck-player.js").OverlaysFeatureSettings} settings
+ * @param {import("../duck-player.js").DuckPlayerOverlayMessages} messages
+ * @param {import("./overlays.js").Environment} environment
+ * @returns {VideoOverlayManager | undefined}
+ */
+function videoOverlaysFeatureFromSettings (userValues, settings, messages, environment) {
+    if (settings.videoOverlays.state !== 'enabled') return undefined
 
-                    // bail if it's not a valid element
-                    if (!isValidVideoLinkOrPreview(element)) return
-
-                    function handler (event) {
-                        /**
-                         * Opening in Duck Player, preventing normal navigation
-                         */
-                        function openInDuckPlayer (href) {
-                            event.preventDefault()
-                            event.stopPropagation()
-                            comms.openDuckPlayer({ href })
-                        }
-
-                        // select either closest `a` or defer to element.href
-                        const targetValue = event.target.closest('a')?.href || /** @type {HTMLAnchorElement} */(element).href
-                        const validPrivatePlayerUrl = VideoParams.fromHref(targetValue)?.toPrivatePlayerUrl()
-
-                        if (validPrivatePlayerUrl) {
-                            return openInDuckPlayer(validPrivatePlayerUrl)
-                        }
-                    }
-
-                    element.addEventListener('click', handler, true)
-
-                    // store the handler for removal later (eg: if settings change)
-                    OpenInDuckPlayer.clickBoundElements.set(element, handler)
-                })
-        },
-
-        disable: () => {
-            OpenInDuckPlayer.clickBoundElements.forEach((handler, element) => {
-                element.removeEventListener('click', handler, true)
-                OpenInDuckPlayer.clickBoundElements.delete(element)
-            })
-
-            OpenInDuckPlayer.enabled = false
-        },
-
-        enable: () => {
-            OpenInDuckPlayer.enabled = true
-            OpenInDuckPlayer.bindEventsToAll()
-
-            domState.onChanged(() => {
-                OpenInDuckPlayer.bindEventsToAll()
-            })
-        },
-
-        enableOnDOMLoaded: () => {
-            OpenInDuckPlayer.enabled = true
-
-            domState.onLoaded(() => {
-                OpenInDuckPlayer.bindEventsToAll()
-
-                domState.onChanged(() => {
-                    OpenInDuckPlayer.bindEventsToAll()
-                })
-            })
-        }
-    }
-
-    // Enable icon overlays on page load if not explicitly disabled
-    if ('alwaysAsk' in userValues.privatePlayerMode) {
-        AllIconOverlays.enableOnDOMLoaded()
-    } else if ('enabled' in userValues.privatePlayerMode) {
-        OpenInDuckPlayer.enableOnDOMLoaded()
-    }
+    return new VideoOverlayManager(userValues, settings, environment, messages)
 }
 
 export class Environment {
-    allowedOverlayOrigins = ['www.youtube.com', 'duckduckgo.com']
     allowedProxyOrigins = ['duckduckgo.com']
 
     /**
@@ -357,8 +131,23 @@ export class Environment {
         this.debug = Boolean(params.debug)
     }
 
+    /**
+     * This is the URL of the page that the user is currently on
+     * It's abstracted so that we can mock it in tests
+     * @return {string}
+     */
     getPlayerPageHref () {
         if (this.debug) {
+            const url = new URL(window.location.href)
+            if (url.hostname === 'www.youtube.com') return window.location.href
+
+            // reflect certain query params, this is useful for testing
+            if (url.searchParams.has('v')) {
+                const base = new URL('/watch', 'https://youtube.com')
+                base.searchParams.set('v', url.searchParams.get('v') || '')
+                return base.toString()
+            }
+
             return 'https://youtube.com/watch?v=123'
         }
         return window.location.href

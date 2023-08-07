@@ -22,6 +22,9 @@
  * Please see {@link DuckPlayerOverlayMessages} for the up-to-date list
  *
  * ## Remote Config
+ *
+ *   - Please see {@link OverlaysFeatureSettings} for docs on the individual fields
+ *
  * All features are **off** by default. Remote config is then used to selectively enable features.
  *
  * For example, to enable the Duck Player Overlay on YouTube, the following config is used:
@@ -33,9 +36,10 @@
 import ContentFeature from '../content-feature.js'
 
 import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckplayer/overlay-messages.js'
-import { Environment, initOverlays } from './duckplayer/overlays.js'
 import { isBeingFramed } from '../utils.js'
+import { validateSettings } from './duckplayer/util.js'
 import { createMessaging } from '../create-messaging.js'
+import { Environment, initOverlays } from './duckplayer/overlays.js'
 
 /**
  * @typedef UserValues - A way to communicate user settings
@@ -98,7 +102,8 @@ export default class DuckPlayerFeature extends ContentFeature {
         })
 
         if (overlaysEnabled) {
-            initOverlays(env, comms)
+            const settings = validateSettings(overlaySettings.youtube)
+            initOverlays(settings, env, comms)
         } else if (serpProxyEnabled) {
             comms.serpProxy()
         }
@@ -108,6 +113,10 @@ export default class DuckPlayerFeature extends ContentFeature {
         super.load(args)
     }
 }
+
+/**
+ * @typedef {Omit<import("../types/duckplayer-settings").YouTubeOverlay, "state">} OverlaysFeatureSettings
+ */
 
 // for docs generation
 export { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel }

@@ -20,7 +20,7 @@
               "state": "enabled"
             },
             "clickInterception": {
-              "state": "enabled"
+              "state": "disabled"
             },
             "videoOverlays": {
               "state": "enabled"

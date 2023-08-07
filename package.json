@@ -43,7 +43,8 @@
     "playwright-headed": "playwright test --headed",
     "preplaywright": "npm run build-windows && npm run build-apple",
     "preplaywright-headed": "npm run build-windows && npm run build-apple",
-    "playwright-e2e": "E2E=true playwright test --project duckplayer-e2e"
+    "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
+    "preplaywright-e2e": "npm run build-windows && npm run build-apple"
   },
   "type": "module",
   "workspaces": [
@@ -65,7 +66,7 @@
     "@types/jasmine": "^4.3.1",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "config-builder": "github:duckduckgo/privacy-configuration#main",
+    "config-builder": "github:duckduckgo/privacy-configuration#shane/duck-player-extra-config",
     "eslint": "^8.46.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.28.0",
