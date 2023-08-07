@@ -16,7 +16,8 @@
               "videoElement": "#player video",
               "videoElementContainer": "#player .html5-video-player",
               "hoverExcluded": [],
-              "clickExcluded": []
+              "clickExcluded": [],
+              "allowedEventTargets": []
             },
             "thumbnailOverlays": {
               "state": "enabled"
