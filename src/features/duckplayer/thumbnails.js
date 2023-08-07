@@ -206,8 +206,8 @@ function findElementFromEvent (selector, excludedSelectors, e) {
         if (element.matches(selector)) {
             // in lots of cases we can just return the element as soon as it's found, to prevent
             // checking the entire stack
-            if (fastPath) return matched
             matched = /** @type {HTMLElement} */(element)
+            if (fastPath) return matched
         }
     }
     return matched
