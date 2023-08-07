@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs'
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').PlatformInfo} PlatformInfo
+ * @typedef {import('../../pages/debug-tools/src/js/remote-resources/remote-resources.machine').EditorKind} EditorKind
  * @typedef {import('../../pages/debug-tools/schema/__generated__/schema.types').GetFeaturesResponse} GetFeaturesResponse
  * @typedef {import('../../pages/debug-tools/schema/__generated__/schema.types').GetTabsResponse} GetTabsResponse
  * @typedef {import('../../pages/debug-tools/schema/__generated__/schema.types').RemoteResource} RemoteResource
@@ -36,6 +37,7 @@ export class DebugToolsPage {
             editorToggle: () => page.getByLabel('Editor kind:'),
             togglesSwitcher: () => page.getByLabel('Editor kind:'),
             togglesEditor: () => page.getByTestId('TogglesEditor'),
+            patchesScreen: () => page.getByTestId('PatchesEditor'),
             globalToggleList: () => page.getByTestId('FeatureToggleListGlobal'),
             featureToggle: (named) => page.getByLabel('toggle ' + named),
             domainExceptionAddButton: () => page.getByRole('button', { name: 'Add a domain' }),
@@ -317,7 +319,7 @@ export class DebugToolsPage {
     }
 
     /**
-     * @param {'inline' | 'diff' | 'toggles'} kind
+     * @param {EditorKind} kind
      * @return {Promise<void>}
      */
     // eslint-disable-next-line require-await
@@ -331,6 +333,9 @@ export class DebugToolsPage {
         } else if (kind === 'toggles') {
             await this.locators.editorToggle().selectOption('toggles')
             await this.locators.togglesEditor().waitFor()
+        } else if (kind === 'patches') {
+            await this.locators.editorToggle().selectOption('patches')
+            await this.locators.patchesScreen().waitFor()
         }
     }
 
@@ -438,6 +443,44 @@ export class DebugToolsPage {
         await this.page.addInitScript(mockResponses, {
             responses: {
                 getTabs: params
+            }
+        })
+    }
+
+    /**
+     * @param {Record<string, any>} params
+     */
+    async withPrivacyConfig (params) {
+        const jsonString = JSON.stringify(params, null, 2)
+        /** @type {RemoteResource} */
+        const resource = {
+            id: 'privacy-configuration',
+            url: 'https://example.com/macos-config.json',
+            name: 'Privacy Config',
+            current: {
+                source: {
+                    remote: {
+                        url: 'https://example.com/macos-config.json',
+                        fetchedAt: '2023-07-05T12:34:56Z'
+                    }
+                },
+                contents: jsonString,
+                contentType: 'application/json'
+            }
+        }
+
+        /** @type {GetFeaturesResponse} */
+        const getFeatures = {
+            features: {
+                remoteResources: {
+                    resources: [resource]
+                }
+            }
+        }
+
+        await this.page.addInitScript(mockResponses, {
+            responses: {
+                getFeatures
             }
         })
     }

@@ -53,7 +53,7 @@ export function FeatureToggleListDomainExceptions (props) {
                     <>
                         <p>These features contain a domain exception for <code>{current}</code></p>
                         <div className="row">
-                            <ul className="list col-3">
+                            <ul className="list">
                                 {list.value.exceptions.map(ex => {
                                     return (
                                         <li key={ex.id} className="flex list__item">

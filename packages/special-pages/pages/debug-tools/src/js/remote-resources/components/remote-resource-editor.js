@@ -4,6 +4,7 @@ import { MonacoEditor } from '../../components/monaco-editor'
 import { MonacoDiffEditor } from '../../components/monaco-diff-editor'
 import invariant from 'tiny-invariant'
 import { TogglesEditor } from '../../components/toggles-editor'
+import { PatchesEditor } from '../../components/patches-editor'
 
 /**
  * @typedef {import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
@@ -146,6 +147,14 @@ export function RemoteResourceEditor (props) {
                     toggleKinds={validToggleKinds}
                     onToggleKind={setToggleKind}
                 />}
+                {editorKind === 'patches' && <PatchesEditor
+                    model={props.model}
+                    pending={savingChanges}
+                    edited={hasEdits}
+                    invalid={contentIsInvalid}
+                    resource={props.resource}
+                    buttons={buttons}
+                />}
             </div>
         </div>
     )
@@ -221,8 +230,8 @@ function FloatingErrors (props) {
 /**
  * @param {object} props
  * @param {{value: string; label: string}[]} props.values
- * @param {'diff' | 'inline' | 'toggles'} props.kind
- * @param {(kind: 'diff' | 'inline' | 'toggles') => void} props.toggleKind
+ * @param {EditorKind} props.kind
+ * @param {(kind: EditorKind) => void} props.toggleKind
  */
 function Switcher (props) {
     return (

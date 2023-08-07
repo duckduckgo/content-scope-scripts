@@ -3,8 +3,9 @@ import { useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 
 /**
- * @typedef{ import('../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
- * @typedef{ import('../../../schema/__generated__/schema.types').UpdateResourceParams} UpdateResourceParams
+ * @typedef {import('../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
+ * @typedef {import('../../../schema/__generated__/schema.types').UpdateResourceParams} UpdateResourceParams
+ * @typedef {import('monaco-editor').editor.ITextModel} ITextModel
  */
 
 /**
@@ -47,6 +48,32 @@ export function MonacoEditor (props) {
             <div className="editor__save">
                 {props.buttons}
             </div>
+            <div ref={ref} style={{ height: '700px', width: '100%' }}></div>
+        </div>
+    )
+}
+
+/**
+ * @param {object} props
+ * @param {ITextModel} props.model
+ */
+export function MonacoEditorRaw (props) {
+    const ref = useRef(null)
+
+    useEffect(() => {
+        invariant(ref.current, 'ref must exist here')
+
+        const editor = monaco.editor.create(ref.current, {
+            model: props.model
+        })
+
+        return () => {
+            editor?.dispose()
+        }
+    }, [props.model])
+
+    return (
+        <div>
             <div ref={ref} style={{ height: '700px', width: '100%' }}></div>
         </div>
     )

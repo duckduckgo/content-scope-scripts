@@ -62,17 +62,6 @@ export function RemoteResourceState (props) {
         props.hideOverrideForm()
     }
 
-    function storeLocally () {
-        localStorage.setItem('__unstable_store_local_' + props.resource.id, props.model.getValue())
-    }
-
-    function restoreFromLocal () {
-        const item = localStorage.getItem('__unstable_store_local_' + props.resource.id)
-        if (item) {
-            props.model.setValue(item)
-        }
-    }
-
     return (
         <div className="row card">
             <InlineDL>
@@ -115,15 +104,8 @@ export function RemoteResourceState (props) {
                 remove={() => props.setUrl(props.resource.url)}
                 pending={props.pending}
                 copy={copy}
-                setUrl={props.setUrl} />
-
-            <InlineDL>
-                <DT>Local storage</DT>
-                <DD>
-                    <MicroButton className="ml-3.5" onClick={storeLocally}>store locally 💿</MicroButton>
-                    <MicroButton className="ml-3.5" onClick={restoreFromLocal}>restore local ↪️</MicroButton>
-                </DD>
-            </InlineDL>
+                setUrl={props.setUrl}
+            />
         </div>
     )
 }

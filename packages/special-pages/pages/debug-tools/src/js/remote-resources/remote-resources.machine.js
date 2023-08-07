@@ -6,7 +6,7 @@ import { DebugToolsMessages } from '../DebugToolsMessages.mjs'
 /** @type {Record<string, {editorKinds: EditorKind[], toggleKinds: ToggleKind[]}>} */
 const editorKindsMapping = {
     'privacy-configuration': {
-        editorKinds: ['toggles', 'inline', 'diff'],
+        editorKinds: ['toggles', 'inline', 'diff', 'patches'],
         toggleKinds: ['global-feature', 'domain-exceptions', 'unprotected']
     },
     default: {
@@ -310,6 +310,8 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                 if (parsed.success) {
                     if (ctx.currentResource?.editorKinds.includes(parsed.data)) {
                         return parsed.data
+                    } else {
+                        console.warn('valid editor kind, but the current resource doesnt support it')
                     }
                 }
                 {
@@ -449,7 +451,7 @@ async function minDuration (cb, minTime = 500) {
     throw new Error('unreachable')
 }
 
-export const EditorKind = z.enum(['inline', 'diff', 'toggles'])
+export const EditorKind = z.enum(['inline', 'diff', 'toggles', 'patches'])
 export const ToggleKind = z.enum(['global-feature', 'domain-exceptions', 'unprotected'])
 export const CurrentResource = z.object({
     id: z.string(),
