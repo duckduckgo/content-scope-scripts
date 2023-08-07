@@ -6,6 +6,7 @@
         "inject/chrome-mv3.js",
         "inject/mozilla.js",
         "inject/windows.js",
+        "src/types/webcompat-settings.d.ts",
         "src/features/duck-player.js",
         "src/features/harmful-apis.js",
         "packages/messaging",
