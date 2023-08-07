@@ -112,6 +112,7 @@ export function RemoteResourceEditor (props) {
                 setUrl={setUrl}
                 showOverrideForm={showOverrideForm}
                 hideOverrideForm={hideOverrideForm}
+                model={props.model}
             />
             {props.beforeEditor}
             <InvalidEditorErrors revert={revertEdited} />

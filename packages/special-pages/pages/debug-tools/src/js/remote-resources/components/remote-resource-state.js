@@ -6,6 +6,7 @@ import { URLEditor } from '../../components/url-editor'
 /**
  * @typedef{ import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
  * @typedef{ import('../../../../schema/__generated__/schema.types').UpdateResourceParams} UpdateResourceParams
+ * @typedef {import('monaco-editor').editor.ITextModel} ITextModel
  */
 
 /**
@@ -17,6 +18,7 @@ import { URLEditor } from '../../components/url-editor'
  *   showOverrideForm: () => void;
  *   hideOverrideForm: () => void;
  *   showingUrlEditor: boolean;
+ *   model: ITextModel;
  * }} props
  */
 export function RemoteResourceState (props) {
@@ -58,6 +60,17 @@ export function RemoteResourceState (props) {
 
     function hideOverride () {
         props.hideOverrideForm()
+    }
+
+    function storeLocally () {
+        localStorage.setItem('__unstable_store_local_' + props.resource.id, props.model.getValue())
+    }
+
+    function restoreFromLocal () {
+        const item = localStorage.getItem('__unstable_store_local_' + props.resource.id)
+        if (item) {
+            props.model.setValue(item)
+        }
     }
 
     return (
@@ -102,6 +115,8 @@ export function RemoteResourceState (props) {
                 remove={() => props.setUrl(props.resource.url)}
                 pending={props.pending}
                 copy={copy}
+                storeLocally={storeLocally}
+                restoreLocal={restoreFromLocal}
                 setUrl={props.setUrl} />
         </div>
     )
@@ -111,6 +126,8 @@ export function RemoteResourceState (props) {
  * @param {object} props
  * @param {RemoteResource} props.resource
  * @param {() => void} props.remove
+ * @param {() => void} props.storeLocally
+ * @param {() => void} props.restoreLocal
  * @param {(e: any, value: string) => void} props.copy
  * @param {boolean} props.pending
  * @param {(url: string) => void} props.setUrl
@@ -157,6 +174,8 @@ function Override (props) {
                 <DD>
                     {date(source.debugTools.modifiedAt)}
                     <MicroButton className="ml-3.5" onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
+                    <MicroButton className="ml-3.5" onClick={props.storeLocally}>store locally 💿</MicroButton>
+                    <MicroButton className="ml-3.5" onClick={props.restoreLocal}>restore local ↪️</MicroButton>
                 </DD>
             </InlineDL>
         )

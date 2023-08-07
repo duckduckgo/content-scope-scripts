@@ -2,9 +2,13 @@ import { useEffect, useRef } from 'react'
 import * as monaco from 'monaco-editor'
 
 /**
+ * @typedef {import('monaco-editor').editor.ITextModel} ITextModel
+ */
+
+/**
  * @param {object} props
  * @param {string} props.original
- * @param {any} props.model
+ * @param {ITextModel} props.model
  * @param {boolean} props.pending
  * @param {boolean} props.edited
  * @param {boolean} props.invalid
