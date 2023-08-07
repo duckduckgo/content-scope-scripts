@@ -1,5 +1,6 @@
 import { dirname } from 'node:path'
 import { mkdirSync, writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import minimist from 'minimist'
 
 /**
@@ -53,4 +54,20 @@ export function cwd (current) {
         return pathname.slice(1)
     }
     return pathname
+}
+
+/**
+ * See: https://github.com/seveibar/is-launch-file/blob/master/index.js
+ * @param metaUrl
+ * @return {boolean}
+ */
+export function isLaunchFile (metaUrl) {
+    if (!metaUrl) {
+        throw new Error(
+            'Incorrect usage of isLaunchFile. Use isLaunchFile(import.meta.url)'
+        )
+    }
+    const launchFilePath = process.argv[1]
+    const moduleFilePath = fileURLToPath(metaUrl)
+    return moduleFilePath === launchFilePath
 }

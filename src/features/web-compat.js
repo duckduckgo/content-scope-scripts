@@ -187,10 +187,13 @@ export default class WebCompat extends ContentFeature {
      * Support for proxying `window.webkit.messageHandlers`
      */
     messageHandlersFix () {
+        /** @type {import('../types//webcompat-settings').WebCompatSettings['messageHandlers']} */
         const settings = this.getFeatureSetting('messageHandlers')
 
         // Do nothing if `messageHandlers` is absent
         if (!globalThis.webkit?.messageHandlers) return
+        // This should never occur, but keeps typescript happy
+        if (!settings) return
 
         const proxy = new Proxy(globalThis.webkit.messageHandlers, {
             get (target, messageName, receiver) {

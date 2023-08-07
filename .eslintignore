@@ -10,3 +10,4 @@ packages/special-pages/playwright-report/
 packages/special-pages/test-results/
 /playwright-report
 /test-results
+src/types
