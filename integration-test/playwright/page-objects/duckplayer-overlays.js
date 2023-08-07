@@ -63,8 +63,17 @@ export class DuckplayerOverlays {
         })
     }
 
-    async gotoThumbsPage () {
-        await this.page.goto(this.overlaysPage)
+    /**
+     * @param {object} params
+     * @param {'default' | 'cookie_banner'} [params.variant]
+     * @return {Promise<void>}
+     */
+    async gotoThumbsPage (params = {}) {
+        const { variant = 'default' } = params
+        const urlParams = new URLSearchParams({
+            variant
+        })
+        await this.page.goto(this.overlaysPage + '?' + urlParams.toString())
     }
 
     async dismissCookies () {
@@ -180,8 +189,12 @@ export class DuckplayerOverlays {
      */
     async hasWatchLinkFor (params = {}) {
         const { videoID = '123' } = params
-        const link = await this.page.getByRole('link', { name: 'Watch in Duck Player' }).getAttribute('href')
-        expect(link).toEqual('duck://player/' + videoID)
+
+        // this is added because 'getAttribute' does not auto-wait
+        await expect(async () => {
+            const link = await this.page.getByRole('link', { name: 'Watch in Duck Player' }).getAttribute('href')
+            expect(link).toEqual('duck://player/' + videoID)
+        }).toPass({ timeout: 5000 })
     }
 
     /**
@@ -256,7 +269,15 @@ export class DuckplayerOverlays {
     }
 
     async hoverAThumbnail () {
-        await this.page.locator('.thumbnail[href^="/watch"]').first().hover()
+        await this.page.locator('.thumbnail[href^="/watch"]').first().hover({ force: true })
+    }
+
+    async hoverNthThumbnail (index = 0) {
+        await this.page.locator('.thumbnail[href^="/watch"]').nth(index).hover({ force: true })
+    }
+
+    async clickNthThumbnail (index = 0) {
+        await this.page.locator('.thumbnail[href^="/watch"]').nth(index).click({ force: true })
     }
 
     /**
@@ -352,6 +373,13 @@ export class DuckplayerOverlays {
                 }
             }
         ])
+    }
+
+    async duckPlayerLoadedTimes (times = 0) {
+        /** @type {UnstableMockCall[]} */
+        const calls = await this.page.evaluate(readOutgoingMessages)
+        const opened = calls.filter(call => call.payload.method === 'openDuckPlayer')
+        expect(opened.length).toBe(times)
     }
 
     /**

@@ -11,7 +11,9 @@ describe('Duck Player - settings', () => {
                     '#playlist'
                 ],
                 videoElement: '#player video',
-                videoElementContainer: '#player .html5-video-player'
+                videoElementContainer: '#player .html5-video-player',
+                clickExcluded: [],
+                hoverExcluded: []
             },
             thumbnailOverlays: {
                 state: 'enabled'
@@ -32,7 +34,9 @@ describe('Duck Player - settings', () => {
                 thumbLink: "a[href^='/watch']:has(img)",
                 excludedRegions: ['#a', '#b', '.cde'],
                 videoElement: '#player video',
-                videoElementContainer: '#player .html5-video-player'
+                videoElementContainer: '#player .html5-video-player',
+                clickExcluded: [],
+                hoverExcluded: []
             },
             thumbnailOverlays: {
                 state: 'enabled'

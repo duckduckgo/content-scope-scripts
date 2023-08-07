@@ -20,6 +20,7 @@ export interface DuckPlayerSettings {
    * List of domains with specific patch settings
    */
   domains: Domain[];
+   [k: string]: unknown;
 }
 /**
  * Specific configurations for different overlay types
@@ -50,6 +51,14 @@ export interface Selectors {
    * CSS selectors for regions to exclude from hover/click interactions
    */
   excludedRegions: string[];
+  /**
+   * CSS selectors for elements that should prevent side effects from hovers
+   */
+  hoverExcluded: string[];
+  /**
+   * CSS selectors for elements that should prevent side effects from clicks
+   */
+  clickExcluded: string[];
   /**
    * CSS selector for the video element on YouTube
    */

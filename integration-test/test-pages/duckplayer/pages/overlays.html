@@ -55,6 +55,16 @@
         h2 {
             padding-top: 2em;
         }
+        .overlay {
+            position: fixed;
+            width: 50%;
+            left: 0;
+            height: 100%;
+            top: 1rem;
+            bottom: 1rem;
+            background: rgba(0, 0, 0, .7);
+            /*pointer-events: none;*/
+        }
     </style>
 </head>
 <body>
@@ -120,6 +130,9 @@
                 })
             }, 200);
         },
+        "cookie_banner": () => {
+            document.body.innerHTML += '<div class="overlay ytd-consent-bump-v2-lightbox">Overlay</div>'
+        }
     }
 
     if (variant in knownVariants) {

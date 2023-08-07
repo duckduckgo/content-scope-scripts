@@ -62,7 +62,7 @@ export class Thumbnails {
             // detect hovers and decide to show hover icon, or not
             const mouseOverHandler = (e) => {
                 if (clicked) return
-                const hoverElement = findElementFromEvent(selectors.thumbLink, e)
+                const hoverElement = findElementFromEvent(selectors.thumbLink, selectors.hoverExcluded, e)
                 const validLink = isValidLink(hoverElement, this.settings)
 
                 // if it's not an element we care about, bail early and remove the overlay
@@ -121,7 +121,7 @@ export class ClickInterception {
             const parentNode = document.documentElement || document.body
 
             const clickHandler = (e) => {
-                const clickedElement = findElementFromEvent(selectors.thumbLink, e)
+                const clickedElement = findElementFromEvent(selectors.thumbLink, selectors.clickExcluded, e)
                 const validLink = isValidLink(clickedElement, this.settings)
 
                 if (validLink) {
@@ -146,14 +146,26 @@ export class ClickInterception {
 
 /**
  * @param {string} selector
+ * @param {string[]} excludedSelectors
  * @param {MouseEvent} e
  * @return {HTMLElement|null}
  */
-function findElementFromEvent (selector, e) {
+function findElementFromEvent (selector, excludedSelectors, e) {
+    /** @type {HTMLElement | null} */
+    let matched = null
+
     for (const element of document.elementsFromPoint(e.clientX, e.clientY)) {
-        if (element.matches(selector)) return /** @type {HTMLElement} */(element)
+        // bail early if this item was excluded anywhere in the stack
+        if (excludedSelectors.some(ex => element.matches(ex))) {
+            return null
+        }
+        // we cannot return this immediately, because another element in the stack
+        // might have been excluded
+        if (element.matches(selector)) {
+            matched = /** @type {HTMLElement} */(element)
+        }
     }
-    return null
+    return matched
 }
 
 /**

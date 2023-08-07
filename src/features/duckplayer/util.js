@@ -283,7 +283,9 @@ export function validateSettings (input) {
             thumbLink: input.selectors?.thumbLink || "a[href^='/watch']:has(img)",
             excludedRegions: input.selectors?.excludedRegions || ['#playlist'],
             videoElement: input.selectors?.videoElement || '#player video',
-            videoElementContainer: input.selectors?.videoElementContainer || '#player .html5-video-player'
+            videoElementContainer: input.selectors?.videoElementContainer || '#player .html5-video-player',
+            clickExcluded: input.selectors?.clickExcluded,
+            hoverExcluded: input.selectors?.hoverExcluded
         },
         thumbnailOverlays: {
             state: input.thumbnailOverlays?.state || 'enabled'
