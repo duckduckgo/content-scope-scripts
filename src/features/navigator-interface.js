@@ -24,6 +24,7 @@ export default class NavigatorInterface extends ContentFeature {
             this.defineProperty(Navigator.prototype, 'duckduckgo', {
                 value: {
                     platform: args.platform.name,
+                    updateVersion: args.platform.updateVersion,
                     isDuckDuckGo () {
                         return DDGPromise.resolve(true)
                     },

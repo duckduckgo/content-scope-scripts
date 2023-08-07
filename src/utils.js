@@ -581,6 +581,7 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
  * @property {number} [versionNumber] - Android version number only
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
+ * @property {number} updateVersion
  */
 
 /**
@@ -694,6 +695,8 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     const output = { ...preferences }
     if (output.platform) {
         const version = getPlatformVersion(preferences)
+        output.platform.updateVersion = preferences.updateVersion
+        
         if (version) {
             output.platform.version = version
         }
