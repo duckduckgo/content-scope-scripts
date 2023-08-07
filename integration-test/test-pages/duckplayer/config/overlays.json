@@ -15,8 +15,8 @@
               ],
               "videoElement": "#player video",
               "videoElementContainer": "#player .html5-video-player",
-              "hoverExcluded": [".ytd-consent-bump-v2-lightbox"],
-              "clickExcluded": [".ytd-consent-bump-v2-lightbox"]
+              "hoverExcluded": [".ytd-consent-bump-v2-lightbox", "ytd-consent-bump-v2-lightbox"],
+              "clickExcluded": [".ytd-consent-bump-v2-lightbox", "ytd-consent-bump-v2-lightbox"]
             },
             "thumbnailOverlays": {
               "state": "enabled"
