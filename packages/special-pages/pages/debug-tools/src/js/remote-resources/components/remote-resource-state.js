@@ -115,9 +115,15 @@ export function RemoteResourceState (props) {
                 remove={() => props.setUrl(props.resource.url)}
                 pending={props.pending}
                 copy={copy}
-                storeLocally={storeLocally}
-                restoreLocal={restoreFromLocal}
                 setUrl={props.setUrl} />
+
+            <InlineDL>
+                <DT>Local storage</DT>
+                <DD>
+                    <MicroButton className="ml-3.5" onClick={storeLocally}>store locally 💿</MicroButton>
+                    <MicroButton className="ml-3.5" onClick={restoreFromLocal}>restore local ↪️</MicroButton>
+                </DD>
+            </InlineDL>
         </div>
     )
 }
@@ -126,8 +132,6 @@ export function RemoteResourceState (props) {
  * @param {object} props
  * @param {RemoteResource} props.resource
  * @param {() => void} props.remove
- * @param {() => void} props.storeLocally
- * @param {() => void} props.restoreLocal
  * @param {(e: any, value: string) => void} props.copy
  * @param {boolean} props.pending
  * @param {(url: string) => void} props.setUrl
@@ -174,8 +178,6 @@ function Override (props) {
                 <DD>
                     {date(source.debugTools.modifiedAt)}
                     <MicroButton className="ml-3.5" onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
-                    <MicroButton className="ml-3.5" onClick={props.storeLocally}>store locally 💿</MicroButton>
-                    <MicroButton className="ml-3.5" onClick={props.restoreLocal}>restore local ↪️</MicroButton>
                 </DD>
             </InlineDL>
         )
