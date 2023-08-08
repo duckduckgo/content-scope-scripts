@@ -5,7 +5,7 @@ import { DDGProxy, getStackTraceOrigins, getStack, matchHostname, injectGlobalSt
 import { wrapFunction } from '../wrapper-utils.js'
 import { wrapScriptCodeOverload } from './runtime-checks/script-overload.js'
 import { findClosestBreakpoint } from './runtime-checks/helpers.js'
-import { Reflect } from '../captured-globals.js'
+import { Reflect } from '@duckduckgo/safe-globals/index.js'
 
 let stackDomains = []
 let matchAllStackDomains = false

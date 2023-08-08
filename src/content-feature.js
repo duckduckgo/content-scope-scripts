@@ -6,7 +6,7 @@ import { PerformanceMonitor } from './performance.js'
 import { MessagingContext } from '../packages/messaging/index.js'
 import { createMessaging } from './create-messaging.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
-import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
+import { getOwnPropertyDescriptor, objectKeys } from '@duckduckgo/safe-globals'
 
 /**
  * @typedef {object} AssetConfig

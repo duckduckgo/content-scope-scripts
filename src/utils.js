@@ -1,5 +1,5 @@
 /* global cloneInto, exportFunction, mozProxies */
-import { Set } from './captured-globals.js'
+import { Set } from '@duckduckgo/safe-globals'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
