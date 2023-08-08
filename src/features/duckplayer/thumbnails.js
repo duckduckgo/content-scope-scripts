@@ -1,3 +1,60 @@
+/**
+ * @module Duck Player Thumbnails
+ *
+ * @description
+ *
+ * ## Decision flow for `mouseover` (appending Dax)
+ *
+ * We'll try to append Dax icons onto thumbnails, if the following conditions are met:
+ *
+ * 1. User has Duck Player configured to 'always ask' (the default)
+ * 2. `thumbnailOverlays` is enabled in the remote config
+ *
+ * If those are met, the following steps occur:
+ *
+ * - let `stack` be the entire element stack below the cursor
+ * - let `eventTarget` be the event target that received the mouseover event `(e.target)`
+ * - **exit** if any element in `stack` matches a css selector in `[config] hoverExcluded`
+ * - let `match` be the first element that satisfies both conditions:
+ *   1. matches the `[config] thumbLink` CSS selector
+ *   2. can be converted into a valid DuckPlayer URL
+ * - **exit** if `match` was not found, or a valid link could not be created
+ * - **exit** if `match` is contained within any parent element defined in `[config] excludedRegions`
+ * - **exit** if `match` contains any sub-links (nested `<a>` tags)
+ * - **exit** if `match` does NOT contain an `img` tag
+ * - if we get this far, mark `match` as a valid link element, then:
+ *   - append Dax overlay to `match` ONLY if:
+ *     - `eventTarget` is equal to `match`, or
+ *     - `eventTarget` *contains* `match`, or
+ *     - `eventTarget` matches a CSS selector in `[config] allowedEventTargets`
+ *
+ * ## Decision flow for `click interceptions` (opening Duck Player)
+ *
+ * We'll try to intercept clicks on thumbnails, if the following conditions are met:
+ *
+ * 1. User has Duck Player configured to 'enabled'
+ * 2. `clickInterception` is enabled in the remote config
+ *
+ * If those are met, the following steps occur:
+ *
+ * - let `stack` be the entire element stack below the cursor when clicked
+ * - let `eventTarget` be the event target that received click event `(e.target)`
+ * - **exit** if any element in `stack` matches a css selector in `[config] clickExcluded`
+ * - let `match` be the first element that satisfies both conditions:
+ *     1. matches the `[config] thumbLink` CSS selector
+ *     2. can be converted into a valid DuckPlayer URL
+ * - **exit** if `match` was not found, or a valid link could not be created
+ * - **exit** if `match` is contained within any parent element defined in `[config] excludedRegions`
+ * - if we get this far, mark `match` as a valid link element, then:
+ *     - prevent default + propagation on the event ONLY if:
+ *         - `eventTarget` is equal to `match`, or
+ *         - `eventTarget` *contains* `match`, or
+ *         - `eventTarget` matches a CSS selector in `[config] allowedEventTargets`
+ *     - otherwise, do nothing
+ *
+ * [[include:src/features/duckplayer/thumbnails.md]]
+ */
+
 import { SideEffects, VideoParams } from './util.js'
 import { IconOverlay } from './icon-overlay.js'
 import { OpenInDuckPlayerMsg } from './overlay-messages.js'

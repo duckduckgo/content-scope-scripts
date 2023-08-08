@@ -1,4 +1,32 @@
 /* eslint-disable promise/prefer-await-to-then */
+/**
+ * @module Duck Player Video Overlay
+ *
+ * @description
+ *
+ * ## Decision flow for appending the Video Overlays
+ *
+ * We'll try to append the full video overlay (or small Dax icon) onto the main video player
+ * if the following conditions are met:
+ *
+ * 1. User has Duck Player configured to 'always ask' (the default)
+ * 2. `videoOverlays` is enabled in the remote config
+ *
+ * If those are both met, the following steps occur on *first page load*:
+ *
+ * - let `href` be the current `window.location.href` value
+ * - *exit to polling step* if `href` is not a valid watchPage
+ * - when `href` is a valid watch page, then:
+ *   - append CSS to the HEAD to avoid the main player showing
+ *   - in a loop (every 100ms), continuously check if the video element has appeared
+ * - when the video is showing:
+ *   - if the user has duck player set to 'enabled', then:
+ *     - show the small dax overlay
+ * - if the user has duck player set to 'always ask', then:
+ *   - if there's a one-time override (eg: from the serp), then exit to polling
+ *   - if the user previously clicked 'watch here + remember', just add the small dax
+ *   - otherwise, stop the video playing + append our overlay
+ */
 import { SideEffects, VideoParams } from './util.js'
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js'
 import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js'
@@ -8,7 +36,7 @@ import { IconOverlay } from './icon-overlay.js'
  * Handle the switch between small & large overlays
  * + conduct any communications
  */
-export class VideoOverlayManager {
+export class VideoOverlay {
     sideEffects = new SideEffects()
 
     /** @type {string | null} */
@@ -63,7 +91,7 @@ export class VideoOverlayManager {
          */
         this.sideEffects.add('add css to head', () => {
             const style = document.createElement('style')
-            style.innerText = '#player .html5-video-player { opacity: 0!important }'
+            style.innerText = this.settings.selectors.videoElementContainer + ' { opacity: 0!important }'
             if (document.head) {
                 document.head.appendChild(style)
             }
@@ -113,7 +141,6 @@ export class VideoOverlayManager {
     /**
      * @param {{ignoreCache?: boolean, via?: string}} [opts]
      */
-    // @ts-expect-error - Not all code paths return a value.
     watchForVideoBeingAdded (opts = {}) {
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref())
 
@@ -160,20 +187,24 @@ export class VideoOverlayManager {
             this.destroy()
 
             /**
-             * When enabled, always show the small dax icon
+             * When enabled, just show the small dax icon
              */
             if ('enabled' in userValues.privatePlayerMode) {
-                this.addSmallDaxOverlay(params)
+                return this.addSmallDaxOverlay(params)
             }
+
             if ('alwaysAsk' in userValues.privatePlayerMode) {
-                if (!userValues.overlayInteracted) {
-                    if (!this.environment.hasOneTimeOverride()) {
-                        this.stopVideoFromPlaying()
-                        this.appendOverlayToPage(playerContainer, params)
-                    }
-                } else {
-                    this.addSmallDaxOverlay(params)
+                // if there's a one-time-override (eg: a link from the serp), then do nothing
+                if (this.environment.hasOneTimeOverride()) return
+
+                // if the user previously clicked 'watch here + remember', just add the small dax
+                if (userValues.overlayInteracted) {
+                    return this.addSmallDaxOverlay(params)
                 }
+
+                // if we get here, we're trying to prevent the video playing
+                this.stopVideoFromPlaying()
+                this.appendOverlayToPage(playerContainer, params)
             }
         }
     }

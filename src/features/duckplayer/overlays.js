@@ -1,6 +1,6 @@
 import { DomState } from './util.js'
 import { ClickInterception, Thumbnails } from './thumbnails.js'
-import { VideoOverlayManager } from './video-overlay-manager.js'
+import { VideoOverlay } from './video-overlay.js'
 import { registerCustomElements } from './components/index.js'
 
 /**
@@ -112,12 +112,12 @@ function thumbnailsFeatureFromSettings (userPreferences, settings, messages, env
  * @param {import("../duck-player.js").OverlaysFeatureSettings} settings
  * @param {import("../duck-player.js").DuckPlayerOverlayMessages} messages
  * @param {import("./overlays.js").Environment} environment
- * @returns {VideoOverlayManager | undefined}
+ * @returns {VideoOverlay | undefined}
  */
 function videoOverlaysFeatureFromSettings (userValues, settings, messages, environment) {
     if (settings.videoOverlays.state !== 'enabled') return undefined
 
-    return new VideoOverlayManager(userValues, settings, environment, messages)
+    return new VideoOverlay(userValues, settings, environment, messages)
 }
 
 export class Environment {
