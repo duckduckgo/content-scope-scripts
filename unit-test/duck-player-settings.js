@@ -6,7 +6,7 @@ describe('Duck Player - settings', () => {
         const actual = validateSettings({})
         expect(actual).toEqual({
             selectors: {
-                thumbLink: "a[href^='/watch']:has(img)",
+                thumbLink: "a[href^='/watch']",
                 excludedRegions: [
                     '#playlist'
                 ],
@@ -14,7 +14,13 @@ describe('Duck Player - settings', () => {
                 videoElementContainer: '#player .html5-video-player',
                 clickExcluded: [],
                 hoverExcluded: [],
-                allowedEventTargets: []
+                allowedEventTargets: [
+                    '.ytp-inline-preview-scrim',
+                    '.ytd-video-preview',
+                    '#thumbnail-container',
+                    '#video-title-link',
+                    '#video-title'
+                ]
             },
             thumbnailOverlays: {
                 state: 'enabled'
@@ -32,13 +38,19 @@ describe('Duck Player - settings', () => {
         const actual = validateSettings({ selectors: { excludedRegions: ['#a', '#b', '.cde'] } })
         expect(actual).toEqual({
             selectors: {
-                thumbLink: "a[href^='/watch']:has(img)",
+                thumbLink: "a[href^='/watch']",
                 excludedRegions: ['#a', '#b', '.cde'],
                 videoElement: '#player video',
                 videoElementContainer: '#player .html5-video-player',
                 clickExcluded: [],
                 hoverExcluded: [],
-                allowedEventTargets: []
+                allowedEventTargets: [
+                    '.ytp-inline-preview-scrim',
+                    '.ytd-video-preview',
+                    '#thumbnail-container',
+                    '#video-title-link',
+                    '#video-title'
+                ]
             },
             thumbnailOverlays: {
                 state: 'enabled'
