@@ -77,7 +77,7 @@ export class Thumbnails {
             const mouseOverHandler = (e) => {
                 if (clicked) return
                 const hoverElement = findElementFromEvent(selectors.thumbLink, selectors.hoverExcluded, e)
-                const validLink = isValidLink(hoverElement, this.settings)
+                const validLink = isValidLink(hoverElement, selectors.excludedRegions)
 
                 // if it's not an element we care about, bail early and remove the overlay
                 if (!hoverElement || !validLink) {
@@ -143,7 +143,7 @@ export class ClickInterception {
 
             const clickHandler = (e) => {
                 const elementInStack = findElementFromEvent(selectors.thumbLink, selectors.clickExcluded, e)
-                const validLink = isValidLink(elementInStack, this.settings)
+                const validLink = isValidLink(elementInStack, selectors.excludedRegions)
 
                 const block = (href) => {
                     e.preventDefault()
@@ -215,16 +215,16 @@ function findElementFromEvent (selector, excludedSelectors, e) {
 
 /**
  * @param {HTMLElement|null} element
- * @param settings
+ * @param {string[]} excludedRegions
  * @return {string | null | undefined}
  */
-function isValidLink (element, settings) {
+function isValidLink (element, excludedRegions) {
     if (!element) return null
 
     /**
      * Does this element exist inside an excluded region?
      */
-    const existsInExcludedParent = settings.selectors.excludedRegions.some(selector => {
+    const existsInExcludedParent = excludedRegions.some(selector => {
         for (const parent of document.querySelectorAll(selector)) {
             if (parent.contains(element)) return true
         }
@@ -239,7 +239,7 @@ function isValidLink (element, settings) {
 
     /**
      * We shouldn't be able to get here, but this keeps Typescript happy
-     * and is a good check regardlesss
+     * and is a good check regardless
      */
     if (!('href' in element)) return null
 
