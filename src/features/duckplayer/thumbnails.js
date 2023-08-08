@@ -57,6 +57,7 @@
 
 import { SideEffects, VideoParams } from './util.js'
 import { IconOverlay } from './icon-overlay.js'
+import { Environment } from './overlays.js'
 import { OpenInDuckPlayerMsg } from './overlay-messages.js'
 
 /**
@@ -306,3 +307,5 @@ function isValidLink (element, excludedRegions) {
      */
     return VideoParams.fromHref(element.href)?.toPrivatePlayerUrl()
 }
+
+export { SideEffects, VideoParams, Environment }
