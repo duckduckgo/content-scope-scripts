@@ -9,7 +9,7 @@ export default defineConfig({
         },
         {
             name: 'duckplayer-apple',
-            testMatch: ['duckplayer.spec.js', 'debug-tools.spec.js'],
+            testMatch: ['duckplayer.spec.js', 'debug-tools.spec.js', 'debug-tools-patches.spec.js'],
             use: { injectName: 'apple', platform: 'macos' }
         }
     ],

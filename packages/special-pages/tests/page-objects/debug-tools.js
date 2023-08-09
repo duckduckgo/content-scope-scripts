@@ -3,6 +3,7 @@ import { Mocks } from './mocks.js'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 import { mockErrors, mockResponses, simulateSubscriptionMessage } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { readFileSync } from 'node:fs'
+import jsonpatch from 'fast-json-patch'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -16,7 +17,27 @@ import { readFileSync } from 'node:fs'
 export class DebugToolsPage {
     get remoteResources () {
         return {
-            macos: () => readFileSync('./pages/debug-tools/schema/__fixtures__/macos-config.json', 'utf8')
+            macos: () => readFileSync('./pages/debug-tools/schema/__fixtures__/macos-config.json', 'utf8'),
+            /**
+             * @return {{current: {contents: string, source: {remote: {fetchedAt: string, url: string}}, contentType: string}, name: string, id: string, url: string}}
+             */
+            privacyConfig: (contents = this.remoteResources.macos()) => {
+                return {
+                    id: 'privacy-configuration',
+                    url: 'https://example.com/macos-config.json',
+                    name: 'Privacy Config',
+                    current: {
+                        source: {
+                            remote: {
+                                url: 'https://example.com/macos-config.json',
+                                fetchedAt: '2023-07-05T12:34:56Z'
+                            }
+                        },
+                        contents,
+                        contentType: 'application/json'
+                    }
+                }
+            }
         }
     }
 
@@ -26,6 +47,7 @@ export class DebugToolsPage {
             loaded: () => page.locator('[data-loaded="true"]'),
             remoteFormInput: () => page.getByPlaceholder('enter a url'),
             remoteFormCancel: () => page.getByRole('button', { name: 'Cancel' }),
+            copyOverridePatch: () => page.getByRole('button', { name: 'Copy Patch' }),
             remoteFormRefresh: () => page.getByRole('button', { name: 'Refresh 🔄' }),
             remoteFormOverride: () => page.getByRole('button', { name: 'Override ✏️' }),
             remoteFormCopy: () => page.getByRole('button', { name: 'Copy 📄' }),
@@ -78,21 +100,9 @@ export class DebugToolsPage {
 
         // default mocks - just enough to render the first page without error
         /** @type {RemoteResource} */
-        const resource = {
-            id: 'privacy-configuration',
-            url: 'https://example.com/macos-config.json',
-            name: 'Privacy Config',
-            current: {
-                source: {
-                    remote: {
-                        url: 'https://example.com/macos-config.json',
-                        fetchedAt: '2023-07-05T12:34:56Z'
-                    }
-                },
-                contents: this.remoteResources.macos(),
-                contentType: 'application/json'
-            }
-        }
+        const resource = this.remoteResources.privacyConfig()
+        /** @type {RemoteResource} */
+        const updatedResource = DebugToolsPage.updatedResource(resource)
 
         /** @type {GetFeaturesResponse} */
         const getFeatures = {
@@ -111,18 +121,33 @@ export class DebugToolsPage {
         this.mocks.defaultResponses({
             getFeatures,
             getTabs,
-            updateResource: {
-                ...resource,
-                current: {
-                    ...resource.current,
-                    contents: '{ "updated": true }'
-                }
-            }
+            updateResource: updatedResource
         })
 
         page.on('console', (msg) => {
             console.log(msg.type(), msg.text())
         })
+    }
+
+    /**
+     * @param {RemoteResource} resource
+     * @param {string} contents
+     * @return {RemoteResource}
+     */
+    static updatedResource (resource, contents = '{ "updated": true }') {
+        /** @type {RemoteResource} */
+        return {
+            ...resource,
+            current: {
+                source: {
+                    debugTools: {
+                        modifiedAt: '2023-07-05T12:34:56Z'
+                    }
+                },
+                contents,
+                contentType: 'application/json'
+            }
+        }
     }
 
     /**
@@ -189,8 +214,23 @@ export class DebugToolsPage {
         await this.page.evaluate(({ value }) => window._test_editor_set_value(value), { value })
     }
 
+    /**
+     * Before we save in the editor, we want to be sure the response is going to be correct
+     */
     async submitsEditorSave () {
+        // ensure the saved result->response is correct
+        const string = await this.page.evaluate(() => window._test_editor_value())
+        const resource = DebugToolsPage.updatedResource(this.remoteResources.privacyConfig(), string)
+
+        await this.page.evaluate(mockResponses, {
+            responses: {
+                updateResource: resource
+            }
+        })
+
+        // actually save
         await this.locators.editorSave().click()
+        await this.mocks.waitForCallCount({ method: 'updateResource', count: 1 })
     }
 
     async saves () {
@@ -452,22 +492,9 @@ export class DebugToolsPage {
      */
     async withPrivacyConfig (params) {
         const jsonString = JSON.stringify(params, null, 2)
+
         /** @type {RemoteResource} */
-        const resource = {
-            id: 'privacy-configuration',
-            url: 'https://example.com/macos-config.json',
-            name: 'Privacy Config',
-            current: {
-                source: {
-                    remote: {
-                        url: 'https://example.com/macos-config.json',
-                        fetchedAt: '2023-07-05T12:34:56Z'
-                    }
-                },
-                contents: jsonString,
-                contentType: 'application/json'
-            }
-        }
+        const resource = this.remoteResources.privacyConfig(jsonString)
 
         /** @type {GetFeaturesResponse} */
         const getFeatures = {
@@ -566,5 +593,17 @@ export class DebugToolsPage {
 
         expect(await this.page.getByText('Current Exceptions', { exact: true }).count())
             .toBe(0)
+    }
+
+    /**
+     * @param {Record<string, any>} before
+     * @param {Record<string, any>} after
+     */
+    async copyPatchFromOverride (before, after) {
+        await this.page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+        await this.locators.copyOverridePatch().click()
+        const clipboardPatches = await this.page.evaluate(() => navigator.clipboard.readText())
+        const patches = jsonpatch.compare(before, after)
+        expect(JSON.parse(clipboardPatches)).toEqual(patches)
     }
 }

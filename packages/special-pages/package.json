@@ -12,7 +12,7 @@
     "test.windows": "npm run test -- --project duckplayer-windows",
     "test.apple": "npm run test -- --project duckplayer-apple --headed",
     "test.headed": "npm run test -- --headed --project duckplayer-apple",
-    "test.ui": "npm run test -- --ui",
+    "test.ui": "npm run test -- --project duckplayer-apple --ui",
     "_pretest": "npm run build.dev && npm run test.schema",
     "_pretest.headed": "npm run build.dev && npm run test.schema",
     "test-int-x": "npm run test",

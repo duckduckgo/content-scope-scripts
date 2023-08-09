@@ -1,7 +1,7 @@
 import { test } from '@playwright/test'
 import { DebugToolsPage } from './page-objects/debug-tools'
 
-test.describe.only('debug tools', () => {
+test.describe('debug tools', () => {
     test.describe('navigation', () => {
         test('loads the application, defaults to remote resource editor', async ({ page }, workerInfo) => {
             const dt = DebugToolsPage.create(page, workerInfo)
@@ -65,48 +65,6 @@ test.describe.only('debug tools', () => {
             await dt.hasLoaded()
             await dt.switchesTo('inline')
             await dt.editsPreview()
-            await dt.saves()
-        })
-        test.only('updates a resource + saves as patch', async ({ page }, workerInfo) => {
-            const dt = DebugToolsPage.create(page, workerInfo)
-            await dt.enabled()
-            await dt.withPrivacyConfig({
-                unprotectedTemporary: [],
-                features: {
-                    abc: {
-                        state: 'enabled',
-                        exceptions: [],
-                        settings: {
-                            a: 'b',
-                            c: ['d']
-                        }
-                    }
-                }
-            })
-            const edited = {
-                unprotectedTemporary: [],
-                features: {
-                    abc: {
-                        state: 'enabled',
-                        exceptions: [],
-                        settings: {
-                            a: 'b',
-                            c: ['d'],
-                            d: { e: 'f' }
-                        }
-                    }
-                }
-            }
-
-            await dt.openRemoteResourceEditor()
-            await dt.hasLoaded()
-            await dt.switchesTo('inline')
-
-            const editedString = JSON.stringify(edited, null, 2)
-            await dt.editsPreview(editedString)
-            await page.pause()
-
-            await dt.switchesTo('patches')
             await dt.saves()
         })
         test('handles when input cannot be used with toggles (because of edits)', async ({ page }, workerInfo) => {

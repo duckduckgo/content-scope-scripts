@@ -53,6 +53,11 @@ export function RemoteResourceState (props) {
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch(console.error)
     }
+    function copyPatch () {
+        navigator.clipboard.writeText('[]')
+            // eslint-disable-next-line promise/prefer-await-to-then
+            .catch(console.error)
+    }
 
     function showOverride () {
         props.showOverrideForm()
@@ -104,6 +109,7 @@ export function RemoteResourceState (props) {
                 remove={() => props.setUrl(props.resource.url)}
                 pending={props.pending}
                 copy={copy}
+                copyPatch={copyPatch}
                 setUrl={props.setUrl}
             />
         </div>
@@ -115,6 +121,7 @@ export function RemoteResourceState (props) {
  * @param {RemoteResource} props.resource
  * @param {() => void} props.remove
  * @param {(e: any, value: string) => void} props.copy
+ * @param {() => void} props.copyPatch
  * @param {boolean} props.pending
  * @param {(url: string) => void} props.setUrl
  */
@@ -160,6 +167,7 @@ function Override (props) {
                 <DD>
                     {date(source.debugTools.modifiedAt)}
                     <MicroButton className="ml-3.5" onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
+                    <MicroButton className="ml-3.5" onClick={props.copyPatch}>Copy Patch</MicroButton>
                 </DD>
             </InlineDL>
         )
