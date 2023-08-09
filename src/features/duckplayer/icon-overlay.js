@@ -168,7 +168,7 @@ export class IconOverlay {
      * @param {(href: string) => void} onClick
      */
     appendHoverOverlay (onClick) {
-        this.sideEffects.add('IconOverlay adding to page', () => {
+        this.sideEffects.add('Adding the re-usable overlay to the page ', () => {
             // add the CSS to the head
             const style = document.createElement('style')
             style.textContent = css
@@ -178,7 +178,6 @@ export class IconOverlay {
             const element = this.create('fixed', '', this.HOVER_CLASS)
             document.body.appendChild(element)
 
-            //
             this.addClickHandler(element, onClick)
 
             return () => {
@@ -194,9 +193,9 @@ export class IconOverlay {
      * @param {(href: string) => void} onClick
      */
     appendSmallVideoOverlay (container, href, onClick) {
-        this.sideEffects.add('IconOverlay adding to page', () => {
+        this.sideEffects.add('Adding a small overlay for the video player', () => {
             const element = this.create('video-player', href, 'hidden')
-            //
+
             this.addClickHandler(element, onClick)
 
             container.appendChild(element)
@@ -240,7 +239,7 @@ export class IconOverlay {
     addClickHandler (element, callback) {
         element.addEventListener('click', (event) => {
             event.preventDefault()
-            event.stopPropagation()
+            event.stopImmediatePropagation()
             const link = /** @type {HTMLElement} */(event.target).closest('a')
             const href = link?.getAttribute('href')
             if (href) {

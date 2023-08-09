@@ -128,6 +128,7 @@ export class VideoOverlay {
             const href = params.toPrivatePlayerUrl()
 
             const icon = new IconOverlay()
+
             icon.appendSmallVideoOverlay(containerElement, href, (href) => {
                 this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }))
             })

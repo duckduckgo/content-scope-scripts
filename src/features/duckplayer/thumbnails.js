@@ -205,7 +205,7 @@ export class ClickInterception {
 
                 const block = (href) => {
                     e.preventDefault()
-                    e.stopPropagation()
+                    e.stopImmediatePropagation()
                     this.messages.openDuckPlayer({ href })
                 }
 
@@ -252,7 +252,6 @@ function findElementFromEvent (selector, excludedSelectors, e) {
 
     const fastPath = excludedSelectors.length === 0
 
-    // console.log('element stack', document.elementsFromPoint(e.clientX, e.clientY))
     for (const element of document.elementsFromPoint(e.clientX, e.clientY)) {
         // bail early if this item was excluded anywhere in the element stack
         if (excludedSelectors.some(ex => element.matches(ex))) {
