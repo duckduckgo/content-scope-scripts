@@ -8199,13 +8199,19 @@
     function validateSettings (input) {
         return {
             selectors: {
-                thumbLink: input.selectors?.thumbLink || "a[href^='/watch']:has(img)",
+                thumbLink: input.selectors?.thumbLink || "a[href^='/watch']",
                 excludedRegions: input.selectors?.excludedRegions || ['#playlist'],
                 videoElement: input.selectors?.videoElement || '#player video',
                 videoElementContainer: input.selectors?.videoElementContainer || '#player .html5-video-player',
                 clickExcluded: input.selectors?.clickExcluded || [],
                 hoverExcluded: input.selectors?.hoverExcluded || [],
-                allowedEventTargets: input.selectors?.allowedEventTargets || []
+                allowedEventTargets: input.selectors?.allowedEventTargets || [
+                    '.ytp-inline-preview-scrim',
+                    '.ytd-video-preview',
+                    '#thumbnail-container',
+                    '#video-title-link',
+                    '#video-title'
+                ]
             },
             thumbnailOverlays: {
                 state: input.thumbnailOverlays?.state || 'enabled'
@@ -8498,7 +8504,7 @@
          * @param {(href: string) => void} onClick
          */
         appendHoverOverlay (onClick) {
-            this.sideEffects.add('IconOverlay adding to page', () => {
+            this.sideEffects.add('Adding the re-usable overlay to the page ', () => {
                 // add the CSS to the head
                 const style = document.createElement('style');
                 style.textContent = css$1;
@@ -8508,7 +8514,6 @@
                 const element = this.create('fixed', '', this.HOVER_CLASS);
                 document.body.appendChild(element);
 
-                //
                 this.addClickHandler(element, onClick);
 
                 return () => {
@@ -8524,9 +8529,9 @@
          * @param {(href: string) => void} onClick
          */
         appendSmallVideoOverlay (container, href, onClick) {
-            this.sideEffects.add('IconOverlay adding to page', () => {
+            this.sideEffects.add('Adding a small overlay for the video player', () => {
                 const element = this.create('video-player', href, 'hidden');
-                //
+
                 this.addClickHandler(element, onClick);
 
                 container.appendChild(element);
@@ -8570,7 +8575,7 @@
         addClickHandler (element, callback) {
             element.addEventListener('click', (event) => {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 const link = /** @type {HTMLElement} */(event.target).closest('a');
                 const href = link?.getAttribute('href');
                 if (href) {
@@ -8785,7 +8790,7 @@
 
                     const block = (href) => {
                         e.preventDefault();
-                        e.stopPropagation();
+                        e.stopImmediatePropagation();
                         this.messages.openDuckPlayer({ href });
                     };
 
@@ -8832,7 +8837,6 @@
 
         const fastPath = excludedSelectors.length === 0;
 
-        // console.log('element stack', document.elementsFromPoint(e.clientX, e.clientY))
         for (const element of document.elementsFromPoint(e.clientX, e.clientY)) {
             // bail early if this item was excluded anywhere in the element stack
             if (excludedSelectors.some(ex => element.matches(ex))) {
@@ -9144,6 +9148,7 @@
                 const href = params.toPrivatePlayerUrl();
 
                 const icon = new IconOverlay();
+
                 icon.appendSmallVideoOverlay(containerElement, href, (href) => {
                     this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }));
                 });
