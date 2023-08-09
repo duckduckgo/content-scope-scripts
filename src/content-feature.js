@@ -6,7 +6,7 @@ import { PerformanceMonitor } from './performance.js'
 import { MessagingContext } from '../packages/messaging/index.js'
 import { createMessaging } from './create-messaging.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
-import { getOwnPropertyDescriptor, objectKeys } from '@duckduckgo/safe-globals'
+import { Object } from '@duckduckgo/safe-globals'
 
 /**
  * @typedef {object} AssetConfig
@@ -324,7 +324,7 @@ export default class ContentFeature {
             object = object.wrappedJSObject || object
         }
 
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
+        const origDescriptor = Object.getOwnPropertyDescriptor(object, propertyName)
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
             return
@@ -345,7 +345,7 @@ export default class ContentFeature {
             return origDescriptor
         } else {
             // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${Object.keys(origDescriptor)}`)
         }
     }
 
@@ -363,7 +363,7 @@ export default class ContentFeature {
         if (hasMozProxies) {
             object = object.wrappedJSObject || object
         }
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
+        const origDescriptor = Object.getOwnPropertyDescriptor(object, propertyName)
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
             return

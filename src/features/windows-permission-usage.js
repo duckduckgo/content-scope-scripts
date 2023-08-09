@@ -1,6 +1,7 @@
 /* global Bluetooth, Geolocation, HID, Serial, USB */
 import { DDGProxy, DDGReflect } from '../utils'
 import ContentFeature from '../content-feature'
+import { Object } from '@duckduckgo/safe-globals'
 
 export default class WindowsPermissionUsage extends ContentFeature {
     init () {

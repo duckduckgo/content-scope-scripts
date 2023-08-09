@@ -1,4 +1,5 @@
 import { processAttr, getContextId } from '../../utils.js'
+import { Object, Reflect } from '@duckduckgo/safe-globals'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const globalStates = new Set()
