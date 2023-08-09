@@ -270,38 +270,3 @@ export class DomState {
         this.loadedCallbacks.push(loadedCallback)
     }
 }
-
-/**
- * A single place to validate the overflow settings
- * and set defaults if needed
- * @param {any} input
- * @returns {import("../duck-player").OverlaysFeatureSettings}
- */
-export function validateSettings (input) {
-    return {
-        selectors: {
-            thumbLink: input.selectors?.thumbLink || "a[href^='/watch']",
-            excludedRegions: input.selectors?.excludedRegions || ['#playlist'],
-            videoElement: input.selectors?.videoElement || '#player video',
-            videoElementContainer: input.selectors?.videoElementContainer || '#player .html5-video-player',
-            clickExcluded: input.selectors?.clickExcluded || [],
-            hoverExcluded: input.selectors?.hoverExcluded || [],
-            allowedEventTargets: input.selectors?.allowedEventTargets || [
-                '.ytp-inline-preview-scrim',
-                '.ytd-video-preview',
-                '#thumbnail-container',
-                '#video-title-link',
-                '#video-title'
-            ]
-        },
-        thumbnailOverlays: {
-            state: input.thumbnailOverlays?.state || 'enabled'
-        },
-        clickInterception: {
-            state: input.clickInterception?.state || 'enabled'
-        },
-        videoOverlays: {
-            state: input.videoOverlays?.state || 'enabled'
-        }
-    }
-}
