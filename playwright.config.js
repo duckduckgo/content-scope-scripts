@@ -3,16 +3,10 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
     projects: [
         {
-            name: 'duckplayer-e2e',
-            testMatch: [
-                'integration-test/playwright/duckplayer.e2e.spec.js'
-            ],
-            use: { injectName: 'windows', platform: 'windows', e2e: process.env.E2E }
-        },
-        {
             name: 'windows',
             testMatch: [
                 'integration-test/playwright/duckplayer.spec.js',
+                'integration-test/playwright/duckplayer-remote-config.spec.js',
                 'integration-test/playwright/harmful-apis.spec.js',
                 'integration-test/playwright/windows-permissions.spec.js'
             ],
@@ -21,7 +15,8 @@ export default defineConfig({
         {
             name: 'apple-isolated',
             testMatch: [
-                'integration-test/playwright/duckplayer.spec.js'
+                'integration-test/playwright/duckplayer.spec.js',
+                'integration-test/playwright/duckplayer-remote-config.spec.js'
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' }
         },

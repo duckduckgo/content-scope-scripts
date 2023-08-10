@@ -19,7 +19,8 @@
     "inject",
     "packages",
     "playwright.config.js",
-    "script-overload-snapshots"
+    "script-overload-snapshots",
+    "./src/features/duckplayer/duckplayer-settings.ts"
   ],
   "exclude": [
     "snapshots/script-overload-snapshots",

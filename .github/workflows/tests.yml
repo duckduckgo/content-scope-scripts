@@ -65,6 +65,7 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - run: npm run playwright
+#    - run: npm run playwright-e2e
     - uses: actions/upload-artifact@v2
       if: always()
       with:

@@ -15,15 +15,15 @@
               ],
               "videoElement": "#player video",
               "videoElementContainer": "#player .html5-video-player",
-              "hoverExcluded": [".an-overlay-causing-breakage"],
-              "clickExcluded": [".an-overlay-causing-breakage"],
+              "hoverExcluded": [],
+              "clickExcluded": [],
               "allowedEventTargets": []
             },
             "thumbnailOverlays": {
               "state": "enabled"
             },
             "clickInterception": {
-              "state": "enabled"
+              "state": "disabled"
             },
             "videoOverlays": {
               "state": "enabled"

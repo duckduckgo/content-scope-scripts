@@ -4,6 +4,8 @@
 
     const Set$1 = globalThis.Set;
     const Reflect$1 = globalThis.Reflect;
+    globalThis.customElements?.get.bind(globalThis.customElements);
+    globalThis.customElements?.define.bind(globalThis.customElements);
     const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
     const objectKeys = Object.keys;
 
