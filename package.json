@@ -43,7 +43,9 @@
     "playwright-headed": "playwright test --headed",
     "preplaywright": "npm run build-windows && npm run build-apple",
     "preplaywright-headed": "npm run build-windows && npm run build-apple",
-    "playwright-e2e": "E2E=true playwright test --project duckplayer-e2e"
+    "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
+    "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
+    "preplaywright-e2e": "npm run build-windows && npm run build-apple"
   },
   "type": "module",
   "workspaces": [

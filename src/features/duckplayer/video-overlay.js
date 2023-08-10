@@ -1,34 +1,71 @@
 /* eslint-disable promise/prefer-await-to-then */
-import { applyEffect, execCleanups, VideoParams } from './util.js'
-import { VideoPlayerIcon } from './video-player-icon'
+/**
+ * @module Duck Player Video Overlay
+ *
+ * @description
+ *
+ * ## Decision flow for appending the Video Overlays
+ *
+ * We'll try to append the full video overlay (or small Dax icon) onto the main video player
+ * if the following conditions are met:
+ *
+ * 1. User has Duck Player configured to 'always ask' (the default)
+ * 2. `videoOverlays` is enabled in the remote config
+ *
+ * If those are both met, the following steps occur on *first page load*:
+ *
+ * - let `href` be the current `window.location.href` value
+ * - *exit to polling step* if `href` is not a valid watchPage
+ * - when `href` is a valid watch page, then:
+ *   - append CSS to the HEAD to avoid the main player showing
+ *   - in a loop (every 100ms), continuously check if the video element has appeared
+ * - when the video is showing:
+ *   - if the user has duck player set to 'enabled', then:
+ *     - show the small dax overlay
+ * - if the user has duck player set to 'always ask', then:
+ *   - if there's a one-time override (eg: from the serp), then exit to polling
+ *   - if the user previously clicked 'watch here + remember', just add the small dax
+ *   - otherwise, stop the video playing + append our overlay
+ */
+import { SideEffects, VideoParams } from './util.js'
 import { DDGVideoOverlay } from './components/ddg-video-overlay.js'
-import { Pixel } from './overlay-messages.js'
+import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js'
+import { IconOverlay } from './icon-overlay.js'
 
 /**
  * Handle the switch between small & large overlays
  * + conduct any communications
  */
-export class VideoOverlayManager {
+export class VideoOverlay {
+    sideEffects = new SideEffects()
+
     /** @type {string | null} */
     lastVideoId = null
 
-    /** @type {import("./video-player-icon").VideoPlayerIcon | null} */
-    videoPlayerIcon = null
-
-    selectors = {
-        videoElement: '#player video',
-        container: '#player .html5-video-player'
+    /**
+     * @param {import("../duck-player.js").UserValues} userValues
+     * @param {import("../duck-player.js").OverlaysFeatureSettings} settings
+     * @param {import("./overlays.js").Environment} environment
+     * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} messages
+     */
+    constructor (userValues, settings, environment, messages) {
+        this.userValues = userValues
+        this.settings = settings
+        this.environment = environment
+        this.messages = messages
     }
 
     /**
-     * @param {import("../duck-player.js").UserValues} userValues
-     * @param {import("./overlays.js").Environment} environment
-     * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms
+     * @param {'page-load' | 'preferences-changed' | 'href-changed'} trigger
      */
-    constructor (userValues, environment, comms) {
-        this.userValues = userValues
-        this.environment = environment
-        this.comms = comms
+    init (trigger) {
+        if (trigger === 'page-load') {
+            this.handleFirstPageLoad()
+        } else if (trigger === 'preferences-changed') {
+            this.watchForVideoBeingAdded({ via: 'user notification', ignoreCache: true })
+        } else if (trigger === 'href-changed') {
+            this.watchForVideoBeingAdded({ via: 'href changed' })
+        }
     }
 
     /**
@@ -37,9 +74,6 @@ export class VideoOverlayManager {
     handleFirstPageLoad () {
         // don't continue unless we're in 'alwaysAsk' mode
         if ('disabled' in this.userValues.privatePlayerMode) return
-
-        // don't continue if we've recorded a previous interaction
-        if (this.userValues.overlayInteracted) return
 
         // don't continue if we can't derive valid video params
         const validParams = VideoParams.forWatchPage(this.environment.getPlayerPageHref())
@@ -55,15 +89,15 @@ export class VideoOverlayManager {
          * So, in that case we append some css quickly to the head to ensure player items are not showing
          * Later, when our overlay loads that CSS will be removed in the cleanup.
          */
-        this.sideEffect('add css to head', () => {
-            const s = document.createElement('style')
-            s.innerText = '.html5-video-player { opacity: 0!important }'
+        this.sideEffects.add('add css to head', () => {
+            const style = document.createElement('style')
+            style.innerText = this.settings.selectors.videoElementContainer + ' { opacity: 0!important }'
             if (document.head) {
-                document.head.appendChild(s)
+                document.head.appendChild(style)
             }
             return () => {
-                if (s.isConnected) {
-                    document.head.removeChild(s)
+                if (style.isConnected) {
+                    document.head.removeChild(style)
                 }
             }
         })
@@ -71,7 +105,7 @@ export class VideoOverlayManager {
         /**
          * Keep trying to find the video element every 100 ms
          */
-        this.sideEffect('wait for first video element', () => {
+        this.sideEffects.add('wait for first video element', () => {
             const int = setInterval(() => {
                 this.watchForVideoBeingAdded({ via: 'first page load' })
             }, 100)
@@ -85,21 +119,29 @@ export class VideoOverlayManager {
      * @param {import("./util").VideoParams} params
      */
     addSmallDaxOverlay (params) {
-        const containerElement = document.querySelector(this.selectors.container)
-        if (!containerElement) {
+        const containerElement = document.querySelector(this.settings.selectors.videoElementContainer)
+        if (!containerElement || !(containerElement instanceof HTMLElement)) {
             console.error('no container element')
             return
         }
-        if (!this.videoPlayerIcon) {
-            this.videoPlayerIcon = new VideoPlayerIcon()
-        }
-        this.videoPlayerIcon.init(containerElement, params)
+        this.sideEffects.add('adding small dax 🐥 icon overlay', () => {
+            const href = params.toPrivatePlayerUrl()
+
+            const icon = new IconOverlay()
+
+            icon.appendSmallVideoOverlay(containerElement, href, (href) => {
+                this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }))
+            })
+
+            return () => {
+                icon.destroy()
+            }
+        })
     }
 
     /**
      * @param {{ignoreCache?: boolean, via?: string}} [opts]
      */
-    // @ts-expect-error - Not all code paths return a value.
     watchForVideoBeingAdded (opts = {}) {
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref())
 
@@ -109,24 +151,27 @@ export class VideoOverlayManager {
              * it's likely a 'back' navigation by the user, so we should always try to remove all overlays
              */
             if (this.lastVideoId) {
-                this.removeAllOverlays()
+                this.destroy()
                 this.lastVideoId = null
             }
             return
         }
 
         const conditions = [
+            // cache overridden
             opts.ignoreCache,
+            // first visit
             !this.lastVideoId,
-            this.lastVideoId && this.lastVideoId !== params.id
+            // new video id
+            this.lastVideoId && this.lastVideoId !== params.id // different
         ]
 
         if (conditions.some(Boolean)) {
             /**
              * Don't continue until we've been able to find the HTML elements that we inject into
              */
-            const videoElement = document.querySelector(this.selectors.videoElement)
-            const playerContainer = document.querySelector(this.selectors.container)
+            const videoElement = document.querySelector(this.settings.selectors.videoElement)
+            const playerContainer = document.querySelector(this.settings.selectors.videoElementContainer)
             if (!videoElement || !playerContainer) {
                 return null
             }
@@ -140,23 +185,27 @@ export class VideoOverlayManager {
             /**
              * always remove everything first, to prevent any lingering state
              */
-            this.removeAllOverlays()
+            this.destroy()
 
             /**
-             * When enabled, always show the small dax icon
+             * When enabled, just show the small dax icon
              */
             if ('enabled' in userValues.privatePlayerMode) {
-                this.addSmallDaxOverlay(params)
+                return this.addSmallDaxOverlay(params)
             }
+
             if ('alwaysAsk' in userValues.privatePlayerMode) {
-                if (!userValues.overlayInteracted) {
-                    if (!this.environment.hasOneTimeOverride()) {
-                        this.stopVideoFromPlaying()
-                        this.appendOverlayToPage(playerContainer, params)
-                    }
-                } else {
-                    this.addSmallDaxOverlay(params)
+                // if there's a one-time-override (eg: a link from the serp), then do nothing
+                if (this.environment.hasOneTimeOverride()) return
+
+                // if the user previously clicked 'watch here + remember', just add the small dax
+                if (userValues.overlayInteracted) {
+                    return this.addSmallDaxOverlay(params)
                 }
+
+                // if we get here, we're trying to prevent the video playing
+                this.stopVideoFromPlaying()
+                this.appendOverlayToPage(playerContainer, params)
             }
         }
     }
@@ -166,8 +215,9 @@ export class VideoOverlayManager {
      * @param {import("./util").VideoParams} params
      */
     appendOverlayToPage (targetElement, params) {
-        this.sideEffect(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} to the page`, () => {
-            this.comms.sendPixel(new Pixel({ name: 'overlay' }))
+        this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} to the page`, () => {
+            this.messages.sendPixel(new Pixel({ name: 'overlay' }))
+
             const overlayElement = new DDGVideoOverlay(this.environment, params, this)
             targetElement.appendChild(overlayElement)
 
@@ -176,9 +226,7 @@ export class VideoOverlayManager {
              */
             return () => {
                 const prevOverlayElement = document.querySelector(DDGVideoOverlay.CUSTOM_TAG_NAME)
-                if (prevOverlayElement) {
-                    prevOverlayElement.parentNode?.removeChild?.(prevOverlayElement)
-                }
+                prevOverlayElement?.remove()
             }
         })
     }
@@ -187,13 +235,13 @@ export class VideoOverlayManager {
      * Just brute-force calling video.pause() for as long as the user is seeing the overlay.
      */
     stopVideoFromPlaying () {
-        this.sideEffect(`pausing the <video> element with selector '${this.selectors.videoElement}'`, () => {
+        this.sideEffects.add(`pausing the <video> element with selector '${this.settings.selectors.videoElement}'`, () => {
             /**
              * Set up the interval - keep calling .pause() to prevent
              * the video from playing
              */
             const int = setInterval(() => {
-                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.selectors.videoElement))
+                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.settings.selectors.videoElement))
                 if (video?.isConnected) {
                     video.pause()
                 }
@@ -206,7 +254,7 @@ export class VideoOverlayManager {
             return () => {
                 clearInterval(int)
 
-                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.selectors.videoElement))
+                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.settings.selectors.videoElement))
                 if (video?.isConnected) {
                     video.play()
                 }
@@ -226,17 +274,17 @@ export class VideoOverlayManager {
         /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
         let privatePlayerMode = { alwaysAsk: {} }
         if (remember) {
-            this.comms.sendPixel(new Pixel({ name: 'play.use', remember: '1' }))
+            this.messages.sendPixel(new Pixel({ name: 'play.use', remember: '1' }))
             privatePlayerMode = { enabled: {} }
         } else {
-            this.comms.sendPixel(new Pixel({ name: 'play.use', remember: '0' }))
+            this.messages.sendPixel(new Pixel({ name: 'play.use', remember: '0' }))
             // do nothing. The checkbox was off meaning we don't want to save any choice
         }
         const outgoing = {
             overlayInteracted: false,
             privatePlayerMode
         }
-        this.comms.setUserValues(outgoing)
+        this.messages.setUserValues(outgoing)
             .then(() => this.environment.setHref(params.toPrivatePlayerUrl()))
             .catch(e => console.error('error setting user choice', e))
     }
@@ -254,10 +302,10 @@ export class VideoOverlayManager {
          * and instead we just swap the main overlay for Dax
          */
         if (remember) {
-            this.comms.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '1' }))
+            this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '1' }))
             /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
             const privatePlayerMode = { alwaysAsk: {} }
-            this.comms.setUserValues({
+            this.messages.setUserValues({
                 privatePlayerMode,
                 overlayInteracted: true
             })
@@ -267,36 +315,16 @@ export class VideoOverlayManager {
                 .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
                 .catch(e => console.error('could not set userChoice for opt-out', e))
         } else {
-            this.comms.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }))
-            this.removeAllOverlays()
+            this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }))
+            this.destroy()
             this.addSmallDaxOverlay(params)
         }
-    }
-
-    /** @type {{fn: () => void, name: string}[]} */
-    _cleanups = []
-
-    /**
-     * Wrap a side-effecting operation for easier debugging
-     * and teardown/release of resources
-     * @param {string} name
-     * @param {() => () => void} fn
-     */
-    sideEffect (name, fn) {
-        applyEffect(name, fn, this._cleanups)
     }
 
     /**
      * Remove elements, event listeners etc
      */
-    removeAllOverlays () {
-        execCleanups(this._cleanups)
-        this._cleanups = []
-
-        if (this.videoPlayerIcon) {
-            this.videoPlayerIcon.cleanup()
-        }
-
-        this.videoPlayerIcon = null
+    destroy () {
+        this.sideEffects.destroy()
     }
 }

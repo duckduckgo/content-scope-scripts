@@ -1,35 +1,28 @@
-import { addTrustedEventListener, appendElement, VideoParams } from './util'
+import css from './assets/styles.css'
+import { SideEffects, VideoParams } from './util.js'
 import dax from './assets/dax.svg'
 import { i18n } from './text.js'
-import { OpenInDuckPlayerMsg } from './overlay-messages.js'
 import { html, trustedUnsafe } from '../../dom-utils.js'
 
-export const IconOverlay = {
+export class IconOverlay {
+    sideEffects = new SideEffects()
+
+    /** @type {HTMLElement | null} */
+    element = null
     /**
      * Special class used for the overlay hover. For hovering, we use a
      * single element and move it around to the hovered video element.
      */
-    HOVER_CLASS: 'ddg-overlay-hover',
-    OVERLAY_CLASS: 'ddg-overlay',
+    HOVER_CLASS = 'ddg-overlay-hover'
+    OVERLAY_CLASS = 'ddg-overlay'
 
-    CSS_OVERLAY_MARGIN_TOP: 5,
-    CSS_OVERLAY_HEIGHT: 32,
+    CSS_OVERLAY_MARGIN_TOP = 5
+    CSS_OVERLAY_HEIGHT = 32
 
     /** @type {HTMLElement | null} */
-    currentVideoElement: null,
-    hoverOverlayVisible: false,
+    currentVideoElement = null
+    hoverOverlayVisible = false
 
-    /**
-     * @type {import("./overlay-messages.js").DuckPlayerOverlayMessages | null}
-     */
-    comms: null,
-    /**
-     * // todo: when this is a class, pass this as a constructor arg
-     * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} comms
-     */
-    setComms (comms) {
-        IconOverlay.comms = comms
-    },
     /**
      * Creates an Icon Overlay.
      * @param {string} size - currently kind-of unused
@@ -37,7 +30,7 @@ export const IconOverlay = {
      * @param {string} [extraClass] - whether to add any extra classes, such as hover
      * @returns {HTMLElement}
      */
-    create: (size, href, extraClass) => {
+    create (size, href, extraClass) {
         const overlayElement = document.createElement('div')
 
         overlayElement.setAttribute('class', 'ddg-overlay' + (extraClass ? ' ' + extraClass : ''))
@@ -56,40 +49,29 @@ export const IconOverlay = {
                 </a>`.toString()
 
         overlayElement.querySelector('a.ddg-play-privately')?.setAttribute('href', href)
-        overlayElement.querySelector('a.ddg-play-privately')?.addEventListener('click', (event) => {
-            event.preventDefault()
-            event.stopPropagation()
-
-            // @ts-expect-error - needs a cast
-            const link = event.target.closest('a')
-            const href = link.getAttribute('href')
-
-            IconOverlay.comms?.openDuckPlayer(new OpenInDuckPlayerMsg({ href }))
-        })
-
         return overlayElement
-    },
+    }
 
     /**
      * Util to return the hover overlay
      * @returns {HTMLElement | null}
      */
-    getHoverOverlay: () => {
-        return document.querySelector('.' + IconOverlay.HOVER_CLASS)
-    },
+    getHoverOverlay () {
+        return document.querySelector('.' + this.HOVER_CLASS)
+    }
 
     /**
      * Moves the hover overlay to a specified videoElement
      * @param {HTMLElement} videoElement - which element to move it to
      */
-    moveHoverOverlayToVideoElement: (videoElement) => {
-        const overlay = IconOverlay.getHoverOverlay()
+    moveHoverOverlayToVideoElement (videoElement) {
+        const overlay = this.getHoverOverlay()
 
-        if (overlay === null || IconOverlay.videoScrolledOutOfViewInPlaylist(videoElement)) {
+        if (overlay === null || this.videoScrolledOutOfViewInPlaylist(videoElement)) {
             return
         }
 
-        const videoElementOffset = IconOverlay.getElementOffset(videoElement)
+        const videoElementOffset = this.getElementOffset(videoElement)
 
         overlay.setAttribute('style', '' +
             'top: ' + videoElementOffset.top + 'px;' +
@@ -97,7 +79,7 @@ export const IconOverlay = {
             'display:block;'
         )
 
-        overlay.setAttribute('data-size', 'fixed ' + IconOverlay.getThumbnailSize(videoElement))
+        overlay.setAttribute('data-size', 'fixed ' + this.getThumbnailSize(videoElement))
 
         const href = videoElement.getAttribute('href')
 
@@ -108,9 +90,9 @@ export const IconOverlay = {
             }
         }
 
-        IconOverlay.hoverOverlayVisible = true
-        IconOverlay.currentVideoElement = videoElement
-    },
+        this.hoverOverlayVisible = true
+        this.currentVideoElement = videoElement
+    }
 
     /**
      * Returns true if the videoElement is scrolled out of view in a playlist. (In these cases
@@ -118,15 +100,15 @@ export const IconOverlay = {
      * @param {HTMLElement} videoElement
      * @returns {boolean}
      */
-    videoScrolledOutOfViewInPlaylist: (videoElement) => {
+    videoScrolledOutOfViewInPlaylist (videoElement) {
         const inPlaylist = videoElement.closest('#items.playlist-items')
 
         if (inPlaylist) {
             const video = videoElement.getBoundingClientRect()
             const playlist = inPlaylist.getBoundingClientRect()
 
-            const videoOutsideTop = (video.top + IconOverlay.CSS_OVERLAY_MARGIN_TOP) < playlist.top
-            const videoOutsideBottom = ((video.top + IconOverlay.CSS_OVERLAY_HEIGHT + IconOverlay.CSS_OVERLAY_MARGIN_TOP) > playlist.bottom)
+            const videoOutsideTop = (video.top + this.CSS_OVERLAY_MARGIN_TOP) < playlist.top
+            const videoOutsideBottom = ((video.top + this.CSS_OVERLAY_HEIGHT + this.CSS_OVERLAY_MARGIN_TOP) > playlist.bottom)
 
             if (videoOutsideTop || videoOutsideBottom) {
                 return true
@@ -134,50 +116,27 @@ export const IconOverlay = {
         }
 
         return false
-    },
+    }
 
     /**
      * Return the offset of an HTML Element
      * @param {HTMLElement} el
      * @returns {Object}
      */
-    getElementOffset: (el) => {
+    getElementOffset (el) {
         const box = el.getBoundingClientRect()
         const docElem = document.documentElement
         return {
             top: box.top + window.pageYOffset - docElem.clientTop,
             left: box.left + window.pageXOffset - docElem.clientLeft
         }
-    },
-
-    /**
-     * Reposition the hover overlay on top of the current video element (in case
-     * of window resize if the hover overlay is visible)
-     */
-    repositionHoverOverlay: () => {
-        if (IconOverlay.currentVideoElement && IconOverlay.hoverOverlayVisible) {
-            IconOverlay.moveHoverOverlayToVideoElement(IconOverlay.currentVideoElement)
-        }
-    },
-
-    /**
-     * The IconOverlay is absolutely positioned and at the end of the body tag. This means that if its placed in
-     * a scrollable playlist, it will "float" above the playlist on scroll.
-     */
-    hidePlaylistOverlayOnScroll: (e) => {
-        if (e?.target?.id === 'items') {
-            const overlay = IconOverlay.getHoverOverlay()
-            if (overlay) {
-                IconOverlay.hideOverlay(overlay)
-            }
-        }
-    },
+    }
 
     /**
      * Hides the hover overlay element, but only if mouse pointer is outside of the hover overlay element
      */
-    hideHoverOverlay: (event, force) => {
-        const overlay = IconOverlay.getHoverOverlay()
+    hideHoverOverlay (event, force) {
+        const overlay = this.getHoverOverlay()
 
         const toElement = event.toElement
 
@@ -188,63 +147,67 @@ export const IconOverlay = {
                 return
             }
 
-            IconOverlay.hideOverlay(overlay)
-            IconOverlay.hoverOverlayVisible = false
+            this.hideOverlay(overlay)
+            this.hoverOverlayVisible = false
         }
-    },
+    }
 
     /**
      * Util for hiding an overlay
      * @param {HTMLElement} overlay
      */
-    hideOverlay: (overlay) => {
+    hideOverlay (overlay) {
         overlay.setAttribute('style', 'display:none;')
-    },
+    }
 
     /**
      * Appends the Hover Overlay to the page. This is the one that is shown on hover of any video thumbnail.
      * More performant / clean than adding an overlay to each and every video thumbnail. Also it prevents triggering
      * the video hover preview on the homepage if the user hovers the overlay, because user is no longer hovering
      * inside a video thumbnail when hovering the overlay. Nice.
+     * @param {(href: string) => void} onClick
      */
-    appendHoverOverlay: () => {
-        const el = IconOverlay.create('fixed', '', IconOverlay.HOVER_CLASS)
-        appendElement(document.body, el)
+    appendHoverOverlay (onClick) {
+        this.sideEffects.add('Adding the re-usable overlay to the page ', () => {
+            // add the CSS to the head
+            const style = document.createElement('style')
+            style.textContent = css
+            document.head.appendChild(style)
 
-        // Hide it if user clicks anywhere on the page but in the icon overlay itself
-        addTrustedEventListener(document.body, 'mouseup', (event) => {
-            IconOverlay.hideHoverOverlay(event)
+            // create and append the element
+            const element = this.create('fixed', '', this.HOVER_CLASS)
+            document.body.appendChild(element)
+
+            this.addClickHandler(element, onClick)
+
+            return () => {
+                element.remove()
+                document.head.removeChild(style)
+            }
         })
-    },
+    }
 
     /**
-     * Appends an overlay (currently just used for the video hover preview)
-     * @param {HTMLElement} videoElement - to append to
-     * @returns {boolean} - whether the overlay was appended or not
+     * @param {HTMLElement} container
+     * @param {string} href
+     * @param {(href: string) => void} onClick
      */
-    appendToVideo: (videoElement) => {
-        const appendOverlayToThumbnail = (videoElement) => {
-            if (videoElement) {
-                const privateUrl = VideoParams.fromHref(videoElement.href)?.toPrivatePlayerUrl()
-                const thumbSize = IconOverlay.getThumbnailSize(videoElement)
-                if (privateUrl) {
-                    appendElement(videoElement, IconOverlay.create(thumbSize, privateUrl))
-                    videoElement.classList.add('has-dgg-overlay')
-                }
+    appendSmallVideoOverlay (container, href, onClick) {
+        this.sideEffects.add('Adding a small overlay for the video player', () => {
+            const element = this.create('video-player', href, 'hidden')
+
+            this.addClickHandler(element, onClick)
+
+            container.appendChild(element)
+            element.classList.remove('hidden')
+
+            return () => {
+                element?.remove()
             }
-        }
+        })
+    }
 
-        const videoElementAlreadyHasOverlay = videoElement && videoElement.querySelector('div[class="ddg-overlay"]')
-
-        if (!videoElementAlreadyHasOverlay) {
-            appendOverlayToThumbnail(videoElement)
-            return true
-        }
-
-        return false
-    },
-
-    getThumbnailSize: (videoElement) => {
+    getThumbnailSize (videoElement) {
         const imagesByArea = {}
 
         Array.from(videoElement.querySelectorAll('img')).forEach(image => {
@@ -264,11 +227,28 @@ export const IconOverlay = {
         }
 
         return getSizeType(imagesByArea[largestImage].offsetWidth, imagesByArea[largestImage].offsetHeight)
-    },
+    }
 
-    removeAll: () => {
-        document.querySelectorAll('.' + IconOverlay.OVERLAY_CLASS).forEach(element => {
-            element.remove()
+    /**
+     * Handle when dax is clicked - prevent propagation
+     * so no further listeners see this
+     *
+     * @param {HTMLElement} element - the wrapping div
+     * @param {(href: string) => void} callback - the function to execute following a click
+     */
+    addClickHandler (element, callback) {
+        element.addEventListener('click', (event) => {
+            event.preventDefault()
+            event.stopImmediatePropagation()
+            const link = /** @type {HTMLElement} */(event.target).closest('a')
+            const href = link?.getAttribute('href')
+            if (href) {
+                callback(href)
+            }
         })
+    }
+
+    destroy () {
+        this.sideEffects.destroy()
     }
 }

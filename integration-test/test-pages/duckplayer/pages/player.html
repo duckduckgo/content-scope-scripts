@@ -33,6 +33,24 @@
             height: 100%;
             width: 100%;
         }
+        .thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        .thumbnail {
+            margin: 5px;
+            background: lightblue;
+            border: 1px solid black;
+            aspect-ratio: 16/9;
+            display: block;
+        }
+
+        .thumbnail img, .short img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -43,11 +61,39 @@
 <div id="loaded"></div>
 
 <main></main>
-<template id="inner">
+<template id="inner-template">
     <div class="container">
         <div id="player">
             <div class="html5-video-player">
                 <video width="800px" height="600px"></video>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="related-template">
+    <div class="related"><h2>Up next</h2>
+        <div class="related-items">
+            <div class="thumbnails">
+                <a class="thumbnail" title="video 1" href="/watch?v=abc1"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" title="video 2" href="/watch?v=abc2"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" title="video 3" href="/watch?v=abc2"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" title="video 4" href="/watch?v=abc3"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" title="video 5" href="/watch?v=abc4"><img src="thumbnail-dark.jpg"></a>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="playlist-template">
+    <div class="playlist" id="playlist"><h2>Up next</h2>
+        <div class="playlist-items">
+            <div class="thumbnails">
+                <a class="thumbnail" title="video 1" href="/watch?v=xyz1"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" title="video 2" href="/watch?v=xyz2"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" title="video 3" href="/watch?v=xyz2"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" title="video 4" href="/watch?v=xyz3"><img src="thumbnail-dark.jpg"></a>
+                <a class="thumbnail" title="video 5" href="/watch?v=xyz4"><img src="thumbnail-dark.jpg"></a>
             </div>
         </div>
     </div>
@@ -60,10 +106,12 @@
 
     const knownVariants = {
         "default": () => {
-            main.innerHTML = html('template[id="inner"]');
+            main.innerHTML += html('template[id="inner-template"]');
+            main.innerHTML += html('template[id="related-template"]')
+            main.innerHTML += html('template[id="playlist-template"]')
         },
         "incremental-dom": () => {
-            main.innerHTML = `<div class="container"><div id="player"></div></div>`
+            main.innerHTML += `<div class="container"><div id="player"></div></div>`
             setTimeout(() => {
                 const player = main.querySelector('#player');
                 player.innerHTML = `
@@ -71,7 +119,9 @@
                     <video width="800px" height="600px"></video>
                 </div>
                 `
-            }, 100);
+                main.innerHTML += html('template[id="related-template"]')
+                main.innerHTML += html('template[id="playlist-template"]')
+            }, 200);
         },
     }
 
@@ -81,6 +131,21 @@
     } else {
         console.warn('variant not found', variant)
     }
+
+    document.addEventListener('click', (e) => {
+        if (e.target) {
+            const a = e.target.closest('a');
+            if (a && a.href.includes('/watch')) {
+                e.preventDefault();
+                const params = new URLSearchParams(a.search);
+                const current = new URL(window.location.href);
+                current.searchParams.set('v', params.get('v'));
+                history.pushState('','',current.toString());
+                document.title = a.title;
+                return;
+            }
+        }
+    })
 
 </script>
 </body>

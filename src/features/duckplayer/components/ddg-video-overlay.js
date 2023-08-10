@@ -2,7 +2,7 @@ import css from '../assets/video-overlay.css'
 import dax from '../assets/dax.svg'
 import { i18n } from '../text.js'
 import { appendImageAsBackground } from '../util.js'
-import { VideoOverlayManager } from '../video-overlay-manager.js'
+import { VideoOverlay } from '../video-overlay.js'
 import { html, trustedUnsafe } from '../../../dom-utils.js'
 
 /**
@@ -14,11 +14,11 @@ export class DDGVideoOverlay extends HTMLElement {
     /**
      * @param {import("../overlays.js").Environment} environment
      * @param {import("../util").VideoParams} params
-     * @param {VideoOverlayManager} manager
+     * @param {VideoOverlay} manager
      */
     constructor (environment, params, manager) {
         super()
-        if (!(manager instanceof VideoOverlayManager)) throw new Error('invalid arguments')
+        if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments')
         this.environment = environment
         this.params = params
         this.manager = manager
