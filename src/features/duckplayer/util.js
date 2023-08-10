@@ -14,15 +14,6 @@ export function addTrustedEventListener (element, event, callback) {
 }
 
 /**
- * Appends an element. This may change if we go with Shadow DOM approach
- * @param {Element} to - which element to append to
- * @param {Element} element - to be appended
- */
-export function appendElement (to, element) {
-    to.appendChild(element)
-}
-
-/**
  * Try to load an image first. If the status code is 2xx, then continue
  * to load
  * @param {HTMLElement} parent
@@ -49,7 +40,6 @@ export function appendImageAsBackground (parent, targetSelector, imageUrl) {
                 console.warn('ignoring cancelled load')
             }
         } else {
-            console.error('❌ status code did not start with a 2')
             markError()
         }
     }).catch(() => {
@@ -89,49 +79,51 @@ export function appendImageAsBackground (parent, targetSelector, imageUrl) {
     }
 }
 
-/**
- * Execute any stored tear-down functions.
- *
- * This handled anything you might want to 'undo', like stopping timers,
- * removing things from the page etc.
- *
- * @param {({fn: ()=>void, name: string})[]} cleanups
- */
-export function execCleanups (cleanups) {
-    for (const cleanup of cleanups) {
-        if (typeof cleanup.fn === 'function') {
-            try {
-                cleanup.fn()
-            } catch (e) {
-                console.error(`cleanup ${cleanup.name} threw`, e)
+export class SideEffects {
+    /** @type {{fn: () => void, name: string}[]} */
+    _cleanups = []
+    /**
+     * Wrap a side-effecting operation for easier debugging
+     * and teardown/release of resources
+     * @param {string} name
+     * @param {() => () => void} fn
+     */
+    add (name, fn) {
+        try {
+            // console.log('☢️', name)
+            const cleanup = fn()
+            if (typeof cleanup === 'function') {
+                this._cleanups.push({ name, fn: cleanup })
             }
-        } else {
-            throw new Error('invalid cleanup')
+        } catch (e) {
+            console.error('%s threw an error', name, e)
         }
     }
-}
 
-/**
- * @param {string} name
- * @param {()=>void} fn
- * @param {{name: string, fn: ()=>void}[]} storage
- */
-export function applyEffect (name, fn, storage) {
-    let cleanup
-    try {
-        cleanup = fn()
-    } catch (e) {
-        console.error('%s threw an error', name, e)
-    }
-    if (typeof cleanup === 'function') {
-        storage.push({ name, fn: cleanup })
+    /**
+     * Remove elements, event listeners etc
+     */
+    destroy () {
+        for (const cleanup of this._cleanups) {
+            if (typeof cleanup.fn === 'function') {
+                try {
+                    // console.log('🗑️', cleanup.name)
+                    cleanup.fn()
+                } catch (e) {
+                    console.error(`cleanup ${cleanup.name} threw`, e)
+                }
+            } else {
+                throw new Error('invalid cleanup')
+            }
+        }
+        this._cleanups = []
     }
 }
 
 /**
  * A container for valid/parsed video params.
  *
- * If you have an instance of `VideoParams`, then you can trust that it's valid and you can always
+ * If you have an instance of `VideoParams`, then you can trust that it's valid, and you can always
  * produce a PrivatePlayer link from it
  *
  * The purpose is to co-locate all processing of search params/pathnames for easier security auditing/testing
@@ -160,6 +152,7 @@ export class VideoParams {
      * @returns {string}
      */
     toPrivatePlayerUrl () {
+        // no try/catch because we already validated the ID
         const duckUrl = new URL(this.id, 'https://player')
         duckUrl.protocol = 'duck:'
 
@@ -170,12 +163,18 @@ export class VideoParams {
     }
 
     /**
-     * Convert a relative pathname into a
+     * Create a VideoParams instance from a href, only if it's on the watch page
+     *
      * @param {string} href
      * @returns {VideoParams|null}
      */
     static forWatchPage (href) {
-        const url = new URL(href)
+        let url
+        try {
+            url = new URL(href)
+        } catch (e) {
+            return null
+        }
         if (!url.pathname.startsWith('/watch')) {
             return null
         }
@@ -183,12 +182,18 @@ export class VideoParams {
     }
 
     /**
-     * Convert a relative pathname into a
+     * Convert a relative pathname into VideoParams
+     *
      * @param pathname
      * @returns {VideoParams|null}
      */
     static fromPathname (pathname) {
-        const url = new URL(pathname, window.location.origin)
+        let url
+        try {
+            url = new URL(pathname, window.location.origin)
+        } catch (e) {
+            return null
+        }
         return VideoParams.fromHref(url.href)
     }
 
@@ -207,10 +212,24 @@ export class VideoParams {
             return null
         }
 
+        let id = null
+
+        // known params
         const vParam = url.searchParams.get('v')
         const tParam = url.searchParams.get('t')
 
-        let id = null
+        // don't continue if 'list' is present, but 'index' is not.
+        //   valid: '/watch?v=321&list=123&index=1234'
+        // invalid: '/watch?v=321&list=123' <- index absent
+        if (url.searchParams.has('list') && !url.searchParams.has('index')) {
+            return null
+        }
+
+        // always exclude 'for rent'
+        if (url.searchParams.has('pp')) {
+            return null
+        }
+
         let time = null
 
         // ensure youtube video id is good
@@ -230,6 +249,12 @@ export class VideoParams {
     }
 }
 
+/**
+ * A helper to run a callback when the DOM is loaded.
+ * Construct this early, so that the event listener is added as soon as possible.
+ * Then you can add callbacks to it, and they will be called when the DOM is loaded, or immediately
+ * if the DOM is already loaded.
+ */
 export class DomState {
     loaded = false
     loadedCallbacks = []
@@ -243,18 +268,5 @@ export class DomState {
     onLoaded (loadedCallback) {
         if (this.loaded) return loadedCallback()
         this.loadedCallbacks.push(loadedCallback)
-    }
-
-    /**
-     * @param {Element} element
-     * @param {MutationCallback} callback
-     */
-    onChanged (callback, element = document.body) {
-        const observer = new MutationObserver(callback)
-        observer.observe(element, {
-            subtree: true,
-            childList: true,
-            attributeFilter: ['src']
-        })
     }
 }

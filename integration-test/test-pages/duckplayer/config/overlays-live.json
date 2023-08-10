@@ -7,7 +7,33 @@
       "settings": {
         "overlays": {
           "youtube": {
-            "state": "disabled"
+            "state": "disabled",
+            "selectors": {
+              "thumbLink": "a[href^='/watch']",
+              "excludedRegions": [
+                "#playlist"
+              ],
+              "videoElement": "#player video",
+              "videoElementContainer": "#player .html5-video-player",
+              "hoverExcluded": [],
+              "clickExcluded": [],
+              "allowedEventTargets": [
+                ".ytp-inline-preview-scrim",
+                ".ytd-video-preview",
+                "#thumbnail-container",
+                "#video-title-link",
+                "#video-title"
+              ]
+            },
+            "thumbnailOverlays": {
+              "state": "enabled"
+            },
+            "clickInterception": {
+              "state": "enabled"
+            },
+            "videoOverlays": {
+              "state": "enabled"
+            }
           },
           "serpProxy": {
             "state": "disabled"

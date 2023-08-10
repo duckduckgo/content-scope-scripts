@@ -16,6 +16,10 @@ const defaultMapping = {
     "Webcompat Settings": {
         schema: join(configBuilderRoot, "tests/schemas/webcompat-settings.json"),
         types: join(ROOT, "src/types/webcompat-settings.d.ts")
+    },
+    "Duckplayer Settings": {
+        schema: join(configBuilderRoot, "tests/schemas/duckplayer-settings.json"),
+        types: join(ROOT, "src/types/duckplayer-settings.d.ts")
     }
 }
 

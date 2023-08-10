@@ -1,12 +1,12 @@
 import { test } from '@playwright/test'
 import { DuckplayerOverlays } from './page-objects/duckplayer-overlays.js'
 
-test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
+test.describe('Thumbnail Overlays', () => {
     test('Overlays show on thumbnails when enabled', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
         await overlays.gotoThumbsPage()
 
         // When I hover any video thumbnail
@@ -17,7 +17,7 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
     })
     test('Overlays never appear on "shorts"', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
         await overlays.gotoThumbsPage()
 
         // Ensure the hover works normally to prevent false positives
@@ -33,7 +33,7 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
      */
     test('Clicks are not intercepted on shorts when "enabled"', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
         await overlays.userSettingIs('enabled')
         await overlays.gotoThumbsPage()
         const navigation = overlays.requestWillFail()
@@ -55,20 +55,20 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
         await overlays.gotoThumbsPage()
 
         // When I click the DDG overlay
         await overlays.clickDDGOverlay()
 
         // Then our player loads for the correct video
-        await overlays.playerLoadsForCorrectVideo()
+        await overlays.duckPlayerLoadsFor('1')
     })
     test('Overlays dont show when user setting is "enabled"', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
         await overlays.userSettingIs('enabled')
         await overlays.gotoThumbsPage()
         await overlays.overlaysDontShow()
@@ -77,7 +77,7 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
         await overlays.userSettingIs('disabled')
         await overlays.gotoThumbsPage()
         await overlays.overlaysDontShow()
@@ -86,7 +86,7 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
         await overlays.userSettingIs('disabled')
         await overlays.gotoThumbsPage()
 
@@ -104,7 +104,7 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given the "overlays" feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
         await overlays.userSettingIs('always ask')
         await overlays.gotoThumbsPage()
 
@@ -120,12 +120,12 @@ test.describe('Duck Player Thumbnail Overlays on YouTube.com', () => {
     })
 })
 
-test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
+test.describe('Video Player overlays', () => {
     test('Overlay blocks video from playing', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('always ask')
@@ -138,7 +138,7 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('always ask')
@@ -151,7 +151,7 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('always ask')
@@ -165,27 +165,50 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
 
         // No small overlays
         await overlays.overlaysDontShow()
-        // // No video overlay
+        // No video overlay
         await overlays.videoOverlayDoesntShow()
+    })
+    test('Overlay alters to suit new video id after navigation', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+        // Given overlays feature is enabled
+        await overlays.withRemoteConfig({ json: 'overlays.json' })
+
+        // And my setting is 'always ask'
+        await overlays.userSettingIs('always ask')
+        await overlays.gotoPlayerPage({ videoID: '123456' })
+
+        // then the overlay shows and blocks the video from playing
+        await overlays.overlayBlocksVideo()
+        await overlays.hasWatchLinkFor({ videoID: '123456' })
+
+        // now simulate going to another video from the related feed
+        await overlays.clickRelatedThumb({ videoID: 'abc1' })
+
+        // should still be visible
+        await overlays.overlayBlocksVideo()
+
+        // and watch link is updated
+        await overlays.hasWatchLinkFor({ videoID: 'abc1' })
     })
     test('Small overlay is displayed on video', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('always ask remembered')
         await overlays.gotoPlayerPage()
 
-        // Then then the overlay shows and blocks the video from playing
+        // Then the overlay shows and blocks the video from playing
         await overlays.smallOverlayShows()
     })
     test('Small overlay is shown when setting is \'enabled\'', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('enabled')
@@ -198,7 +221,7 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('disabled')
@@ -213,7 +236,7 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('always ask')
@@ -226,7 +249,7 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('always ask')
@@ -240,19 +263,20 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage()
 
         await overlays.watchHere()
+        await overlays.secondOverlayExistsOnVideo()
     })
     test('Selecting \'watch here\' + remember', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
-        await overlays.overlaysEnabled()
+        await overlays.withRemoteConfig()
 
         // And my setting is 'always ask'
         await overlays.userSettingIs('always ask')
@@ -261,6 +285,19 @@ test.describe('Duck Player Overlays on Video Player in YouTube.com', () => {
         await overlays.rememberMyChoice()
         await overlays.watchHere()
         await overlays.userSettingWasUpdatedTo('always ask remembered') // updated
+    })
+    test.describe('with remote config overrides', () => {
+        test('Selecting \'watch here\' + remember', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // config with some CSS selectors overridden
+            await overlays.withRemoteConfig({ json: 'video-alt-selectors.json' })
+
+            // And my setting is 'always ask'
+            await overlays.userSettingIs('always ask')
+            await overlays.gotoPlayerPage({ pageType: 'videoAltSelectors' })
+            await overlays.overlayBlocksVideo()
+        })
     })
 })
 
