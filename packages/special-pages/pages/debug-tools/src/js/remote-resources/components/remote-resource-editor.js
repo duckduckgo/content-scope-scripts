@@ -30,6 +30,9 @@ export function RemoteResourceEditor (props) {
     /** @type {(kind: ToggleKind) => void} */
     const setToggleKind = (kind) => send({ type: 'set toggle kind', payload: kind })
     const showOverrideForm = () => send({ type: 'show url editor' })
+    const copyPatch = () => {
+        state.children.patches?.send({ type: 'COPY_TO_CLIPBOARD' })
+    }
     const hideOverrideForm = () => send({ type: 'hide url editor' })
     const revertEdited = () => props.model.setValue(originalContents)
 
@@ -113,6 +116,7 @@ export function RemoteResourceEditor (props) {
                 setUrl={setUrl}
                 showOverrideForm={showOverrideForm}
                 hideOverrideForm={hideOverrideForm}
+                copyPatch={copyPatch}
                 model={props.model}
             />
             {props.beforeEditor}

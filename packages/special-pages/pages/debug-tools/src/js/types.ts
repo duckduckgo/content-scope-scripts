@@ -5,9 +5,9 @@ import {
     GetFeaturesResponse,
     GetTabsResponse
 } from '../../schema/__generated__/schema.types'
-import { ActorRefFrom } from 'xstate'
+import { ActorRef, ActorRefFrom } from 'xstate'
 import { appMachine } from './app/app.machine-impl'
-import { EditorKind, ToggleKind } from './remote-resources/remote-resources.machine'
+import { CurrentResource, EditorKind, ToggleKind } from './remote-resources/remote-resources.machine'
 
 export type AppEvents =
   | { type: 'routes resolved' }
@@ -42,6 +42,8 @@ export type RemoteResourcesEvents =
 
   | { type: 'save new remote', payload: UpdateResourceParams }
   | { type: 'save edited', payload: UpdateResourceParams }
+  | { type: 'postResourceUpdated'; payload: { currentResource: CurrentResource; resource: RemoteResource } }
+  | { type: 'preResourceUpdated'; payload: { currentResource: CurrentResource; resource: RemoteResource } }
 
 export type DomainExceptionEvents =
     | { type: 'DOMAINS', domains: string[]; current: string }
@@ -52,6 +54,11 @@ export type DomainExceptionEvents =
     | { type: 'CLEAR' }
     | { type: '🌐 url updated' }
     | { type: 'EDIT' }
+
+export type PatchesEvents =
+  | { type: 'PATCH_AVAILABLE' }
+  | { type: 'PATCH_REMOVED' }
+  | { type: 'COPY_TO_CLIPBOARD' }
 
 export type TabWithHostname = Tab & { hostname: string }
 
@@ -64,9 +71,10 @@ export interface RemoteResourcesCtx {
   currentDomain?: string
   resourceKey?: number
   resources?: RemoteResource[]
-  currentResource?: import('./remote-resources/remote-resources.machine').CurrentResource
+  currentResource?: CurrentResource
   contentMarkers?: import('monaco-editor').editor.IMarker[]
   tabs: TabWithHostname[]
+  children?: ActorRef<any>[]
 }
 
 export interface RouteDefinition {

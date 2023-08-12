@@ -12,6 +12,7 @@ export const domainMachine = createMachine({
         /** @type {string} */
         nextDefault: ''
     },
+    type: 'parallel',
     states: {
         'current domain': {
             initial: 'idle',
@@ -117,7 +118,6 @@ export const domainMachine = createMachine({
     schema: {
         events: /** @type {import('../types').DomainExceptionEvents} */({})
     },
-    type: 'parallel',
     predictableActionArguments: true,
     preserveActionOrder: true
 })

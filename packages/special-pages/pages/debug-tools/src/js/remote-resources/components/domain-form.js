@@ -29,7 +29,7 @@ export function DomainForm (props) {
     const currenInDomains = props.domains.find(x => state.context.current === x)
 
     // show the editor when we are adding or editing
-    const showingEditor = state.matches(['current domain', 'editing domain']) || state.matches(['current domain', 'adding new domain'])
+    const showingDomainEditor = state.matches(['current domain', 'editing domain']) || state.matches(['current domain', 'adding new domain'])
 
     function onSubmit (e) {
         e.preventDefault()
@@ -65,7 +65,7 @@ export function DomainForm (props) {
                     </DD>
                 </InlineDL>
             )}
-            {showingEditor && (
+            {showingDomainEditor && (
                 <URLEditor
                     cancel={cancel}
                     save={onSubmit}

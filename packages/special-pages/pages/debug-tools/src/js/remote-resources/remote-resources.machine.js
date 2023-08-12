@@ -1,7 +1,8 @@
-import { assign, createMachine, pure, raise } from 'xstate'
+import { assign, createMachine, pure, raise, send, spawn } from 'xstate'
 import { remoteResourceSchema } from '../../../schema/__generated__/schema.parsers.mjs'
 import * as z from 'zod'
 import { DebugToolsMessages } from '../DebugToolsMessages.mjs'
+import { patchesMachine } from './patches-machine'
 
 /** @type {Record<string, {editorKinds: EditorKind[], toggleKinds: ToggleKind[]}>} */
 const editorKindsMapping = {
@@ -19,6 +20,7 @@ const _remoteResourcesMachine = createMachine({
     id: 'remote resources machine',
     initial: 'loading resource',
     context: /** @type {import("../types").RemoteResourcesCtx} */({}),
+    entry: ['spawn-children'], // some features are just child actors
     states: {
         'loading resource': {
             description: 'this will try to read from the incoming data',
@@ -168,9 +170,11 @@ const _remoteResourcesMachine = createMachine({
                                     {
                                         target: 'editor has original content',
                                         actions: [
+                                            'broadcastPreUpdate',
                                             'updateCurrentResource',
                                             'clearErrors',
-                                            'raiseUpdated'
+                                            'raiseUpdated',
+                                            'broadcastPostUpdate'
                                         ]
                                     }
                                 ],
@@ -243,6 +247,11 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
         }
     },
     actions: {
+        'spawn-children': assign({
+            children: () => [
+                spawn(patchesMachine, { autoForward: true, name: 'patches' })
+            ]
+        }),
         assignContentMarkers: assign({
             contentMarkers: (ctx, evt) => {
                 if (evt.type === 'content is invalid') {
@@ -354,7 +363,7 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                 // ensure our local resources are in good condition
                 const existingResources = z.array(remoteResourceSchema).parse(ctx.resources)
 
-                // access the ID of the currently selected resource
+                // access the currently selected resource, so that we can update the correct item
                 const current = CurrentResource.parse(ctx.currentResource)
 
                 // now return a new list, replacing an ID match with the updated content
@@ -376,6 +385,38 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                 raise({ type: 'content was reverted' }),
                 raise({ type: 'hide url editor' })
             ]
+        }),
+        broadcastPreUpdate: pure((ctx) => {
+            return (ctx.children || []).map(child => {
+                if (!ctx.currentResource) throw new Error('unreachable')
+                const resource = ctx.resources?.find(r => r.id === ctx.currentResource?.id)
+                if (!resource) throw new Error('unreachable')
+                /** @type {import('../types').RemoteResourcesEvents} */
+                const evt = {
+                    type: 'preResourceUpdated',
+                    payload: {
+                        currentResource: ctx.currentResource,
+                        resource
+                    }
+                }
+                return send(evt, { to: child })
+            })
+        }),
+        broadcastPostUpdate: pure((ctx) => {
+            return (ctx.children || []).map(child => {
+                if (!ctx.currentResource) throw new Error('unreachable')
+                const resource = ctx.resources?.find(r => r.id === ctx.currentResource?.id)
+                if (!resource) throw new Error('unreachable')
+                /** @type {import('../types').RemoteResourcesEvents} */
+                const evt = {
+                    type: 'postResourceUpdated',
+                    payload: {
+                        currentResource: ctx.currentResource,
+                        resource
+                    }
+                }
+                return send(evt, { to: child })
+            })
         }),
         pushToRoute: (ctx, evt) => {
             const search = z.string().parse(ctx.parent.state?.context?.history?.location?.search)

@@ -62,7 +62,6 @@ test.describe('Feature: Patches', () => {
             await dt.hasLoaded()
             await dt.switchesTo('inline')
             await dt.editsPreview(editedString)
-            await page.pause()
         })
 
         await test.step('When I save + apply it', async () => {
@@ -73,8 +72,9 @@ test.describe('Feature: Patches', () => {
             await dt.copyPatchFromOverride(initial, edited)
         })
 
-        await test.step('And I can view and adjust the patch', () => {
-            // view and adjust
+        await test.step('And I can view and adjust the patch', async () => {
+            await dt.switchesTo('patches')
+            // await page.pause()
         })
 
         // await dt.switchesTo('patches')

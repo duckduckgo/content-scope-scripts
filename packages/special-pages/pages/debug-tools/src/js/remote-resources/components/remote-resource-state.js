@@ -18,6 +18,7 @@ import { URLEditor } from '../../components/url-editor'
  *   showOverrideForm: () => void;
  *   hideOverrideForm: () => void;
  *   showingUrlEditor: boolean;
+ *   copyPatch: () => void;
  *   model: ITextModel;
  * }} props
  */
@@ -53,12 +54,6 @@ export function RemoteResourceState (props) {
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch(console.error)
     }
-    function copyPatch () {
-        navigator.clipboard.writeText('[]')
-            // eslint-disable-next-line promise/prefer-await-to-then
-            .catch(console.error)
-    }
-
     function showOverride () {
         props.showOverrideForm()
     }
@@ -109,8 +104,8 @@ export function RemoteResourceState (props) {
                 remove={() => props.setUrl(props.resource.url)}
                 pending={props.pending}
                 copy={copy}
-                copyPatch={copyPatch}
                 setUrl={props.setUrl}
+                copyPatch={props.copyPatch}
             />
         </div>
     )
