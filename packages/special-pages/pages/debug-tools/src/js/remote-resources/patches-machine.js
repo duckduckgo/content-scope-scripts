@@ -1,7 +1,10 @@
-import { assign, createMachine, pure, raise } from 'xstate'
+import { assign, createMachine, raise } from 'xstate'
 import jsonpatch from 'fast-json-patch'
 import * as z from 'zod'
-// import { useMachine } from '@xstate/react'
+
+/**
+ * @typedef {import("xstate").ActorRefFrom<typeof patchesMachine>} PatchesMachineRef
+ */
 
 export const patchesMachine = createMachine({
     id: 'patches',
@@ -20,22 +23,77 @@ export const patchesMachine = createMachine({
             states: {
                 idle: {
                     on: {
-                        PATCH_AVAILABLE: { target: 'patchAvailable' }
+                        PATCH_AVAILABLE: {
+                            target: 'patchAvailable'
+                        }
                     }
                 },
                 patchAvailable: {
                     on: {
-                        COPY_TO_CLIPBOARD: { target: 'copying' }
+                        COPY_TO_CLIPBOARD: {
+                            target: 'copying'
+                        }
                     }
                 },
                 copying: {
                     invoke: {
                         src: 'copyToClipboard',
-                        onDone: { target: 'patchAvailable', actions: ['showComplete'] },
-                        onError: { target: 'patchAvailable', actions: ['showError'] }
+                        id: 'copyToClipboard',
+                        onDone: [
+                            {
+                                target: 'patchPreSuccess'
+                            }
+                        ],
+                        onError: [
+                            {
+                                target: 'patchError'
+                            }
+                        ]
                     }
                 },
-                patchError: {}
+                patchPreSuccess: {
+                    description: 'use this to display a fake spinner',
+                    after: {
+                        500: [
+                            {
+                                target: '#patches.stored.patchSuccess',
+                                actions: [],
+                                meta: {}
+                            },
+                            {
+                                internal: false
+                            }
+                        ]
+                    }
+                },
+                patchError: {
+                    after: {
+                        1000: [
+                            {
+                                target: '#patches.stored.patchAvailable',
+                                actions: [],
+                                meta: {}
+                            },
+                            {
+                                internal: false
+                            }
+                        ]
+                    }
+                },
+                patchSuccess: {
+                    after: {
+                        2000: [
+                            {
+                                target: '#patches.stored.patchAvailable',
+                                actions: [],
+                                meta: {}
+                            },
+                            {
+                                internal: false
+                            }
+                        ]
+                    }
+                }
             }
         },
         observing: {
@@ -43,33 +101,57 @@ export const patchesMachine = createMachine({
             states: {
                 idle: {
                     on: {
-                        preResourceUpdated: {
-                            actions: 'assignBefore'
+                        broadcastPreResourceUpdated: {
+                            actions: {
+                                type: 'assignBefore',
+                                params: {}
+                            },
+                            internal: true
                         },
-                        postResourceUpdated: {
-                            actions: 'assignAfter',
-                            target: 'processing'
+                        broadcastPostResourceUpdated: {
+                            target: 'processing',
+                            actions: {
+                                type: 'assignAfter',
+                                params: {}
+                            }
                         }
                     }
                 },
                 processing: {
                     invoke: {
                         src: 'create-patch',
-                        onDone: {
-                            actions: ['assignPatch', 'raisePatchReady'],
-                            target: 'idle'
-                        },
-                        onError: {
-                            actions: 'assignError',
-                            target: 'idle'
-                        }
+                        id: 'create-patch',
+                        onDone: [
+                            {
+                                target: 'idle',
+                                actions: [
+                                    {
+                                        type: 'assignPatch',
+                                        params: {}
+                                    },
+                                    {
+                                        type: 'raisePatchReady',
+                                        params: {}
+                                    }
+                                ]
+                            }
+                        ],
+                        onError: [
+                            {
+                                target: 'idle',
+                                actions: {
+                                    type: 'assignError',
+                                    params: {}
+                                }
+                            }
+                        ]
                     }
                 }
             }
         }
     },
     schema: {
-        events: /** @type {import('../types').RemoteResourcesEvents | import('../types').PatchesEvents} */({})
+        events: /** @type {import('../types').RemoteResourcesBroadcastEvents | import('../types').PatchesEvents} */({})
     },
     predictableActionArguments: true,
     preserveActionOrder: true
@@ -86,7 +168,7 @@ export const patchesMachine = createMachine({
         raisePatchReady: raise('PATCH_AVAILABLE'),
         assignBefore: assign({
             before: (ctx, evt) => {
-                if (evt.type === 'preResourceUpdated') {
+                if (evt.type === 'broadcastPreResourceUpdated') {
                     return evt.payload.resource.current.contents
                 }
                 throw new Error('unreachable')
@@ -94,14 +176,15 @@ export const patchesMachine = createMachine({
         }),
         assignAfter: assign({
             after: (ctx, evt) => {
-                if (evt.type === 'postResourceUpdated') {
+                if (evt.type === 'broadcastPostResourceUpdated') {
                     return evt.payload.resource.current.contents
                 }
                 throw new Error('unreachable')
             }
         }),
-        showComplete: () => {
-            alert('copied!')
+        showError: (_ctx, evt) => {
+            console.log('TODO: handle showError', evt)
+            alert('TODO: handle showError')
         }
     },
     services: {
@@ -109,6 +192,7 @@ export const patchesMachine = createMachine({
             const string = JSON.stringify(ctx.patch, null, 2)
             return navigator.clipboard.writeText(string)
         },
+        // eslint-disable-next-line require-await
         'create-patch': async (ctx) => {
             if (ctx.before && ctx.after) {
                 const a = JSON.parse(ctx.before)

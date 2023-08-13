@@ -47,7 +47,7 @@ export class DebugToolsPage {
             loaded: () => page.locator('[data-loaded="true"]'),
             remoteFormInput: () => page.getByPlaceholder('enter a url'),
             remoteFormCancel: () => page.getByRole('button', { name: 'Cancel' }),
-            copyOverridePatch: () => page.getByRole('button', { name: 'Copy Patch' }),
+            copyOverridePatch: () => page.getByRole('button', { name: 'Copy as Patch' }),
             remoteFormRefresh: () => page.getByRole('button', { name: 'Refresh 🔄' }),
             remoteFormOverride: () => page.getByRole('button', { name: 'Override ✏️' }),
             remoteFormCopy: () => page.getByRole('button', { name: 'Copy 📄' }),

@@ -248,9 +248,12 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
     },
     actions: {
         'spawn-children': assign({
-            children: () => [
-                spawn(patchesMachine, { autoForward: true, name: 'patches' })
-            ]
+            children: () => {
+                return [
+                    // list child features
+                    spawn(patchesMachine, { name: 'patches' })
+                ]
+            }
         }),
         assignContentMarkers: assign({
             contentMarkers: (ctx, evt) => {
@@ -391,15 +394,17 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                 if (!ctx.currentResource) throw new Error('unreachable')
                 const resource = ctx.resources?.find(r => r.id === ctx.currentResource?.id)
                 if (!resource) throw new Error('unreachable')
-                /** @type {import('../types').RemoteResourcesEvents} */
+                /** @type {import('../types').RemoteResourcesBroadcastEvents} */
                 const evt = {
-                    type: 'preResourceUpdated',
+                    type: 'broadcastPreResourceUpdated',
                     payload: {
                         currentResource: ctx.currentResource,
                         resource
                     }
                 }
-                return send(evt, { to: child })
+                return send(evt, {
+                    to: child
+                })
             })
         }),
         broadcastPostUpdate: pure((ctx) => {
@@ -407,9 +412,9 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                 if (!ctx.currentResource) throw new Error('unreachable')
                 const resource = ctx.resources?.find(r => r.id === ctx.currentResource?.id)
                 if (!resource) throw new Error('unreachable')
-                /** @type {import('../types').RemoteResourcesEvents} */
+                /** @type {import('../types').RemoteResourcesBroadcastEvents} */
                 const evt = {
-                    type: 'postResourceUpdated',
+                    type: 'broadcastPostResourceUpdated',
                     payload: {
                         currentResource: ctx.currentResource,
                         resource

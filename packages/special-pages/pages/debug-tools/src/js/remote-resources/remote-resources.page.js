@@ -1,4 +1,4 @@
-import { createActorContext } from '@xstate/react'
+import { createActorContext, useActor } from '@xstate/react'
 import { remoteResourcesMachine } from './remote-resources.machine'
 import { useContext } from 'react'
 import { GlobalContext } from '../DebugToolsMessages.mjs'
@@ -31,4 +31,13 @@ function RemoteResourcesLoader () {
         return <RemoteResources />
     }
     return null
+}
+
+export function usePatches () {
+    const patchesRef = RemoteResourcesContext.useSelector((state) => {
+        invariant('patches' in state.children, 'expected `patches` to be a child of RemoteResourcesContext')
+        return state.children.patches
+    })
+
+    return useActor(/** @type {import('./patches-machine').PatchesMachineRef} */(patchesRef))
 }

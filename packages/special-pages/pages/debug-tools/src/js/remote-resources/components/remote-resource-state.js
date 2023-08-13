@@ -2,6 +2,7 @@ import * as z from 'zod'
 import { DD, DT, InlineDL } from '../../components/definition-list.js'
 import { MicroButton } from '../../components/micro-button'
 import { URLEditor } from '../../components/url-editor'
+import { usePatches } from '../remote-resources.page'
 
 /**
  * @typedef{ import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
@@ -162,13 +163,32 @@ function Override (props) {
                 <DD>
                     {date(source.debugTools.modifiedAt)}
                     <MicroButton className="ml-3.5" onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
-                    <MicroButton className="ml-3.5" onClick={props.copyPatch}>Copy Patch</MicroButton>
+                    <PatchCopyButton />
                 </DD>
             </InlineDL>
         )
     }
 
     return null
+}
+
+function PatchCopyButton () {
+    const [state, send] = usePatches()
+
+    const text = {
+        patchAvailable: 'Copy as Patch',
+        patchPreSuccess: '⌛️ generating',
+        patchSuccess: '✅ copied'
+        // @ts-expect-error - a bug in xstate?
+    }[state.value.stored]
+
+    if (state.matches({ stored: 'idle' })) return null
+
+    return (
+        <MicroButton
+            className="ml-3.5"
+            onClick={() => send({ type: 'COPY_TO_CLIPBOARD' })}>{text}</MicroButton>
+    )
 }
 
 function date (input) {

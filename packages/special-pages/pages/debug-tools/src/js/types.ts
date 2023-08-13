@@ -42,8 +42,10 @@ export type RemoteResourcesEvents =
 
   | { type: 'save new remote', payload: UpdateResourceParams }
   | { type: 'save edited', payload: UpdateResourceParams }
-  | { type: 'postResourceUpdated'; payload: { currentResource: CurrentResource; resource: RemoteResource } }
-  | { type: 'preResourceUpdated'; payload: { currentResource: CurrentResource; resource: RemoteResource } }
+
+export type RemoteResourcesBroadcastEvents =
+    | { type: 'broadcastPostResourceUpdated'; payload: { currentResource: CurrentResource; resource: RemoteResource } }
+    | { type: 'broadcastPreResourceUpdated'; payload: { currentResource: CurrentResource; resource: RemoteResource } }
 
 export type DomainExceptionEvents =
     | { type: 'DOMAINS', domains: string[]; current: string }
