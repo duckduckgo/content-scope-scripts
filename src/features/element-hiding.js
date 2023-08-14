@@ -255,6 +255,7 @@ export default class ElementHiding extends ContentFeature {
             return
         }
 
+        let activeRules
         const globalRules = this.getFeatureSetting('rules')
         adLabelStrings = this.getFeatureSetting('adLabelStrings')
         shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
@@ -272,7 +273,18 @@ export default class ElementHiding extends ContentFeature {
             return rule.type === 'override'
         })
 
-        let activeRules = activeDomainRules.concat(globalRules)
+        const generichide = activeDomainRules.some((rule) => {
+            return rule.type === 'generichide'
+        })
+
+        // if rule with type 'generichide' is present, ignore all global rules
+        if (generichide) {
+            activeRules = activeDomainRules.filter((rule) => {
+                return rule.type !== 'generichide'
+            })
+        } else {
+           activeRules = activeDomainRules.concat(globalRules)
+        }
 
         // remove overrides and rules that match overrides from array of rules to be applied to page
         overrideRules.forEach((override) => {
