@@ -200,7 +200,9 @@ function extractTimeoutRules (rules) {
  * @param {string} rules[].type
  */
 function injectStyleTag (rules) {
-    let styleTagContents = ''
+    // wrap selector list in :is(...) to make it a forgiving selector list. this enables
+    // us to use selectors not supported in all browsers, eg :has in Firefox
+    let styleTagContents = ':is('
 
     rules.forEach((rule, i) => {
         if (i !== rules.length - 1) {
@@ -210,7 +212,7 @@ function injectStyleTag (rules) {
         }
     })
 
-    styleTagContents = styleTagContents.concat('{display:none!important;min-height:0!important;height:0!important;}')
+    styleTagContents = styleTagContents.concat('){display:none!important;min-height:0!important;height:0!important;}')
     injectGlobalStyles(styleTagContents)
 }
 
@@ -224,7 +226,8 @@ function hideAdNodes (rules) {
     const document = globalThis.document
 
     rules.forEach((rule) => {
-        const matchingElementArray = [...document.querySelectorAll(rule.selector)]
+        const forgivingSelector = ':is(' + rule.selector + ')'
+        const matchingElementArray = [...document.querySelectorAll(forgivingSelector)]
         matchingElementArray.forEach((element) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             collapseDomNode(element, rule)
@@ -239,7 +242,8 @@ function unhideLoadedAds () {
     const document = globalThis.document
 
     appliedRules.forEach((rule) => {
-        const matchingElementArray = [...document.querySelectorAll(rule.selector)]
+        const forgivingSelector = ':is(' + rule.selector + ')'
+        const matchingElementArray = [...document.querySelectorAll(forgivingSelector)]
         matchingElementArray.forEach((element) => {
             expandNonEmptyDomNode(element, rule)
         })
