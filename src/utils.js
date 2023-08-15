@@ -519,29 +519,22 @@ export class DDGProxy {
 }
 
 const maxCounter = new Map()
-function numberOfTimesDebugged (feature, message) {
-    let key
-    try {
-        // Could throw if message is not serializable
-        key = JSON.stringify({ feature, message })
-    } catch {
-        return 0
-    }
-    if (!maxCounter.has(key)) {
-        maxCounter.set(key, 1)
+function numberOfTimesDebugged (feature) {
+    if (!maxCounter.has(feature)) {
+        maxCounter.set(feature, 1)
     } else {
-        maxCounter.set(key, maxCounter.get(key) + 1)
+        maxCounter.set(feature, maxCounter.get(feature) + 1)
     }
-    return maxCounter.get(key)
+    return maxCounter.get(feature)
 }
 
-const DEBUG_MAX_TIMES = 1000
+const DEBUG_MAX_TIMES = 5000
 
 export function postDebugMessage (feature, message, allowNonDebug = false) {
     if (!debug && !allowNonDebug) {
         return
     }
-    if (numberOfTimesDebugged(feature, message) > DEBUG_MAX_TIMES) {
+    if (numberOfTimesDebugged(feature) > DEBUG_MAX_TIMES) {
         return
     }
     if (message.stack) {
