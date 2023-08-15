@@ -459,16 +459,14 @@ export class DDGProxy {
                 const isTainted = hasTaintedMethod(scope)
                 isExempt = !isTainted
             }
-            if (debug) {
-                postDebugMessage(this.camelFeatureName, {
-                    isProxy: true,
-                    action: isExempt ? 'ignore' : 'restrict',
-                    kind: this.property,
-                    documentUrl: document.location.href,
-                    stack: getStack(),
-                    args: debugSerialize(args[2])
-                })
-            }
+            postDebugMessage(this.camelFeatureName, {
+                isProxy: true,
+                action: isExempt ? 'ignore' : 'restrict',
+                kind: this.property,
+                documentUrl: document.location.href,
+                stack: getStack(),
+                args: debugSerialize(args[2])
+            })
             // The normal return value
             if (isExempt) {
                 return DDGReflect.apply(...args)
@@ -520,7 +518,25 @@ export class DDGProxy {
     }
 }
 
-export function postDebugMessage (feature, message) {
+const maxCounter = new Map()
+function numberOfTimesDebugged (feature) {
+    if (!maxCounter.has(feature)) {
+        maxCounter.set(feature, 1)
+    } else {
+        maxCounter.set(feature, maxCounter.get(feature) + 1)
+    }
+    return maxCounter.get(feature)
+}
+
+const DEBUG_MAX_TIMES = 5000
+
+export function postDebugMessage (feature, message, allowNonDebug = false) {
+    if (!debug && !allowNonDebug) {
+        return
+    }
+    if (numberOfTimesDebugged(feature) > DEBUG_MAX_TIMES) {
+        return
+    }
     if (message.stack) {
         const scriptOrigins = [...getStackTraceOrigins(message.stack)]
         message.scriptOrigins = scriptOrigins
