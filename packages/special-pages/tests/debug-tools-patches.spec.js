@@ -23,8 +23,8 @@ import { DebugToolsPage } from './page-objects/debug-tools'
  *     Then I can apply it to the current resource
  */
 
-test.describe('Feature: Patches', () => {
-    test.only('Scenario: copying a patch for an override', async ({ page }, workerInfo) => {
+test.describe.only('Feature: Patches', () => {
+    test('Scenario: copying a patch for an override', async ({ page }, workerInfo) => {
         const dt = DebugToolsPage.create(page, workerInfo)
         const initial = {
             unprotectedTemporary: [],
@@ -72,13 +72,53 @@ test.describe('Feature: Patches', () => {
             await dt.copyPatchFromOverride(initial, edited)
         })
 
-        await test.step('And I can view and adjust the patch', async () => {
-            await dt.switchesTo('patches')
-            // await page.pause()
+        await test.step('And it will be saved in localStorage', async () => {
+            await dt.patchIsStoredInLocalStorage('privacy-configuration', initial, edited)
+        })
+    })
+    test('Scenario: restoring a patch', async ({ page }, workerInfo) => {
+        const dt = DebugToolsPage.create(page, workerInfo)
+        const initial = {
+            unprotectedTemporary: [],
+            features: {
+                abc: {
+                    state: 'enabled',
+                    exceptions: [],
+                    settings: {
+                        a: 'b',
+                        c: ['d']
+                    }
+                }
+            }
+        }
+        const edited = {
+            unprotectedTemporary: [],
+            features: {
+                abc: {
+                    state: 'enabled',
+                    exceptions: [],
+                    settings: {
+                        a: 'b',
+                        c: ['d'],
+                        d: { e: 'f' }
+                    }
+                }
+            }
+        }
+
+        await test.step('Given I have previously saved an edit', async () => {
+            await dt.withExistingPatches()
+            await dt.enabled()
+            await dt.withEditedPrivacyConfig(edited)
         })
 
-        // await dt.switchesTo('patches')
-        // await page.pause()
-        // await dt.saves()
+        await test.step('When I load the page', async () => {
+            await dt.openRemoteResourceEditor()
+            await dt.hasLoaded()
+        })
+
+        await test.step('Then I can still copy the patch to my clipboard', async () => {
+            await dt.copyPatchFromOverride(initial, edited)
+        })
     })
 })

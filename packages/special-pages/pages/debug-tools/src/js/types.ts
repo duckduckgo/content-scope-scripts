@@ -8,6 +8,7 @@ import {
 import { ActorRef, ActorRefFrom } from 'xstate'
 import { appMachine } from './app/app.machine-impl'
 import { CurrentResource, EditorKind, ToggleKind } from './remote-resources/remote-resources.machine'
+import { Operation } from 'fast-json-patch'
 
 export type AppEvents =
   | { type: 'routes resolved' }
@@ -44,6 +45,7 @@ export type RemoteResourcesEvents =
   | { type: 'save edited', payload: UpdateResourceParams }
 
 export type RemoteResourcesBroadcastEvents =
+    | { type: 'broadcastResourceSelected'; payload: { currentResource: CurrentResource } }
     | { type: 'broadcastPostResourceUpdated'; payload: { currentResource: CurrentResource; resource: RemoteResource } }
     | { type: 'broadcastPreResourceUpdated'; payload: { currentResource: CurrentResource; resource: RemoteResource } }
 

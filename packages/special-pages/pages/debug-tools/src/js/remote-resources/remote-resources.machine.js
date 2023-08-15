@@ -3,6 +3,7 @@ import { remoteResourceSchema } from '../../../schema/__generated__/schema.parse
 import * as z from 'zod'
 import { DebugToolsMessages } from '../DebugToolsMessages.mjs'
 import { patchesMachine } from './patches-machine'
+import invariant from 'tiny-invariant'
 
 /** @type {Record<string, {editorKinds: EditorKind[], toggleKinds: ToggleKind[]}>} */
 const editorKindsMapping = {
@@ -29,7 +30,7 @@ const _remoteResourcesMachine = createMachine({
                 onDone: [
                     {
                         target: 'showing editor',
-                        actions: ['assignResources', 'assignCurrentResource', 'assignEditorKind', 'raiseUpdated']
+                        actions: ['assignResources', 'assignCurrentResource', 'broadcastResourceSelected', 'assignEditorKind', 'raiseUpdated']
                     }
                 ],
                 onError: [
@@ -53,10 +54,10 @@ const _remoteResourcesMachine = createMachine({
             ],
             on: {
                 nav_resource: {
-                    actions: ['assignCurrentResource', 'assignEditorKind']
+                    actions: ['assignCurrentResource', 'broadcastResourceSelected', 'assignEditorKind']
                 },
                 nav_other: {
-                    actions: ['assignCurrentResource', 'assignEditorKind']
+                    actions: ['assignCurrentResource', 'broadcastResourceSelected', 'assignEditorKind']
                 },
                 tabs_received: {
                     actions: ['assignTabs']
@@ -389,9 +390,22 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
                 raise({ type: 'hide url editor' })
             ]
         }),
+        broadcastResourceSelected: pure((ctx) => {
+            return (ctx.children || []).map(child => {
+                invariant(ctx.currentResource, 'ctx.currentResource absent')
+                /** @type {import('../types').RemoteResourcesBroadcastEvents} */
+                const event = {
+                    type: 'broadcastResourceSelected',
+                    payload: {
+                        currentResource: ctx.currentResource
+                    }
+                }
+                return send(event, { to: child })
+            })
+        }),
         broadcastPreUpdate: pure((ctx) => {
             return (ctx.children || []).map(child => {
-                if (!ctx.currentResource) throw new Error('unreachable')
+                invariant(ctx.currentResource, 'ctx.currentResource absent')
                 const resource = ctx.resources?.find(r => r.id === ctx.currentResource?.id)
                 if (!resource) throw new Error('unreachable')
                 /** @type {import('../types').RemoteResourcesBroadcastEvents} */
@@ -409,7 +423,7 @@ export const remoteResourcesMachine = _remoteResourcesMachine.withConfig({
         }),
         broadcastPostUpdate: pure((ctx) => {
             return (ctx.children || []).map(child => {
-                if (!ctx.currentResource) throw new Error('unreachable')
+                invariant(ctx.currentResource, 'ctx.currentResource absent')
                 const resource = ctx.resources?.find(r => r.id === ctx.currentResource?.id)
                 if (!resource) throw new Error('unreachable')
                 /** @type {import('../types').RemoteResourcesBroadcastEvents} */

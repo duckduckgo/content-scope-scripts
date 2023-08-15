@@ -4,6 +4,7 @@ import { perPlatform } from '../../../../integration-test/playwright/type-helper
 import { mockErrors, mockResponses, simulateSubscriptionMessage } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { readFileSync } from 'node:fs'
 import jsonpatch from 'fast-json-patch'
+import { ResourcePatches, STORAGE_KEY } from '../../pages/debug-tools/src/js/remote-resources/patches-machine'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -487,6 +488,28 @@ export class DebugToolsPage {
         })
     }
 
+    async withEditedPrivacyConfig (params) {
+        const jsonString = JSON.stringify(params, null, 2)
+
+        /** @type {RemoteResource} */
+        const resource = DebugToolsPage.updatedResource(this.remoteResources.privacyConfig(), jsonString)
+
+        /** @type {GetFeaturesResponse} */
+        const getFeatures = {
+            features: {
+                remoteResources: {
+                    resources: [resource]
+                }
+            }
+        }
+
+        await this.page.addInitScript(mockResponses, {
+            responses: {
+                getFeatures
+            }
+        })
+    }
+
     /**
      * @param {Record<string, any>} params
      */
@@ -605,5 +628,33 @@ export class DebugToolsPage {
         const clipboardPatches = await this.page.evaluate(() => navigator.clipboard.readText())
         const patches = jsonpatch.compare(before, after)
         expect(JSON.parse(clipboardPatches)).toEqual(patches)
+    }
+
+    /**
+     * @param {string} resourceId
+     * @param {Record<string, any>} before
+     * @param {Record<string, any>} after
+     */
+    async patchIsStoredInLocalStorage (resourceId, before, after) {
+        const json = await this.page.evaluate(({ STORAGE_KEY }) => JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'), { STORAGE_KEY })
+        const actual = ResourcePatches.parse(json)
+        const matching = actual[resourceId]
+        const expected = jsonpatch.compare(before, after)
+        expect(matching[0].patches).toEqual(expected)
+    }
+
+    async withExistingPatches () {
+        /** @type {ResourcePatches} */
+        const value = {
+            'privacy-configuration': [{
+                createdAt: '2023-08-15T20:41:34.385Z',
+                resourceId: 'privacy-configuration',
+                kind: 'json-fast-patch',
+                patches: [{ path: '/features/abc/settings/d', op: 'add', value: { e: 'f' } }]
+            }]
+        }
+        await this.page.addInitScript(({ key, value }) => {
+            window.localStorage.setItem(key, value)
+        }, { key: STORAGE_KEY, value: JSON.stringify(value) })
     }
 }

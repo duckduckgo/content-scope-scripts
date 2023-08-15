@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node index.mjs",
     "build.dev": "node index.mjs --env development",
-    "test": "playwright test",
+    "test": "playwright test --project duckplayer-apple",
     "test.schema": "node pages/debug-tools/schema/schema.test.mjs",
     "test.windows": "npm run test -- --project duckplayer-windows",
     "test.apple": "npm run test -- --project duckplayer-apple --headed",
