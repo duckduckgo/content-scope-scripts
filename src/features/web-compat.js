@@ -1,20 +1,26 @@
-import ContentFeature from '../content-feature.js'
-
 /**
- * Fixes incorrect sizing value for outerHeight and outerWidth
+ * @module Web Compat
+ *
+ * @description
+ *
+ * A suite of individual 'fixes'
+ *
+ * - {@link default.windowSizingFix Window Sizing Fix}
+ * - {@link default.navigatorCredentialsFix Navigator Credentials Fix}
+ * - {@link default.safariObjectFix Safari Object Fix}
+ * - {@link default.notificationFix Notification Fix}
+ * - {@link default.messageHandlersFix Message Handlers Fix}
+ * - {@link default.notificationFix Notification Fix}
+ * - {@link default.permissionsFix Permissions Fix}
+ *
  */
-function windowSizingFix () {
-    if (window.outerHeight !== 0 && window.outerWidth !== 0) {
-        return
-    }
-    window.outerHeight = window.innerHeight
-    window.outerWidth = window.innerWidth
-}
+
+import ContentFeature from '../content-feature.js'
 
 export default class WebCompat extends ContentFeature {
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
-            windowSizingFix()
+            this.windowSizingFix()
         }
         if (this.getFeatureSettingEnabled('navigatorCredentials')) {
             this.navigatorCredentialsFix()
@@ -32,6 +38,17 @@ export default class WebCompat extends ContentFeature {
             const settings = this.getFeatureSettingEnabled('permissions')
             this.permissionsFix(settings)
         }
+    }
+
+    /**
+     * Fixes incorrect sizing value for outerHeight and outerWidth
+     */
+    windowSizingFix () {
+        if (window.outerHeight !== 0 && window.outerWidth !== 0) {
+            return
+        }
+        window.outerHeight = window.innerHeight
+        window.outerWidth = window.innerWidth
     }
 
     /**
@@ -186,9 +203,27 @@ export default class WebCompat extends ContentFeature {
 
     /**
      * Support for proxying `window.webkit.messageHandlers`
+     *
+     * This was added to fix breakage in situations where sites
+     * see `window.webkit` and then assume their own handlers would be present.
+     *
+     * For example, it fixes when a site tries to do the following:
+     *
+     * ```javascript
+     * if (window.webkit) {
+     *    window.webkit.messageHandlers.myHandler.postMessage({})
+     *    //                            ^^^^^^^^^ when this is absent, postMessage throws
+     * }
+     * ```
+     *
+     * **Remote Config:**
+     *
+     * This feature needs to be configured to allow some known
+     * methods (ones we add) to pass though (using Reflect) whilst polyfilling others,
+     * see {@link "Webcompat Settings Schema".WebCompatSettings.messageHandlers}
      */
     messageHandlersFix () {
-        /** @type {import('../types//webcompat-settings').WebCompatSettings['messageHandlers']} */
+        /** @type {import('../types/webcompat-settings').WebCompatSettings['messageHandlers']} */
         const settings = this.getFeatureSetting('messageHandlers')
 
         // Do nothing if `messageHandlers` is absent

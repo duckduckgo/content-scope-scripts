@@ -12,6 +12,7 @@
         "src/features/duckplayer/thumbnails.js",
         "src/features/duckplayer/video-overlay.js",
         "src/features/harmful-apis.js",
+        "src/features/web-compat.js",
         "packages/messaging",
         "packages/messaging/schema.js",
         "packages/messaging/native.js",
