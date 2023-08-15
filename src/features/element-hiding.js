@@ -7,6 +7,8 @@ let hiddenElements = new WeakMap()
 let appliedRules = new Set()
 let shouldInjectStyleTag = false
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button'
+let hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000, 5000, 10000]
+let unhideTimeouts = [750, 1500, 2250, 3000, 4500, 6000, 12000]
 
 /** @type {ElementHiding} */
 let featureInstance
@@ -258,6 +260,8 @@ export default class ElementHiding extends ContentFeature {
         const globalRules = this.getFeatureSetting('rules')
         adLabelStrings = this.getFeatureSetting('adLabelStrings')
         shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
+        hideTimeouts = this.getFeatureSetting('hideTimeouts') || hideTimeouts
+        unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors
 
         // determine whether strict hide rules should be injected as a style tag
@@ -313,8 +317,6 @@ export default class ElementHiding extends ContentFeature {
      * @param {string} rules[].type
      */
     applyRules (rules) {
-        const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000]
-        const unhideTimeouts = [750, 1500, 2250, 3000]
         const timeoutRules = extractTimeoutRules(rules)
 
         // several passes are made to hide & unhide elements. this is necessary because we're not using
