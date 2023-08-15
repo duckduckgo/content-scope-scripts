@@ -202,17 +202,18 @@ function extractTimeoutRules (rules) {
 function injectStyleTag (rules) {
     // wrap selector list in :is(...) to make it a forgiving selector list. this enables
     // us to use selectors not supported in all browsers, eg :has in Firefox
-    let styleTagContents = ':is('
+    let selector = ''
 
     rules.forEach((rule, i) => {
         if (i !== rules.length - 1) {
-            styleTagContents = styleTagContents.concat(rule.selector, ',')
+            selector = selector.concat(rule.selector, ',')
         } else {
-            styleTagContents = styleTagContents.concat(rule.selector)
+            selector = selector.concat(rule.selector)
         }
     })
+    const styleTagProperties = '{display:none!important;min-height:0!important;height:0!important;}'
+    const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`
 
-    styleTagContents = styleTagContents.concat('){display:none!important;min-height:0!important;height:0!important;}')
     injectGlobalStyles(styleTagContents)
 }
 
@@ -226,8 +227,8 @@ function hideAdNodes (rules) {
     const document = globalThis.document
 
     rules.forEach((rule) => {
-        const forgivingSelector = ':is(' + rule.selector + ')'
-        const matchingElementArray = [...document.querySelectorAll(forgivingSelector)]
+        const selector = forgivingSelector(rule.selector)
+        const matchingElementArray = [...document.querySelectorAll(selector)]
         matchingElementArray.forEach((element) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             collapseDomNode(element, rule)
@@ -242,12 +243,19 @@ function unhideLoadedAds () {
     const document = globalThis.document
 
     appliedRules.forEach((rule) => {
-        const forgivingSelector = ':is(' + rule.selector + ')'
-        const matchingElementArray = [...document.querySelectorAll(forgivingSelector)]
+        const selector = forgivingSelector(rule.selector)
+        const matchingElementArray = [...document.querySelectorAll(selector)]
         matchingElementArray.forEach((element) => {
             expandNonEmptyDomNode(element, rule)
         })
     })
+}
+
+/**
+ * Wrap selector(s) in :is(..) to make them forgiving
+ */
+function forgivingSelector (selector) {
+    return `:is(${selector})`
 }
 
 export default class ElementHiding extends ContentFeature {
