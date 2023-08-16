@@ -297,6 +297,8 @@ export default class ElementHiding extends ContentFeature {
         const globalRules = this.getFeatureSetting('rules')
         adLabelStrings = this.getFeatureSetting('adLabelStrings')
         shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
+        hideTimeouts = this.getFeatureSetting('hideTimeouts') || hideTimeouts
+        unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors
         hideTimeouts = this.getFeatureSetting('hideTimeouts') || hideTimeouts
         unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts

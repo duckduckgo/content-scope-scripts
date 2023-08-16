@@ -459,6 +459,7 @@ export class DDGProxy {
                 const isTainted = hasTaintedMethod(scope)
                 isExempt = !isTainted
             }
+            // Keep this here as getStack() is expensive
             if (debug) {
                 postDebugMessage(this.camelFeatureName, {
                     isProxy: true,
@@ -520,7 +521,25 @@ export class DDGProxy {
     }
 }
 
-export function postDebugMessage (feature, message) {
+const maxCounter = new Map()
+function numberOfTimesDebugged (feature) {
+    if (!maxCounter.has(feature)) {
+        maxCounter.set(feature, 1)
+    } else {
+        maxCounter.set(feature, maxCounter.get(feature) + 1)
+    }
+    return maxCounter.get(feature)
+}
+
+const DEBUG_MAX_TIMES = 5000
+
+export function postDebugMessage (feature, message, allowNonDebug = false) {
+    if (!debug && !allowNonDebug) {
+        return
+    }
+    if (numberOfTimesDebugged(feature) > DEBUG_MAX_TIMES) {
+        return
+    }
     if (message.stack) {
         const scriptOrigins = [...getStackTraceOrigins(message.stack)]
         message.scriptOrigins = scriptOrigins
