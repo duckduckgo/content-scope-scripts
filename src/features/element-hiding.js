@@ -4,9 +4,12 @@ import { isBeingFramed, DDGProxy, DDGReflect, injectGlobalStyles } from '../util
 let adLabelStrings = []
 const parser = new DOMParser()
 let hiddenElements = new WeakMap()
+let modifiedElements = new WeakMap()
 let appliedRules = new Set()
 let shouldInjectStyleTag = false
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button'
+let hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000, 5000, 10000]
+let unhideTimeouts = [750, 1500, 2250, 3000, 4500, 6000, 12000]
 
 /** @type {ElementHiding} */
 let featureInstance
@@ -23,8 +26,9 @@ function collapseDomNode (element, rule, previousElement) {
     }
     const type = rule.type
     const alreadyHidden = hiddenElements.has(element)
-
-    if (alreadyHidden) {
+    const alreadyModified = modifiedElements.has(element) && modifiedElements.get(element) === rule.type
+    // return if the element has already been hidden, or modified by the same rule type
+    if (alreadyHidden || alreadyModified) {
         return
     }
 
@@ -49,6 +53,12 @@ function collapseDomNode (element, rule, previousElement) {
             hideNode(previousElement)
             appliedRules.add(rule)
         }
+        break
+    case 'modify-attr':
+        modifyAttribute(element, rule.values)
+        break
+    case 'modify-style':
+        modifyStyle(element, rule.values)
         break
     default:
         break
@@ -168,6 +178,34 @@ function isDomNodeEmpty (node) {
 }
 
 /**
+ * Modify specified attribute(s) on element
+ * @param {HTMLElement} element
+ * @param {Object[]} values
+ * @param {string} values[].property
+ * @param {string} values[].value
+ */
+function modifyAttribute (element, values) {
+    values.forEach((item) => {
+        element.setAttribute(item.property, item.value)
+    })
+    modifiedElements.set(element, 'modify-attr')
+}
+
+/**
+ * Modify specified style(s) on element
+ * @param {HTMLElement} element
+ * @param {Object[]} values
+ * @param {string} values[].property
+ * @param {string} values[].value
+ */
+function modifyStyle (element, values) {
+    values.forEach((item) => {
+        element.style.setProperty(item.property, item.value, 'important')
+    })
+    modifiedElements.set(element, 'modify-style')
+}
+
+/**
  * Separate strict hide rules to inject as style tag if enabled
  * @param {Object[]} rules
  * @param {string} rules[].selector
@@ -260,6 +298,8 @@ export default class ElementHiding extends ContentFeature {
         adLabelStrings = this.getFeatureSetting('adLabelStrings')
         shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors
+        hideTimeouts = this.getFeatureSetting('hideTimeouts') || hideTimeouts
+        unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts
 
         // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
@@ -273,17 +313,17 @@ export default class ElementHiding extends ContentFeature {
             return rule.type === 'override'
         })
 
-        const generichide = activeDomainRules.some((rule) => {
-            return rule.type === 'generichide'
+        const disableDefault = activeDomainRules.some((rule) => {
+            return rule.type === 'disable-default'
         })
 
-        // if rule with type 'generichide' is present, ignore all global rules
-        if (generichide) {
+        // if rule with type 'disable-default' is present, ignore all global rules
+        if (disableDefault) {
             activeRules = activeDomainRules.filter((rule) => {
-                return rule.type !== 'generichide'
+                return rule.type !== 'disable-default'
             })
         } else {
-           activeRules = activeDomainRules.concat(globalRules)
+            activeRules = activeDomainRules.concat(globalRules)
         }
 
         // remove overrides and rules that match overrides from array of rules to be applied to page
@@ -325,14 +365,15 @@ export default class ElementHiding extends ContentFeature {
      * @param {string} rules[].type
      */
     applyRules (rules) {
-        const hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000]
-        const unhideTimeouts = [750, 1500, 2250, 3000]
         const timeoutRules = extractTimeoutRules(rules)
+        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+        const clearCacheTimer = unhideTimeouts.at(-1) + 100
 
         // several passes are made to hide & unhide elements. this is necessary because we're not using
         // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
         // frequently take from several hundred milliseconds to several seconds to load
         // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
+        console.log('rules to be applied', timeoutRules)
         hideTimeouts.forEach((timeout) => {
             setTimeout(() => {
                 hideAdNodes(timeoutRules)
@@ -353,6 +394,7 @@ export default class ElementHiding extends ContentFeature {
         setTimeout(() => {
             appliedRules = new Set()
             hiddenElements = new WeakMap()
-        }, 3100)
+            modifiedElements = new WeakMap()
+        }, clearCacheTimer)
     }
 }
