@@ -101,6 +101,15 @@ export const appMachine = baseMachine
                     assign({ error: () => null }),
                     raise({ type: 'clearErrors' })
                 ]
+            }),
+            assignError: assign({
+                error: (ctx, evt) => {
+                    console.error(evt)
+                    const lines = ["Couldn't fetch initial data - see the console for more information"]
+                    // @ts-expect-error - possibly unknown event
+                    lines.push(evt.data?.message || 'unknown error')
+                    return lines.join('\n\n')
+                }
             })
         }
     })

@@ -9,6 +9,11 @@ export const AppMachineContext = createActorContext(baseMachine, { devTools: tru
 export function App () {
     const [state] = AppMachineContext.useActor()
 
+    if (state.matches('showing error')) {
+        return <div className="initial-loader">
+            <pre><code>{state.context.error}</code></pre>
+        </div>
+    }
     if (!state.matches(['routes ready'])) {
         return (
             <div className="initial-loader">
