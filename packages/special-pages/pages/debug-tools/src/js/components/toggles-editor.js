@@ -43,15 +43,11 @@ const components = {
  * @param {ToggleKind} props.toggleKind
  * @param {ToggleKind[]} props.toggleKinds
  * @param {RemoteResource} props.resource
- * @param {ReactNode} props.buttons
  */
 export function TogglesEditor (props) {
     return (
         <div data-testid="TogglesEditor">
-            <div className="editor__save">
-                {props.buttons}
-            </div>
-            <div className="radio-group row">
+            <div className="radio-group">
                 <form className="radio-group__form">
                     {props.toggleKinds.map(toggle => {
                         return (

@@ -1,0 +1,35 @@
+.button {
+    padding: .5rem 1rem;
+    border-radius: .2rem;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    background: #efefef;
+    border: 1px solid transparent;
+}
+
+.button:hover:not([disabled]), .button:focus-visible:not([disabled]) {
+    border-color: #737a7a;
+}
+
+.button:active:not([disabled]) {
+    background: #c8e3e3;
+    color: #c8e3e3
+}
+
+.button[disabled] {
+    cursor: not-allowed;
+    opacity: .6;
+}
+
+.button[data-variant=micro] {
+    font-size: 0.6rem;
+    padding: .1rem .3rem;
+    background: #eaf2ff;
+    border: 1px solid #d4dded;
+}
+
+.button[data-state="not-allowed"] {
+    cursor: not-allowed;
+}

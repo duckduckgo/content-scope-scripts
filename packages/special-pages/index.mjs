@@ -129,7 +129,8 @@ for (const buildJob of buildJobs) {
             sourcemap: NODE_ENV === 'development' ? 'inline' : undefined,
             loader: {
                 '.js': 'jsx',
-                '.ttf': 'file'
+                '.ttf': 'file',
+                '.module.css': 'local-css'
             },
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),

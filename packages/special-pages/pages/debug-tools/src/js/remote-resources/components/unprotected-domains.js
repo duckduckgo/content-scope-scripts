@@ -2,7 +2,7 @@
  * @typedef {import('monaco-editor').editor.ITextModel} ITextModel
  */
 
-import { MicroButton } from '../../components/micro-button'
+import { MicroButton } from '../../components/buttons'
 import * as z from 'zod'
 import { DomainForm } from './domain-form'
 import { RemoteResourcesContext } from '../remote-resources.page'

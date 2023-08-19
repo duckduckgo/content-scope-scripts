@@ -8,7 +8,7 @@ import { MonacoEditorRaw } from './monaco-editor'
 import * as monaco from 'monaco-editor'
 import useConstant from '@xstate/react/es/useConstant'
 import { DD, DT, InlineDL } from './definition-list'
-import { MicroButton } from './micro-button'
+import { MicroButton } from './buttons'
 import { useEffect } from 'react'
 
 /**
@@ -47,7 +47,6 @@ const components = {
  * @param {boolean} props.edited
  * @param {boolean} props.invalid
  * @param {RemoteResource} props.resource
- * @param {ReactNode} props.buttons
  */
 export function PatchesEditor (props) {
     /**
@@ -105,10 +104,7 @@ export function PatchesEditor (props) {
 
     return (
         <div data-testid="PatchesEditor">
-            <div className="editor__save">
-                {props.buttons}
-            </div>
-            <div className="row card">
+            <div className="card">
                 <InlineDL>
                     <DT>GENERATE</DT>
                     <DD><MicroButton className="ml-3.5" onClick={generateFromDiff}>from diff 🔀</MicroButton></DD>
@@ -123,7 +119,8 @@ export function PatchesEditor (props) {
                 </InlineDL>
             </div>
             <div className="row">
-                <MonacoEditorRaw model={patchModel} />
+                TODO: make this layout work
+                {/*<MonacoEditorRaw model={patchModel} />*/}
             </div>
         </div>
     )

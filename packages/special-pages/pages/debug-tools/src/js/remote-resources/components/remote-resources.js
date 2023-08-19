@@ -92,36 +92,11 @@ export function RemoteResources () {
     }, [sharedTextModel, originalTextContent, actor])
 
     return (
-        <div>
-            {/* don't bother showing sub nav if there's nothing to navigate to */}
-            {nav.length > 1 ? <Nav nav={nav} prefix={'/remoteResources/'} /> : null}
-            <div className="main">
-                <RemoteResourceEditor
-                    key={resourceKey}
-                    resource={resource}
-                    model={sharedTextModel}
-                    beforeEditor={null}
-                />
-            </div>
-        </div>
-    )
-}
-
-/**
- * @param {object} props
- * @param {{id: string; name: string; active: boolean}[]} props.nav
- * @param {string} props.prefix
- */
-function Nav (props) {
-    return (
-        <div className="subheading">
-            <ul className="subnav">
-                {props.nav.map(res => {
-                    return <li key={res.name}>
-                        <a href={props.prefix + res.id} data-nav className="subnav__link" data-active={res.active}>{res.name}</a>
-                    </li>
-                })}
-            </ul>
-        </div>
+        <RemoteResourceEditor
+            key={resourceKey}
+            resource={resource}
+            model={sharedTextModel}
+            nav={nav}
+        />
     )
 }

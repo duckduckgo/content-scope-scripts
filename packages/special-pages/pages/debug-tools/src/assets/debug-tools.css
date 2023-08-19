@@ -65,6 +65,8 @@ p, h1, h2, h3, h4, h5, h6 {
     --ddg-color-border: var(--ddg-shade-12);
     --ddg-color-txt: var(--ddg-shade-84);
     --ddg-color-txt-link-02: #ababab;
+    --ddg-ui-gutter: 0.7rem;
+    --ddg-ui-gutter-tight: 0.4rem;
 }
 @media (prefers-color-scheme: dark) {
     :host {
@@ -160,41 +162,6 @@ dialog::backdrop {
     }
 }
 
-.header {
-    background: var(--ddg-color-primary);
-    padding: .7rem;
-}
-
-.feature-nav {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    column-gap: .5rem;
-    font-size: 0.8rem;
-}
-
-.feature-nav__link {
-    padding: .5rem 1rem;
-    border-radius: .2rem;
-    display: block;
-    color: white;
-    text-decoration: none;
-}
-
-.feature-nav__link:hover {
-    background: var(--ddg-color-primary-bg);
-}
-
-.feature-nav__link[data-active=true] {
-    background: var(--ddg-color-primary-bg);
-}
-
-.subheading {
-    padding: .7rem;
-    padding-bottom: 0;
-}
-
 .list {
     list-style: none;
     margin: 0;
@@ -212,115 +179,24 @@ dialog::backdrop {
     padding: 0;
 }
 
-.subnav {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    column-gap: .5rem;
-    font-size: 0.8rem;
+.column-gap {
+    column-gap: var(--ddg-ui-gutter);
 }
 
-.subnav__link {
-    padding: .5rem 1rem;
-    border-radius: .2rem;
-    display: block;
-    text-decoration: none;
-    color: var(--ddg-color-primary);
-}
-
-.subnav__link[data-active=true], .subnav__link:hover {
-    background: var(--ddg-color-primary);
-    color: white;
-}
-
-.main {
-    padding-left: .7rem;
-    padding-right: .7rem;
-}
-
-.inline-fields {
-    border: 0;
-    padding: 0;
-    margin: 0;
-    display: flex;
-}
-.inline-fields input {
-    border-radius: 0;
-    border: 1px solid var(--ddg-color-primary);
-    padding: .4rem;
-}
-.inline-fields button {
-    flex-shrink: 0;
-    white-space: nowrap;
-    font-size: 0.8rem;
-    border-radius: 0;
-    border: 0;
-    background: var(--ddg-color-primary);
-    color: white;
-    cursor: pointer;
-}
-
-.editor__tools {
-    display: flex;
-    column-gap: .5rem;
-    margin-top: .7rem;
-}
-
-.editor__title {
-    margin-top: .7rem;
-}
-
-.editor__save {
-    margin-top: .7rem;
-    margin-bottom: .7rem;
-    display: flex;
-    column-gap: .7rem;
-}
-
-.button {
-    padding: .5rem 1rem;
-    border-radius: .2rem;
-    display: block;
-    text-decoration: none;
-    cursor: pointer;
-    font-size: 0.8rem;
-    background: #efefef;
-    border: 1px solid transparent;
-}
-
-.button:hover:not([disabled]), .button:focus-visible:not([disabled]) {
-    border-color: #737a7a;
-}
-
-.button:active:not([disabled]) {
-    background: #c8e3e3;
-    color: #c8e3e3
-}
-
-.button[disabled] {
-    cursor: not-allowed;
-    opacity: .6;
-}
-
-.button[data-variant=micro] {
-    font-size: 0.6rem;
-    padding: .1rem .3rem;
-    background: #eaf2ff;
-    border: 1px solid #d4dded;
-}
-
-.button[data-state="not-allowed"] {
-    cursor: not-allowed;
+.ml-auto {
+    margin-left: auto;
 }
 
 .row {
-    margin-top: .7rem;
+    margin-top: var(--ddg-ui-gutter);
 }
 
 .flex {
     display: flex;
     align-items: center;
+}
+.flex-1 {
+    flex: 1;
 }
 .ml-1 {
     margin-left: .25rem;
@@ -370,7 +246,7 @@ dialog::backdrop {
 
 .error {
     color: #a80000;
-    font-size: 0.7rem;
+    font-size: 0var(--ddg-ui-gutter);
     padding: 1.4rem;
     background: #ffbdbd;
     border-radius: 0.2rem;
@@ -380,7 +256,7 @@ dialog::backdrop {
     position: fixed;
     z-index: 1;
     top: 0;
-    left: .7rem;
+    left: var(--ddg-ui-gutter);
     width: calc(100% - 1.4rem);
     box-shadow: 1px 1px 16px black;
 }
@@ -406,7 +282,7 @@ dialog::backdrop {
 }
 
 .inline-dl + .inline-dl {
-    margin-top: .7rem;
+    margin-top: var(--ddg-ui-gutter);
 }
 
 .inline-dl__dt {
@@ -428,27 +304,5 @@ dialog::backdrop {
 @keyframes fade-in {
     0% { opacity: 0; visibility: hidden }
     100% { opacity: 1; visibility: visible }
-}
-
-.inline-form {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-.inline-form__label {
-    color: gray;
-    margin-right: 0.4rem;
-}
-.inline-form__control {
-    width: 100%;
-    display: flex;
-}
-.inline-form__input {
-    flex: 1;
-}
-.inline-form__button {
-    flex-shrink: 0;
-    margin-left: .4rem;
 }
 

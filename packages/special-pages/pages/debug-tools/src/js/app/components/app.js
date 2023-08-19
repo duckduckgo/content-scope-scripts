@@ -2,6 +2,8 @@ import { getMachine } from '../app.machine'
 import { createActorContext } from '@xstate/react'
 import { Suspense } from 'react'
 import * as z from 'zod'
+import styles from './app.module.css'
+import { FeatureNav } from './feature-nav'
 
 export const baseMachine = getMachine
 export const AppMachineContext = createActorContext(baseMachine, { devTools: true })
@@ -57,23 +59,14 @@ function AppShell () {
     })
 
     return (
-        <div data-loaded="true" className="app-shell">
-            <header className="header">
-                <ul className="feature-nav">
-                    {links.map(link => {
-                        return <li key={link.name}>
-                            <a href={link.url} data-nav className="feature-nav__link" data-active={link.active}>
-                                {link.name}
-                            </a>
-                        </li>
-                    })}
-                </ul>
+        <div data-loaded="true" className={styles.appShell}>
+            <header className={styles.appHeader}>
+                <FeatureNav links={links} />
             </header>
-            <main>
-                <Suspense fallback={null}>
-                    <Page />
-                </Suspense>
-            </main>
+            {/*<p>Main</p>*/}
+            <Suspense fallback={null}>
+                <Page />
+            </Suspense>
         </div>
     )
 }

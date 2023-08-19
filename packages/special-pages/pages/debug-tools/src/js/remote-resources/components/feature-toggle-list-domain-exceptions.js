@@ -1,6 +1,6 @@
 import { RemoteResourcesContext } from '../remote-resources.page'
 import { DomainForm } from './domain-form'
-import { MicroButton } from '../../components/micro-button'
+import { MicroButton } from '../../components/buttons'
 
 /**
  * @typedef {import('monaco-editor').editor.ITextModel} ITextModel

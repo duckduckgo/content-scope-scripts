@@ -1,7 +1,7 @@
 import { useDomainState } from '../domain-exceptions.machine'
 import { useEffect } from 'react'
 import { DD, DT, InlineDL } from '../../components/definition-list'
-import { MicroButton } from '../../components/micro-button'
+import { MicroButton } from '../../components/buttons'
 import { URLEditor } from '../../components/url-editor'
 
 /**

@@ -1,3 +1,4 @@
+import styles from "./url-editor.module.css"
 /**
  * @param {object} props
  * @param {(evt: any) => void} props.save
@@ -14,12 +15,12 @@ export function URLEditor (props) {
 
     return (
         <form className="font-mono text-xs" onSubmit={props.save} onKeyUp={onKeyUp}>
-            <label className="inline-form">
-                <span className="inline-form__label">NEW: </span>
-                <div className="inline-form__control">
-                    {props.input({ className: 'inline-form__input' })}
-                    <button className="inline-form__button" type="submit">{props.pending ? 'Saving...' : 'Save'}</button>
-                    <button className="inline-form__button" type="button" onClick={props.cancel}>Cancel</button>
+            <label className={styles.label}>
+                <span className={styles.text}>NEW: </span>
+                <div className={styles.control}>
+                    {props.input({ className: 'flex-1' })}
+                    <button className={styles.button} type="submit">{props.pending ? 'Saving...' : 'Save'}</button>
+                    <button className={styles.button} type="button" onClick={props.cancel}>Cancel</button>
                 </div>
             </label>
         </form>

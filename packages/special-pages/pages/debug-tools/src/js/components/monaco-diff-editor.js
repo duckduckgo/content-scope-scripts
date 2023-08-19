@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react'
+import {forwardRef, useEffect, useRef} from 'react'
 import * as monaco from 'monaco-editor'
+import {createPortal} from "react-dom";
+import {Button} from "./buttons";
 
 /**
  * @typedef {import('monaco-editor').editor.ITextModel} ITextModel
@@ -13,7 +15,7 @@ import * as monaco from 'monaco-editor'
  * @param {boolean} props.edited
  * @param {boolean} props.invalid
  * @param {string} props.id
- * @param {import('react').ReactNode} props.buttons
+ * @param {any} props.other
  */
 export function MonacoDiffEditor (props) {
     const ref = useRef(null)
@@ -73,17 +75,19 @@ export function MonacoDiffEditor (props) {
         editorRefs.current.navi.next()
     }
 
+    const portal = <>
+        <Button onClick={prevDiff} disabled={!props.edited}>
+            ⏪{' '}prev diff
+        </Button>
+        <Button onClick={nextDiff} disabled={!props.edited}>
+            next diff ⏭️
+        </Button>
+    </>
+
     return (
-        <div>
-            <div className="editor__save">
-                {props.buttons}
-                <button className="button" type={'button'} onClick={prevDiff} disabled={!props.edited}>⏪{' '}prev diff</button>
-                <button className="button" type={'button'} onClick={nextDiff} disabled={!props.edited}>next diff ⏭️</button>
-            </div>
-            <div ref={ref} style={{
-                height: '700px',
-                width: '100%'
-            }}></div>
-        </div>
+        <>
+            {props.other ? createPortal(portal, props.other) : null}
+            <div ref={ref} style={{ height: '100%', width: '100%' }}></div>
+        </>
     )
 }

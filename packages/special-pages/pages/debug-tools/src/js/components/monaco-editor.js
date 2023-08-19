@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor'
-import { useEffect, useRef } from 'react'
+import {useEffect, useLayoutEffect, useRef} from 'react'
 import invariant from 'tiny-invariant'
 
 /**
@@ -15,7 +15,6 @@ import invariant from 'tiny-invariant'
  * @param {boolean} props.edited
  * @param {boolean} props.invalid
  * @param {string} props.id
- * @param {import('react').ReactNode} props.buttons
  */
 export function MonacoEditor (props) {
     const ref = useRef(null)
@@ -24,7 +23,8 @@ export function MonacoEditor (props) {
         invariant(ref.current, 'ref must exist here')
 
         const editor = monaco.editor.create(ref.current, {
-            model: props.model
+            model: props.model,
+            automaticLayout: true
         })
 
         const prev = localStorage.getItem('viewState_' + props.id)
@@ -44,12 +44,7 @@ export function MonacoEditor (props) {
     }, [props.model])
 
     return (
-        <div>
-            <div className="editor__save">
-                {props.buttons}
-            </div>
-            <div ref={ref} style={{ height: '700px', width: '100%' }}></div>
-        </div>
+        <div ref={ref} style={{height: '100%', width: '100%'}}></div>
     )
 }
 
@@ -73,8 +68,6 @@ export function MonacoEditorRaw (props) {
     }, [props.model])
 
     return (
-        <div>
-            <div ref={ref} style={{ height: '700px', width: '100%' }}></div>
-        </div>
+        <div ref={ref} style={{ height: '100%', width: '100%' }}></div>
     )
 }

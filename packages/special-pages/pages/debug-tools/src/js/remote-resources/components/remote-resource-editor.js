@@ -5,19 +5,24 @@ import { MonacoDiffEditor } from '../../components/monaco-diff-editor'
 import invariant from 'tiny-invariant'
 import { TogglesEditor } from '../../components/toggles-editor'
 import { PatchesEditor } from '../../components/patches-editor'
+import styles from '../../app/components/app.module.css'
+import {SubNav} from "../../app/components/feature-nav";
+import {useRef} from "react";
+import {Button} from "../../components/buttons";
 
 /**
  * @typedef {import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
  * @typedef {import('../../../../schema/__generated__/schema.types').UpdateResourceParams} UpdateResourceParams
  * @typedef {import("../remote-resources.machine").EditorKind} EditorKind
  * @typedef {import("../remote-resources.machine").ToggleKind} ToggleKind
+ * @typedef {import('../../app/components/feature-nav').SubNavItem} SubNavItem
  */
 
 /**
  * @param {object} props
  * @param {RemoteResource} props.resource
  * @param {import("monaco-editor").editor.ITextModel} props.model
- * @param {import("react").ReactNode | null | undefined} props.beforeEditor
+ * @param {SubNavItem[]} props.nav
  */
 export function RemoteResourceEditor (props) {
     const [state, send] = RemoteResourcesContext.useActor()
@@ -64,6 +69,26 @@ export function RemoteResourceEditor (props) {
         saveNewRemote(payload)
     }
 
+    /**
+     * @param {'save' | 'revert' | 'show-diff'} action
+     */
+    function localAction(action) {
+        switch (action) {
+            case "revert": {
+                revertEdited()
+                break
+            }
+            case "save": {
+                saveDebugContent()
+                break
+            }
+            case "show-diff": {
+                setEditorKind('diff');
+                break
+            }
+        }
+    }
+
     const savingRemote = state.matches(['showing editor', 'editing', 'saving new remote'])
     const savingChanges = state.matches(['showing editor', 'editing', 'saving edited'])
     const showingUrlEditor = state.matches(['showing editor', 'urlEditor', 'open'])
@@ -93,74 +118,97 @@ export function RemoteResourceEditor (props) {
 
     // Buttons above the editor
     const buttons = <>
-        <Switcher kind={editorKind} toggleKind={setEditorKind} values={switcherKinds} />
-        <button type="button" className="button" onClick={revertEdited} disabled={!hasEdits}>↩️ Revert</button>
-        <button
-            className="button"
-            type='button'
-            onClick={() => saveDebugContent()}
+        <Button onClick={() => localAction("revert")} disabled={!hasEdits}>↩️ Revert</Button>
+        <Button
+            onClick={() => localAction('save')}
             disabled={!hasEdits}
             data-state={editorState}>{savingChanges ? 'saving...' : '💾 Save + Apply'}
-        </button>
+        </Button>
     </>
+
+    const other = useRef(null);
 
     if (!state.matches(['showing editor', 'editing'])) return null
 
     return (
-        <div>
-            <RemoteResourceState
-                resource={props.resource}
-                pending={savingRemote}
-                edited={hasEdits}
-                showingUrlEditor={showingUrlEditor}
-                setUrl={setUrl}
-                showOverrideForm={showOverrideForm}
-                hideOverrideForm={hideOverrideForm}
-                copyPatch={copyPatch}
-                model={props.model}
-            />
-            {props.beforeEditor}
-            <InvalidEditorErrors revert={revertEdited} />
-            <SavingErrors dismiss={() => send({ type: 'clearErrors' })} />
-            <div className="editor">
-                {editorKind === 'diff' && <MonacoDiffEditor
-                    buttons={buttons}
-                    model={props.model}
-                    original={originalContents}
-                    edited={hasEdits}
-                    invalid={contentIsInvalid}
-                    pending={savingChanges}
-                    id={props.resource.id}
-                />}
-                {editorKind === 'inline' && <MonacoEditor
-                    buttons={buttons}
-                    model={props.model}
-                    invalid={contentIsInvalid}
-                    edited={hasEdits}
-                    pending={savingChanges}
-                    id={props.resource.id}
-                />}
-                {editorKind === 'toggles' && <TogglesEditor
-                    buttons={buttons}
-                    model={props.model}
-                    invalid={contentIsInvalid}
-                    edited={hasEdits}
-                    pending={savingChanges}
-                    resource={props.resource}
-                    toggleKind={toggleKind}
-                    toggleKinds={validToggleKinds}
-                    onToggleKind={setToggleKind}
-                />}
-                {editorKind === 'patches' && <PatchesEditor
-                    model={props.model}
-                    pending={savingChanges}
-                    edited={hasEdits}
-                    invalid={contentIsInvalid}
-                    resource={props.resource}
-                    buttons={buttons}
-                />}
-            </div>
-        </div>
+        <>
+            <main className={styles.appMain}>
+                <InvalidEditorErrors revert={() => localAction('revert')} />
+                <SavingErrors dismiss={() => send({ type: 'clearErrors' })} />
+
+                <div className={styles.mainHeader}>
+
+                    {props.nav.length > 1
+                        ? (
+                            <div className="row">
+                                <SubNav items={props.nav} prefix={'/remoteResources/'}/>
+                            </div>
+                        )
+                        : null
+                    }
+                    <RemoteResourceState
+                        resource={props.resource}
+                        pending={savingRemote}
+                        edited={hasEdits}
+                        showingUrlEditor={showingUrlEditor}
+                        setUrl={setUrl}
+                        editorKind={editorKind}
+                        showOverrideForm={showOverrideForm}
+                        hideOverrideForm={hideOverrideForm}
+                        copyPatch={copyPatch}
+                        model={props.model}
+                        localAction={localAction}
+                    />
+                </div>
+
+                <div className={styles.mainContent}>
+                    {editorKind === 'diff' && <MonacoDiffEditor
+                        model={props.model}
+                        original={originalContents}
+                        edited={hasEdits}
+                        invalid={contentIsInvalid}
+                        pending={savingChanges}
+                        id={props.resource.id}
+                        other={other.current}
+                    />}
+                    {editorKind === 'inline' && <MonacoEditor
+                        model={props.model}
+                        invalid={contentIsInvalid}
+                        edited={hasEdits}
+                        pending={savingChanges}
+                        id={props.resource.id}
+                    />}
+                    {editorKind === 'toggles' && <TogglesEditor
+                        model={props.model}
+                        invalid={contentIsInvalid}
+                        edited={hasEdits}
+                        pending={savingChanges}
+                        resource={props.resource}
+                        toggleKind={toggleKind}
+                        toggleKinds={validToggleKinds}
+                        onToggleKind={setToggleKind}
+                    />}
+                    {editorKind === 'patches' && <PatchesEditor
+                        model={props.model}
+                        pending={savingChanges}
+                        edited={hasEdits}
+                        invalid={contentIsInvalid}
+                        resource={props.resource}
+                    />}
+                </div>
+            </main>
+            <footer className={styles.appFooter}>
+                <div className="flex column-gap">
+                    <div className="flex column-gap">
+                        <Switcher kind={editorKind} toggleKind={setEditorKind} values={switcherKinds} />
+                    </div>
+                    <div className="flex column-gap" ref={other} />
+                    <div className="flex column-gap ml-auto">
+                        {buttons}
+                    </div>
+                </div>
+            </footer>
+        </>
     )
 }
 
@@ -182,7 +230,7 @@ function InvalidEditorErrors (props) {
 
     return (
         <FloatingErrors errors={errors}>
-            <button type="button" className="button" onClick={props.revert}>↩️ Revert</button>
+            <Button onClick={props.revert}>↩️ Revert</Button>
         </FloatingErrors>
     )
 }
@@ -205,7 +253,7 @@ function SavingErrors (props) {
 
     return (
         <FloatingErrors errors={[{ message: error }]}>
-            <button type="button" className="button" onClick={props.dismiss}>↩️ Dismiss</button>
+            <Button onClick={props.dismiss}>↩️ Dismiss</Button>
         </FloatingErrors>
     )
 }

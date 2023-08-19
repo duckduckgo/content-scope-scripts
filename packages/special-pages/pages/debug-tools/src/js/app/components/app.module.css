@@ -1,0 +1,63 @@
+:global(html) {
+    height: 100vh;
+    overflow: hidden;
+}
+:global(body) {
+    height: 100vh;
+    overflow: hidden;
+}
+.appShell {
+    opacity: 0;
+    visibility: hidden;
+    animation-name: fade-in;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: "header" "main" "footer";
+    height: 100vh;
+    overflow: hidden;
+}
+
+.appHeader {
+    background: var(--ddg-color-primary);
+    padding: .7rem;
+    grid-area: header;
+}
+.appMain {
+    grid-area: main;
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "main-header" "main-content";
+
+    padding-left: var(--ddg-ui-gutter);
+    padding-right: var(--ddg-ui-gutter);
+
+    overflow: hidden;
+}
+
+.appFooter  {
+    grid-area: footer;
+    padding: var(--ddg-ui-gutter);
+    box-shadow: 0 0 3px #8e8e8e;
+}
+
+@keyframes fade-in {
+    0% { opacity: 0; visibility: hidden }
+    100% { opacity: 1; visibility: visible }
+}
+
+.mainHeader {
+    grid-area: main-header;
+}
+
+.mainContent {
+    grid-area: main-content;
+    margin-top: var(--ddg-ui-gutter);
+    padding-bottom: var(--ddg-ui-gutter);
+    overflow: auto;
+}

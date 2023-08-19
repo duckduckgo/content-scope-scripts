@@ -1,12 +1,13 @@
 import * as z from 'zod'
-import { DD, DT, InlineDL } from '../../components/definition-list.js'
-import { MicroButton } from '../../components/micro-button'
-import { URLEditor } from '../../components/url-editor'
-import { usePatches } from '../remote-resources.page'
+import {DD, DT, InlineDL} from '../../components/definition-list.js'
+import {MicroButton} from '../../components/buttons'
+import {URLEditor} from '../../components/url-editor'
+import {usePatches} from '../remote-resources.page'
 
 /**
- * @typedef{ import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
- * @typedef{ import('../../../../schema/__generated__/schema.types').UpdateResourceParams} UpdateResourceParams
+ * @typedef {import('../../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
+ * @typedef {import('./remote-resource-editor.js').EditorKind} EditorKind
+ * @typedef {import('../../../../schema/__generated__/schema.types').UpdateResourceParams} UpdateResourceParams
  * @typedef {import('monaco-editor').editor.ITextModel} ITextModel
  */
 
@@ -21,10 +22,12 @@ import { usePatches } from '../remote-resources.page'
  *   showingUrlEditor: boolean;
  *   copyPatch: () => void;
  *   model: ITextModel;
+ *   localAction(action: 'save' | 'revert' | 'show-diff'): void;
+ *   editorKind: import('./remote-resource-editor.js').EditorKind
  * }} props
  */
-export function RemoteResourceState (props) {
-    function saveNewRemote (e) {
+export function RemoteResourceState(props) {
+    function saveNewRemote(e) {
         e.preventDefault()
         const formData = Object.fromEntries(new FormData(e.target))
         const schema = z.object({
@@ -49,17 +52,18 @@ export function RemoteResourceState (props) {
 
     const formatted = date(updatedAt)
 
-    function copy (e, v) {
+    function copy(e, v) {
         e.preventDefault()
         navigator.clipboard.writeText(v)
             // eslint-disable-next-line promise/prefer-await-to-then
             .catch(console.error)
     }
-    function showOverride () {
+
+    function showOverride() {
         props.showOverrideForm()
     }
 
-    function hideOverride () {
+    function hideOverride() {
         props.hideOverrideForm()
     }
 
@@ -72,7 +76,22 @@ export function RemoteResourceState (props) {
                     ? (
                         <>
                             <DT>Last fetched:</DT>
-                            <DD>{formatted} <MicroButton className="ml-3.5" onClick={() => props.setUrl(props.resource.url)}>{props.pending ? 'Updating...' : 'Refresh 🔄'}</MicroButton></DD>
+                            <DD>{formatted} <MicroButton className="ml-3.5"
+                                                         onClick={() => props.setUrl(props.resource.url)}>{props.pending ? 'Updating...' : 'Refresh 🔄'}</MicroButton></DD>
+                            {props.edited && (
+                                <>
+                                    <DT><span>🔵 LOCAL EDITS:</span></DT>
+                                    <DD>
+                                        <MicroButton onClick={() => props.localAction('revert')}>↩️ Revert</MicroButton>
+                                        <MicroButton className="ml-3.5"
+                                                     onClick={() => props.localAction('save')}>{props.pending ? 'saving...' : '💾 Save + Apply'}</MicroButton>
+                                        {props.editorKind !== "diff" && (
+                                            <MicroButton className="ml-3.5" onClick={() => props.localAction('show-diff')}>Show
+                                                Diff</MicroButton>
+                                        )}
+                                    </DD>
+                                </>
+                            )}
                         </>
                     )
                     : null}
@@ -92,11 +111,12 @@ export function RemoteResourceState (props) {
             {props.showingUrlEditor && (
                 <div className="row">
                     <URLEditor pending={props.pending} save={saveNewRemote} cancel={hideOverride}
-                        input={({ className }) => {
-                            return (
-                                <input autoFocus className={className} type="text" name="resource-url" placeholder="enter a url" />
-                            )
-                        }}
+                               input={({className}) => {
+                                   return (
+                                       <input autoFocus className={className} type="text" name="resource-url"
+                                              placeholder="enter a url"/>
+                                   )
+                               }}
                     />
                 </div>
             )}
@@ -121,8 +141,8 @@ export function RemoteResourceState (props) {
  * @param {boolean} props.pending
  * @param {(url: string) => void} props.setUrl
  */
-function Override (props) {
-    const { source } = props.resource.current
+function Override(props) {
+    const {source} = props.resource.current
 
     if ('remote' in source) {
         if (source.remote.url === props.resource.url) {
@@ -137,15 +157,18 @@ function Override (props) {
                     <DT>CURRENT OVERRIDE:</DT>
                     <DD>
                         {source.remote.url}
-                        <MicroButton className="ml-3.5" onClick={(e) => props.copy(e, source.remote.url)}>Copy 📄</MicroButton>
-                        <MicroButton className="ml-3.5" onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
+                        <MicroButton className="ml-3.5" onClick={(e) => props.copy(e, source.remote.url)}>Copy
+                            📄</MicroButton>
+                        <MicroButton className="ml-3.5"
+                                     onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
                     </DD>
                 </InlineDL>
                 <InlineDL>
                     <DT>Fetched at:</DT>
                     <DD>
                         {date(source.remote.fetchedAt)}
-                        <MicroButton className="ml-3.5" onClick={() => props.setUrl(source.remote.url)}>{props.pending ? 'Updating...' : 'Refresh 🔄'}</MicroButton>
+                        <MicroButton className="ml-3.5"
+                                     onClick={() => props.setUrl(source.remote.url)}>{props.pending ? 'Updating...' : 'Refresh 🔄'}</MicroButton>
                     </DD>
                 </InlineDL>
             </>
@@ -162,8 +185,9 @@ function Override (props) {
                 <DT>Updated at:</DT>
                 <DD>
                     {date(source.debugTools.modifiedAt)}
-                    <MicroButton className="ml-3.5" onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
-                    <PatchCopyButton />
+                    <MicroButton className="ml-3.5"
+                                 onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
+                    <PatchCopyButton/>
                 </DD>
             </InlineDL>
         )
@@ -172,7 +196,7 @@ function Override (props) {
     return null
 }
 
-function PatchCopyButton () {
+function PatchCopyButton() {
     const [state, send] = usePatches()
 
     const text = {
@@ -182,16 +206,16 @@ function PatchCopyButton () {
         // @ts-expect-error - a bug in xstate?
     }[state.value.stored]
 
-    if (state.matches({ stored: 'idle' })) return null
+    if (state.matches({stored: 'idle'})) return null
 
     return (
         <MicroButton
             className="ml-3.5"
-            onClick={() => send({ type: 'COPY_TO_CLIPBOARD' })}>{text}</MicroButton>
+            onClick={() => send({type: 'COPY_TO_CLIPBOARD'})}>{text}</MicroButton>
     )
 }
 
-function date (input) {
+function date(input) {
     return (new Date(input)).toLocaleString('en-US',
         {
             month: 'short',

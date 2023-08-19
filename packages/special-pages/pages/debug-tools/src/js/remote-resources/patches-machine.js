@@ -232,7 +232,6 @@ export const patchesMachine = createMachine({
         }),
         assignCurrentId: assign({
             currentId: (ctx, evt) => {
-                console.log('assing?')
                 invariant(evt.type === 'broadcastResourceSelected', 'incorrect evt ' + evt.type)
                 return evt.payload.currentResource.id
             }
