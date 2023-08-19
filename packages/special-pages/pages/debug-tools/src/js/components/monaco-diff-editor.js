@@ -32,7 +32,7 @@ export function MonacoDiffEditor (props) {
             ref.current,
             {
                 originalEditable: false,
-                automaticLayout: true
+                automaticLayout: false
             }
         )
 

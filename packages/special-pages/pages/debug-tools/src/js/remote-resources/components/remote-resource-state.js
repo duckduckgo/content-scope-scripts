@@ -78,13 +78,11 @@ export function RemoteResourceState(props) {
                             <DT>Last fetched:</DT>
                             <DD>{formatted} <MicroButton className="ml-3.5"
                                                          onClick={() => props.setUrl(props.resource.url)}>{props.pending ? 'Updating...' : 'Refresh 🔄'}</MicroButton></DD>
-                            {props.edited && (
+                            {(props.edited) && (
                                 <>
                                     <DT><span>🔵 LOCAL EDITS:</span></DT>
                                     <DD>
                                         <MicroButton onClick={() => props.localAction('revert')}>↩️ Revert</MicroButton>
-                                        <MicroButton className="ml-3.5"
-                                                     onClick={() => props.localAction('save')}>{props.pending ? 'saving...' : '💾 Save + Apply'}</MicroButton>
                                         {props.editorKind !== "diff" && (
                                             <MicroButton className="ml-3.5" onClick={() => props.localAction('show-diff')}>Show
                                                 Diff</MicroButton>

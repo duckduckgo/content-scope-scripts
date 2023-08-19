@@ -24,7 +24,7 @@ export function MonacoEditor (props) {
 
         const editor = monaco.editor.create(ref.current, {
             model: props.model,
-            automaticLayout: true
+            automaticLayout: false
         })
 
         const prev = localStorage.getItem('viewState_' + props.id)
