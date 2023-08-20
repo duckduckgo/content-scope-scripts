@@ -2,7 +2,7 @@ import {
     FeatureToggleListGlobal
 } from '../remote-resources/components/feature-toggle-list-global'
 import { FeatureToggleListDomainExceptions } from '../remote-resources/components/feature-toggle-list-domain-exceptions'
-import { UnprotectedDomains } from '../remote-resources/components/unprotected-domains'
+import styles from "./toggles-editor.module.css"
 
 /**
  * @typedef {import('../../../schema/__generated__/schema.types').RemoteResource} RemoteResource
@@ -18,21 +18,6 @@ import { UnprotectedDomains } from '../remote-resources/components/unprotected-d
  * @property {ITextModel} model
  */
 
-/** @type {Record<ToggleKind, string>} */
-const titles = {
-    'global-feature': 'Global Feature Toggles',
-    'domain-exceptions': 'Domain Exceptions',
-    unprotected: 'Unprotected Domains'
-}
-
-/** @type {Record<ToggleKind, (props: ToggleComponentProps) => ReactNode>} */
-const components = {
-    'global-feature': (props) => <FeatureToggleListGlobal {...props}/>,
-    // 'domain-exceptions': (props) => <FeatureToggleListDomainExceptions {...props} />
-    'domain-exceptions': (props) => <FeatureToggleListDomainExceptions {...props} />,
-    unprotected: (props) => <UnprotectedDomains {...props} />
-}
-
 /**
  * @param {object} props
  * @param {ITextModel} props.model
@@ -47,24 +32,11 @@ const components = {
 export function TogglesEditor (props) {
     return (
         <div data-testid="TogglesEditor">
-            <div className="radio-group">
-                <form className="radio-group__form">
-                    {props.toggleKinds.map(toggle => {
-                        return (
-                            <div key={toggle} className="radio-group__item">
-                                <label className="radio-group__label" data-state={toggle === props.toggleKind ? 'active' : 'inactive'}>
-                                    <input type="radio"
-                                        className="radio-group__input"
-                                        onChange={() => props.onToggleKind(toggle)}
-                                        checked={toggle === props.toggleKind}/>
-                                    <span className="radio-group__title">{titles[toggle]}</span>
-                                </label>
-                            </div>
-                        )
-                    })}
-                </form>
+            {/*<div className="row">{components[props.toggleKind](props)}</div>*/}
+            <div className={styles.togglesGrid}>
+                <FeatureToggleListDomainExceptions {...props}/>
+                <FeatureToggleListGlobal {...props}/>
             </div>
-            <div className="row">{components[props.toggleKind](props)}</div>
         </div>
     )
 }

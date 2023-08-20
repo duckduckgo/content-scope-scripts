@@ -125,6 +125,9 @@ export function RemoteResourceState(props) {
                 copy={copy}
                 setUrl={props.setUrl}
                 copyPatch={props.copyPatch}
+                edited={props.edited}
+                localAction={props.localAction}
+                editorKind={props.editorKind}
             />
         </div>
     )
@@ -137,7 +140,10 @@ export function RemoteResourceState(props) {
  * @param {(e: any, value: string) => void} props.copy
  * @param {() => void} props.copyPatch
  * @param {boolean} props.pending
+ * @param {boolean} props.edited
  * @param {(url: string) => void} props.setUrl
+ * @param {import('./remote-resource-editor.js').EditorKind} props.editorKind
+ * @param {(action: 'save' | 'revert' | 'show-diff') => void} props.localAction
  */
 function Override(props) {
     const {source} = props.resource.current
@@ -187,6 +193,18 @@ function Override(props) {
                                  onClick={props.remove}>{props.pending ? 'removing...' : 'remove ❌'}</MicroButton>
                     <PatchCopyButton/>
                 </DD>
+                {(props.edited) && (
+                    <>
+                        <DT><span>🔵 LOCAL EDITS:</span></DT>
+                        <DD>
+                            <MicroButton onClick={() => props.localAction('revert')}>↩️ Revert</MicroButton>
+                            {props.editorKind !== "diff" && (
+                                <MicroButton className="ml-3.5" onClick={() => props.localAction('show-diff')}>Show
+                                    Diff</MicroButton>
+                            )}
+                        </DD>
+                    </>
+                )}
             </InlineDL>
         )
     }

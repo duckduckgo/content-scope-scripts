@@ -1,10 +1,4 @@
-import {
-    FeatureToggleListGlobal
-} from '../remote-resources/components/feature-toggle-list-global'
-import { FeatureToggleListDomainExceptions } from '../remote-resources/components/feature-toggle-list-domain-exceptions'
-import { UnprotectedDomains } from '../remote-resources/components/unprotected-domains'
 import jsonpatch from 'fast-json-patch'
-import { MonacoEditorRaw } from './monaco-editor'
 import * as monaco from 'monaco-editor'
 import useConstant from '@xstate/react/es/useConstant'
 import { DD, DT, InlineDL } from './definition-list'
@@ -24,21 +18,6 @@ import { useEffect } from 'react'
  * @typedef ToggleComponentProps
  * @property {ITextModel} model
  */
-
-/** @type {Record<ToggleKind, string>} */
-const titles = {
-    'global-feature': 'Global Feature Toggles',
-    'domain-exceptions': 'Domain Exceptions',
-    unprotected: 'Unprotected Domains'
-}
-
-/** @type {Record<ToggleKind, (props: ToggleComponentProps) => ReactNode>} */
-const components = {
-    'global-feature': (props) => <FeatureToggleListGlobal {...props}/>,
-    // 'domain-exceptions': (props) => <FeatureToggleListDomainExceptions {...props} />
-    'domain-exceptions': (props) => <FeatureToggleListDomainExceptions {...props} />,
-    unprotected: (props) => <UnprotectedDomains {...props} />
-}
 
 /**
  * @param {object} props

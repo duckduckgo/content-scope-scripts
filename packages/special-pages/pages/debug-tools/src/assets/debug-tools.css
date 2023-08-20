@@ -210,6 +210,17 @@ dialog::backdrop {
 .text-grey {
 
 }
+.p-4 {
+    padding: 1rem;
+}
+.py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
 .text-xs {
     font-size: 0.75rem;
     line-height: 1rem;
@@ -223,6 +234,10 @@ dialog::backdrop {
 .text-base {
     font-size: 1rem;
     line-height: 1.5rem
+}
+
+.text-left {
+    text-align: left;
 }
 
 .w-100 {

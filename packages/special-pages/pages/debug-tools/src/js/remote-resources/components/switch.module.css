@@ -1,0 +1,115 @@
+.switch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    gap: 1ch;
+}
+
+.input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.display {
+    --offset: 0.25em;
+    --diameter: 1.2em;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-around;
+    box-sizing: content-box;
+    width: calc(var(--diameter) * 2 + var(--offset) * 2);
+    height: calc(var(--diameter) + var(--offset) * 2);
+    border: 0.1em solid rgb(0 0 0 / 0.2);
+    position: relative;
+    border-radius: 100vw;
+    background-color: #fbe4e2;
+    transition: 250ms;
+}
+
+.display::before {
+    content: "";
+    z-index: 2;
+    position: absolute;
+    top: 50%;
+    left: var(--offset);
+    box-sizing: border-box;
+    width: var(--diameter);
+    height: var(--diameter);
+    border: 0.1em solid rgb(0 0 0 / 0.2);
+    border-radius: 50%;
+    background-color: white;
+    transform: translate(0, -50%);
+    will-change: transform;
+    transition: inherit;
+}
+
+
+.switch:focus .display,
+.input:focus + .display {
+    outline: 1px dotted #212121;
+    outline: 1px auto -webkit-focus-ring-color;
+    outline-offset: 2px;
+}
+
+.switch:focus,
+.switch:focus:not(:focus-visible) .display,
+.input:focus:not(:focus-visible) + .display {
+    outline: 0;
+}
+
+.switch[aria-pressed="true"] .display,
+.input:checked + .display {
+    background-color: #e3f5eb;
+}
+
+.switch[aria-pressed="true"] .display::before,
+.input:checked + .display::before {
+    transform: translate(100%, -50%);
+}
+
+.input:checked + .display .icon_cross {
+    opacity: 0;
+}
+
+.switch[disabled] .display,
+.input:disabled + .display {
+    opacity: 0.2;
+    filter: grayscale(40%);
+    cursor: not-allowed;
+}
+
+[dir="rtl"] .display::before {
+    left: auto;
+    right: var(--offset);
+}
+
+[dir="rtl"] .switch[aria-pressed="true"] + .display::before,
+[dir="rtl"] .input:checked + .display::before {
+    transform: translate(-100%, -50%);
+}
+
+.icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    color: inherit;
+    fill: currentcolor;
+    vertical-align: middle;
+    overflow: hidden;
+}
+
+.icon_cross {
+    color: #e74c3c;
+    font-size: 75%;
+    opacity: 1;
+    transition: opacity .3s;
+}
+
+.icon_checkmark {
+    color: #1fb978;
+}

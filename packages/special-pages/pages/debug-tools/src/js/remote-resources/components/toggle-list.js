@@ -1,68 +1,94 @@
-import * as z from 'zod'
 import './styles.css'
+import styles from './toggle-list.module.css'
+import {Switch} from "./switch";
+import invariant from "tiny-invariant";
 
 /**
  * @typedef ToggleListItem
  * @property {string} title
  * @property {string} id
- * @property {'on' | 'off' | 'disabled'} state
+ * @property {'on' | 'off' | 'disabled'} globalState
+ * @property {'on' | 'off' | 'disabled' | undefined} domainState
+ * @property {string | undefined} targetDomain
  */
 
-const iconMap = {
-    on: '✅',
-    off: '❌',
-    disabled: '🚫'
-}
 
 /**
  * @template {ToggleListItem} T
  * @param {object} props
  * @param {(id: string) => void} props.onClick
+ * @param {(id: string, domain: string) => void} props.onClickDomain
  * @param {T[]} props.items
- * @param {Partial<typeof iconMap>} [props.icons]
+ * @param {string | undefined} props.domain
  * @param {(item: T) => import("react").ReactNode} [props.renderInfo]
  * @param {import("react").ReactNode} [props.children]
  */
-export function ToggleList (props) {
+export function ToggleList(props) {
+    /**
+     * @param {import('react').ChangeEvent<HTMLInputElement>} e
+     */
     const onClick = (e) => {
-        if (!(e.target instanceof HTMLButtonElement)) return
-        const parsed = z.object({ id: z.string() }).parse(e.target.dataset)
-        props.onClick(parsed.id)
+        if (!(e.target instanceof HTMLInputElement)) return
+        console.log(e.target.checked, e.target.value);
+        props.onClick(e.target.value)
     }
-    const icons = {
-        ...iconMap,
-        ...props.icons
+
+    /**
+     * @param e
+     * @param {string} domain
+     */
+    const onClickDomain = (e, domain) => {
+        if (!(e.target instanceof HTMLInputElement)) return
+        props.onClickDomain(e.target.value, domain)
     }
-    return <div>
-        <ul onClick={onClick} className="toggle-list">
+    return (
+        <table>
+            <thead>
+            <tr>
+                <th className="p-4 text-left text-sm">Feature Name</th>
+                <th className="p-4 text-left text-sm">Global</th>
+                {props.domain && (
+                    <>
+                        <th className="p-4 text-left text-sm"><code>{props.domain}</code></th>
+                    </>
+                )}
+            </tr>
+            </thead>
+            <tbody>
             {props.items.map(item => {
                 return (
-                    <li key={item.id} className="toggle-list__item" data-state={item.state}>
-                        <button type="button"
-                            className="toggle-list__button"
-                            data-id={item.id}
-                            data-state={item.state}
-                            aria-label={'toggle ' + item.id}>
-                            {item.state === 'on' && icons.on}
-                            {item.state === 'off' && icons.off}
-                            {item.state === 'disabled' && icons.disabled}
-                        </button>
-                        <div className="toggle-list__title">
-                            <span>{item.title}</span>
-                        </div>
-                        {props.renderInfo
-                            ? (
-                                <div>
-                                    {props.renderInfo(item)}
-                                </div>
-
-                            )
-                            : null}
-
-                    </li>
+                    <tr key={item.id} className={styles.listItem} data-state={item.globalState}>
+                        <td className="px-4">{item.title}</td>
+                        <td className="px-4">
+                            <Switch
+                                checked={item.globalState === 'on'}
+                                onChange={onClick}
+                                id={item.id}
+                                disabled={item.globalState === 'disabled'}>
+                                {item.title}
+                            </Switch>
+                        </td>
+                        {props.domain && (
+                            <td className="px-4">
+                                {('domainState' in item) && (
+                                    <Switch
+                                        checked={item.domainState === 'on'}
+                                        onChange={(e) => {
+                                            invariant(item.targetDomain, 'item.targetDomain missing')
+                                            onClickDomain(e, item.targetDomain);
+                                        }}
+                                        id={item.id}
+                                        disabled={item.domainState === 'disabled'}>
+                                        {item.title}
+                                    </Switch>
+                                )}
+                            </td>
+                        )}
+                    </tr>
                 )
             })}
-        </ul>
-        {props.children}
-    </div>
+            </tbody>
+        </table>
+    )
 }
+

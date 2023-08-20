@@ -6,6 +6,7 @@ import { updateResourceParamsSchema } from '../../schema/__generated__/schema.pa
 
 /** @type {import('../../schema/__generated__/schema.types').GetTabsResponse} */
 const tabData = { tabs: [{ url: 'https://example.com/123/abc' }, { url: 'https://duckduckgo.com/?q=123' }, { url: 'https://abc.duckduckgo.com/?q=123' }] }
+// const tabData = { tabs: [] }
 
 /**
  * @implements MessagingTransport
