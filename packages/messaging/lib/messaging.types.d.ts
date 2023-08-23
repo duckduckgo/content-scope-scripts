@@ -16,6 +16,7 @@ interface Window {
   webkit: UnstableWebkit
   __playwright_01: {
     mockResponses: Record<string, import('../index.js').MessageResponse>,
+    errorResponses: Record<string, import('../index.js').MessageError>,
     subscriptionEvents: import('../index.js').SubscriptionEvent[],
     mocks: {
       outgoing: UnstableMockCall[],

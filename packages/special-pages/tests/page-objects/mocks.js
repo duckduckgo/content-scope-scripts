@@ -41,13 +41,15 @@ export class Mocks {
             windows: async () => {
                 await this.page.addInitScript(mockWindowsMessaging, {
                     messagingContext: this.messagingContext,
-                    responses: this._defaultResponses
+                    responses: this._defaultResponses,
+                    errors: {}
                 })
             },
             apple: async () => {
                 await this.page.addInitScript(mockWebkitMessaging, {
                     messagingContext: this.messagingContext,
-                    responses: this._defaultResponses
+                    responses: this._defaultResponses,
+                    errors: {}
                 })
             }
         })
