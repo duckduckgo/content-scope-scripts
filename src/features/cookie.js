@@ -141,10 +141,9 @@ export default class CookieFeature extends ContentFeature {
 
         function getCookiePolicy () {
             const stack = getStack()
-            const scriptOrigins = getStackTraceOrigins(stack)
             const getCookieContext = {
                 stack,
-                scriptOrigins,
+                scriptOrigins: [],
                 value: 'getter'
             }
 
