@@ -1,5 +1,5 @@
 /* global cloneInto, exportFunction, mozProxies */
-import { Set } from '@duckduckgo/safe-globals'
+import { Set, String, RegExp } from '@duckduckgo/safe-globals'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
@@ -168,7 +168,7 @@ export function matchHostname (hostname, exceptionDomain) {
     return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
 }
 
-const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
+const lineTest = new RegExp('([(])?(https?:[^)]+):[0-9]+:[0-9]+([)])?')
 export function getStackTraceUrls (stack) {
     const urls = new Set()
     try {
@@ -332,7 +332,7 @@ export function processAttr (configSetting, defaultValue) {
 }
 
 export function getStack () {
-    return new Error().stack
+    return new String(new Error().stack)
 }
 
 export function getContextId (scope) {
