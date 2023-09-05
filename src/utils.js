@@ -131,16 +131,16 @@ export function hasThirdPartyOrigin (scriptOrigins) {
 export function getTabHostname () {
     let framingOrigin = null
     try {
-        // @ts-expect-error - globalThis.top is possibly 'null' here
-        framingOrigin = globalThis.top.location.href
+        // @ts-expect-error - globalObj.top is possibly 'null' here
+        framingOrigin = globalObj.top.location.href
     } catch {
-        framingOrigin = globalThis.document.referrer
+        framingOrigin = globalObj.document.referrer
     }
 
     // Not supported in Firefox
-    if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+    if ('ancestorOrigins' in globalObj.location && globalObj.location.ancestorOrigins.length) {
         // ancestorOrigins is reverse order, with the last item being the top frame
-        framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1)
+        framingOrigin = globalObj.location.ancestorOrigins.item(globalObj.location.ancestorOrigins.length - 1)
     }
 
     try {

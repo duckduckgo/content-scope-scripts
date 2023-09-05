@@ -17,8 +17,10 @@ if (globalThis && 'document' in globalThis &&
 
 let dummyContentWindow = dummyWindow?.contentWindow
 if (hasMozProxies) {
+    // Purposefully prevent Firefox using the iframe as we can't hold stale references to iframes there.
+    // dummyContentWindow = undefined
     // @ts-expect-error - mozProxies is not defined on window
-    dummyContentWindow = dummyContentWindow.wrappedJSObject
+    dummyContentWindow = dummyContentWindow?.wrappedJSObject
 }
 // @ts-expect-error - Symbol is not defined on window
 const dummySymbol = dummyContentWindow?.Symbol
@@ -31,7 +33,7 @@ const iteratorSymbol = dummySymbol?.iterator
  * @returns {globalThis[T]}
  */
 export function captureGlobal (globalName) {
-    const global = dummyWindow?.contentWindow?.[globalName]
+    const global = dummyContentWindow?.[globalName]
 
     // if we were unable to create a dummy window, return the global
     // this still has the advantage of preventing aliasing of the global through shawdowing
@@ -50,6 +52,9 @@ export function captureGlobal (globalName) {
 }
 
 export function cleanup () {
+    // We can't remove the iframe in firefox as we get dead object issues.
+    if (import.meta.injectName === 'firefox') return
+
     // Clean up the dummy window
     dummyWindow?.remove()
 }
