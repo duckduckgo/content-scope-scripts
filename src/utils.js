@@ -1,13 +1,12 @@
 /* global cloneInto, exportFunction, mozProxies */
+import { globalObj, Error } from './global-setup.js'
 import { Set, getSafeString, RegExp } from '@duckduckgo/safe-globals'
 
-// Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
-// eslint-disable-next-line no-global-assign
-let globalObj = typeof window === 'undefined' ? globalThis : window
-let Error = globalObj.Error
 let messageSecret
 
 export const taintSymbol = Symbol('taint')
+
+export { setGlobal } from './global-setup.js'
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
@@ -55,15 +54,6 @@ export function createStyleElement (css) {
 export function injectGlobalStyles (css) {
     const style = createStyleElement(css)
     getInjectionElement()?.appendChild(style)
-}
-
-/**
- * Used for testing to override the globals used within this file.
- * @param {window} globalObjIn
- */
-export function setGlobal (globalObjIn) {
-    globalObj = globalObjIn
-    Error = globalObj.Error
 }
 
 // linear feedback shift register to find a random approximation
