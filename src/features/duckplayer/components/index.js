@@ -1,5 +1,5 @@
 import { DDGVideoOverlay } from './ddg-video-overlay.js'
-import { customElementsDefine, customElementsGet } from '../../../captured-globals.js'
+import { customElementsDefine, customElementsGet } from '@duckduckgo/safe-globals'
 
 /**
  * Register custom elements in this wrapper function to be called only when we need to

@@ -20,7 +20,10 @@ export function registerMessageSecret (secret) {
  * @returns {HTMLElement} the element to inject the script into
  */
 export function getInjectionElement () {
-    return document.head || document.documentElement
+    if (!globalObj) {
+        return null
+    }
+    return globalObj.document.head || globalObj.document.documentElement
 }
 
 // Tests don't define this variable so fallback to behave like chrome
