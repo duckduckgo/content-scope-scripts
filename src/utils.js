@@ -1,5 +1,5 @@
 /* global cloneInto, exportFunction, mozProxies */
-import { Set, String, RegExp } from '@duckduckgo/safe-globals'
+import { Set, getSafeString, RegExp } from '@duckduckgo/safe-globals'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
 // eslint-disable-next-line no-global-assign
@@ -17,10 +17,11 @@ export function registerMessageSecret (secret) {
 }
 
 /**
- * @returns {HTMLElement} the element to inject the script into
+ * @returns {null | HTMLElement} the element to inject the script into
  */
 export function getInjectionElement () {
-    if (!globalObj) {
+    // Account for test setups
+    if (!globalObj || !('document' in globalObj)) {
         return null
     }
     return globalObj.document.head || globalObj.document.documentElement
@@ -53,7 +54,7 @@ export function createStyleElement (css) {
  */
 export function injectGlobalStyles (css) {
     const style = createStyleElement(css)
-    getInjectionElement().appendChild(style)
+    getInjectionElement()?.appendChild(style)
 }
 
 /**
@@ -335,7 +336,7 @@ export function processAttr (configSetting, defaultValue) {
 }
 
 export function getStack () {
-    return new String(new Error().stack)
+    return getSafeString(new Error().stack)
 }
 
 export function getContextId (scope) {

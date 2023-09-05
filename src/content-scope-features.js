@@ -89,7 +89,7 @@ function injectFeatures (args) {
         ${codeFeatures.join('\n')}
     })();`
     script.src = 'data:text/javascript;base64,' + btoa(code)
-    getInjectionElement().appendChild(script)
+    getInjectionElement()?.appendChild(script)
     script.remove()
 }
 

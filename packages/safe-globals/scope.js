@@ -3,13 +3,13 @@ import { getInjectionElement } from '../../src/utils.js'
 export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 
 let dummyWindow
-if ('document' in globalThis &&
+if (globalThis && 'document' in globalThis &&
     // Prevent infinate recursion of injection into Chrome
     globalThis.location.href !== 'about:blank') {
     const injectionElement = getInjectionElement()
     // injectionElement is null in some playwright context tests
     if (injectionElement) {
-        dummyWindow = document.createElement('iframe')
+        dummyWindow = globalThis.document.createElement('iframe')
         dummyWindow.style.display = 'none'
         injectionElement.appendChild(dummyWindow)
     }
@@ -24,13 +24,19 @@ if (hasMozProxies) {
 const dummySymbol = dummyContentWindow?.Symbol
 const iteratorSymbol = dummySymbol?.iterator
 
-// Capture prototype to prevent overloading
+/**
+ * Capture prototype to prevent overloading
+ * @template {string} T
+ * @param {T} globalName
+ * @returns {globalThis[T]}
+ */
 export function captureGlobal (globalName) {
     const global = dummyWindow?.contentWindow?.[globalName]
 
     // if we were unable to create a dummy window, return the global
     // this still has the advantage of preventing aliasing of the global through shawdowing
     if (!global) {
+        // @ts-expect-error can't index typeof T
         return globalThis[globalName]
     }
 
