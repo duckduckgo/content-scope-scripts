@@ -50,7 +50,6 @@ function debugHelper (action, reason, ctx) {
         reason,
         stack: ctx.stack,
         documentUrl: globalThis.document.location.href,
-        scriptOrigins: [...ctx.scriptOrigins],
         value: ctx.value
     })
 }
@@ -140,12 +139,13 @@ export default class CookieFeature extends ContentFeature {
         const loadPolicyThen = loadPolicy.then.bind(loadPolicy)
 
         function getCookiePolicy () {
-            const stack = getStack()
-            const scriptOrigins = getStackTraceOrigins(stack)
-            const getCookieContext = {
-                stack,
-                scriptOrigins,
-                value: 'getter'
+            let getCookieContext = null
+            if (cookiePolicy.debug) {
+                const stack = getStack()
+                getCookieContext = {
+                    stack,
+                    value: 'getter'
+                }
             }
 
             if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
@@ -159,12 +159,13 @@ export default class CookieFeature extends ContentFeature {
         }
 
         function setCookiePolicy (value) {
-            const stack = getStack()
-            const scriptOrigins = getStackTraceOrigins(stack)
-            const setCookieContext = {
-                stack,
-                scriptOrigins,
-                value
+            let setCookieContext = null
+            if (cookiePolicy.debug) {
+                const stack = getStack()
+                setCookieContext = {
+                    stack,
+                    value
+                }
             }
 
             if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
@@ -183,7 +184,8 @@ export default class CookieFeature extends ContentFeature {
                 // wait for config before doing same-site tests
                 loadPolicyThen(() => {
                     const { shouldBlock, policy, trackerPolicy } = cookiePolicy
-
+                    const stack = getStack()
+                    const scriptOrigins = getStackTraceOrigins(stack)
                     const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy
                     if (!shouldBlock) {
                         debugHelper('ignore', 'disabled', setCookieContext)
