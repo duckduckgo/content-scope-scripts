@@ -8,11 +8,12 @@ let modifiedElements = new WeakMap()
 let appliedRules = new Set()
 let shouldInjectStyleTag = false
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button'
-let hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000, 5000, 10000]
-let unhideTimeouts = [750, 1500, 2250, 3000, 4500, 6000, 12000]
+let hideTimeouts = [0, 100, 300, 500, 1000, 3000, 5000]
+let unhideTimeouts = [1250, 3250, 5250]
 
 /** @type {ElementHiding} */
 let featureInstance
+let debugFlagAdded = false
 
 /**
  * Hide DOM element if rule conditions met
@@ -31,8 +32,6 @@ function collapseDomNode (element, rule, previousElement) {
     if (alreadyHidden || alreadyModified) {
         return
     }
-
-    featureInstance.addDebugFlag()
 
     switch (type) {
     case 'hide':
@@ -117,6 +116,11 @@ function hideNode (element) {
     element.style.setProperty('min-height', '0px', 'important')
     element.style.setProperty('height', '0px', 'important')
     element.hidden = true
+
+    if (!debugFlagAdded) {
+        featureInstance.addDebugFlag()
+        debugFlagAdded = true
+    }
 }
 
 /**
@@ -300,8 +304,6 @@ export default class ElementHiding extends ContentFeature {
         hideTimeouts = this.getFeatureSetting('hideTimeouts') || hideTimeouts
         unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors
-        hideTimeouts = this.getFeatureSetting('hideTimeouts') || hideTimeouts
-        unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts
 
         // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
@@ -374,8 +376,6 @@ export default class ElementHiding extends ContentFeature {
         // several passes are made to hide & unhide elements. this is necessary because we're not using
         // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
         // frequently take from several hundred milliseconds to several seconds to load
-        // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
-        console.log('rules to be applied', timeoutRules)
         hideTimeouts.forEach((timeout) => {
             setTimeout(() => {
                 hideAdNodes(timeoutRules)
@@ -384,7 +384,6 @@ export default class ElementHiding extends ContentFeature {
 
         // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
         // we do this in order to display non-tracking ads that aren't blocked at the request level
-        // check at 750ms, 1500ms, 2250ms, 3000ms
         unhideTimeouts.forEach((timeout) => {
             setTimeout(() => {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
