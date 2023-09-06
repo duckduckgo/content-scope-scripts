@@ -248,6 +248,7 @@ function unhideLoadedAds () {
         const selector = forgivingSelector(rule.selector)
         const matchingElementArray = [...document.querySelectorAll(selector)]
         matchingElementArray.forEach((element) => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             expandNonEmptyDomNode(element, rule)
         })
     })
