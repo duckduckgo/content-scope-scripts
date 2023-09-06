@@ -135,6 +135,7 @@ export default class WebCompat extends ContentFeature {
             this.defineProperty(window, 'safari', {
                 value: {
                 },
+                writable: true,
                 configurable: true,
                 enumerable: true
             })
