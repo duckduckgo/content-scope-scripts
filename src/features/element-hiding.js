@@ -8,8 +8,8 @@ let modifiedElements = new WeakMap()
 let appliedRules = new Set()
 let shouldInjectStyleTag = false
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button'
-let hideTimeouts = [0, 100, 300, 500, 1000, 3000, 5000]
-let unhideTimeouts = [1250, 3250, 5250]
+let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000]
+let unhideTimeouts = [1250, 2250, 3000]
 
 /** @type {ElementHiding} */
 let featureInstance
