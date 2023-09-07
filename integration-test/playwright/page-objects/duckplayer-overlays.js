@@ -91,8 +91,13 @@ export class DuckplayerOverlays {
         // await this.dismissCookies()
     }
 
-    async gotoYoutubeSearchPAge () {
+    async gotoYoutubeSearchPage () {
         await this.page.goto('https://www.youtube.com/results?search_query=taylor+swift')
+        // await this.dismissCookies()
+    }
+
+    async gotoYoutubeSearchPageForMovie () {
+        await this.page.goto('https://www.youtube.com/results?search_query=snatch')
         // await this.dismissCookies()
     }
 
@@ -289,6 +294,10 @@ export class DuckplayerOverlays {
 
     async hoverAYouTubeThumbnail () {
         await this.page.locator('a.ytd-thumbnail[href^="/watch"]').first().hover({ force: true })
+    }
+
+    async hoverAMovieThumb () {
+        await this.page.locator('ytd-movie-renderer a.ytd-thumbnail[href^="/watch"]').first().hover({ force: true })
     }
 
     async hoverShort () {
