@@ -59,11 +59,6 @@ import { isResponseFor, isSubscriptionEventFor } from '../schema.js'
  * @implements {MessagingTransport}
  */
 export class WebkitMessagingTransport {
-    /** @type {WebkitMessagingConfig} */
-    config
-    /** @internal */
-    globals
-
     /**
      * @param {WebkitMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext

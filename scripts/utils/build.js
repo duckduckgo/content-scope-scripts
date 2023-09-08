@@ -1,4 +1,5 @@
 import * as rollup from 'rollup'
+import * as esbuild from 'esbuild'
 import commonjs from '@rollup/plugin-commonjs'
 import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
@@ -193,4 +194,19 @@ function loadFeatures (platform, featureNames = platformSupport[platform]) {
  */
 function getFileName (featureName) {
     return featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
+}
+
+/**
+ * Apply additional processing to a bundle. This was
+ * added to solve an issue where certain syntax caused
+ * parsing to fail in macOS Catalina.
+ *
+ * `target: "es2021"` seems to be a 'low enough' target - it's also what's
+ * used in Autoconsent too.
+ *
+ * @param {string} content
+ * @return {Promise<import('esbuild').TransformResult>}
+ */
+export function postProcess (content) {
+    return esbuild.transform(content, { target: 'es2021', format: 'iife' })
 }
