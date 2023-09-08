@@ -225,11 +225,6 @@ export class VideoParams {
             return null
         }
 
-        // always exclude 'for rent'
-        if (url.searchParams.has('pp')) {
-            return null
-        }
-
         let time = null
 
         // ensure youtube video id is good

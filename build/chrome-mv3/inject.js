@@ -1334,8 +1334,6 @@
      * @implements {MessagingTransport}
      */
     class WindowsMessagingTransport {
-        config
-
         /**
          * @param {WindowsMessagingConfig} config
          * @param {import('../index.js').MessagingContext} messagingContext
@@ -1835,11 +1833,6 @@
      * @implements {MessagingTransport}
      */
     class WebkitMessagingTransport {
-        /** @type {WebkitMessagingConfig} */
-        config
-        /** @internal */
-        globals
-
         /**
          * @param {WebkitMessagingConfig} config
          * @param {import('../index.js').MessagingContext} messagingContext
@@ -3081,7 +3074,6 @@
             reason,
             stack: ctx.stack,
             documentUrl: globalThis.document.location.href,
-            scriptOrigins: [...ctx.scriptOrigins],
             value: ctx.value
         });
     }
@@ -3171,12 +3163,14 @@
             const loadPolicyThen = loadPolicy.then.bind(loadPolicy);
 
             function getCookiePolicy () {
-                const stack = getStack();
-                const getCookieContext = {
-                    stack,
-                    scriptOrigins: [],
-                    value: 'getter'
-                };
+                let getCookieContext = null;
+                if (cookiePolicy.debug) {
+                    const stack = getStack();
+                    getCookieContext = {
+                        stack,
+                        value: 'getter'
+                    };
+                }
 
                 if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
                     debugHelper('block', '3p frame', getCookieContext);
@@ -3189,13 +3183,14 @@
             }
 
             function setCookiePolicy (value) {
-                const stack = getStack();
-                const scriptOrigins = getStackTraceOrigins(stack);
-                const setCookieContext = {
-                    stack,
-                    scriptOrigins,
-                    value
-                };
+                let setCookieContext = null;
+                if (cookiePolicy.debug) {
+                    const stack = getStack();
+                    setCookieContext = {
+                        stack,
+                        value
+                    };
+                }
 
                 if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
                     debugHelper('block', '3p frame', setCookieContext);
@@ -3213,7 +3208,8 @@
                     // wait for config before doing same-site tests
                     loadPolicyThen(() => {
                         const { shouldBlock, policy, trackerPolicy } = cookiePolicy;
-
+                        const stack = getStack();
+                        const scriptOrigins = getStackTraceOrigins(stack);
                         const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy;
                         if (!shouldBlock) {
                             debugHelper('ignore', 'disabled', setCookieContext);

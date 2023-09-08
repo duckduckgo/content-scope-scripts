@@ -2,7 +2,6 @@
 (() => {
   // ../messaging/lib/windows.js
   var WindowsMessagingTransport = class {
-    config;
     /**
      * @param {WindowsMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext
@@ -275,10 +274,6 @@
 
   // ../messaging/lib/webkit.js
   var WebkitMessagingTransport = class {
-    /** @type {WebkitMessagingConfig} */
-    config;
-    /** @internal */
-    globals;
     /**
      * @param {WebkitMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext

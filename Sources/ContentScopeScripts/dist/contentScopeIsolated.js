@@ -994,8 +994,6 @@
      * @implements {MessagingTransport}
      */
     class WindowsMessagingTransport {
-        config
-
         /**
          * @param {WindowsMessagingConfig} config
          * @param {import('../index.js').MessagingContext} messagingContext
@@ -1495,11 +1493,6 @@
      * @implements {MessagingTransport}
      */
     class WebkitMessagingTransport {
-        /** @type {WebkitMessagingConfig} */
-        config
-        /** @internal */
-        globals
-
         /**
          * @param {WebkitMessagingConfig} config
          * @param {import('../index.js').MessagingContext} messagingContext
@@ -3015,11 +3008,6 @@
             //   valid: '/watch?v=321&list=123&index=1234'
             // invalid: '/watch?v=321&list=123' <- index absent
             if (url.searchParams.has('list') && !url.searchParams.has('index')) {
-                return null
-            }
-
-            // always exclude 'for rent'
-            if (url.searchParams.has('pp')) {
                 return null
             }
 

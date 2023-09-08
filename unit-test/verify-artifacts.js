@@ -60,7 +60,8 @@ const checks = {
         file: join(APPLE_BUILD, 'contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'output.trackerLookup = {', includes: true }
+            { kind: 'containsString', text: 'output.trackerLookup = {', includes: true },
+            { kind: 'containsString', text: '#bundledConfig', includes: false }
         ]
     }
 }

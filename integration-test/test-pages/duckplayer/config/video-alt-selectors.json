@@ -11,7 +11,9 @@
             "selectors": {
               "thumbLink": "a[href^='/watch']",
               "excludedRegions": [
-                "#playlist"
+                "#playlist",
+                "ytd-movie-renderer",
+                "ytd-grid-movie-renderer"
               ],
               "videoElement": "#TEST_CUSTOM_ID video",
               "videoElementContainer": "#TEST_CUSTOM_ID .TEST_CUSTOM_HTML_5_WRAPPER_DIV",
