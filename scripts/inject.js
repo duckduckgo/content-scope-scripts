@@ -22,7 +22,7 @@ const builds = {
     },
     apple: {
         input: 'inject/apple.js',
-        postProcess: false,
+        postProcess: true,
         output: ['Sources/ContentScopeScripts/dist/contentScope.js']
     },
     'apple-isolated': {
