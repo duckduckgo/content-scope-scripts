@@ -23,7 +23,7 @@
     "@playwright/test": "^1.36.2",
     "http-server": "^14.1.1",
     "@duckduckgo/messaging": "*",
-    "esbuild": "^0.18.19",
+    "esbuild": "^0.19.2",
     "web-resource-inliner": "^6.0.1"
   }
 }

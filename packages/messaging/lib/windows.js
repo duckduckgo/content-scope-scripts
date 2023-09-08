@@ -22,8 +22,6 @@ import { MessagingTransport, NotificationMessage, RequestMessage } from '../inde
  * @implements {MessagingTransport}
  */
 export class WindowsMessagingTransport {
-    config
-
     /**
      * @param {WindowsMessagingConfig} config
      * @param {import('../index.js').MessagingContext} messagingContext
