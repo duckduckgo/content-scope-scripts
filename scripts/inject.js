@@ -103,8 +103,8 @@ async function init () {
     } else {
         output = await initOther(build.input, args.platform)
         if (build.postProcess) {
-            const processResult = await postProcess(output);
-            output = processResult.code;
+            const processResult = await postProcess(output)
+            output = processResult.code
         }
     }
 

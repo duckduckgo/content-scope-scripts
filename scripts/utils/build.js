@@ -207,6 +207,6 @@ function getFileName (featureName) {
  * @param {string} content
  * @return {Promise<import('esbuild').TransformResult>}
  */
-export function postProcess(content) {
-    return esbuild.transform(content, { target: "es2021" })
+export function postProcess (content) {
+    return esbuild.transform(content, { target: 'es2021' })
 }
