@@ -13,7 +13,7 @@
     "note" : "Title for popup that occurs when user clicks on toggle for Youtube video previews"
   },
   "informationalModalMessageBody" : {
-    "title" : "Активация предварительного просмотра позволит Google (владельцу YouTube) получить некоторые сведения о вашем устройстве, однако это более безопасный вариант, чем воспроизведение видео целиком.",
+    "title" : "Включение предварительного просмотра позволит Google (владельцу YouTube) получить некоторые сведения о вашем устройстве, однако это более безопасный вариант, чем воспроизведение видео целиком.",
     "note" : "Details for preview popup that explans the potential risks and benefits of enabling Youtube video previews"
   },
   "informationalModalConfirmButtonText" : {
@@ -37,19 +37,19 @@
     "note" : "Overlay body shown when Youtube content is blocked"
   },
   "infoPreviewToggleText" : {
-    "title" : "Предварительный просмотр отключен для дополнительной защиты конфиденциальности",
+    "title" : "Предварительный просмотр отключён для дополнительной защиты конфиденциальности",
     "note" : "Overlay footer shown when Youtube previews are disabled"
   },
   "infoPreviewToggleEnabledText" : {
-    "title" : "Предварительный просмотр включен",
+    "title" : "Предварительный просмотр включён",
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewToggleEnabledDuckDuckGoText" : {
-    "title" : "В DuckDuckGo включен предпросмотр видео из YouTube.",
+    "title" : "В DuckDuckGo включён предпросмотр видео из YouTube.",
     "note" : "Overlay toggle shown when Youtube previews are enabled"
   },
   "infoPreviewInfoText" : {
-    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Подробнее</a> о защите DuckDuckGo от внедренного контента соцсетей",
+    "title" : "<a href=\\\"https://help.duckduckgo.com/duckduckgo-help-pages/privacy/embedded-content-protection/\\\">Подробнее</a> о защите DuckDuckGo от внедрённого контента соцсетей",
     "note" : "Overlay footer shown when Youtube previews are enabled"
   }
 }
