@@ -23,6 +23,7 @@
 import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods, WindowsNotification, WindowsRequestMessage } from './lib/windows.js'
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js'
+import { AndroidMessagingConfig, AndroidMessagingTransport } from './lib/android.js'
 
 /**
  * Common options/config that are *not* transport specific.
@@ -48,7 +49,7 @@ export class MessagingContext {
 export class Messaging {
     /**
      * @param {MessagingContext} messagingContext
-     * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
+     * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
      */
     constructor (messagingContext, config) {
         this.messagingContext = messagingContext
@@ -198,7 +199,7 @@ export class TestTransport {
 }
 
 /**
- * @param {WebkitMessagingConfig | WindowsMessagingConfig | TestTransportConfig} config
+ * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
  * @param {MessagingContext} messagingContext
  * @returns {MessagingTransport}
  */
@@ -208,6 +209,9 @@ function getTransport (config, messagingContext) {
     }
     if (config instanceof WindowsMessagingConfig) {
         return new WindowsMessagingTransport(config, messagingContext)
+    }
+    if (config instanceof AndroidMessagingConfig) {
+        return new AndroidMessagingTransport(config, messagingContext)
     }
     if (config instanceof TestTransportConfig) {
         return new TestTransport(config, messagingContext)
