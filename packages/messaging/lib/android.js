@@ -96,28 +96,27 @@ export class AndroidMessagingTransport {
 export class AndroidMessagingConfig {
     /** @type {(json: string, secret: string) => void} */
     sendMessage
-
-    /**
-     * @type {Map<string, (msg: MessageResponse | SubscriptionEvent) => void>}
-     */
-    listeners = new globalThis.Map()
     /**
      * @param {object} params
      * @param {Record<string, any>} params.target
      * @param {string} params.secret
-     * @param {string} params.method
+     * @param {string} params.javascriptInterface
      * @param {string} params.messageCallback
      */
     constructor (params) {
-        const { target, method, secret, messageCallback } = params
+        const { target, javascriptInterface, secret, messageCallback } = params
         this.target = target
-        this.method = method
+        this.javascriptInterface = javascriptInterface
         this.secret = secret
         this.messageCallback = messageCallback
+        /**
+         * @type {Map<string, (msg: MessageResponse | SubscriptionEvent) => void>}
+         */
+        this.listeners = new globalThis.Map()
 
-        if (Object.prototype.hasOwnProperty.call(target, method)) {
-            this.sendMessage = target[method].process.bind(target[method])
-            delete target[method]
+        if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
+            this.sendMessage = target[javascriptInterface].process.bind(target[javascriptInterface])
+            delete target[javascriptInterface]
         } else {
             this.sendMessage = () => { console.error('Android messaging interface not available') }
         }
@@ -152,8 +151,8 @@ export class AndroidMessagingConfig {
      * @param {string} response
      */
     _dispatch (response) {
-        if (!response) throw new Error('missing response')
-        const parsed = tryCatch(() => JSON.parse(response), 'parsing messages from android')
+        if (!response) throw new globalThis.Error('missing response')
+        const parsed = tryCatch(() => globalThis.JSON.parse(response)) || {}
 
         if ('id' in parsed) {
             if (this.listeners.has(parsed.id)) {
@@ -182,6 +181,6 @@ function tryCatch (fn, context = 'none') {
     try {
         return fn()
     } catch (e) {
-        console.error('error occured in context: ', context, e)
+        console.error('error occurred in context: ', context, e)
     }
 }

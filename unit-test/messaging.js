@@ -2,7 +2,7 @@ import {
     Messaging,
     MessagingContext,
     TestTransportConfig,
-    RequestMessage, NotificationMessage, Subscription, MessageResponse
+    RequestMessage, NotificationMessage, Subscription, MessageResponse, SubscriptionEvent
 } from '@duckduckgo/messaging'
 import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js'
 
@@ -60,8 +60,8 @@ describe('Android', () => {
     function createConfig (target) {
         const config = new AndroidMessagingConfig({
             target,
-            method: 'ContentScopeScripts',
             secret: 'abc',
+            javascriptInterface: 'ContentScopeScripts',
             messageCallback: 'callback_abc_def'
         })
         return config
@@ -72,7 +72,7 @@ describe('Android', () => {
      */
     function createContext (featureName, config) {
         const messageContextA = new MessagingContext({
-            context: config.method,
+            context: config.javascriptInterface,
             featureName,
             env: 'development'
         })
@@ -156,6 +156,33 @@ describe('Android', () => {
 
         // @ts-expect-error - unit-testing
         expect(token).toEqual(config.secret)
+    })
+    it('allows subscriptions', (done) => {
+        const spy = jasmine.createSpy()
+        const globalTarget = {
+            ContentScopeScripts: {
+                process: spy
+            }
+        }
+        const config = createConfig(globalTarget)
+        const { messaging } = createContext('featureA', config)
+
+        // create the message as the native side would
+        const subEvent1 = new SubscriptionEvent({
+            context: config.javascriptInterface,
+            featureName: 'featureA',
+            subscriptionName: 'onUpdate',
+            params: { foo: 'bar' }
+        })
+
+        // subscribe to 'onUpdate'
+        messaging.subscribe('onUpdate', (data) => {
+            expect(data).toEqual(subEvent1.params)
+            done()
+        })
+
+        // simulate native calling this method
+        globalTarget[config.messageCallback](config.secret, JSON.stringify(subEvent1))
     })
 })
 
