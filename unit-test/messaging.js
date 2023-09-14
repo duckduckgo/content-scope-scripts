@@ -129,7 +129,8 @@ describe('Android', () => {
         const config = createConfig(target)
         const { messaging } = createContext('featureA', config)
         const request = messaging.request('helloWorld')
-        // @ts-ignore
+
+        // @ts-expect-error - unit-testing
         if (!msg) throw new Error('must have set msg by this point in the test')
 
         // simulate a valid response
@@ -153,7 +154,7 @@ describe('Android', () => {
         // ensure the result is correct
         expect(result).toEqual({ foo: 'bar' })
 
-        // @ts-ignore
+        // @ts-expect-error - unit-testing
         expect(token).toEqual(config.secret)
     })
 })

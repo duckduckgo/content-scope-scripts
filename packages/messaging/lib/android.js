@@ -42,14 +42,12 @@ export class AndroidMessagingTransport {
 
     /**
      * @param {import('../index.js').RequestMessage} msg
-     * @param {{signal?: AbortSignal}} opts
      * @return {Promise<any>}
      */
-    request (msg, opts = {}) {
+    request (msg) {
         const prom = new Promise((resolve, reject) => {
             const unsub = this.config.subscribe(msg.id, handler)
             function handler (data) {
-                console.log('--', { data })
                 if (isResponseFor(msg, data)) {
                     if (data.result) {
                         resolve(data.result || {})
@@ -62,7 +60,7 @@ export class AndroidMessagingTransport {
                         }
                     }
                     unsub()
-                    throw new Error('unreachable: must have `result` or `error` key')
+                    throw new Error('unreachable: must have `result` or `error` key by this point')
                 }
             }
         })

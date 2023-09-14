@@ -66,4 +66,4 @@ const messaging1 = new Messaging(messagingContext, config)
 messaging1.notify('helloWorld')
 
 const messaging2 = new Messaging(messagingContext2, config)
-messaging1.notify('getUserValues')
+messaging2.notify('getUserValues')
