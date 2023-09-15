@@ -37,7 +37,11 @@ export class AndroidMessagingTransport {
      * @param {import('../index.js').NotificationMessage} msg
      */
     notify (msg) {
-        this.config.sendMessage?.(JSON.stringify(msg), this.config.secret)
+        try {
+            this.config.sendMessageThrows?.(JSON.stringify(msg))
+        } catch (e) {
+            console.error('.notify failed', e)
+        }
     }
 
     /**
@@ -45,27 +49,39 @@ export class AndroidMessagingTransport {
      * @return {Promise<any>}
      */
     request (msg) {
-        const prom = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
+
+            // subscribe early
             const unsub = this.config.subscribe(msg.id, handler)
+
+            try {
+                this.config.sendMessageThrows?.(JSON.stringify(msg))
+            } catch (e) {
+                unsub()
+                reject(new Error('request failed to send: ' + e.message || 'unknown error'))
+            }
+
             function handler (data) {
                 if (isResponseFor(msg, data)) {
+
+                    // success case, forward .result only
                     if (data.result) {
                         resolve(data.result || {})
                         return unsub()
-                    } else {
-                        // forward the error if one was given explicitly
-                        if (data.error) {
-                            reject(new Error(data.error.message))
-                            return unsub()
-                        }
                     }
+
+                    // error case, forward the error as a regular promise rejection
+                    if (data.error) {
+                        reject(new Error(data.error.message))
+                        return unsub()
+                    }
+
+                    // getting here is undefined behavior
                     unsub()
                     throw new Error('unreachable: must have `result` or `error` key by this point')
                 }
             }
         })
-        this.config.sendMessage?.(JSON.stringify(msg), this.config.secret)
-        return prom
     }
 
     /**
@@ -158,11 +174,8 @@ export class AndroidMessagingTransport {
  * ```
  */
 export class AndroidMessagingConfig {
-    /**
-     * @type {(json: string, secret: string) => void}
-     * @internal
-     */
-    sendMessage
+    /** @type {(json: string, secret: string) => void} */
+    _capturedHandler;
     /**
      * @param {object} params
      * @param {Record<string, any>} params.target
@@ -187,10 +200,10 @@ export class AndroidMessagingConfig {
         const {target, secret, messageCallback, javascriptInterface} = this;
 
         if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
-            this.sendMessage = target[javascriptInterface].process.bind(target[javascriptInterface])
+            this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface])
             delete target[javascriptInterface]
         } else {
-            this.sendMessage = () => { console.error('Android messaging interface not available', javascriptInterface) }
+            this._capturedHandler = () => { console.error('Android messaging interface not available', javascriptInterface) }
         }
 
         /**
@@ -208,6 +221,27 @@ export class AndroidMessagingConfig {
     }
 
     /**
+     * The transport can call this to transmit a JSON payload along with a secret
+     * to the native Android handler.
+     *
+     * Note: This can throw - it's up to the transport to handle the error.
+     *
+     * @type {(json: string) => void}
+     * @throws
+     * @internal
+     */
+    sendMessageThrows(json) {
+        this._capturedHandler(json, this.secret)
+    }
+
+    /**
+     * A subscription on Android is just a named listener. All messages from
+     * android -> are delivered through a single function, and this mapping is used
+     * to route the messages to the correct listener.
+     *
+     * Note: Use this to implement request->response by unsubscribing after the first
+     * response.
+     *
      * @param {string} id
      * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
      * @returns {() => void}
@@ -255,6 +289,7 @@ function tryCatch (fn, context = 'none') {
     try {
         return fn()
     } catch (e) {
-        console.error('error occurred in context: ', context, e)
+        console.error('Android Messaging error occurred:', context)
+        console.error(e)
     }
 }
