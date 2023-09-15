@@ -17,7 +17,9 @@
  *
  * - Windows: {@link WindowsMessagingConfig}
  * - Webkit: {@link WebkitMessagingConfig}
+ * - Android: {@link AndroidMessagingConfig}
  * - Schema: {@link "Messaging Schema"}
+ * - Implementation Guide: {@link "Messaging Implementation Guide"}
  *
  */
 import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods, WindowsNotification, WindowsRequestMessage } from './lib/windows.js'
@@ -249,5 +251,7 @@ export {
     MessageError,
     SubscriptionEvent,
     WindowsNotification,
-    WindowsRequestMessage
+    WindowsRequestMessage,
+    AndroidMessagingConfig,
+    AndroidMessagingTransport
 }
