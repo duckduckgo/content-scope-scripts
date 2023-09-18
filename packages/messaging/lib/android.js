@@ -50,7 +50,6 @@ export class AndroidMessagingTransport {
      */
     request (msg) {
         return new Promise((resolve, reject) => {
-
             // subscribe early
             const unsub = this.config.subscribe(msg.id, handler)
 
@@ -63,7 +62,6 @@ export class AndroidMessagingTransport {
 
             function handler (data) {
                 if (isResponseFor(msg, data)) {
-
                     // success case, forward .result only
                     if (data.result) {
                         resolve(data.result || {})
@@ -175,7 +173,7 @@ export class AndroidMessagingTransport {
  */
 export class AndroidMessagingConfig {
     /** @type {(json: string, secret: string) => void} */
-    _capturedHandler;
+    _capturedHandler
     /**
      * @param {object} params
      * @param {Record<string, any>} params.target
@@ -197,7 +195,7 @@ export class AndroidMessagingConfig {
          */
         this.listeners = new globalThis.Map()
 
-        const {target, secret, messageCallback, javascriptInterface} = this;
+        const { target, secret, messageCallback, javascriptInterface } = this
 
         if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
             this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface])
@@ -207,7 +205,7 @@ export class AndroidMessagingConfig {
         }
 
         /**
-         * @type {(secret: string, response: string) => void}
+         * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
          */
         const responseHandler = (providedSecret, response) => {
             if (providedSecret === secret) {
@@ -230,7 +228,7 @@ export class AndroidMessagingConfig {
      * @throws
      * @internal
      */
-    sendMessageThrows(json) {
+    sendMessageThrows (json) {
         this._capturedHandler(json, this.secret)
     }
 
@@ -255,24 +253,23 @@ export class AndroidMessagingConfig {
     }
 
     /**
-     * @param {string} response
+     * @param {MessageResponse | SubscriptionEvent} response
      * @internal
      */
     _dispatch (response) {
         if (!response) throw new globalThis.Error('missing response')
-        const parsed = tryCatch(() => globalThis.JSON.parse(response)) || {}
 
-        if ('id' in parsed) {
-            if (this.listeners.has(parsed.id)) {
-                tryCatch(() => this.listeners.get(parsed.id)?.(parsed))
+        if ('id' in response) {
+            if (this.listeners.has(response.id)) {
+                tryCatch(() => this.listeners.get(response.id)?.(response))
             } else {
-                console.log('no listeners for ', parsed)
+                console.log('no listeners for ', response)
             }
         }
 
-        if ('subscriptionName' in parsed) {
-            if (this.listeners.has(parsed.subscriptionName)) {
-                tryCatch(() => this.listeners.get(parsed.subscriptionName)?.(parsed))
+        if ('subscriptionName' in response) {
+            if (this.listeners.has(response.subscriptionName)) {
+                tryCatch(() => this.listeners.get(response.subscriptionName)?.(response))
             } else {
                 console.log('no subscription listeners for ', response)
             }

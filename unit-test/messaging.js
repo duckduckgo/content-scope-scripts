@@ -142,7 +142,7 @@ describe('Android', () => {
         })
 
         // pretend to call back from native
-        target[config.messageCallback](config.secret, JSON.stringify(response))
+        target[config.messageCallback](config.secret, response)
 
         // wait for it to resolve
         const result = await request
@@ -182,7 +182,7 @@ describe('Android', () => {
         })
 
         // simulate native calling this method
-        globalTarget[config.messageCallback](config.secret, JSON.stringify(subEvent1))
+        globalTarget[config.messageCallback](config.secret, subEvent1)
     })
 })
 
