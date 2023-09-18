@@ -2,8 +2,9 @@ import {
     Messaging,
     MessagingContext,
     TestTransportConfig,
-    RequestMessage, NotificationMessage, Subscription
+    RequestMessage, NotificationMessage, Subscription, MessageResponse, SubscriptionEvent
 } from '@duckduckgo/messaging'
+import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js'
 
 describe('Messaging Transports', () => {
     it('calls transport with a RequestMessage', () => {
@@ -48,6 +49,140 @@ describe('Messaging Transports', () => {
             featureName: 'hello-world',
             subscriptionName: 'helloWorld'
         }), callback)
+    })
+})
+
+describe('Android', () => {
+    /**
+     * @param {Record<string, any>} target
+     * @return {AndroidMessagingConfig}
+     */
+    function createConfig (target) {
+        const config = new AndroidMessagingConfig({
+            target,
+            secret: 'abc',
+            javascriptInterface: 'ContentScopeScripts',
+            messageCallback: 'callback_abc_def'
+        })
+        return config
+    }
+    /**
+     * @param {string} featureName
+     * @param {AndroidMessagingConfig} config
+     */
+    function createContext (featureName, config) {
+        const messageContextA = new MessagingContext({
+            context: config.javascriptInterface,
+            featureName,
+            env: 'development'
+        })
+        const messaging = new Messaging(messageContextA, config)
+        return { messaging }
+    }
+    it('sends notification to 1 feature', () => {
+        const spy = jasmine.createSpy()
+        const target = {
+            ContentScopeScripts: {
+                process: spy
+            }
+        }
+        const config = createConfig(target)
+        const { messaging } = createContext('featureA', config)
+        messaging.notify('helloWorld')
+        const payload = '{"context":"ContentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
+        const secret = 'abc'
+        expect(spy).toHaveBeenCalledWith(payload, secret)
+    })
+    it('sends notification to 2 separate features', () => {
+        const spy = jasmine.createSpy()
+        const target = {
+            ContentScopeScripts: {
+                process: spy
+            }
+        }
+        const config = createConfig(target)
+        const { messaging } = createContext('featureA', config)
+        const { messaging: bMessaging } = createContext('featureB', config)
+        messaging.notify('helloWorld')
+        bMessaging.notify('helloWorld')
+        const expected1 = '{"context":"ContentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
+        const expected2 = '{"context":"ContentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
+        expect(spy).toHaveBeenCalledTimes(2)
+        expect(spy).toHaveBeenCalledWith(expected1, 'abc')
+        expect(spy).toHaveBeenCalledWith(expected2, 'abc')
+    })
+    it('sends request and gets response', async () => {
+        const spy = jasmine.createSpy()
+        /** @type {MessageResponse} */
+        let msg
+        /** @type {string} */
+        let token
+        const target = {
+            ContentScopeScripts: {
+                process: (outgoing, _token) => {
+                    msg = JSON.parse(outgoing)
+                    token = _token
+                    spy(outgoing, _token)
+                }
+            }
+        }
+        const config = createConfig(target)
+        const { messaging } = createContext('featureA', config)
+        const request = messaging.request('helloWorld')
+
+        // @ts-expect-error - unit-testing
+        if (!msg) throw new Error('must have set msg by this point in the test')
+
+        // simulate a valid response
+        const response = new MessageResponse({
+            id: msg.id,
+            context: msg.context,
+            featureName: msg.featureName,
+            result: { foo: 'bar' }
+        })
+
+        // pretend to call back from native
+        target[config.messageCallback](config.secret, response)
+
+        // wait for it to resolve
+        const result = await request
+
+        // ensure the outgoing payload was correct
+        const expectedOutgoing = '{"context":"ContentScopeScripts","featureName":"featureA","method":"helloWorld","id":"helloWorld.response","params":{}}'
+        expect(spy).toHaveBeenCalledWith(expectedOutgoing, 'abc')
+
+        // ensure the result is correct
+        expect(result).toEqual({ foo: 'bar' })
+
+        // @ts-expect-error - unit-testing
+        expect(token).toEqual(config.secret)
+    })
+    it('allows subscriptions', (done) => {
+        const spy = jasmine.createSpy()
+        const globalTarget = {
+            ContentScopeScripts: {
+                process: spy
+            }
+        }
+        const config = createConfig(globalTarget)
+        const { messaging } = createContext('featureA', config)
+
+        // create the message as the native side would
+        const subEvent1 = new SubscriptionEvent({
+            context: config.javascriptInterface,
+            featureName: 'featureA',
+            subscriptionName: 'onUpdate',
+            params: { foo: 'bar' }
+        })
+
+        // subscribe to 'onUpdate'
+        messaging.subscribe('onUpdate', (data) => {
+            expect(data).toEqual(subEvent1.params)
+            done()
+        })
+
+        // simulate native calling this method
+        globalTarget[config.messageCallback](config.secret, subEvent1)
     })
 })
 
