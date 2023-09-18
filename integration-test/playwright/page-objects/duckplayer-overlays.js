@@ -167,17 +167,20 @@ export class DuckplayerOverlays {
 
     async userValuesCallIsProxied () {
         const calls = await this.page.evaluate(readOutgoingMessages)
-        expect(calls).toMatchObject([
-            {
-                payload: {
-                    context: this.messagingContext,
-                    featureName: 'duckPlayer',
-                    params: {},
-                    method: 'getUserValues',
-                    id: 'getUserValues.response'
-                }
-            }
-        ])
+        const message = calls[0]
+        const { id, ...rest } = message.payload
+
+        // just a sanity-check to ensure a none-empty string was used as the id
+        expect(typeof id).toBe('string')
+        expect(id.length).toBeGreaterThan(10)
+
+        // assert on the payload, minus the ID
+        expect(rest).toMatchObject({
+            context: this.messagingContext,
+            featureName: 'duckPlayer',
+            params: {},
+            method: 'getUserValues'
+        })
     }
 
     async overlayBlocksVideo () {
