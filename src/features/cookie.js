@@ -186,7 +186,7 @@ export default class CookieFeature extends ContentFeature {
             // if the value is valid. We will override this set later if the policy dictates that
             // the expiry should be changed.
             // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-            cookieSetter.call(document, value)
+            cookieSetter.call(document, argValue)
 
             try {
                 // wait for config before doing same-site tests
@@ -249,7 +249,12 @@ export default class CookieFeature extends ContentFeature {
                 ...restOfPolicy
             }
         } else {
-            cookiePolicy = Object.assign(cookiePolicy, restOfPolicy)
+            // copy non-null entries from restOfPolicy to cookiePolicy
+            Object.keys(restOfPolicy).forEach(key => {
+                if (restOfPolicy[key]) {
+                    cookiePolicy[key] = restOfPolicy[key]
+                }
+            })
         }
 
         loadedPolicyResolve()
