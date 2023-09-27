@@ -91,8 +91,13 @@ export class DuckplayerOverlays {
         // await this.dismissCookies()
     }
 
-    async gotoYoutubeSearchPAge () {
+    async gotoYoutubeSearchPage () {
         await this.page.goto('https://www.youtube.com/results?search_query=taylor+swift')
+        // await this.dismissCookies()
+    }
+
+    async gotoYoutubeSearchPageForMovie () {
+        await this.page.goto('https://www.youtube.com/results?search_query=snatch')
         // await this.dismissCookies()
     }
 
@@ -162,17 +167,20 @@ export class DuckplayerOverlays {
 
     async userValuesCallIsProxied () {
         const calls = await this.page.evaluate(readOutgoingMessages)
-        expect(calls).toMatchObject([
-            {
-                payload: {
-                    context: this.messagingContext,
-                    featureName: 'duckPlayer',
-                    params: {},
-                    method: 'getUserValues',
-                    id: 'getUserValues.response'
-                }
-            }
-        ])
+        const message = calls[0]
+        const { id, ...rest } = message.payload
+
+        // just a sanity-check to ensure a none-empty string was used as the id
+        expect(typeof id).toBe('string')
+        expect(id.length).toBeGreaterThan(10)
+
+        // assert on the payload, minus the ID
+        expect(rest).toMatchObject({
+            context: this.messagingContext,
+            featureName: 'duckPlayer',
+            params: {},
+            method: 'getUserValues'
+        })
     }
 
     async overlayBlocksVideo () {
@@ -289,6 +297,10 @@ export class DuckplayerOverlays {
 
     async hoverAYouTubeThumbnail () {
         await this.page.locator('a.ytd-thumbnail[href^="/watch"]').first().hover({ force: true })
+    }
+
+    async hoverAMovieThumb () {
+        await this.page.locator('ytd-movie-renderer a.ytd-thumbnail[href^="/watch"]').first().hover({ force: true })
     }
 
     async hoverShort () {

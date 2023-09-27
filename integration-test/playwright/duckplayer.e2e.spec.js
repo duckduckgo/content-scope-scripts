@@ -16,12 +16,15 @@ test.describe('e2e: Duck Player Thumbnail Overlays on YouTube.com', () => {
         await overlays.hoverShort()
         await overlays.overlaysDontShow()
     })
-    test('e2e: Overlays never appear on "search pages"', async ({ page }, workerInfo) => {
+    test('e2e: Overlays appear on "search pages"', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         await overlays.withRemoteConfig({ json: 'overlays-live.json' })
-        await overlays.gotoYoutubeSearchPAge()
+        await overlays.gotoYoutubeSearchPageForMovie()
         await overlays.hoverAYouTubeThumbnail()
+        await overlays.isVisible()
+
+        await overlays.hoverAMovieThumb()
         await overlays.overlaysDontShow()
     })
     test('control (without our script): clicking on a short loads correctly', async ({ page }, workerInfo) => {

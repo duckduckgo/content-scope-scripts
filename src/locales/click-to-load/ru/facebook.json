@@ -29,7 +29,7 @@
     "note" : "Button shown when overlaying Facebook logins in web content.  The user would click this if they decide to login with Facebook"
   },
   "loginBodyText" : {
-    "title" : "При использовании учетной записи Facebook для входа на сайты эта социальная сеть сможет отслеживать на них ваши действия.",
+    "title" : "При использовании учётной записи Facebook для входа на сайты эта социальная сеть сможет отслеживать на них ваши действия.",
     "note" : "Mouse-over description for the Facebook login button "
   },
   "buttonTextUnblockContent" : {
