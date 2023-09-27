@@ -158,8 +158,16 @@ export default class CookieFeature extends ContentFeature {
             return cookieGetter.call(document)
         }
 
-        function setCookiePolicy (value) {
+        /**
+         * @param {any} argValue
+         */
+        function setCookiePolicy (argValue) {
             let setCookieContext = null
+            if (!argValue.toString || typeof argValue.toString() !== 'string') {
+                // not a string, or string-like
+                return
+            }
+            const value = argValue.toString()
             if (cookiePolicy.debug) {
                 const stack = getStack()
                 setCookieContext = {
