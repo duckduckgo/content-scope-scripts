@@ -371,7 +371,7 @@ export default class ElementHiding extends ContentFeature {
     applyRules (rules) {
         const timeoutRules = extractTimeoutRules(rules)
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        const clearCacheTimer = unhideTimeouts.at(-1) + 100
+        const clearCacheTimer = unhideTimeouts.concat(hideTimeouts).reduce((a,b) => Math.max(a,b), 0) + 100
 
         // several passes are made to hide & unhide elements. this is necessary because we're not using
         // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
