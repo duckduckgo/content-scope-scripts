@@ -20,10 +20,9 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.36.2",
+    "@playwright/test": "^1.38.0",
     "http-server": "^14.1.1",
     "@duckduckgo/messaging": "*",
-    "esbuild": "^0.18.19",
     "web-resource-inliner": "^6.0.1"
   }
 }
