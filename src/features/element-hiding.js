@@ -13,7 +13,6 @@ let unhideTimeouts = [1250, 2250, 3000]
 
 /** @type {ElementHiding} */
 let featureInstance
-let debugFlagAdded = false
 
 /**
  * Hide DOM element if rule conditions met
@@ -116,11 +115,8 @@ function hideNode (element) {
     element.style.setProperty('min-height', '0px', 'important')
     element.style.setProperty('height', '0px', 'important')
     element.hidden = true
-
-    if (!debugFlagAdded) {
-        featureInstance.addDebugFlag()
-        debugFlagAdded = true
-    }
+    // add debug flag to site breakage reports
+    featureInstance.addDebugFlag()
 }
 
 /**
