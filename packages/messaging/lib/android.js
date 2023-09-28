@@ -173,10 +173,11 @@ export class AndroidMessagingTransport {
  */
 export class AndroidMessagingConfig {
     /** @type {(json: string, secret: string) => void} */
-    _capturedHandler
+    #capturedHandler
     /**
      * @param {object} params
      * @param {Record<string, any>} params.target
+     * @param {boolean} params.debug
      * @param {string} params.secret - a secret to ensure that messages are only
      * processed by the correct handler
      * @param {string} params.javascriptInterface - the name of the javascript interface
@@ -186,36 +187,26 @@ export class AndroidMessagingConfig {
      */
     constructor (params) {
         this.target = params.target
+        this.debug = params.debug
         this.javascriptInterface = params.javascriptInterface
         this.secret = params.secret
         this.messageCallback = params.messageCallback
+
         /**
          * @type {Map<string, (msg: MessageResponse | SubscriptionEvent) => void>}
          * @internal
          */
         this.listeners = new globalThis.Map()
 
-        const { target, secret, messageCallback, javascriptInterface } = this
-
-        if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
-            this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface])
-            delete target[javascriptInterface]
-        } else {
-            this._capturedHandler = () => { console.error('Android messaging interface not available', javascriptInterface) }
-        }
+        /**
+         * Capture the global handler and remove it from the global object.
+         */
+        this.#captureGlobalHandler()
 
         /**
-         * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
+         * Assign the incoming handler method to the global object.
          */
-        const responseHandler = (providedSecret, response) => {
-            if (providedSecret === secret) {
-                this._dispatch(response)
-            }
-        }
-
-        Object.defineProperty(target, messageCallback, {
-            value: responseHandler
-        })
+        this.#assignHandlerMethod()
     }
 
     /**
@@ -229,7 +220,7 @@ export class AndroidMessagingConfig {
      * @internal
      */
     sendMessageThrows (json) {
-        this._capturedHandler(json, this.secret)
+        this.#capturedHandler(json, this.secret)
     }
 
     /**
@@ -253,40 +244,95 @@ export class AndroidMessagingConfig {
     }
 
     /**
-     * @param {MessageResponse | SubscriptionEvent} response
+     * Accept incoming messages and try to deliver it to a registered listener.
+     *
+     * This code is defensive to prevent any single handler from affecting another if
+     * it throws (producer interference).
+     *
+     * @param {MessageResponse | SubscriptionEvent} payload
      * @internal
      */
-    _dispatch (response) {
-        if (!response) throw new globalThis.Error('missing response')
+    #dispatch(payload) {
+        // do nothing if the response is empty
+        // this prevents the next `in` checks from throwing in test/debug scenarios
+        if (!payload) return this.#log('no response')
 
-        if ('id' in response) {
-            if (this.listeners.has(response.id)) {
-                tryCatch(() => this.listeners.get(response.id)?.(response))
+        // if the payload has an 'id' field, then it's a message response
+        if ('id' in payload) {
+            if (this.listeners.has(payload.id)) {
+                this.#tryCatch(() => this.listeners.get(payload.id)?.(payload))
             } else {
-                console.log('no listeners for ', response)
+                this.#log('no listeners for ', payload)
             }
         }
 
-        if ('subscriptionName' in response) {
-            if (this.listeners.has(response.subscriptionName)) {
-                tryCatch(() => this.listeners.get(response.subscriptionName)?.(response))
+        // if the payload has an 'subscriptionName' field, then it's a push event
+        if ('subscriptionName' in payload) {
+            if (this.listeners.has(payload.subscriptionName)) {
+                this.#tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload))
             } else {
-                console.log('no subscription listeners for ', response)
+                this.#log('no subscription listeners for ', payload)
             }
         }
     }
-}
 
-/**
- *
- * @param {(...args: any[]) => any} fn
- * @param {string} [context]
- */
-function tryCatch (fn, context = 'none') {
-    try {
-        return fn()
-    } catch (e) {
-        console.error('Android Messaging error occurred:', context)
-        console.error(e)
+    /**
+     *
+     * @param {(...args: any[]) => any} fn
+     * @param {string} [context]
+     */
+    #tryCatch(fn, context = 'none') {
+        try {
+            return fn()
+        } catch (e) {
+            if (this.debug) {
+                console.error('AndroidMessagingConfig error:', context)
+                console.error(e)
+            }
+        }
+    }
+
+    /**
+     * @param {...any} args
+     */
+    #log(...args) {
+        if (this.debug) {
+            console.log('AndroidMessagingConfig', ...args);
+        }
+    }
+
+    /**
+     * Capture the global handler and remove it from the global object.
+     */
+    #captureGlobalHandler() {
+        const { target, javascriptInterface } = this
+
+        if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
+            this.#capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface])
+            delete target[javascriptInterface]
+        } else {
+            this.#capturedHandler = () => {
+                this.#log('Android messaging interface not available', javascriptInterface)
+            }
+        }
+    }
+
+    /**
+     * Assign the incoming handler method to the global object.
+     * This is the method that Android will call to deliver messages.
+     */
+    #assignHandlerMethod() {
+        /**
+         * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
+         */
+        const responseHandler = (providedSecret, response) => {
+            if (providedSecret === this.secret) {
+                this.#dispatch(response)
+            }
+        }
+
+        Object.defineProperty(this.target, this.messageCallback, {
+            value: responseHandler
+        })
     }
 }
