@@ -4,11 +4,12 @@ import { isBeingFramed, DDGProxy, DDGReflect, injectGlobalStyles } from '../util
 let adLabelStrings = []
 const parser = new DOMParser()
 let hiddenElements = new WeakMap()
+let modifiedElements = new WeakMap()
 let appliedRules = new Set()
 let shouldInjectStyleTag = false
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button'
-let hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000, 5000, 10000]
-let unhideTimeouts = [750, 1500, 2250, 3000, 4500, 6000, 12000]
+let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000]
+let unhideTimeouts = [1250, 2250, 3000]
 
 /** @type {ElementHiding} */
 let featureInstance
@@ -25,12 +26,11 @@ function collapseDomNode (element, rule, previousElement) {
     }
     const type = rule.type
     const alreadyHidden = hiddenElements.has(element)
-
-    if (alreadyHidden) {
+    const alreadyModified = modifiedElements.has(element) && modifiedElements.get(element) === rule.type
+    // return if the element has already been hidden, or modified by the same rule type
+    if (alreadyHidden || alreadyModified) {
         return
     }
-
-    featureInstance.addDebugFlag()
 
     switch (type) {
     case 'hide':
@@ -51,6 +51,12 @@ function collapseDomNode (element, rule, previousElement) {
             hideNode(previousElement)
             appliedRules.add(rule)
         }
+        break
+    case 'modify-attr':
+        modifyAttribute(element, rule.values)
+        break
+    case 'modify-style':
+        modifyStyle(element, rule.values)
         break
     default:
         break
@@ -109,6 +115,8 @@ function hideNode (element) {
     element.style.setProperty('min-height', '0px', 'important')
     element.style.setProperty('height', '0px', 'important')
     element.hidden = true
+    // add debug flag to site breakage reports
+    featureInstance.addDebugFlag()
 }
 
 /**
@@ -167,6 +175,34 @@ function isDomNodeEmpty (node) {
         return true
     }
     return false
+}
+
+/**
+ * Modify specified attribute(s) on element
+ * @param {HTMLElement} element
+ * @param {Object[]} values
+ * @param {string} values[].property
+ * @param {string} values[].value
+ */
+function modifyAttribute (element, values) {
+    values.forEach((item) => {
+        element.setAttribute(item.property, item.value)
+    })
+    modifiedElements.set(element, 'modify-attr')
+}
+
+/**
+ * Modify specified style(s) on element
+ * @param {HTMLElement} element
+ * @param {Object[]} values
+ * @param {string} values[].property
+ * @param {string} values[].value
+ */
+function modifyStyle (element, values) {
+    values.forEach((item) => {
+        element.style.setProperty(item.property, item.value, 'important')
+    })
+    modifiedElements.set(element, 'modify-style')
 }
 
 /**
@@ -270,6 +306,7 @@ export default class ElementHiding extends ContentFeature {
             return
         }
 
+        let activeRules
         const globalRules = this.getFeatureSetting('rules')
         adLabelStrings = this.getFeatureSetting('adLabelStrings')
         shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag')
@@ -289,7 +326,18 @@ export default class ElementHiding extends ContentFeature {
             return rule.type === 'override'
         })
 
-        let activeRules = activeDomainRules.concat(globalRules)
+        const disableDefault = activeDomainRules.some((rule) => {
+            return rule.type === 'disable-default'
+        })
+
+        // if rule with type 'disable-default' is present, ignore all global rules
+        if (disableDefault) {
+            activeRules = activeDomainRules.filter((rule) => {
+                return rule.type !== 'disable-default'
+            })
+        } else {
+            activeRules = activeDomainRules.concat(globalRules)
+        }
 
         // remove overrides and rules that match overrides from array of rules to be applied to page
         overrideRules.forEach((override) => {
@@ -331,11 +379,11 @@ export default class ElementHiding extends ContentFeature {
      */
     applyRules (rules) {
         const timeoutRules = extractTimeoutRules(rules)
+        const clearCacheTimer = unhideTimeouts.concat(hideTimeouts).reduce((a, b) => Math.max(a, b), 0) + 100
 
         // several passes are made to hide & unhide elements. this is necessary because we're not using
         // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
         // frequently take from several hundred milliseconds to several seconds to load
-        // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
         hideTimeouts.forEach((timeout) => {
             setTimeout(() => {
                 hideAdNodes(timeoutRules)
@@ -344,7 +392,6 @@ export default class ElementHiding extends ContentFeature {
 
         // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
         // we do this in order to display non-tracking ads that aren't blocked at the request level
-        // check at 750ms, 1500ms, 2250ms, 3000ms
         unhideTimeouts.forEach((timeout) => {
             setTimeout(() => {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -356,6 +403,7 @@ export default class ElementHiding extends ContentFeature {
         setTimeout(() => {
             appliedRules = new Set()
             hiddenElements = new WeakMap()
-        }, 3100)
+            modifiedElements = new WeakMap()
+        }, clearCacheTimer)
     }
 }
