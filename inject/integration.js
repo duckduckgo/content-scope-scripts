@@ -30,7 +30,8 @@ function generateConfig () {
             enabledFeatures: [
                 'fingerprintingCanvas',
                 'fingerprintingScreenSize',
-                'navigatorInterface'
+                'navigatorInterface',
+                'cookie'
             ]
         },
         trackerLookup

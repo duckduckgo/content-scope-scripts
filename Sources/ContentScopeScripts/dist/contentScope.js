@@ -1561,7 +1561,7 @@
        * @return {Promise<any>}
        */
       request(name, data = {}) {
-        const id = name + ".response";
+        const id = globalThis?.crypto?.randomUUID() || name + ".response";
         const message = new RequestMessage({
           context: this.messagingContext.context,
           featureName: this.messagingContext.featureName,
@@ -5140,11 +5140,12 @@
     let adLabelStrings = [];
     const parser = new DOMParser();
     let hiddenElements = /* @__PURE__ */ new WeakMap();
+    let modifiedElements = /* @__PURE__ */ new WeakMap();
     let appliedRules = /* @__PURE__ */ new Set();
     let shouldInjectStyleTag = false;
     let mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
-    let hideTimeouts = [0, 100, 200, 300, 400, 500, 1e3, 1500, 2e3, 2500, 3e3, 5e3, 1e4];
-    let unhideTimeouts = [750, 1500, 2250, 3e3, 4500, 6e3, 12e3];
+    let hideTimeouts = [0, 100, 300, 500, 1e3, 2e3, 3e3];
+    let unhideTimeouts = [1250, 2250, 3e3];
     let featureInstance;
     function collapseDomNode(element, rule, previousElement) {
       if (!element) {
@@ -5152,10 +5153,10 @@
       }
       const type = rule.type;
       const alreadyHidden = hiddenElements.has(element);
-      if (alreadyHidden) {
+      const alreadyModified = modifiedElements.has(element) && modifiedElements.get(element) === rule.type;
+      if (alreadyHidden || alreadyModified) {
         return;
       }
-      featureInstance.addDebugFlag();
       switch (type) {
         case "hide":
           hideNode(element);
@@ -5173,6 +5174,12 @@
             hideNode(previousElement);
             appliedRules.add(rule);
           }
+          break;
+        case "modify-attr":
+          modifyAttribute(element, rule.values);
+          break;
+        case "modify-style":
+          modifyStyle(element, rule.values);
           break;
       }
     }
@@ -5206,6 +5213,7 @@
       element.style.setProperty("min-height", "0px", "important");
       element.style.setProperty("height", "0px", "important");
       element.hidden = true;
+      featureInstance.addDebugFlag();
     }
     function unhideNode(element) {
       const cachedDisplayProperties = hiddenElements.get(element);
@@ -5241,6 +5249,18 @@
       }
       return false;
     }
+    function modifyAttribute(element, values) {
+      values.forEach((item) => {
+        element.setAttribute(item.property, item.value);
+      });
+      modifiedElements.set(element, "modify-attr");
+    }
+    function modifyStyle(element, values) {
+      values.forEach((item) => {
+        element.style.setProperty(item.property, item.value, "important");
+      });
+      modifiedElements.set(element, "modify-style");
+    }
     function extractTimeoutRules(rules) {
       if (!shouldInjectStyleTag) {
         return rules;
@@ -5258,21 +5278,23 @@
       return timeoutRules;
     }
     function injectStyleTag(rules) {
-      let styleTagContents = "";
+      let selector = "";
       rules.forEach((rule, i) => {
         if (i !== rules.length - 1) {
-          styleTagContents = styleTagContents.concat(rule.selector, ",");
+          selector = selector.concat(rule.selector, ",");
         } else {
-          styleTagContents = styleTagContents.concat(rule.selector);
+          selector = selector.concat(rule.selector);
         }
       });
-      styleTagContents = styleTagContents.concat("{display:none!important;min-height:0!important;height:0!important;}");
+      const styleTagProperties = "{display:none!important;min-height:0!important;height:0!important;}";
+      const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`;
       injectGlobalStyles(styleTagContents);
     }
     function hideAdNodes(rules) {
       const document2 = globalThis.document;
       rules.forEach((rule) => {
-        const matchingElementArray = [...document2.querySelectorAll(rule.selector)];
+        const selector = forgivingSelector(rule.selector);
+        const matchingElementArray = [...document2.querySelectorAll(selector)];
         matchingElementArray.forEach((element) => {
           collapseDomNode(element, rule);
         });
@@ -5281,11 +5303,15 @@
     function unhideLoadedAds() {
       const document2 = globalThis.document;
       appliedRules.forEach((rule) => {
-        const matchingElementArray = [...document2.querySelectorAll(rule.selector)];
+        const selector = forgivingSelector(rule.selector);
+        const matchingElementArray = [...document2.querySelectorAll(selector)];
         matchingElementArray.forEach((element) => {
           expandNonEmptyDomNode(element, rule);
         });
       });
+    }
+    function forgivingSelector(selector) {
+      return `:is(${selector})`;
     }
     class ElementHiding extends ContentFeature {
       init() {
@@ -5293,6 +5319,7 @@
         if (isBeingFramed()) {
           return;
         }
+        let activeRules;
         const globalRules = this.getFeatureSetting("rules");
         adLabelStrings = this.getFeatureSetting("adLabelStrings");
         shouldInjectStyleTag = this.getFeatureSetting("useStrictHideStyleTag");
@@ -5306,7 +5333,16 @@
         const overrideRules = activeDomainRules.filter((rule) => {
           return rule.type === "override";
         });
-        let activeRules = activeDomainRules.concat(globalRules);
+        const disableDefault = activeDomainRules.some((rule) => {
+          return rule.type === "disable-default";
+        });
+        if (disableDefault) {
+          activeRules = activeDomainRules.filter((rule) => {
+            return rule.type !== "disable-default";
+          });
+        } else {
+          activeRules = activeDomainRules.concat(globalRules);
+        }
         overrideRules.forEach((override) => {
           activeRules = activeRules.filter((rule) => {
             return rule.selector !== override.selector;
@@ -5339,6 +5375,7 @@
        */
       applyRules(rules) {
         const timeoutRules = extractTimeoutRules(rules);
+        const clearCacheTimer = unhideTimeouts.concat(hideTimeouts).reduce((a, b) => Math.max(a, b), 0) + 100;
         hideTimeouts.forEach((timeout) => {
           setTimeout(() => {
             hideAdNodes(timeoutRules);
@@ -5352,7 +5389,8 @@
         setTimeout(() => {
           appliedRules = /* @__PURE__ */ new Set();
           hiddenElements = /* @__PURE__ */ new WeakMap();
-        }, 3100);
+          modifiedElements = /* @__PURE__ */ new WeakMap();
+        }, clearCacheTimer);
       }
     }
     class ExceptionHandler extends ContentFeature {
@@ -5387,20 +5425,15 @@
       ddg_feature_elementHiding: ElementHiding,
       ddg_feature_exceptionHandler: ExceptionHandler
     };
-    function shouldRun() {
-      if (document instanceof HTMLDocument === false && (document instanceof XMLDocument === false || document.createElement("div") instanceof HTMLDivElement === false)) {
-        return false;
-      }
-      return true;
-    }
     let initArgs = null;
     const updates = [];
     const features = [];
     const alwaysInitFeatures = /* @__PURE__ */ new Set(["cookie"]);
     const performanceMonitor = new PerformanceMonitor();
+    const isHTMLDocument = document instanceof HTMLDocument || document instanceof XMLDocument && document.createElement("div") instanceof HTMLDivElement;
     function load(args) {
       const mark = performanceMonitor.mark("load");
-      if (!shouldRun()) {
+      if (!isHTMLDocument) {
         return;
       }
       const featureNames = platformSupport["apple"];
@@ -5415,7 +5448,7 @@
     async function init(args) {
       const mark = performanceMonitor.mark("init");
       initArgs = args;
-      if (!shouldRun()) {
+      if (!isHTMLDocument) {
         return;
       }
       registerMessageSecret(args.messageSecret);

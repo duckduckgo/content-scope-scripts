@@ -2351,7 +2351,7 @@
          * @return {Promise<any>}
          */
         request (name, data = {}) {
-            const id = name + '.response';
+            const id = globalThis?.crypto?.randomUUID() || name + '.response';
             const message = new RequestMessage({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
@@ -3241,8 +3241,16 @@
                 return cookieGetter.call(document)
             }
 
-            function setCookiePolicy (value) {
+            /**
+             * @param {any} argValue
+             */
+            function setCookiePolicy (argValue) {
                 let setCookieContext = null;
+                if (!argValue.toString || typeof argValue.toString() !== 'string') {
+                    // not a string, or string-like
+                    return
+                }
+                const value = argValue.toString();
                 if (cookiePolicy.debug) {
                     const stack = getStack();
                     setCookieContext = {
@@ -3261,7 +3269,7 @@
                 // if the value is valid. We will override this set later if the policy dictates that
                 // the expiry should be changed.
                 // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-                cookieSetter.call(document, value);
+                cookieSetter.call(document, argValue);
 
                 try {
                     // wait for config before doing same-site tests
@@ -3324,7 +3332,12 @@
                     ...restOfPolicy
                 };
             } else {
-                cookiePolicy = Object.assign(cookiePolicy, restOfPolicy);
+                // copy non-null entries from restOfPolicy to cookiePolicy
+                Object.keys(restOfPolicy).forEach(key => {
+                    if (restOfPolicy[key]) {
+                        cookiePolicy[key] = restOfPolicy[key];
+                    }
+                });
             }
 
             loadedPolicyResolve();
@@ -7012,11 +7025,12 @@
     let adLabelStrings = [];
     const parser = new DOMParser();
     let hiddenElements = new WeakMap();
+    let modifiedElements = new WeakMap();
     let appliedRules = new Set();
     let shouldInjectStyleTag = false;
     let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
-    let hideTimeouts = [0, 100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000, 5000, 10000];
-    let unhideTimeouts = [750, 1500, 2250, 3000, 4500, 6000, 12000];
+    let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000];
+    let unhideTimeouts = [1250, 2250, 3000];
 
     /** @type {ElementHiding} */
     let featureInstance;
@@ -7033,12 +7047,11 @@
         }
         const type = rule.type;
         const alreadyHidden = hiddenElements.has(element);
-
-        if (alreadyHidden) {
+        const alreadyModified = modifiedElements.has(element) && modifiedElements.get(element) === rule.type;
+        // return if the element has already been hidden, or modified by the same rule type
+        if (alreadyHidden || alreadyModified) {
             return
         }
-
-        featureInstance.addDebugFlag();
 
         switch (type) {
         case 'hide':
@@ -7059,6 +7072,12 @@
                 hideNode(previousElement);
                 appliedRules.add(rule);
             }
+            break
+        case 'modify-attr':
+            modifyAttribute(element, rule.values);
+            break
+        case 'modify-style':
+            modifyStyle(element, rule.values);
             break
         }
     }
@@ -7113,6 +7132,8 @@
         element.style.setProperty('min-height', '0px', 'important');
         element.style.setProperty('height', '0px', 'important');
         element.hidden = true;
+        // add debug flag to site breakage reports
+        featureInstance.addDebugFlag();
     }
 
     /**
@@ -7174,6 +7195,34 @@
     }
 
     /**
+     * Modify specified attribute(s) on element
+     * @param {HTMLElement} element
+     * @param {Object[]} values
+     * @param {string} values[].property
+     * @param {string} values[].value
+     */
+    function modifyAttribute (element, values) {
+        values.forEach((item) => {
+            element.setAttribute(item.property, item.value);
+        });
+        modifiedElements.set(element, 'modify-attr');
+    }
+
+    /**
+     * Modify specified style(s) on element
+     * @param {HTMLElement} element
+     * @param {Object[]} values
+     * @param {string} values[].property
+     * @param {string} values[].value
+     */
+    function modifyStyle (element, values) {
+        values.forEach((item) => {
+            element.style.setProperty(item.property, item.value, 'important');
+        });
+        modifiedElements.set(element, 'modify-style');
+    }
+
+    /**
      * Separate strict hide rules to inject as style tag if enabled
      * @param {Object[]} rules
      * @param {string} rules[].selector
@@ -7206,17 +7255,20 @@
      * @param {string} rules[].type
      */
     function injectStyleTag (rules) {
-        let styleTagContents = '';
+        // wrap selector list in :is(...) to make it a forgiving selector list. this enables
+        // us to use selectors not supported in all browsers, eg :has in Firefox
+        let selector = '';
 
         rules.forEach((rule, i) => {
             if (i !== rules.length - 1) {
-                styleTagContents = styleTagContents.concat(rule.selector, ',');
+                selector = selector.concat(rule.selector, ',');
             } else {
-                styleTagContents = styleTagContents.concat(rule.selector);
+                selector = selector.concat(rule.selector);
             }
         });
+        const styleTagProperties = '{display:none!important;min-height:0!important;height:0!important;}';
+        const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`;
 
-        styleTagContents = styleTagContents.concat('{display:none!important;min-height:0!important;height:0!important;}');
         injectGlobalStyles(styleTagContents);
     }
 
@@ -7230,7 +7282,8 @@
         const document = globalThis.document;
 
         rules.forEach((rule) => {
-            const matchingElementArray = [...document.querySelectorAll(rule.selector)];
+            const selector = forgivingSelector(rule.selector);
+            const matchingElementArray = [...document.querySelectorAll(selector)];
             matchingElementArray.forEach((element) => {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 collapseDomNode(element, rule);
@@ -7245,11 +7298,20 @@
         const document = globalThis.document;
 
         appliedRules.forEach((rule) => {
-            const matchingElementArray = [...document.querySelectorAll(rule.selector)];
+            const selector = forgivingSelector(rule.selector);
+            const matchingElementArray = [...document.querySelectorAll(selector)];
             matchingElementArray.forEach((element) => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 expandNonEmptyDomNode(element, rule);
             });
         });
+    }
+
+    /**
+     * Wrap selector(s) in :is(..) to make them forgiving
+     */
+    function forgivingSelector (selector) {
+        return `:is(${selector})`
     }
 
     class ElementHiding extends ContentFeature {
@@ -7261,6 +7323,7 @@
                 return
             }
 
+            let activeRules;
             const globalRules = this.getFeatureSetting('rules');
             adLabelStrings = this.getFeatureSetting('adLabelStrings');
             shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag');
@@ -7280,7 +7343,18 @@
                 return rule.type === 'override'
             });
 
-            let activeRules = activeDomainRules.concat(globalRules);
+            const disableDefault = activeDomainRules.some((rule) => {
+                return rule.type === 'disable-default'
+            });
+
+            // if rule with type 'disable-default' is present, ignore all global rules
+            if (disableDefault) {
+                activeRules = activeDomainRules.filter((rule) => {
+                    return rule.type !== 'disable-default'
+                });
+            } else {
+                activeRules = activeDomainRules.concat(globalRules);
+            }
 
             // remove overrides and rules that match overrides from array of rules to be applied to page
             overrideRules.forEach((override) => {
@@ -7322,11 +7396,11 @@
          */
         applyRules (rules) {
             const timeoutRules = extractTimeoutRules(rules);
+            const clearCacheTimer = unhideTimeouts.concat(hideTimeouts).reduce((a, b) => Math.max(a, b), 0) + 100;
 
             // several passes are made to hide & unhide elements. this is necessary because we're not using
             // a mutation observer but we want to hide/unhide elements as soon as possible, and ads
             // frequently take from several hundred milliseconds to several seconds to load
-            // check at 0ms, 100ms, 200ms, 300ms, 400ms, 500ms, 1000ms, 1500ms, 2000ms, 2500ms, 3000ms
             hideTimeouts.forEach((timeout) => {
                 setTimeout(() => {
                     hideAdNodes(timeoutRules);
@@ -7335,7 +7409,6 @@
 
             // check previously hidden ad elements for contents, unhide if content has loaded after hiding.
             // we do this in order to display non-tracking ads that aren't blocked at the request level
-            // check at 750ms, 1500ms, 2250ms, 3000ms
             unhideTimeouts.forEach((timeout) => {
                 setTimeout(() => {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -7347,7 +7420,8 @@
             setTimeout(() => {
                 appliedRules = new Set();
                 hiddenElements = new WeakMap();
-            }, 3100);
+                modifiedElements = new WeakMap();
+            }, clearCacheTimer);
         }
     }
 
@@ -9647,24 +9721,24 @@
 
     /* global false */
 
-    function shouldRun () {
-        // don't inject into non-HTML documents (such as XML documents)
-        // but do inject into XHTML documents
-        // Should check HTMLDocument as Document is an alias for XMLDocument also.
-        if (document instanceof HTMLDocument === false && (
-            document instanceof XMLDocument === false ||
-            document.createElement('div') instanceof HTMLDivElement === false
-        )) {
-            return false
-        }
-        return true
-    }
-
     let initArgs = null;
     const updates = [];
     const features = [];
     const alwaysInitFeatures = new Set(['cookie']);
     const performanceMonitor = new PerformanceMonitor();
+
+    // It's important to avoid enabling the features for non-HTML documents (such as
+    // XML documents that aren't XHTML). Note that it's necessary to check the
+    // document type in advance, to minimise the risk of a website breaking the
+    // checks by altering document.__proto__. In the future, it might be worth
+    // running the checks even earlier (and in the "isolated world" for the Chrome
+    // extension), to further reduce that risk.
+    const isHTMLDocument = (
+        document instanceof HTMLDocument || (
+            document instanceof XMLDocument &&
+                document.createElement('div') instanceof HTMLDivElement
+        )
+    );
 
     /**
      * @typedef {object} LoadArgs
@@ -9681,7 +9755,7 @@
      */
     function load (args) {
         const mark = performanceMonitor.mark('load');
-        if (!shouldRun()) {
+        if (!isHTMLDocument) {
             return
         }
 
@@ -9700,7 +9774,7 @@
     async function init (args) {
         const mark = performanceMonitor.mark('init');
         initArgs = args;
-        if (!shouldRun()) {
+        if (!isHTMLDocument) {
             return
         }
         registerMessageSecret(args.messageSecret);

@@ -1952,7 +1952,7 @@
          * @return {Promise<any>}
          */
         request (name, data = {}) {
-            const id = name + '.response';
+            const id = globalThis?.crypto?.randomUUID() || name + '.response';
             const message = new RequestMessage({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
@@ -4483,24 +4483,24 @@
 
     /* global false */
 
-    function shouldRun () {
-        // don't inject into non-HTML documents (such as XML documents)
-        // but do inject into XHTML documents
-        // Should check HTMLDocument as Document is an alias for XMLDocument also.
-        if (document instanceof HTMLDocument === false && (
-            document instanceof XMLDocument === false ||
-            document.createElement('div') instanceof HTMLDivElement === false
-        )) {
-            return false
-        }
-        return true
-    }
-
     let initArgs = null;
     const updates = [];
     const features = [];
     const alwaysInitFeatures = new Set(['cookie']);
     const performanceMonitor = new PerformanceMonitor();
+
+    // It's important to avoid enabling the features for non-HTML documents (such as
+    // XML documents that aren't XHTML). Note that it's necessary to check the
+    // document type in advance, to minimise the risk of a website breaking the
+    // checks by altering document.__proto__. In the future, it might be worth
+    // running the checks even earlier (and in the "isolated world" for the Chrome
+    // extension), to further reduce that risk.
+    const isHTMLDocument = (
+        document instanceof HTMLDocument || (
+            document instanceof XMLDocument &&
+                document.createElement('div') instanceof HTMLDivElement
+        )
+    );
 
     /**
      * @typedef {object} LoadArgs
@@ -4517,7 +4517,7 @@
      */
     function load (args) {
         const mark = performanceMonitor.mark('load');
-        if (!shouldRun()) {
+        if (!isHTMLDocument) {
             return
         }
 
@@ -4536,7 +4536,7 @@
     async function init (args) {
         const mark = performanceMonitor.mark('init');
         initArgs = args;
-        if (!shouldRun()) {
+        if (!isHTMLDocument) {
             return
         }
         registerMessageSecret(args.messageSecret);
