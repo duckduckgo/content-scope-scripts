@@ -74,7 +74,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "jasmine": "^4.6.0",
-    "json-schema-to-typescript": "^13.0.2",
+    "json-schema-to-typescript": "^13.1.1",
     "minimist": "^1.2.8",
     "puppeteer": "^21.3.5",
     "rollup": "^3.28.0",
