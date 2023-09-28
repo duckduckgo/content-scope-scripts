@@ -81,6 +81,6 @@
     "rollup-plugin-import-css": "^3.3.1",
     "rollup-plugin-svg-import": "^2.1.0",
     "typedoc": "^0.25.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   }
 }
