@@ -201,12 +201,12 @@ export class AndroidMessagingConfig {
         /**
          * Capture the global handler and remove it from the global object.
          */
-        this.#captureGlobalHandler()
+        this._captureGlobalHandler()
 
         /**
          * Assign the incoming handler method to the global object.
          */
-        this.#assignHandlerMethod()
+        this._assignHandlerMethod()
     }
 
     /**
@@ -252,26 +252,26 @@ export class AndroidMessagingConfig {
      * @param {MessageResponse | SubscriptionEvent} payload
      * @internal
      */
-    #dispatch(payload) {
+    _dispatch (payload) {
         // do nothing if the response is empty
         // this prevents the next `in` checks from throwing in test/debug scenarios
-        if (!payload) return this.#log('no response')
+        if (!payload) return this._log('no response')
 
         // if the payload has an 'id' field, then it's a message response
         if ('id' in payload) {
             if (this.listeners.has(payload.id)) {
-                this.#tryCatch(() => this.listeners.get(payload.id)?.(payload))
+                this._tryCatch(() => this.listeners.get(payload.id)?.(payload))
             } else {
-                this.#log('no listeners for ', payload)
+                this._log('no listeners for ', payload)
             }
         }
 
         // if the payload has an 'subscriptionName' field, then it's a push event
         if ('subscriptionName' in payload) {
             if (this.listeners.has(payload.subscriptionName)) {
-                this.#tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload))
+                this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload))
             } else {
-                this.#log('no subscription listeners for ', payload)
+                this._log('no subscription listeners for ', payload)
             }
         }
     }
@@ -281,7 +281,7 @@ export class AndroidMessagingConfig {
      * @param {(...args: any[]) => any} fn
      * @param {string} [context]
      */
-    #tryCatch(fn, context = 'none') {
+    _tryCatch (fn, context = 'none') {
         try {
             return fn()
         } catch (e) {
@@ -295,16 +295,16 @@ export class AndroidMessagingConfig {
     /**
      * @param {...any} args
      */
-    #log(...args) {
+    _log (...args) {
         if (this.debug) {
-            console.log('AndroidMessagingConfig', ...args);
+            console.log('AndroidMessagingConfig', ...args)
         }
     }
 
     /**
      * Capture the global handler and remove it from the global object.
      */
-    #captureGlobalHandler() {
+    _captureGlobalHandler () {
         const { target, javascriptInterface } = this
 
         if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
@@ -312,7 +312,7 @@ export class AndroidMessagingConfig {
             delete target[javascriptInterface]
         } else {
             this.#capturedHandler = () => {
-                this.#log('Android messaging interface not available', javascriptInterface)
+                this._log('Android messaging interface not available', javascriptInterface)
             }
         }
     }
@@ -321,13 +321,13 @@ export class AndroidMessagingConfig {
      * Assign the incoming handler method to the global object.
      * This is the method that Android will call to deliver messages.
      */
-    #assignHandlerMethod() {
+    _assignHandlerMethod () {
         /**
          * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
          */
         const responseHandler = (providedSecret, response) => {
             if (providedSecret === this.secret) {
-                this.#dispatch(response)
+                this._dispatch(response)
             }
         }
 

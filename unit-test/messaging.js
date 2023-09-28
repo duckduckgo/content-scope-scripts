@@ -63,7 +63,7 @@ describe('Android', () => {
             secret: 'abc',
             javascriptInterface: 'ContentScopeScripts',
             messageCallback: 'callback_abc_def',
-            debug: false,
+            debug: false
         })
         return config
     }

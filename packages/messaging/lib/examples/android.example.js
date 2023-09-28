@@ -15,7 +15,7 @@ const config = new AndroidMessagingConfig({
     messageCallback: 'callback_123', // the method that android will execute with responses
     target: globalThis, // where the global properties exist
     javascriptInterface,
-    debug: false,
+    debug: false
 })
 
 /**
