@@ -80,7 +80,7 @@
     "rollup": "^3.28.0",
     "rollup-plugin-import-css": "^3.3.1",
     "rollup-plugin-svg-import": "^2.0.0",
-    "typedoc": "^0.24.8",
+    "typedoc": "^0.25.1",
     "typescript": "^5.1.6"
   }
 }
