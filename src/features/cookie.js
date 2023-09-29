@@ -236,6 +236,8 @@ export default class CookieFeature extends ContentFeature {
         })
 
         if (globalThis.CookieStore) {
+            // @ts-expect-error - error  'CookieStore' is not defined  no-undef
+            // eslint-disable-next-line no-undef
             const proxy = new DDGProxy(this, CookieStore.prototype, 'set', {
                 async apply (target, thisArg, args) {
                     let setCookieContext = null
