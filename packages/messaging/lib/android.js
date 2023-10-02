@@ -173,7 +173,7 @@ export class AndroidMessagingTransport {
  */
 export class AndroidMessagingConfig {
     /** @type {(json: string, secret: string) => void} */
-    #capturedHandler
+    _capturedHandler
     /**
      * @param {object} params
      * @param {Record<string, any>} params.target
@@ -220,7 +220,7 @@ export class AndroidMessagingConfig {
      * @internal
      */
     sendMessageThrows (json) {
-        this.#capturedHandler(json, this.secret)
+        this._capturedHandler(json, this.secret)
     }
 
     /**
@@ -308,10 +308,10 @@ export class AndroidMessagingConfig {
         const { target, javascriptInterface } = this
 
         if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
-            this.#capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface])
+            this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface])
             delete target[javascriptInterface]
         } else {
-            this.#capturedHandler = () => {
+            this._capturedHandler = () => {
                 this._log('Android messaging interface not available', javascriptInterface)
             }
         }
