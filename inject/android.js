@@ -37,6 +37,10 @@ function initCode () {
     // Sends messages to the platform
     const messageInterface = processedConfig.messageInterface
 
+    /**
+     * New features on Android should use the shared {@link Messaging} library
+     * See: `packages/messaging/lib/examples/android.example.js`
+     */
     const wrappedUpdate = ((providedSecret, ...args) => {
         if (providedSecret === messageSecret) {
             update(...args)

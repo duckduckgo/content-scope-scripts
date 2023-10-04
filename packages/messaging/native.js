@@ -7,13 +7,22 @@
  * Notifications do not require a response, but requests do. The following spec explains the difference and
  * how to handle each.
  *
+ * The purpose of this library is to enable 3 idiomatic JavaScript methods for communicating with native platforms:
+ *
  * ```javascript
  * // notifications
  * messaging.notify("helloWorld", { some: "data" })
  *
  * // requests
  * await messaging.request("helloWorld", { some: "data" })
+ *
+ * // subscriptions
+ * const unsubscribe = messaging.subscribe("helloWorld", (data) => {
+ *    console.log(data)
+ * });
  * ```
+ *
+ * The following describes how you [native engineers] can implement support for this.
  *
  * ## Step 1) Receiving a notification or request message:
  *
@@ -169,7 +178,6 @@
  * {
  *   "context": "contentScopeScripts",
  *   "featureName": "duckPlayer",
- *   "method": "getUserValues",
  *   "id": "abc123",
  *   "result": { "hello":  "world" }
  * }
@@ -181,7 +189,6 @@
  * {
  *   "context": "contentScopeScripts",
  *   "featureName": "duckPlayer",
- *   "method": "getUserValues",
  *   "id": "abc123",
  *   "error": {
  *     "message": "oops!"
