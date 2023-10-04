@@ -59,13 +59,13 @@
   },
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
-    "@fingerprintjs/fingerprintjs": "^4.0.1",
+    "@fingerprintjs/fingerprintjs": "^4.1.0",
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.2.1",
     "@rollup/plugin-replace": "^5.0.2",
     "@types/chrome": "^0.0.246",
     "@types/jasmine": "^4.3.1",
-    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
     "config-builder": "github:duckduckgo/privacy-configuration#main",
     "eslint": "^8.50.0",
     "esbuild": "^0.19.2",
@@ -81,6 +81,6 @@
     "rollup-plugin-import-css": "^3.3.1",
     "rollup-plugin-svg-import": "^2.1.0",
     "typedoc": "^0.25.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   }
 }
