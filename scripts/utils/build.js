@@ -101,6 +101,7 @@ export async function bundle (params) {
         entryPoints: [scriptPath],
         write: false,
         outdir: 'build',
+        target: 'es2021',
         bundle: true,
         metafile: true,
         globalName: name,
