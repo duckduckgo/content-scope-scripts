@@ -90,7 +90,8 @@ export class WebcompatSpec {
                 context: 'contentScopeScripts',
                 featureName: 'n/a'
             },
-            responses: {}
+            responses: {},
+            errors: {}
         })
 
         // attach the JS
