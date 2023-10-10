@@ -249,7 +249,7 @@ function injectStyleTag (rules) {
             selector = selector.concat(rule.selector)
         }
     })
-    const styleTagProperties = '{display:none!important;min-height:0!important;height:0!important;}'
+    const styleTagProperties = 'display:none!important;min-height:0!important;height:0!important;'
     const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`
 
     injectGlobalStyles(styleTagContents)
