@@ -207,14 +207,16 @@ export default class WebCompat extends ContentFeature {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'metadata', {
                 value: null,
-                configurable: true,
-                enumerable: true
+                writable: true,
+                configurable: false,
+                enumerable: false
             })
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'playbackState', {
                 value: "none",
-                configurable: true,
-                enumerable: true
+                writable: true,
+                configurable: false,
+                enumerable: false
             })
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
