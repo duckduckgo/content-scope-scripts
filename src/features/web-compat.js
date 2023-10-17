@@ -32,6 +32,12 @@ export default class WebCompat extends ContentFeature {
             const settings = this.getFeatureSettingEnabled('permissions')
             this.permissionsFix(settings)
         }
+
+        // TODO ANDROID if (this.getFeatureSettingEnabled('mediaSession')) {
+        this.mediaSessionFix()
+
+        // TODO ANDROID if (this.getFeatureSettingEnabled('presentation')) {
+        this.presentationFix()
     }
 
     /**
@@ -184,6 +190,91 @@ export default class WebCompat extends ContentFeature {
         }
     }
 
+    mediaSessionFix () {
+        try {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            if (window.navigator.mediaSession) {
+                return
+            }
+
+            this.defineProperty(window.navigator, 'mediaSession', {
+                value: {
+                },
+                writable: true,
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.defineProperty(window.navigator.mediaSession, 'metadata', {
+                value: null,
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.defineProperty(window.navigator.mediaSession, 'playbackState', {
+                value: "none",
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.defineProperty(window.navigator.mediaSession, 'setCameraActive', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.defineProperty(window.navigator.mediaSession, 'setMicrophoneActive', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.defineProperty(window.navigator.mediaSession, 'setPositionState', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    presentationFix () {
+        try {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            if (window.navigator.presentation) {
+                return
+            }
+
+            this.defineProperty(window.navigator, 'presentation', {
+                value: {
+                },
+                writable: true,
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.defineProperty(window.navigator.presentation, 'defaultRequest', {
+                value: null,
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            this.defineProperty(window.navigator.presentation, 'receiver', {
+                value: null,
+                configurable: true,
+                enumerable: true
+            })
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
     /**
      * Support for proxying `window.webkit.messageHandlers`
      */
