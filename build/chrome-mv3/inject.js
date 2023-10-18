@@ -2631,7 +2631,7 @@
          * @return {Promise<any>}
          */
         request (name, data = {}) {
-            const id = globalThis?.crypto?.randomUUID() || name + '.response';
+            const id = globalThis?.crypto?.randomUUID?.() || name + '.response';
             const message = new RequestMessage({
                 context: this.messagingContext.context,
                 featureName: this.messagingContext.featureName,
