@@ -213,7 +213,7 @@ export default class WebCompat extends ContentFeature {
             })
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'playbackState', {
-                value: "none",
+                value: 'none',
                 writable: true,
                 configurable: false,
                 enumerable: false
@@ -277,6 +277,7 @@ export default class WebCompat extends ContentFeature {
             // Ignore exceptions that could be caused by conflicting with other extensions
         }
     }
+
     /**
      * Support for proxying `window.webkit.messageHandlers`
      */
