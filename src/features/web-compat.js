@@ -192,7 +192,6 @@ export default class WebCompat extends ContentFeature {
 
     mediaSessionFix () {
         try {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             if (window.navigator.mediaSession) {
                 return
             }
@@ -204,39 +203,33 @@ export default class WebCompat extends ContentFeature {
                 configurable: true,
                 enumerable: true
             })
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'metadata', {
                 value: null,
                 writable: true,
                 configurable: false,
                 enumerable: false
             })
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'playbackState', {
                 value: 'none',
                 writable: true,
                 configurable: false,
                 enumerable: false
             })
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
                 value: () => {},
                 configurable: true,
                 enumerable: true
             })
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'setCameraActive', {
                 value: () => {},
                 configurable: true,
                 enumerable: true
             })
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'setMicrophoneActive', {
                 value: () => {},
                 configurable: true,
                 enumerable: true
             })
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.navigator.mediaSession, 'setPositionState', {
                 value: () => {},
                 configurable: true,
