@@ -33,11 +33,13 @@ export default class WebCompat extends ContentFeature {
             this.permissionsFix(settings)
         }
 
-        // TODO ANDROID if (this.getFeatureSettingEnabled('mediaSession')) {
-        this.mediaSessionFix()
+        if (this.getFeatureSettingEnabled('mediaSession')) {
+            this.mediaSessionFix()
+        }
 
-        // TODO ANDROID if (this.getFeatureSettingEnabled('presentation')) {
-        this.presentationFix()
+        if (this.getFeatureSettingEnabled('presentation')) {
+            this.presentationFix()
+        }
     }
 
     /**
