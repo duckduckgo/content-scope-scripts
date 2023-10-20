@@ -63,7 +63,7 @@ export default class WebCompat extends ContentFeature {
     }
 
     cleanIframeValue () {
-        function cleanIframeValue (val) {
+        function cleanValueData (val) {
             const clone = Object.assign({}, val)
             const deleteKeys = ['iframeProto', 'iframeData', 'remap']
             for (const key of deleteKeys) {
@@ -89,7 +89,7 @@ export default class WebCompat extends ContentFeature {
                         parts.forEach((part) => {
                             if (part[0] === cleanKey) {
                                 const val = JSON.parse(decodeURIComponent(part[1]))
-                                part[1] = encodeURIComponent(JSON.stringify(cleanIframeValue(val)))
+                                part[1] = encodeURIComponent(JSON.stringify(cleanValueData(val)))
                             }
                         })
                         args[0] = parts.map((part) => { return part.join('=') }).join('&')
