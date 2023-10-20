@@ -63,33 +63,6 @@ export default class WebCompat extends ContentFeature {
     }
 
     cleanIframeValue () {
-        /*
-        window.XMLHttpRequest = new Proxy(XMLHttpRequest, {
-            get (target, name) {
-                console.log('new XHR')
-                return Reflect.get(target, name)
-            }
-        })
-
-        window.XMLHttpRequest.prototype.open = new Proxy(window.XMLHttpRequest.prototype.open, {
-            get (target, name) {
-                console.log('XHR open')
-                return Reflect.get(target, name)
-            }
-        })
-
-        window.XMLHttpRequest.prototype.setRequestHeader = new Proxy(window.XMLHttpRequest.prototype.setRequestHeader, {
-            get (target, name) {
-                console.log('XHR setRequestHeader')
-                return Reflect.get(target, name)
-            },
-            apply (target, thisArg, args) {
-                console.log('XHR setRequestHeader', args)
-                return Reflect.apply(target, thisArg, args)
-            }
-        })
-        */
-
         function cleanIframeValue (val) {
             const clone = Object.assign({}, val)
             const deleteKeys = ['iframeProto', 'iframeData', 'remap']
@@ -110,12 +83,6 @@ export default class WebCompat extends ContentFeature {
             apply (target, thisArg, args) {
                 const body = args[0]
                 const cleanKey = 'bi_wvdp'
-                /*
-                if (body && body instanceof FormData && body.has(cleanKey)) {
-                    const val = JSON.parse(body.get(cleanKey))
-                    body.set(cleanKey, JSON.stringify(cleanIframeValue(val)))
-                }
-                */
                 if (body && typeof body === 'string' && body.includes(cleanKey)) {
                     const parts = body.split('&').map((part) => { return part.split('=') })
                     if (parts.length > 0) {
