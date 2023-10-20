@@ -32,6 +32,9 @@ export default class WebCompat extends ContentFeature {
             const settings = this.getFeatureSettingEnabled('permissions')
             this.permissionsFix(settings)
         }
+        if (this.getFeatureSettingEnabled('cleanIframeValue')) {
+            this.cleanIframeValue()
+        }
     }
 
     /**
@@ -56,6 +59,77 @@ export default class WebCompat extends ContentFeature {
             writable: true,
             configurable: true,
             enumerable: false
+        })
+    }
+
+    cleanIframeValue () {
+        /*
+        window.XMLHttpRequest = new Proxy(XMLHttpRequest, {
+            get (target, name) {
+                console.log('new XHR')
+                return Reflect.get(target, name)
+            }
+        })
+
+        window.XMLHttpRequest.prototype.open = new Proxy(window.XMLHttpRequest.prototype.open, {
+            get (target, name) {
+                console.log('XHR open')
+                return Reflect.get(target, name)
+            }
+        })
+
+        window.XMLHttpRequest.prototype.setRequestHeader = new Proxy(window.XMLHttpRequest.prototype.setRequestHeader, {
+            get (target, name) {
+                console.log('XHR setRequestHeader')
+                return Reflect.get(target, name)
+            },
+            apply (target, thisArg, args) {
+                console.log('XHR setRequestHeader', args)
+                return Reflect.apply(target, thisArg, args)
+            }
+        })
+        */
+
+        function cleanIframeValue (val) {
+            const clone = Object.assign({}, val)
+            const deleteKeys = ['iframeProto', 'iframeData', 'remap']
+            for (const key of deleteKeys) {
+                if (key in clone) {
+                    delete clone[key]
+                }
+            }
+            val.iframeData = clone
+            return val
+        }
+
+        window.XMLHttpRequest.prototype.send = new Proxy(window.XMLHttpRequest.prototype.send, {
+            get (target, name) {
+                console.log('XHR send')
+                return Reflect.get(target, name)
+            },
+            apply (target, thisArg, args) {
+                const body = args[0]
+                const cleanKey = 'bi_wvdp'
+                /*
+                if (body && body instanceof FormData && body.has(cleanKey)) {
+                    const val = JSON.parse(body.get(cleanKey))
+                    body.set(cleanKey, JSON.stringify(cleanIframeValue(val)))
+                }
+                */
+                if (body && typeof body === 'string' && body.includes(cleanKey)) {
+                    const parts = body.split('&').map((part) => { return part.split('=') })
+                    if (parts.length > 0) {
+                        parts.forEach((part) => {
+                            if (part[0] === cleanKey) {
+                                const val = JSON.parse(decodeURIComponent(part[1]))
+                                part[1] = encodeURIComponent(JSON.stringify(cleanIframeValue(val)))
+                            }
+                        })
+                        args[0] = parts.map((part) => { return part.join('=') }).join('&')
+                    }
+                }
+                return Reflect.apply(target, thisArg, args)
+            }
         })
     }
 
@@ -84,7 +158,7 @@ export default class WebCompat extends ContentFeature {
             'midi'
         ]
         const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames
-        permissions.query = (query) => {
+        permissions.query = new Proxy((query) => {
             this.addDebugFlag()
             if (!query) {
                 throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
@@ -96,7 +170,11 @@ export default class WebCompat extends ContentFeature {
                 throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value 's' is not a valid enum value of type PermissionName.")
             }
             return Promise.resolve(new PermissionStatus(query.name, 'denied'))
-        }
+        }, {
+            get (target, name) {
+                return Reflect.get(target, name)
+            }
+        })
         // Expose the API
         // @ts-expect-error window.navigator isn't assignable
         window.navigator.permissions = permissions
