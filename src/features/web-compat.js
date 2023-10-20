@@ -76,10 +76,6 @@ export default class WebCompat extends ContentFeature {
         }
 
         window.XMLHttpRequest.prototype.send = new Proxy(window.XMLHttpRequest.prototype.send, {
-            get (target, name) {
-                console.log('XHR send')
-                return Reflect.get(target, name)
-            },
             apply (target, thisArg, args) {
                 const body = args[0]
                 const cleanKey = 'bi_wvdp'
