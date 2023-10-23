@@ -244,7 +244,7 @@ export default class WebCompat extends ContentFeature {
 
     presentationFix () {
         try {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
             if (window.navigator.presentation) {
                 return
             }
@@ -256,13 +256,13 @@ export default class WebCompat extends ContentFeature {
                 configurable: true,
                 enumerable: true
             })
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
             this.defineProperty(window.navigator.presentation, 'defaultRequest', {
                 value: null,
                 configurable: true,
                 enumerable: true
             })
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
             this.defineProperty(window.navigator.presentation, 'receiver', {
                 value: null,
                 configurable: true,
