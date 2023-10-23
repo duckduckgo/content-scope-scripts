@@ -35,6 +35,14 @@ export default class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('cleanIframeValue')) {
             this.cleanIframeValue()
         }
+
+        if (this.getFeatureSettingEnabled('mediaSession')) {
+            this.mediaSessionFix()
+        }
+
+        if (this.getFeatureSettingEnabled('presentation')) {
+            this.presentationFix()
+        }
     }
 
     /**
@@ -217,6 +225,87 @@ export default class WebCompat extends ContentFeature {
                     const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function."
                     throw new Error(reason)
                 },
+                configurable: true,
+                enumerable: true
+            })
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    mediaSessionFix () {
+        try {
+            if (window.navigator.mediaSession) {
+                return
+            }
+
+            this.defineProperty(window.navigator, 'mediaSession', {
+                value: {
+                },
+                writable: true,
+                configurable: true,
+                enumerable: true
+            })
+            this.defineProperty(window.navigator.mediaSession, 'metadata', {
+                value: null,
+                writable: true,
+                configurable: false,
+                enumerable: false
+            })
+            this.defineProperty(window.navigator.mediaSession, 'playbackState', {
+                value: 'none',
+                writable: true,
+                configurable: false,
+                enumerable: false
+            })
+            this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            this.defineProperty(window.navigator.mediaSession, 'setCameraActive', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            this.defineProperty(window.navigator.mediaSession, 'setMicrophoneActive', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            this.defineProperty(window.navigator.mediaSession, 'setPositionState', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    presentationFix () {
+        try {
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+            if (window.navigator.presentation) {
+                return
+            }
+
+            this.defineProperty(window.navigator, 'presentation', {
+                value: {
+                },
+                writable: true,
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+            this.defineProperty(window.navigator.presentation, 'defaultRequest', {
+                value: null,
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+            this.defineProperty(window.navigator.presentation, 'receiver', {
+                value: null,
                 configurable: true,
                 enumerable: true
             })
