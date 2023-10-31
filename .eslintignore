@@ -11,3 +11,4 @@ packages/special-pages/test-results/
 /playwright-report
 /test-results
 src/types
+build_bak/

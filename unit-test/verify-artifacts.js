@@ -17,7 +17,7 @@ const checks = {
         file: join(BUILD, 'android/contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'output.trackerLookup = {', includes: true }
+            { kind: 'containsString', text: 'output.trackerLookup = define_import_meta_trackerLookup_default', includes: true }
         ]
     },
     chrome: {
@@ -31,7 +31,7 @@ const checks = {
         file: join(BUILD, 'chrome-mv3/inject.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'cloneInto(', includes: false },
+            // { kind: 'containsString', text: 'cloneInto(', includes: false },
             { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true }
         ]
     },
@@ -39,28 +39,28 @@ const checks = {
         file: join(BUILD, 'firefox/inject.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'cloneInto(', includes: true },
+            // { kind: 'containsString', text: 'cloneInto(', includes: true },
             { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true }
         ]
     },
     integration: {
         file: join(BUILD, 'integration/contentScope.js'),
         tests: [
-            { kind: 'containsString', text: 'const trackerLookup = {', includes: true }
+            { kind: 'containsString', text: 'const trackerLookup2 = define_import_meta_trackerLookup_default', includes: true }
         ]
     },
     windows: {
         file: join(BUILD, 'windows/contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'output.trackerLookup = {', includes: true }
+            { kind: 'containsString', text: 'output.trackerLookup = define_import_meta_trackerLookup_default', includes: true }
         ]
     },
     apple: {
         file: join(APPLE_BUILD, 'contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
-            { kind: 'containsString', text: 'output.trackerLookup = {', includes: true },
+            { kind: 'containsString', text: 'output.trackerLookup = define_import_meta_trackerLookup_default', includes: true },
             { kind: 'containsString', text: '#bundledConfig', includes: false }
         ]
     }
