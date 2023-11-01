@@ -9,7 +9,10 @@
     "noEmit": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   },
   "include": [
     "src",
