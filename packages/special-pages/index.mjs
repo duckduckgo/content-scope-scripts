@@ -37,6 +37,12 @@ export const support = {
         'integration': ['copy'],
         'apple': ['copy', 'inline-html'],
     },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    onboarding: {
+        'integration': ['copy', 'build-js'],
+        'windows': ['copy', 'build-js'],
+        'apple': ['copy', 'build-js', 'inline-html'],
+    },
 }
 
 /** @type {{src: string, dest: string}[]} */
@@ -122,6 +128,11 @@ for (const buildJob of buildJobs) {
             outfile: buildJob.dest,
             bundle: true,
             format: 'iife',
+            sourcemap: NODE_ENV === 'development' ? 'inline' : undefined,
+            loader: {
+                '.js': 'jsx',
+                '.module.css': 'local-css',
+            },
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),
                 'import.meta.injectName': JSON.stringify(buildJob.injectName),
