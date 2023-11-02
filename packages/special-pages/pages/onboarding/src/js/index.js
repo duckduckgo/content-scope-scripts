@@ -17,11 +17,9 @@ const messaging = createOnboardingMessaging({
     env: import.meta.env
 })
 
-console.log(messaging)
-
 const root = document.querySelector('main')
 if (root) {
-    render(<App />, root)
+    render(<App messaging={messaging} />, root)
 } else {
     console.error('could not render, root element missing')
 }

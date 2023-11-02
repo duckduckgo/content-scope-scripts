@@ -7,7 +7,7 @@ export function Header({ title, progressMax = 0, progressValue = 0 }) {
     <header className={styles.header}>
       <img className={styles.logo} />
 
-      <div className={styles.content}>
+      <div className={styles.titleContainer}>
         <h1 className={styles.title}>
           <Typed text={title} />
         </h1>
