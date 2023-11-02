@@ -147,7 +147,7 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         const page = await browser.newPage()
         // Fake the Notification API not existing in this browser
         const removePermissionsScript = `
-            Object.defineProperty(window.navigator, 'permissions', { writable: true })
+            Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
         `
         function checkForPermissions () {
             return !!window.navigator.permissions
@@ -155,6 +155,13 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         function checkObjectDescriptorIsNotPresent () {
             const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'permissions')
             return descriptor === undefined
+        }
+        function checkPermissionThrows (name) {
+            try {
+                window.navigator.permissions.query({ name })
+            } catch (e) {
+                return e.message
+            }
         }
 
         await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
@@ -181,7 +188,8 @@ describe('Ensure Notification and Permissions interface is injected', () => {
                             'notifications',
                             'push',
                             'persistent-storage',
-                            'midi'
+                            'midi',
+                            'test-value'
                         ]
                     }
                 }
@@ -193,5 +201,12 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
         // This fails in a test condition purely because we have to add a descriptor to modify the prop
         expect(modifiedDescriptorSerialization).toEqual(false)
+
+        const permissionThrows = await page.evaluate(checkPermissionThrows, 'not-existent')
+        expect(permissionThrows).not.toBeUndefined()
+        expect(permissionThrows).toContain('not-existent')
+
+        const doesNotThrow = await page.evaluate(checkPermissionThrows, 'test-value')
+        expect(doesNotThrow).toBeUndefined()
     })
 })
