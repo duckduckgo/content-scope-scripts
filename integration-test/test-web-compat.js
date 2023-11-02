@@ -202,10 +202,12 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         // This fails in a test condition purely because we have to add a descriptor to modify the prop
         expect(modifiedDescriptorSerialization).toEqual(false)
 
+        // Ensure we do throw on invalid permissions
         const permissionThrows = await page.evaluate(checkPermissionThrows, 'not-existent')
         expect(permissionThrows).not.toBeUndefined()
         expect(permissionThrows).toContain('not-existent')
 
+        // Ensure we don't throw for valid permissions
         const doesNotThrow = await page.evaluate(checkPermissionThrows, 'test-value')
         expect(doesNotThrow).toBeUndefined()
     })

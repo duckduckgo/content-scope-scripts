@@ -1,5 +1,7 @@
-import { Messaging, MessagingContext, TestTransportConfig, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
+import { Messaging, MessagingContext, TestTransportConfig, WebkitMessagingConfig, WindowsMessagingConfig, AndroidMessagingConfig } from '../packages/messaging/index.js'
 import { SendMessageMessagingTransport } from './sendmessage-transport.js'
+
+let androidGlobal
 
 /**
  * Extracted so we can iterate on the best way to bring this to all platforms
@@ -43,6 +45,22 @@ export function createMessaging (feature, injectName) {
                 secret: '',
                 hasModernWebkitAPI: true
             })
+        },
+        android: () => {
+            if (androidGlobal) return androidGlobal
+            // TODO decide if we should wire these values in from 'feature' instead
+            const configConstruct = {$ANDROID_MESSAGING_PARAMETERS$};
+            const messageCallback = configConstruct.messageCallback
+            const secret = configConstruct.messageSecret
+            const javascriptInterface = configConstruct.messageInterface
+            androidGlobal = new AndroidMessagingConfig({
+                secret,
+                messageCallback,
+                javascriptInterface,
+                target: globalThis,
+                debug: feature.isDebug
+            })
+            return androidGlobal
         },
         firefox: createExtensionConfig,
         chrome: createExtensionConfig,

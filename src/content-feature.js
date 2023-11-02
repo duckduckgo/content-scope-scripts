@@ -37,6 +37,8 @@ export default class ContentFeature {
     #messagingContext
     /** @type {import('../packages/messaging').Messaging} */
     #debugMessaging
+    /** @type {import('../packages/messaging').Messaging} */
+    #messaging
     /** @type {boolean} */
     #isDebugFlagSet = false
 
@@ -121,6 +123,18 @@ export default class ContentFeature {
         } else {
             return null
         }
+    }
+
+    /**
+     * Lazily create a messaging instance for the given Platform + feature combo
+     *
+     * @return {import('@duckduckgo/messaging').Messaging}
+     */
+    get messaging () {
+        if (this._messaging) return this._messaging
+        if (typeof import.meta.injectName === 'undefined') throw new Error('import.meta.injectName missing')
+        this._messaging = createMessaging(this, import.meta.injectName)
+        return this._messaging
     }
 
     /**

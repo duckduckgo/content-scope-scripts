@@ -50,19 +50,6 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {
-    /**
-     * Lazily create a messaging instance for the given Platform + feature combo
-     *
-     * Note: This will be moved to 'ContentFeature' once we've ironed out all implementations
-     * @return {import('@duckduckgo/messaging').Messaging}
-     */
-    get messaging () {
-        if (this._messaging) return this._messaging
-        if (typeof import.meta.injectName === 'undefined') throw new Error('import.meta.injectName missing')
-        this._messaging = createMessaging(this, import.meta.injectName)
-        return this._messaging
-    }
-
     init (args) {
         /**
          * This feature never operates in a frame
