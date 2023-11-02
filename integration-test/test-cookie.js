@@ -52,4 +52,26 @@ describe('Cookie protection tests', () => {
         expect(result.value).toEqual('b')
         expect(result.expires).toBeLessThan(Date.now() + 605_000_000)
     })
+
+    it('Erroneous values do not throw', async () => {
+        const page = await browser.newPage()
+        await page.goto('http://localhost:8080/index.html')
+
+        const result = await page.evaluate(async () => {
+            // @ts-expect-error - Invalid argument to document.cookie on purpose for test
+            document.cookie = null
+
+            // @ts-expect-error - Invalid argument to document.cookie on purpose for test
+            document.cookie = undefined
+
+            // wait for a tick, as cookie modification happens in a promise
+            await new Promise((resolve) => setTimeout(resolve, 1))
+            // @ts-expect-error - cookieStore API types are missing here
+            // eslint-disable-next-line no-undef
+            return cookieStore.get('a')
+        })
+        expect(result.name).toEqual('a')
+        expect(result.value).toEqual('b')
+        expect(result.expires).toBeLessThan(Date.now() + 605_000_000)
+    })
 })
