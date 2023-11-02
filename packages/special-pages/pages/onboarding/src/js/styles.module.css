@@ -1,3 +1,4 @@
+/* Base styles */
 body {
     font-family: system-ui;
     font-size: 13px;
@@ -6,18 +7,16 @@ body {
     margin: 0;
 
     /* Make it feel more like something native */
-    -webkit-user-select: none;
+    user-select: none;
     cursor: default;
 
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
 body>main {
     width: 100%;
 }
-
 h1,
 h2,
 h3,
@@ -33,6 +32,16 @@ h4 {
     margin-top: 155px;
 }
 
+h2 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 16px;
+
+    color: #000000;
+}
+
+/* Header */
 .header {
     display: flex;
     gap: 24px;
@@ -46,12 +55,11 @@ h4 {
     height: 56px;
 }
 
-.header .content {
+.header .titleContainer {
     flex: 1;
 }
-
 .header h1 {
-    /* font-family: 'SF Pro Rounded'; */
+    font-family: ui-rounded;
     font-style: normal;
     font-weight: 600;
     font-size: 26px;
@@ -61,6 +69,7 @@ h4 {
     color: #000000;
 }
 
+/* Header progress bar */
 .header .progressContainer {
     display: flex;
     flex-direction: column;
@@ -76,38 +85,26 @@ h4 {
 
     opacity: 0.6;
 }
-
 .header progress {
-    /* Progress Bar */
     -webkit-appearance: none;
     appearance: none;
 
     width: 64px;
     height: 4px;
 }
-
 progress[value]::-webkit-progress-bar {
     border-radius: 64px;
     background: rgba(0, 0, 0, 0.06);
     border: 1px solid rgba(0, 0, 0, 0.18);
 }
-
 progress[value]::-webkit-progress-value {
     background: linear-gradient(90deg, #3969EF 0%, #6B4EBA 48.24%, #DE5833 100%);
     /* box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12), 0px 1px 1px rgba(0, 0, 0, 0.24); */
     border-radius: 72px;
 }
 
-h2 {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 16px;
-
-    color: #000000;
-}
-
-.wrapper {
+/* Steps */
+.stepsContainer {
     max-width: 400px;
 
     margin-top: 16px;
@@ -132,6 +129,21 @@ h2 {
     gap: 12px;
 }
 
+.step img {
+    width: 32px;
+    height: 32px;
+}
+
+/* Step content */
+.step .contentWrapper {
+    flex: 1;
+}
+.step .content {
+    min-height: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 .step h3 {
     font-weight: 600;
     font-size: 13px;
@@ -140,7 +152,6 @@ h2 {
     /* Text/Mac/Primary - On Light */
     color: rgba(0, 0, 0, 0.84);
 }
-
 .step h4 {
     margin-top: 2px;
 
@@ -155,22 +166,6 @@ h2 {
     color: rgba(0, 0, 0, 0.6);
 }
 
-.step img {
-    width: 32px;
-    height: 32px;
-}
-
-.step .contentWrapper {
-    flex: 1;
-}
-
-.step .content {
-    min-height: 32px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
 .step .buttons {
     margin-top: 12px;
 
@@ -178,6 +173,7 @@ h2 {
     gap: 8px;
 }
 
+/* Shared buttons */
 button {
     border: none;
     outline: none;
@@ -203,21 +199,18 @@ button {
     /* identical to box height, or 100% */
     letter-spacing: 0.06px;
 }
-
 button.secondary {
     background: rgba(0, 0, 0, 0.01);
     border: 1px solid rgba(0, 0, 0, 0.09);
 
     color: #3969EF;
 }
-
 button.primary {
     background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #3969EF;
     box-shadow: 0px 4px 6px rgba(64, 38, 115, 0.16), 0px 6px 16px rgba(38, 64, 115, 0.16), inset 0px 1px 0px rgba(255, 255, 255, 0.32);
 
     color: #FFFFFF;
 }
-
 button.large {
     min-height: 36px;
     min-width: 120px;
@@ -225,24 +218,68 @@ button.large {
     padding: 12px 32px;
 }
 
+/* Shared status */
 .status {
     width: 16px;
     height: 16px;
     border-radius: 8px;
 }
-
 .status.success {
     background: #21C000;
 }
-
 .status.skip {
     background: #ABABAB;
 }
-
+.status.black {
+    background: #000;
+}
 .status.alwaysOn {
     width: auto;
     line-height: 16px;
     font-size: 10px;
     color: #fff;
     padding: 0 6px;
+}
+
+/* LastPage */
+.enabledSteps {
+    padding: 0;
+    gap: 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    margin-top: 24px;
+    margin-bottom: 32px;
+}
+.enabledStep {
+    list-style: none;
+
+    display: flex;
+
+    gap: 8px;
+
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 16px;
+
+    /* Text/Mac/Primary - On Light */
+    color: rgba(0, 0, 0, 0.84);
+}
+.enabledStep .status {
+    margin: 0 8px;
+}
+
+.settingsDisclaimer {
+    margin-top: 52px;
+
+    font-size: 12px;
+    line-height: 12px;
+
+    color: rgba(0, 0, 0, 0.6);
+}
+.settingsDisclaimer a {
+    cursor: default;
+    text-decoration: none;
+    color: #3969EF;
 }

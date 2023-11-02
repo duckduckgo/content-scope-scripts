@@ -1,8 +1,8 @@
 import { h } from "preact";
 import { useState, useEffect, useRef } from "preact/hooks";
 
-// @ts-ignore
 const isReducedMotion =
+  // @ts-ignore
   window.matchMedia(`(prefers-reduced-motion: reduce)`) === true ||
   window.matchMedia(`(prefers-reduced-motion: reduce)`).matches === true;
 

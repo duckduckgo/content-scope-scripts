@@ -43,7 +43,7 @@ export function StepsPages({ stepsPages, onNextPage }) {
         progressValue={pageIndex}
       />
 
-      <div className={styles.wrapper}>
+      <div className={styles.stepsContainer}>
         <h2>{page.detail}</h2>
 
         <ul className={styles.steps}>

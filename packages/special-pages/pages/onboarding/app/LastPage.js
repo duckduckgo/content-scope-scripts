@@ -4,7 +4,7 @@ import classNames from "classnames";
 import styles from "../src/js/styles.module.css";
 import { Header } from "./Header";
 
-export function LastPage({ onNextPage, stepsPages, stepResults }) {
+export function LastPage({ onNextPage, onSettings, stepsPages, stepResults }) {
   const enabledSteps = stepsPages
     .reduce((arr, page) => {
       arr = [...arr, ...page.steps];
@@ -19,9 +19,9 @@ export function LastPage({ onNextPage, stepsPages, stepResults }) {
       <div className={styles.wrapper}>
         <h2>DuckDuckGo is customized for you and ready to go.</h2>
 
-        <ul>
+        <ul className={styles.enabledSteps}>
           {enabledSteps.map((step) => (
-            <li>{step.title}</li>
+            <li className={styles.enabledStep}><span className={classNames(styles.status, styles.black)} />{step.title}</li>
           ))}
         </ul>
 
@@ -32,8 +32,8 @@ export function LastPage({ onNextPage, stepsPages, stepResults }) {
           Start Browsing
         </button>
 
-        <div>
-          You can change your choices any time in <a href="#">Settings</a>.
+        <div className={styles.settingsDisclaimer}>
+          You can change your choices any time in <a onClick={() => onSettings()}>Settings</a>.
         </div>
       </div>
     </>
