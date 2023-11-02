@@ -1,3 +1,244 @@
-.title {
-    color: orange
+body {
+    font-family: system-ui;
+    font-size: 13px;
+    line-height: 16px;
+    letter-spacing: -0.08px;
+    margin: 0;
+
+    /* Make it feel more like something native */
+    -webkit-user-select: none;
+    cursor: default;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+body > main {
+    width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    margin: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 640px;
+
+    margin: auto;
+    margin-top: 155px;
+}
+
+.header {
+    display: flex;
+    gap: 24px;
+    min-height: 64px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.header .logo {
+    width: 56px;
+    height: 56px;
+}
+
+.header .content {
+    flex: 1;
+}
+
+.header h1 {
+/* font-family: 'SF Pro Rounded'; */
+font-style: normal;
+font-weight: 600;
+font-size: 26px;
+line-height: 32px;
+letter-spacing: -0.22px;
+
+color: #000000;
+}
+
+.header .progressContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: end;
+
+font-style: normal;
+font-weight: 700;
+font-size: 11px;
+line-height: 11px;
+
+color: rgba(0, 0, 0, 0.8);
+
+opacity: 0.6;
+}
+
+.header progress {
+    /* Progress Bar */
+    -webkit-appearance: none;
+    appearance: none;
+
+width: 64px;
+height: 4px;
+}
+progress[value]::-webkit-progress-bar {
+    border-radius: 64px;
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+}
+progress[value]::-webkit-progress-value {
+    background: linear-gradient(90deg, #3969EF 0%, #6B4EBA 48.24%, #DE5833 100%);
+    /* box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12), 0px 1px 1px rgba(0, 0, 0, 0.24); */
+    border-radius: 72px;
+  }
+
+h2 {
+font-style: normal;
+font-weight: 400;
+font-size: 13px;
+line-height: 16px;
+/* or 123% */
+letter-spacing: -0.08px;
+
+color: #000000;
+}
+
+.wrapper {
+    max-width: 400px;
+
+    margin-top: 16px;
+    margin-left: 80px;
+}
+
+.steps {
+    padding: 0;
+    gap: 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    margin: 32px 0;
+}
+
+.step {
+    list-style: none;
+
+    display: flex;
+
+    gap: 12px;
+}
+
+.step h3 {
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 16px;
+    letter-spacing: -0.08px;
+
+    /* Text/Mac/Primary - On Light */
+    color: rgba(0, 0, 0, 0.84);
+}
+
+.step h4 {
+    margin-top: 2px;
+
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 14px;
+
+    letter-spacing: 0.06px;
+
+    /* Text/Mac/Secondary - On Light */
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.step img {
+    width: 32px;
+    height: 32px;
+}
+
+.step .contentWrapper {
+    flex: 1;
+}
+.step .content {
+    min-height: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.step .buttons {
+    margin-top: 12px;
+
+    display: flex;
+    gap: 8px;
+}
+
+button {
+    border: none;
+    outline: none;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 12px;
+    gap: 8px;
+
+    min-width: 80px;
+    height: 24px;
+
+    border-radius: 6px;
+
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 11px;
+    /* identical to box height, or 100% */
+    letter-spacing: 0.06px;
+}
+
+button.secondary {
+    background: rgba(0, 0, 0, 0.01);
+    border: 1px solid rgba(0, 0, 0, 0.09);
+
+    color: #3969EF;
+}
+
+button.primary {
+    background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #3969EF;
+    box-shadow: 0px 4px 6px rgba(64, 38, 115, 0.16), 0px 6px 16px rgba(38, 64, 115, 0.16), inset 0px 1px 0px rgba(255, 255, 255, 0.32);
+
+    color: #FFFFFF;
+}
+
+button.large {
+    min-height: 36px;
+    min-width: 120px;
+
+    padding: 12px 32px;
+}
+
+.status {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+}
+.status.success {
+    background: #21C000;
+}
+.status.skip {
+    background: #ABABAB;
+}
+.status.alwaysOn {
+    width: auto;
+    line-height: 16px;
+    font-size: 10px;
+    color: #fff;
+    padding: 0 6px;
 }

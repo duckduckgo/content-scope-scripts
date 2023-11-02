@@ -21,7 +21,72 @@ export class OnboardingMessages {
         this.messaging = messaging
     }
 
-    // add your messages here
+    /**
+     * @param {boolean} value
+     */
+    setBlockCookiePopups(value) {
+        this.messaging.notify('setBlockCookiePopups', { value })
+    }
+
+    /**
+     * @param {boolean} value
+     */
+    setDuckPlayer(value) {
+        this.messaging.notify('setDuckPlayer', { value })
+    }
+
+    /**
+     * @param {boolean} value
+     */
+    setBookmarksBar(value) {
+        this.messaging.notify('setBookmarksBar', { value })
+    }
+
+    /**
+     * @param {boolean} value
+     */
+    setSessionRestore(value) {
+        this.messaging.notify('setSessionRestore', { value })
+    }
+
+    /**
+     * @param {boolean} value
+     */
+    setShowHomeButton(value) {
+        this.messaging.notify('setShowHomeButton', { value })
+    }
+
+    requestAddToDock(value) {
+        this.messaging.notify('requestAddToDock')
+    }
+
+    /**
+     * @returns {Promise<boolean>} Whether the import completed successfully
+     */
+    async requestImport() {
+        return await this.messaging.request('requestImport')
+    }
+
+    /**
+     * @returns {Promise<boolean>} Whether the browser was set as default
+     */
+    async requestSetAsDefault() {
+        return await this.messaging.request('requestSetAsDefault')
+    }
+
+    /**
+     * Dismisses onboarding (the "Start Browsing" button)
+     */
+    dismiss() {
+        this.messaging.notify('dismiss')
+    }
+
+    /**
+     * Dismisses onboarding and opens settings
+     */
+    dismissToSettings() {
+        this.messaging.notify('dismissToSettings')
+    }
 }
 
 /**
