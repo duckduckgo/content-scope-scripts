@@ -29,7 +29,7 @@ export default class WebCompat extends ContentFeature {
             this.notificationFix()
         }
         if (this.getFeatureSettingEnabled('permissions')) {
-            const settings = this.getFeatureSettingEnabled('permissions')
+            const settings = this.getFeatureSetting('permissions')
             this.permissionsFix(settings)
         }
         if (this.getFeatureSettingEnabled('cleanIframeValue')) {
@@ -122,12 +122,22 @@ export default class WebCompat extends ContentFeature {
         }
         // Default subset based upon Firefox (the full list is pretty large right now and these are the common ones)
         const defaultValidPermissionNames = [
-            'accelerometer',
             'geolocation',
             'notifications',
             'push',
             'persistent-storage',
-            'midi'
+            'midi',
+            'accelerometer',
+            'ambient-light-sensor',
+            'background-sync',
+            'bluetooth',
+            'camera',
+            'clipboard',
+            'device-info',
+            'gyroscope',
+            'magnetometer',
+            'microphone',
+            'speaker'
         ]
         const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames
         permissions.query = new Proxy((query) => {
