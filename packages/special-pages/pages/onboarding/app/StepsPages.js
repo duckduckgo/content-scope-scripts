@@ -80,8 +80,10 @@ export function StepsPages({ stepsPages, onNextPage }) {
         <ul className={styles.steps}>
           {page.steps.slice(0, stepIndex + 1).map((step, i) => (
             <li className={styles.stepContainer}>
-                <div className={styles.step}>
-              <img />
+                <div className={classNames(styles.step, {
+                    [styles.completed]: stepIndex !== i
+                })}>
+              <div className={styles.icon} style={{backgroundImage: `url("assets/img/steps/${step.icon}-32-Shadow.png")`}} />
 
               <div className={styles.contentWrapper}>
                 <div className={styles.content}>

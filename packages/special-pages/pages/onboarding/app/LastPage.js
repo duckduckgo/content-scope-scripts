@@ -14,14 +14,18 @@ export function LastPage({ onNextPage, onSettings, stepsPages, stepResults }) {
 
   return (
     <>
-      <Header title="You're all set!" />
+      <Header title={"You're all\u00A0set!"} />
 
       <div className={styles.wrapper}>
         <h2>DuckDuckGo is customized and ready for you to start browsing privately.</h2>
 
         <ul className={styles.enabledSteps}>
           {enabledSteps.map((step) => (
-            <li className={styles.enabledStep}><span className={classNames(styles.status, styles.black)} />{step.title}</li>
+            <li className={styles.enabledStep}>
+                <span className={classNames(styles.status, styles.black)} />
+                <div className={styles.icon} style={{backgroundImage: `url("assets/img/steps/${step.icon}-16.png")`}} />
+                {step.title}
+            </li>
           ))}
         </ul>
 
@@ -30,6 +34,7 @@ export function LastPage({ onNextPage, onSettings, stepsPages, stepResults }) {
           onClick={() => onNextPage()}
         >
           Start Browsing
+          <img src="assets/img/launch.svg" />
         </button>
 
         <div className={styles.settingsDisclaimer}>
