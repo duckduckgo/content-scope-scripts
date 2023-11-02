@@ -1,0 +1,308 @@
+/* Base styles */
+body {
+    font-family: system-ui;
+    font-size: 13px;
+    line-height: 16px;
+    letter-spacing: -0.08px;
+    margin: 0;
+
+    /* Make it feel more like something native */
+    user-select: none;
+    cursor: default;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+body>main {
+    width: 100%;
+}
+h1,
+h2,
+h3,
+h4 {
+    margin: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 640px;
+
+    margin: auto;
+    margin-top: 155px;
+}
+
+.wrapper {
+    max-width: 400px;
+
+    margin-top: 16px;
+    margin-left: 80px;
+}
+
+h2 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 16px;
+
+    color: #000000;
+}
+
+/* Header */
+.header {
+    display: flex;
+    gap: 24px;
+    min-height: 64px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.header .logo {
+    width: 56px;
+    height: 56px;
+
+    border-radius: 50%;
+    box-shadow: 0px 4px 12px rgba(43, 26, 77, 0.05), 0px 8px 24px rgba(26, 43, 77, 0.05);
+}
+
+.header .titleContainer {
+    flex: 1;
+}
+.header h1 {
+    font-family: ui-rounded;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 32px;
+    letter-spacing: -0.22px;
+
+    color: #000000;
+}
+
+/* Progress bar */
+.progressContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: end;
+
+    font-style: normal;
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 11px;
+
+    color: rgba(0, 0, 0, 0.8);
+
+    opacity: 0.6;
+}
+progress {
+    -webkit-appearance: none;
+    appearance: none;
+
+    width: 64px;
+    height: 4px;
+}
+progress[value]::-webkit-progress-bar {
+    border-radius: 64px;
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+}
+progress[value]::-webkit-progress-value {
+    background: linear-gradient(90deg, #3969EF 0%, #6B4EBA 48.24%, #DE5833 100%);
+    /* box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12), 0px 1px 1px rgba(0, 0, 0, 0.24); */
+    border-radius: 72px;
+}
+
+/* Steps */
+.steps {
+    padding: 0;
+    gap: 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    margin: 32px 0;
+}
+
+.step {
+    list-style: none;
+
+    display: flex;
+
+    gap: 12px;
+}
+
+.step img {
+    width: 32px;
+    height: 32px;
+}
+
+/* Step content */
+.step .contentWrapper {
+    flex: 1;
+}
+.step .content {
+    min-height: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.step h3 {
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 16px;
+
+    /* Text/Mac/Primary - On Light */
+    color: rgba(0, 0, 0, 0.84);
+}
+.step h4 {
+    margin-top: 2px;
+
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 14px;
+
+    letter-spacing: 0.06px;
+
+    /* Text/Mac/Secondary - On Light */
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.step .buttons {
+    margin-top: 12px;
+
+    display: flex;
+    gap: 8px;
+}
+
+/* Shared buttons */
+button {
+    border: none;
+    outline: none;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 12px;
+    gap: 8px;
+
+    min-width: 80px;
+    height: 24px;
+
+    border-radius: 6px;
+
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 11px;
+    /* identical to box height, or 100% */
+    letter-spacing: 0.06px;
+}
+
+button.secondary {
+    background: rgba(0, 0, 0, 0.01);
+    border: 1px solid rgba(0, 0, 0, 0.09);
+
+    color: #3969EF;
+}
+button.secondary:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+button.secondary:active {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+button.primary {
+    background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #3969EF;
+    box-shadow: 0px 4px 6px rgba(64, 38, 115, 0.16), 0px 6px 16px rgba(38, 64, 115, 0.16), inset 0px 1px 0px rgba(255, 255, 255, 0.32);
+
+    color: #FFFFFF;
+}
+button.primary:hover {
+    background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.4) 100%), #2B55CA;
+}
+button.primary:active {
+    background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #1E42A4;
+}
+
+button.large {
+    min-height: 36px;
+    min-width: 120px;
+
+    padding: 12px 32px;
+}
+
+/* Shared status */
+.status {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+}
+.status.success {
+    background: #21C000;
+}
+.status.skip {
+    background: #ABABAB;
+}
+.status.black {
+    background: #000;
+}
+.status.alwaysOn {
+    width: auto;
+    line-height: 16px;
+    font-size: 10px;
+    color: #fff;
+    padding: 0 6px;
+}
+
+/* FirstPage */
+.firstPageButton {
+    margin-top: 32px;
+}
+
+/* LastPage */
+.enabledSteps {
+    padding: 0;
+    gap: 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    margin-top: 24px;
+    margin-bottom: 32px;
+}
+.enabledStep {
+    list-style: none;
+
+    display: flex;
+
+    gap: 8px;
+
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 16px;
+
+    /* Text/Mac/Primary - On Light */
+    color: rgba(0, 0, 0, 0.84);
+}
+.enabledStep .status {
+    margin: 0 8px;
+}
+
+.settingsDisclaimer {
+    margin-top: 52px;
+
+    font-size: 12px;
+    line-height: 12px;
+
+    color: rgba(0, 0, 0, 0.6);
+}
+.settingsDisclaimer a {
+    cursor: default;
+    text-decoration: none;
+    color: #3969EF;
+}
