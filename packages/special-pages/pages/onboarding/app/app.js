@@ -2,6 +2,7 @@ import { h, Fragment } from "preact";
 import { useState } from "preact/hooks";
 import styles from "../src/js/styles.module.css";
 import { StepsPages } from "./StepsPages";
+import classNames from "classnames";
 import { FirstPage } from "./FirstPage";
 import { LastPage } from "./LastPage";
 import { OnboardingMessages } from "../src/js/messages";
@@ -15,13 +16,13 @@ export function App({messaging}) {
 
     const stepsPages = [
         {
-          title: "What privacy protections\nshould we start you with?",
+          title: "What privacy protections should we start\u00A0you\u00A0with?",
           bordered: true,
           steps: [
             {
               id: "private-search",
               title: "Private Search",
-              icon: <div></div>,
+              icon: "Bookmarks-Bar",
               detail: "Blah blah",
               primaryLabel: "Got it!",
               primaryFn: () => true,
@@ -29,7 +30,7 @@ export function App({messaging}) {
             {
               id: "private-search",
               title: "Private Search",
-              icon: <div></div>,
+              icon: "Cookie-Popups",
               detail: "Blah blah",
               primaryLabel: "Got it!",
               primaryFn: () => true,
@@ -37,7 +38,7 @@ export function App({messaging}) {
             {
               id: "private-search",
               title: "Private Search",
-              icon: <div></div>,
+              icon: "Dock",
               detail: "Blah blah",
               primaryLabel: "Got it!",
               primaryFn: () => true,
@@ -45,7 +46,7 @@ export function App({messaging}) {
             {
               id: "private-search",
               title: "Private Search",
-              icon: <div></div>,
+              icon: "Home",
               detail: "Blah blah",
               primaryLabel: "Got it!",
               primaryFn: () => true,
@@ -53,7 +54,7 @@ export function App({messaging}) {
             {
               id: "block-cookies",
               title: "Block Cookies",
-              icon: <div></div>,
+              icon: "Search",
               detail: "Blah blah",
               primaryLabel: "Block",
               primaryFn: () => {
@@ -76,7 +77,7 @@ export function App({messaging}) {
             {
               id: "another-step",
               title: "Another step",
-              icon: <div></div>,
+              icon: "Dock",
               detail: "Blah blah",
               primaryLabel: "Got it!",
               primaryFn: async () => true,
@@ -84,7 +85,7 @@ export function App({messaging}) {
             {
               id: "default-browser",
               title: "Default Browser",
-              icon: <div></div>,
+              icon: "Dock",
               detail: "Blah blah",
               primaryLabel: "Set as default",
               primaryFn: async () => await messaging.requestSetAsDefault(),
@@ -120,6 +121,10 @@ export function App({messaging}) {
           stepResults={stepResults}
         />
       )}
+
+      <div className={classNames(styles.foreground, styles.layer1)} />
+      <div className={classNames(styles.foreground, styles.layer2)} />
+      <div className={classNames(styles.foreground, styles.layer3)} />
     </main>
   );
 }

@@ -16,7 +16,7 @@ export function FirstPage({ onNextPage }) {
       {pageIndex === 0 && <Header title="Welcome to DuckDuckGo!" />}
       {pageIndex === 1 && (
         <>
-          <Header title={"Tired of being tracked online?\nWe can help 💪"} />
+          <Header title={"Tired of being tracked\u00A0online?\nWe\u00A0can\u00A0help\u00A0💪"} />
           <div className={styles.wrapper}>
             <button
               className={classNames(styles.primary, styles.large)}
