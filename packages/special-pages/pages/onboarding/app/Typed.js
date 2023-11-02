@@ -6,7 +6,7 @@ const isReducedMotion =
   window.matchMedia(`(prefers-reduced-motion: reduce)`) === true ||
   window.matchMedia(`(prefers-reduced-motion: reduce)`).matches === true;
 
-export function Typed({ text, onComplete = null, delay = 5 }) {
+export function Typed({ text, onComplete = null, delay = 20 }) {
   return (
     <TypedInner key={text} text={text} onComplete={onComplete} delay={delay} />
   );
@@ -14,14 +14,27 @@ export function Typed({ text, onComplete = null, delay = 5 }) {
 
 function TypedInner({ text, onComplete, delay }) {
   // TODO test isReducedMotion
+  const [screenWidth, setScreenWidth] = useState(0)
+  const [coords, setCoords] = useState({left: 0, width: 0});
+
   const [currentText, setCurrentText] = useState(isReducedMotion ? text : "");
   const [currentIndex, setCurrentIndex] = useState(
     isReducedMotion ? text.length : 0
   );
 
-  const [actualWidth, setActualWidth] = useState(0);
-
   const actual = useRef(null);
+  const overlay = useRef(null);
+
+  useEffect(() => {
+    const handler = () => {
+      setScreenWidth(window.innerWidth);
+  }
+
+    window.addEventListener("resize", handler);
+  return () => {
+      window.removeEventListener("resize", handler)
+  }
+  }, [])
 
   useEffect(() => {
     if (currentIndex < text.length) {
@@ -38,9 +51,13 @@ function TypedInner({ text, onComplete, delay }) {
   }, [currentIndex, delay, text]);
 
   useEffect(() => {
-    // @ts-ignore
-    setActualWidth(actual.current.offsetWidth);
-  }, []);
+    setCoords({
+      // @ts-ignore
+      left: actual.current.getBoundingClientRect().left - overlay.current.parentElement.getBoundingClientRect().left,
+      // @ts-ignore
+      width: actual.current.getBoundingClientRect().width
+    });
+  }, [screenWidth]);
 
   return (
     <div
@@ -51,12 +68,13 @@ function TypedInner({ text, onComplete, delay }) {
         {text}
       </span>
       <span
+        ref={overlay}
         aria-hidden={false}
         style={{
           position: "absolute",
           top: 0,
-          left: 0,
-          width: actualWidth,
+          left: coords.left,
+          width: coords.width,
           whiteSpace: "pre-line",
         }}
       >
