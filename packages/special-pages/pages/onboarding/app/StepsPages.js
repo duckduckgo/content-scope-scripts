@@ -4,6 +4,27 @@ import classNames from "classnames";
 import styles from "../src/js/styles.module.css";
 import { Header } from "./Header";
 
+function StepButtons({step, handleStepButtonClick}) {
+return                   <div className={styles.buttons}>
+{step.primaryLabel && (
+  <button
+    className={styles.primary}
+    onClick={() => handleStepButtonClick(step.primaryFn)}
+  >
+    {step.primaryLabel}
+  </button>
+)}
+{step.secondaryLabel && (
+  <button
+    className={styles.secondary}
+    onClick={() => handleStepButtonClick(step.secondaryFn)}
+  >
+    {step.secondaryLabel}
+  </button>
+)}
+</div>
+}
+
 export function StepsPages({ stepsPages, onNextPage }) {
   const [pageIndex, setPageIndex] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
@@ -35,20 +56,31 @@ export function StepsPages({ stepsPages, onNextPage }) {
     }
   };
 
+  const progress = stepsPages.length > 0 && (
+    <div className={styles.progressContainer}>
+      <div>
+        {pageIndex + 1} / {stepsPages.length}
+      </div>
+      <progress max={stepsPages.length} value={pageIndex + 1}>
+        (Page {pageIndex + 1} of circa {stepsPages.length})
+      </progress>
+    </div>
+  )
+
   return (
     <>
       <Header
         title={page.title}
-        progressMax={stepsPages.length}
-        progressValue={pageIndex}
+        aside={progress}
       />
 
-      <div className={styles.stepsContainer}>
-        <h2>{page.detail}</h2>
+      <div className={styles.wrapper}>
+        {page.detail && <h2>{page.detail}</h2>}
 
         <ul className={styles.steps}>
           {page.steps.slice(0, stepIndex + 1).map((step, i) => (
-            <li className={styles.step}>
+            <li className={styles.stepContainer}>
+                <div className={styles.step}>
               <img />
 
               <div className={styles.contentWrapper}>
@@ -57,26 +89,7 @@ export function StepsPages({ stepsPages, onNextPage }) {
                   {stepIndex == i && <h4>{step.detail}</h4>}
                 </div>
 
-                {stepIndex == i && (
-                  <div className={styles.buttons}>
-                    {step.primaryLabel && (
-                      <button
-                        className={styles.primary}
-                        onClick={() => handleStepButtonClick(step.primaryFn)}
-                      >
-                        {step.primaryLabel}
-                      </button>
-                    )}
-                    {step.secondaryLabel && (
-                      <button
-                        className={styles.secondary}
-                        onClick={() => handleStepButtonClick(step.secondaryFn)}
-                      >
-                        {step.secondaryLabel}
-                      </button>
-                    )}
-                  </div>
-                )}
+                {stepIndex == i && <StepButtons step={step} handleStepButtonClick={handleStepButtonClick} />}
               </div>
 
               {step.secondaryLabel ? (
@@ -99,6 +112,9 @@ export function StepsPages({ stepsPages, onNextPage }) {
               ) : (
                 <div className={classNames(styles.status, styles.success)} />
               )}
+              </div>
+
+{stepIndex == i && <StepButtons step={step} handleStepButtonClick={handleStepButtonClick} />}
             </li>
           ))}
         </ul>
@@ -112,6 +128,8 @@ export function StepsPages({ stepsPages, onNextPage }) {
           </button>
         )}
       </div>
+
+      {progress}
     </>
   );
 }

@@ -17,7 +17,7 @@ export function LastPage({ onNextPage, onSettings, stepsPages, stepResults }) {
       <Header title="You're all set!" />
 
       <div className={styles.wrapper}>
-        <h2>DuckDuckGo is customized for you and ready to go.</h2>
+        <h2>DuckDuckGo is customized and ready for you to start browsing privately.</h2>
 
         <ul className={styles.enabledSteps}>
           {enabledSteps.map((step) => (

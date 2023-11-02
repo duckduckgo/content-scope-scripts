@@ -1,8 +1,8 @@
 /* Base styles */
 body {
     font-family: system-ui;
-    font-size: 13px;
-    line-height: 16px;
+    font-size: 15px;
+    line-height: 20px;
     letter-spacing: -0.08px;
     margin: 0;
 
@@ -13,6 +13,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+
+    background-color: #fff;
+
+    /* Modern browsers support multiple `background-size` so add grain */
+    background-image: url("../assets/img/grain.png"), url("../assets/img/background.jpg");
+    background-blend-mode: overlay, normal;
+    background-repeat: repeat, no-repeat;
+    background-size: 75px, auto;
 }
 body>main {
     width: 100%;
@@ -23,29 +31,82 @@ h3,
 h4 {
     margin: 0;
 }
-
-.container {
-    width: 100%;
-    max-width: 640px;
-
-    margin: auto;
-    margin-top: 155px;
+@media only screen and (min-width: 481px) {
+    body {
+        font-size: 13px;
+        line-height: 16px;
+        background-size: 75px, 200% 100%;
+    }
+}
+@media only screen and (min-width: 801px) {
+    body {
+        background-size: 75px, 100% 100%;
+    }
 }
 
+ul {
+    margin: 0;
+    padding: 0;
+}
+li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: calc(100% - 64px);
+    max-width: 640px;
+    min-height: calc(100vh);
+
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+}
 .wrapper {
     max-width: 400px;
 
-    margin-top: 16px;
-    margin-left: 80px;
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+
+    flex-grow: 1;
+}
+
+@media only screen and (min-width: 481px) {
+    .wrapper {
+        margin-left: 80px;
+
+        display: flex;
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .container .progressContainer {
+        display: none;
+    }
 }
 
 h2 {
     font-style: normal;
     font-weight: 400;
-    font-size: 13px;
-    line-height: 16px;
+    font-size: 15px;
+    line-height: 20px;
+    text-align: center;
 
     color: #000000;
+
+    margin-bottom: 32px;
+}
+@media only screen and (min-width: 481px) {
+    h2 {
+        text-align: unset;
+        font-size: 13px;
+        line-height: 16px;
+
+        margin-bottom: 24px;
+    }
 }
 
 /* Header */
@@ -54,7 +115,11 @@ h2 {
     gap: 24px;
     min-height: 64px;
     align-items: center;
-    margin-bottom: 16px;
+    margin-top: 60px;
+    margin-bottom: 32px;
+
+    flex-direction: column;
+    text-align: center;
 }
 
 .header .logo {
@@ -72,19 +137,45 @@ h2 {
     font-family: ui-rounded;
     font-style: normal;
     font-weight: 600;
-    font-size: 26px;
-    line-height: 32px;
+    font-size: 28px;
+    line-height: 34px;
     letter-spacing: -0.22px;
 
     color: #000000;
 }
 
+.header .progressContainer {
+    display: none;
+}
+
+@media only screen and (min-width: 481px) {
+    .header {
+        flex-direction: row;
+        text-align: unset;
+
+        margin-top: 20vh;
+        margin-bottom: 16px;
+    }
+
+    .header h1 {
+        font-size: 26px;
+        line-height: 32px;
+    }
+
+    .header .progressContainer {
+        display: block;
+    }
+}
+
 /* Progress bar */
 .progressContainer {
+    white-space: nowrap;
+    margin: 24px 0;
+
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
-    align-items: end;
+    align-items: center;
 
     font-style: normal;
     font-weight: 700;
@@ -99,7 +190,7 @@ progress {
     -webkit-appearance: none;
     appearance: none;
 
-    width: 64px;
+    width: 100%;
     height: 4px;
 }
 progress[value]::-webkit-progress-bar {
@@ -112,21 +203,31 @@ progress[value]::-webkit-progress-value {
     /* box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12), 0px 1px 1px rgba(0, 0, 0, 0.24); */
     border-radius: 72px;
 }
+@media only screen and (min-width: 481px) {
+    .progressContainer {
+        flex-direction: column;
+        margin: 0;
+        text-align: right;
+    }
+
+    progress {
+        width: 64px;
+    }
+}
 
 /* Steps */
 .steps {
-    padding: 0;
-    gap: 12px;
+    width: 100%;
+
+    gap: 24px;
 
     display: flex;
     flex-direction: column;
 
-    margin: 32px 0;
+    margin-bottom: 32px;
 }
 
 .step {
-    list-style: none;
-
     display: flex;
 
     gap: 12px;
@@ -143,14 +244,15 @@ progress[value]::-webkit-progress-value {
 }
 .step .content {
     min-height: 32px;
+    margin-top: -4px;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 .step h3 {
     font-weight: 600;
-    font-size: 13px;
-    line-height: 16px;
+    font-size: 17px;
+    line-height: 20px;
 
     /* Text/Mac/Primary - On Light */
     color: rgba(0, 0, 0, 0.84);
@@ -160,20 +262,58 @@ progress[value]::-webkit-progress-value {
 
     font-style: normal;
     font-weight: 400;
-    font-size: 11px;
-    line-height: 14px;
+    font-size: 15px;
+    line-height: 18px;
 
     letter-spacing: 0.06px;
 
     /* Text/Mac/Secondary - On Light */
     color: rgba(0, 0, 0, 0.6);
 }
+@media only screen and (min-width: 481px) {
+    .steps {
+        gap: 12px;
+    }
 
-.step .buttons {
-    margin-top: 12px;
+    .step .content {
+        margin-top: 0;
+    }
 
+    .step h3 {
+        font-size: 13px;
+        line-height: 16px;
+    }
+    .step h4 {
+        font-size: 11px;
+        line-height: 14px;
+    }
+}
+
+.buttons {
     display: flex;
+
+    margin-top: 12px;
     gap: 8px;
+
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.stepContainer .buttons button {
+    flex-grow: 1;
+}
+.step .buttons {
+    display: none;
+}
+@media only screen and (min-width: 481px) {
+    .stepContainer .buttons {
+        display: none;
+    }
+    .stepContainer .buttons button {
+        flex-grow: 0;
+    }
+    .step .buttons {
+        display: flex;
+    }
 }
 
 /* Shared buttons */
@@ -187,20 +327,24 @@ button {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 8px 12px;
     gap: 8px;
-
-    min-width: 80px;
-    height: 24px;
 
     border-radius: 6px;
 
     font-style: normal;
     font-weight: 600;
-    font-size: 11px;
-    line-height: 11px;
     /* identical to box height, or 100% */
     letter-spacing: 0.06px;
+
+    white-space: nowrap;
+
+    font-size: 15px;
+    line-height: 15px;
+
+    min-height: 48px;
+    min-width: 120px;
+
+    padding: 12px;
 }
 
 button.secondary {
@@ -229,18 +373,29 @@ button.primary:active {
     background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #1E42A4;
 }
 
-button.large {
-    min-height: 36px;
-    min-width: 120px;
+@media only screen and (min-width: 481px) {
+    button {
+        font-size: 11px;
+        line-height: 11px;
 
-    padding: 12px 32px;
+        min-width: 80px;
+        min-height: 24px;
+
+        padding: 8px 12px;
+    }
+    button.large {
+        min-height: 36px;
+        min-width: 120px;
+    
+        padding: 12px 32px;
+    }
 }
 
 /* Shared status */
 .status {
-    width: 16px;
-    height: 16px;
-    border-radius: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
 }
 .status.success {
     background: #21C000;
@@ -253,38 +408,44 @@ button.large {
 }
 .status.alwaysOn {
     width: auto;
-    line-height: 16px;
-    font-size: 10px;
+    line-height: 20px;
+    font-size: 13px;
     color: #fff;
-    padding: 0 6px;
+    padding: 0 8px;
 }
 
-/* FirstPage */
-.firstPageButton {
-    margin-top: 32px;
+@media only screen and (min-width: 481px) {
+    .status {
+        width: 16px;
+        height: 16px;
+        border-radius: 8px;
+    }
+    .status.alwaysOn {
+        width: auto;
+        line-height: 16px;
+        font-size: 10px;
+        color: #fff;
+        padding: 0 6px;
+    }
 }
 
 /* LastPage */
 .enabledSteps {
-    padding: 0;
     gap: 12px;
 
     display: flex;
     flex-direction: column;
 
-    margin-top: 24px;
     margin-bottom: 32px;
 }
 .enabledStep {
-    list-style: none;
-
     display: flex;
 
     gap: 8px;
 
     font-weight: 600;
-    font-size: 13px;
-    line-height: 16px;
+    font-size: 17px;
+    line-height: 20px;
 
     /* Text/Mac/Primary - On Light */
     color: rgba(0, 0, 0, 0.84);
@@ -292,8 +453,16 @@ button.large {
 .enabledStep .status {
     margin: 0 8px;
 }
+@media only screen and (min-width: 481px) {
+    .enabledStep {
+        font-size: 13px;
+        line-height: 16px;
+    }
+}
 
 .settingsDisclaimer {
+    display: none;
+
     margin-top: 52px;
 
     font-size: 12px;
@@ -305,4 +474,9 @@ button.large {
     cursor: default;
     text-decoration: none;
     color: #3969EF;
+}
+@media only screen and (min-width: 481px) {
+    .settingsDisclaimer {
+        display: block;
+    }
 }

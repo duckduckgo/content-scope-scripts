@@ -134,6 +134,7 @@ export function createOnboardingMessaging (opts) {
              */
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             request: (msg) => {
+                console.log(msg)
                 return Promise.resolve(null)
             },
             /**

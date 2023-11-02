@@ -123,6 +123,7 @@ for (const buildJob of buildJobs) {
             outfile: buildJob.dest,
             bundle: true,
             format: 'iife',
+            external: ['../assets/img/*'],
             sourcemap: NODE_ENV === 'development' ? 'inline' : undefined,
             loader: {
                 '.js': 'jsx',
