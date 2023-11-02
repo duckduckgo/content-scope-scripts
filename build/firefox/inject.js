@@ -3581,7 +3581,7 @@
              */
             function setCookiePolicy (argValue) {
                 let setCookieContext = null;
-                if (!argValue.toString || typeof argValue.toString() !== 'string') {
+                if (!argValue?.toString || typeof argValue.toString() !== 'string') {
                     // not a string, or string-like
                     return
                 }

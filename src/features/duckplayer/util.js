@@ -153,8 +153,9 @@ export class VideoParams {
      */
     toPrivatePlayerUrl () {
         // no try/catch because we already validated the ID
-        const duckUrl = new URL(this.id, 'https://player')
-        duckUrl.protocol = 'duck:'
+        // in Microsoft WebView2 v118+ changing from special protocol (https) to non-special one (duck) is forbidden
+        // so we need to construct duck player this way
+        const duckUrl = new URL(`duck://player/${this.id}`)
 
         if (this.time) {
             duckUrl.searchParams.set('t', this.time)

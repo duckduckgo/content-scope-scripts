@@ -25,8 +25,8 @@
   };
   /*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */
   (function() {
-    var _bundledConfig, _trackerLookup, _documentOriginIsTracker, _bundledfeatureSettings, _messagingContext, _debugMessaging, _isDebugFlagSet, _args, _tagName, _el, _listeners, _connected, _sinks, _debug;
     "use strict";
+    var _bundledConfig, _trackerLookup, _documentOriginIsTracker, _bundledfeatureSettings, _messagingContext, _debugMessaging, _isDebugFlagSet, _args, _tagName, _el, _listeners, _connected, _sinks, _debug;
     const Set$1 = globalThis.Set;
     const Reflect$1 = globalThis.Reflect;
     globalThis.customElements?.get.bind(globalThis.customElements);
