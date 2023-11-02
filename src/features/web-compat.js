@@ -32,6 +32,17 @@ export default class WebCompat extends ContentFeature {
             const settings = this.getFeatureSettingEnabled('permissions')
             this.permissionsFix(settings)
         }
+        if (this.getFeatureSettingEnabled('cleanIframeValue')) {
+            this.cleanIframeValue()
+        }
+
+        if (this.getFeatureSettingEnabled('mediaSession')) {
+            this.mediaSessionFix()
+        }
+
+        if (this.getFeatureSettingEnabled('presentation')) {
+            this.presentationFix()
+        }
     }
 
     /**
@@ -56,6 +67,40 @@ export default class WebCompat extends ContentFeature {
             writable: true,
             configurable: true,
             enumerable: false
+        })
+    }
+
+    cleanIframeValue () {
+        function cleanValueData (val) {
+            const clone = Object.assign({}, val)
+            const deleteKeys = ['iframeProto', 'iframeData', 'remap']
+            for (const key of deleteKeys) {
+                if (key in clone) {
+                    delete clone[key]
+                }
+            }
+            val.iframeData = clone
+            return val
+        }
+
+        window.XMLHttpRequest.prototype.send = new Proxy(window.XMLHttpRequest.prototype.send, {
+            apply (target, thisArg, args) {
+                const body = args[0]
+                const cleanKey = 'bi_wvdp'
+                if (body && typeof body === 'string' && body.includes(cleanKey)) {
+                    const parts = body.split('&').map((part) => { return part.split('=') })
+                    if (parts.length > 0) {
+                        parts.forEach((part) => {
+                            if (part[0] === cleanKey) {
+                                const val = JSON.parse(decodeURIComponent(part[1]))
+                                part[1] = encodeURIComponent(JSON.stringify(cleanValueData(val)))
+                            }
+                        })
+                        args[0] = parts.map((part) => { return part.join('=') }).join('&')
+                    }
+                }
+                return Reflect.apply(target, thisArg, args)
+            }
         })
     }
 
@@ -84,7 +129,7 @@ export default class WebCompat extends ContentFeature {
             'midi'
         ]
         const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames
-        permissions.query = (query) => {
+        permissions.query = new Proxy((query) => {
             this.addDebugFlag()
             if (!query) {
                 throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
@@ -96,7 +141,11 @@ export default class WebCompat extends ContentFeature {
                 throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value 's' is not a valid enum value of type PermissionName.")
             }
             return Promise.resolve(new PermissionStatus(query.name, 'denied'))
-        }
+        }, {
+            get (target, name) {
+                return Reflect.get(target, name)
+            }
+        })
         // Expose the API
         // @ts-expect-error window.navigator isn't assignable
         window.navigator.permissions = permissions
@@ -176,6 +225,87 @@ export default class WebCompat extends ContentFeature {
                     const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function."
                     throw new Error(reason)
                 },
+                configurable: true,
+                enumerable: true
+            })
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    mediaSessionFix () {
+        try {
+            if (window.navigator.mediaSession) {
+                return
+            }
+
+            this.defineProperty(window.navigator, 'mediaSession', {
+                value: {
+                },
+                writable: true,
+                configurable: true,
+                enumerable: true
+            })
+            this.defineProperty(window.navigator.mediaSession, 'metadata', {
+                value: null,
+                writable: true,
+                configurable: false,
+                enumerable: false
+            })
+            this.defineProperty(window.navigator.mediaSession, 'playbackState', {
+                value: 'none',
+                writable: true,
+                configurable: false,
+                enumerable: false
+            })
+            this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            this.defineProperty(window.navigator.mediaSession, 'setCameraActive', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            this.defineProperty(window.navigator.mediaSession, 'setMicrophoneActive', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+            this.defineProperty(window.navigator.mediaSession, 'setPositionState', {
+                value: () => {},
+                configurable: true,
+                enumerable: true
+            })
+        } catch {
+            // Ignore exceptions that could be caused by conflicting with other extensions
+        }
+    }
+
+    presentationFix () {
+        try {
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+            if (window.navigator.presentation) {
+                return
+            }
+
+            this.defineProperty(window.navigator, 'presentation', {
+                value: {
+                },
+                writable: true,
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+            this.defineProperty(window.navigator.presentation, 'defaultRequest', {
+                value: null,
+                configurable: true,
+                enumerable: true
+            })
+            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+            this.defineProperty(window.navigator.presentation, 'receiver', {
+                value: null,
                 configurable: true,
                 enumerable: true
             })
