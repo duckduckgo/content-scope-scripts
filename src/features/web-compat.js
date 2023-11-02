@@ -122,6 +122,7 @@ export default class WebCompat extends ContentFeature {
         }
         // Default subset based upon Firefox (the full list is pretty large right now and these are the common ones)
         const defaultValidPermissionNames = [
+            'accelerometer',
             'geolocation',
             'notifications',
             'push',
@@ -138,7 +139,7 @@ export default class WebCompat extends ContentFeature {
                 throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.")
             }
             if (!validPermissionNames.includes(query.name)) {
-                throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value 's' is not a valid enum value of type PermissionName.")
+                throw new TypeError(`Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`)
             }
             return Promise.resolve(new PermissionStatus(query.name, 'denied'))
         }, {
