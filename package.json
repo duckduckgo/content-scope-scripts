@@ -76,7 +76,7 @@
     "jasmine": "^4.6.0",
     "json-schema-to-typescript": "^13.1.1",
     "minimist": "^1.2.8",
-    "puppeteer": "^21.4.1",
+    "puppeteer": "^21.5.0",
     "rollup": "^3.29.4",
     "rollup-plugin-import-css": "^3.3.5",
     "rollup-plugin-svg-import": "^2.1.0",
