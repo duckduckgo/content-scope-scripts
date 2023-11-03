@@ -41,7 +41,7 @@ function TypedInner({ text, onComplete, delay }) {
       const timeout = setTimeout(() => {
         setCurrentText((prevText) => prevText + text[currentIndex]);
         setCurrentIndex((prevIndex) => prevIndex + 1);
-      }, delay);
+      }, text[currentIndex] == '\n' ? delay * 10 : delay);
 
       return () => clearTimeout(timeout);
     } else {
@@ -50,14 +50,22 @@ function TypedInner({ text, onComplete, delay }) {
     }
   }, [currentIndex, delay, text]);
 
-  useEffect(() => {
+  function updatePlacement() {
     setCoords({
       // @ts-ignore
       left: actual.current.getBoundingClientRect().left - overlay.current.parentElement.getBoundingClientRect().left,
       // @ts-ignore
       width: actual.current.getBoundingClientRect().width
     });
+  }
+
+  useEffect(() => {
+    updatePlacement()
   }, [screenWidth]);
+  useEffect(() => {
+    const update = setInterval(() => updatePlacement(), 50)
+    return () => clearInterval(update)
+  }, [])
 
   return (
     <div
