@@ -80,6 +80,13 @@ export class OnboardingMessages {
     dismissToSettings() {
         this.messaging.notify('dismissToSettings')
     }
+
+    /**
+     * Indicates the "Start Browsing" button has been clicked
+     */
+    dismissToAddressBar() {
+        this.messaging.notify('dismissToAddressBar')
+    }
 }
 
 /**

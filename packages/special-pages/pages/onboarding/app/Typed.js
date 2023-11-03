@@ -55,9 +55,10 @@ function TypedInner({ text, onComplete, delay }) {
 
   function updatePlacement() {
     setCoords({
-      // @ts-ignore
       left:
+        // @ts-ignore
         actual.current.getBoundingClientRect().left -
+        // @ts-ignore
         overlay.current.parentElement.getBoundingClientRect().left,
       // @ts-ignore
       width: actual.current.getBoundingClientRect().width,

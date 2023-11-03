@@ -1029,6 +1029,12 @@
     dismissToSettings() {
       this.messaging.notify("dismissToSettings");
     }
+    /**
+     * Indicates the "Start Browsing" button has been clicked
+     */
+    dismissToAddressBar() {
+      this.messaging.notify("dismissToAddressBar");
+    }
   };
   function createOnboardingMessaging(opts) {
     const messageContext = new MessagingContext({
@@ -1603,8 +1609,11 @@
     }, [currentIndex, delay, text]);
     function updatePlacement() {
       setCoords({
-        // @ts-ignore
-        left: actual.current.getBoundingClientRect().left - overlay.current.parentElement.getBoundingClientRect().left,
+        left: (
+          // @ts-ignore
+          actual.current.getBoundingClientRect().left - // @ts-ignore
+          overlay.current.parentElement.getBoundingClientRect().left
+        ),
         // @ts-ignore
         width: actual.current.getBoundingClientRect().width
       });
@@ -2270,7 +2279,7 @@
 
   // pages/onboarding/app/LastPage.js
   var import_classnames3 = __toESM(require_classnames());
-  function LastPage({ onSettings, stepsPages, stepResults }) {
+  function LastPage({ onDismiss, onSettings, stepsPages, stepResults }) {
     const [pageIndex, setPageIndex] = h2(-1);
     const pageParent = _(null);
     p2(() => {
@@ -2298,7 +2307,10 @@
       "button",
       {
         className: (0, import_classnames3.default)(styles_default.primary, styles_default.large),
-        onClick: () => setPageIndex(1)
+        onClick: () => {
+          setPageIndex(1);
+          onDismiss();
+        }
       },
       "Start Browsing",
       /* @__PURE__ */ y("img", { src: "assets/img/launch.svg" })
@@ -2551,6 +2563,7 @@
     ), pageIndex === 2 && /* @__PURE__ */ y(
       LastPage,
       {
+        onDismiss: () => messaging2.dismissToAddressBar(),
         onSettings: () => messaging2.dismissToSettings(),
         stepsPages,
         stepResults

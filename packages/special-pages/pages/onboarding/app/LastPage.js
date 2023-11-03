@@ -5,7 +5,7 @@ import styles from "../src/js/styles.module.css";
 import { Header } from "./Header";
 import autoAnimate from "@formkit/auto-animate";
 
-export function LastPage({ onSettings, stepsPages, stepResults }) {
+export function LastPage({ onDismiss, onSettings, stepsPages, stepResults }) {
   const [pageIndex, setPageIndex] = useState(-1);
 
   const pageParent = useRef(null);
@@ -50,7 +50,10 @@ export function LastPage({ onSettings, stepsPages, stepResults }) {
 
             <button
               className={classNames(styles.primary, styles.large)}
-              onClick={() => setPageIndex(1)}
+              onClick={() => {
+                setPageIndex(1)
+                onDismiss()
+              }}
             >
               Start Browsing
               <img src="assets/img/launch.svg" />
