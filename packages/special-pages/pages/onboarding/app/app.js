@@ -270,6 +270,7 @@ export function App({ messaging }) {
         )}
         {pageIndex === 2 && (
           <LastPage
+            onDismiss={() => messaging.dismissToAddressBar()}
             onSettings={() => messaging.dismissToSettings()}
             stepsPages={stepsPages}
             stepResults={stepResults}
