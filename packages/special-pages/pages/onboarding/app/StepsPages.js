@@ -3,27 +3,29 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import classNames from "classnames";
 import styles from "../src/js/styles.module.css";
 import { Header } from "./Header";
-import autoAnimate from '@formkit/auto-animate'
+import autoAnimate from "@formkit/auto-animate";
 
 function StepButtons({ step, handleStepButtonClick }) {
-  return <div className={styles.buttons}>
-    {step.secondaryLabel && (
-      <button
-        className={styles.secondary}
-        onClick={() => handleStepButtonClick(step.secondaryFn)}
-      >
-        {step.secondaryLabel}
-      </button>
-    )}
-    {step.primaryLabel && (
-      <button
-        className={styles.primary}
-        onClick={() => handleStepButtonClick(step.primaryFn)}
-      >
-        {step.primaryLabel}
-      </button>
-    )}
-  </div>
+  return (
+    <div className={styles.buttons}>
+      {step.secondaryLabel && (
+        <button
+          className={styles.secondary}
+          onClick={() => handleStepButtonClick(step.secondaryFn)}
+        >
+          {step.secondaryLabel}
+        </button>
+      )}
+      {step.primaryLabel && (
+        <button
+          className={styles.primary}
+          onClick={() => handleStepButtonClick(step.primaryFn)}
+        >
+          {step.primaryLabel}
+        </button>
+      )}
+    </div>
+  );
 }
 
 export function StepsPages({ stepsPages, onNextPage }) {
@@ -32,22 +34,22 @@ export function StepsPages({ stepsPages, onNextPage }) {
 
   const [stepResults, setStepResults] = useState({});
 
-  const stepsParent = useRef(null)
-  const h2Parent = useRef(null)
-  const buttonParent = useRef(null)
+  const stepsParent = useRef(null);
+  const h2Parent = useRef(null);
+  const buttonParent = useRef(null);
 
   const page = stepsPages[pageIndex];
   const step = page.steps[stepIndex];
 
   useEffect(() => {
-    stepsParent.current && autoAnimate(stepsParent.current)
-  }, [stepsParent])
+    stepsParent.current && autoAnimate(stepsParent.current);
+  }, [stepsParent]);
   useEffect(() => {
-    h2Parent.current && autoAnimate(h2Parent.current)
-  }, [h2Parent])
+    h2Parent.current && autoAnimate(h2Parent.current);
+  }, [h2Parent]);
   useEffect(() => {
-    buttonParent.current && autoAnimate(buttonParent.current)
-  }, [buttonParent])
+    buttonParent.current && autoAnimate(buttonParent.current);
+  }, [buttonParent]);
 
   const handleStepButtonClick = async (handler) => {
     const result = await handler();
@@ -80,7 +82,7 @@ export function StepsPages({ stepsPages, onNextPage }) {
         (Page {pageIndex + 1} of circa {stepsPages.length})
       </progress>
     </div>
-  )
+  );
 
   return (
     <>
@@ -88,7 +90,7 @@ export function StepsPages({ stepsPages, onNextPage }) {
         title={page.title}
         aside={progress}
         onComplete={() => {
-          setStepIndex(0)
+          setStepIndex(0);
         }}
       />
 
@@ -100,10 +102,17 @@ export function StepsPages({ stepsPages, onNextPage }) {
         <ul className={styles.steps} ref={stepsParent}>
           {page.steps.slice(0, stepIndex + 1).map((step, i) => (
             <li className={styles.stepContainer}>
-              <div className={classNames(styles.step, {
-                [styles.completed]: stepIndex !== i
-              })}>
-                <div className={styles.icon} style={{ backgroundImage: `url("assets/img/steps/${step.icon}-32-Shadow.png")` }} />
+              <div
+                className={classNames(styles.step, {
+                  [styles.completed]: stepIndex !== i,
+                })}
+              >
+                <div
+                  className={styles.icon}
+                  style={{
+                    backgroundImage: `url("assets/img/steps/${step.icon}-32-Shadow.png")`,
+                  }}
+                />
 
                 <div className={styles.contentWrapper}>
                   <div className={styles.content}>
@@ -111,17 +120,26 @@ export function StepsPages({ stepsPages, onNextPage }) {
                     {stepIndex == i && <h4>{step.detail}</h4>}
                   </div>
 
-                  {stepIndex == i && <StepButtons step={step} handleStepButtonClick={handleStepButtonClick} />}
+                  {stepIndex == i && (
+                    <StepButtons
+                      step={step}
+                      handleStepButtonClick={handleStepButtonClick}
+                    />
+                  )}
                 </div>
 
                 {step.secondaryLabel ? (
-                  Object.prototype.hasOwnProperty.call(stepResults, step.id) ? <div
-                    className={classNames(
-                      styles.status,
-                      styles.animated,
-                      stepResults[step.id] === true ? styles.success : styles.skip
-                    )}
-                  /> : null
+                  Object.prototype.hasOwnProperty.call(stepResults, step.id) ? (
+                    <div
+                      className={classNames(
+                        styles.status,
+                        styles.animated,
+                        stepResults[step.id] === true
+                          ? styles.success
+                          : styles.skip
+                      )}
+                    />
+                  ) : null
                 ) : stepIndex == i ? (
                   <div
                     className={classNames(
@@ -138,7 +156,12 @@ export function StepsPages({ stepsPages, onNextPage }) {
                 )}
               </div>
 
-              {stepIndex == i && <StepButtons step={step} handleStepButtonClick={handleStepButtonClick} />}
+              {stepIndex == i && (
+                <StepButtons
+                  step={step}
+                  handleStepButtonClick={handleStepButtonClick}
+                />
+              )}
             </li>
           ))}
         </ul>
@@ -146,7 +169,7 @@ export function StepsPages({ stepsPages, onNextPage }) {
         <div ref={buttonParent}>
           {stepIndex === page.steps.length && (
             <button
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               className={classNames(styles.primary, styles.large)}
               onClick={() => handleNextPageClick()}
             >

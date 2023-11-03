@@ -14,8 +14,8 @@ export function Typed({ text, onComplete = null, delay = 20 }) {
 
 function TypedInner({ text, onComplete, delay }) {
   // TODO test isReducedMotion
-  const [screenWidth, setScreenWidth] = useState(0)
-  const [coords, setCoords] = useState({left: 0, width: 0});
+  const [screenWidth, setScreenWidth] = useState(0);
+  const [coords, setCoords] = useState({ left: 0, width: 0 });
 
   const [currentText, setCurrentText] = useState(isReducedMotion ? text : "");
   const [currentIndex, setCurrentIndex] = useState(
@@ -28,20 +28,23 @@ function TypedInner({ text, onComplete, delay }) {
   useEffect(() => {
     const handler = () => {
       setScreenWidth(window.innerWidth);
-  }
+    };
 
     window.addEventListener("resize", handler);
-  return () => {
-      window.removeEventListener("resize", handler)
-  }
-  }, [])
+    return () => {
+      window.removeEventListener("resize", handler);
+    };
+  }, []);
 
   useEffect(() => {
     if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setCurrentText((prevText) => prevText + text[currentIndex]);
-        setCurrentIndex((prevIndex) => prevIndex + 1);
-      }, text[currentIndex] == '\n' ? delay * 10 : delay);
+      const timeout = setTimeout(
+        () => {
+          setCurrentText((prevText) => prevText + text[currentIndex]);
+          setCurrentIndex((prevIndex) => prevIndex + 1);
+        },
+        text[currentIndex] == "\n" ? delay * 10 : delay
+      );
 
       return () => clearTimeout(timeout);
     } else {
@@ -53,19 +56,21 @@ function TypedInner({ text, onComplete, delay }) {
   function updatePlacement() {
     setCoords({
       // @ts-ignore
-      left: actual.current.getBoundingClientRect().left - overlay.current.parentElement.getBoundingClientRect().left,
+      left:
+        actual.current.getBoundingClientRect().left -
+        overlay.current.parentElement.getBoundingClientRect().left,
       // @ts-ignore
-      width: actual.current.getBoundingClientRect().width
+      width: actual.current.getBoundingClientRect().width,
     });
   }
 
   useEffect(() => {
-    updatePlacement()
+    updatePlacement();
   }, [screenWidth]);
   useEffect(() => {
-    const update = setInterval(() => updatePlacement(), 50)
-    return () => clearInterval(update)
-  }, [])
+    const update = setInterval(() => updatePlacement(), 50);
+    return () => clearInterval(update);
+  }, []);
 
   return (
     <div
