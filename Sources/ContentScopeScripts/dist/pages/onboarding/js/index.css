@@ -217,7 +217,7 @@ progress[value]::-webkit-progress-bar {
   border: 1px solid rgba(0, 0, 0, 0.18);
 }
 progress[value]::-webkit-progress-value {
-  background: linear-gradient(90deg, #3969EF 0%, #6B4EBA 48.24%, #DE5833 100%);
+  background: linear-gradient(90deg, #3969ef 0%, #6b4eba 48.24%, #de5833 100%);
   border-radius: 72px;
 }
 @media only screen and (min-width: 481px) {
@@ -344,7 +344,7 @@ button {
 button.styles_secondary {
   background: rgba(0, 0, 0, 0.01);
   border: 1px solid rgba(0, 0, 0, 0.09);
-  color: #3969EF;
+  color: #3969ef;
 }
 button.styles_secondary:hover {
   background: rgba(0, 0, 0, 0.03);
@@ -353,18 +353,18 @@ button.styles_secondary:active {
   background: rgba(0, 0, 0, 0.06);
 }
 button.styles_primary {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #3969EF;
+  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #3969ef;
   box-shadow:
     0px 4px 6px rgba(64, 38, 115, 0.16),
     0px 6px 16px rgba(38, 64, 115, 0.16),
     inset 0px 1px 0px rgba(255, 255, 255, 0.32);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 button.styles_primary:hover {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.4) 100%), #2B55CA;
+  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.4) 100%), #2b55ca;
 }
 button.styles_primary:active {
-  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #1E42A4;
+  background: radial-gradient(70.96% 100% at 49.83% 0%, rgba(107, 78, 186, 0) 39.72%, rgba(107, 78, 186, 0.24) 100%), #1e42a4;
 }
 @media only screen and (min-width: 481px) {
   button {
@@ -390,10 +390,10 @@ button.styles_primary:active {
   background-size: 10px 7.75px;
 }
 .styles_status.styles_success {
-  background-color: #21C000;
+  background-color: #21c000;
 }
 .styles_status.styles_skip {
-  background-color: #ABABAB;
+  background-color: #ababab;
 }
 .styles_status.styles_black {
   background-color: #000;
@@ -482,7 +482,7 @@ button.styles_primary:active {
 .styles_settingsDisclaimer a {
   cursor: default;
   text-decoration: none;
-  color: #3969EF;
+  color: #3969ef;
 }
 @media only screen and (min-width: 481px) {
   .styles_settingsDisclaimer {

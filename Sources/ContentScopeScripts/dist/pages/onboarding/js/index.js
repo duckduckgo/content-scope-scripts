@@ -1587,10 +1587,13 @@
     }, []);
     p2(() => {
       if (currentIndex < text.length) {
-        const timeout = setTimeout(() => {
-          setCurrentText((prevText) => prevText + text[currentIndex]);
-          setCurrentIndex((prevIndex) => prevIndex + 1);
-        }, text[currentIndex] == "\n" ? delay * 10 : delay);
+        const timeout = setTimeout(
+          () => {
+            setCurrentText((prevText) => prevText + text[currentIndex]);
+            setCurrentIndex((prevIndex) => prevIndex + 1);
+          },
+          text[currentIndex] == "\n" ? delay * 10 : delay
+        );
         return () => clearTimeout(timeout);
       } else {
         onComplete && onComplete();
@@ -2177,29 +2180,57 @@
           setStepIndex(0);
         }
       }
-    ), /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("div", { ref: h2Parent }, stepIndex > -1 && page.detail && /* @__PURE__ */ y("h2", null, page.detail)), /* @__PURE__ */ y("ul", { className: styles_default.steps, ref: stepsParent }, page.steps.slice(0, stepIndex + 1).map((step2, i3) => /* @__PURE__ */ y("li", { className: styles_default.stepContainer }, /* @__PURE__ */ y("div", { className: (0, import_classnames.default)(styles_default.step, {
-      [styles_default.completed]: stepIndex !== i3
-    }) }, /* @__PURE__ */ y("div", { className: styles_default.icon, style: { backgroundImage: `url("assets/img/steps/${step2.icon}-32-Shadow.png")` } }), /* @__PURE__ */ y("div", { className: styles_default.contentWrapper }, /* @__PURE__ */ y("div", { className: styles_default.content }, /* @__PURE__ */ y("h3", null, step2.title), stepIndex == i3 && /* @__PURE__ */ y("h4", null, step2.detail)), stepIndex == i3 && /* @__PURE__ */ y(StepButtons, { step: step2, handleStepButtonClick })), step2.secondaryLabel ? Object.prototype.hasOwnProperty.call(stepResults, step2.id) ? /* @__PURE__ */ y(
+    ), /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("div", { ref: h2Parent }, stepIndex > -1 && page.detail && /* @__PURE__ */ y("h2", null, page.detail)), /* @__PURE__ */ y("ul", { className: styles_default.steps, ref: stepsParent }, page.steps.slice(0, stepIndex + 1).map((step2, i3) => /* @__PURE__ */ y("li", { className: styles_default.stepContainer }, /* @__PURE__ */ y(
       "div",
       {
-        className: (0, import_classnames.default)(
-          styles_default.status,
-          styles_default.animated,
-          stepResults[step2.id] === true ? styles_default.success : styles_default.skip
-        )
-      }
-    ) : null : stepIndex == i3 ? /* @__PURE__ */ y(
-      "div",
-      {
-        className: (0, import_classnames.default)(
-          styles_default.status,
-          styles_default.animated,
-          styles_default.success,
-          styles_default.alwaysOn
-        )
+        className: (0, import_classnames.default)(styles_default.step, {
+          [styles_default.completed]: stepIndex !== i3
+        })
       },
-      "Always On"
-    ) : /* @__PURE__ */ y("div", { className: (0, import_classnames.default)(styles_default.status, styles_default.success) })), stepIndex == i3 && /* @__PURE__ */ y(StepButtons, { step: step2, handleStepButtonClick })))), /* @__PURE__ */ y("div", { ref: buttonParent }, stepIndex === page.steps.length && /* @__PURE__ */ y(
+      /* @__PURE__ */ y(
+        "div",
+        {
+          className: styles_default.icon,
+          style: {
+            backgroundImage: `url("assets/img/steps/${step2.icon}-32-Shadow.png")`
+          }
+        }
+      ),
+      /* @__PURE__ */ y("div", { className: styles_default.contentWrapper }, /* @__PURE__ */ y("div", { className: styles_default.content }, /* @__PURE__ */ y("h3", null, step2.title), stepIndex == i3 && /* @__PURE__ */ y("h4", null, step2.detail)), stepIndex == i3 && /* @__PURE__ */ y(
+        StepButtons,
+        {
+          step: step2,
+          handleStepButtonClick
+        }
+      )),
+      step2.secondaryLabel ? Object.prototype.hasOwnProperty.call(stepResults, step2.id) ? /* @__PURE__ */ y(
+        "div",
+        {
+          className: (0, import_classnames.default)(
+            styles_default.status,
+            styles_default.animated,
+            stepResults[step2.id] === true ? styles_default.success : styles_default.skip
+          )
+        }
+      ) : null : stepIndex == i3 ? /* @__PURE__ */ y(
+        "div",
+        {
+          className: (0, import_classnames.default)(
+            styles_default.status,
+            styles_default.animated,
+            styles_default.success,
+            styles_default.alwaysOn
+          )
+        },
+        "Always On"
+      ) : /* @__PURE__ */ y("div", { className: (0, import_classnames.default)(styles_default.status, styles_default.success) })
+    ), stepIndex == i3 && /* @__PURE__ */ y(
+      StepButtons,
+      {
+        step: step2,
+        handleStepButtonClick
+      }
+    )))), /* @__PURE__ */ y("div", { ref: buttonParent }, stepIndex === page.steps.length && /* @__PURE__ */ y(
       "button",
       {
         style: { width: "100%" },
@@ -2221,7 +2252,13 @@
     p2(() => {
       pageParent.current && autoAnimate(pageParent.current);
     }, [pageParent]);
-    return /* @__PURE__ */ y(k, null, /* @__PURE__ */ y(Header, { title: "Welcome to DuckDuckGo!\nThe Internet is better\xA0here.", onComplete: () => setCompleted(true) }), /* @__PURE__ */ y("div", { className: styles_default.wrapper, ref: pageParent }, completed && /* @__PURE__ */ y(
+    return /* @__PURE__ */ y(k, null, /* @__PURE__ */ y(
+      Header,
+      {
+        title: "Welcome to DuckDuckGo!\nThe Internet is better\xA0here.",
+        onComplete: () => setCompleted(true)
+      }
+    ), /* @__PURE__ */ y("div", { className: styles_default.wrapper, ref: pageParent }, completed && /* @__PURE__ */ y(
       "button",
       {
         className: (0, import_classnames2.default)(styles_default.primary, styles_default.large),
@@ -2243,7 +2280,21 @@
       arr = [...arr, ...page.steps];
       return arr;
     }, []).filter((step) => stepResults[step.id] === true);
-    return /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(Header, { title: "You're all\xA0set!", onComplete: () => setPageIndex(0) }), /* @__PURE__ */ y("div", { ref: pageParent }, pageIndex === 0 && /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("h2", null, "DuckDuckGo is customized for you and ready\xA0to\xA0go."), /* @__PURE__ */ y("ul", { className: styles_default.enabledSteps }, enabledSteps.map((step) => /* @__PURE__ */ y("li", { className: styles_default.enabledStep }, /* @__PURE__ */ y("span", { className: (0, import_classnames3.default)(styles_default.status, styles_default.black) }), /* @__PURE__ */ y("div", { className: styles_default.icon, style: { backgroundImage: `url("assets/img/steps/${step.icon}-16.png")` } }), step.title))), /* @__PURE__ */ y(
+    return /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(
+      Header,
+      {
+        title: "You're all\xA0set!",
+        onComplete: () => setPageIndex(0)
+      }
+    ), /* @__PURE__ */ y("div", { ref: pageParent }, pageIndex === 0 && /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("h2", null, "DuckDuckGo is customized for you and ready\xA0to\xA0go."), /* @__PURE__ */ y("ul", { className: styles_default.enabledSteps }, enabledSteps.map((step) => /* @__PURE__ */ y("li", { className: styles_default.enabledStep }, /* @__PURE__ */ y("span", { className: (0, import_classnames3.default)(styles_default.status, styles_default.black) }), /* @__PURE__ */ y(
+      "div",
+      {
+        className: styles_default.icon,
+        style: {
+          backgroundImage: `url("assets/img/steps/${step.icon}-16.png")`
+        }
+      }
+    ), step.title))), /* @__PURE__ */ y(
       "button",
       {
         className: (0, import_classnames3.default)(styles_default.primary, styles_default.large),
@@ -2251,7 +2302,7 @@
       },
       "Start Browsing",
       /* @__PURE__ */ y("img", { src: "assets/img/launch.svg" })
-    ), /* @__PURE__ */ y("div", { className: styles_default.settingsDisclaimer }, "You can change your choices any time in ", /* @__PURE__ */ y("a", { onClick: () => onSettings() }, "Settings"), ".")), pageIndex === 1 && /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("h2", null, "Try visiting one of your favorite sites."), /* @__PURE__ */ y("h2", null, "Remember, DuckDuckGo will be blocking trackers so they can\u2019t spy on you."))));
+    ), /* @__PURE__ */ y("div", { className: styles_default.settingsDisclaimer }, "You can change your choices any time in", " ", /* @__PURE__ */ y("a", { onClick: () => onSettings() }, "Settings"), ".")), pageIndex === 1 && /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("h2", null, "Try visiting one of your favorite sites."), /* @__PURE__ */ y("h2", null, "Remember, DuckDuckGo will be blocking trackers so they can\u2019t spy on you."))));
   }
 
   // pages/onboarding/app/app.js
@@ -2312,7 +2363,7 @@
             },
             secondaryLabel: "Bottom",
             secondaryFn: () => {
-              return false;
+              return true;
             }
           }
         ]
