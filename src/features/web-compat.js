@@ -29,7 +29,7 @@ export default class WebCompat extends ContentFeature {
             this.notificationFix()
         }
         if (this.getFeatureSettingEnabled('permissions')) {
-            const settings = this.getFeatureSettingEnabled('permissions')
+            const settings = this.getFeatureSetting('permissions')
             this.permissionsFix(settings)
         }
         if (this.getFeatureSettingEnabled('cleanIframeValue')) {
@@ -126,7 +126,18 @@ export default class WebCompat extends ContentFeature {
             'notifications',
             'push',
             'persistent-storage',
-            'midi'
+            'midi',
+            'accelerometer',
+            'ambient-light-sensor',
+            'background-sync',
+            'bluetooth',
+            'camera',
+            'clipboard',
+            'device-info',
+            'gyroscope',
+            'magnetometer',
+            'microphone',
+            'speaker'
         ]
         const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames
         permissions.query = new Proxy((query) => {
@@ -138,7 +149,7 @@ export default class WebCompat extends ContentFeature {
                 throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.")
             }
             if (!validPermissionNames.includes(query.name)) {
-                throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value 's' is not a valid enum value of type PermissionName.")
+                throw new TypeError(`Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`)
             }
             return Promise.resolve(new PermissionStatus(query.name, 'denied'))
         }, {
