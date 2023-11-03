@@ -1,23 +1,37 @@
-import { Messaging, MessagingContext, TestTransportConfig, WebkitMessagingConfig, WindowsMessagingConfig } from '../packages/messaging/index.js'
+import { Messaging, MessagingContext, TestTransportConfig, WebkitMessagingConfig, WindowsMessagingConfig, AndroidMessagingConfig } from '../packages/messaging/index.js'
 import { SendMessageMessagingTransport } from './sendmessage-transport.js'
 
 /**
- * Extracted so we can iterate on the best way to bring this to all platforms
- * @param {{ name: string, isDebug: boolean }} feature
- * @param {string} injectName
- * @return {Messaging}
- */
-export function createMessaging (feature, injectName) {
+  * Extracted so we can iterate on the best way to bring th
+  * @param {{ name: string, isDebug: boolean }} feature
+  * @return {MessagingContext}
+  */
+export function createMessagingContext (feature) {
+    const injectName = import.meta.injectName
+    if (typeof injectName === 'undefined') throw new Error('import.meta.injectName missing')
     const contextName = injectName === 'apple-isolated'
         ? 'contentScopeScriptsIsolated'
         : 'contentScopeScripts'
 
-    const context = new MessagingContext({
+    return new MessagingContext({
         context: contextName,
         env: feature.isDebug ? 'development' : 'production',
         featureName: feature.name
     })
+}
 
+let androidGlobal
+
+/**
+ * Extracted so we can iterate on the best way to bring this to all platforms
+ * @param {MessagingContext} context
+ * @param {boolean} isDebug
+ * @param {Record<string, any>} [platformSpecificConfigOptions]
+ * @return {Messaging}
+ */
+export function createMessaging (context, isDebug, platformSpecificConfigOptions) {
+    const injectName = import.meta.injectName
+    if (typeof injectName === 'undefined') throw new Error('import.meta.injectName missing')
     const createExtensionConfig = () => {
         const messagingTransport = new SendMessageMessagingTransport()
         return new TestTransportConfig(messagingTransport)
@@ -43,6 +57,22 @@ export function createMessaging (feature, injectName) {
                 secret: '',
                 hasModernWebkitAPI: true
             })
+        },
+        android: () => {
+            if (androidGlobal) return androidGlobal
+            // TODO decide if we should wire these values in from 'feature' instead
+            const configConstruct = platformSpecificConfigOptions
+            const messageCallback = configConstruct.messageCallback
+            const secret = configConstruct.messageSecret
+            const javascriptInterface = configConstruct.messageInterface
+            androidGlobal = new AndroidMessagingConfig({
+                secret,
+                messageCallback,
+                javascriptInterface,
+                target: globalThis,
+                debug: isDebug
+            })
+            return androidGlobal
         },
         firefox: createExtensionConfig,
         chrome: createExtensionConfig,

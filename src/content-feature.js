@@ -4,7 +4,7 @@ import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFea
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { MessagingContext } from '../packages/messaging/index.js'
-import { createMessaging } from './create-messaging.js'
+import { createMessaging, createMessagingContext } from './create-messaging.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
 import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
 
@@ -37,6 +37,8 @@ export default class ContentFeature {
     #messagingContext
     /** @type {import('../packages/messaging').Messaging} */
     #debugMessaging
+    /** @type {import('../packages/messaging').Messaging} */
+    #messaging
     /** @type {boolean} */
     #isDebugFlagSet = false
 
@@ -98,16 +100,7 @@ export default class ContentFeature {
      */
     get messagingContext () {
         if (this.#messagingContext) return this.#messagingContext
-
-        const contextName = import.meta.injectName === 'apple-isolated'
-            ? 'contentScopeScriptsIsolated'
-            : 'contentScopeScripts'
-
-        this.#messagingContext = new MessagingContext({
-            context: contextName,
-            env: this.isDebug ? 'development' : 'production',
-            featureName: this.name
-        })
+        this.#messagingContext = createMessagingContext(this)
         return this.#messagingContext
     }
 
@@ -116,11 +109,23 @@ export default class ContentFeature {
         if (this.#debugMessaging) return this.#debugMessaging
 
         if (this.platform?.name === 'extension' && typeof import.meta.injectName !== 'undefined') {
-            this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, import.meta.injectName)
+            const context = createMessagingContext({ name: this.name, isDebug: this.isDebug })
+            this.#debugMessaging = createMessaging(context, this.isDebug)
             return this.#debugMessaging
         } else {
             return null
         }
+    }
+
+    /**
+     * Lazily create a messaging instance for the given Platform + feature combo
+     *
+     * @return {import('@duckduckgo/messaging').Messaging}
+     */
+    get messaging () {
+        if (this._messaging) return this._messaging
+        this._messaging = createMessaging(this.messagingContext, this.#args?.messaging)
+        return this._messaging
     }
 
     /**
