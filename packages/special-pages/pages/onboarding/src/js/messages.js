@@ -56,8 +56,8 @@ export class OnboardingMessages {
         this.messaging.notify('setShowHomeButton', { value })
     }
 
-    requestAddToDock(value) {
-        this.messaging.notify('requestAddToDock')
+    requestRemoveFromDock(value) {
+        this.messaging.notify('requestRemoveFromDock')
     }
 
     /**
@@ -73,14 +73,7 @@ export class OnboardingMessages {
     async requestSetAsDefault() {
         return await this.messaging.request('requestSetAsDefault')
     }
-
-    /**
-     * Dismisses onboarding (the "Start Browsing" button)
-     */
-    dismiss() {
-        this.messaging.notify('dismiss')
-    }
-
+    
     /**
      * Dismisses onboarding and opens settings
      */

@@ -1,32 +1,30 @@
 import { h, Fragment } from "preact";
-import { useEffect, useState } from "preact/hooks";
 import classNames from "classnames";
 import styles from "../src/js/styles.module.css";
 import { Header } from "./Header";
+import { useEffect, useRef, useState } from "preact/hooks";
+import autoAnimate from '@formkit/auto-animate'
 
 export function FirstPage({ onNextPage }) {
-  const [pageIndex, setPageIndex] = useState(0);
+  const [completed, setCompleted] = useState(false)
+
+  const pageParent = useRef(null)
 
   useEffect(() => {
-    setTimeout(() => setPageIndex(1), 2500);
-  }, []);
+    pageParent.current && autoAnimate(pageParent.current)
+  }, [pageParent])
 
   return (
     <>
-      {pageIndex === 0 && <Header title="Welcome to DuckDuckGo!" />}
-      {pageIndex === 1 && (
-        <>
-          <Header title={"Tired of being tracked\u00A0online?\nWe\u00A0can\u00A0help\u00A0💪"} />
-          <div className={styles.wrapper}>
-            <button
+          <Header title={"Welcome to DuckDuckGo!\nThe Internet is better\u00A0here."} onComplete={() => setCompleted(true)} />
+          <div className={styles.wrapper} ref={pageParent}>
+            {completed && <button
               className={classNames(styles.primary, styles.large)}
               onClick={() => onNextPage()}
             >
               Get Started
-            </button>
+            </button>}
           </div>
-        </>
-      )}
     </>
   );
 }

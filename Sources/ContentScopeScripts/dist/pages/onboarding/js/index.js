@@ -17,12 +17,12 @@
     }
     return to;
   };
-  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  var __toESM = (mod, isNodeMode, target2) => (target2 = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
     // If the importer is in node compatibility mode or this is not an ESM
     // file that has been converted to a CommonJS file using a Babel-
     // compatible transform (i.e. "__esModule" has not been set), then set
     // "default" to the CommonJS "module.exports" for node compatibility.
-    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target2, "default", { value: mod, enumerable: true }) : target2,
     mod
   ));
 
@@ -169,8 +169,8 @@
      * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
      * @internal
      */
-    _subscribe(comparator, options, callback) {
-      if (options?.signal?.aborted) {
+    _subscribe(comparator, options2, callback) {
+      if (options2?.signal?.aborted) {
         throw new DOMException("Aborted", "AbortError");
       }
       let teardown;
@@ -196,10 +196,10 @@
         throw new DOMException("Aborted", "AbortError");
       };
       this.config.methods.addEventListener("message", idHandler);
-      options?.signal?.addEventListener("abort", abortHandler);
+      options2?.signal?.addEventListener("abort", abortHandler);
       teardown = () => {
         this.config.methods.removeEventListener("message", idHandler);
-        options?.signal?.removeEventListener("abort", abortHandler);
+        options2?.signal?.removeEventListener("abort", abortHandler);
       };
       return () => {
         teardown?.();
@@ -805,10 +805,10 @@
      * Capture the global handler and remove it from the global object.
      */
     _captureGlobalHandler() {
-      const { target, javascriptInterface } = this;
-      if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
-        this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface]);
-        delete target[javascriptInterface];
+      const { target: target2, javascriptInterface } = this;
+      if (Object.prototype.hasOwnProperty.call(target2, javascriptInterface)) {
+        this._capturedHandler = target2[javascriptInterface].process.bind(target2[javascriptInterface]);
+        delete target2[javascriptInterface];
       } else {
         this._capturedHandler = () => {
           this._log("Android messaging interface not available", javascriptInterface);
@@ -1008,8 +1008,8 @@
     setShowHomeButton(value) {
       this.messaging.notify("setShowHomeButton", { value });
     }
-    requestAddToDock(value) {
-      this.messaging.notify("requestAddToDock");
+    requestRemoveFromDock(value) {
+      this.messaging.notify("requestRemoveFromDock");
     }
     /**
      * @returns {Promise<boolean>} Whether the import completed successfully
@@ -1022,12 +1022,6 @@
      */
     async requestSetAsDefault() {
       return await this.messaging.request("requestSetAsDefault");
-    }
-    /**
-     * Dismisses onboarding (the "Start Browsing" button)
-     */
-    dismiss() {
-      this.messaging.notify("dismiss");
     }
     /**
      * Dismisses onboarding and opens settings
@@ -1545,16 +1539,18 @@
     contentWrapper: "styles_contentWrapper",
     content: "styles_content",
     completed: "styles_completed",
+    status: "styles_status",
     buttons: "styles_buttons",
     stepContainer: "styles_stepContainer",
     secondary: "styles_secondary",
     primary: "styles_primary",
     large: "styles_large",
-    status: "styles_status",
     success: "styles_success",
     skip: "styles_skip",
     black: "styles_black",
     alwaysOn: "styles_alwaysOn",
+    animated: "styles_animated",
+    bouncein: "styles_bouncein",
     enabledSteps: "styles_enabledSteps",
     enabledStep: "styles_enabledStep",
     settingsDisclaimer: "styles_settingsDisclaimer"
@@ -1573,7 +1569,7 @@
   }
   function TypedInner({ text, onComplete, delay }) {
     const [screenWidth, setScreenWidth] = h2(0);
-    const [coords, setCoords] = h2({ left: 0, width: 0 });
+    const [coords2, setCoords] = h2({ left: 0, width: 0 });
     const [currentText, setCurrentText] = h2(isReducedMotion ? text : "");
     const [currentIndex, setCurrentIndex] = h2(
       isReducedMotion ? text.length : 0
@@ -1594,7 +1590,7 @@
         const timeout = setTimeout(() => {
           setCurrentText((prevText) => prevText + text[currentIndex]);
           setCurrentIndex((prevIndex) => prevIndex + 1);
-        }, delay);
+        }, text[currentIndex] == "\n" ? delay * 10 : delay);
         return () => clearTimeout(timeout);
       } else {
         onComplete && onComplete();
@@ -1602,14 +1598,21 @@
         };
       }
     }, [currentIndex, delay, text]);
-    p2(() => {
+    function updatePlacement() {
       setCoords({
         // @ts-ignore
         left: actual.current.getBoundingClientRect().left - overlay.current.parentElement.getBoundingClientRect().left,
         // @ts-ignore
         width: actual.current.getBoundingClientRect().width
       });
+    }
+    p2(() => {
+      updatePlacement();
     }, [screenWidth]);
+    p2(() => {
+      const update = setInterval(() => updatePlacement(), 50);
+      return () => clearInterval(update);
+    }, []);
     return /* @__PURE__ */ y(
       "div",
       {
@@ -1625,8 +1628,8 @@
           style: {
             position: "absolute",
             top: 0,
-            left: coords.left,
-            width: coords.width,
+            left: coords2.left,
+            width: coords2.width,
             whiteSpace: "pre-line"
           }
         },
@@ -1636,34 +1639,516 @@
   }
 
   // pages/onboarding/app/Header.js
-  function Header({ title, aside = null }) {
-    return /* @__PURE__ */ y("header", { className: styles_default.header }, /* @__PURE__ */ y("img", { className: styles_default.logo, src: "assets/img/logo.svg" }), /* @__PURE__ */ y("div", { className: styles_default.titleContainer }, /* @__PURE__ */ y("h1", { className: styles_default.title }, /* @__PURE__ */ y(Typed, { text: title }))), aside);
+  function Header({ title, aside = null, onComplete = null }) {
+    return /* @__PURE__ */ y("header", { className: styles_default.header }, /* @__PURE__ */ y("img", { className: styles_default.logo, src: "assets/img/logo.svg" }), /* @__PURE__ */ y("div", { className: styles_default.titleContainer }, /* @__PURE__ */ y("h1", { className: styles_default.title }, /* @__PURE__ */ y(Typed, { text: title, onComplete }))), aside);
+  }
+
+  // ../../node_modules/@formkit/auto-animate/index.mjs
+  var parents = /* @__PURE__ */ new Set();
+  var coords = /* @__PURE__ */ new WeakMap();
+  var siblings = /* @__PURE__ */ new WeakMap();
+  var animations = /* @__PURE__ */ new WeakMap();
+  var intersections = /* @__PURE__ */ new WeakMap();
+  var intervals = /* @__PURE__ */ new WeakMap();
+  var options = /* @__PURE__ */ new WeakMap();
+  var debounces = /* @__PURE__ */ new WeakMap();
+  var enabled = /* @__PURE__ */ new WeakSet();
+  var root;
+  var scrollX = 0;
+  var scrollY = 0;
+  var TGT = "__aa_tgt";
+  var DEL = "__aa_del";
+  var NEW = "__aa_new";
+  var handleMutations = (mutations2) => {
+    const elements = getElements(mutations2);
+    if (elements) {
+      elements.forEach((el) => animate(el));
+    }
+  };
+  var handleResizes = (entries) => {
+    entries.forEach((entry) => {
+      if (entry.target === root)
+        updateAllPos();
+      if (coords.has(entry.target))
+        updatePos(entry.target);
+    });
+  };
+  function observePosition(el) {
+    const oldObserver = intersections.get(el);
+    oldObserver === null || oldObserver === void 0 ? void 0 : oldObserver.disconnect();
+    let rect = coords.get(el);
+    let invocations = 0;
+    const buffer = 5;
+    if (!rect) {
+      rect = getCoords(el);
+      coords.set(el, rect);
+    }
+    const { offsetWidth, offsetHeight } = root;
+    const rootMargins = [
+      rect.top - buffer,
+      offsetWidth - (rect.left + buffer + rect.width),
+      offsetHeight - (rect.top + buffer + rect.height),
+      rect.left - buffer
+    ];
+    const rootMargin = rootMargins.map((px) => `${-1 * Math.floor(px)}px`).join(" ");
+    const observer = new IntersectionObserver(() => {
+      ++invocations > 1 && updatePos(el);
+    }, {
+      root,
+      threshold: 1,
+      rootMargin
+    });
+    observer.observe(el);
+    intersections.set(el, observer);
+  }
+  function updatePos(el) {
+    clearTimeout(debounces.get(el));
+    const optionsOrPlugin = getOptions(el);
+    const delay = isPlugin(optionsOrPlugin) ? 500 : optionsOrPlugin.duration;
+    debounces.set(el, setTimeout(async () => {
+      const currentAnimation = animations.get(el);
+      try {
+        await (currentAnimation === null || currentAnimation === void 0 ? void 0 : currentAnimation.finished);
+        coords.set(el, getCoords(el));
+        observePosition(el);
+      } catch {
+      }
+    }, delay));
+  }
+  function updateAllPos() {
+    clearTimeout(debounces.get(root));
+    debounces.set(root, setTimeout(() => {
+      parents.forEach((parent) => forEach(parent, (el) => lowPriority(() => updatePos(el))));
+    }, 100));
+  }
+  function poll(el) {
+    setTimeout(() => {
+      intervals.set(el, setInterval(() => lowPriority(updatePos.bind(null, el)), 2e3));
+    }, Math.round(2e3 * Math.random()));
+  }
+  function lowPriority(callback) {
+    if (typeof requestIdleCallback === "function") {
+      requestIdleCallback(() => callback());
+    } else {
+      requestAnimationFrame(() => callback());
+    }
+  }
+  var mutations;
+  var resize;
+  if (typeof window !== "undefined") {
+    root = document.documentElement;
+    mutations = new MutationObserver(handleMutations);
+    resize = new ResizeObserver(handleResizes);
+    window.addEventListener("scroll", () => {
+      scrollY = window.scrollY;
+      scrollX = window.scrollX;
+    });
+    resize.observe(root);
+  }
+  function getElements(mutations2) {
+    const observedNodes = mutations2.reduce((nodes, mutation) => {
+      return [
+        ...nodes,
+        ...Array.from(mutation.addedNodes),
+        ...Array.from(mutation.removedNodes)
+      ];
+    }, []);
+    const onlyCommentNodesObserved = observedNodes.every((node) => node.nodeName === "#comment");
+    if (onlyCommentNodesObserved)
+      return false;
+    return mutations2.reduce((elements, mutation) => {
+      if (elements === false)
+        return false;
+      if (mutation.target instanceof Element) {
+        target(mutation.target);
+        if (!elements.has(mutation.target)) {
+          elements.add(mutation.target);
+          for (let i3 = 0; i3 < mutation.target.children.length; i3++) {
+            const child = mutation.target.children.item(i3);
+            if (!child)
+              continue;
+            if (DEL in child) {
+              return false;
+            }
+            target(mutation.target, child);
+            elements.add(child);
+          }
+        }
+        if (mutation.removedNodes.length) {
+          for (let i3 = 0; i3 < mutation.removedNodes.length; i3++) {
+            const child = mutation.removedNodes[i3];
+            if (DEL in child) {
+              return false;
+            }
+            if (child instanceof Element) {
+              elements.add(child);
+              target(mutation.target, child);
+              siblings.set(child, [
+                mutation.previousSibling,
+                mutation.nextSibling
+              ]);
+            }
+          }
+        }
+      }
+      return elements;
+    }, /* @__PURE__ */ new Set());
+  }
+  function target(el, child) {
+    if (!child && !(TGT in el))
+      Object.defineProperty(el, TGT, { value: el });
+    else if (child && !(TGT in child))
+      Object.defineProperty(child, TGT, { value: el });
+  }
+  function animate(el) {
+    var _a;
+    const isMounted = el.isConnected;
+    const preExisting = coords.has(el);
+    if (isMounted && siblings.has(el))
+      siblings.delete(el);
+    if (animations.has(el)) {
+      (_a = animations.get(el)) === null || _a === void 0 ? void 0 : _a.cancel();
+    }
+    if (NEW in el) {
+      add(el);
+    } else if (preExisting && isMounted) {
+      remain(el);
+    } else if (preExisting && !isMounted) {
+      remove(el);
+    } else {
+      add(el);
+    }
+  }
+  function raw(str) {
+    return Number(str.replace(/[^0-9.\-]/g, ""));
+  }
+  function getScrollOffset(el) {
+    let p3 = el.parentElement;
+    while (p3) {
+      if (p3.scrollLeft || p3.scrollTop) {
+        return { x: p3.scrollLeft, y: p3.scrollTop };
+      }
+      p3 = p3.parentElement;
+    }
+    return { x: 0, y: 0 };
+  }
+  function getCoords(el) {
+    const rect = el.getBoundingClientRect();
+    const { x: x2, y: y2 } = getScrollOffset(el);
+    return {
+      top: rect.top + y2,
+      left: rect.left + x2,
+      width: rect.width,
+      height: rect.height
+    };
+  }
+  function getTransitionSizes(el, oldCoords, newCoords) {
+    let widthFrom = oldCoords.width;
+    let heightFrom = oldCoords.height;
+    let widthTo = newCoords.width;
+    let heightTo = newCoords.height;
+    const styles = getComputedStyle(el);
+    const sizing = styles.getPropertyValue("box-sizing");
+    if (sizing === "content-box") {
+      const paddingY = raw(styles.paddingTop) + raw(styles.paddingBottom) + raw(styles.borderTopWidth) + raw(styles.borderBottomWidth);
+      const paddingX = raw(styles.paddingLeft) + raw(styles.paddingRight) + raw(styles.borderRightWidth) + raw(styles.borderLeftWidth);
+      widthFrom -= paddingX;
+      widthTo -= paddingX;
+      heightFrom -= paddingY;
+      heightTo -= paddingY;
+    }
+    return [widthFrom, widthTo, heightFrom, heightTo].map(Math.round);
+  }
+  function getOptions(el) {
+    return TGT in el && options.has(el[TGT]) ? options.get(el[TGT]) : { duration: 250, easing: "ease-in-out" };
+  }
+  function getTarget(el) {
+    if (TGT in el)
+      return el[TGT];
+    return void 0;
+  }
+  function isEnabled(el) {
+    const target2 = getTarget(el);
+    return target2 ? enabled.has(target2) : false;
+  }
+  function forEach(parent, ...callbacks) {
+    callbacks.forEach((callback) => callback(parent, options.has(parent)));
+    for (let i3 = 0; i3 < parent.children.length; i3++) {
+      const child = parent.children.item(i3);
+      if (child) {
+        callbacks.forEach((callback) => callback(child, options.has(child)));
+      }
+    }
+  }
+  function getPluginTuple(pluginReturn) {
+    if (Array.isArray(pluginReturn))
+      return pluginReturn;
+    return [pluginReturn];
+  }
+  function isPlugin(config) {
+    return typeof config === "function";
+  }
+  function remain(el) {
+    const oldCoords = coords.get(el);
+    const newCoords = getCoords(el);
+    if (!isEnabled(el))
+      return coords.set(el, newCoords);
+    let animation;
+    if (!oldCoords)
+      return;
+    const pluginOrOptions = getOptions(el);
+    if (typeof pluginOrOptions !== "function") {
+      const deltaX = oldCoords.left - newCoords.left;
+      const deltaY = oldCoords.top - newCoords.top;
+      const [widthFrom, widthTo, heightFrom, heightTo] = getTransitionSizes(el, oldCoords, newCoords);
+      const start = {
+        transform: `translate(${deltaX}px, ${deltaY}px)`
+      };
+      const end = {
+        transform: `translate(0, 0)`
+      };
+      if (widthFrom !== widthTo) {
+        start.width = `${widthFrom}px`;
+        end.width = `${widthTo}px`;
+      }
+      if (heightFrom !== heightTo) {
+        start.height = `${heightFrom}px`;
+        end.height = `${heightTo}px`;
+      }
+      animation = el.animate([start, end], {
+        duration: pluginOrOptions.duration,
+        easing: pluginOrOptions.easing
+      });
+    } else {
+      const [keyframes] = getPluginTuple(pluginOrOptions(el, "remain", oldCoords, newCoords));
+      animation = new Animation(keyframes);
+      animation.play();
+    }
+    animations.set(el, animation);
+    coords.set(el, newCoords);
+    animation.addEventListener("finish", updatePos.bind(null, el));
+  }
+  function add(el) {
+    if (NEW in el)
+      delete el[NEW];
+    const newCoords = getCoords(el);
+    coords.set(el, newCoords);
+    const pluginOrOptions = getOptions(el);
+    if (!isEnabled(el))
+      return;
+    let animation;
+    if (typeof pluginOrOptions !== "function") {
+      animation = el.animate([
+        { transform: "scale(.98)", opacity: 0 },
+        { transform: "scale(0.98)", opacity: 0, offset: 0.5 },
+        { transform: "scale(1)", opacity: 1 }
+      ], {
+        duration: pluginOrOptions.duration * 1.5,
+        easing: "ease-in"
+      });
+    } else {
+      const [keyframes] = getPluginTuple(pluginOrOptions(el, "add", newCoords));
+      animation = new Animation(keyframes);
+      animation.play();
+    }
+    animations.set(el, animation);
+    animation.addEventListener("finish", updatePos.bind(null, el));
+  }
+  function cleanUp(el, styles) {
+    var _a;
+    el.remove();
+    coords.delete(el);
+    siblings.delete(el);
+    animations.delete(el);
+    (_a = intersections.get(el)) === null || _a === void 0 ? void 0 : _a.disconnect();
+    setTimeout(() => {
+      if (DEL in el)
+        delete el[DEL];
+      Object.defineProperty(el, NEW, { value: true, configurable: true });
+      if (styles && el instanceof HTMLElement) {
+        for (const style in styles) {
+          el.style[style] = "";
+        }
+      }
+    }, 0);
+  }
+  function remove(el) {
+    var _a;
+    if (!siblings.has(el) || !coords.has(el))
+      return;
+    const [prev, next] = siblings.get(el);
+    Object.defineProperty(el, DEL, { value: true, configurable: true });
+    const finalX = window.scrollX;
+    const finalY = window.scrollY;
+    if (next && next.parentNode && next.parentNode instanceof Element) {
+      next.parentNode.insertBefore(el, next);
+    } else if (prev && prev.parentNode) {
+      prev.parentNode.appendChild(el);
+    } else {
+      (_a = getTarget(el)) === null || _a === void 0 ? void 0 : _a.appendChild(el);
+    }
+    if (!isEnabled(el))
+      return cleanUp(el);
+    const [top, left, width, height] = deletePosition(el);
+    const optionsOrPlugin = getOptions(el);
+    const oldCoords = coords.get(el);
+    if (finalX !== scrollX || finalY !== scrollY) {
+      adjustScroll(el, finalX, finalY, optionsOrPlugin);
+    }
+    let animation;
+    let styleReset = {
+      position: "absolute",
+      top: `${top}px`,
+      left: `${left}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+      margin: "0",
+      pointerEvents: "none",
+      transformOrigin: "center",
+      zIndex: "100"
+    };
+    if (!isPlugin(optionsOrPlugin)) {
+      Object.assign(el.style, styleReset);
+      animation = el.animate([
+        {
+          transform: "scale(1)",
+          opacity: 1
+        },
+        {
+          transform: "scale(.98)",
+          opacity: 0
+        }
+      ], { duration: optionsOrPlugin.duration, easing: "ease-out" });
+    } else {
+      const [keyframes, options2] = getPluginTuple(optionsOrPlugin(el, "remove", oldCoords));
+      if ((options2 === null || options2 === void 0 ? void 0 : options2.styleReset) !== false) {
+        styleReset = (options2 === null || options2 === void 0 ? void 0 : options2.styleReset) || styleReset;
+        Object.assign(el.style, styleReset);
+      }
+      animation = new Animation(keyframes);
+      animation.play();
+    }
+    animations.set(el, animation);
+    animation.addEventListener("finish", cleanUp.bind(null, el, styleReset));
+  }
+  function adjustScroll(el, finalX, finalY, optionsOrPlugin) {
+    const scrollDeltaX = scrollX - finalX;
+    const scrollDeltaY = scrollY - finalY;
+    const scrollBefore = document.documentElement.style.scrollBehavior;
+    const scrollBehavior = getComputedStyle(root).scrollBehavior;
+    if (scrollBehavior === "smooth") {
+      document.documentElement.style.scrollBehavior = "auto";
+    }
+    window.scrollTo(window.scrollX + scrollDeltaX, window.scrollY + scrollDeltaY);
+    if (!el.parentElement)
+      return;
+    const parent = el.parentElement;
+    let lastHeight = parent.clientHeight;
+    let lastWidth = parent.clientWidth;
+    const startScroll = performance.now();
+    function smoothScroll() {
+      requestAnimationFrame(() => {
+        if (!isPlugin(optionsOrPlugin)) {
+          const deltaY = lastHeight - parent.clientHeight;
+          const deltaX = lastWidth - parent.clientWidth;
+          if (startScroll + optionsOrPlugin.duration > performance.now()) {
+            window.scrollTo({
+              left: window.scrollX - deltaX,
+              top: window.scrollY - deltaY
+            });
+            lastHeight = parent.clientHeight;
+            lastWidth = parent.clientWidth;
+            smoothScroll();
+          } else {
+            document.documentElement.style.scrollBehavior = scrollBefore;
+          }
+        }
+      });
+    }
+    smoothScroll();
+  }
+  function deletePosition(el) {
+    const oldCoords = coords.get(el);
+    const [width, , height] = getTransitionSizes(el, oldCoords, getCoords(el));
+    let offsetParent = el.parentElement;
+    while (offsetParent && (getComputedStyle(offsetParent).position === "static" || offsetParent instanceof HTMLBodyElement)) {
+      offsetParent = offsetParent.parentElement;
+    }
+    if (!offsetParent)
+      offsetParent = document.body;
+    const parentStyles = getComputedStyle(offsetParent);
+    const parentCoords = coords.get(offsetParent) || getCoords(offsetParent);
+    const top = Math.round(oldCoords.top - parentCoords.top) - raw(parentStyles.borderTopWidth);
+    const left = Math.round(oldCoords.left - parentCoords.left) - raw(parentStyles.borderLeftWidth);
+    return [top, left, width, height];
+  }
+  function autoAnimate(el, config = {}) {
+    if (mutations && resize) {
+      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const isDisabledDueToReduceMotion = mediaQuery.matches && !isPlugin(config) && !config.disrespectUserMotionPreference;
+      if (!isDisabledDueToReduceMotion) {
+        enabled.add(el);
+        if (getComputedStyle(el).position === "static") {
+          Object.assign(el.style, { position: "relative" });
+        }
+        forEach(el, updatePos, poll, (element) => resize === null || resize === void 0 ? void 0 : resize.observe(element));
+        if (isPlugin(config)) {
+          options.set(el, config);
+        } else {
+          options.set(el, { duration: 250, easing: "ease-in-out", ...config });
+        }
+        mutations.observe(el, { childList: true });
+        parents.add(el);
+      }
+    }
+    return Object.freeze({
+      parent: el,
+      enable: () => {
+        enabled.add(el);
+      },
+      disable: () => {
+        enabled.delete(el);
+      },
+      isEnabled: () => enabled.has(el)
+    });
   }
 
   // pages/onboarding/app/StepsPages.js
   function StepButtons({ step, handleStepButtonClick }) {
-    return /* @__PURE__ */ y("div", { className: styles_default.buttons }, step.primaryLabel && /* @__PURE__ */ y(
-      "button",
-      {
-        className: styles_default.primary,
-        onClick: () => handleStepButtonClick(step.primaryFn)
-      },
-      step.primaryLabel
-    ), step.secondaryLabel && /* @__PURE__ */ y(
+    return /* @__PURE__ */ y("div", { className: styles_default.buttons }, step.secondaryLabel && /* @__PURE__ */ y(
       "button",
       {
         className: styles_default.secondary,
         onClick: () => handleStepButtonClick(step.secondaryFn)
       },
       step.secondaryLabel
+    ), step.primaryLabel && /* @__PURE__ */ y(
+      "button",
+      {
+        className: styles_default.primary,
+        onClick: () => handleStepButtonClick(step.primaryFn)
+      },
+      step.primaryLabel
     ));
   }
   function StepsPages({ stepsPages, onNextPage }) {
     const [pageIndex, setPageIndex] = h2(0);
-    const [stepIndex, setStepIndex] = h2(0);
+    const [stepIndex, setStepIndex] = h2(-1);
     const [stepResults, setStepResults] = h2({});
+    const stepsParent = _(null);
+    const h2Parent = _(null);
+    const buttonParent = _(null);
     const page = stepsPages[pageIndex];
     const step = page.steps[stepIndex];
+    p2(() => {
+      stepsParent.current && autoAnimate(stepsParent.current);
+    }, [stepsParent]);
+    p2(() => {
+      h2Parent.current && autoAnimate(h2Parent.current);
+    }, [h2Parent]);
+    p2(() => {
+      buttonParent.current && autoAnimate(buttonParent.current);
+    }, [buttonParent]);
     const handleStepButtonClick = async (handler) => {
       const result = await handler();
       setStepResults({
@@ -1676,8 +2161,8 @@
     };
     const handleNextPageClick = () => {
       if (pageIndex + 1 < stepsPages.length) {
-        setPageIndex(pageIndex + 1);
-        setStepIndex(0);
+        setStepIndex(-1);
+        setTimeout(() => setPageIndex(pageIndex + 1), 250);
       } else {
         onNextPage(stepResults);
       }
@@ -1687,36 +2172,42 @@
       Header,
       {
         title: page.title,
-        aside: progress
+        aside: progress,
+        onComplete: () => {
+          setStepIndex(0);
+        }
       }
-    ), /* @__PURE__ */ y("div", { className: styles_default.wrapper }, page.detail && /* @__PURE__ */ y("h2", null, page.detail), /* @__PURE__ */ y("ul", { className: styles_default.steps }, page.steps.slice(0, stepIndex + 1).map((step2, i3) => /* @__PURE__ */ y("li", { className: styles_default.stepContainer }, /* @__PURE__ */ y("div", { className: (0, import_classnames.default)(styles_default.step, {
+    ), /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("div", { ref: h2Parent }, stepIndex > -1 && page.detail && /* @__PURE__ */ y("h2", null, page.detail)), /* @__PURE__ */ y("ul", { className: styles_default.steps, ref: stepsParent }, page.steps.slice(0, stepIndex + 1).map((step2, i3) => /* @__PURE__ */ y("li", { className: styles_default.stepContainer }, /* @__PURE__ */ y("div", { className: (0, import_classnames.default)(styles_default.step, {
       [styles_default.completed]: stepIndex !== i3
-    }) }, /* @__PURE__ */ y("div", { className: styles_default.icon, style: { backgroundImage: `url("assets/img/steps/${step2.icon}-32-Shadow.png")` } }), /* @__PURE__ */ y("div", { className: styles_default.contentWrapper }, /* @__PURE__ */ y("div", { className: styles_default.content }, /* @__PURE__ */ y("h3", null, step2.title), stepIndex == i3 && /* @__PURE__ */ y("h4", null, step2.detail)), stepIndex == i3 && /* @__PURE__ */ y(StepButtons, { step: step2, handleStepButtonClick })), step2.secondaryLabel ? /* @__PURE__ */ y(
+    }) }, /* @__PURE__ */ y("div", { className: styles_default.icon, style: { backgroundImage: `url("assets/img/steps/${step2.icon}-32-Shadow.png")` } }), /* @__PURE__ */ y("div", { className: styles_default.contentWrapper }, /* @__PURE__ */ y("div", { className: styles_default.content }, /* @__PURE__ */ y("h3", null, step2.title), stepIndex == i3 && /* @__PURE__ */ y("h4", null, step2.detail)), stepIndex == i3 && /* @__PURE__ */ y(StepButtons, { step: step2, handleStepButtonClick })), step2.secondaryLabel ? Object.prototype.hasOwnProperty.call(stepResults, step2.id) ? /* @__PURE__ */ y(
       "div",
       {
         className: (0, import_classnames.default)(
           styles_default.status,
+          styles_default.animated,
           stepResults[step2.id] === true ? styles_default.success : styles_default.skip
         )
       }
-    ) : stepIndex == i3 ? /* @__PURE__ */ y(
+    ) : null : stepIndex == i3 ? /* @__PURE__ */ y(
       "div",
       {
         className: (0, import_classnames.default)(
           styles_default.status,
+          styles_default.animated,
           styles_default.success,
           styles_default.alwaysOn
         )
       },
       "Always On"
-    ) : /* @__PURE__ */ y("div", { className: (0, import_classnames.default)(styles_default.status, styles_default.success) })), stepIndex == i3 && /* @__PURE__ */ y(StepButtons, { step: step2, handleStepButtonClick })))), stepIndex === page.steps.length && /* @__PURE__ */ y(
+    ) : /* @__PURE__ */ y("div", { className: (0, import_classnames.default)(styles_default.status, styles_default.success) })), stepIndex == i3 && /* @__PURE__ */ y(StepButtons, { step: step2, handleStepButtonClick })))), /* @__PURE__ */ y("div", { ref: buttonParent }, stepIndex === page.steps.length && /* @__PURE__ */ y(
       "button",
       {
+        style: { width: "100%" },
         className: (0, import_classnames.default)(styles_default.primary, styles_default.large),
         onClick: () => handleNextPageClick()
       },
       "Next"
-    )), progress);
+    ))), progress);
   }
 
   // pages/onboarding/app/app.js
@@ -1725,88 +2216,79 @@
   // pages/onboarding/app/FirstPage.js
   var import_classnames2 = __toESM(require_classnames());
   function FirstPage({ onNextPage }) {
-    const [pageIndex, setPageIndex] = h2(0);
+    const [completed, setCompleted] = h2(false);
+    const pageParent = _(null);
     p2(() => {
-      setTimeout(() => setPageIndex(1), 2500);
-    }, []);
-    return /* @__PURE__ */ y(k, null, pageIndex === 0 && /* @__PURE__ */ y(Header, { title: "Welcome to DuckDuckGo!" }), pageIndex === 1 && /* @__PURE__ */ y(k, null, /* @__PURE__ */ y(Header, { title: "Tired of being tracked\xA0online?\nWe\xA0can\xA0help\xA0\u{1F4AA}" }), /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y(
+      pageParent.current && autoAnimate(pageParent.current);
+    }, [pageParent]);
+    return /* @__PURE__ */ y(k, null, /* @__PURE__ */ y(Header, { title: "Welcome to DuckDuckGo!\nThe Internet is better\xA0here.", onComplete: () => setCompleted(true) }), /* @__PURE__ */ y("div", { className: styles_default.wrapper, ref: pageParent }, completed && /* @__PURE__ */ y(
       "button",
       {
         className: (0, import_classnames2.default)(styles_default.primary, styles_default.large),
         onClick: () => onNextPage()
       },
       "Get Started"
-    ))));
+    )));
   }
 
   // pages/onboarding/app/LastPage.js
   var import_classnames3 = __toESM(require_classnames());
-  function LastPage({ onNextPage, onSettings, stepsPages, stepResults }) {
+  function LastPage({ onSettings, stepsPages, stepResults }) {
+    const [pageIndex, setPageIndex] = h2(-1);
+    const pageParent = _(null);
+    p2(() => {
+      pageParent.current && autoAnimate(pageParent.current);
+    }, [pageParent]);
     const enabledSteps = stepsPages.reduce((arr, page) => {
       arr = [...arr, ...page.steps];
       return arr;
     }, []).filter((step) => stepResults[step.id] === true);
-    return /* @__PURE__ */ y(k, null, /* @__PURE__ */ y(Header, { title: "You're all\xA0set!" }), /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("h2", null, "DuckDuckGo is customized and ready for you to start browsing privately."), /* @__PURE__ */ y("ul", { className: styles_default.enabledSteps }, enabledSteps.map((step) => /* @__PURE__ */ y("li", { className: styles_default.enabledStep }, /* @__PURE__ */ y("span", { className: (0, import_classnames3.default)(styles_default.status, styles_default.black) }), /* @__PURE__ */ y("div", { className: styles_default.icon, style: { backgroundImage: `url("assets/img/steps/${step.icon}-16.png")` } }), step.title))), /* @__PURE__ */ y(
+    return /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(Header, { title: "You're all\xA0set!", onComplete: () => setPageIndex(0) }), /* @__PURE__ */ y("div", { ref: pageParent }, pageIndex === 0 && /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("h2", null, "DuckDuckGo is customized for you and ready\xA0to\xA0go."), /* @__PURE__ */ y("ul", { className: styles_default.enabledSteps }, enabledSteps.map((step) => /* @__PURE__ */ y("li", { className: styles_default.enabledStep }, /* @__PURE__ */ y("span", { className: (0, import_classnames3.default)(styles_default.status, styles_default.black) }), /* @__PURE__ */ y("div", { className: styles_default.icon, style: { backgroundImage: `url("assets/img/steps/${step.icon}-16.png")` } }), step.title))), /* @__PURE__ */ y(
       "button",
       {
         className: (0, import_classnames3.default)(styles_default.primary, styles_default.large),
-        onClick: () => onNextPage()
+        onClick: () => setPageIndex(1)
       },
       "Start Browsing",
       /* @__PURE__ */ y("img", { src: "assets/img/launch.svg" })
-    ), /* @__PURE__ */ y("div", { className: styles_default.settingsDisclaimer }, "You can change your choices any time in ", /* @__PURE__ */ y("a", { onClick: () => onSettings() }, "Settings"), ".")));
+    ), /* @__PURE__ */ y("div", { className: styles_default.settingsDisclaimer }, "You can change your choices any time in ", /* @__PURE__ */ y("a", { onClick: () => onSettings() }, "Settings"), ".")), pageIndex === 1 && /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("h2", null, "Try visiting one of your favorite sites."), /* @__PURE__ */ y("h2", null, "Remember, DuckDuckGo will be blocking trackers so they can\u2019t spy on you."))));
   }
 
   // pages/onboarding/app/app.js
   function App({ messaging: messaging2 }) {
-    const stepsPages = [
+    const isMobile = window.innerWidth <= 480;
+    const stepsPagesMobile = [
       {
-        title: "What privacy protections should we start\xA0you\xA0with?",
+        title: "A better Internet starts with\xA0privacy",
         bordered: true,
         steps: [
           {
             id: "private-search",
             title: "Private Search",
-            icon: "Bookmarks-Bar",
-            detail: "Blah blah",
-            primaryLabel: "Got it!",
-            primaryFn: () => true
-          },
-          {
-            id: "private-search",
-            title: "Private Search",
-            icon: "Cookie-Popups",
-            detail: "Blah blah",
-            primaryLabel: "Got it!",
-            primaryFn: () => true
-          },
-          {
-            id: "private-search",
-            title: "Private Search",
-            icon: "Dock",
-            detail: "Blah blah",
-            primaryLabel: "Got it!",
-            primaryFn: () => true
-          },
-          {
-            id: "private-search",
-            title: "Private Search",
-            icon: "Home",
-            detail: "Blah blah",
-            primaryLabel: "Got it!",
-            primaryFn: () => true
-          },
-          {
-            id: "block-cookies",
-            title: "Block Cookies",
             icon: "Search",
-            detail: "Blah blah",
-            primaryLabel: "Block",
+            detail: "We don't track you. Ever.",
+            primaryLabel: "Got it!",
+            primaryFn: () => true
+          },
+          {
+            id: "tracking-protection",
+            title: "Tracking Protection",
+            icon: "Shield",
+            detail: "We block most trackers before they even load.",
+            primaryLabel: "OK",
+            primaryFn: () => true
+          },
+          {
+            id: "cookie-popups",
+            title: "Block Cookie Pop-ups",
+            icon: "Cookie-Popups",
+            detail: "We say no to cookies on your behalf, while hiding blocking annoying cookie consent pop-ups.",
+            primaryLabel: "Leave On",
             primaryFn: () => {
               messaging2.setBlockCookiePopups(true);
               return true;
             },
-            secondaryLabel: "No thanks",
+            secondaryLabel: "Turn Off",
             secondaryFn: () => {
               messaging2.setBlockCookiePopups(false);
               return false;
@@ -1815,33 +2297,198 @@
         ]
       },
       {
-        title: "Personalize your experience",
-        detail: "Here are a few more things you can do to make your browser work just the way you want.",
+        title: "Browse how you\xA0like",
+        detail: "Make DuckDuckGo work just the way you\xA0want.",
+        steps: [
+          // TODO
+          {
+            id: "address-bar",
+            title: "Address Bar",
+            icon: "Session-Restore",
+            detail: "Show the address bar on the top or bottom of your screen.",
+            primaryLabel: "Top",
+            primaryFn: () => {
+              return true;
+            },
+            secondaryLabel: "Bottom",
+            secondaryFn: () => {
+              return false;
+            }
+          }
+        ]
+      },
+      {
+        title: "Make privacy your\xA0go-to",
         steps: [
           {
-            id: "another-step",
-            title: "Another step",
-            icon: "Dock",
-            detail: "Blah blah",
-            primaryLabel: "Got it!",
-            primaryFn: async () => true
-          },
-          {
             id: "default-browser",
-            title: "Default Browser",
-            icon: "Dock",
-            detail: "Blah blah",
-            primaryLabel: "Set as default",
+            title: "Switch your default browser",
+            icon: "Set-Default",
+            detail: "Always browse privately by default.",
+            primaryLabel: "Make Default Browser",
             primaryFn: async () => await messaging2.requestSetAsDefault(),
-            secondaryLabel: "No thanks",
-            secondaryFn: async () => false
+            secondaryLabel: "Skip",
+            secondaryFn: () => false
           }
         ]
       }
     ];
+    const stepsPagesDesktop = [
+      {
+        title: "A better Internet starts with\xA0privacy",
+        bordered: true,
+        steps: [
+          {
+            id: "private-search",
+            title: "Private Search",
+            icon: "Search",
+            detail: "We don't track you. Ever.",
+            primaryLabel: "Got it!",
+            primaryFn: () => true
+          },
+          {
+            id: "tracking-protection",
+            title: "Tracking Protection",
+            icon: "Shield",
+            detail: "We block most trackers before they even load.",
+            primaryLabel: "OK",
+            primaryFn: () => true
+          },
+          {
+            id: "cookie-popups",
+            title: "Block Cookie Pop-ups",
+            icon: "Cookie-Popups",
+            detail: "Want us to say no to cookies on your behalf?",
+            primaryLabel: "Block Cookie Pop-ups",
+            primaryFn: () => {
+              messaging2.setBlockCookiePopups(true);
+              return true;
+            },
+            secondaryLabel: "Skip",
+            secondaryFn: () => {
+              messaging2.setBlockCookiePopups(false);
+              return false;
+            }
+          },
+          {
+            id: "duck-player",
+            title: "Open YouTube videos in Duck Player",
+            icon: "DuckPlayer",
+            detail: "Enforce YouTube\u2019s strictest privacy settings by default.",
+            primaryLabel: "Enable Duck Player",
+            primaryFn: () => {
+              messaging2.setDuckPlayer(true);
+              return true;
+            },
+            secondaryLabel: "Skip",
+            secondaryFn: () => {
+              messaging2.setDuckPlayer(false);
+              return false;
+            }
+          }
+        ]
+      },
+      {
+        title: "Browse how you\xA0like",
+        detail: "Make DuckDuckGo work just the way you\xA0want.",
+        steps: [
+          {
+            id: "bookmarks-bar",
+            title: "Quick access to your bookmarks",
+            icon: "Bookmarks-Bar",
+            detail: "Show a bookmarks bar with your favorite bookmarks.",
+            primaryLabel: "Show Bookmarks Bar",
+            primaryFn: () => {
+              messaging2.setBookmarksBar(true);
+              return true;
+            },
+            secondaryLabel: "Skip",
+            secondaryFn: () => {
+              messaging2.setBookmarksBar(false);
+              return false;
+            }
+          },
+          {
+            id: "session-restore",
+            title: "Pick up where you left off",
+            icon: "Session-Restore",
+            detail: "Always restart with your last open windows and tabs.",
+            primaryLabel: "Enable Session Restore",
+            primaryFn: () => {
+              messaging2.setSessionRestore(true);
+              return true;
+            },
+            secondaryLabel: "Skip",
+            secondaryFn: () => {
+              messaging2.setSessionRestore(false);
+              return false;
+            }
+          },
+          {
+            id: "home-button",
+            title: "Add a shortcut to your homepage",
+            icon: "Home",
+            detail: "Show a home button in your toolbar.",
+            primaryLabel: "Show Home Button",
+            primaryFn: () => {
+              messaging2.setShowHomeButton(true);
+              return true;
+            },
+            secondaryLabel: "Skip",
+            secondaryFn: () => {
+              messaging2.setShowHomeButton(false);
+              return false;
+            }
+          }
+        ]
+      },
+      {
+        title: "Make privacy your\xA0go-to",
+        steps: [
+          {
+            id: "keep-in-dock",
+            title: "Keep DuckDuckGo in your Dock",
+            icon: "Dock",
+            detail: "Get to the browser faster.",
+            primaryLabel: "Keep in Dock",
+            primaryFn: () => true,
+            secondaryLabel: "Remove",
+            secondaryFn: () => {
+              messaging2.requestRemoveFromDock();
+              return false;
+            }
+          },
+          {
+            id: "import",
+            title: "Bring your stuff",
+            icon: "Bring-Stuff",
+            detail: "Import bookmarks, favorites, and passwords.",
+            primaryLabel: "Import",
+            primaryFn: async () => await messaging2.requestImport(),
+            secondaryLabel: "Skip",
+            secondaryFn: () => false
+          },
+          {
+            id: "default-browser",
+            title: "Switch your default browser",
+            icon: "Set-Default",
+            detail: "Always browse privately by default.",
+            primaryLabel: "Make Default",
+            primaryFn: async () => await messaging2.requestSetAsDefault(),
+            secondaryLabel: "Skip",
+            secondaryFn: () => false
+          }
+        ]
+      }
+    ];
+    const stepsPages = isMobile ? stepsPagesMobile : stepsPagesDesktop;
     const [pageIndex, setPageIndex] = h2(0);
     const [stepResults, setStepResults] = h2({});
-    return /* @__PURE__ */ y("main", { className: styles_default.container }, pageIndex === 0 && /* @__PURE__ */ y(FirstPage, { onNextPage: () => setPageIndex(1) }), pageIndex === 1 && /* @__PURE__ */ y(
+    const pageParent = _(null);
+    p2(() => {
+      pageParent.current && autoAnimate(pageParent.current);
+    }, [pageParent]);
+    return /* @__PURE__ */ y(k, null, /* @__PURE__ */ y("main", { className: styles_default.container, ref: pageParent }, pageIndex === 0 && /* @__PURE__ */ y(FirstPage, { onNextPage: () => setPageIndex(1) }), pageIndex === 1 && /* @__PURE__ */ y(
       StepsPages,
       {
         stepsPages,
@@ -1853,12 +2500,11 @@
     ), pageIndex === 2 && /* @__PURE__ */ y(
       LastPage,
       {
-        onNextPage: () => messaging2.dismiss(),
         onSettings: () => messaging2.dismissToSettings(),
         stepsPages,
         stepResults
       }
-    ), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(styles_default.foreground, styles_default.layer1) }), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(styles_default.foreground, styles_default.layer2) }), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(styles_default.foreground, styles_default.layer3) }));
+    )), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(styles_default.foreground, styles_default.layer1) }), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(styles_default.foreground, styles_default.layer2) }), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(styles_default.foreground, styles_default.layer3) }));
   }
 
   // pages/onboarding/src/js/index.js
@@ -1866,9 +2512,9 @@
     injectName: "apple",
     env: "production"
   });
-  var root = document.querySelector("main");
-  if (root) {
-    B(/* @__PURE__ */ y(App, { messaging }), root);
+  var root2 = document.querySelector("main");
+  if (root2) {
+    B(/* @__PURE__ */ y(App, { messaging }), root2);
   } else {
     console.error("could not render, root element missing");
   }
