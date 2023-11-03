@@ -10,6 +10,7 @@ body {
 
   /* Make it feel more like something native */
   user-select: none;
+  -webkit-user-select: none;
   cursor: default;
 
   display: flex;
