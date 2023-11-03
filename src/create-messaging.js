@@ -60,7 +60,7 @@ export function createMessaging (context, isDebug, platformSpecificConfigOptions
         },
         android: () => {
             if (androidGlobal) return androidGlobal
-            // TODO decide if we should wire these values in from 'feature' instead
+            if (typeof platformSpecificConfigOptions === 'undefined') throw new Error('platformSpecificConfigOptions is missing for Android')
             const configConstruct = platformSpecificConfigOptions
             const messageCallback = configConstruct.messageCallback
             const secret = configConstruct.messageSecret

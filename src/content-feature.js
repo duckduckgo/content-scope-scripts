@@ -110,10 +110,23 @@ export default class ContentFeature {
 
         if (this.platform?.name === 'extension' && typeof import.meta.injectName !== 'undefined') {
             const context = createMessagingContext({ name: this.name, isDebug: this.isDebug })
-            this.#debugMessaging = createMessaging(context, this.isDebug)
+            this.#debugMessaging = createMessaging(context, this.isDebug, this.platformSpecificConfigOptions)
             return this.#debugMessaging
         } else {
             return null
+        }
+    }
+
+    get platformSpecificConfigOptions () {
+        const messageSecret = this.#args.messageSecret
+        // Receives messages from the platform
+        const messageCallback = this.#args.messageCallback
+        // Sends messages to the platform
+        const messageInterface = this.#args.messageInterface
+        return {
+            messageSecret,
+            messageCallback,
+            messageInterface
         }
     }
 
@@ -124,7 +137,7 @@ export default class ContentFeature {
      */
     get messaging () {
         if (this._messaging) return this._messaging
-        this._messaging = createMessaging(this.messagingContext, this.#args?.messaging)
+        this._messaging = createMessaging(this.messagingContext, this.isDebug, this.platformSpecificConfigOptions)
         return this._messaging
     }
 
