@@ -10,7 +10,7 @@ import { Typed } from "./Typed";
 export function Header({ title, aside = null, onComplete = null }) {
   return (
     <header className={styles.header}>
-      <img className={styles.logo} src="assets/img/logo.svg" />
+      <img className={styles.logo} src="assets/img/dax.svg" />
 
       <div className={styles.titleContainer}>
         <h1 className={styles.title}>

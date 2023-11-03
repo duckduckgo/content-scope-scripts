@@ -8,12 +8,11 @@ import { LastPage } from "./LastPage";
 import { OnboardingMessages } from "../src/js/messages";
 import autoAnimate from "@formkit/auto-animate";
 
-// TODO probably should allow filtering steps by platform
-
 /**
  * @param {{messaging: OnboardingMessages}} props
  */
 export function App({ messaging }) {
+  // TODO
   const isMobile = window.innerWidth <= 480;
 
   const stepsPagesMobile = [
@@ -57,26 +56,9 @@ export function App({ messaging }) {
       ],
     },
     {
-      title: "Browse how you\u00A0like",
-      detail: "Make DuckDuckGo work just the way you\u00A0want.",
-      steps: [
-        // TODO
-        {
-          id: "address-bar",
-          title: "Address Bar",
-          icon: "Session-Restore",
-          detail: "Show the address bar on the top or bottom of your screen.",
-          primaryLabel: "Top",
-          primaryFn: () => {
-            return true;
-          },
-          secondaryLabel: "Bottom",
-          secondaryFn: () => {
-            // Both options are fine
-            return true;
-          },
-        },
-      ],
+      title: "Customize your\u00A0experience?",
+      detail: "Change your settings to make your browser work just the way you\u00A0want.",
+      dummyStep: true
     },
     {
       title: "Make privacy your\u00A0go-to",
@@ -246,7 +228,7 @@ export function App({ messaging }) {
   const stepsPages = isMobile ? stepsPagesMobile : stepsPagesDesktop;
 
   // TODO revert to 0
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageIndex, setPageIndex] = useState(1);
   const [stepResults, setStepResults] = useState({});
 
   const pageParent = useRef(null);

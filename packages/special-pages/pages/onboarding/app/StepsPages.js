@@ -37,9 +37,10 @@ export function StepsPages({ stepsPages, onNextPage }) {
   const stepsParent = useRef(null);
   const h2Parent = useRef(null);
   const buttonParent = useRef(null);
+  const dummyStepParent = useRef(null);
 
   const page = stepsPages[pageIndex];
-  const step = page.steps[stepIndex];
+  const step = page.steps && page.steps[stepIndex];
 
   useEffect(() => {
     stepsParent.current && autoAnimate(stepsParent.current);
@@ -50,6 +51,9 @@ export function StepsPages({ stepsPages, onNextPage }) {
   useEffect(() => {
     buttonParent.current && autoAnimate(buttonParent.current);
   }, [buttonParent]);
+  useEffect(() => {
+    dummyStepParent.current && autoAnimate(dummyStepParent.current);
+  }, [dummyStepParent]);
 
   const handleStepButtonClick = async (handler) => {
     const result = await handler();
@@ -99,7 +103,12 @@ export function StepsPages({ stepsPages, onNextPage }) {
           {stepIndex > -1 && page.detail && <h2>{page.detail}</h2>}
         </div>
 
-        <ul className={styles.steps} ref={stepsParent}>
+{/* TODO delete */}
+<div ref={dummyStepParent}>
+        {page.dummyStep && stepIndex > -1 && <img src="assets/img/dummy-deleteme.png" style={{width: '100%', marginBottom: 16}} />}
+        </div>
+          
+        {page.steps && <ul className={styles.steps} ref={stepsParent}>
           {page.steps.slice(0, stepIndex + 1).map((step, i) => (
             <li className={styles.stepContainer}>
               <div
@@ -164,10 +173,10 @@ export function StepsPages({ stepsPages, onNextPage }) {
               )}
             </li>
           ))}
-        </ul>
+        </ul>}
 
         <div ref={buttonParent}>
-          {stepIndex === page.steps.length && (
+          {(stepIndex === (page.steps ? page.steps.length : 0)) && (
             <button
               style={{ width: "100%" }}
               className={classNames(styles.primary, styles.large)}
