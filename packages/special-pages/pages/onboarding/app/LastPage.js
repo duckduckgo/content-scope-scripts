@@ -16,7 +16,9 @@ export function LastPage({ onDismiss, onSettings, stepsPages, stepResults }) {
 
   const enabledSteps = stepsPages
     .reduce((arr, page) => {
-      arr = [...arr, ...page.steps];
+      if (page.steps) {
+        arr = [...arr, ...page.steps];
+      }
       return arr;
     }, [])
     .filter((step) => stepResults[step.id] === true);

@@ -1652,7 +1652,7 @@
 
   // pages/onboarding/app/Header.js
   function Header({ title, aside = null, onComplete = null }) {
-    return /* @__PURE__ */ y("header", { className: styles_default.header }, /* @__PURE__ */ y("img", { className: styles_default.logo, src: "assets/img/logo.svg" }), /* @__PURE__ */ y("div", { className: styles_default.titleContainer }, /* @__PURE__ */ y("h1", { className: styles_default.title }, /* @__PURE__ */ y(Typed, { text: title, onComplete }))), aside);
+    return /* @__PURE__ */ y("header", { className: styles_default.header }, /* @__PURE__ */ y("img", { className: styles_default.logo, src: "assets/img/dax.svg" }), /* @__PURE__ */ y("div", { className: styles_default.titleContainer }, /* @__PURE__ */ y("h1", { className: styles_default.title }, /* @__PURE__ */ y(Typed, { text: title, onComplete }))), aside);
   }
 
   // ../../node_modules/@formkit/auto-animate/index.mjs
@@ -2150,8 +2150,9 @@
     const stepsParent = _(null);
     const h2Parent = _(null);
     const buttonParent = _(null);
+    const dummyStepParent = _(null);
     const page = stepsPages[pageIndex];
-    const step = page.steps[stepIndex];
+    const step = page.steps && page.steps[stepIndex];
     p2(() => {
       stepsParent.current && autoAnimate(stepsParent.current);
     }, [stepsParent]);
@@ -2161,6 +2162,9 @@
     p2(() => {
       buttonParent.current && autoAnimate(buttonParent.current);
     }, [buttonParent]);
+    p2(() => {
+      dummyStepParent.current && autoAnimate(dummyStepParent.current);
+    }, [dummyStepParent]);
     const handleStepButtonClick = async (handler) => {
       const result = await handler();
       setStepResults({
@@ -2189,7 +2193,7 @@
           setStepIndex(0);
         }
       }
-    ), /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("div", { ref: h2Parent }, stepIndex > -1 && page.detail && /* @__PURE__ */ y("h2", null, page.detail)), /* @__PURE__ */ y("ul", { className: styles_default.steps, ref: stepsParent }, page.steps.slice(0, stepIndex + 1).map((step2, i3) => /* @__PURE__ */ y("li", { className: styles_default.stepContainer }, /* @__PURE__ */ y(
+    ), /* @__PURE__ */ y("div", { className: styles_default.wrapper }, /* @__PURE__ */ y("div", { ref: h2Parent }, stepIndex > -1 && page.detail && /* @__PURE__ */ y("h2", null, page.detail)), /* @__PURE__ */ y("div", { ref: dummyStepParent }, page.dummyStep && stepIndex > -1 && /* @__PURE__ */ y("img", { src: "assets/img/dummy-deleteme.png", style: { width: "100%", marginBottom: 16 } })), page.steps && /* @__PURE__ */ y("ul", { className: styles_default.steps, ref: stepsParent }, page.steps.slice(0, stepIndex + 1).map((step2, i3) => /* @__PURE__ */ y("li", { className: styles_default.stepContainer }, /* @__PURE__ */ y(
       "div",
       {
         className: (0, import_classnames.default)(styles_default.step, {
@@ -2239,7 +2243,7 @@
         step: step2,
         handleStepButtonClick
       }
-    )))), /* @__PURE__ */ y("div", { ref: buttonParent }, stepIndex === page.steps.length && /* @__PURE__ */ y(
+    )))), /* @__PURE__ */ y("div", { ref: buttonParent }, stepIndex === (page.steps ? page.steps.length : 0) && /* @__PURE__ */ y(
       "button",
       {
         style: { width: "100%" },
@@ -2286,7 +2290,9 @@
       pageParent.current && autoAnimate(pageParent.current);
     }, [pageParent]);
     const enabledSteps = stepsPages.reduce((arr, page) => {
-      arr = [...arr, ...page.steps];
+      if (page.steps) {
+        arr = [...arr, ...page.steps];
+      }
       return arr;
     }, []).filter((step) => stepResults[step.id] === true);
     return /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(
@@ -2360,25 +2366,9 @@
         ]
       },
       {
-        title: "Browse how you\xA0like",
-        detail: "Make DuckDuckGo work just the way you\xA0want.",
-        steps: [
-          // TODO
-          {
-            id: "address-bar",
-            title: "Address Bar",
-            icon: "Session-Restore",
-            detail: "Show the address bar on the top or bottom of your screen.",
-            primaryLabel: "Top",
-            primaryFn: () => {
-              return true;
-            },
-            secondaryLabel: "Bottom",
-            secondaryFn: () => {
-              return true;
-            }
-          }
-        ]
+        title: "Customize your\xA0experience?",
+        detail: "Change your settings to make your browser work just the way you\xA0want.",
+        dummyStep: true
       },
       {
         title: "Make privacy your\xA0go-to",
@@ -2545,7 +2535,7 @@
       }
     ];
     const stepsPages = isMobile ? stepsPagesMobile : stepsPagesDesktop;
-    const [pageIndex, setPageIndex] = h2(0);
+    const [pageIndex, setPageIndex] = h2(1);
     const [stepResults, setStepResults] = h2({});
     const pageParent = _(null);
     p2(() => {
