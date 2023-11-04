@@ -50,7 +50,8 @@
   "type": "module",
   "workspaces": [
     "packages/special-pages",
-    "packages/messaging"
+    "packages/messaging",
+    "packages/safe-globals"
   ],
   "dependencies": {
     "immutable-json-patch": "^5.1.3",

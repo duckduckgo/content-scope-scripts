@@ -2,6 +2,7 @@ import { postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThir
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
 import { isTrackerOrigin } from '../trackers.js'
+import { Object } from '@duckduckgo/safe-globals'
 
 /**
  * @typedef ExtensionCookiePolicy

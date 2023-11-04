@@ -1,4 +1,5 @@
 import { processAttr, getContextId } from '../../utils.js'
+import { Object, Reflect } from '@duckduckgo/safe-globals'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const globalStates = new Set()
@@ -233,13 +234,16 @@ export function wrapScriptCodeOverload (code, config) {
     // Ensure globalThis === window
     const globalThis = window
     `
+    // Hack to use default capture instead of rollups replaced variable names.
+    // This is covered by testing so should break if rollup is changed.
+    const proxyString = constructProxy.toString().replaceAll('Object$1', 'Object').replaceAll('Reflect$1', 'Reflect')
     return removeIndent(`(function (parentScope) {
         /**
          * DuckDuckGo Runtime Checks injected code.
          * If you're reading this, you're probably trying to debug a site that is breaking due to our runtime checks.
          * Please raise an issues on our GitHub repo: https://github.com/duckduckgo/content-scope-scripts/
          */
-        ${constructProxy.toString()}
+        ${proxyString}
         ${prepend}
 
         ${getContextId.toString()}

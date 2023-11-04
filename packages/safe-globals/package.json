@@ -1,0 +1,13 @@
+{
+  "name": "@duckduckgo/safe-globals",
+  "private": "true",
+  "version": "0.0.1",
+  "description": "Exposes a set of globals that aren't touched by a web page",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+  },
+  "license": "ISC",
+  "devDependencies": {
+  }
+}

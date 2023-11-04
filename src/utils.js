@@ -1,13 +1,12 @@
 /* global cloneInto, exportFunction, mozProxies */
-import { Set } from './captured-globals.js'
+import { globalObj, Error } from './global-setup.js'
+import { Set, getSafeString, RegExp } from '@duckduckgo/safe-globals'
 
-// Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
-// eslint-disable-next-line no-global-assign
-let globalObj = typeof window === 'undefined' ? globalThis : window
-let Error = globalObj.Error
 let messageSecret
 
 export const taintSymbol = Symbol('taint')
+
+export { setGlobal } from './global-setup.js'
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
@@ -17,10 +16,14 @@ export function registerMessageSecret (secret) {
 }
 
 /**
- * @returns {HTMLElement} the element to inject the script into
+ * @returns {null | HTMLElement} the element to inject the script into
  */
 export function getInjectionElement () {
-    return document.head || document.documentElement
+    // Account for test setups
+    if (!globalObj || !('document' in globalObj)) {
+        return null
+    }
+    return globalObj.document.head || globalObj.document.documentElement
 }
 
 // Tests don't define this variable so fallback to behave like chrome
@@ -50,16 +53,7 @@ export function createStyleElement (css) {
  */
 export function injectGlobalStyles (css) {
     const style = createStyleElement(css)
-    getInjectionElement().appendChild(style)
-}
-
-/**
- * Used for testing to override the globals used within this file.
- * @param {window} globalObjIn
- */
-export function setGlobal (globalObjIn) {
-    globalObj = globalObjIn
-    Error = globalObj.Error
+    getInjectionElement()?.appendChild(style)
 }
 
 // linear feedback shift register to find a random approximation
@@ -137,16 +131,16 @@ export function hasThirdPartyOrigin (scriptOrigins) {
 export function getTabHostname () {
     let framingOrigin = null
     try {
-        // @ts-expect-error - globalThis.top is possibly 'null' here
-        framingOrigin = globalThis.top.location.href
+        // @ts-expect-error - globalObj.top is possibly 'null' here
+        framingOrigin = globalObj.top.location.href
     } catch {
-        framingOrigin = globalThis.document.referrer
+        framingOrigin = globalObj.document.referrer
     }
 
     // Not supported in Firefox
-    if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+    if ('ancestorOrigins' in globalObj.location && globalObj.location.ancestorOrigins.length) {
         // ancestorOrigins is reverse order, with the last item being the top frame
-        framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1)
+        framingOrigin = globalObj.location.ancestorOrigins.item(globalObj.location.ancestorOrigins.length - 1)
     }
 
     try {
@@ -168,7 +162,7 @@ export function matchHostname (hostname, exceptionDomain) {
     return hostname === exceptionDomain || hostname.endsWith(`.${exceptionDomain}`)
 }
 
-const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/
+const lineTest = new RegExp('([(])?(https?:[^)]+):[0-9]+:[0-9]+([)])?')
 export function getStackTraceUrls (stack) {
     const urls = new Set()
     try {
@@ -332,7 +326,7 @@ export function processAttr (configSetting, defaultValue) {
 }
 
 export function getStack () {
-    return new Error().stack
+    return getSafeString(new Error().stack)
 }
 
 export function getContextId (scope) {
