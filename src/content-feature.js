@@ -107,6 +107,7 @@ export default class ContentFeature {
 
     /**
      * @deprecated as we should make this internal to the class and not used externally
+     * @param {{ name: string, isDebug: boolean }} feature
      * @return {MessagingContext}
      */
     _createMessagingContext (feature) {
@@ -125,7 +126,11 @@ export default class ContentFeature {
 
     _createMessaging (messagingConfigContext) {
         const messagingContext = this._createMessagingContext(messagingConfigContext)
-        const messagingConfig = this.#args?.constructMessagingConfig || extensionConstructMessagingConfig
+        let messagingConfig = this.#args?.constructMessagingConfig
+        if (!messagingConfig) {
+            if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
+            messagingConfig = extensionConstructMessagingConfig
+        }
         return new Messaging(messagingContext, messagingConfig(messagingContext))
     }
 

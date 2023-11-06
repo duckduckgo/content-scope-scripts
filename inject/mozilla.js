@@ -33,8 +33,7 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(trackerLookup),
         site: computeLimitedSiteObject(),
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        bundledConfig: $BUNDLED_CONFIG$,
-        constructMessagingConfig: extensionConstructMessagingConfig
+        bundledConfig: $BUNDLED_CONFIG$
     })
 
     chrome.runtime.sendMessage({
