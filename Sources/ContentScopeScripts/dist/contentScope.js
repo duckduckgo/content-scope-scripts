@@ -2367,15 +2367,29 @@
         if (window.Notification) {
           return;
         }
-        const Notification = () => {
-        };
-        Notification.requestPermission = () => {
-          return Promise.resolve({ permission: "denied" });
-        };
-        Notification.permission = "denied";
-        Notification.maxActions = 2;
         this.defineProperty(window, "Notification", {
-          value: Notification,
+          value: () => {
+          },
+          writable: true,
+          configurable: true,
+          enumerable: false
+        });
+        this.defineProperty(window.Notification, "requestPermission", {
+          value: () => {
+            return Promise.resolve("denied");
+          },
+          writable: true,
+          configurable: true,
+          enumerable: false
+        });
+        this.defineProperty(window.Notification, "permission", {
+          value: "denied",
+          writable: true,
+          configurable: true,
+          enumerable: false
+        });
+        this.defineProperty(window.Notification, "maxActions", {
+          value: 2,
           writable: true,
           configurable: true,
           enumerable: false

@@ -140,6 +140,22 @@ describe('Ensure Notification and Permissions interface is injected', () => {
 
         const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorSerializedValue)
         expect(modifiedDescriptorSerialization).toEqual(initialDescriptorSerialization)
+
+        const permissionDenied = await page.evaluate(() => {
+            return window.Notification.requestPermission()
+        })
+        expect(permissionDenied).toEqual('denied')
+
+        const permissionPropDenied = await page.evaluate(() => {
+            return window.Notification.permission
+        })
+        expect(permissionPropDenied).toEqual('denied')
+
+        const maxActionsPropDenied = await page.evaluate(() => {
+            // @ts-expect-error - This is a property that should exist but experimental.
+            return window.Notification.maxActions
+        })
+        expect(maxActionsPropDenied).toEqual(2)
     })
 
     it('should expose window.navigator.permissions when enabled', async () => {
