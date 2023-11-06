@@ -156,7 +156,7 @@ export default class WebCompat extends ContentFeature {
             'speaker'
         ]
         const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames
-        permissions.query = new Proxy(async (query) => {
+        permissions.query = new Proxy((query) => {
             this.addDebugFlag()
             if (!query) {
                 throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
@@ -167,9 +167,7 @@ export default class WebCompat extends ContentFeature {
             if (!validPermissionNames.includes(query.name)) {
                 throw new TypeError(`Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`)
             }
-            debugger;
-            const response = await this.messaging.request('permissions.query', query)
-            return Promise.resolve(new PermissionStatus(query.name, response.state))
+            return Promise.resolve(new PermissionStatus(query.name, 'denied'))
         }, {
             get (target, name) {
                 return Reflect.get(target, name)

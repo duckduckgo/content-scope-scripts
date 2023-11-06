@@ -3,7 +3,6 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { MessagingContext } from '../packages/messaging/index.js'
 import { createMessaging, createMessagingContext } from './create-messaging.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
 import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
@@ -20,6 +19,10 @@ import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
  * @property {boolean} [isBroken]
  * @property {boolean} [allowlisted]
  * @property {string[]} [enabledFeatures]
+ */
+
+/**
+ * @typedef {import('../packages/messaging/index.js').MessagingContext} MessagingContext
  */
 
 const globalObj = typeof window === 'undefined' ? globalThis : window
@@ -118,11 +121,21 @@ export default class ContentFeature {
     }
 
     get platformSpecificConfigOptions () {
-        const messageSecret = this.#args.messageSecret
-        // Receives messages from the platform
-        const messageCallback = this.#args.messageCallback
-        // Sends messages to the platform
-        const messageInterface = this.#args.messageInterface
+        let messageSecret
+        let messageCallback
+        let messageInterface
+
+        if (import.meta.injectName === 'android' &&
+            this.#args &&
+            'messageSecret' in this.#args &&
+            'messageCallback' in this.#args &&
+            'messageInterface' in this.#args) {
+            messageSecret = this.#args.messageSecret
+            // Receives messages from the platform
+            messageCallback = this.#args.messageCallback
+            // Sends messages to the platform
+            messageInterface = this.#args.messageInterface
+        }
         return {
             messageSecret,
             messageCallback,
