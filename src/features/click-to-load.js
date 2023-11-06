@@ -2019,7 +2019,7 @@ export default class ClickToLoad extends ContentFeature {
      */
     get messagingContext () {
         if (this.#messagingContext) return this.#messagingContext
-        this.#messagingContext = this._createMessagingContext(this)
+        this.#messagingContext = this._createMessagingContext()
         return this.#messagingContext
     }
 

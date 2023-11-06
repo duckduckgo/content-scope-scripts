@@ -93,10 +93,9 @@ export default class ContentFeature {
 
     /**
      * @deprecated as we should make this internal to the class and not used externally
-     * @param {{ name: string, isDebug: boolean }} feature
      * @return {MessagingContext}
      */
-    _createMessagingContext (feature) {
+    _createMessagingContext () {
         const injectName = import.meta.injectName
         if (typeof injectName === 'undefined') throw new Error('import.meta.injectName missing')
         const contextName = injectName === 'apple-isolated'
@@ -105,8 +104,8 @@ export default class ContentFeature {
 
         return new MessagingContext({
             context: contextName,
-            env: feature.isDebug ? 'development' : 'production',
-            featureName: feature.name
+            env: this.isDebug ? 'development' : 'production',
+            featureName: this.name
         })
     }
 
@@ -117,7 +116,7 @@ export default class ContentFeature {
      */
     get messaging () {
         if (this._messaging) return this._messaging
-        const messagingContext = this._createMessagingContext(this)
+        const messagingContext = this._createMessagingContext()
         let messagingConfig = this.#args?.constructMessagingConfig
         if (!messagingConfig) {
             if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
