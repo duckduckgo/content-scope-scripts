@@ -14,20 +14,22 @@ function initCode () {
         return
     }
 
+    let messagingConfig
+    if (import.meta.injectName === 'apple-isolated') {
+        messagingConfig = new WebkitMessagingConfig({
+            webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
+            secret: '',
+            hasModernWebkitAPI: true
+        })
+    }
+
     load({
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        constructMessagingConfig: (context) => {
-            if (import.meta.injectName !== 'apple-isolated') throw new Error('Only apple-isolated messaging supported')
-            return new WebkitMessagingConfig({
-                webkitMessageHandlerNames: [context.context],
-                secret: '',
-                hasModernWebkitAPI: true
-            })
-        }
+        messagingConfig
     })
 
     init(processedConfig)

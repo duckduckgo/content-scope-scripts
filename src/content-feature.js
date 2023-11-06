@@ -38,7 +38,7 @@ export default class ContentFeature {
     /** @type {boolean} */
     #isDebugFlagSet = false
 
-    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, constructMessagingConfig?: (context: import('../packages/messaging/index.js').MessagingContext) => import('../packages/messaging/index.js').MessagingConfig } | null} */
+    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('../packages/messaging/index.js').MessagingConfig } | null} */
     #args
 
     constructor (featureName) {
@@ -117,12 +117,12 @@ export default class ContentFeature {
     get messaging () {
         if (this._messaging) return this._messaging
         const messagingContext = this._createMessagingContext()
-        let messagingConfig = this.#args?.constructMessagingConfig
+        let messagingConfig = this.#args?.messagingConfig
         if (!messagingConfig) {
             if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
-            messagingConfig = extensionConstructMessagingConfig
+            messagingConfig = extensionConstructMessagingConfig()
         }
-        this._messaging = new Messaging(messagingContext, messagingConfig(messagingContext))
+        this._messaging = new Messaging(messagingContext, messagingConfig)
         return this._messaging
     }
 

@@ -74,28 +74,26 @@ function mergeDeep (target, ...sources) {
 async function initCode () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
-
+    const messagingConfig = new TestTransportConfig({
+        notify () {
+            // noop
+        },
+        request: async () => {
+            // noop
+        },
+        subscribe () {
+            return () => {
+                // noop
+            }
+        }
+    })
     load({
         // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
-        constructMessagingConfig: () => {
-            return new TestTransportConfig({
-                notify () {
-                    // noop
-                },
-                request: async () => {
-                    // noop
-                },
-                subscribe () {
-                    return () => {
-                        // noop
-                    }
-                }
-            })
-        }
+        messagingConfig
     })
 
     // mark this phase as loaded

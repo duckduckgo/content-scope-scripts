@@ -13,7 +13,18 @@ function initCode () {
     if (isGloballyDisabled(processedConfig)) {
         return
     }
-    let messagingGlobal
+
+    const configConstruct = processedConfig
+    const messageCallback = configConstruct.messageCallback
+    const secret = configConstruct.messageSecret
+    const javascriptInterface = configConstruct.messageInterface
+    const messagingConfig = new AndroidMessagingConfig({
+        secret,
+        messageCallback,
+        javascriptInterface,
+        target: globalThis,
+        debug: processedConfig.debug
+    })
 
     load({
         platform: processedConfig.platform,
@@ -21,21 +32,7 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        constructMessagingConfig: () => {
-            if (messagingGlobal) return messagingGlobal
-            const configConstruct = processedConfig
-            const messageCallback = configConstruct.messageCallback
-            const secret = configConstruct.messageSecret
-            const javascriptInterface = configConstruct.messageInterface
-            messagingGlobal = new AndroidMessagingConfig({
-                secret,
-                messageCallback,
-                javascriptInterface,
-                target: globalThis,
-                debug: processedConfig.debug
-            })
-            return messagingGlobal
-        }
+        messagingConfig
     })
 
     init(processedConfig)

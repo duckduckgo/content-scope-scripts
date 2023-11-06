@@ -13,6 +13,16 @@ function initCode () {
     if (isGloballyDisabled(processedConfig)) {
         return
     }
+    const messagingConfig = new WindowsMessagingConfig({
+        methods: {
+            // @ts-expect-error - Type 'unknown' is not assignable to type...
+            postMessage: windowsInteropPostMessage,
+            // @ts-expect-error - Type 'unknown' is not assignable to type...
+            addEventListener: windowsInteropAddEventListener,
+            // @ts-expect-error - Type 'unknown' is not assignable to type...
+            removeEventListener: windowsInteropRemoveEventListener
+        }
+    })
 
     load({
         platform: processedConfig.platform,
@@ -20,18 +30,7 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        constructMessagingConfig: () => {
-            return new WindowsMessagingConfig({
-                methods: {
-                    // @ts-expect-error - Type 'unknown' is not assignable to type...
-                    postMessage: windowsInteropPostMessage,
-                    // @ts-expect-error - Type 'unknown' is not assignable to type...
-                    addEventListener: windowsInteropAddEventListener,
-                    // @ts-expect-error - Type 'unknown' is not assignable to type...
-                    removeEventListener: windowsInteropRemoveEventListener
-                }
-            })
-        }
+        messagingConfig
     })
 
     init(processedConfig)
