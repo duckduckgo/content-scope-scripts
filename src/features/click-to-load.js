@@ -7,6 +7,7 @@ import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
 import { DDGCtlLoginButton } from './click-to-load/components/ctl-login-button.js'
 import { registerCustomElements } from './click-to-load/components'
+import { createMessagingContext } from '../create-messaging.js'
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -1804,7 +1805,14 @@ function createYouTubePreview (originalElement, widget) {
     return { youTubePreview, shadowRoot }
 }
 
+/**
+ * @typedef {import('../../packages/messaging/index.js').MessagingContext} MessagingContext
+ */
+
 export default class ClickToLoad extends ContentFeature {
+    /** @type {MessagingContext} */
+    #messagingContext
+
     async init (args) {
         /**
          * Bail if no messaging backend - this is a debugging feature to ensure we don't
@@ -2005,6 +2013,15 @@ export default class ClickToLoad extends ContentFeature {
                 }))
             }
         }
+    }
+
+    /**
+     * @returns {MessagingContext}
+     */
+    get messagingContext () {
+        if (this.#messagingContext) return this.#messagingContext
+        this.#messagingContext = createMessagingContext(this)
+        return this.#messagingContext
     }
 
     // Messaging layer between Click to Load and the Platform

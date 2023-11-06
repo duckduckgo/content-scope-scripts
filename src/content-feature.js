@@ -21,10 +21,6 @@ import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
  * @property {string[]} [enabledFeatures]
  */
 
-/**
- * @typedef {import('../packages/messaging/index.js').MessagingContext} MessagingContext
- */
-
 const globalObj = typeof window === 'undefined' ? globalThis : window
 
 export default class ContentFeature {
@@ -36,8 +32,6 @@ export default class ContentFeature {
     #documentOriginIsTracker
     /** @type {Record<string, unknown> | undefined} */
     #bundledfeatureSettings
-    /** @type {MessagingContext} */
-    #messagingContext
     /** @type {import('../packages/messaging').Messaging} */
     #debugMessaging
     /** @type {import('../packages/messaging').Messaging} */
@@ -98,15 +92,6 @@ export default class ContentFeature {
         return this.#bundledConfig
     }
 
-    /**
-     * @returns {MessagingContext}
-     */
-    get messagingContext () {
-        if (this.#messagingContext) return this.#messagingContext
-        this.#messagingContext = createMessagingContext(this)
-        return this.#messagingContext
-    }
-
     // Messaging layer between the content feature and the Platform
     get debugMessaging () {
         if (this.#debugMessaging) return this.#debugMessaging
@@ -150,7 +135,8 @@ export default class ContentFeature {
      */
     get messaging () {
         if (this._messaging) return this._messaging
-        this._messaging = createMessaging(this.messagingContext, this.isDebug, this.platformSpecificConfigOptions)
+        const messagingContext = createMessagingContext(this)
+        this._messaging = createMessaging(messagingContext, this.isDebug, this.platformSpecificConfigOptions)
         return this._messaging
     }
 
