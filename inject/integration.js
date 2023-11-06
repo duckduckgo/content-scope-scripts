@@ -1,5 +1,6 @@
 import { load, init } from '../src/content-scope-features.js'
 import { isTrackerOrigin } from '../src/trackers'
+import { TestTransportConfig } from '../packages/messaging/index.js'
 function getTopLevelURL () {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479
@@ -79,7 +80,22 @@ async function initCode () {
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
-        site: processedConfig.site
+        site: processedConfig.site,
+        constructMessagingConfig: () => {
+            return new TestTransportConfig({
+                notify () {
+                    // noop
+                },
+                request: async () => {
+                    // noop
+                },
+                subscribe () {
+                    return () => {
+                        // noop
+                    }
+                }
+            })
+        }
     })
 
     // mark this phase as loaded

@@ -3,9 +3,10 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { createMessaging, createMessagingContext } from './create-messaging.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
 import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
+import { Messaging, MessagingContext } from '../packages/messaging/index.js'
+import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
 /**
  * @typedef {object} AssetConfig
@@ -39,7 +40,7 @@ export default class ContentFeature {
     /** @type {boolean} */
     #isDebugFlagSet = false
 
-    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
+    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, constructMessagingConfig?: (context: import('../packages/messaging/index.js').MessagingContext) => import('../packages/messaging/index.js').MessagingConfig } | null} */
     #args
 
     constructor (featureName) {
@@ -97,35 +98,35 @@ export default class ContentFeature {
         if (this.#debugMessaging) return this.#debugMessaging
 
         if (this.platform?.name === 'extension' && typeof import.meta.injectName !== 'undefined') {
-            const context = createMessagingContext({ name: this.name, isDebug: this.isDebug })
-            this.#debugMessaging = createMessaging(context, this.isDebug, this.platformSpecificConfigOptions)
+            this.#debugMessaging = this._createMessaging({ name: 'debug', isDebug: this.isDebug })
             return this.#debugMessaging
         } else {
             return null
         }
     }
 
-    get platformSpecificConfigOptions () {
-        let messageSecret
-        let messageCallback
-        let messageInterface
+    /**
+     * @deprecated as we should make this internal to the class and not used externally
+     * @return {MessagingContext}
+     */
+    _createMessagingContext (feature) {
+        const injectName = import.meta.injectName
+        if (typeof injectName === 'undefined') throw new Error('import.meta.injectName missing')
+        const contextName = injectName === 'apple-isolated'
+            ? 'contentScopeScriptsIsolated'
+            : 'contentScopeScripts'
 
-        if (import.meta.injectName === 'android' &&
-            this.#args &&
-            'messageSecret' in this.#args &&
-            'messageCallback' in this.#args &&
-            'messageInterface' in this.#args) {
-            messageSecret = this.#args.messageSecret
-            // Receives messages from the platform
-            messageCallback = this.#args.messageCallback
-            // Sends messages to the platform
-            messageInterface = this.#args.messageInterface
-        }
-        return {
-            messageSecret,
-            messageCallback,
-            messageInterface
-        }
+        return new MessagingContext({
+            context: contextName,
+            env: feature.isDebug ? 'development' : 'production',
+            featureName: feature.name
+        })
+    }
+
+    _createMessaging (messagingConfigContext) {
+        const messagingContext = this._createMessagingContext(messagingConfigContext)
+        const messagingConfig = this.#args?.constructMessagingConfig || extensionConstructMessagingConfig
+        return new Messaging(messagingContext, messagingConfig(messagingContext))
     }
 
     /**
@@ -135,8 +136,7 @@ export default class ContentFeature {
      */
     get messaging () {
         if (this._messaging) return this._messaging
-        const messagingContext = createMessagingContext(this)
-        this._messaging = createMessaging(messagingContext, this.isDebug, this.platformSpecificConfigOptions)
+        this._messaging = this._createMessaging(this)
         return this._messaging
     }
 

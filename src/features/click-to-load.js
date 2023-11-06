@@ -7,7 +7,6 @@ import ContentFeature from '../content-feature.js'
 import { DDGCtlPlaceholderBlockedElement } from './click-to-load/components/ctl-placeholder-blocked.js'
 import { DDGCtlLoginButton } from './click-to-load/components/ctl-login-button.js'
 import { registerCustomElements } from './click-to-load/components'
-import { createMessagingContext } from '../create-messaging.js'
 
 /**
  * @typedef {'darkMode' | 'lightMode' | 'loginMode' | 'cancelMode'} displayMode
@@ -2020,7 +2019,7 @@ export default class ClickToLoad extends ContentFeature {
      */
     get messagingContext () {
         if (this.#messagingContext) return this.#messagingContext
-        this.#messagingContext = createMessagingContext(this)
+        this.#messagingContext = this._createMessagingContext(this)
         return this.#messagingContext
     }
 
