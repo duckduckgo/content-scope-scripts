@@ -34,8 +34,6 @@ export default class ContentFeature {
     /** @type {Record<string, unknown> | undefined} */
     #bundledfeatureSettings
     /** @type {import('../packages/messaging').Messaging} */
-    #debugMessaging
-    /** @type {import('../packages/messaging').Messaging} */
     #messaging
     /** @type {boolean} */
     #isDebugFlagSet = false
@@ -93,18 +91,6 @@ export default class ContentFeature {
         return this.#bundledConfig
     }
 
-    // Messaging layer between the content feature and the Platform
-    get debugMessaging () {
-        if (this.#debugMessaging) return this.#debugMessaging
-
-        if (this.platform?.name === 'extension' && typeof import.meta.injectName !== 'undefined') {
-            this.#debugMessaging = this._createMessaging({ name: 'debug', isDebug: this.isDebug })
-            return this.#debugMessaging
-        } else {
-            return null
-        }
-    }
-
     /**
      * @deprecated as we should make this internal to the class and not used externally
      * @param {{ name: string, isDebug: boolean }} feature
@@ -124,16 +110,6 @@ export default class ContentFeature {
         })
     }
 
-    _createMessaging (messagingConfigContext) {
-        const messagingContext = this._createMessagingContext(messagingConfigContext)
-        let messagingConfig = this.#args?.constructMessagingConfig
-        if (!messagingConfig) {
-            if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
-            messagingConfig = extensionConstructMessagingConfig
-        }
-        return new Messaging(messagingContext, messagingConfig(messagingContext))
-    }
-
     /**
      * Lazily create a messaging instance for the given Platform + feature combo
      *
@@ -141,7 +117,13 @@ export default class ContentFeature {
      */
     get messaging () {
         if (this._messaging) return this._messaging
-        this._messaging = this._createMessaging(this)
+        const messagingContext = this._createMessagingContext(this)
+        let messagingConfig = this.#args?.constructMessagingConfig
+        if (!messagingConfig) {
+            if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
+            messagingConfig = extensionConstructMessagingConfig
+        }
+        this._messaging = new Messaging(messagingContext, messagingConfig(messagingContext))
         return this._messaging
     }
 
@@ -283,7 +265,7 @@ export default class ContentFeature {
     addDebugFlag () {
         if (this.#isDebugFlagSet) return
         this.#isDebugFlagSet = true
-        this.debugMessaging?.notify('addDebugFlag', {
+        this.messaging?.notify('addDebugFlag', {
             flag: this.name
         })
     }

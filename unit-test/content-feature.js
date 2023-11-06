@@ -54,7 +54,7 @@ describe('ContentFeature class', () => {
         class MyTestFeature extends ContentFeature {
             // eslint-disable-next-line
             // @ts-ignore partial mock
-            debugMessaging = {
+            messaging = {
                 // eslint-disable-next-line
                 notify (name, data) {}
             }
@@ -68,13 +68,13 @@ describe('ContentFeature class', () => {
             // send some flag
             feature.addDebugFlag('someflag')
             // send it again
-            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            const spyNotify = spyOn(feature.messaging, 'notify')
             feature.addDebugFlag('someflag')
             expect(spyNotify).not.toHaveBeenCalled()
         })
 
         it('should send an empty suffix by default', () => {
-            const spyNotify = spyOn(feature.debugMessaging, 'notify')
+            const spyNotify = spyOn(feature.messaging, 'notify')
             feature.addDebugFlag()
             expect(spyNotify).toHaveBeenCalledWith(
                 'addDebugFlag',
