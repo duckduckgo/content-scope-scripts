@@ -1,5 +1,6 @@
 import { load, init } from '../src/content-scope-features.js'
 import { isTrackerOrigin } from '../src/trackers'
+import { TestTransportConfig } from '@duckduckgo/messaging'
 function getTopLevelURL () {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479
@@ -73,13 +74,26 @@ function mergeDeep (target, ...sources) {
 async function initCode () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
-
+    processedConfig.messagingConfig = new TestTransportConfig({
+        notify () {
+            // noop
+        },
+        request: async () => {
+            // noop
+        },
+        subscribe () {
+            return () => {
+                // noop
+            }
+        }
+    })
     load({
         // @ts-expect-error Types of property 'name' are incompatible.
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
-        site: processedConfig.site
+        site: processedConfig.site,
+        messagingConfig: processedConfig.messagingConfig
     })
 
     // mark this phase as loaded

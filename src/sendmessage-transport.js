@@ -1,4 +1,5 @@
 import { sendMessage } from './utils.js'
+import { TestTransportConfig } from '@duckduckgo/messaging'
 
 /**
  * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`
@@ -6,7 +7,15 @@ import { sendMessage } from './utils.js'
  */
 
 /**
- * A temporary implementation of {@link MessagingTransport} to communicate with Android and Extension.
+ * @deprecated - A temporary constructor for the extension to make the messaging config
+ */
+export function extensionConstructMessagingConfig () {
+    const messagingTransport = new SendMessageMessagingTransport()
+    return new TestTransportConfig(messagingTransport)
+}
+
+/**
+ * A temporary implementation of {@link MessagingTransport} to communicate with Extensions.
  * It wraps the current messaging system that calls `sendMessage`
  *
  * @implements {MessagingTransport}
