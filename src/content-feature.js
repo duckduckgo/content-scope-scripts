@@ -5,7 +5,7 @@ import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
 import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
-import { Messaging, MessagingContext } from '../packages/messaging/index.js'
+import { Messaging, MessagingContext } from '@duckduckgo/messaging'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
 /**
@@ -38,7 +38,7 @@ export default class ContentFeature {
     /** @type {boolean} */
     #isDebugFlagSet = false
 
-    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('../packages/messaging/index.js').MessagingConfig } | null} */
+    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
     #args
 
     constructor (featureName) {

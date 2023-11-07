@@ -1,5 +1,5 @@
 import { sendMessage } from './utils.js'
-import { TestTransportConfig } from '../packages/messaging/index.js'
+import { TestTransportConfig } from '@duckduckgo/messaging'
 
 /**
  * Workaround defining MessagingTransport locally because "import()" is not working in `@implements`

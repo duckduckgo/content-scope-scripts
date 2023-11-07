@@ -1,4 +1,4 @@
-import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../packages/messaging/index.js'
+import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '@duckduckgo/messaging'
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
@@ -1805,7 +1805,7 @@ function createYouTubePreview (originalElement, widget) {
 }
 
 /**
- * @typedef {import('../../packages/messaging/index.js').MessagingContext} MessagingContext
+ * @typedef {import('@duckduckgo/messaging').MessagingContext} MessagingContext
  */
 
 export default class ClickToLoad extends ContentFeature {

@@ -5,7 +5,7 @@
 import { load, init } from '../src/content-scope-features.js'
 import { processConfig, isGloballyDisabled } from './../src/utils'
 import { isTrackerOrigin } from '../src/trackers'
-import { WebkitMessagingConfig, TestTransportConfig } from '../packages/messaging/index.js'
+import { WebkitMessagingConfig, TestTransportConfig } from '@duckduckgo/messaging'
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f

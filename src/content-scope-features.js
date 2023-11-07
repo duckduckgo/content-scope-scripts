@@ -32,7 +32,7 @@ const isHTMLDocument = (
  * @property {import('./utils.js').RemoteConfig} bundledConfig
  * @property {string} [injectName]
  * @property {object} trackerLookup - provided currently only by the extension
- * @property {import('../packages/messaging/index.js').MessagingConfig} [messagingConfig]
+ * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
  */
 
 /**
