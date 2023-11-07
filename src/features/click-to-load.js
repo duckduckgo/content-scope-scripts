@@ -1,4 +1,4 @@
-import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '../../packages/messaging/index.js'
+import { Messaging, TestTransportConfig, WebkitMessagingConfig } from '@duckduckgo/messaging'
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js'
 import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js'
 import { getStyles, getConfig } from './click-to-load/ctl-config.js'
@@ -1804,7 +1804,14 @@ function createYouTubePreview (originalElement, widget) {
     return { youTubePreview, shadowRoot }
 }
 
+/**
+ * @typedef {import('@duckduckgo/messaging').MessagingContext} MessagingContext
+ */
+
 export default class ClickToLoad extends ContentFeature {
+    /** @type {MessagingContext} */
+    #messagingContext
+
     async init (args) {
         /**
          * Bail if no messaging backend - this is a debugging feature to ensure we don't
@@ -2005,6 +2012,15 @@ export default class ClickToLoad extends ContentFeature {
                 }))
             }
         }
+    }
+
+    /**
+     * @returns {MessagingContext}
+     */
+    get messagingContext () {
+        if (this.#messagingContext) return this.#messagingContext
+        this.#messagingContext = this._createMessagingContext()
+        return this.#messagingContext
     }
 
     // Messaging layer between Click to Load and the Platform

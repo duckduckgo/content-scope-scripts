@@ -3,10 +3,10 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { MessagingContext } from '../packages/messaging/index.js'
-import { createMessaging } from './create-messaging.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
 import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
+import { Messaging, MessagingContext } from '@duckduckgo/messaging'
+import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
 /**
  * @typedef {object} AssetConfig
@@ -33,14 +33,12 @@ export default class ContentFeature {
     #documentOriginIsTracker
     /** @type {Record<string, unknown> | undefined} */
     #bundledfeatureSettings
-    /** @type {MessagingContext} */
-    #messagingContext
     /** @type {import('../packages/messaging').Messaging} */
-    #debugMessaging
+    #messaging
     /** @type {boolean} */
     #isDebugFlagSet = false
 
-    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
+    /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
     #args
 
     constructor (featureName) {
@@ -94,33 +92,38 @@ export default class ContentFeature {
     }
 
     /**
-     * @returns {MessagingContext}
+     * @deprecated as we should make this internal to the class and not used externally
+     * @return {MessagingContext}
      */
-    get messagingContext () {
-        if (this.#messagingContext) return this.#messagingContext
-
-        const contextName = import.meta.injectName === 'apple-isolated'
+    _createMessagingContext () {
+        const injectName = import.meta.injectName
+        if (typeof injectName === 'undefined') throw new Error('import.meta.injectName missing')
+        const contextName = injectName === 'apple-isolated'
             ? 'contentScopeScriptsIsolated'
             : 'contentScopeScripts'
 
-        this.#messagingContext = new MessagingContext({
+        return new MessagingContext({
             context: contextName,
             env: this.isDebug ? 'development' : 'production',
             featureName: this.name
         })
-        return this.#messagingContext
     }
 
-    // Messaging layer between the content feature and the Platform
-    get debugMessaging () {
-        if (this.#debugMessaging) return this.#debugMessaging
-
-        if (this.platform?.name === 'extension' && typeof import.meta.injectName !== 'undefined') {
-            this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, import.meta.injectName)
-            return this.#debugMessaging
-        } else {
-            return null
+    /**
+     * Lazily create a messaging instance for the given Platform + feature combo
+     *
+     * @return {import('@duckduckgo/messaging').Messaging}
+     */
+    get messaging () {
+        if (this._messaging) return this._messaging
+        const messagingContext = this._createMessagingContext()
+        let messagingConfig = this.#args?.messagingConfig
+        if (!messagingConfig) {
+            if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
+            messagingConfig = extensionConstructMessagingConfig()
         }
+        this._messaging = new Messaging(messagingContext, messagingConfig)
+        return this._messaging
     }
 
     /**
@@ -261,7 +264,7 @@ export default class ContentFeature {
     addDebugFlag () {
         if (this.#isDebugFlagSet) return
         this.#isDebugFlagSet = true
-        this.debugMessaging?.notify('addDebugFlag', {
+        this.messaging?.notify('addDebugFlag', {
             flag: this.name
         })
     }

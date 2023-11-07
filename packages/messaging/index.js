@@ -46,12 +46,16 @@ export class MessagingContext {
 }
 
 /**
+ * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} MessagingConfig
+ */
+
+/**
  *
  */
 export class Messaging {
     /**
      * @param {MessagingContext} messagingContext
-     * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
+     * @param {MessagingConfig} config
      */
     constructor (messagingContext, config) {
         this.messagingContext = messagingContext
