@@ -13,7 +13,7 @@ function initCode () {
     if (isGloballyDisabled(processedConfig)) {
         return
     }
-    const messagingConfig = new WindowsMessagingConfig({
+    processedConfig.messagingConfig = new WindowsMessagingConfig({
         methods: {
             // @ts-expect-error - Type 'unknown' is not assignable to type...
             postMessage: windowsInteropPostMessage,
@@ -30,7 +30,7 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig
+        messagingConfig: processedConfig.messagingConfig
     })
 
     init(processedConfig)

@@ -18,7 +18,7 @@ function initCode () {
     const messageCallback = configConstruct.messageCallback
     const secret = configConstruct.messageSecret
     const javascriptInterface = configConstruct.messageInterface
-    const messagingConfig = new AndroidMessagingConfig({
+    processedConfig.messagingConfig = new AndroidMessagingConfig({
         secret,
         messageCallback,
         javascriptInterface,
@@ -32,7 +32,7 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig
+        messagingConfig: processedConfig.messagingConfig
     })
 
     init(processedConfig)

@@ -74,7 +74,7 @@ function mergeDeep (target, ...sources) {
 async function initCode () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
-    const messagingConfig = new TestTransportConfig({
+    processedConfig.messagingConfig = new TestTransportConfig({
         notify () {
             // noop
         },
@@ -93,7 +93,7 @@ async function initCode () {
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
-        messagingConfig
+        messagingConfig: processedConfig.messagingConfig
     })
 
     // mark this phase as loaded

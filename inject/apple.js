@@ -14,9 +14,8 @@ function initCode () {
         return
     }
 
-    let messagingConfig
     if (import.meta.injectName === 'apple-isolated') {
-        messagingConfig = new WebkitMessagingConfig({
+        processedConfig.messagingConfig = new WebkitMessagingConfig({
             webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
             secret: '',
             hasModernWebkitAPI: true
@@ -29,7 +28,7 @@ function initCode () {
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
-        messagingConfig
+        messagingConfig: processedConfig.messagingConfig
     })
 
     init(processedConfig)
