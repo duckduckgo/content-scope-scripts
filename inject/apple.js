@@ -5,7 +5,7 @@
 import { load, init } from '../src/content-scope-features.js'
 import { processConfig, isGloballyDisabled } from './../src/utils'
 import { isTrackerOrigin } from '../src/trackers'
-import { WebkitMessagingConfig } from '../packages/messaging/index.js'
+import { WebkitMessagingConfig, TestTransportConfig } from '../packages/messaging/index.js'
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -19,6 +19,20 @@ function initCode () {
             webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
             secret: '',
             hasModernWebkitAPI: true
+        })
+    } else {
+        processedConfig.messagingConfig = new TestTransportConfig({
+            notify () {
+                // noop
+            },
+            request: async () => {
+                // noop
+            },
+            subscribe () {
+                return () => {
+                    // noop
+                }
+            }
         })
     }
 
