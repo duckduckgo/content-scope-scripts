@@ -305,6 +305,17 @@ export default class WebCompat extends ContentFeature {
                 configurable: true,
                 enumerable: true
             })
+
+            class MediaMetadata {
+                constructor (metadata = {}) {
+                    this.title = metadata.title
+                    this.artist = metadata.artist
+                    this.album = metadata.album
+                    this.artwork = metadata.artwork
+                }
+            }
+
+            window.MediaMetadata = new Proxy(MediaMetadata, {})
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
         }
