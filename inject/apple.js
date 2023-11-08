@@ -5,6 +5,7 @@
 import { load, init } from '../src/content-scope-features.js'
 import { processConfig, isGloballyDisabled } from './../src/utils'
 import { isTrackerOrigin } from '../src/trackers'
+import { WebkitMessagingConfig, TestTransportConfig } from '@duckduckgo/messaging'
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -13,12 +14,35 @@ function initCode () {
         return
     }
 
+    if (import.meta.injectName === 'apple-isolated') {
+        processedConfig.messagingConfig = new WebkitMessagingConfig({
+            webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
+            secret: '',
+            hasModernWebkitAPI: true
+        })
+    } else {
+        processedConfig.messagingConfig = new TestTransportConfig({
+            notify () {
+                // noop
+            },
+            request: async () => {
+                // noop
+            },
+            subscribe () {
+                return () => {
+                    // noop
+                }
+            }
+        })
+    }
+
     load({
         platform: processedConfig.platform,
         trackerLookup: processedConfig.trackerLookup,
         documentOriginIsTracker: isTrackerOrigin(processedConfig.trackerLookup),
         site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig
+        bundledConfig: processedConfig.bundledConfig,
+        messagingConfig: processedConfig.messagingConfig
     })
 
     init(processedConfig)

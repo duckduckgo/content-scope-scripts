@@ -557,7 +557,7 @@
   var AndroidMessagingTransport = class {
     /**
      * @param {AndroidMessagingConfig} config
-     * @param {import('../index.js').MessagingContext} messagingContext
+     * @param {MessagingContext} messagingContext
      * @internal
      */
     constructor(config, messagingContext) {
@@ -565,7 +565,7 @@
       this.config = config;
     }
     /**
-     * @param {import('../index.js').NotificationMessage} msg
+     * @param {NotificationMessage} msg
      */
     notify(msg) {
       try {
@@ -575,7 +575,7 @@
       }
     }
     /**
-     * @param {import('../index.js').RequestMessage} msg
+     * @param {RequestMessage} msg
      * @return {Promise<any>}
      */
     request(msg) {
@@ -604,7 +604,7 @@
       });
     }
     /**
-     * @param {import('../index.js').Subscription} msg
+     * @param {Subscription} msg
      * @param {(value: unknown | undefined) => void} callback
      */
     subscribe(msg, callback) {
@@ -625,7 +625,7 @@
      * @param {object} params
      * @param {Record<string, any>} params.target
      * @param {boolean} params.debug
-     * @param {string} params.secret - a secret to ensure that messages are only
+     * @param {string} params.messageSecret - a secret to ensure that messages are only
      * processed by the correct handler
      * @param {string} params.javascriptInterface - the name of the javascript interface
      * registered on the native side
@@ -636,7 +636,7 @@
       this.target = params.target;
       this.debug = params.debug;
       this.javascriptInterface = params.javascriptInterface;
-      this.secret = params.secret;
+      this.messageSecret = params.messageSecret;
       this.messageCallback = params.messageCallback;
       this.listeners = new globalThis.Map();
       this._captureGlobalHandler();
@@ -653,7 +653,7 @@
      * @internal
      */
     sendMessageThrows(json) {
-      this._capturedHandler(json, this.secret);
+      this._capturedHandler(json, this.messageSecret);
     }
     /**
      * A subscription on Android is just a named listener. All messages from
@@ -744,7 +744,7 @@
      */
     _assignHandlerMethod() {
       const responseHandler = (providedSecret, response) => {
-        if (providedSecret === this.secret) {
+        if (providedSecret === this.messageSecret) {
           this._dispatch(response);
         }
       };
@@ -772,7 +772,7 @@
   var Messaging = class {
     /**
      * @param {MessagingContext} messagingContext
-     * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
+     * @param {MessagingConfig} config
      */
     constructor(messagingContext, config) {
       this.messagingContext = messagingContext;

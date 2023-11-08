@@ -1311,6 +1311,55 @@
       return parseJSONPointer(fromPointer);
     }
 
+    /* global false */
+    // Tests don't define this variable so fallback to behave like chrome
+    const functionToString = Function.prototype.toString;
+
+    /**
+     * add a fake toString() method to a wrapper function to resemble the original function
+     * @param {*} newFn
+     * @param {*} origFn
+     */
+    function wrapToString (newFn, origFn) {
+        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
+            return
+        }
+        newFn.toString = function () {
+            if (this === newFn) {
+                return functionToString.call(origFn)
+            } else {
+                return functionToString.call(this)
+            }
+        };
+    }
+
+    /**
+     * Wrap functions to fix toString but also behave as closely to their real function as possible like .name and .length etc.
+     * TODO: validate with firefox non runtimeChecks context and also consolidate with wrapToString
+     * @param {*} functionValue
+     * @param {*} realTarget
+     * @returns {Proxy} a proxy for the function
+     */
+    function wrapFunction (functionValue, realTarget) {
+        return new Proxy(realTarget, {
+            get (target, prop, receiver) {
+                if (prop === 'toString') {
+                    const method = Reflect.get(target, prop, receiver).bind(target);
+                    Object.defineProperty(method, 'toString', {
+                        value: functionToString.bind(functionToString),
+                        enumerable: false
+                    });
+                    return method
+                }
+                return Reflect.get(target, prop, receiver)
+            },
+            apply (target, thisArg, argumentsList) {
+                // This is where we call our real function
+                return Reflect.apply(functionValue, thisArg, argumentsList)
+            }
+        })
+    }
+
     /**
      * @description
      *
@@ -2216,6 +2265,13 @@
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
     /**
+     * @typedef {import('../index.js').Subscription} Subscription
+     * @typedef {import('../index.js').MessagingContext} MessagingContext
+     * @typedef {import('../index.js').RequestMessage} RequestMessage
+     * @typedef {import('../index.js').NotificationMessage} NotificationMessage
+     */
+
+    /**
      * An implementation of {@link MessagingTransport} for Android
      *
      * All messages go through `window.chrome.webview` APIs
@@ -2225,7 +2281,7 @@
     class AndroidMessagingTransport {
         /**
          * @param {AndroidMessagingConfig} config
-         * @param {import('../index.js').MessagingContext} messagingContext
+         * @param {MessagingContext} messagingContext
          * @internal
          */
         constructor (config, messagingContext) {
@@ -2234,7 +2290,7 @@
         }
 
         /**
-         * @param {import('../index.js').NotificationMessage} msg
+         * @param {NotificationMessage} msg
          */
         notify (msg) {
             try {
@@ -2245,7 +2301,7 @@
         }
 
         /**
-         * @param {import('../index.js').RequestMessage} msg
+         * @param {RequestMessage} msg
          * @return {Promise<any>}
          */
         request (msg) {
@@ -2283,7 +2339,7 @@
         }
 
         /**
-         * @param {import('../index.js').Subscription} msg
+         * @param {Subscription} msg
          * @param {(value: unknown | undefined) => void} callback
          */
         subscribe (msg, callback) {
@@ -2310,13 +2366,13 @@
      * ```js
      * const config = new AndroidMessagingConfig({
      *     // a value that native has injected into the script
-     *     secret: 'abc',
+     *     messageSecret: 'abc',
      *
      *     // the name of the window method that android will deliver responses through
      *     messageCallback: 'callback_123',
      *
      *     // the `@JavascriptInterface` name from native that will be used to receive messages
-     *     javascriptInterface: "ContentScopeScripts",
+     *     javascriptInterface: "ARandomValue",
      *
      *     // the global object where methods will be registered
      *     target: globalThis
@@ -2356,7 +2412,7 @@
      * to the {@link AndroidMessagingConfig}:
      *
      * - `$messageCallback` matches {@link AndroidMessagingConfig.messageCallback}
-     * - `$secret` matches {@link AndroidMessagingConfig.secret}
+     * - `$messageSecret` matches {@link AndroidMessagingConfig.messageSecret}
      * - `$message` is JSON string that represents one of {@link MessageResponse} or {@link SubscriptionEvent}
      *
      * ```kotlin
@@ -2364,7 +2420,7 @@
      *     fun constructReply(message: String, messageCallback: String, messageSecret: String): String {
      *         return """
      *             (function() {
-     *                 window['$messageCallback']('$secret', $message);
+     *                 window['$messageCallback']('$messageSecret', $message);
      *             })();
      *         """.trimIndent()
      *     }
@@ -2378,7 +2434,7 @@
          * @param {object} params
          * @param {Record<string, any>} params.target
          * @param {boolean} params.debug
-         * @param {string} params.secret - a secret to ensure that messages are only
+         * @param {string} params.messageSecret - a secret to ensure that messages are only
          * processed by the correct handler
          * @param {string} params.javascriptInterface - the name of the javascript interface
          * registered on the native side
@@ -2389,7 +2445,7 @@
             this.target = params.target;
             this.debug = params.debug;
             this.javascriptInterface = params.javascriptInterface;
-            this.secret = params.secret;
+            this.messageSecret = params.messageSecret;
             this.messageCallback = params.messageCallback;
 
             /**
@@ -2420,7 +2476,7 @@
          * @internal
          */
         sendMessageThrows (json) {
-            this._capturedHandler(json, this.secret);
+            this._capturedHandler(json, this.messageSecret);
         }
 
         /**
@@ -2526,7 +2582,7 @@
              * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
              */
             const responseHandler = (providedSecret, response) => {
-                if (providedSecret === this.secret) {
+                if (providedSecret === this.messageSecret) {
                     this._dispatch(response);
                 }
             };
@@ -2581,12 +2637,16 @@
     }
 
     /**
+     * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} MessagingConfig
+     */
+
+    /**
      *
      */
     class Messaging {
         /**
          * @param {MessagingContext} messagingContext
-         * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
+         * @param {MessagingConfig} config
          */
         constructor (messagingContext, config) {
             this.messagingContext = messagingContext;
@@ -2742,7 +2802,15 @@
      */
 
     /**
-     * A temporary implementation of {@link MessagingTransport} to communicate with Android and Extension.
+     * @deprecated - A temporary constructor for the extension to make the messaging config
+     */
+    function extensionConstructMessagingConfig () {
+        const messagingTransport = new SendMessageMessagingTransport();
+        return new TestTransportConfig(messagingTransport)
+    }
+
+    /**
+     * A temporary implementation of {@link MessagingTransport} to communicate with Extensions.
      * It wraps the current messaging system that calls `sendMessage`
      *
      * @implements {MessagingTransport}
@@ -2887,127 +2955,6 @@
         }
     }
 
-    /**
-     * Extracted so we can iterate on the best way to bring this to all platforms
-     * @param {{ name: string, isDebug: boolean }} feature
-     * @param {string} injectName
-     * @return {Messaging}
-     */
-    function createMessaging (feature, injectName) {
-        const contextName = injectName === 'apple-isolated'
-            ? 'contentScopeScriptsIsolated'
-            : 'contentScopeScripts';
-
-        const context = new MessagingContext({
-            context: contextName,
-            env: feature.isDebug ? 'development' : 'production',
-            featureName: feature.name
-        });
-
-        const createExtensionConfig = () => {
-            const messagingTransport = new SendMessageMessagingTransport();
-            return new TestTransportConfig(messagingTransport)
-        };
-
-        /** @type {Partial<Record<NonNullable<ImportMeta['injectName']>, () => any>>} */
-        const config = {
-            windows: () => {
-                return new WindowsMessagingConfig({
-                    methods: {
-                        // @ts-expect-error - Type 'unknown' is not assignable to type...
-                        postMessage: windowsInteropPostMessage,
-                        // @ts-expect-error - Type 'unknown' is not assignable to type...
-                        addEventListener: windowsInteropAddEventListener,
-                        // @ts-expect-error - Type 'unknown' is not assignable to type...
-                        removeEventListener: windowsInteropRemoveEventListener
-                    }
-                })
-            },
-            'apple-isolated': () => {
-                return new WebkitMessagingConfig({
-                    webkitMessageHandlerNames: [context.context],
-                    secret: '',
-                    hasModernWebkitAPI: true
-                })
-            },
-            firefox: createExtensionConfig,
-            chrome: createExtensionConfig,
-            'chrome-mv3': createExtensionConfig,
-            integration: () => {
-                return new TestTransportConfig({
-                    notify () {
-                        // noop
-                    },
-                    request: async () => {
-                        // noop
-                    },
-                    subscribe () {
-                        return () => {
-                            // noop
-                        }
-                    }
-                })
-            }
-        };
-
-        const match = config[injectName];
-
-        if (!match) {
-            throw new Error('Messaging not supported yet on: ' + injectName)
-        }
-
-        return new Messaging(context, match())
-    }
-
-    /* global false */
-    // Tests don't define this variable so fallback to behave like chrome
-    const functionToString = Function.prototype.toString;
-
-    /**
-     * add a fake toString() method to a wrapper function to resemble the original function
-     * @param {*} newFn
-     * @param {*} origFn
-     */
-    function wrapToString (newFn, origFn) {
-        if (typeof newFn !== 'function' || typeof origFn !== 'function') {
-            return
-        }
-        newFn.toString = function () {
-            if (this === newFn) {
-                return functionToString.call(origFn)
-            } else {
-                return functionToString.call(this)
-            }
-        };
-    }
-
-    /**
-     * Wrap functions to fix toString but also behave as closely to their real function as possible like .name and .length etc.
-     * TODO: validate with firefox non runtimeChecks context and also consolidate with wrapToString
-     * @param {*} functionValue
-     * @param {*} realTarget
-     * @returns {Proxy} a proxy for the function
-     */
-    function wrapFunction (functionValue, realTarget) {
-        return new Proxy(realTarget, {
-            get (target, prop, receiver) {
-                if (prop === 'toString') {
-                    const method = Reflect.get(target, prop, receiver).bind(target);
-                    Object.defineProperty(method, 'toString', {
-                        value: functionToString.bind(functionToString),
-                        enumerable: false
-                    });
-                    return method
-                }
-                return Reflect.get(target, prop, receiver)
-            },
-            apply (target, thisArg, argumentsList) {
-                // This is where we call our real function
-                return Reflect.apply(functionValue, thisArg, argumentsList)
-            }
-        })
-    }
-
     /* global cloneInto, exportFunction */
 
 
@@ -3020,14 +2967,12 @@
         #documentOriginIsTracker
         /** @type {Record<string, unknown> | undefined} */
         #bundledfeatureSettings
-        /** @type {MessagingContext} */
-        #messagingContext
         /** @type {import('../packages/messaging').Messaging} */
-        #debugMessaging
+        #messaging
         /** @type {boolean} */
         #isDebugFlagSet = false
 
-        /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site  } | null} */
+        /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
         #args
 
         constructor (featureName) {
@@ -3081,31 +3026,34 @@
         }
 
         /**
-         * @returns {MessagingContext}
+         * @deprecated as we should make this internal to the class and not used externally
+         * @return {MessagingContext}
          */
-        get messagingContext () {
-            if (this.#messagingContext) return this.#messagingContext
-
+        _createMessagingContext () {
             const contextName = 'contentScopeScripts';
 
-            this.#messagingContext = new MessagingContext({
+            return new MessagingContext({
                 context: contextName,
                 env: this.isDebug ? 'development' : 'production',
                 featureName: this.name
-            });
-            return this.#messagingContext
+            })
         }
 
-        // Messaging layer between the content feature and the Platform
-        get debugMessaging () {
-            if (this.#debugMessaging) return this.#debugMessaging
-
-            if (this.platform?.name === 'extension' && typeof "chrome-mv3" !== 'undefined') {
-                this.#debugMessaging = createMessaging({ name: 'debug', isDebug: this.isDebug }, "chrome-mv3");
-                return this.#debugMessaging
-            } else {
-                return null
+        /**
+         * Lazily create a messaging instance for the given Platform + feature combo
+         *
+         * @return {import('@duckduckgo/messaging').Messaging}
+         */
+        get messaging () {
+            if (this._messaging) return this._messaging
+            const messagingContext = this._createMessagingContext();
+            let messagingConfig = this.#args?.messagingConfig;
+            if (!messagingConfig) {
+                if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
+                messagingConfig = extensionConstructMessagingConfig();
             }
+            this._messaging = new Messaging(messagingContext, messagingConfig);
+            return this._messaging
         }
 
         /**
@@ -3246,7 +3194,7 @@
         addDebugFlag () {
             if (this.#isDebugFlagSet) return
             this.#isDebugFlagSet = true;
-            this.debugMessaging?.notify('addDebugFlag', {
+            this.messaging?.notify('addDebugFlag', {
                 flag: this.name
             });
         }
@@ -11138,7 +11086,14 @@
         return { youTubePreview, shadowRoot }
     }
 
+    /**
+     * @typedef {import('@duckduckgo/messaging').MessagingContext} MessagingContext
+     */
+
     class ClickToLoad extends ContentFeature {
+        /** @type {MessagingContext} */
+        #messagingContext
+
         async init (args) {
             /**
              * Bail if no messaging backend - this is a debugging feature to ensure we don't
@@ -11341,6 +11296,15 @@
             }
         }
 
+        /**
+         * @returns {MessagingContext}
+         */
+        get messagingContext () {
+            if (this.#messagingContext) return this.#messagingContext
+            this.#messagingContext = this._createMessagingContext();
+            return this.#messagingContext
+        }
+
         // Messaging layer between Click to Load and the Platform
         get messaging () {
             if (this._messaging) return this._messaging
@@ -11411,6 +11375,7 @@
      * @property {import('./utils.js').RemoteConfig} bundledConfig
      * @property {string} [injectName]
      * @property {object} trackerLookup - provided currently only by the extension
+     * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
      */
 
     /**
