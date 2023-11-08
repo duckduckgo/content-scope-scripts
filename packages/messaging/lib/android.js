@@ -16,6 +16,13 @@ import { MessagingTransport, MessageResponse, SubscriptionEvent } from '../index
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js'
 
 /**
+ * @typedef {import('../index.js').Subscription} Subscription
+ * @typedef {import('../index.js').MessagingContext} MessagingContext
+ * @typedef {import('../index.js').RequestMessage} RequestMessage
+ * @typedef {import('../index.js').NotificationMessage} NotificationMessage
+ */
+
+/**
  * An implementation of {@link MessagingTransport} for Android
  *
  * All messages go through `window.chrome.webview` APIs
@@ -25,7 +32,7 @@ import { isResponseFor, isSubscriptionEventFor } from '../schema.js'
 export class AndroidMessagingTransport {
     /**
      * @param {AndroidMessagingConfig} config
-     * @param {import('../index.js').MessagingContext} messagingContext
+     * @param {MessagingContext} messagingContext
      * @internal
      */
     constructor (config, messagingContext) {
@@ -34,7 +41,7 @@ export class AndroidMessagingTransport {
     }
 
     /**
-     * @param {import('../index.js').NotificationMessage} msg
+     * @param {NotificationMessage} msg
      */
     notify (msg) {
         try {
@@ -45,7 +52,7 @@ export class AndroidMessagingTransport {
     }
 
     /**
-     * @param {import('../index.js').RequestMessage} msg
+     * @param {RequestMessage} msg
      * @return {Promise<any>}
      */
     request (msg) {
@@ -83,7 +90,7 @@ export class AndroidMessagingTransport {
     }
 
     /**
-     * @param {import('../index.js').Subscription} msg
+     * @param {Subscription} msg
      * @param {(value: unknown | undefined) => void} callback
      */
     subscribe (msg, callback) {
@@ -110,13 +117,13 @@ export class AndroidMessagingTransport {
  * ```js
  * const config = new AndroidMessagingConfig({
  *     // a value that native has injected into the script
- *     secret: 'abc',
+ *     messageSecret: 'abc',
  *
  *     // the name of the window method that android will deliver responses through
  *     messageCallback: 'callback_123',
  *
  *     // the `@JavascriptInterface` name from native that will be used to receive messages
- *     javascriptInterface: "ContentScopeScripts",
+ *     javascriptInterface: "ARandomValue",
  *
  *     // the global object where methods will be registered
  *     target: globalThis
@@ -156,7 +163,7 @@ export class AndroidMessagingTransport {
  * to the {@link AndroidMessagingConfig}:
  *
  * - `$messageCallback` matches {@link AndroidMessagingConfig.messageCallback}
- * - `$secret` matches {@link AndroidMessagingConfig.secret}
+ * - `$messageSecret` matches {@link AndroidMessagingConfig.messageSecret}
  * - `$message` is JSON string that represents one of {@link MessageResponse} or {@link SubscriptionEvent}
  *
  * ```kotlin
@@ -164,7 +171,7 @@ export class AndroidMessagingTransport {
  *     fun constructReply(message: String, messageCallback: String, messageSecret: String): String {
  *         return """
  *             (function() {
- *                 window['$messageCallback']('$secret', $message);
+ *                 window['$messageCallback']('$messageSecret', $message);
  *             })();
  *         """.trimIndent()
  *     }
@@ -178,7 +185,7 @@ export class AndroidMessagingConfig {
      * @param {object} params
      * @param {Record<string, any>} params.target
      * @param {boolean} params.debug
-     * @param {string} params.secret - a secret to ensure that messages are only
+     * @param {string} params.messageSecret - a secret to ensure that messages are only
      * processed by the correct handler
      * @param {string} params.javascriptInterface - the name of the javascript interface
      * registered on the native side
@@ -189,7 +196,7 @@ export class AndroidMessagingConfig {
         this.target = params.target
         this.debug = params.debug
         this.javascriptInterface = params.javascriptInterface
-        this.secret = params.secret
+        this.messageSecret = params.messageSecret
         this.messageCallback = params.messageCallback
 
         /**
@@ -220,7 +227,7 @@ export class AndroidMessagingConfig {
      * @internal
      */
     sendMessageThrows (json) {
-        this._capturedHandler(json, this.secret)
+        this._capturedHandler(json, this.messageSecret)
     }
 
     /**
@@ -326,7 +333,7 @@ export class AndroidMessagingConfig {
          * @type {(secret: string, response: MessageResponse | SubscriptionEvent) => void}
          */
         const responseHandler = (providedSecret, response) => {
-            if (providedSecret === this.secret) {
+            if (providedSecret === this.messageSecret) {
                 this._dispatch(response)
             }
         }

@@ -16,10 +16,10 @@ function initCode () {
 
     const configConstruct = processedConfig
     const messageCallback = configConstruct.messageCallback
-    const secret = configConstruct.messageSecret
-    const javascriptInterface = configConstruct.messageInterface
+    const messageSecret = configConstruct.messageSecret
+    const javascriptInterface = configConstruct.javascriptInterface
     processedConfig.messagingConfig = new AndroidMessagingConfig({
-        secret,
+        messageSecret,
         messageCallback,
         javascriptInterface,
         target: globalThis,
