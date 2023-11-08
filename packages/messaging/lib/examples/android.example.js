@@ -50,7 +50,7 @@ unsubscribe()
  * Create messaging for 2 separate features
  */
 const messagingContext1 = new MessagingContext({
-    context: javascriptInterface,
+    context: 'contentScopeScripts',
     featureName: 'hello-world',
     env: 'development'
 })
