@@ -167,7 +167,7 @@ export default class WebCompat extends ContentFeature {
             if (!validPermissionNames.includes(query.name)) {
                 throw new TypeError(`Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`)
             }
-            const response = await this.messaging.request('permissions.query', query)
+            const response = await this.messaging.request('permissionsQuery', query)
             return Promise.resolve(new PermissionStatus(query.name, response.state))
         }, {
             get (target, name) {
