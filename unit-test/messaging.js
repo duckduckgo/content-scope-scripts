@@ -60,8 +60,8 @@ describe('Android', () => {
     function createConfig (target) {
         const config = new AndroidMessagingConfig({
             target,
-            secret: 'abc',
-            javascriptInterface: 'ContentScopeScripts',
+            messageSecret: 'abc',
+            javascriptInterface: 'AnyRandomValue',
             messageCallback: 'callback_abc_def',
             debug: false
         })
@@ -73,7 +73,7 @@ describe('Android', () => {
      */
     function createContext (featureName, config) {
         const messageContextA = new MessagingContext({
-            context: config.javascriptInterface,
+            context: 'contentScopeScripts',
             featureName,
             env: 'development'
         })
@@ -83,21 +83,21 @@ describe('Android', () => {
     it('sends notification to 1 feature', () => {
         const spy = jasmine.createSpy()
         const target = {
-            ContentScopeScripts: {
+            AnyRandomValue: {
                 process: spy
             }
         }
         const config = createConfig(target)
         const { messaging } = createContext('featureA', config)
         messaging.notify('helloWorld')
-        const payload = '{"context":"ContentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
+        const payload = '{"context":"contentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
         const secret = 'abc'
         expect(spy).toHaveBeenCalledWith(payload, secret)
     })
     it('sends notification to 2 separate features', () => {
         const spy = jasmine.createSpy()
         const target = {
-            ContentScopeScripts: {
+            AnyRandomValue: {
                 process: spy
             }
         }
@@ -106,8 +106,8 @@ describe('Android', () => {
         const { messaging: bMessaging } = createContext('featureB', config)
         messaging.notify('helloWorld')
         bMessaging.notify('helloWorld')
-        const expected1 = '{"context":"ContentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
-        const expected2 = '{"context":"ContentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
+        const expected1 = '{"context":"contentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
+        const expected2 = '{"context":"contentScopeScripts","featureName":"featureA","method":"helloWorld","params":{}}'
         expect(spy).toHaveBeenCalledTimes(2)
         expect(spy).toHaveBeenCalledWith(expected1, 'abc')
         expect(spy).toHaveBeenCalledWith(expected2, 'abc')
@@ -119,7 +119,7 @@ describe('Android', () => {
         /** @type {string} */
         let token
         const target = {
-            ContentScopeScripts: {
+            AnyRandomValue: {
                 process: (outgoing, _token) => {
                     msg = JSON.parse(outgoing)
                     token = _token
@@ -137,31 +137,31 @@ describe('Android', () => {
         // simulate a valid response
         const response = new MessageResponse({
             id: msg.id,
-            context: msg.context,
+            context: 'contentScopeScripts',
             featureName: msg.featureName,
             result: { foo: 'bar' }
         })
 
         // pretend to call back from native
-        target[config.messageCallback](config.secret, response)
+        target[config.messageCallback](config.messageSecret, response)
 
         // wait for it to resolve
         const result = await request
 
         // ensure the outgoing payload was correct
-        const expectedOutgoing = '{"context":"ContentScopeScripts","featureName":"featureA","method":"helloWorld","id":"helloWorld.response","params":{}}'
+        const expectedOutgoing = '{"context":"contentScopeScripts","featureName":"featureA","method":"helloWorld","id":"helloWorld.response","params":{}}'
         expect(spy).toHaveBeenCalledWith(expectedOutgoing, 'abc')
 
         // ensure the result is correct
         expect(result).toEqual({ foo: 'bar' })
 
         // @ts-expect-error - unit-testing
-        expect(token).toEqual(config.secret)
+        expect(token).toEqual(config.messageSecret)
     })
     it('allows subscriptions', (done) => {
         const spy = jasmine.createSpy()
         const globalTarget = {
-            ContentScopeScripts: {
+            AnyRandomValue: {
                 process: spy
             }
         }
@@ -170,7 +170,7 @@ describe('Android', () => {
 
         // create the message as the native side would
         const subEvent1 = new SubscriptionEvent({
-            context: config.javascriptInterface,
+            context: 'contentScopeScripts',
             featureName: 'featureA',
             subscriptionName: 'onUpdate',
             params: { foo: 'bar' }
@@ -183,7 +183,7 @@ describe('Android', () => {
         })
 
         // simulate native calling this method
-        globalTarget[config.messageCallback](config.secret, subEvent1)
+        globalTarget[config.messageCallback](config.messageSecret, subEvent1)
     })
 })
 
