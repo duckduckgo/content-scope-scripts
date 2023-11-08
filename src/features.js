@@ -17,10 +17,11 @@ const baseFeatures = /** @type {const} */([
 const otherFeatures = /** @type {const} */([
     'clickToLoad',
     'cookie',
-    'windowsPermissionUsage',
-    'webCompat',
     'duckPlayer',
-    'harmfulApis'
+    'harmfulApis',
+    'webCompat',
+    'webShareShim',
+    'windowsPermissionUsage'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -36,7 +37,8 @@ export const platformSupport = {
     android: [
         ...baseFeatures,
         'webCompat',
-        'clickToLoad'
+        'clickToLoad',
+        'webShareShim'
     ],
     windows: [
         'cookie',
