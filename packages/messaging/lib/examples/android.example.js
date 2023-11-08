@@ -11,7 +11,7 @@ const javascriptInterface = 'ContentScopeScripts'
  * Create a *single* instance of AndroidMessagingConfig and share it.
  */
 const config = new AndroidMessagingConfig({
-    secret: 'abc',
+    messageSecret: 'abc',
     messageCallback: 'callback_123', // the method that android will execute with responses
     target: globalThis, // where the global properties exist
     javascriptInterface,
@@ -50,7 +50,7 @@ unsubscribe()
  * Create messaging for 2 separate features
  */
 const messagingContext1 = new MessagingContext({
-    context: javascriptInterface,
+    context: 'contentScopeScripts',
     featureName: 'hello-world',
     env: 'development'
 })
