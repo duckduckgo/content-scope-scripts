@@ -11,7 +11,31 @@ function windowSizingFix () {
     window.outerWidth = window.innerWidth
 }
 
+const MSG_WEB_SHARE = 'webShare'
+
+function canShare (data) {
+    if (typeof data !== 'object') return false
+    if (!('url' in data) && !('title' in data) && !('text' in data)) return false // At least one of these is required
+    if ('files' in data) return false // Not supported at the moment
+    if ('title' in data && typeof data.title !== 'string') return false
+    if ('text' in data && typeof data.text !== 'string') return false
+    if ('url' in data) {
+        if (typeof data.url !== 'string') return false
+        try {
+            const url = new URL(data.url)
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+        } catch (err) {
+            return false
+        }
+    }
+    if (window !== window.top) return false // Not supported in iframes
+    return true
+}
+
 export default class WebCompat extends ContentFeature {
+    /** @type {Promise<any> | null} */
+    #activeShare = null
+
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix()
@@ -43,6 +67,64 @@ export default class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('presentation')) {
             this.presentationFix()
         }
+
+        if (this.getFeatureSettingEnabled('webShare')) {
+            this.shimWebShare()
+        }
+    }
+
+    /** Shim Web Share API in Android WebView */
+    shimWebShare () {
+        if (typeof navigator.canShare === 'function') return
+        this.defineProperty(Navigator.prototype, 'canShare', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: canShare
+        })
+
+        if (typeof navigator.share === 'function') return
+        this.defineProperty(Navigator.prototype, 'share', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: (data) => {
+                if (!canShare(data)) return Promise.reject(new TypeError('Invalid share data'))
+                if (this.#activeShare) {
+                    return Promise.reject(new DOMException('Share already in progress', 'InvalidStateError'))
+                }
+                if (!navigator.userActivation.isActive) {
+                    return Promise.reject(new DOMException('Share must be initiated by a user gesture', 'InvalidStateError'))
+                }
+
+                const dataToSend = {}
+                for (const key of ['title', 'text', 'url']) {
+                    if (key in data) dataToSend[key] = data[key]
+                }
+                if ('url' in data) dataToSend.url = new URL(data.url) // clean url
+
+                // eslint-disable-next-line promise/prefer-await-to-then
+                this.#activeShare = this.messaging.request(MSG_WEB_SHARE, dataToSend).then(
+                    resp => {
+                        this.#activeShare = null
+                        if (resp.failure) {
+                            switch (resp.failure.name) {
+                            case 'AbortError':
+                            case 'NotAllowedError':
+                            case 'DataError':
+                                throw new DOMException(resp.failure.message, resp.failure.name)
+                            default:
+                                throw new DOMException(resp.failure.message, 'DataError')
+                            }
+                        }
+                    },
+                    err => {
+                        this.#activeShare = null
+                        throw new DOMException(err.message, 'DataError')
+                    })
+                return this.#activeShare
+            }
+        })
     }
 
     /**

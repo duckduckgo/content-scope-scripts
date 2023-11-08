@@ -20,7 +20,6 @@ const otherFeatures = /** @type {const} */([
     'duckPlayer',
     'harmfulApis',
     'webCompat',
-    'webShareShim',
     'windowsPermissionUsage'
 ])
 
@@ -37,8 +36,7 @@ export const platformSupport = {
     android: [
         ...baseFeatures,
         'webCompat',
-        'clickToLoad',
-        'webShareShim'
+        'clickToLoad'
     ],
     windows: [
         'cookie',
