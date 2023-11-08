@@ -13,6 +13,7 @@ const MSG_WEB_SHARE = 'web-share'
 
 function canShare (data) {
     if (typeof data !== 'object') return false
+    if (!('url' in data) && !('title' in data) && !('text' in data)) return false // At least one of these is required
     if ('files' in data) return false // Not supported at the moment
     if ('title' in data && typeof data.title !== 'string') return false
     if ('text' in data && typeof data.text !== 'string') return false
@@ -68,8 +69,11 @@ export default class WebShareShim extends ContentFeature {
                     return Promise.reject(new DOMException('Share must be initiated by a user gesture', 'InvalidStateError'))
                 }
 
-                const dataToSend = structuredClone(data)
-                if ('url' in data) dataToSend.url = new URL(data.url)
+                const dataToSend = {}
+                for (const key of ['title', 'text', 'url']) {
+                    if (key in data) dataToSend[key] = data[key]
+                }
+                if ('url' in data) dataToSend.url = new URL(data.url) // clean url
 
                 // eslint-disable-next-line promise/prefer-await-to-then
                 this.#activeShare = this.messaging.request(MSG_WEB_SHARE, dataToSend).then(
