@@ -34,7 +34,7 @@ function canShare (data) {
 
 export default class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
-    #activeShare = null
+    #activeShareRequest = null
 
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
@@ -88,9 +88,9 @@ export default class WebCompat extends ContentFeature {
             configurable: true,
             enumerable: true,
             writable: true,
-            value: (data) => {
+            value: async (data) => {
                 if (!canShare(data)) return Promise.reject(new TypeError('Invalid share data'))
-                if (this.#activeShare) {
+                if (this.#activeShareRequest) {
                     return Promise.reject(new DOMException('Share already in progress', 'InvalidStateError'))
                 }
                 if (!navigator.userActivation.isActive) {
@@ -103,26 +103,24 @@ export default class WebCompat extends ContentFeature {
                 }
                 if ('url' in data) dataToSend.url = new URL(data.url) // clean url
 
-                // eslint-disable-next-line promise/prefer-await-to-then
-                this.#activeShare = this.messaging.request(MSG_WEB_SHARE, dataToSend).then(
-                    resp => {
-                        this.#activeShare = null
-                        if (resp.failure) {
-                            switch (resp.failure.name) {
-                            case 'AbortError':
-                            case 'NotAllowedError':
-                            case 'DataError':
-                                throw new DOMException(resp.failure.message, resp.failure.name)
-                            default:
-                                throw new DOMException(resp.failure.message, 'DataError')
-                            }
+                this.#activeShareRequest = this.messaging.request(MSG_WEB_SHARE, dataToSend)
+                try {
+                    const resp = await this.#activeShareRequest
+                    this.#activeShareRequest = null
+                    if (resp.failure) {
+                        switch (resp.failure.name) {
+                        case 'AbortError':
+                        case 'NotAllowedError':
+                        case 'DataError':
+                            throw new DOMException(resp.failure.message, resp.failure.name)
+                        default:
+                            throw new DOMException(resp.failure.message, 'DataError')
                         }
-                    },
-                    err => {
-                        this.#activeShare = null
-                        throw new DOMException(err.message, 'DataError')
-                    })
-                return this.#activeShare
+                    }
+                } catch (err) {
+                    this.#activeShareRequest = null
+                    throw new DOMException(err.message, 'DataError')
+                }
             }
         })
     }
