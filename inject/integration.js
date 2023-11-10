@@ -1,6 +1,6 @@
 import { load, init } from '../src/content-scope-features.js'
 import { isTrackerOrigin } from '../src/trackers'
-import { TestTransportConfig } from '@duckduckgo/messaging'
+import { TestTransportConfig } from '../packages/messaging/index.js'
 function getTopLevelURL () {
     try {
         // FROM: https://stackoverflow.com/a/7739035/73479
