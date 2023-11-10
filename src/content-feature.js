@@ -5,7 +5,7 @@ import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
 import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
-import { Messaging, MessagingContext } from '@duckduckgo/messaging'
+import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
 /**
