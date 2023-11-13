@@ -1,4 +1,4 @@
-import { sendMessage } from './utils.js'
+import { legacySendMessage } from './utils.js'
 import { TestTransportConfig } from '../packages/messaging/index.js'
 
 /**
@@ -67,7 +67,7 @@ export class SendMessageMessagingTransport {
             params = msg.params?.youTubeCTLAddedFlag
         }
 
-        sendMessage(msg.method, params)
+        legacySendMessage(msg.method, params)
     }
 
     /**
@@ -94,7 +94,7 @@ export class SendMessageMessagingTransport {
             params = req.params?.videoURL
         }
 
-        sendMessage(req.method, params)
+        legacySendMessage(req.method, params)
 
         return new this.globals.Promise((resolve) => {
             this._subscribe(comparator, (msgRes, unsubscribe) => {
