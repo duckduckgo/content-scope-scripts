@@ -387,9 +387,10 @@
         return new OriginalCustomEvent(eventName, eventDetail)
     }
 
-    function sendMessage (messageType, options) {
+    /** @deprecated */
+    function legacySendMessage (messageType, options) {
         // FF & Chrome
-        return originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+        return originalWindowDispatchEvent && originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
         // TBD other platforms
     }
 
@@ -2495,7 +2496,7 @@
                 params = msg.params?.youTubeCTLAddedFlag;
             }
 
-            sendMessage(msg.method, params);
+            legacySendMessage(msg.method, params);
         }
 
         /**
@@ -2522,7 +2523,7 @@
                 params = req.params?.videoURL;
             }
 
-            sendMessage(req.method, params);
+            legacySendMessage(req.method, params);
 
             return new this.globals.Promise((resolve) => {
                 this._subscribe(comparator, (msgRes, unsubscribe) => {

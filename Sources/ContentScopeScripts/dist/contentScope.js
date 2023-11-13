@@ -503,8 +503,8 @@
     function createCustomEvent(eventName, eventDetail) {
       return new OriginalCustomEvent(eventName, eventDetail);
     }
-    function sendMessage(messageType, options) {
-      return originalWindowDispatchEvent(createCustomEvent("sendMessageProxy" + messageSecret, { detail: { messageType, options } }));
+    function legacySendMessage(messageType, options) {
+      return originalWindowDispatchEvent && originalWindowDispatchEvent(createCustomEvent("sendMessageProxy" + messageSecret, { detail: { messageType, options } }));
     }
     const baseFeatures = (
       /** @type {const} */
@@ -1907,7 +1907,7 @@
         if (msg.method === "updateYouTubeCTLAddedFlag") {
           params = msg.params?.youTubeCTLAddedFlag;
         }
-        sendMessage(msg.method, params);
+        legacySendMessage(msg.method, params);
       }
       /**
        * @param {import('@duckduckgo/messaging').RequestMessage} req
@@ -1924,7 +1924,7 @@
           };
           params = req.params?.videoURL;
         }
-        sendMessage(req.method, params);
+        legacySendMessage(req.method, params);
         return new this.globals.Promise((resolve) => {
           this._subscribe(comparator, (msgRes, unsubscribe) => {
             unsubscribe();

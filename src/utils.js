@@ -799,8 +799,9 @@ export function createCustomEvent (eventName, eventDetail) {
     return new OriginalCustomEvent(eventName, eventDetail)
 }
 
-export function sendMessage (messageType, options) {
+/** @deprecated */
+export function legacySendMessage (messageType, options) {
     // FF & Chrome
-    return originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
+    return originalWindowDispatchEvent && originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
     // TBD other platforms
 }
