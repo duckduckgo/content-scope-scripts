@@ -32,6 +32,26 @@ function canShare (data) {
     return true
 }
 
+/** @returns {ShareRequestData} */
+function cleanShareData (data) {
+    /** @type {ShareRequestData} */
+    const dataToSend = {}
+    for (const key of ['title', 'text', 'url']) {
+        if (key in data) dataToSend[key] = data[key]
+    }
+    if ('url' in data) dataToSend.url = (new URL(data.url)).href // clean url
+    if ('url' in dataToSend && 'text' in dataToSend) {
+        // combine everything into text
+        dataToSend.text = `${dataToSend.text} ${dataToSend.url}`
+        delete dataToSend.url
+    }
+    if (!('url' in dataToSend) && !('text' in dataToSend)) {
+        // if there's only title, create a dummy empty text
+        dataToSend.text = ''
+    }
+    return dataToSend
+}
+
 export default class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeShareRequest = null
@@ -97,12 +117,7 @@ export default class WebCompat extends ContentFeature {
                     return Promise.reject(new DOMException('Share must be initiated by a user gesture', 'InvalidStateError'))
                 }
 
-                const dataToSend = {}
-                for (const key of ['title', 'text', 'url']) {
-                    if (key in data) dataToSend[key] = data[key]
-                }
-                if ('url' in data) dataToSend.url = new URL(data.url) // clean url
-
+                const dataToSend = cleanShareData(data)
                 this.#activeShareRequest = this.messaging.request(MSG_WEB_SHARE, dataToSend)
                 try {
                     const resp = await this.#activeShareRequest
@@ -477,3 +492,5 @@ export default class WebCompat extends ContentFeature {
         }
     }
 }
+
+/** @typedef {{title?: string, url?: string, text?: string}} ShareRequestData */
