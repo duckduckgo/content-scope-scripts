@@ -2419,7 +2419,7 @@
           "speaker"
         ];
         const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames;
-        const returnStatus = settings.validPermissionNames || "prompt";
+        const returnStatus = settings.permissionResponse || "prompt";
         permissions.query = new Proxy((query) => {
           this.addDebugFlag();
           if (!query) {
