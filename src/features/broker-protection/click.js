@@ -1,11 +1,11 @@
-import { SuccessResponse, ErrorResponse, getElement } from './actions.js'
+import { getElement } from './utils.js'
+import { ErrorResponse, SuccessResponse } from './types.js'
 
 /**
  * @param action // TODO: get type based on actionType
- * @return {Promise<SuccessResponse|ErrorResponse>}
+ * @return {import('./types.js').ActionResponse}
  */
-// eslint-disable-next-line require-await
-export async function click (action) {
+export function click (action) {
     // there can be multiple elements provided by the action
     for (const element of action.elements) {
         const elem = getElement(document, element.selector)

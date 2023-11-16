@@ -1,8 +1,9 @@
-import { SuccessResponse, ErrorResponse, getElement } from './actions.js'
+import { getElement } from './utils.js'
+import { ErrorResponse, SuccessResponse } from './types.js'
 
 /**
  * @param action
- * @return {Promise<SuccessResponse | ErrorResponse>}
+ * @return {import('./types.js').ActionResponse}
  */
 export function expectation (action) {
     const expectations = action.expectations
@@ -16,7 +17,7 @@ export function expectation (action) {
             } catch {
                 elem = null
             }
-            return !!elem?.textContent?.includes(expectation.expect)
+            return Boolean(elem?.textContent?.includes(expectation.expect))
         } else if (expectation.type === 'url') {
             const url = window.location.href
             return url.includes(expectation.expect)
@@ -26,8 +27,8 @@ export function expectation (action) {
     })
 
     if (!allExpectationsMatch) {
-        return Promise.resolve(new ErrorResponse({ actionID: action.id, message: 'Expectation not found.' }))
+        return new ErrorResponse({ actionID: action.id, message: 'Expectation not found.' })
     } else {
-        return Promise.resolve(new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null }))
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
     }
 }

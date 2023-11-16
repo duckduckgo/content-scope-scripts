@@ -1,14 +1,14 @@
-import { SuccessResponse, ErrorResponse, getElement } from './actions.js'
 import { captchaCallback } from './captcha-callback.js'
+import { getElement } from './utils.js'
+import { ErrorResponse, SuccessResponse } from './types.js'
 
 /**
  * Gets the captcha information to send to the backend
  *
  * @param action
- * @return {Promise<SuccessResponse | ErrorResponse>}
+ * @return {import('./types.js').ActionResponse}
  */
-// eslint-disable-next-line require-await
-export async function getCaptchaInfo (action) {
+export function getCaptchaInfo (action) {
     const pageUrl = window.location.href
     const captchaDiv = getElement(document, action.selector)
 
@@ -72,10 +72,9 @@ export async function getCaptchaInfo (action) {
 * Takes the solved captcha token and injects it into the page to solve the captcha
 *
 * @param action
-* @return {Promise<SuccessResponse|ErrorResponse>}
+* @return {import('./types.js').ActionResponse}
 */
-// eslint-disable-next-line require-await
-export async function solveCaptcha (action, token) {
+export function solveCaptcha (action, token) {
     const selectors = ['h-captcha-response', 'g-recaptcha-response']
     let solved = false
 

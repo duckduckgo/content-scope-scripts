@@ -2,7 +2,12 @@ import { expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import {
     mockWebkitMessaging,
-    readOutgoingMessages, waitForCallCount, wrapWebkitScripts, simulateSubscriptionMessage
+    readOutgoingMessages,
+    waitForCallCount,
+    wrapWebkitScripts,
+    simulateSubscriptionMessage,
+    wrapWindowsScripts,
+    mockWindowsMessaging
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from '../type-helpers.mjs'
 
@@ -173,7 +178,8 @@ export class BrokerProtectionPage {
 
         // read the built file from disk and do replacements
         const wrapFn = this.build.switch({
-            'apple-isolated': () => wrapWebkitScripts
+            'apple-isolated': () => wrapWebkitScripts,
+            windows: () => wrapWindowsScripts
         })
 
         const injectedJS = wrapFn(this.build.artifact, {
@@ -186,7 +192,8 @@ export class BrokerProtectionPage {
         })
 
         const mockMessaging = this.build.switch({
-            'apple-isolated': () => mockWebkitMessaging
+            'apple-isolated': () => mockWebkitMessaging,
+            windows: () => mockWindowsMessaging
         })
 
         await this.page.addInitScript(mockMessaging, {

@@ -6,7 +6,7 @@ import { capitalize, getStateFromAbbreviation } from './comparison-functions.js'
  */
 
 /**
- * Input: { url: 'https://example.com/a/${firstName}-${lastName}' }
+ * Input: { url: 'https://example.com/a/${firstName}-${lastName}', ... }
  * Output: { url: 'https://example.com/a/John-Smith' }
  *
  * @param {BuildUrlAction} action
@@ -80,7 +80,6 @@ function processSearchParams (searchParams, action, userData) {
 }
 
 /**
- *
  * @param {string} pathname
  * @param {BuildUrlAction} action
  * @param {Record<string, string|number>} userData
@@ -118,17 +117,17 @@ function applyToDataKey (dataKey, value, modifiers, action) {
         ? baseTransforms[dataKey]
         : undefined
 
-    // apply base transform
-    const initialString = baseTransform
+    // apply base transform to the incoming string
+    let outputString = baseTransform
         ? baseTransform(String(value || ''))
         : String(value)
 
-    // apply additional modifiers
-    return modifiers.reduce((acc, modifier) => {
+    for (const modifier of modifiers) {
         if (!Object.prototype.hasOwnProperty.call(transforms, modifier)) {
-            console.warn('missing value modifier', modifier)
-            return acc
+            continue
         }
-        return transforms[modifier](acc, action)
-    }, initialString)
+        outputString = transforms[modifier](outputString, action)
+    }
+
+    return outputString
 }

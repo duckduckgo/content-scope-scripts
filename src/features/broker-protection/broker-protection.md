@@ -5,10 +5,9 @@ The following is a high-level description of how the Broker Protection actions a
 ```mermaid
 sequenceDiagram
     participant N as Native 💻
-    participant W as Webview 🌐
-    participant E as Executor ⚙️
+    participant W as Webview (broker-protection.js) 🌐
+    participant E as Executor (execute.js) ⚙️
     W->>+W: DOMContentLoaded
-    W->>+N: 📤 ready()
     N->>W: 📩 onActionReceived(action, data)
     W->>E: execute(action, data)
     E-->E: Executing action

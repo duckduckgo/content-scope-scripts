@@ -1,15 +1,14 @@
-import { ErrorResponse, SuccessResponse } from './actions.js'
 import { transformUrl } from './buildUrl-transforms.js'
+import { ErrorResponse, SuccessResponse } from './types.js'
 
 /**
  * This builds the proper URL given the URL template and userData.
  *
  * @param action
  * @param userData
- * @return {Promise<SuccessResponse | ErrorResponse>}
+ * @return {import('./types.js').ActionResponse}
  */
-// eslint-disable-next-line require-await
-export async function buildUrl (action, userData) {
+export function buildUrl (action, userData) {
     const result = replaceTemplatedUrl(action, userData)
     if ('error' in result) {
         return new ErrorResponse({ actionID: action.id, message: result.error })

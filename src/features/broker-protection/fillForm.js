@@ -1,13 +1,13 @@
-import { SuccessResponse, getElement, ErrorResponse } from './actions.js'
+import { getElement } from './utils.js'
+import { ErrorResponse, SuccessResponse } from './types.js'
 
 /**
  * Takes the solved captcha token and injects it into the page to solve the captcha
  *
  * @param action
- * @return {Promise<SuccessResponse | ErrorResponse>}
+ * @return {import('./types.js').ActionResponse}
  */
-// eslint-disable-next-line require-await
-export async function fillForm (action, userData) {
+export function fillForm (action, userData) {
     const form = getElement(document, action.selector)
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
 
@@ -32,12 +32,12 @@ export async function fillForm (action, userData) {
  * NOTE: This code comes from Autofill, the reasoning is to make React autofilling work on Chrome and Safari.
  *
  * Ensures the value is set properly and dispatches events to simulate real user action
+ *
  * @param {HTMLInputElement} el
  * @param {string} val
  * @return {boolean}
  */
-const setValueForInput = (el, val) => {
-    // todo(Shane): Not sending a 'key' property on these events can cause exceptions on 3rd party listeners that expect it
+function setValueForInput (el, val) {
     el.dispatchEvent(new Event('keydown', { bubbles: true }))
 
     // Access the original setter (needed to bypass React's implementation on mobile)
@@ -47,7 +47,6 @@ const setValueForInput = (el, val) => {
 
     const events = [
         new Event('input', { bubbles: true }),
-        // todo(Shane): Not sending a 'key' property on these events can cause exceptions on 3rd party listeners that expect it
         new Event('keyup', { bubbles: true }),
         new Event('change', { bubbles: true })
     ]

@@ -8,7 +8,8 @@ export default defineConfig({
                 'integration-test/playwright/duckplayer.spec.js',
                 'integration-test/playwright/duckplayer-remote-config.spec.js',
                 'integration-test/playwright/harmful-apis.spec.js',
-                'integration-test/playwright/windows-permissions.spec.js'
+                'integration-test/playwright/windows-permissions.spec.js',
+                'integration-test/playwright/broker-protection.spec.js'
             ],
             use: { injectName: 'windows', platform: 'windows' }
         },

@@ -1,5 +1,6 @@
-import { SuccessResponse, getElement, getElements, getElementMatches } from './actions.js'
-import { isSameAge, isSameName, matchAddressFromAddressListCityState, matchAddressFull } from './comparison-functions.js' // Assuming you have imported the address comparison function
+import { isSameAge, isSameName, matchAddressFromAddressListCityState, matchAddressFull } from './comparison-functions.js'
+import { getElement, getElementMatches, getElements } from './utils.js' // Assuming you have imported the address comparison function
+import { SuccessResponse } from './types.js'
 
 /**
  * Adding these types here so that we can switch to generated ones later
@@ -21,10 +22,9 @@ import { isSameAge, isSameName, matchAddressFromAddressListCityState, matchAddre
 /**
  * @param {Action} action
  * @param {Record<string, any>} userData
- * @return {Promise<SuccessResponse>}
+ * @return {import('./types.js').ActionResponse}
  */
-// eslint-disable-next-line require-await
-export async function extractProfiles (action, userData) {
+export function extractProfiles (action, userData) {
     const profilesElementList =
       Array.from(document.querySelectorAll(action.selector)) ?? []
 
@@ -32,14 +32,33 @@ export async function extractProfiles (action, userData) {
         // first, convert each profile element list into a profile
         .map((element) => createProfile(element, action.profile))
         // only include profiles that match the user data
-        .filter((profile) => profileMatchesUserData(userData, profile))
+        .filter((scrapedData) => profileMatchesUserData(userData, scrapedData))
         // aggregate some fields
-        .map((profile) => aggregateProfileFields(profile))
+        .map((scrapedData) => aggregateFields(scrapedData))
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: matchedProfiles })
 }
 
 /**
+ * Produces structures like this:
+ *
+ * {
+ *   "name": "John V Smith",
+ *   "alternativeNamesList": [
+ *     "John Inc Smith",
+ *     "John Vsmith",
+ *     "John Smithl"
+ *   ],
+ *   "age": "97",
+ *   "addressCityStateList": [
+ *     {
+ *       "city": "Orlando",
+ *       "state": "FL"
+ *     }
+ *   ],
+ *   "profileUrl": "https://example.com/1234"
+ * }
+ *
  * @param {HTMLElement} profileElement
  * @param {Record<string, ExtractProfileProperty>} extractData
  * @return {Record<string, any>}
@@ -109,39 +128,40 @@ function findFromElement (profileElement, dataKey, extractField) {
 }
 
 /**
+ * Try to filter partial data based on the user's actual profile data
  * @param {Record<string, any>} userData
- * @param {Record<string, any>} profile
+ * @param {Record<string, any>} scrapedData
  * @return {boolean}
  */
-function profileMatchesUserData (userData, profile) {
-    if (!isSameName(profile.name, userData.firstName, userData.middleName, userData.lastName)) return false
+function profileMatchesUserData (userData, scrapedData) {
+    if (!isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) return false
 
-    if (profile.age) {
-        if (!isSameAge(profile.age, userData.age)) {
+    if (scrapedData.age) {
+        if (!isSameAge(scrapedData.age, userData.age)) {
             return false
         }
     }
 
-    if (profile.addressCityState) {
+    if (scrapedData.addressCityState) {
         // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
-        if (matchAddressFromAddressListCityState(userData.addresses, profile.addressCityState)) {
+        if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
             return true
         }
     }
 
     // it's possible to have both addressCityState and addressCityStateList
-    if (profile.addressCityStateList) {
-        if (matchAddressFromAddressListCityState(userData.addresses, profile.addressCityStateList)) {
+    if (scrapedData.addressCityStateList) {
+        if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
             return true
         }
     }
 
-    if (profile.addressFull) {
-        if (matchAddressFull(userData.addresses, profile.addressFull)) { return true }
+    if (scrapedData.addressFull) {
+        if (matchAddressFull(userData.addresses, scrapedData.addressFull)) { return true }
     }
 
-    if (profile.phone) {
-        if (userData.phone === profile.phone) { return true }
+    if (scrapedData.phone) {
+        if (userData.phone === scrapedData.phone) { return true }
     }
 
     // if phone number matches
@@ -151,7 +171,7 @@ function profileMatchesUserData (userData, profile) {
 /**
  * @param {Record<string, any>} profile
  */
-export function aggregateProfileFields (profile) {
+export function aggregateFields (profile) {
     const addressCityStateArray = profile.addressCityState || []
     const addressCityStateListArray = profile.addressCityStateList || []
     const addresses = [...new Set([...addressCityStateArray, ...addressCityStateListArray])]
@@ -172,6 +192,17 @@ export function aggregateProfileFields (profile) {
 }
 
 /**
+ * Example input to this:
+ *
+ * ```json
+ * {
+ *   "key": "age",
+ *   "value": {
+ *     "selector": ".//div[@class='col-md-8']/div[2]"
+ *   },
+ *   "elementValue": "Age 71"
+ * }
+ * ```
  * @param {string} key
  * @param {ExtractProfileProperty} value
  * @param {any} elementValue
