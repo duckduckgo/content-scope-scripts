@@ -325,6 +325,13 @@ describe('Web Share API', () => {
                 expect(refuseShare).toEqual(false)
             })
 
+            it('should allow relative links', async () => {
+                const allowShare = await page.evaluate(() => {
+                    return navigator.canShare({ url: 'bla' })
+                })
+                expect(allowShare).toEqual(true)
+            })
+
             it('should support only the specific fields', async () => {
                 const refuseShare = await page.evaluate(() => {
                     // eslint-disable-next-line

@@ -17,7 +17,7 @@ const MSG_WEB_SHARE = 'webShare'
 function canShare (data) {
     if (typeof data !== 'object') return false
     if (!('url' in data) && !('title' in data) && !('text' in data)) return false // At least one of these is required
-    if ('files' in data) return false // Not supported at the moment
+    if ('files' in data) return false // File sharing is not supported at the moment
     if ('title' in data && typeof data.title !== 'string') return false
     if ('text' in data && typeof data.text !== 'string') return false
     if ('url' in data) {
@@ -33,21 +33,32 @@ function canShare (data) {
     return true
 }
 
-/** @returns {ShareRequestData} */
+/**
+ * Clean data before sending to the Android side
+ * @returns {ShareRequestData}
+ */
 function cleanShareData (data) {
     /** @type {ShareRequestData} */
     const dataToSend = {}
+
+    // only send the keys we care about
     for (const key of ['title', 'text', 'url']) {
         if (key in data) dataToSend[key] = data[key]
     }
-    if ('url' in data) dataToSend.url = (new URL(data.url, location.href)).href // clean url
+
+    // clean url and handle relative links (e.g. if url is an empty string)
+    if ('url' in data) {
+        dataToSend.url = (new URL(data.url, location.href)).href
+    }
+
+    // combine url and text into text if both are present
     if ('url' in dataToSend && 'text' in dataToSend) {
-        // combine everything into text
         dataToSend.text = `${dataToSend.text} ${dataToSend.url}`
         delete dataToSend.url
     }
+
+    // if there's only title, create a dummy empty text
     if (!('url' in dataToSend) && !('text' in dataToSend)) {
-        // if there's only title, create a dummy empty text
         dataToSend.text = ''
     }
     return dataToSend
