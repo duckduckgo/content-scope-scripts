@@ -39,7 +39,7 @@ function cleanShareData (data) {
     for (const key of ['title', 'text', 'url']) {
         if (key in data) dataToSend[key] = data[key]
     }
-    if ('url' in data) dataToSend.url = (new URL(data.url)).href // clean url
+    if ('url' in data) dataToSend.url = (new URL(data.url, location.href)).href // clean url
     if ('url' in dataToSend && 'text' in dataToSend) {
         // combine everything into text
         dataToSend.text = `${dataToSend.text} ${dataToSend.url}`
