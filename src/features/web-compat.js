@@ -95,7 +95,8 @@ export default class WebCompat extends ContentFeature {
 
     /** Shim Web Share API in Android WebView */
     shimWebShare () {
-        if (typeof navigator.canShare === 'function') return
+        if (typeof navigator.canShare === 'function' || typeof navigator.share === 'function') return
+
         this.defineProperty(Navigator.prototype, 'canShare', {
             configurable: true,
             enumerable: true,
@@ -103,7 +104,6 @@ export default class WebCompat extends ContentFeature {
             value: canShare
         })
 
-        if (typeof navigator.share === 'function') return
         this.defineProperty(Navigator.prototype, 'share', {
             configurable: true,
             enumerable: true,
