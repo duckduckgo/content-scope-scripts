@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js'
+import { URL } from '../captured-globals.js'
 
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
