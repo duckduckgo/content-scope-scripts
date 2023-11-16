@@ -40,6 +40,43 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * Template a URL in the same way native does
+     * @param action
+     * @param userData
+     * @return {Promise<string>}
+     */
+    async extractUrl (action, userData) {
+        await this.page.route('/dbp', (route) => {
+            return route.fulfill({
+                body: `
+                <!doctype html>
+                    <html lang="en">
+                    <head>
+                    <meta charset="UTF-8">
+                      <title>Document</title>
+                    </head>
+                    <body>
+                      <h1>dbp</h1>
+                    </body>
+                </html>
+                `
+            })
+        })
+        await this.page.goto('/dbp', { waitUntil: 'domcontentloaded' })
+        await this.simulateSubscriptionMessage('onActionReceived', { state: { action, data: userData } })
+        const response = await this.waitForMessage('actionCompleted')
+
+        const actionResponse = response[0].payload.params.result.success.response
+        if ('url' in actionResponse) {
+            return actionResponse.url
+        } else if ('error' in actionResponse) {
+            throw new Error(actionResponse.error)
+        }
+
+        throw new Error('unreachable')
+    }
+
+    /**
      * @return {Promise<void>}
      */
     async isFormFilled () {
@@ -175,6 +212,8 @@ export class BrokerProtectionPage {
      */
     async setup (params) {
         const { config } = params
+
+        console.log(this.build)
 
         // read the built file from disk and do replacements
         const wrapFn = this.build.switch({
