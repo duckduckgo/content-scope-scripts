@@ -22,7 +22,7 @@ function canShare (data) {
     if ('url' in data) {
         if (typeof data.url !== 'string') return false
         try {
-            const url = new URL(data.url)
+            const url = new URL(data.url, location.href)
             if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
         } catch (err) {
             return false
