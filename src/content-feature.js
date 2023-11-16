@@ -97,7 +97,6 @@ export default class ContentFeature {
      */
     _createMessagingContext () {
         const injectName = import.meta.injectName
-        if (typeof injectName === 'undefined') throw new Error('import.meta.injectName missing')
         const contextName = injectName === 'apple-isolated'
             ? 'contentScopeScriptsIsolated'
             : 'contentScopeScripts'
