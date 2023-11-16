@@ -103,6 +103,10 @@ export default class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('webShare')) {
             this.shimWebShare()
         }
+
+        if (this.getFeatureSettingEnabled('viewportWidth')) {
+            this.viewportWidthFix()
+        }
     }
 
     /** Shim Web Share API in Android WebView */
@@ -505,6 +509,18 @@ export default class WebCompat extends ContentFeature {
             ...globalThis.webkit,
             messageHandlers: proxy
         }
+    }
+
+    viewportWidthFix () {
+        const viewportTag = document.querySelector('meta[name=viewport]')
+        if (!viewportTag) return
+        const viewportContent = viewportTag.getAttribute('content')
+        if (!viewportContent) return
+        const viewportContentParts = viewportContent.split(',')
+        const widthPart = viewportContentParts.find((part) => part.includes('width'))
+        // If we already have a width, don't add one
+        if (widthPart) return
+        viewportTag.setAttribute('content', `${viewportContent},width=device-width`)
     }
 }
 
