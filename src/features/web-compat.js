@@ -119,22 +119,24 @@ export default class WebCompat extends ContentFeature {
 
                 const dataToSend = cleanShareData(data)
                 this.#activeShareRequest = this.messaging.request(MSG_WEB_SHARE, dataToSend)
+                let resp
                 try {
-                    const resp = await this.#activeShareRequest
-                    this.#activeShareRequest = null
-                    if (resp.failure) {
-                        switch (resp.failure.name) {
-                        case 'AbortError':
-                        case 'NotAllowedError':
-                        case 'DataError':
-                            throw new DOMException(resp.failure.message, resp.failure.name)
-                        default:
-                            throw new DOMException(resp.failure.message, 'DataError')
-                        }
-                    }
+                    resp = await this.#activeShareRequest
                 } catch (err) {
-                    this.#activeShareRequest = null
                     throw new DOMException(err.message, 'DataError')
+                } finally {
+                    this.#activeShareRequest = null
+                }
+
+                if (resp.failure) {
+                    switch (resp.failure.name) {
+                    case 'AbortError':
+                    case 'NotAllowedError':
+                    case 'DataError':
+                        throw new DOMException(resp.failure.message, resp.failure.name)
+                    default:
+                        throw new DOMException(resp.failure.message, 'DataError')
+                    }
                 }
             }
         })
