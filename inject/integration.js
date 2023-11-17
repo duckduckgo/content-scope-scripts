@@ -74,7 +74,9 @@ function mergeDeep (target, ...sources) {
 async function initCode () {
     const topLevelUrl = getTopLevelURL()
     const processedConfig = generateConfig()
-    processedConfig.messagingConfig = new TestTransportConfig({
+
+    // mock Messaging and allow for tests to intercept them
+    globalThis.cssMessaging = processedConfig.messagingConfig = new TestTransportConfig({
         notify () {
             // noop
         },

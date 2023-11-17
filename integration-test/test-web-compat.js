@@ -226,3 +226,258 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         expect(doesNotThrow).toBeUndefined()
     })
 })
+
+describe('Web Share API', () => {
+    let browser
+    let server
+    let teardown
+    let setupServer
+    let gotoAndWait
+    beforeAll(async () => {
+        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
+        server = setupServer()
+    })
+    afterAll(async () => {
+        await server?.close()
+        await teardown()
+    })
+
+    function checkForCanShare () {
+        return 'canShare' in navigator
+    }
+    function checkForShare () {
+        return 'share' in navigator
+    }
+
+    describe('disabled feature', () => {
+        it('should not expose navigator.canShare() and navigator.share()', async () => {
+            const port = server.address().port
+            const page = await browser.newPage()
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+            const noCanShare = await page.evaluate(checkForCanShare)
+            const noShare = await page.evaluate(checkForShare)
+            // Base implementation of the test env should not have it (it's only available on mobile)
+            expect(noCanShare).toEqual(false)
+            expect(noShare).toEqual(false)
+        })
+    })
+
+    describe('disabled sub-feature', () => {
+        it('should not expose navigator.canShare() and navigator.share()', async () => {
+            const port = server.address().port
+            const page = await browser.newPage()
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: {
+                    enabledFeatures: ['webCompat']
+                },
+                featureSettings: {
+                    webCompat: {
+                        // no webShare
+                    }
+                }
+            })
+            const noCanShare = await page.evaluate(checkForCanShare)
+            const noShare = await page.evaluate(checkForShare)
+            // Base implementation of the test env should not have it (it's only available on mobile)
+            expect(noCanShare).toEqual(false)
+            expect(noShare).toEqual(false)
+        })
+    })
+
+    describe('enabled feature', () => {
+        let port
+        let page
+
+        beforeAll(async () => {
+            port = server.address().port
+            page = await browser.newPage()
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: {
+                    enabledFeatures: ['webCompat']
+                },
+                featureSettings: {
+                    webCompat: {
+                        webShare: 'enabled'
+                    }
+                }
+            })
+        })
+
+        it('should expose navigator.canShare() and navigator.share() when enabled', async () => {
+            const hasCanShare = await page.evaluate(checkForCanShare)
+            const hasShare = await page.evaluate(checkForShare)
+            expect(hasCanShare).toEqual(true)
+            expect(hasShare).toEqual(true)
+        })
+
+        describe('navigator.canShare()', () => {
+            it('should not let you share files', async () => {
+                const refuseFileShare = await page.evaluate(() => {
+                    return navigator.canShare({ text: 'xxx', files: [] })
+                })
+                expect(refuseFileShare).toEqual(false)
+            })
+
+            it('should not let you share non-http urls', async () => {
+                const refuseShare = await page.evaluate(() => {
+                    return navigator.canShare({ url: 'chrome://bla' })
+                })
+                expect(refuseShare).toEqual(false)
+            })
+
+            it('should allow relative links', async () => {
+                const allowShare = await page.evaluate(() => {
+                    return navigator.canShare({ url: 'bla' })
+                })
+                expect(allowShare).toEqual(true)
+            })
+
+            it('should support only the specific fields', async () => {
+                const refuseShare = await page.evaluate(() => {
+                    // eslint-disable-next-line
+                    // @ts-ignore intentionally malformed data
+                    return navigator.canShare({ foo: 'bar' })
+                })
+                expect(refuseShare).toEqual(false)
+            })
+
+            it('should let you share stuff', async () => {
+                let canShare = await page.evaluate(() => {
+                    return navigator.canShare({ url: 'http://example.com' })
+                })
+                expect(canShare).toEqual(true)
+
+                canShare = await page.evaluate(() => {
+                    return navigator.canShare({ text: 'the grass was greener' })
+                })
+                expect(canShare).toEqual(true)
+
+                canShare = await page.evaluate(() => {
+                    return navigator.canShare({ title: 'the light was brighter' })
+                })
+                expect(canShare).toEqual(true)
+
+                canShare = await page.evaluate(() => {
+                    return navigator.canShare({ text: 'with friends surrounded', title: 'the nights of wonder' })
+                })
+                expect(canShare).toEqual(true)
+            })
+        })
+
+        describe('navigator.share()', () => {
+            describe('(no errors from Android)', () => {
+                beforeEach(async () => {
+                    await page.evaluate(() => {
+                        globalThis.shareReq = null
+                        globalThis.cssMessaging.impl.request = (req) => {
+                            globalThis.shareReq = req
+                            return Promise.resolve({})
+                        }
+                    })
+                })
+
+                async function checkShare (data) {
+                    const payload = `navigator.share(${JSON.stringify(data)})`
+                    const result = await page.evaluate(payload).catch((e) => {
+                        return { threw: e }
+                    })
+                    const message = await page.evaluate(() => {
+                        return globalThis.shareReq
+                    })
+                    return { result, message }
+                }
+
+                it('should let you share text', async () => {
+                    const { result, message } = await checkShare({ text: 'xxx' })
+                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { text: 'xxx' } }))
+                    expect(result).toBeUndefined()
+                })
+
+                it('should let you share url', async () => {
+                    const { result, message } = await checkShare({ url: 'http://example.com' })
+                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { url: 'http://example.com/' } }))
+                    expect(result).toBeUndefined()
+                })
+
+                it('should let you share title alone', async () => {
+                    const { result, message } = await checkShare({ title: 'xxx' })
+                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', text: '' } }))
+                    expect(result).toBeUndefined()
+                })
+
+                it('should let you share title and text', async () => {
+                    const { result, message } = await checkShare({ title: 'xxx', text: 'yyy' })
+                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', text: 'yyy' } }))
+                    expect(result).toBeUndefined()
+                })
+
+                it('should let you share title and url', async () => {
+                    const { result, message } = await checkShare({ title: 'xxx', url: 'http://example.com' })
+                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', url: 'http://example.com/' } }))
+                    expect(result).toBeUndefined()
+                })
+
+                it('should combine text and url when both are present', async () => {
+                    const { result, message } = await checkShare({ text: 'xxx', url: 'http://example.com' })
+                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { text: 'xxx http://example.com/' } }))
+                    expect(result).toBeUndefined()
+                })
+
+                it('should throw when sharing files', async () => {
+                    const { result, message } = await checkShare({ title: 'title', files: [] })
+                    expect(message).toBeNull()
+                    expect(result.threw.message).toEqual('Invalid share data')
+                    expect(result.threw.name).toEqual('TypeError')
+                })
+
+                it('should throw when sharing non-http urls', async () => {
+                    const { result, message } = await checkShare({ url: 'chrome://bla' })
+                    expect(message).toBeNull()
+                    expect(result.threw.message).toEqual('Invalid share data')
+                    expect(result.threw.name).toEqual('TypeError')
+                })
+
+                it('should handle relative urls', async () => {
+                    const { result, message } = await checkShare({ url: 'bla' })
+                    expect(message.params.url).toMatch(/^http:\/\/localhost:\d+\/bla$/)
+                    expect(result).toBeUndefined()
+                })
+
+                it('should treat empty url as relative', async () => {
+                    const { result, message } = await checkShare({ url: '' })
+                    expect(message.params.url).toMatch(/^http:\/\/localhost:\d+\//)
+                    expect(result).toBeUndefined()
+                })
+            })
+
+            describe('(handling errors from Android)', () => {
+                it('should handle messaging error', async () => {
+                    await page.evaluate(() => {
+                        globalThis.cssMessaging.impl.request = () => {
+                            return Promise.reject(new Error('something wrong'))
+                        }
+                    })
+                    const result = await page.evaluate('navigator.share({ text: "xxx" })').catch((e) => {
+                        return { threw: e }
+                    })
+                    expect(result.threw.message).toEqual('something wrong')
+                    expect(result.threw.name).toEqual('DOMException')
+                })
+
+                it('should handle soft failures', async () => {
+                    await page.evaluate(() => {
+                        globalThis.cssMessaging.impl.request = () => {
+                            return Promise.resolve({ failure: { name: 'AbortError', message: 'some error message' } })
+                        }
+                    })
+                    const result = await page.evaluate('navigator.share({ text: "xxx" })').catch((e) => {
+                        return { threw: e }
+                    })
+                    console.error(result.threw)
+                    expect(result.threw.message).toEqual('some error message')
+                    expect(result.threw.name).toEqual('DOMException')
+                })
+            })
+        })
+    })
+})
