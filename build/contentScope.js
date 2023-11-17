@@ -8,6 +8,7 @@
     const customElementsDefine = globalThis.customElements?.define.bind(globalThis.customElements);
     const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
     const objectKeys = Object.keys;
+    const URL$1 = globalThis.URL;
 
     /* global cloneInto, exportFunction, false */
 
@@ -693,10 +694,10 @@
     const otherFeatures = /** @type {const} */([
         'clickToLoad',
         'cookie',
-        'windowsPermissionUsage',
-        'webCompat',
         'duckPlayer',
-        'harmfulApis'
+        'harmfulApis',
+        'webCompat',
+        'windowsPermissionUsage'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -11334,826 +11335,6 @@
         }
     }
 
-    /* global Bluetooth, Geolocation, HID, Serial, USB */
-
-    class WindowsPermissionUsage extends ContentFeature {
-        init () {
-            const Permission = {
-                Geolocation: 'geolocation',
-                Camera: 'camera',
-                Microphone: 'microphone'
-            };
-
-            const Status = {
-                Inactive: 'inactive',
-                Accessed: 'accessed',
-                Active: 'active',
-                Paused: 'paused'
-            };
-
-            const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
-
-            function windowsPostMessage (name, data) {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                windowsInteropPostMessage({
-                    Feature: 'Permissions',
-                    Name: name,
-                    Data: data
-                });
-            }
-
-            function signalPermissionStatus (permission, status) {
-                windowsPostMessage('PermissionStatusMessage', { permission, status });
-                console.debug(`Permission '${permission}' is ${status}`);
-            }
-
-            let pauseWatchedPositions = false;
-            const watchedPositions = new Set();
-            // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
-            const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, 'watchPosition', {
-                apply (target, thisArg, args) {
-                    if (isFrameInsideFrame) {
-                        // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
-                        throw new DOMException('Permission denied')
-                    }
-
-                    const successHandler = args[0];
-                    args[0] = function (position) {
-                        if (pauseWatchedPositions) {
-                            signalPermissionStatus(Permission.Geolocation, Status.Paused);
-                        } else {
-                            signalPermissionStatus(Permission.Geolocation, Status.Active);
-                            successHandler?.(position);
-                        }
-                    };
-                    const id = DDGReflect.apply(target, thisArg, args);
-                    watchedPositions.add(id);
-                    return id
-                }
-            });
-            watchPositionProxy.overload();
-
-            // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
-            const clearWatchProxy = new DDGProxy(this, Geolocation.prototype, 'clearWatch', {
-                apply (target, thisArg, args) {
-                    DDGReflect.apply(target, thisArg, args);
-                    if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
-                        signalPermissionStatus(Permission.Geolocation, Status.Inactive);
-                    }
-                }
-            });
-            clearWatchProxy.overload();
-
-            // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
-            const getCurrentPositionProxy = new DDGProxy(this, Geolocation.prototype, 'getCurrentPosition', {
-                apply (target, thisArg, args) {
-                    const successHandler = args[0];
-                    args[0] = function (position) {
-                        signalPermissionStatus(Permission.Geolocation, Status.Accessed);
-                        successHandler?.(position);
-                    };
-                    return DDGReflect.apply(target, thisArg, args)
-                }
-            });
-            getCurrentPositionProxy.overload();
-
-            const userMediaStreams = new Set();
-            const videoTracks = new Set();
-            const audioTracks = new Set();
-
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            function getTracks (permission) {
-                switch (permission) {
-                case Permission.Camera:
-                    return videoTracks
-                case Permission.Microphone:
-                    return audioTracks
-                }
-            }
-
-            function stopTracks (streamTracks) {
-                streamTracks?.forEach(track => track.stop());
-            }
-
-            function clearAllGeolocationWatch () {
-                watchedPositions.forEach(id => navigator.geolocation.clearWatch(id));
-            }
-
-            function pause (permission) {
-                switch (permission) {
-                case Permission.Camera:
-                case Permission.Microphone: {
-                    const streamTracks = getTracks(permission);
-                    streamTracks?.forEach(track => {
-                        track.enabled = false;
-                    });
-                    break
-                }
-                case Permission.Geolocation:
-                    pauseWatchedPositions = true;
-                    signalPermissionStatus(Permission.Geolocation, Status.Paused);
-                    break
-                }
-            }
-
-            function resume (permission) {
-                switch (permission) {
-                case Permission.Camera:
-                case Permission.Microphone: {
-                    const streamTracks = getTracks(permission);
-                    streamTracks?.forEach(track => {
-                        track.enabled = true;
-                    });
-                    break
-                }
-                case Permission.Geolocation:
-                    pauseWatchedPositions = false;
-                    signalPermissionStatus(Permission.Geolocation, Status.Active);
-                    break
-                }
-            }
-
-            function stop (permission) {
-                switch (permission) {
-                case Permission.Camera:
-                    stopTracks(videoTracks);
-                    break
-                case Permission.Microphone:
-                    stopTracks(audioTracks);
-                    break
-                case Permission.Geolocation:
-                    pauseWatchedPositions = false;
-                    clearAllGeolocationWatch();
-                    break
-                }
-            }
-
-            function monitorTrack (track) {
-                if (track.readyState === 'ended') return
-
-                if (track.kind === 'video' && !videoTracks.has(track)) {
-                    console.debug(`New video stream track ${track.id}`);
-                    track.addEventListener('ended', videoTrackEnded);
-                    track.addEventListener('mute', signalVideoTracksState);
-                    track.addEventListener('unmute', signalVideoTracksState);
-                    videoTracks.add(track);
-                } else if (track.kind === 'audio' && !audioTracks.has(track)) {
-                    console.debug(`New audio stream track ${track.id}`);
-                    track.addEventListener('ended', audioTrackEnded);
-                    track.addEventListener('mute', signalAudioTracksState);
-                    track.addEventListener('unmute', signalAudioTracksState);
-                    audioTracks.add(track);
-                }
-            }
-
-            function handleTrackEnded (track) {
-                if (track.kind === 'video' && videoTracks.has(track)) {
-                    console.debug(`Video stream track ${track.id} ended`);
-                    track.removeEventListener('ended', videoTrackEnded);
-                    track.removeEventListener('mute', signalVideoTracksState);
-                    track.removeEventListener('unmute', signalVideoTracksState);
-                    videoTracks.delete(track);
-                    signalVideoTracksState();
-                } else if (track.kind === 'audio' && audioTracks.has(track)) {
-                    console.debug(`Audio stream track ${track.id} ended`);
-                    track.removeEventListener('ended', audioTrackEnded);
-                    track.removeEventListener('mute', signalAudioTracksState);
-                    track.removeEventListener('unmute', signalAudioTracksState);
-                    audioTracks.delete(track);
-                    signalAudioTracksState();
-                }
-            }
-
-            function videoTrackEnded (e) {
-                handleTrackEnded(e.target);
-            }
-
-            function audioTrackEnded (e) {
-                handleTrackEnded(e.target);
-            }
-
-            function signalTracksState (permission) {
-                const tracks = getTracks(permission);
-                if (!tracks) return
-
-                const allTrackCount = tracks.size;
-                if (allTrackCount === 0) {
-                    signalPermissionStatus(permission, Status.Inactive);
-                    return
-                }
-
-                let mutedTrackCount = 0;
-                tracks.forEach(track => {
-                    mutedTrackCount += ((!track.enabled || track.muted) ? 1 : 0);
-                });
-                if (mutedTrackCount === allTrackCount) {
-                    signalPermissionStatus(permission, Status.Paused);
-                } else {
-                    if (mutedTrackCount > 0) {
-                        console.debug(`Some ${permission} tracks are still active: ${allTrackCount - mutedTrackCount}/${allTrackCount}`);
-                    }
-                    signalPermissionStatus(permission, Status.Active);
-                }
-            }
-
-            let signalVideoTracksStateTimer;
-            function signalVideoTracksState () {
-                clearTimeout(signalVideoTracksStateTimer);
-                signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100);
-            }
-
-            let signalAudioTracksStateTimer;
-            function signalAudioTracksState () {
-                clearTimeout(signalAudioTracksStateTimer);
-                signalAudioTracksStateTimer = setTimeout(() => signalTracksState(Permission.Microphone), 100);
-            }
-
-            // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
-            const stopTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'stop', {
-                apply (target, thisArg, args) {
-                    handleTrackEnded(thisArg);
-                    return DDGReflect.apply(target, thisArg, args)
-                }
-            });
-            stopTrackProxy.overload();
-
-            // proxy for track.clone -> monitor the cloned track
-            const cloneTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'clone', {
-                apply (target, thisArg, args) {
-                    const clonedTrack = DDGReflect.apply(target, thisArg, args);
-                    if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
-                        // @ts-expect-error - thisArg is possibly undefined
-                        console.debug(`Media stream track ${thisArg.id} has been cloned to track ${clonedTrack.id}`);
-                        monitorTrack(clonedTrack);
-                    }
-                    return clonedTrack
-                }
-            });
-            cloneTrackProxy.overload();
-
-            // override MediaStreamTrack.enabled -> update active/paused status when enabled is set
-            const trackEnabledPropertyDescriptor = Object.getOwnPropertyDescriptor(MediaStreamTrack.prototype, 'enabled');
-            this.defineProperty(MediaStreamTrack.prototype, 'enabled', {
-                // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
-                configurable: trackEnabledPropertyDescriptor.configurable,
-                // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
-                enumerable: trackEnabledPropertyDescriptor.enumerable,
-                get: function () {
-                    // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
-                    return trackEnabledPropertyDescriptor.get.bind(this)()
-                },
-                set: function () {
-                    // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
-                    const result = trackEnabledPropertyDescriptor.set.bind(this)(...arguments);
-                    if (videoTracks.has(this)) {
-                        signalVideoTracksState();
-                    } else if (audioTracks.has(this)) {
-                        signalAudioTracksState();
-                    }
-                    return result
-                }
-            });
-
-            // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
-            const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks'];
-            for (const methodName of getTracksMethodNames) {
-                const getTracksProxy = new DDGProxy(this, MediaStream.prototype, methodName, {
-                    apply (target, thisArg, args) {
-                        const tracks = DDGReflect.apply(target, thisArg, args);
-                        if (userMediaStreams.has(thisArg)) {
-                            tracks.forEach(monitorTrack);
-                        }
-                        return tracks
-                    }
-                });
-                getTracksProxy.overload();
-            }
-
-            // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
-            const cloneMediaStreamProxy = new DDGProxy(this, MediaStream.prototype, 'clone', {
-                apply (target, thisArg, args) {
-                    const clonedStream = DDGReflect.apply(target, thisArg, args);
-                    if (userMediaStreams.has(thisArg)) {
-                        // @ts-expect-error - thisArg is possibly 'undefined' here
-                        console.debug(`User stream ${thisArg.id} has been cloned to stream ${clonedStream.id}`);
-                        userMediaStreams.add(clonedStream);
-                    }
-                    return clonedStream
-                }
-            });
-            cloneMediaStreamProxy.overload();
-
-            // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
-            if (window.MediaDevices) {
-                const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
-                    apply (target, thisArg, args) {
-                        if (isFrameInsideFrame) {
-                            // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
-                            return Promise.reject(new DOMException('Permission denied'))
-                        }
-
-                        const videoRequested = args[0]?.video;
-                        const audioRequested = args[0]?.audio;
-
-                        if (videoRequested && (videoRequested.pan || videoRequested.tilt || videoRequested.zoom)) {
-                            // WebView2 doesn't support acquiring pan-tilt-zoom from its API at the moment
-                            return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'))
-                        }
-
-                        // eslint-disable-next-line promise/prefer-await-to-then
-                        return DDGReflect.apply(target, thisArg, args).then(function (stream) {
-                            console.debug(`User stream ${stream.id} has been acquired`);
-                            userMediaStreams.add(stream);
-                            if (videoRequested) {
-                                const newVideoTracks = stream.getVideoTracks();
-                                if (newVideoTracks?.length > 0) {
-                                    signalPermissionStatus(Permission.Camera, Status.Active);
-                                }
-                                newVideoTracks.forEach(monitorTrack);
-                            }
-
-                            if (audioRequested) {
-                                const newAudioTracks = stream.getAudioTracks();
-                                if (newAudioTracks?.length > 0) {
-                                    signalPermissionStatus(Permission.Microphone, Status.Active);
-                                }
-                                newAudioTracks.forEach(monitorTrack);
-                            }
-                            return stream
-                        })
-                    }
-                });
-                getUserMediaProxy.overload();
-            }
-
-            function performAction (action, permission) {
-                if (action && permission) {
-                    switch (action) {
-                    case 'pause':
-                        pause(permission);
-                        break
-                    case 'resume':
-                        resume(permission);
-                        break
-                    case 'stop':
-                        stop(permission);
-                        break
-                    }
-                }
-            }
-
-            // handle actions from browser
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            windowsInteropAddEventListener('message', function ({ data }) {
-                if (data?.action && data?.permission) {
-                    performAction(data?.action, data?.permission);
-                }
-            });
-
-            // these permissions cannot be disabled using WebView2 or DevTools protocol
-            const permissionsToDisable = [
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                { name: 'Bluetooth', prototype: () => Bluetooth.prototype, method: 'requestDevice', isPromise: true },
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                { name: 'USB', prototype: () => USB.prototype, method: 'requestDevice', isPromise: true },
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                { name: 'Serial', prototype: () => Serial.prototype, method: 'requestPort', isPromise: true },
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                { name: 'HID', prototype: () => HID.prototype, method: 'requestDevice', isPromise: true },
-                { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
-                { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true }
-            ];
-            for (const { name, prototype, method, isPromise } of permissionsToDisable) {
-                try {
-                    const proxy = new DDGProxy(this, prototype(), method, {
-                        apply () {
-                            if (isPromise) {
-                                return Promise.reject(new DOMException('Permission denied'))
-                            } else {
-                                throw new DOMException('Permission denied')
-                            }
-                        }
-                    });
-                    proxy.overload();
-                } catch (error) {
-                    console.info(`Could not disable access to ${name} because of error`, error);
-                }
-            }
-
-            // these permissions can be disabled using DevTools protocol but it's not reliable and can throw exception sometimes
-            const permissionsToDelete = [
-                { name: 'Idle detection', permission: 'IdleDetector' },
-                { name: 'NFC', permission: 'NDEFReader' },
-                { name: 'Orientation', permission: 'ondeviceorientation' },
-                { name: 'Motion', permission: 'ondevicemotion' }
-            ];
-            for (const { permission } of permissionsToDelete) {
-                if (permission in window) {
-                    Reflect.deleteProperty(window, permission);
-                }
-            }
-        }
-    }
-
-    /**
-     * Fixes incorrect sizing value for outerHeight and outerWidth
-     */
-    function windowSizingFix () {
-        if (window.outerHeight !== 0 && window.outerWidth !== 0) {
-            return
-        }
-        window.outerHeight = window.innerHeight;
-        window.outerWidth = window.innerWidth;
-    }
-
-    class WebCompat extends ContentFeature {
-        init () {
-            if (this.getFeatureSettingEnabled('windowSizing')) {
-                windowSizingFix();
-            }
-            if (this.getFeatureSettingEnabled('navigatorCredentials')) {
-                this.navigatorCredentialsFix();
-            }
-            if (this.getFeatureSettingEnabled('safariObject')) {
-                this.safariObjectFix();
-            }
-            if (this.getFeatureSettingEnabled('messageHandlers')) {
-                this.messageHandlersFix();
-            }
-            if (this.getFeatureSettingEnabled('notification')) {
-                this.notificationFix();
-            }
-            if (this.getFeatureSettingEnabled('permissions')) {
-                const settings = this.getFeatureSetting('permissions');
-                this.permissionsFix(settings);
-            }
-            if (this.getFeatureSettingEnabled('cleanIframeValue')) {
-                this.cleanIframeValue();
-            }
-
-            if (this.getFeatureSettingEnabled('mediaSession')) {
-                this.mediaSessionFix();
-            }
-
-            if (this.getFeatureSettingEnabled('presentation')) {
-                this.presentationFix();
-            }
-        }
-
-        /**
-         * Notification fix for adding missing API for Android WebView.
-         */
-        notificationFix () {
-            if (window.Notification) {
-                return
-            }
-            // Expose the API
-            this.defineProperty(window, 'Notification', {
-                value: () => {
-                    // noop
-                },
-                writable: true,
-                configurable: true,
-                enumerable: false
-            });
-
-            this.defineProperty(window.Notification, 'requestPermission', {
-                value: () => {
-                    return Promise.resolve('denied')
-                },
-                writable: true,
-                configurable: true,
-                enumerable: false
-            });
-
-            this.defineProperty(window.Notification, 'permission', {
-                value: 'denied',
-                writable: true,
-                configurable: true,
-                enumerable: false
-            });
-
-            this.defineProperty(window.Notification, 'maxActions', {
-                value: 2,
-                writable: true,
-                configurable: true,
-                enumerable: false
-            });
-        }
-
-        cleanIframeValue () {
-            function cleanValueData (val) {
-                const clone = Object.assign({}, val);
-                const deleteKeys = ['iframeProto', 'iframeData', 'remap'];
-                for (const key of deleteKeys) {
-                    if (key in clone) {
-                        delete clone[key];
-                    }
-                }
-                val.iframeData = clone;
-                return val
-            }
-
-            window.XMLHttpRequest.prototype.send = new Proxy(window.XMLHttpRequest.prototype.send, {
-                apply (target, thisArg, args) {
-                    const body = args[0];
-                    const cleanKey = 'bi_wvdp';
-                    if (body && typeof body === 'string' && body.includes(cleanKey)) {
-                        const parts = body.split('&').map((part) => { return part.split('=') });
-                        if (parts.length > 0) {
-                            parts.forEach((part) => {
-                                if (part[0] === cleanKey) {
-                                    const val = JSON.parse(decodeURIComponent(part[1]));
-                                    part[1] = encodeURIComponent(JSON.stringify(cleanValueData(val)));
-                                }
-                            });
-                            args[0] = parts.map((part) => { return part.join('=') }).join('&');
-                        }
-                    }
-                    return Reflect.apply(target, thisArg, args)
-                }
-            });
-        }
-
-        /**
-         * Adds missing permissions API for Android WebView.
-         */
-        permissionsFix (settings) {
-            if (window.navigator.permissions) {
-                return
-            }
-            const permissions = {};
-            class PermissionStatus extends EventTarget {
-                constructor (name, state) {
-                    super();
-                    this.name = name;
-                    this.state = state;
-                    this.onchange = null; // noop
-                }
-            }
-            // Default subset based upon Firefox (the full list is pretty large right now and these are the common ones)
-            const defaultValidPermissionNames = [
-                'geolocation',
-                'notifications',
-                'push',
-                'persistent-storage',
-                'midi',
-                'accelerometer',
-                'ambient-light-sensor',
-                'background-sync',
-                'bluetooth',
-                'camera',
-                'clipboard',
-                'device-info',
-                'gyroscope',
-                'magnetometer',
-                'microphone',
-                'speaker'
-            ];
-            const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames;
-            const returnStatus = settings.permissionResponse || 'prompt';
-            permissions.query = new Proxy((query) => {
-                this.addDebugFlag();
-                if (!query) {
-                    throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
-                }
-                if (!query.name) {
-                    throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.")
-                }
-                if (!validPermissionNames.includes(query.name)) {
-                    throw new TypeError(`Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`)
-                }
-                return Promise.resolve(new PermissionStatus(query.name, returnStatus))
-            }, {
-                get (target, name) {
-                    return Reflect.get(target, name)
-                }
-            });
-            // Expose the API
-            // @ts-expect-error window.navigator isn't assignable
-            window.navigator.permissions = permissions;
-        }
-
-        /**
-         * Add missing navigator.credentials API
-         */
-        navigatorCredentialsFix () {
-            try {
-                if ('credentials' in navigator && 'get' in navigator.credentials) {
-                    return
-                }
-                // TODO: change the property descriptor shape to match the original
-                const value = {
-                    get () {
-                        return Promise.reject(new Error())
-                    }
-                };
-                this.defineProperty(Navigator.prototype, 'credentials', {
-                    value,
-                    configurable: true,
-                    enumerable: true
-                });
-            } catch {
-                // Ignore exceptions that could be caused by conflicting with other extensions
-            }
-        }
-
-        safariObjectFix () {
-            try {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                if (window.safari) {
-                    return
-                }
-                this.defineProperty(window, 'safari', {
-                    value: {
-                    },
-                    writable: true,
-                    configurable: true,
-                    enumerable: true
-                });
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                this.defineProperty(window.safari, 'pushNotification', {
-                    value: {
-                    },
-                    configurable: true,
-                    enumerable: true
-                });
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                this.defineProperty(window.safari.pushNotification, 'toString', {
-                    value: () => { return '[object SafariRemoteNotification]' },
-                    configurable: true,
-                    enumerable: true
-                });
-                class SafariRemoteNotificationPermission {
-                    constructor () {
-                        this.deviceToken = null;
-                        this.permission = 'denied';
-                    }
-                }
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                this.defineProperty(window.safari.pushNotification, 'permission', {
-                    value: () => {
-                        return new SafariRemoteNotificationPermission()
-                    },
-                    configurable: true,
-                    enumerable: true
-                });
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                this.defineProperty(window.safari.pushNotification, 'requestPermission', {
-                    value: (name, domain, options, callback) => {
-                        if (typeof callback === 'function') {
-                            callback(new SafariRemoteNotificationPermission());
-                            return
-                        }
-                        const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function.";
-                        throw new Error(reason)
-                    },
-                    configurable: true,
-                    enumerable: true
-                });
-            } catch {
-                // Ignore exceptions that could be caused by conflicting with other extensions
-            }
-        }
-
-        mediaSessionFix () {
-            try {
-                if (window.navigator.mediaSession) {
-                    return
-                }
-
-                this.defineProperty(window.navigator, 'mediaSession', {
-                    value: {
-                    },
-                    writable: true,
-                    configurable: true,
-                    enumerable: true
-                });
-                this.defineProperty(window.navigator.mediaSession, 'metadata', {
-                    value: null,
-                    writable: true,
-                    configurable: false,
-                    enumerable: false
-                });
-                this.defineProperty(window.navigator.mediaSession, 'playbackState', {
-                    value: 'none',
-                    writable: true,
-                    configurable: false,
-                    enumerable: false
-                });
-                this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
-                    value: () => {},
-                    configurable: true,
-                    enumerable: true
-                });
-                this.defineProperty(window.navigator.mediaSession, 'setCameraActive', {
-                    value: () => {},
-                    configurable: true,
-                    enumerable: true
-                });
-                this.defineProperty(window.navigator.mediaSession, 'setMicrophoneActive', {
-                    value: () => {},
-                    configurable: true,
-                    enumerable: true
-                });
-                this.defineProperty(window.navigator.mediaSession, 'setPositionState', {
-                    value: () => {},
-                    configurable: true,
-                    enumerable: true
-                });
-
-                class MediaMetadata {
-                    constructor (metadata = {}) {
-                        this.title = metadata.title;
-                        this.artist = metadata.artist;
-                        this.album = metadata.album;
-                        this.artwork = metadata.artwork;
-                    }
-                }
-
-                window.MediaMetadata = new Proxy(MediaMetadata, {});
-            } catch {
-                // Ignore exceptions that could be caused by conflicting with other extensions
-            }
-        }
-
-        presentationFix () {
-            try {
-                // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-                if (window.navigator.presentation) {
-                    return
-                }
-
-                this.defineProperty(window.navigator, 'presentation', {
-                    value: {
-                    },
-                    writable: true,
-                    configurable: true,
-                    enumerable: true
-                });
-                // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-                this.defineProperty(window.navigator.presentation, 'defaultRequest', {
-                    value: null,
-                    configurable: true,
-                    enumerable: true
-                });
-                // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-                this.defineProperty(window.navigator.presentation, 'receiver', {
-                    value: null,
-                    configurable: true,
-                    enumerable: true
-                });
-            } catch {
-                // Ignore exceptions that could be caused by conflicting with other extensions
-            }
-        }
-
-        /**
-         * Support for proxying `window.webkit.messageHandlers`
-         */
-        messageHandlersFix () {
-            /** @type {import('../types//webcompat-settings').WebCompatSettings['messageHandlers']} */
-            const settings = this.getFeatureSetting('messageHandlers');
-
-            // Do nothing if `messageHandlers` is absent
-            if (!globalThis.webkit?.messageHandlers) return
-            // This should never occur, but keeps typescript happy
-            if (!settings) return
-
-            const proxy = new Proxy(globalThis.webkit.messageHandlers, {
-                get (target, messageName, receiver) {
-                    const handlerName = String(messageName);
-
-                    // handle known message names, such as DDG webkit messaging
-                    if (settings.handlerStrategies.reflect.includes(handlerName)) {
-                        return Reflect.get(target, messageName, receiver)
-                    }
-
-                    if (settings.handlerStrategies.undefined.includes(handlerName)) {
-                        return undefined
-                    }
-
-                    if (settings.handlerStrategies.polyfill.includes('*') ||
-                        settings.handlerStrategies.polyfill.includes(handlerName)
-                    ) {
-                        return {
-                            postMessage () {
-                                return Promise.resolve({})
-                            }
-                        }
-                    }
-                    // if we get here, we couldn't handle the message handler name, so we opt for doing nothing.
-                    // It's unlikely we'll ever reach here, since `["*"]' should be present
-                }
-            });
-
-            globalThis.webkit = {
-                ...globalThis.webkit,
-                messageHandlers: proxy
-            };
-        }
-    }
-
     const MSG_NAME_SET_VALUES = 'setUserValues';
     const MSG_NAME_READ_VALUES = 'getUserValues';
     const MSG_NAME_READ_VALUES_SERP = 'readUserValues';
@@ -14373,6 +13554,952 @@
     } ApiProtections
      */
 
+    /**
+     * Fixes incorrect sizing value for outerHeight and outerWidth
+     */
+    function windowSizingFix () {
+        if (window.outerHeight !== 0 && window.outerWidth !== 0) {
+            return
+        }
+        window.outerHeight = window.innerHeight;
+        window.outerWidth = window.innerWidth;
+    }
+
+    const MSG_WEB_SHARE = 'webShare';
+
+    function canShare (data) {
+        if (typeof data !== 'object') return false
+        if (!('url' in data) && !('title' in data) && !('text' in data)) return false // At least one of these is required
+        if ('files' in data) return false // File sharing is not supported at the moment
+        if ('title' in data && typeof data.title !== 'string') return false
+        if ('text' in data && typeof data.text !== 'string') return false
+        if ('url' in data) {
+            if (typeof data.url !== 'string') return false
+            try {
+                const url = new URL$1(data.url, location.href);
+                if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+            } catch (err) {
+                return false
+            }
+        }
+        if (window !== window.top) return false // Not supported in iframes
+        return true
+    }
+
+    /**
+     * Clean data before sending to the Android side
+     * @returns {ShareRequestData}
+     */
+    function cleanShareData (data) {
+        /** @type {ShareRequestData} */
+        const dataToSend = {};
+
+        // only send the keys we care about
+        for (const key of ['title', 'text', 'url']) {
+            if (key in data) dataToSend[key] = data[key];
+        }
+
+        // clean url and handle relative links (e.g. if url is an empty string)
+        if ('url' in data) {
+            dataToSend.url = (new URL$1(data.url, location.href)).href;
+        }
+
+        // combine url and text into text if both are present
+        if ('url' in dataToSend && 'text' in dataToSend) {
+            dataToSend.text = `${dataToSend.text} ${dataToSend.url}`;
+            delete dataToSend.url;
+        }
+
+        // if there's only title, create a dummy empty text
+        if (!('url' in dataToSend) && !('text' in dataToSend)) {
+            dataToSend.text = '';
+        }
+        return dataToSend
+    }
+
+    class WebCompat extends ContentFeature {
+        /** @type {Promise<any> | null} */
+        #activeShareRequest = null
+
+        init () {
+            if (this.getFeatureSettingEnabled('windowSizing')) {
+                windowSizingFix();
+            }
+            if (this.getFeatureSettingEnabled('navigatorCredentials')) {
+                this.navigatorCredentialsFix();
+            }
+            if (this.getFeatureSettingEnabled('safariObject')) {
+                this.safariObjectFix();
+            }
+            if (this.getFeatureSettingEnabled('messageHandlers')) {
+                this.messageHandlersFix();
+            }
+            if (this.getFeatureSettingEnabled('notification')) {
+                this.notificationFix();
+            }
+            if (this.getFeatureSettingEnabled('permissions')) {
+                const settings = this.getFeatureSetting('permissions');
+                this.permissionsFix(settings);
+            }
+            if (this.getFeatureSettingEnabled('cleanIframeValue')) {
+                this.cleanIframeValue();
+            }
+
+            if (this.getFeatureSettingEnabled('mediaSession')) {
+                this.mediaSessionFix();
+            }
+
+            if (this.getFeatureSettingEnabled('presentation')) {
+                this.presentationFix();
+            }
+
+            if (this.getFeatureSettingEnabled('webShare')) {
+                this.shimWebShare();
+            }
+
+            if (this.getFeatureSettingEnabled('viewportWidth')) {
+                this.viewportWidthFix();
+            }
+        }
+
+        /** Shim Web Share API in Android WebView */
+        shimWebShare () {
+            if (typeof navigator.canShare === 'function' || typeof navigator.share === 'function') return
+
+            this.defineProperty(Navigator.prototype, 'canShare', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: canShare
+            });
+
+            this.defineProperty(Navigator.prototype, 'share', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: async (data) => {
+                    if (!canShare(data)) return Promise.reject(new TypeError('Invalid share data'))
+                    if (this.#activeShareRequest) {
+                        return Promise.reject(new DOMException('Share already in progress', 'InvalidStateError'))
+                    }
+                    if (!navigator.userActivation.isActive) {
+                        return Promise.reject(new DOMException('Share must be initiated by a user gesture', 'InvalidStateError'))
+                    }
+
+                    const dataToSend = cleanShareData(data);
+                    this.#activeShareRequest = this.messaging.request(MSG_WEB_SHARE, dataToSend);
+                    let resp;
+                    try {
+                        resp = await this.#activeShareRequest;
+                    } catch (err) {
+                        throw new DOMException(err.message, 'DataError')
+                    } finally {
+                        this.#activeShareRequest = null;
+                    }
+
+                    if (resp.failure) {
+                        switch (resp.failure.name) {
+                        case 'AbortError':
+                        case 'NotAllowedError':
+                        case 'DataError':
+                            throw new DOMException(resp.failure.message, resp.failure.name)
+                        default:
+                            throw new DOMException(resp.failure.message, 'DataError')
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * Notification fix for adding missing API for Android WebView.
+         */
+        notificationFix () {
+            if (window.Notification) {
+                return
+            }
+            // Expose the API
+            this.defineProperty(window, 'Notification', {
+                value: () => {
+                    // noop
+                },
+                writable: true,
+                configurable: true,
+                enumerable: false
+            });
+
+            this.defineProperty(window.Notification, 'requestPermission', {
+                value: () => {
+                    return Promise.resolve('denied')
+                },
+                writable: true,
+                configurable: true,
+                enumerable: false
+            });
+
+            this.defineProperty(window.Notification, 'permission', {
+                value: 'denied',
+                writable: true,
+                configurable: true,
+                enumerable: false
+            });
+
+            this.defineProperty(window.Notification, 'maxActions', {
+                value: 2,
+                writable: true,
+                configurable: true,
+                enumerable: false
+            });
+        }
+
+        cleanIframeValue () {
+            function cleanValueData (val) {
+                const clone = Object.assign({}, val);
+                const deleteKeys = ['iframeProto', 'iframeData', 'remap'];
+                for (const key of deleteKeys) {
+                    if (key in clone) {
+                        delete clone[key];
+                    }
+                }
+                val.iframeData = clone;
+                return val
+            }
+
+            window.XMLHttpRequest.prototype.send = new Proxy(window.XMLHttpRequest.prototype.send, {
+                apply (target, thisArg, args) {
+                    const body = args[0];
+                    const cleanKey = 'bi_wvdp';
+                    if (body && typeof body === 'string' && body.includes(cleanKey)) {
+                        const parts = body.split('&').map((part) => { return part.split('=') });
+                        if (parts.length > 0) {
+                            parts.forEach((part) => {
+                                if (part[0] === cleanKey) {
+                                    const val = JSON.parse(decodeURIComponent(part[1]));
+                                    part[1] = encodeURIComponent(JSON.stringify(cleanValueData(val)));
+                                }
+                            });
+                            args[0] = parts.map((part) => { return part.join('=') }).join('&');
+                        }
+                    }
+                    return Reflect.apply(target, thisArg, args)
+                }
+            });
+        }
+
+        /**
+         * Adds missing permissions API for Android WebView.
+         */
+        permissionsFix (settings) {
+            if (window.navigator.permissions) {
+                return
+            }
+            const permissions = {};
+            class PermissionStatus extends EventTarget {
+                constructor (name, state) {
+                    super();
+                    this.name = name;
+                    this.state = state;
+                    this.onchange = null; // noop
+                }
+            }
+            // Default subset based upon Firefox (the full list is pretty large right now and these are the common ones)
+            const defaultValidPermissionNames = [
+                'geolocation',
+                'notifications',
+                'push',
+                'persistent-storage',
+                'midi',
+                'accelerometer',
+                'ambient-light-sensor',
+                'background-sync',
+                'bluetooth',
+                'camera',
+                'clipboard',
+                'device-info',
+                'gyroscope',
+                'magnetometer',
+                'microphone',
+                'speaker'
+            ];
+            const validPermissionNames = settings.validPermissionNames || defaultValidPermissionNames;
+            const returnStatus = settings.permissionResponse || 'prompt';
+            permissions.query = new Proxy((query) => {
+                this.addDebugFlag();
+                if (!query) {
+                    throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
+                }
+                if (!query.name) {
+                    throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.")
+                }
+                if (!validPermissionNames.includes(query.name)) {
+                    throw new TypeError(`Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`)
+                }
+                return Promise.resolve(new PermissionStatus(query.name, returnStatus))
+            }, {
+                get (target, name) {
+                    return Reflect.get(target, name)
+                }
+            });
+            // Expose the API
+            // @ts-expect-error window.navigator isn't assignable
+            window.navigator.permissions = permissions;
+        }
+
+        /**
+         * Add missing navigator.credentials API
+         */
+        navigatorCredentialsFix () {
+            try {
+                if ('credentials' in navigator && 'get' in navigator.credentials) {
+                    return
+                }
+                // TODO: change the property descriptor shape to match the original
+                const value = {
+                    get () {
+                        return Promise.reject(new Error())
+                    }
+                };
+                this.defineProperty(Navigator.prototype, 'credentials', {
+                    value,
+                    configurable: true,
+                    enumerable: true
+                });
+            } catch {
+                // Ignore exceptions that could be caused by conflicting with other extensions
+            }
+        }
+
+        safariObjectFix () {
+            try {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                if (window.safari) {
+                    return
+                }
+                this.defineProperty(window, 'safari', {
+                    value: {
+                    },
+                    writable: true,
+                    configurable: true,
+                    enumerable: true
+                });
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                this.defineProperty(window.safari, 'pushNotification', {
+                    value: {
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                this.defineProperty(window.safari.pushNotification, 'toString', {
+                    value: () => { return '[object SafariRemoteNotification]' },
+                    configurable: true,
+                    enumerable: true
+                });
+                class SafariRemoteNotificationPermission {
+                    constructor () {
+                        this.deviceToken = null;
+                        this.permission = 'denied';
+                    }
+                }
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                this.defineProperty(window.safari.pushNotification, 'permission', {
+                    value: () => {
+                        return new SafariRemoteNotificationPermission()
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                this.defineProperty(window.safari.pushNotification, 'requestPermission', {
+                    value: (name, domain, options, callback) => {
+                        if (typeof callback === 'function') {
+                            callback(new SafariRemoteNotificationPermission());
+                            return
+                        }
+                        const reason = "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function.";
+                        throw new Error(reason)
+                    },
+                    configurable: true,
+                    enumerable: true
+                });
+            } catch {
+                // Ignore exceptions that could be caused by conflicting with other extensions
+            }
+        }
+
+        mediaSessionFix () {
+            try {
+                if (window.navigator.mediaSession) {
+                    return
+                }
+
+                this.defineProperty(window.navigator, 'mediaSession', {
+                    value: {
+                    },
+                    writable: true,
+                    configurable: true,
+                    enumerable: true
+                });
+                this.defineProperty(window.navigator.mediaSession, 'metadata', {
+                    value: null,
+                    writable: true,
+                    configurable: false,
+                    enumerable: false
+                });
+                this.defineProperty(window.navigator.mediaSession, 'playbackState', {
+                    value: 'none',
+                    writable: true,
+                    configurable: false,
+                    enumerable: false
+                });
+                this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
+                    value: () => {},
+                    configurable: true,
+                    enumerable: true
+                });
+                this.defineProperty(window.navigator.mediaSession, 'setCameraActive', {
+                    value: () => {},
+                    configurable: true,
+                    enumerable: true
+                });
+                this.defineProperty(window.navigator.mediaSession, 'setMicrophoneActive', {
+                    value: () => {},
+                    configurable: true,
+                    enumerable: true
+                });
+                this.defineProperty(window.navigator.mediaSession, 'setPositionState', {
+                    value: () => {},
+                    configurable: true,
+                    enumerable: true
+                });
+
+                class MediaMetadata {
+                    constructor (metadata = {}) {
+                        this.title = metadata.title;
+                        this.artist = metadata.artist;
+                        this.album = metadata.album;
+                        this.artwork = metadata.artwork;
+                    }
+                }
+
+                window.MediaMetadata = new Proxy(MediaMetadata, {});
+            } catch {
+                // Ignore exceptions that could be caused by conflicting with other extensions
+            }
+        }
+
+        presentationFix () {
+            try {
+                // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+                if (window.navigator.presentation) {
+                    return
+                }
+
+                this.defineProperty(window.navigator, 'presentation', {
+                    value: {
+                    },
+                    writable: true,
+                    configurable: true,
+                    enumerable: true
+                });
+                // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+                this.defineProperty(window.navigator.presentation, 'defaultRequest', {
+                    value: null,
+                    configurable: true,
+                    enumerable: true
+                });
+                // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
+                this.defineProperty(window.navigator.presentation, 'receiver', {
+                    value: null,
+                    configurable: true,
+                    enumerable: true
+                });
+            } catch {
+                // Ignore exceptions that could be caused by conflicting with other extensions
+            }
+        }
+
+        /**
+         * Support for proxying `window.webkit.messageHandlers`
+         */
+        messageHandlersFix () {
+            /** @type {import('../types//webcompat-settings').WebCompatSettings['messageHandlers']} */
+            const settings = this.getFeatureSetting('messageHandlers');
+
+            // Do nothing if `messageHandlers` is absent
+            if (!globalThis.webkit?.messageHandlers) return
+            // This should never occur, but keeps typescript happy
+            if (!settings) return
+
+            const proxy = new Proxy(globalThis.webkit.messageHandlers, {
+                get (target, messageName, receiver) {
+                    const handlerName = String(messageName);
+
+                    // handle known message names, such as DDG webkit messaging
+                    if (settings.handlerStrategies.reflect.includes(handlerName)) {
+                        return Reflect.get(target, messageName, receiver)
+                    }
+
+                    if (settings.handlerStrategies.undefined.includes(handlerName)) {
+                        return undefined
+                    }
+
+                    if (settings.handlerStrategies.polyfill.includes('*') ||
+                        settings.handlerStrategies.polyfill.includes(handlerName)
+                    ) {
+                        return {
+                            postMessage () {
+                                return Promise.resolve({})
+                            }
+                        }
+                    }
+                    // if we get here, we couldn't handle the message handler name, so we opt for doing nothing.
+                    // It's unlikely we'll ever reach here, since `["*"]' should be present
+                }
+            });
+
+            globalThis.webkit = {
+                ...globalThis.webkit,
+                messageHandlers: proxy
+            };
+        }
+
+        viewportWidthFix () {
+            const viewportTag = document.querySelector('meta[name=viewport]');
+            if (!viewportTag) return
+            const viewportContent = viewportTag.getAttribute('content');
+            if (!viewportContent) return
+            const viewportContentParts = viewportContent.split(',');
+            const widthPart = viewportContentParts.find((part) => part.includes('width'));
+            // If we already have a width, don't add one
+            if (widthPart) return
+            viewportTag.setAttribute('content', `${viewportContent},width=device-width`);
+        }
+    }
+
+    /** @typedef {{title?: string, url?: string, text?: string}} ShareRequestData */
+
+    /* global Bluetooth, Geolocation, HID, Serial, USB */
+
+    class WindowsPermissionUsage extends ContentFeature {
+        init () {
+            const Permission = {
+                Geolocation: 'geolocation',
+                Camera: 'camera',
+                Microphone: 'microphone'
+            };
+
+            const Status = {
+                Inactive: 'inactive',
+                Accessed: 'accessed',
+                Active: 'active',
+                Paused: 'paused'
+            };
+
+            const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
+
+            function windowsPostMessage (name, data) {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                windowsInteropPostMessage({
+                    Feature: 'Permissions',
+                    Name: name,
+                    Data: data
+                });
+            }
+
+            function signalPermissionStatus (permission, status) {
+                windowsPostMessage('PermissionStatusMessage', { permission, status });
+                console.debug(`Permission '${permission}' is ${status}`);
+            }
+
+            let pauseWatchedPositions = false;
+            const watchedPositions = new Set();
+            // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
+            const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, 'watchPosition', {
+                apply (target, thisArg, args) {
+                    if (isFrameInsideFrame) {
+                        // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
+                        throw new DOMException('Permission denied')
+                    }
+
+                    const successHandler = args[0];
+                    args[0] = function (position) {
+                        if (pauseWatchedPositions) {
+                            signalPermissionStatus(Permission.Geolocation, Status.Paused);
+                        } else {
+                            signalPermissionStatus(Permission.Geolocation, Status.Active);
+                            successHandler?.(position);
+                        }
+                    };
+                    const id = DDGReflect.apply(target, thisArg, args);
+                    watchedPositions.add(id);
+                    return id
+                }
+            });
+            watchPositionProxy.overload();
+
+            // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
+            const clearWatchProxy = new DDGProxy(this, Geolocation.prototype, 'clearWatch', {
+                apply (target, thisArg, args) {
+                    DDGReflect.apply(target, thisArg, args);
+                    if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
+                        signalPermissionStatus(Permission.Geolocation, Status.Inactive);
+                    }
+                }
+            });
+            clearWatchProxy.overload();
+
+            // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
+            const getCurrentPositionProxy = new DDGProxy(this, Geolocation.prototype, 'getCurrentPosition', {
+                apply (target, thisArg, args) {
+                    const successHandler = args[0];
+                    args[0] = function (position) {
+                        signalPermissionStatus(Permission.Geolocation, Status.Accessed);
+                        successHandler?.(position);
+                    };
+                    return DDGReflect.apply(target, thisArg, args)
+                }
+            });
+            getCurrentPositionProxy.overload();
+
+            const userMediaStreams = new Set();
+            const videoTracks = new Set();
+            const audioTracks = new Set();
+
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            function getTracks (permission) {
+                switch (permission) {
+                case Permission.Camera:
+                    return videoTracks
+                case Permission.Microphone:
+                    return audioTracks
+                }
+            }
+
+            function stopTracks (streamTracks) {
+                streamTracks?.forEach(track => track.stop());
+            }
+
+            function clearAllGeolocationWatch () {
+                watchedPositions.forEach(id => navigator.geolocation.clearWatch(id));
+            }
+
+            function pause (permission) {
+                switch (permission) {
+                case Permission.Camera:
+                case Permission.Microphone: {
+                    const streamTracks = getTracks(permission);
+                    streamTracks?.forEach(track => {
+                        track.enabled = false;
+                    });
+                    break
+                }
+                case Permission.Geolocation:
+                    pauseWatchedPositions = true;
+                    signalPermissionStatus(Permission.Geolocation, Status.Paused);
+                    break
+                }
+            }
+
+            function resume (permission) {
+                switch (permission) {
+                case Permission.Camera:
+                case Permission.Microphone: {
+                    const streamTracks = getTracks(permission);
+                    streamTracks?.forEach(track => {
+                        track.enabled = true;
+                    });
+                    break
+                }
+                case Permission.Geolocation:
+                    pauseWatchedPositions = false;
+                    signalPermissionStatus(Permission.Geolocation, Status.Active);
+                    break
+                }
+            }
+
+            function stop (permission) {
+                switch (permission) {
+                case Permission.Camera:
+                    stopTracks(videoTracks);
+                    break
+                case Permission.Microphone:
+                    stopTracks(audioTracks);
+                    break
+                case Permission.Geolocation:
+                    pauseWatchedPositions = false;
+                    clearAllGeolocationWatch();
+                    break
+                }
+            }
+
+            function monitorTrack (track) {
+                if (track.readyState === 'ended') return
+
+                if (track.kind === 'video' && !videoTracks.has(track)) {
+                    console.debug(`New video stream track ${track.id}`);
+                    track.addEventListener('ended', videoTrackEnded);
+                    track.addEventListener('mute', signalVideoTracksState);
+                    track.addEventListener('unmute', signalVideoTracksState);
+                    videoTracks.add(track);
+                } else if (track.kind === 'audio' && !audioTracks.has(track)) {
+                    console.debug(`New audio stream track ${track.id}`);
+                    track.addEventListener('ended', audioTrackEnded);
+                    track.addEventListener('mute', signalAudioTracksState);
+                    track.addEventListener('unmute', signalAudioTracksState);
+                    audioTracks.add(track);
+                }
+            }
+
+            function handleTrackEnded (track) {
+                if (track.kind === 'video' && videoTracks.has(track)) {
+                    console.debug(`Video stream track ${track.id} ended`);
+                    track.removeEventListener('ended', videoTrackEnded);
+                    track.removeEventListener('mute', signalVideoTracksState);
+                    track.removeEventListener('unmute', signalVideoTracksState);
+                    videoTracks.delete(track);
+                    signalVideoTracksState();
+                } else if (track.kind === 'audio' && audioTracks.has(track)) {
+                    console.debug(`Audio stream track ${track.id} ended`);
+                    track.removeEventListener('ended', audioTrackEnded);
+                    track.removeEventListener('mute', signalAudioTracksState);
+                    track.removeEventListener('unmute', signalAudioTracksState);
+                    audioTracks.delete(track);
+                    signalAudioTracksState();
+                }
+            }
+
+            function videoTrackEnded (e) {
+                handleTrackEnded(e.target);
+            }
+
+            function audioTrackEnded (e) {
+                handleTrackEnded(e.target);
+            }
+
+            function signalTracksState (permission) {
+                const tracks = getTracks(permission);
+                if (!tracks) return
+
+                const allTrackCount = tracks.size;
+                if (allTrackCount === 0) {
+                    signalPermissionStatus(permission, Status.Inactive);
+                    return
+                }
+
+                let mutedTrackCount = 0;
+                tracks.forEach(track => {
+                    mutedTrackCount += ((!track.enabled || track.muted) ? 1 : 0);
+                });
+                if (mutedTrackCount === allTrackCount) {
+                    signalPermissionStatus(permission, Status.Paused);
+                } else {
+                    if (mutedTrackCount > 0) {
+                        console.debug(`Some ${permission} tracks are still active: ${allTrackCount - mutedTrackCount}/${allTrackCount}`);
+                    }
+                    signalPermissionStatus(permission, Status.Active);
+                }
+            }
+
+            let signalVideoTracksStateTimer;
+            function signalVideoTracksState () {
+                clearTimeout(signalVideoTracksStateTimer);
+                signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100);
+            }
+
+            let signalAudioTracksStateTimer;
+            function signalAudioTracksState () {
+                clearTimeout(signalAudioTracksStateTimer);
+                signalAudioTracksStateTimer = setTimeout(() => signalTracksState(Permission.Microphone), 100);
+            }
+
+            // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
+            const stopTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'stop', {
+                apply (target, thisArg, args) {
+                    handleTrackEnded(thisArg);
+                    return DDGReflect.apply(target, thisArg, args)
+                }
+            });
+            stopTrackProxy.overload();
+
+            // proxy for track.clone -> monitor the cloned track
+            const cloneTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'clone', {
+                apply (target, thisArg, args) {
+                    const clonedTrack = DDGReflect.apply(target, thisArg, args);
+                    if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
+                        // @ts-expect-error - thisArg is possibly undefined
+                        console.debug(`Media stream track ${thisArg.id} has been cloned to track ${clonedTrack.id}`);
+                        monitorTrack(clonedTrack);
+                    }
+                    return clonedTrack
+                }
+            });
+            cloneTrackProxy.overload();
+
+            // override MediaStreamTrack.enabled -> update active/paused status when enabled is set
+            const trackEnabledPropertyDescriptor = Object.getOwnPropertyDescriptor(MediaStreamTrack.prototype, 'enabled');
+            this.defineProperty(MediaStreamTrack.prototype, 'enabled', {
+                // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
+                configurable: trackEnabledPropertyDescriptor.configurable,
+                // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
+                enumerable: trackEnabledPropertyDescriptor.enumerable,
+                get: function () {
+                    // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
+                    return trackEnabledPropertyDescriptor.get.bind(this)()
+                },
+                set: function () {
+                    // @ts-expect-error - trackEnabledPropertyDescriptor is possibly undefined
+                    const result = trackEnabledPropertyDescriptor.set.bind(this)(...arguments);
+                    if (videoTracks.has(this)) {
+                        signalVideoTracksState();
+                    } else if (audioTracks.has(this)) {
+                        signalAudioTracksState();
+                    }
+                    return result
+                }
+            });
+
+            // proxy for get*Tracks methods -> needed to monitor tracks returned by saved media stream coming for MediaDevices.getUserMedia
+            const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks'];
+            for (const methodName of getTracksMethodNames) {
+                const getTracksProxy = new DDGProxy(this, MediaStream.prototype, methodName, {
+                    apply (target, thisArg, args) {
+                        const tracks = DDGReflect.apply(target, thisArg, args);
+                        if (userMediaStreams.has(thisArg)) {
+                            tracks.forEach(monitorTrack);
+                        }
+                        return tracks
+                    }
+                });
+                getTracksProxy.overload();
+            }
+
+            // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
+            const cloneMediaStreamProxy = new DDGProxy(this, MediaStream.prototype, 'clone', {
+                apply (target, thisArg, args) {
+                    const clonedStream = DDGReflect.apply(target, thisArg, args);
+                    if (userMediaStreams.has(thisArg)) {
+                        // @ts-expect-error - thisArg is possibly 'undefined' here
+                        console.debug(`User stream ${thisArg.id} has been cloned to stream ${clonedStream.id}`);
+                        userMediaStreams.add(clonedStream);
+                    }
+                    return clonedStream
+                }
+            });
+            cloneMediaStreamProxy.overload();
+
+            // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
+            if (window.MediaDevices) {
+                const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
+                    apply (target, thisArg, args) {
+                        if (isFrameInsideFrame) {
+                            // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
+                            return Promise.reject(new DOMException('Permission denied'))
+                        }
+
+                        const videoRequested = args[0]?.video;
+                        const audioRequested = args[0]?.audio;
+
+                        if (videoRequested && (videoRequested.pan || videoRequested.tilt || videoRequested.zoom)) {
+                            // WebView2 doesn't support acquiring pan-tilt-zoom from its API at the moment
+                            return Promise.reject(new DOMException('Pan-tilt-zoom is not supported'))
+                        }
+
+                        // eslint-disable-next-line promise/prefer-await-to-then
+                        return DDGReflect.apply(target, thisArg, args).then(function (stream) {
+                            console.debug(`User stream ${stream.id} has been acquired`);
+                            userMediaStreams.add(stream);
+                            if (videoRequested) {
+                                const newVideoTracks = stream.getVideoTracks();
+                                if (newVideoTracks?.length > 0) {
+                                    signalPermissionStatus(Permission.Camera, Status.Active);
+                                }
+                                newVideoTracks.forEach(monitorTrack);
+                            }
+
+                            if (audioRequested) {
+                                const newAudioTracks = stream.getAudioTracks();
+                                if (newAudioTracks?.length > 0) {
+                                    signalPermissionStatus(Permission.Microphone, Status.Active);
+                                }
+                                newAudioTracks.forEach(monitorTrack);
+                            }
+                            return stream
+                        })
+                    }
+                });
+                getUserMediaProxy.overload();
+            }
+
+            function performAction (action, permission) {
+                if (action && permission) {
+                    switch (action) {
+                    case 'pause':
+                        pause(permission);
+                        break
+                    case 'resume':
+                        resume(permission);
+                        break
+                    case 'stop':
+                        stop(permission);
+                        break
+                    }
+                }
+            }
+
+            // handle actions from browser
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            windowsInteropAddEventListener('message', function ({ data }) {
+                if (data?.action && data?.permission) {
+                    performAction(data?.action, data?.permission);
+                }
+            });
+
+            // these permissions cannot be disabled using WebView2 or DevTools protocol
+            const permissionsToDisable = [
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                { name: 'Bluetooth', prototype: () => Bluetooth.prototype, method: 'requestDevice', isPromise: true },
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                { name: 'USB', prototype: () => USB.prototype, method: 'requestDevice', isPromise: true },
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                { name: 'Serial', prototype: () => Serial.prototype, method: 'requestPort', isPromise: true },
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                { name: 'HID', prototype: () => HID.prototype, method: 'requestDevice', isPromise: true },
+                { name: 'Protocol handler', prototype: () => Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
+                { name: 'MIDI', prototype: () => Navigator.prototype, method: 'requestMIDIAccess', isPromise: true }
+            ];
+            for (const { name, prototype, method, isPromise } of permissionsToDisable) {
+                try {
+                    const proxy = new DDGProxy(this, prototype(), method, {
+                        apply () {
+                            if (isPromise) {
+                                return Promise.reject(new DOMException('Permission denied'))
+                            } else {
+                                throw new DOMException('Permission denied')
+                            }
+                        }
+                    });
+                    proxy.overload();
+                } catch (error) {
+                    console.info(`Could not disable access to ${name} because of error`, error);
+                }
+            }
+
+            // these permissions can be disabled using DevTools protocol but it's not reliable and can throw exception sometimes
+            const permissionsToDelete = [
+                { name: 'Idle detection', permission: 'IdleDetector' },
+                { name: 'NFC', permission: 'NDEFReader' },
+                { name: 'Orientation', permission: 'ondeviceorientation' },
+                { name: 'Motion', permission: 'ondevicemotion' }
+            ];
+            for (const { permission } of permissionsToDelete) {
+                if (permission in window) {
+                    Reflect.deleteProperty(window, permission);
+                }
+            }
+        }
+    }
+
     var platformFeatures = {
         ddg_feature_runtimeChecks: RuntimeChecks,
         ddg_feature_fingerprintingAudio: FingerprintingAudio,
@@ -14389,10 +14516,10 @@
         ddg_feature_exceptionHandler: ExceptionHandler,
         ddg_feature_clickToLoad: ClickToLoad,
         ddg_feature_cookie: CookieFeature,
-        ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
-        ddg_feature_webCompat: WebCompat,
         ddg_feature_duckPlayer: DuckPlayerFeature,
-        ddg_feature_harmfulApis: HarmfulApis
+        ddg_feature_harmfulApis: HarmfulApis,
+        ddg_feature_webCompat: WebCompat,
+        ddg_feature_windowsPermissionUsage: WindowsPermissionUsage
     };
 
     /* global false */
@@ -14559,7 +14686,9 @@
     async function initCode () {
         const topLevelUrl = getTopLevelURL();
         const processedConfig = generateConfig();
-        processedConfig.messagingConfig = new TestTransportConfig({
+
+        // mock Messaging and allow for tests to intercept them
+        globalThis.cssMessaging = processedConfig.messagingConfig = new TestTransportConfig({
             notify () {
                 // noop
             },

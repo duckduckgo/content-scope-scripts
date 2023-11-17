@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js'
+import { URL } from '../captured-globals.js'
 
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
@@ -11,7 +12,62 @@ function windowSizingFix () {
     window.outerWidth = window.innerWidth
 }
 
+const MSG_WEB_SHARE = 'webShare'
+
+function canShare (data) {
+    if (typeof data !== 'object') return false
+    if (!('url' in data) && !('title' in data) && !('text' in data)) return false // At least one of these is required
+    if ('files' in data) return false // File sharing is not supported at the moment
+    if ('title' in data && typeof data.title !== 'string') return false
+    if ('text' in data && typeof data.text !== 'string') return false
+    if ('url' in data) {
+        if (typeof data.url !== 'string') return false
+        try {
+            const url = new URL(data.url, location.href)
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+        } catch (err) {
+            return false
+        }
+    }
+    if (window !== window.top) return false // Not supported in iframes
+    return true
+}
+
+/**
+ * Clean data before sending to the Android side
+ * @returns {ShareRequestData}
+ */
+function cleanShareData (data) {
+    /** @type {ShareRequestData} */
+    const dataToSend = {}
+
+    // only send the keys we care about
+    for (const key of ['title', 'text', 'url']) {
+        if (key in data) dataToSend[key] = data[key]
+    }
+
+    // clean url and handle relative links (e.g. if url is an empty string)
+    if ('url' in data) {
+        dataToSend.url = (new URL(data.url, location.href)).href
+    }
+
+    // combine url and text into text if both are present
+    if ('url' in dataToSend && 'text' in dataToSend) {
+        dataToSend.text = `${dataToSend.text} ${dataToSend.url}`
+        delete dataToSend.url
+    }
+
+    // if there's only title, create a dummy empty text
+    if (!('url' in dataToSend) && !('text' in dataToSend)) {
+        dataToSend.text = ''
+    }
+    return dataToSend
+}
+
 export default class WebCompat extends ContentFeature {
+    /** @type {Promise<any> | null} */
+    #activeShareRequest = null
+
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix()
@@ -43,6 +99,63 @@ export default class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('presentation')) {
             this.presentationFix()
         }
+
+        if (this.getFeatureSettingEnabled('webShare')) {
+            this.shimWebShare()
+        }
+
+        if (this.getFeatureSettingEnabled('viewportWidth')) {
+            this.viewportWidthFix()
+        }
+    }
+
+    /** Shim Web Share API in Android WebView */
+    shimWebShare () {
+        if (typeof navigator.canShare === 'function' || typeof navigator.share === 'function') return
+
+        this.defineProperty(Navigator.prototype, 'canShare', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: canShare
+        })
+
+        this.defineProperty(Navigator.prototype, 'share', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: async (data) => {
+                if (!canShare(data)) return Promise.reject(new TypeError('Invalid share data'))
+                if (this.#activeShareRequest) {
+                    return Promise.reject(new DOMException('Share already in progress', 'InvalidStateError'))
+                }
+                if (!navigator.userActivation.isActive) {
+                    return Promise.reject(new DOMException('Share must be initiated by a user gesture', 'InvalidStateError'))
+                }
+
+                const dataToSend = cleanShareData(data)
+                this.#activeShareRequest = this.messaging.request(MSG_WEB_SHARE, dataToSend)
+                let resp
+                try {
+                    resp = await this.#activeShareRequest
+                } catch (err) {
+                    throw new DOMException(err.message, 'DataError')
+                } finally {
+                    this.#activeShareRequest = null
+                }
+
+                if (resp.failure) {
+                    switch (resp.failure.name) {
+                    case 'AbortError':
+                    case 'NotAllowedError':
+                    case 'DataError':
+                        throw new DOMException(resp.failure.message, resp.failure.name)
+                    default:
+                        throw new DOMException(resp.failure.message, 'DataError')
+                    }
+                }
+            }
+        })
     }
 
     /**
@@ -397,4 +510,18 @@ export default class WebCompat extends ContentFeature {
             messageHandlers: proxy
         }
     }
+
+    viewportWidthFix () {
+        const viewportTag = document.querySelector('meta[name=viewport]')
+        if (!viewportTag) return
+        const viewportContent = viewportTag.getAttribute('content')
+        if (!viewportContent) return
+        const viewportContentParts = viewportContent.split(',')
+        const widthPart = viewportContentParts.find((part) => part.includes('width'))
+        // If we already have a width, don't add one
+        if (widthPart) return
+        viewportTag.setAttribute('content', `${viewportContent},width=device-width`)
+    }
 }
+
+/** @typedef {{title?: string, url?: string, text?: string}} ShareRequestData */

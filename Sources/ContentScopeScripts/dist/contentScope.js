@@ -26,13 +26,14 @@
   /*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */
   (function() {
     "use strict";
-    var _bundledConfig, _trackerLookup, _documentOriginIsTracker, _bundledfeatureSettings, _messaging, _isDebugFlagSet, _args, _tagName, _el, _listeners, _connected, _sinks, _debug;
+    var _bundledConfig, _trackerLookup, _documentOriginIsTracker, _bundledfeatureSettings, _messaging, _isDebugFlagSet, _args, _activeShareRequest, _tagName, _el, _listeners, _connected, _sinks, _debug;
     const Set$1 = globalThis.Set;
     const Reflect$1 = globalThis.Reflect;
     globalThis.customElements?.get.bind(globalThis.customElements);
     globalThis.customElements?.define.bind(globalThis.customElements);
     const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
     const objectKeys = Object.keys;
+    const URL$1 = globalThis.URL;
     let globalObj = typeof window === "undefined" ? globalThis : window;
     let Error$1 = globalObj.Error;
     let messageSecret;
@@ -529,10 +530,10 @@
       [
         "clickToLoad",
         "cookie",
-        "windowsPermissionUsage",
-        "webCompat",
         "duckPlayer",
-        "harmfulApis"
+        "harmfulApis",
+        "webCompat",
+        "windowsPermissionUsage"
       ]
     );
     const platformSupport = {
@@ -2282,7 +2283,57 @@
       window.outerHeight = window.innerHeight;
       window.outerWidth = window.innerWidth;
     }
+    const MSG_WEB_SHARE = "webShare";
+    function canShare(data) {
+      if (typeof data !== "object")
+        return false;
+      if (!("url" in data) && !("title" in data) && !("text" in data))
+        return false;
+      if ("files" in data)
+        return false;
+      if ("title" in data && typeof data.title !== "string")
+        return false;
+      if ("text" in data && typeof data.text !== "string")
+        return false;
+      if ("url" in data) {
+        if (typeof data.url !== "string")
+          return false;
+        try {
+          const url = new URL$1(data.url, location.href);
+          if (url.protocol !== "http:" && url.protocol !== "https:")
+            return false;
+        } catch (err) {
+          return false;
+        }
+      }
+      if (window !== window.top)
+        return false;
+      return true;
+    }
+    function cleanShareData(data) {
+      const dataToSend = {};
+      for (const key of ["title", "text", "url"]) {
+        if (key in data)
+          dataToSend[key] = data[key];
+      }
+      if ("url" in data) {
+        dataToSend.url = new URL$1(data.url, location.href).href;
+      }
+      if ("url" in dataToSend && "text" in dataToSend) {
+        dataToSend.text = `${dataToSend.text} ${dataToSend.url}`;
+        delete dataToSend.url;
+      }
+      if (!("url" in dataToSend) && !("text" in dataToSend)) {
+        dataToSend.text = "";
+      }
+      return dataToSend;
+    }
     class WebCompat extends ContentFeature {
+      constructor() {
+        super(...arguments);
+        /** @type {Promise<any> | null} */
+        __privateAdd(this, _activeShareRequest, null);
+      }
       init() {
         if (this.getFeatureSettingEnabled("windowSizing")) {
           windowSizingFix();
@@ -2312,6 +2363,58 @@
         if (this.getFeatureSettingEnabled("presentation")) {
           this.presentationFix();
         }
+        if (this.getFeatureSettingEnabled("webShare")) {
+          this.shimWebShare();
+        }
+        if (this.getFeatureSettingEnabled("viewportWidth")) {
+          this.viewportWidthFix();
+        }
+      }
+      /** Shim Web Share API in Android WebView */
+      shimWebShare() {
+        if (typeof navigator.canShare === "function" || typeof navigator.share === "function")
+          return;
+        this.defineProperty(Navigator.prototype, "canShare", {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: canShare
+        });
+        this.defineProperty(Navigator.prototype, "share", {
+          configurable: true,
+          enumerable: true,
+          writable: true,
+          value: async (data) => {
+            if (!canShare(data))
+              return Promise.reject(new TypeError("Invalid share data"));
+            if (__privateGet(this, _activeShareRequest)) {
+              return Promise.reject(new DOMException("Share already in progress", "InvalidStateError"));
+            }
+            if (!navigator.userActivation.isActive) {
+              return Promise.reject(new DOMException("Share must be initiated by a user gesture", "InvalidStateError"));
+            }
+            const dataToSend = cleanShareData(data);
+            __privateSet(this, _activeShareRequest, this.messaging.request(MSG_WEB_SHARE, dataToSend));
+            let resp;
+            try {
+              resp = await __privateGet(this, _activeShareRequest);
+            } catch (err) {
+              throw new DOMException(err.message, "DataError");
+            } finally {
+              __privateSet(this, _activeShareRequest, null);
+            }
+            if (resp.failure) {
+              switch (resp.failure.name) {
+                case "AbortError":
+                case "NotAllowedError":
+                case "DataError":
+                  throw new DOMException(resp.failure.message, resp.failure.name);
+                default:
+                  throw new DOMException(resp.failure.message, "DataError");
+              }
+            }
+          }
+        });
       }
       /**
        * Notification fix for adding missing API for Android WebView.
@@ -2626,7 +2729,21 @@
           messageHandlers: proxy
         };
       }
+      viewportWidthFix() {
+        const viewportTag = document.querySelector("meta[name=viewport]");
+        if (!viewportTag)
+          return;
+        const viewportContent = viewportTag.getAttribute("content");
+        if (!viewportContent)
+          return;
+        const viewportContentParts = viewportContent.split(",");
+        const widthPart = viewportContentParts.find((part) => part.includes("width"));
+        if (widthPart)
+          return;
+        viewportTag.setAttribute("content", `${viewportContent},width=device-width`);
+      }
     }
+    _activeShareRequest = new WeakMap();
     function generateUniqueID() {
       return Symbol(void 0);
     }

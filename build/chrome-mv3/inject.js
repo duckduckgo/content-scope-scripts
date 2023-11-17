@@ -697,10 +697,10 @@
     const otherFeatures = /** @type {const} */([
         'clickToLoad',
         'cookie',
-        'windowsPermissionUsage',
-        'webCompat',
         'duckPlayer',
-        'harmfulApis'
+        'harmfulApis',
+        'webCompat',
+        'windowsPermissionUsage'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
