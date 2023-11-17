@@ -226,7 +226,7 @@ describe('Actions', () => {
 
         it('should build url without params', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/optout'
             }, userData)
             expect(result).toEqual({ url: 'https://example.com/optout' })
@@ -234,7 +234,7 @@ describe('Actions', () => {
 
         it('should build url when given valid data from path segments', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/${firstName}-${lastName}/a/b/c/search?state=${state}&city=${city|hyphenated}&fage=${age}'
             }, userData)
             expect(result).toEqual({ url: 'https://example.com/profile/John-Smith/a/b/c/search?state=il&city=Chicago&fage=24' })
@@ -242,7 +242,7 @@ describe('Actions', () => {
 
         it('should build url when given valid data from path segments with modifiers path and url', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/${firstName|downcase}-${lastName|downcase}/a/b/c/search?state=${state|downcase}&city=${city|downcase}&fage=${age}'
             }, userData)
             expect(result).toEqual({ url: 'https://example.com/profile/john-smith/a/b/c/search?state=il&city=chicago&fage=24' })
@@ -250,7 +250,7 @@ describe('Actions', () => {
 
         it('should build url when given valid data from url-search param segments', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/a/b/c/search?name=${firstName}-${lastName}&other=foobar'
             }, userData)
             expect(result).toEqual({ url: 'https://example.com/profile/a/b/c/search?name=John-Smith&other=foobar' })
@@ -258,7 +258,7 @@ describe('Actions', () => {
 
         it('should build url when given valid data', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
             }, userData)
 
@@ -267,7 +267,7 @@ describe('Actions', () => {
 
         it('should build hyphenated url when given hyphenated city', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
             }, userData2)
 
@@ -276,6 +276,7 @@ describe('Actions', () => {
 
         it('should build downcased hyphenated url when given a downcased hyphenated city', () => {
             const result = replaceTemplatedUrl({
+                id: '0',
                 url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|downcase|hyphenated}&fage=${age}'
             }, userData2)
 
@@ -284,7 +285,7 @@ describe('Actions', () => {
 
         it('should build downcased hyphenated url when given a downcased hyphenated city in a different order', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated|downcase}&fage=${age}'
             }, userData2)
 
@@ -293,7 +294,7 @@ describe('Actions', () => {
 
         it('should build downcased snakecase url when given a downcased snakecase city', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|snakecase|downcase}&fage=${age}'
             }, userData2)
 
@@ -302,7 +303,7 @@ describe('Actions', () => {
 
         it('should build hyphenated url when given hyphenated state', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state|stateFull|hyphenated}&city=${city}&fage=${age}'
             }, userData2)
 
@@ -311,7 +312,7 @@ describe('Actions', () => {
 
         it('should build url when given valid data and age range', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
                 url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city}&fage=${age|ageRange}',
                 ageRange: ['18-30', '31-40', '41-50']
             }, userData)
@@ -321,7 +322,8 @@ describe('Actions', () => {
 
         it('should error when given an invalid action', () => {
             const result = replaceTemplatedUrl({
-                id: 0,
+                id: '0',
+                // @ts-expect-error - test
                 url: null
             }, userData)
 
@@ -342,7 +344,7 @@ describe('Actions', () => {
                         fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer(), fc.boolean()))
                     ),
                     (action, userData) => {
-                        const result = replaceTemplatedUrl(action, userData)
+                        const result = replaceTemplatedUrl(/** @type {any} */(action), userData)
                         expect('url' in result || 'error' in result)
                         if ('error' in result) {
                             expect(typeof result.error).toEqual('string')
@@ -370,7 +372,7 @@ describe('Actions', () => {
                         age: fc.oneof(fc.string(), fc.integer())
                     }),
                     (action, userData) => {
-                        const result = replaceTemplatedUrl(action, userData)
+                        const result = replaceTemplatedUrl(/** @type {any} */(action), userData)
                         expect('url' in result || 'error' in result)
                         if ('url' in result) {
                             const url = new URL(result.url)

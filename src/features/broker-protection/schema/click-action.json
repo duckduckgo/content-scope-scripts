@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ClickAction",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "actionType": {
+      "$ref": "./shared.json#/definitions/ActionType"
+    },
+    "elements": {
+      "type": "array",
+      "items": {
+        "$ref": "./shared.json#/definitions/PageElement"
+      }
+    }
+  },
+  "required": ["id", "actionType", "elements"],
+  "additionalProperties": false
+}

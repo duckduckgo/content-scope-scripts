@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "NavigateAction",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "actionType": {
+      "$ref": "./shared.json#/definitions/ActionType"
+    },
+    "url": {
+      "type": "string"
+    },
+    "ageRange": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": ["id", "actionType", "url"],
+  "additionalProperties": false
+}

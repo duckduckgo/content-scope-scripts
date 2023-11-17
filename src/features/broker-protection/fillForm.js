@@ -3,7 +3,7 @@ import { SuccessResponse, getElement, ErrorResponse } from './actions.js'
 /**
  * Takes the solved captcha token and injects it into the page to solve the captcha
  *
- * @param action
+ * @param {import('../../types/dbp-messages.js').FillFormAction} action
  * @return {Promise<SuccessResponse | ErrorResponse>}
  */
 // eslint-disable-next-line require-await

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "DBPMessages",
+  "properties": {
+    "navigate-action": { "$ref": "./navigate-action.json" },
+    "fill-form-action": { "$ref": "./fill-form-action.json" },
+    "extract-action": { "$ref": "./extract-action.json" },
+    "get-capture-info-action": { "$ref": "./get-capture-info-action.json" },
+    "solve-capture-action": { "$ref": "./solve-capture-action.json" },
+    "click-action": { "$ref": "./click-action.json" },
+    "expectation-action": { "$ref": "./expectation-action.json" },
+    "extracted-profile": { "$ref": "./extracted-profile.json" }
+  },
+  "additionalProperties": false
+}

@@ -4,7 +4,7 @@ import { transformUrl } from './buildUrl-transforms.js'
 /**
  * This builds the proper URL given the URL template and userData.
  *
- * @param action
+ * @param {import('../../types/dbp-messages.js').NavigateAction} action
  * @param userData
  * @return {Promise<SuccessResponse | ErrorResponse>}
  */
@@ -21,7 +21,7 @@ export async function buildUrl (action, userData) {
 /**
  * Perform some basic validations before we continue into the templating.
  *
- * @param action
+ * @param {Omit<import('../../types/dbp-messages.js').NavigateAction, 'actionType'>} action
  * @param userData
  * @return {{url: string} | {error: string}}
  */

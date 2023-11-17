@@ -1,7 +1,7 @@
 import { capitalize, getStateFromAbbreviation } from './comparison-functions.js'
 
 /**
- * @typedef {{url: string} & Record<string, any>} BuildUrlAction
+ * @typedef {Omit<import('../../types/dbp-messages.js').NavigateAction, 'actionType'>} BuildUrlAction
  * @typedef {Record<string, string|number>} UserData
  */
 

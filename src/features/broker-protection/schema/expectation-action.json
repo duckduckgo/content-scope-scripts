@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ExpectationAction",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "actionType": {
+      "$ref": "./shared.json#/definitions/ActionType"
+    },
+    "expectations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "title": "ExpectationItem",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["text", "url", "elementExpectation"]
+          },
+          "expect": {
+            "type": "string"
+          },
+          "selector": {
+            "type": "string"
+          }
+        },
+        "required": ["type"]
+      }
+    }
+  },
+  "required": ["id", "actionType", "expectations"],
+  "additionalProperties": false
+}

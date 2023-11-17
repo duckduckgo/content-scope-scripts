@@ -3,23 +3,14 @@ import { isSameAge, isSameName, matchAddressFromAddressListCityState, matchAddre
 
 /**
  * Adding these types here so that we can switch to generated ones later
- * @typedef {Record<string, any>} Action
+ * @typedef {import('../../types/dbp-messages.js').ExtractAction} ExtractAction
+ * @typedef {import('../../types/dbp-messages.js').ProfileSelector} ProfileSelector
+ * @typedef {import('../../types/dbp-messages.js').ExtractedProfile} ExtractedProfile
+ * @typedef {Partial<Record<keyof ExtractAction['profile'], any>>} PartialProfile
  */
 
 /**
- * @typedef {Object} ExtractProfileProperty
- * For example: {
- *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
- * }
- * @property {string} selector - xpath or css selector
- * @property {boolean} [findElements] - whether to get all occurrences of the selector
- * @property {string} [afterText] - get all text after this string
- * @property {string} [beforeText] - get all text before this string
- * @property {string} [separator] - split the text on this string
- */
-
-/**
- * @param {Action} action
+ * @param {import('../../types/dbp-messages.js').ExtractAction} action
  * @param {Record<string, any>} userData
  * @return {Promise<SuccessResponse>}
  */
@@ -28,9 +19,10 @@ export async function extractProfiles (action, userData) {
     const profilesElementList =
       Array.from(document.querySelectorAll(action.selector)) ?? []
 
+    /** @type {ExtractedProfile[]} */
     const matchedProfiles = profilesElementList
         // first, convert each profile element list into a profile
-        .map((element) => createProfile(element, action.profile))
+        .map((element) => createProfile(/** @type {HTMLElement} */(element), action.profile))
         // only include profiles that match the user data
         .filter((profile) => profileMatchesUserData(userData, profile))
         // aggregate some fields
@@ -41,12 +33,13 @@ export async function extractProfiles (action, userData) {
 
 /**
  * @param {HTMLElement} profileElement
- * @param {Record<string, ExtractProfileProperty>} extractData
- * @return {Record<string, any>}
+ * @param {ExtractAction['profile']} profile
+ * @return {PartialProfile}
  */
-function createProfile (profileElement, extractData) {
+function createProfile (profileElement, profile) {
+    /** @type {PartialProfile} */
     const output = {}
-    for (const [key, value] of Object.entries(extractData)) {
+    for (const [key, value] of Object.entries(profile)) {
         if (!value?.selector) {
             output[key] = null
         } else {
@@ -65,7 +58,7 @@ function createProfile (profileElement, extractData) {
 /**
  * @param {HTMLElement} profileElement
  * @param {string} key
- * @param {ExtractProfileProperty} extractField
+ * @param {ProfileSelector} extractField
  */
 function findFromElements (profileElement, key, extractField) {
     const elements = getElements(profileElement, extractField.selector) || null
@@ -88,7 +81,7 @@ function findFromElements (profileElement, key, extractField) {
 /**
  * @param {HTMLElement} profileElement
  * @param {string} dataKey - such as 'name', 'age' etc
- * @param {ExtractProfileProperty} extractField
+ * @param {ProfileSelector} extractField
  * @return {string}
  */
 function findFromElement (profileElement, dataKey, extractField) {
@@ -110,7 +103,7 @@ function findFromElement (profileElement, dataKey, extractField) {
 
 /**
  * @param {Record<string, any>} userData
- * @param {Record<string, any>} profile
+ * @param {PartialProfile} profile
  * @return {boolean}
  */
 function profileMatchesUserData (userData, profile) {
@@ -149,7 +142,8 @@ function profileMatchesUserData (userData, profile) {
 }
 
 /**
- * @param {Record<string, any>} profile
+ * @param {PartialProfile} profile
+ * @returns {ExtractedProfile}
  */
 export function aggregateProfileFields (profile) {
     const addressCityStateArray = profile.addressCityState || []
@@ -173,7 +167,7 @@ export function aggregateProfileFields (profile) {
 
 /**
  * @param {string} key
- * @param {ExtractProfileProperty} value
+ * @param {ProfileSelector} value
  * @param {any} elementValue
  * @return {string|string[]|null}
  */

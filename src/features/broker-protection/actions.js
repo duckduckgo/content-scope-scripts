@@ -8,7 +8,7 @@ import { expectation } from './expectation.js'
 /**
  * @param {object} action
  * @param {string} action.id
- * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
+ * @param {import('../../types/dbp-messages.js').ActionType} action.actionType
  * @param {any} data
  * @return {Promise<SuccessResponse | ErrorResponse>}
  */
@@ -16,19 +16,19 @@ export function execute (action, data) {
     try {
         switch (action.actionType) {
         case 'navigate':
-            return buildUrl(action, data)
+            return buildUrl(/** @type {import('../../types/dbp-messages.js').NavigateAction} */(action), data)
         case 'extract':
-            return extractProfiles(action, data)
+            return extractProfiles(/** @type {import('../../types/dbp-messages.js').ExtractAction} */(action), data)
         case 'click':
-            return click(action)
+            return click(/** @type {import('../../types/dbp-messages.js').ClickAction} */(action))
         case 'expectation':
-            return expectation(action)
+            return expectation(/** @type {import('../../types/dbp-messages.js').ExpectationAction} */(action))
         case 'fillForm':
-            return fillForm(action, data)
+            return fillForm(/** @type {import("../../types/dbp-messages.js").FillFormAction} */(action), data)
         case 'getCaptchaInfo':
-            return getCaptchaInfo(action)
+            return getCaptchaInfo(/** @type {import('../../types/dbp-messages.js').GetCaptureInfoAction} */(action))
         case 'solveCaptcha':
-            return solveCaptcha(action, data.token)
+            return solveCaptcha(/** @type {import('../../types/dbp-messages.js').SolveCaptureAction} */(action), data.token)
         default: {
             const error = new ErrorResponse({
                 actionID: action.id,

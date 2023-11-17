@@ -23,7 +23,7 @@ export function isSameAge (userAge, ageFound) {
 }
 
 /**
- * @param {string} fullNameExtracted
+ * @param {string | null} [fullNameExtracted]
  * @param {string | null} [userFirstName]
  * @param {string | null} [userMiddleName]
  * @param {string | null} [userLastName]

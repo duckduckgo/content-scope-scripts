@@ -4,7 +4,7 @@ import { captchaCallback } from './captcha-callback.js'
 /**
  * Gets the captcha information to send to the backend
  *
- * @param action
+ * @param {import('../../types/dbp-messages.js').GetCaptureInfoAction} action
  * @return {Promise<SuccessResponse | ErrorResponse>}
  */
 // eslint-disable-next-line require-await
@@ -71,7 +71,7 @@ export async function getCaptchaInfo (action) {
 /**
 * Takes the solved captcha token and injects it into the page to solve the captcha
 *
-* @param action
+* @param {import('../../types/dbp-messages.js').GetCaptureInfoAction} action
 * @return {Promise<SuccessResponse|ErrorResponse>}
 */
 // eslint-disable-next-line require-await

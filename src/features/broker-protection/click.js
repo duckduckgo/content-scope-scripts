@@ -1,7 +1,7 @@
 import { SuccessResponse, ErrorResponse, getElement } from './actions.js'
 
 /**
- * @param action // TODO: get type based on actionType
+ * @param {import('../../types/dbp-messages.js').ClickAction} action
  * @return {Promise<SuccessResponse|ErrorResponse>}
  */
 // eslint-disable-next-line require-await

@@ -1,0 +1,86 @@
+{
+  "definitions": {
+    "ActionType": {
+      "title": "ActionType",
+      "type": "string",
+      "enum": ["extract", "navigate", "fillForm", "click", "expectation", "emailConfirmation", "getCaptchaInfo", "solveCaptcha"]
+    },
+    "PageElement": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "selector": {
+          "type": "string"
+        }
+      },
+      "required": ["type", "selector"],
+      "additionalProperties": false
+    },
+    "ProfileSelector": {
+      "title": "ProfileSelector",
+      "type": "object",
+      "properties": {
+        "selector": {
+          "type": "string"
+        },
+        "findElements": {
+          "type": "boolean"
+        },
+        "afterText": {
+          "type": "string"
+        },
+        "beforeText": {
+          "type": "string"
+        },
+        "separator": {
+          "type": "string"
+        }
+      },
+      "required": ["selector"],
+      "additionalProperties": false
+    },
+    "ExtractProfileSelectors": {
+      "title": "ExtractProfileSelectors",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "alternativeNamesList": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "addressFull": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "addressCityStateList": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "addressCityState": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "phone": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "phoneList": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "relativesList": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "profileUrl": {
+          "$ref": "#/definitions/ProfileSelector"
+        },
+        "reportId": {
+          "type": "string"
+        },
+        "age": {
+          "$ref": "#/definitions/ProfileSelector"
+        }
+      },
+      "required": ["reportId"],
+      "additionalProperties": false
+    }
+  }
+}
