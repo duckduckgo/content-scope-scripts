@@ -32,9 +32,9 @@ function canShare (data) {
     return true
 }
 
-/** @returns {ShareRequestData} */
+/** @returns {import('../types/web-compat.js').WebShareParams} */
 function cleanShareData (data) {
-    /** @type {ShareRequestData} */
+    /** @type {import('../types/web-compat.js').WebShareParams} */
     const dataToSend = {}
     for (const key of ['title', 'text', 'url']) {
         if (key in data) dataToSend[key] = data[key]
@@ -52,6 +52,9 @@ function cleanShareData (data) {
     return dataToSend
 }
 
+/**
+ * @extends {ContentFeature<import('../types/web-compat.js').WebCompatMessages>}
+ */
 export default class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeShareRequest = null
@@ -118,7 +121,7 @@ export default class WebCompat extends ContentFeature {
                 }
 
                 const dataToSend = cleanShareData(data)
-                this.#activeShareRequest = this.messaging.request(MSG_WEB_SHARE, dataToSend)
+                this.#activeShareRequest = this.request(MSG_WEB_SHARE, dataToSend)
                 let resp
                 try {
                     resp = await this.#activeShareRequest
@@ -495,5 +498,3 @@ export default class WebCompat extends ContentFeature {
         }
     }
 }
-
-/** @typedef {{title?: string, url?: string, text?: string}} ShareRequestData */

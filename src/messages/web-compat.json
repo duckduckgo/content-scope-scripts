@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "WebCompatMessages",
+  "description": "Requests, Notifications and Subscriptions from the Web Compat feature",
+  "additionalProperties": false,
+  "properties": {
+    "notifications": {},
+    "requests": {
+      "oneOf": [
+        {
+          "$ref": "./web-compat/web-share.json"
+        }
+      ]
+    },
+    "subscriptions": {}
+  },
+  "required": [
+    "requests",
+    "notifications",
+    "subscriptions"
+  ]
+}

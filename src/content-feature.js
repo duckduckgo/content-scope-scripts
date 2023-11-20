@@ -24,6 +24,9 @@ import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
 const globalObj = typeof window === 'undefined' ? globalThis : window
 
+/**
+ * @template {Record<string, any>} Messages
+ */
 export default class ContentFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     #bundledConfig
@@ -225,6 +228,37 @@ export default class ContentFeature {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
     load (args) {
+    }
+
+    /**
+     * @template {Messages['requests']['method']} Method
+     * @template {Extract<Messages['requests'], {method: Method}>} Msg
+     * @param {Method} name
+     * @param {Msg['params']} data
+     * @return {Promise<Msg['result']>}
+     */
+    request (name, data) {
+        return this.messaging.request(name, data)
+    }
+
+    /**
+     * @template {Messages['notifications']['method']} Method
+     * @template {Extract<Messages['notifications'], {method: Method}>} Msg
+     * @param {Method} name
+     * @param {Msg['params']} data
+     */
+    notify (name, data) {
+        this.messaging.notify(name, data)
+    }
+
+    /**
+     * @template {Messages['subscriptions']['subscriptionEvent']} Method
+     * @template {Extract<Messages['subscriptions'], {subscriptionEvent: Method}>} Msg
+     * @param {Method} name
+     * @param {(params: Msg['params']) => void} cb
+     */
+    subscribe (name, cb) {
+        return this.messaging.subscribe(name, cb)
     }
 
     /**
