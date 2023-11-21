@@ -1,7 +1,7 @@
 /**
  * Get a single element.
  *
- * @param {HTMLElement | Element | Node | Document} doc
+ * @param {Node} doc
  * @param {string} selector
  * @return {HTMLElement | null}
  */
@@ -16,7 +16,7 @@ export function getElement (doc = document, selector) {
 /**
  * Get an array of elements
  *
- * @param {HTMLElement | Element | Node | Document} doc
+ * @param {Node} doc
  * @param {string} selector
  * @return {HTMLElement[] | null}
  */
@@ -75,7 +75,7 @@ function isXpath (selector) {
 }
 
 /**
- * @param {HTMLElement|Element|Node|Document} element
+ * @param {Element|Node} element
  * @param selector
  * @returns {HTMLElement[] | null}
  */
@@ -90,7 +90,7 @@ function safeQuerySelectorAll (element, selector) {
     }
 }
 /**
- * @param {HTMLElement|Element|Node|Document} element
+ * @param {Element|Node} element
  * @param selector
  * @returns {HTMLElement | null}
  */
@@ -106,7 +106,7 @@ function safeQuerySelector (element, selector) {
 }
 
 /**
- * @param {HTMLElement|Element|Node|Document} element
+ * @param {Node} element
  * @param selector
  * @returns {HTMLElement | null}
  */
@@ -125,7 +125,7 @@ function safeQuerySelectorXPath (element, selector) {
 }
 
 /**
- * @param {HTMLElement|Element|Node|Document} element
+ * @param {Element|Node} element
  * @param selector
  * @returns {HTMLElement[] | null}
  */
