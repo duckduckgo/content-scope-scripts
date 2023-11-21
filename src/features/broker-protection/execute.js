@@ -1,4 +1,9 @@
+import { buildUrl } from './buildUrl.js'
+import { extractProfiles } from './extract.js'
+import { fillForm } from './fillForm.js'
+import { getCaptchaInfo, solveCaptcha } from './captcha.js'
 import { click } from './click.js'
+import { expectation } from './expectation.js'
 import { ErrorResponse } from './types.js'
 
 /**
@@ -8,12 +13,23 @@ import { ErrorResponse } from './types.js'
  * @param {any} data
  * @return {import('./types.js').ActionResponse}
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function execute (action, data) {
     try {
         switch (action.actionType) {
+        case 'navigate':
+            return buildUrl(action, data)
+        case 'extract':
+            return extractProfiles(action, data)
         case 'click':
             return click(action)
+        case 'expectation':
+            return expectation(action)
+        case 'fillForm':
+            return fillForm(action, data)
+        case 'getCaptchaInfo':
+            return getCaptchaInfo(action)
+        case 'solveCaptcha':
+            return solveCaptcha(action, data.token)
         default: {
             return new ErrorResponse({
                 actionID: action.id,
