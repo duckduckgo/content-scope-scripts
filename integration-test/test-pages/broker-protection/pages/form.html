@@ -13,7 +13,7 @@
 
 <div class="message">Please complete the form:</div>
 
-<form class="ahm">
+<form class="ahm" name="testform">
     <label>
         First Name:
         <input type="text" name="first-name" id="user_first_name">
@@ -24,5 +24,10 @@
     </label>
     <button class="btn-sbmt">Submit</button>
 </form>
+<script>
+    document.forms.testform.onsubmit = (e) => {
+      e.preventDefault();
+    }
+</script>
 </body>
 </html>

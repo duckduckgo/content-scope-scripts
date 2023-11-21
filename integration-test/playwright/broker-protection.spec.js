@@ -17,7 +17,7 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('empty-form.html')
             await dbp.receivesAction('click.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isErrorMessage(response)
+            dbp.isErrorMessage(response)
         })
     })
 
@@ -28,8 +28,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results.html')
             await dbp.receivesAction('navigate.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isUrlMatch(response[0].payload.params.result.success.response)
+            dbp.isSuccessMessage(response)
+            dbp.isUrlMatch(response[0].payload.params.result.success.response)
         })
 
         test('extract', async ({ page }, workerInfo) => {
@@ -38,12 +38,15 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results.html')
             await dbp.receivesAction('extract.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isExtractMatch(response[0].payload.params.result.success.response, {
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, {
                 age: '38',
                 name: 'John Smith',
                 relatives: ['Cheryl Lamar'],
-                addresses: [{ city: 'Chicago', state: 'IL' }, { city: 'Ypsilanti', state: 'MI' }, { city: 'Cadillac', state: 'MI' }],
+                addresses: [{ city: 'Chicago', state: 'IL' }, { city: 'Ypsilanti', state: 'MI' }, {
+                    city: 'Cadillac',
+                    state: 'MI'
+                }],
                 profileUrl: '/view/John-Smith-CyFdD.F'
             })
         })
@@ -54,9 +57,9 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results-multiple.html')
             await dbp.receivesAction('extract2.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isMultiple(response[0].payload.params.result.success.response)
-            await dbp.isExtractMatch(response[0].payload.params.result.success.response, {
+            dbp.isSuccessMessage(response)
+            dbp.isMultiple(response[0].payload.params.result.success.response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, {
                 age: '40',
                 name: 'Ben Smith'
             })
@@ -68,8 +71,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results-alt.html')
             await dbp.receivesAction('extract3.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isExtractMatch(response[0].payload.params.result.success.response, {
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, {
                 name: 'John A Smith',
                 age: '63',
                 alternativeNames: [
@@ -92,8 +95,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results-4.html')
             await dbp.receivesAction('extract4.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isExtractMatch(response[0].payload.params.result.success.response,
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response,
                 {
                     name: 'Ben Smith',
                     age: '55',
@@ -111,8 +114,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results-5.html')
             await dbp.receivesAction('extract5.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isExtractMatch(response[0].payload.params.result.success.response, {
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, {
                 name: 'Jonathan Smith',
                 age: '50',
                 phoneNumbers: [
@@ -128,8 +131,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results-irregular1.html')
             await dbp.receivesAction('extract-irregular1.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isExtractMatch(response[0].payload.params.result.success.response, {
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, {
                 name: 'John M Smith',
                 age: '75',
                 alternativeNames: [
@@ -154,8 +157,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results-irregular2.html')
             await dbp.receivesAction('extract-irregular2.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isExtractMatch(response[0].payload.params.result.success.response, {
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, {
                 name: 'John Smith',
                 age: '71',
                 addresses: [
@@ -179,8 +182,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('results-irregular3.html')
             await dbp.receivesAction('extract-irregular3.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isExtractMatch(response[0].payload.params.result.success.response, {
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, {
                 name: 'John I Smith',
                 age: '59',
                 addresses: [
@@ -205,19 +208,18 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('form.html')
             await dbp.receivesAction('fill-form.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
+            dbp.isSuccessMessage(response)
             await dbp.isFormFilled()
         })
 
-        // test('click', async ({ page }, workerInfo) => {
-        //     const dbp = BrokerProtectionPage.create(page, workerInfo)
-        //     await dbp.enabled()
-        //     await dbp.navigatesTo('form.html')
-        //     await dbp.receivesAction('click.json')
-        //     const response = await dbp.waitForMessage('actionCompleted')
-        //     // console.log("response is:", response[0]);
-        //     await dbp.isSuccessMessage(response)
-        // })
+        test('click', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('form.html')
+            await dbp.receivesAction('click.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+        })
 
         test('getCaptchaInfo', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
@@ -225,8 +227,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('captcha.html')
             await dbp.receivesAction('get-captcha.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isCaptchaMatch(response[0].payload?.params.result.success.response)
+            dbp.isSuccessMessage(response)
+            dbp.isCaptchaMatch(response[0].payload?.params.result.success.response)
         })
 
         test('remove query params from captcha url', async ({ page }, workerInfo) => {
@@ -235,8 +237,8 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('captcha.html?fname=john&lname=smith')
             await dbp.receivesAction('get-captcha.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
-            await dbp.isQueryParamRemoved(response[0].payload?.params.result.success.response)
+            dbp.isSuccessMessage(response)
+            dbp.isQueryParamRemoved(response[0].payload?.params.result.success.response)
         })
 
         test('solveCaptcha', async ({ page }, workerInfo) => {
@@ -245,7 +247,7 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('captcha.html')
             await dbp.receivesAction('solve-captcha.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
+            dbp.isSuccessMessage(response)
             await dbp.isCaptchaTokenFilled()
         })
 
@@ -255,7 +257,7 @@ test.describe.only('Broker Protection communications', () => {
             await dbp.navigatesTo('form.html')
             await dbp.receivesAction('expectation.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            await dbp.isSuccessMessage(response)
+            dbp.isSuccessMessage(response)
         })
     })
 })
