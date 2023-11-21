@@ -32,7 +32,7 @@ export function extractProfiles (action, userData) {
         // first, convert each profile element list into a profile
         .map((element) => createProfile(element, action.profile))
         // only include profiles that match the user data
-        .filter((scrapedData) => profileMatchesUserData(userData, scrapedData))
+        .filter((scrapedData) => scrapedDataMatchesUserData(userData, scrapedData))
         // aggregate some fields
         .map((scrapedData) => aggregateFields(scrapedData))
 
@@ -133,7 +133,7 @@ function findFromElement (profileElement, dataKey, extractField) {
  * @param {Record<string, any>} scrapedData
  * @return {boolean}
  */
-function profileMatchesUserData (userData, scrapedData) {
+function scrapedDataMatchesUserData (userData, scrapedData) {
     if (!isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) return false
 
     if (scrapedData.age) {
