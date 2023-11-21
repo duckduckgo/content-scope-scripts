@@ -28,15 +28,36 @@ export function transformUrl (action, userData) {
     return { url: url.toString() }
 }
 
-/** @type {Record<string, ((value: string, action: BuildUrlAction) => string)>} */
-const transforms = {
-    hyphenated: (value) => value.split(' ').join('-'),
-    capitalize: (value) => capitalize(value),
-    downcase: (value) => value.toLowerCase(),
-    upcase: (value) => value.toUpperCase(),
-    snakecase: (value) => value.split(' ').join('_'),
-    stateFull: (value) => getStateFromAbbreviation(value),
-    ageRange: (value, action) => {
+/**
+ * These will be applied by default if the key exists in the data.
+ *
+ * @type {Map<string, ((value: string) => string)>}
+ */
+const baseTransforms = new Map([
+    ['firstName', (value) => capitalize(value)],
+    ['lastName', (value) => capitalize(value)],
+    ['state', (value) => value.toLowerCase()],
+    ['city', (value) => capitalize(value)],
+    ['age', (value) => value.toString()]
+])
+
+/**
+ * These are optional transforms, will be applied when key is found in the
+ * variable syntax
+ *
+ * Example, `/a/b/${name|capitalize}` -> applies the `capitalize` transform
+ * to the name field
+ *
+ * @type {Map<string, ((value: string, action: BuildUrlAction) => string)>}
+ */
+const optionalTransforms = new Map([
+    ['hyphenated', (value) => value.split(' ').join('-')],
+    ['capitalize', (value) => capitalize(value)],
+    ['downcase', (value) => value.toLowerCase()],
+    ['upcase', (value) => value.toUpperCase()],
+    ['snakecase', (value) => value.split(' ').join('_')],
+    ['stateFull', (value) => getStateFromAbbreviation(value)],
+    ['ageRange', (value, action) => {
         if (!action.ageRange) return value
         const ageNumber = Number(value)
         // find matching age range
@@ -45,17 +66,8 @@ const transforms = {
             return ageNumber >= Number(min) && ageNumber <= Number(max)
         })
         return ageRange || value
-    }
-}
-
-/** @type {Record<string, ((value: string) => string)>} */
-const baseTransforms = {
-    firstName: (value) => capitalize(value),
-    lastName: (value) => capitalize(value),
-    state: (value) => value.toLowerCase(),
-    city: (value) => capitalize(value),
-    age: (value) => value.toString()
-}
+    }]
+])
 
 /**
  * Take an instance of URLSearchParams and process a new one, with each value
@@ -93,6 +105,15 @@ function processPathname (pathname, action, userData) {
 }
 
 /**
+ * Process strings like /a/b/${name|lowercase}-${age}
+ * Where the first segment of any variable is the data key, and any
+ * number of subsequent strings are expected to be known transforms
+ *
+ * In that example:
+ *
+ *  - `name` would be processed with the 'lowercase' transform
+ *  - `age` would be used without processing
+ *
  * @param {string} input
  * @param {BuildUrlAction} action
  * @param {Record<string, string|number>} userData
@@ -100,33 +121,31 @@ function processPathname (pathname, action, userData) {
 export function processOne (input, action, userData) {
     return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, value) => {
         const comparison = value || match.slice(2, -1)
-        const [dataKey, ...modifiers] = comparison.split('|')
+        const [dataKey, ...transforms] = comparison.split('|')
         const data = userData[dataKey]
-        return applyToDataKey(dataKey, data, modifiers, action)
+        return applyTransforms(dataKey, data, transforms, action)
     })
 }
 
 /**
  * @param {string} dataKey
  * @param {string|number} value
- * @param {string[]} modifiers
+ * @param {string[]} transformNames
  * @param {BuildUrlAction} action
  */
-function applyToDataKey (dataKey, value, modifiers, action) {
-    const baseTransform = Object.prototype.hasOwnProperty.call(baseTransforms, dataKey)
-        ? baseTransforms[dataKey]
-        : undefined
+function applyTransforms (dataKey, value, transformNames, action) {
+    const baseTransform = baseTransforms.get(dataKey)
 
     // apply base transform to the incoming string
     let outputString = baseTransform
         ? baseTransform(String(value || ''))
         : String(value)
 
-    for (const modifier of modifiers) {
-        if (!Object.prototype.hasOwnProperty.call(transforms, modifier)) {
-            continue
+    for (const transformName of transformNames) {
+        const transform = optionalTransforms.get(transformName)
+        if (transform) {
+            outputString = transform(outputString, action)
         }
-        outputString = transforms[modifier](outputString, action)
     }
 
     return outputString
