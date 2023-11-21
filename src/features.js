@@ -32,6 +32,7 @@ export const platformSupport = {
         ...baseFeatures
     ],
     'apple-isolated': [
+        'duckPlayer',
         'brokerProtection'
     ],
     android: [
