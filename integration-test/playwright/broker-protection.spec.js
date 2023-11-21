@@ -1,5 +1,5 @@
 import { test } from '@playwright/test'
-import { BrokerProtectionPage } from './page-objects/brocker-protection.js'
+import { BrokerProtectionPage } from './page-objects/broker-protection.js'
 
 test.describe.only('Broker Protection communications', () => {
     test('sends an error when the action is not found', async ({ page }, workerInfo) => {
