@@ -1,7 +1,7 @@
 import { test } from '@playwright/test'
 import { BrokerProtectionPage } from './page-objects/broker-protection.js'
 
-test.describe.only('Broker Protection communications', () => {
+test.describe('Broker Protection communications', () => {
     test('sends an error when the action is not found', async ({ page }, workerInfo) => {
         const dbp = BrokerProtectionPage.create(page, workerInfo)
         await dbp.enabled()
