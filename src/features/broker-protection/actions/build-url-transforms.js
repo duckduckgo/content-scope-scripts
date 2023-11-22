@@ -70,8 +70,8 @@ const optionalTransforms = new Map([
 ])
 
 /**
- * Take an instance of URLSearchParams and process a new one, with each value
- * processed
+ * Take an instance of URLSearchParams and produce a new one, with each variable
+ * replaced with a value, or a transformed value.
  *
  * @param {URLSearchParams} searchParams
  * @param {BuildUrlAction} action
@@ -81,10 +81,10 @@ const optionalTransforms = new Map([
 function processSearchParams (searchParams, action, userData) {
     /**
      * For each key/value pair in the URL Search params, process the value
-     * part only.
+     * part *only*.
      */
     const updatedPairs = [...searchParams].map(([key, value]) => {
-        const processedValue = processOne(value, action, userData)
+        const processedValue = processTemplateStringWithUserData(value, action, userData)
         return [key, processedValue]
     })
 
@@ -100,7 +100,7 @@ function processPathname (pathname, action, userData) {
     return pathname
         .split('/')
         .filter(Boolean)
-        .map(segment => processOne(segment, action, userData))
+        .map(segment => processTemplateStringWithUserData(segment, action, userData))
         .join('/')
 }
 
@@ -114,13 +114,29 @@ function processPathname (pathname, action, userData) {
  *  - `name` would be processed with the 'lowercase' transform
  *  - `age` would be used without processing
  *
+ * The regular expression `/\$%7B(.+?)%7D|\$\{(.+?)}/g` is designed to match and capture
+ * the content within template literals in two formats: encoded and plain.
+ *
+ * 1. Encoded Format: `\$%7B(.+?)%7D`
+ *    - Matches encoded template strings that start with `$%7B` and end with `%7D`.
+ *    - `(.+?)` is a non-greedy capture group that matches any character sequence
+ *      between `$%7B` and `%7D`, capturing the content of the encoded template literal.
+ *
+ * 2. Plain Format: `\$\{(.+?)\}`
+ *    - Matches plain template strings that start with `${` and end with `}`.
+ *    - `(.+?)` here again is a non-greedy capture group that matches any character
+ *      sequence between `${` and `}`, capturing the content of the plain template literal.
+ *
+ * This regular expression is used to identify and process these template literals within the input string,
+ * allowing the function to replace them with corresponding data from `userData` after applying any specified transformations.
+ *
  * @param {string} input
  * @param {BuildUrlAction} action
  * @param {Record<string, string|number>} userData
  */
-export function processOne (input, action, userData) {
-    return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, value) => {
-        const comparison = value || match.slice(2, -1)
+export function processTemplateStringWithUserData (input, action, userData) {
+    return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, encodedValue, plainValue) => {
+        const comparison = encodedValue ?? plainValue
         const [dataKey, ...transforms] = comparison.split('|')
         const data = userData[dataKey]
         return applyTransforms(dataKey, data, transforms, action)

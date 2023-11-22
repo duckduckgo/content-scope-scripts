@@ -8,7 +8,7 @@ import {
 } from '../src/features/broker-protection/comparisons/address.js'
 import { matchesFullAddress } from '../src/features/broker-protection/comparisons/matches-full-address.js'
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
-import { processOne } from '../src/features/broker-protection/actions/build-url-transforms.js'
+import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -412,7 +412,7 @@ describe('Actions', () => {
                     fc.object(),
                     fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer())),
                     (input, action, userData) => {
-                        const output = processOne(input, /** @type {any} */(action), userData)
+                        const output = processTemplateStringWithUserData(input, /** @type {any} */(action), userData)
                         expect(typeof output).toEqual('string')
                     }
                 )
