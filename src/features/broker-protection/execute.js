@@ -1,9 +1,9 @@
-import { buildUrl } from './buildUrl.js'
-import { extractProfiles } from './extract.js'
-import { fillForm } from './fillForm.js'
-import { getCaptchaInfo, solveCaptcha } from './captcha.js'
-import { click } from './click.js'
-import { expectation } from './expectation.js'
+import { buildUrl } from './actions/build-url.js'
+import { extractProfiles } from './actions/extract.js'
+import { fillForm } from './actions/fill-form.js'
+import { getCaptchaInfo, solveCaptcha } from './actions/captcha.js'
+import { click } from './actions/click.js'
+import { expectation } from './actions/expectation.js'
 import { ErrorResponse } from './types.js'
 
 /**

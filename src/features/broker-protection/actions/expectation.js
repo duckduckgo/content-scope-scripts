@@ -1,9 +1,9 @@
-import { getElement } from './utils.js'
-import { ErrorResponse, SuccessResponse } from './types.js'
+import { getElement } from '../utils.js'
+import { ErrorResponse, SuccessResponse } from '../types.js'
 
 /**
  * @param action
- * @return {import('./types.js').ActionResponse}
+ * @return {import('../types.js').ActionResponse}
  */
 export function expectation (action) {
     const expectations = action.expectations

@@ -1,4 +1,4 @@
-import { capitalize, getStateFromAbbreviation } from './comparison-functions.js'
+import { getStateFromAbbreviation } from '../comparisons/address.js'
 
 /**
  * @typedef {{url: string} & Record<string, any>} BuildUrlAction
@@ -149,4 +149,10 @@ function applyTransforms (dataKey, value, transformNames, action) {
     }
 
     return outputString
+}
+
+function capitalize (s) {
+    const words = s.split(' ')
+    const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    return capitalizedWords.join(' ')
 }

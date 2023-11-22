@@ -1,9 +1,9 @@
-import { getElement } from './utils.js'
-import { ErrorResponse, SuccessResponse } from './types.js'
+import { getElement } from '../utils.js'
+import { ErrorResponse, SuccessResponse } from '../types.js'
 
 /**
  * @param action // TODO: get type based on actionType
- * @return {import('./types.js').ActionResponse}
+ * @return {import('../types.js').ActionResponse}
  */
 export function click (action) {
     // there can be multiple elements provided by the action

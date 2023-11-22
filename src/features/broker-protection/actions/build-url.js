@@ -1,12 +1,12 @@
-import { transformUrl } from './buildUrl-transforms.js'
-import { ErrorResponse, SuccessResponse } from './types.js'
+import { transformUrl } from './build-url-transforms.js'
+import { ErrorResponse, SuccessResponse } from '../types.js'
 
 /**
  * This builds the proper URL given the URL template and userData.
  *
  * @param action
  * @param userData
- * @return {import('./types.js').ActionResponse}
+ * @return {import('../types.js').ActionResponse}
  */
 export function buildUrl (action, userData) {
     const result = replaceTemplatedUrl(action, userData)

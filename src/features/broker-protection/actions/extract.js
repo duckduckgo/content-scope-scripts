@@ -1,6 +1,9 @@
-import { isSameAge, isSameName, matchAddressFromAddressListCityState, matchAddressFull } from './comparison-functions.js'
-import { getElement, getElementMatches, getElements } from './utils.js' // Assuming you have imported the address comparison function
-import { SuccessResponse } from './types.js'
+import { getElement, getElementMatches, getElements } from '../utils.js' // Assuming you have imported the address comparison function
+import { SuccessResponse } from '../types.js'
+import { isSameAge } from '../comparisons/is-same-age.js'
+import { isSameName } from '../comparisons/is-same-name.js'
+import { matchesFullAddress } from '../comparisons/matches-full-address.js'
+import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
 
 /**
  * Adding these types here so that we can switch to generated ones later
@@ -22,7 +25,7 @@ import { SuccessResponse } from './types.js'
 /**
  * @param {Action} action
  * @param {Record<string, any>} userData
- * @return {import('./types.js').ActionResponse}
+ * @return {import('../types.js').ActionResponse}
  */
 export function extractProfiles (action, userData) {
     const profilesElementList =
@@ -157,7 +160,7 @@ function scrapedDataMatchesUserData (userData, scrapedData) {
     }
 
     if (scrapedData.addressFull) {
-        if (matchAddressFull(userData.addresses, scrapedData.addressFull)) { return true }
+        if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) { return true }
     }
 
     if (scrapedData.phone) {
