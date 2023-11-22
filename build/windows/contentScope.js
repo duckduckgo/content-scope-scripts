@@ -759,7 +759,8 @@
         'duckPlayer',
         'harmfulApis',
         'webCompat',
-        'windowsPermissionUsage'
+        'windowsPermissionUsage',
+        'brokerProtection'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -770,7 +771,8 @@
             ...baseFeatures
         ],
         'apple-isolated': [
-            'duckPlayer'
+            'duckPlayer',
+            'brokerProtection'
         ],
         android: [
             ...baseFeatures,
@@ -781,7 +783,8 @@
             'cookie',
             ...baseFeatures,
             'windowsPermissionUsage',
-            'duckPlayer'
+            'duckPlayer',
+            'brokerProtection'
         ],
         firefox: [
             'cookie',
@@ -9980,6 +9983,4145 @@
         }
     }
 
+    const nicknames = {
+        abby: ['abby', 'abigail'],
+        abigail: ['abigail', 'abby', 'abi'],
+        abraham: ['abraham', 'abe'],
+        alexander: ['alexander', 'alex'],
+        alexandra: ['alexandra', 'alex'],
+        alexis: ['alexis', 'lexi'],
+        anthony: ['anthony', 'tony'],
+        ben: ['ben', 'benjamin'],
+        benjamin: ['benjamin', 'ben'],
+        bev: ['bev', 'beverly'],
+        beverly: ['beverly', 'bev'],
+        catherine: ['catherine', 'cathy'],
+        cathy: ['cathy', 'catherine'],
+        charles: ['charles', 'charlie'],
+        charlie: ['charlie', 'charles'],
+        chris: ['chris', 'christopher'],
+        christopher: ['christopher', 'chris'],
+        clinton: ['clinton', 'clint'],
+        dan: ['dan', 'daniel', 'danny'],
+        daniel: ['daniel', 'dan', 'danny'],
+        danny: ['danny', 'dan', 'daniel'],
+        dave: ['dave', 'david'],
+        david: ['david', 'dave'],
+        don: ['don', 'donald'],
+        donald: ['donald', 'don'],
+        ed: ['ed', 'edward', 'eddie'],
+        eddie: ['eddie', 'ed', 'edward'],
+        edward: ['edward', 'eddie', 'ed'],
+        fred: ['fred', 'frederick', 'freddie'],
+        freddie: ['freddie', 'frederick', 'fred'],
+        frederick: ['frederick', 'fred', 'freddie'],
+        jacob: ['jacob', 'jake'],
+        jake: ['jake', 'jacob'],
+        james: ['james', 'jim'],
+        jeff: ['jeff', 'jeffery'],
+        jeffery: ['jeffery', 'jeff'],
+        jim: ['jim', 'james'],
+        jon: ['jon', 'jonathan'],
+        jonathan: ['jonathan', 'jon'],
+        josh: ['josh', 'joshua'],
+        joshua: ['joshua', 'josh'],
+        katherine: ['katherine', 'katie'],
+        katheryn: ['katheryn', 'katie'],
+        kim: ['kim', 'kimberly'],
+        kimberly: ['kimberly', 'kim'],
+        lexi: ['lexi', 'alexis'],
+        lucas: ['lucas', 'luke'],
+        luke: ['luke', 'lucas'],
+        matt: ['matt', 'matthew'],
+        matthew: ['matthew', 'matt'],
+        michael: ['michael', 'mike'],
+        mike: ['mike', 'michael'],
+        nate: ['nate', 'nathan', 'nathaniel'],
+        nathan: ['nathan', 'nathaniel', 'nate'],
+        nathaniel: ['nathaniel', 'nathan', 'nate'],
+        nicholas: ['nicholas', 'nick'],
+        nick: ['nick', 'nicholas'],
+        patricia: ['patricia', 'pat'],
+        ray: ['ray', 'raymond'],
+        raymond: ['raymond', 'ray'],
+        richard: ['richard', 'rich', 'rick'],
+        rob: ['rob', 'robert', 'bob'],
+        robert: ['robert', 'rob', 'bob'],
+        rus: ['rus', 'russell'],
+        russell: ['russell', 'rus'],
+        sam: ['sam', 'samuel', 'sammy'],
+        samuel: ['samuel', 'sam', 'sammy'],
+        stan: ['stan', 'stanley'],
+        stanley: ['stanley', 'stan'],
+        sue: ['sue', 'susan'],
+        susan: ['susan', 'sue'],
+        ted: ['ted', 'teddy'],
+        teddy: ['teddy', 'ted'],
+        thad: ['thad', 'thaddeus'],
+        thaddeus: ['thaddeus', 'thad'],
+        thomas: ['thomas', 'tom', 'tommy'],
+        tim: ['tim', 'timothy'],
+        timothy: ['timothy', 'tim'],
+        tom: ['tom', 'thomas', 'tommy'],
+        tommy: ['tommy', 'tom', 'thomas'],
+        tony: ['tony', 'anthony'],
+        will: ['will', 'william'],
+        william: ['william', 'will'],
+        zach: ['zach', 'zachary'],
+        zachary: ['zachary', 'zach']
+    };
+
+    const states = {
+        AL: 'Alabama',
+        AK: 'Alaska',
+        AZ: 'Arizona',
+        AR: 'Arkansas',
+        CA: 'California',
+        CO: 'Colorado',
+        CT: 'Connecticut',
+        DC: 'District of Columbia',
+        DE: 'Delaware',
+        FL: 'Florida',
+        GA: 'Georgia',
+        HI: 'Hawaii',
+        ID: 'Idaho',
+        IL: 'Illinois',
+        IN: 'Indiana',
+        IA: 'Iowa',
+        KS: 'Kansas',
+        KY: 'Kentucky',
+        LA: 'Louisiana',
+        ME: 'Maine',
+        MD: 'Maryland',
+        MA: 'Massachusetts',
+        MI: 'Michigan',
+        MN: 'Minnesota',
+        MS: 'Mississippi',
+        MO: 'Missouri',
+        MT: 'Montana',
+        NE: 'Nebraska',
+        NV: 'Nevada',
+        NH: 'New Hampshire',
+        NJ: 'New Jersey',
+        NM: 'New Mexico',
+        NY: 'New York',
+        NC: 'North Carolina',
+        ND: 'North Dakota',
+        OH: 'Ohio',
+        OK: 'Oklahoma',
+        OR: 'Oregon',
+        PA: 'Pennsylvania',
+        RI: 'Rhode Island',
+        SC: 'South Carolina',
+        SD: 'South Dakota',
+        TN: 'Tennessee',
+        TX: 'Texas',
+        UT: 'Utah',
+        VT: 'Vermont',
+        VA: 'Virginia',
+        WA: 'Washington',
+        WV: 'West Virginia',
+        WI: 'Wisconsin',
+        WY: 'Wyoming'
+    };
+
+    /**
+     * @param userAddresses
+     * @param foundAddresses
+     * @return {{cityFound, stateFound}|boolean}
+     */
+    function matchAddressFromAddressListCityState (userAddresses, foundAddresses) {
+        if (!userAddresses || userAddresses.length < 1 || !foundAddresses || foundAddresses.length < 1) {
+            return false
+        }
+
+        let cityFound, stateFound;
+
+        for (const userAddress of userAddresses) {
+            const userCity = userAddress.city;
+            const userState = userAddress.state;
+
+            // for some reason when there is one line of addresses split by commas, it messes this up
+            // i.e. Chicago IL, Something Else IL, Asdf...
+            for (const possibleLocation of foundAddresses) {
+                cityFound = possibleLocation.city;
+                stateFound = possibleLocation.state;
+
+                if (isSameAddressCityState(userCity, userState, cityFound, stateFound)) {
+                    return { cityFound, stateFound }
+                }
+            }
+        }
+
+        return false
+    }
+
+    /**
+     * @param city
+     * @param state
+     * @param comparisonCity
+     * @param comparisonState
+     * @return {boolean}
+     */
+    function isSameAddressCityState (city, state, comparisonCity, comparisonState) {
+        if (!city || !state || !comparisonCity || !comparisonState) { return false }
+
+        city = city.toLowerCase()?.trim();
+        comparisonCity = comparisonCity.toLowerCase()?.trim();
+        state = state.toLowerCase()?.trim();
+        comparisonState = comparisonState.toLowerCase()?.trim();
+
+        if ((city === comparisonCity) && (state === comparisonState)) { return true }
+
+        return false
+    }
+
+    function getStateFromAbbreviation (stateAbbreviation) {
+        if (stateAbbreviation == null || stateAbbreviation.trim() === '') { return null }
+
+        const state = stateAbbreviation.toUpperCase();
+
+        return states[state] || null
+    }
+
+    /**
+     * @typedef {{url: string} & Record<string, any>} BuildUrlAction
+     * @typedef {Record<string, string|number>} UserData
+     */
+
+    /**
+     * Input: { url: 'https://example.com/a/${firstName}-${lastName}', ... }
+     * Output: { url: 'https://example.com/a/John-Smith' }
+     *
+     * @param {BuildUrlAction} action
+     * @param {Record<string, string|number>} userData
+     * @return {{ url: string } | { error: string }}
+     */
+    function transformUrl (action, userData) {
+        const url = new URL(action.url);
+
+        /**
+         * assign the updated pathname + search params
+         */
+        url.search = processSearchParams(url.searchParams, action, userData).toString();
+        url.pathname = processPathname(url.pathname, action, userData);
+
+        /**
+         * Finally, convert back to a full URL
+         */
+        return { url: url.toString() }
+    }
+
+    /**
+     * These will be applied by default if the key exists in the data.
+     *
+     * @type {Map<string, ((value: string) => string)>}
+     */
+    const baseTransforms = new Map([
+        ['firstName', (value) => capitalize(value)],
+        ['lastName', (value) => capitalize(value)],
+        ['state', (value) => value.toLowerCase()],
+        ['city', (value) => capitalize(value)],
+        ['age', (value) => value.toString()]
+    ]);
+
+    /**
+     * These are optional transforms, will be applied when key is found in the
+     * variable syntax
+     *
+     * Example, `/a/b/${name|capitalize}` -> applies the `capitalize` transform
+     * to the name field
+     *
+     * @type {Map<string, ((value: string, action: BuildUrlAction) => string)>}
+     */
+    const optionalTransforms = new Map([
+        ['hyphenated', (value) => value.split(' ').join('-')],
+        ['capitalize', (value) => capitalize(value)],
+        ['downcase', (value) => value.toLowerCase()],
+        ['upcase', (value) => value.toUpperCase()],
+        ['snakecase', (value) => value.split(' ').join('_')],
+        ['stateFull', (value) => getStateFromAbbreviation(value)],
+        ['ageRange', (value, action) => {
+            if (!action.ageRange) return value
+            const ageNumber = Number(value);
+            // find matching age range
+            const ageRange = action.ageRange.find(range => {
+                const [min, max] = range.split('-');
+                return ageNumber >= Number(min) && ageNumber <= Number(max)
+            });
+            return ageRange || value
+        }]
+    ]);
+
+    /**
+     * Take an instance of URLSearchParams and produce a new one, with each variable
+     * replaced with a value, or a transformed value.
+     *
+     * @param {URLSearchParams} searchParams
+     * @param {BuildUrlAction} action
+     * @param {Record<string, string|number>} userData
+     * @return {URLSearchParams}
+     */
+    function processSearchParams (searchParams, action, userData) {
+        /**
+         * For each key/value pair in the URL Search params, process the value
+         * part *only*.
+         */
+        const updatedPairs = [...searchParams].map(([key, value]) => {
+            const processedValue = processTemplateStringWithUserData(value, action, userData);
+            return [key, processedValue]
+        });
+
+        return new URLSearchParams(updatedPairs)
+    }
+
+    /**
+     * @param {string} pathname
+     * @param {BuildUrlAction} action
+     * @param {Record<string, string|number>} userData
+     */
+    function processPathname (pathname, action, userData) {
+        return pathname
+            .split('/')
+            .filter(Boolean)
+            .map(segment => processTemplateStringWithUserData(segment, action, userData))
+            .join('/')
+    }
+
+    /**
+     * Process strings like /a/b/${name|lowercase}-${age}
+     * Where the first segment of any variable is the data key, and any
+     * number of subsequent strings are expected to be known transforms
+     *
+     * In that example:
+     *
+     *  - `name` would be processed with the 'lowercase' transform
+     *  - `age` would be used without processing
+     *
+     * The regular expression `/\$%7B(.+?)%7D|\$\{(.+?)}/g` is designed to match and capture
+     * the content within template literals in two formats: encoded and plain.
+     *
+     * 1. Encoded Format: `\$%7B(.+?)%7D`
+     *    - Matches encoded template strings that start with `$%7B` and end with `%7D`.
+     *    - These occur when variables are present in the pathname of the URL
+     *
+     * 2. Plain Format: `\$\{(.+?)\}`
+     *    - Matches plain template strings that start with `${` and end with `}`.
+     *    - These occur when variables are present in the value side of any query params
+     *
+     * This regular expression is used to identify and process these template literals within the input string,
+     * allowing the function to replace them with corresponding data from `userData` after applying any specified transformations.
+     *
+     * @param {string} input
+     * @param {BuildUrlAction} action
+     * @param {Record<string, string|number>} userData
+     */
+    function processTemplateStringWithUserData (input, action, userData) {
+        /**
+         * Note: this regex covers both pathname + query params.
+         * This is why we're handling both encoded and un-encoded.
+         */
+        return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, encodedValue, plainValue) => {
+            const comparison = encodedValue ?? plainValue;
+            const [dataKey, ...transforms] = comparison.split('|');
+            const data = userData[dataKey];
+            return applyTransforms(dataKey, data, transforms, action)
+        })
+    }
+
+    /**
+     * @param {string} dataKey
+     * @param {string|number} value
+     * @param {string[]} transformNames
+     * @param {BuildUrlAction} action
+     */
+    function applyTransforms (dataKey, value, transformNames, action) {
+        const baseTransform = baseTransforms.get(dataKey);
+
+        // apply base transform to the incoming string
+        let outputString = baseTransform
+            ? baseTransform(String(value || ''))
+            : String(value);
+
+        for (const transformName of transformNames) {
+            const transform = optionalTransforms.get(transformName);
+            if (transform) {
+                outputString = transform(outputString, action);
+            }
+        }
+
+        return outputString
+    }
+
+    function capitalize (s) {
+        const words = s.split(' ');
+        const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+        return capitalizedWords.join(' ')
+    }
+
+    /**
+     * @typedef {SuccessResponse | ErrorResponse} ActionResponse
+     */
+
+    /**
+     * Represents an error
+     */
+    class ErrorResponse {
+        /**
+       * @param {object} params
+       * @param {string} params.actionID
+       * @param {string} params.message
+       */
+        constructor (params) {
+            this.error = params;
+        }
+    }
+
+    /**
+     * Represents success, `response` can contain other complex types
+     */
+    class SuccessResponse {
+        /**
+       * @param {object} params
+       * @param {string} params.actionID
+       * @param {string} params.actionType
+       * @param {any} params.response
+       */
+        constructor (params) {
+            this.success = params;
+        }
+    }
+
+    /**
+     * This builds the proper URL given the URL template and userData.
+     *
+     * @param action
+     * @param userData
+     * @return {import('../types.js').ActionResponse}
+     */
+    function buildUrl (action, userData) {
+        const result = replaceTemplatedUrl(action, userData);
+        if ('error' in result) {
+            return new ErrorResponse({ actionID: action.id, message: result.error })
+        }
+
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { url: result.url } })
+    }
+
+    /**
+     * Perform some basic validations before we continue into the templating.
+     *
+     * @param action
+     * @param userData
+     * @return {{url: string} | {error: string}}
+     */
+    function replaceTemplatedUrl (action, userData) {
+        const url = action?.url;
+        if (!url) {
+            return { error: 'Error: No url provided.' }
+        }
+
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const _ = new URL(action.url);
+        } catch (e) {
+            return { error: 'Error: Invalid URL provided.' }
+        }
+
+        if (!userData) {
+            return { url }
+        }
+
+        return transformUrl(action, userData)
+    }
+
+    /**
+     * Get a single element.
+     *
+     * @param {Node} doc
+     * @param {string} selector
+     * @return {HTMLElement | null}
+     */
+    function getElement (doc = document, selector) {
+        if (isXpath(selector)) {
+            return safeQuerySelectorXPath(doc, selector)
+        }
+
+        return safeQuerySelector(doc, selector)
+    }
+
+    /**
+     * Get an array of elements
+     *
+     * @param {Node} doc
+     * @param {string} selector
+     * @return {HTMLElement[] | null}
+     */
+    function getElements (doc = document, selector) {
+        if (isXpath(selector)) {
+            return safeQuerySelectorAllXpath(doc, selector)
+        }
+
+        return safeQuerySelectorAll(doc, selector)
+    }
+
+    /**
+     * Test if a given selector matches an element.
+     *
+     * @param {HTMLElement} element
+     * @param {string} selector
+     */
+    function getElementMatches (element, selector) {
+        try {
+            if (isXpath(selector)) {
+                return matchesXPath(element, selector) ? element : null
+            } else {
+                return element.matches(selector) ? element : null
+            }
+        } catch (e) {
+            console.error('getElementMatches threw: ', e);
+            return null
+        }
+    }
+
+    /**
+     * This is a xpath version of `element.matches(CSS_SELECTOR)`
+     * @param {HTMLElement} element
+     * @param {string} selector
+     * @return {boolean}
+     */
+    function matchesXPath (element, selector) {
+        const xpathResult = document.evaluate(
+            selector,
+            element,
+            null,
+            XPathResult.BOOLEAN_TYPE,
+            null
+        );
+
+        return xpathResult.booleanValue
+    }
+
+    /**
+     * @param {unknown} selector
+     * @returns {boolean}
+     */
+    function isXpath (selector) {
+        if (!(typeof selector === 'string')) return false
+        return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(')
+    }
+
+    /**
+     * @param {Element|Node} element
+     * @param selector
+     * @returns {HTMLElement[] | null}
+     */
+    function safeQuerySelectorAll (element, selector) {
+        try {
+            if (element && 'querySelectorAll' in element) {
+                return Array.from(element?.querySelectorAll?.(selector))
+            }
+            return null
+        } catch (e) {
+            return null
+        }
+    }
+    /**
+     * @param {Element|Node} element
+     * @param selector
+     * @returns {HTMLElement | null}
+     */
+    function safeQuerySelector (element, selector) {
+        try {
+            if (element && 'querySelector' in element) {
+                return element?.querySelector?.(selector)
+            }
+            return null
+        } catch (e) {
+            return null
+        }
+    }
+
+    /**
+     * @param {Node} element
+     * @param selector
+     * @returns {HTMLElement | null}
+     */
+    function safeQuerySelectorXPath (element, selector) {
+        try {
+            const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            const single = match?.singleNodeValue;
+            if (single) {
+                return /** @type {HTMLElement} */(single)
+            }
+            return null
+        } catch (e) {
+            console.log('safeQuerySelectorXPath threw', e);
+            return null
+        }
+    }
+
+    /**
+     * @param {Element|Node} element
+     * @param selector
+     * @returns {HTMLElement[] | null}
+     */
+    function safeQuerySelectorAllXpath (element, selector) {
+        try {
+            // gets all elements matching the xpath query
+            const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+            if (xpathResult) {
+                /** @type {HTMLElement[]} */
+                const matchedNodes = [];
+                for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                    const item = xpathResult.snapshotItem(i);
+                    if (item) matchedNodes.push(/** @type {HTMLElement} */(item));
+                }
+                return /** @type {HTMLElement[]} */(matchedNodes)
+            }
+            return null
+        } catch (e) {
+            console.log('safeQuerySelectorAllXpath threw', e);
+            return null
+        }
+    }
+
+    /**
+     * @param userAge
+     * @param ageFound
+     * @return {boolean}
+     */
+    function isSameAge (userAge, ageFound) {
+        // variance allows for +/- 1 on the data broker and +/- 1 based on the only having a birth year
+        const ageVariance = 2;
+        userAge = parseInt(userAge);
+        ageFound = parseInt(ageFound);
+
+        if (isNaN(ageFound)) {
+            return false
+        }
+
+        if (Math.abs(userAge - ageFound) < ageVariance) {
+            return true
+        }
+
+        return false
+    }
+
+    /**
+     * @param {string} fullNameExtracted
+     * @param {string | null} [userFirstName]
+     * @param {string | null} [userMiddleName]
+     * @param {string | null} [userLastName]
+     * @param {string | null} [userSuffix]
+     * @return {boolean}
+     */
+    function isSameName (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) {
+        // If there's no name on the website, then there's no way we can match it
+        if (!fullNameExtracted) {
+            return false
+        }
+
+        fullNameExtracted = fullNameExtracted.toLowerCase().trim().replace('.', '');
+        userFirstName = userFirstName ? userFirstName.toLowerCase() : null;
+        userMiddleName = userMiddleName ? userMiddleName.toLowerCase() : null;
+        userLastName = userLastName ? userLastName.toLowerCase() : null;
+        userSuffix = userSuffix ? userSuffix.toLowerCase() : null;
+
+        // check their nicknames too
+        const nicknames = getNicknames(userFirstName);
+
+        for (const firstName of nicknames) {
+        // Let's check if the name matches right off the bat
+            const nameCombo1 = `${firstName} ${userLastName}`;
+            if (fullNameExtracted === nameCombo1) {
+                return true
+            }
+
+            // If there's a suffix, check that too
+            if (userSuffix) {
+                const nameCombo1WithSuffix = `${firstName} ${userLastName} ${userSuffix}`;
+                if (fullNameExtracted === nameCombo1WithSuffix) {
+                    return true
+                }
+            }
+
+            // If the user has a name with a hyphen, we should split it on the hyphen
+            // Note: They may have a last name or first name with a hyphen
+            if (userLastName && userLastName.includes('-')) {
+                const userLastNameOption2 = userLastName.split('-').join(' ');
+                const userLastNameOption3 = userLastName.split('-').join('');
+                const userLastNameOption4 = userLastName.split('-')[0];
+
+                const comparisons = [
+                    `${firstName} ${userLastNameOption2}`,
+                    `${firstName} ${userLastNameOption3}`,
+                    `${firstName} ${userLastNameOption4}`
+                ];
+
+                if (comparisons.includes(fullNameExtracted)) {
+                    return true
+                }
+            }
+
+            // Treat first name with the same logic as the last name
+            if (userFirstName && userFirstName.includes('-')) {
+                const userFirstNameOption2 = userFirstName.split('-').join(' ');
+                const userFirstNameOption3 = userFirstName.split('-').join('');
+                const userFirstNameOption4 = userFirstName.split('-')[0];
+
+                const comparisons = [
+                    `${userFirstNameOption2} ${userLastName}`,
+                    `${userFirstNameOption3} ${userLastName}`,
+                    `${userFirstNameOption4} ${userLastName}`
+                ];
+
+                if (comparisons.includes(fullNameExtracted)) {
+                    return true
+                }
+            }
+
+            // Only run this if they have a middle name
+            // Note: Only do the suffix comparison if it actually exists
+            if (userMiddleName) {
+                const comparisons = [
+                    `${firstName} ${userMiddleName} ${userLastName}`,
+                    `${firstName} ${userMiddleName} ${userLastName} ${userSuffix}`,
+                    `${firstName} ${userMiddleName[0]} ${userLastName}`,
+                    `${firstName} ${userMiddleName[0]} ${userLastName} ${userSuffix}`,
+                    `${firstName} ${userMiddleName}${userLastName}`,
+                    `${firstName} ${userMiddleName}${userLastName} ${userSuffix}`
+                ];
+
+                if (comparisons.includes(fullNameExtracted)) {
+                    return true
+                }
+
+                // If it's a hyphenated last name, we have more to try
+                if (userLastName && userLastName.includes('-')) {
+                    const userLastNameOption2 = userLastName.split('-').join(' ');
+                    const userLastNameOption3 = userLastName.split('-').join('');
+                    const userLastNameOption4 = userLastName.split('-')[0];
+
+                    const comparisons = [
+                        `${firstName} ${userMiddleName} ${userLastNameOption2}`,
+                        `${firstName} ${userMiddleName} ${userLastNameOption4}`,
+                        `${firstName} ${userMiddleName[0]} ${userLastNameOption2}`,
+                        `${firstName} ${userMiddleName[0]} ${userLastNameOption3}`,
+                        `${firstName} ${userMiddleName[0]} ${userLastNameOption4}`
+                    ];
+
+                    if (comparisons.includes(fullNameExtracted)) {
+                        return true
+                    }
+                }
+
+                // If it's a hyphenated name, we have more to try
+                if (userFirstName && userFirstName.includes('-')) {
+                    const userFirstNameOption2 = userFirstName.split('-').join(' ');
+                    const userFirstNameOption3 = userFirstName.split('-').join('');
+                    const userFirstNameOption4 = userFirstName.split('-')[0];
+
+                    const comparisons = [
+                        `${userFirstNameOption2} ${userMiddleName} ${userLastName}`,
+                        `${userFirstNameOption3} ${userMiddleName} ${userLastName}`,
+                        `${userFirstNameOption4} ${userMiddleName} ${userLastName}`,
+                        `${userFirstNameOption2} ${userMiddleName[0]} ${userLastName}`,
+                        `${userFirstNameOption3} ${userMiddleName[0]} ${userLastName}`,
+                        `${userFirstNameOption4} ${userMiddleName[0]} ${userLastName}`
+                    ];
+
+                    if (comparisons.includes(fullNameExtracted)) {
+                        return true
+                    }
+                }
+            }
+        }
+
+        return false
+    }
+
+    function getNicknames (name) {
+        if (name == null || name.trim() === '') { return [] }
+
+        name = name.toLowerCase();
+
+        // This comes from Removaly's list of common nicknames
+        return nicknames[name] || [name]
+    }
+
+    function commonjsRequire(path) {
+    	throw new Error('Could not dynamically require "' + path + '". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.');
+    }
+
+    var address = {};
+
+    /*!
+     * XRegExp 3.2.0
+     * <xregexp.com>
+     * Steven Levithan (c) 2007-2017 MIT License
+     */
+
+    var xregexp;
+    var hasRequiredXregexp;
+
+    function requireXregexp () {
+    	if (hasRequiredXregexp) return xregexp;
+    	hasRequiredXregexp = 1;
+
+    	/**
+    	 * XRegExp provides augmented, extensible regular expressions. You get additional regex syntax and
+    	 * flags, beyond what browsers support natively. XRegExp is also a regex utility belt with tools to
+    	 * make your client-side grepping simpler and more powerful, while freeing you from related
+    	 * cross-browser inconsistencies.
+    	 */
+
+    	// ==--------------------------==
+    	// Private stuff
+    	// ==--------------------------==
+
+    	// Property name used for extended regex instance data
+    	var REGEX_DATA = 'xregexp';
+    	// Optional features that can be installed and uninstalled
+    	var features = {
+    	    astral: false,
+    	    natives: false
+    	};
+    	// Native methods to use and restore ('native' is an ES3 reserved keyword)
+    	var nativ = {
+    	    exec: RegExp.prototype.exec,
+    	    test: RegExp.prototype.test,
+    	    match: String.prototype.match,
+    	    replace: String.prototype.replace,
+    	    split: String.prototype.split
+    	};
+    	// Storage for fixed/extended native methods
+    	var fixed = {};
+    	// Storage for regexes cached by `XRegExp.cache`
+    	var regexCache = {};
+    	// Storage for pattern details cached by the `XRegExp` constructor
+    	var patternCache = {};
+    	// Storage for regex syntax tokens added internally or by `XRegExp.addToken`
+    	var tokens = [];
+    	// Token scopes
+    	var defaultScope = 'default';
+    	var classScope = 'class';
+    	// Regexes that match native regex syntax, including octals
+    	var nativeTokens = {
+    	    // Any native multicharacter token in default scope, or any single character
+    	    'default': /\\(?:0(?:[0-3][0-7]{0,2}|[4-7][0-7]?)?|[1-9]\d*|x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|{[\dA-Fa-f]+})|c[A-Za-z]|[\s\S])|\(\?(?:[:=!]|<[=!])|[?*+]\?|{\d+(?:,\d*)?}\??|[\s\S]/,
+    	    // Any native multicharacter token in character class scope, or any single character
+    	    'class': /\\(?:[0-3][0-7]{0,2}|[4-7][0-7]?|x[\dA-Fa-f]{2}|u(?:[\dA-Fa-f]{4}|{[\dA-Fa-f]+})|c[A-Za-z]|[\s\S])|[\s\S]/
+    	};
+    	// Any backreference or dollar-prefixed character in replacement strings
+    	var replacementToken = /\$(?:{([\w$]+)}|(\d\d?|[\s\S]))/g;
+    	// Check for correct `exec` handling of nonparticipating capturing groups
+    	var correctExecNpcg = nativ.exec.call(/()??/, '')[1] === undefined;
+    	// Check for ES6 `flags` prop support
+    	var hasFlagsProp = /x/.flags !== undefined;
+    	// Shortcut to `Object.prototype.toString`
+    	var toString = {}.toString;
+
+    	function hasNativeFlag(flag) {
+    	    // Can't check based on the presence of properties/getters since browsers might support such
+    	    // properties even when they don't support the corresponding flag in regex construction (tested
+    	    // in Chrome 48, where `'unicode' in /x/` is true but trying to construct a regex with flag `u`
+    	    // throws an error)
+    	    var isSupported = true;
+    	    try {
+    	        // Can't use regex literals for testing even in a `try` because regex literals with
+    	        // unsupported flags cause a compilation error in IE
+    	        new RegExp('', flag);
+    	    } catch (exception) {
+    	        isSupported = false;
+    	    }
+    	    return isSupported;
+    	}
+    	// Check for ES6 `u` flag support
+    	var hasNativeU = hasNativeFlag('u');
+    	// Check for ES6 `y` flag support
+    	var hasNativeY = hasNativeFlag('y');
+    	// Tracker for known flags, including addon flags
+    	var registeredFlags = {
+    	    g: true,
+    	    i: true,
+    	    m: true,
+    	    u: hasNativeU,
+    	    y: hasNativeY
+    	};
+
+    	/**
+    	 * Attaches extended data and `XRegExp.prototype` properties to a regex object.
+    	 *
+    	 * @private
+    	 * @param {RegExp} regex Regex to augment.
+    	 * @param {Array} captureNames Array with capture names, or `null`.
+    	 * @param {String} xSource XRegExp pattern used to generate `regex`, or `null` if N/A.
+    	 * @param {String} xFlags XRegExp flags used to generate `regex`, or `null` if N/A.
+    	 * @param {Boolean} [isInternalOnly=false] Whether the regex will be used only for internal
+    	 *   operations, and never exposed to users. For internal-only regexes, we can improve perf by
+    	 *   skipping some operations like attaching `XRegExp.prototype` properties.
+    	 * @returns {RegExp} Augmented regex.
+    	 */
+    	function augment(regex, captureNames, xSource, xFlags, isInternalOnly) {
+    	    var p;
+
+    	    regex[REGEX_DATA] = {
+    	        captureNames: captureNames
+    	    };
+
+    	    if (isInternalOnly) {
+    	        return regex;
+    	    }
+
+    	    // Can't auto-inherit these since the XRegExp constructor returns a nonprimitive value
+    	    if (regex.__proto__) {
+    	        regex.__proto__ = XRegExp.prototype;
+    	    } else {
+    	        for (p in XRegExp.prototype) {
+    	            // An `XRegExp.prototype.hasOwnProperty(p)` check wouldn't be worth it here, since this
+    	            // is performance sensitive, and enumerable `Object.prototype` or `RegExp.prototype`
+    	            // extensions exist on `regex.prototype` anyway
+    	            regex[p] = XRegExp.prototype[p];
+    	        }
+    	    }
+
+    	    regex[REGEX_DATA].source = xSource;
+    	    // Emulate the ES6 `flags` prop by ensuring flags are in alphabetical order
+    	    regex[REGEX_DATA].flags = xFlags ? xFlags.split('').sort().join('') : xFlags;
+
+    	    return regex;
+    	}
+
+    	/**
+    	 * Removes any duplicate characters from the provided string.
+    	 *
+    	 * @private
+    	 * @param {String} str String to remove duplicate characters from.
+    	 * @returns {String} String with any duplicate characters removed.
+    	 */
+    	function clipDuplicates(str) {
+    	    return nativ.replace.call(str, /([\s\S])(?=[\s\S]*\1)/g, '');
+    	}
+
+    	/**
+    	 * Copies a regex object while preserving extended data and augmenting with `XRegExp.prototype`
+    	 * properties. The copy has a fresh `lastIndex` property (set to zero). Allows adding and removing
+    	 * flags g and y while copying the regex.
+    	 *
+    	 * @private
+    	 * @param {RegExp} regex Regex to copy.
+    	 * @param {Object} [options] Options object with optional properties:
+    	 *   - `addG` {Boolean} Add flag g while copying the regex.
+    	 *   - `addY` {Boolean} Add flag y while copying the regex.
+    	 *   - `removeG` {Boolean} Remove flag g while copying the regex.
+    	 *   - `removeY` {Boolean} Remove flag y while copying the regex.
+    	 *   - `isInternalOnly` {Boolean} Whether the copied regex will be used only for internal
+    	 *     operations, and never exposed to users. For internal-only regexes, we can improve perf by
+    	 *     skipping some operations like attaching `XRegExp.prototype` properties.
+    	 *   - `source` {String} Overrides `<regex>.source`, for special cases.
+    	 * @returns {RegExp} Copy of the provided regex, possibly with modified flags.
+    	 */
+    	function copyRegex(regex, options) {
+    	    if (!XRegExp.isRegExp(regex)) {
+    	        throw new TypeError('Type RegExp expected');
+    	    }
+
+    	    var xData = regex[REGEX_DATA] || {};
+    	    var flags = getNativeFlags(regex);
+    	    var flagsToAdd = '';
+    	    var flagsToRemove = '';
+    	    var xregexpSource = null;
+    	    var xregexpFlags = null;
+
+    	    options = options || {};
+
+    	    if (options.removeG) {flagsToRemove += 'g';}
+    	    if (options.removeY) {flagsToRemove += 'y';}
+    	    if (flagsToRemove) {
+    	        flags = nativ.replace.call(flags, new RegExp('[' + flagsToRemove + ']+', 'g'), '');
+    	    }
+
+    	    if (options.addG) {flagsToAdd += 'g';}
+    	    if (options.addY) {flagsToAdd += 'y';}
+    	    if (flagsToAdd) {
+    	        flags = clipDuplicates(flags + flagsToAdd);
+    	    }
+
+    	    if (!options.isInternalOnly) {
+    	        if (xData.source !== undefined) {
+    	            xregexpSource = xData.source;
+    	        }
+    	        // null or undefined; don't want to add to `flags` if the previous value was null, since
+    	        // that indicates we're not tracking original precompilation flags
+    	        if (xData.flags != null) {
+    	            // Flags are only added for non-internal regexes by `XRegExp.globalize`. Flags are never
+    	            // removed for non-internal regexes, so don't need to handle it
+    	            xregexpFlags = flagsToAdd ? clipDuplicates(xData.flags + flagsToAdd) : xData.flags;
+    	        }
+    	    }
+
+    	    // Augment with `XRegExp.prototype` properties, but use the native `RegExp` constructor to avoid
+    	    // searching for special tokens. That would be wrong for regexes constructed by `RegExp`, and
+    	    // unnecessary for regexes constructed by `XRegExp` because the regex has already undergone the
+    	    // translation to native regex syntax
+    	    regex = augment(
+    	        new RegExp(options.source || regex.source, flags),
+    	        hasNamedCapture(regex) ? xData.captureNames.slice(0) : null,
+    	        xregexpSource,
+    	        xregexpFlags,
+    	        options.isInternalOnly
+    	    );
+
+    	    return regex;
+    	}
+
+    	/**
+    	 * Converts hexadecimal to decimal.
+    	 *
+    	 * @private
+    	 * @param {String} hex
+    	 * @returns {Number}
+    	 */
+    	function dec(hex) {
+    	    return parseInt(hex, 16);
+    	}
+
+    	/**
+    	 * Returns a pattern that can be used in a native RegExp in place of an ignorable token such as an
+    	 * inline comment or whitespace with flag x. This is used directly as a token handler function
+    	 * passed to `XRegExp.addToken`.
+    	 *
+    	 * @private
+    	 * @param {String} match Match arg of `XRegExp.addToken` handler
+    	 * @param {String} scope Scope arg of `XRegExp.addToken` handler
+    	 * @param {String} flags Flags arg of `XRegExp.addToken` handler
+    	 * @returns {String} Either '' or '(?:)', depending on which is needed in the context of the match.
+    	 */
+    	function getContextualTokenSeparator(match, scope, flags) {
+    	    if (
+    	        // No need to separate tokens if at the beginning or end of a group
+    	        match.input.charAt(match.index - 1) === '(' ||
+    	        match.input.charAt(match.index + match[0].length) === ')' ||
+    	        // Avoid separating tokens when the following token is a quantifier
+    	        isPatternNext(match.input, match.index + match[0].length, flags, '[?*+]|{\\d+(?:,\\d*)?}')
+    	    ) {
+    	        return '';
+    	    }
+    	    // Keep tokens separated. This avoids e.g. inadvertedly changing `\1 1` or `\1(?#)1` to `\11`.
+    	    // This also ensures all tokens remain as discrete atoms, e.g. it avoids converting the syntax
+    	    // error `(? :` into `(?:`.
+    	    return '(?:)';
+    	}
+
+    	/**
+    	 * Returns native `RegExp` flags used by a regex object.
+    	 *
+    	 * @private
+    	 * @param {RegExp} regex Regex to check.
+    	 * @returns {String} Native flags in use.
+    	 */
+    	function getNativeFlags(regex) {
+    	    return hasFlagsProp ?
+    	        regex.flags :
+    	        // Explicitly using `RegExp.prototype.toString` (rather than e.g. `String` or concatenation
+    	        // with an empty string) allows this to continue working predictably when
+    	        // `XRegExp.proptotype.toString` is overridden
+    	        nativ.exec.call(/\/([a-z]*)$/i, RegExp.prototype.toString.call(regex))[1];
+    	}
+
+    	/**
+    	 * Determines whether a regex has extended instance data used to track capture names.
+    	 *
+    	 * @private
+    	 * @param {RegExp} regex Regex to check.
+    	 * @returns {Boolean} Whether the regex uses named capture.
+    	 */
+    	function hasNamedCapture(regex) {
+    	    return !!(regex[REGEX_DATA] && regex[REGEX_DATA].captureNames);
+    	}
+
+    	/**
+    	 * Converts decimal to hexadecimal.
+    	 *
+    	 * @private
+    	 * @param {Number|String} dec
+    	 * @returns {String}
+    	 */
+    	function hex(dec) {
+    	    return parseInt(dec, 10).toString(16);
+    	}
+
+    	/**
+    	 * Returns the first index at which a given value can be found in an array.
+    	 *
+    	 * @private
+    	 * @param {Array} array Array to search.
+    	 * @param {*} value Value to locate in the array.
+    	 * @returns {Number} Zero-based index at which the item is found, or -1.
+    	 */
+    	function indexOf(array, value) {
+    	    var len = array.length;
+    	    var i;
+
+    	    for (i = 0; i < len; ++i) {
+    	        if (array[i] === value) {
+    	            return i;
+    	        }
+    	    }
+
+    	    return -1;
+    	}
+
+    	/**
+    	 * Checks whether the next nonignorable token after the specified position matches the
+    	 * `needlePattern`
+    	 *
+    	 * @private
+    	 * @param {String} pattern Pattern to search within.
+    	 * @param {Number} pos Index in `pattern` to search at.
+    	 * @param {String} flags Flags used by the pattern.
+    	 * @param {String} needlePattern Pattern to match the next token against.
+    	 * @returns {Boolean} Whether the next nonignorable token matches `needlePattern`
+    	 */
+    	function isPatternNext(pattern, pos, flags, needlePattern) {
+    	    var inlineCommentPattern = '\\(\\?#[^)]*\\)';
+    	    var lineCommentPattern = '#[^#\\n]*';
+    	    var patternsToIgnore = flags.indexOf('x') > -1 ?
+    	        // Ignore any leading whitespace, line comments, and inline comments
+    	        ['\\s', lineCommentPattern, inlineCommentPattern] :
+    	        // Ignore any leading inline comments
+    	        [inlineCommentPattern];
+    	    return nativ.test.call(
+    	        new RegExp('^(?:' + patternsToIgnore.join('|') + ')*(?:' + needlePattern + ')'),
+    	        pattern.slice(pos)
+    	    );
+    	}
+
+    	/**
+    	 * Determines whether a value is of the specified type, by resolving its internal [[Class]].
+    	 *
+    	 * @private
+    	 * @param {*} value Object to check.
+    	 * @param {String} type Type to check for, in TitleCase.
+    	 * @returns {Boolean} Whether the object matches the type.
+    	 */
+    	function isType(value, type) {
+    	    return toString.call(value) === '[object ' + type + ']';
+    	}
+
+    	/**
+    	 * Adds leading zeros if shorter than four characters. Used for fixed-length hexadecimal values.
+    	 *
+    	 * @private
+    	 * @param {String} str
+    	 * @returns {String}
+    	 */
+    	function pad4(str) {
+    	    while (str.length < 4) {
+    	        str = '0' + str;
+    	    }
+    	    return str;
+    	}
+
+    	/**
+    	 * Checks for flag-related errors, and strips/applies flags in a leading mode modifier. Offloads
+    	 * the flag preparation logic from the `XRegExp` constructor.
+    	 *
+    	 * @private
+    	 * @param {String} pattern Regex pattern, possibly with a leading mode modifier.
+    	 * @param {String} flags Any combination of flags.
+    	 * @returns {Object} Object with properties `pattern` and `flags`.
+    	 */
+    	function prepareFlags(pattern, flags) {
+    	    var i;
+
+    	    // Recent browsers throw on duplicate flags, so copy this behavior for nonnative flags
+    	    if (clipDuplicates(flags) !== flags) {
+    	        throw new SyntaxError('Invalid duplicate regex flag ' + flags);
+    	    }
+
+    	    // Strip and apply a leading mode modifier with any combination of flags except g or y
+    	    pattern = nativ.replace.call(pattern, /^\(\?([\w$]+)\)/, function($0, $1) {
+    	        if (nativ.test.call(/[gy]/, $1)) {
+    	            throw new SyntaxError('Cannot use flag g or y in mode modifier ' + $0);
+    	        }
+    	        // Allow duplicate flags within the mode modifier
+    	        flags = clipDuplicates(flags + $1);
+    	        return '';
+    	    });
+
+    	    // Throw on unknown native or nonnative flags
+    	    for (i = 0; i < flags.length; ++i) {
+    	        if (!registeredFlags[flags.charAt(i)]) {
+    	            throw new SyntaxError('Unknown regex flag ' + flags.charAt(i));
+    	        }
+    	    }
+
+    	    return {
+    	        pattern: pattern,
+    	        flags: flags
+    	    };
+    	}
+
+    	/**
+    	 * Prepares an options object from the given value.
+    	 *
+    	 * @private
+    	 * @param {String|Object} value Value to convert to an options object.
+    	 * @returns {Object} Options object.
+    	 */
+    	function prepareOptions(value) {
+    	    var options = {};
+
+    	    if (isType(value, 'String')) {
+    	        XRegExp.forEach(value, /[^\s,]+/, function(match) {
+    	            options[match] = true;
+    	        });
+
+    	        return options;
+    	    }
+
+    	    return value;
+    	}
+
+    	/**
+    	 * Registers a flag so it doesn't throw an 'unknown flag' error.
+    	 *
+    	 * @private
+    	 * @param {String} flag Single-character flag to register.
+    	 */
+    	function registerFlag(flag) {
+    	    if (!/^[\w$]$/.test(flag)) {
+    	        throw new Error('Flag must be a single character A-Za-z0-9_$');
+    	    }
+
+    	    registeredFlags[flag] = true;
+    	}
+
+    	/**
+    	 * Runs built-in and custom regex syntax tokens in reverse insertion order at the specified
+    	 * position, until a match is found.
+    	 *
+    	 * @private
+    	 * @param {String} pattern Original pattern from which an XRegExp object is being built.
+    	 * @param {String} flags Flags being used to construct the regex.
+    	 * @param {Number} pos Position to search for tokens within `pattern`.
+    	 * @param {Number} scope Regex scope to apply: 'default' or 'class'.
+    	 * @param {Object} context Context object to use for token handler functions.
+    	 * @returns {Object} Object with properties `matchLength`, `output`, and `reparse`; or `null`.
+    	 */
+    	function runTokens(pattern, flags, pos, scope, context) {
+    	    var i = tokens.length;
+    	    var leadChar = pattern.charAt(pos);
+    	    var result = null;
+    	    var match;
+    	    var t;
+
+    	    // Run in reverse insertion order
+    	    while (i--) {
+    	        t = tokens[i];
+    	        if (
+    	            (t.leadChar && t.leadChar !== leadChar) ||
+    	            (t.scope !== scope && t.scope !== 'all') ||
+    	            (t.flag && flags.indexOf(t.flag) === -1)
+    	        ) {
+    	            continue;
+    	        }
+
+    	        match = XRegExp.exec(pattern, t.regex, pos, 'sticky');
+    	        if (match) {
+    	            result = {
+    	                matchLength: match[0].length,
+    	                output: t.handler.call(context, match, scope, flags),
+    	                reparse: t.reparse
+    	            };
+    	            // Finished with token tests
+    	            break;
+    	        }
+    	    }
+
+    	    return result;
+    	}
+
+    	/**
+    	 * Enables or disables implicit astral mode opt-in. When enabled, flag A is automatically added to
+    	 * all new regexes created by XRegExp. This causes an error to be thrown when creating regexes if
+    	 * the Unicode Base addon is not available, since flag A is registered by that addon.
+    	 *
+    	 * @private
+    	 * @param {Boolean} on `true` to enable; `false` to disable.
+    	 */
+    	function setAstral(on) {
+    	    features.astral = on;
+    	}
+
+    	/**
+    	 * Enables or disables native method overrides.
+    	 *
+    	 * @private
+    	 * @param {Boolean} on `true` to enable; `false` to disable.
+    	 */
+    	function setNatives(on) {
+    	    RegExp.prototype.exec = (on ? fixed : nativ).exec;
+    	    RegExp.prototype.test = (on ? fixed : nativ).test;
+    	    String.prototype.match = (on ? fixed : nativ).match;
+    	    String.prototype.replace = (on ? fixed : nativ).replace;
+    	    String.prototype.split = (on ? fixed : nativ).split;
+
+    	    features.natives = on;
+    	}
+
+    	/**
+    	 * Returns the object, or throws an error if it is `null` or `undefined`. This is used to follow
+    	 * the ES5 abstract operation `ToObject`.
+    	 *
+    	 * @private
+    	 * @param {*} value Object to check and return.
+    	 * @returns {*} The provided object.
+    	 */
+    	function toObject(value) {
+    	    // null or undefined
+    	    if (value == null) {
+    	        throw new TypeError('Cannot convert null or undefined to object');
+    	    }
+
+    	    return value;
+    	}
+
+    	// ==--------------------------==
+    	// Constructor
+    	// ==--------------------------==
+
+    	/**
+    	 * Creates an extended regular expression object for matching text with a pattern. Differs from a
+    	 * native regular expression in that additional syntax and flags are supported. The returned object
+    	 * is in fact a native `RegExp` and works with all native methods.
+    	 *
+    	 * @class XRegExp
+    	 * @constructor
+    	 * @param {String|RegExp} pattern Regex pattern string, or an existing regex object to copy.
+    	 * @param {String} [flags] Any combination of flags.
+    	 *   Native flags:
+    	 *     - `g` - global
+    	 *     - `i` - ignore case
+    	 *     - `m` - multiline anchors
+    	 *     - `u` - unicode (ES6)
+    	 *     - `y` - sticky (Firefox 3+, ES6)
+    	 *   Additional XRegExp flags:
+    	 *     - `n` - explicit capture
+    	 *     - `s` - dot matches all (aka singleline)
+    	 *     - `x` - free-spacing and line comments (aka extended)
+    	 *     - `A` - astral (requires the Unicode Base addon)
+    	 *   Flags cannot be provided when constructing one `RegExp` from another.
+    	 * @returns {RegExp} Extended regular expression object.
+    	 * @example
+    	 *
+    	 * // With named capture and flag x
+    	 * XRegExp('(?<year>  [0-9]{4} ) -?  # year  \n\
+    	 *          (?<month> [0-9]{2} ) -?  # month \n\
+    	 *          (?<day>   [0-9]{2} )     # day   ', 'x');
+    	 *
+    	 * // Providing a regex object copies it. Native regexes are recompiled using native (not XRegExp)
+    	 * // syntax. Copies maintain extended data, are augmented with `XRegExp.prototype` properties, and
+    	 * // have fresh `lastIndex` properties (set to zero).
+    	 * XRegExp(/regex/);
+    	 */
+    	function XRegExp(pattern, flags) {
+    	    if (XRegExp.isRegExp(pattern)) {
+    	        if (flags !== undefined) {
+    	            throw new TypeError('Cannot supply flags when copying a RegExp');
+    	        }
+    	        return copyRegex(pattern);
+    	    }
+
+    	    // Copy the argument behavior of `RegExp`
+    	    pattern = pattern === undefined ? '' : String(pattern);
+    	    flags = flags === undefined ? '' : String(flags);
+
+    	    if (XRegExp.isInstalled('astral') && flags.indexOf('A') === -1) {
+    	        // This causes an error to be thrown if the Unicode Base addon is not available
+    	        flags += 'A';
+    	    }
+
+    	    if (!patternCache[pattern]) {
+    	        patternCache[pattern] = {};
+    	    }
+
+    	    if (!patternCache[pattern][flags]) {
+    	        var context = {
+    	            hasNamedCapture: false,
+    	            captureNames: []
+    	        };
+    	        var scope = defaultScope;
+    	        var output = '';
+    	        var pos = 0;
+    	        var result;
+
+    	        // Check for flag-related errors, and strip/apply flags in a leading mode modifier
+    	        var applied = prepareFlags(pattern, flags);
+    	        var appliedPattern = applied.pattern;
+    	        var appliedFlags = applied.flags;
+
+    	        // Use XRegExp's tokens to translate the pattern to a native regex pattern.
+    	        // `appliedPattern.length` may change on each iteration if tokens use `reparse`
+    	        while (pos < appliedPattern.length) {
+    	            do {
+    	                // Check for custom tokens at the current position
+    	                result = runTokens(appliedPattern, appliedFlags, pos, scope, context);
+    	                // If the matched token used the `reparse` option, splice its output into the
+    	                // pattern before running tokens again at the same position
+    	                if (result && result.reparse) {
+    	                    appliedPattern = appliedPattern.slice(0, pos) +
+    	                        result.output +
+    	                        appliedPattern.slice(pos + result.matchLength);
+    	                }
+    	            } while (result && result.reparse);
+
+    	            if (result) {
+    	                output += result.output;
+    	                pos += (result.matchLength || 1);
+    	            } else {
+    	                // Get the native token at the current position
+    	                var token = XRegExp.exec(appliedPattern, nativeTokens[scope], pos, 'sticky')[0];
+    	                output += token;
+    	                pos += token.length;
+    	                if (token === '[' && scope === defaultScope) {
+    	                    scope = classScope;
+    	                } else if (token === ']' && scope === classScope) {
+    	                    scope = defaultScope;
+    	                }
+    	            }
+    	        }
+
+    	        patternCache[pattern][flags] = {
+    	            // Use basic cleanup to collapse repeated empty groups like `(?:)(?:)` to `(?:)`. Empty
+    	            // groups are sometimes inserted during regex transpilation in order to keep tokens
+    	            // separated. However, more than one empty group in a row is never needed.
+    	            pattern: nativ.replace.call(output, /(?:\(\?:\))+/g, '(?:)'),
+    	            // Strip all but native flags
+    	            flags: nativ.replace.call(appliedFlags, /[^gimuy]+/g, ''),
+    	            // `context.captureNames` has an item for each capturing group, even if unnamed
+    	            captures: context.hasNamedCapture ? context.captureNames : null
+    	        };
+    	    }
+
+    	    var generated = patternCache[pattern][flags];
+    	    return augment(
+    	        new RegExp(generated.pattern, generated.flags),
+    	        generated.captures,
+    	        pattern,
+    	        flags
+    	    );
+    	}
+
+    	// Add `RegExp.prototype` to the prototype chain
+    	XRegExp.prototype = new RegExp();
+
+    	// ==--------------------------==
+    	// Public properties
+    	// ==--------------------------==
+
+    	/**
+    	 * The XRegExp version number as a string containing three dot-separated parts. For example,
+    	 * '2.0.0-beta-3'.
+    	 *
+    	 * @static
+    	 * @memberOf XRegExp
+    	 * @type String
+    	 */
+    	XRegExp.version = '3.2.0';
+
+    	// ==--------------------------==
+    	// Public methods
+    	// ==--------------------------==
+
+    	// Intentionally undocumented; used in tests and addons
+    	XRegExp._clipDuplicates = clipDuplicates;
+    	XRegExp._hasNativeFlag = hasNativeFlag;
+    	XRegExp._dec = dec;
+    	XRegExp._hex = hex;
+    	XRegExp._pad4 = pad4;
+
+    	/**
+    	 * Extends XRegExp syntax and allows custom flags. This is used internally and can be used to
+    	 * create XRegExp addons. If more than one token can match the same string, the last added wins.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {RegExp} regex Regex object that matches the new token.
+    	 * @param {Function} handler Function that returns a new pattern string (using native regex syntax)
+    	 *   to replace the matched token within all future XRegExp regexes. Has access to persistent
+    	 *   properties of the regex being built, through `this`. Invoked with three arguments:
+    	 *   - The match array, with named backreference properties.
+    	 *   - The regex scope where the match was found: 'default' or 'class'.
+    	 *   - The flags used by the regex, including any flags in a leading mode modifier.
+    	 *   The handler function becomes part of the XRegExp construction process, so be careful not to
+    	 *   construct XRegExps within the function or you will trigger infinite recursion.
+    	 * @param {Object} [options] Options object with optional properties:
+    	 *   - `scope` {String} Scope where the token applies: 'default', 'class', or 'all'.
+    	 *   - `flag` {String} Single-character flag that triggers the token. This also registers the
+    	 *     flag, which prevents XRegExp from throwing an 'unknown flag' error when the flag is used.
+    	 *   - `optionalFlags` {String} Any custom flags checked for within the token `handler` that are
+    	 *     not required to trigger the token. This registers the flags, to prevent XRegExp from
+    	 *     throwing an 'unknown flag' error when any of the flags are used.
+    	 *   - `reparse` {Boolean} Whether the `handler` function's output should not be treated as
+    	 *     final, and instead be reparseable by other tokens (including the current token). Allows
+    	 *     token chaining or deferring.
+    	 *   - `leadChar` {String} Single character that occurs at the beginning of any successful match
+    	 *     of the token (not always applicable). This doesn't change the behavior of the token unless
+    	 *     you provide an erroneous value. However, providing it can increase the token's performance
+    	 *     since the token can be skipped at any positions where this character doesn't appear.
+    	 * @example
+    	 *
+    	 * // Basic usage: Add \a for the ALERT control code
+    	 * XRegExp.addToken(
+    	 *   /\\a/,
+    	 *   function() {return '\\x07';},
+    	 *   {scope: 'all'}
+    	 * );
+    	 * XRegExp('\\a[\\a-\\n]+').test('\x07\n\x07'); // -> true
+    	 *
+    	 * // Add the U (ungreedy) flag from PCRE and RE2, which reverses greedy and lazy quantifiers.
+    	 * // Since `scope` is not specified, it uses 'default' (i.e., transformations apply outside of
+    	 * // character classes only)
+    	 * XRegExp.addToken(
+    	 *   /([?*+]|{\d+(?:,\d*)?})(\??)/,
+    	 *   function(match) {return match[1] + (match[2] ? '' : '?');},
+    	 *   {flag: 'U'}
+    	 * );
+    	 * XRegExp('a+', 'U').exec('aaa')[0]; // -> 'a'
+    	 * XRegExp('a+?', 'U').exec('aaa')[0]; // -> 'aaa'
+    	 */
+    	XRegExp.addToken = function(regex, handler, options) {
+    	    options = options || {};
+    	    var optionalFlags = options.optionalFlags;
+    	    var i;
+
+    	    if (options.flag) {
+    	        registerFlag(options.flag);
+    	    }
+
+    	    if (optionalFlags) {
+    	        optionalFlags = nativ.split.call(optionalFlags, '');
+    	        for (i = 0; i < optionalFlags.length; ++i) {
+    	            registerFlag(optionalFlags[i]);
+    	        }
+    	    }
+
+    	    // Add to the private list of syntax tokens
+    	    tokens.push({
+    	        regex: copyRegex(regex, {
+    	            addG: true,
+    	            addY: hasNativeY,
+    	            isInternalOnly: true
+    	        }),
+    	        handler: handler,
+    	        scope: options.scope || defaultScope,
+    	        flag: options.flag,
+    	        reparse: options.reparse,
+    	        leadChar: options.leadChar
+    	    });
+
+    	    // Reset the pattern cache used by the `XRegExp` constructor, since the same pattern and flags
+    	    // might now produce different results
+    	    XRegExp.cache.flush('patterns');
+    	};
+
+    	/**
+    	 * Caches and returns the result of calling `XRegExp(pattern, flags)`. On any subsequent call with
+    	 * the same pattern and flag combination, the cached copy of the regex is returned.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} pattern Regex pattern string.
+    	 * @param {String} [flags] Any combination of XRegExp flags.
+    	 * @returns {RegExp} Cached XRegExp object.
+    	 * @example
+    	 *
+    	 * while (match = XRegExp.cache('.', 'gs').exec(str)) {
+    	 *   // The regex is compiled once only
+    	 * }
+    	 */
+    	XRegExp.cache = function(pattern, flags) {
+    	    if (!regexCache[pattern]) {
+    	        regexCache[pattern] = {};
+    	    }
+    	    return regexCache[pattern][flags] || (
+    	        regexCache[pattern][flags] = XRegExp(pattern, flags)
+    	    );
+    	};
+
+    	// Intentionally undocumented; used in tests
+    	XRegExp.cache.flush = function(cacheName) {
+    	    if (cacheName === 'patterns') {
+    	        // Flush the pattern cache used by the `XRegExp` constructor
+    	        patternCache = {};
+    	    } else {
+    	        // Flush the regex cache populated by `XRegExp.cache`
+    	        regexCache = {};
+    	    }
+    	};
+
+    	/**
+    	 * Escapes any regular expression metacharacters, for use when matching literal strings. The result
+    	 * can safely be used at any point within a regex that uses any flags.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to escape.
+    	 * @returns {String} String with regex metacharacters escaped.
+    	 * @example
+    	 *
+    	 * XRegExp.escape('Escaped? <.>');
+    	 * // -> 'Escaped\?\ <\.>'
+    	 */
+    	XRegExp.escape = function(str) {
+    	    return nativ.replace.call(toObject(str), /[-\[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    	};
+
+    	/**
+    	 * Executes a regex search in a specified string. Returns a match array or `null`. If the provided
+    	 * regex uses named capture, named backreference properties are included on the match array.
+    	 * Optional `pos` and `sticky` arguments specify the search start position, and whether the match
+    	 * must start at the specified position only. The `lastIndex` property of the provided regex is not
+    	 * used, but is updated for compatibility. Also fixes browser bugs compared to the native
+    	 * `RegExp.prototype.exec` and can be used reliably cross-browser.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to search.
+    	 * @param {RegExp} regex Regex to search with.
+    	 * @param {Number} [pos=0] Zero-based index at which to start the search.
+    	 * @param {Boolean|String} [sticky=false] Whether the match must start at the specified position
+    	 *   only. The string `'sticky'` is accepted as an alternative to `true`.
+    	 * @returns {Array} Match array with named backreference properties, or `null`.
+    	 * @example
+    	 *
+    	 * // Basic use, with named backreference
+    	 * var match = XRegExp.exec('U+2620', XRegExp('U\\+(?<hex>[0-9A-F]{4})'));
+    	 * match.hex; // -> '2620'
+    	 *
+    	 * // With pos and sticky, in a loop
+    	 * var pos = 2, result = [], match;
+    	 * while (match = XRegExp.exec('<1><2><3><4>5<6>', /<(\d)>/, pos, 'sticky')) {
+    	 *   result.push(match[1]);
+    	 *   pos = match.index + match[0].length;
+    	 * }
+    	 * // result -> ['2', '3', '4']
+    	 */
+    	XRegExp.exec = function(str, regex, pos, sticky) {
+    	    var cacheKey = 'g';
+    	    var addY = false;
+    	    var fakeY = false;
+    	    var match;
+    	    var r2;
+
+    	    addY = hasNativeY && !!(sticky || (regex.sticky && sticky !== false));
+    	    if (addY) {
+    	        cacheKey += 'y';
+    	    } else if (sticky) {
+    	        // Simulate sticky matching by appending an empty capture to the original regex. The
+    	        // resulting regex will succeed no matter what at the current index (set with `lastIndex`),
+    	        // and will not search the rest of the subject string. We'll know that the original regex
+    	        // has failed if that last capture is `''` rather than `undefined` (i.e., if that last
+    	        // capture participated in the match).
+    	        fakeY = true;
+    	        cacheKey += 'FakeY';
+    	    }
+
+    	    regex[REGEX_DATA] = regex[REGEX_DATA] || {};
+
+    	    // Shares cached copies with `XRegExp.match`/`replace`
+    	    r2 = regex[REGEX_DATA][cacheKey] || (
+    	        regex[REGEX_DATA][cacheKey] = copyRegex(regex, {
+    	            addG: true,
+    	            addY: addY,
+    	            source: fakeY ? regex.source + '|()' : undefined,
+    	            removeY: sticky === false,
+    	            isInternalOnly: true
+    	        })
+    	    );
+
+    	    pos = pos || 0;
+    	    r2.lastIndex = pos;
+
+    	    // Fixed `exec` required for `lastIndex` fix, named backreferences, etc.
+    	    match = fixed.exec.call(r2, str);
+
+    	    // Get rid of the capture added by the pseudo-sticky matcher if needed. An empty string means
+    	    // the original regexp failed (see above).
+    	    if (fakeY && match && match.pop() === '') {
+    	        match = null;
+    	    }
+
+    	    if (regex.global) {
+    	        regex.lastIndex = match ? r2.lastIndex : 0;
+    	    }
+
+    	    return match;
+    	};
+
+    	/**
+    	 * Executes a provided function once per regex match. Searches always start at the beginning of the
+    	 * string and continue until the end, regardless of the state of the regex's `global` property and
+    	 * initial `lastIndex`.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to search.
+    	 * @param {RegExp} regex Regex to search with.
+    	 * @param {Function} callback Function to execute for each match. Invoked with four arguments:
+    	 *   - The match array, with named backreference properties.
+    	 *   - The zero-based match index.
+    	 *   - The string being traversed.
+    	 *   - The regex object being used to traverse the string.
+    	 * @example
+    	 *
+    	 * // Extracts every other digit from a string
+    	 * var evens = [];
+    	 * XRegExp.forEach('1a2345', /\d/, function(match, i) {
+    	 *   if (i % 2) evens.push(+match[0]);
+    	 * });
+    	 * // evens -> [2, 4]
+    	 */
+    	XRegExp.forEach = function(str, regex, callback) {
+    	    var pos = 0;
+    	    var i = -1;
+    	    var match;
+
+    	    while ((match = XRegExp.exec(str, regex, pos))) {
+    	        // Because `regex` is provided to `callback`, the function could use the deprecated/
+    	        // nonstandard `RegExp.prototype.compile` to mutate the regex. However, since `XRegExp.exec`
+    	        // doesn't use `lastIndex` to set the search position, this can't lead to an infinite loop,
+    	        // at least. Actually, because of the way `XRegExp.exec` caches globalized versions of
+    	        // regexes, mutating the regex will not have any effect on the iteration or matched strings,
+    	        // which is a nice side effect that brings extra safety.
+    	        callback(match, ++i, str, regex);
+
+    	        pos = match.index + (match[0].length || 1);
+    	    }
+    	};
+
+    	/**
+    	 * Copies a regex object and adds flag `g`. The copy maintains extended data, is augmented with
+    	 * `XRegExp.prototype` properties, and has a fresh `lastIndex` property (set to zero). Native
+    	 * regexes are not recompiled using XRegExp syntax.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {RegExp} regex Regex to globalize.
+    	 * @returns {RegExp} Copy of the provided regex with flag `g` added.
+    	 * @example
+    	 *
+    	 * var globalCopy = XRegExp.globalize(/regex/);
+    	 * globalCopy.global; // -> true
+    	 */
+    	XRegExp.globalize = function(regex) {
+    	    return copyRegex(regex, {addG: true});
+    	};
+
+    	/**
+    	 * Installs optional features according to the specified options. Can be undone using
+    	 * `XRegExp.uninstall`.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {Object|String} options Options object or string.
+    	 * @example
+    	 *
+    	 * // With an options object
+    	 * XRegExp.install({
+    	 *   // Enables support for astral code points in Unicode addons (implicitly sets flag A)
+    	 *   astral: true,
+    	 *
+    	 *   // DEPRECATED: Overrides native regex methods with fixed/extended versions
+    	 *   natives: true
+    	 * });
+    	 *
+    	 * // With an options string
+    	 * XRegExp.install('astral natives');
+    	 */
+    	XRegExp.install = function(options) {
+    	    options = prepareOptions(options);
+
+    	    if (!features.astral && options.astral) {
+    	        setAstral(true);
+    	    }
+
+    	    if (!features.natives && options.natives) {
+    	        setNatives(true);
+    	    }
+    	};
+
+    	/**
+    	 * Checks whether an individual optional feature is installed.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} feature Name of the feature to check. One of:
+    	 *   - `astral`
+    	 *   - `natives`
+    	 * @returns {Boolean} Whether the feature is installed.
+    	 * @example
+    	 *
+    	 * XRegExp.isInstalled('astral');
+    	 */
+    	XRegExp.isInstalled = function(feature) {
+    	    return !!(features[feature]);
+    	};
+
+    	/**
+    	 * Returns `true` if an object is a regex; `false` if it isn't. This works correctly for regexes
+    	 * created in another frame, when `instanceof` and `constructor` checks would fail.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {*} value Object to check.
+    	 * @returns {Boolean} Whether the object is a `RegExp` object.
+    	 * @example
+    	 *
+    	 * XRegExp.isRegExp('string'); // -> false
+    	 * XRegExp.isRegExp(/regex/i); // -> true
+    	 * XRegExp.isRegExp(RegExp('^', 'm')); // -> true
+    	 * XRegExp.isRegExp(XRegExp('(?s).')); // -> true
+    	 */
+    	XRegExp.isRegExp = function(value) {
+    	    return toString.call(value) === '[object RegExp]';
+    	    //return isType(value, 'RegExp');
+    	};
+
+    	/**
+    	 * Returns the first matched string, or in global mode, an array containing all matched strings.
+    	 * This is essentially a more convenient re-implementation of `String.prototype.match` that gives
+    	 * the result types you actually want (string instead of `exec`-style array in match-first mode,
+    	 * and an empty array instead of `null` when no matches are found in match-all mode). It also lets
+    	 * you override flag g and ignore `lastIndex`, and fixes browser bugs.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to search.
+    	 * @param {RegExp} regex Regex to search with.
+    	 * @param {String} [scope='one'] Use 'one' to return the first match as a string. Use 'all' to
+    	 *   return an array of all matched strings. If not explicitly specified and `regex` uses flag g,
+    	 *   `scope` is 'all'.
+    	 * @returns {String|Array} In match-first mode: First match as a string, or `null`. In match-all
+    	 *   mode: Array of all matched strings, or an empty array.
+    	 * @example
+    	 *
+    	 * // Match first
+    	 * XRegExp.match('abc', /\w/); // -> 'a'
+    	 * XRegExp.match('abc', /\w/g, 'one'); // -> 'a'
+    	 * XRegExp.match('abc', /x/g, 'one'); // -> null
+    	 *
+    	 * // Match all
+    	 * XRegExp.match('abc', /\w/g); // -> ['a', 'b', 'c']
+    	 * XRegExp.match('abc', /\w/, 'all'); // -> ['a', 'b', 'c']
+    	 * XRegExp.match('abc', /x/, 'all'); // -> []
+    	 */
+    	XRegExp.match = function(str, regex, scope) {
+    	    var global = (regex.global && scope !== 'one') || scope === 'all';
+    	    var cacheKey = ((global ? 'g' : '') + (regex.sticky ? 'y' : '')) || 'noGY';
+    	    var result;
+    	    var r2;
+
+    	    regex[REGEX_DATA] = regex[REGEX_DATA] || {};
+
+    	    // Shares cached copies with `XRegExp.exec`/`replace`
+    	    r2 = regex[REGEX_DATA][cacheKey] || (
+    	        regex[REGEX_DATA][cacheKey] = copyRegex(regex, {
+    	            addG: !!global,
+    	            removeG: scope === 'one',
+    	            isInternalOnly: true
+    	        })
+    	    );
+
+    	    result = nativ.match.call(toObject(str), r2);
+
+    	    if (regex.global) {
+    	        regex.lastIndex = (
+    	            (scope === 'one' && result) ?
+    	                // Can't use `r2.lastIndex` since `r2` is nonglobal in this case
+    	                (result.index + result[0].length) : 0
+    	        );
+    	    }
+
+    	    return global ? (result || []) : (result && result[0]);
+    	};
+
+    	/**
+    	 * Retrieves the matches from searching a string using a chain of regexes that successively search
+    	 * within previous matches. The provided `chain` array can contain regexes and or objects with
+    	 * `regex` and `backref` properties. When a backreference is specified, the named or numbered
+    	 * backreference is passed forward to the next regex or returned.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to search.
+    	 * @param {Array} chain Regexes that each search for matches within preceding results.
+    	 * @returns {Array} Matches by the last regex in the chain, or an empty array.
+    	 * @example
+    	 *
+    	 * // Basic usage; matches numbers within <b> tags
+    	 * XRegExp.matchChain('1 <b>2</b> 3 <b>4 a 56</b>', [
+    	 *   XRegExp('(?is)<b>.*?</b>'),
+    	 *   /\d+/
+    	 * ]);
+    	 * // -> ['2', '4', '56']
+    	 *
+    	 * // Passing forward and returning specific backreferences
+    	 * html = '<a href="http://xregexp.com/api/">XRegExp</a>\
+    	 *         <a href="http://www.google.com/">Google</a>';
+    	 * XRegExp.matchChain(html, [
+    	 *   {regex: /<a href="([^"]+)">/i, backref: 1},
+    	 *   {regex: XRegExp('(?i)^https?://(?<domain>[^/?#]+)'), backref: 'domain'}
+    	 * ]);
+    	 * // -> ['xregexp.com', 'www.google.com']
+    	 */
+    	XRegExp.matchChain = function(str, chain) {
+    	    return (function recurseChain(values, level) {
+    	        var item = chain[level].regex ? chain[level] : {regex: chain[level]};
+    	        var matches = [];
+
+    	        function addMatch(match) {
+    	            if (item.backref) {
+    	                // Safari 4.0.5 (but not 5.0.5+) inappropriately uses sparse arrays to hold the
+    	                // `undefined`s for backreferences to nonparticipating capturing groups. In such
+    	                // cases, a `hasOwnProperty` or `in` check on its own would inappropriately throw
+    	                // the exception, so also check if the backreference is a number that is within the
+    	                // bounds of the array.
+    	                if (!(match.hasOwnProperty(item.backref) || +item.backref < match.length)) {
+    	                    throw new ReferenceError('Backreference to undefined group: ' + item.backref);
+    	                }
+
+    	                matches.push(match[item.backref] || '');
+    	            } else {
+    	                matches.push(match[0]);
+    	            }
+    	        }
+
+    	        for (var i = 0; i < values.length; ++i) {
+    	            XRegExp.forEach(values[i], item.regex, addMatch);
+    	        }
+
+    	        return ((level === chain.length - 1) || !matches.length) ?
+    	            matches :
+    	            recurseChain(matches, level + 1);
+    	    }([str], 0));
+    	};
+
+    	/**
+    	 * Returns a new string with one or all matches of a pattern replaced. The pattern can be a string
+    	 * or regex, and the replacement can be a string or a function to be called for each match. To
+    	 * perform a global search and replace, use the optional `scope` argument or include flag g if using
+    	 * a regex. Replacement strings can use `${n}` for named and numbered backreferences. Replacement
+    	 * functions can use named backreferences via `arguments[0].name`. Also fixes browser bugs compared
+    	 * to the native `String.prototype.replace` and can be used reliably cross-browser.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to search.
+    	 * @param {RegExp|String} search Search pattern to be replaced.
+    	 * @param {String|Function} replacement Replacement string or a function invoked to create it.
+    	 *   Replacement strings can include special replacement syntax:
+    	 *     - $$ - Inserts a literal $ character.
+    	 *     - $&, $0 - Inserts the matched substring.
+    	 *     - $` - Inserts the string that precedes the matched substring (left context).
+    	 *     - $' - Inserts the string that follows the matched substring (right context).
+    	 *     - $n, $nn - Where n/nn are digits referencing an existent capturing group, inserts
+    	 *       backreference n/nn.
+    	 *     - ${n} - Where n is a name or any number of digits that reference an existent capturing
+    	 *       group, inserts backreference n.
+    	 *   Replacement functions are invoked with three or more arguments:
+    	 *     - The matched substring (corresponds to $& above). Named backreferences are accessible as
+    	 *       properties of this first argument.
+    	 *     - 0..n arguments, one for each backreference (corresponding to $1, $2, etc. above).
+    	 *     - The zero-based index of the match within the total search string.
+    	 *     - The total string being searched.
+    	 * @param {String} [scope='one'] Use 'one' to replace the first match only, or 'all'. If not
+    	 *   explicitly specified and using a regex with flag g, `scope` is 'all'.
+    	 * @returns {String} New string with one or all matches replaced.
+    	 * @example
+    	 *
+    	 * // Regex search, using named backreferences in replacement string
+    	 * var name = XRegExp('(?<first>\\w+) (?<last>\\w+)');
+    	 * XRegExp.replace('John Smith', name, '${last}, ${first}');
+    	 * // -> 'Smith, John'
+    	 *
+    	 * // Regex search, using named backreferences in replacement function
+    	 * XRegExp.replace('John Smith', name, function(match) {
+    	 *   return match.last + ', ' + match.first;
+    	 * });
+    	 * // -> 'Smith, John'
+    	 *
+    	 * // String search, with replace-all
+    	 * XRegExp.replace('RegExp builds RegExps', 'RegExp', 'XRegExp', 'all');
+    	 * // -> 'XRegExp builds XRegExps'
+    	 */
+    	XRegExp.replace = function(str, search, replacement, scope) {
+    	    var isRegex = XRegExp.isRegExp(search);
+    	    var global = (search.global && scope !== 'one') || scope === 'all';
+    	    var cacheKey = ((global ? 'g' : '') + (search.sticky ? 'y' : '')) || 'noGY';
+    	    var s2 = search;
+    	    var result;
+
+    	    if (isRegex) {
+    	        search[REGEX_DATA] = search[REGEX_DATA] || {};
+
+    	        // Shares cached copies with `XRegExp.exec`/`match`. Since a copy is used, `search`'s
+    	        // `lastIndex` isn't updated *during* replacement iterations
+    	        s2 = search[REGEX_DATA][cacheKey] || (
+    	            search[REGEX_DATA][cacheKey] = copyRegex(search, {
+    	                addG: !!global,
+    	                removeG: scope === 'one',
+    	                isInternalOnly: true
+    	            })
+    	        );
+    	    } else if (global) {
+    	        s2 = new RegExp(XRegExp.escape(String(search)), 'g');
+    	    }
+
+    	    // Fixed `replace` required for named backreferences, etc.
+    	    result = fixed.replace.call(toObject(str), s2, replacement);
+
+    	    if (isRegex && search.global) {
+    	        // Fixes IE, Safari bug (last tested IE 9, Safari 5.1)
+    	        search.lastIndex = 0;
+    	    }
+
+    	    return result;
+    	};
+
+    	/**
+    	 * Performs batch processing of string replacements. Used like `XRegExp.replace`, but accepts an
+    	 * array of replacement details. Later replacements operate on the output of earlier replacements.
+    	 * Replacement details are accepted as an array with a regex or string to search for, the
+    	 * replacement string or function, and an optional scope of 'one' or 'all'. Uses the XRegExp
+    	 * replacement text syntax, which supports named backreference properties via `${name}`.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to search.
+    	 * @param {Array} replacements Array of replacement detail arrays.
+    	 * @returns {String} New string with all replacements.
+    	 * @example
+    	 *
+    	 * str = XRegExp.replaceEach(str, [
+    	 *   [XRegExp('(?<name>a)'), 'z${name}'],
+    	 *   [/b/gi, 'y'],
+    	 *   [/c/g, 'x', 'one'], // scope 'one' overrides /g
+    	 *   [/d/, 'w', 'all'],  // scope 'all' overrides lack of /g
+    	 *   ['e', 'v', 'all'],  // scope 'all' allows replace-all for strings
+    	 *   [/f/g, function($0) {
+    	 *     return $0.toUpperCase();
+    	 *   }]
+    	 * ]);
+    	 */
+    	XRegExp.replaceEach = function(str, replacements) {
+    	    var i;
+    	    var r;
+
+    	    for (i = 0; i < replacements.length; ++i) {
+    	        r = replacements[i];
+    	        str = XRegExp.replace(str, r[0], r[1], r[2]);
+    	    }
+
+    	    return str;
+    	};
+
+    	/**
+    	 * Splits a string into an array of strings using a regex or string separator. Matches of the
+    	 * separator are not included in the result array. However, if `separator` is a regex that contains
+    	 * capturing groups, backreferences are spliced into the result each time `separator` is matched.
+    	 * Fixes browser bugs compared to the native `String.prototype.split` and can be used reliably
+    	 * cross-browser.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to split.
+    	 * @param {RegExp|String} separator Regex or string to use for separating the string.
+    	 * @param {Number} [limit] Maximum number of items to include in the result array.
+    	 * @returns {Array} Array of substrings.
+    	 * @example
+    	 *
+    	 * // Basic use
+    	 * XRegExp.split('a b c', ' ');
+    	 * // -> ['a', 'b', 'c']
+    	 *
+    	 * // With limit
+    	 * XRegExp.split('a b c', ' ', 2);
+    	 * // -> ['a', 'b']
+    	 *
+    	 * // Backreferences in result array
+    	 * XRegExp.split('..word1..', /([a-z]+)(\d+)/i);
+    	 * // -> ['..', 'word', '1', '..']
+    	 */
+    	XRegExp.split = function(str, separator, limit) {
+    	    return fixed.split.call(toObject(str), separator, limit);
+    	};
+
+    	/**
+    	 * Executes a regex search in a specified string. Returns `true` or `false`. Optional `pos` and
+    	 * `sticky` arguments specify the search start position, and whether the match must start at the
+    	 * specified position only. The `lastIndex` property of the provided regex is not used, but is
+    	 * updated for compatibility. Also fixes browser bugs compared to the native
+    	 * `RegExp.prototype.test` and can be used reliably cross-browser.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {String} str String to search.
+    	 * @param {RegExp} regex Regex to search with.
+    	 * @param {Number} [pos=0] Zero-based index at which to start the search.
+    	 * @param {Boolean|String} [sticky=false] Whether the match must start at the specified position
+    	 *   only. The string `'sticky'` is accepted as an alternative to `true`.
+    	 * @returns {Boolean} Whether the regex matched the provided value.
+    	 * @example
+    	 *
+    	 * // Basic use
+    	 * XRegExp.test('abc', /c/); // -> true
+    	 *
+    	 * // With pos and sticky
+    	 * XRegExp.test('abc', /c/, 0, 'sticky'); // -> false
+    	 * XRegExp.test('abc', /c/, 2, 'sticky'); // -> true
+    	 */
+    	XRegExp.test = function(str, regex, pos, sticky) {
+    	    // Do this the easy way :-)
+    	    return !!XRegExp.exec(str, regex, pos, sticky);
+    	};
+
+    	/**
+    	 * Uninstalls optional features according to the specified options. All optional features start out
+    	 * uninstalled, so this is used to undo the actions of `XRegExp.install`.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {Object|String} options Options object or string.
+    	 * @example
+    	 *
+    	 * // With an options object
+    	 * XRegExp.uninstall({
+    	 *   // Disables support for astral code points in Unicode addons
+    	 *   astral: true,
+    	 *
+    	 *   // DEPRECATED: Restores native regex methods
+    	 *   natives: true
+    	 * });
+    	 *
+    	 * // With an options string
+    	 * XRegExp.uninstall('astral natives');
+    	 */
+    	XRegExp.uninstall = function(options) {
+    	    options = prepareOptions(options);
+
+    	    if (features.astral && options.astral) {
+    	        setAstral(false);
+    	    }
+
+    	    if (features.natives && options.natives) {
+    	        setNatives(false);
+    	    }
+    	};
+
+    	/**
+    	 * Returns an XRegExp object that is the union of the given patterns. Patterns can be provided as
+    	 * regex objects or strings. Metacharacters are escaped in patterns provided as strings.
+    	 * Backreferences in provided regex objects are automatically renumbered to work correctly within
+    	 * the larger combined pattern. Native flags used by provided regexes are ignored in favor of the
+    	 * `flags` argument.
+    	 *
+    	 * @memberOf XRegExp
+    	 * @param {Array} patterns Regexes and strings to combine.
+    	 * @param {String} [flags] Any combination of XRegExp flags.
+    	 * @param {Object} [options] Options object with optional properties:
+    	 *   - `conjunction` {String} Type of conjunction to use: 'or' (default) or 'none'.
+    	 * @returns {RegExp} Union of the provided regexes and strings.
+    	 * @example
+    	 *
+    	 * XRegExp.union(['a+b*c', /(dogs)\1/, /(cats)\1/], 'i');
+    	 * // -> /a\+b\*c|(dogs)\1|(cats)\2/i
+    	 *
+    	 * XRegExp.union([/man/, /bear/, /pig/], 'i', {conjunction: 'none'});
+    	 * // -> /manbearpig/i
+    	 */
+    	XRegExp.union = function(patterns, flags, options) {
+    	    options = options || {};
+    	    var conjunction = options.conjunction || 'or';
+    	    var numCaptures = 0;
+    	    var numPriorCaptures;
+    	    var captureNames;
+
+    	    function rewrite(match, paren, backref) {
+    	        var name = captureNames[numCaptures - numPriorCaptures];
+
+    	        // Capturing group
+    	        if (paren) {
+    	            ++numCaptures;
+    	            // If the current capture has a name, preserve the name
+    	            if (name) {
+    	                return '(?<' + name + '>';
+    	            }
+    	        // Backreference
+    	        } else if (backref) {
+    	            // Rewrite the backreference
+    	            return '\\' + (+backref + numPriorCaptures);
+    	        }
+
+    	        return match;
+    	    }
+
+    	    if (!(isType(patterns, 'Array') && patterns.length)) {
+    	        throw new TypeError('Must provide a nonempty array of patterns to merge');
+    	    }
+
+    	    var parts = /(\()(?!\?)|\\([1-9]\d*)|\\[\s\S]|\[(?:[^\\\]]|\\[\s\S])*\]/g;
+    	    var output = [];
+    	    var pattern;
+    	    for (var i = 0; i < patterns.length; ++i) {
+    	        pattern = patterns[i];
+
+    	        if (XRegExp.isRegExp(pattern)) {
+    	            numPriorCaptures = numCaptures;
+    	            captureNames = (pattern[REGEX_DATA] && pattern[REGEX_DATA].captureNames) || [];
+
+    	            // Rewrite backreferences. Passing to XRegExp dies on octals and ensures patterns are
+    	            // independently valid; helps keep this simple. Named captures are put back
+    	            output.push(nativ.replace.call(XRegExp(pattern.source).source, parts, rewrite));
+    	        } else {
+    	            output.push(XRegExp.escape(pattern));
+    	        }
+    	    }
+
+    	    var separator = conjunction === 'none' ? '' : '|';
+    	    return XRegExp(output.join(separator), flags);
+    	};
+
+    	// ==--------------------------==
+    	// Fixed/extended native methods
+    	// ==--------------------------==
+
+    	/**
+    	 * Adds named capture support (with backreferences returned as `result.name`), and fixes browser
+    	 * bugs in the native `RegExp.prototype.exec`. Calling `XRegExp.install('natives')` uses this to
+    	 * override the native method. Use via `XRegExp.exec` without overriding natives.
+    	 *
+    	 * @memberOf RegExp
+    	 * @param {String} str String to search.
+    	 * @returns {Array} Match array with named backreference properties, or `null`.
+    	 */
+    	fixed.exec = function(str) {
+    	    var origLastIndex = this.lastIndex;
+    	    var match = nativ.exec.apply(this, arguments);
+    	    var name;
+    	    var r2;
+    	    var i;
+
+    	    if (match) {
+    	        // Fix browsers whose `exec` methods don't return `undefined` for nonparticipating capturing
+    	        // groups. This fixes IE 5.5-8, but not IE 9's quirks mode or emulation of older IEs. IE 9
+    	        // in standards mode follows the spec.
+    	        if (!correctExecNpcg && match.length > 1 && indexOf(match, '') > -1) {
+    	            r2 = copyRegex(this, {
+    	                removeG: true,
+    	                isInternalOnly: true
+    	            });
+    	            // Using `str.slice(match.index)` rather than `match[0]` in case lookahead allowed
+    	            // matching due to characters outside the match
+    	            nativ.replace.call(String(str).slice(match.index), r2, function() {
+    	                var len = arguments.length;
+    	                var i;
+    	                // Skip index 0 and the last 2
+    	                for (i = 1; i < len - 2; ++i) {
+    	                    if (arguments[i] === undefined) {
+    	                        match[i] = undefined;
+    	                    }
+    	                }
+    	            });
+    	        }
+
+    	        // Attach named capture properties
+    	        if (this[REGEX_DATA] && this[REGEX_DATA].captureNames) {
+    	            // Skip index 0
+    	            for (i = 1; i < match.length; ++i) {
+    	                name = this[REGEX_DATA].captureNames[i - 1];
+    	                if (name) {
+    	                    match[name] = match[i];
+    	                }
+    	            }
+    	        }
+
+    	        // Fix browsers that increment `lastIndex` after zero-length matches
+    	        if (this.global && !match[0].length && (this.lastIndex > match.index)) {
+    	            this.lastIndex = match.index;
+    	        }
+    	    }
+
+    	    if (!this.global) {
+    	        // Fixes IE, Opera bug (last tested IE 9, Opera 11.6)
+    	        this.lastIndex = origLastIndex;
+    	    }
+
+    	    return match;
+    	};
+
+    	/**
+    	 * Fixes browser bugs in the native `RegExp.prototype.test`. Calling `XRegExp.install('natives')`
+    	 * uses this to override the native method.
+    	 *
+    	 * @memberOf RegExp
+    	 * @param {String} str String to search.
+    	 * @returns {Boolean} Whether the regex matched the provided value.
+    	 */
+    	fixed.test = function(str) {
+    	    // Do this the easy way :-)
+    	    return !!fixed.exec.call(this, str);
+    	};
+
+    	/**
+    	 * Adds named capture support (with backreferences returned as `result.name`), and fixes browser
+    	 * bugs in the native `String.prototype.match`. Calling `XRegExp.install('natives')` uses this to
+    	 * override the native method.
+    	 *
+    	 * @memberOf String
+    	 * @param {RegExp|*} regex Regex to search with. If not a regex object, it is passed to `RegExp`.
+    	 * @returns {Array} If `regex` uses flag g, an array of match strings or `null`. Without flag g,
+    	 *   the result of calling `regex.exec(this)`.
+    	 */
+    	fixed.match = function(regex) {
+    	    var result;
+
+    	    if (!XRegExp.isRegExp(regex)) {
+    	        // Use the native `RegExp` rather than `XRegExp`
+    	        regex = new RegExp(regex);
+    	    } else if (regex.global) {
+    	        result = nativ.match.apply(this, arguments);
+    	        // Fixes IE bug
+    	        regex.lastIndex = 0;
+
+    	        return result;
+    	    }
+
+    	    return fixed.exec.call(regex, toObject(this));
+    	};
+
+    	/**
+    	 * Adds support for `${n}` tokens for named and numbered backreferences in replacement text, and
+    	 * provides named backreferences to replacement functions as `arguments[0].name`. Also fixes browser
+    	 * bugs in replacement text syntax when performing a replacement using a nonregex search value, and
+    	 * the value of a replacement regex's `lastIndex` property during replacement iterations and upon
+    	 * completion. Calling `XRegExp.install('natives')` uses this to override the native method. Note
+    	 * that this doesn't support SpiderMonkey's proprietary third (`flags`) argument. Use via
+    	 * `XRegExp.replace` without overriding natives.
+    	 *
+    	 * @memberOf String
+    	 * @param {RegExp|String} search Search pattern to be replaced.
+    	 * @param {String|Function} replacement Replacement string or a function invoked to create it.
+    	 * @returns {String} New string with one or all matches replaced.
+    	 */
+    	fixed.replace = function(search, replacement) {
+    	    var isRegex = XRegExp.isRegExp(search);
+    	    var origLastIndex;
+    	    var captureNames;
+    	    var result;
+
+    	    if (isRegex) {
+    	        if (search[REGEX_DATA]) {
+    	            captureNames = search[REGEX_DATA].captureNames;
+    	        }
+    	        // Only needed if `search` is nonglobal
+    	        origLastIndex = search.lastIndex;
+    	    } else {
+    	        search += ''; // Type-convert
+    	    }
+
+    	    // Don't use `typeof`; some older browsers return 'function' for regex objects
+    	    if (isType(replacement, 'Function')) {
+    	        // Stringifying `this` fixes a bug in IE < 9 where the last argument in replacement
+    	        // functions isn't type-converted to a string
+    	        result = nativ.replace.call(String(this), search, function() {
+    	            var args = arguments;
+    	            var i;
+    	            if (captureNames) {
+    	                // Change the `arguments[0]` string primitive to a `String` object that can store
+    	                // properties. This really does need to use `String` as a constructor
+    	                args[0] = new String(args[0]);
+    	                // Store named backreferences on the first argument
+    	                for (i = 0; i < captureNames.length; ++i) {
+    	                    if (captureNames[i]) {
+    	                        args[0][captureNames[i]] = args[i + 1];
+    	                    }
+    	                }
+    	            }
+    	            // Update `lastIndex` before calling `replacement`. Fixes IE, Chrome, Firefox, Safari
+    	            // bug (last tested IE 9, Chrome 17, Firefox 11, Safari 5.1)
+    	            if (isRegex && search.global) {
+    	                search.lastIndex = args[args.length - 2] + args[0].length;
+    	            }
+    	            // ES6 specs the context for replacement functions as `undefined`
+    	            return replacement.apply(undefined, args);
+    	        });
+    	    } else {
+    	        // Ensure that the last value of `args` will be a string when given nonstring `this`,
+    	        // while still throwing on null or undefined context
+    	        result = nativ.replace.call(this == null ? this : String(this), search, function() {
+    	            // Keep this function's `arguments` available through closure
+    	            var args = arguments;
+    	            return nativ.replace.call(String(replacement), replacementToken, function($0, $1, $2) {
+    	                var n;
+    	                // Named or numbered backreference with curly braces
+    	                if ($1) {
+    	                    // XRegExp behavior for `${n}`:
+    	                    // 1. Backreference to numbered capture, if `n` is an integer. Use `0` for the
+    	                    //    entire match. Any number of leading zeros may be used.
+    	                    // 2. Backreference to named capture `n`, if it exists and is not an integer
+    	                    //    overridden by numbered capture. In practice, this does not overlap with
+    	                    //    numbered capture since XRegExp does not allow named capture to use a bare
+    	                    //    integer as the name.
+    	                    // 3. If the name or number does not refer to an existing capturing group, it's
+    	                    //    an error.
+    	                    n = +$1; // Type-convert; drop leading zeros
+    	                    if (n <= args.length - 3) {
+    	                        return args[n] || '';
+    	                    }
+    	                    // Groups with the same name is an error, else would need `lastIndexOf`
+    	                    n = captureNames ? indexOf(captureNames, $1) : -1;
+    	                    if (n < 0) {
+    	                        throw new SyntaxError('Backreference to undefined group ' + $0);
+    	                    }
+    	                    return args[n + 1] || '';
+    	                }
+    	                // Else, special variable or numbered backreference without curly braces
+    	                if ($2 === '$') { // $$
+    	                    return '$';
+    	                }
+    	                if ($2 === '&' || +$2 === 0) { // $&, $0 (not followed by 1-9), $00
+    	                    return args[0];
+    	                }
+    	                if ($2 === '`') { // $` (left context)
+    	                    return args[args.length - 1].slice(0, args[args.length - 2]);
+    	                }
+    	                if ($2 === "'") { // $' (right context)
+    	                    return args[args.length - 1].slice(args[args.length - 2] + args[0].length);
+    	                }
+    	                // Else, numbered backreference without curly braces
+    	                $2 = +$2; // Type-convert; drop leading zero
+    	                // XRegExp behavior for `$n` and `$nn`:
+    	                // - Backrefs end after 1 or 2 digits. Use `${..}` for more digits.
+    	                // - `$1` is an error if no capturing groups.
+    	                // - `$10` is an error if less than 10 capturing groups. Use `${1}0` instead.
+    	                // - `$01` is `$1` if at least one capturing group, else it's an error.
+    	                // - `$0` (not followed by 1-9) and `$00` are the entire match.
+    	                // Native behavior, for comparison:
+    	                // - Backrefs end after 1 or 2 digits. Cannot reference capturing group 100+.
+    	                // - `$1` is a literal `$1` if no capturing groups.
+    	                // - `$10` is `$1` followed by a literal `0` if less than 10 capturing groups.
+    	                // - `$01` is `$1` if at least one capturing group, else it's a literal `$01`.
+    	                // - `$0` is a literal `$0`.
+    	                if (!isNaN($2)) {
+    	                    if ($2 > args.length - 3) {
+    	                        throw new SyntaxError('Backreference to undefined group ' + $0);
+    	                    }
+    	                    return args[$2] || '';
+    	                }
+    	                // `$` followed by an unsupported char is an error, unlike native JS
+    	                throw new SyntaxError('Invalid token ' + $0);
+    	            });
+    	        });
+    	    }
+
+    	    if (isRegex) {
+    	        if (search.global) {
+    	            // Fixes IE, Safari bug (last tested IE 9, Safari 5.1)
+    	            search.lastIndex = 0;
+    	        } else {
+    	            // Fixes IE, Opera bug (last tested IE 9, Opera 11.6)
+    	            search.lastIndex = origLastIndex;
+    	        }
+    	    }
+
+    	    return result;
+    	};
+
+    	/**
+    	 * Fixes browser bugs in the native `String.prototype.split`. Calling `XRegExp.install('natives')`
+    	 * uses this to override the native method. Use via `XRegExp.split` without overriding natives.
+    	 *
+    	 * @memberOf String
+    	 * @param {RegExp|String} separator Regex or string to use for separating the string.
+    	 * @param {Number} [limit] Maximum number of items to include in the result array.
+    	 * @returns {Array} Array of substrings.
+    	 */
+    	fixed.split = function(separator, limit) {
+    	    if (!XRegExp.isRegExp(separator)) {
+    	        // Browsers handle nonregex split correctly, so use the faster native method
+    	        return nativ.split.apply(this, arguments);
+    	    }
+
+    	    var str = String(this);
+    	    var output = [];
+    	    var origLastIndex = separator.lastIndex;
+    	    var lastLastIndex = 0;
+    	    var lastLength;
+
+    	    // Values for `limit`, per the spec:
+    	    // If undefined: pow(2,32) - 1
+    	    // If 0, Infinity, or NaN: 0
+    	    // If positive number: limit = floor(limit); if (limit >= pow(2,32)) limit -= pow(2,32);
+    	    // If negative number: pow(2,32) - floor(abs(limit))
+    	    // If other: Type-convert, then use the above rules
+    	    // This line fails in very strange ways for some values of `limit` in Opera 10.5-10.63, unless
+    	    // Opera Dragonfly is open (go figure). It works in at least Opera 9.5-10.1 and 11+
+    	    limit = (limit === undefined ? -1 : limit) >>> 0;
+
+    	    XRegExp.forEach(str, separator, function(match) {
+    	        // This condition is not the same as `if (match[0].length)`
+    	        if ((match.index + match[0].length) > lastLastIndex) {
+    	            output.push(str.slice(lastLastIndex, match.index));
+    	            if (match.length > 1 && match.index < str.length) {
+    	                Array.prototype.push.apply(output, match.slice(1));
+    	            }
+    	            lastLength = match[0].length;
+    	            lastLastIndex = match.index + lastLength;
+    	        }
+    	    });
+
+    	    if (lastLastIndex === str.length) {
+    	        if (!nativ.test.call(separator, '') || lastLength) {
+    	            output.push('');
+    	        }
+    	    } else {
+    	        output.push(str.slice(lastLastIndex));
+    	    }
+
+    	    separator.lastIndex = origLastIndex;
+    	    return output.length > limit ? output.slice(0, limit) : output;
+    	};
+
+    	// ==--------------------------==
+    	// Built-in syntax/flag tokens
+    	// ==--------------------------==
+
+    	/*
+    	 * Letter escapes that natively match literal characters: `\a`, `\A`, etc. These should be
+    	 * SyntaxErrors but are allowed in web reality. XRegExp makes them errors for cross-browser
+    	 * consistency and to reserve their syntax, but lets them be superseded by addons.
+    	 */
+    	XRegExp.addToken(
+    	    /\\([ABCE-RTUVXYZaeg-mopqyz]|c(?![A-Za-z])|u(?![\dA-Fa-f]{4}|{[\dA-Fa-f]+})|x(?![\dA-Fa-f]{2}))/,
+    	    function(match, scope) {
+    	        // \B is allowed in default scope only
+    	        if (match[1] === 'B' && scope === defaultScope) {
+    	            return match[0];
+    	        }
+    	        throw new SyntaxError('Invalid escape ' + match[0]);
+    	    },
+    	    {
+    	        scope: 'all',
+    	        leadChar: '\\'
+    	    }
+    	);
+
+    	/*
+    	 * Unicode code point escape with curly braces: `\u{N..}`. `N..` is any one or more digit
+    	 * hexadecimal number from 0-10FFFF, and can include leading zeros. Requires the native ES6 `u` flag
+    	 * to support code points greater than U+FFFF. Avoids converting code points above U+FFFF to
+    	 * surrogate pairs (which could be done without flag `u`), since that could lead to broken behavior
+    	 * if you follow a `\u{N..}` token that references a code point above U+FFFF with a quantifier, or
+    	 * if you use the same in a character class.
+    	 */
+    	XRegExp.addToken(
+    	    /\\u{([\dA-Fa-f]+)}/,
+    	    function(match, scope, flags) {
+    	        var code = dec(match[1]);
+    	        if (code > 0x10FFFF) {
+    	            throw new SyntaxError('Invalid Unicode code point ' + match[0]);
+    	        }
+    	        if (code <= 0xFFFF) {
+    	            // Converting to \uNNNN avoids needing to escape the literal character and keep it
+    	            // separate from preceding tokens
+    	            return '\\u' + pad4(hex(code));
+    	        }
+    	        // If `code` is between 0xFFFF and 0x10FFFF, require and defer to native handling
+    	        if (hasNativeU && flags.indexOf('u') > -1) {
+    	            return match[0];
+    	        }
+    	        throw new SyntaxError('Cannot use Unicode code point above \\u{FFFF} without flag u');
+    	    },
+    	    {
+    	        scope: 'all',
+    	        leadChar: '\\'
+    	    }
+    	);
+
+    	/*
+    	 * Empty character class: `[]` or `[^]`. This fixes a critical cross-browser syntax inconsistency.
+    	 * Unless this is standardized (per the ES spec), regex syntax can't be accurately parsed because
+    	 * character class endings can't be determined.
+    	 */
+    	XRegExp.addToken(
+    	    /\[(\^?)\]/,
+    	    function(match) {
+    	        // For cross-browser compatibility with ES3, convert [] to \b\B and [^] to [\s\S].
+    	        // (?!) should work like \b\B, but is unreliable in some versions of Firefox
+    	        return match[1] ? '[\\s\\S]' : '\\b\\B';
+    	    },
+    	    {leadChar: '['}
+    	);
+
+    	/*
+    	 * Comment pattern: `(?# )`. Inline comments are an alternative to the line comments allowed in
+    	 * free-spacing mode (flag x).
+    	 */
+    	XRegExp.addToken(
+    	    /\(\?#[^)]*\)/,
+    	    getContextualTokenSeparator,
+    	    {leadChar: '('}
+    	);
+
+    	/*
+    	 * Whitespace and line comments, in free-spacing mode (aka extended mode, flag x) only.
+    	 */
+    	XRegExp.addToken(
+    	    /\s+|#[^\n]*\n?/,
+    	    getContextualTokenSeparator,
+    	    {flag: 'x'}
+    	);
+
+    	/*
+    	 * Dot, in dotall mode (aka singleline mode, flag s) only.
+    	 */
+    	XRegExp.addToken(
+    	    /\./,
+    	    function() {
+    	        return '[\\s\\S]';
+    	    },
+    	    {
+    	        flag: 's',
+    	        leadChar: '.'
+    	    }
+    	);
+
+    	/*
+    	 * Named backreference: `\k<name>`. Backreference names can use the characters A-Z, a-z, 0-9, _,
+    	 * and $ only. Also allows numbered backreferences as `\k<n>`.
+    	 */
+    	XRegExp.addToken(
+    	    /\\k<([\w$]+)>/,
+    	    function(match) {
+    	        // Groups with the same name is an error, else would need `lastIndexOf`
+    	        var index = isNaN(match[1]) ? (indexOf(this.captureNames, match[1]) + 1) : +match[1];
+    	        var endIndex = match.index + match[0].length;
+    	        if (!index || index > this.captureNames.length) {
+    	            throw new SyntaxError('Backreference to undefined group ' + match[0]);
+    	        }
+    	        // Keep backreferences separate from subsequent literal numbers. This avoids e.g.
+    	        // inadvertedly changing `(?<n>)\k<n>1` to `()\11`.
+    	        return '\\' + index + (
+    	            endIndex === match.input.length || isNaN(match.input.charAt(endIndex)) ?
+    	                '' : '(?:)'
+    	        );
+    	    },
+    	    {leadChar: '\\'}
+    	);
+
+    	/*
+    	 * Numbered backreference or octal, plus any following digits: `\0`, `\11`, etc. Octals except `\0`
+    	 * not followed by 0-9 and backreferences to unopened capture groups throw an error. Other matches
+    	 * are returned unaltered. IE < 9 doesn't support backreferences above `\99` in regex syntax.
+    	 */
+    	XRegExp.addToken(
+    	    /\\(\d+)/,
+    	    function(match, scope) {
+    	        if (
+    	            !(
+    	                scope === defaultScope &&
+    	                /^[1-9]/.test(match[1]) &&
+    	                +match[1] <= this.captureNames.length
+    	            ) &&
+    	            match[1] !== '0'
+    	        ) {
+    	            throw new SyntaxError('Cannot use octal escape or backreference to undefined group ' +
+    	                match[0]);
+    	        }
+    	        return match[0];
+    	    },
+    	    {
+    	        scope: 'all',
+    	        leadChar: '\\'
+    	    }
+    	);
+
+    	/*
+    	 * Named capturing group; match the opening delimiter only: `(?<name>`. Capture names can use the
+    	 * characters A-Z, a-z, 0-9, _, and $ only. Names can't be integers. Supports Python-style
+    	 * `(?P<name>` as an alternate syntax to avoid issues in some older versions of Opera which natively
+    	 * supported the Python-style syntax. Otherwise, XRegExp might treat numbered backreferences to
+    	 * Python-style named capture as octals.
+    	 */
+    	XRegExp.addToken(
+    	    /\(\?P?<([\w$]+)>/,
+    	    function(match) {
+    	        // Disallow bare integers as names because named backreferences are added to match arrays
+    	        // and therefore numeric properties may lead to incorrect lookups
+    	        if (!isNaN(match[1])) {
+    	            throw new SyntaxError('Cannot use integer as capture name ' + match[0]);
+    	        }
+    	        if (match[1] === 'length' || match[1] === '__proto__') {
+    	            throw new SyntaxError('Cannot use reserved word as capture name ' + match[0]);
+    	        }
+    	        if (indexOf(this.captureNames, match[1]) > -1) {
+    	            throw new SyntaxError('Cannot use same name for multiple groups ' + match[0]);
+    	        }
+    	        this.captureNames.push(match[1]);
+    	        this.hasNamedCapture = true;
+    	        return '(';
+    	    },
+    	    {leadChar: '('}
+    	);
+
+    	/*
+    	 * Capturing group; match the opening parenthesis only. Required for support of named capturing
+    	 * groups. Also adds explicit capture mode (flag n).
+    	 */
+    	XRegExp.addToken(
+    	    /\((?!\?)/,
+    	    function(match, scope, flags) {
+    	        if (flags.indexOf('n') > -1) {
+    	            return '(?:';
+    	        }
+    	        this.captureNames.push(null);
+    	        return '(';
+    	    },
+    	    {
+    	        optionalFlags: 'n',
+    	        leadChar: '('
+    	    }
+    	);
+
+    	xregexp = XRegExp;
+    	return xregexp;
+    }
+
+    (function (exports) {
+
+    	(function(){
+    	  var root;
+    	  root = this;
+    	  var XRegExp;
+
+    	  if (typeof commonjsRequire !== "undefined"){
+    	     XRegExp = requireXregexp();
+    	  }
+    	  else
+    	    XRegExp = root.XRegExp;
+
+    	  var parser = {};
+    	  var Addr_Match = {};
+
+    	  var Directional = {
+    	    north       : "N",
+    	    northeast   : "NE",
+    	    east        : "E",
+    	    southeast   : "SE",
+    	    south       : "S",
+    	    southwest   : "SW",
+    	    west        : "W",
+    	    northwest   : "NW",
+    	  };
+
+    	  var Street_Type = {
+    	    allee       : "aly",
+    	    alley       : "aly",
+    	    ally        : "aly",
+    	    anex        : "anx",
+    	    annex       : "anx",
+    	    annx        : "anx",
+    	    arcade      : "arc",
+    	    av          : "ave",
+    	    aven        : "ave",
+    	    avenu       : "ave",
+    	    avenue      : "ave",
+    	    avn         : "ave",
+    	    avnue       : "ave",
+    	    bayoo       : "byu",
+    	    bayou       : "byu",
+    	    beach       : "bch",
+    	    bend        : "bnd",
+    	    bluf        : "blf",
+    	    bluff       : "blf",
+    	    bluffs      : "blfs",
+    	    bot         : "btm",
+    	    bottm       : "btm",
+    	    bottom      : "btm",
+    	    boul        : "blvd",
+    	    boulevard   : "blvd",
+    	    boulv       : "blvd",
+    	    branch      : "br",
+    	    brdge       : "brg",
+    	    bridge      : "brg",
+    	    brnch       : "br",
+    	    brook       : "brk",
+    	    brooks      : "brks",
+    	    burg        : "bg",
+    	    burgs       : "bgs",
+    	    bypa        : "byp",
+    	    bypas       : "byp",
+    	    bypass      : "byp",
+    	    byps        : "byp",
+    	    camp        : "cp",
+    	    canyn       : "cyn",
+    	    canyon      : "cyn",
+    	    cape        : "cpe",
+    	    causeway    : "cswy",
+    	    causway     : "cswy",
+    	    causwa      : "cswy",
+    	    cen         : "ctr",
+    	    cent        : "ctr",
+    	    center      : "ctr",
+    	    centers     : "ctrs",
+    	    centr       : "ctr",
+    	    centre      : "ctr",
+    	    circ        : "cir",
+    	    circl       : "cir",
+    	    circle      : "cir",
+    	    circles     : "cirs",
+    	    ck          : "crk",
+    	    cliff       : "clf",
+    	    cliffs      : "clfs",
+    	    club        : "clb",
+    	    cmp         : "cp",
+    	    cnter       : "ctr",
+    	    cntr        : "ctr",
+    	    cnyn        : "cyn",
+    	    common      : "cmn",
+    	    commons     : "cmns",
+    	    corner      : "cor",
+    	    corners     : "cors",
+    	    course      : "crse",
+    	    court       : "ct",
+    	    courts      : "cts",
+    	    cove        : "cv",
+    	    coves       : "cvs",
+    	    cr          : "crk",
+    	    crcl        : "cir",
+    	    crcle       : "cir",
+    	    crecent     : "cres",
+    	    creek       : "crk",
+    	    crescent    : "cres",
+    	    cresent     : "cres",
+    	    crest       : "crst",
+    	    crossing    : "xing",
+    	    crossroad   : "xrd",
+    	    crossroads  : "xrds",
+    	    crscnt      : "cres",
+    	    crsent      : "cres",
+    	    crsnt       : "cres",
+    	    crssing     : "xing",
+    	    crssng      : "xing",
+    	    crt         : "ct",
+    	    curve       : "curv",
+    	    dale        : "dl",
+    	    dam         : "dm",
+    	    div         : "dv",
+    	    divide      : "dv",
+    	    driv        : "dr",
+    	    drive       : "dr",
+    	    drives      : "drs",
+    	    drv         : "dr",
+    	    dvd         : "dv",
+    	    estate      : "est",
+    	    estates     : "ests",
+    	    exp         : "expy",
+    	    expr        : "expy",
+    	    express     : "expy",
+    	    expressway  : "expy",
+    	    expw        : "expy",
+    	    extension   : "ext",
+    	    extensions  : "exts",
+    	    extn        : "ext",
+    	    extnsn      : "ext",
+    	    fall        : "fall",
+    	    falls       : "fls",
+    	    ferry       : "fry",
+    	    field       : "fld",
+    	    fields      : "flds",
+    	    flat        : "flt",
+    	    flats       : "flts",
+    	    ford        : "frd",
+    	    fords       : "frds",
+    	    forest      : "frst",
+    	    forests     : "frst",
+    	    forg        : "frg",
+    	    forge       : "frg",
+    	    forges      : "frgs",
+    	    fork        : "frk",
+    	    forks       : "frks",
+    	    fort        : "ft",
+    	    freeway     : "fwy",
+    	    freewy      : "fwy",
+    	    frry        : "fry",
+    	    frt         : "ft",
+    	    frway       : "fwy",
+    	    frwy        : "fwy",
+    	    garden      : "gdn",
+    	    gardens     : "gdns",
+    	    gardn       : "gdn",
+    	    gateway     : "gtwy",
+    	    gatewy      : "gtwy",
+    	    gatway      : "gtwy",
+    	    glen        : "gln",
+    	    glens       : "glns",
+    	    grden       : "gdn",
+    	    grdn        : "gdn",
+    	    grdns       : "gdns",
+    	    green       : "grn",
+    	    greens      : "grns",
+    	    grov        : "grv",
+    	    grove       : "grv",
+    	    groves      : "grvs",
+    	    gtway       : "gtwy",
+    	    harb        : "hbr",
+    	    harbor      : "hbr",
+    	    harbors     : "hbrs",
+    	    harbr       : "hbr",
+    	    haven       : "hvn",
+    	    havn        : "hvn",
+    	    height      : "hts",
+    	    heights     : "hts",
+    	    hgts        : "hts",
+    	    highway     : "hwy",
+    	    highwy      : "hwy",
+    	    hill        : "hl",
+    	    hills       : "hls",
+    	    hiway       : "hwy",
+    	    hiwy        : "hwy",
+    	    hllw        : "holw",
+    	    hollow      : "holw",
+    	    hollows     : "holw",
+    	    holws       : "holw",
+    	    hrbor       : "hbr",
+    	    ht          : "hts",
+    	    hway        : "hwy",
+    	    inlet       : "inlt",
+    	    island      : "is",
+    	    islands     : "iss",
+    	    isles       : "isle",
+    	    islnd       : "is",
+    	    islnds      : "iss",
+    	    jction      : "jct",
+    	    jctn        : "jct",
+    	    jctns       : "jcts",
+    	    junction    : "jct",
+    	    junctions   : "jcts",
+    	    junctn      : "jct",
+    	    juncton     : "jct",
+    	    key         : "ky",
+    	    keys        : "kys",
+    	    knol        : "knl",
+    	    knoll       : "knl",
+    	    knolls      : "knls",
+    	    la          : "ln",
+    	    lake        : "lk",
+    	    lakes       : "lks",
+    	    land        : "land",
+    	    landing     : "lndg",
+    	    lane        : "ln",
+    	    lanes       : "ln",
+    	    ldge        : "ldg",
+    	    light       : "lgt",
+    	    lights      : "lgts",
+    	    lndng       : "lndg",
+    	    loaf        : "lf",
+    	    lock        : "lck",
+    	    locks       : "lcks",
+    	    lodg        : "ldg",
+    	    lodge       : "ldg",
+    	    loops       : "loop",
+    	    mall        : "mall",
+    	    manor       : "mnr",
+    	    manors      : "mnrs",
+    	    meadow      : "mdw",
+    	    meadows     : "mdws",
+    	    medows      : "mdws",
+    	    mews        : "mews",
+    	    mill        : "ml",
+    	    mills       : "mls",
+    	    mission     : "msn",
+    	    missn       : "msn",
+    	    mnt         : "mt",
+    	    mntain      : "mtn",
+    	    mntn        : "mtn",
+    	    mntns       : "mtns",
+    	    motorway    : "mtwy",
+    	    mount       : "mt",
+    	    mountain    : "mtn",
+    	    mountains   : "mtns",
+    	    mountin     : "mtn",
+    	    mssn        : "msn",
+    	    mtin        : "mtn",
+    	    neck        : "nck",
+    	    orchard     : "orch",
+    	    orchrd      : "orch",
+    	    overpass    : "opas",
+    	    ovl         : "oval",
+    	    parks       : "park",
+    	    parkway     : "pkwy",
+    	    parkways    : "pkwy",
+    	    parkwy      : "pkwy",
+    	    pass        : "pass",
+    	    passage     : "psge",
+    	    paths       : "path",
+    	    pikes       : "pike",
+    	    pine        : "pne",
+    	    pines       : "pnes",
+    	    pk          : "park",
+    	    pkway       : "pkwy",
+    	    pkwys       : "pkwy",
+    	    pky         : "pkwy",
+    	    place       : "pl",
+    	    plain       : "pln",
+    	    plaines     : "plns",
+    	    plains      : "plns",
+    	    plaza       : "plz",
+    	    plza        : "plz",
+    	    point       : "pt",
+    	    points      : "pts",
+    	    port        : "prt",
+    	    ports       : "prts",
+    	    prairie     : "pr",
+    	    prarie      : "pr",
+    	    prk         : "park",
+    	    prr         : "pr",
+    	    rad         : "radl",
+    	    radial      : "radl",
+    	    radiel      : "radl",
+    	    ranch       : "rnch",
+    	    ranches     : "rnch",
+    	    rapid       : "rpd",
+    	    rapids      : "rpds",
+    	    rdge        : "rdg",
+    	    rest        : "rst",
+    	    ridge       : "rdg",
+    	    ridges      : "rdgs",
+    	    river       : "riv",
+    	    rivr        : "riv",
+    	    rnchs       : "rnch",
+    	    road        : "rd",
+    	    roads       : "rds",
+    	    route       : "rte",
+    	    rvr         : "riv",
+    	    row         : "row",
+    	    rue         : "rue",
+    	    run         : "run",
+    	    shoal       : "shl",
+    	    shoals      : "shls",
+    	    shoar       : "shr",
+    	    shoars      : "shrs",
+    	    shore       : "shr",
+    	    shores      : "shrs",
+    	    skyway      : "skwy",
+    	    spng        : "spg",
+    	    spngs       : "spgs",
+    	    spring      : "spg",
+    	    springs     : "spgs",
+    	    sprng       : "spg",
+    	    sprngs      : "spgs",
+    	    spurs       : "spur",
+    	    sqr         : "sq",
+    	    sqre        : "sq",
+    	    sqrs        : "sqs",
+    	    squ         : "sq",
+    	    square      : "sq",
+    	    squares     : "sqs",
+    	    station     : "sta",
+    	    statn       : "sta",
+    	    stn         : "sta",
+    	    str         : "st",
+    	    strav       : "stra",
+    	    strave      : "stra",
+    	    straven     : "stra",
+    	    stravenue   : "stra",
+    	    stravn      : "stra",
+    	    stream      : "strm",
+    	    street      : "st",
+    	    streets     : "sts",
+    	    streme      : "strm",
+    	    strt        : "st",
+    	    strvn       : "stra",
+    	    strvnue     : "stra",
+    	    sumit       : "smt",
+    	    sumitt      : "smt",
+    	    summit      : "smt",
+    	    terr        : "ter",
+    	    terrace     : "ter",
+    	    throughway  : "trwy",
+    	    tpk         : "tpke",
+    	    tr          : "trl",
+    	    trace       : "trce",
+    	    traces      : "trce",
+    	    track       : "trak",
+    	    tracks      : "trak",
+    	    trafficway  : "trfy",
+    	    trail       : "trl",
+    	    trails      : "trl",
+    	    trk         : "trak",
+    	    trks        : "trak",
+    	    trls        : "trl",
+    	    trnpk       : "tpke",
+    	    trpk        : "tpke",
+    	    tunel       : "tunl",
+    	    tunls       : "tunl",
+    	    tunnel      : "tunl",
+    	    tunnels     : "tunl",
+    	    tunnl       : "tunl",
+    	    turnpike    : "tpke",
+    	    turnpk      : "tpke",
+    	    underpass   : "upas",
+    	    union       : "un",
+    	    unions      : "uns",
+    	    valley      : "vly",
+    	    valleys     : "vlys",
+    	    vally       : "vly",
+    	    vdct        : "via",
+    	    viadct      : "via",
+    	    viaduct     : "via",
+    	    view        : "vw",
+    	    views       : "vws",
+    	    vill        : "vlg",
+    	    villag      : "vlg",
+    	    village     : "vlg",
+    	    villages    : "vlgs",
+    	    ville       : "vl",
+    	    villg       : "vlg",
+    	    villiage    : "vlg",
+    	    vist        : "vis",
+    	    vista       : "vis",
+    	    vlly        : "vly",
+    	    vst         : "vis",
+    	    vsta        : "vis",
+    	    wall        : "wall",
+    	    walks       : "walk",
+    	    well        : "wl",
+    	    wells       : "wls",
+    	    wy          : "way",
+    	  };
+
+    	  var State_Code = {
+    	    "alabama" : "AL",
+    	    "alaska" : "AK",
+    	    "american samoa" : "AS",
+    	    "arizona" : "AZ",
+    	    "arkansas" : "AR",
+    	    "california" : "CA",
+    	    "colorado" : "CO",
+    	    "connecticut" : "CT",
+    	    "delaware" : "DE",
+    	    "district of columbia" : "DC",
+    	    "federated states of micronesia" : "FM",
+    	    "florida" : "FL",
+    	    "georgia" : "GA",
+    	    "guam" : "GU",
+    	    "hawaii" : "HI",
+    	    "idaho" : "ID",
+    	    "illinois" : "IL",
+    	    "indiana" : "IN",
+    	    "iowa" : "IA",
+    	    "kansas" : "KS",
+    	    "kentucky" : "KY",
+    	    "louisiana" : "LA",
+    	    "maine" : "ME",
+    	    "marshall islands" : "MH",
+    	    "maryland" : "MD",
+    	    "massachusetts" : "MA",
+    	    "michigan" : "MI",
+    	    "minnesota" : "MN",
+    	    "mississippi" : "MS",
+    	    "missouri" : "MO",
+    	    "montana" : "MT",
+    	    "nebraska" : "NE",
+    	    "nevada" : "NV",
+    	    "new hampshire" : "NH",
+    	    "new jersey" : "NJ",
+    	    "new mexico" : "NM",
+    	    "new york" : "NY",
+    	    "north carolina" : "NC",
+    	    "north dakota" : "ND",
+    	    "northern mariana islands" : "MP",
+    	    "ohio" : "OH",
+    	    "oklahoma" : "OK",
+    	    "oregon" : "OR",
+    	    "palau" : "PW",
+    	    "pennsylvania" : "PA",
+    	    "puerto rico" : "PR",
+    	    "rhode island" : "RI",
+    	    "south carolina" : "SC",
+    	    "south dakota" : "SD",
+    	    "tennessee" : "TN",
+    	    "texas" : "TX",
+    	    "utah" : "UT",
+    	    "vermont" : "VT",
+    	    "virgin islands" : "VI",
+    	    "virginia" : "VA",
+    	    "washington" : "WA",
+    	    "west virginia" : "WV",
+    	    "wisconsin" : "WI",
+    	    "wyoming" : "WY",
+    	  };
+
+    	  var Direction_Code;
+    	  var initialized = false;
+
+    	  var Normalize_Map = {
+    	    prefix: Directional,
+    	    prefix1: Directional,
+    	    prefix2: Directional,
+    	    suffix: Directional,
+    	    suffix1: Directional,
+    	    suffix2: Directional,
+    	    type: Street_Type,
+    	    type1: Street_Type,
+    	    type2: Street_Type,
+    	    state: State_Code,
+    	  };
+
+    	  function capitalize(s){
+    	    return s && s[0].toUpperCase() + s.slice(1);
+    	  }
+    	  function keys(o){
+    	    return Object.keys(o);
+    	  }
+    	  function values(o){
+    	    var v = [];
+    	    keys(o).forEach(function(k){
+    	      v.push(o[k]);
+    	    });
+    	    return v;
+    	  }
+    	  function each(o,fn){
+    	    keys(o).forEach(function(k){
+    	      fn(o[k],k);
+    	    });
+    	  }
+    	  function invert(o){
+    	    var o1= {};
+    	    keys(o).forEach(function(k){
+    	      o1[o[k]] = k;
+    	    });
+    	    return o1;
+    	  }
+    	  function flatten(o){
+    	    return keys(o).concat(values(o));
+    	  }
+    	  function lazyInit(){
+    	    if (initialized) {
+    	      return;
+    	    }
+    	    initialized = true;
+
+    	    Direction_Code = invert(Directional);
+
+    	    /*
+    	    var Street_Type_Match = {};
+    	    each(Street_Type,function(v,k){ Street_Type_Match[v] = XRegExp.escape(v) });
+    	    each(Street_Type,function(v,k){ Street_Type_Match[v] = Street_Type_Match[v] + "|" + XRegExp.escape(k); });
+    	    each(Street_Type_Match,function(v,k){ Street_Type_Match[k] = new RegExp( '\\b(?:' +  Street_Type_Match[k]  + ')\\b', 'i') });
+    	    */
+
+    	    Addr_Match = {
+    	      type    : flatten(Street_Type).sort().filter(function(v,i,arr){return arr.indexOf(v)===i }).join('|'),
+    	      fraction : '\\d+\\/\\d+',
+    	      state   : '\\b(?:' + keys(State_Code).concat(values(State_Code)).map(XRegExp.escape).join('|') + ')\\b',
+    	      direct  : values(Directional).sort(function(a,b){return a.length < b.length}).reduce(function(prev,curr){return prev.concat([XRegExp.escape(curr.replace(/\w/g,'$&.')),curr])},keys(Directional)).join('|'),
+    	      dircode : keys(Direction_Code).join("|"),
+    	      zip     : '(?<zip>\\d{5})[- ]?(?<plus4>\\d{4})?',
+    	      corner  : '(?:\\band\\b|\\bat\\b|&|\\@)',
+    	    };
+
+    	    Addr_Match.number = '(?<number>(\\d+-?\\d*)|([N|S|E|W]\\d{1,3}[N|S|E|W]\\d{1,6}))(?=\\D)';
+
+    	    Addr_Match.street = '                                       \n\
+	      (?:                                                       \n\
+	        (?:(?<street_0>'+Addr_Match.direct+')\\W+               \n\
+	           (?<type_0>'+Addr_Match.type+')\\b                    \n\
+	        )                                                       \n\
+	        |                                                       \n\
+	        (?:(?<prefix_0>'+Addr_Match.direct+')\\W+)?             \n\
+	        (?:                                                     \n\
+	          (?<street_1>[^,]*\\d)                                 \n\
+	          (?:[^\\w,]*(?<suffix_1>'+Addr_Match.direct+')\\b)     \n\
+	          |                                                     \n\
+	          (?<street_2>[^,]+)                                    \n\
+	          (?:[^\\w,]+(?<type_2>'+Addr_Match.type+')\\b)         \n\
+	          (?:[^\\w,]+(?<suffix_2>'+Addr_Match.direct+')\\b)?    \n\
+	          |                                                     \n\
+	          (?<street_3>[^,]+?)                                   \n\
+	          (?:[^\\w,]+(?<type_3>'+Addr_Match.type+')\\b)?        \n\
+	          (?:[^\\w,]+(?<suffix_3>'+Addr_Match.direct+')\\b)?    \n\
+	        )                                                       \n\
+	      )';
+
+    	    Addr_Match.po_box = 'p\\W*(?:[om]|ost\\ ?office)\\W*b(?:ox)?';
+
+    	    Addr_Match.sec_unit_type_numbered = '             \n\
+	      (?<sec_unit_type_1>su?i?te                      \n\
+	        |'+Addr_Match.po_box+'                        \n\
+	        |(?:ap|dep)(?:ar)?t(?:me?nt)?                 \n\
+	        |ro*m                                         \n\
+	        |flo*r?                                       \n\
+	        |uni?t                                        \n\
+	        |bu?i?ldi?n?g                                 \n\
+	        |ha?nga?r                                     \n\
+	        |lo?t                                         \n\
+	        |pier                                         \n\
+	        |slip                                         \n\
+	        |spa?ce?                                      \n\
+	        |stop                                         \n\
+	        |tra?i?le?r                                   \n\
+	        |box)(?![a-z]                                 \n\
+	      )                                               \n\
+	      ';
+
+    	    Addr_Match.sec_unit_type_unnumbered = '           \n\
+	      (?<sec_unit_type_2>ba?se?me?n?t                 \n\
+	        |fro?nt                                       \n\
+	        |lo?bby                                       \n\
+	        |lowe?r                                       \n\
+	        |off?i?ce?                                    \n\
+	        |pe?n?t?ho?u?s?e?                             \n\
+	        |rear                                         \n\
+	        |side                                         \n\
+	        |uppe?r                                       \n\
+	      )\\b';
+
+    	    Addr_Match.sec_unit = '                               \n\
+	      (?:                               #fix3             \n\
+	        (?:                             #fix1             \n\
+	          (?:                                             \n\
+	            (?:'+Addr_Match.sec_unit_type_numbered+'\\W*) \n\
+	            |(?<sec_unit_type_3>\\#)\\W*                  \n\
+	          )                                               \n\
+	          (?<sec_unit_num_1>[\\w-]+)                      \n\
+	        )                                                 \n\
+	        |                                                 \n\
+	        '+Addr_Match.sec_unit_type_unnumbered+'           \n\
+	      )';
+
+    	    Addr_Match.city_and_state = '                       \n\
+	      (?:                                               \n\
+	        (?<city>[^\\d,]+?)\\W+                          \n\
+	        (?<state>'+Addr_Match.state+')                  \n\
+	      )                                                 \n\
+	      ';
+
+    	    Addr_Match.place = '                                \n\
+	      (?:'+Addr_Match.city_and_state+'\\W*)?            \n\
+	      (?:'+Addr_Match.zip+')?                           \n\
+	      ';
+
+    	    Addr_Match.address = XRegExp('                      \n\
+	      ^                                                 \n\
+	      [^\\w\\#]*                                        \n\
+	      ('+Addr_Match.number+')\\W*                       \n\
+	      (?:'+Addr_Match.fraction+'\\W*)?                  \n\
+	         '+Addr_Match.street+'\\W+                      \n\
+	      (?:'+Addr_Match.sec_unit+')?\\W*          #fix2   \n\
+	         '+Addr_Match.place+'                           \n\
+	      \\W*$','ix');
+
+    	    var sep = '(?:\\W+|$)'; // no support for \Z
+
+    	    Addr_Match.informal_address = XRegExp('                   \n\
+	      ^                                                       \n\
+	      \\s*                                                    \n\
+	      (?:'+Addr_Match.sec_unit+sep+')?                        \n\
+	      (?:'+Addr_Match.number+')?\\W*                          \n\
+	      (?:'+Addr_Match.fraction+'\\W*)?                        \n\
+	         '+Addr_Match.street+sep+'                            \n\
+	      (?:'+Addr_Match.sec_unit.replace(/_\d/g,'$&1')+sep+')?  \n\
+	      (?:'+Addr_Match.place+')?                               \n\
+	      ','ix');
+
+    	    Addr_Match.po_address = XRegExp('                         \n\
+	      ^                                                       \n\
+	      \\s*                                                    \n\
+	      (?:'+Addr_Match.sec_unit.replace(/_\d/g,'$&1')+sep+')?  \n\
+	      (?:'+Addr_Match.place+')?                               \n\
+	      ','ix');
+
+    	    Addr_Match.intersection = XRegExp('                     \n\
+	      ^\\W*                                                 \n\
+	      '+Addr_Match.street.replace(/_\d/g,'1$&')+'\\W*?      \n\
+	      \\s+'+Addr_Match.corner+'\\s+                         \n\
+	      '+Addr_Match.street.replace(/_\d/g,'2$&') + '\\W+     \n\
+	      '+Addr_Match.place+'\\W*$','ix');
+    	  }
+    	  parser.normalize_address = function(parts){
+    	    lazyInit();
+    	    if(!parts)
+    	      return null;
+    	    var parsed = {};
+
+    	    Object.keys(parts).forEach(function(k){
+    	      if(['input','index'].indexOf(k) !== -1 || isFinite(k))
+    	        return;
+    	      var key = isFinite(k.split('_').pop())? k.split('_').slice(0,-1).join('_'): k ;
+    	      if(parts[k])
+    	        parsed[key] = parts[k].trim().replace(/^\s+|\s+$|[^\w\s\-#&]/g, '');
+    	    });
+    	    each(Normalize_Map, function(map,key) {
+    	      if(parsed[key] && map[parsed[key].toLowerCase()]) {
+    	        parsed[key] = map[parsed[key].toLowerCase()];
+    	      }
+    	    });
+
+    	    ['type', 'type1', 'type2'].forEach(function(key){
+    	      if(key in parsed)
+    	        parsed[key] = parsed[key].charAt(0).toUpperCase() + parsed[key].slice(1).toLowerCase();
+    	    });
+
+    	    if(parsed.city){
+    	      parsed.city = XRegExp.replace(parsed.city,
+    	        XRegExp('^(?<dircode>'+Addr_Match.dircode+')\\s+(?=\\S)','ix'),
+    	        function(match){
+    	          return capitalize(Direction_Code[match.dircode.toUpperCase()]) +' ';
+    	        });
+    	    }
+    	    return parsed;
+    	  };
+
+    	  parser.parseAddress = function(address){
+    	    lazyInit();
+    	    var parts = XRegExp.exec(address,Addr_Match.address);
+    	    return parser.normalize_address(parts);
+    	  };
+    	  parser.parseInformalAddress = function(address){
+    	    lazyInit();
+    	    var parts = XRegExp.exec(address,Addr_Match.informal_address);
+    	    return parser.normalize_address(parts);
+    	  }; 
+    	  parser.parsePoAddress = function(address){
+    	    lazyInit();
+    	    var parts = XRegExp.exec(address,Addr_Match.po_address);
+    	    return parser.normalize_address(parts);
+    	  };
+    	  parser.parseLocation = function(address){
+    	    lazyInit();
+    	    if (XRegExp(Addr_Match.corner,'xi').test(address)) {
+    	        return parser.parseIntersection(address);
+    	    }
+    	    if (XRegExp('^'+Addr_Match.po_box,'xi').test(address)){
+    	      return parser.parsePoAddress(address);
+    	    }
+    	    return parser.parseAddress(address)
+    	        || parser.parseInformalAddress(address);
+    	  };
+    	  parser.parseIntersection = function(address){
+    	    lazyInit();
+    	    var parts = XRegExp.exec(address,Addr_Match.intersection);
+    	    parts = parser.normalize_address(parts);
+    	    if(parts){
+    	        parts.type2 = parts.type2 || '';
+    	        parts.type1 = parts.type1 || '';
+    	        if (parts.type2 && !parts.type1 || (parts.type1 === parts.type2)) {
+    	            var type = parts.type2;
+    	            type = XRegExp.replace(type,/s\W*$/,'');
+    	            if (XRegExp('^'+Addr_Match.type+'$','ix').test(type)) {
+    	                parts.type1 = parts.type2 = type;
+    	            }
+    	        }
+    	    }
+
+    	    return parts;
+    	  };
+
+    	  // AMD / RequireJS
+    	  {
+    	    exports.parseIntersection = parser.parseIntersection;
+    	    exports.parseLocation = parser.parseLocation;
+    	    exports.parseInformalAddress = parser.parseInformalAddress;
+    	    exports.parseAddress = parser.parseAddress;
+    	  }
+
+    	}()); 
+    } (address));
+
+    var parseAddress = /*@__PURE__*/getDefaultExportFromCjs(address);
+
+    /**
+     * @param userAddresses
+     * @param comparisonAddressFull
+     * @param missingState
+     * @return {boolean}
+     */
+    function matchesFullAddress (userAddresses, comparisonAddressFull, missingState = false) {
+        if (!comparisonAddressFull) {
+            return false
+        }
+
+        comparisonAddressFull = comparisonAddressFull.replace(/\n/g, ', ');
+
+        for (const userAddress of userAddresses) {
+            let address = userAddress.addressLine1;
+            if (userAddress.city) {
+                address += `, ${userAddress.city}`;
+            }
+
+            if (userAddress.state) {
+                address += `, ${userAddress.state}`;
+            }
+
+            if (userAddress.zip) {
+                address += ` ${userAddress.zip}`;
+            }
+
+            const userFullAddress = address?.toLowerCase().trim();
+            const userParsedAddress = parseAddress.parseLocation(userFullAddress);
+
+            comparisonAddressFull = comparisonAddressFull.toLowerCase().trim();
+            const comparisonParsedAddress = parseAddress.parseLocation(comparisonAddressFull);
+
+            const comparisons = [
+                userParsedAddress.number === comparisonParsedAddress.number,
+                userParsedAddress.street === comparisonParsedAddress.street,
+                userParsedAddress.type === comparisonParsedAddress.type,
+                userParsedAddress.city === comparisonParsedAddress.city,
+                userParsedAddress.state === comparisonParsedAddress.state
+            ];
+
+            if (comparisons.every(Boolean)) {
+                return true
+            }
+
+            if (!missingState &&
+              comparisonAddressFull.includes(userAddress.city) &&
+              comparisonAddressFull.includes(userAddress.state)
+            ) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /**
+     * Adding these types here so that we can switch to generated ones later
+     * @typedef {Record<string, any>} Action
+     */
+
+    /**
+     * @typedef {Object} ExtractProfileProperty
+     * For example: {
+     *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
+     * }
+     * @property {string} selector - xpath or css selector
+     * @property {boolean} [findElements] - whether to get all occurrences of the selector
+     * @property {string} [afterText] - get all text after this string
+     * @property {string} [beforeText] - get all text before this string
+     * @property {string} [separator] - split the text on this string
+     */
+
+    /**
+     * @param {Action} action
+     * @param {Record<string, any>} userData
+     * @return {import('../types.js').ActionResponse}
+     */
+    function extractProfiles (action, userData) {
+        const profilesElementList =
+          Array.from(document.querySelectorAll(action.selector)) ?? [];
+
+        const matchedProfiles = profilesElementList
+            // first, convert each profile element list into a profile
+            .map((element) => createProfile(element, action.profile))
+            // only include profiles that match the user data
+            .filter((scrapedData) => scrapedDataMatchesUserData(userData, scrapedData))
+            // aggregate some fields
+            .map((scrapedData) => aggregateFields(scrapedData));
+
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: matchedProfiles })
+    }
+
+    /**
+     * Produces structures like this:
+     *
+     * {
+     *   "name": "John V Smith",
+     *   "alternativeNamesList": [
+     *     "John Inc Smith",
+     *     "John Vsmith",
+     *     "John Smithl"
+     *   ],
+     *   "age": "97",
+     *   "addressCityStateList": [
+     *     {
+     *       "city": "Orlando",
+     *       "state": "FL"
+     *     }
+     *   ],
+     *   "profileUrl": "https://example.com/1234"
+     * }
+     *
+     * @param {HTMLElement} profileElement
+     * @param {Record<string, ExtractProfileProperty>} extractData
+     * @return {Record<string, any>}
+     */
+    function createProfile (profileElement, extractData) {
+        const output = {};
+        for (const [key, value] of Object.entries(extractData)) {
+            if (!value?.selector) {
+                output[key] = null;
+            } else {
+                const evaluatedValue = value?.findElements
+                    ? findFromElements(profileElement, key, value)
+                    : findFromElement(profileElement, key, value);
+
+                // Note: This can return a string, string[], or null
+                const extractedValue = extractValue(key, value, evaluatedValue);
+
+                // try to use the extracted value first, then the originally evaluated, falling back to null
+                output[key] = extractedValue || evaluatedValue || null;
+            }
+        }
+        return output
+    }
+
+    /**
+     * @param {HTMLElement} profileElement
+     * @param {string} key
+     * @param {ExtractProfileProperty} extractField
+     */
+    function findFromElements (profileElement, key, extractField) {
+        const elements = getElements(profileElement, extractField.selector) || null;
+        const elementValues = [];
+        if (elements) {
+            for (const element of elements) {
+                let elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
+                if (extractField?.afterText) {
+                    elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue;
+                }
+                if (extractField?.beforeText) {
+                    elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue;
+                }
+                elementValues.push(elementValue);
+            }
+        }
+        return elementValues
+    }
+
+    /**
+     * @param {HTMLElement} profileElement
+     * @param {string} dataKey - such as 'name', 'age' etc
+     * @param {ExtractProfileProperty} extractField
+     * @return {string}
+     */
+    function findFromElement (profileElement, dataKey, extractField) {
+        const element = getElement(profileElement, extractField.selector) ||
+            getElementMatches(profileElement, extractField.selector);
+
+        // todo: should we use textContent here?
+        let elementValue = rules[dataKey]?.(element) ?? element?.innerText ?? null;
+
+        if (extractField?.afterText) {
+            elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue;
+        }
+        // there is a case where we may want to get the text "after" and "before" certain text
+        if (extractField?.beforeText) {
+            elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue;
+        }
+        return elementValue
+    }
+
+    /**
+     * Try to filter partial data based on the user's actual profile data
+     * @param {Record<string, any>} userData
+     * @param {Record<string, any>} scrapedData
+     * @return {boolean}
+     */
+    function scrapedDataMatchesUserData (userData, scrapedData) {
+        if (!isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) return false
+
+        if (scrapedData.age) {
+            if (!isSameAge(scrapedData.age, userData.age)) {
+                return false
+            }
+        }
+
+        if (scrapedData.addressCityState) {
+            // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
+            if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
+                return true
+            }
+        }
+
+        // it's possible to have both addressCityState and addressCityStateList
+        if (scrapedData.addressCityStateList) {
+            if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
+                return true
+            }
+        }
+
+        if (scrapedData.addressFull) {
+            if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) { return true }
+        }
+
+        if (scrapedData.phone) {
+            if (userData.phone === scrapedData.phone) { return true }
+        }
+
+        // if phone number matches
+        return false
+    }
+
+    /**
+     * @param {Record<string, any>} profile
+     */
+    function aggregateFields (profile) {
+        const addressCityStateArray = profile.addressCityState || [];
+        const addressCityStateListArray = profile.addressCityStateList || [];
+        const addresses = [...new Set([...addressCityStateArray, ...addressCityStateListArray])];
+
+        const phoneArray = profile.phone || [];
+        const phoneListArray = profile.phoneList || [];
+        const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])];
+
+        return {
+            name: profile.name,
+            alternativeNames: profile.alternativeNamesList,
+            age: profile.age,
+            addresses,
+            phoneNumbers,
+            relatives: profile.relativesList,
+            profileUrl: profile.profileUrl
+        }
+    }
+
+    /**
+     * Example input to this:
+     *
+     * ```json
+     * {
+     *   "key": "age",
+     *   "value": {
+     *     "selector": ".//div[@class='col-md-8']/div[2]"
+     *   },
+     *   "elementValue": "Age 71"
+     * }
+     * ```
+     *
+     * todo: Rework this `extract` functionality to reduce mixing of types
+     *
+     * @param {string} key
+     * @param {ExtractProfileProperty} value
+     * @param {string | string[]} elementValue
+     * @return {string|string[]|null}
+     */
+    function extractValue (key, value, elementValue) {
+        if (!elementValue) return null
+
+        const extractors = {
+            name: () => typeof elementValue === 'string' && elementValue.trim(),
+            age: () => typeof elementValue === 'string' && elementValue.match(/\d+/)?.[0],
+            alternativeNamesList: () => stringToList(elementValue, value.separator),
+            addressCityStateList: () => {
+                const cityStateList = stringToList(elementValue, value.separator);
+                return getCityStateCombos(cityStateList)
+            },
+            addressCityState: () => {
+                const cityStateList = stringToList(elementValue);
+                return getCityStateCombos(cityStateList)
+            },
+            addressFullList: () => stringToList(elementValue, value.separator),
+            phone: () => {
+                const phoneNumber = typeof elementValue === 'string' && elementValue.replace(/\D/g, '');
+                if (!phoneNumber) {
+                    return null
+                }
+                return stringToList(phoneNumber)
+            },
+            phoneList: () => stringToList(elementValue, value.separator),
+            relativesList: () => stringToList(elementValue, value.separator)
+        };
+
+        if (key in extractors) {
+            return extractors[key]()
+        }
+
+        return null
+    }
+
+    /**
+     * @param {string|any[]} inputList
+     * @param {string} [separator]
+     * @return {string[]}
+     */
+    function stringToList (inputList, separator) {
+        // if the list is already an array then we can return the list
+        if (Array.isArray(inputList)) return inputList
+        if (inputList === '') return []
+
+        if (separator) {
+            return inputList
+                .split(separator)
+                .map(item => item.trim())
+                .filter(Boolean)
+        }
+
+        return inputList
+            .split(/[|\n•·]/)
+            .map(item => item.trim())
+            .filter(Boolean)
+    }
+
+    /**
+     * @param {string[]} inputList
+     * @return {{ city: string, state: string|null }[] }
+     */
+    function getCityStateCombos (inputList) {
+        const output = [];
+        for (const item of inputList) {
+            let words;
+            if (item.includes(',')) {
+                words = item.split(',').map(item => item.trim());
+            } else {
+                words = item.split(' ').map(item => item.trim());
+            }
+            // we are removing this partial city/state combos at the end (i.e. Chi...)
+            if (words.length === 1) { continue }
+
+            const state = words.pop();
+            const city = words.join(' ');
+
+            output.push({ city, state: state || null });
+        }
+        return output
+    }
+
+    // For extraction
+    const rules = {
+        profileUrl: function (link) {
+            return link?.href ?? null
+        }
+    };
+
+    /**
+     * @param action
+     * @return {import('../types.js').ActionResponse}
+     */
+    function fillForm (action, userData) {
+        const form = getElement(document, action.selector);
+        if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
+
+        // fill out form for each step
+        for (const element of action.elements) {
+            // get the correct field of the form
+            const inputElem = getElement(form, element.selector);
+            // this works for IDs (i.e. #url wouldb e form.elements['url'])
+            // let inputElem = form.elements[element.selector]
+            // find the correct userData to put in the form
+            if (inputElem) {
+                // @ts-expect-error - double check if this is strict enough
+                // todo: determine if this requires any events to be dispatched also
+                setValueForInput(inputElem, userData[element.type]);
+            }
+        }
+
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+    }
+
+    /**
+     * NOTE: This code comes from Autofill, the reasoning is to make React autofilling work on Chrome and Safari.
+     *
+     * Ensures the value is set properly and dispatches events to simulate real user action
+     *
+     * @param {HTMLInputElement} el
+     * @param {string} val
+     * @return {boolean}
+     */
+    function setValueForInput (el, val) {
+        el.dispatchEvent(new Event('keydown', { bubbles: true }));
+
+        // Access the original setter (needed to bypass React's implementation on mobile)
+        // @ts-expect-error - Object will not be undefined on this case
+        const originalSet = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+        originalSet?.call(el, val);
+
+        const events = [
+            new Event('input', { bubbles: true }),
+            new Event('keyup', { bubbles: true }),
+            new Event('change', { bubbles: true })
+        ];
+        events.forEach((ev) => el.dispatchEvent(ev));
+        // We call this again to make sure all forms are happy
+        originalSet?.call(el, val);
+        events.forEach((ev) => el.dispatchEvent(ev));
+        el.blur();
+
+        return true
+    }
+
+    /**
+     * @param {object} args
+     * @param {string} args.token
+     */
+    function captchaCallback (args) {
+        const clients = findRecaptchaClients(globalThis);
+
+        // if a client was found, check there was a function
+        if (clients.length === 0) {
+            return console.log('cannot find clients')
+        }
+
+        if (typeof clients[0].function === 'function') {
+            try {
+                clients[0].function(args.token);
+                console.log('called function with path', clients[0].callback);
+            } catch (e) {
+                console.error('could not call function');
+            }
+        }
+
+        /**
+         * Try to find a callback in a path such as ['___grecaptcha_cfg', 'clients', '0', 'U', 'U', 'callback']
+         * @param {Record<string, any>} target
+         */
+        function findRecaptchaClients (target) {
+            if (typeof (target.___grecaptcha_cfg) === 'undefined') {
+                console.log('target.___grecaptcha_cfg not found in ', location.href);
+                return []
+            }
+            return Object.entries(target.___grecaptcha_cfg.clients || {}).map(([cid, client]) => {
+                const cidNumber = parseInt(cid, 10);
+                const data = {
+                    id: cid,
+                    version: cidNumber >= 10000 ? 'V3' : 'V2'
+                };
+                const objects = Object.entries(client).filter(([, value]) => value && typeof value === 'object');
+
+                objects.forEach(([toplevelKey, toplevel]) => {
+                    const found = Object.entries(toplevel).find(([, value]) => (
+                        value && typeof value === 'object' && 'sitekey' in value && 'size' in value
+                    ));
+
+                    if (typeof toplevel === 'object' &&
+                        typeof HTMLElement !== 'undefined' &&
+                        toplevel instanceof HTMLElement &&
+                        toplevel.tagName === 'DIV') {
+                        data.pageurl = toplevel.baseURI;
+                    }
+
+                    if (found) {
+                        const [sublevelKey, sublevel] = found;
+
+                        data.sitekey = sublevel.sitekey;
+                        const callbackKey = data.version === 'V2' ? 'callback' : 'promise-callback';
+                        const callback = sublevel[callbackKey];
+                        if (!callback) {
+                            data.callback = null;
+                            data.function = null;
+                        } else {
+                            data.function = callback;
+                            data.callback = ['___grecaptcha_cfg', 'clients', cid, toplevelKey, sublevelKey, callbackKey];
+                        }
+                    }
+                });
+                return data
+            })
+        }
+    }
+
+    /**
+     * Gets the captcha information to send to the backend
+     *
+     * @param action
+     * @return {import('../types.js').ActionResponse}
+     */
+    function getCaptchaInfo (action) {
+        const pageUrl = window.location.href;
+        const captchaDiv = getElement(document, action.selector);
+
+        // if 'captchaDiv' was missing, cannot continue
+        if (!captchaDiv) return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` })
+
+        // try 2 different captures
+        const captcha = getElement(captchaDiv, '[src^="https://www.google.com/recaptcha"]') ||
+            getElement(captchaDiv, '[src^="https://newassets.hcaptcha.com/captcha"');
+
+        // ensure we have the elements
+        if (!captcha) return new ErrorResponse({ actionID: action.id, message: 'could not find captcha' })
+        if (!('src' in captcha)) return new ErrorResponse({ actionID: action.id, message: 'missing src attribute' })
+
+        const captchaUrl = String(captcha.src);
+        let captchaType;
+        let siteKey;
+
+        if (captchaUrl.includes('recaptcha/api2')) {
+            captchaType = 'recaptcha2';
+            siteKey = new URL(captchaUrl).searchParams.get('k');
+        } else if (captchaUrl.includes('recaptcha/enterprise')) {
+            captchaType = 'recaptchaEnterprise';
+            siteKey = new URL(captchaUrl).searchParams.get('k');
+        } else if (captchaUrl.includes('hcaptcha.com/captcha/v1')) {
+            captchaType = 'hcaptcha';
+            // hcaptcha sitekey may be in either
+            if (captcha instanceof Element) {
+                siteKey = captcha.getAttribute('data-sitekey');
+            }
+            if (!captcha) {
+                try {
+                    // `new URL(...)` can throw, so it's valid to wrap this in try/catch
+                    siteKey = new URL(captchaUrl).searchParams.get('sitekey');
+                } catch (e) {
+                    console.warn('error parsing captchaUrl', captchaUrl);
+                }
+            }
+        }
+
+        if (!captchaType) {
+            return new ErrorResponse({ actionID: action.id, message: 'Could not extract captchaType.' })
+        }
+        if (!siteKey) {
+            return new ErrorResponse({ actionID: action.id, message: 'Could not extract siteKey.' })
+        }
+
+        // Remove query params (which may include PII)
+        const pageUrlWithoutParams = pageUrl?.split('?')[0];
+
+        const responseData = {
+            siteKey,
+            url: pageUrlWithoutParams,
+            type: captchaType
+        };
+
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: responseData })
+    }
+
+    /**
+    * Takes the solved captcha token and injects it into the page to solve the captcha
+    *
+    * @param action
+    * @return {import('../types.js').ActionResponse}
+    */
+    function solveCaptcha (action, token) {
+        const selectors = ['h-captcha-response', 'g-recaptcha-response'];
+        let solved = false;
+
+        for (const selector of selectors) {
+            const match = document.getElementsByName(selector)[0];
+            if (match) {
+                match.innerHTML = token;
+                solved = true;
+                break
+            }
+        }
+
+        if (solved) {
+            const json = JSON.stringify({ token });
+
+            const javascript = `;(function(args) {
+            ${captchaCallback.toString()};
+            captchaCallback(args);
+        })(${json});`;
+
+            return new SuccessResponse({
+                actionID: action.id,
+                actionType: action.actionType,
+                response: { callback: { eval: javascript } }
+            })
+        }
+
+        return new ErrorResponse({ actionID: action.id, message: 'could not solve captcha' })
+    }
+
+    /**
+     * @param action // TODO: get type based on actionType
+     * @return {import('../types.js').ActionResponse}
+     */
+    function click (action) {
+        // there can be multiple elements provided by the action
+        for (const element of action.elements) {
+            const elem = getElement(document, element.selector);
+            if (!elem) {
+                return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
+            }
+            elem.click();
+        }
+
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+    }
+
+    /**
+     * @param action
+     * @return {import('../types.js').ActionResponse}
+     */
+    function expectation (action) {
+        const expectations = action.expectations;
+
+        const allExpectationsMatch = expectations.every(expectation => {
+            if (expectation.type === 'text') {
+                // get the target element text
+                let elem;
+                try {
+                    elem = getElement(document, expectation.selector);
+                } catch {
+                    elem = null;
+                }
+                return Boolean(elem?.textContent?.includes(expectation.expect))
+            } else if (expectation.type === 'url') {
+                const url = window.location.href;
+                return url.includes(expectation.expect)
+            }
+
+            return false
+        });
+
+        if (!allExpectationsMatch) {
+            return new ErrorResponse({ actionID: action.id, message: 'Expectation not found.' })
+        } else {
+            return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+        }
+    }
+
+    /**
+     * @param {object} action
+     * @param {string} action.id
+     * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
+     * @param {any} data
+     * @return {import('./types.js').ActionResponse}
+     */
+    function execute (action, data) {
+        try {
+            switch (action.actionType) {
+            case 'navigate':
+                return buildUrl(action, data)
+            case 'extract':
+                return extractProfiles(action, data)
+            case 'click':
+                return click(action)
+            case 'expectation':
+                return expectation(action)
+            case 'fillForm':
+                return fillForm(action, data)
+            case 'getCaptchaInfo':
+                return getCaptchaInfo(action)
+            case 'solveCaptcha':
+                return solveCaptcha(action, data.token)
+            default: {
+                return new ErrorResponse({
+                    actionID: action.id,
+                    message: `unimplemented actionType: ${action.actionType}`
+                })
+            }
+            }
+        } catch (e) {
+            console.log('unhandled exception: ', e);
+            return new ErrorResponse({
+                actionID: action.id,
+                message: `unhandled exception: ${e.message}`
+            })
+        }
+    }
+
+    class BrokerProtection extends ContentFeature {
+        init () {
+            this.messaging.subscribe('onActionReceived', (/** @type {any} */params) => {
+                try {
+                    const action = params.state.action;
+                    const data = params.state.data;
+                    if (!action) {
+                        return this.messaging.notify('actionError', { error: 'No action found.' })
+                    }
+                    const result = execute(action, data);
+                    this.messaging.notify('actionCompleted', { result });
+                } catch (e) {
+                    console.log('unhandled exception: ', e);
+                    this.messaging.notify('actionError', { error: e.toString() });
+                }
+            });
+        }
+    }
+
     var platformFeatures = {
         ddg_feature_cookie: CookieFeature,
         ddg_feature_runtimeChecks: RuntimeChecks,
@@ -9996,7 +14138,8 @@
         ddg_feature_elementHiding: ElementHiding,
         ddg_feature_exceptionHandler: ExceptionHandler,
         ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
-        ddg_feature_duckPlayer: DuckPlayerFeature
+        ddg_feature_duckPlayer: DuckPlayerFeature,
+        ddg_feature_brokerProtection: BrokerProtection
     };
 
     /* global false */

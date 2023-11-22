@@ -700,7 +700,8 @@
         'duckPlayer',
         'harmfulApis',
         'webCompat',
-        'windowsPermissionUsage'
+        'windowsPermissionUsage',
+        'brokerProtection'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -711,7 +712,8 @@
             ...baseFeatures
         ],
         'apple-isolated': [
-            'duckPlayer'
+            'duckPlayer',
+            'brokerProtection'
         ],
         android: [
             ...baseFeatures,
@@ -722,7 +724,8 @@
             'cookie',
             ...baseFeatures,
             'windowsPermissionUsage',
-            'duckPlayer'
+            'duckPlayer',
+            'brokerProtection'
         ],
         firefox: [
             'cookie',

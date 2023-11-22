@@ -1,0 +1,25 @@
+{
+  "state": {
+    "action": {
+      "actionType": "fillForm",
+      "id": "3",
+      "selector": ".ahm",
+      "elements": [
+        {
+          "type": "firstName",
+          "selector": "#user_first_name"
+        },
+        {
+          "type": "lastName",
+          "selector": "#user_last_name"
+        }
+      ]
+    },
+    "data": {
+      "firstName": "John",
+      "lastName": "Smith",
+      "city": "Chicago",
+      "state": "IL"
+    }
+  }
+}
