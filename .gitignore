@@ -8,3 +8,4 @@ docs/
 test-results/
 playwright-report/
 Sources/ContentScopeScripts/dist/
+test-results
