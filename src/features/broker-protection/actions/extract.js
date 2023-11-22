@@ -76,8 +76,10 @@ function createProfile (profileElement, extractData) {
                 ? findFromElements(profileElement, key, value)
                 : findFromElement(profileElement, key, value)
 
+            // Note: This can return a string, string[], or null
             const extractedValue = extractValue(key, value, evaluatedValue)
-            // counts an empty string as null since that is essentially a blank extracted value
+
+            // try to use the extracted value first, then the originally evaluated, falling back to null
             output[key] = extractedValue || evaluatedValue || null
         }
     }
@@ -206,17 +208,20 @@ export function aggregateFields (profile) {
  *   "elementValue": "Age 71"
  * }
  * ```
+ *
+ * todo: Rework this `extract` functionality to reduce mixing of types
+ *
  * @param {string} key
  * @param {ExtractProfileProperty} value
- * @param {any} elementValue
+ * @param {string | string[]} elementValue
  * @return {string|string[]|null}
  */
 function extractValue (key, value, elementValue) {
     if (!elementValue) return null
 
     const extractors = {
-        name: () => elementValue.trim(),
-        age: () => elementValue.match(/\d+/)?.[0],
+        name: () => typeof elementValue === 'string' && elementValue.trim(),
+        age: () => typeof elementValue === 'string' && elementValue.match(/\d+/)?.[0],
         alternativeNamesList: () => stringToList(elementValue, value.separator),
         addressCityStateList: () => {
             const cityStateList = stringToList(elementValue, value.separator)
@@ -228,7 +233,7 @@ function extractValue (key, value, elementValue) {
         },
         addressFullList: () => stringToList(elementValue, value.separator),
         phone: () => {
-            const phoneNumber = elementValue.replace(/\D/g, '')
+            const phoneNumber = typeof elementValue === 'string' && elementValue.replace(/\D/g, '')
             if (!phoneNumber) {
                 return null
             }
