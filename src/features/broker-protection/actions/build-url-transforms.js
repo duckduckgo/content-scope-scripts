@@ -119,13 +119,11 @@ function processPathname (pathname, action, userData) {
  *
  * 1. Encoded Format: `\$%7B(.+?)%7D`
  *    - Matches encoded template strings that start with `$%7B` and end with `%7D`.
- *    - `(.+?)` is a non-greedy capture group that matches any character sequence
- *      between `$%7B` and `%7D`, capturing the content of the encoded template literal.
+ *    - These occur when variables are present in the pathname of the URL
  *
  * 2. Plain Format: `\$\{(.+?)\}`
  *    - Matches plain template strings that start with `${` and end with `}`.
- *    - `(.+?)` here again is a non-greedy capture group that matches any character
- *      sequence between `${` and `}`, capturing the content of the plain template literal.
+ *    - These occur when variables are present in the value side of any query params
  *
  * This regular expression is used to identify and process these template literals within the input string,
  * allowing the function to replace them with corresponding data from `userData` after applying any specified transformations.
@@ -135,6 +133,10 @@ function processPathname (pathname, action, userData) {
  * @param {Record<string, string|number>} userData
  */
 export function processTemplateStringWithUserData (input, action, userData) {
+    /**
+     * Note: this regex covers both pathname + query params.
+     * This is why we're handling both encoded and un-encoded.
+     */
     return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, encodedValue, plainValue) => {
         const comparison = encodedValue ?? plainValue
         const [dataKey, ...transforms] = comparison.split('|')
