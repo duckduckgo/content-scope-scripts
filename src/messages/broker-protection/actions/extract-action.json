@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ExtractAction",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "actionType": {
+      "const": "extract"
+    },
+    "selector": {
+      "type": "string"
+    },
+    "profile": {
+      "$ref": "./shared.json#/definitions/ExtractProfileSelectors"
+    }
+  },
+  "required": ["id", "actionType", "selector", "profile"],
+  "additionalProperties": false
+}

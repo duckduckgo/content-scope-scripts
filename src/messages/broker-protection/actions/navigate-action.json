@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "NavigateAction",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "actionType": {
+      "const": "navigate"
+    },
+    "url": {
+      "type": "string"
+    },
+    "ageRange": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": ["id", "actionType", "url"],
+  "additionalProperties": false,
+  "definitions": {
+    "result": {
+      "title": "NavigateActionResult",
+      "type": "object",
+      "properties": {
+        "actionType": {
+          "const": "navigate"
+        },
+        "actionID": {
+          "type": "string"
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

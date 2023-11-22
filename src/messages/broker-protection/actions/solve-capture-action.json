@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "SolveCaptureAction",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "actionType": {
+      "const": "solveCaptcha"
+    },
+    "selector": {
+      "type": "string"
+    }
+  },
+  "required": ["id", "actionType", "selector"],
+  "additionalProperties": false
+}

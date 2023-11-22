@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "AddressCityState": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        }
+      },
+      "required": ["city", "state"],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "alternativeNames": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "addressFull": {
+      "type": "string"
+    },
+    "addresses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AddressCityState"
+      }
+    },
+    "phoneNumbers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "relatives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "profileUrl": {
+      "type": "string"
+    },
+    "reportId": {
+      "type": "string"
+    },
+    "age": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "removedDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "fullName": {
+      "type": "string"
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

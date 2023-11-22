@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "WebShare",
+  "additionalProperties": false,
+  "description": "todo: add description for `webShare` message",
+  "required": ["method", "params", "result"],
+  "properties": {
+    "method": {
+      "const": "webShare"
+    },
+    "params": {
+      "title": "WebShareParams",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "description": "todo: add description for 'title' field",
+          "type": "string"
+        },
+        "url": {
+          "description": "todo: add description for 'url' field",
+          "type": "string"
+        },
+        "text": {
+          "description": "todo: add description for 'text' field",
+          "type": "string"
+        }
+      }
+    },
+    "result": {
+      "description": "todo: add return type here"
+    }
+  }
+}
