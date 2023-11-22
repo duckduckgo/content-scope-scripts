@@ -1,21 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "definitions": {
-    "AddressCityState": {
-      "type": "object",
-      "properties": {
-        "city": {
-          "type": "string"
-        },
-        "state": {
-          "type": "string"
-        }
-      },
-      "required": ["city", "state"],
-      "additionalProperties": false
-    }
-  },
   "type": "object",
+  "title": "ExtractedProfile",
   "properties": {
     "id": {
       "type": "integer"
@@ -71,5 +57,20 @@
     }
   },
   "required": [],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "definitions": {
+    "AddressCityState": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        }
+      },
+      "required": ["city", "state"],
+      "additionalProperties": false
+    }
+  }
 }

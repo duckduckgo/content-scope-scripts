@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ActionCompletedNotification",
+  "additionalProperties": false,
+  "description": "",
+  "required": [
+    "method",
+    "params"
+  ],
+  "properties": {
+    "method": {
+      "const": "actionCompleted"
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result"],
+      "title": "ActionCompleted",
+      "properties": {
+        "result": {
+          "type": "object",
+          "title": "ActionCompletedResponse",
+          "additionalProperties": false,
+          "required": ["actionID", "actionType", "response"],
+          "properties": {
+            "actionType": {
+              "$ref": "./actions/shared.json#/definitions/ActionType"
+            },
+            "actionID": {
+              "type": "string"
+            },
+            "response": {
+              "oneOf": [
+                { "$ref": "./actions/navigate-action.json#/definitions/Response" },
+                { "$ref": "./actions/extract-action.json#/definitions/Response" }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

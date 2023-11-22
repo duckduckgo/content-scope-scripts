@@ -20,6 +20,10 @@ const defaultMapping = {
     "Duckplayer Settings": {
         schema: join(configBuilderRoot, "tests/schemas/duckplayer-settings.json"),
         types: join(ROOT, "src/types/duckplayer-settings.d.ts")
+    },
+    "Broker Protection Messages": {
+        schema: join(ROOT, "src/messages/broker-protection.json"),
+        types: join(ROOT, "src/types/broker-protection.ts")
     }
 }
 

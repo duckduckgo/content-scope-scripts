@@ -23,23 +23,13 @@
   "required": ["id", "actionType", "url"],
   "additionalProperties": false,
   "definitions": {
-    "result": {
-      "title": "NavigateActionResult",
+    "Response": {
+      "title": "NavigateActionResponse",
       "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "actionType": {
-          "const": "navigate"
-        },
-        "actionID": {
+        "url": {
           "type": "string"
-        },
-        "response": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string"
-            }
-          }
         }
       }
     }

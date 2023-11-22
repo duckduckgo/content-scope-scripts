@@ -1,35 +1,60 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "title": "WebShare",
+  "title": "OnActionReceivedSubscription",
   "additionalProperties": false,
-  "description": "todo: add description for `webShare` message",
-  "required": ["method", "params", "result"],
+  "description": "todo: add description for `OnActionReceived` message",
+  "required": [
+    "method",
+    "params",
+    "result"
+  ],
   "properties": {
-    "method": {
-      "const": "webShare"
+    "subscriptionEvent": {
+      "const": "onActionReceived"
     },
     "params": {
-      "title": "WebShareParams",
       "type": "object",
       "additionalProperties": false,
+      "required": ["state", "data"],
       "properties": {
-        "title": {
-          "description": "todo: add description for 'title' field",
-          "type": "string"
-        },
-        "url": {
-          "description": "todo: add description for 'url' field",
-          "type": "string"
-        },
-        "text": {
-          "description": "todo: add description for 'text' field",
-          "type": "string"
+        "state": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "title": "IncomingAction",
+              "description": "A list of actions that are sent from native -> web",
+              "oneOf": [
+                {
+                  "$ref": "./actions/navigate-action.json"
+                },
+                {
+                  "$ref": "./actions/extract-action.json"
+                },
+                {
+                  "$ref": "./actions/click-action.json"
+                },
+                {
+                  "$ref": "./actions/expectation-action.json"
+                },
+                {
+                  "$ref": "./actions/fill-form-action.json"
+                },
+                {
+                  "$ref": "./actions/get-capture-info-action.json"
+                },
+                {
+                  "$ref": "./actions/solve-capture-action.json"
+                }
+              ]
+            },
+            "data": {
+              "type": "object"
+            }
+          }
         }
       }
-    },
-    "result": {
-      "description": "todo: add return type here"
     }
   }
 }

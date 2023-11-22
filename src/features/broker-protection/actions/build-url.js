@@ -4,9 +4,12 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
 /**
  * This builds the proper URL given the URL template and userData.
  *
- * @param action
+ * @typedef {import('../../../types/broker-protection.js').NavigateAction} NavigateAction
+ * @typedef {import('../../../types/broker-protection.js').NavigateActionResponse} Response
+ *
+ * @param {NavigateAction} action
  * @param userData
- * @return {import('../types.js').ActionResponse}
+ * @return {SuccessResponse<Response> | ErrorResponse}
  */
 export function buildUrl (action, userData) {
     const result = replaceTemplatedUrl(action, userData)
@@ -14,7 +17,11 @@ export function buildUrl (action, userData) {
         return new ErrorResponse({ actionID: action.id, message: result.error })
     }
 
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { url: result.url } })
+    return new SuccessResponse({
+        actionID: action.id,
+        actionType: action.actionType,
+        response: { url: result.url }
+    })
 }
 
 /**

@@ -7,9 +7,7 @@ import { expectation } from './actions/expectation.js'
 import { ErrorResponse } from './types.js'
 
 /**
- * @param {object} action
- * @param {string} action.id
- * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
+ * @param {import('../../types/broker-protection.js').IncomingAction} action
  * @param {any} data
  * @return {import('./types.js').ActionResponse}
  */
@@ -31,9 +29,10 @@ export function execute (action, data) {
         case 'solveCaptcha':
             return solveCaptcha(action, data.token)
         default: {
+            const unhandledAction = /** @type {any} */(action)
             return new ErrorResponse({
-                actionID: action.id,
-                message: `unimplemented actionType: ${action.actionType}`
+                actionID: unhandledAction.id,
+                message: `unimplemented actionType: ${unhandledAction.actionType}`
             })
         }
         }

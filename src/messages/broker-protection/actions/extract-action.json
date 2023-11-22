@@ -17,5 +17,14 @@
     }
   },
   "required": ["id", "actionType", "selector", "profile"],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "definitions": {
+    "Response": {
+      "title": "ExtractActionResponse",
+      "type": "array",
+      "items": {
+        "$ref": "./extracted-profile.json"
+      }
+    }
+  }
 }
