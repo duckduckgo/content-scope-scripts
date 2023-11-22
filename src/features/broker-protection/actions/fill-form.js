@@ -2,8 +2,6 @@ import { getElement } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
 
 /**
- * Takes the solved captcha token and injects it into the page to solve the captcha
- *
  * @param action
  * @return {import('../types.js').ActionResponse}
  */
