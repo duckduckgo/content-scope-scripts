@@ -82,11 +82,14 @@ function init () {
               }
           })
       });
-
       // Define a random update function we call later.
       // Use define property so isn't enumerable
       Object.defineProperty(window, '${reusableMethodName}', {
-        // Use proxy to ensure stringification isn't possible
+          enumerable: false,
+          // configurable, To allow for deletion later
+          configurable: true,
+          writable: false,
+          // Use proxy to ensure stringification isn't possible
           value: new Proxy(function () {}, {
               apply(target, thisArg, args) {
                   if ('${reusableSecret}' === args[0]) {
