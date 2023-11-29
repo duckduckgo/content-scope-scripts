@@ -524,10 +524,12 @@ export default class WebCompat extends ContentFeature {
                 viewportTag.setAttribute('name', 'viewport')
             }
             const forcedWidth = screen.width >= 1280 ? 1280 : 980
+            // Race condition: depending on the loading state of the page, initial scale may or may not be respected, so the page may look zoomed-in after applying this hack.
+            // Usually this is just an annoyance, but it may be a bigger issue if user-scalable=no is set, so we remove it too.
             const forcedInitialScale = (screen.width / forcedWidth).toFixed(3)
             const newContentParts = [`width=${forcedWidth},initial-scale=${forcedInitialScale}`]
             viewportContentParts?.forEach((part) => {
-                if (!part.includes('width') && !part.includes('initial-scale')) {
+                if (!part.includes('width') && !part.includes('initial-scale') && !part.includes('user-scalable')) {
                     newContentParts.push(part)
                 }
             })
