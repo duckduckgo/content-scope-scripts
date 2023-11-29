@@ -517,7 +517,6 @@ export default class WebCompat extends ContentFeature {
         let viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1]
         const viewportContent = viewportTag?.getAttribute('content')
         const viewportContentParts = viewportContent?.split(/,|;/)
-        console.log(`Viewport fix: desktopModeEnabled=${this.desktopModeEnabled} viewportTag: `, viewportTag, `viewportContent=${viewportContent}, document.readyState=${document.readyState}`)
         if (!viewportTag || this.desktopModeEnabled) {
             // force wide viewport width
             if (!viewportTag) {
@@ -532,26 +531,20 @@ export default class WebCompat extends ContentFeature {
                     newContentParts.push(part)
                 }
             })
-            console.log(`Viewport fix: setting viewport content to ${newContentParts.join(',')}`)
             viewportTag.setAttribute('content', newContentParts.join(','))
             document.head.appendChild(viewportTag)
-            console.log(window.screen.width, document.documentElement.clientWidth, document.documentElement.offsetWidth, window.screen.width / document.documentElement.clientWidth)
         } else { // mobile mode with a viewport tag
             // fix an edge case where WebView forces the wide viewport
             const widthPart = viewportContentParts?.find((part) => part.includes('width'))
             const initialScalePart = viewportContentParts?.find((part) => part.includes('initial-scale'))
-            console.log(`Viewport fix: mobile mode, widthPart=${widthPart} initialScalePart=${initialScalePart}`)
             if (!widthPart && initialScalePart) {
                 const initialScaleValuePart = initialScalePart.split('=')[1].trim()
                 const parsedInitialScale = parseFloat(initialScaleValuePart)
-                console.log(`Viewport fix: rawInitialScale: '${initialScaleValuePart}', parsedInitialScale=${parsedInitialScale}`)
                 if (parsedInitialScale !== 1) {
-                    console.log(`Viewport fix: setting viewport content to width=device-width,${viewportContent}`)
                     viewportTag.setAttribute('content', `width=device-width,${viewportContent}`)
                 }
             }
         }
-        console.log(`Viewport fix: final viewport content=${viewportTag?.getAttribute('content')}`)
     }
 }
 
