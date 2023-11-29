@@ -517,15 +517,16 @@ export default class WebCompat extends ContentFeature {
         let viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1]
         const viewportContent = viewportTag?.getAttribute('content')
         const viewportContentParts = viewportContent?.split(/,|;/)
-        console.log(`Viewport fix: desktopModeEnabled=${this.desktopModeEnabled} viewportTag: `, viewportTag, `viewportContent=${viewportContent}`)
+        console.log(`Viewport fix: desktopModeEnabled=${this.desktopModeEnabled} viewportTag: `, viewportTag, `viewportContent=${viewportContent}, document.readyState=${document.readyState}`)
         if (!viewportTag || this.desktopModeEnabled) {
             // force wide viewport width
             if (!viewportTag) {
                 viewportTag = document.createElement('meta')
                 viewportTag.setAttribute('name', 'viewport')
             }
-            const forcedWidth = screen.width >= 1280 ? '1280' : '980'
-            const newContentParts = [`width=${forcedWidth}`]
+            const forcedWidth = screen.width >= 1280 ? 1280 : 980
+            const forcedInitialScale = (screen.width / forcedWidth).toFixed(3)
+            const newContentParts = [`width=${forcedWidth},initial-scale=${forcedInitialScale}`]
             viewportContentParts?.forEach((part) => {
                 if (!part.includes('width') && !part.includes('initial-scale')) {
                     newContentParts.push(part)
@@ -534,6 +535,7 @@ export default class WebCompat extends ContentFeature {
             console.log(`Viewport fix: setting viewport content to ${newContentParts.join(',')}`)
             viewportTag.setAttribute('content', newContentParts.join(','))
             document.head.appendChild(viewportTag)
+            console.log(window.screen.width, document.documentElement.clientWidth, document.documentElement.offsetWidth, window.screen.width / document.documentElement.clientWidth)
         } else { // mobile mode with a viewport tag
             // fix an edge case where WebView forces the wide viewport
             const widthPart = viewportContentParts?.find((part) => part.includes('width'))
