@@ -557,5 +557,17 @@ describe('Viewport fixes', () => {
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual(`width=${expectedWidth},initial-scale=${(width / expectedWidth).toFixed(3)}, something-something`)
         })
+
+        it('should ignore the character case in the viewport tag', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                desktopModeEnabled: true
+            }, 'document.head.innerHTML += \'<meta name="viewport" content="wIDth=device-width, iniTIal-scale=2, usER-scalable=no, something-something">\'')
+            const width = await page.evaluate('screen.width')
+            const expectedWidth = width < 1280 ? 980 : 1280
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual(`width=${expectedWidth},initial-scale=${(width / expectedWidth).toFixed(3)}, something-something`)
+        })
     })
 })

@@ -530,7 +530,8 @@ export default class WebCompat extends ContentFeature {
             const forcedInitialScale = (screen.width / forcedWidth).toFixed(3)
             const newContentParts = [`width=${forcedWidth},initial-scale=${forcedInitialScale}`]
             viewportContentParts?.forEach((part) => {
-                if (!part.includes('width') && !part.includes('initial-scale') && !part.includes('user-scalable')) {
+                const key = part.split('=')[0].trim().toLowerCase()
+                if (!['width', 'initial-scale', 'user-scalable'].includes(key)) {
                     newContentParts.push(part)
                 }
             })
