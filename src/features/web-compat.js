@@ -515,8 +515,12 @@ export default class WebCompat extends ContentFeature {
         const viewportTags = document.querySelectorAll('meta[name=viewport]')
         // Chrome respects only the last viewport tag
         let viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1]
-        const viewportContent = viewportTag?.getAttribute('content')
-        const viewportContentParts = viewportContent?.split(/,|;/)
+        const viewportContent = viewportTag?.getAttribute('content') || ''
+        const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : []
+        const parsedViewportContent = viewportContentParts.map((part) => {
+            const [key, value] = part.split('=').map(p => p.trim().toLowerCase())
+            return [key, value]
+        })
         if (!viewportTag || this.desktopModeEnabled) {
             // force wide viewport width
             const viewportTagExists = Boolean(viewportTag)
@@ -528,27 +532,25 @@ export default class WebCompat extends ContentFeature {
             // Race condition: depending on the loading state of the page, initial scale may or may not be respected, so the page may look zoomed-in after applying this hack.
             // Usually this is just an annoyance, but it may be a bigger issue if user-scalable=no is set, so we remove it too.
             const forcedInitialScale = (screen.width / forcedWidth).toFixed(3)
-            const newContentParts = [`width=${forcedWidth},initial-scale=${forcedInitialScale}`]
-            viewportContentParts?.forEach((part) => {
-                const key = part.split('=')[0].trim().toLowerCase()
+            let newContent = `width=${forcedWidth}, initial-scale=${forcedInitialScale}`
+            parsedViewportContent.forEach(([key], idx) => {
                 if (!['width', 'initial-scale', 'user-scalable'].includes(key)) {
-                    newContentParts.push(part)
+                    newContent = newContent.concat(`,${viewportContentParts[idx]}`) // reuse the original values, not the parsed ones
                 }
             })
-            viewportTag.setAttribute('content', newContentParts.join(','))
+            viewportTag.setAttribute('content', newContent)
             if (!viewportTagExists) {
                 document.head.appendChild(viewportTag)
             }
         } else { // mobile mode with a viewport tag
             // fix an edge case where WebView forces the wide viewport
-            const widthPart = viewportContentParts?.find((part) => part.includes('width'))
-            const initialScalePart = viewportContentParts?.find((part) => part.includes('initial-scale'))
+            const widthPart = parsedViewportContent.find(([key]) => key === 'width')
+            const initialScalePart = parsedViewportContent.find(([key]) => key === 'initial-scale')
             if (!widthPart && initialScalePart) {
-                const initialScaleValuePart = initialScalePart.split('=')[1].trim()
                 // Chromium accepts float values for initial-scale
-                const parsedInitialScale = parseFloat(initialScaleValuePart)
+                const parsedInitialScale = parseFloat(initialScalePart[1])
                 if (parsedInitialScale !== 1) {
-                    viewportTag.setAttribute('content', `width=device-width,${viewportContent}`)
+                    viewportTag.setAttribute('content', `width=device-width, ${viewportContent}`)
                 }
             }
         }
