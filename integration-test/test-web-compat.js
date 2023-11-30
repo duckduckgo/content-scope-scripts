@@ -551,7 +551,7 @@ describe('Viewport fixes', () => {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: true
-            }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, something-something">\'')
+            }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\'')
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
