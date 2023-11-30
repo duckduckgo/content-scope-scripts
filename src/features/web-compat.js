@@ -104,7 +104,7 @@ export default class WebCompat extends ContentFeature {
             this.shimWebShare()
         }
 
-        if (this.getFeatureSettingEnabled('viewportWidth') || true) {
+        if (this.getFeatureSettingEnabled('viewportWidth')) {
             this.viewportWidthFix()
         }
     }
@@ -541,6 +541,7 @@ export default class WebCompat extends ContentFeature {
             const initialScalePart = viewportContentParts?.find((part) => part.includes('initial-scale'))
             if (!widthPart && initialScalePart) {
                 const initialScaleValuePart = initialScalePart.split('=')[1].trim()
+                // Chromium accepts float values for initial-scale
                 const parsedInitialScale = parseFloat(initialScaleValuePart)
                 if (parsedInitialScale !== 1) {
                     viewportTag.setAttribute('content', `width=device-width,${viewportContent}`)
