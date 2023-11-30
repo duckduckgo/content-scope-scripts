@@ -519,6 +519,7 @@ export default class WebCompat extends ContentFeature {
         const viewportContentParts = viewportContent?.split(/,|;/)
         if (!viewportTag || this.desktopModeEnabled) {
             // force wide viewport width
+            const viewportTagExists = Boolean(viewportTag)
             if (!viewportTag) {
                 viewportTag = document.createElement('meta')
                 viewportTag.setAttribute('name', 'viewport')
@@ -534,7 +535,9 @@ export default class WebCompat extends ContentFeature {
                 }
             })
             viewportTag.setAttribute('content', newContentParts.join(','))
-            document.head.appendChild(viewportTag)
+            if (!viewportTagExists) {
+                document.head.appendChild(viewportTag)
+            }
         } else { // mobile mode with a viewport tag
             // fix an edge case where WebView forces the wide viewport
             const widthPart = viewportContentParts?.find((part) => part.includes('width'))
