@@ -482,12 +482,15 @@ describe('Web Share API', () => {
     })
 })
 
-describe('Ensure viewport changes work', () => {
+describe('Viewport fixes', () => {
     let browser
     let server
     let teardown
     let setupServer
     let gotoAndWait
+    let port
+    let page
+
     beforeAll(async () => {
         ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
         server = setupServer()
@@ -497,65 +500,96 @@ describe('Ensure viewport changes work', () => {
         await teardown()
     })
 
-    it('should fix viewport width if not present', async () => {
-        const port = server.address().port
-        const page = await browser.newPage()
-        function getViewportValue () {
-            return document.querySelector('meta[name="viewport"]')?.getAttribute('content')
-        }
+    beforeEach(async () => {
+        port = server.address().port
+        page = await browser.newPage()
+    })
+
+    function getViewportValue () {
+        return document.querySelector('meta[name="viewport"]')?.getAttribute('content')
+    }
+
+    it('should not change viewport if disabled', async () => {
         await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\'')
         const initialViewportValue = await page.evaluate(getViewportValue)
         // Base implementation of the test env should have it.
         expect(initialViewportValue).toEqual('width=device-width')
 
         // We don't make a change if disabled
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, 'document.head.innerHTML += \'<meta name="viewport" content="test">\'')
+        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
         const viewportValue = await page.evaluate(getViewportValue)
-        expect(viewportValue).toEqual('test')
+        expect(viewportValue).toBeUndefined()
+    })
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
-            site: {
-                enabledFeatures: ['webCompat']
-            },
-            featureSettings: {
-                webCompat: {
-                    viewportWidth: {
-                        state: 'enabled'
-                    }
-                }
-            }
-        }, 'document.head.innerHTML += \'<meta name="viewport" content="test">\'')
-        const viewportValueChanged = await page.evaluate(getViewportValue)
-        expect(viewportValueChanged).toEqual('test,width=device-width')
+    describe('Desktop mode off', () => {
+        it('should force wide viewport if the meta tag is not present', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                desktopModeEnabled: false
+            })
+            const width = await page.evaluate('screen.width')
+            const expectedWidth = width < 1280 ? 980 : 1280
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}`)
+        })
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
-            site: {
-                enabledFeatures: ['webCompat']
-            },
-            featureSettings: {
-                webCompat: {
-                    viewportWidth: {
-                        state: 'enabled'
-                    }
-                }
-            }
-        }, 'document.head.innerHTML += \'<meta name="viewport" content="test2,width=device-width">\'')
-        const viewportValueSame = await page.evaluate(getViewportValue)
-        expect(viewportValueSame).toEqual('test2,width=device-width')
+        it('should fix the WebView edge case', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                desktopModeEnabled: false
+            }, 'document.head.innerHTML += \'<meta name="viewport" content="initial-scale=1.00001, something-something">\'')
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual('width=device-width, initial-scale=1.00001, something-something')
+        })
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
-            site: {
-                enabledFeatures: ['webCompat']
-            },
-            featureSettings: {
-                webCompat: {
-                    viewportWidth: {
-                        state: 'enabled'
-                    }
-                }
-            }
-        }, 'document.head.innerHTML += \'<meta name="viewport" content="initial-scale=1.0001, minimum-scale=1.0001, maximum-scale=1.0001, user-scalable=no">\'')
-        const complexValueChanged = await page.evaluate(getViewportValue)
-        expect(complexValueChanged).toEqual('initial-scale=1.0001, minimum-scale=1.0001, maximum-scale=1.0001, user-scalable=no,width=device-width')
+        it('should ignore the character case in the viewport tag', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                desktopModeEnabled: false
+            }, 'document.head.innerHTML += \'<meta name="viewport" content="initIAL-scale=1.00001, something-something">\'')
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual('width=device-width, initIAL-scale=1.00001, something-something')
+        })
+    })
+
+    describe('Desktop mode on', () => {
+        it('should force wide viewport, ignoring the viewport tag', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                desktopModeEnabled: true
+            }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\'')
+            const width = await page.evaluate('screen.width')
+            const expectedWidth = width < 1280 ? 980 : 1280
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, something-something`)
+        })
+
+        it('should force wide viewport, ignoring the viewport tag 2', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                desktopModeEnabled: true
+            }, 'document.head.innerHTML += \'<meta name="viewport" content="something-something">\'')
+            const width = await page.evaluate('screen.width')
+            const expectedWidth = width < 1280 ? 980 : 1280
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)},something-something`)
+        })
+
+        it('should ignore the character case in the viewport tag', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                desktopModeEnabled: true
+            }, 'document.head.innerHTML += \'<meta name="viewport" content="wIDth=device-width, iniTIal-scale=2, usER-scalable=no, something-something">\'')
+            const width = await page.evaluate('screen.width')
+            const expectedWidth = width < 1280 ? 980 : 1280
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, something-something`)
+        })
     })
 })
