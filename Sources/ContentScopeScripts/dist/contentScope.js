@@ -1990,7 +1990,7 @@
         __privateAdd(this, _messaging, void 0);
         /** @type {boolean} */
         __privateAdd(this, _isDebugFlagSet, false);
-        /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
+        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
         __privateAdd(this, _args, void 0);
         this.name = featureName;
         __privateSet(this, _args, null);
@@ -1998,6 +1998,9 @@
       }
       get isDebug() {
         return __privateGet(this, _args)?.debug || false;
+      }
+      get desktopModeEnabled() {
+        return __privateGet(this, _args)?.desktopModeEnabled || false;
       }
       /**
        * @param {import('./utils').Platform} platform
@@ -2733,17 +2736,42 @@
         };
       }
       viewportWidthFix() {
-        const viewportTag = document.querySelector("meta[name=viewport]");
-        if (!viewportTag)
-          return;
-        const viewportContent = viewportTag.getAttribute("content");
-        if (!viewportContent)
-          return;
-        const viewportContentParts = viewportContent.split(",");
-        const widthPart = viewportContentParts.find((part) => part.includes("width"));
-        if (widthPart)
-          return;
-        viewportTag.setAttribute("content", `${viewportContent},width=device-width`);
+        const viewportTags = document.querySelectorAll("meta[name=viewport]");
+        let viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
+        const viewportContent = viewportTag?.getAttribute("content") || "";
+        const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : [];
+        const parsedViewportContent = viewportContentParts.map((part) => {
+          const [key, value] = part.split("=").map((p) => p.trim().toLowerCase());
+          return [key, value];
+        });
+        if (!viewportTag || this.desktopModeEnabled) {
+          const viewportTagExists = Boolean(viewportTag);
+          if (!viewportTag) {
+            viewportTag = document.createElement("meta");
+            viewportTag.setAttribute("name", "viewport");
+          }
+          const forcedWidth = screen.width >= 1280 ? 1280 : 980;
+          const forcedInitialScale = (screen.width / forcedWidth).toFixed(3);
+          let newContent = `width=${forcedWidth}, initial-scale=${forcedInitialScale}`;
+          parsedViewportContent.forEach(([key], idx) => {
+            if (!["width", "initial-scale", "user-scalable"].includes(key)) {
+              newContent = newContent.concat(`,${viewportContentParts[idx]}`);
+            }
+          });
+          viewportTag.setAttribute("content", newContent);
+          if (!viewportTagExists) {
+            document.head.appendChild(viewportTag);
+          }
+        } else {
+          const widthPart = parsedViewportContent.find(([key]) => key === "width");
+          const initialScalePart = parsedViewportContent.find(([key]) => key === "initial-scale");
+          if (!widthPart && initialScalePart) {
+            const parsedInitialScale = parseFloat(initialScalePart[1]);
+            if (parsedInitialScale !== 1) {
+              viewportTag.setAttribute("content", `width=device-width, ${viewportContent}`);
+            }
+          }
+        }
       }
     }
     _activeShareRequest = new WeakMap();

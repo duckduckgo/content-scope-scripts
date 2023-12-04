@@ -2976,7 +2976,7 @@
         /** @type {boolean} */
         #isDebugFlagSet = false
 
-        /** @type {{ debug?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
+        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
         #args
 
         constructor (featureName) {
@@ -2987,6 +2987,10 @@
 
         get isDebug () {
             return this.#args?.debug || false
+        }
+
+        get desktopModeEnabled () {
+            return this.#args?.desktopModeEnabled || false
         }
 
         /**
