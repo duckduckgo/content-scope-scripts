@@ -198,7 +198,6 @@ describe('Permissions API', () => {
             expect(initialPermissions).toEqual(true)
             const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
             expect(initialDescriptorSerialization).toEqual(true)
-    
             await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removePermissionsScript)
             const noPermissions = await page.evaluate(checkForPermissions)
             expect(noPermissions).toEqual(false)
@@ -223,12 +222,12 @@ describe('Permissions API', () => {
                             supportedPermissions: {
                                 geolocation: {},
                                 push: {
-                                    name: "notifications"
+                                    name: 'notifications'
                                 },
                                 camera: {
-                                    name: "video_capture",
+                                    name: 'video_capture',
                                     native: true
-                                },
+                                }
                             }
                         }
                     }
@@ -237,7 +236,7 @@ describe('Permissions API', () => {
         })
 
         async function checkPermission (name) {
-            const payload = `window.navigator.permissions.query(${JSON.stringify({name : name})})`
+            const payload = `window.navigator.permissions.query(${JSON.stringify({ name })})`
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
             })
@@ -246,32 +245,26 @@ describe('Permissions API', () => {
             })
             return { result, message }
         }
-
-        it('should expose window.navigator.permissions when enabled', async () => {   
+        it('should expose window.navigator.permissions when enabled', async () => {
             const hasPermissions = await page.evaluate(checkForPermissions)
             expect(hasPermissions).toEqual(true)
-    
             const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
             // This fails in a test condition purely because we have to add a descriptor to modify the prop
             expect(modifiedDescriptorSerialization).toEqual(false)
         })
-
-        it('should throw error when permission not supported', async () => {       
+        it('should throw error when permission not supported', async () => {
             const { result } = await checkPermission('notexistent')
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain('notexistent')
         })
-
-        it('should return prompt by default', async () => {    
+        it('should return prompt by default', async () => {
             const { result } = await checkPermission('geolocation')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'geolocation', state: 'prompt'}))
-        })   
-    
+            expect(result).toEqual(jasmine.objectContaining({ name: 'geolocation', state: 'prompt' }))
+        })
         it('should return updated name when configured', async () => {
             const { result } = await checkPermission('push')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'notifications', state: 'prompt'}))
+            expect(result).toEqual(jasmine.objectContaining({ name: 'notifications', state: 'prompt' }))
         })
-
         it('should propagate result from native when configured', async () => {
             // Fake result from native
             await page.evaluate(() => {
@@ -280,12 +273,10 @@ describe('Permissions API', () => {
                     return Promise.resolve({ state: 'granted' })
                 }
             })
-
             const { result, message } = await checkPermission('camera')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'granted'}))
+            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'granted' }))
             expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
         })
-
         it('should default to prompt when native sends unexpected response', async () => {
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = () => {
@@ -293,10 +284,9 @@ describe('Permissions API', () => {
                 }
             })
             const { result, message } = await checkPermission('camera')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt'}))
+            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt' }))
             expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
         })
-    
         it('should default to prompt when native error occurs', async () => {
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = () => {
@@ -304,7 +294,7 @@ describe('Permissions API', () => {
                 }
             })
             const { result, message } = await checkPermission('camera')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt'}))
+            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt' }))
             expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
         })
     })

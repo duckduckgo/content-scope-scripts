@@ -270,7 +270,7 @@ export default class WebCompat extends ContentFeature {
                     returnStatus = response.state || 'prompt'
                 } catch (err) {
                     // do nothing - keep returnStatus as-is
-                }                
+                }
             }
             return Promise.resolve(new PermissionStatus(returnName, returnStatus))
         }, {
