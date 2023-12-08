@@ -25,8 +25,11 @@ test.describe('dbp E2E testing', () => {
             }
             for (const action of step.actions) {
                 if (action.actionType === 'navigate') {
-                    const url = await dbp.extractUrl(action, data)
-                    await page.goto(url)
+                    // const url = await dbp.extractUrl(action, data)
+                    // console.log(data, url);
+                    const url = 'https://veripages.com/inner/profile/search?fname=John&lname=Cole&fage=41-50&state=fl&city=Miami'
+                    await page.goto(url, { waitUntil: 'networkidle' })
+                    await page.pause();
                 } else {
                     await dbp.simulateSubscriptionMessage('onActionReceived', { state: { action, data } })
                     const response = await dbp.waitForMessage('actionCompleted')

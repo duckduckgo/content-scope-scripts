@@ -5,6 +5,7 @@
  * @param {string} selector
  * @return {HTMLElement | null}
  */
+window._getElement = getElement;
 export function getElement (doc = document, selector) {
     if (isXpath(selector)) {
         return safeQuerySelectorXPath(doc, selector)
@@ -13,6 +14,7 @@ export function getElement (doc = document, selector) {
     return safeQuerySelector(doc, selector)
 }
 
+window._getElements = getElements;
 /**
  * Get an array of elements
  *

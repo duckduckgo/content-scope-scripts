@@ -45,7 +45,8 @@
     "preplaywright-headed": "npm run build-windows && npm run build-apple",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
     "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
-    "preplaywright-e2e": "npm run build-windows && npm run build-apple"
+    "preplaywright-e2e": "npm run build-windows && npm run build-apple",
+    "dbp": "npm run build-apple && DBP_BROKER=json/vendor.json DBP_DATA=json/data.json playwright test --project dbp --headed"
   },
   "type": "module",
   "workspaces": [
