@@ -13,6 +13,7 @@ function windowSizingFix () {
 }
 
 const MSG_WEB_SHARE = 'webShare'
+const MSG_PERMISSIONS_QUERY = 'permissionsQuery'
 
 function canShare (data) {
     if (typeof data !== 'object') return false
@@ -264,8 +265,12 @@ export default class WebCompat extends ContentFeature {
             const returnName = permSetting.name || query.name
             let returnStatus = settings.permissionResponse || 'prompt'
             if (permSetting.native) {
-                const response = await this.messaging.request('permissionsQuery', query)
-                returnStatus = response.state
+                try {
+                    const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query)
+                    returnStatus = response.state || 'prompt'
+                } catch (err) {
+                    // do nothing - keep returnStatus as-is
+                }                
             }
             return Promise.resolve(new PermissionStatus(returnName, returnStatus))
         }, {

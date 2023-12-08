@@ -157,73 +157,156 @@ describe('Ensure Notification and Permissions interface is injected', () => {
         })
         expect(maxActionsPropDenied).toEqual(2)
     })
+})
 
-    it('should expose window.navigator.permissions when enabled', async () => {
-        const port = server.address().port
-        const page = await browser.newPage()
-        // Fake the Notification API not existing in this browser
-        const removePermissionsScript = `
-            Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
-        `
-        function checkForPermissions () {
-            return !!window.navigator.permissions
-        }
-        function checkObjectDescriptorIsNotPresent () {
-            const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'permissions')
-            return descriptor === undefined
-        }
-        function checkPermissionThrows (name) {
-            try {
-                window.navigator.permissions.query({ name })
-            } catch (e) {
-                return e.message
-            }
-        }
+describe('Permissions API', () => {
+    let browser
+    let server
+    let teardown
+    let setupServer
+    let gotoAndWait
+    beforeAll(async () => {
+        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
+        server = setupServer()
+    })
+    afterAll(async () => {
+        await server?.close()
+        await teardown()
+    })
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
-        const initialPermissions = await page.evaluate(checkForPermissions)
-        // Base implementation of the test env should have it.
-        expect(initialPermissions).toEqual(true)
-        const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
-        expect(initialDescriptorSerialization).toEqual(true)
+    // Fake the Permission API not existing in this browser
+    const removePermissionsScript = `
+    Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
+    `
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removePermissionsScript)
-        const noPermissions = await page.evaluate(checkForPermissions)
-        expect(noPermissions).toEqual(false)
+    function checkForPermissions () {
+        return !!window.navigator.permissions
+    }
+    function checkObjectDescriptorIsNotPresent () {
+        const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'permissions')
+        return descriptor === undefined
+    }
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
-            site: {
-                enabledFeatures: ['webCompat']
-            },
-            featureSettings: {
-                webCompat: {
-                    permissions: {
-                        state: 'enabled',
-                        validPermissionNames: [
-                            'geolocation',
-                            'notifications',
-                            'push',
-                            'persistent-storage',
-                            'midi',
-                            'test-value'
-                        ]
+    describe('disabled feature', () => {
+        it('should not expose permissions API', async () => {
+            const port = server.address().port
+            const page = await browser.newPage()
+
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+            const initialPermissions = await page.evaluate(checkForPermissions)
+            // Base implementation of the test env should have it.
+            expect(initialPermissions).toEqual(true)
+            const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
+            expect(initialDescriptorSerialization).toEqual(true)
+    
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removePermissionsScript)
+            const noPermissions = await page.evaluate(checkForPermissions)
+            expect(noPermissions).toEqual(false)
+        })
+    })
+
+    describe('enabled feature', () => {
+        let port
+        let page
+
+        beforeAll(async () => {
+            port = server.address().port
+            page = await browser.newPage()
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: {
+                    enabledFeatures: ['webCompat']
+                },
+                featureSettings: {
+                    webCompat: {
+                        permissions: {
+                            state: 'enabled',
+                            supportedPermissions: {
+                                geolocation: {},
+                                push: {
+                                    name: "notifications"
+                                },
+                                camera: {
+                                    name: "video_capture",
+                                    native: true
+                                },
+                            }
+                        }
                     }
                 }
-            }
-        }, removePermissionsScript)
-        const hasPermissions = await page.evaluate(checkForPermissions)
-        expect(hasPermissions).toEqual(true)
+            }, removePermissionsScript)
+        })
 
-        const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
-        // This fails in a test condition purely because we have to add a descriptor to modify the prop
-        expect(modifiedDescriptorSerialization).toEqual(false)
+        async function checkPermission (name) {
+            const payload = `window.navigator.permissions.query(${JSON.stringify({name : name})})`
+            const result = await page.evaluate(payload).catch((e) => {
+                return { threw: e }
+            })
+            const message = await page.evaluate(() => {
+                return globalThis.shareReq
+            })
+            return { result, message }
+        }
 
-        const permissionThrows = await page.evaluate(checkPermissionThrows, 'not-existent')
-        expect(permissionThrows).not.toBeUndefined()
-        expect(permissionThrows).toContain('not-existent')
+        it('should expose window.navigator.permissions when enabled', async () => {   
+            const hasPermissions = await page.evaluate(checkForPermissions)
+            expect(hasPermissions).toEqual(true)
+    
+            const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
+            // This fails in a test condition purely because we have to add a descriptor to modify the prop
+            expect(modifiedDescriptorSerialization).toEqual(false)
+        })
 
-        const doesNotThrow = await page.evaluate(checkPermissionThrows, 'test-value')
-        expect(doesNotThrow).toBeUndefined()
+        it('should throw error when permission not supported', async () => {       
+            const { result } = await checkPermission('notexistent')
+            expect(result.threw).not.toBeUndefined()
+            expect(result.threw.message).toContain('notexistent')
+        })
+
+        it('should return prompt by default', async () => {    
+            const { result } = await checkPermission('geolocation')
+            expect(result).toEqual(jasmine.objectContaining({ name: 'geolocation', state: 'prompt'}))
+        })   
+    
+        it('should return updated name when configured', async () => {
+            const { result } = await checkPermission('push')
+            expect(result).toEqual(jasmine.objectContaining({ name: 'notifications', state: 'prompt'}))
+        })
+
+        it('should propagate result from native when configured', async () => {
+            // Fake result from native
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = (req) => {
+                    globalThis.shareReq = req
+                    return Promise.resolve({ state: 'granted' })
+                }
+            })
+
+            const { result, message } = await checkPermission('camera')
+            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'granted'}))
+            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
+        })
+
+        it('should default to prompt when native sends unexpected response', async () => {
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => {
+                    return Promise.resolve({ noState: 'xxx' })
+                }
+            })
+            const { result, message } = await checkPermission('camera')
+            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt'}))
+            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
+        })
+    
+        it('should default to prompt when native error occurs', async () => {
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => {
+                    return Promise.reject(new Error('something wrong'))
+                }
+            })
+            const { result, message } = await checkPermission('camera')
+            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt'}))
+            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
+        })
     })
 })
 
