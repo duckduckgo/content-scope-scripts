@@ -41,23 +41,8 @@ export class DefaultTransport {
     }
 
     /**
-     * The transport can call this to transmit a JSON payload along with a secret
-     * to the native Android handler.
-     *
-     * Note: This can throw - it's up to the transport to handle the error.
-     *
-     * @type {(msg: RequestMessage | NotificationMessage) => void}
-     * @throws
-     * @internal
-     */
-    sendMessage (msg) {
-        this._send(msg)
-    }
-
-    /**
-     * A subscription on Android is just a named listener. All messages from
-     * android -> are delivered through a single function, and this mapping is used
-     * to route the messages to the correct listener.
+     * A subscription is just a named listener. All messages are delivered through
+     * a single function, and this mapping is used to route the messages to the correct listener.
      *
      * Note: Use this to implement request->response by unsubscribing after the first
      * response.
