@@ -1,8 +1,6 @@
 import {
     Messaging,
-    MessagingContext, ProxyMessagingConfig,
-    TestTransportConfig,
-    WindowsMessagingConfig
+    MessagingContext, ProxyMessagingConfig
 } from '@duckduckgo/messaging'
 
 /**
