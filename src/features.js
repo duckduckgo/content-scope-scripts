@@ -21,7 +21,8 @@ const otherFeatures = /** @type {const} */([
     'harmfulApis',
     'webCompat',
     'windowsPermissionUsage',
-    'brokerProtection'
+    'brokerProtection',
+    'messageProxy'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -33,7 +34,8 @@ export const platformSupport = {
     ],
     'apple-isolated': [
         'duckPlayer',
-        'brokerProtection'
+        'brokerProtection',
+        'messageProxy'
     ],
     android: [
         ...baseFeatures,
@@ -45,7 +47,8 @@ export const platformSupport = {
         ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer',
-        'brokerProtection'
+        'brokerProtection',
+        'messageProxy'
     ],
     firefox: [
         'cookie',

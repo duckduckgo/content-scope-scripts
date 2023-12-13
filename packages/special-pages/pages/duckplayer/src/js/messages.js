@@ -1,8 +1,7 @@
 import {
     Messaging,
-    MessagingContext,
+    MessagingContext, ProxyMessagingConfig,
     TestTransportConfig,
-    WebkitMessagingConfig,
     WindowsMessagingConfig
 } from '@duckduckgo/messaging'
 
@@ -106,58 +105,14 @@ export class UserValues {
  * @param {ImportMeta['injectName']} opts.injectName
  */
 export function createDuckPlayerPageMessaging (opts) {
-    const messageContext = new MessagingContext({
-        context: 'specialPages',
+    const context = new MessagingContext({
+        context: 'pageWorldMessageProxy',
         featureName: 'duckPlayerPage',
         env: opts.env
     })
-    if (opts.injectName === 'windows') {
-        const opts = new WindowsMessagingConfig({
-            methods: {
-                // @ts-expect-error - not in @types/chrome
-                postMessage: window.chrome.webview.postMessage,
-                // @ts-expect-error - not in @types/chrome
-                addEventListener: window.chrome.webview.addEventListener,
-                // @ts-expect-error - not in @types/chrome
-                removeEventListener: window.chrome.webview.removeEventListener
-            }
-        })
-        const messaging = new Messaging(messageContext, opts)
-        return new DuckPlayerPageMessages(messaging)
-    } else if (opts.injectName === 'apple') {
-        const opts = new WebkitMessagingConfig({
-            hasModernWebkitAPI: true,
-            secret: '',
-            webkitMessageHandlerNames: ['specialPages']
-        })
-        const messaging = new Messaging(messageContext, opts)
-        return new DuckPlayerPageMessages(messaging)
-    } else if (opts.injectName === 'integration') {
-        const config = new TestTransportConfig({
-            notify (msg) {
-                console.log(msg)
-            },
-            request: (msg) => {
-                console.log(msg)
-                if (msg.method === 'getUserValues') {
-                    return Promise.resolve(new UserValues({
-                        overlayInteracted: false,
-                        privatePlayerMode: { alwaysAsk: {} }
-                    }))
-                }
-                return Promise.resolve(null)
-            },
-            subscribe (msg) {
-                console.log(msg)
-                return () => {
-                    console.log('teardown')
-                }
-            }
-        })
-        const messaging = new Messaging(messageContext, config)
-        return new DuckPlayerPageMessages(messaging)
-    }
-    throw new Error('unreachable - platform not supported')
+    const config = new ProxyMessagingConfig()
+    const messaging = new Messaging(context, config)
+    return new DuckPlayerPageMessages(messaging)
 }
 
 /**
