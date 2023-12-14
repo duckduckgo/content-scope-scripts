@@ -14,6 +14,7 @@ function windowSizingFix () {
 
 const MSG_WEB_SHARE = 'webShare'
 const MSG_PERMISSIONS_QUERY = 'permissionsQuery'
+const MSG_SCREEN_LOCK = 'screenLock'
 
 function canShare (data) {
     if (typeof data !== 'object') return false
@@ -108,6 +109,7 @@ export default class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('viewportWidth')) {
             this.viewportWidthFix()
         }
+        this.screenLockFix()
     }
 
     /** Shim Web Share API in Android WebView */
@@ -230,6 +232,23 @@ export default class WebCompat extends ContentFeature {
                     }
                 }
                 return Reflect.apply(target, thisArg, args)
+            }
+        })
+    }
+
+    screenLockFix() {
+        window.ScreenOrientation.prototype.lock = new Proxy(async (requestedOrientation) => {
+            this.addDebugFlag()
+            // TODO handle error cases
+
+            const response = await this.messaging.request(MSG_SCREEN_LOCK, { orientation : requestedOrientation })
+            console.log("xxx Got Response xxx")
+            console.log(response)
+
+            return Promise.reject(new Error("DOMException xxx: The page needs to be fullscreen in order to call screen.orientation.lock()."))
+        }, {
+            get (target, name) {
+                return Reflect.get(target, name)
             }
         })
     }
