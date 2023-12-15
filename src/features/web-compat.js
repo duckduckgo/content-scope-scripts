@@ -505,9 +505,13 @@ export default class WebCompat extends ContentFeature {
     viewportWidthFix () {
         if (document.readyState === 'loading') {
             // if the document is not ready, we may miss the original viewport tag
-            document.addEventListener('DOMContentLoaded', () => this.viewportWidthFix())
-            return
+            document.addEventListener('DOMContentLoaded', () => this.viewportWidthFixInner())
+        } else {
+            this.viewportWidthFixInner()
         }
+    }
+
+    viewportWidthFixInner () {
         const viewportTags = document.querySelectorAll('meta[name=viewport]')
         // Chrome respects only the last viewport tag
         let viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1]
