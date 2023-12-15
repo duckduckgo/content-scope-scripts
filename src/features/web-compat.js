@@ -512,7 +512,7 @@ export default class WebCompat extends ContentFeature {
     }
 
     viewportWidthFixInner () {
-        const viewportTags = document.querySelectorAll('meta[name=viewport]')
+        const viewportTags = document.querySelectorAll('meta[name=viewport i]')
         // Chrome respects only the last viewport tag
         let viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1]
         const viewportContent = viewportTag?.getAttribute('content') || ''
