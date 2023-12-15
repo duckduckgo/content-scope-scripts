@@ -2727,20 +2727,43 @@
         };
       }
       viewportWidthFix() {
-        const viewportTags = document.querySelectorAll("meta[name=viewport]");
-        let viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", () => this.viewportWidthFixInner());
+        } else {
+          this.viewportWidthFixInner();
+        }
+      }
+      /**
+       * create or update a viewport tag with the given content
+       * @param {HTMLMetaElement|null} viewportTag
+       * @param {string} forcedValue
+       */
+      forceViewportTag(viewportTag, forcedValue) {
+        const viewportTagExists = Boolean(viewportTag);
+        if (!viewportTag) {
+          viewportTag = document.createElement("meta");
+          viewportTag.setAttribute("name", "viewport");
+        }
+        viewportTag.setAttribute("content", forcedValue);
+        if (!viewportTagExists) {
+          document.head.appendChild(viewportTag);
+        }
+      }
+      viewportWidthFixInner() {
+        const viewportTags = document.querySelectorAll("meta[name=viewport i]");
+        const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
         const viewportContent = viewportTag?.getAttribute("content") || "";
         const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : [];
         const parsedViewportContent = viewportContentParts.map((part) => {
           const [key, value] = part.split("=").map((p) => p.trim().toLowerCase());
           return [key, value];
         });
-        if (!viewportTag || this.desktopModeEnabled) {
-          const viewportTagExists = Boolean(viewportTag);
-          if (!viewportTag) {
-            viewportTag = document.createElement("meta");
-            viewportTag.setAttribute("name", "viewport");
-          }
+        const { forcedDesktopValue, forcedMobileValue } = this.getFeatureSetting("viewportWidth");
+        if (typeof forcedDesktopValue === "string" && this.desktopModeEnabled) {
+          this.forceViewportTag(viewportTag, forcedDesktopValue);
+        } else if (typeof forcedMobileValue === "string" && !this.desktopModeEnabled) {
+          this.forceViewportTag(viewportTag, forcedMobileValue);
+        } else if (!viewportTag || this.desktopModeEnabled) {
           const forcedWidth = screen.width >= 1280 ? 1280 : 980;
           const forcedInitialScale = (screen.width / forcedWidth).toFixed(3);
           let newContent = `width=${forcedWidth}, initial-scale=${forcedInitialScale}`;
@@ -2749,17 +2772,14 @@
               newContent = newContent.concat(`,${viewportContentParts[idx]}`);
             }
           });
-          viewportTag.setAttribute("content", newContent);
-          if (!viewportTagExists) {
-            document.head.appendChild(viewportTag);
-          }
+          this.forceViewportTag(viewportTag, newContent);
         } else {
           const widthPart = parsedViewportContent.find(([key]) => key === "width");
           const initialScalePart = parsedViewportContent.find(([key]) => key === "initial-scale");
           if (!widthPart && initialScalePart) {
             const parsedInitialScale = parseFloat(initialScalePart[1]);
             if (parsedInitialScale !== 1) {
-              viewportTag.setAttribute("content", `width=device-width, ${viewportContent}`);
+              this.forceViewportTag(viewportTag, `width=device-width, ${viewportContent}`);
             }
           }
         }
