@@ -38,6 +38,18 @@ export default defineConfig({
             name: 'firefox',
             testMatch: 'integration-test/playwright/remote-pages.spec.js',
             use: { injectName: 'firefox', platform: 'extension', ...devices['Desktop Firefox'] }
+        },
+        {
+            name: 'dbp',
+            testMatch: 'integration-test/playwright/dbp.e2e.js',
+            use: {
+                injectName: 'apple-isolated',
+                platform: 'macos',
+                env: {
+                    DBP_BROKER: process.env.DBP_BROKER,
+                    DBP_DATA: process.env.DBP_DATA
+                }
+            }
         }
     ],
     timeout: 30 * 1000,

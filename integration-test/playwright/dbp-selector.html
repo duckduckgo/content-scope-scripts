@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: 80% 20%;
+            grid-template-areas: 'broker data';
+            gap: 3em;
+        }
+        .broker {
+            grid-area: broker;
+            overflow: auto;
+            border: 1px dotted green;
+        }
+        .data {
+            grid-area: data;
+            border: 1px dotted black;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="grid">
+        <div class="broker">
+            <form action="/dbp-selector" name="selector" method="post">
+                <label for="broker">Broker: <select name="broker" id="broker"></select></label>
+                <button type="submit">Go</button>
+                <pre><code id="broker-json"></code></pre>
+            </form>
+        </div>
+        <div class="data"><textarea id="data-json" rows="15" cols="50"></textarea></div>
+    </div>
+</main>
+
+<script type="module">
+  const v = await fetch('/dbp-brokers')
+  const json = await v.json();
+  const brokers = new Map(Object.entries(json.brokers))
+  const data = json.data;
+
+  const dataElem = document.querySelector('#data-json');
+  dataElem.textContent = JSON.stringify(data, null, 2)
+
+  document.forms.selector.onsubmit = (e) => {
+    e.preventDefault()
+    fetch(e.target.action, {
+      method: e.target.method,
+      body: JSON.stringify(Object.fromEntries(new FormData(e.target))),
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+  }
+
+  const select = document.forms.selector.elements.broker;
+  const code = document.querySelector('#broker-json');
+
+  for (const [name, brokerJSON] of brokers) {
+    const option = document.createElement('option');
+    option.value = name
+    option.textContent = name
+    select.appendChild(option);
+  }
+
+  select.onchange = (evt) => {
+    const match = brokers.get(select.value);
+    code.textContent = match.raw
+  }
+
+  select.dispatchEvent(new Event('change'));
+</script>
+</body>
+</html>
