@@ -6,6 +6,22 @@ import { perPlatform } from '../../../../integration-test/playwright/type-helper
 const MOCK_VIDEO_ID = 'VIDEO_ID'
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube'
 const youtubeEmbed = (id) => 'https://www.youtube-nocookie.com/embed/' + id + '?iv_load_policy=1&autoplay=1&rel=0&modestbranding=1'
+const html = {
+    unsupported: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head>
+<body>
+<div class="ytp-error" role="alert" data-layer="4">
+    <div class="ytp-error-content" style="padding-top: 175.5px;">
+        <div class="ytp-error-content-wrap">
+            <div class="ytp-error-content-wrap-reason"><span>Video unavailable</span></div>
+            <div class="ytp-error-content-wrap-subreason"><span>This video contains content from Example.com, who has blocked it from display on this website or application<br><a
+                    href="http://www.youtube.com/watch?v=UNSUPPORTED&amp;feature=emb_err_woyt" target="_blank">Watch on YouTube</a></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>`
+}
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -45,7 +61,7 @@ export class DuckPlayerPage {
     async openPage (urlParams) {
         const url = 'https://www.youtube-nocookie.com' + '?' + urlParams.toString()
         await this.mocks.install()
-        await this.installYoutubeMocks()
+        await this.installYoutubeMocks(urlParams)
         // construct the final url
         await this.page.goto(url)
     }
@@ -53,9 +69,10 @@ export class DuckPlayerPage {
     /**
      * We don't need to actually load the content for these tests.
      * By mocking the response, we make the tests about 10x faster and also ensure they work offline.
+     * @param {URLSearchParams} urlParams
      * @return {Promise<void>}
      */
-    async installYoutubeMocks () {
+    async installYoutubeMocks (urlParams) {
         await this.page.route('https://www.youtube-nocookie.com/**', (route, req) => {
             const url = new URL(req.url())
             if (url.pathname.startsWith('/embed')) {
@@ -73,6 +90,12 @@ export class DuckPlayerPage {
 
         // the iframe
         await this.page.route('https://www.youtube-nocookie.com/embed/**', (request) => {
+            if (urlParams.get('videoID') === 'UNSUPPORTED') {
+                return request.fulfill({
+                    status: 200,
+                    body: html.unsupported
+                })
+            }
             return request.fulfill({
                 status: 200,
                 body: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head><body>Video Embed</body></html>`
@@ -93,7 +116,7 @@ export class DuckPlayerPage {
      * @returns {Promise<void>}
      */
     async openWithVideoID (videoID = MOCK_VIDEO_ID) {
-        const params = new URLSearchParams(Object.entries({ videoID }))
+        const params = new URLSearchParams({ videoID })
         await this.openPage(params)
     }
 
@@ -217,6 +240,25 @@ export class DuckPlayerPage {
                 })
                 await this.page.getByRole('link', { name: 'Watch on YouTube' }).click()
                 expect(await nextNavigation).toEqual('https://www.youtube.com/watch?v=VIDEO_ID')
+            }
+        })
+    }
+
+    async opensInYoutubeFromError ({ videoID = 'UNSUPPORTED' }) {
+        const action = () => this.page.frameLocator('#player').getByRole('link', { name: 'Watch on YouTube' }).click()
+        await this.build.switch({
+            windows: async () => {
+                const failure = new Promise(resolve => {
+                    this.page.context().on('requestfailed', f => {
+                        resolve(f.url())
+                    })
+                })
+                await action()
+                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
+            },
+            apple: async () => {
+                await action()
+                await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`)
             }
         })
     }
