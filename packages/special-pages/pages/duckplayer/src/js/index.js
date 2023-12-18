@@ -101,7 +101,7 @@ const VideoPlayer = {
      * clicks within the iframe - for example when showing a video
      * that cannot be played in the embed
      *
-     * @param {string} urlBase
+     * @param {string} urlBase - macos/windows current use a different base URL
      */
     setClickListener: (urlBase) => {
         VideoPlayer.onIframeLoaded(() => {
