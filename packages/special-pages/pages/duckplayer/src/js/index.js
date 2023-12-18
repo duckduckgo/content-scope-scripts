@@ -39,6 +39,7 @@ import {
 } from './messages'
 import { html } from '../../../../../../src/dom-utils'
 import { initStorage } from './storage'
+import { createYoutubeURLForError } from './utils'
 
 // for docs
 export { DuckPlayerPageMessages, UserValues }
@@ -86,10 +87,42 @@ const VideoPlayer = {
      * Sets up the video player:
      * 1. Fetches the video id
      * 2. If the video id is correctly formatted, it loads the YouTube video in the iframe, otherwise displays an error message
+     * @param {object} opts
+     * @param {string} opts.base
      */
-    init: () => {
+    init: (opts) => {
         VideoPlayer.loadVideoById()
         VideoPlayer.setTabTitle()
+        VideoPlayer.setClickListener(opts.base)
+    },
+
+    /**
+     * In certain circumstances, we may want to intercept
+     * clicks within the iframe - for example when showing a video
+     * that cannot be played in the embed
+     *
+     * @param {string} urlBase
+     */
+    setClickListener: (urlBase) => {
+        VideoPlayer.onIframeLoaded(() => {
+            const iframe = VideoPlayer.iframe()
+            iframe.contentDocument?.addEventListener('click', (e) => {
+                if (!e.target) return
+                const target = /** @type {Element} */(e.target)
+
+                // only act on elements with a `href` property
+                if (!('href' in target) || typeof target.href !== 'string') return
+
+                // try to convert the clicked link into something we can open on Youtube
+                const next = createYoutubeURLForError(target.href, urlBase)
+                if (!next) return
+
+                // if we get this far, we want to prevent the new tab from opening and just redirect within the same tab
+                e.preventDefault()
+                e.stopImmediatePropagation()
+                window.location.href = next
+            })
+        })
     },
 
     /**
@@ -123,8 +156,15 @@ const VideoPlayer = {
     onIframeLoaded: (callback) => {
         const iframe = VideoPlayer.iframe()
 
-        if (iframe) {
-            iframe.addEventListener('load', callback)
+        if (VideoPlayer.loaded) {
+            callback()
+        } else {
+            if (iframe && !VideoPlayer.loaded) {
+                iframe.addEventListener('load', () => {
+                    VideoPlayer.loaded = true
+                    callback()
+                })
+            }
         }
     },
 
@@ -725,7 +765,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.warn('cannot continue as messaging was not resolved')
         return
     }
-    VideoPlayer.init()
+    VideoPlayer.init({
+        base: baseUrl(import.meta.injectName)
+    })
     Tooltip.init()
     PlayOnYouTube.init({
         base: baseUrl(import.meta.injectName)
