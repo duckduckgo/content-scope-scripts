@@ -28,6 +28,11 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.hasShownErrorMessage()
         await duckplayer.hasNotAddedIframe()
     })
+    test('supports "watch on youtube" for unsupported videos', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID('UNSUPPORTED')
+        await duckplayer.opensInYoutubeFromError({ videoID: 'UNSUPPORTED' })
+    })
     test('clears storage', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
