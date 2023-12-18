@@ -1206,7 +1206,6 @@
     const original = new URL(href);
     if (original.searchParams.get("feature") !== "emb_err_woyt")
       return null;
-    original.protocol = "https";
     const url = new URL(urlBase);
     url.searchParams.set("v", valid.id);
     if (typeof valid.time === "string") {

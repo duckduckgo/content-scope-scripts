@@ -1206,7 +1206,6 @@
     const original = new URL(href);
     if (original.searchParams.get("feature") !== "emb_err_woyt")
       return null;
-    original.protocol = "https";
     const url = new URL(urlBase);
     url.searchParams.set("v", valid.id);
     if (typeof valid.time === "string") {
@@ -1265,7 +1264,7 @@
      * clicks within the iframe - for example when showing a video
      * that cannot be played in the embed
      *
-     * @param {string} urlBase
+     * @param {string} urlBase - macos/windows current use a different base URL
      */
     setClickListener: (urlBase) => {
       VideoPlayer.onIframeLoaded(() => {

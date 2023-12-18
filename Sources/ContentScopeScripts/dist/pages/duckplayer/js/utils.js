@@ -17,9 +17,7 @@ export function createYoutubeURLForError (href, urlBase) {
     // problems whilst keeping the blast radius low
     if (original.searchParams.get('feature') !== 'emb_err_woyt') return null
 
-    // if we get here, we think a click is occurring that would cause a navigation loop
-    original.protocol = 'https'
-
+    // if we get this far, we think a click is occurring that would cause a navigation loop
     // construct the 'next' url
     const url = new URL(urlBase)
     url.searchParams.set('v', valid.id)
