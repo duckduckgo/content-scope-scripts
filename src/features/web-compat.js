@@ -15,6 +15,7 @@ function windowSizingFix () {
 const MSG_WEB_SHARE = 'webShare'
 const MSG_PERMISSIONS_QUERY = 'permissionsQuery'
 const MSG_SCREEN_LOCK = 'screenLock'
+const MSG_SCREEN_UNLOCK = 'screenUnlock'
 
 function canShare (data) {
     if (typeof data !== 'object') return false
@@ -236,16 +237,39 @@ export default class WebCompat extends ContentFeature {
         })
     }
 
+    // TODO: config setting for this
     screenLockFix() {
         window.ScreenOrientation.prototype.lock = new Proxy(async (requestedOrientation) => {
             this.addDebugFlag()
-            // TODO handle error cases
 
-            const response = await this.messaging.request(MSG_SCREEN_LOCK, { orientation : requestedOrientation })
+            console.log(`xxx request = ${requestedOrientation}`)
+            const resp = await this.messaging.request(MSG_SCREEN_LOCK, { orientation : requestedOrientation })
             console.log("xxx Got Response xxx")
-            console.log(response)
+            console.log(resp)
 
-            return Promise.reject(new Error("DOMException xxx: The page needs to be fullscreen in order to call screen.orientation.lock()."))
+            if (resp.failure) {
+                switch (resp.failure.name) {
+                case 'TypeError':
+                    throw new TypeError(resp.failure.message)
+                case 'InvalidStateError':
+                    throw new DOMException(resp.failure.message, resp.failure.name)
+                default:
+                    throw new DOMException(resp.failure.message, 'DataError')
+                }
+            }
+
+            Promise.resolve()
+        }, {
+            get (target, name) {
+                return Reflect.get(target, name)
+            }
+        })
+
+        window.ScreenOrientation.prototype.unlock = new Proxy(() => {
+            this.addDebugFlag()
+
+            console.log("xxx unlock called xxx")
+            this.messaging.request(MSG_SCREEN_UNLOCK, {})
         }, {
             get (target, name) {
                 return Reflect.get(target, name)
