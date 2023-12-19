@@ -110,7 +110,10 @@ export default class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('viewportWidth')) {
             this.viewportWidthFix()
         }
-        this.screenLockFix()
+
+        if (this.getFeatureSettingEnabled('screenLock')) {
+            this.screenLockFix()
+        }
     }
 
     /** Shim Web Share API in Android WebView */
@@ -237,14 +240,14 @@ export default class WebCompat extends ContentFeature {
         })
     }
 
-    // TODO: config setting for this
-    screenLockFix() {
+    screenLockFix () {
+        // @ts-expect-error Property 'lock' does not exist on type 'ScreenOrientation'
         window.ScreenOrientation.prototype.lock = new Proxy(async (requestedOrientation) => {
             this.addDebugFlag()
 
             console.log(`xxx request = ${requestedOrientation}`)
-            const resp = await this.messaging.request(MSG_SCREEN_LOCK, { orientation : requestedOrientation })
-            console.log("xxx Got Response xxx")
+            const resp = await this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
+            console.log('xxx Got Response xxx')
             console.log(resp)
 
             if (resp.failure) {
@@ -268,7 +271,7 @@ export default class WebCompat extends ContentFeature {
         window.ScreenOrientation.prototype.unlock = new Proxy(() => {
             this.addDebugFlag()
 
-            console.log("xxx unlock called xxx")
+            console.log('xxx unlock called xxx')
             this.messaging.request(MSG_SCREEN_UNLOCK, {})
         }, {
             get (target, name) {
