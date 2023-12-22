@@ -71,6 +71,9 @@ export default class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeShareRequest = null
 
+    /** @type {Promise<any> | null} */
+    #activeScreenLockRequest = null
+
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix()
@@ -305,41 +308,48 @@ export default class WebCompat extends ContentFeature {
             'unsupported'
         ]
 
-        // @ts-expect-error Property 'lock' does not exist on type 'ScreenOrientation'
-        window.ScreenOrientation.prototype.lock = new Proxy(async (requestedOrientation) => {
-            this.addDebugFlag()
-            if (!requestedOrientation) {
-                throw new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present.")
-            }
-            if (!validOrientations.includes(requestedOrientation)) {
-                throw new TypeError(`Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`)
-            }
-
-            const resp = await this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
-            if (resp.failure) {
-                switch (resp.failure.name) {
-                case 'TypeError':
-                    throw new TypeError(resp.failure.message)
-                case 'InvalidStateError':
-                    throw new DOMException(resp.failure.message, resp.failure.name)
-                default:
-                    throw new DOMException(resp.failure.message, 'DataError')
+        this.wrapProperty(globalThis.ScreenOrientation.prototype, 'lock', {
+            value: async (requestedOrientation) => {
+                this.addDebugFlag()
+                if (!requestedOrientation) {
+                    return Promise.reject(new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present."))
                 }
-            }
+                if (!validOrientations.includes(requestedOrientation)) {
+                    return Promise.reject(new TypeError(`Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`))
+                }
+                if (this.#activeScreenLockRequest) {
+                    return Promise.reject(new DOMException('Screen lock already in progress', 'AbortError'))
+                }
 
-            return Promise.resolve()
-        }, {
-            get (target, name) {
-                return Reflect.get(target, name)
+                this.#activeScreenLockRequest = await this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
+                let resp
+                try {
+                    resp = await this.#activeScreenLockRequest
+                } catch (err) {
+                    throw new DOMException(err.message, 'DataError')
+                } finally {
+                    this.#activeScreenLockRequest = null
+                }
+
+                if (resp.failure) {
+                    switch (resp.failure.name) {
+                    case 'TypeError':
+                        return Promise.reject(new TypeError(resp.failure.message))
+                    case 'InvalidStateError':
+                        return Promise.reject(new DOMException(resp.failure.message, resp.failure.name))
+                    default:
+                        return Promise.reject(new DOMException(resp.failure.message, 'DataError'))
+                    }
+                }
+
+                return Promise.resolve()
             }
         })
 
-        window.ScreenOrientation.prototype.unlock = new Proxy(() => {
-            this.addDebugFlag()
-            this.messaging.request(MSG_SCREEN_UNLOCK, {})
-        }, {
-            get (target, name) {
-                return Reflect.get(target, name)
+        this.wrapProperty(globalThis.ScreenOrientation.prototype, 'unlock', {
+            value: () => {
+                this.addDebugFlag()
+                this.messaging.request(MSG_SCREEN_UNLOCK, {})
             }
         })
     }

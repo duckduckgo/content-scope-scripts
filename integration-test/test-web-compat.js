@@ -368,6 +368,17 @@ describe('ScreenOrientation API', () => {
             return { result, message }
         }
 
+        async function checkUnlock () {
+            const payload = 'screen.orientation.unlock()'
+            const result = await page.evaluate(payload).catch((e) => {
+                return { threw: e }
+            })
+            const message = await page.evaluate(() => {
+                return globalThis.lockReq
+            })
+            return { result, message }
+        }
+
         it('should err out when orientation not provided', async () => {
             const { result } = await checkLock()
             expect(result.threw).not.toBeUndefined()
@@ -433,6 +444,19 @@ describe('ScreenOrientation API', () => {
             const { result, message } = await checkLock('landscape')
             expect(result).toBeUndefined()
             expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'screenLock', params: { orientation: 'landscape' } }))
+        })
+
+        it('should send message on unlock', async () => {
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = (req) => {
+                    globalThis.lockReq = req
+                    return Promise.resolve({})
+                }
+            })
+
+            const { result, message } = await checkUnlock()
+            expect(result).toBeUndefined()
+            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'screenUnlock' }))
         })
     })
 })
