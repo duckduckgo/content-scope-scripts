@@ -80,7 +80,7 @@ describe('Ensure safari interface is injected', () => {
     })
 })
 
-describe('Ensure Notification and Permissions interface is injected', () => {
+describe('Ensure Notification interface is injected', () => {
     let browser
     let server
     let teardown
@@ -296,6 +296,143 @@ describe('Permissions API', () => {
             const { result, message } = await checkPermission('camera')
             expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt' }))
             expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
+        })
+    })
+})
+
+describe('ScreenOrientation API', () => {
+    let browser
+    let server
+    let teardown
+    let setupServer
+    let gotoAndWait
+    let port
+    let page
+    beforeAll(async () => {
+        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
+        server = setupServer()
+    })
+    afterAll(async () => {
+        await server?.close()
+        await teardown()
+    })
+
+    describe('disabled feature', () => {
+        async function checkLockThrows (orientation) {
+            const payload = `screen.orientation.lock(${JSON.stringify(orientation)})`
+            const result = await page.evaluate(payload).catch((e) => {
+                return { threw: e }
+            })
+            return result
+        }
+
+        it(' should not fix screenOrientation API', async () => {
+            port = server.address().port
+            page = await browser.newPage()
+
+            // no screenLock setting
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: ['webCompat'] } })
+            const result = await checkLockThrows('landscape')
+            expect(result.threw).not.toBeUndefined()
+            expect(result.threw.message).toEqual('screen.orientation.lock() is not available on this device.')
+        })
+    })
+
+    describe('enabled feature', () => {
+        let port
+        let page
+
+        beforeAll(async () => {
+            port = server.address().port
+            page = await browser.newPage()
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: {
+                    enabledFeatures: ['webCompat']
+                },
+                featureSettings: {
+                    webCompat: {
+                        screenLock: 'enabled'
+                    }
+                }
+            })
+        })
+
+        async function checkLock (orientation) {
+            const payload = `screen.orientation.lock(${JSON.stringify(orientation)})`
+            const result = await page.evaluate(payload).catch((e) => {
+                return { threw: e }
+            })
+            const message = await page.evaluate(() => {
+                return globalThis.lockReq
+            })
+            return { result, message }
+        }
+
+        it('should err out when orientation not provided', async () => {
+            const { result } = await checkLock()
+            expect(result.threw).not.toBeUndefined()
+            expect(result.threw.message).toContain("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present")
+        })
+
+        it('should err out when orientation of unexpected type', async () => {
+            const { result } = await checkLock({})
+            expect(result.threw).not.toBeUndefined()
+            expect(result.threw.message).toContain('not a valid enum value of type OrientationLockType')
+        })
+
+        it('should err out when orientation of unexpected value', async () => {
+            const { result } = await checkLock('xxx')
+            expect(result.threw).not.toBeUndefined()
+            expect(result.threw.message).toContain('not a valid enum value of type OrientationLockType')
+        })
+
+        it('should propagate native TypeError', async () => {
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => {
+                    return Promise.resolve({ failure: { name: 'TypeError', message: 'some error message' } })
+                }
+            })
+
+            const { result } = await checkLock('landscape')
+            expect(result.threw).not.toBeUndefined()
+            expect(result.threw.message).toContain('some error message')
+        })
+
+        it('should propagate native InvalidStateError', async () => {
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => {
+                    return Promise.resolve({ failure: { name: 'InvalidStateError', message: 'some error message' } })
+                }
+            })
+
+            const { result } = await checkLock('landscape')
+            expect(result.threw).not.toBeUndefined()
+            expect(result.threw.message).toContain('some error message')
+        })
+
+        it('should propagate native default error', async () => {
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = () => {
+                    return Promise.resolve({ failure: { name: 'xxx', message: 'some error message' } })
+                }
+            })
+
+            const { result } = await checkLock('landscape')
+            expect(result.threw).not.toBeUndefined()
+            expect(result.threw.message).toContain('some error message')
+        })
+
+        it('should fix screenOrientation API', async () => {
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = (req) => {
+                    globalThis.lockReq = req
+                    return Promise.resolve({})
+                }
+            })
+
+            const { result, message } = await checkLock('landscape')
+            expect(result).toBeUndefined()
+            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'screenLock', params: { orientation: 'landscape' } }))
         })
     })
 })

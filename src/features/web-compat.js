@@ -240,46 +240,6 @@ export default class WebCompat extends ContentFeature {
         })
     }
 
-    screenLockFix () {
-        // @ts-expect-error Property 'lock' does not exist on type 'ScreenOrientation'
-        window.ScreenOrientation.prototype.lock = new Proxy(async (requestedOrientation) => {
-            this.addDebugFlag()
-
-            console.log(`xxx request = ${requestedOrientation}`)
-            const resp = await this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
-            console.log('xxx Got Response xxx')
-            console.log(resp)
-
-            if (resp.failure) {
-                switch (resp.failure.name) {
-                case 'TypeError':
-                    throw new TypeError(resp.failure.message)
-                case 'InvalidStateError':
-                    throw new DOMException(resp.failure.message, resp.failure.name)
-                default:
-                    throw new DOMException(resp.failure.message, 'DataError')
-                }
-            }
-
-            Promise.resolve()
-        }, {
-            get (target, name) {
-                return Reflect.get(target, name)
-            }
-        })
-
-        window.ScreenOrientation.prototype.unlock = new Proxy(() => {
-            this.addDebugFlag()
-
-            console.log('xxx unlock called xxx')
-            this.messaging.request(MSG_SCREEN_UNLOCK, {})
-        }, {
-            get (target, name) {
-                return Reflect.get(target, name)
-            }
-        })
-    }
-
     /**
      * Adds missing permissions API for Android WebView.
      */
@@ -327,6 +287,61 @@ export default class WebCompat extends ContentFeature {
         // Expose the API
         // @ts-expect-error window.navigator isn't assignable
         window.navigator.permissions = permissions
+    }
+
+    /**
+     * Fixes screen lock/unlock APIs for Android WebView.
+     */
+    screenLockFix () {
+        const validOrientations = [
+            'any',
+            'natural',
+            'landscape',
+            'portrait',
+            'portrait-primary',
+            'portrait-secondary',
+            'landscape-primary',
+            'landscape-secondary',
+            'unsupported'
+        ]
+
+        // @ts-expect-error Property 'lock' does not exist on type 'ScreenOrientation'
+        window.ScreenOrientation.prototype.lock = new Proxy(async (requestedOrientation) => {
+            this.addDebugFlag()
+            if (!requestedOrientation) {
+                throw new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present.")
+            }
+            if (!validOrientations.includes(requestedOrientation)) {
+                throw new TypeError(`Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`)
+            }
+
+            const resp = await this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
+            if (resp.failure) {
+                switch (resp.failure.name) {
+                case 'TypeError':
+                    throw new TypeError(resp.failure.message)
+                case 'InvalidStateError':
+                    throw new DOMException(resp.failure.message, resp.failure.name)
+                default:
+                    throw new DOMException(resp.failure.message, 'DataError')
+                }
+            }
+
+            return Promise.resolve()
+        }, {
+            get (target, name) {
+                return Reflect.get(target, name)
+            }
+        })
+
+        window.ScreenOrientation.prototype.unlock = new Proxy(() => {
+            this.addDebugFlag()
+            this.messaging.request(MSG_SCREEN_UNLOCK, {})
+        }, {
+            get (target, name) {
+                return Reflect.get(target, name)
+            }
+        })
     }
 
     /**
