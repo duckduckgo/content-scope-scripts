@@ -14,6 +14,8 @@ function windowSizingFix () {
 
 const MSG_WEB_SHARE = 'webShare'
 const MSG_PERMISSIONS_QUERY = 'permissionsQuery'
+const MSG_SCREEN_LOCK = 'screenLock'
+const MSG_SCREEN_UNLOCK = 'screenUnlock'
 
 function canShare (data) {
     if (typeof data !== 'object') return false
@@ -69,6 +71,9 @@ export default class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeShareRequest = null
 
+    /** @type {Promise<any> | null} */
+    #activeScreenLockRequest = null
+
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix()
@@ -107,6 +112,10 @@ export default class WebCompat extends ContentFeature {
 
         if (this.getFeatureSettingEnabled('viewportWidth')) {
             this.viewportWidthFix()
+        }
+
+        if (this.getFeatureSettingEnabled('screenLock')) {
+            this.screenLockFix()
         }
     }
 
@@ -281,6 +290,66 @@ export default class WebCompat extends ContentFeature {
         // Expose the API
         // @ts-expect-error window.navigator isn't assignable
         window.navigator.permissions = permissions
+    }
+
+    /**
+     * Fixes screen lock/unlock APIs for Android WebView.
+     */
+    screenLockFix () {
+        const validOrientations = [
+            'any',
+            'natural',
+            'landscape',
+            'portrait',
+            'portrait-primary',
+            'portrait-secondary',
+            'landscape-primary',
+            'landscape-secondary',
+            'unsupported'
+        ]
+
+        this.wrapProperty(globalThis.ScreenOrientation.prototype, 'lock', {
+            value: async (requestedOrientation) => {
+                if (!requestedOrientation) {
+                    return Promise.reject(new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present."))
+                }
+                if (!validOrientations.includes(requestedOrientation)) {
+                    return Promise.reject(new TypeError(`Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`))
+                }
+                if (this.#activeScreenLockRequest) {
+                    return Promise.reject(new DOMException('Screen lock already in progress', 'AbortError'))
+                }
+
+                this.#activeScreenLockRequest = this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
+                let resp
+                try {
+                    resp = await this.#activeScreenLockRequest
+                } catch (err) {
+                    throw new DOMException(err.message, 'DataError')
+                } finally {
+                    this.#activeScreenLockRequest = null
+                }
+
+                if (resp.failure) {
+                    switch (resp.failure.name) {
+                    case 'TypeError':
+                        return Promise.reject(new TypeError(resp.failure.message))
+                    case 'InvalidStateError':
+                        return Promise.reject(new DOMException(resp.failure.message, resp.failure.name))
+                    default:
+                        return Promise.reject(new DOMException(resp.failure.message, 'DataError'))
+                    }
+                }
+
+                return Promise.resolve()
+            }
+        })
+
+        this.wrapProperty(globalThis.ScreenOrientation.prototype, 'unlock', {
+            value: () => {
+                this.messaging.request(MSG_SCREEN_UNLOCK, {})
+            }
+        })
     }
 
     /**
