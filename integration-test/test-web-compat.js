@@ -756,6 +756,16 @@ describe('Viewport fixes', () => {
     })
 
     describe('Desktop mode off', () => {
+        it('should respect the forcedMobileValue config', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: { state: 'enabled', forcedMobileValue: 'bla, bla, bla' } } },
+                desktopModeEnabled: false
+            })
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual('bla, bla, bla')
+        })
+
         it('should force wide viewport if the meta tag is not present', async () => {
             await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
                 site: { enabledFeatures: ['webCompat'] },
@@ -790,6 +800,16 @@ describe('Viewport fixes', () => {
     })
 
     describe('Desktop mode on', () => {
+        it('should respect the forcedDesktopValue config', async () => {
+            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: { state: 'enabled', forcedDesktopValue: 'bla, bla, bla' } } },
+                desktopModeEnabled: true
+            })
+            const viewportValue = await page.evaluate(getViewportValue)
+            expect(viewportValue).toEqual('bla, bla, bla')
+        })
+
         it('should force wide viewport, ignoring the viewport tag', async () => {
             await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
                 site: { enabledFeatures: ['webCompat'] },
