@@ -320,7 +320,7 @@ export default class WebCompat extends ContentFeature {
                     return Promise.reject(new DOMException('Screen lock already in progress', 'AbortError'))
                 }
 
-                this.#activeScreenLockRequest = await this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
+                this.#activeScreenLockRequest = this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
                 let resp
                 try {
                     resp = await this.#activeScreenLockRequest
