@@ -310,7 +310,6 @@ export default class WebCompat extends ContentFeature {
 
         this.wrapProperty(globalThis.ScreenOrientation.prototype, 'lock', {
             value: async (requestedOrientation) => {
-                this.addDebugFlag()
                 if (!requestedOrientation) {
                     return Promise.reject(new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present."))
                 }
@@ -348,7 +347,6 @@ export default class WebCompat extends ContentFeature {
 
         this.wrapProperty(globalThis.ScreenOrientation.prototype, 'unlock', {
             value: () => {
-                this.addDebugFlag()
                 this.messaging.request(MSG_SCREEN_UNLOCK, {})
             }
         })
