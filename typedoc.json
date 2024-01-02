@@ -17,7 +17,9 @@
         "packages/messaging/native.js",
         "packages/special-pages",
         "packages/special-pages/pages/example/src/index.js",
-        "packages/special-pages/pages/duckplayer/src/js/index.js"
+        "packages/special-pages/pages/duckplayer/src/js/index.js",
+        "packages/special-pages/pages/onboarding/src/js/index.js",
+        "packages/special-pages/pages/onboarding/app/types.js"
     ],
     "categoryOrder": [
         "Special Pages",

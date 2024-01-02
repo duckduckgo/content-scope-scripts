@@ -45,9 +45,9 @@ export const support = {
     },
 }
 
-/** @type {{src: string, dest: string}[]} */
-const copyJobs = []
 /** @type {{src: string, dest: string, injectName: string}[]} */
+const copyJobs = []
+/** @type {{entryPoints: string[], outputDir: string, injectName: string}[]} */
 const buildJobs = []
 /** @type {{src: string}[]} */
 const inlineJobs = []
@@ -73,20 +73,20 @@ for (const [pageName, injectNames] of Object.entries(support)) {
             if (job === 'copy') {
                 copyJobs.push({
                     src: pageSrc,
-                    dest: pageOutputDirectory
+                    dest: pageOutputDirectory,
+                    injectName
                 })
             }
             if (job === 'build-js') {
-                const jsSrc = join(pageSrc, 'js', 'index.js')
-                if (!existsSync(jsSrc)) {
-                    errors.push(`${jsSrc} does not exist`)
-                    continue
-                }
-                const jsDest = join(pageOutputDirectory, 'js', 'index.js')
+                const entryPoints = [
+                    join(pageSrc, 'js', 'index.js'),
+                    join(pageSrc, 'js', 'inline.js')
+                ].filter(pathname => existsSync(pathname));
+                const outputDir = join(pageOutputDirectory, 'js')
                 buildJobs.push({
-                    src: jsSrc,
-                    dest: jsDest,
-                    injectName: injectName
+                    entryPoints,
+                    outputDir,
+                    injectName
                 })
             }
             if (job === 'inline-html') {
@@ -119,20 +119,25 @@ for (const copyJob of copyJobs) {
     }
 }
 for (const buildJob of buildJobs) {
-    if (DEBUG) console.log('BUILD:', relative(ROOT, buildJob.src), relative(ROOT, buildJob.dest))
+    if (DEBUG) console.log('BUILD:', buildJob.entryPoints, relative(ROOT, buildJob.outputDir))
     if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV)
     if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName)
     if (!DRY_RUN) {
         buildSync({
-            entryPoints: [buildJob.src],
-            outfile: buildJob.dest,
+            entryPoints: buildJob.entryPoints,
+            outdir: buildJob.outputDir,
             bundle: true,
             format: 'iife',
-            external: ['../assets/img/*'],
-            sourcemap: NODE_ENV === 'development' ? 'inline' : undefined,
+            // external: ['../assets/img/*'],
+            sourcemap: NODE_ENV === 'development',
+            // publicPath: '/js',
             loader: {
                 '.js': 'jsx',
                 '.module.css': 'local-css',
+                '.svg': 'file',
+                '.jpg': 'file',
+                '.png': 'file',
+                '.riv': 'file'
             },
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),
