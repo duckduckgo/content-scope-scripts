@@ -159,7 +159,7 @@ const VideoPlayer = {
         if (VideoPlayer.loaded) {
             callback()
         } else {
-            if (iframe && !VideoPlayer.loaded) {
+            if (iframe) {
                 iframe.addEventListener('load', () => {
                     VideoPlayer.loaded = true
                     callback()
