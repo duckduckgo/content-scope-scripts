@@ -128,6 +128,9 @@ for (const buildJob of buildJobs) {
             loader: {
                 '.js': 'jsx',
                 '.module.css': 'local-css',
+                '.svg': 'base64',
+                '.jpg': 'base64',
+                '.png': 'base64',
             },
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),

@@ -1,0 +1,53 @@
+.popover {
+    position: relative;
+    z-index: 100000;
+}
+
+.content {
+    position: absolute;
+    top: 100%;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 100000;
+
+    [aria-expanded="true"] + & {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.homeButtonDropdown {
+    background: white;
+    padding: 5px;
+    border-radius: 6px;
+    box-shadow: 0px 10px 24px 0px rgba(0, 0, 0, 0.32), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.20), 0px 0px 0px 1px rgba(255, 255, 255, 0.20) inset;
+    backdrop-filter: blur(76px);
+    /*border-radius: var()*/
+}
+.button {
+    -webkit-appearance: none;
+    position: relative;
+    white-space: nowrap;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    line-height: 13px;
+    border: 0;
+    outline: 0;
+    box-shadow: none;
+    background: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    padding-left: 19px;
+
+    &:hover {
+        background: #e5e5e5;
+    }
+}
+.check {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 4px;
+}

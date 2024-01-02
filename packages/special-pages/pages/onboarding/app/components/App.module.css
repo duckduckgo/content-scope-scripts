@@ -1,0 +1,106 @@
+.main {
+    position: relative;
+}
+.container {
+    position: relative;
+    width: calc(100% - 64px);
+    max-width:  640px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 80px;
+    padding-bottom: 80px;
+    z-index: 1;
+
+    &[data-current="welcome"] {
+        padding-top: 240px;
+    }
+    &[data-current="we_can_help"] {
+        padding-top: 240px;
+    }
+}
+
+.background {
+    position: fixed;
+    z-index: 0;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #fff;
+
+    /* Modern browsers support multiple `background-size` so add grain */
+    background-image: url("../../src/assets/img/grain.png"),
+    url("../../src/assets/img/background.jpg");
+    background-blend-mode: overlay, normal;
+    background-repeat: repeat, no-repeat;
+    background-size: 75px, cover;
+    @media only screen and (min-width: 481px) {
+        background-size: 75px, 200% 100%;
+    }
+    @media only screen and (min-width: 801px) {
+        background-size: 75px, 100% 100%;
+    }
+}
+
+.foreground {
+    position: absolute;
+    top: 10vh;
+    left: 0;
+    width: 100vw;
+    height: 80vh;
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    animation-duration: 240s;
+    animation-delay: -60s;
+
+    animation-fill-mode: both;
+    animation-timing-function: linear;
+}
+.foreground.layer1 {
+    background-image: url("../../src/assets/img/layer1.svg");
+    animation-name: slidein1;
+    animation-iteration-count: infinite;
+}
+.foreground.layer2 {
+    background-image: url("../../src/assets/img/layer2.svg");
+    animation-name: slidein2;
+    animation-iteration-count: infinite;
+}
+.foreground.layer3 {
+    background-image: url("../../src/assets/img/layer3.svg");
+    animation-name: slidein3;
+    animation-iteration-count: infinite;
+}
+@media only screen and (max-width: 480px) {
+    .foreground {
+        display: none
+    }
+}
+@keyframes slidein1 {
+    from {
+        transform: translateX(110vw);
+    }
+
+    to {
+        transform: translateX(-120vw);
+    }
+}
+@keyframes slidein2 {
+    from {
+        transform: translateX(100vw);
+    }
+
+    to {
+        transform: translateX(-100vw);
+    }
+}
+@keyframes slidein3 {
+    from {
+        transform: translateX(120vw);
+    }
+
+    to {
+        transform: translateX(-160vw);
+    }
+}

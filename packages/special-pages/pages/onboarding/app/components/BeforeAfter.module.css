@@ -1,0 +1,16 @@
+.imgWrap {
+    border-radius: 12px;
+    overflow: hidden;
+    padding-bottom: 48%;
+    height: 0;
+    position: relative;
+}
+
+.img {
+    display: block;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0
+}
+

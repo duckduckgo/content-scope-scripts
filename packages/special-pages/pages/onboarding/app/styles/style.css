@@ -1,0 +1,152 @@
+@import url("variables.css");
+@import url("base.css");
+
+/* Steps */
+.steps {
+    width: 100%;
+
+    gap: 24px;
+
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 32px;
+}
+
+@media only screen and (min-width: 481px) {
+    .steps {
+        gap: 12px;
+    }
+}
+
+/* Shared status */
+.status {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+
+    background-image: url("../../src/assets/img/check.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 10px 7.75px;
+}
+.status.success {
+    background-color: #21c000;
+}
+.status.skip {
+    background-color: #ababab;
+}
+.status.black {
+    background-color: #000;
+}
+.status.alwaysOn {
+    display: none;
+}
+.status.animated {
+    animation-name: bouncein;
+    animation-duration: 500ms;
+    animation-delay: 250ms;
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bouncein {
+    from {
+        transform: scale(2);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@media only screen and (min-width: 481px) {
+    .status {
+        width: 16px;
+        height: 16px;
+        border-radius: 8px;
+
+        background-size: 7.75px 6px;
+    }
+    .status.alwaysOn {
+        display: block;
+        margin-top: 7px;
+        width: auto;
+        height: 16px;
+        line-height: 16px;
+        font-size: 10px;
+        color: #fff;
+        padding: 0 6px;
+
+        background-image: none;
+    }
+}
+
+/* LastPage */
+.enabledSteps {
+    gap: 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 32px;
+}
+.enabledStep {
+    display: flex;
+
+    gap: 8px;
+
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 20px;
+
+    /* Text/Mac/Primary - On Light */
+    color: rgba(0, 0, 0, 0.84);
+}
+
+.enabledStep .status {
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
+.enabledStep .icon {
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+}
+
+@media only screen and (min-width: 481px) {
+    .enabledStep {
+        font-size: 13px;
+        line-height: 16px;
+    }
+    .enabledStep .icon {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.settingsDisclaimer {
+    display: none;
+
+    margin-top: 52px;
+
+    font-size: 12px;
+    line-height: 12px;
+
+    color: rgba(0, 0, 0, 0.6);
+}
+.settingsDisclaimer a {
+    cursor: default;
+    text-decoration: none;
+    color: #3969ef;
+}
+@media only screen and (min-width: 481px) {
+    .settingsDisclaimer {
+        display: block;
+    }
+}
