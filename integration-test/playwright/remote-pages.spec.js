@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test'
-// @ts-expect-error - no synthetic default export
 import path from 'path'
 import { readFileSync } from 'fs'
 

@@ -32,6 +32,10 @@ declare module '*.css' {
     const content: string
     export default content
 }
+declare module '*.riv' {
+    const filepath: string
+    export default filepath
+}
 
 declare module 'ddg:platformFeatures' {
     const output: Record<string, new (featureName: string) => import('./content-feature').default>

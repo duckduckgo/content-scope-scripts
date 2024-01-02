@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
     projects: [
@@ -10,7 +10,29 @@ export default defineConfig({
         {
             name: 'duckplayer-apple',
             testMatch: 'duckplayer.spec.js',
-            use: { injectName: 'apple', platform: 'macos' }
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos'
+            }
+        },
+        {
+            name: 'onboarding-apple',
+            testMatch: 'onboarding.spec.js',
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos'
+            }
+        },
+        {
+            name: 'onboarding-windows',
+            testMatch: 'onboarding.spec.js',
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'windows',
+                platform: 'windows'
+            }
         }
     ],
     fullyParallel: !process.env.CI,
@@ -27,7 +49,7 @@ export default defineConfig({
         env: process.env
     },
     use: {
-        actionTimeout: 1000,
+        actionTimeout: 5000,
         trace: 'on-first-retry'
     }
 })
