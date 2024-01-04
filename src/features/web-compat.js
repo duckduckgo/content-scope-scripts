@@ -603,7 +603,7 @@ export default class WebCompat extends ContentFeature {
         // Chrome respects only the last viewport tag
         const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1]
         const viewportContent = viewportTag?.getAttribute('content') || ''
-        const viewportContentParts = viewportContent ? viewportContent.split(/\s*,\s*|\s*;\s*/) : []
+        const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : []
         const parsedViewportContent = viewportContentParts.map((part) => {
             const [key, value] = part.split('=').map(p => p.trim().toLowerCase())
             return [key, value]
@@ -649,15 +649,14 @@ export default class WebCompat extends ContentFeature {
         }
 
         const newContent = []
-        'width' in forcedValues && newContent.push(`width=${forcedValues.width}`)
-        'initial-scale' in forcedValues && newContent.push(`initial-scale=${forcedValues['initial-scale']}`)
-        'user-scalable' in forcedValues && newContent.push(`user-scalable=${forcedValues['user-scalable']}`)
-        'maximum-scale' in forcedValues && newContent.push(`maximum-scale=${forcedValues['maximum-scale']}`)
+        Object.keys(forcedValues).forEach((key) => {
+            newContent.push(`${key}=${forcedValues[key]}`)
+        })
+
         if (newContent.length > 0) { // need to override at least one viewport component
             parsedViewportContent.forEach(([key], idx) => {
-                // @ts-expect-error hasOwn does exist
-                if (!(Object.hasOwn(forcedValues, key))) {
-                    newContent.push(`${viewportContentParts[idx]}`) // reuse the original values, not the parsed ones
+                if (!(key in forcedValues)) {
+                    newContent.push(viewportContentParts[idx].trim()) // reuse the original values, not the parsed ones
                 }
             })
             this.forceViewportTag(viewportTag, newContent.join(', '))
