@@ -800,7 +800,7 @@ describe('Viewport fixes', () => {
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
-            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10`)
+            expect(viewportValue).toEqual(`initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}`)
         })
 
         it('should fix the WebView edge case', async () => {
@@ -869,7 +869,7 @@ describe('Viewport fixes', () => {
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
-            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, something-something`)
+            expect(viewportValue).toEqual(`initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`)
         })
 
         it('should ignore the character case in the viewport tag', async () => {
