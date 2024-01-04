@@ -2918,7 +2918,7 @@
         /** @type {boolean} */
         #isDebugFlagSet = false
 
-        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
+        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
         #args
 
         constructor (featureName) {
@@ -2933,6 +2933,10 @@
 
         get desktopModeEnabled () {
             return this.#args?.desktopModeEnabled || false
+        }
+
+        get forcedZoomEnabled () {
+            return this.#args?.forcedZoomEnabled || false
         }
 
         /**
@@ -14163,30 +14167,40 @@
             // Chrome respects only the last viewport tag
             const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
             const viewportContent = viewportTag?.getAttribute('content') || '';
+            /** @type {readonly string[]} **/
             const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : [];
+            /** @type {readonly string[][]} **/
             const parsedViewportContent = viewportContentParts.map((part) => {
                 const [key, value] = part.split('=').map(p => p.trim().toLowerCase());
                 return [key, value]
             });
 
+            // first, check if there are any forced values
             const { forcedDesktopValue, forcedMobileValue } = this.getFeatureSetting('viewportWidth');
             if (typeof forcedDesktopValue === 'string' && this.desktopModeEnabled) {
                 this.forceViewportTag(viewportTag, forcedDesktopValue);
+                return
             } else if (typeof forcedMobileValue === 'string' && !this.desktopModeEnabled) {
                 this.forceViewportTag(viewportTag, forcedMobileValue);
-            } else if (!viewportTag || this.desktopModeEnabled) {
+                return
+            }
+
+            // otherwise, check for special cases
+            const forcedValues = {};
+
+            if (this.forcedZoomEnabled) {
+                forcedValues['initial-scale'] = 1;
+                forcedValues['user-scalable'] = 'yes';
+                forcedValues['maximum-scale'] = 10;
+            }
+
+            if (!viewportTag || this.desktopModeEnabled) {
                 // force wide viewport width
-                const forcedWidth = screen.width >= 1280 ? 1280 : 980;
+                forcedValues.width = screen.width >= 1280 ? 1280 : 980;
+                forcedValues['initial-scale'] = (screen.width / forcedValues.width).toFixed(3);
                 // Race condition: depending on the loading state of the page, initial scale may or may not be respected, so the page may look zoomed-in after applying this hack.
                 // Usually this is just an annoyance, but it may be a bigger issue if user-scalable=no is set, so we remove it too.
-                const forcedInitialScale = (screen.width / forcedWidth).toFixed(3);
-                let newContent = `width=${forcedWidth}, initial-scale=${forcedInitialScale}`;
-                parsedViewportContent.forEach(([key], idx) => {
-                    if (!['width', 'initial-scale', 'user-scalable'].includes(key)) {
-                        newContent = newContent.concat(`,${viewportContentParts[idx]}`); // reuse the original values, not the parsed ones
-                    }
-                });
-                this.forceViewportTag(viewportTag, newContent);
+                forcedValues['user-scalable'] = 'yes';
             } else { // mobile mode with a viewport tag
                 // fix an edge case where WebView forces the wide viewport
                 const widthPart = parsedViewportContent.find(([key]) => key === 'width');
@@ -14195,9 +14209,23 @@
                     // Chromium accepts float values for initial-scale
                     const parsedInitialScale = parseFloat(initialScalePart[1]);
                     if (parsedInitialScale !== 1) {
-                        this.forceViewportTag(viewportTag, `width=device-width, ${viewportContent}`);
+                        forcedValues.width = 'device-width';
                     }
                 }
+            }
+
+            const newContent = [];
+            Object.keys(forcedValues).forEach((key) => {
+                newContent.push(`${key}=${forcedValues[key]}`);
+            });
+
+            if (newContent.length > 0) { // need to override at least one viewport component
+                parsedViewportContent.forEach(([key], idx) => {
+                    if (!(key in forcedValues)) {
+                        newContent.push(viewportContentParts[idx].trim()); // reuse the original values, not the parsed ones
+                    }
+                });
+                this.forceViewportTag(viewportTag, newContent.join(', '));
             }
         }
     }

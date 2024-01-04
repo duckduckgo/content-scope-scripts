@@ -1990,7 +1990,7 @@
         __privateAdd(this, _messaging, void 0);
         /** @type {boolean} */
         __privateAdd(this, _isDebugFlagSet, false);
-        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
+        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
         __privateAdd(this, _args, void 0);
         this.name = featureName;
         __privateSet(this, _args, null);
@@ -2001,6 +2001,9 @@
       }
       get desktopModeEnabled() {
         return __privateGet(this, _args)?.desktopModeEnabled || false;
+      }
+      get forcedZoomEnabled() {
+        return __privateGet(this, _args)?.forcedZoomEnabled || false;
       }
       /**
        * @param {import('./utils').Platform} platform
@@ -2822,27 +2825,42 @@
         const { forcedDesktopValue, forcedMobileValue } = this.getFeatureSetting("viewportWidth");
         if (typeof forcedDesktopValue === "string" && this.desktopModeEnabled) {
           this.forceViewportTag(viewportTag, forcedDesktopValue);
+          return;
         } else if (typeof forcedMobileValue === "string" && !this.desktopModeEnabled) {
           this.forceViewportTag(viewportTag, forcedMobileValue);
-        } else if (!viewportTag || this.desktopModeEnabled) {
-          const forcedWidth = screen.width >= 1280 ? 1280 : 980;
-          const forcedInitialScale = (screen.width / forcedWidth).toFixed(3);
-          let newContent = `width=${forcedWidth}, initial-scale=${forcedInitialScale}`;
-          parsedViewportContent.forEach(([key], idx) => {
-            if (!["width", "initial-scale", "user-scalable"].includes(key)) {
-              newContent = newContent.concat(`,${viewportContentParts[idx]}`);
-            }
-          });
-          this.forceViewportTag(viewportTag, newContent);
+          return;
+        }
+        const forcedValues = {};
+        if (this.forcedZoomEnabled) {
+          forcedValues["initial-scale"] = 1;
+          forcedValues["user-scalable"] = "yes";
+          forcedValues["maximum-scale"] = 10;
+        }
+        if (!viewportTag || this.desktopModeEnabled) {
+          forcedValues.width = screen.width >= 1280 ? 1280 : 980;
+          forcedValues["initial-scale"] = (screen.width / forcedValues.width).toFixed(3);
+          forcedValues["user-scalable"] = "yes";
         } else {
           const widthPart = parsedViewportContent.find(([key]) => key === "width");
           const initialScalePart = parsedViewportContent.find(([key]) => key === "initial-scale");
           if (!widthPart && initialScalePart) {
             const parsedInitialScale = parseFloat(initialScalePart[1]);
             if (parsedInitialScale !== 1) {
-              this.forceViewportTag(viewportTag, `width=device-width, ${viewportContent}`);
+              forcedValues.width = "device-width";
             }
           }
+        }
+        const newContent = [];
+        Object.keys(forcedValues).forEach((key) => {
+          newContent.push(`${key}=${forcedValues[key]}`);
+        });
+        if (newContent.length > 0) {
+          parsedViewportContent.forEach(([key], idx) => {
+            if (!(key in forcedValues)) {
+              newContent.push(viewportContentParts[idx].trim());
+            }
+          });
+          this.forceViewportTag(viewportTag, newContent.join(", "));
         }
       }
     }

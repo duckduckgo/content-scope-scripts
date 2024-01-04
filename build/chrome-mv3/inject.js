@@ -2976,7 +2976,7 @@
         /** @type {boolean} */
         #isDebugFlagSet = false
 
-        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
+        /** @type {{ debug?: boolean, desktopModeEnabled?: boolean, forcedZoomEnabled?: boolean, featureSettings?: Record<string, unknown>, assets?: AssetConfig | undefined, site: Site, messagingConfig?: import('@duckduckgo/messaging').MessagingConfig } | null} */
         #args
 
         constructor (featureName) {
@@ -2991,6 +2991,10 @@
 
         get desktopModeEnabled () {
             return this.#args?.desktopModeEnabled || false
+        }
+
+        get forcedZoomEnabled () {
+            return this.#args?.forcedZoomEnabled || false
         }
 
         /**
