@@ -603,7 +603,9 @@ export default class WebCompat extends ContentFeature {
         // Chrome respects only the last viewport tag
         const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1]
         const viewportContent = viewportTag?.getAttribute('content') || ''
+        /** @type {readonly string[]} **/
         const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : []
+        /** @type {readonly string[][]} **/
         const parsedViewportContent = viewportContentParts.map((part) => {
             const [key, value] = part.split('=').map(p => p.trim().toLowerCase())
             return [key, value]
