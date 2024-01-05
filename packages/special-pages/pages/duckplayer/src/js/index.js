@@ -44,24 +44,23 @@ import { createYoutubeURLForError } from './utils'
 // for docs
 export { DuckPlayerPageMessages, UserValues }
 
-const VideoPlayer = {
+class VideoPlayer {
     /**
      * Returns the video player iframe
-     * @returns {HTMLIFrameElement}
+     * @returns {HTMLIFrameElement | null}
      */
-    iframe: () => {
-        // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLIFrameElement'.
+    get iframe () {
         return document.querySelector('#player')
-    },
+    }
 
     /**
      * Returns the iframe player container
      * @returns {HTMLElement}
      */
-    playerContainer: () => {
+    get playerContainer () {
         // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         return document.querySelector('.player-container')
-    },
+    }
 
     /**
      * Returns the full YouTube embed URL to be used for the player iframe
@@ -69,7 +68,7 @@ const VideoPlayer = {
      * @param {number|boolean} timestamp
      * @returns {string}
      */
-    videoEmbedURL: (videoId, timestamp) => {
+    videoEmbedURL (videoId, timestamp) {
         const url = new URL(`/embed/${videoId}`, 'https://www.youtube-nocookie.com')
 
         url.searchParams.set('iv_load_policy', '1') // show video annotations
@@ -82,7 +81,8 @@ const VideoPlayer = {
         }
 
         return url.href
-    },
+    }
+
     /**
      * Sets up the video player:
      * 1. Fetches the video id
@@ -90,11 +90,11 @@ const VideoPlayer = {
      * @param {object} opts
      * @param {string} opts.base
      */
-    init: (opts) => {
-        VideoPlayer.loadVideoById()
-        VideoPlayer.setTabTitle()
-        VideoPlayer.setClickListener(opts.base)
-    },
+    constructor (opts) {
+        this.loadVideoById()
+        this.setTabTitle()
+        this.setClickListener(opts.base)
+    }
 
     /**
      * In certain circumstances, we may want to intercept
@@ -103,10 +103,9 @@ const VideoPlayer = {
      *
      * @param {string} urlBase - macos/windows current use a different base URL
      */
-    setClickListener: (urlBase) => {
-        VideoPlayer.onIframeLoaded(() => {
-            const iframe = VideoPlayer.iframe()
-            iframe.contentDocument?.addEventListener('click', (e) => {
+    setClickListener (urlBase) {
+        this.onIframeLoaded(() => {
+            this.iframe?.contentDocument?.addEventListener('click', (e) => {
                 if (!e.target) return
                 const target = /** @type {Element} */(e.target)
 
@@ -123,58 +122,71 @@ const VideoPlayer = {
                 window.location.href = next
             })
         })
-    },
+    }
 
     /**
      * Tries loading the video if there's a valid video id, otherwise shows error message.
      */
-    loadVideoById: () => {
+    loadVideoById () {
         const validVideoId = Comms.getValidVideoId()
         const timestamp = Comms.getSanitizedTimestamp()
 
         if (validVideoId) {
-            VideoPlayer.iframe().setAttribute('src', VideoPlayer.videoEmbedURL(validVideoId, timestamp))
+            this.iframe?.setAttribute('src', this.videoEmbedURL(validVideoId, timestamp))
         } else {
-            VideoPlayer.showVideoError('Invalid video id')
+            this.showVideoError('Invalid video id')
         }
-    },
+    }
 
     /**
      * Show an error instead of the video player iframe
      */
-    showVideoError: (errorMessage) => {
-        VideoPlayer.playerContainer().innerHTML = html`<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>`.toString()
+    showVideoError (errorMessage) {
+        this.playerContainer.innerHTML = html`<div class="player-error"><b>ERROR:</b> <span class="player-error-message"></span></div>`.toString()
 
         // @ts-expect-error - Type 'HTMLElement | null' is not assignable to type 'HTMLElement'.
         document.querySelector('.player-error-message').textContent = errorMessage
-    },
+    }
 
     /**
      * Trigger callback when the video player iframe has loaded
      * @param {() => void} callback
      */
-    onIframeLoaded: (callback) => {
-        const iframe = VideoPlayer.iframe()
-
-        if (VideoPlayer.loaded) {
+    onIframeLoaded (callback) {
+        if (this.loaded) {
             callback()
         } else {
-            if (iframe) {
-                iframe.addEventListener('load', () => {
-                    VideoPlayer.loaded = true
+            if (this.iframe) {
+                this.iframe.addEventListener('load', () => {
+                    this.loaded = true
                     callback()
                 })
             }
         }
-    },
+    }
+
+    async waitForIframeLoaded () {
+        if (this.loaded) {
+            return true
+        }
+        return await new Promise((resolve) => {
+            this.iframe?.addEventListener('load', () => {
+                this.loaded = true
+                resolve(true)
+            })
+        })
+    }
 
     /**
      * Fires whenever the video player iframe <title> changes (the video doesn't have the <title> set to
      * the video title until after the video has loaded...)
-     * @param {(title: string) => void} callback
      */
-    onIframeTitleChange: (callback) => {
-        const iframe = VideoPlayer.iframe()
+    async onIframeTitleChange () {
+        const iframe = this.iframe
+        let callback
+        const promise = new Promise((resolve) => {
+            callback = resolve
+        })
 
         if (iframe?.contentDocument?.title) {
             // eslint-disable-next-line n/no-callback-literal
@@ -185,10 +197,10 @@ const VideoPlayer = {
 
             if (titleElem) {
                 // @ts-expect-error - typescript known about MutationObserver in this context
-                const observer = new iframe.contentWindow.MutationObserver(function (mutations) {
-                    mutations.forEach(function (mutation) {
-                        callback(mutation.target.textContent)
-                    })
+                const observer = new iframe.contentWindow.MutationObserver((mutations) => {
+                    const mutation = mutations.shift()
+                    callback(mutation.target.textContent)
+                    observer.disconnect()
                 })
                 observer.observe(titleElem, { childList: true })
             } else {
@@ -197,13 +209,14 @@ const VideoPlayer = {
         } else {
             // console.warn('could not access iframe?.contentWindow && iframe?.contentDocument')
         }
-    },
+        return await promise
+    }
 
     /**
      * Get the video title from the video iframe.
      * @returns {string|false}
      */
-    getValidVideoTitle: (iframeTitle) => {
+    getValidVideoTitle (iframeTitle) {
         if (iframeTitle) {
             if (iframeTitle === 'YouTube') {
                 return false
@@ -213,21 +226,19 @@ const VideoPlayer = {
         }
 
         return false
-    },
+    }
 
     /**
      * Sets the tab title to the title of the video once the video title has loaded.
      */
-    setTabTitle: () => {
-        VideoPlayer.onIframeLoaded(() => {
-            VideoPlayer.onIframeTitleChange((title) => {
-                const validTitle = VideoPlayer.getValidVideoTitle(title)
+    async setTabTitle () {
+        await this.waitForIframeLoaded()
+        const title = await this.onIframeTitleChange()
+        const validTitle = this.getValidVideoTitle(title)
 
-                if (validTitle) {
-                    document.title = 'Duck Player - ' + validTitle
-                }
-            })
-        })
+        if (validTitle) {
+            document.title = 'Duck Player - ' + validTitle
+        }
     }
 }
 
@@ -765,7 +776,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.warn('cannot continue as messaging was not resolved')
         return
     }
-    VideoPlayer.init({
+    const videoPlayerInstance = new VideoPlayer({
         base: baseUrl(import.meta.injectName)
     })
     Tooltip.init()
