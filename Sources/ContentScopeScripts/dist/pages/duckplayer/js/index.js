@@ -1110,6 +1110,110 @@
     });
   }
 
+  // ../../src/features/duckplayer/util.js
+  var VideoParams = class _VideoParams {
+    /**
+     * @param {string} id - the YouTube video ID
+     * @param {string|null|undefined} time - an optional time
+     */
+    constructor(id, time) {
+      this.id = id;
+      this.time = time;
+    }
+    static validVideoId = /^[a-zA-Z0-9-_]+$/;
+    static validTimestamp = /^[0-9hms]+$/;
+    /**
+     * @returns {string}
+     */
+    toPrivatePlayerUrl() {
+      const duckUrl = new URL(`duck://player/${this.id}`);
+      if (this.time) {
+        duckUrl.searchParams.set("t", this.time);
+      }
+      return duckUrl.href;
+    }
+    /**
+     * Create a VideoParams instance from a href, only if it's on the watch page
+     *
+     * @param {string} href
+     * @returns {VideoParams|null}
+     */
+    static forWatchPage(href) {
+      let url;
+      try {
+        url = new URL(href);
+      } catch (e) {
+        return null;
+      }
+      if (!url.pathname.startsWith("/watch")) {
+        return null;
+      }
+      return _VideoParams.fromHref(url.href);
+    }
+    /**
+     * Convert a relative pathname into VideoParams
+     *
+     * @param pathname
+     * @returns {VideoParams|null}
+     */
+    static fromPathname(pathname) {
+      let url;
+      try {
+        url = new URL(pathname, window.location.origin);
+      } catch (e) {
+        return null;
+      }
+      return _VideoParams.fromHref(url.href);
+    }
+    /**
+     * Convert a href into valid video params. Those can then be converted into a private player
+     * link when needed
+     *
+     * @param href
+     * @returns {VideoParams|null}
+     */
+    static fromHref(href) {
+      let url;
+      try {
+        url = new URL(href);
+      } catch (e) {
+        return null;
+      }
+      let id = null;
+      const vParam = url.searchParams.get("v");
+      const tParam = url.searchParams.get("t");
+      if (url.searchParams.has("list") && !url.searchParams.has("index")) {
+        return null;
+      }
+      let time = null;
+      if (vParam && _VideoParams.validVideoId.test(vParam)) {
+        id = vParam;
+      } else {
+        return null;
+      }
+      if (tParam && _VideoParams.validTimestamp.test(tParam)) {
+        time = tParam;
+      }
+      return new _VideoParams(id, time);
+    }
+  };
+
+  // pages/duckplayer/src/js/utils.js
+  function createYoutubeURLForError(href, urlBase) {
+    const valid = VideoParams.forWatchPage(href);
+    if (!valid)
+      return null;
+    const original = new URL(href);
+    if (original.searchParams.get("feature") !== "emb_err_woyt")
+      return null;
+    const url = new URL(urlBase);
+    url.searchParams.set("v", valid.id);
+    if (typeof valid.time === "string") {
+      url.searchParams.set("t", valid.time);
+    }
+    return url.toString();
+  }
+
   // pages/duckplayer/src/js/index.js
   var VideoPlayer = {
     /**
@@ -1147,10 +1251,41 @@
      * Sets up the video player:
      * 1. Fetches the video id
      * 2. If the video id is correctly formatted, it loads the YouTube video in the iframe, otherwise displays an error message
+     * @param {object} opts
+     * @param {string} opts.base
      */
-    init: () => {
+    init: (opts) => {
       VideoPlayer.loadVideoById();
       VideoPlayer.setTabTitle();
+      VideoPlayer.setClickListener(opts.base);
+    },
+    /**
+     * In certain circumstances, we may want to intercept
+     * clicks within the iframe - for example when showing a video
+     * that cannot be played in the embed
+     *
+     * @param {string} urlBase - macos/windows current use a different base URL
+     */
+    setClickListener: (urlBase) => {
+      VideoPlayer.onIframeLoaded(() => {
+        const iframe = VideoPlayer.iframe();
+        iframe.contentDocument?.addEventListener("click", (e) => {
+          if (!e.target)
+            return;
+          const target = (
+            /** @type {Element} */
+            e.target
+          );
+          if (!("href" in target) || typeof target.href !== "string")
+            return;
+          const next = createYoutubeURLForError(target.href, urlBase);
+          if (!next)
+            return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          window.location.href = next;
+        });
+      });
     },
     /**
      * Tries loading the video if there's a valid video id, otherwise shows error message.
@@ -1177,8 +1312,15 @@
      */
     onIframeLoaded: (callback) => {
       const iframe = VideoPlayer.iframe();
-      if (iframe) {
-        iframe.addEventListener("load", callback);
+      if (VideoPlayer.loaded) {
+        callback();
+      } else {
+        if (iframe) {
+          iframe.addEventListener("load", () => {
+            VideoPlayer.loaded = true;
+            callback();
+          });
+        }
       }
     },
     /**
@@ -1666,7 +1808,9 @@
       console.warn("cannot continue as messaging was not resolved");
       return;
     }
-    VideoPlayer.init();
+    VideoPlayer.init({
+      base: baseUrl("apple")
+    });
     Tooltip.init();
     PlayOnYouTube.init({
       base: baseUrl("apple")
