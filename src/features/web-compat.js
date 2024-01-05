@@ -5,6 +5,11 @@ import { URL } from '../captured-globals.js'
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
 function windowSizingFix () {
+    // macOS browser incorrectly reports window height for window.screenY / window.screenTop
+    if (window.screenY === window.screen.height) {
+        window.screenY = window.screenTop = 0
+    }
+
     if (window.outerHeight !== 0 && window.outerWidth !== 0) {
         return
     }
