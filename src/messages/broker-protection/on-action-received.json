@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "OnActionReceivedSubscription",
+  "additionalProperties": false,
+  "description": "todo: add description for `OnActionReceived` message",
+  "required": [
+    "method",
+    "params",
+    "result"
+  ],
+  "properties": {
+    "subscriptionEvent": {
+      "const": "onActionReceived"
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "data"],
+      "properties": {
+        "state": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "title": "IncomingAction",
+              "description": "A list of actions that are sent from native -> web",
+              "oneOf": [
+                {
+                  "$ref": "./actions/navigate-action.json"
+                },
+                {
+                  "$ref": "./actions/extract-action.json"
+                },
+                {
+                  "$ref": "./actions/click-action.json"
+                },
+                {
+                  "$ref": "./actions/expectation-action.json"
+                },
+                {
+                  "$ref": "./actions/fill-form-action.json"
+                },
+                {
+                  "$ref": "./actions/get-capture-info-action.json"
+                },
+                {
+                  "$ref": "./actions/solve-capture-action.json"
+                }
+              ]
+            },
+            "data": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}

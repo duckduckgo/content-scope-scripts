@@ -2,7 +2,7 @@ import { getElement } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
 
 /**
- * @param action // TODO: get type based on actionType
+ * @param {import('../../../types/broker-protection.js').ClickAction} action
  * @return {import('../types.js').ActionResponse}
  */
 export function click (action) {

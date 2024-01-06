@@ -7,14 +7,14 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
 
 /**
  * Adding these types here so that we can switch to generated ones later
- * @typedef {Record<string, any>} Action
+ * @typedef {import('../../../types/broker-protection.js').ExtractAction} ExtractAction
+ * @typedef {import('../../../types/broker-protection.js').ExtractActionResponse} ExtractActionResponse
+ * @typedef {import('../../../types/broker-protection.js').ExtractedProfile} ExtractedProfile
+ * @typedef {import('../../../types/broker-protection.js').ProfileSelector} ProfileSelector
+ * @typedef {import('../../../types/broker-protection.js').ExtractProfileSelectors} ExtractProfileSelectors
  */
 
 /**
- * @typedef {Object} ExtractProfileProperty
- * For example: {
- *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
- * }
  * @property {string} selector - xpath or css selector
  * @property {boolean} [findElements] - whether to get all occurrences of the selector
  * @property {string} [afterText] - get all text after this string
@@ -23,13 +23,12 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
  */
 
 /**
- * @param {Action} action
+ * @param {ExtractAction} action
  * @param {Record<string, any>} userData
- * @return {import('../types.js').ActionResponse}
+ * @return {SuccessResponse<ExtractActionResponse>}
  */
 export function extractProfiles (action, userData) {
-    const profilesElementList =
-      Array.from(document.querySelectorAll(action.selector)) ?? []
+    const profilesElementList = /** @type {HTMLElement[]} */(Array.from(document.querySelectorAll(action.selector)) ?? [])
 
     const matchedProfiles = profilesElementList
         // first, convert each profile element list into a profile
@@ -63,10 +62,11 @@ export function extractProfiles (action, userData) {
  * }
  *
  * @param {HTMLElement} profileElement
- * @param {Record<string, ExtractProfileProperty>} extractData
- * @return {Record<string, any>}
+ * @param {ExtractProfileSelectors} extractData
+ * @return {ExtractProfileSelectors}
  */
 function createProfile (profileElement, extractData) {
+    /** @type {Partial<ExtractProfileSelectors>} */
     const output = {}
     for (const [key, value] of Object.entries(extractData)) {
         if (!value?.selector) {
@@ -83,13 +83,13 @@ function createProfile (profileElement, extractData) {
             output[key] = extractedValue || evaluatedValue || null
         }
     }
-    return output
+    return /** @type {ExtractProfileSelectors} */(output)
 }
 
 /**
- * @param {HTMLElement} profileElement
+ * @param {Element} profileElement
  * @param {string} key
- * @param {ExtractProfileProperty} extractField
+ * @param {ProfileSelector} extractField
  */
 function findFromElements (profileElement, key, extractField) {
     const elements = getElements(profileElement, extractField.selector) || null
@@ -112,7 +112,7 @@ function findFromElements (profileElement, key, extractField) {
 /**
  * @param {HTMLElement} profileElement
  * @param {string} dataKey - such as 'name', 'age' etc
- * @param {ExtractProfileProperty} extractField
+ * @param {ProfileSelector} extractField
  * @return {string}
  */
 function findFromElement (profileElement, dataKey, extractField) {
@@ -174,7 +174,7 @@ function scrapedDataMatchesUserData (userData, scrapedData) {
 }
 
 /**
- * @param {Record<string, any>} profile
+ * @return {ExtractedProfile}
  */
 export function aggregateFields (profile) {
     const addressCityStateArray = profile.addressCityState || []
@@ -212,7 +212,7 @@ export function aggregateFields (profile) {
  * todo: Rework this `extract` functionality to reduce mixing of types
  *
  * @param {string} key
- * @param {ExtractProfileProperty} value
+ * @param {ProfileSelector} value
  * @param {string | string[]} elementValue
  * @return {string|string[]|null}
  */
