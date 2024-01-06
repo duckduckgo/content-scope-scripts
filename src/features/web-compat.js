@@ -4,10 +4,17 @@ import { URL } from '../captured-globals.js'
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
-function windowSizingFix () {
-    // macOS browser incorrectly reports window height for window.screenY / window.screenTop
+function windowSizingFix (settings) {
+    // macOS browser incorrectly reports screen height for window.screenY / window.screenTop
     if (window.screenY === window.screen.height) {
-        window.screenY = window.screenTop = 0
+        let screenYOverride = settings?.screenYOverride
+
+        if (typeof screenYOverride === 'undefined') {
+            // @ts-expect-error - typescript known about availTop in this context
+            screenYOverride = window.screen.availTop
+        }
+
+        window.screenY = window.screenTop = screenYOverride
     }
 
     if (window.outerHeight !== 0 && window.outerWidth !== 0) {
@@ -81,7 +88,8 @@ export default class WebCompat extends ContentFeature {
 
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
-            windowSizingFix()
+            const settings = this.getFeatureSetting('windowSizing')
+            windowSizingFix(settings)
         }
         if (this.getFeatureSettingEnabled('navigatorCredentials')) {
             this.navigatorCredentialsFix()
