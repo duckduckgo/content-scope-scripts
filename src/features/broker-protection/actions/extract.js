@@ -28,8 +28,7 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
  * @return {import('../types.js').ActionResponse}
  */
 export function extractProfiles (action, userData) {
-    const profilesElementList =
-      Array.from(document.querySelectorAll(action.selector)) ?? []
+    const profilesElementList = getElements(document, action.selector) ?? []
 
     const matchedProfiles = profilesElementList
         // first, convert each profile element list into a profile
