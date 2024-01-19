@@ -4,6 +4,7 @@ import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
 import { matchesFullAddress } from '../comparisons/matches-full-address.js'
 import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
+import parseAddress from 'parse-address'
 
 /**
  * Adding these types here so that we can switch to generated ones later
@@ -138,6 +139,12 @@ function findFromElement (profileElement, dataKey, extractField) {
  * @return {boolean}
  */
 function scrapedDataMatchesUserData (userData, scrapedData) {
+    // Generate an addressCityStateList here from addressFull/addressFullList
+    // if the user has only included a city/state
+    if (scrapedData.addressFullList && !scrapedData.addressCityStateList) {
+        scrapedData.addressCityStateList = generateCityStateList(scrapedData.addressFull, scrapedData.addressFullList);
+    }
+
     if (!isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) return false
 
     if (scrapedData.age) {
@@ -301,4 +308,27 @@ const rules = {
     profileUrl: function (link) {
         return link?.href ?? null
     }
+}
+
+function generateCityStateList(addressFull, addressFullList) {
+    let addressList = new Set(addressFullList);
+
+    // Add the full address to the existing list if it present
+    if (addressFull) { addressList.add(addressFull); }
+
+    const cityStateList = new Set();
+
+    addressFullList.map(address => {
+        const parsedAddress = parseAddress.parseLocation(address)
+
+        if (parsedAddress.city && parsedAddress.state) {
+            cityStateList.add({city: parsedAddress.city, state:parsedAddress.state})
+        }
+    })
+
+    if (cityStateList.size) {
+        return cityStateList
+    }
+
+    return
 }
