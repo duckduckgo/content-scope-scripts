@@ -10331,7 +10331,7 @@
          */
         return String(input).replace(/\$%7B(.+?)%7D|\$\{(.+?)}/g, (match, encodedValue, plainValue) => {
             const comparison = encodedValue ?? plainValue;
-            const [dataKey, ...transforms] = comparison.split('|');
+            const [dataKey, ...transforms] = comparison.split(/\||%7C/);
             const data = userData[dataKey];
             return applyTransforms(dataKey, data, transforms, action)
         })

@@ -247,6 +247,14 @@ describe('Actions', () => {
             expect(result).toEqual({ url: 'https://example.com/profile/John-Smith/a/b/c/search?state=il&city=Chicago&fage=24' })
         })
 
+        it('should handle url encodings', () => {
+            const result = replaceTemplatedUrl({
+                id: 0,
+                url: 'https://example.com/name/$%7BfirstName%7Cdowncase%7D-$%7BlastName%7Cdowncase%7D/$%7Bcity%7Cdowncase%7D-$%7Bstate%7CstateFull%7Cdowncase%7D?age=$%7Bage%7D'
+            }, userData)
+            expect(result).toEqual({ url: 'https://example.com/name/john-smith/chicago-illinois?age=24' })
+        })
+
         it('should build url when given valid data from path segments with modifiers path and url', () => {
             const result = replaceTemplatedUrl({
                 id: 0,
