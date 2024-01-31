@@ -15,21 +15,18 @@ So far, the following platforms are supported
 ## Contributing
 
 ### HTML
-The main HTML file is located at `public/index.html`. You can edit this file directly
+The main HTML file is located at `src/index.html`. You can edit this file directly
 
 ### CSS
-The main stylesheet is located at `public/style.css`. You can edit this file directly
+The main stylesheet is located at `src/style.css`. You can edit this file directly
 
 ### Javascript
-JavaScript source files are located in the `src` directory. The build process will create a bundle and place it inside `public/generated`. 
+JavaScript source files are located in the `src` directory. The build process will create a bundle and place it inside `Sources/ContentScopeScripts/dist/pages/onboarding`. 
 
 This is why the `index.html` file has the following `<script>` tag.
 
-```html
-<script type="module" src="generated/js/index.js"></script>
-```
-
 Don't edit the generated files directly - any changes you make will not be reflected in the final build output. 
 
-Instead, make your changes in `src/' and then run `npm run build.pages` from the `packages/special-pages` folder
+Instead, make your changes in `src/` and then run `npm run build` from the root folder
+  - or to build special pages only, run `npm run postbuild` instead
 
