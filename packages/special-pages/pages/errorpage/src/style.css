@@ -43,7 +43,8 @@ body {
 .watermark-container {
     display: inline-block;
     position: fixed;
-    width: 200px;
+    width: 100px;
+    height: 100px;
     bottom: 20px;
     right: 20px;
     opacity: 0.5;
@@ -51,9 +52,14 @@ body {
     pointer-events: none;
 }
 
+.watermark {
+    max-width: 100px;
+    max-height: 100px;
+}
+
 @media (prefers-color-scheme: dark) {
     body {
-        background: rgb(30, 30, 30);
+        background: rgb(51, 51, 51);
     }
 
     .error-description, .error-header {
