@@ -239,13 +239,12 @@ async function handleSystemSettingUpdate (action, messaging) {
         return payload
     }
     case 'dock': {
-        // todo: question this logic.
         // if a users presses 'skip' and we remove from the dock, can it actually be un-done? (eg: placed back?)
-        if (!payload.enabled) {
-            messaging.requestRemoveFromDock()
-            return payload
+        if (payload.enabled) {
+            await messaging.requestDockOptIn()
+            return { enabled: true }
         }
-        return { enabled: true }
+        break
     }
     case 'import': {
         if (payload.enabled) {

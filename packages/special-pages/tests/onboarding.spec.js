@@ -38,10 +38,17 @@ test.describe('onboarding', () => {
         })
     })
     test.describe('Given I am on the system settings step', () => {
-        test('The I can skip both', async ({ page }, workerInfo) => {
+        test('Then I can pin DuckDuckGo to my taskbar', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             await onboarding.reducedMotion()
             await onboarding.openPage({ env: 'app', page: 'systemSettings' })
+            await onboarding.keepInTaskbar()
+        })
+        test('The I can skip all', async ({ page }, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo)
+            await onboarding.reducedMotion()
+            await onboarding.openPage({ env: 'app', page: 'systemSettings' })
+            await onboarding.skippedCurrent()
             await onboarding.skippedCurrent()
             await onboarding.skippedCurrent()
             await page.getByRole('button', { name: 'Next' }).click()

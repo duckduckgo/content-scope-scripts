@@ -89,15 +89,22 @@ export class OnboardingMessages {
     }
 
     /**
-     * TODO:
+     * Sent when the user wants to keep the application in the dock/taskbar.
+     *
+     * Native side should respond when the operation is 'complete'.
+     *
+     * @returns {Promise<any>}
      */
-    requestRemoveFromDock () {
-        this.messaging.notify('requestRemoveFromDock')
+    requestDockOptIn () {
+        return this.messaging.request('requestDockOptIn')
     }
 
     /**
      * Sent when the user wants to import data. The UI will remain
      * in a loading state until the native layer sends a response.
+     *
+     * Native side should respond when the operation is 'complete'.
+     *
      * @returns {Promise<any>}
      */
     requestImport () {
@@ -107,6 +114,8 @@ export class OnboardingMessages {
     /**
      * Sent when the user wants to set DuckDuckGo as their default browser. The UI will remain
      * in a loading state until the native layer sends a response.
+     *
+     * Native side should respond when the operation is 'complete'.
      *
      * @returns {Promise<any>}
      */
