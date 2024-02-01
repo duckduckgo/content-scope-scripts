@@ -116,9 +116,9 @@ export const settingsRowItems = {
         icon: 'dock.png',
         title: 'Keep DuckDuckGo in your Taskbar',
         secondaryText: 'Get to DuckDuckGo faster.',
-        summary: 'Keep in Taskbar',
+        summary: 'Pin to Taskbar',
         kind: 'one-time',
-        acceptText: 'Keep in Taskbar'
+        acceptText: 'Pin to Taskbar'
     },
     import: {
         id: 'import',

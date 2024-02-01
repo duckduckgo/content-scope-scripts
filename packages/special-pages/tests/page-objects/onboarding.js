@@ -28,7 +28,13 @@ export class OnboardingPage {
         this.mocks.defaultResponses({
             requestSetAsDefault: {},
             requestImport: {},
-            init: {}
+            init: {
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'import', 'default-browser']
+                    }
+                }
+            }
         })
     }
 
@@ -278,6 +284,21 @@ export class OnboardingPage {
                     context: 'specialPages',
                     featureName: 'onboarding',
                     method: 'init'
+                }
+            }
+        ])
+    }
+
+    async keepInTaskbar () {
+        const { page } = this
+        await page.getByRole('button', { name: 'Pin to Taskbar' }).click()
+        const calls = await this.mocks.waitForCallCount({ method: 'requestDockOptIn', count: 1 })
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'requestDockOptIn'
                 }
             }
         ])
