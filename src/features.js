@@ -30,7 +30,8 @@ const otherFeatures = /** @type {const} */([
 export const platformSupport = {
     apple: [
         'webCompat',
-        ...baseFeatures
+        ...baseFeatures,
+        'clickToLoad'
     ],
     'apple-isolated': [
         'duckPlayer',
@@ -71,7 +72,7 @@ export const platformSupport = {
 }
 
 // Certain features are injected into the page in Firefox
-// This is because Firefox does not support proxies for custom elements, it's advided you don't use this without a good reason
+// This is because Firefox does not support proxies for custom elements, it's advised you don't use this without a good reason
 /** @type {FeatureName[]} */
 export const runtimeInjected = [
     'runtimeChecks'
