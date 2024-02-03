@@ -35,7 +35,6 @@ export const support = {
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     errorpage: {
         'integration': ['copy'],
-        'windows': ['copy'],
         'apple': ['copy', 'inline-html'],
     },
 }
