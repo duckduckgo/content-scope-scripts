@@ -36,7 +36,6 @@ export const support = {
     onboarding: {
         'integration': ['copy', 'build-js'],
         'windows': ['copy', 'build-js'],
-        'apple': ['copy', 'build-js', 'inline-html'],
     },
 }
 
