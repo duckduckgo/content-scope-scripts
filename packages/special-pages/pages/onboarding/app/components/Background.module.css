@@ -7,6 +7,7 @@
     overflow: hidden;
 
     /* Modern browsers support multiple `background-size` so add grain */
+    background-color: #FDEDE5;
     background-image: url("../../src/assets/img/grain.png"), url("../../src/assets/img/background.jpg");
     background-blend-mode: overlay, normal;
     background-repeat: repeat, no-repeat;
@@ -19,6 +20,7 @@
         background-size: 100px, 100% 100%;
     }
     @media (prefers-color-scheme: dark) {
+        background-color: #37214F;
         background-image: url("../../src/assets/img/grain-dark.png"), url("../../src/assets/img/background-dark.jpg");
         background-blend-mode: overlay, normal;
         background-repeat: repeat, no-repeat;
