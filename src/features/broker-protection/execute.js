@@ -1,5 +1,5 @@
 import { buildUrl } from './actions/build-url.js'
-import { extractProfiles } from './actions/extract.js'
+import { extract } from './actions/extract.js'
 import { fillForm } from './actions/fill-form.js'
 import { getCaptchaInfo, solveCaptcha } from './actions/captcha.js'
 import { click } from './actions/click.js'
@@ -19,9 +19,9 @@ export function execute (action, data) {
         case 'navigate':
             return buildUrl(action, data)
         case 'extract':
-            return extractProfiles(action, data)
+            return extract(action, data)
         case 'click':
-            return click(action)
+            return click(action, data)
         case 'expectation':
             return expectation(action)
         case 'fillForm':

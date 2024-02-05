@@ -1,7 +1,114 @@
 import { test } from '@playwright/test'
 import { BrokerProtectionPage } from './page-objects/broker-protection.js'
+import { readOutgoingMessages } from '@duckduckgo/messaging/lib/test-utils.mjs'
 
 test.describe('Broker Protection communications', () => {
+    test.only('from har', async ({ page }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        await dbp.enabled()
+
+        await page.routeFromHAR('been.har', {
+            url: '**/*',
+            update: false
+        })
+
+        const data = {
+            firstName: 'shane',
+            lastName: 'osbourne',
+            middleName: 'Alan',
+            city: 'Brooklyn',
+            state: 'NY',
+            addresses: [
+                {
+                    addressLine1: '123 Fake St',
+                    city: 'Brooklyn',
+                    state: 'NY',
+                    zip: '12345'
+                }
+            ]
+        }
+
+        await page.goto('https://www.beenverified.com/app/optout/search')
+        await page.getByRole('button', { name: 'I Agree' }).click()
+        await dbp.simulateSubscriptionMessage('onActionReceived', {
+            state: {
+                action: {
+                    actionType: 'fillForm',
+                    id: '3',
+                    selector: '#search-person',
+                    elements: [
+                        {
+                            type: 'firstName',
+                            selector: '[name=fname]'
+                        },
+                        {
+                            type: 'lastName',
+                            selector: '[name=ln]'
+                        }
+                    ]
+                },
+                data
+            }
+        })
+
+        await dbp.simulateSubscriptionMessage('onActionReceived', {
+            state: {
+                action: {
+                    actionType: 'click',
+                    id: '4',
+                    elements: [
+                        {
+                            type: 'button',
+                            selector: '#optout-search'
+                        }
+                    ]
+                }
+            }
+        })
+
+        const tryClick = {
+            state: {
+                action: {
+                    actionType: 'click',
+                    id: '5',
+                    retry: {
+                        environment: 'web',
+                        strategy: 'fixed',
+                        maxAttempts: 10,
+                        interval: { ms: 1000 }
+                    },
+                    elements: [
+                        {
+                            type: 'button',
+                            selector: '.',
+                            parent: {
+                                profileMatch: {
+                                    selector: '.automation-person-result-data-card',
+                                    profile: {
+                                        name: {
+                                            selector: '.person-name',
+                                            beforeText: ','
+                                        },
+                                        addressCityState: {
+                                            selector: '.person-city'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                data
+            }
+        }
+
+        await dbp.simulateSubscriptionMessage('onActionReceived', tryClick)
+
+        // const response = await dbp.waitForMessage('actionCompleted')
+        await page.waitForTimeout(1000)
+        const calls = await page.evaluate(readOutgoingMessages)
+        console.log(JSON.stringify(calls, null, 2))
+    })
     test('sends an error when the action is not found', async ({ page }, workerInfo) => {
         const dbp = BrokerProtectionPage.create(page, workerInfo)
         await dbp.enabled()

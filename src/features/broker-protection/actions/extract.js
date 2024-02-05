@@ -1,5 +1,5 @@
 import { getElement, getElementMatches, getElements } from '../utils.js' // Assuming you have imported the address comparison function
-import { SuccessResponse } from '../types.js'
+import { ErrorResponse, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
 import { matchesFullAddress } from '../comparisons/matches-full-address.js'
@@ -27,18 +27,49 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
  * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
-export function extractProfiles (action, userData) {
+export function extract (action, userData) {
+    const matchedProfiles = extractProfile(action, userData)
+
+    if ('success' in matchedProfiles) {
+        const profiles = matchedProfiles.success
+            .filter(x => x.matched.result === true)
+            .map(x => x.aggregateFields)
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: profiles })
+    }
+
+    return new ErrorResponse({ actionID: action.id, message: matchedProfiles.error })
+}
+
+/**
+ * @param action
+ * @param userData
+ * @return {{
+ *   success: {
+ *    element: HTMLElement,
+ *    scraped: Record<string, any>,
+ *    aggregateFields: Record<string, any>,
+ *    matched: ReturnType<scrapedDataMatchesUserData>
+ *  }[]} | { error: string }}
+ */
+export function extractProfile (action, userData) {
     const profilesElementList = getElements(document, action.selector) ?? []
 
-    const matchedProfiles = profilesElementList
-        // first, convert each profile element list into a profile
-        .map((element) => createProfile(element, action.profile))
-        // only include profiles that match the user data
-        .filter((scrapedData) => scrapedDataMatchesUserData(userData, scrapedData))
-        // aggregate some fields
-        .map((scrapedData) => aggregateFields(scrapedData))
+    if (profilesElementList.length === 0) {
+        return { error: 'no matches for root profile selector' }
+    }
 
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: matchedProfiles })
+    return {
+        success: profilesElementList
+            .map((element) => {
+                const scraped = createProfile(element, action.profile)
+                return {
+                    element,
+                    scraped,
+                    matched: scrapedDataMatchesUserData(userData, scraped),
+                    aggregateFields: aggregateFields(scraped)
+                }
+            })
+    }
 }
 
 /**
@@ -89,6 +120,7 @@ function createProfile (profileElement, extractData) {
  * @param {HTMLElement} profileElement
  * @param {string} key
  * @param {ExtractProfileProperty} extractField
+ * @returns {string[]}
  */
 function findFromElements (profileElement, key, extractField) {
     const elements = getElements(profileElement, extractField.selector) || null
@@ -132,44 +164,100 @@ function findFromElement (profileElement, dataKey, extractField) {
 }
 
 /**
+ * @typedef {{ kind: "matchesAddress"; }
+ *   | { kind: "matchesAddressCityStateList"; }
+ *   | { kind: "matchesFullAddress"; }
+ *   | { kind: "matchesPhone"; }
+ * } MatchReason
+ *
+ * @typedef {{ kind: "isSameName";  }
+ *   | { kind: "isSameAge";  }
+ *   | { kind: "none";  }
+ * } FailReason
+ *
  * Try to filter partial data based on the user's actual profile data
  * @param {Record<string, any>} userData
  * @param {Record<string, any>} scrapedData
- * @return {boolean}
+ * @return {{result: true; reason: MatchReason} | {result: false; reason: FailReason}}
  */
 function scrapedDataMatchesUserData (userData, scrapedData) {
-    if (!isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) return false
-
-    if (scrapedData.age) {
-        if (!isSameAge(scrapedData.age, userData.age)) {
-            return false
+    const negative = {
+        isSameName: () => {
+            if (!isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) {
+                return false
+            }
+            return null
+        },
+        isSameAge: () => {
+            if (scrapedData.age) {
+                if (!isSameAge(scrapedData.age, userData.age)) {
+                    return false
+                }
+            }
+            return null
+        }
+    }
+    const positive = {
+        matchesAddress: () => {
+            if (scrapedData.addressCityState) {
+                if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
+                    return true
+                }
+            }
+            return null
+        },
+        matchesAddressCityStateList: () => {
+            if (scrapedData.addressCityStateList) {
+                if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
+                    return true
+                }
+            }
+            return null
+        },
+        matchesFullAddress: () => {
+            if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
+                return true
+            }
+            return null
+        },
+        matchesPhone: () => {
+            if (scrapedData.phone) {
+                if (userData.phone === scrapedData.phone) {
+                    return true
+                }
+            }
+            return null
         }
     }
 
-    if (scrapedData.addressCityState) {
-        // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
-        if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
-            return true
+    /** @type {(keyof negative)[]} */
+    const negativeChecks = [
+        'isSameName',
+        'isSameAge'
+    ]
+    /** @type {(keyof positive)[]} */
+    const positiveChecks = [
+        'matchesAddress',
+        'matchesAddressCityStateList',
+        'matchesFullAddress',
+        'matchesPhone'
+    ]
+
+    for (const item of negativeChecks) {
+        const result = negative[item]()
+        if (result === false) {
+            return { result: false, reason: { kind: item } }
         }
     }
 
-    // it's possible to have both addressCityState and addressCityStateList
-    if (scrapedData.addressCityStateList) {
-        if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
-            return true
+    for (const item of positiveChecks) {
+        const result = positive[item]()
+        if (result === true) {
+            return { result: true, reason: { kind: item } }
         }
     }
 
-    if (scrapedData.addressFull) {
-        if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) { return true }
-    }
-
-    if (scrapedData.phone) {
-        if (userData.phone === scrapedData.phone) { return true }
-    }
-
-    // if phone number matches
-    return false
+    return { result: false, reason: { kind: 'none' } }
 }
 
 /**
