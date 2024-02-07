@@ -254,7 +254,7 @@ export class OnboardingPage {
     async handlesFatalException () {
         const { page } = this
         await expect(page.getByRole('heading')).toContainText('Something went wrong')
-        const calls = await this.mocks.outgoing({ names: ['reportPageException'] })
+        const calls = await this.mocks.waitForCallCount({ method: 'reportPageException', count: 1 })
         expect(calls).toMatchObject([
             {
                 payload: {
