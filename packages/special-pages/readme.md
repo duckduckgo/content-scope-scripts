@@ -4,6 +4,7 @@ Special Pages gives us a single place to implement isolated HTML/CSS/Javascript 
 
 - `packages/special-pages/pages/example`
 - `packages/special-pages/pages/duckplayer`
+- `packages/special-pages/pages/errorpage`
 
 Would translate into the following build output
 

@@ -32,6 +32,11 @@ export const support = {
         'windows': ['copy', 'build-js'],
         'apple': ['copy', 'build-js', 'inline-html'],
     },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    errorpage: {
+        'integration': ['copy'],
+        'apple': ['copy', 'inline-html'],
+    },
 }
 
 /** @type {{src: string, dest: string}[]} */
