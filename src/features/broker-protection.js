@@ -24,11 +24,11 @@ export default class BrokerProtection extends ContentFeature {
 
                 retry(() => execute(action, data), retryConfig)
                     // eslint-disable-next-line promise/prefer-await-to-then
-                    .then(({ result, errors }) => {
+                    .then(({ result, exceptions }) => {
                         if (result) {
                             this.messaging.notify('actionCompleted', { result })
                         } else {
-                            this.messaging.notify('actionError', { error: 'No response found, errors: ' + errors.join(', ') })
+                            this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') })
                         }
                     })
                     // eslint-disable-next-line promise/prefer-await-to-then

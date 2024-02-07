@@ -11,16 +11,16 @@ export const DEFAULT_RETRY_CONFIG = {
  * @template {{ success: T } | { error: { message: string } }} FnReturn
  * @param {() => FnReturn} fn
  * @param {typeof DEFAULT_RETRY_CONFIG} [config]
- * @return {Promise<{ result: FnReturn | undefined, errors: string[] }>}
+ * @return {Promise<{ result: FnReturn | undefined, exceptions: string[] }>}
  */
 export async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
     let lastResult
-    const errors = []
+    const exceptions = []
     for (let i = 0; i < config.maxAttempts; i++) {
         try {
             lastResult = fn()
         } catch (e) {
-            errors.push(e.toString())
+            exceptions.push(e.toString())
         }
 
         // stop when there's a good result to return
@@ -32,5 +32,5 @@ export async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
         await new Promise(resolve => setTimeout(resolve, config.interval.ms))
     }
 
-    return { result: lastResult, errors }
+    return { result: lastResult, exceptions }
 }
