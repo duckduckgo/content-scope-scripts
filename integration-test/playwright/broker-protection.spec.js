@@ -352,4 +352,60 @@ test.describe('Broker Protection communications', () => {
             dbp.isSuccessMessage(response)
         })
     })
+
+    test.describe('retrying', () => {
+        test('retrying a click', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('retry.html')
+
+            await dbp.simulateSubscriptionMessage('onActionReceived', {
+                state: {
+                    action: {
+                        actionType: 'click',
+                        id: '5',
+                        retry: {
+                            environment: 'web',
+                            maxAttempts: 10,
+                            interval: { ms: 1000 }
+                        },
+                        elements: [
+                            {
+                                type: 'button',
+                                selector: 'button'
+                            }
+                        ]
+                    }
+                }
+            })
+
+            await page.getByRole('heading', { name: 'Retry' }).waitFor({ timeout: 5000 })
+
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+        })
+        test('ensuring retry doesnt apply everywhere', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('retry.html')
+
+            await dbp.simulateSubscriptionMessage('onActionReceived', {
+                state: {
+                    action: {
+                        actionType: 'click',
+                        id: '5',
+                        elements: [
+                            {
+                                type: 'button',
+                                selector: 'button'
+                            }
+                        ]
+                    }
+                }
+            })
+
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isErrorMessage(response)
+        })
+    })
 })
