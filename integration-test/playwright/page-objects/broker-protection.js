@@ -103,7 +103,7 @@ export class BrokerProtectionPage {
     /**
      * Simulate the native-side pushing an action into the client-side JS
      *
-     * @param {'extract.json' | 'extract2.json' | 'extract3.json' | 'extract4.json' | 'extract5.json' | 'extract-irregular1.json' | 'extract-irregular2.json' | 'extract-irregular3.json' | 'results2.json' | 'navigate.json' | 'fill-form.json' | 'click.json' | 'expectation.json' | 'get-captcha.json' | 'solve-captcha.json' | 'action-not-found.json'} action - add more action types here
+     * @param {string} action
      * @return {Promise<void>}
      */
     async receivesAction (action) {

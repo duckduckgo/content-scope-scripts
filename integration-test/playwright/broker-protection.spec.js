@@ -21,18 +21,8 @@ test.describe('Broker Protection communications', () => {
         })
     })
 
-    test.describe('Executes action and sends success message', () => {
-        test('buildUrl', async ({ page }, workerInfo) => {
-            const dbp = BrokerProtectionPage.create(page, workerInfo)
-            await dbp.enabled()
-            await dbp.navigatesTo('results.html')
-            await dbp.receivesAction('navigate.json')
-            const response = await dbp.waitForMessage('actionCompleted')
-            dbp.isSuccessMessage(response)
-            dbp.isUrlMatch(response[0].payload.params.result.success.response)
-        })
-
-        test('extract', async ({ page }, workerInfo) => {
+    test.describe('Profile extraction', () => {
+        test('extract', async ({ page, baseURL }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
             await dbp.navigatesTo('results.html')
@@ -44,24 +34,15 @@ test.describe('Broker Protection communications', () => {
                 alternativeNames: [],
                 age: '38',
                 addresses: [
-                    {
-                        city: 'Chicago',
-                        state: 'IL'
-                    },
-                    {
-                        city: 'Ypsilanti',
-                        state: 'MI'
-                    },
-                    {
-                        city: 'Cadillac',
-                        state: 'MI'
-                    }
+                    { city: 'Chicago', state: 'IL' },
+                    { city: 'Ypsilanti', state: 'MI' },
+                    { city: 'Cadillac', state: 'MI' }
                 ],
                 phoneNumbers: [],
                 relatives: [
                     'Cheryl Lamar'
                 ],
-                profileUrl: 'http://localhost:3220/view/John-Smith-CyFdD.F'
+                profileUrl: baseURL + 'view/John-Smith-CyFdD.F'
             }])
         })
 
@@ -81,22 +62,10 @@ test.describe('Broker Protection communications', () => {
                     ],
                     age: '40',
                     addresses: [
-                        {
-                            city: 'Has lived',
-                            state: 'in:'
-                        },
-                        {
-                            city: 'Miami',
-                            state: 'FL'
-                        },
-                        {
-                            city: 'Miami Gardens',
-                            state: 'FL'
-                        },
-                        {
-                            city: 'Opa Locka',
-                            state: 'FL'
-                        }
+                        { city: 'Has lived', state: 'in:' },
+                        { city: 'Miami', state: 'FL' },
+                        { city: 'Miami Gardens', state: 'FL' },
+                        { city: 'Opa Locka', state: 'FL' }
                     ],
                     phoneNumbers: [],
                     profileUrl: 'http://localhost:3220/view/Ben-Smith-CQEmF3CB'
@@ -106,14 +75,8 @@ test.describe('Broker Protection communications', () => {
                     alternativeNames: null,
                     age: '40',
                     addresses: [
-                        {
-                            city: 'Has lived',
-                            state: 'in:'
-                        },
-                        {
-                            city: 'Miami',
-                            state: 'FL'
-                        }
+                        { city: 'Has lived', state: 'in:' },
+                        { city: 'Miami', state: 'FL' }
                     ],
                     phoneNumbers: [],
                     profileUrl: 'http://localhost:3220/view/Ben-Smith-DSAJBtFB'
@@ -278,6 +241,17 @@ test.describe('Broker Protection communications', () => {
                 profileUrl: baseURL + 'people/John-Smith-AIGwGOFD'
             }])
         })
+    })
+    test.describe('Executes action and sends success message', () => {
+        test('buildUrl', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results.html')
+            await dbp.receivesAction('navigate.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+            dbp.isUrlMatch(response[0].payload.params.result.success.response)
+        })
 
         test('fillForm', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
@@ -296,6 +270,17 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('click.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
+        })
+
+        test('clicking with parent selector (considering matching weight/score)', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results-weighted.html')
+            await dbp.receivesAction('click-weighted.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+            await page.waitForURL(url => url.hash === '#2', { timeout: 2000 })
         })
 
         test('getCaptchaInfo', async ({ page }, workerInfo) => {

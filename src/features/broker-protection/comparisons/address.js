@@ -3,7 +3,7 @@ import { states } from './constants.js'
 /**
  * @param userAddresses
  * @param foundAddresses
- * @return {{cityFound, stateFound}|boolean}
+ * @return {boolean}
  */
 export function matchAddressFromAddressListCityState (userAddresses, foundAddresses) {
     if (!userAddresses || userAddresses.length < 1 || !foundAddresses || foundAddresses.length < 1) {
@@ -23,7 +23,7 @@ export function matchAddressFromAddressListCityState (userAddresses, foundAddres
             stateFound = possibleLocation.state
 
             if (isSameAddressCityState(userCity, userState, cityFound, stateFound)) {
-                return { cityFound, stateFound }
+                return true
             }
         }
     }
