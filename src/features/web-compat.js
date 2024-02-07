@@ -14,6 +14,8 @@ function windowSizingFix () {
 
 const MSG_WEB_SHARE = 'webShare'
 const MSG_PERMISSIONS_QUERY = 'permissionsQuery'
+const MSG_SCREEN_LOCK = 'screenLock'
+const MSG_SCREEN_UNLOCK = 'screenUnlock'
 
 function canShare (data) {
     if (typeof data !== 'object') return false
@@ -69,6 +71,9 @@ export default class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeShareRequest = null
 
+    /** @type {Promise<any> | null} */
+    #activeScreenLockRequest = null
+
     init () {
         if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix()
@@ -107,6 +112,10 @@ export default class WebCompat extends ContentFeature {
 
         if (this.getFeatureSettingEnabled('viewportWidth')) {
             this.viewportWidthFix()
+        }
+
+        if (this.getFeatureSettingEnabled('screenLock')) {
+            this.screenLockFix()
         }
     }
 
@@ -281,6 +290,66 @@ export default class WebCompat extends ContentFeature {
         // Expose the API
         // @ts-expect-error window.navigator isn't assignable
         window.navigator.permissions = permissions
+    }
+
+    /**
+     * Fixes screen lock/unlock APIs for Android WebView.
+     */
+    screenLockFix () {
+        const validOrientations = [
+            'any',
+            'natural',
+            'landscape',
+            'portrait',
+            'portrait-primary',
+            'portrait-secondary',
+            'landscape-primary',
+            'landscape-secondary',
+            'unsupported'
+        ]
+
+        this.wrapProperty(globalThis.ScreenOrientation.prototype, 'lock', {
+            value: async (requestedOrientation) => {
+                if (!requestedOrientation) {
+                    return Promise.reject(new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present."))
+                }
+                if (!validOrientations.includes(requestedOrientation)) {
+                    return Promise.reject(new TypeError(`Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`))
+                }
+                if (this.#activeScreenLockRequest) {
+                    return Promise.reject(new DOMException('Screen lock already in progress', 'AbortError'))
+                }
+
+                this.#activeScreenLockRequest = this.messaging.request(MSG_SCREEN_LOCK, { orientation: requestedOrientation })
+                let resp
+                try {
+                    resp = await this.#activeScreenLockRequest
+                } catch (err) {
+                    throw new DOMException(err.message, 'DataError')
+                } finally {
+                    this.#activeScreenLockRequest = null
+                }
+
+                if (resp.failure) {
+                    switch (resp.failure.name) {
+                    case 'TypeError':
+                        return Promise.reject(new TypeError(resp.failure.message))
+                    case 'InvalidStateError':
+                        return Promise.reject(new DOMException(resp.failure.message, resp.failure.name))
+                    default:
+                        return Promise.reject(new DOMException(resp.failure.message, 'DataError'))
+                    }
+                }
+
+                return Promise.resolve()
+            }
+        })
+
+        this.wrapProperty(globalThis.ScreenOrientation.prototype, 'unlock', {
+            value: () => {
+                this.messaging.request(MSG_SCREEN_UNLOCK, {})
+            }
+        })
     }
 
     /**
@@ -534,30 +603,40 @@ export default class WebCompat extends ContentFeature {
         // Chrome respects only the last viewport tag
         const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1]
         const viewportContent = viewportTag?.getAttribute('content') || ''
+        /** @type {readonly string[]} **/
         const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : []
+        /** @type {readonly string[][]} **/
         const parsedViewportContent = viewportContentParts.map((part) => {
             const [key, value] = part.split('=').map(p => p.trim().toLowerCase())
             return [key, value]
         })
 
+        // first, check if there are any forced values
         const { forcedDesktopValue, forcedMobileValue } = this.getFeatureSetting('viewportWidth')
         if (typeof forcedDesktopValue === 'string' && this.desktopModeEnabled) {
             this.forceViewportTag(viewportTag, forcedDesktopValue)
+            return
         } else if (typeof forcedMobileValue === 'string' && !this.desktopModeEnabled) {
             this.forceViewportTag(viewportTag, forcedMobileValue)
-        } else if (!viewportTag || this.desktopModeEnabled) {
+            return
+        }
+
+        // otherwise, check for special cases
+        const forcedValues = {}
+
+        if (this.forcedZoomEnabled) {
+            forcedValues['initial-scale'] = 1
+            forcedValues['user-scalable'] = 'yes'
+            forcedValues['maximum-scale'] = 10
+        }
+
+        if (!viewportTag || this.desktopModeEnabled) {
             // force wide viewport width
-            const forcedWidth = screen.width >= 1280 ? 1280 : 980
+            forcedValues.width = screen.width >= 1280 ? 1280 : 980
+            forcedValues['initial-scale'] = (screen.width / forcedValues.width).toFixed(3)
             // Race condition: depending on the loading state of the page, initial scale may or may not be respected, so the page may look zoomed-in after applying this hack.
             // Usually this is just an annoyance, but it may be a bigger issue if user-scalable=no is set, so we remove it too.
-            const forcedInitialScale = (screen.width / forcedWidth).toFixed(3)
-            let newContent = `width=${forcedWidth}, initial-scale=${forcedInitialScale}`
-            parsedViewportContent.forEach(([key], idx) => {
-                if (!['width', 'initial-scale', 'user-scalable'].includes(key)) {
-                    newContent = newContent.concat(`,${viewportContentParts[idx]}`) // reuse the original values, not the parsed ones
-                }
-            })
-            this.forceViewportTag(viewportTag, newContent)
+            forcedValues['user-scalable'] = 'yes'
         } else { // mobile mode with a viewport tag
             // fix an edge case where WebView forces the wide viewport
             const widthPart = parsedViewportContent.find(([key]) => key === 'width')
@@ -566,9 +645,23 @@ export default class WebCompat extends ContentFeature {
                 // Chromium accepts float values for initial-scale
                 const parsedInitialScale = parseFloat(initialScalePart[1])
                 if (parsedInitialScale !== 1) {
-                    this.forceViewportTag(viewportTag, `width=device-width, ${viewportContent}`)
+                    forcedValues.width = 'device-width'
                 }
             }
+        }
+
+        const newContent = []
+        Object.keys(forcedValues).forEach((key) => {
+            newContent.push(`${key}=${forcedValues[key]}`)
+        })
+
+        if (newContent.length > 0) { // need to override at least one viewport component
+            parsedViewportContent.forEach(([key], idx) => {
+                if (!(key in forcedValues)) {
+                    newContent.push(viewportContentParts[idx].trim()) // reuse the original values, not the parsed ones
+                }
+            })
+            this.forceViewportTag(viewportTag, newContent.join(', '))
         }
     }
 }
