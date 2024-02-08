@@ -11,11 +11,22 @@ export function click (action, userData) {
     // there can be multiple elements provided by the action
     for (const element of action.elements) {
         const root = selectRootElement(element, userData)
-        const elem = getElement(root, element.selector)
+
+        const elem = element.selector === '.'
+            ? root
+            : getElement(root, element.selector)
+
         if (!elem) {
             return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
         }
-        elem.click()
+        if ('disabled' in elem) {
+            if (elem.disabled) {
+                return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
+            }
+        }
+        if ('click' in elem && typeof elem.click === 'function') {
+            elem.click()
+        }
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })

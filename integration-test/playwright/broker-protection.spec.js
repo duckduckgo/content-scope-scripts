@@ -46,7 +46,7 @@ test.describe('Broker Protection communications', () => {
             }])
         })
 
-        test('extract multiple profiles', async ({ page }, workerInfo) => {
+        test('extract multiple profiles', async ({ page, baseURL }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
             await dbp.navigatesTo('results-multiple.html')
@@ -68,7 +68,7 @@ test.describe('Broker Protection communications', () => {
                         { city: 'Opa Locka', state: 'FL' }
                     ],
                     phoneNumbers: [],
-                    profileUrl: 'http://localhost:3220/view/Ben-Smith-CQEmF3CB'
+                    profileUrl: baseURL + 'view/Ben-Smith-CQEmF3CB'
                 },
                 {
                     name: 'Ben Smith',
@@ -79,7 +79,7 @@ test.describe('Broker Protection communications', () => {
                         { city: 'Miami', state: 'FL' }
                     ],
                     phoneNumbers: [],
-                    profileUrl: 'http://localhost:3220/view/Ben-Smith-DSAJBtFB'
+                    profileUrl: baseURL + 'view/Ben-Smith-DSAJBtFB'
                 }
             ])
         })
@@ -277,6 +277,17 @@ test.describe('Broker Protection communications', () => {
             await dbp.enabled()
             await dbp.navigatesTo('results-weighted.html')
             await dbp.receivesAction('click-weighted.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+            await page.waitForURL(url => url.hash === '#2', { timeout: 2000 })
+        })
+
+        test('clicking with parent selector (clicking the actual parent)', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results-parent.html')
+            await dbp.receivesAction('click-parent.json')
             const response = await dbp.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
