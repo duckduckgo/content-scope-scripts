@@ -6373,7 +6373,7 @@
     }
 
     /**
-     * @param {ImageData} imageData
+     * @param {import("@canvas/image-data")} imageData
      * @param {string} sessionKey
      * @param {string} domainKey
      * @param {number} width
