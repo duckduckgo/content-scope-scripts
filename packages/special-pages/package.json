@@ -16,13 +16,20 @@
     "pretest.headed": "npm run build.dev",
     "test-int-x": "npm run test",
     "test-int": "npm run test",
-    "serve": "http-server -c-1 --port 3210 ../../"
+    "serve": "http-server -c-1 --port 3210 ../../",
+    "watch": "chokidar pages/onboarding --initial -c 'npm run build.dev'"
   },
   "license": "ISC",
   "devDependencies": {
-    "@playwright/test": "^1.38.1",
-    "http-server": "^14.1.1",
     "@duckduckgo/messaging": "*",
+    "@playwright/test": "^1.40.1",
+    "http-server": "^14.1.1",
     "web-resource-inliner": "^6.0.1"
+  },
+  "dependencies": {
+    "preact": "^10.19.3",
+    "classnames": "^2.3.2",
+    "@formkit/auto-animate": "^0.8.0",
+    "@rive-app/canvas-single": "^2.9.3"
   }
 }

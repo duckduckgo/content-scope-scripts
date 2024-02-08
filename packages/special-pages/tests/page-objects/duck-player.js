@@ -93,7 +93,8 @@ export class DuckPlayerPage {
             if (urlParams.get('videoID') === 'UNSUPPORTED') {
                 return request.fulfill({
                     status: 200,
-                    body: html.unsupported
+                    body: html.unsupported,
+                    contentType: 'text/html'
                 })
             }
             return request.fulfill({

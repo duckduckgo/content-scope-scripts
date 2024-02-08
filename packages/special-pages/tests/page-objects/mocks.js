@@ -89,10 +89,14 @@ export class Mocks {
      * @param {object} params
      * @param {string} params.method
      * @param {number} params.count
+     * @param {number} [params.timeout]
      * @return {Promise<*>}
      */
     async waitForCallCount (params) {
-        await this.page.waitForFunction(waitForCallCount, params, { timeout: 3000, polling: 100 })
+        await this.page.waitForFunction(waitForCallCount, params, {
+            timeout: params.timeout ?? 3000,
+            polling: 100
+        })
         return this.outgoing({ names: [params.method] })
     }
 }
