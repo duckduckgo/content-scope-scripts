@@ -13955,12 +13955,20 @@
             if (captcha instanceof Element) {
                 siteKey = captcha.getAttribute('data-sitekey');
             }
-            if (!captcha) {
+            if (!siteKey) {
                 try {
                     // `new URL(...)` can throw, so it's valid to wrap this in try/catch
                     siteKey = new URL(captchaUrl).searchParams.get('sitekey');
                 } catch (e) {
                     console.warn('error parsing captchaUrl', captchaUrl);
+                }
+            }
+            if (!siteKey) {
+                try {
+                    const hash = new URL(captchaUrl).hash.slice(1);
+                    siteKey = new URLSearchParams(hash).get('sitekey');
+                } catch (e) {
+                    console.warn('error parsing captchaUrl hash', captchaUrl);
                 }
             }
         }
