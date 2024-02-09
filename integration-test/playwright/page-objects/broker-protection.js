@@ -32,7 +32,7 @@ export class BrokerProtectionPage {
     }
 
     /**
-     * @param {'results.html' | 'results-multiple.html' | 'results-alt.html' | 'results-irregular1.html' |  'results-irregular2.html' |  'results-irregular3.html' | 'results-4.html' | 'results-5.html' | 'form.html' | 'empty-form.html' | 'captcha.html' | 'captcha.html?fname=john&lname=smith'} page - add more pages here as you need them
+     * @param {string} page - add more pages here as you need them
      * @return {Promise<void>}
      */
     async navigatesTo (page) {
@@ -91,6 +91,17 @@ export class BrokerProtectionPage {
             siteKey: '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn',
             url: 'http://localhost:3220/broker-protection/pages/captcha.html',
             type: 'recaptcha2'
+        })
+    }
+
+    /**
+     * @return {void}
+     */
+    isHCaptchaMatch (response) {
+        expect(response).toStrictEqual({
+            siteKey: '6LeCl8UUAAAAAGssOpatU5nzFXH2D7UZEYelSLTn',
+            url: 'http://localhost:3220/broker-protection/pages/captcha2.html',
+            type: 'hcaptcha'
         })
     }
 
