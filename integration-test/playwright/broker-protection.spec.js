@@ -231,6 +231,16 @@ test.describe('Broker Protection communications', () => {
             dbp.isCaptchaMatch(response[0].payload?.params.result.success.response)
         })
 
+        test('getCaptchaInfo (hcaptcha)', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('captcha2.html')
+            await dbp.receivesAction('get-captcha.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+            dbp.isHCaptchaMatch(response[0].payload?.params.result.success.response)
+        })
+
         test('remove query params from captcha url', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
