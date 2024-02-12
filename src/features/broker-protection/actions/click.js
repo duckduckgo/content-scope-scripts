@@ -11,10 +11,7 @@ export function click (action, userData) {
     // there can be multiple elements provided by the action
     for (const element of action.elements) {
         const root = selectRootElement(element, userData)
-
-        const elem = element.selector === '.'
-            ? root
-            : getElement(root, element.selector)
+        const elem = getElement(root, element.selector)
 
         if (!elem) {
             return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
