@@ -2025,7 +2025,7 @@ export default class ClickToLoad extends ContentFeature {
             const config = new WebkitMessagingConfig({
                 secret: '',
                 hasModernWebkitAPI: true,
-                webkitMessageHandlerNames: ['contentScopeScripts']
+                webkitMessageHandlerNames: ['contentScopeScriptsIsolated'] // contentScopeScriptsIsolated
             })
             this._messaging = new Messaging(this.messagingContext, config)
             return this._messaging

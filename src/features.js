@@ -30,13 +30,13 @@ const otherFeatures = /** @type {const} */([
 export const platformSupport = {
     apple: [
         'webCompat',
-        ...baseFeatures,
-        'clickToLoad'
+        ...baseFeatures
     ],
     'apple-isolated': [
         'duckPlayer',
         'brokerProtection',
-        'performanceMetrics'
+        'performanceMetrics',
+        'clickToLoad'
     ],
     android: [
         ...baseFeatures,

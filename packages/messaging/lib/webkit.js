@@ -425,5 +425,6 @@ function captureGlobals () {
         globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle)
         globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle)
         globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle)
+    }
     return globals
 }
