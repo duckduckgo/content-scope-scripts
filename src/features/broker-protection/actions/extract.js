@@ -191,7 +191,7 @@ export function aggregateFields (profile) {
         addresses,
         phoneNumbers,
         relatives: profile.relativesList,
-        profileUrl: profile.profileUrl
+	...profile.profileUrl
     }
 }
 
@@ -239,7 +239,25 @@ function extractValue (key, value, elementValue) {
             return stringToList(phoneNumber)
         },
         phoneList: () => stringToList(elementValue, value.separator),
-        relativesList: () => stringToList(elementValue, value.separator)
+        relativesList: () => stringToList(elementValue, value.separator),
+	profileUrl: () => {
+	    const url = {
+                profileUrl: elementValue
+            }
+
+            if (value.identifier && value.identifierType) {
+                const parsedUrl = new URL(elementValue);
+                const { identifier, identifierType } = value;
+                const urlParams = parsedUrl.searchParams;
+
+                // Attempt to parse out an id from the search parameters
+                if (identifierType === "param" && urlParams.has(identifier)) {
+                    url.identifier = urlParams.get(identifier);
+                }
+            }
+
+            return url;
+	}
     }
 
     if (key in extractors) {
