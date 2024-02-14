@@ -253,6 +253,9 @@ function extractValue (key, value, elementValue) {
                 // Attempt to parse out an id from the search parameters
                 if (identifierType === "param" && urlParams.has(identifier)) {
                     url.identifier = urlParams.get(identifier);
+                
+                // TODO: add support for path based id finding
+                } else if (identifierType === "path") {
                 }
             }
 
