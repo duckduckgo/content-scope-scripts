@@ -191,7 +191,7 @@ export function aggregateFields (profile) {
         addresses,
         phoneNumbers,
         relatives: profile.relativesList,
-	...profile.profileUrl
+        ...profile.profileUrl
     }
 }
 
@@ -240,27 +240,26 @@ function extractValue (key, value, elementValue) {
         },
         phoneList: () => stringToList(elementValue, value.separator),
         relativesList: () => stringToList(elementValue, value.separator),
-	profileUrl: () => {
-	    const url = {
+        profileUrl: () => {
+            const url = {
                 profileUrl: elementValue
             }
 
             if (value.identifier && value.identifierType) {
-                const parsedUrl = new URL(elementValue);
-                const { identifier, identifierType } = value;
-                const urlParams = parsedUrl.searchParams;
+                const parsedUrl = new URL(elementValue)
+                const { identifier, identifierType } = value
+                const urlParams = parsedUrl.searchParams
 
                 // Attempt to parse out an id from the search parameters
-                if (identifierType === "param" && urlParams.has(identifier)) {
-                    url.identifier = urlParams.get(identifier);
-                
+                if (identifierType === 'param' && urlParams.has(identifier)) {
+                    url.identifier = urlParams.get(identifier)
+
                 // TODO: add support for path based id finding
-                } else if (identifierType === "path") {
                 }
             }
 
-            return url;
-	}
+            return url
+        }
     }
 
     if (key in extractors) {
