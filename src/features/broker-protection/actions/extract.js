@@ -11,6 +11,7 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
  */
 
 /**
+ * @typedef {'param'|'path'} IdentifierType
  * @typedef {Object} ExtractProfileProperty
  * For example: {
  *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
@@ -20,6 +21,8 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
  * @property {string} [afterText] - get all text after this string
  * @property {string} [beforeText] - get all text before this string
  * @property {string} [separator] - split the text on this string
+ * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
+ * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
  */
 
 /**
@@ -191,7 +194,7 @@ export function aggregateFields (profile) {
         addresses,
         phoneNumbers,
         relatives: profile.relativesList,
-        profileUrl: profile.profileUrl
+        ...profile.profileUrl
     }
 }
 
@@ -239,7 +242,21 @@ function extractValue (key, value, elementValue) {
             return stringToList(phoneNumber)
         },
         phoneList: () => stringToList(elementValue, value.separator),
-        relativesList: () => stringToList(elementValue, value.separator)
+        relativesList: () => stringToList(elementValue, value.separator),
+        profileUrl: () => {
+            const profile = {
+                profileUrl: elementValue,
+                identifier: elementValue
+            }
+
+            if (!value.identifierType || !value.identifier) {
+                return profile
+            }
+
+            const profileUrl = Array.isArray(elementValue) ? elementValue[0] : elementValue
+            profile.identifier = getIdFromProfileUrl(profileUrl, value.identifierType, value.identifier)
+            return profile
+        }
     }
 
     if (key in extractors) {
@@ -301,4 +318,24 @@ const rules = {
     profileUrl: function (link) {
         return link?.href ?? null
     }
+}
+
+/**
+ * Parse a profile id from a profile URL
+ * @param {string} profileUrl
+ * @param {IdentifierType} identifierType
+ * @param {string} identifier
+ * @return {string}
+ */
+export function getIdFromProfileUrl (profileUrl, identifierType, identifier) {
+    const parsedUrl = new URL(profileUrl)
+    const urlParams = parsedUrl.searchParams
+
+    // Attempt to parse out an id from the search parameters
+    if (identifierType === 'param' && urlParams.has(identifier)) {
+        const profileId = urlParams.get(identifier)
+        return profileId || profileUrl
+    }
+
+    return profileUrl
 }

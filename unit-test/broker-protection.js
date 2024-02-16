@@ -1,7 +1,7 @@
 import fc from 'fast-check'
 import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js'
 import { getNicknames, isSameName } from '../src/features/broker-protection/comparisons/is-same-name.js'
-import { getCityStateCombos, stringToList } from '../src/features/broker-protection/actions/extract.js'
+import { getCityStateCombos, stringToList, getIdFromProfileUrl } from '../src/features/broker-protection/actions/extract.js'
 import {
     matchAddressCityState,
     matchAddressFromAddressListCityState
@@ -209,6 +209,43 @@ describe('Actions', () => {
                 it('should not match when city is not the same', () => {
                     expect(matchesFullAddress(userData.addresses, '123 fake st, not chicago, il, 60602')).toBe(false)
                 })
+            })
+        })
+
+        describe('getIdFromProfileUrl', () => {
+            it('should return the profile URL as the identifier if the identifierType is "path"', () => {
+                const profileUrl = 'https://duckduckgo.com/my/profile/john-smith/223'
+                const identifierType = 'path'
+                // eslint-disable-next-line no-template-curly-in-string
+                const identifier = 'https://duckduckgo.com/my/profile/${firstName}-${lastName}/${id}'
+
+                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
+            })
+
+            it('should return the profile URL as the identifier if the identifierType is "param" and the param is not found', () => {
+                const profileUrl = 'https://duckduckgo.com/my/profile?id=test'
+                const identifierType = 'param'
+                const identifier = 'pid'
+
+                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
+            })
+
+            it('should return the profile URL as the identifier if the identifierType is "param" and the identifier is a path', () => {
+                const profileUrl = 'https://duckduckgo.com/my/profile/john-smith/223'
+                const identifierType = 'param'
+                // eslint-disable-next-line no-template-curly-in-string
+                const identifier = 'https://duckduckgo.com/my/profile/${firstName}-${lastName}/${id}'
+
+                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
+            })
+
+            it('should return the id as the identifier if the identifierType is "param" and the param is found in the url', () => {
+                const id = 'test'
+                const profileUrl = `https://duckduckgo.com/my/profile?id=${id}`
+                const identifierType = 'param'
+                const identifier = 'id'
+
+                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(id)
             })
         })
     })
