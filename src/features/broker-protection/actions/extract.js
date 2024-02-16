@@ -295,8 +295,9 @@ export function stringToList (inputList, separator) {
  */
 export function getCityStateCombos (inputList) {
     const output = []
-    for (const item of inputList) {
+    for (let item of inputList) {
         let words
+        item = item.replace(/,?.\b\d{5}(?:-\d{4})?\b/, '');
         if (item.includes(',')) {
             words = item.split(',').map(item => item.trim())
         } else {
