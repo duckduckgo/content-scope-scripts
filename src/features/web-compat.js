@@ -186,8 +186,17 @@ export default class WebCompat extends ContentFeature {
         })
 
         this.defineProperty(window.Notification, 'requestPermission', {
-            value: () => {
-                return Promise.resolve('denied')
+            value: (callback) => {
+                if (callback == null) {
+                    return Promise.resolve('denied')
+                }
+                
+                if (typeof callback === 'function') {
+                    callback('denied')
+                    return
+                }
+                const reason = "Invalid 'callback' value passed to window.Notification.requestPermission(). Expected a function."
+                throw new Error(reason)
             },
             writable: true,
             configurable: true,
