@@ -218,11 +218,11 @@ export function aggregateFields (profile) {
  * @param {string | string[]} elementValue
  * @return {string|string[]|null}
  */
-function extractValue (key, value, elementValue) {
+export function extractValue (key, value, elementValue) {
     if (!elementValue) return null
 
     const extractors = {
-        name: () => typeof elementValue === 'string' && elementValue.trim(),
+        name: () => typeof elementValue === 'string' && elementValue.replace(/\n/g, ' ').trim(),
         age: () => typeof elementValue === 'string' && elementValue.match(/\d+/)?.[0],
         alternativeNamesList: () => stringToList(elementValue, value.separator),
         addressCityStateList: () => {
