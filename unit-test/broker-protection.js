@@ -99,6 +99,7 @@ describe('Actions', () => {
             it('should successfully extract the city/state when a zip code is included', () => {
                 const cityStateZipList = [
                     'Chicago IL 60611',
+                    'Chicago IL   60611',
                     'River Forest IL 60305-1243',
                     'Forest Park IL, 60130-1234',
                     'Oak Park IL, 60302'
@@ -107,6 +108,7 @@ describe('Actions', () => {
                 const result = getCityStateCombos(cityStateZipList)
 
                 expect(result).toEqual([
+                    { city: 'Chicago', state: 'IL' },
                     { city: 'Chicago', state: 'IL' },
                     { city: 'River Forest', state: 'IL' },
                     { city: 'Forest Park', state: 'IL' },
