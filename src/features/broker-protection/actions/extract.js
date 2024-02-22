@@ -295,8 +295,11 @@ export function stringToList (inputList, separator) {
  */
 export function getCityStateCombos (inputList) {
     const output = []
-    for (const item of inputList) {
+    for (let item of inputList) {
         let words
+        // Strip out the zip code since we're only interested in city/state here.
+        item = item.replace(/,?\s*\d{5}(-\d{4})?/, '')
+
         if (item.includes(',')) {
             words = item.split(',').map(item => item.trim())
         } else {
