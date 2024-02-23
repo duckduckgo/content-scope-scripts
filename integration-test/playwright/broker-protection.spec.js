@@ -42,7 +42,8 @@ test.describe('Broker Protection communications', () => {
                 relatives: [
                     'Cheryl Lamar'
                 ],
-                profileUrl: baseURL + 'view/John-Smith-CyFdD.F'
+                profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
+                identifier: baseURL + 'view/John-Smith-CyFdD.F'
             }])
         })
 
@@ -68,7 +69,8 @@ test.describe('Broker Protection communications', () => {
                         { city: 'Opa Locka', state: 'FL' }
                     ],
                     phoneNumbers: [],
-                    profileUrl: baseURL + 'view/Ben-Smith-CQEmF3CB'
+                    profileUrl: baseURL + 'view/Ben-Smith-CQEmF3CB',
+                    identifier: baseURL + 'view/Ben-Smith-CQEmF3CB'
                 },
                 {
                     name: 'Ben Smith',
@@ -79,7 +81,8 @@ test.describe('Broker Protection communications', () => {
                         { city: 'Miami', state: 'FL' }
                     ],
                     phoneNumbers: [],
-                    profileUrl: baseURL + 'view/Ben-Smith-DSAJBtFB'
+                    profileUrl: baseURL + 'view/Ben-Smith-DSAJBtFB',
+                    identifier: baseURL + 'view/Ben-Smith-DSAJBtFB'
                 }
             ])
         })
@@ -105,6 +108,7 @@ test.describe('Broker Protection communications', () => {
                     { city: 'More locations...4 more', state: 'addresses' }
                 ],
                 profileUrl: baseURL + 'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
+                identifier: baseURL + 'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
                 phoneNumbers: []
             }])
         })
@@ -124,6 +128,7 @@ test.describe('Broker Protection communications', () => {
                     { city: 'Tampa', state: 'FL' }
                 ],
                 profileUrl: baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
+                identifier: baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
                 phoneNumbers: []
             }])
         })
@@ -142,6 +147,7 @@ test.describe('Broker Protection communications', () => {
                     '97021405106'
                 ],
                 profileUrl: baseURL + 'person/Smith-41043103849',
+                identifier: baseURL + 'person/Smith-41043103849',
                 addresses: [
                     {
                         city: 'Orlando',
@@ -175,6 +181,7 @@ test.describe('Broker Protection communications', () => {
                     { city: 'Evanston', state: 'IL' }
                 ],
                 profileUrl: baseURL + 'pp/John-Smith-HdDWHRBD',
+                identifier: baseURL + 'pp/John-Smith-HdDWHRBD',
                 relatives: [
                     'Margaret Kelly, 74',
                     'Mary Kelly, 44',
@@ -207,6 +214,7 @@ test.describe('Broker Protection communications', () => {
                     'Jame...'
                 ],
                 profileUrl: baseURL + 'find/person/p286nuu00u98lu9n0n96',
+                identifier: baseURL + 'find/person/p286nuu00u98lu9n0n96',
                 phoneNumbers: []
             }])
         })
@@ -238,7 +246,8 @@ test.describe('Broker Protection communications', () => {
                     'Alexander Makely, 48',
                     'Veronica Berrios, 47'
                 ],
-                profileUrl: baseURL + 'people/John-Smith-AIGwGOFD'
+                profileUrl: baseURL + 'people/John-Smith-AIGwGOFD',
+                identifier: baseURL + 'people/John-Smith-AIGwGOFD'
             }])
         })
     })
