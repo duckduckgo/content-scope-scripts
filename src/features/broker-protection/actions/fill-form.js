@@ -9,6 +9,11 @@ export function fillForm (action, userData) {
     const form = getElement(document, action.selector)
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
 
+    /**
+     * @type {({result: true} | {result: false; error: string})[]}
+     */
+    const results = []
+
     // fill out form for each step
     for (const element of action.elements) {
         // get the correct field of the form
@@ -17,10 +22,24 @@ export function fillForm (action, userData) {
         // let inputElem = form.elements[element.selector]
         // find the correct userData to put in the form
         if (inputElem) {
-            // @ts-expect-error - double check if this is strict enough
-            // todo: determine if this requires any events to be dispatched also
-            setValueForInput(inputElem, userData[element.type])
+            if (element.type === '$file_id$') {
+                results.push(setImageUpload(inputElem))
+            } else {
+                // @ts-expect-error - double check if this is strict enough
+                // todo: determine if this requires any events to be dispatched also
+                setValueForInput(inputElem, userData[element.type])
+                results.push({ result: true })
+            }
         }
+    }
+
+    const errors = results.filter(x => x.result === false).map(x => {
+        if ('error' in x) return x.error
+        return 'unknown error'
+    })
+
+    if (errors.length > 0) {
+        return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
@@ -33,7 +52,7 @@ export function fillForm (action, userData) {
  *
  * @param {HTMLInputElement} el
  * @param {string} val
- * @return {boolean}
+ * @return {{result: boolean}}
  */
 function setValueForInput (el, val) {
     el.dispatchEvent(new Event('keydown', { bubbles: true }))
@@ -54,5 +73,38 @@ function setValueForInput (el, val) {
     events.forEach((ev) => el.dispatchEvent(ev))
     el.blur()
 
-    return true
+    return { result: true }
+}
+
+/**
+ * @param element
+ * @return {{result: true}|{result: false, error: string}}
+ */
+function setImageUpload (element) {
+    const base64PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/B8AAusB9VF9PmUAAAAASUVORK5CYII='
+    try {
+        // Convert the Base64 string to a Blob
+        const binaryString = window.atob(base64PNG)
+
+        // Convert binary string to a Typed Array
+        const length = binaryString.length
+        const bytes = new Uint8Array(length)
+        for (let i = 0; i < length; i++) {
+            bytes[i] = binaryString.charCodeAt(i)
+        }
+
+        // Create the Blob from the Typed Array
+        const blob = new Blob([bytes], { type: 'image/png' })
+
+        // Create a DataTransfer object and append the Blob
+        const dataTransfer = new DataTransfer()
+        dataTransfer.items.add(new File([blob], 'id.png', { type: 'image/png' }));
+
+        // Step 4: Assign the Blob to the Input Element
+        /** @type {any} */(element).files = dataTransfer.files
+        return { result: true }
+    } catch (e) {
+        // failed
+        return { result: false, error: e.toString() }
+    }
 }
