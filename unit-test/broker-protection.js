@@ -218,11 +218,11 @@ describe('Actions', () => {
 
             describe('matchAddressFromAddressListCityState', () => {
                 it('should match when city/state is present', () => {
-                    expect(matchAddressFromAddressListCityState(userData.addresses, ['chicago, il', 'schaumburg, il']))
+                    expect(matchAddressFromAddressListCityState(userData.addresses, [{ city: 'chicago', state: 'il' }])).toBe(true)
                 })
 
                 it('should not match when city/state is not present', () => {
-                    expect(matchAddressFromAddressListCityState(userData.addresses, ['los angeles, ca', 'portland, or']))
+                    expect(matchAddressFromAddressListCityState(userData.addresses, [{ city: 'los angeles', state: 'ca' }])).toBe(false)
                 })
             })
 

@@ -60,20 +60,7 @@ export class BrokerProtectionPage {
      * @return {void}
      */
     isExtractMatch (response, person) {
-        if (person.name) { expect(response[0]?.name).toBe(person.name) }
-        if (person.alternativeNames) { expect(response[0]?.alternativeNames).toStrictEqual(person.alternativeNames) }
-        if (person.age) { expect(response[0]?.age).toBe(person.age) }
-        if (person.addresses) { expect(response[0]?.addresses).toStrictEqual(person.addresses) }
-        if (person.relatives) { expect(response[0]?.relatives).toStrictEqual(person.relatives) }
-        if (person.phoneNumbers) { expect(response[0]?.phoneNumbers).toStrictEqual(person.phoneNumbers) }
-        if (person.profileUrl) { expect(response[0]?.profileUrl).toContain(person.profileUrl) }
-    }
-
-    /**
-     * @return {void}
-     */
-    isMultiple (response) {
-        expect(response.length).toBeGreaterThan(1)
+        expect(person).toMatchObject(response)
     }
 
     /**
@@ -116,7 +103,7 @@ export class BrokerProtectionPage {
     /**
      * Simulate the native-side pushing an action into the client-side JS
      *
-     * @param {'extract.json' | 'extract2.json' | 'extract3.json' | 'extract4.json' | 'extract5.json' | 'extract-irregular1.json' | 'extract-irregular2.json' | 'extract-irregular3.json' | 'results2.json' | 'navigate.json' | 'fill-form.json' | 'click.json' | 'expectation.json' | 'get-captcha.json' | 'solve-captcha.json' | 'action-not-found.json'} action - add more action types here
+     * @param {string} action
      * @return {Promise<void>}
      */
     async receivesAction (action) {
