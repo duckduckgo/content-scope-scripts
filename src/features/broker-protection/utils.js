@@ -71,6 +71,10 @@ function matchesXPath (element, selector) {
  */
 function isXpath (selector) {
     if (!(typeof selector === 'string')) return false
+
+    // see: https://www.w3.org/TR/xpath20/
+    // "When the context item is a node, it can also be referred to as the context node. The context item is returned by an expression consisting of a single dot"
+    if (selector === '.') return true
     return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(')
 }
 
