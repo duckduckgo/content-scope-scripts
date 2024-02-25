@@ -220,14 +220,13 @@ export class BrokerProtectionPage {
 
     /**
      * @param {object} response
-     * @return {boolean}
      */
     isErrorMessage (response) {
-        return !!response[0].payload?.params?.result?.error
+        expect('error' in response[0].payload?.params?.result).toBe(true)
     }
 
     isSuccessMessage (response) {
-        return !!response[0].payload?.params?.result?.sucesss
+        expect('success' in response[0].payload?.params?.result).toBe(true)
     }
 
     /**
