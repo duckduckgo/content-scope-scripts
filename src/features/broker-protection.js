@@ -8,7 +8,7 @@ import { retry } from '../timer-utils.js'
 
 export default class BrokerProtection extends ContentFeature {
     init () {
-        this.messaging.subscribe('onActionReceived', (/** @type {any} */params) => {
+        this.messaging.subscribe('onActionReceived', async (/** @type {any} */params) => {
             try {
                 const action = params.state.action
                 const data = params.state.data
@@ -17,27 +17,21 @@ export default class BrokerProtection extends ContentFeature {
                     return this.messaging.notify('actionError', { error: 'No action found.' })
                 }
 
-                // Choose retry logic if it exists on the action
+                /**
+                 * Note: We're not currently guarding against concurrent actions here
+                 * since the native side contains the scheduling logic to prevent it.
+                 */
                 const retryConfig = action.retry?.environment === 'web'
                     ? action.retry
                     : undefined
 
-                retry(() => execute(action, data), retryConfig)
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    .then(({ result, exceptions }) => {
-                        if (result) {
-                            this.messaging.notify('actionCompleted', { result })
-                        } else {
-                            this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') })
-                        }
-                    })
-                    // eslint-disable-next-line promise/prefer-await-to-then
-                    .catch(error => {
-                        if (this.isDebug) {
-                            console.error('unhandled exception: ', error)
-                        }
-                        this.messaging.notify('actionError', { error: error.toString() })
-                    })
+                const { result, exceptions } = await retry(() => execute(action, data), retryConfig)
+
+                if (result) {
+                    this.messaging.notify('actionCompleted', { result })
+                } else {
+                    this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') })
+                }
             } catch (e) {
                 console.log('unhandled exception: ', e)
                 this.messaging.notify('actionError', { error: e.toString() })
