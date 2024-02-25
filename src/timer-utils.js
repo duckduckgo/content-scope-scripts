@@ -24,6 +24,7 @@ export async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
         }
 
         // stop when there's a good result to return
+        // since fn() returns either { success: <value> } or { error: ... }
         if (lastResult && 'success' in lastResult) break
 
         // don't pause on the last item
