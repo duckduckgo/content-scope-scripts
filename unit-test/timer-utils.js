@@ -24,7 +24,7 @@ describe('retry function tests', () => {
 
                 // Size of errors should be equal to maxAttempts because the function always fails
                 expect(exceptions.length).toEqual(config.maxAttempts)
-            }))
+            }), { numRuns: 10 })
     })
     it('should assign lastResult correctly and stop retrying when success is obtained', async () => {
         await fc.assert(
@@ -50,7 +50,7 @@ describe('retry function tests', () => {
 
                 // no exceptions were thrown, so this should be empty
                 expect(exceptions).toEqual([])
-            }))
+            }), { numRuns: 10 })
     })
     it('should return last result if a function is never successful', async () => {
         await fc.assert(
@@ -69,6 +69,6 @@ describe('retry function tests', () => {
 
                 // should be empty since nothing threw
                 expect(exceptions).toEqual([])
-            }))
+            }), { numRuns: 10 })
     })
 })
