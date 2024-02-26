@@ -1,5 +1,5 @@
 import { getElement, getElementMatches, getElements } from '../utils.js' // Assuming you have imported the address comparison function
-import { ErrorResponse, SuccessResponse } from '../types.js'
+import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
 import { matchesFullAddress } from '../comparisons/matches-full-address.js'
@@ -41,13 +41,21 @@ export function extract (action, userData) {
         .filter(x => x.result === true)
         .map(x => aggregateFields(x.scrapedData))
 
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: filtered })
+    return new SuccessResponse({
+        actionID: action.id,
+        actionType: action.actionType,
+        response: filtered,
+        meta: {
+            userData,
+            extractResults: extractResult.results
+        }
+    })
 }
 
 /**
  * @param {Action} action
  * @param {Record<string, any>} userData
- * @return {{error: string}|{results: {scrapedData: Record<string, any>, result: boolean, score: number, element: HTMLElement}[]}}
+ * @return {{error: string} | {results: ProfileResult[]}}
  */
 export function extractProfiles (action, userData) {
     const profilesElementList = getElements(document, action.selector) ?? []
@@ -59,13 +67,14 @@ export function extractProfiles (action, userData) {
     return {
         results: profilesElementList.map((element) => {
             const scrapedData = createProfile(element, action.profile)
-            const { result, score } = scrapedDataMatchesUserData(userData, scrapedData)
-            return {
+            const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData)
+            return new ProfileResult({
                 scrapedData,
                 result,
                 score,
-                element
-            }
+                element,
+                matchedFields
+            })
         })
     }
 }
@@ -164,59 +173,59 @@ function findFromElement (profileElement, dataKey, extractField) {
  * Try to filter partial data based on the user's actual profile data
  * @param {Record<string, any>} userData
  * @param {Record<string, any>} scrapedData
- * @return {{score: number, result: boolean}}
+ * @return {{score: number, matchedFields: string[], result: boolean}}
  */
 function scrapedDataMatchesUserData (userData, scrapedData) {
-    let score = 0
+    const matchedFields = []
 
-    // the name matching is the first requirement
+    // the name matching is always a *requirement*
     if (isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) {
-        score++
+        matchedFields.push('name')
     } else {
-        return { score: 0, result: false }
+        return { matchedFields, score: matchedFields.length, result: false }
     }
 
-    // if the age field was present in the scraped data, we consider the check a requirement
+    // if the age field was present in the scraped data, then we consider this check a *requirement*
     if (scrapedData.age) {
         if (isSameAge(scrapedData.age, userData.age)) {
-            score++
+            matchedFields.push('age')
         } else {
-            return { score: 0, result: false }
+            return { matchedFields, score: matchedFields.length, result: false }
         }
     }
 
     if (scrapedData.addressCityState) {
         // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
         if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
-            score++
-            return { score, result: true }
+            matchedFields.push('addressCityState')
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     // it's possible to have both addressCityState and addressCityStateList
     if (scrapedData.addressCityStateList) {
         if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
-            score++
-            return { score, result: true }
+            matchedFields.push('addressCityStateList')
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     if (scrapedData.addressFull) {
         if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
-            score++
-            return { score, result: true }
+            matchedFields.push('addressFull')
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     if (scrapedData.phone) {
         if (userData.phone === scrapedData.phone) {
-            score++
-            return { score, result: true }
+            matchedFields.push('phone')
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     // if we get here we didn't consider it a match
-    return { score, result: false }
+    return { matchedFields, score: matchedFields.length, result: false }
 }
 
 /**

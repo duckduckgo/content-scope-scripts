@@ -101,6 +101,18 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param meta
+     */
+    responseContainsMetadata (meta) {
+        expect(meta.extractResults).toHaveLength(10)
+        expect(meta.extractResults.filter(x => x.result === true)).toHaveLength(1)
+        expect(meta.extractResults.filter(x => x.result === false)).toHaveLength(9)
+        const match = meta.extractResults.find(x => x.result === true)
+        expect(match.matchedFields).toMatchObject(['name', 'age', 'addressCityStateList'])
+        expect(match.score).toBe(3)
+    }
+
+    /**
      * Simulate the native-side pushing an action into the client-side JS
      *
      * @param {string} action

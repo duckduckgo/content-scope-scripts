@@ -45,8 +45,9 @@ function selectRootElement (clickElement, userData) {
             const sorted = extraction.results
                 .filter(x => x.result === true)
                 .sort((a, b) => b.score - a.score)
-            if (sorted[0]) {
-                return sorted[0].element
+            const first = sorted[0]
+            if (first && first.element) {
+                return first.element
             }
         }
     }
