@@ -67,13 +67,13 @@ export function extractProfiles (action, userData) {
     return {
         results: profilesElementList.map((element) => {
             const scrapedData = createProfile(element, action.profile)
-            const { result, score, matched } = scrapedDataMatchesUserData(userData, scrapedData)
+            const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData)
             return new ProfileResult({
                 scrapedData,
                 result,
                 score,
                 element,
-                matched
+                matchedFields
             })
         })
     }
@@ -173,55 +173,60 @@ function findFromElement (profileElement, dataKey, extractField) {
  * Try to filter partial data based on the user's actual profile data
  * @param {Record<string, any>} userData
  * @param {Record<string, any>} scrapedData
- * @return {{score: number, matched: string[], result: boolean}}
+ * @return {{score: number, matchedFields: string[], result: boolean}}
  */
 function scrapedDataMatchesUserData (userData, scrapedData) {
-    const matched = []
+    const matchedFields = []
+    let result = false
 
-    // the name matching is the first requirement
+    // the name matching is always a *requirement*
     if (isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) {
-        matched.push('name')
+        matchedFields.push('name')
     } else {
-        return { matched, score: matched.length, result: false }
+        return { matchedFields, score: matchedFields.length, result: false }
     }
 
-    // if the age field was present in the scraped data, we consider the check a requirement
+    // if the age field was present in the scraped data, then we consider this check a *requirement*
     if (scrapedData.age) {
         if (isSameAge(scrapedData.age, userData.age)) {
-            matched.push('age')
+            matchedFields.push('age')
         } else {
-            return { matched, score: matched.length, result: false }
+            return { matchedFields, score: matchedFields.length, result: false }
         }
     }
 
     if (scrapedData.addressCityState) {
         // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
         if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
-            matched.push('addressCityState')
+            matchedFields.push('addressCityState')
+            result = true
         }
     }
 
     // it's possible to have both addressCityState and addressCityStateList
     if (scrapedData.addressCityStateList) {
         if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
-            matched.push('addressCityStateList')
+            matchedFields.push('addressCityStateList')
+            result = true
         }
     }
 
     if (scrapedData.addressFull) {
         if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
-            matched.push('addressFull')
+            matchedFields.push('addressFull')
+            result = true
         }
     }
 
     if (scrapedData.phone) {
         if (userData.phone === scrapedData.phone) {
-            matched.push('phone')
+            matchedFields.push('phone')
+            result = true
         }
     }
 
     // if we get here we didn't consider it a match
-    return { matched, score: matched.length, result: matched.length > 0 }
+    return { matchedFields, score: matchedFields.length, result }
 }
 
 /**

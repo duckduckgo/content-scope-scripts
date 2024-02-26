@@ -40,7 +40,7 @@ export class ProfileResult {
     /**
      * @param {object} params
      * @param {boolean} params.result - whether we consider this a 'match'
-     * @param {string[]} params.matched - a list of the fields in the data that were matched.
+     * @param {string[]} params.matchedFields - a list of the fields in the data that were matched.
      * @param {number} params.score - value to determine
      * @param {HTMLElement} [params.element] - the parent element that was matched. Not present in JSON
      * @param {Record<string, any>} params.scrapedData
@@ -50,6 +50,6 @@ export class ProfileResult {
         this.result = params.result
         this.score = params.score
         this.element = params.element
-        this.matched = params.matched
+        this.matchedFields = params.matchedFields
     }
 }
