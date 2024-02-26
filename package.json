@@ -40,7 +40,7 @@
     "posttest-int-x": "npm run test-int-x --workspaces --if-present",
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
     "playwright": "playwright test",
-    "playwright-headed": "playwright test --headed",
+    "playwright-headed": "playwright test --headed --project apple-isolated",
     "preplaywright": "npm run build-windows && npm run build-apple",
     "preplaywright-headed": "npm run build-windows && npm run build-apple",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",

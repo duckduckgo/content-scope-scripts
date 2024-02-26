@@ -45,6 +45,7 @@ test.describe('Broker Protection communications', () => {
                 profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
                 identifier: baseURL + 'view/John-Smith-CyFdD.F'
             }])
+            dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
 
         test('extract multiple profiles', async ({ page, baseURL }, workerInfo) => {
