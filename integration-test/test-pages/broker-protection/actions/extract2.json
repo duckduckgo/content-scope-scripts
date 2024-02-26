@@ -12,15 +12,17 @@
       }
     },
     "data": {
-      "firstName": "Ben",
-      "lastName": "Smith",
-      "age": "40",
-      "addresses": [
-        {
-          "city": "Miami",
-          "state": "FL"
-        }
-      ]
+      "userProfile": {
+        "firstName": "Ben",
+        "lastName": "Smith",
+        "age": "40",
+        "addresses": [
+          {
+            "city": "Miami",
+            "state": "FL"
+          }
+        ]
+      }
     }
   }
 }

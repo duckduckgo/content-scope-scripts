@@ -29,16 +29,18 @@
       }
     },
     "data": {
-      "firstName": "Jonathan",
-      "middleName": "Andrew",
-      "lastName": "Smith",
-      "age": "50",
-      "addresses": [
-        {
-          "city": "Orlando",
-          "state": "FL"
-        }
-      ]
+      "userProfile": {
+        "firstName": "Jonathan",
+        "middleName": "Andrew",
+        "lastName": "Smith",
+        "age": "50",
+        "addresses": [
+          {
+            "city": "Orlando",
+            "state": "FL"
+          }
+        ]
+      }
     }
   }
 }

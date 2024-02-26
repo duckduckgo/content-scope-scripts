@@ -16,10 +16,12 @@
       ]
     },
     "data": {
-      "firstName": "John",
-      "lastName": "Smith",
-      "city": "Chicago",
-      "state": "IL"
+      "extractedProfile": {
+        "firstName": "John",
+        "lastName": "Smith",
+        "city": "Chicago",
+        "state": "IL"
+      }
     }
   }
 }

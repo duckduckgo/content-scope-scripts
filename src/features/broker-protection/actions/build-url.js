@@ -5,7 +5,7 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
  * This builds the proper URL given the URL template and userData.
  *
  * @param action
- * @param userData
+ * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
 export function buildUrl (action, userData) {

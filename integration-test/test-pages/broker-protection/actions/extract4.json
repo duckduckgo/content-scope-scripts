@@ -14,15 +14,17 @@
       }
     },
     "data": {
-      "firstName": "Ben",
-      "lastName": "Smith",
-      "age": "55",
-      "addresses": [
-        {
-          "city": "Tampa",
-          "state": "FL"
-        }
-      ]
+      "userProfile": {
+        "firstName": "Ben",
+        "lastName": "Smith",
+        "age": "55",
+        "addresses": [
+          {
+            "city": "Tampa",
+            "state": "FL"
+          }
+        ]
+      }
     }
   }
 }
