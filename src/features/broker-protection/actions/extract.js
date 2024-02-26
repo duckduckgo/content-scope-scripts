@@ -177,7 +177,6 @@ function findFromElement (profileElement, dataKey, extractField) {
  */
 function scrapedDataMatchesUserData (userData, scrapedData) {
     const matchedFields = []
-    let result = false
 
     // the name matching is always a *requirement*
     if (isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) {
@@ -199,7 +198,7 @@ function scrapedDataMatchesUserData (userData, scrapedData) {
         // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
         if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
             matchedFields.push('addressCityState')
-            result = true
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
@@ -207,26 +206,26 @@ function scrapedDataMatchesUserData (userData, scrapedData) {
     if (scrapedData.addressCityStateList) {
         if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
             matchedFields.push('addressCityStateList')
-            result = true
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     if (scrapedData.addressFull) {
         if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
             matchedFields.push('addressFull')
-            result = true
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     if (scrapedData.phone) {
         if (userData.phone === scrapedData.phone) {
             matchedFields.push('phone')
-            result = true
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     // if we get here we didn't consider it a match
-    return { matchedFields, score: matchedFields.length, result }
+    return { matchedFields, score: matchedFields.length, result: false }
 }
 
 /**
