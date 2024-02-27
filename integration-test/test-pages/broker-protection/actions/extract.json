@@ -28,17 +28,19 @@
       }
     },
     "data": {
-      "firstName": "John",
-      "lastName": "Smith",
-      "age": "37",
-      "addresses": [
-        {
-          "addressLine1": "123 Fake St",
-          "city": "Chicago",
-          "state": "IL",
-          "zip": "60602"
-        }
-      ]
+      "userProfile": {
+        "firstName": "John",
+        "lastName": "Smith",
+        "age": "37",
+        "addresses": [
+          {
+            "addressLine1": "123 Fake St",
+            "city": "Chicago",
+            "state": "IL",
+            "zip": "60602"
+          }
+        ]
+      }
     }
   }
 }

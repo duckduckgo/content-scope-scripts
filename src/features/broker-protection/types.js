@@ -7,10 +7,10 @@
  */
 export class ErrorResponse {
     /**
-   * @param {object} params
-   * @param {string} params.actionID
-   * @param {string} params.message
-   */
+    * @param {object} params
+    * @param {string} params.actionID
+    * @param {string} params.message
+    */
     constructor (params) {
         this.error = params
     }
@@ -21,12 +21,12 @@ export class ErrorResponse {
  */
 export class SuccessResponse {
     /**
-   * @param {object} params
-   * @param {string} params.actionID
-   * @param {string} params.actionType
-   * @param {any} params.response
+    * @param {object} params
+    * @param {string} params.actionID
+    * @param {string} params.actionType
+    * @param {any} params.response
    * @param {Record<string, any>} [params.meta] - optional meta data
-   */
+    */
     constructor (params) {
         this.success = params
     }

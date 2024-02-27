@@ -9,27 +9,28 @@ import { ErrorResponse } from './types.js'
 /**
  * @param {object} action
  * @param {string} action.id
+ * @param {string} [action.dataSource] - optional data source
  * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
- * @param {any} data
+ * @param {Record<string, any>} inputData
  * @return {import('./types.js').ActionResponse}
  */
-export function execute (action, data) {
+export function execute (action, inputData) {
     try {
         switch (action.actionType) {
         case 'navigate':
-            return buildUrl(action, data)
+            return buildUrl(action, data(action, inputData, 'userProfile'))
         case 'extract':
-            return extract(action, data)
+            return extract(action, data(action, inputData, 'userProfile'))
         case 'click':
-            return click(action, data)
+            return click(action, data(action, inputData, 'userProfile'))
         case 'expectation':
             return expectation(action)
         case 'fillForm':
-            return fillForm(action, data)
+            return fillForm(action, data(action, inputData, 'extractedProfile'))
         case 'getCaptchaInfo':
             return getCaptchaInfo(action)
         case 'solveCaptcha':
-            return solveCaptcha(action, data.token)
+            return solveCaptcha(action, data(action, inputData, 'token'))
         default: {
             return new ErrorResponse({
                 actionID: action.id,
@@ -44,4 +45,18 @@ export function execute (action, data) {
             message: `unhandled exception: ${e.message}`
         })
     }
+}
+
+/**
+ * @param {{dataSource?: string}} action
+ * @param {Record<string, any>} data
+ * @param {string} defaultSource
+ */
+function data (action, data, defaultSource) {
+    if (!data) return null
+    const source = action.dataSource || defaultSource
+    if (Object.prototype.hasOwnProperty.call(data, source)) {
+        return data[source]
+    }
+    return null
 }
