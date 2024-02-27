@@ -26,17 +26,19 @@
       ]
     },
     "data": {
-      "firstName": "John",
-      "middleName": "Robert",
-      "lastName": "Cole",
-      "age": "39",
-      "addresses": [
-        {
-          "addressLine1": "123 Fake St",
-          "city": "New York",
-          "state": "NY"
-        }
-      ]
+      "userProfile": {
+        "firstName": "John",
+        "middleName": "Robert",
+        "lastName": "Cole",
+        "age": "39",
+        "addresses": [
+          {
+            "addressLine1": "123 Fake St",
+            "city": "New York",
+            "state": "NY"
+          }
+        ]
+      }
     }
   }
 }

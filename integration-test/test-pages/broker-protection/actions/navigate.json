@@ -1,11 +1,13 @@
 {
   "state": {
     "data": {
-      "firstName": "Ben",
-      "lastName": "Smith",
-      "state": "FL",
-      "age": 46,
-      "city": "New York"
+      "userProfile": {
+        "firstName": "Ben",
+        "lastName": "Smith",
+        "state": "FL",
+        "age": 46,
+        "city": "New York"
+      }
     },
     "action": {
       "id": 892348,

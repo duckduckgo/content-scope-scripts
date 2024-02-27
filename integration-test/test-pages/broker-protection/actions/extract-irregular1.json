@@ -27,17 +27,19 @@
       }
     },
     "data": {
-      "firstName": "John",
-      "middleName": "Michael",
-      "lastName": "Smith",
-      "age": "74",
-      "addresses": [
-        {
-          "addressLine1": "123 Fake St",
-          "city": "Chicago",
-          "state": "IL"
-        }
-      ]
+      "userProfile": {
+        "firstName": "John",
+        "middleName": "Michael",
+        "lastName": "Smith",
+        "age": "74",
+        "addresses": [
+          {
+            "addressLine1": "123 Fake St",
+            "city": "Chicago",
+            "state": "IL"
+          }
+        ]
+      }
     }
   }
 }
