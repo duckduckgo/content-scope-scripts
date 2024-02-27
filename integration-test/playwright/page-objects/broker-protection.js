@@ -109,6 +109,7 @@ export class BrokerProtectionPage {
         expect(meta.extractResults.filter(x => x.result === false)).toHaveLength(9)
         const match = meta.extractResults.find(x => x.result === true)
         expect(match.matchedFields).toMatchObject(['name', 'age', 'addressCityStateList'])
+        expect(match.element).toBe(undefined)
         expect(match.score).toBe(3)
     }
 
