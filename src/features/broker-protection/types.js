@@ -52,4 +52,17 @@ export class ProfileResult {
         this.element = params.element
         this.matchedFields = params.matchedFields
     }
+
+    /**
+     * Convert this structure into a format that can be sent between JS contexts/native
+     * @return {{result: boolean, score: number, matchedFields: string[], scrapedData: Record<string, any>}}
+     */
+    asData () {
+        return {
+            scrapedData: this.scrapedData,
+            result: this.result,
+            score: this.score,
+            matchedFields: this.matchedFields
+        }
+    }
 }
