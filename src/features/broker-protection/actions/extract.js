@@ -41,13 +41,17 @@ export function extract (action, userData) {
         .filter(x => x.result === true)
         .map(x => aggregateFields(x.scrapedData))
 
+    // omit the DOM node from data transfer
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const debugResults = extractResult.results.map((result) => result.asData())
+
     return new SuccessResponse({
         actionID: action.id,
         actionType: action.actionType,
         response: filtered,
         meta: {
             userData,
-            extractResults: extractResult.results
+            extractResults: debugResults
         }
     })
 }
@@ -55,10 +59,11 @@ export function extract (action, userData) {
 /**
  * @param {Action} action
  * @param {Record<string, any>} userData
+ * @param {Element | Document} [root]
  * @return {{error: string} | {results: ProfileResult[]}}
  */
-export function extractProfiles (action, userData) {
-    const profilesElementList = getElements(document, action.selector) ?? []
+export function extractProfiles (action, userData, root = document) {
+    const profilesElementList = getElements(root, action.selector) ?? []
 
     if (profilesElementList.length === 0) {
         return { error: 'no root elements found for ' + action.selector }
