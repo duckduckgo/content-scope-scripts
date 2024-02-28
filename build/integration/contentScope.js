@@ -14800,7 +14800,7 @@
     /**
      * @param userAddresses
      * @param foundAddresses
-     * @return {{cityFound, stateFound}|boolean}
+     * @return {boolean}
      */
     function matchAddressFromAddressListCityState (userAddresses, foundAddresses) {
         if (!userAddresses || userAddresses.length < 1 || !foundAddresses || foundAddresses.length < 1) {
@@ -14820,7 +14820,7 @@
                 stateFound = possibleLocation.state;
 
                 if (isSameAddressCityState(userCity, userState, cityFound, stateFound)) {
-                    return { cityFound, stateFound }
+                    return true
                 }
             }
         }
@@ -15040,10 +15040,10 @@
      */
     class ErrorResponse {
         /**
-       * @param {object} params
-       * @param {string} params.actionID
-       * @param {string} params.message
-       */
+        * @param {object} params
+        * @param {string} params.actionID
+        * @param {string} params.message
+        */
         constructor (params) {
             this.error = params;
         }
@@ -15054,13 +15054,49 @@
      */
     class SuccessResponse {
         /**
-       * @param {object} params
-       * @param {string} params.actionID
-       * @param {string} params.actionType
-       * @param {any} params.response
-       */
+        * @param {object} params
+        * @param {string} params.actionID
+        * @param {string} params.actionType
+        * @param {any} params.response
+       * @param {Record<string, any>} [params.meta] - optional meta data
+        */
         constructor (params) {
             this.success = params;
+        }
+    }
+
+    /**
+     * A type that includes the result + metadata of comparing a DOM element + children
+     * to a set of data. Use this for analysis/debugging
+     */
+    class ProfileResult {
+        /**
+         * @param {object} params
+         * @param {boolean} params.result - whether we consider this a 'match'
+         * @param {string[]} params.matchedFields - a list of the fields in the data that were matched.
+         * @param {number} params.score - value to determine
+         * @param {HTMLElement} [params.element] - the parent element that was matched. Not present in JSON
+         * @param {Record<string, any>} params.scrapedData
+         */
+        constructor (params) {
+            this.scrapedData = params.scrapedData;
+            this.result = params.result;
+            this.score = params.score;
+            this.element = params.element;
+            this.matchedFields = params.matchedFields;
+        }
+
+        /**
+         * Convert this structure into a format that can be sent between JS contexts/native
+         * @return {{result: boolean, score: number, matchedFields: string[], scrapedData: Record<string, any>}}
+         */
+        asData () {
+            return {
+                scrapedData: this.scrapedData,
+                result: this.result,
+                score: this.score,
+                matchedFields: this.matchedFields
+            }
         }
     }
 
@@ -15068,7 +15104,7 @@
      * This builds the proper URL given the URL template and userData.
      *
      * @param action
-     * @param userData
+     * @param {Record<string, any>} userData
      * @return {import('../types.js').ActionResponse}
      */
     function buildUrl (action, userData) {
@@ -15180,6 +15216,10 @@
      */
     function isXpath (selector) {
         if (!(typeof selector === 'string')) return false
+
+        // see: https://www.w3.org/TR/xpath20/
+        // "When the context item is a node, it can also be referred to as the context node. The context item is returned by an expression consisting of a single dot"
+        if (selector === '.') return true
         return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(')
     }
 
@@ -18183,18 +18223,58 @@
      * @param {Record<string, any>} userData
      * @return {import('../types.js').ActionResponse}
      */
-    function extractProfiles (action, userData) {
-        const profilesElementList = getElements(document, action.selector) ?? [];
+    function extract (action, userData) {
+        const extractResult = extractProfiles(action, userData);
 
-        const matchedProfiles = profilesElementList
-            // first, convert each profile element list into a profile
-            .map((element) => createProfile(element, action.profile))
-            // only include profiles that match the user data
-            .filter((scrapedData) => scrapedDataMatchesUserData(userData, scrapedData))
-            // aggregate some fields
-            .map((scrapedData) => aggregateFields(scrapedData));
+        if ('error' in extractResult) {
+            return new ErrorResponse({ actionID: action.id, message: extractResult.error })
+        }
 
-        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: matchedProfiles })
+        const filtered = extractResult.results
+            .filter(x => x.result === true)
+            .map(x => aggregateFields(x.scrapedData));
+
+        // omit the DOM node from data transfer
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const debugResults = extractResult.results.map((result) => result.asData());
+
+        return new SuccessResponse({
+            actionID: action.id,
+            actionType: action.actionType,
+            response: filtered,
+            meta: {
+                userData,
+                extractResults: debugResults
+            }
+        })
+    }
+
+    /**
+     * @param {Action} action
+     * @param {Record<string, any>} userData
+     * @param {Element | Document} [root]
+     * @return {{error: string} | {results: ProfileResult[]}}
+     */
+    function extractProfiles (action, userData, root = document) {
+        const profilesElementList = getElements(root, action.selector) ?? [];
+
+        if (profilesElementList.length === 0) {
+            return { error: 'no root elements found for ' + action.selector }
+        }
+
+        return {
+            results: profilesElementList.map((element) => {
+                const scrapedData = createProfile(element, action.profile);
+                const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData);
+                return new ProfileResult({
+                    scrapedData,
+                    result,
+                    score,
+                    element,
+                    matchedFields
+                })
+            })
+        }
     }
 
     /**
@@ -18291,41 +18371,59 @@
      * Try to filter partial data based on the user's actual profile data
      * @param {Record<string, any>} userData
      * @param {Record<string, any>} scrapedData
-     * @return {boolean}
+     * @return {{score: number, matchedFields: string[], result: boolean}}
      */
     function scrapedDataMatchesUserData (userData, scrapedData) {
-        if (!isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) return false
+        const matchedFields = [];
 
+        // the name matching is always a *requirement*
+        if (isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) {
+            matchedFields.push('name');
+        } else {
+            return { matchedFields, score: matchedFields.length, result: false }
+        }
+
+        // if the age field was present in the scraped data, then we consider this check a *requirement*
         if (scrapedData.age) {
-            if (!isSameAge(scrapedData.age, userData.age)) {
-                return false
+            if (isSameAge(scrapedData.age, userData.age)) {
+                matchedFields.push('age');
+            } else {
+                return { matchedFields, score: matchedFields.length, result: false }
             }
         }
 
         if (scrapedData.addressCityState) {
             // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
             if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
-                return true
+                matchedFields.push('addressCityState');
+                return { matchedFields, score: matchedFields.length, result: true }
             }
         }
 
         // it's possible to have both addressCityState and addressCityStateList
         if (scrapedData.addressCityStateList) {
             if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
-                return true
+                matchedFields.push('addressCityStateList');
+                return { matchedFields, score: matchedFields.length, result: true }
             }
         }
 
         if (scrapedData.addressFull) {
-            if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) { return true }
+            if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
+                matchedFields.push('addressFull');
+                return { matchedFields, score: matchedFields.length, result: true }
+            }
         }
 
         if (scrapedData.phone) {
-            if (userData.phone === scrapedData.phone) { return true }
+            if (userData.phone === scrapedData.phone) {
+                matchedFields.push('phone');
+                return { matchedFields, score: matchedFields.length, result: true }
+            }
         }
 
-        // if phone number matches
-        return false
+        // if we get here we didn't consider it a match
+        return { matchedFields, score: matchedFields.length, result: false }
     }
 
     /**
@@ -18375,7 +18473,7 @@
         if (!elementValue) return null
 
         const extractors = {
-            name: () => typeof elementValue === 'string' && elementValue.trim(),
+            name: () => typeof elementValue === 'string' && elementValue.replace(/\n/g, ' ').trim(),
             age: () => typeof elementValue === 'string' && elementValue.match(/\d+/)?.[0],
             alternativeNamesList: () => stringToList(elementValue, value.separator),
             addressCityStateList: () => {
@@ -18448,8 +18546,11 @@
      */
     function getCityStateCombos (inputList) {
         const output = [];
-        for (const item of inputList) {
+        for (let item of inputList) {
             let words;
+            // Strip out the zip code since we're only interested in city/state here.
+            item = item.replace(/,?\s*\d{5}(-\d{4})?/, '');
+
             if (item.includes(',')) {
                 words = item.split(',').map(item => item.trim());
             } else {
@@ -18501,6 +18602,11 @@
         const form = getElement(document, action.selector);
         if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
 
+        /**
+         * @type {({result: true} | {result: false; error: string})[]}
+         */
+        const results = [];
+
         // fill out form for each step
         for (const element of action.elements) {
             // get the correct field of the form
@@ -18509,10 +18615,24 @@
             // let inputElem = form.elements[element.selector]
             // find the correct userData to put in the form
             if (inputElem) {
-                // @ts-expect-error - double check if this is strict enough
-                // todo: determine if this requires any events to be dispatched also
-                setValueForInput(inputElem, userData[element.type]);
+                if (element.type === '$file_id$') {
+                    results.push(setImageUpload(inputElem));
+                } else {
+                    // @ts-expect-error - double check if this is strict enough
+                    // todo: determine if this requires any events to be dispatched also
+                    setValueForInput(inputElem, userData[element.type]);
+                    results.push({ result: true });
+                }
             }
+        }
+
+        const errors = results.filter(x => x.result === false).map(x => {
+            if ('error' in x) return x.error
+            return 'unknown error'
+        });
+
+        if (errors.length > 0) {
+            return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
         }
 
         return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
@@ -18525,7 +18645,7 @@
      *
      * @param {HTMLInputElement} el
      * @param {string} val
-     * @return {boolean}
+     * @return {{result: boolean}}
      */
     function setValueForInput (el, val) {
         el.dispatchEvent(new Event('keydown', { bubbles: true }));
@@ -18546,7 +18666,40 @@
         events.forEach((ev) => el.dispatchEvent(ev));
         el.blur();
 
-        return true
+        return { result: true }
+    }
+
+    /**
+     * @param element
+     * @return {{result: true}|{result: false, error: string}}
+     */
+    function setImageUpload (element) {
+        const base64PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/B8AAusB9VF9PmUAAAAASUVORK5CYII=';
+        try {
+            // Convert the Base64 string to a Blob
+            const binaryString = window.atob(base64PNG);
+
+            // Convert binary string to a Typed Array
+            const length = binaryString.length;
+            const bytes = new Uint8Array(length);
+            for (let i = 0; i < length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            // Create the Blob from the Typed Array
+            const blob = new Blob([bytes], { type: 'image/png' });
+
+            // Create a DataTransfer object and append the Blob
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(new File([blob], 'id.png', { type: 'image/png' }));
+
+            // Step 4: Assign the Blob to the Input Element
+            /** @type {any} */(element).files = dataTransfer.files;
+            return { result: true }
+        } catch (e) {
+            // failed
+            return { result: false, error: e.toString() }
+        }
     }
 
     /**
@@ -18731,20 +18884,56 @@
     }
 
     /**
-     * @param action // TODO: get type based on actionType
+     * @param {Record<string, any>} action
+     * @param {Record<string, any>} userData
      * @return {import('../types.js').ActionResponse}
      */
-    function click (action) {
+    function click (action, userData) {
         // there can be multiple elements provided by the action
         for (const element of action.elements) {
-            const elem = getElement(document, element.selector);
+            const root = selectRootElement(element, userData);
+            const elem = getElement(root, element.selector);
+
             if (!elem) {
                 return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
             }
-            elem.click();
+            if ('disabled' in elem) {
+                if (elem.disabled) {
+                    return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
+                }
+            }
+            if ('click' in elem && typeof elem.click === 'function') {
+                elem.click();
+            }
         }
 
         return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+    }
+
+    /**
+     * @param {{parent?: {profileMatch?: Record<string, any>}}} clickElement
+     * @param {Record<string, any>} userData
+     * @return {Node}
+     */
+    function selectRootElement (clickElement, userData) {
+        // if there's no 'parent' field, just use the document
+        if (!clickElement.parent) return document
+
+        // if the 'parent' field contains 'profileMatch', try to match it
+        if (clickElement.parent.profileMatch) {
+            const extraction = extractProfiles(clickElement.parent.profileMatch, userData);
+            if ('results' in extraction) {
+                const sorted = extraction.results
+                    .filter(x => x.result === true)
+                    .sort((a, b) => b.score - a.score);
+                const first = sorted[0];
+                if (first && first.element) {
+                    return first.element
+                }
+            }
+        }
+
+        throw new Error('`parent` was present on the element, but the configuration is not supported')
     }
 
     /**
@@ -18782,27 +18971,28 @@
     /**
      * @param {object} action
      * @param {string} action.id
+     * @param {string} [action.dataSource] - optional data source
      * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
-     * @param {any} data
+     * @param {Record<string, any>} inputData
      * @return {import('./types.js').ActionResponse}
      */
-    function execute (action, data) {
+    function execute (action, inputData) {
         try {
             switch (action.actionType) {
             case 'navigate':
-                return buildUrl(action, data)
+                return buildUrl(action, data(action, inputData, 'userProfile'))
             case 'extract':
-                return extractProfiles(action, data)
+                return extract(action, data(action, inputData, 'userProfile'))
             case 'click':
-                return click(action)
+                return click(action, data(action, inputData, 'userProfile'))
             case 'expectation':
                 return expectation(action)
             case 'fillForm':
-                return fillForm(action, data)
+                return fillForm(action, data(action, inputData, 'extractedProfile'))
             case 'getCaptchaInfo':
                 return getCaptchaInfo(action)
             case 'solveCaptcha':
-                return solveCaptcha(action, data.token)
+                return solveCaptcha(action, data(action, inputData, 'token'))
             default: {
                 return new ErrorResponse({
                     actionID: action.id,
@@ -18819,17 +19009,88 @@
         }
     }
 
+    /**
+     * @param {{dataSource?: string}} action
+     * @param {Record<string, any>} data
+     * @param {string} defaultSource
+     */
+    function data (action, data, defaultSource) {
+        if (!data) return null
+        const source = action.dataSource || defaultSource;
+        if (Object.prototype.hasOwnProperty.call(data, source)) {
+            return data[source]
+        }
+        return null
+    }
+
+    const DEFAULT_RETRY_CONFIG = {
+        interval: { ms: 0 },
+        maxAttempts: 1
+    };
+
+    /**
+     * A generic retry mechanism for synchronous functions that return
+     * a 'success' or 'error' response
+     *
+     * @template T
+     * @template {{ success: T } | { error: { message: string } }} FnReturn
+     * @param {() => FnReturn} fn
+     * @param {typeof DEFAULT_RETRY_CONFIG} [config]
+     * @return {Promise<{ result: FnReturn | undefined, exceptions: string[] }>}
+     */
+    async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
+        let lastResult;
+        const exceptions = [];
+        for (let i = 0; i < config.maxAttempts; i++) {
+            try {
+                lastResult = fn();
+            } catch (e) {
+                exceptions.push(e.toString());
+            }
+
+            // stop when there's a good result to return
+            // since fn() returns either { success: <value> } or { error: ... }
+            if (lastResult && 'success' in lastResult) break
+
+            // don't pause on the last item
+            if (i === config.maxAttempts - 1) break
+
+            await new Promise(resolve => setTimeout(resolve, config.interval.ms));
+        }
+
+        return { result: lastResult, exceptions }
+    }
+
+    /**
+     * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
+     */
+
     class BrokerProtection extends ContentFeature {
         init () {
-            this.messaging.subscribe('onActionReceived', (/** @type {any} */params) => {
+            this.messaging.subscribe('onActionReceived', async (/** @type {any} */params) => {
                 try {
                     const action = params.state.action;
                     const data = params.state.data;
+
                     if (!action) {
                         return this.messaging.notify('actionError', { error: 'No action found.' })
                     }
-                    const result = execute(action, data);
-                    this.messaging.notify('actionCompleted', { result });
+
+                    /**
+                     * Note: We're not currently guarding against concurrent actions here
+                     * since the native side contains the scheduling logic to prevent it.
+                     */
+                    const retryConfig = action.retry?.environment === 'web'
+                        ? action.retry
+                        : undefined;
+
+                    const { result, exceptions } = await retry(() => execute(action, data), retryConfig);
+
+                    if (result) {
+                        this.messaging.notify('actionCompleted', { result });
+                    } else {
+                        this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
+                    }
                 } catch (e) {
                     console.log('unhandled exception: ', e);
                     this.messaging.notify('actionError', { error: e.toString() });

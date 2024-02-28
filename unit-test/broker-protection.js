@@ -1,7 +1,7 @@
 import fc from 'fast-check'
 import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js'
 import { getNicknames, isSameName } from '../src/features/broker-protection/comparisons/is-same-name.js'
-import { getCityStateCombos, stringToList, getIdFromProfileUrl } from '../src/features/broker-protection/actions/extract.js'
+import { getCityStateCombos, stringToList, getIdFromProfileUrl, extractValue } from '../src/features/broker-protection/actions/extract.js'
 import {
     matchAddressCityState,
     matchAddressFromAddressListCityState
@@ -41,6 +41,13 @@ describe('Actions', () => {
 
             it("should return the name if it's not in the list", () => {
                 expect(getNicknames(null)).toEqual([])
+            })
+        })
+
+        describe('extractValue', () => {
+            it('should convert newlines to spaces in names', () => {
+                expect(extractValue('name', { selector: 'example' }, 'John\nSmith')).toEqual('John Smith')
+                expect(extractValue('name', { selector: 'example' }, 'John\nT\nSmith')).toEqual('John T Smith')
             })
         })
 
@@ -92,6 +99,28 @@ describe('Actions', () => {
                         { city: 'Oak Park', state: 'IL' }
                     ])
                 }
+            })
+        })
+
+        describe('get correct city state combo from a string', () => {
+            it('should successfully extract the city/state when a zip code is included', () => {
+                const cityStateZipList = [
+                    'Chicago IL 60611',
+                    'Chicago IL   60611',
+                    'River Forest IL 60305-1243',
+                    'Forest Park IL, 60130-1234',
+                    'Oak Park IL, 60302'
+                ]
+
+                const result = getCityStateCombos(cityStateZipList)
+
+                expect(result).toEqual([
+                    { city: 'Chicago', state: 'IL' },
+                    { city: 'Chicago', state: 'IL' },
+                    { city: 'River Forest', state: 'IL' },
+                    { city: 'Forest Park', state: 'IL' },
+                    { city: 'Oak Park', state: 'IL' }
+                ])
             })
         })
 
@@ -189,11 +218,11 @@ describe('Actions', () => {
 
             describe('matchAddressFromAddressListCityState', () => {
                 it('should match when city/state is present', () => {
-                    expect(matchAddressFromAddressListCityState(userData.addresses, ['chicago, il', 'schaumburg, il']))
+                    expect(matchAddressFromAddressListCityState(userData.addresses, [{ city: 'chicago', state: 'il' }])).toBe(true)
                 })
 
                 it('should not match when city/state is not present', () => {
-                    expect(matchAddressFromAddressListCityState(userData.addresses, ['los angeles, ca', 'portland, or']))
+                    expect(matchAddressFromAddressListCityState(userData.addresses, [{ city: 'los angeles', state: 'ca' }])).toBe(false)
                 })
             })
 

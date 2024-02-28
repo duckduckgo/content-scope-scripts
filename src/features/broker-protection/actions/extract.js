@@ -1,5 +1,5 @@
 import { getElement, getElementMatches, getElements } from '../utils.js' // Assuming you have imported the address comparison function
-import { SuccessResponse } from '../types.js'
+import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
 import { matchesFullAddress } from '../comparisons/matches-full-address.js'
@@ -30,18 +30,58 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
  * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
-export function extractProfiles (action, userData) {
-    const profilesElementList = getElements(document, action.selector) ?? []
+export function extract (action, userData) {
+    const extractResult = extractProfiles(action, userData)
 
-    const matchedProfiles = profilesElementList
-        // first, convert each profile element list into a profile
-        .map((element) => createProfile(element, action.profile))
-        // only include profiles that match the user data
-        .filter((scrapedData) => scrapedDataMatchesUserData(userData, scrapedData))
-        // aggregate some fields
-        .map((scrapedData) => aggregateFields(scrapedData))
+    if ('error' in extractResult) {
+        return new ErrorResponse({ actionID: action.id, message: extractResult.error })
+    }
 
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: matchedProfiles })
+    const filtered = extractResult.results
+        .filter(x => x.result === true)
+        .map(x => aggregateFields(x.scrapedData))
+
+    // omit the DOM node from data transfer
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const debugResults = extractResult.results.map((result) => result.asData())
+
+    return new SuccessResponse({
+        actionID: action.id,
+        actionType: action.actionType,
+        response: filtered,
+        meta: {
+            userData,
+            extractResults: debugResults
+        }
+    })
+}
+
+/**
+ * @param {Action} action
+ * @param {Record<string, any>} userData
+ * @param {Element | Document} [root]
+ * @return {{error: string} | {results: ProfileResult[]}}
+ */
+export function extractProfiles (action, userData, root = document) {
+    const profilesElementList = getElements(root, action.selector) ?? []
+
+    if (profilesElementList.length === 0) {
+        return { error: 'no root elements found for ' + action.selector }
+    }
+
+    return {
+        results: profilesElementList.map((element) => {
+            const scrapedData = createProfile(element, action.profile)
+            const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData)
+            return new ProfileResult({
+                scrapedData,
+                result,
+                score,
+                element,
+                matchedFields
+            })
+        })
+    }
 }
 
 /**
@@ -138,41 +178,59 @@ function findFromElement (profileElement, dataKey, extractField) {
  * Try to filter partial data based on the user's actual profile data
  * @param {Record<string, any>} userData
  * @param {Record<string, any>} scrapedData
- * @return {boolean}
+ * @return {{score: number, matchedFields: string[], result: boolean}}
  */
 function scrapedDataMatchesUserData (userData, scrapedData) {
-    if (!isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) return false
+    const matchedFields = []
 
+    // the name matching is always a *requirement*
+    if (isSameName(scrapedData.name, userData.firstName, userData.middleName, userData.lastName)) {
+        matchedFields.push('name')
+    } else {
+        return { matchedFields, score: matchedFields.length, result: false }
+    }
+
+    // if the age field was present in the scraped data, then we consider this check a *requirement*
     if (scrapedData.age) {
-        if (!isSameAge(scrapedData.age, userData.age)) {
-            return false
+        if (isSameAge(scrapedData.age, userData.age)) {
+            matchedFields.push('age')
+        } else {
+            return { matchedFields, score: matchedFields.length, result: false }
         }
     }
 
     if (scrapedData.addressCityState) {
         // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
         if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
-            return true
+            matchedFields.push('addressCityState')
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     // it's possible to have both addressCityState and addressCityStateList
     if (scrapedData.addressCityStateList) {
         if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
-            return true
+            matchedFields.push('addressCityStateList')
+            return { matchedFields, score: matchedFields.length, result: true }
         }
     }
 
     if (scrapedData.addressFull) {
-        if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) { return true }
+        if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
+            matchedFields.push('addressFull')
+            return { matchedFields, score: matchedFields.length, result: true }
+        }
     }
 
     if (scrapedData.phone) {
-        if (userData.phone === scrapedData.phone) { return true }
+        if (userData.phone === scrapedData.phone) {
+            matchedFields.push('phone')
+            return { matchedFields, score: matchedFields.length, result: true }
+        }
     }
 
-    // if phone number matches
-    return false
+    // if we get here we didn't consider it a match
+    return { matchedFields, score: matchedFields.length, result: false }
 }
 
 /**
@@ -218,11 +276,11 @@ export function aggregateFields (profile) {
  * @param {string | string[]} elementValue
  * @return {string|string[]|null}
  */
-function extractValue (key, value, elementValue) {
+export function extractValue (key, value, elementValue) {
     if (!elementValue) return null
 
     const extractors = {
-        name: () => typeof elementValue === 'string' && elementValue.trim(),
+        name: () => typeof elementValue === 'string' && elementValue.replace(/\n/g, ' ').trim(),
         age: () => typeof elementValue === 'string' && elementValue.match(/\d+/)?.[0],
         alternativeNamesList: () => stringToList(elementValue, value.separator),
         addressCityStateList: () => {
@@ -295,8 +353,11 @@ export function stringToList (inputList, separator) {
  */
 export function getCityStateCombos (inputList) {
     const output = []
-    for (const item of inputList) {
+    for (let item of inputList) {
         let words
+        // Strip out the zip code since we're only interested in city/state here.
+        item = item.replace(/,?\s*\d{5}(-\d{4})?/, '')
+
         if (item.includes(',')) {
             words = item.split(',').map(item => item.trim())
         } else {

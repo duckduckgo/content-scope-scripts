@@ -13,16 +13,18 @@
       }
     },
     "data": {
-      "firstName": "John",
-      "middleName": "Ignatius",
-      "lastName": "Smith",
-      "age": "59",
-      "addresses": [
-        {
-          "city": "Chicago",
-          "state": "IL"
-        }
-      ]
+      "userProfile": {
+        "firstName": "John",
+        "middleName": "Ignatius",
+        "lastName": "Smith",
+        "age": "59",
+        "addresses": [
+          {
+            "city": "Chicago",
+            "state": "IL"
+          }
+        ]
+      }
     }
   }
 }

@@ -7,7 +7,7 @@
         "name": {"selector": ".h4"},
         "alternativeNamesList": null,
         "age": {
-          "selector": ".//div[@class='col-md-8']/div[2]" 
+          "selector": ".//div[@class='col-md-8']/div[2]"
         },
         "addressCityState": {
           "selector": ".//div[@class='col-md-8']/div[3]",
@@ -27,16 +27,18 @@
       }
     },
     "data": {
-      "firstName": "John",
-      "middleName": "Aiken",
-      "lastName": "Smith",
-      "age": "71",
-      "addresses": [
-        {
-          "city": "Chicago",
-          "state": "IL"
-        }
-      ]
+      "userProfile": {
+        "firstName": "John",
+        "middleName": "Aiken",
+        "lastName": "Smith",
+        "age": "71",
+        "addresses": [
+          {
+            "city": "Chicago",
+            "state": "IL"
+          }
+        ]
+      }
     }
   }
 }

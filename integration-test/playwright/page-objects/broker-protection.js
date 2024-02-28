@@ -60,20 +60,7 @@ export class BrokerProtectionPage {
      * @return {void}
      */
     isExtractMatch (response, person) {
-        if (person.name) { expect(response[0]?.name).toBe(person.name) }
-        if (person.alternativeNames) { expect(response[0]?.alternativeNames).toStrictEqual(person.alternativeNames) }
-        if (person.age) { expect(response[0]?.age).toBe(person.age) }
-        if (person.addresses) { expect(response[0]?.addresses).toStrictEqual(person.addresses) }
-        if (person.relatives) { expect(response[0]?.relatives).toStrictEqual(person.relatives) }
-        if (person.phoneNumbers) { expect(response[0]?.phoneNumbers).toStrictEqual(person.phoneNumbers) }
-        if (person.profileUrl) { expect(response[0]?.profileUrl).toContain(person.profileUrl) }
-    }
-
-    /**
-     * @return {void}
-     */
-    isMultiple (response) {
-        expect(response.length).toBeGreaterThan(1)
+        expect(person).toMatchObject(response)
     }
 
     /**
@@ -114,9 +101,22 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param meta
+     */
+    responseContainsMetadata (meta) {
+        expect(meta.extractResults).toHaveLength(10)
+        expect(meta.extractResults.filter(x => x.result === true)).toHaveLength(1)
+        expect(meta.extractResults.filter(x => x.result === false)).toHaveLength(9)
+        const match = meta.extractResults.find(x => x.result === true)
+        expect(match.matchedFields).toMatchObject(['name', 'age', 'addressCityStateList'])
+        expect(match.element).toBe(undefined)
+        expect(match.score).toBe(3)
+    }
+
+    /**
      * Simulate the native-side pushing an action into the client-side JS
      *
-     * @param {'extract.json' | 'extract2.json' | 'extract3.json' | 'extract4.json' | 'extract5.json' | 'extract-irregular1.json' | 'extract-irregular2.json' | 'extract-irregular3.json' | 'results2.json' | 'navigate.json' | 'fill-form.json' | 'click.json' | 'expectation.json' | 'get-captcha.json' | 'solve-captcha.json' | 'action-not-found.json'} action - add more action types here
+     * @param {string} action
      * @return {Promise<void>}
      */
     async receivesAction (action) {
@@ -233,14 +233,13 @@ export class BrokerProtectionPage {
 
     /**
      * @param {object} response
-     * @return {boolean}
      */
     isErrorMessage (response) {
-        return !!response[0].payload?.params?.result?.error
+        expect('error' in response[0].payload?.params?.result).toBe(true)
     }
 
     isSuccessMessage (response) {
-        return !!response[0].payload?.params?.result?.sucesss
+        expect('success' in response[0].payload?.params?.result).toBe(true)
     }
 
     /**
