@@ -1,6 +1,6 @@
 import fc from 'fast-check'
 import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js'
-import { getNicknames, isSameName } from '../src/features/broker-protection/comparisons/is-same-name.js'
+import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
 import { getCityStateCombos, stringToList, getIdFromProfileUrl, extractValue } from '../src/features/broker-protection/actions/extract.js'
 import {
     matchAddressCityState,
@@ -30,17 +30,43 @@ describe('Actions', () => {
             })
         })
 
+        describe('getNames', () => {
+            it('should return an empty set if the name is an empty string', () => {
+                expect(Array.from(getNames(' '))).toEqual([])
+                expect(Array.from(getNames(''))).toEqual([])
+            })
+
+            it('should return just name if there are no nicknames or full names', () => {
+                expect(Array.from(getNames('J-Breeze')))
+            })
+
+            it('should return the name along with nicknames and full names if present', () => {
+                expect(Array.from(getNames('Greg')).sort()).toEqual(['greg', 'gregory'])
+                expect(Array.from(getNames('Gregory')).sort()).toEqual(['greg', 'gregory'])
+            })
+        })
+
         describe('getNicknames', () => {
             it('should return nicknames for a name in our nickname list', () => {
-                expect(getNicknames('Jon')).toEqual(['jon', 'jonathan'])
+                expect(Array.from(getNicknames('Jon'))).toEqual(['john', 'johnny', 'jonny', 'jonnie'])
             })
 
-            it("should return the name if it's not in the list", () => {
-                expect(getNicknames('John')).toEqual(['john'])
+            it('should return an empty set if the name has no nicknames', () => {
+                expect(Array.from(getNicknames('J-Breeze'))).toEqual([])
+            })
+        })
+
+        describe('getFullNames', () => {
+            it('should return a full name given a nickname in our list', () => {
+                expect(Array.from(getFullNames('Greg'))).toEqual(['gregory'])
             })
 
-            it("should return the name if it's not in the list", () => {
-                expect(getNicknames(null)).toEqual([])
+            it('should return as many full names as are applicable for the nickname', () => {
+                expect(Array.from(getFullNames('Kate'))).toEqual(['katelin', 'katelyn', 'katherine', 'kathryn', 'katia', 'katy'])
+            })
+
+            it('should return an empty set if the nickname has no full names', () => {
+                expect(Array.from(getFullNames('J-Breeze'))).toEqual([])
             })
         })
 

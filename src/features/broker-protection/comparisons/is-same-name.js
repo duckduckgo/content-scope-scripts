@@ -20,10 +20,10 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
     userLastName = userLastName ? userLastName.toLowerCase() : null
     userSuffix = userSuffix ? userSuffix.toLowerCase() : null
 
-    // check their nicknames too
-    const nicknames = getNicknames(userFirstName)
+    // Get a list of the user's name and nicknames / full names
+    const names = getNames(userFirstName)
 
-    for (const firstName of nicknames) {
+    for (const firstName of names) {
     // Let's check if the name matches right off the bat
         const nameCombo1 = `${firstName} ${userLastName}`
         if (fullNameExtracted === nameCombo1) {
@@ -143,11 +143,58 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
     return false
 }
 
-export function getNicknames (name) {
-    if (name == null || name.trim() === '') { return [] }
+/**
+ * Given the user's provided name, look for nicknames or full names and return a list
+ *
+ * @param {string | null} name
+ * @return {Set.<string>|Set<*>}
+ */
+export function getNames (name) {
+    if (name == null || name.trim() === '') { return new Set() }
 
     name = name.toLowerCase()
 
-    // This comes from Removaly's list of common nicknames
-    return nicknames[name] || [name]
+    return new Set([name, ...getNicknames(name), ...getFullNames(name)])
+}
+
+/**
+ * Given a full name, get a list of nicknames, e.g. Gregory -> Greg
+ *
+ * @param {string | null} name
+ * @return {Set.<string>|Set<*>}
+ */
+export function getNicknames (name) {
+    const emptySet = new Set()
+
+    if (name == null || name.trim() === '') { return emptySet }
+
+    name = name.toLowerCase()
+
+    if (nicknames[name]) {
+        return new Set(nicknames[name])
+    }
+
+    return emptySet
+}
+
+/**
+ * Given a nickname, get a list of full names - e.g. Greg -> Gregory
+ *
+ * @param {string | null} name
+ * @return {Set.<string>|Set<*>}
+ */
+export function getFullNames (name) {
+    const fullNames = new Set()
+
+    if (name == null || name.trim() === '') { return fullNames }
+
+    name = name.toLowerCase()
+
+    for (const fullName in nicknames) {
+        if (nicknames[fullName].includes(name)) {
+            fullNames.add(fullName)
+        }
+    }
+
+    return fullNames
 }
