@@ -1,10 +1,10 @@
-import { nicknames } from './constants.js'
+import { names } from './constants.js'
 
 /**
  * @param {string} fullNameExtracted
- * @param {string | null} [userFirstName]
- * @param {string | null} [userMiddleName]
- * @param {string | null} [userLastName]
+ * @param {string} userFirstName
+ * @param {string | null | undefined} userMiddleName
+ * @param {string} userLastName
  * @param {string | null} [userSuffix]
  * @return {boolean}
  */
@@ -14,10 +14,13 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
         return false
     }
 
+    // these fields should never be absent. If they are we cannot continue
+    if (!userFirstName || !userLastName) return false
+
     fullNameExtracted = fullNameExtracted.toLowerCase().trim().replace('.', '')
-    userFirstName = userFirstName ? userFirstName.toLowerCase() : null
+    userFirstName = userFirstName.toLowerCase()
     userMiddleName = userMiddleName ? userMiddleName.toLowerCase() : null
-    userLastName = userLastName ? userLastName.toLowerCase() : null
+    userLastName = userLastName.toLowerCase()
     userSuffix = userSuffix ? userSuffix.toLowerCase() : null
 
     // Get a list of the user's name and nicknames / full names
@@ -33,9 +36,11 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
         // If the user didn't supply a middle name, then try to match names extracted names that
         // might include a middle name.
         if (!userMiddleName) {
-            const matchesFirstAndLast = new RegExp(`^${firstName}\\s?.*\\s${userLastName}$`)
-
-            if (matchesFirstAndLast.test(fullNameExtracted)) {
+            const combinedLength = firstName.length + userLastName.length
+            const matchesFirstAndLast = fullNameExtracted.startsWith(firstName) &&
+                fullNameExtracted.endsWith(userLastName) &&
+                fullNameExtracted.length > combinedLength
+            if (matchesFirstAndLast) {
                 return true
             }
         }
@@ -150,27 +155,29 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
  * @return {Set.<string>|Set<*>}
  */
 export function getNames (name) {
-    if (name == null || name.trim() === '') { return new Set() }
+    if (!noneEmptyString(name)) { return new Set() }
 
     name = name.toLowerCase()
+    const nicknames = names.nicknames
 
-    return new Set([name, ...getNicknames(name), ...getFullNames(name)])
+    return new Set([name, ...getNicknames(name, nicknames), ...getFullNames(name, nicknames)])
 }
 
 /**
  * Given a full name, get a list of nicknames, e.g. Gregory -> Greg
  *
  * @param {string | null} name
+ * @param {Record<string, string[]>} nicknames
  * @return {Set.<string>|Set<*>}
  */
-export function getNicknames (name) {
+export function getNicknames (name, nicknames) {
     const emptySet = new Set()
 
-    if (name == null || name.trim() === '') { return emptySet }
+    if (!noneEmptyString(name)) { return emptySet }
 
     name = name.toLowerCase()
 
-    if (nicknames[name]) {
+    if (Object.prototype.hasOwnProperty.call(nicknames, name)) {
         return new Set(nicknames[name])
     }
 
@@ -181,20 +188,31 @@ export function getNicknames (name) {
  * Given a nickname, get a list of full names - e.g. Greg -> Gregory
  *
  * @param {string | null} name
+ * @param {Record<string, string[]>} nicknames
  * @return {Set.<string>|Set<*>}
  */
-export function getFullNames (name) {
+export function getFullNames (name, nicknames) {
     const fullNames = new Set()
 
-    if (name == null || name.trim() === '') { return fullNames }
+    if (!noneEmptyString(name)) { return fullNames }
 
     name = name.toLowerCase()
 
-    for (const fullName in nicknames) {
+    for (const fullName of Object.keys(nicknames)) {
         if (nicknames[fullName].includes(name)) {
             fullNames.add(fullName)
         }
     }
 
     return fullNames
+}
+
+/**
+ * This will handle all none-string types like null / undefined too
+ * @param {any} [input]
+ * @return {input is string}
+ */
+function noneEmptyString (input) {
+    if (typeof input !== 'string') return false
+    return input.trim().length > 0
 }

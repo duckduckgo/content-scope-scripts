@@ -9,6 +9,7 @@ import {
 import { matchesFullAddress } from '../src/features/broker-protection/comparisons/matches-full-address.js'
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
+import { names } from '../src/features/broker-protection/comparisons/constants.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -48,25 +49,25 @@ describe('Actions', () => {
 
         describe('getNicknames', () => {
             it('should return nicknames for a name in our nickname list', () => {
-                expect(Array.from(getNicknames('Jon'))).toEqual(['john', 'johnny', 'jonny', 'jonnie'])
+                expect(Array.from(getNicknames('Jon', names.nicknames))).toEqual(['john', 'johnny', 'jonny', 'jonnie'])
             })
 
             it('should return an empty set if the name has no nicknames', () => {
-                expect(Array.from(getNicknames('J-Breeze'))).toEqual([])
+                expect(Array.from(getNicknames('J-Breeze', names.nicknames))).toEqual([])
             })
         })
 
         describe('getFullNames', () => {
             it('should return a full name given a nickname in our list', () => {
-                expect(Array.from(getFullNames('Greg'))).toEqual(['gregory'])
+                expect(Array.from(getFullNames('Greg', names.nicknames))).toEqual(['gregory'])
             })
 
             it('should return as many full names as are applicable for the nickname', () => {
-                expect(Array.from(getFullNames('Kate'))).toEqual(['katelin', 'katelyn', 'katherine', 'kathryn', 'katia', 'katy'])
+                expect(Array.from(getFullNames('Kate', names.nicknames))).toEqual(['katelin', 'katelyn', 'katherine', 'kathryn', 'katia', 'katy'])
             })
 
             it('should return an empty set if the nickname has no full names', () => {
-                expect(Array.from(getFullNames('J-Breeze'))).toEqual([])
+                expect(Array.from(getFullNames('J-Breeze, names.nicknames', names.nicknames))).toEqual([])
             })
         })
 
@@ -100,6 +101,34 @@ describe('Actions', () => {
             it('should match if middle name is missing from user data but included in scraped data', () => {
                 expect(isSameName('Jon A Smith', userName.firstName, null, userName.lastName)).toBe(true)
                 expect(isSameName('Jon Andrew Smith', userName.firstName, null, userName.lastName)).toBe(true)
+            })
+            it('property testing isSameName -> boolean', () => {
+                fc.assert(fc.property(
+                    fc.string(),
+                    fc.string(),
+                    fc.option(fc.string()),
+                    fc.string(),
+                    fc.option(fc.string()),
+                    (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
+                        const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
+                        expect(typeof result).toBe('boolean')
+                    }
+                ))
+            })
+            it('property testing isSameName -> boolean (seed 1)', () => {
+                // Got TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))
+                // when doing if (nicknames[name])
+                fc.assert(fc.property(
+                    fc.string(),
+                    fc.string(),
+                    fc.option(fc.string()),
+                    fc.string(),
+                    fc.option(fc.string()),
+                    (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
+                        const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
+                        expect(typeof result).toBe('boolean')
+                    }
+                ), { seed: 203542789, path: '70:1:0:0:1:85:86:85:86:86', endOnFailure: true })
             })
         })
 

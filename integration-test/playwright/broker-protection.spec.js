@@ -84,6 +84,37 @@ test.describe('Broker Protection communications', () => {
                     phoneNumbers: [],
                     profileUrl: baseURL + 'view/Ben-Smith-DSAJBtFB',
                     identifier: baseURL + 'view/Ben-Smith-DSAJBtFB'
+                },
+                {
+                    name: 'Benjamin H Smith',
+                    alternativeNames: [
+                        'Known as:',
+                        'Benjamin Smith',
+                        'Ben Smith',
+                        'Bejamin Smith'
+                    ],
+                    age: '39',
+                    addresses: [
+                        {
+                            city: 'Has lived',
+                            state: 'in:'
+                        },
+                        {
+                            city: 'Fort Lauderdale',
+                            state: 'FL'
+                        },
+                        {
+                            city: 'Miami',
+                            state: 'FL'
+                        },
+                        {
+                            city: 'Indianapolis',
+                            state: 'IN'
+                        }
+                    ],
+                    phoneNumbers: [],
+                    profileUrl: baseURL + 'view/Benjamin-Smith-GpC.DQCB',
+                    identifier: baseURL + 'view/Benjamin-Smith-GpC.DQCB'
                 }
             ])
         })
