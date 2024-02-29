@@ -152,7 +152,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
  * Given the user's provided name, look for nicknames or full names and return a list
  *
  * @param {string | null} name
- * @return {Set.<string>|Set<*>}
+ * @return {Set<string>}
  */
 export function getNames (name) {
     if (!noneEmptyString(name)) { return new Set() }
@@ -168,7 +168,7 @@ export function getNames (name) {
  *
  * @param {string | null} name
  * @param {Record<string, string[]>} nicknames
- * @return {Set.<string>|Set<*>}
+ * @return {Set<string>}
  */
 export function getNicknames (name, nicknames) {
     const emptySet = new Set()
@@ -189,7 +189,7 @@ export function getNicknames (name, nicknames) {
  *
  * @param {string | null} name
  * @param {Record<string, string[]>} nicknames
- * @return {Set.<string>|Set<*>}
+ * @return {Set<string>}
  */
 export function getFullNames (name, nicknames) {
     const fullNames = new Set()
