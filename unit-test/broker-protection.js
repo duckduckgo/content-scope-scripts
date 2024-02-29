@@ -1,6 +1,6 @@
 import fc from 'fast-check'
 import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js'
-import { getNicknames, isSameName } from '../src/features/broker-protection/comparisons/is-same-name.js'
+import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
 import { getCityStateCombos, stringToList, getIdFromProfileUrl, extractValue } from '../src/features/broker-protection/actions/extract.js'
 import {
     matchAddressCityState,
@@ -9,6 +9,7 @@ import {
 import { matchesFullAddress } from '../src/features/broker-protection/comparisons/matches-full-address.js'
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
+import { names } from '../src/features/broker-protection/comparisons/constants.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -30,17 +31,43 @@ describe('Actions', () => {
             })
         })
 
+        describe('getNames', () => {
+            it('should return an empty set if the name is an empty string', () => {
+                expect(Array.from(getNames(' '))).toEqual([])
+                expect(Array.from(getNames(''))).toEqual([])
+            })
+
+            it('should return just name if there are no nicknames or full names', () => {
+                expect(Array.from(getNames('J-Breeze')))
+            })
+
+            it('should return the name along with nicknames and full names if present', () => {
+                expect(Array.from(getNames('Greg')).sort()).toEqual(['greg', 'gregory'])
+                expect(Array.from(getNames('Gregory')).sort()).toEqual(['greg', 'gregory'])
+            })
+        })
+
         describe('getNicknames', () => {
             it('should return nicknames for a name in our nickname list', () => {
-                expect(getNicknames('Jon')).toEqual(['jon', 'jonathan'])
+                expect(Array.from(getNicknames('Jon', names.nicknames))).toEqual(['john', 'johnny', 'jonny', 'jonnie'])
             })
 
-            it("should return the name if it's not in the list", () => {
-                expect(getNicknames('John')).toEqual(['john'])
+            it('should return an empty set if the name has no nicknames', () => {
+                expect(Array.from(getNicknames('J-Breeze', names.nicknames))).toEqual([])
+            })
+        })
+
+        describe('getFullNames', () => {
+            it('should return a full name given a nickname in our list', () => {
+                expect(Array.from(getFullNames('Greg', names.nicknames))).toEqual(['gregory'])
             })
 
-            it("should return the name if it's not in the list", () => {
-                expect(getNicknames(null)).toEqual([])
+            it('should return as many full names as are applicable for the nickname', () => {
+                expect(Array.from(getFullNames('Kate', names.nicknames))).toEqual(['katelin', 'katelyn', 'katherine', 'kathryn', 'katia', 'katy'])
+            })
+
+            it('should return an empty set if the nickname has no full names', () => {
+                expect(Array.from(getFullNames('J-Breeze, names.nicknames', names.nicknames))).toEqual([])
             })
         })
 
@@ -71,8 +98,37 @@ describe('Actions', () => {
                 expect(isSameName('Jon Andrew Smith', userName.firstName, userName.middleName, userName.lastName)).toBe(true)
             })
 
-            it('should not if middle name is missing from user data', () => {
-                expect(isSameName('Jon Andrew Smith', userName.firstName, null, userName.lastName)).toBe(false)
+            it('should match if middle name is missing from user data but included in scraped data', () => {
+                expect(isSameName('Jon A Smith', userName.firstName, null, userName.lastName)).toBe(true)
+                expect(isSameName('Jon Andrew Smith', userName.firstName, null, userName.lastName)).toBe(true)
+            })
+            it('property testing isSameName -> boolean', () => {
+                fc.assert(fc.property(
+                    fc.string(),
+                    fc.string(),
+                    fc.option(fc.string()),
+                    fc.string(),
+                    fc.option(fc.string()),
+                    (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
+                        const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
+                        expect(typeof result).toBe('boolean')
+                    }
+                ))
+            })
+            it('property testing isSameName -> boolean (seed 1)', () => {
+                // Got TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))
+                // when doing if (nicknames[name])
+                fc.assert(fc.property(
+                    fc.string(),
+                    fc.string(),
+                    fc.option(fc.string()),
+                    fc.string(),
+                    fc.option(fc.string()),
+                    (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
+                        const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
+                        expect(typeof result).toBe('boolean')
+                    }
+                ), { seed: 203542789, path: '70:1:0:0:1:85:86:85:86:86', endOnFailure: true })
             })
         })
 
