@@ -71,8 +71,9 @@ describe('Actions', () => {
                 expect(isSameName('Jon Andrew Smith', userName.firstName, userName.middleName, userName.lastName)).toBe(true)
             })
 
-            it('should not if middle name is missing from user data', () => {
-                expect(isSameName('Jon Andrew Smith', userName.firstName, null, userName.lastName)).toBe(false)
+            it('should match if middle name is missing from user data but included in scraped data', () => {
+                expect(isSameName('Jon A Smith', userName.firstName, null, userName.lastName)).toBe(true)
+                expect(isSameName('Jon Andrew Smith', userName.firstName, null, userName.lastName)).toBe(true)
             })
         })
 
