@@ -33,7 +33,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
         // If the user didn't supply a middle name, then try to match names extracted names that
         // might include a middle name.
         if (!userMiddleName) {
-            const matchesFirstAndLast = new RegExp(`^${firstName}\\s?.*\\s${userLastName}$`);
+            const matchesFirstAndLast = new RegExp(`^${firstName}\\s?.*\\s${userLastName}$`)
 
             if (matchesFirstAndLast.test(fullNameExtracted)) {
                 return true
