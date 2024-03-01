@@ -3,6 +3,7 @@ import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
 import { matchesFullAddress } from '../comparisons/matches-full-address.js'
+import { matchesFullAddressList } from '../comparisons/matches-full-address-list.js'
 import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
 
 /**
@@ -218,6 +219,13 @@ function scrapedDataMatchesUserData (userData, scrapedData) {
     if (scrapedData.addressFull) {
         if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
             matchedFields.push('addressFull')
+            return { matchedFields, score: matchedFields.length, result: true }
+        }
+    }
+
+    if (scrapedData.addressFullList) {
+        if (matchesFullAddressList(userData.addresses, scrapedData.addressFullList)) {
+            matchedFields.push('addressFullList')
             return { matchedFields, score: matchedFields.length, result: true }
         }
     }
