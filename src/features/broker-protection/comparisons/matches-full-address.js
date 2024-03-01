@@ -46,8 +46,8 @@ export function matchesFullAddress (userAddresses, comparisonAddressFull, missin
         }
 
         if (!missingState &&
-          comparisonAddressFull.includes(userAddress.city) &&
-          comparisonAddressFull.includes(userAddress.state)
+          comparisonAddressFull.includes(userAddress.city.toLowerCase()) &&
+          comparisonAddressFull.includes(userAddress.state.toLowerCase())
         ) {
             return true
         }

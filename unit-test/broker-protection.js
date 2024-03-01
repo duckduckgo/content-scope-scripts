@@ -296,6 +296,10 @@ describe('Actions', () => {
                 it('should not match when city is not the same', () => {
                     expect(matchesFullAddress(userData.addresses, '123 fake st, not chicago, il, 60602')).toBe(false)
                 })
+
+                it('matches when only city+state present', () => {
+                    expect(matchesFullAddress([{ city: 'Dallas', state: 'TX' }], '123 fake st, Dallas, Tx, 60602')).toBe(true)
+                })
             })
         })
 
