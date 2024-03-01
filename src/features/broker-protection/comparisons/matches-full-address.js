@@ -51,6 +51,21 @@ export function matchesFullAddress (userAddresses, comparisonAddressFull, missin
         ) {
             return true
         }
+
+        // if the user did not enter `addressLine1` AND `zip`, then perform a looser comparison
+        // against just the `city` and `state` of the parsed address.
+        // NOTE: this is technically similar to the comparison above, but we're avoiding
+        // changing too much until we have a larger test suite.
+        if (!userAddress.addressLine1 && !userAddress.zip) {
+            const looseComparisons = [
+                userParsedAddress.city === comparisonParsedAddress.city,
+                userParsedAddress.state === comparisonParsedAddress.state
+            ]
+
+            if (looseComparisons.every(Boolean)) {
+                return true
+            }
+        }
     }
 
     return false
