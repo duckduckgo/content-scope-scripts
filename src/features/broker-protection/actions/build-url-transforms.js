@@ -48,7 +48,7 @@ const baseTransforms = new Map([
  * Example, `/a/b/${name|capitalize}` -> applies the `capitalize` transform
  * to the name field
  *
- * @type {Map<string, ((value: string, action: BuildUrlAction) => string)>}
+ * @type {Map<string, ((value: string, argument: string|undefined, action: BuildUrlAction) => string)>}
  */
 const optionalTransforms = new Map([
     ['hyphenated', (value) => value.split(' ').join('-')],
@@ -57,7 +57,8 @@ const optionalTransforms = new Map([
     ['upcase', (value) => value.toUpperCase()],
     ['snakecase', (value) => value.split(' ').join('_')],
     ['stateFull', (value) => getStateFromAbbreviation(value)],
-    ['ageRange', (value, action) => {
+    ['defaultIfEmpty', (value, argument) => argument],
+    ['ageRange', (value, argument, action) => {
         if (!action.ageRange) return value
         const ageNumber = Number(value)
         // find matching age range
@@ -160,9 +161,10 @@ function applyTransforms (dataKey, value, transformNames, action) {
         : String(value)
 
     for (const transformName of transformNames) {
-        const transform = optionalTransforms.get(transformName)
+        const [name, argument] = transformName.split(':')
+        const transform = optionalTransforms.get(name)
         if (transform) {
-            outputString = transform(outputString, action)
+            outputString = transform(outputString, argument, action)
         }
     }
 
