@@ -10,6 +10,8 @@ import { matchesFullAddress } from '../src/features/broker-protection/comparison
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
+import { generateRandomInt } from '../src/features/broker-protection/utils.js'
+import { generatePhoneNumber } from '../src/features/broker-protection/actions/fill-form.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -546,6 +548,40 @@ describe('Actions', () => {
                         expect(typeof output).toEqual('string')
                     }
                 )
+            )
+        })
+    })
+
+    describe('fillForm', () => {
+        describe('generateRandomPhoneNumber', () => {
+            it('generates a string of integers of an appropriate size', () => {
+                const phoneNumber = generatePhoneNumber();
+
+                expect(typeof phoneNumber).toEqual('string');
+                expect(phoneNumber.length).toBe(10);
+                expect(phoneNumber).toMatch(/^\d{10}$/);
+            })
+        })
+    })
+})
+
+describe('utils', () => {
+    describe('generateRandomInt', () => {
+        it('generates an integers between the min and max values', () => {
+
+            fc.assert(
+                fc.property(fc.integer(), fc.integer(), (a, b) => {
+                    const min = Math.min(a, b)
+                    const max = Math.max(a, b)
+
+                    const result = generateRandomInt(min, max);
+
+                    return (
+                        Number.isInteger(result) &&
+                        result >= min &&
+                        result <= max
+                    )
+                })
             )
         })
     })

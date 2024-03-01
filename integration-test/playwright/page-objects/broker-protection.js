@@ -45,6 +45,7 @@ export class BrokerProtectionPage {
     async isFormFilled () {
         expect(await this.page.getByLabel('First Name:').inputValue()).toBe('John')
         expect(await this.page.getByLabel('Last Name:').inputValue()).toBe('Smith')
+        expect(await this.page.getByLabel('Phone Number:').inputValue()).toMatch(/^\d{10}$/)
     }
 
     /**

@@ -12,6 +12,10 @@
         {
           "type": "lastName",
           "selector": "#user_last_name"
+        },
+        {
+          "type": "phone",
+          "selector": "#user_phone"
         }
       ]
     },
