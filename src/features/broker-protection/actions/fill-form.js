@@ -119,7 +119,7 @@ export function generatePhoneNumber () {
     const areaCode = generateRandomInt(200, 899).toString()
 
     // 555-0100 through 555-0199 are for fictional use (https://en.wikipedia.org/wiki/555_(telephone_number)#Fictional_usage)
-    const exchangeCode = '55'
+    const exchangeCode = '555'
     const lineNumber = generateRandomInt(100, 199).toString().padStart(4, '0')
 
     return `${areaCode}${exchangeCode}${lineNumber}`
