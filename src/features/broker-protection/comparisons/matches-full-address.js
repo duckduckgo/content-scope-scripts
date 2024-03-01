@@ -46,9 +46,21 @@ export function matchesFullAddress (userAddresses, comparisonAddressFull, missin
         }
 
         if (!missingState &&
-          comparisonAddressFull.includes(userAddress.city.toLowerCase()) &&
-          comparisonAddressFull.includes(userAddress.state.toLowerCase())
+          comparisonAddressFull.includes(userAddress.city) &&
+          comparisonAddressFull.includes(userAddress.state)
         ) {
+            return true
+        }
+
+        // adding this as an additional check, even though there's overlap
+        // we can refactor this entire matching phase later, so this
+        // adds an addition match without altering the previous implementation
+        const looseComparisons = [
+            userParsedAddress.city === comparisonParsedAddress.city,
+            userParsedAddress.state === comparisonParsedAddress.state
+        ]
+
+        if (looseComparisons.every(Boolean)) {
             return true
         }
     }
