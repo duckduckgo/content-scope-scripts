@@ -2,7 +2,8 @@ import { getElement, generateRandomInt } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
 
 /**
- * @param action
+ * @param {Record<string, any>} action
+ * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
 export function fillForm (action, userData) {
@@ -25,12 +26,9 @@ export function fillForm (action, userData) {
             if (element.type === '$file_id$') {
                 results.push(setImageUpload(inputElem))
             } else if (element.type === '$generated_phone_number$') {
-                // @ts-expect-error - double check if this is strict enough
                 setValueForInput(inputElem, generatePhoneNumber())
                 results.push({ result: true })
             } else {
-                // @ts-expect-error - double check if this is strict enough
-                // todo: determine if this requires any events to be dispatched also
                 setValueForInput(inputElem, userData[element.type])
                 results.push({ result: true })
             }
@@ -54,7 +52,7 @@ export function fillForm (action, userData) {
  *
  * Ensures the value is set properly and dispatches events to simulate real user action
  *
- * @param {HTMLInputElement} el
+ * @param {HTMLElement} el
  * @param {string} val
  * @return {{result: boolean}}
  */
