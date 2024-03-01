@@ -57,17 +57,18 @@ const optionalTransforms = new Map([
     ['upcase', (value) => value.toUpperCase()],
     ['snakecase', (value) => value.split(' ').join('_')],
     ['stateFull', (value) => getStateFromAbbreviation(value)],
-    ['defaultIfEmpty', (value, argument) => argument],
+    ['defaultIfEmpty', (value, argument) => value || argument || ''],
     ['ageRange', (value, argument, action) => {
         if (!action.ageRange) return value
         const ageNumber = Number(value)
         // find matching age range
-        const ageRange = action.ageRange.find(range => {
+        const ageRange = action.ageRange.find((range) => {
             const [min, max] = range.split('-')
             return ageNumber >= Number(min) && ageNumber <= Number(max)
         })
         return ageRange || value
-    }]
+    }
+    ]
 ])
 
 /**
@@ -153,12 +154,13 @@ export function processTemplateStringWithUserData (input, action, userData) {
  * @param {BuildUrlAction} action
  */
 function applyTransforms (dataKey, value, transformNames, action) {
+    const subject = String(value || '')
     const baseTransform = baseTransforms.get(dataKey)
 
     // apply base transform to the incoming string
     let outputString = baseTransform
-        ? baseTransform(String(value || ''))
-        : String(value)
+        ? baseTransform(subject)
+        : subject
 
     for (const transformName of transformNames) {
         const [name, argument] = transformName.split(':')
