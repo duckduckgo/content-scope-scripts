@@ -152,3 +152,12 @@ function safeQuerySelectorAllXpath (element, selector) {
         return null
     }
 }
+
+/**
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
+export function generateRandomInt (min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+}

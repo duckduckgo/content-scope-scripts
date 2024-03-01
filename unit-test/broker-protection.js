@@ -7,9 +7,12 @@ import {
     matchAddressFromAddressListCityState
 } from '../src/features/broker-protection/comparisons/address.js'
 import { matchesFullAddress } from '../src/features/broker-protection/comparisons/matches-full-address.js'
+import { matchesFullAddressList } from '../src/features/broker-protection/comparisons/matches-full-address-list.js'
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
+import { generateRandomInt } from '../src/features/broker-protection/utils.js'
+import { generatePhoneNumber } from '../src/features/broker-protection/actions/fill-form.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -294,6 +297,30 @@ describe('Actions', () => {
                 it('should not match when city is not the same', () => {
                     expect(matchesFullAddress(userData.addresses, '123 fake st, not chicago, il, 60602')).toBe(false)
                 })
+
+                it('matches when only city+state present', () => {
+                    expect(matchesFullAddress([{ city: 'Dallas', state: 'TX' }], '123 fake st, Dallas, Tx, 60602')).toBe(true)
+                })
+            })
+
+            describe('matchesFullAddressList', () => {
+                const scrapedAddressList = [
+                    '228 Main St., Dallas, TX 75080'
+                ]
+
+                it('should not match if the address has not been scraped', () => {
+                    expect(matchesFullAddressList(userData.addresses, scrapedAddressList)).toBe(false)
+                })
+
+                it('should match when the address is in the list', () => {
+                    const updatedScrapedAddressList = [...scrapedAddressList, Object.values(userData.addresses[0]).join(' ')]
+                    expect(matchesFullAddressList(userData.addresses, updatedScrapedAddressList)).toBe(true)
+                })
+
+                it('should not match when the address does not match exactly', () => {
+                    const updatedScrapedAddressList = [...scrapedAddressList, '125 Fake St Chicago IL 60602']
+                    expect(matchesFullAddressList(userData.addresses, updatedScrapedAddressList)).toBe(false)
+                })
             })
         })
 
@@ -444,6 +471,36 @@ describe('Actions', () => {
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=west_montego&fage=24' })
         })
 
+        it('should support value substitution via defaultIfEmpty:<value>', () => {
+            const testCases = [
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${middleName|defaultIfEmpty:~}/b',
+                    expected: 'https://example.com/a/~/b',
+                    data: userData2
+                },
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${middleName|downcase|defaultIfEmpty:anything}/b',
+                    expected: 'https://example.com/a/anything/b',
+                    data: userData2
+                },
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${middleName|downcase|defaultIfEmpty:anything}/b',
+                    expected: 'https://example.com/a/kittie/b',
+                    data: { ...userData2, middleName: 'Kittie' }
+                }
+            ]
+            for (const testCase of testCases) {
+                const result = replaceTemplatedUrl({
+                    id: 0,
+                    url: testCase.input
+                }, testCase.data)
+                expect(result).toEqual({ url: testCase.expected })
+            }
+        })
+
         it('should build hyphenated url when given hyphenated state', () => {
             const result = replaceTemplatedUrl({
                 id: 0,
@@ -546,6 +603,39 @@ describe('Actions', () => {
                         expect(typeof output).toEqual('string')
                     }
                 )
+            )
+        })
+    })
+
+    describe('fillForm', () => {
+        describe('generateRandomPhoneNumber', () => {
+            it('generates a string of integers of an appropriate size', () => {
+                const phoneNumber = generatePhoneNumber()
+
+                expect(typeof phoneNumber).toEqual('string')
+                expect(phoneNumber.length).toBe(10)
+                expect(phoneNumber).toMatch(/^\d{10}$/)
+            })
+        })
+    })
+})
+
+describe('utils', () => {
+    describe('generateRandomInt', () => {
+        it('generates an integers between the min and max values', () => {
+            fc.assert(
+                fc.property(fc.integer(), fc.integer(), (a, b) => {
+                    const min = Math.min(a, b)
+                    const max = Math.max(a, b)
+
+                    const result = generateRandomInt(min, max)
+
+                    return (
+                        Number.isInteger(result) &&
+                        result >= min &&
+                        result <= max
+                    )
+                })
             )
         })
     })

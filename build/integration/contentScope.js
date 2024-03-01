@@ -16304,7 +16304,7 @@
      * Example, `/a/b/${name|capitalize}` -> applies the `capitalize` transform
      * to the name field
      *
-     * @type {Map<string, ((value: string, action: BuildUrlAction) => string)>}
+     * @type {Map<string, ((value: string, argument: string|undefined, action: BuildUrlAction) => string)>}
      */
     const optionalTransforms = new Map([
         ['hyphenated', (value) => value.split(' ').join('-')],
@@ -16313,16 +16313,18 @@
         ['upcase', (value) => value.toUpperCase()],
         ['snakecase', (value) => value.split(' ').join('_')],
         ['stateFull', (value) => getStateFromAbbreviation(value)],
-        ['ageRange', (value, action) => {
+        ['defaultIfEmpty', (value, argument) => value || argument || ''],
+        ['ageRange', (value, argument, action) => {
             if (!action.ageRange) return value
             const ageNumber = Number(value);
             // find matching age range
-            const ageRange = action.ageRange.find(range => {
+            const ageRange = action.ageRange.find((range) => {
                 const [min, max] = range.split('-');
                 return ageNumber >= Number(min) && ageNumber <= Number(max)
             });
             return ageRange || value
-        }]
+        }
+        ]
     ]);
 
     /**
@@ -16408,17 +16410,19 @@
      * @param {BuildUrlAction} action
      */
     function applyTransforms (dataKey, value, transformNames, action) {
+        const subject = String(value || '');
         const baseTransform = baseTransforms.get(dataKey);
 
         // apply base transform to the incoming string
         let outputString = baseTransform
-            ? baseTransform(String(value || ''))
-            : String(value);
+            ? baseTransform(subject)
+            : subject;
 
         for (const transformName of transformNames) {
-            const transform = optionalTransforms.get(transformName);
+            const [name, argument] = transformName.split(':');
+            const transform = optionalTransforms.get(name);
             if (transform) {
-                outputString = transform(outputString, action);
+                outputString = transform(outputString, argument, action);
             }
         }
 
@@ -16696,6 +16700,15 @@
             console.log('safeQuerySelectorAllXpath threw', e);
             return null
         }
+    }
+
+    /**
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     */
+    function generateRandomInt (min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min)
     }
 
     /**
@@ -19668,8 +19681,37 @@
             ) {
                 return true
             }
+
+            // if the user did not enter `addressLine1` AND `zip`, then perform a looser comparison
+            // against just the `city` and `state` of the parsed address.
+            // NOTE: this is technically similar to the comparison above, but we're avoiding
+            // changing too much until we have a larger test suite.
+            if (!userAddress.addressLine1 && !userAddress.zip) {
+                const looseComparisons = [
+                    userParsedAddress.city === comparisonParsedAddress.city,
+                    userParsedAddress.state === comparisonParsedAddress.state
+                ];
+
+                if (looseComparisons.every(Boolean)) {
+                    return true
+                }
+            }
         }
 
+        return false
+    }
+
+    /**
+     * @param {object} userAddresses
+     * @param {string[]} comparisonAddressFullList
+     * @return {boolean}
+     */
+    function matchesFullAddressList (userAddresses, comparisonAddressFullList) {
+        for (const address of comparisonAddressFullList) {
+            if (matchesFullAddress(userAddresses, address)) {
+                return true
+            }
+        }
         return false
     }
 
@@ -19890,6 +19932,13 @@
             }
         }
 
+        if (scrapedData.addressFullList) {
+            if (matchesFullAddressList(userData.addresses, scrapedData.addressFullList)) {
+                matchedFields.push('addressFullList');
+                return { matchedFields, score: matchedFields.length, result: true }
+            }
+        }
+
         if (scrapedData.phone) {
             if (userData.phone === scrapedData.phone) {
                 matchedFields.push('phone');
@@ -20070,7 +20119,8 @@
     }
 
     /**
-     * @param action
+     * @param {Record<string, any>} action
+     * @param {Record<string, any>} userData
      * @return {import('../types.js').ActionResponse}
      */
     function fillForm (action, userData) {
@@ -20086,15 +20136,16 @@
         for (const element of action.elements) {
             // get the correct field of the form
             const inputElem = getElement(form, element.selector);
-            // this works for IDs (i.e. #url wouldb e form.elements['url'])
+            // this works for IDs (i.e. #url would be form.elements['url'])
             // let inputElem = form.elements[element.selector]
             // find the correct userData to put in the form
             if (inputElem) {
                 if (element.type === '$file_id$') {
                     results.push(setImageUpload(inputElem));
+                } else if (element.type === '$generated_phone_number$') {
+                    setValueForInput(inputElem, generatePhoneNumber());
+                    results.push({ result: true });
                 } else {
-                    // @ts-expect-error - double check if this is strict enough
-                    // todo: determine if this requires any events to be dispatched also
                     setValueForInput(inputElem, userData[element.type]);
                     results.push({ result: true });
                 }
@@ -20118,7 +20169,7 @@
      *
      * Ensures the value is set properly and dispatches events to simulate real user action
      *
-     * @param {HTMLInputElement} el
+     * @param {HTMLElement} el
      * @param {string} val
      * @return {{result: boolean}}
      */
@@ -20175,6 +20226,20 @@
             // failed
             return { result: false, error: e.toString() }
         }
+    }
+
+    function generatePhoneNumber () {
+        /**
+         * 3 digits, 2-8, last two digits technically can't end in two 1s, but we'll ignore that requirement
+         * Source: https://math.stackexchange.com/questions/920972/how-many-different-phone-numbers-are-possible-within-an-area-code/1115411#1115411
+         */
+        const areaCode = generateRandomInt(200, 899).toString();
+
+        // 555-0100 through 555-0199 are for fictional use (https://en.wikipedia.org/wiki/555_(telephone_number)#Fictional_usage)
+        const exchangeCode = '555';
+        const lineNumber = generateRandomInt(100, 199).toString().padStart(4, '0');
+
+        return `${areaCode}${exchangeCode}${lineNumber}`
     }
 
     /**
