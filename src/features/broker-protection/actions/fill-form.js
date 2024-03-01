@@ -1,8 +1,9 @@
-import { getElement } from '../utils.js'
+import { getElement, generateRandomInt } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
 
 /**
- * @param action
+ * @param {Record<string, any>} action
+ * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
 export function fillForm (action, userData) {
@@ -18,15 +19,16 @@ export function fillForm (action, userData) {
     for (const element of action.elements) {
         // get the correct field of the form
         const inputElem = getElement(form, element.selector)
-        // this works for IDs (i.e. #url wouldb e form.elements['url'])
+        // this works for IDs (i.e. #url would be form.elements['url'])
         // let inputElem = form.elements[element.selector]
         // find the correct userData to put in the form
         if (inputElem) {
             if (element.type === '$file_id$') {
                 results.push(setImageUpload(inputElem))
+            } else if (element.type === '$generated_phone_number$') {
+                setValueForInput(inputElem, generatePhoneNumber())
+                results.push({ result: true })
             } else {
-                // @ts-expect-error - double check if this is strict enough
-                // todo: determine if this requires any events to be dispatched also
                 setValueForInput(inputElem, userData[element.type])
                 results.push({ result: true })
             }
@@ -50,7 +52,7 @@ export function fillForm (action, userData) {
  *
  * Ensures the value is set properly and dispatches events to simulate real user action
  *
- * @param {HTMLInputElement} el
+ * @param {HTMLElement} el
  * @param {string} val
  * @return {{result: boolean}}
  */
@@ -107,4 +109,18 @@ function setImageUpload (element) {
         // failed
         return { result: false, error: e.toString() }
     }
+}
+
+export function generatePhoneNumber () {
+    /**
+     * 3 digits, 2-8, last two digits technically can't end in two 1s, but we'll ignore that requirement
+     * Source: https://math.stackexchange.com/questions/920972/how-many-different-phone-numbers-are-possible-within-an-area-code/1115411#1115411
+     */
+    const areaCode = generateRandomInt(200, 899).toString()
+
+    // 555-0100 through 555-0199 are for fictional use (https://en.wikipedia.org/wiki/555_(telephone_number)#Fictional_usage)
+    const exchangeCode = '555'
+    const lineNumber = generateRandomInt(100, 199).toString().padStart(4, '0')
+
+    return `${areaCode}${exchangeCode}${lineNumber}`
 }

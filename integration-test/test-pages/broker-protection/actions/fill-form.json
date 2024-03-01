@@ -12,6 +12,10 @@
         {
           "type": "lastName",
           "selector": "#user_last_name"
+        },
+        {
+          "type": "$generated_phone_number$",
+          "selector": "#user_phone"
         }
       ]
     },
