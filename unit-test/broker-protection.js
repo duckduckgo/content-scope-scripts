@@ -444,6 +444,36 @@ describe('Actions', () => {
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=west_montego&fage=24' })
         })
 
+        it('should support value substitution via defaultIfEmpty:<value>', () => {
+            const testCases = [
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${middleName|defaultIfEmpty:~}/b',
+                    expected: 'https://example.com/a/~/b',
+                    data: userData2
+                },
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${middleName|downcase|defaultIfEmpty:anything}/b',
+                    expected: 'https://example.com/a/anything/b',
+                    data: userData2
+                },
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    input: 'https://example.com/a/${middleName|downcase|defaultIfEmpty:anything}/b',
+                    expected: 'https://example.com/a/kittie/b',
+                    data: { ...userData2, middleName: 'Kittie' }
+                }
+            ]
+            for (const testCase of testCases) {
+                const result = replaceTemplatedUrl({
+                    id: 0,
+                    url: testCase.input
+                }, testCase.data)
+                expect(result).toEqual({ url: testCase.expected })
+            }
+        })
+
         it('should build hyphenated url when given hyphenated state', () => {
             const result = replaceTemplatedUrl({
                 id: 0,
