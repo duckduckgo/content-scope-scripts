@@ -24,12 +24,14 @@ export function fillForm (action, userData) {
         if (inputElem) {
             if (element.type === '$file_id$') {
                 results.push(setImageUpload(inputElem))
+            } else if (element.type === '$generated_phone_number$') {
+                // @ts-expect-error - double check if this is strict enough
+                setValueForInput(inputElem, generatePhoneNumber())
+                results.push({ result: true })
             } else {
-                const value = element.type === "phone" ? generatePhoneNumber() : userData[element.type]
-
                 // @ts-expect-error - double check if this is strict enough
                 // todo: determine if this requires any events to be dispatched also
-                setValueForInput(inputElem, value)
+                setValueForInput(inputElem, userData[element.type])
                 results.push({ result: true })
             }
         }
