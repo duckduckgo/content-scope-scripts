@@ -7,6 +7,7 @@ import {
     matchAddressFromAddressListCityState
 } from '../src/features/broker-protection/comparisons/address.js'
 import { matchesFullAddress } from '../src/features/broker-protection/comparisons/matches-full-address.js'
+import { matchesFullAddressList } from '../src/features/broker-protection/comparisons/matches-full-address-list.js'
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
@@ -299,6 +300,26 @@ describe('Actions', () => {
 
                 it('matches when only city+state present', () => {
                     expect(matchesFullAddress([{ city: 'Dallas', state: 'TX' }], '123 fake st, Dallas, Tx, 60602')).toBe(true)
+                })
+            })
+
+            describe('matchesFullAddressList', () => {
+                const scrapedAddressList = [
+                    '228 Main St., Dallas, TX 75080'
+                ]
+
+                it('should not match if the address has not been scraped', () => {
+                    expect(matchesFullAddressList(userData.addresses, scrapedAddressList)).toBe(false)
+                })
+
+                it('should match when the address is in the list', () => {
+                    const updatedScrapedAddressList = [...scrapedAddressList, Object.values(userData.addresses[0]).join(' ')]
+                    expect(matchesFullAddressList(userData.addresses, updatedScrapedAddressList)).toBe(true)
+                })
+
+                it('should not match when the address does not match exactly', () => {
+                    const updatedScrapedAddressList = [...scrapedAddressList, '125 Fake St Chicago IL 60602']
+                    expect(matchesFullAddressList(userData.addresses, updatedScrapedAddressList)).toBe(false)
                 })
             })
         })
