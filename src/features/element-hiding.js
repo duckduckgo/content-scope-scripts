@@ -153,28 +153,36 @@ function isDomNodeEmpty (node) {
     })
 
     const visibleText = parsedNode.innerText.trim().toLocaleLowerCase().replace(/:$/, '')
+    if (visibleText !== '' && !adLabelStrings.includes(visibleText)) {
+        return false
+    }
     const mediaAndFormContent = parsedNode.querySelector(mediaAndFormSelectors)
+    if (mediaAndFormContent) {
+        return false
+    }
     const frameElements = [...parsedNode.querySelectorAll('iframe')]
-    // query original node instead of parsedNode for img elements since heuristic relies
-    // on size of image elements
-    const imageElements = [...node.querySelectorAll('img,svg')]
     // about:blank iframes don't count as content, return true if:
     // - node doesn't contain any iframes
     // - node contains iframes, all of which are hidden or have src='about:blank'
     const noFramesWithContent = frameElements.every((frame) => {
         return (frame.hidden || frame.src === 'about:blank')
     })
+    if (!noFramesWithContent) {
+        return false
+    }
+    // query original node instead of parsedNode for img elements since heuristic relies
+    // on size of image elements
+    const imageElements = [...node.querySelectorAll('img,svg')]
     // ad containers often contain tracking pixels and other small images (eg adchoices logo).
     // these should be treated as empty and hidden, but real images should not.
     const visibleImages = imageElements.some((image) => {
         return (image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20)
     })
-
-    if ((visibleText === '' || adLabelStrings.includes(visibleText)) &&
-        mediaAndFormContent === null && noFramesWithContent && !visibleImages) {
-        return true
+    if (visibleImages) {
+        return false
     }
-    return false
+
+    return true
 }
 
 /**

@@ -313,8 +313,7 @@ export class AndroidMessagingConfig {
      */
     _captureGlobalHandler () {
         const { target, javascriptInterface } = this
-
-        if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
+        if (target.hasOwnProperty(javascriptInterface)) {
             this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface])
             delete target[javascriptInterface]
         } else {

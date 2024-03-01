@@ -239,9 +239,14 @@ export function isFeatureBroken (args, feature) {
 }
 
 export function camelcase (dashCaseText) {
-    return dashCaseText.replace(/-(.)/g, (match, letter) => {
-        return letter.toUpperCase()
-    })
+    const segments = dashCaseText.split('-')
+
+    for (let i = 1; i < segments.length; i++) {
+        if (segments[i]) {
+            segments[i] = segments[i][0].toUpperCase() + segments[i].slice(1)
+        }
+    }
+    return segments.join('')
 }
 
 // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
@@ -600,6 +605,7 @@ export function isUnprotectedDomain (topLevelHostname, featureList) {
  * @property {number} [versionNumber] - Android version number only
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
+ * @property {boolean} [debug]
  */
 
 /**
@@ -729,6 +735,7 @@ export function processConfig (data, userList, preferences, platformSpecificFeat
     output.featureSettings = parseFeatureSettings(data, enabledFeatures)
     output.trackerLookup = import.meta.trackerLookup
     output.bundledConfig = data
+    output.debug = true
 
     return output
 }
@@ -766,12 +773,10 @@ export function computeEnabledFeatures (data, topLevelHostname, platformVersion,
 export function parseFeatureSettings (data, enabledFeatures) {
     /** @type {Record<string, unknown>} */
     const featureSettings = {}
-    const remoteFeatureNames = Object.keys(data.features)
-    remoteFeatureNames.forEach((featureName) => {
-        if (!enabledFeatures.includes(featureName)) {
+    enabledFeatures.forEach((featureName) => {
+        if (!data.features[featureName]) {
             return
         }
-
         featureSettings[featureName] = data.features[featureName].settings
     })
     return featureSettings

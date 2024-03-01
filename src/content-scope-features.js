@@ -24,6 +24,10 @@ const isHTMLDocument = (
     )
 )
 
+function shouldRun () {
+    return isHTMLDocument && ['http:', 'https:', 'duck:'].includes(window.location.protocol)
+}
+
 /**
  * @typedef {object} LoadArgs
  * @property {import('./content-feature').Site} site
@@ -40,7 +44,7 @@ const isHTMLDocument = (
  */
 export function load (args) {
     const mark = performanceMonitor.mark('load')
-    if (!isHTMLDocument) {
+    if (!shouldRun()) {
         return
     }
 
@@ -55,8 +59,12 @@ export function load (args) {
         }
         const ContentFeature = platformFeatures['ddg_feature_' + featureName]
         const featureInstance = new ContentFeature(featureName)
-        featureInstance.callLoad(args)
-        features.push({ featureName, featureInstance })
+        features.push(new Promise((resolve) => {
+            window.requestIdleCallback(() => {
+                featureInstance.callLoad(args)
+            })
+            resolve({ featureName, featureInstance })
+        }))
     }
     mark.end()
 }
@@ -114,15 +122,21 @@ function supportsInjectedFeatures () {
 export async function init (args) {
     const mark = performanceMonitor.mark('init')
     initArgs = args
-    if (!isHTMLDocument) {
+    if (!shouldRun()) {
         return
     }
     registerMessageSecret(args.messageSecret)
     initStringExemptionLists(args)
     const resolvedFeatures = await Promise.all(features)
+    const loadedFeatures = []
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-            featureInstance.callInit(args)
+            loadedFeatures.push(new Promise((resolve) => {
+                window.requestIdleCallback(() => {
+                    featureInstance.callInit(args)
+                    resolve(featureInstance)
+                })
+            }))
         }
     })
     if (supportsInjectedFeatures()) {
@@ -135,12 +149,14 @@ export async function init (args) {
     }
     mark.end()
     if (args.debug) {
-        performanceMonitor.measureAll()
+        const features = await Promise.all(loadedFeatures)
+        const featuresData = features.map(feature => feature.measure())
+        console.log('perf measures', performanceMonitor.measureAll(), featuresData)
     }
 }
 
 export function update (args) {
-    if (!isHTMLDocument) {
+    if (!shouldRun()) {
         return
     }
     if (initArgs === null) {

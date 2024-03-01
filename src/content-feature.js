@@ -228,7 +228,6 @@ export default class ContentFeature {
         this.platform = args.platform
         this.init(args)
         mark.end()
-        this.measure()
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
@@ -257,7 +256,7 @@ export default class ContentFeature {
 
     measure () {
         if (this.#args?.debug) {
-            this.monitor.measureAll()
+            return this.monitor.measureAll()
         }
     }
 
