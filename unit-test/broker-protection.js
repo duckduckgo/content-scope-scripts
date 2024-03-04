@@ -679,7 +679,7 @@ describe('create profile', () => {
             expect(profile).toEqual(elementExample.expected)
         }
     })
-    it('handles multiple string when findElements: true', () => {
+    it('handles multiple strings', () => {
         const elementExamples = [
             {
                 selectors: {
@@ -689,7 +689,7 @@ describe('create profile', () => {
                         separator: ','
                     }
                 },
-                text: ['Also Known as: John Smith, Jon Smith'],
+                elements: [{ innerText: 'Also Known as: John Smith, Jon Smith' }],
                 expected: ['John Smith', 'Jon Smith']
             },
             {
@@ -700,7 +700,10 @@ describe('create profile', () => {
                         afterText: 'Also Known as:'
                     }
                 },
-                text: ['Also Known as: John Smith', 'Jon Smith'],
+                elements: [
+                    { innerText: 'Also Known as: John Smith' },
+                    { innerText: 'Jon Smith' }
+                ],
                 expected: ['John Smith', 'Jon Smith']
             },
             {
@@ -711,19 +714,18 @@ describe('create profile', () => {
                         beforeText: ', '
                     }
                 },
-                text: ['John Smith, 89', 'Jon Smith, 78'],
+                elements: [
+                    { innerText: 'John Smith, 89' },
+                    { innerText: 'Jon Smith, 78' }
+                ],
                 expected: ['John Smith', 'Jon Smith']
             }
         ]
 
         for (const elementExample of elementExamples) {
-            const elementFactory = () => {
-                return elementExample.text.map(example => {
-                    return { innerText: example }
-                })
-            }
+            const elementFactory = () => elementExample.elements
             const profile = createProfile(elementFactory, elementExample.selectors)
-            expect(profile.alternativeNamesList).withContext('text: ' + elementExample.text.join(', ')).toEqual(elementExample.expected)
+            expect(profile.alternativeNamesList).toEqual(elementExample.expected)
         }
     })
 })
