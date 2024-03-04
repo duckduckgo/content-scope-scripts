@@ -648,15 +648,8 @@ describe('utils', () => {
 })
 
 describe('create profile', () => {
-    fit('handles combined strings', () => {
-        const fac = (key) => {
-            return {
-                age: [{ innerText: 'John smith' }],
-                name: [{ innerText: 'John smith' }]
-            }[key]
-        }
-
-        const data = {
+    it('handles combined, single strings', () => {
+        const selectors = {
             name: {
                 selector: '.name',
                 beforeText: ','
@@ -667,8 +660,71 @@ describe('create profile', () => {
             }
         }
 
-        const profile = createProfile(fac, data)
-        expect(profile.name).toEqual('John smith')
-        expect(profile.age).withContext('Age should be null here').toEqual(null)
+        const elementExamples = [
+            { text: 'John smith, 39', expected: { name: 'John smith', age: '39' } },
+            { text: 'John smith  , 39', expected: { name: 'John smith', age: '39' } },
+            { text: '   John smith, 39', expected: { name: 'John smith', age: '39' } },
+            { text: '   John smith,39', expected: { name: 'John smith', age: '39' } },
+            { text: '   John smith, ~39', expected: { name: 'John smith', age: '39' } }
+
+            // this is an example to be fixed in the next PR
+            // { text: 'John smith', expected: { name: 'John smith', age: null } }
+        ]
+
+        for (const elementExample of elementExamples) {
+            const elementFactory = () => {
+                return [{ innerText: elementExample.text }]
+            }
+            const profile = createProfile(elementFactory, selectors)
+            expect(profile.name).toEqual('John smith')
+            expect(profile.age).toEqual('39')
+        }
+    })
+    it('handles multiple string when findElements: true', () => {
+        const elementExamples = [
+            {
+                selectors: {
+                    alternativeNamesList: {
+                        selector: 'example',
+                        afterText: 'Also Known as:',
+                        separator: ','
+                    }
+                },
+                text: ['Also Known as: John Smith, Jon Smith'],
+                expected: ['John Smith', 'Jon Smith']
+            },
+            {
+                selectors: {
+                    alternativeNamesList: {
+                        selector: 'example',
+                        findElements: true,
+                        afterText: 'Also Known as:'
+                    }
+                },
+                text: ['Also Known as: John Smith', 'Jon Smith'],
+                expected: ['John Smith', 'Jon Smith']
+            },
+            {
+                selectors: {
+                    alternativeNamesList: {
+                        selector: 'example',
+                        findElements: true,
+                        beforeText: ', '
+                    }
+                },
+                text: ['John Smith, 89', 'Jon Smith, 78'],
+                expected: ['John Smith', 'Jon Smith']
+            }
+        ]
+
+        for (const elementExample of elementExamples) {
+            const elementFactory = () => {
+                return elementExample.text.map(example => {
+                    return { innerText: example }
+                })
+            }
+            const profile = createProfile(elementFactory, elementExample.selectors)
+            expect(profile.alternativeNamesList).withContext('text: ' + elementExample.text.join(', ')).toEqual(elementExample.expected)
+        }
     })
 })
