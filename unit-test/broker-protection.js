@@ -690,7 +690,9 @@ describe('create profile', () => {
                     }
                 },
                 elements: [{ innerText: 'Also Known as: John Smith, Jon Smith' }],
-                expected: ['John Smith', 'Jon Smith']
+                expected: {
+                    alternativeNamesList: ['John Smith', 'Jon Smith']
+                }
             },
             {
                 selectors: {
@@ -704,7 +706,9 @@ describe('create profile', () => {
                     { innerText: 'Also Known as: John Smith' },
                     { innerText: 'Jon Smith' }
                 ],
-                expected: ['John Smith', 'Jon Smith']
+                expected: {
+                    alternativeNamesList: ['John Smith', 'Jon Smith']
+                }
             },
             {
                 selectors: {
@@ -718,14 +722,16 @@ describe('create profile', () => {
                     { innerText: 'John Smith, 89' },
                     { innerText: 'Jon Smith, 78' }
                 ],
-                expected: ['John Smith', 'Jon Smith']
+                expected: {
+                    alternativeNamesList: ['John Smith', 'Jon Smith']
+                }
             }
         ]
 
         for (const elementExample of elementExamples) {
             const elementFactory = () => elementExample.elements
             const profile = createProfile(elementFactory, elementExample.selectors)
-            expect(profile.alternativeNamesList).toEqual(elementExample.expected)
+            expect(profile).toEqual(elementExample.expected)
         }
     })
 })
