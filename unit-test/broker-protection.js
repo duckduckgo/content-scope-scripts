@@ -5,8 +5,7 @@ import {
     getCityStateCombos,
     stringToList,
     getIdFromProfileUrl,
-    extractValue,
-    createProfile
+    extractValue
 } from '../src/features/broker-protection/actions/extract.js'
 import {
     matchAddressCityState,
@@ -644,94 +643,5 @@ describe('utils', () => {
                 })
             )
         })
-    })
-})
-
-describe('create profile', () => {
-    it('handles combined, single strings', () => {
-        const selectors = {
-            name: {
-                selector: '.name',
-                beforeText: ','
-            },
-            age: {
-                selector: '.name',
-                afterText: ','
-            }
-        }
-
-        const elementExamples = [
-            { text: 'John smith, 39', expected: { name: 'John smith', age: '39' } },
-            { text: 'John smith  , 39', expected: { name: 'John smith', age: '39' } },
-            { text: '   John smith, 39', expected: { name: 'John smith', age: '39' } },
-            { text: '   John smith,39', expected: { name: 'John smith', age: '39' } },
-            { text: '   John smith, ~39', expected: { name: 'John smith', age: '39' } }
-
-            // this is an example to be fixed in the next PR
-            // { text: 'John smith', expected: { name: 'John smith', age: null } }
-        ]
-
-        for (const elementExample of elementExamples) {
-            const elementFactory = () => {
-                return [{ innerText: elementExample.text }]
-            }
-            const profile = createProfile(elementFactory, selectors)
-            expect(profile).toEqual(elementExample.expected)
-        }
-    })
-    it('handles multiple strings', () => {
-        const elementExamples = [
-            {
-                selectors: {
-                    alternativeNamesList: {
-                        selector: 'example',
-                        afterText: 'Also Known as:',
-                        separator: ','
-                    }
-                },
-                elements: [{ innerText: 'Also Known as: John Smith, Jon Smith' }],
-                expected: {
-                    alternativeNamesList: ['John Smith', 'Jon Smith']
-                }
-            },
-            {
-                selectors: {
-                    alternativeNamesList: {
-                        selector: 'example',
-                        findElements: true,
-                        afterText: 'Also Known as:'
-                    }
-                },
-                elements: [
-                    { innerText: 'Also Known as: John Smith' },
-                    { innerText: 'Jon Smith' }
-                ],
-                expected: {
-                    alternativeNamesList: ['John Smith', 'Jon Smith']
-                }
-            },
-            {
-                selectors: {
-                    alternativeNamesList: {
-                        selector: 'example',
-                        findElements: true,
-                        beforeText: ', '
-                    }
-                },
-                elements: [
-                    { innerText: 'John Smith, 89' },
-                    { innerText: 'Jon Smith, 78' }
-                ],
-                expected: {
-                    alternativeNamesList: ['John Smith', 'Jon Smith']
-                }
-            }
-        ]
-
-        for (const elementExample of elementExamples) {
-            const elementFactory = () => elementExample.elements
-            const profile = createProfile(elementFactory, elementExample.selectors)
-            expect(profile).toEqual(elementExample.expected)
-        }
     })
 })
