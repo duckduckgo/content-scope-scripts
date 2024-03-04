@@ -676,8 +676,7 @@ describe('create profile', () => {
                 return [{ innerText: elementExample.text }]
             }
             const profile = createProfile(elementFactory, selectors)
-            expect(profile.name).toEqual('John smith')
-            expect(profile.age).toEqual('39')
+            expect(profile).toEqual(elementExample.expected)
         }
     })
     it('handles multiple string when findElements: true', () => {
