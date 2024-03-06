@@ -99,4 +99,25 @@ describe('create profiles from extracted data', () => {
             expect(profile).toEqual(elementExample.expected)
         }
     })
+    it('handles addressFull', () => {
+        const elementExamples = [
+            {
+                selectors: {
+                    addressFull: {
+                        selector: 'example'
+                    }
+                },
+                elements: [{ innerText: 'abc, Dallas, Tx' }],
+                expected: {
+                    addressFull: 'abc, Dallas, Tx'
+                }
+            }
+        ]
+
+        for (const elementExample of elementExamples) {
+            const elementFactory = () => elementExample.elements
+            const profile = createProfile(elementFactory, elementExample.selectors)
+            expect(profile).toEqual(elementExample.expected)
+        }
+    })
 })
