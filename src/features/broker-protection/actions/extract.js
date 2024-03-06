@@ -134,8 +134,9 @@ export function createProfile (elementFactory, extractData) {
             // Note: This can return a string, string[], or null
             const extractedValue = extractValue(key, value, evaluatedValue)
 
-            // try to use the extracted value first, then the originally evaluated, falling back to null
-            output[key] = extractedValue || evaluatedValue || null
+            // try to use the extracted value, or fall back to null
+            // this allows 'extractValue' to return null|undefined
+            output[key] = extractedValue || null
         }
     }
     return output
@@ -291,7 +292,7 @@ export function aggregateFields (profile) {
  * @param {string} key
  * @param {ExtractProfileProperty} value
  * @param {string | string[]} elementValue
- * @return {string|string[]|null}
+ * @return {string|string[]|null|undefined}
  */
 export function extractValue (key, value, elementValue) {
     if (!elementValue) return null

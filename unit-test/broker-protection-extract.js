@@ -1,6 +1,4 @@
-import {
-    createProfile
-} from '../src/features/broker-protection/actions/extract.js'
+import { createProfile } from '../src/features/broker-protection/actions/extract.js'
 
 describe('create profiles from extracted data', () => {
     it('handles combined, single strings', () => {
@@ -30,10 +28,12 @@ describe('create profiles from extracted data', () => {
             { text: 'Henry White   ,46', expected: { name: 'Henry White', age: '46' } },
             { text: 'Linda Brown ~ , 35', expected: { name: 'Linda Brown ~', age: '35' } },
             { text: 'Emma Green, 30 any', expected: { name: 'Emma Green', age: '30' } },
-            { text: '  Sophia Blue, 26', expected: { name: 'Sophia Blue', age: '26' } }
+            { text: '  Sophia Blue, 26', expected: { name: 'Sophia Blue', age: '26' } },
 
-            // this is an example to be fixed in the next PR
-            // { text: 'John smith', expected: { name: 'John smith', age: null } }
+            // examples where age is absent, so the result should be null
+            { text: 'John smith', expected: { name: 'John smith', age: null } },
+            { text: 'John smith   ,   ', expected: { name: 'John smith', age: null } },
+            { text: 'John smith   \n,\n   ', expected: { name: 'John smith', age: null } }
         ]
 
         for (const elementExample of elementExamples) {
