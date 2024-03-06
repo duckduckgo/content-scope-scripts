@@ -1,7 +1,12 @@
 import fc from 'fast-check'
 import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js'
 import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
-import { getCityStateCombos, stringToList, getIdFromProfileUrl, extractValue } from '../src/features/broker-protection/actions/extract.js'
+import {
+    getCityStateCombos,
+    stringToList,
+    getIdFromProfileUrl,
+    extractValue
+} from '../src/features/broker-protection/actions/extract.js'
 import {
     matchAddressCityState,
     matchAddressFromAddressListCityState

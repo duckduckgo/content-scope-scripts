@@ -1,4 +1,9 @@
-import { getElement, getElementMatches, getElements } from '../utils.js' // Assuming you have imported the address comparison function
+import {
+    cleanArray,
+    getElement,
+    getElementMatches,
+    getElements
+} from '../utils.js' // Assuming you have imported the address comparison function
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
@@ -72,7 +77,12 @@ export function extractProfiles (action, userData, root = document) {
 
     return {
         results: profilesElementList.map((element) => {
-            const scrapedData = createProfile(element, action.profile)
+            const elementFactory = (key, value) => {
+                return value?.findElements
+                    ? cleanArray(getElements(element, value.selector))
+                    : cleanArray(getElement(element, value.selector) || getElementMatches(element, value.selector))
+            }
+            const scrapedData = createProfile(elementFactory, action.profile)
             const { result, score, matchedFields } = scrapedDataMatchesUserData(userData, scrapedData)
             return new ProfileResult({
                 scrapedData,
@@ -105,19 +115,21 @@ export function extractProfiles (action, userData, root = document) {
  *   "profileUrl": "https://example.com/1234"
  * }
  *
- * @param {HTMLElement} profileElement
+ * @param {(key: string, value: ExtractProfileProperty) => {innerText: string}[]} elementFactory
+ *   a function that produces elements for a given key + ExtractProfileProperty
  * @param {Record<string, ExtractProfileProperty>} extractData
  * @return {Record<string, any>}
  */
-function createProfile (profileElement, extractData) {
+export function createProfile (elementFactory, extractData) {
     const output = {}
     for (const [key, value] of Object.entries(extractData)) {
         if (!value?.selector) {
             output[key] = null
         } else {
+            const elements = elementFactory(key, value)
             const evaluatedValue = value?.findElements
-                ? findFromElements(profileElement, key, value)
-                : findFromElement(profileElement, key, value)
+                ? findFromElements(elements, key, value)
+                : findFromElement(elements[0], key, value)
 
             // Note: This can return a string, string[], or null
             const extractedValue = extractValue(key, value, evaluatedValue)
@@ -130,12 +142,12 @@ function createProfile (profileElement, extractData) {
 }
 
 /**
- * @param {HTMLElement} profileElement
+ * @param {{innerText: string}[]} elements
  * @param {string} key
  * @param {ExtractProfileProperty} extractField
+ * @return {string[]}
  */
-function findFromElements (profileElement, key, extractField) {
-    const elements = getElements(profileElement, extractField.selector) || null
+function findFromElements (elements, key, extractField) {
     const elementValues = []
     if (elements) {
         for (const element of elements) {
@@ -153,15 +165,12 @@ function findFromElements (profileElement, key, extractField) {
 }
 
 /**
- * @param {HTMLElement} profileElement
+ * @param {{innerText: string}} element
  * @param {string} dataKey - such as 'name', 'age' etc
  * @param {ExtractProfileProperty} extractField
  * @return {string}
  */
-function findFromElement (profileElement, dataKey, extractField) {
-    const element = getElement(profileElement, extractField.selector) ||
-        getElementMatches(profileElement, extractField.selector)
-
+function findFromElement (element, dataKey, extractField) {
     // todo: should we use textContent here?
     let elementValue = rules[dataKey]?.(element) ?? element?.innerText ?? null
 
