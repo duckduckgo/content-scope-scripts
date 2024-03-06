@@ -2,7 +2,6 @@ import fc from 'fast-check'
 import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js'
 import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
 import {
-    getCityStateCombos,
     stringToList,
     getIdFromProfileUrl,
     extractValue
@@ -11,13 +10,12 @@ import {
     matchAddressCityState,
     matchAddressFromAddressListCityState
 } from '../src/features/broker-protection/comparisons/address.js'
-import { matchesFullAddress } from '../src/features/broker-protection/comparisons/matches-full-address.js'
-import { matchesFullAddressList } from '../src/features/broker-protection/comparisons/matches-full-address-list.js'
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
 import { generateRandomInt } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber } from '../src/features/broker-protection/actions/fill-form.js'
+import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -81,8 +79,8 @@ describe('Actions', () => {
 
         describe('extractValue', () => {
             it('should convert newlines to spaces in names', () => {
-                expect(extractValue('name', { selector: 'example' }, 'John\nSmith')).toEqual('John Smith')
-                expect(extractValue('name', { selector: 'example' }, 'John\nT\nSmith')).toEqual('John T Smith')
+                expect(extractValue('name', { selector: 'example' }, ['John\nSmith'])).toEqual('John Smith')
+                expect(extractValue('name', { selector: 'example' }, ['John\nT\nSmith'])).toEqual('John T Smith')
             })
         })
 
@@ -155,7 +153,7 @@ describe('Actions', () => {
                         'Forest Park IL',
                         'Oak Park IL'
                     ])
-                    const result = getCityStateCombos(list)
+                    const result = new CityStateExtractor().extract(list, {})
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' },
@@ -176,7 +174,7 @@ describe('Actions', () => {
                     'Oak Park IL, 60302'
                 ]
 
-                const result = getCityStateCombos(cityStateZipList)
+                const result = new CityStateExtractor().extract(cityStateZipList, {})
 
                 expect(result).toEqual([
                     { city: 'Chicago', state: 'IL' },
@@ -201,7 +199,7 @@ describe('Actions', () => {
                         'River Forest IL',
                         'Fores...'
                     ])
-                    const result = getCityStateCombos(list)
+                    const result = new CityStateExtractor().extract(list, {})
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' }
@@ -225,7 +223,7 @@ describe('Actions', () => {
                     const list = stringToList(item.listString, item.separator)
                     expect(list).toEqual(item.list)
 
-                    const result = getCityStateCombos(list)
+                    const result = new CityStateExtractor().extract(list, { })
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' },
@@ -287,44 +285,6 @@ describe('Actions', () => {
 
                 it('should not match when city/state is not present', () => {
                     expect(matchAddressFromAddressListCityState(userData.addresses, [{ city: 'los angeles', state: 'ca' }])).toBe(false)
-                })
-            })
-
-            describe('matchesFullAddress', () => {
-                it('should match when address is the same', () => {
-                    expect(matchesFullAddress(userData.addresses, '123 fake street, chicago, il, 60602')).toBe(true)
-                })
-
-                it('should not match when address line 1 is not the same', () => {
-                    expect(matchesFullAddress(userData.addresses, '218 fake st, chicago, il, 60602')).toBe(false)
-                })
-
-                it('should not match when city is not the same', () => {
-                    expect(matchesFullAddress(userData.addresses, '123 fake st, not chicago, il, 60602')).toBe(false)
-                })
-
-                it('matches when only city+state present', () => {
-                    expect(matchesFullAddress([{ city: 'Dallas', state: 'TX' }], '123 fake st, Dallas, Tx, 60602')).toBe(true)
-                })
-            })
-
-            describe('matchesFullAddressList', () => {
-                const scrapedAddressList = [
-                    '228 Main St., Dallas, TX 75080'
-                ]
-
-                it('should not match if the address has not been scraped', () => {
-                    expect(matchesFullAddressList(userData.addresses, scrapedAddressList)).toBe(false)
-                })
-
-                it('should match when the address is in the list', () => {
-                    const updatedScrapedAddressList = [...scrapedAddressList, Object.values(userData.addresses[0]).join(' ')]
-                    expect(matchesFullAddressList(userData.addresses, updatedScrapedAddressList)).toBe(true)
-                })
-
-                it('should not match when the address does not match exactly', () => {
-                    const updatedScrapedAddressList = [...scrapedAddressList, '125 Fake St Chicago IL 60602']
-                    expect(matchesFullAddressList(userData.addresses, updatedScrapedAddressList)).toBe(false)
                 })
             })
         })

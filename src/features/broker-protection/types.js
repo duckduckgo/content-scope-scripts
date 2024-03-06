@@ -66,3 +66,19 @@ export class ProfileResult {
         }
     }
 }
+
+/**
+ * @template JsonValue
+ * @interface
+ */
+export class Extractor {
+    /**
+     * @param {string[]} noneEmptyStringArray
+     * @param {import("./actions/extract").ExtractorParams} extractorParams
+     * @return {JsonValue}
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    extract (noneEmptyStringArray, extractorParams) {
+        throw new Error('must implement extract')
+    }
+}

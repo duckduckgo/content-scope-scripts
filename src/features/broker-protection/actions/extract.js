@@ -7,9 +7,13 @@ import {
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
-import { matchesFullAddress } from '../comparisons/matches-full-address.js'
-import { matchesFullAddressList } from '../comparisons/matches-full-address-list.js'
 import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
+import { AgeExtractor } from '../extractors/age.js'
+import { AlternativeNamesExtractor, NameExtractor } from '../extractors/name.js'
+import { AddressFullExtractor, CityStateExtractor } from '../extractors/address.js'
+import { PhoneExtractor } from '../extractors/phone.js'
+import { RelativesExtractor } from '../extractors/relatives.js'
+import { ProfileUrlExtractor } from '../extractors/profile-url.js'
 
 /**
  * Adding these types here so that we can switch to generated ones later
@@ -29,6 +33,8 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
  * @property {string} [separator] - split the text on this string
  * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
  * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
+ *
+ * @typedef {Omit<ExtractProfileProperty, 'selector' | 'findElements'>} ExtractorParams
  */
 
 /**
@@ -128,12 +134,15 @@ export function createProfile (elementFactory, extractData) {
             output[key] = null
         } else {
             const elements = elementFactory(key, value)
-            const evaluatedValue = value?.findElements
-                ? findFromElements(elements, key, value)
-                : findFromElement(elements[0], key, value)
+
+            // extract all strings first
+            const evaluatedValues = stringValuesFromElements(elements, key, value)
+
+            // clean them up - trimming, removing empties
+            const noneEmptyArray = cleanArray(evaluatedValues)
 
             // Note: This can return a string, string[], or null
-            const extractedValue = extractValue(key, value, evaluatedValue)
+            const extractedValue = extractValue(key, value, noneEmptyArray)
 
             // try to use the extracted value, or fall back to null
             // this allows 'extractValue' to return null|undefined
@@ -149,35 +158,23 @@ export function createProfile (elementFactory, extractData) {
  * @param {ExtractProfileProperty} extractField
  * @return {string[]}
  */
-function findFromElements (elements, key, extractField) {
-    const elementValues = []
-    if (elements) {
-        for (const element of elements) {
-            const elementValue = findFromElement(element, key, extractField)
-            elementValues.push(elementValue)
+function stringValuesFromElements (elements, key, extractField) {
+    return elements.map(element => {
+        // todo: should we use textContent here?
+        let elementValue = rules[key]?.(element) ?? element?.innerText ?? null
+
+        if (extractField?.afterText) {
+            elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue
         }
-    }
-    return elementValues
-}
+        // there is a case where we may want to get the text "after" and "before" certain text
+        if (extractField?.beforeText) {
+            elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue
+        }
 
-/**
- * @param {{innerText: string}} element
- * @param {string} dataKey - such as 'name', 'age' etc
- * @param {ExtractProfileProperty} extractField
- * @return {string}
- */
-function findFromElement (element, dataKey, extractField) {
-    // todo: should we use textContent here?
-    let elementValue = rules[dataKey]?.(element) ?? element?.innerText ?? null
+        elementValue = removeCommonSuffixesAndPrefixes(elementValue)
 
-    if (extractField?.afterText) {
-        elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue
-    }
-    // there is a case where we may want to get the text "after" and "before" certain text
-    if (extractField?.beforeText) {
-        elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue
-    }
-    return elementValue
+        return elementValue
+    })
 }
 
 /**
@@ -186,7 +183,7 @@ function findFromElement (element, dataKey, extractField) {
  * @param {Record<string, any>} scrapedData
  * @return {{score: number, matchedFields: string[], result: boolean}}
  */
-function scrapedDataMatchesUserData (userData, scrapedData) {
+export function scrapedDataMatchesUserData (userData, scrapedData) {
     const matchedFields = []
 
     // the name matching is always a *requirement*
@@ -205,33 +202,19 @@ function scrapedDataMatchesUserData (userData, scrapedData) {
         }
     }
 
-    if (scrapedData.addressCityState) {
-        // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
-        if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
-            matchedFields.push('addressCityState')
-            return { matchedFields, score: matchedFields.length, result: true }
-        }
-    }
+    const addressFields = [
+        'addressCityState',
+        'addressCityStateList',
+        'addressFull',
+        'addressFullList'
+    ]
 
-    // it's possible to have both addressCityState and addressCityStateList
-    if (scrapedData.addressCityStateList) {
-        if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
-            matchedFields.push('addressCityStateList')
-            return { matchedFields, score: matchedFields.length, result: true }
-        }
-    }
-
-    if (scrapedData.addressFull) {
-        if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
-            matchedFields.push('addressFull')
-            return { matchedFields, score: matchedFields.length, result: true }
-        }
-    }
-
-    if (scrapedData.addressFullList) {
-        if (matchesFullAddressList(userData.addresses, scrapedData.addressFullList)) {
-            matchedFields.push('addressFullList')
-            return { matchedFields, score: matchedFields.length, result: true }
+    for (const addressField of addressFields) {
+        if (addressField in scrapedData) {
+            if (matchAddressFromAddressListCityState(userData.addresses, scrapedData[addressField])) {
+                matchedFields.push(addressField)
+                return { matchedFields, score: matchedFields.length, result: true }
+            }
         }
     }
 
@@ -250,21 +233,34 @@ function scrapedDataMatchesUserData (userData, scrapedData) {
  * @param {Record<string, any>} profile
  */
 export function aggregateFields (profile) {
-    const addressCityStateArray = profile.addressCityState || []
-    const addressCityStateListArray = profile.addressCityStateList || []
-    const addresses = [...new Set([...addressCityStateArray, ...addressCityStateListArray])]
+    // addresses
+    const combinedAddresses = [
+        ...profile.addressCityState || [],
+        ...profile.addressCityStateList || [],
+        ...profile.addressFullList || [],
+        ...profile.addressFull || []
+    ]
+    const addressMap = new Map(combinedAddresses.map(addr => [`${addr.city},${addr.state}`, addr]))
+    const addresses = [...addressMap.values()]
 
+    // phone
     const phoneArray = profile.phone || []
     const phoneListArray = profile.phoneList || []
     const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])]
 
+    // relatives
+    const relatives = [...new Set(profile.relativesList)]
+
+    // aliases
+    const alternativeNames = [...new Set(profile.alternativeNamesList)]
+
     return {
         name: profile.name,
-        alternativeNames: profile.alternativeNamesList,
+        alternativeNames,
         age: profile.age,
         addresses,
         phoneNumbers,
-        relatives: profile.relativesList,
+        relatives,
         ...profile.profileUrl
     }
 }
@@ -278,114 +274,46 @@ export function aggregateFields (profile) {
  *   "value": {
  *     "selector": ".//div[@class='col-md-8']/div[2]"
  *   },
- *   "elementValue": "Age 71"
+ *   "elementValues": ["Age 71"]
  * }
  * ```
  *
- * todo: Rework this `extract` functionality to reduce mixing of types
- *
- * @param {string} key
- * @param {ExtractProfileProperty} value
- * @param {string | string[]} elementValue
- * @return {string|string[]|null|undefined}
+ * @param {string} outputFieldKey
+ * @param {ExtractProfileProperty} extractorParams
+ * @param {string[]} elementValues
+ * @return {any}
  */
-export function extractValue (key, value, elementValue) {
-    if (!elementValue) return null
+export function extractValue (outputFieldKey, extractorParams, elementValues) {
+    switch (outputFieldKey) {
+    case 'age': return new AgeExtractor().extract(elementValues, extractorParams)
+    case 'name': return new NameExtractor().extract(elementValues, extractorParams)
 
-    const extractors = {
-        name: () => typeof elementValue === 'string' && elementValue.replace(/\n/g, ' ').trim(),
-        age: () => typeof elementValue === 'string' && elementValue.match(/\d+/)?.[0],
-        alternativeNamesList: () => stringToList(elementValue, value.separator),
-        addressCityStateList: () => {
-            const cityStateList = stringToList(elementValue, value.separator)
-            return getCityStateCombos(cityStateList)
-        },
-        addressCityState: () => {
-            const cityStateList = stringToList(elementValue)
-            return getCityStateCombos(cityStateList)
-        },
-        addressFullList: () => stringToList(elementValue, value.separator),
-        phone: () => {
-            const phoneNumber = typeof elementValue === 'string' && elementValue.replace(/\D/g, '')
-            if (!phoneNumber) {
-                return null
-            }
-            return stringToList(phoneNumber)
-        },
-        addressFull: () => elementValue,
-        phoneList: () => stringToList(elementValue, value.separator),
-        relativesList: () => stringToList(elementValue, value.separator),
-        profileUrl: () => {
-            const profile = {
-                profileUrl: elementValue,
-                identifier: elementValue
-            }
+    // all addresses are processed the same way
+    case 'addressFull':
+    case 'addressFullList':
+        return new AddressFullExtractor().extract(elementValues, extractorParams)
+    case 'addressCityState':
+    case 'addressCityStateList':
+        return new CityStateExtractor().extract(elementValues, extractorParams)
 
-            if (!value.identifierType || !value.identifier) {
-                return profile
-            }
-
-            const profileUrl = Array.isArray(elementValue) ? elementValue[0] : elementValue
-            profile.identifier = getIdFromProfileUrl(profileUrl, value.identifierType, value.identifier)
-            return profile
-        }
+    case 'alternativeNamesList': return new AlternativeNamesExtractor().extract(elementValues, extractorParams)
+    case 'relativesList': return new RelativesExtractor().extract(elementValues, extractorParams)
+    case 'phone':
+    case 'phoneList':
+        return new PhoneExtractor().extract(elementValues, extractorParams)
+    case 'profileUrl': return new ProfileUrlExtractor().extract(elementValues, extractorParams)
     }
-
-    if (key in extractors) {
-        return extractors[key]()
-    }
-
     return null
 }
 
 /**
- * @param {string|any[]} inputList
+ * @param {string} inputList
  * @param {string} [separator]
  * @return {string[]}
  */
 export function stringToList (inputList, separator) {
-    // if the list is already an array then we can return the list
-    if (Array.isArray(inputList)) return inputList
-    if (inputList === '') return []
-
-    if (separator) {
-        return inputList
-            .split(separator)
-            .map(item => item.trim())
-            .filter(Boolean)
-    }
-
-    return inputList
-        .split(/[|\n•·]/)
-        .map(item => item.trim())
-        .filter(Boolean)
-}
-
-/**
- * @param {string[]} inputList
- * @return {{ city: string, state: string|null }[] }
- */
-export function getCityStateCombos (inputList) {
-    const output = []
-    for (let item of inputList) {
-        let words
-        // Strip out the zip code since we're only interested in city/state here.
-        item = item.replace(/,?\s*\d{5}(-\d{4})?/, '')
-
-        if (item.includes(',')) {
-            words = item.split(',').map(item => item.trim())
-        } else {
-            words = item.split(' ').map(item => item.trim())
-        }
-        // we are removing this partial city/state combos at the end (i.e. Chi...)
-        if (words.length === 1) { continue }
-
-        const state = words.pop()
-        const city = words.join(' ')
-
-        output.push({ city, state: state || null })
-    }
-    return output
+    const defaultSeparator = /[|\n•·]/
+    return cleanArray(inputList.split(separator || defaultSeparator))
 }
 
 // For extraction
@@ -413,4 +341,57 @@ export function getIdFromProfileUrl (profileUrl, identifierType, identifier) {
     }
 
     return profileUrl
+}
+
+/**
+ * Remove common prefixes and suffixes such as
+ *
+ * - AKA: <value>
+ * - <value> + 1 more
+ * - <value> -
+ *
+ * @param {string} elementValue
+ * @return {string}
+ */
+function removeCommonSuffixesAndPrefixes (elementValue) {
+    const regexes = [
+        // match text such as +3 more when it appears at the end of a string
+        /\+\s*\d+.*$/
+    ]
+    // strings that are always safe to remove from the start
+    const startsWith = [
+        'Associated persons:',
+        'AKA:',
+        'Known as:',
+        'Also known as:',
+        'Has lived in:',
+        'Used to live:',
+        'Used to live in:',
+        'Lives in:',
+        'Related to:',
+        'No other aliases.',
+        'RESIDES IN'
+    ]
+
+    // strings that are always safe to remove from the end
+    const endsWith = [
+        ' -',
+        'years old'
+    ]
+
+    for (const regex of regexes) {
+        elementValue = elementValue.replace(regex, '').trim()
+    }
+    for (const prefix of startsWith) {
+        if (elementValue.startsWith(prefix)) {
+            elementValue = elementValue.slice(prefix.length).trim()
+        }
+    }
+    for (const suffix of endsWith) {
+        if (elementValue.endsWith(suffix)) {
+            elementValue = elementValue.slice(0, 0 - (suffix.length)).trim()
+        }
+    }
+
+    return elementValue
 }

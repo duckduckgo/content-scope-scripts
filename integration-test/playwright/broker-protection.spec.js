@@ -59,46 +59,40 @@ test.describe('Broker Protection communications', () => {
                 {
                     name: 'Ben Smith',
                     alternativeNames: [
-                        'Known as:',
                         'Ben S Smith'
                     ],
                     age: '40',
                     addresses: [
-                        { city: 'Has lived', state: 'in:' },
                         { city: 'Miami', state: 'FL' },
                         { city: 'Miami Gardens', state: 'FL' },
                         { city: 'Opa Locka', state: 'FL' }
                     ],
                     phoneNumbers: [],
+                    relatives: [],
                     profileUrl: baseURL + 'view/Ben-Smith-CQEmF3CB',
                     identifier: baseURL + 'view/Ben-Smith-CQEmF3CB'
                 },
                 {
                     name: 'Ben Smith',
-                    alternativeNames: null,
+                    alternativeNames: [],
                     age: '40',
                     addresses: [
-                        { city: 'Has lived', state: 'in:' },
                         { city: 'Miami', state: 'FL' }
                     ],
                     phoneNumbers: [],
+                    relatives: [],
                     profileUrl: baseURL + 'view/Ben-Smith-DSAJBtFB',
                     identifier: baseURL + 'view/Ben-Smith-DSAJBtFB'
                 },
                 {
                     name: 'Benjamin H Smith',
                     alternativeNames: [
-                        'Known as:',
                         'Benjamin Smith',
                         'Ben Smith',
                         'Bejamin Smith'
                     ],
                     age: '39',
                     addresses: [
-                        {
-                            city: 'Has lived',
-                            state: 'in:'
-                        },
                         {
                             city: 'Fort Lauderdale',
                             state: 'FL'
@@ -113,6 +107,7 @@ test.describe('Broker Protection communications', () => {
                         }
                     ],
                     phoneNumbers: [],
+                    relatives: [],
                     profileUrl: baseURL + 'view/Benjamin-Smith-GpC.DQCB',
                     identifier: baseURL + 'view/Benjamin-Smith-GpC.DQCB'
                 }
@@ -136,12 +131,12 @@ test.describe('Broker Protection communications', () => {
                 addresses: [
                     { city: 'Orlando', state: 'FL' },
                     { city: 'Plantation', state: 'FL' },
-                    { city: 'Miami', state: 'FL' },
-                    { city: 'More locations...4 more', state: 'addresses' }
+                    { city: 'Miami', state: 'FL' }
                 ],
                 profileUrl: baseURL + 'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
                 identifier: baseURL + 'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
-                phoneNumbers: []
+                phoneNumbers: [],
+                relatives: []
             }])
         })
 
@@ -155,13 +150,14 @@ test.describe('Broker Protection communications', () => {
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
                 name: 'Ben Smith',
                 age: '55',
-                alternativeNames: null,
+                alternativeNames: [],
                 addresses: [
                     { city: 'Tampa', state: 'FL' }
                 ],
                 profileUrl: baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
                 identifier: baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
-                phoneNumbers: []
+                phoneNumbers: [],
+                relatives: []
             }])
         })
 
@@ -175,6 +171,7 @@ test.describe('Broker Protection communications', () => {
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
                 name: 'Jonathan Smith',
                 age: '50',
+                alternativeNames: [],
                 phoneNumbers: [
                     '97021405106'
                 ],
@@ -186,7 +183,7 @@ test.describe('Broker Protection communications', () => {
                         state: 'FL'
                     }
                 ],
-                relatives: null
+                relatives: []
             }])
         })
 
@@ -215,10 +212,9 @@ test.describe('Broker Protection communications', () => {
                 profileUrl: baseURL + 'pp/John-Smith-HdDWHRBD',
                 identifier: baseURL + 'pp/John-Smith-HdDWHRBD',
                 relatives: [
-                    'Margaret Kelly, 74',
-                    'Mary Kelly, 44',
-                    'Michael Kelly, 77',
-                    'Michael Kelly, 46'
+                    'Margaret Kelly',
+                    'Mary Kelly',
+                    'Michael Kelly'
                 ],
                 phoneNumbers: []
             }])
@@ -239,7 +235,7 @@ test.describe('Broker Protection communications', () => {
                     { city: 'South Holland', state: 'IL' },
                     { city: 'Chicago', state: 'IL' }
                 ],
-                alternativeNames: null,
+                alternativeNames: [],
                 relatives: [
                     'Joyce E Doyle',
                     'Brittany J Hoard',
@@ -275,8 +271,8 @@ test.describe('Broker Protection communications', () => {
                 phoneNumbers: [],
                 relatives: [
                     'Ethel Makely',
-                    'Alexander Makely, 48',
-                    'Veronica Berrios, 47'
+                    'Alexander Makely',
+                    'Veronica Berrios'
                 ],
                 profileUrl: baseURL + 'people/John-Smith-AIGwGOFD',
                 identifier: baseURL + 'people/John-Smith-AIGwGOFD'
