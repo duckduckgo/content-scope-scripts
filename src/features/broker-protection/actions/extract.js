@@ -152,13 +152,7 @@ function findFromElements (elements, key, extractField) {
     const elementValues = []
     if (elements) {
         for (const element of elements) {
-            let elementValue = rules[key]?.(element) ?? element?.innerText ?? null
-            if (extractField?.afterText) {
-                elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue
-            }
-            if (extractField?.beforeText) {
-                elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue
-            }
+            const elementValue = findFromElement(element, key, extractField)
             elementValues.push(elementValue)
         }
     }
@@ -317,6 +311,7 @@ export function extractValue (key, value, elementValue) {
             }
             return stringToList(phoneNumber)
         },
+        addressFull: () => elementValue,
         phoneList: () => stringToList(elementValue, value.separator),
         relativesList: () => stringToList(elementValue, value.separator),
         profileUrl: () => {
