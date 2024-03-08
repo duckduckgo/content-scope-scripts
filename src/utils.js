@@ -493,8 +493,9 @@ export class DDGProxy {
             const handler = new globalObj.wrappedJSObject.Object()
             handler.apply = exportFunction(outputHandler, globalObj)
             handler.get = exportFunction(getMethod, globalObj)
+            const scope = objectScope.wrappedJSObject || objectScope
             // @ts-expect-error wrappedJSObject is not a property of objectScope
-            this.internal = new globalObj.wrappedJSObject.Proxy(objectScope.wrappedJSObject[property], handler)
+            this.internal = new globalObj.wrappedJSObject.Proxy(scope[property], handler)
         } else {
             this._native = objectScope[property]
             const handler = {}

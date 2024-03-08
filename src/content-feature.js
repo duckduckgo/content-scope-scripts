@@ -1,6 +1,6 @@
 /* global cloneInto, exportFunction */
 
-import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
+import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings, DDGProxy } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { hasMozProxies, wrapToString } from './wrapper-utils.js'
@@ -281,18 +281,26 @@ export default class ContentFeature {
      * @param {any} object - object whose property we are wrapping (most commonly a prototype)
      * @param {string} propertyName
      * @param {PropertyDescriptor} descriptor
+     * @param {PropertyDescriptor} [origDescriptor]
      */
-    defineProperty (object, propertyName, descriptor) {
+    defineProperty (object, propertyName, descriptor, origDescriptor) {
         // make sure to send a debug flag when the property is used
         // NOTE: properties passing data in `value` would not be caught by this
         ['value', 'get', 'set'].forEach((k) => {
             const descriptorProp = descriptor[k]
             if (typeof descriptorProp === 'function') {
                 const addDebugFlag = this.addDebugFlag.bind(this)
-                descriptor[k] = function () {
-                    addDebugFlag()
-                    return Reflect.apply(descriptorProp, this, arguments)
-                }
+                const proxy = new DDGProxy(this, descriptor, k, {
+                    apply: (target, thisArg, argumentsList) => {
+                        // If provided call the original descriptor with thisArg (this will throw if an illegal invocation)
+                        if (origDescriptor) {
+                            Reflect.apply(origDescriptor[k], thisArg, arguments)
+                        }
+                        addDebugFlag()
+                        return Reflect.apply(descriptorProp, this, arguments)
+                    }
+                })
+                descriptor[k] = proxy.internal
             }
         })
 
@@ -344,14 +352,10 @@ export default class ContentFeature {
             ('get' in origDescriptor && 'get' in descriptor) ||
             ('set' in origDescriptor && 'set' in descriptor)
         ) {
-            wrapToString(descriptor.value, origDescriptor.value)
-            wrapToString(descriptor.get, origDescriptor.get)
-            wrapToString(descriptor.set, origDescriptor.set)
-
             this.defineProperty(object, propertyName, {
                 ...origDescriptor,
                 ...descriptor
-            })
+            }, origDescriptor)
             return origDescriptor
         } else {
             // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
