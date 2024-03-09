@@ -9,7 +9,28 @@ import { WebkitMessagingConfig, TestTransportConfig } from '../packages/messagin
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    const processedConfig = processConfig($CONTENT_SCOPE$, $USER_UNPROTECTED_DOMAINS$, $USER_PREFERENCES$)
+    const config = $CONTENT_SCOPE$
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+    const unprotected = $USER_UNPROTECTED_DOMAINS$
+    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+    const preferences = $USER_PREFERENCES$
+
+    // example of additions to remote config
+    config.features.messageProxy = {
+        exceptions: [],
+        state: 'enabled',
+        settings: {}
+    }
+
+    // example of additions to the platform-provided config
+    preferences.messageProxies = [
+        {
+            origin: 'youtube-nocookie.com',
+            feature: 'duckPlayerPage'
+        }
+    ]
+
+    const processedConfig = processConfig(config, unprotected, preferences)
     if (isGloballyDisabled(processedConfig)) {
         return
     }
