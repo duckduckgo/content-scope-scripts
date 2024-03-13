@@ -1,7 +1,8 @@
 import {cwd, isLaunchFile, write} from './script-utils.js'
-import { dirname, join, relative } from 'node:path'
+import {basename, dirname, join, relative } from 'node:path'
 import { createRequire } from 'node:module'
 import { compileFromFile } from 'json-schema-to-typescript'
+import {readFileSync} from "fs";
 
 const ROOT = join(cwd(import.meta.url), '..')
 const require = createRequire(import.meta.url);
@@ -15,11 +16,18 @@ const defaultMapping = {
      */
     "Webcompat Settings": {
         schema: join(configBuilderRoot, "tests/schemas/webcompat-settings.json"),
-        types: join(ROOT, "src/types/webcompat-settings.d.ts")
+        types: join(ROOT, "src/types/webcompat-settings.d.ts"),
+        kind: 'settings',
     },
     "Duckplayer Settings": {
         schema: join(configBuilderRoot, "tests/schemas/duckplayer-settings.json"),
-        types: join(ROOT, "src/types/duckplayer-settings.d.ts")
+        types: join(ROOT, "src/types/duckplayer-settings.d.ts"),
+        kind: 'settings',
+    },
+    "Webcompat Messages": {
+        schema: join(ROOT, "src/messages/web-compat.json"),
+        types: join(ROOT, "src/types/web-compat.ts"),
+        kind: 'messages'
     }
 }
 
@@ -45,7 +53,29 @@ export async function buildTypes(mapping = defaultMapping) {
              */
             `
         });
-        const content = typescript.replace(/\r\n/g, '\n')
+        let content = typescript.replace(/\r\n/g, '\n')
+
+        // for the typed messages, apply a module augmentation
+        if (manifest.kind === 'messages') {
+            const json = JSON.parse(readFileSync(manifest.schema, 'utf8'));
+            const base = basename(manifest.schema, '.json');
+            const relativePath = '../features/' + base + '.js';
+            const className = json.title.replace('Messages', '');
+            const notifications = json.properties?.notifications?.oneOf?.length ?? 0 > 0;
+            const requests = json.properties?.requests?.oneOf?.length ?? 0 > 0;
+            const lines = [];
+            if (notifications) lines.push(`notify: MessagingBase<${json.title}>['notify']`)
+            if (requests) lines.push(`request: MessagingBase<${json.title}>['request']`)
+            const template = `
+declare module ${JSON.stringify(relativePath)} {
+  export interface ${className} {
+    ${lines.join(',   ')}
+  }
+}
+
+`
+            content = content + template;
+        }
         write([manifest.types], content)
         console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
     }
