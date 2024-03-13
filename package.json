@@ -76,7 +76,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "fast-check": "^3.14.0",
     "jasmine": "^4.6.0",
-    "json-schema-to-typescript": "^13.1.1",
+    "json-schema-to-typescript": "^13.1.2",
     "minimist": "^1.2.8",
     "puppeteer": "^21.4.1",
     "@playwright/test": "^1.38.1",
