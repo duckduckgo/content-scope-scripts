@@ -68,8 +68,8 @@ export async function buildTypes(mapping = defaultMapping) {
             const notifications = json.properties?.notifications?.oneOf?.length ?? 0 > 0;
             const requests = json.properties?.requests?.oneOf?.length ?? 0 > 0;
             const lines = [];
-            if (notifications) lines.push(`notify: MessagingBase<${json.title}>['notify']`)
-            if (requests) lines.push(`request: MessagingBase<${json.title}>['request']`)
+            if (notifications) lines.push(`notify: GlobalMessagingBase<${json.title}>['notify']`)
+            if (requests) lines.push(`request: GlobalMessagingBase<${json.title}>['request']`)
             const template = `
 declare module ${JSON.stringify(relativePath)} {
   export interface ${className} {
