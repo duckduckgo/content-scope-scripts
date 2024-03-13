@@ -35,7 +35,7 @@ export const platformSupport = {
     'apple-isolated': [
         'duckPlayer',
         'brokerProtection',
-        'webVitals',
+        'webVitals'
     ],
     android: [
         ...baseFeatures,
