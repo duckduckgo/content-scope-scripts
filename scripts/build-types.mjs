@@ -27,7 +27,9 @@ const defaultMapping = {
     "Webcompat Messages": {
         schema: join(ROOT, "src/messages/web-compat.json"),
         types: join(ROOT, "src/types/web-compat.ts"),
-        kind: 'messages'
+        kind: 'messages',
+        // todo: fix this on windows.
+        exclude: process.platform === 'win32'
     }
 }
 
@@ -39,6 +41,7 @@ const defaultMapping = {
  */
 export async function buildTypes(mapping = defaultMapping) {
     for (let [featureName, manifest] of Object.entries(mapping)) {
+        if (manifest.exclude) continue;
         const typescript = await compileFromFile(manifest.schema, {
             bannerComment: `
             // eslint-disable
@@ -56,6 +59,7 @@ export async function buildTypes(mapping = defaultMapping) {
         let content = typescript.replace(/\r\n/g, '\n')
 
         // for the typed messages, apply a module augmentation
+        // TODO: add some tests+docs for this. It's a convention based approach to keep JSON schema files compliant
         if (manifest.kind === 'messages') {
             const json = JSON.parse(readFileSync(manifest.schema, 'utf8'));
             const base = basename(manifest.schema, '.json');
