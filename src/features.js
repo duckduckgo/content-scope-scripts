@@ -21,7 +21,8 @@ const otherFeatures = /** @type {const} */([
     'harmfulApis',
     'webCompat',
     'windowsPermissionUsage',
-    'brokerProtection'
+    'brokerProtection',
+    'webVitals'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -29,6 +30,7 @@ const otherFeatures = /** @type {const} */([
 export const platformSupport = {
     apple: [
         'webCompat',
+        'webVitals',
         ...baseFeatures
     ],
     'apple-isolated': [
