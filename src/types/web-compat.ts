@@ -45,7 +45,7 @@ export interface WebShareParams {
 
 declare module "../features/web-compat.js" {
   export interface WebCompat {
-    request: MessagingBase<WebCompatMessages>['request']
+    request: GlobalMessagingBase<WebCompatMessages>['request']
   }
 }
 
