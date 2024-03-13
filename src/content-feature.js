@@ -236,6 +236,24 @@ export default class ContentFeature {
     }
 
     /**
+     * This is a wrapper to ensure all calls are typed via schemas.
+     * @type {(...args: any[]) => any}
+     */
+    notify (...args) {
+        const [name, params] = args
+        this.messaging.notify(name, params)
+    }
+
+    /**
+     * This is a wrapper to ensure all calls are typed via schemas.
+     * @type {(...args: any[]) => Promise<any>}
+     */
+    request (...args) {
+        const [name, params] = args
+        return this.messaging.request(name, params)
+    }
+
+    /**
      * @param {import('./content-scope-features.js').LoadArgs} args
      */
     callLoad (args) {
