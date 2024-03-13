@@ -60,10 +60,10 @@ interface MessagingBase<T extends MessageTypes> {
     notify<
       Method extends T['notifications']['method'],
       Msg = Extract<T['notifications'], { method: Method }>,
-    >(...args: Msg extends { params: infer P } ? [Method, P]: [Method]): void
+    >(...args: Msg extends { params: infer Params } ? [Method, Params]: [Method]): void
     request<
       Method extends T['requests']['method'],
       Msg = Extract<T['requests'], { method: Method }>,
       Return = Msg extends { result: infer Result } ? Result : void
-    >(...args: Msg extends { params: infer P } ? [Method, P]: [Method]): Promise<Return>
+    >(...args: Msg extends { params: infer Params } ? [Method, Params]: [Method]): Promise<Return>
 }
