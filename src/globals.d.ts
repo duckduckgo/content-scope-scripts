@@ -46,3 +46,24 @@ declare module 'ddg:runtimeInjects' {
     const output: Record<string, string>
     export default output
 }
+
+interface MessageTypes {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    requests?: Record<string, any>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    notifications?: Record<string, any>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    subscriptions?: Record<string, any>
+}
+
+interface MessagingBase<T extends MessageTypes> {
+    notify<
+      Method extends T['notifications']['method'],
+      Msg = Extract<T['notifications'], { method: Method }>,
+    >(...args: Msg extends { params: infer P } ? [Method, P]: [Method]): void
+    request<
+      Method extends T['requests']['method'],
+      Msg = Extract<T['requests'], { method: Method }>,
+      Return = Msg extends { result: infer Result } ? Result : void
+    >(...args: Msg extends { params: infer P } ? [Method, P]: [Method]): Promise<Return>
+}
