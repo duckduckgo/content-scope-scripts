@@ -73,19 +73,18 @@ function setValueForInput (el, val) {
         return { result: false, error: `input type was not supported: ${el.tagName}` }
     }
 
+    const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set
+
+    // ensure it's a callable method
+    if (!originalSet || !(typeof originalSet.call !== 'function')) {
+        return { result: false, error: 'cannot access original value setter' }
+    }
+
     try {
-        el.dispatchEvent(new Event('keydown', { bubbles: true }))
-
-        const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set
-
-        // ensure it's a callable method
-        if (!originalSet || !(typeof originalSet.call !== 'function')) {
-            return { result: false, error: 'cannot access original value setter' }
-        }
-
         // separate strategies for inputs vs selects
         if (el.tagName === 'INPUT') {
             // set the input value
+            el.dispatchEvent(new Event('keydown', { bubbles: true }))
             originalSet.call(el, val)
             const events = [
                 new Event('input', { bubbles: true }),
