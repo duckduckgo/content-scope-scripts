@@ -77,21 +77,28 @@ function setValueForInput (el, val) {
         el.dispatchEvent(new Event('keydown', { bubbles: true }))
 
         const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set
-        originalSet?.call(el, val)
+
+        // ensure it's a callable method
+        if (!originalSet || !(typeof originalSet.call !== 'function')) {
+            return { result: false, error: 'cannot access original value setter' }
+        }
 
         // separate strategies for inputs vs selects
         if (el.tagName === 'INPUT') {
+            // set the input value
+            originalSet.call(el, val)
             const events = [
                 new Event('input', { bubbles: true }),
                 new Event('keyup', { bubbles: true }),
                 new Event('change', { bubbles: true })
             ]
             events.forEach((ev) => el.dispatchEvent(ev))
-            originalSet?.call(el, val)
+            originalSet.call(el, val)
             events.forEach((ev) => el.dispatchEvent(ev))
             el.blur()
         } else if (el.tagName === 'SELECT') {
-            originalSet?.call(el, val)
+            // set the select value
+            originalSet.call(el, val)
             const events = [
                 new Event('mousedown', { bubbles: true }),
                 new Event('mouseup', { bubbles: true }),
