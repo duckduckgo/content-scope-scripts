@@ -10,8 +10,7 @@ export function fillForm (action, userData) {
     const form = getElement(document, action.selector)
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
 
-    // todo: also utilize 'warnings' here later.
-    const { results } = fillMany(form, action.elements, userData)
+    const results = fillMany(form, action.elements, userData)
 
     const errors = results.filter(x => x.result === false).map(x => {
         if ('error' in x) return x.error
@@ -30,20 +29,15 @@ export function fillForm (action, userData) {
  * @param {HTMLElement} root
  * @param {{selector: string; type: string}[]} elements
  * @param {Record<string, any>} data
- * @return {{
- *     results: ({result: true} | {result: false; error: string})[],
- *     warnings: {message:string}[]
- * }}
+ * @return {({result: true} | {result: false; error: string})[]}
  */
 export function fillMany (root, elements, data) {
     const results = []
-    const warnings = []
 
     for (const element of elements) {
         const inputElem = getElement(root, element.selector)
         if (!inputElem) {
-            // todo: report this? it can occur when a selector is incorrect, but should we fail the entire action?
-            warnings.push({ message: `element not found for selector: "${element.selector}"` })
+            results.push({ result: false, error: `element not found for selector: "${element.selector}"` })
             continue
         }
         if (element.type === '$file_id$') {
@@ -54,7 +48,8 @@ export function fillMany (root, elements, data) {
             results.push(setValueForInput(inputElem, data[element.type]))
         }
     }
-    return { results, warnings }
+
+    return results
 }
 
 /**
