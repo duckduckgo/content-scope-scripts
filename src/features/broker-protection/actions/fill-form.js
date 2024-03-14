@@ -79,17 +79,30 @@ function setValueForInput (el, val) {
         const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set
         originalSet?.call(el, val)
 
-        const events = [
-            new Event('input', { bubbles: true }),
-            new Event('keyup', { bubbles: true }),
-            new Event('change', { bubbles: true })
-        ]
+        // separate strategies for inputs vs selects
+        if (el.tagName === 'INPUT') {
+            const events = [
+                new Event('input', { bubbles: true }),
+                new Event('keyup', { bubbles: true }),
+                new Event('change', { bubbles: true })
+            ]
+            events.forEach((ev) => el.dispatchEvent(ev))
+            originalSet?.call(el, val)
+            events.forEach((ev) => el.dispatchEvent(ev))
+            el.blur()
+        } else if (el.tagName === 'SELECT') {
+            originalSet?.call(el, val)
+            const events = [
+                new Event('mousedown', { bubbles: true }),
+                new Event('mouseup', { bubbles: true }),
+                new Event('click', { bubbles: true }),
+                new Event('change', { bubbles: true })
+            ]
+            events.forEach((ev) => el.dispatchEvent(ev))
+            events.forEach((ev) => el.dispatchEvent(ev))
+            el.blur()
+        }
 
-        events.forEach((ev) => el.dispatchEvent(ev))
-        // We call this again to make sure all forms are happy
-        originalSet?.call(el, val)
-        events.forEach((ev) => el.dispatchEvent(ev))
-        el.blur()
         return { result: true }
     } catch (e) {
         return { result: false, error: `setValueForInput exception: ${e}` }
