@@ -20137,30 +20137,7 @@
         const form = getElement(document, action.selector);
         if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
 
-        /**
-         * @type {({result: true} | {result: false; error: string})[]}
-         */
-        const results = [];
-
-        // fill out form for each step
-        for (const element of action.elements) {
-            // get the correct field of the form
-            const inputElem = getElement(form, element.selector);
-            // this works for IDs (i.e. #url would be form.elements['url'])
-            // let inputElem = form.elements[element.selector]
-            // find the correct userData to put in the form
-            if (inputElem) {
-                if (element.type === '$file_id$') {
-                    results.push(setImageUpload(inputElem));
-                } else if (element.type === '$generated_phone_number$') {
-                    setValueForInput(inputElem, generatePhoneNumber());
-                    results.push({ result: true });
-                } else {
-                    setValueForInput(inputElem, userData[element.type]);
-                    results.push({ result: true });
-                }
-            }
-        }
+        const results = fillMany(form, action.elements, userData);
 
         const errors = results.filter(x => x.result === false).map(x => {
             if ('error' in x) return x.error
@@ -20175,34 +20152,94 @@
     }
 
     /**
+     * Try to fill form elements. Collecting results + warnings for reporting.
+     * @param {HTMLElement} root
+     * @param {{selector: string; type: string}[]} elements
+     * @param {Record<string, any>} data
+     * @return {({result: true} | {result: false; error: string})[]}
+     */
+    function fillMany (root, elements, data) {
+        const results = [];
+
+        for (const element of elements) {
+            const inputElem = getElement(root, element.selector);
+            if (!inputElem) {
+                results.push({ result: false, error: `element not found for selector: "${element.selector}"` });
+                continue
+            }
+            if (element.type === '$file_id$') {
+                results.push(setImageUpload(inputElem));
+            } else if (element.type === '$generated_phone_number$') {
+                results.push(setValueForInput(inputElem, generatePhoneNumber()));
+            } else {
+                results.push(setValueForInput(inputElem, data[element.type]));
+            }
+        }
+
+        return results
+    }
+
+    /**
      * NOTE: This code comes from Autofill, the reasoning is to make React autofilling work on Chrome and Safari.
      *
      * Ensures the value is set properly and dispatches events to simulate real user action
      *
      * @param {HTMLElement} el
      * @param {string} val
-     * @return {{result: boolean}}
+     * @return {{result: true} | {result: false; error: string}}
      */
     function setValueForInput (el, val) {
-        el.dispatchEvent(new Event('keydown', { bubbles: true }));
+        // Access the original setters
+        // originally needed to bypass React's implementation on mobile
+        let target;
+        if (el.tagName === 'INPUT') target = window.HTMLInputElement;
+        if (el.tagName === 'SELECT') target = window.HTMLSelectElement;
 
-        // Access the original setter (needed to bypass React's implementation on mobile)
-        // @ts-expect-error - Object will not be undefined on this case
-        const originalSet = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-        originalSet?.call(el, val);
+        // Bail early if we cannot fill this element
+        if (!target) {
+            return { result: false, error: `input type was not supported: ${el.tagName}` }
+        }
 
-        const events = [
-            new Event('input', { bubbles: true }),
-            new Event('keyup', { bubbles: true }),
-            new Event('change', { bubbles: true })
-        ];
-        events.forEach((ev) => el.dispatchEvent(ev));
-        // We call this again to make sure all forms are happy
-        originalSet?.call(el, val);
-        events.forEach((ev) => el.dispatchEvent(ev));
-        el.blur();
+        const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set;
 
-        return { result: true }
+        // ensure it's a callable method
+        if (!originalSet || typeof originalSet.call !== 'function') {
+            return { result: false, error: 'cannot access original value setter' }
+        }
+
+        try {
+            // separate strategies for inputs vs selects
+            if (el.tagName === 'INPUT') {
+                // set the input value
+                el.dispatchEvent(new Event('keydown', { bubbles: true }));
+                originalSet.call(el, val);
+                const events = [
+                    new Event('input', { bubbles: true }),
+                    new Event('keyup', { bubbles: true }),
+                    new Event('change', { bubbles: true })
+                ];
+                events.forEach((ev) => el.dispatchEvent(ev));
+                originalSet.call(el, val);
+                events.forEach((ev) => el.dispatchEvent(ev));
+                el.blur();
+            } else if (el.tagName === 'SELECT') {
+                // set the select value
+                originalSet.call(el, val);
+                const events = [
+                    new Event('mousedown', { bubbles: true }),
+                    new Event('mouseup', { bubbles: true }),
+                    new Event('click', { bubbles: true }),
+                    new Event('change', { bubbles: true })
+                ];
+                events.forEach((ev) => el.dispatchEvent(ev));
+                events.forEach((ev) => el.dispatchEvent(ev));
+                el.blur();
+            }
+
+            return { result: true }
+        } catch (e) {
+            return { result: false, error: `setValueForInput exception: ${e}` }
+        }
     }
 
     /**
