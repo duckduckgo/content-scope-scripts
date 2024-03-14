@@ -37,27 +37,16 @@ export function fillForm (action, userData, root = document) {
  * }}
  */
 export function fillMany (root, elements, data) {
-    /**
-     * @type {({ result: true } | { result: false; error: string })[]}
-     */
     const results = []
-    /**
-     * @type {{message:string}[]}
-     */
     const warnings = []
 
-    // fill out form for each step
     for (const element of elements) {
-        // get the correct field of the form
         const inputElem = getElement(root, element.selector)
         if (!inputElem) {
             // todo: report this? it can occur when a selector is incorrect, but should we fail the entire action?
             warnings.push({ message: `element not found for selector: "${element.selector}"` })
             continue
         }
-        // this works for IDs (i.e. #url would be form.elements['url'])
-        // let inputElem = form.elements[element.selector]
-        // find the correct userData to put in the form
         if (element.type === '$file_id$') {
             results.push(setImageUpload(inputElem))
         } else if (element.type === '$generated_phone_number$') {
@@ -79,20 +68,20 @@ export function fillMany (root, elements, data) {
  * @return {{result: true} | {result: false; error: string}}
  */
 function setValueForInput (el, val) {
-    // Access the original setter (needed to bypass React's implementation on mobile)
+    // Access the original setters
+    // originally needed to bypass React's implementation on mobile
     let target
     if (el.tagName === 'INPUT') target = window.HTMLInputElement
     if (el.tagName === 'SELECT') target = window.HTMLSelectElement
 
-    /**
-     * Bail early if we cannot fill this element
-     */
+    // Bail early if we cannot fill this element
     if (!target) {
         return { result: false, error: `input type was not supported: ${el.tagName}` }
     }
 
     try {
         el.dispatchEvent(new Event('keydown', { bubbles: true }))
+
         const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set
         originalSet?.call(el, val)
 
