@@ -4,11 +4,10 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
 /**
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
- * @param {Document | HTMLElement} [root]
  * @return {import('../types.js').ActionResponse}
  */
-export function fillForm (action, userData, root = document) {
-    const form = getElement(root, action.selector)
+export function fillForm (action, userData) {
+    const form = getElement(document, action.selector)
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
 
     // todo: also utilize 'warnings' here later.
