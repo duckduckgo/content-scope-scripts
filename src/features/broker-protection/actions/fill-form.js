@@ -76,7 +76,7 @@ function setValueForInput (el, val) {
     const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set
 
     // ensure it's a callable method
-    if (!originalSet || !(typeof originalSet.call !== 'function')) {
+    if (!originalSet || typeof originalSet.call !== 'function') {
         return { result: false, error: 'cannot access original value setter' }
     }
 
