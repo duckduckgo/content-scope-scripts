@@ -22,7 +22,7 @@ const otherFeatures = /** @type {const} */([
     'webCompat',
     'windowsPermissionUsage',
     'brokerProtection',
-    'webVitals'
+    'performanceMetrics'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -35,7 +35,7 @@ export const platformSupport = {
     'apple-isolated': [
         'duckPlayer',
         'brokerProtection',
-        'webVitals'
+        'performanceMetrics'
     ],
     android: [
         ...baseFeatures,
