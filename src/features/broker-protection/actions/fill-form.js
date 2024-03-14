@@ -4,36 +4,15 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
 /**
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
+ * @param {Document | HTMLElement} [root]
  * @return {import('../types.js').ActionResponse}
  */
-export function fillForm (action, userData) {
-    const form = getElement(document, action.selector)
+export function fillForm (action, userData, root = document) {
+    const form = getElement(root, action.selector)
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
 
-    /**
-     * @type {({result: true} | {result: false; error: string})[]}
-     */
-    const results = []
-
-    // fill out form for each step
-    for (const element of action.elements) {
-        // get the correct field of the form
-        const inputElem = getElement(form, element.selector)
-        // this works for IDs (i.e. #url would be form.elements['url'])
-        // let inputElem = form.elements[element.selector]
-        // find the correct userData to put in the form
-        if (inputElem) {
-            if (element.type === '$file_id$') {
-                results.push(setImageUpload(inputElem))
-            } else if (element.type === '$generated_phone_number$') {
-                setValueForInput(inputElem, generatePhoneNumber())
-                results.push({ result: true })
-            } else {
-                setValueForInput(inputElem, userData[element.type])
-                results.push({ result: true })
-            }
-        }
-    }
+    // todo: also utilize 'warnings' here later.
+    const { results } = fillMany(form, action.elements, userData)
 
     const errors = results.filter(x => x.result === false).map(x => {
         if ('error' in x) return x.error
@@ -48,34 +27,90 @@ export function fillForm (action, userData) {
 }
 
 /**
+ * Try to fill form elements. Collecting results + warnings for reporting.
+ * @param {HTMLElement} root
+ * @param {{selector: string; type: string}[]} elements
+ * @param {Record<string, any>} data
+ * @return {{
+ *     results: ({result: true} | {result: false; error: string})[],
+ *     warnings: {message:string}[]
+ * }}
+ */
+export function fillMany (root, elements, data) {
+    /**
+     * @type {({ result: true } | { result: false; error: string })[]}
+     */
+    const results = []
+    /**
+     * @type {{message:string}[]}
+     */
+    const warnings = []
+
+    // fill out form for each step
+    for (const element of elements) {
+        // get the correct field of the form
+        const inputElem = getElement(root, element.selector)
+        if (!inputElem) {
+            // todo: report this? it can occur when a selector is incorrect, but should we fail the entire action?
+            warnings.push({ message: `element not found for selector: "${element.selector}"` })
+            continue
+        }
+        // this works for IDs (i.e. #url would be form.elements['url'])
+        // let inputElem = form.elements[element.selector]
+        // find the correct userData to put in the form
+        if (element.type === '$file_id$') {
+            results.push(setImageUpload(inputElem))
+        } else if (element.type === '$generated_phone_number$') {
+            results.push(setValueForInput(inputElem, generatePhoneNumber()))
+        } else {
+            results.push(setValueForInput(inputElem, data[element.type]))
+        }
+    }
+    return { results, warnings }
+}
+
+/**
  * NOTE: This code comes from Autofill, the reasoning is to make React autofilling work on Chrome and Safari.
  *
  * Ensures the value is set properly and dispatches events to simulate real user action
  *
  * @param {HTMLElement} el
  * @param {string} val
- * @return {{result: boolean}}
+ * @return {{result: true} | {result: false; error: string}}
  */
 function setValueForInput (el, val) {
-    el.dispatchEvent(new Event('keydown', { bubbles: true }))
-
     // Access the original setter (needed to bypass React's implementation on mobile)
-    // @ts-expect-error - Object will not be undefined on this case
-    const originalSet = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
-    originalSet?.call(el, val)
+    let target
+    if (el.tagName === 'INPUT') target = window.HTMLInputElement
+    if (el.tagName === 'SELECT') target = window.HTMLSelectElement
 
-    const events = [
-        new Event('input', { bubbles: true }),
-        new Event('keyup', { bubbles: true }),
-        new Event('change', { bubbles: true })
-    ]
-    events.forEach((ev) => el.dispatchEvent(ev))
-    // We call this again to make sure all forms are happy
-    originalSet?.call(el, val)
-    events.forEach((ev) => el.dispatchEvent(ev))
-    el.blur()
+    /**
+     * Bail early if we cannot fill this element
+     */
+    if (!target) {
+        return { result: false, error: `input type was not supported: ${el.tagName}` }
+    }
 
-    return { result: true }
+    try {
+        el.dispatchEvent(new Event('keydown', { bubbles: true }))
+        const originalSet = Object.getOwnPropertyDescriptor(target.prototype, 'value')?.set
+        originalSet?.call(el, val)
+
+        const events = [
+            new Event('input', { bubbles: true }),
+            new Event('keyup', { bubbles: true }),
+            new Event('change', { bubbles: true })
+        ]
+
+        events.forEach((ev) => el.dispatchEvent(ev))
+        // We call this again to make sure all forms are happy
+        originalSet?.call(el, val)
+        events.forEach((ev) => el.dispatchEvent(ev))
+        el.blur()
+        return { result: true }
+    } catch (e) {
+        return { result: false, error: `setValueForInput exception: ${e}` }
+    }
 }
 
 /**
