@@ -7,8 +7,8 @@ src/element-hiding.js @jonathanKingston @dharb
 src/features/click-to-load.js @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
 src/features/click-to-load/ @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
 src/locales/click-to-load/ @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-src/features/broker-protection.js @bhall @shakyShane
-src/features/broker-protection/ @bhall @shakyShane
+src/features/broker-protection.js @brianhall @shakyShane
+src/features/broker-protection/ @brianhall @shakyShane
 
 # Platform owners
 inject/android.js @jonathanKingston @joshliebe
