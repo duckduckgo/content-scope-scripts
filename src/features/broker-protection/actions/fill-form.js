@@ -9,6 +9,7 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
 export function fillForm (action, userData) {
     const form = getElement(document, action.selector)
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
+    if (!userData) return new ErrorResponse({ actionID: action.id, message: 'user data was absent' })
 
     const results = fillMany(form, action.elements, userData)
 
@@ -45,6 +46,14 @@ export function fillMany (root, elements, data) {
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()))
         } else {
+            if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
+                results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` })
+                continue
+            }
+            if (!data[element.type]) {
+                results.push({ result: false, error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}` })
+                continue
+            }
             results.push(setValueForInput(inputElem, data[element.type]))
         }
     }
