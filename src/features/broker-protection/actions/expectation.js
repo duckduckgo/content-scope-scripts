@@ -2,21 +2,17 @@ import { getElement } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
 
 /**
- * @param action
+ * @param {Record<string, any>} action
+ * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export function expectation (action) {
+export function expectation (action, root = document) {
     const expectations = action.expectations
 
     const allExpectationsMatch = expectations.every(expectation => {
         if (expectation.type === 'text') {
             // get the target element text
-            let elem
-            try {
-                elem = getElement(document, expectation.selector)
-            } catch {
-                elem = null
-            }
+            const elem = getElement(root, expectation.selector)
             return Boolean(elem?.textContent?.includes(expectation.expect))
         } else if (expectation.type === 'url') {
             const url = window.location.href

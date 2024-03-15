@@ -12,25 +12,26 @@ import { ErrorResponse } from './types.js'
  * @param {string} [action.dataSource] - optional data source
  * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
  * @param {Record<string, any>} inputData
+ * @param {Document} [root] - optional root element
  * @return {import('./types.js').ActionResponse}
  */
-export function execute (action, inputData) {
+export function execute (action, inputData, root = document) {
     try {
         switch (action.actionType) {
         case 'navigate':
             return buildUrl(action, data(action, inputData, 'userProfile'))
         case 'extract':
-            return extract(action, data(action, inputData, 'userProfile'))
+            return extract(action, data(action, inputData, 'userProfile'), root)
         case 'click':
-            return click(action, data(action, inputData, 'userProfile'))
+            return click(action, data(action, inputData, 'userProfile'), root)
         case 'expectation':
-            return expectation(action)
+            return expectation(action, root)
         case 'fillForm':
-            return fillForm(action, data(action, inputData, 'extractedProfile'))
+            return fillForm(action, data(action, inputData, 'extractedProfile'), root)
         case 'getCaptchaInfo':
-            return getCaptchaInfo(action)
+            return getCaptchaInfo(action, root)
         case 'solveCaptcha':
-            return solveCaptcha(action, data(action, inputData, 'token'))
+            return solveCaptcha(action, data(action, inputData, 'token'), root)
         default: {
             return new ErrorResponse({
                 actionID: action.id,
