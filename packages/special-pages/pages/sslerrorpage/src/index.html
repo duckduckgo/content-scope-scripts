@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="full-container">
+    <div class="warning-container">
+        <h1 class="warning-header">
+            <img src="img/Shield-Alert-96x96.svg" alt="Warning" class="watermark">
+            Warning: This site may be insecure
+        </h1>
+        <p class="warning-text">The certificate for this site is invalid. You might be connecting to a server that is pretending to be <b>expired.badssl.com</b> which could put your confidential information at risk.</p>
+        <div class="buttons">
+            <button class="button advanced" id="advancedBtn">Advanced...</button>
+            <button class="button leave-this-site" id="leaveThisSiteBtn">Leave This Site</button>
+        </div>
+    </div>
+    <div class="advanced-info", id="advancedInfo">
+        <p>DuckDuckGo warns you when a website has an invalid certificate.</p>
+        <p>The security certificate for <b>expired.badssl.com</b> is expired. It's possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.</p>
+        <a href="javascript:void(0);" class="accept-risk">Accept Risk and Visit Site</a>
+    </div>
+  </div>  
+
+  <script>
+    document.getElementById('advancedBtn').addEventListener('click', function() {
+      document.getElementById('advancedInfo').style.display = 'block';
+      this.style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>
