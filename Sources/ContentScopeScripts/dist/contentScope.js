@@ -534,7 +534,8 @@
         "harmfulApis",
         "webCompat",
         "windowsPermissionUsage",
-        "brokerProtection"
+        "brokerProtection",
+        "performanceMetrics"
       ]
     );
     const platformSupport = {
@@ -544,7 +545,8 @@
       ],
       "apple-isolated": [
         "duckPlayer",
-        "brokerProtection"
+        "brokerProtection",
+        "performanceMetrics"
       ],
       android: [
         ...baseFeatures,

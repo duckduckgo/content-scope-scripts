@@ -698,7 +698,8 @@
         'harmfulApis',
         'webCompat',
         'windowsPermissionUsage',
-        'brokerProtection'
+        'brokerProtection',
+        'performanceMetrics'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -710,7 +711,8 @@
         ],
         'apple-isolated': [
             'duckPlayer',
-            'brokerProtection'
+            'brokerProtection',
+            'performanceMetrics'
         ],
         android: [
             ...baseFeatures,
@@ -20686,6 +20688,17 @@
         }
     }
 
+    class PerformanceMetrics extends ContentFeature {
+        init () {
+            this.messaging.subscribe('getVitals', () => {
+                const paintResources = performance.getEntriesByType('paint');
+                const firstPaint = paintResources.find((entry) => entry.name === 'first-contentful-paint');
+                const vitals = firstPaint ? [firstPaint.startTime] : [];
+                this.messaging.notify('vitalsResult', { vitals });
+            });
+        }
+    }
+
     var platformFeatures = {
         ddg_feature_runtimeChecks: RuntimeChecks,
         ddg_feature_fingerprintingAudio: FingerprintingAudio,
@@ -20706,7 +20719,8 @@
         ddg_feature_harmfulApis: HarmfulApis,
         ddg_feature_webCompat: WebCompat,
         ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
-        ddg_feature_brokerProtection: BrokerProtection
+        ddg_feature_brokerProtection: BrokerProtection,
+        ddg_feature_performanceMetrics: PerformanceMetrics
     };
 
     /* global false */
