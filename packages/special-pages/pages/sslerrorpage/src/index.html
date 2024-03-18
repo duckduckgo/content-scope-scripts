@@ -15,7 +15,7 @@
             <img src="img/Shield-Alert-96x96.svg" alt="Warning" class="watermark">
             Warning: This site may be insecure
         </h1>
-        <p class="warning-text">The certificate for this site is invalid. You might be connecting to a server that is pretending to be <b>expired.badssl.com</b> which could put your confidential information at risk.</p>
+        <p class="warning-text">The certificate for this site is invalid. You might be connecting to a server that is pretending to be <b>$URL$</b> which could put your confidential information at risk.</p>
         <div class="buttons">
             <button class="button advanced" id="advancedBtn">Advanced...</button>
             <button class="button leave-this-site" id="leaveThisSiteBtn">Leave This Site</button>
@@ -23,17 +23,19 @@
     </div>
     <div class="advanced-info", id="advancedInfo">
         <p>DuckDuckGo warns you when a website has an invalid certificate.</p>
-        <p>The security certificate for <b>expired.badssl.com</b> is expired. It's possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.</p>
-        <a href="javascript:void(0);" class="accept-risk">Accept Risk and Visit Site</a>
+        <p>$SPECIFIC_ERROR$ It's possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.</p>
+        <a href="#" id="acceptRiskLink" class="accept-risk">Accept Risk and Visit Site</a>
     </div>
   </div>  
 
   <script>
     document.getElementById('advancedBtn').addEventListener('click', function() {
-      document.getElementById('advancedInfo').style.display = 'block';
+      document.getElementById('advancedInfo').style.visibility = 'visible';
       this.style.display = 'none';
     });
   </script>
+
+  <script src="sendMessage.js"></script>  
 
 </body>
 </html>
