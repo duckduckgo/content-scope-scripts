@@ -1,4 +1,4 @@
-import { Messaging, MessagingContext, NotificationMessage, WebkitMessagingConfig } from '@duckduckgo/messaging'
+import { Messaging, MessagingContext, WebkitMessagingConfig } from '@duckduckgo/messaging'
 
 export class SSLErrorPageMessages {
     /**
