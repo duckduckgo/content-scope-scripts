@@ -16,6 +16,10 @@
         {
           "type": "$generated_phone_number$",
           "selector": "#user_phone"
+        },
+        {
+          "type": "state",
+          "selector": "#state"
         }
       ]
     },

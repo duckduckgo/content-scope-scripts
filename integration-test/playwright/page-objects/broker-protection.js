@@ -43,9 +43,10 @@ export class BrokerProtectionPage {
      * @return {Promise<void>}
      */
     async isFormFilled () {
-        expect(await this.page.getByLabel('First Name:').inputValue()).toBe('John')
-        expect(await this.page.getByLabel('Last Name:').inputValue()).toBe('Smith')
-        expect(await this.page.getByLabel('Phone Number:').inputValue()).toMatch(/^\d{10}$/)
+        await expect(this.page.getByLabel('First Name:')).toHaveValue('John')
+        await expect(this.page.getByLabel('Last Name:')).toHaveValue('Smith')
+        await expect(this.page.getByLabel('Phone Number:')).toHaveValue(/^\d{10}$/)
+        await expect(this.page.getByLabel('State:')).toHaveValue('IL')
     }
 
     /**
