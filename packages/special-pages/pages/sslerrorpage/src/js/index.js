@@ -7,7 +7,7 @@
  * [[include:packages/special-pages/pages/sslerrorpage/readme.md]]
  */
 
-import { SSLErrorPageMessages, createSSLErrorMessaging } from './messages.js'
+import { createSSLErrorMessaging } from './messages.js'
 
 const messaging = createSSLErrorMessaging()
 
