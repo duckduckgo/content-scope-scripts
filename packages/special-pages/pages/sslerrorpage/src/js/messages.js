@@ -1,4 +1,4 @@
-import { Messaging, MessagingContext, WebkitMessagingConfig } from '@duckduckgo/messaging'
+import { Messaging, MessagingContext, NotificationMessage, WebkitMessagingConfig } from '@duckduckgo/messaging'
 
 export class SSLErrorPageMessages {
     /**
@@ -16,8 +16,6 @@ export class SSLErrorPageMessages {
         return this.messaging.notify(message)
     }
 }
-
-
 
 export function createSSLErrorMessaging () {
     const messageContext = new MessagingContext({
