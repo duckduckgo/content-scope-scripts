@@ -34,10 +34,11 @@ import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
 /**
  * @param {Action} action
  * @param {Record<string, any>} userData
+ * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export function extract (action, userData) {
-    const extractResult = extractProfiles(action, userData)
+export function extract (action, userData, root = document) {
+    const extractResult = extractProfiles(action, userData, root)
 
     if ('error' in extractResult) {
         return new ErrorResponse({ actionID: action.id, message: extractResult.error })
