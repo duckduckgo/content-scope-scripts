@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         acceptRiskLink.addEventListener('click', (event) => {
             event.preventDefault()
             // Ensure this matches the expected format for the notify method
-            sslErrorPageMessages.notify({ action: 'visitSite'})
+            sslErrorPageMessages.notify({ action: 'visitSite' })
         })
     } else {
         console.error('Accept risk link not found.')
@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (leaveSiteButton) {
         leaveSiteButton.addEventListener('click', (event) => {
             event.preventDefault()
-            sslErrorPageMessages.notify({ action: "leaveSite" })
-        });
+            sslErrorPageMessages.notify({ action: 'leaveSite' })
+        })
     } else {
         console.error('Leave Site button not found.')
     }
