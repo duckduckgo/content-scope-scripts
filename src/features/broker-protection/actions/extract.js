@@ -7,7 +7,7 @@ import {
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
-import { matchAddressFromAddressListCityState } from '../comparisons/address.js'
+import { addressMatch } from '../comparisons/address.js'
 import { AgeExtractor } from '../extractors/age.js'
 import { AlternativeNamesExtractor, NameExtractor } from '../extractors/name.js'
 import { AddressFullExtractor, CityStateExtractor } from '../extractors/address.js'
@@ -141,7 +141,7 @@ export function createProfile (elementFactory, extractData) {
             // clean them up - trimming, removing empties
             const noneEmptyArray = cleanArray(evaluatedValues)
 
-            // Note: This can return a string, string[], or null
+            // Note: This can return any valid JSON valid, it depends on the extractor used.
             const extractedValue = extractValue(key, value, noneEmptyArray)
 
             // try to use the extracted value, or fall back to null
@@ -211,7 +211,7 @@ export function scrapedDataMatchesUserData (userData, scrapedData) {
 
     for (const addressField of addressFields) {
         if (addressField in scrapedData) {
-            if (matchAddressFromAddressListCityState(userData.addresses, scrapedData[addressField])) {
+            if (addressMatch(userData.addresses, scrapedData[addressField])) {
                 matchedFields.push(addressField)
                 return { matchedFields, score: matchedFields.length, result: true }
             }

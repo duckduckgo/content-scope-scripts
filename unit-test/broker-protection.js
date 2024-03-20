@@ -7,8 +7,7 @@ import {
     extractValue
 } from '../src/features/broker-protection/actions/extract.js'
 import {
-    matchAddressCityState,
-    matchAddressFromAddressListCityState
+    addressMatch
 } from '../src/features/broker-protection/comparisons/address.js'
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
@@ -253,38 +252,13 @@ describe('Actions', () => {
                     }
                 ]
             }
-            describe('isSameAddressCityState', () => {
-                const userData = {
-                    names: [
-                        {
-                            firstName: 'John',
-                            middleName: null,
-                            lastName: 'Smith'
-                        }
-                    ],
-                    userAge: '40',
-                    addresses: [
-                        {
-                            addressLine1: '123 Fake St',
-                            city: 'Chicago',
-                            state: 'IL',
-                            zip: '60602'
-                        }
-                    ]
-                }
-
-                it('should match when city/state is the same', () => {
-                    expect(matchAddressCityState(userData.addresses, 'chicago, il')).toBe(true)
-                })
-            })
-
             describe('matchAddressFromAddressListCityState', () => {
                 it('should match when city/state is present', () => {
-                    expect(matchAddressFromAddressListCityState(userData.addresses, [{ city: 'chicago', state: 'il' }])).toBe(true)
+                    expect(addressMatch(userData.addresses, [{ city: 'chicago', state: 'il' }])).toBe(true)
                 })
 
                 it('should not match when city/state is not present', () => {
-                    expect(matchAddressFromAddressListCityState(userData.addresses, [{ city: 'los angeles', state: 'ca' }])).toBe(false)
+                    expect(addressMatch(userData.addresses, [{ city: 'los angeles', state: 'ca' }])).toBe(false)
                 })
             })
         })
