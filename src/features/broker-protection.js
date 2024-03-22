@@ -28,7 +28,7 @@ export default class BrokerProtection extends ContentFeature {
                 if (action.actionType === 'extract') {
                     retryConfig = {
                         interval: { ms: 1000 },
-                        maxAttempts: 10
+                        maxAttempts: 30
                     }
                 }
 
