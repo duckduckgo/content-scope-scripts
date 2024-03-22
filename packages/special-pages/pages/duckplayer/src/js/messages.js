@@ -5,6 +5,7 @@ import {
     WebkitMessagingConfig,
     WindowsMessagingConfig
 } from '@duckduckgo/messaging'
+import { createTypedMessages } from '../../../../../../src/typed-messages'
 
 /**
  * Notifications or requests that the Duck Player Page will
@@ -19,7 +20,7 @@ export class DuckPlayerPageMessages {
         /**
          * @internal
          */
-        this.messaging = messaging
+        this.messaging = createTypedMessages(this, messaging)
     }
 
     /**
