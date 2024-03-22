@@ -257,6 +257,10 @@ describe('Actions', () => {
                     expect(addressMatch(userData.addresses, [{ city: 'chicago', state: 'il' }])).toBe(true)
                 })
 
+                it('should match only state when exact = false', () => {
+                    expect(addressMatch(userData.addresses, [{ city: 'something else', state: 'il' }], false)).toBe(true)
+                })
+
                 it('should not match when city/state is not present', () => {
                     expect(addressMatch(userData.addresses, [{ city: 'los angeles', state: 'ca' }])).toBe(false)
                 })
