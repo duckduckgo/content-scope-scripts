@@ -6313,54 +6313,235 @@
     };
 
     /**
-     * @param userAddresses
-     * @param foundAddresses
-     * @return {boolean}
+     * Get a single element.
+     *
+     * @param {Node} doc
+     * @param {string} selector
+     * @return {HTMLElement | null}
      */
-    function matchAddressFromAddressListCityState (userAddresses, foundAddresses) {
-        if (!userAddresses || userAddresses.length < 1 || !foundAddresses || foundAddresses.length < 1) {
-            return false
+    function getElement (doc = document, selector) {
+        if (isXpath(selector)) {
+            return safeQuerySelectorXPath(doc, selector)
         }
 
-        let cityFound, stateFound;
-
-        for (const userAddress of userAddresses) {
-            const userCity = userAddress.city;
-            const userState = userAddress.state;
-
-            // for some reason when there is one line of addresses split by commas, it messes this up
-            // i.e. Chicago IL, Something Else IL, Asdf...
-            for (const possibleLocation of foundAddresses) {
-                cityFound = possibleLocation.city;
-                stateFound = possibleLocation.state;
-
-                if (isSameAddressCityState(userCity, userState, cityFound, stateFound)) {
-                    return true
-                }
-            }
-        }
-
-        return false
+        return safeQuerySelector(doc, selector)
     }
 
     /**
-     * @param city
-     * @param state
-     * @param comparisonCity
-     * @param comparisonState
+     * Get an array of elements
+     *
+     * @param {Node} doc
+     * @param {string} selector
+     * @return {HTMLElement[] | null}
+     */
+    function getElements (doc = document, selector) {
+        if (isXpath(selector)) {
+            return safeQuerySelectorAllXpath(doc, selector)
+        }
+
+        return safeQuerySelectorAll(doc, selector)
+    }
+
+    /**
+     * Test if a given selector matches an element.
+     *
+     * @param {HTMLElement} element
+     * @param {string} selector
+     */
+    function getElementMatches (element, selector) {
+        try {
+            if (isXpath(selector)) {
+                return matchesXPath(element, selector) ? element : null
+            } else {
+                return element.matches(selector) ? element : null
+            }
+        } catch (e) {
+            console.error('getElementMatches threw: ', e);
+            return null
+        }
+    }
+
+    /**
+     * This is a xpath version of `element.matches(CSS_SELECTOR)`
+     * @param {HTMLElement} element
+     * @param {string} selector
      * @return {boolean}
      */
-    function isSameAddressCityState (city, state, comparisonCity, comparisonState) {
-        if (!city || !state || !comparisonCity || !comparisonState) { return false }
+    function matchesXPath (element, selector) {
+        const xpathResult = document.evaluate(
+            selector,
+            element,
+            null,
+            XPathResult.BOOLEAN_TYPE,
+            null
+        );
 
-        city = city.toLowerCase()?.trim();
-        comparisonCity = comparisonCity.toLowerCase()?.trim();
-        state = state.toLowerCase()?.trim();
-        comparisonState = comparisonState.toLowerCase()?.trim();
+        return xpathResult.booleanValue
+    }
 
-        if ((city === comparisonCity) && (state === comparisonState)) { return true }
+    /**
+     * @param {unknown} selector
+     * @returns {boolean}
+     */
+    function isXpath (selector) {
+        if (!(typeof selector === 'string')) return false
 
-        return false
+        // see: https://www.w3.org/TR/xpath20/
+        // "When the context item is a node, it can also be referred to as the context node. The context item is returned by an expression consisting of a single dot"
+        if (selector === '.') return true
+        return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(')
+    }
+
+    /**
+     * @param {Element|Node} element
+     * @param selector
+     * @returns {HTMLElement[] | null}
+     */
+    function safeQuerySelectorAll (element, selector) {
+        try {
+            if (element && 'querySelectorAll' in element) {
+                return Array.from(element?.querySelectorAll?.(selector))
+            }
+            return null
+        } catch (e) {
+            return null
+        }
+    }
+    /**
+     * @param {Element|Node} element
+     * @param selector
+     * @returns {HTMLElement | null}
+     */
+    function safeQuerySelector (element, selector) {
+        try {
+            if (element && 'querySelector' in element) {
+                return element?.querySelector?.(selector)
+            }
+            return null
+        } catch (e) {
+            return null
+        }
+    }
+
+    /**
+     * @param {Node} element
+     * @param selector
+     * @returns {HTMLElement | null}
+     */
+    function safeQuerySelectorXPath (element, selector) {
+        try {
+            const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            const single = match?.singleNodeValue;
+            if (single) {
+                return /** @type {HTMLElement} */(single)
+            }
+            return null
+        } catch (e) {
+            console.log('safeQuerySelectorXPath threw', e);
+            return null
+        }
+    }
+
+    /**
+     * @param {Element|Node} element
+     * @param selector
+     * @returns {HTMLElement[] | null}
+     */
+    function safeQuerySelectorAllXpath (element, selector) {
+        try {
+            // gets all elements matching the xpath query
+            const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+            if (xpathResult) {
+                /** @type {HTMLElement[]} */
+                const matchedNodes = [];
+                for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                    const item = xpathResult.snapshotItem(i);
+                    if (item) matchedNodes.push(/** @type {HTMLElement} */(item));
+                }
+                return /** @type {HTMLElement[]} */(matchedNodes)
+            }
+            return null
+        } catch (e) {
+            console.log('safeQuerySelectorAllXpath threw', e);
+            return null
+        }
+    }
+
+    /**
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     */
+    function generateRandomInt (min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+
+    /**
+     * CleanArray flattens an array of any input, removing nulls, undefined, and empty strings.
+     *
+     * @template T
+     * @param {T | T[] | null | undefined} input - The input to clean.
+     * @param {NonNullable<T>[]} prev
+     * @return {NonNullable<T>[]} - The cleaned array.
+     */
+    function cleanArray (input, prev = []) {
+        if (!Array.isArray(input)) {
+            if (input === null) return prev
+            if (input === undefined) return prev
+            // special case for empty strings
+            if (typeof input === 'string') {
+                const trimmed = input.trim();
+                if (trimmed.length > 0) {
+                    prev.push(/** @type {NonNullable<T>} */(trimmed));
+                }
+            } else {
+                prev.push(input);
+            }
+            return prev
+        }
+
+        for (const item of input) {
+            prev.push(...cleanArray(item));
+        }
+
+        return prev
+    }
+
+    /**
+     * Determines whether the given input is a non-empty string.
+     *
+     * @param {any} [input] - The input to be checked.
+     * @return {boolean} - True if the input is a non-empty string, false otherwise.
+     */
+    function nonEmptyString (input) {
+        if (typeof input !== 'string') return false
+        return input.trim().length > 0
+    }
+
+    /**
+     * Checks if two strings are a matching pair, ignoring case and leading/trailing white spaces.
+     *
+     * @param {any} a - The first string to compare.
+     * @param {any} b - The second string to compare.
+     * @return {boolean} - Returns true if the strings are a matching pair, false otherwise.
+     */
+    function matchingPair (a, b) {
+        if (!nonEmptyString(a)) return false
+        if (!nonEmptyString(b)) return false
+        return a.toLowerCase().trim() === b.toLowerCase().trim()
+    }
+
+    /**
+     * @param {{city: string; state: string | null}[]} userAddresses
+     * @param {{city: string; state: string | null}[]} foundAddresses
+     * @return {boolean}
+     */
+    function addressMatch (userAddresses, foundAddresses) {
+        return userAddresses.some((user) => {
+            return foundAddresses.some(found => {
+                return matchingPair(user.city, found.city) && matchingPair(user.state, found.state)
+            })
+        })
     }
 
     function getStateFromAbbreviation (stateAbbreviation) {
@@ -6663,180 +6844,6 @@
     }
 
     /**
-     * Get a single element.
-     *
-     * @param {Node} doc
-     * @param {string} selector
-     * @return {HTMLElement | null}
-     */
-    function getElement (doc = document, selector) {
-        if (isXpath(selector)) {
-            return safeQuerySelectorXPath(doc, selector)
-        }
-
-        return safeQuerySelector(doc, selector)
-    }
-
-    /**
-     * Get an array of elements
-     *
-     * @param {Node} doc
-     * @param {string} selector
-     * @return {HTMLElement[] | null}
-     */
-    function getElements (doc = document, selector) {
-        if (isXpath(selector)) {
-            return safeQuerySelectorAllXpath(doc, selector)
-        }
-
-        return safeQuerySelectorAll(doc, selector)
-    }
-
-    /**
-     * Test if a given selector matches an element.
-     *
-     * @param {HTMLElement} element
-     * @param {string} selector
-     */
-    function getElementMatches (element, selector) {
-        try {
-            if (isXpath(selector)) {
-                return matchesXPath(element, selector) ? element : null
-            } else {
-                return element.matches(selector) ? element : null
-            }
-        } catch (e) {
-            console.error('getElementMatches threw: ', e);
-            return null
-        }
-    }
-
-    /**
-     * This is a xpath version of `element.matches(CSS_SELECTOR)`
-     * @param {HTMLElement} element
-     * @param {string} selector
-     * @return {boolean}
-     */
-    function matchesXPath (element, selector) {
-        const xpathResult = document.evaluate(
-            selector,
-            element,
-            null,
-            XPathResult.BOOLEAN_TYPE,
-            null
-        );
-
-        return xpathResult.booleanValue
-    }
-
-    /**
-     * @param {unknown} selector
-     * @returns {boolean}
-     */
-    function isXpath (selector) {
-        if (!(typeof selector === 'string')) return false
-
-        // see: https://www.w3.org/TR/xpath20/
-        // "When the context item is a node, it can also be referred to as the context node. The context item is returned by an expression consisting of a single dot"
-        if (selector === '.') return true
-        return selector.startsWith('//') || selector.startsWith('./') || selector.startsWith('(')
-    }
-
-    /**
-     * @param {Element|Node} element
-     * @param selector
-     * @returns {HTMLElement[] | null}
-     */
-    function safeQuerySelectorAll (element, selector) {
-        try {
-            if (element && 'querySelectorAll' in element) {
-                return Array.from(element?.querySelectorAll?.(selector))
-            }
-            return null
-        } catch (e) {
-            return null
-        }
-    }
-    /**
-     * @param {Element|Node} element
-     * @param selector
-     * @returns {HTMLElement | null}
-     */
-    function safeQuerySelector (element, selector) {
-        try {
-            if (element && 'querySelector' in element) {
-                return element?.querySelector?.(selector)
-            }
-            return null
-        } catch (e) {
-            return null
-        }
-    }
-
-    /**
-     * @param {Node} element
-     * @param selector
-     * @returns {HTMLElement | null}
-     */
-    function safeQuerySelectorXPath (element, selector) {
-        try {
-            const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-            const single = match?.singleNodeValue;
-            if (single) {
-                return /** @type {HTMLElement} */(single)
-            }
-            return null
-        } catch (e) {
-            console.log('safeQuerySelectorXPath threw', e);
-            return null
-        }
-    }
-
-    /**
-     * @param {Element|Node} element
-     * @param selector
-     * @returns {HTMLElement[] | null}
-     */
-    function safeQuerySelectorAllXpath (element, selector) {
-        try {
-            // gets all elements matching the xpath query
-            const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-            if (xpathResult) {
-                /** @type {HTMLElement[]} */
-                const matchedNodes = [];
-                for (let i = 0; i < xpathResult.snapshotLength; i++) {
-                    const item = xpathResult.snapshotItem(i);
-                    if (item) matchedNodes.push(/** @type {HTMLElement} */(item));
-                }
-                return /** @type {HTMLElement[]} */(matchedNodes)
-            }
-            return null
-        } catch (e) {
-            console.log('safeQuerySelectorAllXpath threw', e);
-            return null
-        }
-    }
-
-    /**
-     * @param {number} min
-     * @param {number} max
-     * @returns {number}
-     */
-    function generateRandomInt (min, max) {
-        return Math.floor(Math.random() * (max - min + 1) + min)
-    }
-
-    /**
-     * Flatten create an array of any input, removing nulls, undefined and empty strings
-     * @template T
-     * @param {T | T[] | null | undefined} input
-     * @return {NonNullable<T>[]}
-     */
-    function cleanArray (input) {
-        return [].concat(/** @type {any} */(input)).flat().filter(Boolean)
-    }
-
-    /**
      * @param userAge
      * @param ageFound
      * @return {boolean}
@@ -7073,6 +7080,54 @@
     function noneEmptyString (input) {
         if (typeof input !== 'string') return false
         return input.trim().length > 0
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @implements {Extractor<string | null>}
+     */
+    class AgeExtractor {
+        /**
+         * @param {string[]} strs
+         * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
+         */
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        extract (strs, _extractorParams) {
+            if (!strs[0]) return null
+            return strs[0].match(/\d+/)?.[0] ?? null
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @implements {Extractor<string | null>}
+     */
+    class NameExtractor {
+        /**
+         * @param {string[]} strs
+         * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
+         */
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        extract (strs, _extractorParams) {
+            if (!strs[0]) return null
+            return strs[0].replace(/\n/g, ' ').trim()
+        }
+    }
+
+    /**
+     * @implements {Extractor<string[]>}
+     */
+    class AlternativeNamesExtractor {
+        /**
+         * @param {string[]} strs
+         * @param {import('../actions/extract.js').ExtractorParams} extractorParams
+         * @returns {string[]}
+         */
+        extract (strs, extractorParams) {
+            return strs.map(x => stringToList(x, extractorParams.separator)).flat()
+        }
     }
 
     function getDefaultExportFromCjs (x) {
@@ -9759,89 +9814,136 @@
 
     var parseAddress = /*@__PURE__*/getDefaultExportFromCjs(address);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     /**
-     * @param userAddresses
-     * @param comparisonAddressFull
-     * @param missingState
-     * @return {boolean}
+     * @implements {Extractor<{city:string; state: string|null}[]>}
      */
-    function matchesFullAddress (userAddresses, comparisonAddressFull, missingState = false) {
-        if (!comparisonAddressFull) {
-            return false
+    class CityStateExtractor {
+        /**
+         * @param {string[]} strs
+         * @param {import('../actions/extract.js').ExtractorParams} extractorParams
+         */
+        extract (strs, extractorParams) {
+            const cityStateList = strs.map(str => stringToList(str, extractorParams.separator)).flat();
+            return getCityStateCombos(cityStateList)
         }
-
-        comparisonAddressFull = comparisonAddressFull.replace(/\n/g, ', ');
-
-        for (const userAddress of userAddresses) {
-            let address = userAddress.addressLine1;
-            if (userAddress.city) {
-                address += `, ${userAddress.city}`;
-            }
-
-            if (userAddress.state) {
-                address += `, ${userAddress.state}`;
-            }
-
-            if (userAddress.zip) {
-                address += ` ${userAddress.zip}`;
-            }
-
-            const userFullAddress = address?.toLowerCase().trim();
-            const userParsedAddress = parseAddress.parseLocation(userFullAddress);
-
-            comparisonAddressFull = comparisonAddressFull.toLowerCase().trim();
-            const comparisonParsedAddress = parseAddress.parseLocation(comparisonAddressFull);
-
-            const comparisons = [
-                userParsedAddress.number === comparisonParsedAddress.number,
-                userParsedAddress.street === comparisonParsedAddress.street,
-                userParsedAddress.type === comparisonParsedAddress.type,
-                userParsedAddress.city === comparisonParsedAddress.city,
-                userParsedAddress.state === comparisonParsedAddress.state
-            ];
-
-            if (comparisons.every(Boolean)) {
-                return true
-            }
-
-            if (!missingState &&
-              comparisonAddressFull.includes(userAddress.city) &&
-              comparisonAddressFull.includes(userAddress.state)
-            ) {
-                return true
-            }
-
-            // if the user did not enter `addressLine1` AND `zip`, then perform a looser comparison
-            // against just the `city` and `state` of the parsed address.
-            // NOTE: this is technically similar to the comparison above, but we're avoiding
-            // changing too much until we have a larger test suite.
-            if (!userAddress.addressLine1 && !userAddress.zip) {
-                const looseComparisons = [
-                    userParsedAddress.city === comparisonParsedAddress.city,
-                    userParsedAddress.state === comparisonParsedAddress.state
-                ];
-
-                if (looseComparisons.every(Boolean)) {
-                    return true
-                }
-            }
-        }
-
-        return false
     }
 
     /**
-     * @param {object} userAddresses
-     * @param {string[]} comparisonAddressFullList
-     * @return {boolean}
+     * @implements {Extractor<{city:string; state: string|null}[]>}
      */
-    function matchesFullAddressList (userAddresses, comparisonAddressFullList) {
-        for (const address of comparisonAddressFullList) {
-            if (matchesFullAddress(userAddresses, address)) {
-                return true
-            }
+    class AddressFullExtractor {
+        /**
+         * @param {string[]} strs
+         * @param {import('../actions/extract.js').ExtractorParams} extractorParams
+         */
+        extract (strs, extractorParams) {
+            return strs
+                .map((str) => str.replace('\n', ' '))
+                .map((str) => stringToList(str, extractorParams.separator))
+                .flat()
+                .map((str) => parseAddress.parseLocation(str) || {})
+                // at least 'city' is required.
+                .filter((parsed) => Boolean(parsed?.city))
+                .map((addr) => {
+                    return { city: addr.city, state: addr.state || null }
+                })
         }
-        return false
+    }
+
+    /**
+     * @param {string[]} inputList
+     * @return {{ city: string, state: string|null }[] }
+     */
+    function getCityStateCombos (inputList) {
+        const output = [];
+        for (let item of inputList) {
+            let words;
+            // Strip out the zip code since we're only interested in city/state here.
+            item = item.replace(/,?\s*\d{5}(-\d{4})?/, '');
+
+            if (item.includes(',')) {
+                words = item.split(',').map(item => item.trim());
+            } else {
+                words = item.split(' ').map(item => item.trim());
+            }
+            // we are removing this partial city/state combos at the end (i.e. Chi...)
+            if (words.length === 1) { continue }
+
+            const state = words.pop();
+            const city = words.join(' ');
+
+            // exclude invalid states
+            if (state && !Object.keys(states).includes(state.toUpperCase())) {
+                continue
+            }
+
+            output.push({ city, state: state || null });
+        }
+        return output
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @implements {Extractor<string[]>}
+     */
+    class PhoneExtractor {
+        /**
+         * @param {string[]} strs
+         * @param {import('../actions/extract.js').ExtractorParams} extractorParams
+         */
+        extract (strs, extractorParams) {
+            return strs.map(str => stringToList(str, extractorParams.separator))
+                .flat()
+                .map(str => str.replace(/\D/g, ''))
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @implements {Extractor<string[]>}
+     */
+    class RelativesExtractor {
+        /**
+         * @param {string[]} strs
+         * @param {import('../actions/extract.js').ExtractorParams} extractorParams
+         */
+        extract (strs, extractorParams) {
+            return strs.map(x => stringToList(x, extractorParams.separator)).flat()
+                // for relatives, remove anything following a comma (usually 'age')
+                // eg: 'John Smith, 39' -> 'John Smith'
+                .map(x => x.split(',')[0])
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    /**
+     * @implements {Extractor<{profileUrl: string; identifier: string} | null>}
+     */
+    class ProfileUrlExtractor {
+        /**
+         * @param {string[]} strs
+         * @param {import('../actions/extract.js').ExtractorParams} extractorParams
+         */
+        extract (strs, extractorParams) {
+            if (strs.length === 0) return null
+            const profile = {
+                profileUrl: strs[0],
+                identifier: strs[0]
+            };
+
+            if (!extractorParams.identifierType || !extractorParams.identifier) {
+                return profile
+            }
+
+            const profileUrl = strs[0];
+            profile.identifier = getIdFromProfileUrl(profileUrl, extractorParams.identifierType, extractorParams.identifier);
+            return profile
+        }
     }
 
     /**
@@ -9862,15 +9964,18 @@
      * @property {string} [separator] - split the text on this string
      * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
      * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
+     *
+     * @typedef {Omit<ExtractProfileProperty, 'selector' | 'findElements'>} ExtractorParams
      */
 
     /**
      * @param {Action} action
      * @param {Record<string, any>} userData
+     * @param {Document | HTMLElement} root
      * @return {import('../types.js').ActionResponse}
      */
-    function extract (action, userData) {
-        const extractResult = extractProfiles(action, userData);
+    function extract (action, userData, root = document) {
+        const extractResult = extractProfiles(action, userData, root);
 
         if ('error' in extractResult) {
             return new ErrorResponse({ actionID: action.id, message: extractResult.error })
@@ -9960,12 +10065,15 @@
                 output[key] = null;
             } else {
                 const elements = elementFactory(key, value);
-                const evaluatedValue = value?.findElements
-                    ? findFromElements(elements, key, value)
-                    : findFromElement(elements[0], key, value);
 
-                // Note: This can return a string, string[], or null
-                const extractedValue = extractValue(key, value, evaluatedValue);
+                // extract all strings first
+                const evaluatedValues = stringValuesFromElements(elements, key, value);
+
+                // clean them up - trimming, removing empties
+                const noneEmptyArray = cleanArray(evaluatedValues);
+
+                // Note: This can return any valid JSON valid, it depends on the extractor used.
+                const extractedValue = extractValue(key, value, noneEmptyArray);
 
                 // try to use the extracted value, or fall back to null
                 // this allows 'extractValue' to return null|undefined
@@ -9981,35 +10089,23 @@
      * @param {ExtractProfileProperty} extractField
      * @return {string[]}
      */
-    function findFromElements (elements, key, extractField) {
-        const elementValues = [];
-        if (elements) {
-            for (const element of elements) {
-                const elementValue = findFromElement(element, key, extractField);
-                elementValues.push(elementValue);
+    function stringValuesFromElements (elements, key, extractField) {
+        return elements.map(element => {
+            // todo: should we use textContent here?
+            let elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
+
+            if (extractField?.afterText) {
+                elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue;
             }
-        }
-        return elementValues
-    }
+            // there is a case where we may want to get the text "after" and "before" certain text
+            if (extractField?.beforeText) {
+                elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue;
+            }
 
-    /**
-     * @param {{innerText: string}} element
-     * @param {string} dataKey - such as 'name', 'age' etc
-     * @param {ExtractProfileProperty} extractField
-     * @return {string}
-     */
-    function findFromElement (element, dataKey, extractField) {
-        // todo: should we use textContent here?
-        let elementValue = rules[dataKey]?.(element) ?? element?.innerText ?? null;
+            elementValue = removeCommonSuffixesAndPrefixes(elementValue);
 
-        if (extractField?.afterText) {
-            elementValue = elementValue?.split(extractField.afterText)[1]?.trim() || elementValue;
-        }
-        // there is a case where we may want to get the text "after" and "before" certain text
-        if (extractField?.beforeText) {
-            elementValue = elementValue?.split(extractField.beforeText)[0].trim() || elementValue;
-        }
-        return elementValue
+            return elementValue
+        })
     }
 
     /**
@@ -10037,33 +10133,19 @@
             }
         }
 
-        if (scrapedData.addressCityState) {
-            // addressCityState is now being put in a list so can use matchAddressFromAddressListCityState
-            if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityState)) {
-                matchedFields.push('addressCityState');
-                return { matchedFields, score: matchedFields.length, result: true }
-            }
-        }
+        const addressFields = [
+            'addressCityState',
+            'addressCityStateList',
+            'addressFull',
+            'addressFullList'
+        ];
 
-        // it's possible to have both addressCityState and addressCityStateList
-        if (scrapedData.addressCityStateList) {
-            if (matchAddressFromAddressListCityState(userData.addresses, scrapedData.addressCityStateList)) {
-                matchedFields.push('addressCityStateList');
-                return { matchedFields, score: matchedFields.length, result: true }
-            }
-        }
-
-        if (scrapedData.addressFull) {
-            if (matchesFullAddress(userData.addresses, scrapedData.addressFull)) {
-                matchedFields.push('addressFull');
-                return { matchedFields, score: matchedFields.length, result: true }
-            }
-        }
-
-        if (scrapedData.addressFullList) {
-            if (matchesFullAddressList(userData.addresses, scrapedData.addressFullList)) {
-                matchedFields.push('addressFullList');
-                return { matchedFields, score: matchedFields.length, result: true }
+        for (const addressField of addressFields) {
+            if (addressField in scrapedData) {
+                if (addressMatch(userData.addresses, scrapedData[addressField])) {
+                    matchedFields.push(addressField);
+                    return { matchedFields, score: matchedFields.length, result: true }
+                }
             }
         }
 
@@ -10082,21 +10164,34 @@
      * @param {Record<string, any>} profile
      */
     function aggregateFields (profile) {
-        const addressCityStateArray = profile.addressCityState || [];
-        const addressCityStateListArray = profile.addressCityStateList || [];
-        const addresses = [...new Set([...addressCityStateArray, ...addressCityStateListArray])];
+        // addresses
+        const combinedAddresses = [
+            ...profile.addressCityState || [],
+            ...profile.addressCityStateList || [],
+            ...profile.addressFullList || [],
+            ...profile.addressFull || []
+        ];
+        const addressMap = new Map(combinedAddresses.map(addr => [`${addr.city},${addr.state}`, addr]));
+        const addresses = [...addressMap.values()];
 
+        // phone
         const phoneArray = profile.phone || [];
         const phoneListArray = profile.phoneList || [];
         const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])];
 
+        // relatives
+        const relatives = [...new Set(profile.relativesList)];
+
+        // aliases
+        const alternativeNames = [...new Set(profile.alternativeNamesList)];
+
         return {
             name: profile.name,
-            alternativeNames: profile.alternativeNamesList,
+            alternativeNames,
             age: profile.age,
             addresses,
             phoneNumbers,
-            relatives: profile.relativesList,
+            relatives,
             ...profile.profileUrl
         }
     }
@@ -10110,114 +10205,46 @@
      *   "value": {
      *     "selector": ".//div[@class='col-md-8']/div[2]"
      *   },
-     *   "elementValue": "Age 71"
+     *   "elementValues": ["Age 71"]
      * }
      * ```
      *
-     * todo: Rework this `extract` functionality to reduce mixing of types
-     *
-     * @param {string} key
-     * @param {ExtractProfileProperty} value
-     * @param {string | string[]} elementValue
-     * @return {string|string[]|null|undefined}
+     * @param {string} outputFieldKey
+     * @param {ExtractProfileProperty} extractorParams
+     * @param {string[]} elementValues
+     * @return {any}
      */
-    function extractValue (key, value, elementValue) {
-        if (!elementValue) return null
+    function extractValue (outputFieldKey, extractorParams, elementValues) {
+        switch (outputFieldKey) {
+        case 'age': return new AgeExtractor().extract(elementValues, extractorParams)
+        case 'name': return new NameExtractor().extract(elementValues, extractorParams)
 
-        const extractors = {
-            name: () => typeof elementValue === 'string' && elementValue.replace(/\n/g, ' ').trim(),
-            age: () => typeof elementValue === 'string' && elementValue.match(/\d+/)?.[0],
-            alternativeNamesList: () => stringToList(elementValue, value.separator),
-            addressCityStateList: () => {
-                const cityStateList = stringToList(elementValue, value.separator);
-                return getCityStateCombos(cityStateList)
-            },
-            addressCityState: () => {
-                const cityStateList = stringToList(elementValue);
-                return getCityStateCombos(cityStateList)
-            },
-            addressFullList: () => stringToList(elementValue, value.separator),
-            phone: () => {
-                const phoneNumber = typeof elementValue === 'string' && elementValue.replace(/\D/g, '');
-                if (!phoneNumber) {
-                    return null
-                }
-                return stringToList(phoneNumber)
-            },
-            addressFull: () => elementValue,
-            phoneList: () => stringToList(elementValue, value.separator),
-            relativesList: () => stringToList(elementValue, value.separator),
-            profileUrl: () => {
-                const profile = {
-                    profileUrl: elementValue,
-                    identifier: elementValue
-                };
+        // all addresses are processed the same way
+        case 'addressFull':
+        case 'addressFullList':
+            return new AddressFullExtractor().extract(elementValues, extractorParams)
+        case 'addressCityState':
+        case 'addressCityStateList':
+            return new CityStateExtractor().extract(elementValues, extractorParams)
 
-                if (!value.identifierType || !value.identifier) {
-                    return profile
-                }
-
-                const profileUrl = Array.isArray(elementValue) ? elementValue[0] : elementValue;
-                profile.identifier = getIdFromProfileUrl(profileUrl, value.identifierType, value.identifier);
-                return profile
-            }
-        };
-
-        if (key in extractors) {
-            return extractors[key]()
+        case 'alternativeNamesList': return new AlternativeNamesExtractor().extract(elementValues, extractorParams)
+        case 'relativesList': return new RelativesExtractor().extract(elementValues, extractorParams)
+        case 'phone':
+        case 'phoneList':
+            return new PhoneExtractor().extract(elementValues, extractorParams)
+        case 'profileUrl': return new ProfileUrlExtractor().extract(elementValues, extractorParams)
         }
-
         return null
     }
 
     /**
-     * @param {string|any[]} inputList
+     * @param {string} inputList
      * @param {string} [separator]
      * @return {string[]}
      */
     function stringToList (inputList, separator) {
-        // if the list is already an array then we can return the list
-        if (Array.isArray(inputList)) return inputList
-        if (inputList === '') return []
-
-        if (separator) {
-            return inputList
-                .split(separator)
-                .map(item => item.trim())
-                .filter(Boolean)
-        }
-
-        return inputList
-            .split(/[|\n•·]/)
-            .map(item => item.trim())
-            .filter(Boolean)
-    }
-
-    /**
-     * @param {string[]} inputList
-     * @return {{ city: string, state: string|null }[] }
-     */
-    function getCityStateCombos (inputList) {
-        const output = [];
-        for (let item of inputList) {
-            let words;
-            // Strip out the zip code since we're only interested in city/state here.
-            item = item.replace(/,?\s*\d{5}(-\d{4})?/, '');
-
-            if (item.includes(',')) {
-                words = item.split(',').map(item => item.trim());
-            } else {
-                words = item.split(' ').map(item => item.trim());
-            }
-            // we are removing this partial city/state combos at the end (i.e. Chi...)
-            if (words.length === 1) { continue }
-
-            const state = words.pop();
-            const city = words.join(' ');
-
-            output.push({ city, state: state || null });
-        }
-        return output
+        const defaultSeparator = /[|\n•·]/;
+        return cleanArray(inputList.split(separator || defaultSeparator))
     }
 
     // For extraction
@@ -10248,13 +10275,68 @@
     }
 
     /**
+     * Remove common prefixes and suffixes such as
+     *
+     * - AKA: <value>
+     * - <value> + 1 more
+     * - <value> -
+     *
+     * @param {string} elementValue
+     * @return {string}
+     */
+    function removeCommonSuffixesAndPrefixes (elementValue) {
+        const regexes = [
+            // match text such as +3 more when it appears at the end of a string
+            /\+\s*\d+.*$/
+        ];
+        // strings that are always safe to remove from the start
+        const startsWith = [
+            'Associated persons:',
+            'AKA:',
+            'Known as:',
+            'Also known as:',
+            'Has lived in:',
+            'Used to live:',
+            'Used to live in:',
+            'Lives in:',
+            'Related to:',
+            'No other aliases.',
+            'RESIDES IN'
+        ];
+
+        // strings that are always safe to remove from the end
+        const endsWith = [
+            ' -',
+            'years old'
+        ];
+
+        for (const regex of regexes) {
+            elementValue = elementValue.replace(regex, '').trim();
+        }
+        for (const prefix of startsWith) {
+            if (elementValue.startsWith(prefix)) {
+                elementValue = elementValue.slice(prefix.length).trim();
+            }
+        }
+        for (const suffix of endsWith) {
+            if (elementValue.endsWith(suffix)) {
+                elementValue = elementValue.slice(0, 0 - (suffix.length)).trim();
+            }
+        }
+
+        return elementValue
+    }
+
+    /**
      * @param {Record<string, any>} action
      * @param {Record<string, any>} userData
+     * @param {Document | HTMLElement} root
      * @return {import('../types.js').ActionResponse}
      */
-    function fillForm (action, userData) {
-        const form = getElement(document, action.selector);
+    function fillForm (action, userData, root = document) {
+        const form = getElement(root, action.selector);
         if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
+        if (!userData) return new ErrorResponse({ actionID: action.id, message: 'user data was absent' })
 
         const results = fillMany(form, action.elements, userData);
 
@@ -10291,6 +10373,14 @@
             } else if (element.type === '$generated_phone_number$') {
                 results.push(setValueForInput(inputElem, generatePhoneNumber()));
             } else {
+                if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
+                    results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` });
+                    continue
+                }
+                if (!data[element.type]) {
+                    results.push({ result: false, error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}` });
+                    continue
+                }
                 results.push(setValueForInput(inputElem, data[element.type]));
             }
         }
@@ -10482,11 +10572,12 @@
      * Gets the captcha information to send to the backend
      *
      * @param action
+     * @param {Document | HTMLElement} root
      * @return {import('../types.js').ActionResponse}
      */
-    function getCaptchaInfo (action) {
+    function getCaptchaInfo (action, root = document) {
         const pageUrl = window.location.href;
-        const captchaDiv = getElement(document, action.selector);
+        const captchaDiv = getElement(root, action.selector);
 
         // if 'captchaDiv' was missing, cannot continue
         if (!captchaDiv) return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` })
@@ -10556,14 +10647,16 @@
     * Takes the solved captcha token and injects it into the page to solve the captcha
     *
     * @param action
+    * @param {string} token
+    * @param {Document} root
     * @return {import('../types.js').ActionResponse}
     */
-    function solveCaptcha (action, token) {
+    function solveCaptcha (action, token, root = document) {
         const selectors = ['h-captcha-response', 'g-recaptcha-response'];
         let solved = false;
 
         for (const selector of selectors) {
-            const match = document.getElementsByName(selector)[0];
+            const match = root.getElementsByName(selector)[0];
             if (match) {
                 match.innerHTML = token;
                 solved = true;
@@ -10592,13 +10685,14 @@
     /**
      * @param {Record<string, any>} action
      * @param {Record<string, any>} userData
+     * @param {Document | HTMLElement} root
      * @return {import('../types.js').ActionResponse}
      */
-    function click (action, userData) {
+    function click (action, userData, root = document) {
         // there can be multiple elements provided by the action
         for (const element of action.elements) {
-            const root = selectRootElement(element, userData);
-            const elem = getElement(root, element.selector);
+            const rootElement = selectRootElement(element, userData, root);
+            const elem = getElement(rootElement, element.selector);
 
             if (!elem) {
                 return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
@@ -10619,15 +10713,16 @@
     /**
      * @param {{parent?: {profileMatch?: Record<string, any>}}} clickElement
      * @param {Record<string, any>} userData
+     * @param {Document | HTMLElement} root
      * @return {Node}
      */
-    function selectRootElement (clickElement, userData) {
+    function selectRootElement (clickElement, userData, root = document) {
         // if there's no 'parent' field, just use the document
-        if (!clickElement.parent) return document
+        if (!clickElement.parent) return root
 
         // if the 'parent' field contains 'profileMatch', try to match it
         if (clickElement.parent.profileMatch) {
-            const extraction = extractProfiles(clickElement.parent.profileMatch, userData);
+            const extraction = extractProfiles(clickElement.parent.profileMatch, userData, root);
             if ('results' in extraction) {
                 const sorted = extraction.results
                     .filter(x => x.result === true)
@@ -10643,21 +10738,17 @@
     }
 
     /**
-     * @param action
+     * @param {Record<string, any>} action
+     * @param {Document | HTMLElement} root
      * @return {import('../types.js').ActionResponse}
      */
-    function expectation (action) {
+    function expectation (action, root = document) {
         const expectations = action.expectations;
 
         const allExpectationsMatch = expectations.every(expectation => {
             if (expectation.type === 'text') {
                 // get the target element text
-                let elem;
-                try {
-                    elem = getElement(document, expectation.selector);
-                } catch {
-                    elem = null;
-                }
+                const elem = getElement(root, expectation.selector);
                 return Boolean(elem?.textContent?.includes(expectation.expect))
             } else if (expectation.type === 'url') {
                 const url = window.location.href;
@@ -10680,25 +10771,26 @@
      * @param {string} [action.dataSource] - optional data source
      * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
      * @param {Record<string, any>} inputData
+     * @param {Document} [root] - optional root element
      * @return {import('./types.js').ActionResponse}
      */
-    function execute (action, inputData) {
+    function execute (action, inputData, root = document) {
         try {
             switch (action.actionType) {
             case 'navigate':
                 return buildUrl(action, data(action, inputData, 'userProfile'))
             case 'extract':
-                return extract(action, data(action, inputData, 'userProfile'))
+                return extract(action, data(action, inputData, 'userProfile'), root)
             case 'click':
-                return click(action, data(action, inputData, 'userProfile'))
+                return click(action, data(action, inputData, 'userProfile'), root)
             case 'expectation':
-                return expectation(action)
+                return expectation(action, root)
             case 'fillForm':
-                return fillForm(action, data(action, inputData, 'extractedProfile'))
+                return fillForm(action, data(action, inputData, 'extractedProfile'), root)
             case 'getCaptchaInfo':
-                return getCaptchaInfo(action)
+                return getCaptchaInfo(action, root)
             case 'solveCaptcha':
-                return solveCaptcha(action, data(action, inputData, 'token'))
+                return solveCaptcha(action, data(action, inputData, 'token'), root)
             default: {
                 return new ErrorResponse({
                     actionID: action.id,
@@ -10786,9 +10878,16 @@
                      * Note: We're not currently guarding against concurrent actions here
                      * since the native side contains the scheduling logic to prevent it.
                      */
-                    const retryConfig = action.retry?.environment === 'web'
+                    let retryConfig = action.retry?.environment === 'web'
                         ? action.retry
                         : undefined;
+
+                    if (action.actionType === 'extract') {
+                        retryConfig = {
+                            interval: { ms: 1000 },
+                            maxAttempts: 30
+                        };
+                    }
 
                     const { result, exceptions } = await retry(() => execute(action, data), retryConfig);
 
