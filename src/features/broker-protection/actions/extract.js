@@ -211,7 +211,8 @@ export function scrapedDataMatchesUserData (userData, scrapedData) {
 
     for (const addressField of addressFields) {
         if (addressField in scrapedData) {
-            if (addressMatch(userData.addresses, scrapedData[addressField])) {
+            const requireStrictMatch = !matchedFields.includes('age')
+            if (addressMatch(userData.addresses, scrapedData[addressField], requireStrictMatch)) {
                 matchedFields.push(addressField)
                 return { matchedFields, score: matchedFields.length, result: true }
             }
