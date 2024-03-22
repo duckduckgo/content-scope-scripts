@@ -47,6 +47,31 @@ test.describe('Broker Protection communications', () => {
             }])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
+        test('extract with retry', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results.html?delay=2000')
+            await dbp.receivesAction('extract.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
+                name: 'John Smith',
+                alternativeNames: [],
+                age: '38',
+                addresses: [
+                    { city: 'Chicago', state: 'IL' },
+                    { city: 'Ypsilanti', state: 'MI' },
+                    { city: 'Cadillac', state: 'MI' }
+                ],
+                phoneNumbers: [],
+                relatives: [
+                    'Cheryl Lamar'
+                ],
+                profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
+                identifier: baseURL + 'view/John-Smith-CyFdD.F'
+            }])
+            dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
+        })
 
         test('extract multiple profiles', async ({ page, baseURL }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
