@@ -7,6 +7,10 @@ export interface MessageTypes {
   subscriptions?: Record<string, any>
 }
 
+/**
+ * This is a helper-type used by code-generated files. It adds strong types
+ * to any Messaging instance
+ */
 export interface MessagingBase<T extends MessageTypes = MessageTypes> {
   notify<
     Method extends T['notifications'] extends { method: string } ? T['notifications']['method'] : never,
