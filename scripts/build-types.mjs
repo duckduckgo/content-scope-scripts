@@ -67,13 +67,15 @@ export async function buildTypes(mapping = defaultMapping) {
             const className = json.title.replace('Messages', '');
             const notifications = json.properties?.notifications?.oneOf?.length ?? 0 > 0;
             const requests = json.properties?.requests?.oneOf?.length ?? 0 > 0;
+            const subscriptions = json.properties?.subscriptions?.oneOf?.length ?? 0 > 0;
             const lines = [];
             if (notifications) lines.push(`notify: GlobalMessagingBase<${json.title}>['notify']`)
             if (requests) lines.push(`request: GlobalMessagingBase<${json.title}>['request']`)
+            if (subscriptions) lines.push(`subscribe: GlobalMessagingBase<${json.title}>['subscribe']`)
             const template = `
 declare module ${JSON.stringify(relativePath)} {
   export interface ${className} {
-    ${lines.join(',   ')}
+    ${lines.join(',\n    ')}
   }
 }
 

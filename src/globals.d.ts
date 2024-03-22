@@ -46,4 +46,5 @@ declare module 'ddg:runtimeInjects' {
     const output: Record<string, string>
     export default output
 }
+
 declare type GlobalMessagingBase<T extends import('./shared-types').MessageTypes> = import('./shared-types').MessagingBase<T>
