@@ -3,7 +3,8 @@ import {
     MessagingContext,
     TestTransportConfig,
     WebkitMessagingConfig,
-    WindowsMessagingConfig
+    WindowsMessagingConfig,
+    createTypedMessages
 } from '@duckduckgo/messaging'
 
 /**
@@ -19,7 +20,7 @@ export class DuckPlayerPageMessages {
         /**
          * @internal
          */
-        this.messaging = messaging
+        this.messaging = createTypedMessages(this, messaging)
     }
 
     /**
