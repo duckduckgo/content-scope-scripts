@@ -3,9 +3,9 @@ import {
     MessagingContext,
     TestTransportConfig,
     WebkitMessagingConfig,
-    WindowsMessagingConfig
+    WindowsMessagingConfig,
+    createTypedMessages
 } from '@duckduckgo/messaging'
-import { createTypedMessages } from '../../../../../../src/typed-messages'
 
 /**
  * Notifications or requests that the Duck Player Page will

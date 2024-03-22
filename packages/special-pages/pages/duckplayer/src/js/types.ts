@@ -1,4 +1,5 @@
 import { UserValues } from './messages'
+import { MessagingBase } from '@duckduckgo/messaging/lib/shared-types'
 
 export interface Messages {
   requests:
@@ -10,7 +11,7 @@ export interface Messages {
 
 declare module './messages.js' {
   export interface DuckPlayerPageMessages {
-    request: GlobalMessagingBase<Messages>['request']
-    subscribe: GlobalMessagingBase<Messages>['subscribe']
+    request: MessagingBase<Messages>['request']
+    subscribe: MessagingBase<Messages>['subscribe']
   }
 }
