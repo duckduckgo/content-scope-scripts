@@ -9,7 +9,7 @@ import { matchingPair } from '../utils.js'
 export function addressMatch (userAddresses, foundAddresses) {
     return userAddresses.some((user) => {
         return foundAddresses.some(found => {
-            return matchingPair(user.city, user.city) && matchingPair(user.state, found.state)
+            return matchingPair(user.city, found.city) && matchingPair(user.state, found.state)
         })
     })
 }
