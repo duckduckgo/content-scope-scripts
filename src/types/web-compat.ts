@@ -43,9 +43,9 @@ export interface WebShareParams {
   text?: string;
 }
 
+
 declare module "../features/web-compat.js" {
   export interface WebCompat {
-    request: GlobalMessagingBase<WebCompatMessages>['request']
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<WebCompatMessages>['request']
   }
 }
-

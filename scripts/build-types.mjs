@@ -68,19 +68,18 @@ export async function buildTypes(mapping = defaultMapping) {
             const notifications = json.properties?.notifications?.oneOf?.length ?? 0 > 0;
             const requests = json.properties?.requests?.oneOf?.length ?? 0 > 0;
             const subscriptions = json.properties?.subscriptions?.oneOf?.length ?? 0 > 0;
+            // const imports = `import { MessagingBase } from "@duckduckgo/messaging/lib/shared-types";`
             const lines = [];
-            if (notifications) lines.push(`notify: GlobalMessagingBase<${json.title}>['notify']`)
-            if (requests) lines.push(`request: GlobalMessagingBase<${json.title}>['request']`)
-            if (subscriptions) lines.push(`subscribe: GlobalMessagingBase<${json.title}>['subscribe']`)
+            if (notifications) lines.push(`notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${json.title}>['notify']`)
+            if (requests) lines.push(`request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${json.title}>['request']`)
+            if (subscriptions) lines.push(`subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${json.title}>['subscribe']`)
             const template = `
 declare module ${JSON.stringify(relativePath)} {
   export interface ${className} {
     ${lines.join(',\n    ')}
   }
-}
-
-`
-            content = content + template;
+}`
+            content = [content, template].join('\n');
         }
         write([manifest.types], content)
         console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
