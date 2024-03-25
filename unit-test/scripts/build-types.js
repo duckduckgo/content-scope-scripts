@@ -1,6 +1,16 @@
 import { createMessagingTypes } from '../../scripts/utils/json-schema.mjs'
 
 describe('createMessagingTypes', () => {
+    /**
+     * a helper to avoid newlines/spaces breaking otherwise good tests
+     * @param {string} a
+     * @param {string} b
+     */
+    function compare (a, b) {
+        const lines = a.trim().split('\n').map(x => x.trim()).join('\n')
+        const lines3 = b.trim().split('\n').map(x => x.trim()).join('\n')
+        expect(lines).toEqual(lines3)
+    }
     it('works with single notification', () => {
         const actual = createMessagingTypes({
             topLevelType: 'DuckPlayerMessages',
@@ -16,15 +26,15 @@ describe('createMessagingTypes', () => {
         }, { featurePath: '../features/duck-player.js' })
         const expected = `
 /**
- * The following types 
- */ 
+ * The following types enforce a schema-first workflow for messages
+ */
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckPlayerMessages>['notify']
   }
 }
 `
-        expect(actual.trim()).toEqual(expected.trim())
+        compare(actual, expected)
     })
     it('works with single request', () => {
         const actual = createMessagingTypes({
@@ -41,15 +51,15 @@ declare module "../features/duck-player.js" {
         }, { featurePath: '../features/duck-player.js' })
         const expected = `
 /**
- * The following types 
- */ 
+ * The following types enforce a schema-first workflow for messages
+ */
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckPlayerMessages>['request']
   }
 }
 `
-        expect(actual.trim()).toEqual(expected.trim())
+        compare(actual, expected)
     })
     it('works with single subscription', () => {
         const actual = createMessagingTypes({
@@ -66,15 +76,15 @@ declare module "../features/duck-player.js" {
         }, { featurePath: '../features/duck-player.js' })
         const expected = `
 /**
- * The following types 
- */ 
+ * The following types enforce a schema-first workflow for messages
+ */
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
     subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckPlayerMessages>['subscribe']
   }
 }
 `
-        expect(actual.trim()).toEqual(expected.trim())
+        compare(actual, expected)
     })
     it('works with multiple types ', () => {
         const actual = createMessagingTypes({
@@ -101,8 +111,8 @@ declare module "../features/duck-player.js" {
         }, { featurePath: '../features/duck-player.js' })
         const expected = `
 /**
- * The following types 
- */ 
+ * The following types enforce a schema-first workflow for messages
+ */
 declare module "../features/duck-player.js" {
   export interface DuckPlayer {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<DuckPlayerMessages>['notify'],
@@ -111,6 +121,6 @@ declare module "../features/duck-player.js" {
   }
 }
 `
-        expect(actual.trim()).toEqual(expected.trim())
+        compare(actual, expected)
     })
 })
