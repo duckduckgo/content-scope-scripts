@@ -14,7 +14,7 @@ export interface WebCompatMessages {
   requests: WebShareRequest;
 }
 /**
- * Generated from {@link "../messages/web-compat/webShare.request.json"}
+ * Generated from @see "../messages/web-compat/webShare.request.json"
  */
 export interface WebShareRequest {
   method: "webShare";
