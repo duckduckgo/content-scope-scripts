@@ -21,7 +21,7 @@ function title(file) {
  */
 function description(file) {
     const inputpath = `../messages/${file.relative}`;
-    return `Generated from {@link ${JSON.stringify(inputpath)}}`;
+    return `Generated from @see ${JSON.stringify(inputpath)}`;
 }
 
 /**
