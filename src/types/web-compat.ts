@@ -1,33 +1,28 @@
-// eslint-disable
 /**
- * @module Webcompat Messages Schema
+ * @module WebCompat Messages
  * @description
+ *
  * These types are auto-generated from schema files.
  * scripts/build-types.mjs is responsible for type generation.
- * See the privacy-configuration repo for the schema files:
- * https://github.com/duckduckgo/privacy-configuration
  * **DO NOT** edit this file directly as your changes will be lost.
  */
 
 /**
- * Requests, Notifications and Subscriptions from the Web Compat feature
+ * Requests, Notifications and Subscriptions from the WebCompat feature
  */
 export interface WebCompatMessages {
-  requests: WebShareMessage;
+  requests: WebShareRequest;
+}
+/**
+ * Generated from {@link "../messages/web-compat/webShare.request.json"}
+ */
+export interface WebShareRequest {
+  method: "webShare";
+  params: WebShareParams;
 }
 /**
  * todo: add description for `webShare` message
  */
-export interface WebShareMessage {
-  method: "webShare";
-  params: WebShareParams;
-  /**
-   * todo: add return type here
-   */
-  result: {
-    [k: string]: unknown;
-  };
-}
 export interface WebShareParams {
   /**
    * todo: add description for 'title' field
@@ -43,7 +38,9 @@ export interface WebShareParams {
   text?: string;
 }
 
-
+/**
+ * The following types enforce a schema-first workflow for messages 
+ */ 
 declare module "../features/web-compat.js" {
   export interface WebCompat {
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<WebCompatMessages>['request']
