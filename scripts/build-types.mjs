@@ -1,8 +1,9 @@
-import {cwd, isLaunchFile, write} from './script-utils.js'
-import {basename, dirname, join, relative } from 'node:path'
+import { cwd, isLaunchFile, write } from './script-utils.js'
+import { dirname, join, relative } from 'node:path'
 import { createRequire } from 'node:module'
-import { compileFromFile } from 'json-schema-to-typescript'
-import {readFileSync} from "fs";
+import { compile, compileFromFile } from 'json-schema-to-typescript'
+import { createMessagingTypes } from "./utils/json-schema.mjs";
+import { createSchemasFromFiles } from "./utils/json-schema-fs.mjs";
 
 const ROOT = join(cwd(import.meta.url), '..')
 const require = createRequire(import.meta.url);
@@ -24,10 +25,10 @@ const defaultMapping = {
         types: join(ROOT, "src/types/duckplayer-settings.d.ts"),
         kind: 'settings',
     },
-    "Webcompat Messages": {
-        schema: join(ROOT, "src/messages/web-compat.json"),
-        types: join(ROOT, "src/types/web-compat.ts"),
-        kind: 'messages',
+    "Schema Messages": {
+        kind: 'messages-v2',
+        schemaDir: join(ROOT, "src/messages"),
+        typesDir: join(ROOT, "src/types"),
         // todo: fix this on windows.
         exclude: process.platform === 'win32'
     }
@@ -42,48 +43,75 @@ const defaultMapping = {
 export async function buildTypes(mapping = defaultMapping) {
     for (let [featureName, manifest] of Object.entries(mapping)) {
         if (manifest.exclude) continue;
-        const typescript = await compileFromFile(manifest.schema, {
-            bannerComment: `
-            // eslint-disable
+        if (manifest.kind === 'messages' || manifest.kind === 'settings') {
+            const typescript = await createTypesForSchemaFile(featureName, manifest.schema);
+            let content = typescript.replace(/\r\n/g, '\n')
+            write([manifest.types], content)
+            console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
+        }
+        if (manifest.kind === 'messages-v2') {
+            // create a job for each sub-folder that contains schemas
+            const schemas = await createSchemasFromFiles(manifest.schemaDir)
+
+            // for each folder
+            for (let schema of schemas) {
+                const typescript = await createTypesForSchemaMessages(schema.featureName, schema.schema, manifest.schemaDir)
+                const featurePath = '../features/' + schema.dirname + '.js';
+                const messageTypes = createMessagingTypes(schema, { featurePath })
+                const content = [typescript.replace(/\r\n/g, '\n'), messageTypes].join('')
+                const filename = schema.dirname + '.ts'
+                const outputFile = join(manifest.typesDir, filename);
+                write([outputFile], content)
+                console.log('✅ %s schema written to', schema.featureName, outputFile)
+            }
+        }
+    }
+}
+
+/**
+ * Create Typescript types for any schema file
+ * @param {string} featureName
+ * @param {string} schemaFilePath
+ */
+async function createTypesForSchemaFile(featureName, schemaFilePath) {
+    return await compileFromFile(schemaFilePath, {
+        bannerComment: `
+                /**
+                 * @module ${featureName} Schema
+                 * @description 
+                 * These types are auto-generated from schema files.
+                 * scripts/build-types.mjs is responsible for type generation.
+                 * See the privacy-configuration repo for the schema files:
+                 * https://github.com/duckduckgo/privacy-configuration
+                 * **DO NOT** edit this file directly as your changes will be lost.
+                 */
+                `
+    })
+}
+
+/**
+ * Create Typescript that work well with @duckduckgo/messaging
+ *
+ * @param {string} featureName
+ * @param {import("json-schema-to-typescript").JSONSchema} schema
+ * @param {string} rootDir
+ * @return {Promise<string>}
+ */
+export async function createTypesForSchemaMessages(featureName, schema, rootDir) {
+    const typescript = await compile(/** @type {any} */(schema), featureName, {
+        cwd: rootDir,
+        bannerComment: `
             /**
-             * @module ${featureName} Schema
+             * @module ${featureName} Messages
              * @description 
+             *
              * These types are auto-generated from schema files.
              * scripts/build-types.mjs is responsible for type generation.
-             * See the privacy-configuration repo for the schema files:
-             * https://github.com/duckduckgo/privacy-configuration
              * **DO NOT** edit this file directly as your changes will be lost.
              */
-            `
-        });
-        let content = typescript.replace(/\r\n/g, '\n')
-
-        // for the typed messages, apply a module augmentation
-        // TODO: add some tests+docs for this. It's a convention based approach to keep JSON schema files compliant
-        if (manifest.kind === 'messages') {
-            const json = JSON.parse(readFileSync(manifest.schema, 'utf8'));
-            const base = basename(manifest.schema, '.json');
-            const relativePath = '../features/' + base + '.js';
-            const className = json.title.replace('Messages', '');
-            const notifications = json.properties?.notifications?.oneOf?.length ?? 0 > 0;
-            const requests = json.properties?.requests?.oneOf?.length ?? 0 > 0;
-            const subscriptions = json.properties?.subscriptions?.oneOf?.length ?? 0 > 0;
-            // const imports = `import { MessagingBase } from "@duckduckgo/messaging/lib/shared-types";`
-            const lines = [];
-            if (notifications) lines.push(`notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${json.title}>['notify']`)
-            if (requests) lines.push(`request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${json.title}>['request']`)
-            if (subscriptions) lines.push(`subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${json.title}>['subscribe']`)
-            const template = `
-declare module ${JSON.stringify(relativePath)} {
-  export interface ${className} {
-    ${lines.join(',\n    ')}
-  }
-}`
-            content = [content, template].join('\n');
-        }
-        write([manifest.types], content)
-        console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
-    }
+            `,
+    });
+    return typescript
 }
 
 
@@ -94,3 +122,5 @@ if (isLaunchFile(import.meta.url)) {
             process.exit(1)
         })
 }
+
+console.log('shane');
