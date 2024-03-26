@@ -6,11 +6,12 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
  * Gets the captcha information to send to the backend
  *
  * @param action
+ * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export function getCaptchaInfo (action) {
+export function getCaptchaInfo (action, root = document) {
     const pageUrl = window.location.href
-    const captchaDiv = getElement(document, action.selector)
+    const captchaDiv = getElement(root, action.selector)
 
     // if 'captchaDiv' was missing, cannot continue
     if (!captchaDiv) return new ErrorResponse({ actionID: action.id, message: `could not find captchaDiv with selector ${action.selector}` })
@@ -80,14 +81,16 @@ export function getCaptchaInfo (action) {
 * Takes the solved captcha token and injects it into the page to solve the captcha
 *
 * @param action
+* @param {string} token
+* @param {Document} root
 * @return {import('../types.js').ActionResponse}
 */
-export function solveCaptcha (action, token) {
+export function solveCaptcha (action, token, root = document) {
     const selectors = ['h-captcha-response', 'g-recaptcha-response']
     let solved = false
 
     for (const selector of selectors) {
-        const match = document.getElementsByName(selector)[0]
+        const match = root.getElementsByName(selector)[0]
         if (match) {
             match.innerHTML = token
             solved = true

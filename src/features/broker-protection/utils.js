@@ -163,11 +163,56 @@ export function generateRandomInt (min, max) {
 }
 
 /**
- * Flatten create an array of any input, removing nulls, undefined and empty strings
+ * CleanArray flattens an array of any input, removing nulls, undefined, and empty strings.
+ *
  * @template T
- * @param {T | T[] | null | undefined} input
- * @return {NonNullable<T>[]}
+ * @param {T | T[] | null | undefined} input - The input to clean.
+ * @param {NonNullable<T>[]} prev
+ * @return {NonNullable<T>[]} - The cleaned array.
  */
-export function cleanArray (input) {
-    return [].concat(/** @type {any} */(input)).flat().filter(Boolean)
+export function cleanArray (input, prev = []) {
+    if (!Array.isArray(input)) {
+        if (input === null) return prev
+        if (input === undefined) return prev
+        // special case for empty strings
+        if (typeof input === 'string') {
+            const trimmed = input.trim()
+            if (trimmed.length > 0) {
+                prev.push(/** @type {NonNullable<T>} */(trimmed))
+            }
+        } else {
+            prev.push(input)
+        }
+        return prev
+    }
+
+    for (const item of input) {
+        prev.push(...cleanArray(item))
+    }
+
+    return prev
+}
+
+/**
+ * Determines whether the given input is a non-empty string.
+ *
+ * @param {any} [input] - The input to be checked.
+ * @return {boolean} - True if the input is a non-empty string, false otherwise.
+ */
+export function nonEmptyString (input) {
+    if (typeof input !== 'string') return false
+    return input.trim().length > 0
+}
+
+/**
+ * Checks if two strings are a matching pair, ignoring case and leading/trailing white spaces.
+ *
+ * @param {any} a - The first string to compare.
+ * @param {any} b - The second string to compare.
+ * @return {boolean} - Returns true if the strings are a matching pair, false otherwise.
+ */
+export function matchingPair (a, b) {
+    if (!nonEmptyString(a)) return false
+    if (!nonEmptyString(b)) return false
+    return a.toLowerCase().trim() === b.toLowerCase().trim()
 }

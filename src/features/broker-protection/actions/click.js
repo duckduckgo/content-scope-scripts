@@ -5,13 +5,14 @@ import { extractProfiles } from './extract.js'
 /**
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
+ * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export function click (action, userData) {
+export function click (action, userData, root = document) {
     // there can be multiple elements provided by the action
     for (const element of action.elements) {
-        const root = selectRootElement(element, userData)
-        const elem = getElement(root, element.selector)
+        const rootElement = selectRootElement(element, userData, root)
+        const elem = getElement(rootElement, element.selector)
 
         if (!elem) {
             return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
@@ -32,15 +33,16 @@ export function click (action, userData) {
 /**
  * @param {{parent?: {profileMatch?: Record<string, any>}}} clickElement
  * @param {Record<string, any>} userData
+ * @param {Document | HTMLElement} root
  * @return {Node}
  */
-function selectRootElement (clickElement, userData) {
+function selectRootElement (clickElement, userData, root = document) {
     // if there's no 'parent' field, just use the document
-    if (!clickElement.parent) return document
+    if (!clickElement.parent) return root
 
     // if the 'parent' field contains 'profileMatch', try to match it
     if (clickElement.parent.profileMatch) {
-        const extraction = extractProfiles(clickElement.parent.profileMatch, userData)
+        const extraction = extractProfiles(clickElement.parent.profileMatch, userData, root)
         if ('results' in extraction) {
             const sorted = extraction.results
                 .filter(x => x.result === true)

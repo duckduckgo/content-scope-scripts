@@ -1,5 +1,17 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const delay = parseInt(new URLSearchParams(location.search).get('delay') || '0');
+                setTimeout(() => {
+                    document.querySelectorAll('.__search-item').forEach((elem) =>{
+                        elem.classList.add('search-item')
+                    })
+                }, delay)
+            })
+        </script>
+    </head>
     <body>
         <div class="container people-search">
             <div class="row page-title">
@@ -10,12 +22,12 @@
           </div>
           </div>            </div>
                 <div id="left_search_filter_form" class="col-sm-24 col-md-8 p-0">
-                  
+
                     <div class="form-group">
                         <span>Filter:</span>
                         <div class="select">
                         <span class="arr"><i data-icon="3"></i></span>
-                        <select name="fage" id="s_age" aria-label="Age" class="form-control" onchange="$('#FindPersonForm #age').val($('#s_age').val());$.ahm_form($('#FindPersonForm'));return false;" data-ddg-inputtype="unknown">
+                        <select name="fage" id="s_age" aria-label="Age" class="form-control">
           <option value="" selected="selected">Select Age</option>
           <option value="18-30">18-30</option>
           <option value="31-40">31-40</option>
@@ -28,14 +40,14 @@
                     </div>
                 </div>
             </div>
-                    
-                <a rel="nofollow" href="/view/John-Smith-DwHwHTD" class="search-item">
+
+                <a rel="nofollow" href="/view/John-Smith-DwHwHTD" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John D</span> <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -83,13 +95,13 @@
           </div>            </div>
             </div>
           </a>
-                                <a rel="nofollow" href="/view/John-Smith-DEAxADD" class="search-item">
+                                <a rel="nofollow" href="/view/John-Smith-DEAxADD" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span>  <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -131,13 +143,13 @@
           </div>            </div>
             </div>
           </a>
-                                <a rel="nofollow" href="/view/John-Smith-D=GiHGD" class="search-item">
+                                <a rel="nofollow" href="/view/John-Smith-D=GiHGD" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span> <span itemprop="additionalName">M</span> <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -195,13 +207,13 @@
                                             <div style="margin: 0 0 55px 0;">
             <div class="container ads"><ins class="adsbygoogle" style="display:block" data-ad-client="pub-6072288394817182" data-ad-slot="7284265945" data-ad-format="horizontal"></ins></div>
                     </div>
-                    <a rel="nofollow" href="/view/John-Smith-CyFdD.F" class="search-item">
+                    <a rel="nofollow" href="/view/John-Smith-CyFdD.F" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span>  <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -255,13 +267,13 @@
           </div>            </div>
             </div>
           </a>
-                                <a rel="nofollow" href="/view/John-Smith-GcBqDUF" class="search-item">
+                                <a rel="nofollow" href="/view/John-Smith-GcBqDUF" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span>  <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -310,13 +322,13 @@
           </div>            </div>
             </div>
           </a>
-                                <a rel="nofollow" href="/view/John-Smith-C8GYDsC" class="search-item">
+                                <a rel="nofollow" href="/view/John-Smith-C8GYDsC" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span>  <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -379,13 +391,13 @@
                                             <div style="margin: 0 0 55px 0;">
             <div class="container ads"><ins class="adsbygoogle" style="display:block" data-ad-client="pub-6072288394817182" data-ad-slot="7284265945" data-ad-format="horizontal"></ins></div>
                     </div>
-                    <a rel="nofollow" href="/view/John-Smith-CQAIA7C" class="search-item">
+                    <a rel="nofollow" href="/view/John-Smith-CQAIA7C" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span>  <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -434,13 +446,13 @@
           </div>            </div>
             </div>
           </a>
-                                <a rel="nofollow" href="/view/John-Smith-H2HvCoC" class="search-item">
+                                <a rel="nofollow" href="/view/John-Smith-H2HvCoC" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span>  <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -489,13 +501,13 @@
           </div>            </div>
             </div>
           </a>
-                                <a rel="nofollow" href="/view/John-Smith-GgGaGsC" class="search-item">
+                                <a rel="nofollow" href="/view/John-Smith-GgGaGsC" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span>  <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
@@ -543,13 +555,13 @@
           </div>            </div>
             </div>
           </a>
-                                <a rel="nofollow" href="/view/John-Smith-AsEyB7C" class="search-item">
+                                <a rel="nofollow" href="/view/John-Smith-AsEyB7C" class="__search-item">
             <div class="container" itemscope="" itemtype="http://schema.org/Person">
                 <div class="row head">
                     <div class="col-sm-24 col-md-19 col-text">
                         <h4><span itemprop="givenName">John</span>  <span itemprop="familyName">Smith</span></h4>
                     </div>
-                    
+
                     <div class="col-sm-24 col-md-5 col-text">
                         <div class="get-report-btn">View Profile</div>
                     </div>
