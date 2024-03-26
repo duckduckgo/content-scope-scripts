@@ -22,6 +22,7 @@ html, body {
 
   .warning-container {
     border-radius: 8px 8px 0 0;
+    min-width: 400px; 
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.10);
     padding: 32px 40px;
@@ -42,6 +43,7 @@ html, body {
 
   .advanced-info {
     border-radius: 0 0 8px 8px;
+    min-width: 400px; 
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.10);
     padding: 24px 40px;
@@ -78,4 +80,10 @@ html, body {
 
  .accept-risk {
     color: black
+ }
+
+ .error-code {
+    padding: 12px 0px 0px 0px;
+    color:  rgba(0, 0, 0, 0.60);
+    font-size: 10px;
  }

@@ -13,18 +13,19 @@
     <div class="warning-container">
         <h1 class="warning-header">
             <img src="img/Shield-Alert-96x96.svg" alt="Warning" class="watermark">
-            Warning: This site may be insecure
+            $HEADER$
         </h1>
-        <p class="warning-text">The certificate for this site is invalid. You might be connecting to a server that is pretending to be <b>$URL$</b> which could put your confidential information at risk.</p>
+        <p class="warning-text">$BODY$</p>
         <div class="buttons">
-            <button class="button advanced" id="advancedBtn">Advanced...</button>
-            <button class="button leave-this-site" id="leaveThisSiteBtn">Leave This Site</button>
+            <button class="button advanced" id="advancedBtn">$ADVANCED_BUTTON$</button>
+            <button class="button leave-this-site" id="leaveThisSiteBtn">$LEAVE_SITE_BUTTON$</button>
         </div>
     </div>
     <div class="advanced-info", id="advancedInfo">
-        <p>DuckDuckGo warns you when a website has an invalid certificate.</p>
-        <p>$SPECIFIC_ERROR$ It's possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.</p>
-        <a href="#" id="acceptRiskLink" class="accept-risk">Accept Risk and Visit Site</a>
+        <p>$ADVANCED_INFO_HEADER$</p>
+        <p>$SPECIFIC_MESSAGE$ $ADVANCED_INFO_BODY$</p>
+        <a href="#" id="acceptRiskLink" class="accept-risk">$VISIT_SITE_BUTTON$</a>
+        <p class="error-code">$ERROR_CODE$</p>
     </div>
   </div>  
 
