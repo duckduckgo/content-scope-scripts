@@ -42,6 +42,10 @@ export function fillMany (root, elements, data) {
             results.push({ result: false, error: `element not found for selector: "${element.selector}"` })
             continue
         }
+
+        // ensure the element is in the current viewport
+        inputElem.scrollIntoView?.()
+
         if (element.type === '$file_id$') {
             results.push(setImageUpload(inputElem))
         } else if (element.type === '$generated_phone_number$') {
