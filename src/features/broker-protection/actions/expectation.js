@@ -10,6 +10,9 @@ export function expectation (action, root = document) {
     const expectations = action.expectations
 
     const allExpectationsMatch = expectations.every(expectation => {
+        if (expectation.type === 'element-exists') {
+            return getElement(root, action.selector) !== null
+        }
         if (expectation.type === 'text') {
             // get the target element text
             const elem = getElement(root, expectation.selector)

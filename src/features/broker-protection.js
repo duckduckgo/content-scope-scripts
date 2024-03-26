@@ -32,6 +32,18 @@ export default class BrokerProtection extends ContentFeature {
                     }
                 }
 
+                /**
+                 * When an expectation contains a check for an element, retry it
+                 */
+                if (action.actionType === 'expectation') {
+                    if (action.expectations.some(x => x.type === 'element-exists')) {
+                        retryConfig = {
+                            interval: { ms: 1000 },
+                            maxAttempts: 30
+                        }
+                    }
+                }
+
                 const { result, exceptions } = await retry(() => execute(action, data), retryConfig)
 
                 if (result) {
