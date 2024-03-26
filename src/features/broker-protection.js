@@ -44,6 +44,8 @@ export default class BrokerProtection extends ContentFeature {
                     }
                 }
 
+                console.log({ action, data, retryConfig })
+
                 const { result, exceptions } = await retry(() => execute(action, data), retryConfig)
 
                 if (result) {
