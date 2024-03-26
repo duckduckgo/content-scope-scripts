@@ -11956,6 +11956,8 @@
 
     /**
      * @typedef {SuccessResponse | ErrorResponse} ActionResponse
+     * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
+     * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string}} Expectation
      */
 
     /**
@@ -15557,6 +15559,9 @@
         if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
         if (!userData) return new ErrorResponse({ actionID: action.id, message: 'user data was absent' })
 
+        // ensure the element is in the current viewport
+        form.scrollIntoView?.();
+
         const results = fillMany(form, action.elements, userData);
 
         const errors = results.filter(x => x.result === false).map(x => {
@@ -15587,6 +15592,7 @@
                 results.push({ result: false, error: `element not found for selector: "${element.selector}"` });
                 continue
             }
+
             if (element.type === '$file_id$') {
                 results.push(setImageUpload(inputElem));
             } else if (element.type === '$generated_phone_number$') {
@@ -15962,26 +15968,137 @@
      * @return {import('../types.js').ActionResponse}
      */
     function expectation (action, root = document) {
-        const expectations = action.expectations;
+        const results = expectMany(action.expectations, root);
 
-        const allExpectationsMatch = expectations.every(expectation => {
-            if (expectation.type === 'text') {
-                // get the target element text
-                const elem = getElement(root, expectation.selector);
-                return Boolean(elem?.textContent?.includes(expectation.expect))
-            } else if (expectation.type === 'url') {
-                const url = window.location.href;
-                return url.includes(expectation.expect)
-            }
-
-            return false
+        const errors = results.filter(x => x.result === false).map(x => {
+            if ('error' in x) return x.error
+            return 'unknown error'
         });
 
-        if (!allExpectationsMatch) {
-            return new ErrorResponse({ actionID: action.id, message: 'Expectation not found.' })
-        } else {
-            return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+        if (errors.length > 0) {
+            return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
         }
+
+        return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+    }
+
+    /**
+     * Return a true/false result for every expectation
+     *
+     * @param {import("../types").Expectation[]} expectations
+     * @param {Document | HTMLElement} root
+     * @return {import("../types").BooleanResult[]}
+     */
+    function expectMany (expectations, root) {
+        return expectations.map(expectation => {
+            switch (expectation.type) {
+            case 'element': return elementExpectation(expectation, root)
+            case 'text': return textExpectation(expectation, root)
+            case 'url': return urlExpectation(expectation)
+            default: {
+                return {
+                    result: false,
+                    error: `unknown expectation type: ${expectation.type}`
+                }
+            }
+            }
+        })
+    }
+
+    /**
+     * Verify that an element exists. If the `.parent` property exists,
+     * scroll it into view first
+     *
+     * @param {import("../types").Expectation} expectation
+     * @param {Document | HTMLElement} root
+     * @return {import("../types").BooleanResult}
+     */
+    function elementExpectation (expectation, root) {
+        if (expectation.parent) {
+            const parent = getElement(root, expectation.parent);
+            if (!parent) {
+                return {
+                    result: false,
+                    error: `parent element not found with selector: ${expectation.parent}`
+                }
+            }
+            parent.scrollIntoView();
+        }
+
+        const elementExists = getElement(root, expectation.selector) !== null;
+
+        if (!elementExists) {
+            return {
+                result: false,
+                error: `element with selector ${expectation.selector} not found.`
+            }
+        }
+        return { result: true }
+    }
+
+    /**
+     * Check that an element includes a given text string
+     *
+     * @param {import("../types").Expectation} expectation
+     * @param {Document | HTMLElement} root
+     * @return {import("../types").BooleanResult}
+     */
+    function textExpectation (expectation, root) {
+        // get the target element first
+        const elem = getElement(root, expectation.selector);
+        if (!elem) {
+            return {
+                result: false,
+                error: `element with selector ${expectation.selector} not found.`
+            }
+        }
+
+        // todo: remove once we have stronger types
+        if (!expectation.expect) {
+            return {
+                result: false,
+                error: 'missing key: \'expect\''
+            }
+        }
+
+        // todo: is this too strict a match? we may also want to try innerText
+        const textExists = Boolean(elem?.textContent?.includes(expectation.expect));
+
+        if (!textExists) {
+            return {
+                result: false,
+                error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`
+            }
+        }
+
+        return { result: true }
+    }
+
+    /**
+     * Check that the current URL includes a given string
+     *
+     * @param {import("../types").Expectation} expectation
+     * @return {import("../types").BooleanResult}
+     */
+    function urlExpectation (expectation) {
+        const url = window.location.href;
+
+        // todo: remove once we have stronger types
+        if (!expectation.expect) {
+            return {
+                result: false,
+                error: 'missing key: \'expect\''
+            }
+        }
+
+        if (!url.includes(expectation.expect)) {
+            return {
+                result: false,
+                error: `expected URL to include ${expectation.expect}, but it didn't`
+            }
+        }
+
+        return { result: true }
     }
 
     /**
@@ -16101,11 +16218,26 @@
                         ? action.retry
                         : undefined;
 
-                    if (action.actionType === 'extract') {
+                    /**
+                     * Special case for the exact action
+                     */
+                    if (!retryConfig && action.actionType === 'extract') {
                         retryConfig = {
                             interval: { ms: 1000 },
                             maxAttempts: 30
                         };
+                    }
+
+                    /**
+                     * Special case for when expectation contains a check for an element, retry it
+                     */
+                    if (!retryConfig && action.actionType === 'expectation') {
+                        if (action.expectations.some(x => x.type === 'element')) {
+                            retryConfig = {
+                                interval: { ms: 1000 },
+                                maxAttempts: 30
+                            };
+                        }
                     }
 
                     const { result, exceptions } = await retry(() => execute(action, data), retryConfig);
