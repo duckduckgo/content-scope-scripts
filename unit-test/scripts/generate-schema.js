@@ -117,7 +117,7 @@ describe('generateSchema', () => {
                         {
                             type: 'object',
                             title: 'opened_notification',
-                            description: 'Generated from {@link "../messages/duck-player/opened.notify.json"}',
+                            description: 'Generated from @see "../messages/duck-player/opened.notify.json"',
                             additionalProperties: false,
                             required: [
                                 'method'
@@ -131,7 +131,7 @@ describe('generateSchema', () => {
                         {
                             type: 'object',
                             title: 'pageView_notification',
-                            description: 'Generated from {@link "../messages/duck-player/pageView.notify.json"}',
+                            description: 'Generated from @see "../messages/duck-player/pageView.notify.json"',
                             additionalProperties: false,
                             required: [
                                 'method',
@@ -153,7 +153,7 @@ describe('generateSchema', () => {
                         {
                             type: 'object',
                             title: 'getUserValues_request',
-                            description: 'Generated from {@link "../messages/duck-player/getUserValues.request.json"}',
+                            description: 'Generated from @see "../messages/duck-player/getUserValues.request.json"',
                             additionalProperties: false,
                             required: [
                                 'method',
@@ -171,7 +171,7 @@ describe('generateSchema', () => {
                         {
                             type: 'object',
                             title: 'setUserValues_request',
-                            description: 'Generated from {@link "../messages/duck-player/setUserValues.request.json"}',
+                            description: 'Generated from @see "../messages/duck-player/setUserValues.request.json"',
                             additionalProperties: false,
                             required: [
                                 'method',
@@ -197,7 +197,7 @@ describe('generateSchema', () => {
                         {
                             type: 'object',
                             title: 'onUserValuesChanged_subscription',
-                            description: 'Generated from {@link "../messages/duck-player/onUserValuesChanged.subscribe.json"}',
+                            description: 'Generated from @see "../messages/duck-player/onUserValuesChanged.subscribe.json"',
                             additionalProperties: false,
                             required: [
                                 'subscriptionEvent',
