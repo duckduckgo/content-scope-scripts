@@ -404,6 +404,34 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
         })
+
+        test('expectation: element exists', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('form.html')
+
+            // control: ensure the element is absent
+            await dbp.elementIsAbsent('.slow-element')
+
+            // now send in the action
+            await dbp.receivesInlineAction({
+                state: {
+                    action: {
+                        actionType: 'expectation',
+                        id: 'test-expectation',
+                        expectations: [
+                            {
+                                type: 'element-exists',
+                                selector: '.slow-element'
+                            }
+                        ]
+                    }
+                }
+            })
+
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+        })
     })
 
     test.describe('retrying', () => {

@@ -11,7 +11,7 @@ export function expectation (action, root = document) {
 
     const allExpectationsMatch = expectations.every(expectation => {
         if (expectation.type === 'element-exists') {
-            return getElement(root, action.selector) !== null
+            return getElement(root, expectation.selector) !== null
         }
         if (expectation.type === 'text') {
             // get the target element text

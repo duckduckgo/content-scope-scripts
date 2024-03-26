@@ -45,6 +45,12 @@
     document.forms.testform.onsubmit = (e) => {
       e.preventDefault();
     }
+    setTimeout(() => {
+        const next = document.createElement('div')
+        next.classList.add('slow-element');
+        next.textContent = 'Slow loading element'
+        document.forms.testform.appendChild(next)
+    }, 1000)
 </script>
 </body>
 </html>
