@@ -422,7 +422,8 @@ test.describe('Broker Protection communications', () => {
                         expectations: [
                             {
                                 type: 'element-exists',
-                                selector: '.slow-element'
+                                selector: '.slow-element',
+                                parent: 'body.delay-complete'
                             }
                         ]
                     }
