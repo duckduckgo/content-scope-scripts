@@ -12,6 +12,9 @@ export function fillForm (action, userData, root = document) {
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
     if (!userData) return new ErrorResponse({ actionID: action.id, message: 'user data was absent' })
 
+    // ensure the element is in the current viewport
+    form.scrollIntoView?.()
+
     const results = fillMany(form, action.elements, userData)
 
     const errors = results.filter(x => x.result === false).map(x => {
@@ -42,9 +45,6 @@ export function fillMany (root, elements, data) {
             results.push({ result: false, error: `element not found for selector: "${element.selector}"` })
             continue
         }
-
-        // ensure the element is in the current viewport
-        inputElem.scrollIntoView?.()
 
         if (element.type === '$file_id$') {
             results.push(setImageUpload(inputElem))
