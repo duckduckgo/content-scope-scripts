@@ -25,10 +25,25 @@ export default class BrokerProtection extends ContentFeature {
                     ? action.retry
                     : undefined
 
-                if (action.actionType === 'extract') {
+                /**
+                 * Special case for the exact action
+                 */
+                if (!retryConfig && action.actionType === 'extract') {
                     retryConfig = {
                         interval: { ms: 1000 },
                         maxAttempts: 30
+                    }
+                }
+
+                /**
+                 * Special case for when expectation contains a check for an element, retry it
+                 */
+                if (!retryConfig && action.actionType === 'expectation') {
+                    if (action.expectations.some(x => x.type === 'element')) {
+                        retryConfig = {
+                            interval: { ms: 1000 },
+                            maxAttempts: 30
+                        }
                     }
                 }
 
