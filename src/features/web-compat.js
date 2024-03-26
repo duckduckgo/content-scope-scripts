@@ -67,7 +67,7 @@ function cleanShareData (data) {
     return dataToSend
 }
 
-export default class WebCompat extends ContentFeature {
+export class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeShareRequest = null
 
@@ -144,7 +144,7 @@ export default class WebCompat extends ContentFeature {
                 }
 
                 const dataToSend = cleanShareData(data)
-                this.#activeShareRequest = this.messaging.request(MSG_WEB_SHARE, dataToSend)
+                this.#activeShareRequest = this.request(MSG_WEB_SHARE, dataToSend)
                 let resp
                 try {
                     resp = await this.#activeShareRequest
@@ -667,3 +667,5 @@ export default class WebCompat extends ContentFeature {
 }
 
 /** @typedef {{title?: string, url?: string, text?: string}} ShareRequestData */
+
+export default WebCompat
