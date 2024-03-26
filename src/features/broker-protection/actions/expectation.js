@@ -22,13 +22,13 @@ export function expectation (action, root = document) {
 }
 
 /**
- * @param {{type: string; selector: string; parent?: string; expect?: string}[]} expectations
+ * @param {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string}[]} expectations
  * @param {Document | HTMLElement} root
  * @return {({result: true} | {result: false; error: string})[]}
  */
 export function expectMany (expectations, root) {
     return expectations.map(expectation => {
-        if (expectation.type === 'element-exists') {
+        if (expectation.type === 'element') {
             if (expectation.parent) {
                 const parent = getElement(root, expectation.parent)
                 if (!parent) return { result: false, error: `parent element not found with selector: ${expectation.parent}` }

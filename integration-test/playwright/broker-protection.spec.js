@@ -421,7 +421,7 @@ test.describe('Broker Protection communications', () => {
                         id: 'test-expectation',
                         expectations: [
                             {
-                                type: 'element-exists',
+                                type: 'element',
                                 selector: '.slow-element',
                                 parent: 'body.delay-complete'
                             }

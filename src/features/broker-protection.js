@@ -25,7 +25,10 @@ export default class BrokerProtection extends ContentFeature {
                     ? action.retry
                     : undefined
 
-                if (action.actionType === 'extract') {
+                /**
+                 * Special case for the exact action
+                 */
+                if (!retryConfig && action.actionType === 'extract') {
                     retryConfig = {
                         interval: { ms: 1000 },
                         maxAttempts: 30
@@ -33,18 +36,16 @@ export default class BrokerProtection extends ContentFeature {
                 }
 
                 /**
-                 * When an expectation contains a check for an element, retry it
+                 * Special case for when expectation contains a check for an element, retry it
                  */
-                if (action.actionType === 'expectation') {
-                    if (action.expectations.some(x => x.type === 'element-exists')) {
+                if (!retryConfig && action.actionType === 'expectation') {
+                    if (action.expectations.some(x => x.type === 'element')) {
                         retryConfig = {
                             interval: { ms: 1000 },
                             maxAttempts: 30
                         }
                     }
                 }
-
-                console.log({ action, data, retryConfig })
 
                 const { result, exceptions } = await retry(() => execute(action, data), retryConfig)
 
