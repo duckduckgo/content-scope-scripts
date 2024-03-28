@@ -33,7 +33,11 @@ function loadHTML () {
         }
     })()
     const container = document.createElement('div')
-    container.innerHTML = execTemplate({ ...defaultLoadData.strings, ...parsed.strings }).toString()
+    if (!parsed.strings) {
+        console.warn('missing `strings` from the incoming json data')
+    }
+    const mergedStrings = { ...defaultLoadData.strings, ...parsed.strings }
+    container.innerHTML = execTemplate(mergedStrings).toString()
     document.body.appendChild(container)
 }
 
