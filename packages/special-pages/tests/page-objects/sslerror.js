@@ -25,10 +25,6 @@ export class SSLErrorPage {
             env: 'development'
         })
         this.page.on('console', console.log)
-        // default mocks - just enough to render the first page without error
-        this.mocks.defaultResponses({
-            // todo: add message mock
-        })
     }
 
     /**
@@ -82,5 +78,18 @@ export class SSLErrorPage {
 
     async darkMode () {
         await this.page.emulateMedia({ colorScheme: 'dark' })
+    }
+
+    async leavesSite () {
+        await this.page.getByRole('button', { name: 'Leave This Site' }).click()
+        await this.mocks.waitForCallCount({ method: 'leaveSite', count: 1 })
+    }
+
+    async visitsSite () {
+        const { page } = this
+        await page.pause()
+        await page.getByRole('button', { name: 'Advanced...' }).click()
+        await page.getByRole('link', { name: 'Accept Risk and Visit Site' }).click()
+        await this.mocks.waitForCallCount({ method: 'visitSite', count: 1 })
     }
 }
