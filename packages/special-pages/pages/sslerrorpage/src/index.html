@@ -8,61 +8,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div class="full-container">
-    <div class="warning-container">
-        <h1 class="warning-header">
-            <img src="img/Shield-Alert-96x96.svg" alt="Warning" class="watermark">
-            $HEADER$
-        </h1>
-        <p class="warning-text">$BODY$</p>
-        <div class="buttons">
-            <button class="button advanced" id="advancedBtn">$ADVANCED_BUTTON$</button>
-            <button class="button leave-this-site" id="leaveThisSiteBtn">$LEAVE_SITE_BUTTON$</button>
-        </div>
-    </div>
-    <div class="advanced-info", id="advancedInfo">
-        <p id="advanced-info-header">$ADVANCED_INFO_HEADER$</p>
-        <p id="advanced-info-body">$SPECIFIC_MESSAGE$ $ADVANCED_INFO_BODY$</p>
-        <a href="#" id="acceptRiskLink" class="accept-risk">$VISIT_SITE_BUTTON$</a>
-        <p class="error-code">$ERROR_CODE$</p>
-    </div>
-  </div>  
-
   <script>
     document.getElementById('advancedBtn').addEventListener('click', function() {
       document.getElementById('advancedInfo').style.visibility = 'visible';
       this.style.display = 'none';
     });
   </script>
-
+  <script type="text/json" data-id="load-time-data">$LOAD_TIME_DATA$</script>
   <script type="module" src="js/index.js"></script>
-
-  <script>
-    // Placeholder for the JSON data injection
-    var loadTimeData = $LOAD_TIME_DATA$;
-  
-    // Function to replace placeholders with actual data
-    function applyData() {
-        // Use innerHTML when you need to parse HTML tags
-        document.querySelector('.warning-header').innerHTML = 
-            '<img src="img/Shield-Alert-96x96.svg" alt="Warning" class="watermark">' +
-            loadTimeData.header;
-        
-        document.querySelector('.warning-text').innerHTML = loadTimeData.body; // if body contains HTML
-        document.getElementById('advancedBtn').textContent = loadTimeData.advancedButton;
-        document.getElementById('leaveThisSiteBtn').textContent = loadTimeData.leaveSiteButton;
-        
-        // Use innerHTML for advancedInfoHeader and advancedInfoBody if they contain HTML
-        document.getElementById('advanced-info-header').innerHTML = loadTimeData.advancedInfoHeader;
-        document.getElementById('advanced-info-body').innerHTML = loadTimeData.specificMessage + " " + loadTimeData.advancedInfoBody;
-        document.getElementById('acceptRiskLink').textContent = loadTimeData.visitSiteButton;
-        document.querySelector('.error-code').textContent = loadTimeData.errorCode;
-    }
-  
-    // Execute the replacement function on load
-    document.addEventListener('DOMContentLoaded', applyData);
-  </script>
 
 </body>
 </html>

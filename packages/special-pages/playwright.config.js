@@ -21,6 +21,15 @@ export default defineConfig({
             }
         },
         {
+            name: 'sslerrorpage-apple',
+            testMatch: 'sslerror.spec.js',
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos'
+            }
+        },
+        {
             name: 'onboarding-windows',
             testMatch: 'onboarding.spec.js',
             use: {
