@@ -22,8 +22,8 @@
         </div>
     </div>
     <div class="advanced-info", id="advancedInfo">
-        <p>$ADVANCED_INFO_HEADER$</p>
-        <p>$SPECIFIC_MESSAGE$ $ADVANCED_INFO_BODY$</p>
+        <p id="advanced-info-header">$ADVANCED_INFO_HEADER$</p>
+        <p id="advanced-info-body">$SPECIFIC_MESSAGE$ $ADVANCED_INFO_BODY$</p>
         <a href="#" id="acceptRiskLink" class="accept-risk">$VISIT_SITE_BUTTON$</a>
         <p class="error-code">$ERROR_CODE$</p>
     </div>
@@ -37,6 +37,32 @@
   </script>
 
   <script type="module" src="js/index.js"></script>
+
+  <script>
+    // Placeholder for the JSON data injection
+    var loadTimeData = $LOAD_TIME_DATA$;
+  
+    // Function to replace placeholders with actual data
+    function applyData() {
+        // Use innerHTML when you need to parse HTML tags
+        document.querySelector('.warning-header').innerHTML = 
+            '<img src="img/Shield-Alert-96x96.svg" alt="Warning" class="watermark">' +
+            loadTimeData.header;
+        
+        document.querySelector('.warning-text').innerHTML = loadTimeData.body; // if body contains HTML
+        document.getElementById('advancedBtn').textContent = loadTimeData.advancedButton;
+        document.getElementById('leaveThisSiteBtn').textContent = loadTimeData.leaveSiteButton;
+        
+        // Use innerHTML for advancedInfoHeader and advancedInfoBody if they contain HTML
+        document.getElementById('advanced-info-header').innerHTML = loadTimeData.advancedInfoHeader;
+        document.getElementById('advanced-info-body').innerHTML = loadTimeData.specificMessage + " " + loadTimeData.advancedInfoBody;
+        document.getElementById('acceptRiskLink').textContent = loadTimeData.visitSiteButton;
+        document.querySelector('.error-code').textContent = loadTimeData.errorCode;
+    }
+  
+    // Execute the replacement function on load
+    document.addEventListener('DOMContentLoaded', applyData);
+  </script>
 
 </body>
 </html>
