@@ -1,5 +1,3 @@
-import { Messaging, MessagingContext, WebkitMessagingConfig } from '@duckduckgo/messaging'
-
 export class SSLErrorPageMessages {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
@@ -8,26 +6,43 @@ export class SSLErrorPageMessages {
     constructor (messaging) {
         /**
          * @internal
+         * @private
          */
         this.messaging = messaging
     }
 
-    notify (message) {
-        return this.messaging.notify(message)
+    visitSite () {
+        return this.messaging.notify('visitSite')
+    }
+
+    leaveSite () {
+        return this.messaging.notify('leaveSite')
     }
 }
 
-export function createSSLErrorMessaging () {
-    const messageContext = new MessagingContext({
-        context: 'specialPages',
-        featureName: 'sslErrorPage',
-        env: 'development'
-    })
-    const config = new WebkitMessagingConfig({
-        hasModernWebkitAPI: true,
-        secret: '',
-        webkitMessageHandlerNames: ['specialPages']
-    })
-    const messaging = new Messaging(messageContext, config)
-    return new SSLErrorPageMessages(messaging)
+/**
+ * @returns {Promise<Omit<SSLErrorPageMessages, 'messaging'>>}
+ */
+export async function createSSLErrorMessaging () {
+    try {
+        const { Messaging, MessagingContext, WebkitMessagingConfig } = await import('@duckduckgo/messaging')
+        const messageContext = new MessagingContext({
+            context: 'specialPages',
+            featureName: 'sslErrorPage',
+            env: 'development'
+        })
+        const config = new WebkitMessagingConfig({
+            hasModernWebkitAPI: true,
+            secret: '',
+            webkitMessageHandlerNames: ['specialPages']
+        })
+        const messaging = new Messaging(messageContext, config)
+        return new SSLErrorPageMessages(messaging)
+    } catch (e) {
+        console.warn('missing messaging. all messages will be logged')
+        return {
+            leaveSite: () => console.trace('leaveSite'),
+            visitSite: () => console.trace('visitSite')
+        }
+    }
 }
