@@ -1,11 +1,12 @@
 import { html, trustedUnsafe } from '../../../../../../src/dom-utils.js'
+import shieldIcon from '../img/Shield-Alert-96x96.data.svg'
 
 export function execTemplate (strings) {
     return html`
         <div class="full-container">
             <div class="warning-container">
                 <h1 class="warning-header">
-                    <img src="img/Shield-Alert-96x96.svg" alt="Warning" class="watermark">
+                    <img src="${shieldIcon}" alt="Warning" class="watermark">
                     ${strings.header}
                 </h1>
                 <p class="warning-text">${trustedUnsafe(strings.body)}</p>
@@ -14,7 +15,7 @@ export function execTemplate (strings) {
                     <button class="button leave-this-site" id="leaveThisSiteBtn">${strings.leaveSiteButton}</button>
                 </div>
             </div>
-            <div class="advanced-info", id="advancedInfo">
+            <div class="advanced-info" id="advancedInfo">
                 <p>${strings.advancedInfoHeader}</p>
                 <p>${trustedUnsafe(strings.specificMessage)} ${strings.advancedInfoBody}</p>
                 <a href="#" id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</a>
