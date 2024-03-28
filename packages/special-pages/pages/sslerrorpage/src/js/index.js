@@ -8,10 +8,25 @@
  */
 
 import { createSSLErrorMessaging } from './messages.js'
+import { execTemplate } from './template'
+import { defaultLoadData } from './defaults'
 
 const messaging = createSSLErrorMessaging()
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadHTML()
+    bindEvents()
+})
+
+function loadHTML () {
+    const element = document.querySelector('[data-id="load-time-data"]')
+    const parsed = JSON.parse(element?.textContent || '{}')
+    const container = document.createElement('div')
+    container.innerHTML = execTemplate({ ...defaultLoadData.strings, ...parsed.strings }).toString()
+    document.body.appendChild(container)
+}
+
+function bindEvents () {
     const acceptRiskLink = document.getElementById('acceptRiskLink')
     if (acceptRiskLink) {
         acceptRiskLink.addEventListener('click', (event) => {
@@ -31,4 +46,4 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error('Leave Site button not found.')
     }
-})
+}

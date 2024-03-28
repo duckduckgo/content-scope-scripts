@@ -8,34 +8,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div class="full-container">
-    <div class="warning-container">
-        <h1 class="warning-header">
-            <img src="img/Shield-Alert-96x96.svg" alt="Warning" class="watermark">
-            $HEADER$
-        </h1>
-        <p class="warning-text">$BODY$</p>
-        <div class="buttons">
-            <button class="button advanced" id="advancedBtn">$ADVANCED_BUTTON$</button>
-            <button class="button leave-this-site" id="leaveThisSiteBtn">$LEAVE_SITE_BUTTON$</button>
-        </div>
-    </div>
-    <div class="advanced-info", id="advancedInfo">
-        <p>$ADVANCED_INFO_HEADER$</p>
-        <p>$SPECIFIC_MESSAGE$ $ADVANCED_INFO_BODY$</p>
-        <a href="#" id="acceptRiskLink" class="accept-risk">$VISIT_SITE_BUTTON$</a>
-        <p class="error-code">$ERROR_CODE$</p>
-    </div>
-  </div>  
-
   <script>
     document.getElementById('advancedBtn').addEventListener('click', function() {
       document.getElementById('advancedInfo').style.visibility = 'visible';
       this.style.display = 'none';
     });
   </script>
-
+  <script type="text/json" data-id="load-time-data">$LOAD_TIME_DATA$</script>
   <script type="module" src="js/index.js"></script>
 
 </body>
