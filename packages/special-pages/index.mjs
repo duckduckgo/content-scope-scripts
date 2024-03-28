@@ -139,6 +139,7 @@ for (const buildJob of buildJobs) {
                 '.js': 'jsx',
                 '.module.css': 'local-css',
                 '.svg': 'file',
+                '.data.svg': 'dataurl',
                 '.jpg': 'file',
                 '.png': 'file',
                 '.riv': 'file'
