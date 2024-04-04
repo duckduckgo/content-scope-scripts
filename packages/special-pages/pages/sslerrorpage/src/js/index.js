@@ -51,8 +51,7 @@ function bindEvents (messaging) {
     if (!advanced || !info) return console.error('unreachable: missing elements')
 
     advanced.addEventListener('click', function () {
-        var info = document.querySelector('.advanced-info');
-        info.classList.toggle('closed');
+        info.classList.toggle('closed')
         advanced.style.display = 'none'
     })
 
