@@ -40,49 +40,94 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Arial, sans-serif;
+    overflow: auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
 }
 
 .full-container {
     display: flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 504px;
-    min-height: 600px;
-    min-width: 400px;
+    min-width: 400px; 
     flex-direction: column;
     align-items: flex-start;
+    border-radius: 8px;
+}
+
+@media (max-height: 500px) { 
+    .full-container {
+        position: fixed;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 }
 
 .warning-container {
     border-radius: 8px 8px 0 0;
+    border: 0.5px solid var(--border-color);
     overflow: hidden;
-    border: 1px solid var(--border-color);
     padding: 32px 40px;
     gap: 16px;
     background: var(--warning-container-bg);
+    margin-block: 0;
 }
 
 .warning-header {
     display: flex;
     align-items: center;
     gap: 16px;
-    font-size: 17px;
+    font-size: 22px;
+    margin-block: 0;
+    min-height: 32px;
+    position: relative; 
+    padding-left: 48px;
+}
+
+.warning-header img { 
+    position: absolute;
+    left: -8px; 
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .warning-text {
     font-size: 13px;
+    line-height: 16px;
+    margin-block: 16px;
 }
 
 .advanced-info {
     border-radius: 0 0 8px 8px;
     overflow: hidden;
-    border: 1px solid var(--border-color);
+    border-left: 0.5px solid var(--border-color);
+    border-bottom: 0.5px solid var(--border-color);
+    border-right: 0.5px solid var(--border-color);
     padding: 24px 40px;
     align-items: flex-start;
-    border-top: 1px solid var(--border-color);
     background: var(--advanced-info-bg);
     font-size: 11px;
+    line-height: 14px;
     color: var(--text-color);
-    visibility: hidden;
+    transition: padding 200ms, height 200ms;
+}
+
+.advanced-info.closed {
+    height: 0;
+    padding: 0;
+    overflow: hidden; 
+}
+
+.advanced-info p:first-child {
+    margin-top: 0;
+}
+
+.advanced-info p:last-child {
+    margin-bottom: 0;
 }
 
 .buttons {
@@ -93,6 +138,7 @@ body {
 
 .button {
     height: 20px;
+    font-size: 13px;
     padding: 0px 12px;
     align-items: center;
     border-radius: 5px;
@@ -117,6 +163,7 @@ body {
     padding: 12px 0px 0px 0px;
     color: var(--error-code-color);
     font-size: 10px;
+    font-family: 'SFMono-Regular', Menlo, Monaco, 'Courier New', monospace;
 }
 
 @media (prefers-color-scheme: dark) {

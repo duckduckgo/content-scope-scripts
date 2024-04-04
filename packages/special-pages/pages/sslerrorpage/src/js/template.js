@@ -15,7 +15,7 @@ export function execTemplate (strings) {
                     <button class="button leave-this-site" id="leaveThisSiteBtn">${strings.leaveSiteButton}</button>
                 </div>
             </div>
-            <div class="advanced-info" id="advancedInfo">
+            <div class="advanced-info closed" id="advancedInfo">
                 <p>${strings.advancedInfoHeader}</p>
                 <p>${trustedUnsafe(strings.specificMessage)} ${strings.advancedInfoBody}</p>
                 <a href="#" id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</a>
