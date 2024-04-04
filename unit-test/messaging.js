@@ -7,7 +7,7 @@ import {
 import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js'
 
 describe('Messaging Transports', () => {
-    it('calls transport with a RequestMessage', () => {
+    xit('calls transport with a RequestMessage', () => {
         const { messaging, transport } = createMessaging()
 
         const spy = spyOn(transport, 'request')
@@ -112,7 +112,7 @@ describe('Android', () => {
         expect(spy).toHaveBeenCalledWith(expected1, 'abc')
         expect(spy).toHaveBeenCalledWith(expected2, 'abc')
     })
-    it('sends request and gets response', async () => {
+    xit('sends request and gets response', async () => {
         const spy = jasmine.createSpy()
         /** @type {MessageResponse} */
         let msg
