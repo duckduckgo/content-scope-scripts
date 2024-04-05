@@ -89,7 +89,7 @@ export class SSLErrorPage {
         const { page } = this
         await page.pause()
         await page.getByRole('button', { name: 'Advanced...' }).click()
-        await page.getByRole('link', { name: 'Accept Risk and Visit Site' }).click()
+        await page.getByRole('button', { name: 'Accept Risk and Visit Site' }).click()
         await this.mocks.waitForCallCount({ method: 'visitSite', count: 1 })
     }
 }
