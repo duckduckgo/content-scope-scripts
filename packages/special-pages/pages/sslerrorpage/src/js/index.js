@@ -47,12 +47,16 @@ function loadHTML () {
 function bindEvents (messaging) {
     const advanced = document.getElementById('advancedBtn')
     const info = document.getElementById('advancedInfo')
+    const fullContainer = document.getElementById('fullContainer')
 
     if (!advanced || !info) return console.error('unreachable: missing elements')
 
     advanced.addEventListener('click', function () {
         info.classList.toggle('closed')
         advanced.style.display = 'none'
+        if (fullContainer) {
+            fullContainer.style.borderRadius = '8px'
+        }
     })
 
     const acceptRiskLink = document.getElementById('acceptRiskLink')

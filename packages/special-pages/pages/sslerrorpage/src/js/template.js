@@ -3,7 +3,7 @@ import shieldIcon from '../img/Shield-Alert-96x96.data.svg'
 
 export function execTemplate (strings) {
     return html`
-        <div class="full-container">
+        <div class="full-container" id="fullContainer">
             <div class="warning-container">
                 <h1 class="warning-header">
                     <img src="${shieldIcon}" alt="Warning" class="watermark">
@@ -18,7 +18,7 @@ export function execTemplate (strings) {
             <div class="advanced-info closed" id="advancedInfo">
                 <p>${strings.advancedInfoHeader}</p>
                 <p>${trustedUnsafe(strings.specificMessage)} ${strings.advancedInfoBody}</p>
-                <a href="#" id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</a>
+                <button id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</button>
                 <p class="error-code">${strings.errorCode}</p>
             </div>
         </div>

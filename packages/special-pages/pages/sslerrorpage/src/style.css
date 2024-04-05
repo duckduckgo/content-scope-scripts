@@ -6,6 +6,7 @@
     --warning-container-bg: #FFF;
     --advanced-info-bg: rgba(0, 0, 0, 0.03);
     --button-bg: #FFF;
+    --button-active-bg:#e0e0e0;
     --button-text: #000000;
     --error-code-color: rgba(0, 0, 0, 0.60);
     --leave-site-btn-bg: linear-gradient(180deg, #4266D8 0%, #224CD2 100%);
@@ -20,6 +21,7 @@
     --warning-container-bg-dark: #222222;
     --advanced-info-bg-dark: #2F2F2F;
     --button-bg-dark: #333333;
+    --button-active-bg-dark:#757575;
     --button-text-dark: #FFFFFF;
     --error-code-color-dark: rgba(255, 255, 255, 0.6);
     --leave-site-btn-bg-dark: linear-gradient(180deg, #4266D8 0%, #224CD2 100%);
@@ -55,6 +57,8 @@ body {
     flex-direction: column;
     align-items: flex-start;
     border-radius: 8px;
+    border: 0.5px solid var(--border-color);
+    overflow: hidden;
 }
 
 @media (max-height: 500px) { 
@@ -67,8 +71,6 @@ body {
 }
 
 .warning-container {
-    border-radius: 8px 8px 0 0;
-    border: 0.5px solid var(--border-color);
     overflow: hidden;
     padding: 32px 40px;
     gap: 16px;
@@ -102,11 +104,8 @@ body {
 }
 
 .advanced-info {
-    border-radius: 0 0 8px 8px;
+    box-shadow: inset 0 0.5px 0 0 var(--border-color);
     overflow: hidden;
-    border-left: 0.5px solid var(--border-color);
-    border-bottom: 0.5px solid var(--border-color);
-    border-right: 0.5px solid var(--border-color);
     padding: 24px 40px;
     align-items: flex-start;
     background: var(--advanced-info-bg);
@@ -114,11 +113,13 @@ body {
     line-height: 14px;
     color: var(--text-color);
     transition: padding 200ms, height 200ms;
+    opacity: 1;
 }
 
 .advanced-info.closed {
+    opacity: 0;
     height: 0;
-    padding: 0;
+    padding-block: 0;    
     overflow: hidden; 
 }
 
@@ -134,11 +135,13 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 6px;
+    padding-block-start: 8px;
 }
 
 .button {
     height: 20px;
     font-size: 13px;
+    line-height: 1;
     padding: 0px 12px;
     align-items: center;
     border-radius: 5px;
@@ -148,6 +151,10 @@ body {
     box-shadow: 0px 1px 1px 0px var(--border-color), 0px 0px 1px 0px var(--border-color);
 }
 
+.button:active {
+    background: var(--button-active-bg);
+}
+
 .leave-this-site {
     color: white;
     border: 0.5px solid var(--leave-site-btn-border-color);
@@ -155,12 +162,20 @@ body {
     box-shadow: 0px 1px 1px 0px var(--leave-site-btn-shadow-color), 0px 0px 1px 0px var(--leave-site-btn-border-color);
 }
 
+.leave-this-site:active {
+    background: #798ed6;
+}
+
 .accept-risk {
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
     color: var(--accept-risk-color);
 }
 
 .error-code {
-    padding: 12px 0px 0px 0px;
+    padding: 4px 0px 0px 0px;
     color: var(--error-code-color);
     font-size: 10px;
     font-family: 'SFMono-Regular', Menlo, Monaco, 'Courier New', monospace;
@@ -174,6 +189,7 @@ body {
         --warning-container-bg: var(--warning-container-bg-dark);
         --advanced-info-bg: var(--advanced-info-bg-dark);
         --button-bg: var(--button-bg-dark);
+        --button-active-bg:var(--button-active-bg-dark);
         --button-text: var(--button-text-dark);
         --error-code-color: var(--error-code-color-dark);
         --leave-site-btn-bg: var(--leave-site-btn-bg-dark);
