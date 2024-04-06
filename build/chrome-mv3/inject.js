@@ -715,7 +715,8 @@
         'apple-isolated': [
             'duckPlayer',
             'brokerProtection',
-            'performanceMetrics'
+            'performanceMetrics',
+            'clickToLoad'
         ],
         android: [
             ...baseFeatures,
@@ -2228,14 +2229,8 @@
      */
     function captureGlobals () {
         // Create base with null prototype
-        return {
+        const globals = {
             window,
-            // Methods must be bound to their interface, otherwise they throw Illegal invocation
-            encrypt: window.crypto.subtle.encrypt.bind(window.crypto.subtle),
-            decrypt: window.crypto.subtle.decrypt.bind(window.crypto.subtle),
-            generateKey: window.crypto.subtle.generateKey.bind(window.crypto.subtle),
-            exportKey: window.crypto.subtle.exportKey.bind(window.crypto.subtle),
-            importKey: window.crypto.subtle.importKey.bind(window.crypto.subtle),
             getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
             TextEncoder,
             TextDecoder,
@@ -2252,7 +2247,16 @@
             addEventListener: window.addEventListener.bind(window),
             /** @type {Record<string, any>} */
             capturedWebkitHandlers: {}
+        };
+        if (isSecureContext) {
+            // skip for HTTP content since window.crypto.subtle is unavailable
+            globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
+            globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
+            globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
+            globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
+            globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
         }
+        return globals
     }
 
     /**
@@ -11314,16 +11318,16 @@
         get messaging () {
             if (this._messaging) return this._messaging
 
-            if (this.platform.name === 'android' || this.platform.name === 'extension' || this.platform.name === 'macos') {
+            if (this.platform.name === 'android' || this.platform.name === 'extension') {
                 this._clickToLoadMessagingTransport = new SendMessageMessagingTransport();
                 const config = new TestTransportConfig(this._clickToLoadMessagingTransport);
                 this._messaging = new Messaging(this.messagingContext, config);
                 return this._messaging
-            } else if (this.platform.name === 'ios') {
+            } else if (this.platform.name === 'ios' || this.platform.name === 'macos') {
                 const config = new WebkitMessagingConfig({
                     secret: '',
                     hasModernWebkitAPI: true,
-                    webkitMessageHandlerNames: ['contentScopeScripts']
+                    webkitMessageHandlerNames: ['contentScopeScriptsIsolated']
                 });
                 this._messaging = new Messaging(this.messagingContext, config);
                 return this._messaging

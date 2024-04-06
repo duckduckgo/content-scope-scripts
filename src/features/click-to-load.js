@@ -2016,16 +2016,16 @@ export default class ClickToLoad extends ContentFeature {
     get messaging () {
         if (this._messaging) return this._messaging
 
-        if (this.platform.name === 'android' || this.platform.name === 'extension' || this.platform.name === 'macos') {
+        if (this.platform.name === 'android' || this.platform.name === 'extension') {
             this._clickToLoadMessagingTransport = new SendMessageMessagingTransport()
             const config = new TestTransportConfig(this._clickToLoadMessagingTransport)
             this._messaging = new Messaging(this.messagingContext, config)
             return this._messaging
-        } else if (this.platform.name === 'ios') {
+        } else if (this.platform.name === 'ios' || this.platform.name === 'macos') {
             const config = new WebkitMessagingConfig({
                 secret: '',
                 hasModernWebkitAPI: true,
-                webkitMessageHandlerNames: ['contentScopeScripts']
+                webkitMessageHandlerNames: ['contentScopeScriptsIsolated']
             })
             this._messaging = new Messaging(this.messagingContext, config)
             return this._messaging
