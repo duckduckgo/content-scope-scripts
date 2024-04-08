@@ -20,7 +20,7 @@ export default defineConfig({
             name: 'onboarding-windows',
             testMatch: 'onboarding.spec.js',
             use: {
-                ...devices['Desktop Safari'],
+                ...devices['Desktop Edge'],
                 injectName: 'windows',
                 platform: 'windows'
             }

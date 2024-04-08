@@ -64,6 +64,12 @@ export class OnboardingPage {
         await this.page.goto('/' + '?' + searchParams.toString())
     }
 
+    async skipsOnboarding () {
+        await this.page.getByTestId('skip').click({
+            clickCount: 5
+        })
+    }
+
     /**
      * We test the fully built artifacts, so for each test run we need to
      * select the correct HTML file.
@@ -116,8 +122,11 @@ export class OnboardingPage {
         ])
     }
 
-    async didDismissToSearch () {
+    async choseToStartBrowsing () {
         await this.page.getByRole('button', { name: 'Start Browsing' }).click()
+    }
+
+    async didDismissToSearch () {
         await this.mocks.waitForCallCount({ method: 'dismissToAddressBar', count: 1, timeout: 500 })
     }
 

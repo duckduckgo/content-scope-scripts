@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { h } from 'preact'
-import { useContext } from 'preact/hooks'
+import { useContext, useRef } from 'preact/hooks'
 import styles from './App.module.css'
 import { Summary } from '../pages/Summary'
 import { GlobalContext, GlobalDispatch } from '../global'
@@ -86,6 +86,7 @@ export function App () {
     return (
         <main className={styles.main}>
             <Background />
+            <SkipLink onClick={dismiss} />
             {debugState && <Debug state={globalState} />}
             <div className={styles.container} data-current={activeStep}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
@@ -149,4 +150,19 @@ function WillThrow () {
         throw new Error('Simulated Exception')
     }
     return null
+}
+
+export function SkipLink ({ onClick }) {
+    const count = useRef(0)
+
+    const handler = () => {
+        count.current = count.current + 1
+        if (count.current >= 5) {
+            onClick()
+        }
+    }
+
+    return (
+        <div style="position: fixed; bottom: 0; left: 0; width: 50px; height: 50px" onClick={handler} data-testid="skip" />
+    )
 }
