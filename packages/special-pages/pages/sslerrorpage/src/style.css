@@ -105,6 +105,7 @@ body {
 
 .advanced-info {
     border-top: 0.5px solid var(--border-color);
+    overflow: hidden;
     padding: 24px 40px;
     align-items: flex-start;
     background: var(--advanced-info-bg);
@@ -112,6 +113,7 @@ body {
     line-height: 14px;
     color: var(--text-color);
     transition: padding 200ms, height 200ms;
+    opacity: 1;
 }
 
 .advanced-info.closed {
