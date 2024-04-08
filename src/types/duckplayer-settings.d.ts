@@ -1,4 +1,3 @@
-// eslint-disable
 /**
  * @module Duckplayer Settings Schema
  * @description
