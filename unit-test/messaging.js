@@ -7,17 +7,22 @@ import {
 import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js'
 
 describe('Messaging Transports', () => {
-    xit('calls transport with a RequestMessage', () => {
+    it('calls transport with a RequestMessage', () => {
         const { messaging, transport } = createMessaging()
 
         const spy = spyOn(transport, 'request')
 
         messaging.request('helloWorld', { foo: 'bar' })
 
+        // grab the auto-generated `id` field
+        const [requestMessage] = spy.calls.first()?.args
+        expect(typeof requestMessage.id).toBe('string')
+        expect(requestMessage.id.length).toBeGreaterThan(0)
+
         expect(spy).toHaveBeenCalledWith(new RequestMessage({
             context: 'contentScopeScripts',
             featureName: 'hello-world',
-            id: 'helloWorld.response',
+            id: requestMessage.id,
             method: 'helloWorld',
             params: { foo: 'bar' }
         }))
@@ -112,7 +117,7 @@ describe('Android', () => {
         expect(spy).toHaveBeenCalledWith(expected1, 'abc')
         expect(spy).toHaveBeenCalledWith(expected2, 'abc')
     })
-    xit('sends request and gets response', async () => {
+    it('sends request and gets response', async () => {
         const spy = jasmine.createSpy()
         /** @type {MessageResponse} */
         let msg
@@ -148,9 +153,17 @@ describe('Android', () => {
         // wait for it to resolve
         const result = await request
 
-        // ensure the outgoing payload was correct
-        const expectedOutgoing = '{"context":"contentScopeScripts","featureName":"featureA","method":"helloWorld","id":"helloWorld.response","params":{}}'
-        expect(spy).toHaveBeenCalledWith(expectedOutgoing, 'abc')
+        const outgoingMessage = {
+            context: 'contentScopeScripts',
+            featureName: 'featureA',
+            method: 'helloWorld',
+            id: msg.id,
+            params: {}
+        }
+
+        // Android messages are sent as a JSON string
+        const asJsonString = JSON.stringify(outgoingMessage)
+        expect(spy).toHaveBeenCalledWith(asJsonString, 'abc')
 
         // ensure the result is correct
         expect(result).toEqual({ foo: 'bar' })
