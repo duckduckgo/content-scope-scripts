@@ -26,11 +26,11 @@ const defaultMapping = {
         kind: 'settings',
     },
     "Schema Messages": {
-        kind: 'messages-v2',
         schemaDir: join(ROOT, "src/messages"),
         typesDir: join(ROOT, "src/types"),
         // todo: fix this on windows.
-        exclude: process.platform === 'win32'
+        exclude: process.platform === 'win32',
+        kind: 'messages',
     }
 }
 
@@ -43,13 +43,13 @@ const defaultMapping = {
 export async function buildTypes(mapping = defaultMapping) {
     for (let [featureName, manifest] of Object.entries(mapping)) {
         if (manifest.exclude) continue;
-        if (manifest.kind === 'messages' || manifest.kind === 'settings') {
+        if (manifest.kind === 'settings') {
             const typescript = await createTypesForSchemaFile(featureName, manifest.schema);
             let content = typescript.replace(/\r\n/g, '\n')
             write([manifest.types], content)
             console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
         }
-        if (manifest.kind === 'messages-v2') {
+        if (manifest.kind === 'messages') {
             // create a job for each sub-folder that contains schemas
             const schemas = await createSchemasFromFiles(manifest.schemaDir)
 
@@ -122,5 +122,3 @@ if (isLaunchFile(import.meta.url)) {
             process.exit(1)
         })
 }
-
-console.log('shane');

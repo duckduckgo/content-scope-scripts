@@ -236,8 +236,12 @@ export default class ContentFeature {
     }
 
     /**
-     * This is a wrapper to ensure all calls are typed via schemas.
-     * @type {(...args: any[]) => any}
+     * This is a wrapper around `this.messaging.notify` that applies the
+     * auto-generated types from the `src/types` folder. It's used
+     * to provide per-feature type information based on the schemas
+     * in `src/messages`
+     *
+     * @type {import("@duckduckgo/messaging").Messaging['notify']}
      */
     notify (...args) {
         const [name, params] = args
@@ -245,8 +249,12 @@ export default class ContentFeature {
     }
 
     /**
-     * This is a wrapper to ensure all calls are typed via schemas.
-     * @type {(...args: any[]) => Promise<any>}
+     * This is a wrapper around `this.messaging.request` that applies the
+     * auto-generated types from the `src/types` folder. It's used
+     * to provide per-feature type information based on the schemas
+     * in `src/messages`
+     *
+     * @type {import("@duckduckgo/messaging").Messaging['request']}
      */
     request (...args) {
         const [name, params] = args
@@ -254,8 +262,12 @@ export default class ContentFeature {
     }
 
     /**
-     * This is a wrapper to ensure all calls are typed via schemas.
-     * @type {(...args: any[]) => (...args: any[]) => void}
+     * This is a wrapper around `this.messaging.subscribe` that applies the
+     * auto-generated types from the `src/types` folder. It's used
+     * to provide per-feature type information based on the schemas
+     * in `src/messages`
+     *
+     * @type {import("@duckduckgo/messaging").Messaging['subscribe']}
      */
     subscribe (...args) {
         const [name, cb] = args

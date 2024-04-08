@@ -7,9 +7,9 @@ describe('createMessagingTypes', () => {
      * @param {string} b
      */
     function compare (a, b) {
-        const lines = a.trim().split('\n').map(x => x.trim()).join('\n')
-        const lines3 = b.trim().split('\n').map(x => x.trim()).join('\n')
-        expect(lines).toEqual(lines3)
+        const aLines = a.trim().split('\n').map(x => x.trim()).join('\n')
+        const bLines = b.trim().split('\n').map(x => x.trim()).join('\n')
+        expect(aLines).toEqual(bLines)
     }
     it('works with single notification', () => {
         const actual = createMessagingTypes({
