@@ -22,9 +22,10 @@ import { Fallback } from '../pages/Fallback'
 import { Progress } from './Progress'
 
 /**
- * App is the main component of the application.
+ * @param {object} props
+ * @param {import("preact").ComponentChild} props.children
  */
-export function App () {
+export function App ({ children }) {
     const { debugState } = useContext(SettingsContext)
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
@@ -86,7 +87,6 @@ export function App () {
     return (
         <main className={styles.main}>
             <Background />
-            <SkipLink onClick={dismiss} />
             {debugState && <Debug state={globalState} />}
             <div className={styles.container} data-current={activeStep}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
@@ -113,6 +113,7 @@ export function App () {
                 </ErrorBoundary>
             </div>
             {debugState && <DebugLinks current={activeStep} />}
+            {children}
         </main>
     )
 }
@@ -152,13 +153,14 @@ function WillThrow () {
     return null
 }
 
-export function SkipLink ({ onClick }) {
+export function SkipLink () {
+    const dispatch = useContext(GlobalDispatch)
     const count = useRef(0)
 
     const handler = () => {
         count.current = count.current + 1
         if (count.current >= 5) {
-            onClick()
+            dispatch({ kind: 'dismiss' })
         }
     }
 

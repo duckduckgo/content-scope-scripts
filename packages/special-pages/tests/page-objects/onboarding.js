@@ -33,7 +33,8 @@ export class OnboardingPage {
                     systemSettings: {
                         rows: ['dock', 'import', 'default-browser']
                     }
-                }
+                },
+                env: 'development'
             }
         })
     }

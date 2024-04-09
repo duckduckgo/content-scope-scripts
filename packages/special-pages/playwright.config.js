@@ -5,7 +5,11 @@ export default defineConfig({
         {
             name: 'duckplayer-windows',
             testMatch: 'duckplayer.spec.js',
-            use: { injectName: 'windows', platform: 'windows' }
+            use: {
+                ...devices['Desktop Edge'],
+                injectName: 'windows',
+                platform: 'windows'
+            }
         },
         {
             name: 'duckplayer-apple',
