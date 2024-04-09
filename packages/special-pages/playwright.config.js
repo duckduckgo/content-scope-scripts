@@ -5,7 +5,11 @@ export default defineConfig({
         {
             name: 'duckplayer-windows',
             testMatch: 'duckplayer.spec.js',
-            use: { injectName: 'windows', platform: 'windows' }
+            use: {
+                ...devices['Desktop Edge'],
+                injectName: 'windows',
+                platform: 'windows'
+            }
         },
         {
             name: 'duckplayer-apple',
@@ -20,7 +24,7 @@ export default defineConfig({
             name: 'onboarding-windows',
             testMatch: 'onboarding.spec.js',
             use: {
-                ...devices['Desktop Safari'],
+                ...devices['Desktop Edge'],
                 injectName: 'windows',
                 platform: 'windows'
             }

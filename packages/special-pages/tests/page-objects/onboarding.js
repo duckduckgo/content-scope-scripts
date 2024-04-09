@@ -33,7 +33,8 @@ export class OnboardingPage {
                     systemSettings: {
                         rows: ['dock', 'import', 'default-browser']
                     }
-                }
+                },
+                env: 'development'
             }
         })
     }
@@ -62,6 +63,12 @@ export class OnboardingPage {
         })
         const searchParams = new URLSearchParams({ env, page, debugState: 'true', willThrow: String(willThrow) })
         await this.page.goto('/' + '?' + searchParams.toString())
+    }
+
+    async skipsOnboarding () {
+        await this.page.getByTestId('skip').click({
+            clickCount: 5
+        })
     }
 
     /**
@@ -116,8 +123,11 @@ export class OnboardingPage {
         ])
     }
 
-    async didDismissToSearch () {
+    async choseToStartBrowsing () {
         await this.page.getByRole('button', { name: 'Start Browsing' }).click()
+    }
+
+    async didDismissToSearch () {
         await this.mocks.waitForCallCount({ method: 'dismissToAddressBar', count: 1, timeout: 500 })
     }
 

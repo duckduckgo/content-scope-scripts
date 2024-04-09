@@ -1255,9 +1255,11 @@
      * 2. If the video id is correctly formatted, it loads the YouTube video in the iframe, otherwise displays an error message
      * @param {object} opts
      * @param {string} opts.base
+     * @param {ImportMeta['env']} opts.env
      */
     init: (opts) => {
       VideoPlayer.loadVideoById();
+      VideoPlayer.autoFocusVideo(opts.env);
       VideoPlayer.setTabTitle();
       VideoPlayer.setClickListener(opts.base);
     },
@@ -1373,6 +1375,39 @@
             document.title = "Duck Player - " + validTitle;
           }
         });
+      });
+    },
+    /**
+     * Wait for the video to load and then focus it
+     * @param {ImportMeta['env']} env
+     */
+    autoFocusVideo: (env) => {
+      VideoPlayer.onIframeLoaded(() => {
+        const contentDocument = VideoPlayer.iframe().contentDocument;
+        if (!contentDocument)
+          return;
+        const maxAttempts = 1e3;
+        let attempt = 0;
+        function check() {
+          if (!contentDocument)
+            return;
+          if (attempt > maxAttempts)
+            return;
+          attempt += 1;
+          const video = (
+            /** @type {HTMLIFrameElement | null} */
+            contentDocument?.body.querySelector("#player video")
+          );
+          if (!video) {
+            requestAnimationFrame(check);
+            return;
+          }
+          video.focus();
+          if (env === "development") {
+            document.body.dataset.videoState = "loaded+focussed";
+          }
+        }
+        requestAnimationFrame(check);
       });
     }
   };
@@ -1811,7 +1846,8 @@
       return;
     }
     VideoPlayer.init({
-      base: baseUrl("windows")
+      base: baseUrl("windows"),
+      env: "production"
     });
     Tooltip.init();
     PlayOnYouTube.init({

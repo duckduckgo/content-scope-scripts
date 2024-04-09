@@ -14,10 +14,15 @@ describe('Messaging Transports', () => {
 
         messaging.request('helloWorld', { foo: 'bar' })
 
+        // grab the auto-generated `id` field
+        const [requestMessage] = spy.calls.first()?.args
+        expect(typeof requestMessage.id).toBe('string')
+        expect(requestMessage.id.length).toBeGreaterThan(0)
+
         expect(spy).toHaveBeenCalledWith(new RequestMessage({
             context: 'contentScopeScripts',
             featureName: 'hello-world',
-            id: 'helloWorld.response',
+            id: requestMessage.id,
             method: 'helloWorld',
             params: { foo: 'bar' }
         }))
@@ -148,9 +153,17 @@ describe('Android', () => {
         // wait for it to resolve
         const result = await request
 
-        // ensure the outgoing payload was correct
-        const expectedOutgoing = '{"context":"contentScopeScripts","featureName":"featureA","method":"helloWorld","id":"helloWorld.response","params":{}}'
-        expect(spy).toHaveBeenCalledWith(expectedOutgoing, 'abc')
+        const outgoingMessage = {
+            context: 'contentScopeScripts',
+            featureName: 'featureA',
+            method: 'helloWorld',
+            id: msg.id,
+            params: {}
+        }
+
+        // Android messages are sent as a JSON string
+        const asJsonString = JSON.stringify(outgoingMessage)
+        expect(spy).toHaveBeenCalledWith(asJsonString, 'abc')
 
         // ensure the result is correct
         expect(result).toEqual({ foo: 'bar' })

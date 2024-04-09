@@ -5223,7 +5223,7 @@
      * In that example, the native layer is providing the list of rows that should be shown in the
      * systemSettings step, overriding the default list provided in `data.js`.
      *
-     * @returns {Promise<{stepDefinitions: Partial<import("./data.js").StepDefinitions>}>}
+     * @returns {Promise<InitResponse>}
      */
     async init() {
       return await this.messaging.request("init");
@@ -7613,7 +7613,7 @@
   }
 
   // pages/onboarding/app/components/App.js
-  function App() {
+  function App({ children }) {
     const { debugState } = q2(SettingsContext);
     const globalState = q2(GlobalContext);
     const dispatch = q2(GlobalDispatch);
@@ -7678,7 +7678,7 @@
         "data-current": activeStep,
         "data-exiting": String(exiting)
       }
-    )), /* @__PURE__ */ y("div", { "data-current": activeStep, "data-exiting": String(exiting) }, activeStepVisible && /* @__PURE__ */ y(Content, null, pages[activeStep]()))), /* @__PURE__ */ y(WillThrow, null))), debugState && /* @__PURE__ */ y(DebugLinks, { current: activeStep }));
+    )), /* @__PURE__ */ y("div", { "data-current": activeStep, "data-exiting": String(exiting) }, activeStepVisible && /* @__PURE__ */ y(Content, null, pages[activeStep]()))), /* @__PURE__ */ y(WillThrow, null))), debugState && /* @__PURE__ */ y(DebugLinks, { current: activeStep }), children);
   }
   function Debug(props) {
     return /* @__PURE__ */ y("div", { style: { position: "absolute", top: 0, right: 0, overflowY: "scroll", height: "100vh" } }, /* @__PURE__ */ y("pre", null, /* @__PURE__ */ y("code", null, JSON.stringify(props, null, 2))));
@@ -7699,6 +7699,17 @@
       throw new Error("Simulated Exception");
     }
     return null;
+  }
+  function SkipLink() {
+    const dispatch = q2(GlobalDispatch);
+    const count = _(0);
+    const handler = () => {
+      count.current = count.current + 1;
+      if (count.current >= 5) {
+        dispatch({ kind: "dismiss" });
+      }
+    };
+    return /* @__PURE__ */ y("div", { style: "position: fixed; bottom: 0; left: 0; width: 50px; height: 50px", onClick: handler, "data-testid": "skip" });
   }
 
   // pages/onboarding/app/Components.js
@@ -7935,7 +7946,7 @@
                 first
               )
             },
-            /* @__PURE__ */ y(App, null)
+            /* @__PURE__ */ y(App, null, init2.env === "development" && /* @__PURE__ */ y(SkipLink, null))
           )
         ),
         root2

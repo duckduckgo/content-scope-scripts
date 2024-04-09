@@ -76,14 +76,14 @@
     "eslint-plugin-promise": "^6.1.1",
     "fast-check": "^3.14.0",
     "jasmine": "^4.6.0",
-    "json-schema-to-typescript": "^13.1.1",
+    "json-schema-to-typescript": "^13.1.2",
     "minimist": "^1.2.8",
     "puppeteer": "^21.4.1",
     "@playwright/test": "^1.38.1",
     "rollup": "^3.29.4",
     "rollup-plugin-import-css": "^3.3.5",
     "rollup-plugin-svg-import": "^2.1.0",
-    "typedoc": "^0.25.3",
-    "typescript": "^5.2.2"
+    "typedoc": "^0.25.12",
+    "typescript": "^5.4.3"
   }
 }

@@ -26,6 +26,7 @@ import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethod
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js'
 import { AndroidMessagingConfig, AndroidMessagingTransport } from './lib/android.js'
+import { createTypedMessages } from './lib/typed-messages.js'
 
 /**
  * Common options/config that are *not* transport specific.
@@ -257,5 +258,6 @@ export {
     WindowsNotification,
     WindowsRequestMessage,
     AndroidMessagingConfig,
-    AndroidMessagingTransport
+    AndroidMessagingTransport,
+    createTypedMessages
 }

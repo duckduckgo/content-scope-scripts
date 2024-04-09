@@ -2811,6 +2811,45 @@
         }
 
         /**
+         * This is a wrapper around `this.messaging.notify` that applies the
+         * auto-generated types from the `src/types` folder. It's used
+         * to provide per-feature type information based on the schemas
+         * in `src/messages`
+         *
+         * @type {import("@duckduckgo/messaging").Messaging['notify']}
+         */
+        notify (...args) {
+            const [name, params] = args;
+            this.messaging.notify(name, params);
+        }
+
+        /**
+         * This is a wrapper around `this.messaging.request` that applies the
+         * auto-generated types from the `src/types` folder. It's used
+         * to provide per-feature type information based on the schemas
+         * in `src/messages`
+         *
+         * @type {import("@duckduckgo/messaging").Messaging['request']}
+         */
+        request (...args) {
+            const [name, params] = args;
+            return this.messaging.request(name, params)
+        }
+
+        /**
+         * This is a wrapper around `this.messaging.subscribe` that applies the
+         * auto-generated types from the `src/types` folder. It's used
+         * to provide per-feature type information based on the schemas
+         * in `src/messages`
+         *
+         * @type {import("@duckduckgo/messaging").Messaging['subscribe']}
+         */
+        subscribe (...args) {
+            const [name, cb] = args;
+            return this.messaging.subscribe(name, cb)
+        }
+
+        /**
          * @param {import('./content-scope-features.js').LoadArgs} args
          */
         callLoad (args) {
