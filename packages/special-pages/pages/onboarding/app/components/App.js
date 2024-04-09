@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { h } from 'preact'
-import { useContext } from 'preact/hooks'
+import { useContext, useRef } from 'preact/hooks'
 import styles from './App.module.css'
 import { Summary } from '../pages/Summary'
 import { GlobalContext, GlobalDispatch } from '../global'
@@ -22,9 +22,10 @@ import { Fallback } from '../pages/Fallback'
 import { Progress } from './Progress'
 
 /**
- * App is the main component of the application.
+ * @param {object} props
+ * @param {import("preact").ComponentChild} props.children
  */
-export function App () {
+export function App ({ children }) {
     const { debugState } = useContext(SettingsContext)
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
@@ -112,6 +113,7 @@ export function App () {
                 </ErrorBoundary>
             </div>
             {debugState && <DebugLinks current={activeStep} />}
+            {children}
         </main>
     )
 }
@@ -149,4 +151,20 @@ function WillThrow () {
         throw new Error('Simulated Exception')
     }
     return null
+}
+
+export function SkipLink () {
+    const dispatch = useContext(GlobalDispatch)
+    const count = useRef(0)
+
+    const handler = () => {
+        count.current = count.current + 1
+        if (count.current >= 5) {
+            dispatch({ kind: 'dismiss' })
+        }
+    }
+
+    return (
+        <div style="position: fixed; bottom: 0; left: 0; width: 50px; height: 50px" onClick={handler} data-testid="skip" />
+    )
 }

@@ -10,6 +10,10 @@ import {
  * @typedef {Object} StepCompleteParams
  * Sent when a user has transitioned from a step to the next one
  * @property {import('./types').Step['id']} id - a unique identifier for each step
+ *
+ * @typedef {Object} InitResponse
+ * @property {Record<string, any>} stepDefinitions
+ * @property {ImportMeta['env']} [env] - optional override for the running override
  */
 
 /**
@@ -44,7 +48,7 @@ export class OnboardingMessages {
      * In that example, the native layer is providing the list of rows that should be shown in the
      * systemSettings step, overriding the default list provided in `data.js`.
      *
-     * @returns {Promise<{stepDefinitions: Partial<import("./data.js").StepDefinitions>}>}
+     * @returns {Promise<InitResponse>}
      */
     async init () {
         return await this.messaging.request('init')
