@@ -6,6 +6,7 @@ test.describe('duckplayer iframe', () => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()
+        await duckplayer.videoHasFocus()
     })
     test.skip('reflects title from embed', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
