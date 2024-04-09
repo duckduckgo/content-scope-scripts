@@ -19,30 +19,82 @@
  *
  * - macOS: use `pages/duckplayer/index.html`, everything is inlined into that single file
  * - windows: load the folder of assets under `pages/duckplayer`
- *
- * #### Messages:
- *
- * On Page Load
- *   - {@link DuckPlayerPageMessages.getUserValues} is initially called to get the current settings
- *   - {@link DuckPlayerPageMessages.onUserValuesChanged} subscription begins immediately - it will continue to listen for updates
- *
- * Then the following message can be sent at any time
- *   - {@link DuckPlayerPageMessages.setUserValues}
- *
- * Please see {@link DuckPlayerPageMessages} for the up-to-date list
  */
 import {
     callWithRetry,
     createDuckPlayerPageMessaging,
-    DuckPlayerPageMessages,
     UserValues
 } from './messages'
 import { html } from '../../../../../../src/dom-utils'
 import { initStorage } from './storage'
 import { createYoutubeURLForError } from './utils'
+import { createTypedMessages } from '@duckduckgo/messaging/lib/typed-messages'
 
 // for docs
-export { DuckPlayerPageMessages, UserValues }
+export { UserValues }
+
+/**
+ * The main boundary for this page.
+ */
+export class DuckplayerPage {
+    /**
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @internal
+     */
+    constructor (messaging) {
+        /**
+         * @internal
+         */
+        this.messaging = createTypedMessages(this, messaging)
+    }
+
+    /**
+     * This is sent when the user wants to set Duck Player as the default.
+     * @return {Promise<UserValues>}
+     */
+    getUserValues () {
+        return this.messaging.request('getUserValues')
+    }
+
+    /**
+     * This is sent when the user wants to set Duck Player as the default.
+     * @param {UserValues} userValues
+     * @return {Promise<UserValues>}
+     */
+    setUserValues (userValues) {
+        return this.messaging.request('setUserValues', userValues)
+    }
+
+    /**
+     * This is a subscription that we set up when the page loads.
+     * We use this value to show/hide the checkboxes.
+     *
+     * **Integration NOTE**: Native platforms should always send this at least once on initial page load.
+     *
+     * - See {@link Messaging.SubscriptionEvent} for details on each value of this message
+     * - See {@link UserValues} for details on the `params`
+     *
+     * ```json
+     * // the payload that we receive should look like this
+     * {
+     *   "context": "specialPages",
+     *   "featureName": "duckPlayerPage",
+     *   "subscriptionName": "onUserValuesChanged",
+     *   "params": {
+     *     "overlayInteracted": false,
+     *     "privatePlayerMode": {
+     *       "enabled": {}
+     *     }
+     *   }
+     * }
+     * ```
+     *
+     * @param {(value: UserValues) => void} cb
+     */
+    onUserValuesChanged (cb) {
+        return this.messaging.subscribe('onUserValuesChanged', cb)
+    }
+}
 
 const VideoPlayer = {
     /**
@@ -232,8 +284,8 @@ const VideoPlayer = {
 }
 
 const Comms = {
-    /** @type {DuckPlayerPageMessages | undefined} */
-    messaging: undefined,
+    /** @type {DuckplayerPage | undefined} */
+    page: undefined,
     /**
      * NATIVE NOTE: Gets the video id from the location object, works for MacOS < > 12
      */
@@ -331,34 +383,6 @@ const Comms = {
     },
 
     /**
-     * Based on e, returns whether the received message is valid.
-     * @param {any} e
-     * @returns {boolean}
-     */
-    isValidMessage: (e, message) => {
-        if (import.meta.env === 'development') {
-            console.warn('Allowing all messages because we are in development mode')
-            return true
-        }
-        if (import.meta.injectName === 'windows') {
-            // todo(Shane): Verify this message
-            console.log('WINDOWS: allowing message', e)
-            return true
-        }
-        const hasMessage = e && e.data && typeof e.data[message] !== 'undefined'
-        const isValidMessage = hasMessage && (e.data[message] === true || e.data[message] === false)
-
-        // todo(Shane): Verify this is ok on macOS
-        const hasCorrectOrigin = e.origin && (e.origin === 'https://www.youtube-nocookie.com' || e.origin === 'duck://player')
-
-        if (isValidMessage && hasCorrectOrigin) {
-            return true
-        }
-
-        return false
-    },
-
-    /**
      * Starts listening for 'alwaysOpenSetting' coming from native, and if we receive it
      * update the 'Setting' to the value of the message (true || false)
      *
@@ -367,25 +391,23 @@ const Comms = {
      * `window.postMessage({ alwaysOpenSetting: false })`
      *
      * @param {object} opts
-     * @param {ImportMeta['env']} opts.env
-     * @param {ImportMeta['injectName']} opts.injectName
+     * @param {DuckplayerPage} opts.page
      */
-    init: async (opts) => {
-        const messaging = createDuckPlayerPageMessaging(opts)
+    init: async ({ page }) => {
+        Comms.page = page
         // try to make communication with the native side.
         const result = await callWithRetry(() => {
-            return messaging.getUserValues()
+            return page.getUserValues()
         })
         // if we received a connection, use the initial values
         if ('value' in result) {
-            Comms.messaging = messaging
             if ('enabled' in result.value.privatePlayerMode) {
                 Setting.setState(true)
             } else {
                 Setting.setState(false)
             }
             // eslint-disable-next-line promise/prefer-await-to-then
-            Comms.messaging?.onUserValuesChanged(value => {
+            page.onUserValuesChanged(value => {
                 if ('enabled' in value.privatePlayerMode) {
                     Setting.setState(true)
                 } else {
@@ -400,7 +422,7 @@ const Comms = {
      * From the player page, all we can do is 'setUserValues' to {enabled: {}}
      */
     setAlwaysOpen () {
-        Comms.messaging?.setUserValues({
+        Comms.page?.setUserValues({
             overlayInteracted: false,
             privatePlayerMode: { enabled: {} }
         })
@@ -757,10 +779,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     Setting.init({
         settingsUrl: settingsUrl(import.meta.injectName)
     })
-    await Comms.init({
+
+    const messaging = createDuckPlayerPageMessaging({
         injectName: import.meta.injectName,
         env: import.meta.env
     })
+
+    const page = new DuckplayerPage(messaging)
+    await Comms.init({ page })
+
     if (!Comms.messaging) {
         console.warn('cannot continue as messaging was not resolved')
         return

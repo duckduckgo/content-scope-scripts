@@ -7,70 +7,6 @@ import {
 } from '@duckduckgo/messaging'
 
 /**
- * Notifications or requests that the Duck Player Page will
- * send to the native side
- */
-export class DuckPlayerPageMessages {
-    /**
-     * @param {import("@duckduckgo/messaging").Messaging} messaging
-     * @internal
-     */
-    constructor (messaging) {
-        /**
-         * @internal
-         */
-        this.messaging = messaging
-    }
-
-    /**
-     * This is sent when the user wants to set Duck Player as the default.
-     *
-     * @param {UserValues} userValues
-     */
-    setUserValues (userValues) {
-        return this.messaging.request('setUserValues', userValues)
-    }
-
-    /**
-     * This is sent when the user wants to set Duck Player as the default.
-     * @return {Promise<UserValues>}
-     */
-    getUserValues () {
-        return this.messaging.request('getUserValues')
-    }
-
-    /**
-     * This is a subscription that we set up when the page loads.
-     * We use this value to show/hide the checkboxes.
-     *
-     * **Integration NOTE**: Native platforms should always send this at least once on initial page load.
-     *
-     * - See {@link Messaging.SubscriptionEvent} for details on each value of this message
-     * - See {@link UserValues} for details on the `params`
-     *
-     * ```json
-     * // the payload that we receive should look like this
-     * {
-     *   "context": "specialPages",
-     *   "featureName": "duckPlayerPage",
-     *   "subscriptionName": "onUserValuesChanged",
-     *   "params": {
-     *     "overlayInteracted": false,
-     *     "privatePlayerMode": {
-     *       "enabled": {}
-     *     }
-     *   }
-     * }
-     * ```
-     *
-     * @param {(value: UserValues) => void} cb
-     */
-    onUserValuesChanged (cb) {
-        return this.messaging.subscribe('onUserValuesChanged', cb)
-    }
-}
-
-/**
  * This data structure is sent to enable user settings to be updated
  *
  * ```js
@@ -122,16 +58,14 @@ export function createDuckPlayerPageMessaging (opts) {
                 removeEventListener: window.chrome.webview.removeEventListener
             }
         })
-        const messaging = new Messaging(messageContext, opts)
-        return new DuckPlayerPageMessages(messaging)
+        return new Messaging(messageContext, opts)
     } else if (opts.injectName === 'apple') {
         const opts = new WebkitMessagingConfig({
             hasModernWebkitAPI: true,
             secret: '',
             webkitMessageHandlerNames: ['specialPages']
         })
-        const messaging = new Messaging(messageContext, opts)
-        return new DuckPlayerPageMessages(messaging)
+        return new Messaging(messageContext, opts)
     } else if (opts.injectName === 'integration') {
         const config = new TestTransportConfig({
             notify (msg) {
@@ -154,8 +88,7 @@ export function createDuckPlayerPageMessaging (opts) {
                 }
             }
         })
-        const messaging = new Messaging(messageContext, config)
-        return new DuckPlayerPageMessages(messaging)
+        return new Messaging(messageContext, config)
     }
     throw new Error('unreachable - platform not supported')
 }
