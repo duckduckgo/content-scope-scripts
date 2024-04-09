@@ -89,9 +89,11 @@ const VideoPlayer = {
      * 2. If the video id is correctly formatted, it loads the YouTube video in the iframe, otherwise displays an error message
      * @param {object} opts
      * @param {string} opts.base
+     * @param {ImportMeta['env']} opts.env
      */
     init: (opts) => {
         VideoPlayer.loadVideoById()
+        VideoPlayer.autoFocusVideo(opts.env)
         VideoPlayer.setTabTitle()
         VideoPlayer.setClickListener(opts.base)
     },
@@ -227,6 +229,46 @@ const VideoPlayer = {
                     document.title = 'Duck Player - ' + validTitle
                 }
             })
+        })
+    },
+
+    /**
+     * Wait for the video to load and then focus it
+     * @param {ImportMeta['env']} env
+     */
+    autoFocusVideo: (env) => {
+        VideoPlayer.onIframeLoaded(() => {
+            const contentDocument = VideoPlayer.iframe().contentDocument
+            if (!contentDocument) return
+
+            const maxAttempts = 1000
+            let attempt = 0
+
+            function check () {
+                if (!contentDocument) return
+                if (attempt > maxAttempts) return
+
+                attempt += 1
+
+                // try to select the video element
+                const video = /** @type {HTMLIFrameElement | null} */(contentDocument?.body.querySelector('#player video'))
+
+                // if the video is absent, try again
+                if (!video) {
+                    requestAnimationFrame(check)
+                    return
+                }
+
+                // programmatically focus the video element
+                video.focus()
+
+                // in a dev/test environment only, append a signal to the outer document
+                if (env === 'development') {
+                    document.body.dataset.videoState = 'loaded+focussed'
+                }
+            }
+
+            requestAnimationFrame(check)
         })
     }
 }
@@ -766,7 +808,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return
     }
     VideoPlayer.init({
-        base: baseUrl(import.meta.injectName)
+        base: baseUrl(import.meta.injectName),
+        env: import.meta.env
     })
     Tooltip.init()
     PlayOnYouTube.init({
