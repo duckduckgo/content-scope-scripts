@@ -1,4 +1,3 @@
-// eslint-disable
 /**
  * @module Webcompat Settings Schema
  * @description
