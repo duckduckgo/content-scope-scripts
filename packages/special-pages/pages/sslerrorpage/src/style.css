@@ -49,7 +49,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, calc(-50% - 16px));
     width: 504px;
     min-width: 400px; 
     flex-direction: column;
@@ -60,7 +60,7 @@ body {
     overflow: hidden;
 }
 
-@media (max-height: 500px) { 
+@media (max-height: 460px) {
     .full-container {
         position: absolute;
         top: 40px;
