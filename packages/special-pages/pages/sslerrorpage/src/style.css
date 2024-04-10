@@ -62,7 +62,7 @@ body {
 
 @media (max-height: 500px) { 
     .full-container {
-        position: fixed;
+        position: absolute;
         top: 40px;
         left: 50%;
         transform: translateX(-50%);
