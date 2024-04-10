@@ -75,6 +75,7 @@ export async function buildTypes(mapping = defaultMapping) {
  */
 async function createTypesForSchemaFile(featureName, schemaFilePath) {
     return await compileFromFile(schemaFilePath, {
+        additionalProperties: false,
         bannerComment: `
                 /**
                  * @module ${featureName} Schema
@@ -100,6 +101,7 @@ async function createTypesForSchemaFile(featureName, schemaFilePath) {
 export async function createTypesForSchemaMessages(featureName, schema, rootDir) {
     const typescript = await compile(/** @type {any} */(schema), featureName, {
         cwd: rootDir,
+        additionalProperties: false,
         bannerComment: `
             /**
              * @module ${featureName} Messages
