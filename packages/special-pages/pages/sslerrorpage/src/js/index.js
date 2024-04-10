@@ -82,7 +82,7 @@ function bindEvents (messaging) {
 
 document.addEventListener("DOMContentLoaded", function() {
     const fullContainer = document.querySelector('.full-container');
-    let maxHeight = 285;
+    let maxHeight = 320;
     const advanced = document.getElementById('advancedBtn')
 
     function updateStyles() {
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 fullContainer.style.transform = 'translateX(-50%)';
             } else {
                 fullContainer.style.top = '50%';
-                fullContainer.style.transform = 'translate(-50%, -50%)';
+                fullContainer.style.transform = 'translate(-50%, calc(-50% - 16px))';
             }
         }
     }
@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function() {
     window.addEventListener('resize', updateStyles);
     if (!advanced) return console.error('unreachable: missing elements')
     advanced.addEventListener('click', function () {
-        maxHeight = 430;
+        maxHeight = 460;
         updateStyles();
     });
 });
