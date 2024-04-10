@@ -304,7 +304,7 @@ const Comms = {
      * @param {string} input
      * @returns {(string|null)}
      */
-    validateVideoId: (input) => {
+    sanitiseVideoId: (input) => {
         if (typeof input !== 'string') return null
         const subject = input.slice(0, 11)
         if (/^[a-zA-Z0-9-_]+$/g.test(subject)) {
@@ -318,7 +318,7 @@ const Comms = {
      * @returns {(string|null)}
      */
     getValidVideoId: () => {
-        return Comms.validateVideoId(Comms.getVideoIdFromLocation())
+        return Comms.sanitiseVideoId(Comms.getVideoIdFromLocation())
     },
 
     /**
