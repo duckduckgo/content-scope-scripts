@@ -26,6 +26,8 @@
     --leave-site-btn-border-color-dark: rgba(40, 145, 255, 0.2);
     --leave-site-btn-shadow-color-dark: rgba(40, 145, 255, 0.3);
     --accept-risk-color-dark: #CCCCCC;
+
+    --max-height-for-query: 320px;
 }
 
 /* Base styles */
@@ -58,15 +60,6 @@ body {
     border-radius: 8px;
     border: 1px solid var(--border-color);
     overflow: hidden;
-}
-
-@media (max-height: 460px) {
-    .full-container {
-        position: absolute;
-        top: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
 }
 
 .warning-container {

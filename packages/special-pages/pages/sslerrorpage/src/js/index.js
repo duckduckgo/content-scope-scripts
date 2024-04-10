@@ -79,3 +79,30 @@ function bindEvents (messaging) {
         console.error('Leave Site button not found.')
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const fullContainer = document.querySelector('.full-container');
+    let maxHeight = 285;
+    const advanced = document.getElementById('advancedBtn')
+
+    function updateStyles() {
+        if (fullContainer) {
+            if (window.innerHeight <= maxHeight) {
+                fullContainer.style.top = '40px';
+                fullContainer.style.transform = 'translateX(-50%)';
+            } else {
+                fullContainer.style.top = '50%';
+                fullContainer.style.transform = 'translate(-50%, -50%)';
+            }
+        }
+    }
+
+    updateStyles();
+
+    window.addEventListener('resize', updateStyles);
+    if (!advanced) return console.error('unreachable: missing elements')
+    advanced.addEventListener('click', function () {
+        maxHeight = 430;
+        updateStyles();
+    });
+});
