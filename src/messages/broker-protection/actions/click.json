@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "required": ["actionType", "elements"],
+  "title": "ClickAction",
+  "properties": {
+    "actionType": {
+      "type": "string",
+      "const": "click"
+    },
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "title": "ClickElement",
+        "required": ["type", "selector"],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "selector": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "retry": {"$ref": "./retry.json"}
+  }
+}

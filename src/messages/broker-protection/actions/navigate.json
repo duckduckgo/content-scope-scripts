@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "actionType": {
+      "type": "string",
+      "const": "navigate"
+    },
+    "id": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "retry": {"$ref": "./retry.json"}
+  },
+  "required": ["actionType", "id", "url"]
+}
