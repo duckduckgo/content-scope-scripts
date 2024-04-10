@@ -19,7 +19,6 @@ export function execTemplate (strings) {
                 <p>${strings.advancedInfoHeader}</p>
                 <p>${trustedUnsafe(strings.specificMessage)} ${strings.advancedInfoBody}</p>
                 <button id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</button>
-                <p class="error-code">${strings.errorCode}</p>
             </div>
         </div>
     `
