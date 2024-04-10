@@ -80,29 +80,29 @@ function bindEvents (messaging) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    const fullContainer = document.querySelector('.full-container');
+document.addEventListener('DOMContentLoaded', function () {
+    const fullContainer = document.querySelector('.full-container')
     let maxHeight = 320;
     const advanced = document.getElementById('advancedBtn')
 
-    function updateStyles() {
+    function updateStyles () {
         if (fullContainer) {
             if (window.innerHeight <= maxHeight) {
-                fullContainer.style.top = '40px';
-                fullContainer.style.transform = 'translateX(-50%)';
+                fullContainer.style.top = '40px'
+                fullContainer.style.transform = 'translateX(-50%)'
             } else {
-                fullContainer.style.top = '50%';
-                fullContainer.style.transform = 'translate(-50%, calc(-50% - 16px))';
+                fullContainer.style.top = '50%'
+                fullContainer.style.transform = 'translate(-50%, calc(-50% - 16px))'
             }
         }
     }
 
-    updateStyles();
+    updateStyles()
 
-    window.addEventListener('resize', updateStyles);
+    window.addEventListener('resize', updateStyles)
     if (!advanced) return console.error('unreachable: missing elements')
     advanced.addEventListener('click', function () {
-        maxHeight = 460;
-        updateStyles();
+        maxHeight = 460
+        updateStyles()
     });
 });
