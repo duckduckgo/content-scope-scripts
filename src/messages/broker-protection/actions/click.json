@@ -10,19 +10,10 @@
     "elements": {
       "type": "array",
       "items": {
-        "type": "object",
-        "title": "ClickElement",
-        "required": ["type", "selector"],
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "selector": {
-            "type": "string"
-          }
-        }
+        "$ref": "./pageElement.json"
       }
     },
-    "retry": {"$ref": "./retry.json"}
+    "retry": {"$ref": "./retry.json"},
+    "dataSource": {"$ref": "./dataSource.json"}
   }
 }

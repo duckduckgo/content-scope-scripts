@@ -7,6 +7,8 @@
  * **DO NOT** edit this file directly as your changes will be lost.
  */
 
+export type DataSource = "userProfile" | "extractedProfile";
+
 /**
  * Requests, Notifications and Subscriptions from the BrokerProtection feature
  */
@@ -28,12 +30,41 @@ export interface OnActionReceivedSubscribe {
 }
 export interface ClickAction {
   actionType: "click";
-  elements: ClickElement[];
+  elements: PageElement[];
   retry?: Retry;
+  dataSource?: DataSource;
 }
-export interface ClickElement {
+export interface PageElement {
   type: string;
   selector: string;
+  parent?: ParentElement;
+}
+export interface ParentElement {
+  profileMatch: {
+    profile?: ExtractProfileSelectors;
+  };
+}
+export interface ExtractProfileSelectors {
+  name?: ProfileSelector;
+  alternativeNamesList?: ProfileSelector;
+  addressCityStateList?: ProfileSelector;
+  addressCityState?: ProfileSelector;
+  phone?: ProfileSelector;
+  phoneList?: ProfileSelector;
+  relativesList?: ProfileSelector;
+  profileUrl?: ProfileSelector;
+  age?: ProfileSelector;
+  reportId?: string;
+}
+/**
+ * Only selector is required, everything else is optional
+ */
+export interface ProfileSelector {
+  selector: string;
+  findElements?: boolean;
+  afterText?: string;
+  beforeText?: string;
+  separator?: string;
 }
 export interface Retry {
   environment?: "web" | "native";
