@@ -1416,6 +1416,7 @@
     messaging: void 0,
     /**
      * NATIVE NOTE: Gets the video id from the location object, works for MacOS < > 12
+     * @return {string}
      */
     getVideoIdFromLocation: () => {
       const url = new URL(window.location.href);
@@ -1433,20 +1434,23 @@
      * Validates that the input string is a valid video id.
      * If so, returns the video id otherwise returns false.
      * @param {string} input
-     * @returns {(string|false)}
+     * @returns {(string|null)}
      */
-    validateVideoId: (input) => {
-      if (/^[a-zA-Z0-9-_]+$/g.test(input)) {
-        return input;
+    sanitiseVideoId: (input) => {
+      if (typeof input !== "string")
+        return null;
+      const subject = input.slice(0, 11);
+      if (/^[a-zA-Z0-9-_]+$/g.test(subject)) {
+        return subject;
       }
-      return false;
+      return null;
     },
     /**
      * Returns a sanitized video id if there is a valid one.
-     * @returns {(string|false)}
+     * @returns {(string|null)}
      */
     getValidVideoId: () => {
-      return Comms.validateVideoId(Comms.getVideoIdFromLocation());
+      return Comms.sanitiseVideoId(Comms.getVideoIdFromLocation());
     },
     /**
      * Gets the video id
