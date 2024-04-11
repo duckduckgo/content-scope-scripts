@@ -81,7 +81,7 @@ function bindEvents (messaging) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    const fullContainer = document.querySelector('.full-container')
+    const fullContainer = /** @type {HTMLElement | null} */(document.querySelector('.full-container'))
     let maxHeight = 320
     const advanced = document.getElementById('advancedBtn')
 
