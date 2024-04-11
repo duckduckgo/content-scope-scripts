@@ -546,7 +546,8 @@
       "apple-isolated": [
         "duckPlayer",
         "brokerProtection",
-        "performanceMetrics"
+        "performanceMetrics",
+        "clickToLoad"
       ],
       android: [
         ...baseFeatures,
@@ -1512,14 +1513,8 @@
       }
     }
     function captureGlobals() {
-      return {
+      const globals = {
         window,
-        // Methods must be bound to their interface, otherwise they throw Illegal invocation
-        encrypt: window.crypto.subtle.encrypt.bind(window.crypto.subtle),
-        decrypt: window.crypto.subtle.decrypt.bind(window.crypto.subtle),
-        generateKey: window.crypto.subtle.generateKey.bind(window.crypto.subtle),
-        exportKey: window.crypto.subtle.exportKey.bind(window.crypto.subtle),
-        importKey: window.crypto.subtle.importKey.bind(window.crypto.subtle),
         getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
         TextEncoder,
         TextDecoder,
@@ -1537,6 +1532,14 @@
         /** @type {Record<string, any>} */
         capturedWebkitHandlers: {}
       };
+      if (isSecureContext) {
+        globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
+        globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
+        globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
+        globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
+        globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
+      }
+      return globals;
     }
     class AndroidMessagingTransport {
       /**
@@ -2166,6 +2169,42 @@
       load(args) {
       }
       /**
+       * This is a wrapper around `this.messaging.notify` that applies the
+       * auto-generated types from the `src/types` folder. It's used
+       * to provide per-feature type information based on the schemas
+       * in `src/messages`
+       *
+       * @type {import("@duckduckgo/messaging").Messaging['notify']}
+       */
+      notify(...args) {
+        const [name, params] = args;
+        this.messaging.notify(name, params);
+      }
+      /**
+       * This is a wrapper around `this.messaging.request` that applies the
+       * auto-generated types from the `src/types` folder. It's used
+       * to provide per-feature type information based on the schemas
+       * in `src/messages`
+       *
+       * @type {import("@duckduckgo/messaging").Messaging['request']}
+       */
+      request(...args) {
+        const [name, params] = args;
+        return this.messaging.request(name, params);
+      }
+      /**
+       * This is a wrapper around `this.messaging.subscribe` that applies the
+       * auto-generated types from the `src/types` folder. It's used
+       * to provide per-feature type information based on the schemas
+       * in `src/messages`
+       *
+       * @type {import("@duckduckgo/messaging").Messaging['subscribe']}
+       */
+      subscribe(...args) {
+        const [name, cb] = args;
+        return this.messaging.subscribe(name, cb);
+      }
+      /**
        * @param {import('./content-scope-features.js').LoadArgs} args
        */
       callLoad(args) {
@@ -2413,7 +2452,7 @@
               return Promise.reject(new DOMException("Share must be initiated by a user gesture", "InvalidStateError"));
             }
             const dataToSend = cleanShareData(data);
-            __privateSet(this, _activeShareRequest, this.messaging.request(MSG_WEB_SHARE, dataToSend));
+            __privateSet(this, _activeShareRequest, this.request(MSG_WEB_SHARE, dataToSend));
             let resp;
             try {
               resp = await __privateGet(this, _activeShareRequest);

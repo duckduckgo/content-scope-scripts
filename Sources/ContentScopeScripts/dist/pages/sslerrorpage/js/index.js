@@ -354,14 +354,8 @@
 
   // ../messaging/lib/webkit.js
   function captureGlobals() {
-    return {
+    const globals = {
       window,
-      // Methods must be bound to their interface, otherwise they throw Illegal invocation
-      encrypt: window.crypto.subtle.encrypt.bind(window.crypto.subtle),
-      decrypt: window.crypto.subtle.decrypt.bind(window.crypto.subtle),
-      generateKey: window.crypto.subtle.generateKey.bind(window.crypto.subtle),
-      exportKey: window.crypto.subtle.exportKey.bind(window.crypto.subtle),
-      importKey: window.crypto.subtle.importKey.bind(window.crypto.subtle),
       getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
       TextEncoder,
       TextDecoder,
@@ -379,6 +373,14 @@
       /** @type {Record<string, any>} */
       capturedWebkitHandlers: {}
     };
+    if (isSecureContext) {
+      globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
+      globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
+      globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
+      globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
+      globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
+    }
+    return globals;
   }
   var WebkitMessagingTransport, WebkitMessagingConfig, SecureMessagingParams;
   var init_webkit = __esm({
@@ -850,6 +852,23 @@
     }
   });
 
+  // ../messaging/lib/typed-messages.js
+  function createTypedMessages(base, messaging) {
+    const asAny = (
+      /** @type {any} */
+      messaging
+    );
+    return (
+      /** @type {BaseClass} */
+      asAny
+    );
+  }
+  var init_typed_messages = __esm({
+    "../messaging/lib/typed-messages.js"() {
+      "use strict";
+    }
+  });
+
   // ../messaging/index.js
   var messaging_exports = {};
   __export(messaging_exports, {
@@ -873,7 +892,8 @@
     WindowsMessagingConfig: () => WindowsMessagingConfig,
     WindowsMessagingTransport: () => WindowsMessagingTransport,
     WindowsNotification: () => WindowsNotification,
-    WindowsRequestMessage: () => WindowsRequestMessage
+    WindowsRequestMessage: () => WindowsRequestMessage,
+    createTypedMessages: () => createTypedMessages
   });
   function getTransport(config, messagingContext) {
     if (config instanceof WebkitMessagingConfig) {
@@ -898,6 +918,7 @@
       init_webkit();
       init_schema();
       init_android();
+      init_typed_messages();
       MessagingContext = class {
         /**
          * @param {object} params
@@ -1126,7 +1147,6 @@
                 <p>${strings.advancedInfoHeader}</p>
                 <p>${trustedUnsafe(strings.specificMessage)} ${strings.advancedInfoBody}</p>
                 <button id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</button>
-                <p class="error-code">${strings.errorCode}</p>
             </div>
         </div>
     `;
@@ -1142,19 +1162,50 @@
       leaveSiteButton: "Leave This Site",
       specificMessage: "The security certificate for <b>bad.example.com</b> is not trusted by your computer's operating system",
       advancedInfoBody: "It\u2019s possible that the website is misconfigured or that an attacker has compromised your connection.",
-      visitSiteBody: "Accept Risk and Visit Site",
-      errorCode: "-9807"
+      visitSiteBody: "Accept Risk and Visit Site"
     }
   };
 
   // pages/sslerrorpage/src/js/messages.js
-  var SSLErrorPageMessages = class {
+  init_messaging();
+  async function createSSLErrorMessaging(opts) {
+    const { Messaging: Messaging2, MessagingContext: MessagingContext2, WebkitMessagingConfig: WebkitMessagingConfig2 } = await Promise.resolve().then(() => (init_messaging(), messaging_exports));
+    const messageContext = new MessagingContext2({
+      context: "specialPages",
+      featureName: "sslErrorPage",
+      env: opts.env
+    });
+    if (opts.injectName === "integration") {
+      const config2 = new TestTransportConfig({
+        notify(msg) {
+          console.log(msg);
+        },
+        request: () => {
+          return Promise.resolve(null);
+        },
+        subscribe() {
+          return () => {
+          };
+        }
+      });
+      return new Messaging2(messageContext, config2);
+    }
+    const config = new WebkitMessagingConfig2({
+      hasModernWebkitAPI: true,
+      secret: "",
+      webkitMessageHandlerNames: ["specialPages"]
+    });
+    return new Messaging2(messageContext, config);
+  }
+
+  // pages/sslerrorpage/src/js/index.js
+  init_messaging();
+  var SslerrorpagePage = class {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
-     * @internal
      */
     constructor(messaging) {
-      this.messaging = messaging;
+      this.messaging = createTypedMessages(this, messaging);
     }
     visitSite() {
       return this.messaging.notify("visitSite");
@@ -1163,35 +1214,17 @@
       return this.messaging.notify("leaveSite");
     }
   };
-  async function createSSLErrorMessaging() {
-    try {
-      const { Messaging: Messaging2, MessagingContext: MessagingContext2, WebkitMessagingConfig: WebkitMessagingConfig2 } = await Promise.resolve().then(() => (init_messaging(), messaging_exports));
-      const messageContext = new MessagingContext2({
-        context: "specialPages",
-        featureName: "sslErrorPage",
-        env: "development"
-      });
-      const config = new WebkitMessagingConfig2({
-        hasModernWebkitAPI: true,
-        secret: "",
-        webkitMessageHandlerNames: ["specialPages"]
-      });
-      const messaging = new Messaging2(messageContext, config);
-      return new SSLErrorPageMessages(messaging);
-    } catch (e) {
-      console.warn("missing messaging. all messages will be logged");
-      return {
-        leaveSite: () => console.trace("leaveSite"),
-        visitSite: () => console.trace("visitSite")
-      };
-    }
-  }
-
-  // pages/sslerrorpage/src/js/index.js
   async function init() {
-    const messaging = await createSSLErrorMessaging();
-    loadHTML();
-    bindEvents(messaging);
+    const messaging = await createSSLErrorMessaging({
+      env: "production",
+      injectName: "apple"
+    });
+    const page = new SslerrorpagePage(messaging);
+    window.addEventListener("DOMContentLoaded", () => {
+      loadHTML();
+      bindEvents(page);
+      adjustStyles();
+    });
   }
   init().catch(console.error);
   function loadHTML() {
@@ -1212,36 +1245,64 @@
     container.innerHTML = execTemplate(mergedStrings).toString();
     document.body.appendChild(container);
   }
-  function bindEvents(messaging) {
-    const advanced = document.getElementById("advancedBtn");
-    const info = document.getElementById("advancedInfo");
-    const fullContainer = document.getElementById("fullContainer");
-    if (!advanced || !info)
-      return console.error("unreachable: missing elements");
-    advanced.addEventListener("click", function() {
-      info.classList.toggle("closed");
-      advanced.style.display = "none";
-      if (fullContainer) {
-        fullContainer.style.borderRadius = "8px";
+  function domElements() {
+    return {
+      advanced: document.getElementById("advancedBtn"),
+      info: document.getElementById("advancedInfo"),
+      fullContainer: document.getElementById("fullContainer"),
+      acceptRiskLink: document.getElementById("acceptRiskLink"),
+      leaveThisSiteBtn: document.getElementById("leaveThisSiteBtn")
+    };
+  }
+  function bindEvents(page) {
+    const dom = domElements();
+    if (!dom.advanced || !dom.info)
+      return console.error("ts unreachable: missing elements");
+    dom.advanced.addEventListener("click", function() {
+      if (!dom.advanced || !dom.info || !dom.fullContainer)
+        return console.error("ts unreachable: missing elements");
+      dom.info.classList.toggle("closed");
+      dom.advanced.style.display = "none";
+      if (dom.fullContainer) {
+        dom.fullContainer.style.borderRadius = "8px";
       }
     });
-    const acceptRiskLink = document.getElementById("acceptRiskLink");
-    if (acceptRiskLink) {
-      acceptRiskLink.addEventListener("click", (event) => {
+    if (dom.acceptRiskLink) {
+      dom.acceptRiskLink.addEventListener("click", (event) => {
         event.preventDefault();
-        messaging.visitSite();
+        page.visitSite();
       });
     } else {
       console.error("Accept risk link not found.");
     }
-    const leaveSiteButton = document.getElementById("leaveThisSiteBtn");
-    if (leaveSiteButton) {
-      leaveSiteButton.addEventListener("click", (event) => {
+    if (dom.leaveSiteButton) {
+      dom.leaveSiteButton.addEventListener("click", (event) => {
         event.preventDefault();
-        messaging.leaveSite();
+        page.leaveSite();
       });
     } else {
       console.error("Leave Site button not found.");
     }
+  }
+  function adjustStyles() {
+    const dom = domElements();
+    let maxHeight = 320;
+    function updateStyles() {
+      if (dom.fullContainer) {
+        if (window.innerHeight <= maxHeight) {
+          dom.fullContainer.style.top = "40px";
+          dom.fullContainer.style.transform = "translateX(-50%)";
+        } else {
+          dom.fullContainer.style.top = "50%";
+          dom.fullContainer.style.transform = "translate(-50%, calc(-50% - 16px))";
+        }
+      }
+    }
+    updateStyles();
+    window.addEventListener("resize", updateStyles);
+    dom.advanced?.addEventListener("click", function() {
+      maxHeight = 460;
+      updateStyles();
+    });
   }
 })();

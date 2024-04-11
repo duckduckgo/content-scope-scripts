@@ -8,7 +8,7 @@
     <style>
 :root {
     /* Light theme colors */
-    --background-color: #f5f5f5;
+    --background-color:  #eee;
     --text-color: rgba(0, 0, 0, 0.84);
     --border-color: rgba(0, 0, 0, 0.10);
     --warning-container-bg: #FFF;
@@ -16,14 +16,13 @@
     --button-bg: #FFF;
     --button-active-bg:#e0e0e0;
     --button-text: #000000;
-    --error-code-color: rgba(0, 0, 0, 0.60);
     --leave-site-btn-bg: linear-gradient(180deg, #4266D8 0%, #224CD2 100%);
     --leave-site-btn-border-color: rgba(40, 145, 255, 0.05);
     --leave-site-btn-shadow-color: rgba(40, 145, 255, 0.10);
     --accept-risk-color: black;
 
     /* Dark theme colors */
-    --background-color-dark: #363636;
+    --background-color-dark: #333333;
     --text-color-dark: #FFFFFFD6;
     --border-color-dark: rgba(255, 255, 255, 0.3);
     --warning-container-bg-dark: #222222;
@@ -31,11 +30,12 @@
     --button-bg-dark: #333333;
     --button-active-bg-dark:#757575;
     --button-text-dark: #FFFFFF;
-    --error-code-color-dark: rgba(255, 255, 255, 0.6);
     --leave-site-btn-bg-dark: linear-gradient(180deg, #4266D8 0%, #224CD2 100%);
     --leave-site-btn-border-color-dark: rgba(40, 145, 255, 0.2);
     --leave-site-btn-shadow-color-dark: rgba(40, 145, 255, 0.3);
     --accept-risk-color-dark: #CCCCCC;
+
+    --max-height-for-query: 320px;
 }
 
 /* Base styles */
@@ -59,23 +59,15 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, calc(-50% - 16px));
     width: 504px;
     min-width: 400px; 
     flex-direction: column;
     align-items: flex-start;
+    background: var(--warning-container-bg);
     border-radius: 8px;
-    border: 0.5px solid var(--border-color);
+    border: 1px solid var(--border-color);
     overflow: hidden;
-}
-
-@media (max-height: 500px) { 
-    .full-container {
-        position: fixed;
-        top: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
 }
 
 .warning-container {
@@ -90,7 +82,7 @@ body {
     display: flex;
     align-items: center;
     gap: 16px;
-    font-size: 22px;
+    font-size: 17px;
     margin-block: 0;
     min-height: 32px;
     position: relative; 
@@ -112,13 +104,12 @@ body {
 }
 
 .advanced-info {
-    box-shadow: inset 0 0.5px 0 0 var(--border-color);
+    box-shadow: inset 0 1px 0 0 var(--border-color);
     overflow: hidden;
-    border-top: 0.5px solid var(--border-color);
     padding: 24px 40px;
     align-items: flex-start;
     background: var(--advanced-info-bg);
-    font-size: 11px;
+    font-size: 13px;
     line-height: 14px;
     color: var(--text-color);
     transition: padding 200ms, height 200ms;
@@ -181,13 +172,7 @@ body {
     text-decoration: underline;
     cursor: pointer;
     color: var(--accept-risk-color);
-}
-
-.error-code {
-    padding: 4px 0px 0px 0px;
-    color: var(--error-code-color);
-    font-size: 10px;
-    font-family: 'SFMono-Regular', Menlo, Monaco, 'Courier New', monospace;
+    padding: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -200,7 +185,6 @@ body {
         --button-bg: var(--button-bg-dark);
         --button-active-bg:var(--button-active-bg-dark);
         --button-text: var(--button-text-dark);
-        --error-code-color: var(--error-code-color-dark);
         --leave-site-btn-bg: var(--leave-site-btn-bg-dark);
         --leave-site-btn-border-color: var(--leave-site-btn-border-color-dark);
         --leave-site-btn-shadow-color: var(--leave-site-btn-shadow-color-dark);
@@ -569,14 +553,8 @@ body {
 
   // ../messaging/lib/webkit.js
   function captureGlobals() {
-    return {
+    const globals = {
       window,
-      // Methods must be bound to their interface, otherwise they throw Illegal invocation
-      encrypt: window.crypto.subtle.encrypt.bind(window.crypto.subtle),
-      decrypt: window.crypto.subtle.decrypt.bind(window.crypto.subtle),
-      generateKey: window.crypto.subtle.generateKey.bind(window.crypto.subtle),
-      exportKey: window.crypto.subtle.exportKey.bind(window.crypto.subtle),
-      importKey: window.crypto.subtle.importKey.bind(window.crypto.subtle),
       getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
       TextEncoder,
       TextDecoder,
@@ -594,6 +572,14 @@ body {
       /** @type {Record<string, any>} */
       capturedWebkitHandlers: {}
     };
+    if (isSecureContext) {
+      globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
+      globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
+      globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
+      globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
+      globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
+    }
+    return globals;
   }
   var WebkitMessagingTransport, WebkitMessagingConfig, SecureMessagingParams;
   var init_webkit = __esm({
@@ -1065,6 +1051,23 @@ body {
     }
   });
 
+  // ../messaging/lib/typed-messages.js
+  function createTypedMessages(base, messaging) {
+    const asAny = (
+      /** @type {any} */
+      messaging
+    );
+    return (
+      /** @type {BaseClass} */
+      asAny
+    );
+  }
+  var init_typed_messages = __esm({
+    "../messaging/lib/typed-messages.js"() {
+      "use strict";
+    }
+  });
+
   // ../messaging/index.js
   var messaging_exports = {};
   __export(messaging_exports, {
@@ -1088,7 +1091,8 @@ body {
     WindowsMessagingConfig: () => WindowsMessagingConfig,
     WindowsMessagingTransport: () => WindowsMessagingTransport,
     WindowsNotification: () => WindowsNotification,
-    WindowsRequestMessage: () => WindowsRequestMessage
+    WindowsRequestMessage: () => WindowsRequestMessage,
+    createTypedMessages: () => createTypedMessages
   });
   function getTransport(config, messagingContext) {
     if (config instanceof WebkitMessagingConfig) {
@@ -1113,6 +1117,7 @@ body {
       init_webkit();
       init_schema();
       init_android();
+      init_typed_messages();
       MessagingContext = class {
         /**
          * @param {object} params
@@ -1341,7 +1346,6 @@ body {
                 <p>${strings.advancedInfoHeader}</p>
                 <p>${trustedUnsafe(strings.specificMessage)} ${strings.advancedInfoBody}</p>
                 <button id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</button>
-                <p class="error-code">${strings.errorCode}</p>
             </div>
         </div>
     `;
@@ -1357,19 +1361,50 @@ body {
       leaveSiteButton: "Leave This Site",
       specificMessage: "The security certificate for <b>bad.example.com</b> is not trusted by your computer's operating system",
       advancedInfoBody: "It\u2019s possible that the website is misconfigured or that an attacker has compromised your connection.",
-      visitSiteBody: "Accept Risk and Visit Site",
-      errorCode: "-9807"
+      visitSiteBody: "Accept Risk and Visit Site"
     }
   };
 
   // pages/sslerrorpage/src/js/messages.js
-  var SSLErrorPageMessages = class {
+  init_messaging();
+  async function createSSLErrorMessaging(opts) {
+    const { Messaging: Messaging2, MessagingContext: MessagingContext2, WebkitMessagingConfig: WebkitMessagingConfig2 } = await Promise.resolve().then(() => (init_messaging(), messaging_exports));
+    const messageContext = new MessagingContext2({
+      context: "specialPages",
+      featureName: "sslErrorPage",
+      env: opts.env
+    });
+    if (opts.injectName === "integration") {
+      const config2 = new TestTransportConfig({
+        notify(msg) {
+          console.log(msg);
+        },
+        request: () => {
+          return Promise.resolve(null);
+        },
+        subscribe() {
+          return () => {
+          };
+        }
+      });
+      return new Messaging2(messageContext, config2);
+    }
+    const config = new WebkitMessagingConfig2({
+      hasModernWebkitAPI: true,
+      secret: "",
+      webkitMessageHandlerNames: ["specialPages"]
+    });
+    return new Messaging2(messageContext, config);
+  }
+
+  // pages/sslerrorpage/src/js/index.js
+  init_messaging();
+  var SslerrorpagePage = class {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
-     * @internal
      */
     constructor(messaging) {
-      this.messaging = messaging;
+      this.messaging = createTypedMessages(this, messaging);
     }
     visitSite() {
       return this.messaging.notify("visitSite");
@@ -1378,35 +1413,17 @@ body {
       return this.messaging.notify("leaveSite");
     }
   };
-  async function createSSLErrorMessaging() {
-    try {
-      const { Messaging: Messaging2, MessagingContext: MessagingContext2, WebkitMessagingConfig: WebkitMessagingConfig2 } = await Promise.resolve().then(() => (init_messaging(), messaging_exports));
-      const messageContext = new MessagingContext2({
-        context: "specialPages",
-        featureName: "sslErrorPage",
-        env: "development"
-      });
-      const config = new WebkitMessagingConfig2({
-        hasModernWebkitAPI: true,
-        secret: "",
-        webkitMessageHandlerNames: ["specialPages"]
-      });
-      const messaging = new Messaging2(messageContext, config);
-      return new SSLErrorPageMessages(messaging);
-    } catch (e) {
-      console.warn("missing messaging. all messages will be logged");
-      return {
-        leaveSite: () => console.trace("leaveSite"),
-        visitSite: () => console.trace("visitSite")
-      };
-    }
-  }
-
-  // pages/sslerrorpage/src/js/index.js
   async function init() {
-    const messaging = await createSSLErrorMessaging();
-    loadHTML();
-    bindEvents(messaging);
+    const messaging = await createSSLErrorMessaging({
+      env: "production",
+      injectName: "apple"
+    });
+    const page = new SslerrorpagePage(messaging);
+    window.addEventListener("DOMContentLoaded", () => {
+      loadHTML();
+      bindEvents(page);
+      adjustStyles();
+    });
   }
   init().catch(console.error);
   function loadHTML() {
@@ -1427,37 +1444,65 @@ body {
     container.innerHTML = execTemplate(mergedStrings).toString();
     document.body.appendChild(container);
   }
-  function bindEvents(messaging) {
-    const advanced = document.getElementById("advancedBtn");
-    const info = document.getElementById("advancedInfo");
-    const fullContainer = document.getElementById("fullContainer");
-    if (!advanced || !info)
-      return console.error("unreachable: missing elements");
-    advanced.addEventListener("click", function() {
-      info.classList.toggle("closed");
-      advanced.style.display = "none";
-      if (fullContainer) {
-        fullContainer.style.borderRadius = "8px";
+  function domElements() {
+    return {
+      advanced: document.getElementById("advancedBtn"),
+      info: document.getElementById("advancedInfo"),
+      fullContainer: document.getElementById("fullContainer"),
+      acceptRiskLink: document.getElementById("acceptRiskLink"),
+      leaveThisSiteBtn: document.getElementById("leaveThisSiteBtn")
+    };
+  }
+  function bindEvents(page) {
+    const dom = domElements();
+    if (!dom.advanced || !dom.info)
+      return console.error("ts unreachable: missing elements");
+    dom.advanced.addEventListener("click", function() {
+      if (!dom.advanced || !dom.info || !dom.fullContainer)
+        return console.error("ts unreachable: missing elements");
+      dom.info.classList.toggle("closed");
+      dom.advanced.style.display = "none";
+      if (dom.fullContainer) {
+        dom.fullContainer.style.borderRadius = "8px";
       }
     });
-    const acceptRiskLink = document.getElementById("acceptRiskLink");
-    if (acceptRiskLink) {
-      acceptRiskLink.addEventListener("click", (event) => {
+    if (dom.acceptRiskLink) {
+      dom.acceptRiskLink.addEventListener("click", (event) => {
         event.preventDefault();
-        messaging.visitSite();
+        page.visitSite();
       });
     } else {
       console.error("Accept risk link not found.");
     }
-    const leaveSiteButton = document.getElementById("leaveThisSiteBtn");
-    if (leaveSiteButton) {
-      leaveSiteButton.addEventListener("click", (event) => {
+    if (dom.leaveSiteButton) {
+      dom.leaveSiteButton.addEventListener("click", (event) => {
         event.preventDefault();
-        messaging.leaveSite();
+        page.leaveSite();
       });
     } else {
       console.error("Leave Site button not found.");
     }
+  }
+  function adjustStyles() {
+    const dom = domElements();
+    let maxHeight = 320;
+    function updateStyles() {
+      if (dom.fullContainer) {
+        if (window.innerHeight <= maxHeight) {
+          dom.fullContainer.style.top = "40px";
+          dom.fullContainer.style.transform = "translateX(-50%)";
+        } else {
+          dom.fullContainer.style.top = "50%";
+          dom.fullContainer.style.transform = "translate(-50%, calc(-50% - 16px))";
+        }
+      }
+    }
+    updateStyles();
+    window.addEventListener("resize", updateStyles);
+    dom.advanced?.addEventListener("click", function() {
+      maxHeight = 460;
+      updateStyles();
+    });
   }
 })();
 

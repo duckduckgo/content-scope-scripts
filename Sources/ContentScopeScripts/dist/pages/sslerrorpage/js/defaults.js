@@ -7,7 +7,6 @@ export const defaultLoadData = {
         leaveSiteButton: 'Leave This Site',
         specificMessage: 'The security certificate for <b>bad.example.com</b> is not trusted by your computer\'s operating system',
         advancedInfoBody: 'It’s possible that the website is misconfigured or that an attacker has compromised your connection.',
-        visitSiteBody: 'Accept Risk and Visit Site',
-        errorCode: '-9807'
+        visitSiteBody: 'Accept Risk and Visit Site'
     }
 }
