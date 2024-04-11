@@ -29,7 +29,7 @@ export async function createSSLErrorMessaging () {
         const messageContext = new MessagingContext({
             context: 'specialPages',
             featureName: 'sslErrorPage',
-            env: 'development'
+            env: import.meta.env
         })
         const config = new WebkitMessagingConfig({
             hasModernWebkitAPI: true,
