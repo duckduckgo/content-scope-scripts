@@ -82,7 +82,7 @@ function bindEvents (messaging) {
 
 document.addEventListener('DOMContentLoaded', function () {
     const fullContainer = document.querySelector('.full-container')
-    let maxHeight = 320;
+    let maxHeight = 320
     const advanced = document.getElementById('advancedBtn')
 
     function updateStyles () {
@@ -104,5 +104,5 @@ document.addEventListener('DOMContentLoaded', function () {
     advanced.addEventListener('click', function () {
         maxHeight = 460
         updateStyles()
-    });
-});
+    })
+})
