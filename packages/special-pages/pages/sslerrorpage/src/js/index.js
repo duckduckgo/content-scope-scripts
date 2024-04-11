@@ -7,10 +7,11 @@
  * [[include:packages/special-pages/pages/sslerrorpage/readme.md]]
  */
 
-import { execTemplate } from './template.js'
 import { defaultLoadData } from './defaults.js'
 import { createSSLErrorMessaging } from './messages.js'
 import { createTypedMessages } from '@duckduckgo/messaging'
+import { html, render } from 'lit'
+import './ddg-ssl-warning.js'
 
 export class SslerrorpagePage {
     /**
@@ -39,9 +40,7 @@ async function init () {
     })
     const page = new SslerrorpagePage(messaging)
     window.addEventListener('DOMContentLoaded', () => {
-        loadHTML()
-        bindEvents(page)
-        adjustStyles()
+        loadHTML(page)
     })
 }
 
@@ -49,8 +48,9 @@ init().catch(console.error)
 
 /**
  * Construct the HTML, using data retrieved from the load-time JSON
+ * @param {SslerrorpagePage} page
  */
-function loadHTML () {
+function loadHTML (page) {
     const element = document.querySelector('[data-id="load-time-data"]')
     const parsed = (() => {
         try {
@@ -65,89 +65,13 @@ function loadHTML () {
         console.warn('missing `strings` from the incoming json data')
     }
     const mergedStrings = { ...defaultLoadData.strings, ...parsed.strings }
-    container.innerHTML = execTemplate(mergedStrings).toString()
+    const output = html`
+        <ddg-ssl-warning 
+                .strings=${mergedStrings} 
+                @visit-site=${() => page.visitSite()}
+                @leave-site=${() => page.leaveSite()}
+        ></ddg-ssl-warning>
+    `
     document.body.appendChild(container)
-}
-
-/**
- * @return {{
- *   advanced: HTMLElement | null,
- *   acceptRiskLink: HTMLElement | null,
- *   leaveThisSiteBtn: HTMLElement | null,
- *   fullContainer: HTMLElement | null,
- *   info: HTMLElement | null,
- * }}
- */
-function domElements () {
-    return {
-        advanced: document.getElementById('advancedBtn'),
-        info: document.getElementById('advancedInfo'),
-        fullContainer: document.getElementById('fullContainer'),
-        acceptRiskLink: document.getElementById('acceptRiskLink'),
-        leaveThisSiteBtn: document.getElementById('leaveThisSiteBtn')
-    }
-}
-
-/**
- * @param {SslerrorpagePage} page
- */
-function bindEvents (page) {
-    const dom = domElements()
-
-    if (!dom.advanced || !dom.info) return console.error('ts unreachable: missing elements')
-
-    dom.advanced.addEventListener('click', function () {
-        if (!dom.advanced || !dom.info || !dom.fullContainer) return console.error('ts unreachable: missing elements')
-
-        dom.info.classList.toggle('closed')
-        dom.advanced.style.display = 'none'
-
-        if (dom.fullContainer) {
-            dom.fullContainer.style.borderRadius = '8px'
-        }
-    })
-
-    if (dom.acceptRiskLink) {
-        dom.acceptRiskLink.addEventListener('click', (event) => {
-            event.preventDefault()
-            page.visitSite()
-        })
-    } else {
-        console.error('Accept risk link not found.')
-    }
-
-    if (dom.leaveThisSiteBtn) {
-        dom.leaveThisSiteBtn?.addEventListener('click', (event) => {
-            event.preventDefault()
-            page.leaveSite()
-        })
-    } else {
-        console.error('Leave Site button not found.')
-    }
-}
-
-function adjustStyles () {
-    const dom = domElements()
-    let maxHeight = 320
-
-    function updateStyles () {
-        if (dom.fullContainer) {
-            if (window.innerHeight <= maxHeight) {
-                dom.fullContainer.style.top = '40px'
-                dom.fullContainer.style.transform = 'translateX(-50%)'
-            } else {
-                dom.fullContainer.style.top = '50%'
-                dom.fullContainer.style.transform = 'translate(-50%, calc(-50% - 16px))'
-            }
-        }
-    }
-
-    updateStyles()
-
-    window.addEventListener('resize', updateStyles)
-
-    dom.advanced?.addEventListener('click', function () {
-        maxHeight = 460
-        updateStyles()
-    })
+    render(output, container)
 }
