@@ -1137,7 +1137,7 @@
   // pages/sslerrorpage/src/js/template.js
   function execTemplate(strings) {
     return html`
-        <div class="full-container" id="fullContainer">
+        <div class="full-container" id="fullContainer" data-state="closed">
             <div class="warning-container">
                 <h1 class="warning-header">
                     <img src="${Shield_Alert_96x96_data_default}" alt="Warning" class="watermark">
@@ -1149,7 +1149,7 @@
                     <button class="button leave-this-site" id="leaveThisSiteBtn">${strings.leaveSiteButton}</button>
                 </div>
             </div>
-            <div class="advanced-info closed" id="advancedInfo">
+            <div class="advanced-info closed">
                 <p>${strings.advancedInfoHeader}</p>
                 <p>${trustedUnsafeEscaped(strings.specificMessage)} ${strings.advancedInfoBody}</p>
                 <button id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</button>
@@ -1229,7 +1229,6 @@
     window.addEventListener("DOMContentLoaded", () => {
       loadHTML();
       bindEvents(page);
-      adjustStyles();
     });
   }
   init().catch(console.error);
@@ -1254,7 +1253,6 @@
   function domElements() {
     return {
       advanced: document.getElementById("advancedBtn"),
-      info: document.getElementById("advancedInfo"),
       fullContainer: document.getElementById("fullContainer"),
       acceptRiskLink: document.getElementById("acceptRiskLink"),
       leaveThisSiteBtn: document.getElementById("leaveThisSiteBtn")
@@ -1262,16 +1260,12 @@
   }
   function bindEvents(page) {
     const dom = domElements();
-    if (!dom.advanced || !dom.info)
+    if (!dom.advanced)
       return console.error("ts unreachable: missing elements");
     dom.advanced.addEventListener("click", function() {
-      if (!dom.advanced || !dom.info || !dom.fullContainer)
+      if (!dom.fullContainer)
         return console.error("ts unreachable: missing elements");
-      dom.info.classList.toggle("closed");
-      dom.advanced.style.display = "none";
-      if (dom.fullContainer) {
-        dom.fullContainer.style.borderRadius = "8px";
-      }
+      dom.fullContainer.dataset.state = "open";
     });
     if (dom.acceptRiskLink) {
       dom.acceptRiskLink.addEventListener("click", (event) => {
@@ -1289,26 +1283,5 @@
     } else {
       console.error("Leave Site button not found.");
     }
-  }
-  function adjustStyles() {
-    const dom = domElements();
-    let maxHeight = 320;
-    function updateStyles() {
-      if (dom.fullContainer) {
-        if (window.innerHeight <= maxHeight) {
-          dom.fullContainer.style.top = "40px";
-          dom.fullContainer.style.transform = "translateX(-50%)";
-        } else {
-          dom.fullContainer.style.top = "50%";
-          dom.fullContainer.style.transform = "translate(-50%, calc(-50% - 16px))";
-        }
-      }
-    }
-    updateStyles();
-    window.addEventListener("resize", updateStyles);
-    dom.advanced?.addEventListener("click", function() {
-      maxHeight = 460;
-      updateStyles();
-    });
   }
 })();
