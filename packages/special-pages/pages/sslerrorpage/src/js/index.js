@@ -69,6 +69,15 @@ function loadHTML () {
     document.body.appendChild(container)
 }
 
+/**
+ * @return {{
+ *   advanced: HTMLElement | null,
+ *   acceptRiskLink: HTMLElement | null,
+ *   leaveThisSiteBtn: HTMLElement | null,
+ *   fullContainer: HTMLElement | null,
+ *   info: HTMLElement | null,
+ * }}
+ */
 function domElements () {
     return {
         advanced: document.getElementById('advancedBtn'),
@@ -107,8 +116,8 @@ function bindEvents (page) {
         console.error('Accept risk link not found.')
     }
 
-    if (dom.leaveSiteButton) {
-        dom.leaveSiteButton.addEventListener('click', (event) => {
+    if (dom.leaveThisSiteBtn) {
+        dom.leaveThisSiteBtn?.addEventListener('click', (event) => {
             event.preventDefault()
             page.leaveSite()
         })

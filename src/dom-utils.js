@@ -66,3 +66,18 @@ export function html (strings, ...values) {
 export function trustedUnsafe (string) {
     return html([string])
 }
+
+/**
+ * @param {string} string
+ * @return {Template}
+ */
+export function trustedUnsafeEscaped (string) {
+    const decoded = decodeHtml(string)
+    return html([decoded])
+}
+
+function decodeHtml (html) {
+    const txt = document.createElement('textarea')
+    txt.innerHTML = html
+    return txt.value
+}
