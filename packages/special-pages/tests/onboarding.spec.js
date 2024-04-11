@@ -9,7 +9,7 @@ test.describe('onboarding', () => {
         await onboarding.openPage()
         await onboarding.didSendInitialHandshake()
     })
-    test.only('can be skipped in development', async ({ page }, workerInfo) => {
+    test('can be skipped in development', async ({ page }, workerInfo) => {
         const onboarding = OnboardingPage.create(page, workerInfo)
         await onboarding.reducedMotion()
         await onboarding.darkMode()

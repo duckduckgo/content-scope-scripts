@@ -31,6 +31,8 @@ export default defineConfig({
         }
     ],
     fullyParallel: !process.env.CI,
+    /* Don't allow `.only` in CI */
+    forbidOnly: Boolean(process.env.CI),
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
     /* Opt out of parallel tests on CI. */
