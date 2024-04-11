@@ -38,8 +38,11 @@ async function init () {
         injectName: import.meta.injectName
     })
     const page = new SslerrorpagePage(messaging)
-    loadHTML()
-    bindEvents(page)
+    window.addEventListener('DOMContentLoaded', () => {
+        loadHTML()
+        bindEvents(page)
+        adjustStyles()
+    })
 }
 
 init().catch(console.error)
@@ -66,27 +69,37 @@ function loadHTML () {
     document.body.appendChild(container)
 }
 
+function domElements () {
+    return {
+        advanced: document.getElementById('advancedBtn'),
+        info: document.getElementById('advancedInfo'),
+        fullContainer: document.getElementById('fullContainer'),
+        acceptRiskLink: document.getElementById('acceptRiskLink'),
+        leaveThisSiteBtn: document.getElementById('leaveThisSiteBtn')
+    }
+}
+
 /**
  * @param {SslerrorpagePage} page
  */
 function bindEvents (page) {
-    const advanced = document.getElementById('advancedBtn')
-    const info = document.getElementById('advancedInfo')
-    const fullContainer = document.getElementById('fullContainer')
+    const dom = domElements()
 
-    if (!advanced || !info) return console.error('unreachable: missing elements')
+    if (!dom.advanced || !dom.info) return console.error('ts unreachable: missing elements')
 
-    advanced.addEventListener('click', function () {
-        info.classList.toggle('closed')
-        advanced.style.display = 'none'
-        if (fullContainer) {
-            fullContainer.style.borderRadius = '8px'
+    dom.advanced.addEventListener('click', function () {
+        if (!dom.advanced || !dom.info || !dom.fullContainer) return console.error('ts unreachable: missing elements')
+
+        dom.info.classList.toggle('closed')
+        dom.advanced.style.display = 'none'
+
+        if (dom.fullContainer) {
+            dom.fullContainer.style.borderRadius = '8px'
         }
     })
 
-    const acceptRiskLink = document.getElementById('acceptRiskLink')
-    if (acceptRiskLink) {
-        acceptRiskLink.addEventListener('click', (event) => {
+    if (dom.acceptRiskLink) {
+        dom.acceptRiskLink.addEventListener('click', (event) => {
             event.preventDefault()
             page.visitSite()
         })
@@ -94,9 +107,8 @@ function bindEvents (page) {
         console.error('Accept risk link not found.')
     }
 
-    const leaveSiteButton = document.getElementById('leaveThisSiteBtn')
-    if (leaveSiteButton) {
-        leaveSiteButton.addEventListener('click', (event) => {
+    if (dom.leaveSiteButton) {
+        dom.leaveSiteButton.addEventListener('click', (event) => {
             event.preventDefault()
             page.leaveSite()
         })
@@ -105,19 +117,18 @@ function bindEvents (page) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    const fullContainer = /** @type {HTMLElement | null} */(document.querySelector('.full-container'))
+function adjustStyles () {
+    const dom = domElements()
     let maxHeight = 320
-    const advanced = document.getElementById('advancedBtn')
 
     function updateStyles () {
-        if (fullContainer) {
+        if (dom.fullContainer) {
             if (window.innerHeight <= maxHeight) {
-                fullContainer.style.top = '40px'
-                fullContainer.style.transform = 'translateX(-50%)'
+                dom.fullContainer.style.top = '40px'
+                dom.fullContainer.style.transform = 'translateX(-50%)'
             } else {
-                fullContainer.style.top = '50%'
-                fullContainer.style.transform = 'translate(-50%, calc(-50% - 16px))'
+                dom.fullContainer.style.top = '50%'
+                dom.fullContainer.style.transform = 'translate(-50%, calc(-50% - 16px))'
             }
         }
     }
@@ -125,9 +136,9 @@ document.addEventListener('DOMContentLoaded', function () {
     updateStyles()
 
     window.addEventListener('resize', updateStyles)
-    if (!advanced) return console.error('unreachable: missing elements')
-    advanced.addEventListener('click', function () {
+
+    dom.advanced?.addEventListener('click', function () {
         maxHeight = 460
         updateStyles()
     })
-})
+}
