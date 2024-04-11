@@ -1121,8 +1121,14 @@
   function html(strings, ...values) {
     return new Template(strings, values);
   }
-  function trustedUnsafe(string) {
-    return html([string]);
+  function trustedUnsafeEscaped(string) {
+    const decoded = decodeHtml(string);
+    return html([decoded]);
+  }
+  function decodeHtml(html2) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html2;
+    return txt.value;
   }
 
   // pages/sslerrorpage/src/img/Shield-Alert-96x96.data.svg
@@ -1137,7 +1143,7 @@
                     <img src="${Shield_Alert_96x96_data_default}" alt="Warning" class="watermark">
                     ${strings.header}
                 </h1>
-                <p class="warning-text">${trustedUnsafe(strings.body)}</p>
+                <p class="warning-text">${trustedUnsafeEscaped(strings.body)}</p>
                 <div class="buttons">
                     <button class="button advanced" id="advancedBtn">${strings.advancedButton}</button>
                     <button class="button leave-this-site" id="leaveThisSiteBtn">${strings.leaveSiteButton}</button>
@@ -1145,7 +1151,7 @@
             </div>
             <div class="advanced-info closed" id="advancedInfo">
                 <p>${strings.advancedInfoHeader}</p>
-                <p>${trustedUnsafe(strings.specificMessage)} ${strings.advancedInfoBody}</p>
+                <p>${trustedUnsafeEscaped(strings.specificMessage)} ${strings.advancedInfoBody}</p>
                 <button id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</button>
             </div>
         </div>
@@ -1275,8 +1281,8 @@
     } else {
       console.error("Accept risk link not found.");
     }
-    if (dom.leaveSiteButton) {
-      dom.leaveSiteButton.addEventListener("click", (event) => {
+    if (dom.leaveThisSiteBtn) {
+      dom.leaveThisSiteBtn?.addEventListener("click", (event) => {
         event.preventDefault();
         page.leaveSite();
       });
