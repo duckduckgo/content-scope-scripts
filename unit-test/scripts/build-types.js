@@ -23,7 +23,7 @@ describe('createMessagingTypes', () => {
                     }
                 }
             }
-        }, { featurePath: '../features/duck-player.js' })
+        }, { featurePath: '../features/duck-player.js', className: 'DuckPlayerMessages' })
         const expected = `
 /**
  * The following types enforce a schema-first workflow for messages
@@ -48,7 +48,7 @@ declare module "../features/duck-player.js" {
                     }
                 }
             }
-        }, { featurePath: '../features/duck-player.js' })
+        }, { featurePath: '../features/duck-player.js', className: 'DuckPlayerMessages' })
         const expected = `
 /**
  * The following types enforce a schema-first workflow for messages
@@ -73,7 +73,7 @@ declare module "../features/duck-player.js" {
                     }
                 }
             }
-        }, { featurePath: '../features/duck-player.js' })
+        }, { featurePath: '../features/duck-player.js', className: 'DuckPlayerMessages' })
         const expected = `
 /**
  * The following types enforce a schema-first workflow for messages
@@ -108,7 +108,7 @@ declare module "../features/duck-player.js" {
                     }
                 }
             }
-        }, { featurePath: '../features/duck-player.js' })
+        }, { featurePath: '../features/duck-player.js', className: 'DuckPlayerMessages' })
         const expected = `
 /**
  * The following types enforce a schema-first workflow for messages

@@ -10,11 +10,36 @@
 import { execTemplate } from './template.js'
 import { defaultLoadData } from './defaults.js'
 import { createSSLErrorMessaging } from './messages.js'
+import { createTypedMessages } from '@duckduckgo/messaging'
+
+export class SslerrorpagePage {
+    /**
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     */
+    constructor (messaging) {
+        /**
+         * @internal
+         */
+        this.messaging = createTypedMessages(this, messaging)
+    }
+
+    visitSite () {
+        return this.messaging.notify('visitSite')
+    }
+
+    leaveSite () {
+        return this.messaging.notify('leaveSite')
+    }
+}
 
 async function init () {
-    const messaging = await createSSLErrorMessaging()
+    const messaging = await createSSLErrorMessaging({
+        env: import.meta.env,
+        injectName: import.meta.injectName
+    })
+    const page = new SslerrorpagePage(messaging)
     loadHTML()
-    bindEvents(messaging)
+    bindEvents(page)
 }
 
 init().catch(console.error)
@@ -42,9 +67,9 @@ function loadHTML () {
 }
 
 /**
- * @param {Pick<import("./messages").SSLErrorPageMessages, 'leaveSite' | 'visitSite'>} messaging
+ * @param {SslerrorpagePage} page
  */
-function bindEvents (messaging) {
+function bindEvents (page) {
     const advanced = document.getElementById('advancedBtn')
     const info = document.getElementById('advancedInfo')
     const fullContainer = document.getElementById('fullContainer')
@@ -63,7 +88,7 @@ function bindEvents (messaging) {
     if (acceptRiskLink) {
         acceptRiskLink.addEventListener('click', (event) => {
             event.preventDefault()
-            messaging.visitSite()
+            page.visitSite()
         })
     } else {
         console.error('Accept risk link not found.')
@@ -73,7 +98,7 @@ function bindEvents (messaging) {
     if (leaveSiteButton) {
         leaveSiteButton.addEventListener('click', (event) => {
             event.preventDefault()
-            messaging.leaveSite()
+            page.leaveSite()
         })
     } else {
         console.error('Leave Site button not found.')
