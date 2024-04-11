@@ -41,7 +41,6 @@ async function init () {
     window.addEventListener('DOMContentLoaded', () => {
         loadHTML()
         bindEvents(page)
-        adjustStyles()
     })
 }
 
@@ -75,13 +74,11 @@ function loadHTML () {
  *   acceptRiskLink: HTMLElement | null,
  *   leaveThisSiteBtn: HTMLElement | null,
  *   fullContainer: HTMLElement | null,
- *   info: HTMLElement | null,
  * }}
  */
 function domElements () {
     return {
         advanced: document.getElementById('advancedBtn'),
-        info: document.getElementById('advancedInfo'),
         fullContainer: document.getElementById('fullContainer'),
         acceptRiskLink: document.getElementById('acceptRiskLink'),
         leaveThisSiteBtn: document.getElementById('leaveThisSiteBtn')
@@ -94,17 +91,11 @@ function domElements () {
 function bindEvents (page) {
     const dom = domElements()
 
-    if (!dom.advanced || !dom.info) return console.error('ts unreachable: missing elements')
+    if (!dom.advanced) return console.error('ts unreachable: missing elements')
 
     dom.advanced.addEventListener('click', function () {
-        if (!dom.advanced || !dom.info || !dom.fullContainer) return console.error('ts unreachable: missing elements')
-
-        dom.info.classList.toggle('closed')
-        dom.advanced.style.display = 'none'
-
-        if (dom.fullContainer) {
-            dom.fullContainer.style.borderRadius = '8px'
-        }
+        if (!dom.fullContainer) return console.error('ts unreachable: missing elements')
+        dom.fullContainer.dataset.state = 'open'
     })
 
     if (dom.acceptRiskLink) {
@@ -124,30 +115,4 @@ function bindEvents (page) {
     } else {
         console.error('Leave Site button not found.')
     }
-}
-
-function adjustStyles () {
-    const dom = domElements()
-    let maxHeight = 320
-
-    function updateStyles () {
-        if (dom.fullContainer) {
-            if (window.innerHeight <= maxHeight) {
-                dom.fullContainer.style.top = '40px'
-                dom.fullContainer.style.transform = 'translateX(-50%)'
-            } else {
-                dom.fullContainer.style.top = '50%'
-                dom.fullContainer.style.transform = 'translate(-50%, calc(-50% - 16px))'
-            }
-        }
-    }
-
-    updateStyles()
-
-    window.addEventListener('resize', updateStyles)
-
-    dom.advanced?.addEventListener('click', function () {
-        maxHeight = 460
-        updateStyles()
-    })
 }
