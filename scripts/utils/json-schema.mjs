@@ -166,11 +166,11 @@ export function generateSchema(featureName, fileList) {
  * @param {{topLevelType: string; schema: Record<string, any>}} job
  * @param {object} options
  * @param {string} options.featurePath
+ * @param {string} options.className
  * @return {string}
  */
-export function createMessagingTypes(job, { featurePath }) {
+export function createMessagingTypes(job, { featurePath, className }) {
     const json = job.schema
-    const className = job.topLevelType.replace('Messages', '');
     const notifications = json.properties?.notifications?.oneOf?.length ?? 0 > 0;
     const requests = json.properties?.requests?.oneOf?.length ?? 0 > 0;
     const subscriptions = json.properties?.subscriptions?.oneOf?.length ?? 0 > 0;
