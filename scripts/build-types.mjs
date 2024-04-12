@@ -31,6 +31,17 @@ const defaultMapping = {
         // todo: fix this on windows.
         exclude: process.platform === 'win32',
         kind: 'messages',
+        resolve: (dirname) => '../features/' + dirname + '.js',
+        className: (topLevelType) => topLevelType.replace('Messages', ''),
+    },
+    "Page Messages": {
+        schemaDir: join(ROOT, "packages/special-pages/messages"),
+        typesDir: join(ROOT, "packages/special-pages/types"),
+        // todo: fix this on windows.
+        exclude: process.platform === 'win32',
+        kind: 'messages',
+        resolve: (dirname) => '../pages/' + dirname + '/src/js/index.js',
+        className: (topLevelType) => topLevelType.replace('Messages', 'Page')
     }
 }
 
@@ -56,8 +67,9 @@ export async function buildTypes(mapping = defaultMapping) {
             // for each folder
             for (let schema of schemas) {
                 const typescript = await createTypesForSchemaMessages(schema.featureName, schema.schema, manifest.schemaDir)
-                const featurePath = '../features/' + schema.dirname + '.js';
-                const messageTypes = createMessagingTypes(schema, { featurePath })
+                let featurePath = manifest.resolve(schema.dirname)
+                let className = manifest.className(schema.topLevelType)
+                const messageTypes = createMessagingTypes(schema, { featurePath, className })
                 const content = [typescript.replace(/\r\n/g, '\n'), messageTypes].join('')
                 const filename = schema.dirname + '.ts'
                 const outputFile = join(manifest.typesDir, filename);
@@ -75,6 +87,7 @@ export async function buildTypes(mapping = defaultMapping) {
  */
 async function createTypesForSchemaFile(featureName, schemaFilePath) {
     return await compileFromFile(schemaFilePath, {
+        additionalProperties: false,
         bannerComment: `
                 /**
                  * @module ${featureName} Schema
@@ -100,6 +113,7 @@ async function createTypesForSchemaFile(featureName, schemaFilePath) {
 export async function createTypesForSchemaMessages(featureName, schema, rootDir) {
     const typescript = await compile(/** @type {any} */(schema), featureName, {
         cwd: rootDir,
+        additionalProperties: false,
         bannerComment: `
             /**
              * @module ${featureName} Messages
