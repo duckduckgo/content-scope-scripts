@@ -440,54 +440,30 @@ export class WebCompat extends ContentFeature {
                 return
             }
 
-            this.defineProperty(window.navigator, 'mediaSession', {
-                value: {
-                },
-                writable: true,
-                configurable: true,
-                enumerable: true
-            })
-            this.defineProperty(window.navigator.mediaSession, 'metadata', {
-                value: null,
-                writable: true,
-                configurable: false,
-                enumerable: false
-            })
-            this.defineProperty(window.navigator.mediaSession, 'playbackState', {
-                value: 'none',
-                writable: true,
-                configurable: false,
-                enumerable: false
-            })
-            this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
-                value: () => {},
-                configurable: true,
-                enumerable: true
-            })
-            this.defineProperty(window.navigator.mediaSession, 'setCameraActive', {
-                value: () => {},
-                configurable: true,
-                enumerable: true
-            })
-            this.defineProperty(window.navigator.mediaSession, 'setMicrophoneActive', {
-                value: () => {},
-                configurable: true,
-                enumerable: true
-            })
-            this.defineProperty(window.navigator.mediaSession, 'setPositionState', {
-                value: () => {},
-                configurable: true,
-                enumerable: true
+            const MyMediaSession = class {
+                metadata = null
+                /** @type {MediaSession['playbackState']} */
+                playbackState = 'none'
+
+                setActionHandler () {}
+                setCameraActive () {}
+                setMicrophoneActive () {}
+                setPositionState () {}
+            }
+
+            this.shimInterface('MediaSession', MyMediaSession, {
+                disallowConstructor: true
             })
 
-            class MediaMetadata {
+            this.shimProperty(globalThis.navigator, 'mediaSession', new MyMediaSession())
+            this.shimInterface('MediaMetadata', class {
                 constructor (metadata = {}) {
                     this.title = metadata.title
                     this.artist = metadata.artist
                     this.album = metadata.album
                     this.artwork = metadata.artwork
                 }
-            }
+            })
 
             window.MediaMetadata = new Proxy(MediaMetadata, {})
         } catch {
