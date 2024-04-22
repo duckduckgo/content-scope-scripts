@@ -46,3 +46,30 @@ declare module "../features/web-compat.js" {
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<WebCompatMessages>['request']
   }
 }
+
+declare module "../content-feature.js" {
+  interface BaseStrictPropertyDescriptor {
+    configurable: boolean;
+    enumerable: boolean;
+  }
+
+  interface StrictDataDescriptor extends BaseStrictPropertyDescriptor {
+    value: any;
+    writable: boolean;
+  }
+
+  interface StrictGetDescriptor extends BaseStrictPropertyDescriptor {
+    get: () => any;
+  }
+
+  interface StrictSetDescriptor extends BaseStrictPropertyDescriptor {
+    set: (v: any) => void;
+  }
+
+  interface StrictGetSetDescriptor extends BaseStrictPropertyDescriptor {
+    get: () => any;
+    set: (v: any) => void;
+  }
+
+  export type StrictPropertyDescriptor = StrictDataDescriptor | StrictSetDescriptor | StrictGetDescriptor | StrictGetSetDescriptor;
+}

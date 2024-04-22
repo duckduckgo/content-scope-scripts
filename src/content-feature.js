@@ -317,9 +317,9 @@ export default class ContentFeature {
 
     /**
      * Define a property descriptor. Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
      * @param {string} propertyName
-     * @param {PropertyDescriptor} descriptor
+     * @param {StrictPropertyDescriptor} descriptor
      */
     defineProperty (object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
@@ -360,7 +360,7 @@ export default class ContentFeature {
 
     /**
      * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
      * @param {string} propertyName
      * @param {Partial<PropertyDescriptor>} descriptor
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
@@ -400,7 +400,7 @@ export default class ContentFeature {
 
     /**
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
      * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
