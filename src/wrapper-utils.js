@@ -1,4 +1,7 @@
 /* global mozProxies */
+
+import { getOwnPropertyDescriptor } from './captured-globals.js'
+
 // Tests don't define this variable so fallback to behave like chrome
 export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 const functionToString = Function.prototype.toString
@@ -46,4 +49,24 @@ export function wrapFunction (functionValue, realTarget) {
             return Reflect.apply(functionValue, thisArg, argumentsList)
         }
     })
+}
+
+/**
+ * Assuming `proxyConstructorFn` is a proxy to `origConstructorFn`,
+ * Make instances created with `proxyConstructorFn` have `.constructor` property pointing to `proxyConstructorFn`
+ * @param {*} origConstructorFn
+ * @param {*} proxyConstructorFn
+ */
+export function setPrototypeConstructor (origConstructorFn, proxyConstructorFn) {
+    // First check if the original .constructor points to the constructor function
+    // This is not always the case:
+    // .prototype may be absent, e.g. in Proxy
+    // .prototype.constructor may point to something else, e.g. in Audio
+    if (origConstructorFn.prototype?.constructor === origConstructorFn) {
+        const descriptor = getOwnPropertyDescriptor(origConstructorFn.prototype, 'constructor')
+        this.defineProperty(origConstructorFn.prototype, 'constructor', {
+            ...descriptor,
+            value: proxyConstructorFn
+        })
+    }
 }

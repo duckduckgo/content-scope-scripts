@@ -3,8 +3,8 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { hasMozProxies, wrapToString } from './wrapper-utils.js'
-import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
+import { hasMozProxies, setPrototypeConstructor, wrapToString } from './wrapper-utils.js'
+import { getOwnPropertyDescriptor, objectKeys, Proxy } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
@@ -434,5 +434,78 @@ export default class ContentFeature {
             value: newFn
         })
         return origDescriptor
+    }
+    /**
+     * @template {keyof typeof globalThis} StandardInterfaceName
+     * @param {StandardInterfaceName} interfaceName
+     * @param {typeof globalThis[StandardInterfaceName]} ImplClass
+     * @param {Partial<DefineInterfaceOptions>} [options]
+     */
+    shimInterface (
+        interfaceName,
+        ImplClass,
+        options
+    ) {
+        // TODO: validate that it does not exist already
+        // TODO: mask toString() on classes
+
+        /** @type {DefineInterfaceOptions} */
+        const defaultOptions = {
+            allowConstructorCall: false,
+            disallowConstructor: false,
+            constructorErrorMessage: 'Illegal constructor',
+            interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
+            wrapToString: true,
+            overridePrototypeObject: ImplClass.prototype
+        }
+
+        const fullOptions = { ...defaultOptions, ...options }
+
+        let Interface = ImplClass
+        ImplClass.prototype = fullOptions.overridePrototypeObject
+
+        // handle the case where the constructor is called without new
+        if (fullOptions.allowConstructorCall) {
+            // make the constructor function callable without new
+            Interface = function (...args) {
+                return new ImplClass(...args)
+            }
+
+            /** @type {StrictPropertyDescriptor} */
+            // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
+            const origDescriptor = getOwnPropertyDescriptor(ImplClass, 'prototype')
+
+            // This should fix instanceof when matched against the wrapper (and against the original class too):
+            // Interface() instanceof Interface === true
+            // (new Interface()) instanceof Interface === true
+            // (new ImplClass()) instanceof Interface === true
+            // We use defineProperty here because descriptor for the `prototype` property is different for classes vs constructor functions
+            this.defineProperty(Interface, 'prototype', {
+                ...origDescriptor,
+                value: ImplClass.prototype
+            })
+
+            // Make sure that Interface().constructor === Interface (not ImplClass)
+            setPrototypeConstructor(ImplClass, Interface)
+        }
+
+        // make the constructor function throw when called without new
+        if (fullOptions.disallowConstructor) {
+            Interface = new Proxy(ImplClass, {
+                construct () {
+                    throw new TypeError(fullOptions.constructorErrorMessage)
+                }
+            })
+            // Note that instanceof should still work, since the `.prototype` object is proxied too:
+            // Interface() instanceof Interface === true
+            // ImplClass() instanceof Interface === true
+
+            // Make sure that Interface().constructor === Interface
+            // Note that this will change the prototype of ImplClass too (since it's the same thing)
+            setPrototypeConstructor(ImplClass, Interface)
+        }
+
+        // interfaces are exposed directly on the global object, not on its prototype
+        this.defineProperty(globalThis, interfaceName, { ...fullOptions.interfaceDescriptorOptions, value: Interface })
     }
 }

@@ -72,4 +72,20 @@ declare module "../content-feature.js" {
   }
 
   export type StrictPropertyDescriptor = StrictDataDescriptor | StrictSetDescriptor | StrictGetDescriptor | StrictGetSetDescriptor;
+
+  type DefineInterfaceOptions = {
+    interfaceDescriptorOptions: StrictDataDescriptor;
+    constructorErrorMessage: string; // Error message to throw when constructor is called. Ignored when `disallowConstructor` is false
+    overridePrototypeObject: object; // Object to use as prototype for the interface instances
+    wrapToString: boolean; // Mask the `toString` representation of class methods, default is true
+  } & ({
+    allowConstructorCall: true; // Allow calling the constructor function without `new`, default is false. `allowConstructorCall` and `disallowConstructor` cannot be true at the same time
+    disallowConstructor: false; // Disallow creating new instances, default is false. `allowConstructorCall` and `disallowConstructor` cannot be true at the same time
+  } | {
+    allowConstructorCall: false; // Allow calling the constructor function without `new`, default is false. `allowConstructorCall` and `disallowConstructor` cannot be true at the same time
+    disallowConstructor: true; // Disallow creating new instances, default is false. `allowConstructorCall` and `disallowConstructor` cannot be true at the same time
+  } | {
+    allowConstructorCall: false; // Allow calling the constructor function without `new`, default is false. `allowConstructorCall` and `disallowConstructor` cannot be true at the same time
+    disallowConstructor: false; // Disallow creating new instances, default is false. `allowConstructorCall` and `disallowConstructor` cannot be true at the same time
+  });
 }

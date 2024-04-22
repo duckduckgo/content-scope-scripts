@@ -5,3 +5,4 @@ export const customElementsDefine = globalThis.customElements?.define.bind(globa
 export const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor
 export const objectKeys = Object.keys
 export const URL = globalThis.URL
+export const Proxy = globalThis.Proxy
