@@ -62,10 +62,6 @@ describe('ContentFeature.shimInterface()', () => {
 
         assert.instanceOf(new MyMediaSession(), NewMediaSession, 'instances should pass the instanceof check')
         assert.instanceOf(new NewMediaSession(), NewMediaSession, 'instances should pass the instanceof check')
-
-        assert.strictEqual(NewMediaSession.toString(), OrigMediaSession.toString(), 'Shim\'s toString() value does not match the original')
-        assert.strictEqual(NewMediaSession.toString.toString(), OrigMediaSession.toString.toString(), 'Shim\'s toString.toString() value does not match the original')
-        assert.strictEqual(NewMediaSession.prototype.setActionHandler.toString(), OrigMediaSession.prototype.setActionHandler.toString(), 'Shim\'s method\'s .toString() value does not match the original')
     })
 
     it('should support disallowConstructor', () => {
@@ -100,5 +96,22 @@ describe('ContentFeature.shimInterface()', () => {
         })
         // @ts-expect-error real MediaSession is not callable
         assert.throws(() => globalThis.MediaSession(), TypeError)
+    })
+
+    it('should support wrapToString', () => {
+        cf.shimInterface('MediaSession', MyMediaSession, {
+            wrapToString: false
+        })
+        assert.notStrictEqual(globalThis.MediaSession.toString(), OrigMediaSession.toString(), 'Shim\'s toString() should not be masked')
+        assert.strictEqual(globalThis.MediaSession.toString.toString(), MyMediaSession.toString.toString(), 'Shim\'s toString.toString() should not be masked')
+        assert.strictEqual(globalThis.MediaSession.prototype.setActionHandler.toString(), MyMediaSession.prototype.setActionHandler.toString(), 'Shim\'s method\'s .toString() should not be masked')
+
+        cf.shimInterface('MediaSession', MyMediaSession, {
+            wrapToString: true
+        })
+
+        assert.strictEqual(globalThis.MediaSession.toString(), OrigMediaSession.toString(), 'Shim\'s toString() value does not match the original')
+        assert.strictEqual(globalThis.MediaSession.toString.toString(), OrigMediaSession.toString.toString(), 'Shim\'s toString.toString() value does not match the original')
+        assert.strictEqual(globalThis.MediaSession.prototype.setActionHandler.toString(), OrigMediaSession.prototype.setActionHandler.toString(), 'Shim\'s method\'s .toString() value does not match the original')
     })
 })
