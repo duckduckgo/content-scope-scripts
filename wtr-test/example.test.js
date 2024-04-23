@@ -25,24 +25,26 @@ describe('ContentFeature wrapper methods', () => {
 })
 
 describe('ContentFeature.shimInterface()', () => {
-    class MyMediaSession {
-        metadata = null
-        /** @type {MediaSession['playbackState']} */
-        playbackState = 'none'
-
-        setActionHandler () {}
-        setCameraActive () {}
-        setMicrophoneActive () {}
-        setPositionState () {}
-    }
-    const cf = new MyTestFeature()
     const OrigMediaSession = globalThis.MediaSession
+    let MyMediaSession
+    let cf
     /** @type {PropertyDescriptor} */
     // @ts-expect-error we know it's defined in Chrome
     const origPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
 
     beforeEach(() => {
         assert.strictEqual(globalThis.MediaSession, OrigMediaSession, 'unexpected native class')
+        MyMediaSession = class {
+            metadata = null
+            /** @type {MediaSession['playbackState']} */
+            playbackState = 'none'
+
+            setActionHandler () {}
+            setCameraActive () {}
+            setMicrophoneActive () {}
+            setPositionState () {}
+        }
+        cf = new MyTestFeature()
     })
 
     afterEach(() => {
@@ -54,11 +56,16 @@ describe('ContentFeature.shimInterface()', () => {
         cf.shimInterface('MediaSession', MyMediaSession)
         const NewMediaSession = globalThis.MediaSession
         const newPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
+
         assert.deepEqual({ ...newPropertyDescriptor, value: null }, { ...origPropertyDescriptor, value: null }, 'property descriptors do not match')
         assert.notStrictEqual(NewMediaSession, OrigMediaSession, 'class is not overridden')
+
+        assert.instanceOf(new MyMediaSession(), NewMediaSession, 'instances should pass the instanceof check')
+        assert.instanceOf(new NewMediaSession(), NewMediaSession, 'instances should pass the instanceof check')
+
         assert.strictEqual(NewMediaSession.toString(), OrigMediaSession.toString(), 'Shim\'s toString() value does not match the original')
         assert.strictEqual(NewMediaSession.toString.toString(), OrigMediaSession.toString.toString(), 'Shim\'s toString.toString() value does not match the original')
-        // assert.strictEqual(NewMediaSession.prototype.setActionHandler.toString(), OrigMediaSession.prototype.setActionHandler.toString(), 'Shim\'s method\'s .toString() value does not match the original')
+        assert.strictEqual(NewMediaSession.prototype.setActionHandler.toString(), OrigMediaSession.prototype.setActionHandler.toString(), 'Shim\'s method\'s .toString() value does not match the original')
     })
 
     it('should support disallowConstructor', () => {
@@ -85,6 +92,8 @@ describe('ContentFeature.shimInterface()', () => {
         })
         // @ts-expect-error real MediaSession is not callable
         assert.doesNotThrow(() => globalThis.MediaSession())
+        // @ts-expect-error real MediaSession is not callable
+        assert.instanceOf(globalThis.MediaSession(), globalThis.MediaSession, 'instances should pass the instanceof check')
 
         cf.shimInterface('MediaSession', MyMediaSession, {
             allowConstructorCall: false

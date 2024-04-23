@@ -6,27 +6,39 @@ import { functionToString, getOwnPropertyDescriptor } from './captured-globals.j
 export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 
 /**
- * add a fake toString() method to a wrapper function to resemble the original function
+ * return a proxy to `newFn` that fakes .toString() and .toString.toString() to resemble the `origFn`
+ * newFn and origFn should be functions.
  * @param {*} newFn
  * @param {*} origFn
- * @param {string} [mockValue]
+ * @param {string} [mockValue] - when provided, .toString() will return this value
  */
 export function wrapToString (newFn, origFn, mockValue) {
     if (typeof newFn !== 'function' || typeof origFn !== 'function') {
         return newFn
     }
+
+    return new Proxy(newFn, toStringProxyMixin(origFn, mockValue))
+}
+
+/**
+ * generate a proxy handler mixin that fakes .toString() and .toString.toString() to resemble the `targetFn`
+ * @param {*} targetFn
+ * @param {string} [mockValue] - when provided, .toString() will return this value
+ */
+export function toStringProxyMixin (targetFn, mockValue) {
     // We wrap two levels deep to handle toString.toString() calls
-    const wrapper = new Proxy(newFn, {
+    return {
         get (target, prop, receiver) {
             if (prop === 'toString') {
-                const origToString = Reflect.get(origFn, 'toString', origFn)
+                const origToString = Reflect.get(targetFn, 'toString', targetFn)
                 const toStringProxy = new Proxy(origToString, {
                     apply (target, thisArg, argumentsList) {
-                        if (thisArg === wrapper) {
+                        // only mock toString() when called on the proxy itself. If the method is applied to some other object, it should behave as a normal toString()
+                        if (thisArg === receiver) {
                             if (mockValue) {
                                 return mockValue
                             }
-                            return Reflect.apply(target, origFn, argumentsList)
+                            return Reflect.apply(target, targetFn, argumentsList)
                         } else {
                             return Reflect.apply(target, thisArg, argumentsList)
                         }
@@ -53,8 +65,7 @@ export function wrapToString (newFn, origFn, mockValue) {
             }
             return Reflect.get(target, prop, receiver)
         }
-    })
-    return wrapper
+    }
 }
 
 /**
@@ -82,25 +93,4 @@ export function wrapFunction (functionValue, realTarget) {
             return Reflect.apply(functionValue, thisArg, argumentsList)
         }
     })
-}
-
-/**
- * Assuming `proxyConstructorFn` is a proxy to `origConstructorFn`,
- * Make instances created with `proxyConstructorFn` have `.constructor` property pointing to `proxyConstructorFn`
- * @param {*} origConstructorFn
- * @param {*} proxyConstructorFn
- * @param {*} definePropertyFn
- */
-export function setPrototypeConstructor (origConstructorFn, proxyConstructorFn, definePropertyFn) {
-    // First check if the original .constructor points to the constructor function
-    // This is not always the case:
-    // .prototype may be absent, e.g. in Proxy
-    // .prototype.constructor may point to something else, e.g. in Audio
-    if (origConstructorFn.prototype?.constructor === origConstructorFn) {
-        const descriptor = getOwnPropertyDescriptor(origConstructorFn.prototype, 'constructor')
-        definePropertyFn(origConstructorFn.prototype, 'constructor', {
-            ...descriptor,
-            value: proxyConstructorFn
-        })
-    }
 }

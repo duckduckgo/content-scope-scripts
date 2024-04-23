@@ -3,8 +3,8 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { hasMozProxies, setPrototypeConstructor, wrapToString } from './wrapper-utils.js'
-import { getOwnPropertyDescriptor, objectKeys, Proxy, Reflect } from './captured-globals.js'
+import { hasMozProxies, toStringProxyMixin, wrapToString } from './wrapper-utils.js'
+import { getOwnPropertyDescriptor, getOwnPropertyDescriptors, objectEntries, objectKeys, Proxy, Reflect, TypeError } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
@@ -499,7 +499,6 @@ export default class ContentFeature {
         options
     ) {
         // TODO: validate that it does not exist already?
-        // TODO: mask toString() on classes
 
         /** @type {DefineInterfaceOptions} */
         const defaultOptions = {
@@ -512,70 +511,53 @@ export default class ContentFeature {
 
         const fullOptions = { ...defaultOptions, ...options }
 
-        let Interface = ImplClass
-        /** @type {StrictDataDescriptor} */
-        // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
-        const origPrototypeDesc = getOwnPropertyDescriptor(ImplClass, 'prototype')
+        // In some cases we can get away without a full proxy, but in many cases below we need it.
+        // For example, we can't redefine `prototype` property on ES6 classes.
+        // Se we just always wrap the class to make the code more maintaibnable
+
+        /** @type {ProxyHandler<Function>} */
+        const proxyHandler = {}
 
         // handle the case where the constructor is called without new
         if (fullOptions.allowConstructorCall) {
             // make the constructor function callable without new
-            Interface = function (...args) {
-                return new ImplClass(...args)
+            proxyHandler.apply = function (target, thisArg, argumentsList) {
+                return Reflect.construct(target, argumentsList, target)
             }
-
-            // This should fix instanceof when matched against the wrapper (and against the original class too):
-            // Interface() instanceof Interface === true
-            // (new Interface()) instanceof Interface === true
-            // (new ImplClass()) instanceof Interface === true
-            // We use defineProperty here because descriptor for the `prototype` property is different for classes vs constructor functions
-            this.defineProperty(Interface, 'prototype', {
-                ...origPrototypeDesc,
-                value: ImplClass.prototype
-            })
-
-            // Make sure that Interface().constructor === Interface (not ImplClass)
-            setPrototypeConstructor(ImplClass, Interface, this.defineProperty.bind(this))
         }
 
         // make the constructor function throw when called without new
         if (fullOptions.disallowConstructor) {
-            Interface = new Proxy(ImplClass, {
-                construct () {
-                    throw new TypeError(fullOptions.constructorErrorMessage)
-                }
-            })
-            // Note that instanceof should still work, since the `.prototype` object is proxied too:
-            // Interface() instanceof Interface === true
-            // ImplClass() instanceof Interface === true
-
-            // Make sure that Interface().constructor === Interface
-            // Note that this will change the prototype of ImplClass too (since it's the same thing)
-            setPrototypeConstructor(ImplClass, Interface, this.defineProperty.bind(this))
+            proxyHandler.construct = function () {
+                throw new TypeError(fullOptions.constructorErrorMessage)
+            }
         }
 
         if (fullOptions.wrapToString) {
-            // TODO: investigate different toString() cases
-            // TODO: merge this with wrapToString() somehow
-            const unwrappedInterface = Interface
-
-            // TODO: mask toString() on class methods
-            // We use defineProperty here because `prototype` can be readonly
-            // this.defineProperty(Interface, 'prototype', {
-            //     ...origPrototypeDesc,
-            //     value: new Proxy(unwrappedInterface.prototype, {
-            //         get (target, prop, receiver) {
-            //             const origProp = Reflect.get(target, prop, receiver)
-            //             if (typeof prop === 'function') {
-            //                 return wrapToString(origProp, origProp)
-            //             }
-            //             return origProp
-            //         }
-            //     })
-            // })
+            // mask toString() on class methods. `ImplClass.prototype` is non-configurable: we can't override or proxy it, so we have to wrap each method individually
+            for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
+                if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
+                    ImplClass.prototype[prop] = new Proxy(descriptor.value, toStringProxyMixin(descriptor.value, `function ${prop}() { [native code] }`))
+                }
+            }
 
             // wrap toString on the constructor function itself
-            Interface = wrapToString(Interface, unwrappedInterface, `function ${interfaceName}() { [native code] }`)
+            Object.assign(proxyHandler, toStringProxyMixin(ImplClass, `function ${interfaceName}() { [native code] }`))
+        }
+
+        // Note that instanceof should still work, since the `.prototype` object is proxied too:
+        // Interface() instanceof Interface === true
+        // ImplClass() instanceof Interface === true
+        const Interface = new Proxy(ImplClass, proxyHandler)
+
+        // Make sure that Interface().constructor === Interface (not ImplClass)
+        if (ImplClass.prototype?.constructor === ImplClass) {
+            /** @type {StrictDataDescriptor} */
+            // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
+            const descriptor = getOwnPropertyDescriptor(ImplClass.prototype, 'constructor')
+            if (descriptor.writable) {
+                ImplClass.prototype.constructor = Interface
+            }
         }
 
         // interfaces are exposed directly on the global object, not on its prototype
