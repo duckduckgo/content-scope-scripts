@@ -328,10 +328,13 @@ export default class ContentFeature {
             const descriptorProp = descriptor[k]
             if (typeof descriptorProp === 'function') {
                 const addDebugFlag = this.addDebugFlag.bind(this)
-                descriptor[k] = function () {
-                    addDebugFlag()
-                    return Reflect.apply(descriptorProp, this, arguments)
-                }
+                const wrapper = new Proxy(descriptorProp, {
+                    apply (target, thisArg, argumentsList) {
+                        addDebugFlag()
+                        return Reflect.apply(descriptorProp, thisArg, argumentsList)
+                    }
+                })
+                descriptor[k] = wrapToString(wrapper, descriptorProp)
             }
         })
 
@@ -383,10 +386,6 @@ export default class ContentFeature {
             ('get' in origDescriptor && 'get' in descriptor) ||
             ('set' in origDescriptor && 'set' in descriptor)
         ) {
-            wrapToString(descriptor.value, origDescriptor.value)
-            wrapToString(descriptor.get, origDescriptor.get)
-            wrapToString(descriptor.set, origDescriptor.set)
-
             this.defineProperty(object, propertyName, {
                 ...origDescriptor,
                 ...descriptor
@@ -424,10 +423,9 @@ export default class ContentFeature {
             throw new Error(`Property ${propertyName} does not look like a method`)
         }
 
-        const newFn = function () {
+        const newFn = wrapToString(function () {
             return wrapperFn.call(this, origFn, ...arguments)
-        }
-        wrapToString(newFn, origFn)
+        }, origFn)
 
         this.defineProperty(object, propertyName, {
             ...origDescriptor,

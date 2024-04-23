@@ -1,10 +1,9 @@
 /* global mozProxies */
 
-import { getOwnPropertyDescriptor } from './captured-globals.js'
+import { functionToString, getOwnPropertyDescriptor } from './captured-globals.js'
 
 // Tests don't define this variable so fallback to behave like chrome
 export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
-const functionToString = Function.prototype.toString
 
 /**
  * add a fake toString() method to a wrapper function to resemble the original function
@@ -15,13 +14,41 @@ export function wrapToString (newFn, origFn) {
     if (typeof newFn !== 'function' || typeof origFn !== 'function') {
         return
     }
-    newFn.toString = function () {
-        if (this === newFn) {
-            return functionToString.call(origFn)
-        } else {
-            return functionToString.call(this)
+    // We wrap two levels deep to handle toString.toString() calls
+    const wrapper = new Proxy(newFn, {
+        get (target, prop, receiver) {
+            if (prop === 'toString') {
+                const toStringProxy = new Proxy(functionToString, {
+                    apply (target, thisArg, argumentsList) {
+                        if (thisArg === wrapper) {
+                            return Reflect.apply(target, origFn, argumentsList)
+                        } else {
+                            return Reflect.apply(target, thisArg, argumentsList)
+                        }
+                    },
+                    get (target, prop, receiver) {
+                        // handle toString.toString() result
+                        if (prop === 'toString') {
+                            const toStringToStringProxy = new Proxy(functionToString, {
+                                apply (target, thisArg, argumentsList) {
+                                    if (thisArg === toStringProxy) {
+                                        return Reflect.apply(target, origFn.toString, argumentsList)
+                                    } else {
+                                        return Reflect.apply(target, thisArg, argumentsList)
+                                    }
+                                }
+                            })
+                            return toStringToStringProxy
+                        }
+                        return Reflect.get(target, prop, receiver)
+                    }
+                })
+                return toStringProxy
+            }
+            return Reflect.get(target, prop, receiver)
         }
-    }
+    })
+    return wrapper
 }
 
 /**
