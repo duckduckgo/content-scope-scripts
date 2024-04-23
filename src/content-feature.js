@@ -4,7 +4,7 @@ import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFea
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { hasMozProxies, setPrototypeConstructor, wrapToString } from './wrapper-utils.js'
-import { getOwnPropertyDescriptor, objectKeys, Proxy } from './captured-globals.js'
+import { getOwnPropertyDescriptor, objectKeys, Proxy, Reflect } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
@@ -492,7 +492,6 @@ export default class ContentFeature {
      * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
      * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
      * @param {Partial<DefineInterfaceOptions>} [options] - options for defining the interface
-     * @returns {typeof globalThis[StandardInterfaceName]} - the new interface class, potentially a proxy to the original class
      */
     shimInterface (
         interfaceName,
@@ -508,14 +507,15 @@ export default class ContentFeature {
             disallowConstructor: false,
             constructorErrorMessage: 'Illegal constructor',
             interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
-            wrapToString: true,
-            overridePrototypeObject: ImplClass.prototype
+            wrapToString: true
         }
 
         const fullOptions = { ...defaultOptions, ...options }
 
         let Interface = ImplClass
-        ImplClass.prototype = fullOptions.overridePrototypeObject
+        /** @type {StrictDataDescriptor} */
+        // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
+        const origPrototypeDesc = getOwnPropertyDescriptor(ImplClass, 'prototype')
 
         // handle the case where the constructor is called without new
         if (fullOptions.allowConstructorCall) {
@@ -524,22 +524,18 @@ export default class ContentFeature {
                 return new ImplClass(...args)
             }
 
-            /** @type {StrictPropertyDescriptor} */
-            // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
-            const origDescriptor = getOwnPropertyDescriptor(ImplClass, 'prototype')
-
             // This should fix instanceof when matched against the wrapper (and against the original class too):
             // Interface() instanceof Interface === true
             // (new Interface()) instanceof Interface === true
             // (new ImplClass()) instanceof Interface === true
             // We use defineProperty here because descriptor for the `prototype` property is different for classes vs constructor functions
             this.defineProperty(Interface, 'prototype', {
-                ...origDescriptor,
+                ...origPrototypeDesc,
                 value: ImplClass.prototype
             })
 
             // Make sure that Interface().constructor === Interface (not ImplClass)
-            setPrototypeConstructor(ImplClass, Interface)
+            setPrototypeConstructor(ImplClass, Interface, this.defineProperty.bind(this))
         }
 
         // make the constructor function throw when called without new
@@ -555,16 +551,39 @@ export default class ContentFeature {
 
             // Make sure that Interface().constructor === Interface
             // Note that this will change the prototype of ImplClass too (since it's the same thing)
-            setPrototypeConstructor(ImplClass, Interface)
+            setPrototypeConstructor(ImplClass, Interface, this.defineProperty.bind(this))
         }
 
         if (fullOptions.wrapToString) {
             // TODO: investigate different toString() cases
+            // TODO: merge this with wrapToString() somehow
+            const unwrappedInterface = Interface
+
+            // TODO: mask toString() on class methods
+            // We use defineProperty here because `prototype` can be readonly
+            // this.defineProperty(Interface, 'prototype', {
+            //     ...origPrototypeDesc,
+            //     value: new Proxy(unwrappedInterface.prototype, {
+            //         get (target, prop, receiver) {
+            //             const origProp = Reflect.get(target, prop, receiver)
+            //             if (typeof prop === 'function') {
+            //                 return wrapToString(origProp, origProp)
+            //             }
+            //             return origProp
+            //         }
+            //     })
+            // })
+
+            // wrap toString on the constructor function itself
+            Interface = wrapToString(Interface, unwrappedInterface, `function ${interfaceName}() { [native code] }`)
         }
 
         // interfaces are exposed directly on the global object, not on its prototype
-        this.defineProperty(globalThis, interfaceName, { ...fullOptions.interfaceDescriptorOptions, value: Interface })
-        return Interface
+        this.defineProperty(
+            globalThis,
+            interfaceName,
+            { ...fullOptions.interfaceDescriptorOptions, value: Interface }
+        )
     }
 
     /**
@@ -591,12 +610,12 @@ export default class ContentFeature {
         // TODO: should there be a separate `shimMethod()` for value descriptors? Mostly, value descriptors are used for methods (e.g. Object.assign(), Object.prototype.hasOwnProperty()), but not always (e.g. window.WebAssembly)
         // TODO: make sure getter and setter function names are correct (generate from propertyName)
         // TODO: handle readOnly
-        this.defineProperty(baseObject, propertyName, {
-            get: function [propertyName] () {
-                return implInstance
-            },
-            configurable: true,
-            enumerable: true
-        })
+        // this.defineProperty(baseObject, propertyName, {
+        //     get: function [propertyName] () {
+        //         return implInstance
+        //     },
+        //     configurable: true,
+        //     enumerable: true
+        // })
     }
 }

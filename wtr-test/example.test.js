@@ -17,29 +17,79 @@ describe('wrapToString', () => {
     })
 })
 
+class MyTestFeature extends ContentFeature {
+    addDebugFlag () {}
+}
+
 describe('ContentFeature wrapper methods', () => {
 })
 
-describe('ContentFeature shim methods', () => {
-    it.skip('just something', () => {
-        const f = new ContentFeature()
-        class MyMediaSession {
-            metadata = null
-            /** @type {MediaSession['playbackState']} */
-            playbackState = 'none'
+describe('ContentFeature.shimInterface()', () => {
+    class MyMediaSession {
+        metadata = null
+        /** @type {MediaSession['playbackState']} */
+        playbackState = 'none'
 
-            setActionHandler () {}
-            setCameraActive () {}
-            setMicrophoneActive () {}
-            setPositionState () {}
-        }
-        console.log(MediaSession, MediaSession.name, MediaSession.toString(), MediaSession.toString.toString())
+        setActionHandler () {}
+        setCameraActive () {}
+        setMicrophoneActive () {}
+        setPositionState () {}
+    }
+    const cf = new MyTestFeature()
+    const OrigMediaSession = globalThis.MediaSession
+    /** @type {PropertyDescriptor} */
+    // @ts-expect-error we know it's defined in Chrome
+    const origPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
 
-        f.shimInterface('MediaSession', MyMediaSession, {
+    beforeEach(() => {
+        assert.strictEqual(globalThis.MediaSession, OrigMediaSession, 'unexpected native class')
+    })
+
+    afterEach(() => {
+        // restore the original interface
+        Object.defineProperty(globalThis, 'MediaSession', origPropertyDescriptor)
+    })
+
+    it('should (re)define the global', () => {
+        cf.shimInterface('MediaSession', MyMediaSession)
+        const NewMediaSession = globalThis.MediaSession
+        const newPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
+        assert.deepEqual({ ...newPropertyDescriptor, value: null }, { ...origPropertyDescriptor, value: null }, 'property descriptors do not match')
+        assert.notStrictEqual(NewMediaSession, OrigMediaSession, 'class is not overridden')
+        assert.strictEqual(NewMediaSession.toString(), OrigMediaSession.toString(), 'Shim\'s toString() value does not match the original')
+        assert.strictEqual(NewMediaSession.toString.toString(), OrigMediaSession.toString.toString(), 'Shim\'s toString.toString() value does not match the original')
+        // assert.strictEqual(NewMediaSession.prototype.setActionHandler.toString(), OrigMediaSession.prototype.setActionHandler.toString(), 'Shim\'s method\'s .toString() value does not match the original')
+    })
+
+    it('should support disallowConstructor', () => {
+        cf.shimInterface('MediaSession', MyMediaSession, {
+            disallowConstructor: false
+        })
+        assert.doesNotThrow(() => new globalThis.MediaSession())
+
+        cf.shimInterface('MediaSession', MyMediaSession, {
             disallowConstructor: true
         })
+        assert.throws(() => new globalThis.MediaSession(), TypeError)
 
-        console.log(MediaSession, MediaSession.name, MediaSession.toString(), MediaSession.toString.toString())
-        assert.strictEqual(MediaSession, MyMediaSession, 'MediaSession does not match the shim')
+        cf.shimInterface('MediaSession', MyMediaSession, {
+            disallowConstructor: true,
+            constructorErrorMessage: 'friendly message'
+        })
+        assert.throws(() => new globalThis.MediaSession(), 'friendly message')
+    })
+
+    it('should support allowConstructorCall', () => {
+        cf.shimInterface('MediaSession', MyMediaSession, {
+            allowConstructorCall: true
+        })
+        // @ts-expect-error real MediaSession is not callable
+        assert.doesNotThrow(() => globalThis.MediaSession())
+
+        cf.shimInterface('MediaSession', MyMediaSession, {
+            allowConstructorCall: false
+        })
+        // @ts-expect-error real MediaSession is not callable
+        assert.throws(() => globalThis.MediaSession(), TypeError)
     })
 })

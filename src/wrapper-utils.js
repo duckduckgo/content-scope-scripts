@@ -9,10 +9,11 @@ export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : fa
  * add a fake toString() method to a wrapper function to resemble the original function
  * @param {*} newFn
  * @param {*} origFn
+ * @param {string} [mockValue]
  */
-export function wrapToString (newFn, origFn) {
+export function wrapToString (newFn, origFn, mockValue) {
     if (typeof newFn !== 'function' || typeof origFn !== 'function') {
-        return
+        return newFn
     }
     // We wrap two levels deep to handle toString.toString() calls
     const wrapper = new Proxy(newFn, {
@@ -22,6 +23,9 @@ export function wrapToString (newFn, origFn) {
                 const toStringProxy = new Proxy(origToString, {
                     apply (target, thisArg, argumentsList) {
                         if (thisArg === wrapper) {
+                            if (mockValue) {
+                                return mockValue
+                            }
                             return Reflect.apply(target, origFn, argumentsList)
                         } else {
                             return Reflect.apply(target, thisArg, argumentsList)
@@ -85,15 +89,16 @@ export function wrapFunction (functionValue, realTarget) {
  * Make instances created with `proxyConstructorFn` have `.constructor` property pointing to `proxyConstructorFn`
  * @param {*} origConstructorFn
  * @param {*} proxyConstructorFn
+ * @param {*} definePropertyFn
  */
-export function setPrototypeConstructor (origConstructorFn, proxyConstructorFn) {
+export function setPrototypeConstructor (origConstructorFn, proxyConstructorFn, definePropertyFn) {
     // First check if the original .constructor points to the constructor function
     // This is not always the case:
     // .prototype may be absent, e.g. in Proxy
     // .prototype.constructor may point to something else, e.g. in Audio
     if (origConstructorFn.prototype?.constructor === origConstructorFn) {
         const descriptor = getOwnPropertyDescriptor(origConstructorFn.prototype, 'constructor')
-        this.defineProperty(origConstructorFn.prototype, 'constructor', {
+        definePropertyFn(origConstructorFn.prototype, 'constructor', {
             ...descriptor,
             value: proxyConstructorFn
         })
