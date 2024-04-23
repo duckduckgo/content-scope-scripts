@@ -18,7 +18,8 @@ export function wrapToString (newFn, origFn) {
     const wrapper = new Proxy(newFn, {
         get (target, prop, receiver) {
             if (prop === 'toString') {
-                const toStringProxy = new Proxy(functionToString, {
+                const origToString = Reflect.get(origFn, 'toString', origFn)
+                const toStringProxy = new Proxy(origToString, {
                     apply (target, thisArg, argumentsList) {
                         if (thisArg === wrapper) {
                             return Reflect.apply(target, origFn, argumentsList)
@@ -29,10 +30,11 @@ export function wrapToString (newFn, origFn) {
                     get (target, prop, receiver) {
                         // handle toString.toString() result
                         if (prop === 'toString') {
-                            const toStringToStringProxy = new Proxy(functionToString, {
+                            const origToStringToString = Reflect.get(origToString, 'toString', origToString)
+                            const toStringToStringProxy = new Proxy(origToStringToString, {
                                 apply (target, thisArg, argumentsList) {
                                     if (thisArg === toStringProxy) {
-                                        return Reflect.apply(target, origFn.toString, argumentsList)
+                                        return Reflect.apply(target, origToString, argumentsList)
                                     } else {
                                         return Reflect.apply(target, thisArg, argumentsList)
                                     }
