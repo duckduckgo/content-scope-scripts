@@ -6659,7 +6659,7 @@
       id: "duckPlayer",
       summary: "Distraction-Free YouTube",
       icon: "duckplayer.png",
-      title: "While watching Youtube",
+      title: "While watching YouTube",
       secondaryText: "Enforce YouTube\u2019s strictest privacy settings by default. Watch videos in a clean viewing experience without personalized ads.",
       kind: "one-time"
     }
