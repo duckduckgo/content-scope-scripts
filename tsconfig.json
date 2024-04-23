@@ -21,6 +21,7 @@
     "scripts",
     "unit-test",
     "integration-test",
+    "wtr-test",
     "inject",
     "packages",
     "playwright.config.js",
