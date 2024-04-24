@@ -4,7 +4,7 @@ import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFea
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { hasMozProxies, toStringProxyMixin, wrapToString } from './wrapper-utils.js'
-import { getOwnPropertyDescriptor, getOwnPropertyDescriptors, objectEntries, objectKeys, Proxy, Reflect, TypeError } from './captured-globals.js'
+import { getOwnPropertyDescriptor, getOwnPropertyDescriptors, objectDefineProperty, objectEntries, objectKeys, Proxy, Reflect, Symbol, TypeError } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
@@ -23,6 +23,8 @@ import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
  */
 
 const globalObj = typeof window === 'undefined' ? globalThis : window
+// special proeprty that is set on classes used to shim standard interfaces
+export const ddgShimMark = Symbol('ddgShimMark')
 
 export default class ContentFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -357,7 +359,7 @@ export default class ContentFeature {
             })
             UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor)
         } else {
-            Object.defineProperty(object, propertyName, descriptor)
+            objectDefineProperty(object, propertyName, descriptor)
         }
     }
 
@@ -559,6 +561,14 @@ export default class ContentFeature {
                 ImplClass.prototype.constructor = Interface
             }
         }
+
+        // mark the class as a shimmed class
+        objectDefineProperty(ImplClass, ddgShimMark, {
+            value: true,
+            configurable: false,
+            enumerable: false,
+            writable: false
+        })
 
         // interfaces are exposed directly on the global object, not on its prototype
         this.defineProperty(

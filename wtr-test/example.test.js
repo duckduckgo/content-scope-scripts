@@ -1,6 +1,6 @@
 import { assert } from 'chai'
-import ContentFeature from '../src/content-feature'
-import { wrapToString } from '../src/wrapper-utils'
+import ContentFeature, { ddgShimMark } from '../src/content-feature'
+import { toStringProxyMixin, wrapToString } from '../src/wrapper-utils'
 
 describe('wrapToString', () => {
     it('should mask toString() method', () => {
@@ -26,6 +26,8 @@ describe('ContentFeature wrapper methods', () => {
 
 describe('ContentFeature.shimInterface()', () => {
     const OrigMediaSession = globalThis.MediaSession
+    const origMediaSessionInstanceDescriptor = Object.getOwnPropertyDescriptor(Navigator.prototype, 'mediaSession')
+    const origMediaSessionInstance = navigator.mediaSession
     let MyMediaSession
     let cf
     /** @type {PropertyDescriptor} */
@@ -39,7 +41,10 @@ describe('ContentFeature.shimInterface()', () => {
             /** @type {MediaSession['playbackState']} */
             playbackState = 'none'
 
-            setActionHandler () {}
+            setActionHandler () {
+                return 123
+            }
+
             setCameraActive () {}
             setMicrophoneActive () {}
             setPositionState () {}
@@ -50,6 +55,9 @@ describe('ContentFeature.shimInterface()', () => {
     afterEach(() => {
         // restore the original interface
         Object.defineProperty(globalThis, 'MediaSession', origPropertyDescriptor)
+        // restore the original navigator.mediaSession
+        // @ts-expect-error we know it's defined in Chrome
+        Object.defineProperty(Navigator.prototype, 'mediaSession', origMediaSessionInstanceDescriptor)
     })
 
     it('should (re)define the global', () => {
@@ -59,6 +67,8 @@ describe('ContentFeature.shimInterface()', () => {
 
         assert.deepEqual({ ...newPropertyDescriptor, value: null }, { ...origPropertyDescriptor, value: null }, 'property descriptors do not match')
         assert.notStrictEqual(NewMediaSession, OrigMediaSession, 'class is not overridden')
+        assert.strictEqual(NewMediaSession[ddgShimMark], true, 'class should be marked as shimmed')
+        assert.strictEqual(MyMediaSession[ddgShimMark], true, 'class should be marked as shimmed')
 
         assert.instanceOf(new MyMediaSession(), NewMediaSession, 'instances should pass the instanceof check')
         assert.instanceOf(new NewMediaSession(), NewMediaSession, 'instances should pass the instanceof check')
