@@ -1,6 +1,6 @@
 import { assert } from 'chai'
 import ContentFeature, { ddgShimMark } from '../src/content-feature'
-import { toStringProxyMixin, wrapToString } from '../src/wrapper-utils'
+import { wrapToString } from '../src/wrapper-utils'
 
 describe('wrapToString', () => {
     it('should mask toString() method', () => {
