@@ -9,7 +9,7 @@ export async function createPhishingErrorMessaging (opts) {
     const { Messaging, MessagingContext, WebkitMessagingConfig } = await import('@duckduckgo/messaging')
     const messageContext = new MessagingContext({
         context: 'specialPages',
-        featureName: 'sslErrorPage',
+        featureName: 'phishingErrorPage',
         env: opts.env
     })
     if (opts.injectName === 'integration') {

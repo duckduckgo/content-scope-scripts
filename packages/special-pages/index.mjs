@@ -43,6 +43,11 @@ export const support = {
          'apple': ['copy', 'build-js', 'inline-html'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    phishingerrorpage: {
+        'integration': ['copy', 'build-js'],
+         'apple': ['copy', 'build-js', 'inline-html'],
+    },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     onboarding: {
         'integration': ['copy', 'build-js'],
         'windows': ['copy', 'build-js'],
