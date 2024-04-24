@@ -570,6 +570,14 @@ export default class ContentFeature {
             writable: false
         })
 
+        // mock the name property
+        objectDefineProperty(ImplClass, 'name', {
+            value: interfaceName,
+            configurable: true,
+            enumerable: false,
+            writable: false
+        })
+
         // interfaces are exposed directly on the global object, not on its prototype
         this.defineProperty(
             globalThis,
