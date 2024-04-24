@@ -440,7 +440,7 @@ export class WebCompat extends ContentFeature {
                 return
             }
 
-            const MyMediaSession = class {
+            class MyMediaSession {
                 metadata = null
                 /** @type {MediaSession['playbackState']} */
                 playbackState = 'none'

@@ -22,9 +22,6 @@ class MyTestFeature extends ContentFeature {
 }
 
 describe('ContentFeature wrapper methods', () => {
-})
-
-describe('ContentFeature.shimInterface()', () => {
     const OrigMediaSession = globalThis.MediaSession
     const origMediaSessionInstanceDescriptor = Object.getOwnPropertyDescriptor(Navigator.prototype, 'mediaSession')
     const origMediaSessionInstance = navigator.mediaSession
