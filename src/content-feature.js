@@ -598,24 +598,38 @@ export default class ContentFeature {
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
     shimProperty (baseObject, propertyName, implInstance, readOnly = false) {
-        // TODO: validate it does not exist already?
-        // TODO: handle toString()
-        // TODO: auto-wrap toString() on the getters and setters
-        // TODO: check that __proto__ is correct
+        // @ts-expect-error - implInstance is a class instance
+        const ImplClass = implInstance.constructor
+        if (ImplClass[ddgShimMark] !== true) {
+            throw new TypeError('implInstance must be an instance of a shimmed class')
+        }
 
-        // create a standard global instance, using the originally provided class
-        // interface should already be exposed, so `.constructor` should be already fixed at this point
-        // we use the original, non-proxied constructor function because the proxied one might be not callable
+        // mask toString() and toString.toString() on the instance
+        const proxiedInstance = new Proxy(implInstance, toStringProxyMixin(implInstance, `[object ${ImplClass.name}]`))
 
-        // TODO: should there be a separate `shimMethod()` for value descriptors? Mostly, value descriptors are used for methods (e.g. Object.assign(), Object.prototype.hasOwnProperty()), but not always (e.g. window.WebAssembly)
-        // TODO: make sure getter and setter function names are correct (generate from propertyName)
-        // TODO: handle readOnly
-        // this.defineProperty(baseObject, propertyName, {
-        //     get: function [propertyName] () {
-        //         return implInstance
-        //     },
-        //     configurable: true,
-        //     enumerable: true
-        // })
+        /** @type {StrictPropertyDescriptor} */
+        let descriptor
+
+        // Note that we only cover most common cases: a getter for "readonly" properties, and a value descriptor for writable properties.
+        // But there could be other cases, e.g. a property with both a getter and a setter. These could be defined with a raw defineProperty() call.
+        // Important: make sure to cover each new shim with a test that verifies that all descriptors match the standard API.
+        if (readOnly) {
+            const getter = function get () { return proxiedInstance }
+            const proxiedGetter = new Proxy(getter, toStringProxyMixin(getter, `function get ${propertyName}() { [native code] }`))
+            descriptor = {
+                configurable: true,
+                enumerable: true,
+                get: proxiedGetter
+            }
+        } else {
+            descriptor = {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: proxiedInstance
+            }
+        }
+
+        objectDefineProperty(baseObject, propertyName, descriptor)
     }
 }

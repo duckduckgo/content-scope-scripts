@@ -1,13 +1,14 @@
 /* global mozProxies */
 
-import { functionToString, getOwnPropertyDescriptor } from './captured-globals.js'
+import { functionToString } from './captured-globals.js'
 
 // Tests don't define this variable so fallback to behave like chrome
 export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 
 /**
- * return a proxy to `newFn` that fakes .toString() and .toString.toString() to resemble the `origFn`
- * newFn and origFn should be functions.
+ * return a proxy to `newFn` that fakes .toString() and .toString.toString() to resemble the `origFn`.
+ * WARNING: do NOT proxy toString multiple times, as it will not work as expected.
+ *
  * @param {*} newFn
  * @param {*} origFn
  * @param {string} [mockValue] - when provided, .toString() will return this value
@@ -21,7 +22,8 @@ export function wrapToString (newFn, origFn, mockValue) {
 }
 
 /**
- * generate a proxy handler mixin that fakes .toString() and .toString.toString() to resemble the `targetFn`
+ * generate a proxy handler mixin that fakes .toString() and .toString.toString() to resemble the `targetFn`.
+ * WARNING: do NOT proxy toString multiple times, as it will not work as expected.
  * @param {*} targetFn
  * @param {string} [mockValue] - when provided, .toString() will return this value
  */
