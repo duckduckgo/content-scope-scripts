@@ -1,10 +1,8 @@
-/* global cloneInto, exportFunction */
-
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { hasMozProxies, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js'
-import { objectDefineProperty, Proxy, Reflect } from './captured-globals.js'
+import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js'
+import { Proxy, Reflect } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
@@ -21,8 +19,6 @@ import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
  * @property {boolean} [allowlisted]
  * @property {string[]} [enabledFeatures]
  */
-
-const globalObj = typeof window === 'undefined' ? globalThis : window
 
 export default class ContentFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -316,7 +312,8 @@ export default class ContentFeature {
     }
 
     /**
-     * Define a property descriptor. Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
+     * Define a property descriptor with debug flags.
+     * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
      * @param {string} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
@@ -338,27 +335,7 @@ export default class ContentFeature {
             }
         })
 
-        if (hasMozProxies) {
-            const usedObj = object.wrappedJSObject || object
-            const UsedObjectInterface = globalObj.wrappedJSObject.Object
-            const definedDescriptor = new UsedObjectInterface();
-            ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-                if (propertyName in descriptor) {
-                    definedDescriptor[propertyName] = cloneInto(
-                        descriptor[propertyName],
-                        definedDescriptor,
-                        { cloneFunctions: true })
-                }
-            });
-            ['get', 'set'].forEach((methodName) => {
-                if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
-                    exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName })
-                }
-            })
-            UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor)
-        } else {
-            objectDefineProperty(object, propertyName, descriptor)
-        }
+        return defineProperty(object, propertyName, descriptor)
     }
 
     /**
@@ -409,6 +386,6 @@ export default class ContentFeature {
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
     shimProperty (baseObject, propertyName, implInstance, readOnly = false) {
-        return shimProperty(baseObject, propertyName, implInstance, readOnly)
+        return shimProperty(baseObject, propertyName, implInstance, readOnly, this.defineProperty.bind(this))
     }
 }

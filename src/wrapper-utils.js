@@ -1,12 +1,44 @@
-/* global mozProxies */
+/* global mozProxies, cloneInto, exportFunction */
 
 import { functionToString, getOwnPropertyDescriptor, getOwnPropertyDescriptors, objectDefineProperty, objectEntries, objectKeys } from './captured-globals.js'
+
+const globalObj = typeof window === 'undefined' ? globalThis : window
 
 // Tests don't define this variable so fallback to behave like chrome
 export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
 
 // special property that is set on classes used to shim standard interfaces
 export const ddgShimMark = Symbol('ddgShimMark')
+
+/**
+ * Like Object.defineProperty, but with support for Firefox's mozProxies.
+ * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
+ * @param {string} propertyName
+ * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
+ */
+export function defineProperty (object, propertyName, descriptor) {
+    if (hasMozProxies) {
+        const usedObj = object.wrappedJSObject || object
+        const UsedObjectInterface = globalObj.wrappedJSObject.Object
+        const definedDescriptor = new UsedObjectInterface();
+        ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
+            if (propertyName in descriptor) {
+                definedDescriptor[propertyName] = cloneInto(
+                    descriptor[propertyName],
+                    definedDescriptor,
+                    { cloneFunctions: true })
+            }
+        });
+        ['get', 'set'].forEach((methodName) => {
+            if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
+                exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName })
+            }
+        })
+        UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor)
+    } else {
+        objectDefineProperty(object, propertyName, descriptor)
+    }
+}
 
 /**
  * return a proxy to `newFn` that fakes .toString() and .toString.toString() to resemble the `origFn`.
@@ -104,10 +136,10 @@ export function wrapFunction (functionValue, realTarget) {
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
  * @param {string} propertyName
  * @param {Partial<PropertyDescriptor>} descriptor
- * @param {typeof Object.defineProperty} [definePropertyFn] - function to use for defining the property
+ * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
-export function wrapProperty (object, propertyName, descriptor, definePropertyFn = objectDefineProperty) {
+export function wrapProperty (object, propertyName, descriptor, definePropertyFn) {
     if (!object) {
         return
     }
@@ -143,10 +175,10 @@ export function wrapProperty (object, propertyName, descriptor, definePropertyFn
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
  * @param {string} propertyName
  * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
- * @param {typeof Object.defineProperty} [definePropertyFn] - function to use for defining the property
+ * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
-export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn = objectDefineProperty) {
+export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
     if (!object) {
         return
     }
@@ -185,15 +217,14 @@ export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn = 
  * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
  * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
  * @param {Partial<DefineInterfaceOptions>} options - options for defining the interface
- * @param {typeof Object.defineProperty} [definePropertyFn] - function to use for defining the property
+ * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
  */
 export function shimInterface (
     interfaceName,
     ImplClass,
     options,
-    definePropertyFn = objectDefineProperty
+    definePropertyFn
 ) {
-    // TODO: move to another file
     // TODO: document in readme
 
     /** @type {DefineInterfaceOptions} */
@@ -261,7 +292,7 @@ export function shimInterface (
     }
 
     // mark the class as a shimmed class
-    objectDefineProperty(ImplClass, ddgShimMark, {
+    definePropertyFn(ImplClass, ddgShimMark, {
         value: true,
         configurable: false,
         enumerable: false,
@@ -269,7 +300,7 @@ export function shimInterface (
     })
 
     // mock the name property
-    objectDefineProperty(ImplClass, 'name', {
+    definePropertyFn(ImplClass, 'name', {
         value: interfaceName,
         configurable: true,
         enumerable: false,
@@ -294,8 +325,9 @@ export function shimInterface (
  * @param {K} propertyName - name of the property to shim (e.g. 'mediaSession')
  * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
  * @param {boolean} readOnly - whether the property should be read-only
+ * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
  */
-export function shimProperty (baseObject, propertyName, implInstance, readOnly) {
+export function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
     // TODO: add test utils
     // TODO: start discussion about WTR tests
     // TODO: check FF
@@ -335,7 +367,7 @@ export function shimProperty (baseObject, propertyName, implInstance, readOnly) 
         }
     }
 
-    objectDefineProperty(baseObject, propertyName, descriptor)
+    definePropertyFn(baseObject, propertyName, descriptor)
 }
 
 /**

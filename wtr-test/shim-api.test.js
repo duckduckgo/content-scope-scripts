@@ -23,6 +23,8 @@ class MyTestFeature extends ContentFeature {
 
 describe('ContentFeature wrapper methods', () => {
     const OrigMediaSession = globalThis.MediaSession
+    /** @type {import('../src/wrapper-utils').StrictGetDescriptor} */
+    // @ts-expect-error we know it's defined in Chrome
     const origMediaSessionInstanceDescriptor = Object.getOwnPropertyDescriptor(Navigator.prototype, 'mediaSession')
     const origMediaSessionInstance = navigator.mediaSession
     /** @type {typeof MediaSession} */
@@ -56,7 +58,6 @@ describe('ContentFeature wrapper methods', () => {
         // restore the original interface
         Object.defineProperty(globalThis, 'MediaSession', origPropertyDescriptor)
         // restore the original navigator.mediaSession
-        // @ts-expect-error we know it's defined in Chrome
         Object.defineProperty(Navigator.prototype, 'mediaSession', origMediaSessionInstanceDescriptor)
     })
 
@@ -143,6 +144,38 @@ describe('ContentFeature wrapper methods', () => {
 
         it('should throw when the class has not been prepared', () => {
             assert.throws(() => cf.shimProperty(Navigator.prototype, 'mediaSession', new MyMediaSession()), TypeError)
+        })
+
+        it('should support writable properties', () => {
+            cf.shimInterface('MediaSession', MyMediaSession)
+            const instance = new MyMediaSession()
+            cf.shimProperty(Navigator.prototype, 'mediaSession', instance, false)
+
+            const descriptor = Object.getOwnPropertyDescriptor(Navigator.prototype, 'mediaSession')
+            assert.include(descriptor, {
+                configurable: true,
+                enumerable: true,
+                writable: true
+            }, 'property should be writable')
+        })
+
+        it('should support readonly properties', () => {
+            cf.shimInterface('MediaSession', MyMediaSession)
+            const instance = new MyMediaSession()
+            cf.shimProperty(Navigator.prototype, 'mediaSession', instance, true)
+
+            /** @type {import('../src/wrapper-utils').StrictAccessorDescriptor} */
+            // @ts-expect-error we know it's defined
+            const descriptor = Object.getOwnPropertyDescriptor(Navigator.prototype, 'mediaSession')
+            assert.include(descriptor, {
+                configurable: true,
+                enumerable: true
+            }, 'unexpected property descriptor')
+            assert.isDefined(descriptor.get, 'property should have a getter and no setter')
+            assert.isUndefined(descriptor.set, 'property should have a getter and no setter')
+
+            const getter = descriptor.get
+            assert.strictEqual(getter.toString(), origMediaSessionInstanceDescriptor.get?.toString(), 'getter\'s .toString() should match the original')
         })
     })
 })
