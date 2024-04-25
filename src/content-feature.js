@@ -378,6 +378,8 @@ export default class ContentFeature {
             object = object.wrappedJSObject || object
         }
 
+        /** @type {StrictPropertyDescriptor} */
+        // @ts-expect-error - we check for undefined below
         const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
@@ -413,12 +415,16 @@ export default class ContentFeature {
         if (hasMozProxies) {
             object = object.wrappedJSObject || object
         }
+
+        /** @type {StrictPropertyDescriptor} */
+        // @ts-expect-error - we check for undefined below
         const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
             return
         }
 
+        // @ts-expect-error - we check for undefined below
         const origFn = origDescriptor.value
         if (!origFn || typeof origFn !== 'function') {
             // method properties are expected to be defined with a `value`
@@ -447,12 +453,16 @@ export default class ContentFeature {
         if (!object) {
             return
         }
+
+        /** @type {StrictPropertyDescriptor} */
+        // @ts-expect-error - we check for undefined below
         const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
         if (!origDescriptor) {
             // this happens if the property is not implemented in the browser
             return
         }
 
+        // @ts-expect-error - we check for undefined below
         const origConstructor = origDescriptor.value
         if (!origConstructor || typeof origConstructor !== 'function') {
             // method properties are expected to be defined with a `value`
@@ -479,6 +489,8 @@ export default class ContentFeature {
             // .prototype may be absent, e.g. in Proxy
             // .prototype.constructor may be different, e.g. in Audio
 
+            /** @type {StrictDataDescriptor} */
+            // @ts-expect-error - we've checked it exists above
             const descriptor = getOwnPropertyDescriptor(origConstructor.prototype, 'constructor')
             this.defineProperty(origConstructor.prototype, 'constructor', {
                 ...descriptor,

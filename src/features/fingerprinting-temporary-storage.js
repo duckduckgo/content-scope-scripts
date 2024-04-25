@@ -26,7 +26,11 @@ export default class FingerprintingTemporaryStorage extends ContentFeature {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     org.call(navigator.webkitTemporaryStorage, modifiedCallback, err)
                 }
-                this.defineProperty(Navigator.prototype, 'webkitTemporaryStorage', { get: () => tStorage })
+                this.defineProperty(Navigator.prototype, 'webkitTemporaryStorage', {
+                    get: () => tStorage,
+                    enumerable: true,
+                    configurable: true
+                })
             } catch (e) {}
         }
     }

@@ -851,7 +851,9 @@ export default class RuntimeChecks extends ContentFeature {
                     return storage
                 }
                 return originalStorage
-            }
+            },
+            enumerable: true,
+            configurable: true
         })
     }
 
@@ -903,6 +905,7 @@ export default class RuntimeChecks extends ContentFeature {
         if (!defaultGetter) {
             return
         }
+        // TODO: inner* and outer* should have a setter too
         this.defineProperty(scope, overrideKey, {
             get () {
                 const defaultVal = Reflect.apply(defaultGetter, receiver, [])
@@ -910,7 +913,9 @@ export default class RuntimeChecks extends ContentFeature {
                     return returnVal
                 }
                 return defaultVal
-            }
+            },
+            enumerable: true,
+            configurable: true
         })
     }
 }

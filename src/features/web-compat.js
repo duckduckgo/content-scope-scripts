@@ -369,7 +369,8 @@ export class WebCompat extends ContentFeature {
             this.defineProperty(Navigator.prototype, 'credentials', {
                 value,
                 configurable: true,
-                enumerable: true
+                enumerable: true,
+                writable: true
             })
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
@@ -454,8 +455,8 @@ export class WebCompat extends ContentFeature {
             this.shimInterface('MediaSession', MyMediaSession, {
                 disallowConstructor: true
             })
-
             this.shimProperty(globalThis.navigator, 'mediaSession', new MyMediaSession())
+
             this.shimInterface('MediaMetadata', class {
                 constructor (metadata = {}) {
                     this.title = metadata.title
@@ -464,8 +465,6 @@ export class WebCompat extends ContentFeature {
                     this.artwork = metadata.artwork
                 }
             })
-
-            window.MediaMetadata = new Proxy(MediaMetadata, {})
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
         }
