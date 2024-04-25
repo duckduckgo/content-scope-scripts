@@ -443,65 +443,6 @@ export default class ContentFeature {
     }
 
     /**
-     * Wrap a constructor function descriptor. Only for constructor functions. For data properties, use wrapProperty(). For methods, use wrapMethod().
-     * @param {any} object - object whose property we are wrapping (most commonly the constructor function, e.g. globalThis.Audio)
-     * @param {string} propertyName
-     * @param {(originalConstructor, ...args) => any } wrapperFn - wrapper function receives the original constructor as the first argument
-     * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
-     */
-    wrapConstructor (object, propertyName, wrapperFn) {
-        if (!object) {
-            return
-        }
-
-        /** @type {StrictPropertyDescriptor} */
-        // @ts-expect-error - we check for undefined below
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
-        if (!origDescriptor) {
-            // this happens if the property is not implemented in the browser
-            return
-        }
-
-        // @ts-expect-error - we check for undefined below
-        const origConstructor = origDescriptor.value
-        if (!origConstructor || typeof origConstructor !== 'function') {
-            // method properties are expected to be defined with a `value`
-            throw new Error(`Property ${propertyName} is not a function`)
-        }
-
-        /**
-         * @type ProxyHandler<Function>
-         */
-        const handler = {
-            construct (target, argArray) {
-                return wrapperFn(origConstructor, ...argArray)
-            }
-        }
-
-        const newFn = new Proxy(origConstructor, handler)
-
-        this.defineProperty(object, propertyName, {
-            ...origDescriptor,
-            value: newFn
-        })
-
-        if (origConstructor.prototype?.constructor === origConstructor) {
-            // .prototype may be absent, e.g. in Proxy
-            // .prototype.constructor may be different, e.g. in Audio
-
-            /** @type {StrictDataDescriptor} */
-            // @ts-expect-error - we've checked it exists above
-            const descriptor = getOwnPropertyDescriptor(origConstructor.prototype, 'constructor')
-            this.defineProperty(origConstructor.prototype, 'constructor', {
-                ...descriptor,
-                value: newFn
-            })
-        }
-
-        return origDescriptor
-    }
-
-    /**
      * @template {keyof typeof globalThis} StandardInterfaceName
      * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
      * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
