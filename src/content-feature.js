@@ -608,7 +608,7 @@ export default class ContentFeature {
      * For constructors, use shimInterface().
      * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
      * @template Base
-     * @template {keyof Base} K
+     * @template {keyof Base & string} K
      * @param {Base} baseObject - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
      * @param {K} propertyName - name of the property to shim (e.g. 'mediaSession')
      * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
