@@ -1,9 +1,12 @@
 /* global mozProxies */
 
-import { functionToString } from './captured-globals.js'
+import { functionToString, getOwnPropertyDescriptor, getOwnPropertyDescriptors, objectDefineProperty, objectEntries, objectKeys } from './captured-globals.js'
 
 // Tests don't define this variable so fallback to behave like chrome
 export const hasMozProxies = typeof mozProxies !== 'undefined' ? mozProxies : false
+
+// special property that is set on classes used to shim standard interfaces
+export const ddgShimMark = Symbol('ddgShimMark')
 
 /**
  * return a proxy to `newFn` that fakes .toString() and .toString.toString() to resemble the `origFn`.
@@ -95,3 +98,279 @@ export function wrapFunction (functionValue, realTarget) {
         }
     })
 }
+
+/**
+ * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
+ * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
+ * @param {string} propertyName
+ * @param {Partial<PropertyDescriptor>} descriptor
+ * @param {typeof Object.defineProperty} [definePropertyFn] - function to use for defining the property
+ * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+ */
+export function wrapProperty (object, propertyName, descriptor, definePropertyFn = objectDefineProperty) {
+    if (!object) {
+        return
+    }
+    if (hasMozProxies) {
+        object = object.wrappedJSObject || object
+    }
+
+    /** @type {StrictPropertyDescriptor} */
+    // @ts-expect-error - we check for undefined below
+    const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
+    if (!origDescriptor) {
+        // this happens if the property is not implemented in the browser
+        return
+    }
+
+    if (('value' in origDescriptor && 'value' in descriptor) ||
+        ('get' in origDescriptor && 'get' in descriptor) ||
+        ('set' in origDescriptor && 'set' in descriptor)
+    ) {
+        definePropertyFn(object, propertyName, {
+            ...origDescriptor,
+            ...descriptor
+        })
+        return origDescriptor
+    } else {
+        // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
+        throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
+    }
+}
+
+/**
+ * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
+ * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
+ * @param {string} propertyName
+ * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+ * @param {typeof Object.defineProperty} [definePropertyFn] - function to use for defining the property
+ * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
+ */
+export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn = objectDefineProperty) {
+    if (!object) {
+        return
+    }
+    if (hasMozProxies) {
+        object = object.wrappedJSObject || object
+    }
+
+    /** @type {StrictPropertyDescriptor} */
+    // @ts-expect-error - we check for undefined below
+    const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
+    if (!origDescriptor) {
+        // this happens if the property is not implemented in the browser
+        return
+    }
+
+    // @ts-expect-error - we check for undefined below
+    const origFn = origDescriptor.value
+    if (!origFn || typeof origFn !== 'function') {
+        // method properties are expected to be defined with a `value`
+        throw new Error(`Property ${propertyName} does not look like a method`)
+    }
+
+    const newFn = wrapToString(function () {
+        return wrapperFn.call(this, origFn, ...arguments)
+    }, origFn)
+
+    definePropertyFn(object, propertyName, {
+        ...origDescriptor,
+        value: newFn
+    })
+    return origDescriptor
+}
+
+/**
+ * @template {keyof typeof globalThis} StandardInterfaceName
+ * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
+ * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
+ * @param {Partial<DefineInterfaceOptions>} options - options for defining the interface
+ * @param {typeof Object.defineProperty} [definePropertyFn] - function to use for defining the property
+ */
+export function shimInterface (
+    interfaceName,
+    ImplClass,
+    options,
+    definePropertyFn = objectDefineProperty
+) {
+    // TODO: move to another file
+    // TODO: document in readme
+
+    /** @type {DefineInterfaceOptions} */
+    const defaultOptions = {
+        allowConstructorCall: false,
+        disallowConstructor: false,
+        constructorErrorMessage: 'Illegal constructor',
+        interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
+        wrapToString: true
+    }
+
+    const fullOptions = { ...defaultOptions, ...options }
+
+    // In some cases we can get away without a full proxy, but in many cases below we need it.
+    // For example, we can't redefine `prototype` property on ES6 classes.
+    // Se we just always wrap the class to make the code more maintaibnable
+
+    /** @type {ProxyHandler<Function>} */
+    const proxyHandler = {}
+
+    // handle the case where the constructor is called without new
+    if (fullOptions.allowConstructorCall) {
+        // make the constructor function callable without new
+        proxyHandler.apply = function (target, thisArg, argumentsList) {
+            return Reflect.construct(target, argumentsList, target)
+        }
+    }
+
+    // make the constructor function throw when called without new
+    if (fullOptions.disallowConstructor) {
+        proxyHandler.construct = function () {
+            throw new TypeError(fullOptions.constructorErrorMessage)
+        }
+    }
+
+    if (fullOptions.wrapToString) {
+        // mask toString() on class methods. `ImplClass.prototype` is non-configurable: we can't override or proxy it, so we have to wrap each method individually
+        for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
+            if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
+                ImplClass.prototype[prop] = new Proxy(descriptor.value, {
+                    get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`)
+                })
+            }
+        }
+
+        // wrap toString on the constructor function itself
+        Object.assign(proxyHandler, {
+            get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`)
+        })
+    }
+
+    // Note that instanceof should still work, since the `.prototype` object is proxied too:
+    // Interface() instanceof Interface === true
+    // ImplClass() instanceof Interface === true
+    const Interface = new Proxy(ImplClass, proxyHandler)
+
+    // Make sure that Interface().constructor === Interface (not ImplClass)
+    if (ImplClass.prototype?.constructor === ImplClass) {
+        /** @type {StrictDataDescriptor} */
+        // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
+        const descriptor = getOwnPropertyDescriptor(ImplClass.prototype, 'constructor')
+        if (descriptor.writable) {
+            ImplClass.prototype.constructor = Interface
+        }
+    }
+
+    // mark the class as a shimmed class
+    objectDefineProperty(ImplClass, ddgShimMark, {
+        value: true,
+        configurable: false,
+        enumerable: false,
+        writable: false
+    })
+
+    // mock the name property
+    objectDefineProperty(ImplClass, 'name', {
+        value: interfaceName,
+        configurable: true,
+        enumerable: false,
+        writable: false
+    })
+
+    // interfaces are exposed directly on the global object, not on its prototype
+    definePropertyFn(
+        globalThis,
+        interfaceName,
+        { ...fullOptions.interfaceDescriptorOptions, value: Interface }
+    )
+}
+
+/**
+ * Define a missing standard property on a global (prototype) object. Only for data properties.
+ * For constructors, use shimInterface().
+ * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
+ * @template Base
+ * @template {keyof Base & string} K
+ * @param {Base} baseObject - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
+ * @param {K} propertyName - name of the property to shim (e.g. 'mediaSession')
+ * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
+ * @param {boolean} readOnly - whether the property should be read-only
+ */
+export function shimProperty (baseObject, propertyName, implInstance, readOnly) {
+    // TODO: add test utils
+    // TODO: start discussion about WTR tests
+    // TODO: check FF
+    // @ts-expect-error - implInstance is a class instance
+    const ImplClass = implInstance.constructor
+    if (ImplClass[ddgShimMark] !== true) {
+        throw new TypeError('implInstance must be an instance of a shimmed class')
+    }
+
+    // mask toString() and toString.toString() on the instance
+    const proxiedInstance = new Proxy(implInstance, {
+        get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`)
+    })
+
+    /** @type {StrictPropertyDescriptor} */
+    let descriptor
+
+    // Note that we only cover most common cases: a getter for "readonly" properties, and a value descriptor for writable properties.
+    // But there could be other cases, e.g. a property with both a getter and a setter. These could be defined with a raw defineProperty() call.
+    // Important: make sure to cover each new shim with a test that verifies that all descriptors match the standard API.
+    if (readOnly) {
+        const getter = function get () { return proxiedInstance }
+        const proxiedGetter = new Proxy(getter, {
+            get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`)
+        })
+        descriptor = {
+            configurable: true,
+            enumerable: true,
+            get: proxiedGetter
+        }
+    } else {
+        descriptor = {
+            configurable: true,
+            enumerable: true,
+            writable: true,
+            value: proxiedInstance
+        }
+    }
+
+    objectDefineProperty(baseObject, propertyName, descriptor)
+}
+
+/**
+ * @typedef {Object} BaseStrictPropertyDescriptor
+ * @property {boolean} configurable
+ * @property {boolean} enumerable
+ */
+
+/**
+ * @typedef {BaseStrictPropertyDescriptor & { value: any; writable: boolean }} StrictDataDescriptor
+ * @typedef {BaseStrictPropertyDescriptor & { get: () => any; set: (v: any) => void }} StrictAccessorDescriptor
+ * @typedef {BaseStrictPropertyDescriptor & { get: () => any }} StrictGetDescriptor
+ * @typedef {BaseStrictPropertyDescriptor & { set: (v: any) => void }} StrictSetDescriptor
+ * @typedef {StrictDataDescriptor | StrictAccessorDescriptor | StrictGetDescriptor | StrictSetDescriptor} StrictPropertyDescriptor
+ */
+
+/**
+ * @typedef {Object} BaseDefineInterfaceOptions
+ * @property {StrictDataDescriptor} interfaceDescriptorOptions
+ * @property {string} constructorErrorMessage
+ * @property {boolean} wrapToString
+ */
+
+/**
+ * @typedef {{ allowConstructorCall: true; disallowConstructor: false }} DefineInterfaceOptionsWithAllowConstructorCallMixin
+ */
+
+/**
+ * @typedef {{ allowConstructorCall: false; disallowConstructor: true }} DefineInterfaceOptionsWithDisallowConstructorMixin
+ */
+
+/**
+ * @typedef {{ allowConstructorCall: false; disallowConstructor: false }} DefineInterfaceOptionsDefaultMixin
+ */
+
+/**
+ * @typedef {BaseDefineInterfaceOptions & (DefineInterfaceOptionsWithAllowConstructorCallMixin | DefineInterfaceOptionsWithDisallowConstructorMixin | DefineInterfaceOptionsDefaultMixin)} DefineInterfaceOptions
+ */

@@ -3,8 +3,8 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { hasMozProxies, toStringGetTrap, wrapToString } from './wrapper-utils.js'
-import { getOwnPropertyDescriptor, getOwnPropertyDescriptors, objectDefineProperty, objectEntries, objectKeys, Proxy, Reflect, Symbol, TypeError } from './captured-globals.js'
+import { hasMozProxies, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js'
+import { objectDefineProperty, Proxy, Reflect } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
@@ -23,8 +23,6 @@ import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
  */
 
 const globalObj = typeof window === 'undefined' ? globalThis : window
-// special property that is set on classes used to shim standard interfaces
-export const ddgShimMark = Symbol('ddgShimMark')
 
 export default class ContentFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -321,7 +319,7 @@ export default class ContentFeature {
      * Define a property descriptor. Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
      * @param {string} propertyName
-     * @param {StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
+     * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     defineProperty (object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
@@ -371,34 +369,7 @@ export default class ContentFeature {
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapProperty (object, propertyName, descriptor) {
-        if (!object) {
-            return
-        }
-        if (hasMozProxies) {
-            object = object.wrappedJSObject || object
-        }
-
-        /** @type {StrictPropertyDescriptor} */
-        // @ts-expect-error - we check for undefined below
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
-        if (!origDescriptor) {
-            // this happens if the property is not implemented in the browser
-            return
-        }
-
-        if (('value' in origDescriptor && 'value' in descriptor) ||
-            ('get' in origDescriptor && 'get' in descriptor) ||
-            ('set' in origDescriptor && 'set' in descriptor)
-        ) {
-            this.defineProperty(object, propertyName, {
-                ...origDescriptor,
-                ...descriptor
-            })
-            return origDescriptor
-        } else {
-            // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
-        }
+        return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this))
     }
 
     /**
@@ -409,139 +380,21 @@ export default class ContentFeature {
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapMethod (object, propertyName, wrapperFn) {
-        if (!object) {
-            return
-        }
-        if (hasMozProxies) {
-            object = object.wrappedJSObject || object
-        }
-
-        /** @type {StrictPropertyDescriptor} */
-        // @ts-expect-error - we check for undefined below
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
-        if (!origDescriptor) {
-            // this happens if the property is not implemented in the browser
-            return
-        }
-
-        // @ts-expect-error - we check for undefined below
-        const origFn = origDescriptor.value
-        if (!origFn || typeof origFn !== 'function') {
-            // method properties are expected to be defined with a `value`
-            throw new Error(`Property ${propertyName} does not look like a method`)
-        }
-
-        const newFn = wrapToString(function () {
-            return wrapperFn.call(this, origFn, ...arguments)
-        }, origFn)
-
-        this.defineProperty(object, propertyName, {
-            ...origDescriptor,
-            value: newFn
-        })
-        return origDescriptor
+        return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this))
     }
 
     /**
      * @template {keyof typeof globalThis} StandardInterfaceName
      * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
      * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
-     * @param {Partial<DefineInterfaceOptions>} [options] - options for defining the interface
+     * @param {Partial<import('./wrapper-utils').DefineInterfaceOptions>} [options]
      */
     shimInterface (
         interfaceName,
         ImplClass,
-        options
+        options = {}
     ) {
-        // TODO: validate that it does not exist already?
-        // TODO: move to another file
-
-        /** @type {DefineInterfaceOptions} */
-        const defaultOptions = {
-            allowConstructorCall: false,
-            disallowConstructor: false,
-            constructorErrorMessage: 'Illegal constructor',
-            interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
-            wrapToString: true
-        }
-
-        const fullOptions = { ...defaultOptions, ...options }
-
-        // In some cases we can get away without a full proxy, but in many cases below we need it.
-        // For example, we can't redefine `prototype` property on ES6 classes.
-        // Se we just always wrap the class to make the code more maintaibnable
-
-        /** @type {ProxyHandler<Function>} */
-        const proxyHandler = {}
-
-        // handle the case where the constructor is called without new
-        if (fullOptions.allowConstructorCall) {
-            // make the constructor function callable without new
-            proxyHandler.apply = function (target, thisArg, argumentsList) {
-                return Reflect.construct(target, argumentsList, target)
-            }
-        }
-
-        // make the constructor function throw when called without new
-        if (fullOptions.disallowConstructor) {
-            proxyHandler.construct = function () {
-                throw new TypeError(fullOptions.constructorErrorMessage)
-            }
-        }
-
-        if (fullOptions.wrapToString) {
-            // mask toString() on class methods. `ImplClass.prototype` is non-configurable: we can't override or proxy it, so we have to wrap each method individually
-            for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
-                if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
-                    ImplClass.prototype[prop] = new Proxy(descriptor.value, {
-                        get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`)
-                    })
-                }
-            }
-
-            // wrap toString on the constructor function itself
-            Object.assign(proxyHandler, {
-                get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`)
-            })
-        }
-
-        // Note that instanceof should still work, since the `.prototype` object is proxied too:
-        // Interface() instanceof Interface === true
-        // ImplClass() instanceof Interface === true
-        const Interface = new Proxy(ImplClass, proxyHandler)
-
-        // Make sure that Interface().constructor === Interface (not ImplClass)
-        if (ImplClass.prototype?.constructor === ImplClass) {
-            /** @type {StrictDataDescriptor} */
-            // @ts-expect-error - As long as ImplClass is a normal class, it should have the prototype property
-            const descriptor = getOwnPropertyDescriptor(ImplClass.prototype, 'constructor')
-            if (descriptor.writable) {
-                ImplClass.prototype.constructor = Interface
-            }
-        }
-
-        // mark the class as a shimmed class
-        objectDefineProperty(ImplClass, ddgShimMark, {
-            value: true,
-            configurable: false,
-            enumerable: false,
-            writable: false
-        })
-
-        // mock the name property
-        objectDefineProperty(ImplClass, 'name', {
-            value: interfaceName,
-            configurable: true,
-            enumerable: false,
-            writable: false
-        })
-
-        // interfaces are exposed directly on the global object, not on its prototype
-        this.defineProperty(
-            globalThis,
-            interfaceName,
-            { ...fullOptions.interfaceDescriptorOptions, value: Interface }
-        )
+        return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this))
     }
 
     /**
@@ -556,45 +409,6 @@ export default class ContentFeature {
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
     shimProperty (baseObject, propertyName, implInstance, readOnly = false) {
-        // TODO: add test utils
-        // TODO: start discussion about WTR tests
-        // TODO: check FF
-        // @ts-expect-error - implInstance is a class instance
-        const ImplClass = implInstance.constructor
-        if (ImplClass[ddgShimMark] !== true) {
-            throw new TypeError('implInstance must be an instance of a shimmed class')
-        }
-
-        // mask toString() and toString.toString() on the instance
-        const proxiedInstance = new Proxy(implInstance, {
-            get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`)
-        })
-
-        /** @type {StrictPropertyDescriptor} */
-        let descriptor
-
-        // Note that we only cover most common cases: a getter for "readonly" properties, and a value descriptor for writable properties.
-        // But there could be other cases, e.g. a property with both a getter and a setter. These could be defined with a raw defineProperty() call.
-        // Important: make sure to cover each new shim with a test that verifies that all descriptors match the standard API.
-        if (readOnly) {
-            const getter = function get () { return proxiedInstance }
-            const proxiedGetter = new Proxy(getter, {
-                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`)
-            })
-            descriptor = {
-                configurable: true,
-                enumerable: true,
-                get: proxiedGetter
-            }
-        } else {
-            descriptor = {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: proxiedInstance
-            }
-        }
-
-        objectDefineProperty(baseObject, propertyName, descriptor)
+        return shimProperty(baseObject, propertyName, implInstance, readOnly)
     }
 }

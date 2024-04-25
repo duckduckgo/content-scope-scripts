@@ -1,6 +1,6 @@
 import { assert } from 'chai'
-import ContentFeature, { ddgShimMark } from '../src/content-feature'
-import { wrapToString } from '../src/wrapper-utils'
+import ContentFeature from '../src/content-feature'
+import { ddgShimMark, wrapToString } from '../src/wrapper-utils'
 
 describe('wrapToString', () => {
     it('should mask toString() method', () => {
