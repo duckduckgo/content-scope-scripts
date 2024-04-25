@@ -3,7 +3,7 @@
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { hasMozProxies, toStringProxyMixin, wrapToString } from './wrapper-utils.js'
+import { hasMozProxies, toStringGetTrap, wrapToString } from './wrapper-utils.js'
 import { getOwnPropertyDescriptor, getOwnPropertyDescriptors, objectDefineProperty, objectEntries, objectKeys, Proxy, Reflect, Symbol, TypeError } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
@@ -501,6 +501,7 @@ export default class ContentFeature {
         options
     ) {
         // TODO: validate that it does not exist already?
+        // TODO: move to another file
 
         /** @type {DefineInterfaceOptions} */
         const defaultOptions = {
@@ -539,12 +540,16 @@ export default class ContentFeature {
             // mask toString() on class methods. `ImplClass.prototype` is non-configurable: we can't override or proxy it, so we have to wrap each method individually
             for (const [prop, descriptor] of objectEntries(getOwnPropertyDescriptors(ImplClass.prototype))) {
                 if (prop !== 'constructor' && descriptor.writable && typeof descriptor.value === 'function') {
-                    ImplClass.prototype[prop] = new Proxy(descriptor.value, toStringProxyMixin(descriptor.value, `function ${prop}() { [native code] }`))
+                    ImplClass.prototype[prop] = new Proxy(descriptor.value, {
+                        get: toStringGetTrap(descriptor.value, `function ${prop}() { [native code] }`)
+                    })
                 }
             }
 
             // wrap toString on the constructor function itself
-            Object.assign(proxyHandler, toStringProxyMixin(ImplClass, `function ${interfaceName}() { [native code] }`))
+            Object.assign(proxyHandler, {
+                get: toStringGetTrap(ImplClass, `function ${interfaceName}() { [native code] }`)
+            })
         }
 
         // Note that instanceof should still work, since the `.prototype` object is proxied too:
@@ -598,6 +603,9 @@ export default class ContentFeature {
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
     shimProperty (baseObject, propertyName, implInstance, readOnly = false) {
+        // TODO: add test utils
+        // TODO: start discussion about WTR tests
+        // TODO: check FF
         // @ts-expect-error - implInstance is a class instance
         const ImplClass = implInstance.constructor
         if (ImplClass[ddgShimMark] !== true) {
@@ -605,7 +613,9 @@ export default class ContentFeature {
         }
 
         // mask toString() and toString.toString() on the instance
-        const proxiedInstance = new Proxy(implInstance, toStringProxyMixin(implInstance, `[object ${ImplClass.name}]`))
+        const proxiedInstance = new Proxy(implInstance, {
+            get: toStringGetTrap(implInstance, `[object ${ImplClass.name}]`)
+        })
 
         /** @type {StrictPropertyDescriptor} */
         let descriptor
@@ -615,7 +625,9 @@ export default class ContentFeature {
         // Important: make sure to cover each new shim with a test that verifies that all descriptors match the standard API.
         if (readOnly) {
             const getter = function get () { return proxiedInstance }
-            const proxiedGetter = new Proxy(getter, toStringProxyMixin(getter, `function get ${propertyName}() { [native code] }`))
+            const proxiedGetter = new Proxy(getter, {
+                get: toStringGetTrap(getter, `function get ${propertyName}() { [native code] }`)
+            })
             descriptor = {
                 configurable: true,
                 enumerable: true,

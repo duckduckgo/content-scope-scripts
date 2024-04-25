@@ -18,55 +18,54 @@ export function wrapToString (newFn, origFn, mockValue) {
         return newFn
     }
 
-    return new Proxy(newFn, toStringProxyMixin(origFn, mockValue))
+    return new Proxy(newFn, { get: toStringGetTrap(origFn, mockValue) })
 }
 
 /**
- * generate a proxy handler mixin that fakes .toString() and .toString.toString() to resemble the `targetFn`.
- * WARNING: do NOT proxy toString multiple times, as it will not work as expected.
+ * generate a proxy handler trap that fakes .toString() and .toString.toString() to resemble the `targetFn`.
+ * Note that it should be used as the get() trap.
  * @param {*} targetFn
  * @param {string} [mockValue] - when provided, .toString() will return this value
+ * @returns { (target: any, prop: string, receiver: any) => any }
  */
-export function toStringProxyMixin (targetFn, mockValue) {
+export function toStringGetTrap (targetFn, mockValue) {
     // We wrap two levels deep to handle toString.toString() calls
-    return {
-        get (target, prop, receiver) {
-            if (prop === 'toString') {
-                const origToString = Reflect.get(targetFn, 'toString', targetFn)
-                const toStringProxy = new Proxy(origToString, {
-                    apply (target, thisArg, argumentsList) {
-                        // only mock toString() when called on the proxy itself. If the method is applied to some other object, it should behave as a normal toString()
-                        if (thisArg === receiver) {
-                            if (mockValue) {
-                                return mockValue
-                            }
-                            return Reflect.apply(target, targetFn, argumentsList)
-                        } else {
-                            return Reflect.apply(target, thisArg, argumentsList)
+    return function get (target, prop, receiver) {
+        if (prop === 'toString') {
+            const origToString = Reflect.get(targetFn, 'toString', targetFn)
+            const toStringProxy = new Proxy(origToString, {
+                apply (target, thisArg, argumentsList) {
+                    // only mock toString() when called on the proxy itself. If the method is applied to some other object, it should behave as a normal toString()
+                    if (thisArg === receiver) {
+                        if (mockValue) {
+                            return mockValue
                         }
-                    },
-                    get (target, prop, receiver) {
-                        // handle toString.toString() result
-                        if (prop === 'toString') {
-                            const origToStringToString = Reflect.get(origToString, 'toString', origToString)
-                            const toStringToStringProxy = new Proxy(origToStringToString, {
-                                apply (target, thisArg, argumentsList) {
-                                    if (thisArg === toStringProxy) {
-                                        return Reflect.apply(target, origToString, argumentsList)
-                                    } else {
-                                        return Reflect.apply(target, thisArg, argumentsList)
-                                    }
-                                }
-                            })
-                            return toStringToStringProxy
-                        }
-                        return Reflect.get(target, prop, receiver)
+                        return Reflect.apply(target, targetFn, argumentsList)
+                    } else {
+                        return Reflect.apply(target, thisArg, argumentsList)
                     }
-                })
-                return toStringProxy
-            }
-            return Reflect.get(target, prop, receiver)
+                },
+                get (target, prop, receiver) {
+                    // handle toString.toString() result
+                    if (prop === 'toString') {
+                        const origToStringToString = Reflect.get(origToString, 'toString', origToString)
+                        const toStringToStringProxy = new Proxy(origToStringToString, {
+                            apply (target, thisArg, argumentsList) {
+                                if (thisArg === toStringProxy) {
+                                    return Reflect.apply(target, origToString, argumentsList)
+                                } else {
+                                    return Reflect.apply(target, thisArg, argumentsList)
+                                }
+                            }
+                        })
+                        return toStringToStringProxy
+                    }
+                    return Reflect.get(target, prop, receiver)
+                }
+            })
+            return toStringProxy
         }
+        return Reflect.get(target, prop, receiver)
     }
 }
 
