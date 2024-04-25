@@ -23,7 +23,7 @@ import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
  */
 
 const globalObj = typeof window === 'undefined' ? globalThis : window
-// special proeprty that is set on classes used to shim standard interfaces
+// special property that is set on classes used to shim standard interfaces
 export const ddgShimMark = Symbol('ddgShimMark')
 
 export default class ContentFeature {
