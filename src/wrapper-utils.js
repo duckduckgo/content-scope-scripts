@@ -175,7 +175,7 @@ export function wrapProperty (object, propertyName, descriptor, definePropertyFn
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
  * @param {string} propertyName
  * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
- * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
+ * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
 export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
@@ -217,7 +217,7 @@ export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
  * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
  * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
  * @param {Partial<DefineInterfaceOptions>} options - options for defining the interface
- * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
+ * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
 export function shimInterface (
     interfaceName,
@@ -325,7 +325,7 @@ export function shimInterface (
  * @param {K} propertyName - name of the property to shim (e.g. 'mediaSession')
  * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
  * @param {boolean} readOnly - whether the property should be read-only
- * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
+ * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
 export function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
     // TODO: add test utils
@@ -369,6 +369,14 @@ export function shimProperty (baseObject, propertyName, implInstance, readOnly, 
 
     definePropertyFn(baseObject, propertyName, descriptor)
 }
+
+/**
+ * @callback DefinePropertyFn
+ * @param {object} baseObj
+ * @param {PropertyKey} propertyName
+ * @param {StrictPropertyDescriptor} descriptor
+ * @returns {object}
+ */
 
 /**
  * @typedef {Object} BaseStrictPropertyDescriptor
