@@ -364,12 +364,12 @@ export default class ContentFeature {
      * @template {keyof typeof globalThis} StandardInterfaceName
      * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
      * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
-     * @param {Partial<import('./wrapper-utils').DefineInterfaceOptions>} [options]
+     * @param {import('./wrapper-utils').DefineInterfaceOptions} options
      */
     shimInterface (
         interfaceName,
         ImplClass,
-        options = {}
+        options
     ) {
         return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this))
     }

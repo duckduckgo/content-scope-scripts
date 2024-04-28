@@ -13,13 +13,18 @@ describe('WebCompat feature', () => {
     /** @type {Array<[string, Function]>} **/
     const interfaceShims = [
         ['MediaSession', cf.mediaSessionFix.bind(cf)],
-        ['MediaMetadata', cf.mediaSessionFix.bind(cf)]
+        ['MediaMetadata', cf.mediaSessionFix.bind(cf)],
+
+        ['Presentation', cf.presentationFix.bind(cf)],
+        ['PresentationAvailability', cf.presentationFix.bind(cf)],
+        ['PresentationRequest', cf.presentationFix.bind(cf)]
     ]
 
     // host object, property name, shim function
     /** @type {Array<[object, string, Function]>} **/
     const propertyShims = [
-        [Navigator.prototype, 'mediaSession', cf.mediaSessionFix.bind(cf)]
+        [Navigator.prototype, 'mediaSession', cf.mediaSessionFix.bind(cf)],
+        [Navigator.prototype, 'presentation', cf.presentationFix.bind(cf)]
     ]
 
     /** @type { { [key: string]: import('../src/wrapper-utils').StrictDataDescriptor } } */
@@ -70,7 +75,7 @@ describe('WebCompat feature', () => {
             })
         }
         for (const [instanceHost, instanceProp, shimFn] of propertyShims) {
-            it(`should shim ${instanceProp}`, () => {
+            it(`should shim ${instanceHost}.${instanceProp}`, () => {
                 // @ts-expect-error we know it's defined
                 const origPropDescriptor = origPropDescriptors.find(([host, prop]) => host === instanceHost && prop === instanceProp)[2]
                 testInstanceShimCorrectness(shimFn, instanceHost, instanceProp, origPropDescriptor)

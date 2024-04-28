@@ -63,7 +63,11 @@ describe('ContentFeature wrapper methods', () => {
 
     describe('shimInterface()', () => {
         it('should (re)define the global', () => {
-            cf.shimInterface('MediaSession', MyMediaSession)
+            cf.shimInterface('MediaSession', MyMediaSession, {
+                wrapToString: true,
+                disallowConstructor: false,
+                allowConstructorCall: false
+            })
             const NewMediaSession = globalThis.MediaSession
             const newPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
 
@@ -78,25 +82,33 @@ describe('ContentFeature wrapper methods', () => {
 
         it('should support disallowConstructor', () => {
             cf.shimInterface('MediaSession', MyMediaSession, {
-                disallowConstructor: false
+                disallowConstructor: false,
+                allowConstructorCall: false,
+                wrapToString: true
             })
             assert.doesNotThrow(() => new globalThis.MediaSession())
 
             cf.shimInterface('MediaSession', MyMediaSession, {
-                disallowConstructor: true
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
             })
             assert.throws(() => new globalThis.MediaSession(), TypeError)
 
             cf.shimInterface('MediaSession', MyMediaSession, {
                 disallowConstructor: true,
-                constructorErrorMessage: 'friendly message'
+                constructorErrorMessage: 'friendly message',
+                allowConstructorCall: false,
+                wrapToString: true
             })
             assert.throws(() => new globalThis.MediaSession(), 'friendly message')
         })
 
         it('should support allowConstructorCall', () => {
             cf.shimInterface('MediaSession', MyMediaSession, {
-                allowConstructorCall: true
+                allowConstructorCall: true,
+                wrapToString: true,
+                disallowConstructor: false
             })
             // @ts-expect-error real MediaSession is not callable
             assert.doesNotThrow(() => globalThis.MediaSession())
@@ -104,7 +116,9 @@ describe('ContentFeature wrapper methods', () => {
             assert.instanceOf(globalThis.MediaSession(), globalThis.MediaSession, 'instances should pass the instanceof check')
 
             cf.shimInterface('MediaSession', MyMediaSession, {
-                allowConstructorCall: false
+                allowConstructorCall: false,
+                wrapToString: true,
+                disallowConstructor: false
             })
             // @ts-expect-error real MediaSession is not callable
             assert.throws(() => globalThis.MediaSession(), TypeError)
@@ -112,14 +126,18 @@ describe('ContentFeature wrapper methods', () => {
 
         it('should support wrapToString', () => {
             cf.shimInterface('MediaSession', MyMediaSession, {
-                wrapToString: false
+                wrapToString: false,
+                disallowConstructor: false,
+                allowConstructorCall: false
             })
             assert.notStrictEqual(globalThis.MediaSession.toString(), OrigMediaSession.toString(), 'Shim\'s toString() should not be masked')
             assert.strictEqual(globalThis.MediaSession.toString.toString(), MyMediaSession.toString.toString(), 'Shim\'s toString.toString() should not be masked')
             assert.strictEqual(globalThis.MediaSession.prototype.setActionHandler.toString(), MyMediaSession.prototype.setActionHandler.toString(), 'Shim\'s method\'s .toString() should not be masked')
 
             cf.shimInterface('MediaSession', MyMediaSession, {
-                wrapToString: true
+                wrapToString: true,
+                disallowConstructor: false,
+                allowConstructorCall: false
             })
 
             assert.strictEqual(globalThis.MediaSession.toString(), OrigMediaSession.toString(), 'Shim\'s toString() value does not match the original')
@@ -130,7 +148,11 @@ describe('ContentFeature wrapper methods', () => {
 
     describe('shimProperty()', () => {
         it('should correctly shim the property', () => {
-            cf.shimInterface('MediaSession', MyMediaSession)
+            cf.shimInterface('MediaSession', MyMediaSession, {
+                wrapToString: true,
+                disallowConstructor: false,
+                allowConstructorCall: false
+            })
             const instance = new MyMediaSession()
             cf.shimProperty(Navigator.prototype, 'mediaSession', instance)
 
@@ -147,7 +169,11 @@ describe('ContentFeature wrapper methods', () => {
         })
 
         it('should support writable properties', () => {
-            cf.shimInterface('MediaSession', MyMediaSession)
+            cf.shimInterface('MediaSession', MyMediaSession, {
+                wrapToString: true,
+                disallowConstructor: false,
+                allowConstructorCall: false
+            })
             const instance = new MyMediaSession()
             cf.shimProperty(Navigator.prototype, 'mediaSession', instance, false)
 
@@ -160,7 +186,11 @@ describe('ContentFeature wrapper methods', () => {
         })
 
         it('should support readonly properties', () => {
-            cf.shimInterface('MediaSession', MyMediaSession)
+            cf.shimInterface('MediaSession', MyMediaSession, {
+                wrapToString: true,
+                disallowConstructor: false,
+                allowConstructorCall: false
+            })
             const instance = new MyMediaSession()
             cf.shimProperty(Navigator.prototype, 'mediaSession', instance, true)
 

@@ -453,7 +453,9 @@ export class WebCompat extends ContentFeature {
             }
 
             this.shimInterface('MediaSession', MyMediaSession, {
-                disallowConstructor: true
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
             })
             this.shimProperty(Navigator.prototype, 'mediaSession', new MyMediaSession(), true)
 
@@ -464,6 +466,10 @@ export class WebCompat extends ContentFeature {
                     this.album = metadata.album
                     this.artwork = metadata.artwork
                 }
+            }, {
+                disallowConstructor: false,
+                allowConstructorCall: false,
+                wrapToString: true
             })
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
@@ -477,25 +483,51 @@ export class WebCompat extends ContentFeature {
                 return
             }
 
-            this.defineProperty(window.navigator, 'presentation', {
-                value: {
-                },
-                writable: true,
-                configurable: true,
-                enumerable: true
+            const MyPresentation = class {
+                get defaultRequest () {
+                    return null
+                }
+
+                get receiver () {
+                    return null
+                }
+            }
+
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            this.shimInterface('Presentation', MyPresentation, {
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
             })
-            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-            this.defineProperty(window.navigator.presentation, 'defaultRequest', {
-                value: null,
-                configurable: true,
-                enumerable: true
+
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            this.shimInterface('PresentationAvailability', class {
+                // class definition is empty because there's no way to get an instance of it anyways
+            }, {
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
             })
-            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-            this.defineProperty(window.navigator.presentation, 'receiver', {
-                value: null,
-                configurable: true,
-                enumerable: true
+
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            this.shimInterface('PresentationRequest', class {
+                // class definition is empty because there's no way to get an instance of it anyways
+            }, {
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
             })
+
+            /** TODO: add shims for other classes in the Presentation API:
+             * PresentationConnection,
+             * PresentationReceiver,
+             * PresentationConnectionList,
+             * PresentationConnectionAvailableEvent,
+             * PresentationConnectionCloseEvent
+             */
+
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            this.shimProperty(Navigator.prototype, 'presentation', new MyPresentation(), true)
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
         }

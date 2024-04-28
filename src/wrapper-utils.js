@@ -216,7 +216,7 @@ export function wrapMethod (object, propertyName, wrapperFn, definePropertyFn) {
  * @template {keyof typeof globalThis} StandardInterfaceName
  * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
  * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
- * @param {Partial<DefineInterfaceOptions>} options - options for defining the interface
+ * @param {DefineInterfaceOptions} options - options for defining the interface
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
 export function shimInterface (
@@ -232,11 +232,14 @@ export function shimInterface (
         allowConstructorCall: false,
         disallowConstructor: false,
         constructorErrorMessage: 'Illegal constructor',
-        interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
         wrapToString: true
     }
 
-    const fullOptions = { ...defaultOptions, ...options }
+    const fullOptions = {
+        interfaceDescriptorOptions: { writable: true, enumerable: false, configurable: true, value: ImplClass },
+        ...defaultOptions,
+        ...options
+    }
 
     // In some cases we can get away without a full proxy, but in many cases below we need it.
     // For example, we can't redefine `prototype` property on ES6 classes.
@@ -396,8 +399,7 @@ export function shimProperty (baseObject, propertyName, implInstance, readOnly, 
 
 /**
  * @typedef {Object} BaseDefineInterfaceOptions
- * @property {StrictDataDescriptor} interfaceDescriptorOptions
- * @property {string} constructorErrorMessage
+ * @property {string} [constructorErrorMessage]
  * @property {boolean} wrapToString
  */
 
