@@ -331,6 +331,8 @@ export function shimProperty (baseObject, propertyName, implInstance, readOnly, 
     // TODO: add test utils
     // TODO: start discussion about WTR tests
     // TODO: check FF
+    // TODO: rewrite tests to playwright
+    // TODO: split changes into smaller PRs
     // @ts-expect-error - implInstance is a class instance
     const ImplClass = implInstance.constructor
     if (ImplClass[ddgShimMark] !== true) {

@@ -380,12 +380,12 @@ export default class ContentFeature {
      * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
      * @template Base
      * @template {keyof Base & string} K
-     * @param {Base} baseObject - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
-     * @param {K} propertyName - name of the property to shim (e.g. 'mediaSession')
+     * @param {Base} instanceHost - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
+     * @param {K} instanceProp - name of the property to shim (e.g. 'mediaSession')
      * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
      * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
      */
-    shimProperty (baseObject, propertyName, implInstance, readOnly = false) {
-        return shimProperty(baseObject, propertyName, implInstance, readOnly, this.defineProperty.bind(this))
+    shimProperty (instanceHost, instanceProp, implInstance, readOnly = false) {
+        return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this))
     }
 }

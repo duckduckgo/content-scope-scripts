@@ -455,7 +455,7 @@ export class WebCompat extends ContentFeature {
             this.shimInterface('MediaSession', MyMediaSession, {
                 disallowConstructor: true
             })
-            this.shimProperty(globalThis.navigator, 'mediaSession', new MyMediaSession())
+            this.shimProperty(Navigator.prototype, 'mediaSession', new MyMediaSession(), true)
 
             this.shimInterface('MediaMetadata', class {
                 constructor (metadata = {}) {

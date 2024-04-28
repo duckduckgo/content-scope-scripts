@@ -33,7 +33,7 @@ describe('ContentFeature wrapper methods', () => {
     let cf
     /** @type {PropertyDescriptor} */
     // @ts-expect-error we know it's defined in Chrome
-    const origPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
+    const origInterfaceDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
 
     beforeEach(() => {
         assert.strictEqual(globalThis.MediaSession, OrigMediaSession, 'unexpected native class')
@@ -56,7 +56,7 @@ describe('ContentFeature wrapper methods', () => {
 
     afterEach(() => {
         // restore the original interface
-        Object.defineProperty(globalThis, 'MediaSession', origPropertyDescriptor)
+        Object.defineProperty(globalThis, 'MediaSession', origInterfaceDescriptor)
         // restore the original navigator.mediaSession
         Object.defineProperty(Navigator.prototype, 'mediaSession', origMediaSessionInstanceDescriptor)
     })
@@ -67,7 +67,7 @@ describe('ContentFeature wrapper methods', () => {
             const NewMediaSession = globalThis.MediaSession
             const newPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
 
-            assert.deepEqual({ ...newPropertyDescriptor, value: null }, { ...origPropertyDescriptor, value: null }, 'property descriptors do not match')
+            assert.deepEqual({ ...newPropertyDescriptor, value: null }, { ...origInterfaceDescriptor, value: null }, 'property descriptors do not match')
             assert.notStrictEqual(NewMediaSession, OrigMediaSession, 'class is not overridden')
             assert.strictEqual(NewMediaSession[ddgShimMark], true, 'class should be marked as shimmed')
             assert.strictEqual(MyMediaSession[ddgShimMark], true, 'class should be marked as shimmed')
