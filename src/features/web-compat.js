@@ -191,21 +191,19 @@ export class WebCompat extends ContentFeature {
             },
             writable: true,
             configurable: true,
-            enumerable: false
+            enumerable: true
         })
 
         this.defineProperty(window.Notification, 'permission', {
-            value: 'denied',
-            writable: true,
+            get: () => 'denied',
             configurable: true,
             enumerable: false
         })
 
         this.defineProperty(window.Notification, 'maxActions', {
-            value: 2,
-            writable: true,
+            get: () => 2,
             configurable: true,
-            enumerable: false
+            enumerable: true
         })
     }
 
@@ -360,12 +358,12 @@ export class WebCompat extends ContentFeature {
             if ('credentials' in navigator && 'get' in navigator.credentials) {
                 return
             }
-            // TODO: change the property descriptor shape to match the original
             const value = {
                 get () {
                     return Promise.reject(new Error())
                 }
             }
+            // TODO: original property is an accessor descriptor
             this.defineProperty(Navigator.prototype, 'credentials', {
                 value,
                 configurable: true,
