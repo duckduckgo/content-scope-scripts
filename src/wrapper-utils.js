@@ -26,7 +26,8 @@ export function defineProperty (object, propertyName, descriptor) {
                 definedDescriptor[propertyName] = cloneInto(
                     descriptor[propertyName],
                     definedDescriptor,
-                    { cloneFunctions: true })
+                    { cloneFunctions: true }
+                )
             }
         });
         ['get', 'set'].forEach((methodName) => {
@@ -331,9 +332,6 @@ export function shimInterface (
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
 export function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
-    // TODO: add test utils
-    // TODO: start discussion about WTR tests
-    // TODO: check FF
     // TODO: rewrite tests to playwright
     // TODO: split changes into smaller PRs
     // @ts-expect-error - implInstance is a class instance
