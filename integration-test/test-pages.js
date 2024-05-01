@@ -21,10 +21,15 @@ describe('Test integration pages', () => {
         await teardown()
     })
 
-    async function testPage (pageName, configName, evalBeforeInit = null) {
+    /**
+     * @param {string} pageName
+     * @param {string} configPath
+     * @param {string} [evalBeforeInit]
+     */
+    async function testPage (pageName, configPath, evalBeforeInit) {
         const port = server.address().port
         const page = await browser.newPage()
-        const res = fs.readFileSync(process.cwd() + '/integration-test/test-pages/' + configName)
+        const res = fs.readFileSync(configPath)
         // @ts-expect-error - JSON.parse returns any
         const config = JSON.parse(res)
         polyfillProcessGlobals()
@@ -78,8 +83,15 @@ describe('Test integration pages', () => {
         for (const pageName in pages) {
             const configName = pages[pageName]
             it(`${pageName}`, async () => {
-                await testPage(pageName, configName)
+                await testPage(pageName, process.cwd() + '/integration-test/test-pages/' + configName)
             })
         }
+    })
+
+    it('Web compat shims correctness', async () => {
+        await testPage(
+            'webcompat/pages/shims.html',
+            `${process.cwd()}/integration-test/test-pages/webcompat/config/shims.json`
+        )
     })
 })

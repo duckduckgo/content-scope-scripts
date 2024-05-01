@@ -228,6 +228,14 @@ export function shimInterface (
 ) {
     // TODO: document in readme
 
+    if (import.meta.injectName === 'integration') {
+        if (!globalThis.origInterfaceDescriptors) globalThis.origInterfaceDescriptors = {}
+        const descriptor = Object.getOwnPropertyDescriptor(globalThis, interfaceName)
+        globalThis.origInterfaceDescriptors[interfaceName] = descriptor
+
+        globalThis.ddgShimMark = ddgShimMark
+    }
+
     /** @type {DefineInterfaceOptions} */
     const defaultOptions = {
         allowConstructorCall: false,
@@ -332,8 +340,16 @@ export function shimInterface (
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
 export function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
-    // TODO: rewrite tests to playwright
     // TODO: split changes into smaller PRs
+
+    if (import.meta.injectName === 'integration') {
+        if (!globalThis.origPropDescriptors) globalThis.origPropDescriptors = []
+        const descriptor = Object.getOwnPropertyDescriptor(baseObject, propertyName)
+        globalThis.origPropDescriptors.push([baseObject, propertyName, descriptor])
+
+        globalThis.ddgShimMark = ddgShimMark
+    }
+
     // @ts-expect-error - implInstance is a class instance
     const ImplClass = implInstance.constructor
     if (ImplClass[ddgShimMark] !== true) {
