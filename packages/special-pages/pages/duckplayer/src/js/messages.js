@@ -30,7 +30,7 @@ export class DuckPlayerPageMessages {
      * @return {Promise<UserValues>}
      */
     getUserValues () {
-        if (this.injectName === "integration") {
+        if (this.injectName === 'integration') {
             return Promise.resolve(new UserValues({
                 overlayInteracted: false,
                 privatePlayerMode: { alwaysAsk: {} }
