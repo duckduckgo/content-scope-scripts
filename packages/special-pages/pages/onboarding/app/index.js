@@ -15,10 +15,10 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 const messaging = createSpecialPageMessaging({
     injectName: import.meta.injectName,
     env: import.meta.env,
-    pageName: 'onboarding'
+    pageName: 'onboarding',
 })
 
-const onboarding = new OnboardingMessages(messaging)
+const onboarding = new OnboardingMessages(messaging, import.meta.injectName);
 
 async function init () {
     const init = await onboarding.init()

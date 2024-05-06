@@ -806,7 +806,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         pageName: 'duckPlayerPage'
     })
 
-    const page = new DuckPlayerPageMessages(messaging)
+    const page = new DuckPlayerPageMessages(messaging, import.meta.injectName)
 
     await Comms.init(page)
 

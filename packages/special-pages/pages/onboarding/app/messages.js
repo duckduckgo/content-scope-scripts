@@ -8,19 +8,23 @@
  * @property {ImportMeta['env']} [env] - optional override for the running override
  */
 
+import { TestTransportConfig } from "@duckduckgo/messaging";
+
 /**
  * This describes the messages that will be sent to the native layer,
  */
 export class OnboardingMessages {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @param {ImportMeta["injectName"]} injectName
      * @internal
      */
-    constructor (messaging) {
+    constructor (messaging, injectName) {
         /**
          * @internal
          */
         this.messaging = messaging
+        this.injectName = injectName
     }
 
     /**
@@ -43,6 +47,15 @@ export class OnboardingMessages {
      * @returns {Promise<InitResponse>}
      */
     async init () {
+        if (this.injectName === "integration") {
+            return {
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ["dock", "import", "default-browser"]
+                    }
+                }
+            }
+        }
         return await this.messaging.request('init')
     }
 

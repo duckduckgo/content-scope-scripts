@@ -5,13 +5,15 @@
 export class DuckPlayerPageMessages {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @param {ImportMeta["injectName"]} injectName
      * @internal
      */
-    constructor (messaging) {
+    constructor (messaging, injectName) {
         /**
          * @internal
          */
         this.messaging = messaging
+        this.injectName = injectName
     }
 
     /**
@@ -28,6 +30,12 @@ export class DuckPlayerPageMessages {
      * @return {Promise<UserValues>}
      */
     getUserValues () {
+        if (this.injectName === "integration") {
+            return Promise.resolve(new UserValues({
+                overlayInteracted: false,
+                privatePlayerMode: { alwaysAsk: {} }
+            }))
+        }
         return this.messaging.request('getUserValues')
     }
 
