@@ -1,0 +1,24 @@
+:root {
+    --base: 16px;
+    font-size: calc(16px / var(--base));
+    --px-in-rem: calc(1rem / 16);
+
+    --anim-delay: 300ms;
+    --anim-delay-double: 600ms;
+
+    --theme-ddg-color-primary: var(--ddg-color-primary);
+    --theme-page-bg: white;
+    --theme-txt-link-color: var(--ddg-color-primary);
+    --theme-txt-color: var(--color-black-at-84);
+    --theme-txt-color-title: var(--color-black-at-84);
+    --theme-txt-color-progress: var(--color-black-at-60);
+
+    @media (prefers-color-scheme: dark) {
+        --theme-page-bg: #333333;
+        --theme-ddg-color-primary: var(--ddg-color-primary-dark);
+        --theme-txt-link-color: var(--ddg-color-primary-dark);
+        --theme-txt-color: var(--color-white-at-84);
+        --theme-txt-color-title: var(--color-white-at-84);
+        --theme-txt-color-progress: var(--color-white-at-50);
+    }
+}
