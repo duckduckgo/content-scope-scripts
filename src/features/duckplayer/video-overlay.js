@@ -131,8 +131,8 @@ export class VideoOverlay {
 
             icon.appendSmallVideoOverlay(containerElement, href, (href) => {
                 this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }))
-            }, (href) => {
-                this.messages.sendDebouncedPixel("thumbnail.icon.hovered")
+            }, () => {
+                this.messages.sendDebouncedPixel('thumbnail.icon.hovered')
             })
 
             return () => {

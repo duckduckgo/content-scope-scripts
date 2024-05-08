@@ -184,7 +184,7 @@ export class IconOverlay {
             document.body.appendChild(element)
 
             this.addClickHandler(element, onClick)
-            this.addHoverListener(element, onHover);
+            this.addHoverListener(element, onHover)
 
             return () => {
                 element.remove()

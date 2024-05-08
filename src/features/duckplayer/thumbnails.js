@@ -58,7 +58,7 @@
 import { SideEffects, VideoParams } from './util.js'
 import { IconOverlay } from './icon-overlay.js'
 import { Environment } from './overlays.js'
-import {OpenInDuckPlayerMsg, Pixel} from './overlay-messages.js'
+import { OpenInDuckPlayerMsg } from './overlay-messages.js'
 
 /**
  * @typedef ThumbnailParams
@@ -90,11 +90,11 @@ export class Thumbnails {
             const parentNode = document.documentElement || document.body
 
             // create the icon & append it to the page
-            const icon = new IconOverlay();
+            const icon = new IconOverlay()
             icon.appendHoverOverlay((href) => {
                 this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }))
             }, () => {
-                this.messages.sendDebouncedPixel("thumbnail.icon.hovered")
+                this.messages.sendDebouncedPixel('thumbnail.icon.hovered')
             })
 
             // remember when a none-dax click occurs - so that we can avoid re-adding the
@@ -129,7 +129,7 @@ export class Thumbnails {
 
             const appendOverlay = (element) => {
                 if (element && element.isConnected) {
-                    const url = icon.moveHoverOverlayToVideoElement(element);
+                    const url = icon.moveHoverOverlayToVideoElement(element)
                     if (url) {
                         this.messages.sendDebouncedPixel('thumbnail.icon.shown')
                     }

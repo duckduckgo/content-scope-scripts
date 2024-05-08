@@ -56,19 +56,19 @@ export class DuckPlayerOverlayMessages {
      * @param {"thumbnail.icon.shown" | "thumbnail.icon.hovered"} pixel
      */
     sendDebouncedPixel (pixel) {
-        this.queue.add(pixel);
-        clearTimeout(this.pixelDebounce);
+        this.queue.add(pixel)
+        clearTimeout(this.pixelDebounce)
 
         // schedule the send
         this.pixelDebounce = setTimeout(() => {
-            for (let string of this.queue) {
+            for (const pixelName of this.queue) {
                 this.messaging.notify(constants.MSG_NAME_PIXEL, {
-                    pixelName: pixel,
+                    pixelName,
                     params: {}
                 })
             }
-            this.queue.clear();
-        }, 500);
+            this.queue.clear()
+        }, 500)
     }
 
     /**
