@@ -3059,9 +3059,9 @@
 
             // schedule the send
             this.pixelDebounce = setTimeout(() => {
-                for (let string of this.queue) {
+                for (const pixelName of this.queue) {
                     this.messaging.notify(MSG_NAME_PIXEL, {
-                        pixelName: pixel,
+                        pixelName,
                         params: {}
                     });
                 }
@@ -3900,7 +3900,7 @@
                 icon.appendHoverOverlay((href) => {
                     this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }));
                 }, () => {
-                    this.messages.sendDebouncedPixel("thumbnail.icon.hovered");
+                    this.messages.sendDebouncedPixel('thumbnail.icon.hovered');
                 });
 
                 // remember when a none-dax click occurs - so that we can avoid re-adding the
@@ -4375,8 +4375,8 @@
 
                 icon.appendSmallVideoOverlay(containerElement, href, (href) => {
                     this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }));
-                }, (href) => {
-                    this.messages.sendDebouncedPixel("thumbnail.icon.hovered");
+                }, () => {
+                    this.messages.sendDebouncedPixel('thumbnail.icon.hovered');
                 });
 
                 return () => {

@@ -1,5 +1,1076 @@
 "use strict";
 (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  };
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+
+  // ../messaging/lib/windows.js
+  var WindowsMessagingTransport, WindowsMessagingConfig, WindowsInteropMethods, WindowsNotification, WindowsRequestMessage;
+  var init_windows = __esm({
+    "../messaging/lib/windows.js"() {
+      "use strict";
+      init_messaging();
+      WindowsMessagingTransport = class {
+        /**
+         * @param {WindowsMessagingConfig} config
+         * @param {import('../index.js').MessagingContext} messagingContext
+         * @internal
+         */
+        constructor(config, messagingContext) {
+          this.messagingContext = messagingContext;
+          this.config = config;
+          this.globals = {
+            window,
+            JSONparse: window.JSON.parse,
+            JSONstringify: window.JSON.stringify,
+            Promise: window.Promise,
+            Error: window.Error,
+            String: window.String
+          };
+          for (const [methodName, fn] of Object.entries(this.config.methods)) {
+            if (typeof fn !== "function") {
+              throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
+            }
+          }
+        }
+        /**
+         * @param {import('../index.js').NotificationMessage} msg
+         */
+        notify(msg) {
+          const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+          const notification = WindowsNotification.fromNotification(msg, data);
+          this.config.methods.postMessage(notification);
+        }
+        /**
+         * @param {import('../index.js').RequestMessage} msg
+         * @param {{signal?: AbortSignal}} opts
+         * @return {Promise<any>}
+         */
+        request(msg, opts = {}) {
+          const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
+          const outgoing = WindowsRequestMessage.fromRequest(msg, data);
+          this.config.methods.postMessage(outgoing);
+          const comparator = (eventData) => {
+            return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
+          };
+          function isMessageResponse(data2) {
+            if ("result" in data2)
+              return true;
+            if ("error" in data2)
+              return true;
+            return false;
+          }
+          return new this.globals.Promise((resolve, reject) => {
+            try {
+              this._subscribe(comparator, opts, (value, unsubscribe) => {
+                unsubscribe();
+                if (!isMessageResponse(value)) {
+                  console.warn("unknown response type", value);
+                  return reject(new this.globals.Error("unknown response"));
+                }
+                if (value.result) {
+                  return resolve(value.result);
+                }
+                const message = this.globals.String(value.error?.message || "unknown error");
+                reject(new this.globals.Error(message));
+              });
+            } catch (e) {
+              reject(e);
+            }
+          });
+        }
+        /**
+         * @param {import('../index.js').Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe(msg, callback) {
+          const comparator = (eventData) => {
+            return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.subscriptionName === msg.subscriptionName;
+          };
+          const cb = (eventData) => {
+            return callback(eventData.params);
+          };
+          return this._subscribe(comparator, {}, cb);
+        }
+        /**
+         * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
+         */
+        /**
+         * @param {(eventData: any) => boolean} comparator
+         * @param {{signal?: AbortSignal}} options
+         * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
+         * @internal
+         */
+        _subscribe(comparator, options, callback) {
+          if (options?.signal?.aborted) {
+            throw new DOMException("Aborted", "AbortError");
+          }
+          let teardown;
+          const idHandler = (event) => {
+            if (this.messagingContext.env === "production") {
+              if (event.origin !== null && event.origin !== void 0) {
+                console.warn("ignoring because evt.origin is not `null` or `undefined`");
+                return;
+              }
+            }
+            if (!event.data) {
+              console.warn("data absent from message");
+              return;
+            }
+            if (comparator(event.data)) {
+              if (!teardown)
+                throw new Error("unreachable");
+              callback(event.data, teardown);
+            }
+          };
+          const abortHandler = () => {
+            teardown?.();
+            throw new DOMException("Aborted", "AbortError");
+          };
+          this.config.methods.addEventListener("message", idHandler);
+          options?.signal?.addEventListener("abort", abortHandler);
+          teardown = () => {
+            this.config.methods.removeEventListener("message", idHandler);
+            options?.signal?.removeEventListener("abort", abortHandler);
+          };
+          return () => {
+            teardown?.();
+          };
+        }
+      };
+      WindowsMessagingConfig = class {
+        /**
+         * @param {object} params
+         * @param {WindowsInteropMethods} params.methods
+         * @internal
+         */
+        constructor(params) {
+          this.methods = params.methods;
+          this.platform = "windows";
+        }
+      };
+      WindowsInteropMethods = class {
+        /**
+         * @param {object} params
+         * @param {Window['postMessage']} params.postMessage
+         * @param {Window['addEventListener']} params.addEventListener
+         * @param {Window['removeEventListener']} params.removeEventListener
+         */
+        constructor(params) {
+          this.postMessage = params.postMessage;
+          this.addEventListener = params.addEventListener;
+          this.removeEventListener = params.removeEventListener;
+        }
+      };
+      WindowsNotification = class {
+        /**
+         * @param {object} params
+         * @param {string} params.Feature
+         * @param {string} params.SubFeatureName
+         * @param {string} params.Name
+         * @param {Record<string, any>} [params.Data]
+         * @internal
+         */
+        constructor(params) {
+          this.Feature = params.Feature;
+          this.SubFeatureName = params.SubFeatureName;
+          this.Name = params.Name;
+          this.Data = params.Data;
+        }
+        /**
+         * Helper to convert a {@link NotificationMessage} to a format that Windows can support
+         * @param {NotificationMessage} notification
+         * @returns {WindowsNotification}
+         */
+        static fromNotification(notification, data) {
+          const output = {
+            Data: data,
+            Feature: notification.context,
+            SubFeatureName: notification.featureName,
+            Name: notification.method
+          };
+          return output;
+        }
+      };
+      WindowsRequestMessage = class {
+        /**
+         * @param {object} params
+         * @param {string} params.Feature
+         * @param {string} params.SubFeatureName
+         * @param {string} params.Name
+         * @param {Record<string, any>} [params.Data]
+         * @param {string} [params.Id]
+         * @internal
+         */
+        constructor(params) {
+          this.Feature = params.Feature;
+          this.SubFeatureName = params.SubFeatureName;
+          this.Name = params.Name;
+          this.Data = params.Data;
+          this.Id = params.Id;
+        }
+        /**
+         * Helper to convert a {@link RequestMessage} to a format that Windows can support
+         * @param {RequestMessage} msg
+         * @param {Record<string, any>} data
+         * @returns {WindowsRequestMessage}
+         */
+        static fromRequest(msg, data) {
+          const output = {
+            Data: data,
+            Feature: msg.context,
+            SubFeatureName: msg.featureName,
+            Name: msg.method,
+            Id: msg.id
+          };
+          return output;
+        }
+      };
+    }
+  });
+
+  // ../messaging/schema.js
+  function isResponseFor(request, data) {
+    if ("result" in data) {
+      return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
+    }
+    if ("error" in data) {
+      if ("message" in data.error) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function isSubscriptionEventFor(sub, data) {
+    if ("subscriptionName" in data) {
+      return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
+    }
+    return false;
+  }
+  var RequestMessage, MessageResponse, NotificationMessage, Subscription, SubscriptionEvent, MessageError;
+  var init_schema = __esm({
+    "../messaging/schema.js"() {
+      "use strict";
+      RequestMessage = class {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor(params) {
+          this.context = params.context;
+          this.featureName = params.featureName;
+          this.method = params.method;
+          this.id = params.id;
+          this.params = params.params;
+        }
+      };
+      MessageResponse = class {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.id
+         * @param {Record<string, any>} [params.result]
+         * @param {MessageError} [params.error]
+         * @internal
+         */
+        constructor(params) {
+          this.context = params.context;
+          this.featureName = params.featureName;
+          this.result = params.result;
+          this.id = params.id;
+          this.error = params.error;
+        }
+      };
+      NotificationMessage = class {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.method
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor(params) {
+          this.context = params.context;
+          this.featureName = params.featureName;
+          this.method = params.method;
+          this.params = params.params;
+        }
+      };
+      Subscription = class {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @internal
+         */
+        constructor(params) {
+          this.context = params.context;
+          this.featureName = params.featureName;
+          this.subscriptionName = params.subscriptionName;
+        }
+      };
+      SubscriptionEvent = class {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {string} params.subscriptionName
+         * @param {Record<string, any>} [params.params]
+         * @internal
+         */
+        constructor(params) {
+          this.context = params.context;
+          this.featureName = params.featureName;
+          this.subscriptionName = params.subscriptionName;
+          this.params = params.params;
+        }
+      };
+      MessageError = class {
+        /**
+         * @param {object} params
+         * @param {string} params.message
+         * @internal
+         */
+        constructor(params) {
+          this.message = params.message;
+        }
+      };
+    }
+  });
+
+  // ../messaging/lib/webkit.js
+  function captureGlobals() {
+    const globals = {
+      window,
+      getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
+      TextEncoder,
+      TextDecoder,
+      Uint8Array,
+      Uint16Array,
+      Uint32Array,
+      JSONstringify: window.JSON.stringify,
+      JSONparse: window.JSON.parse,
+      Arrayfrom: window.Array.from,
+      Promise: window.Promise,
+      Error: window.Error,
+      ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
+      ObjectDefineProperty: window.Object.defineProperty,
+      addEventListener: window.addEventListener.bind(window),
+      /** @type {Record<string, any>} */
+      capturedWebkitHandlers: {}
+    };
+    if (isSecureContext) {
+      globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
+      globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
+      globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
+      globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
+      globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
+    }
+    return globals;
+  }
+  var WebkitMessagingTransport, WebkitMessagingConfig, SecureMessagingParams;
+  var init_webkit = __esm({
+    "../messaging/lib/webkit.js"() {
+      "use strict";
+      init_messaging();
+      init_schema();
+      WebkitMessagingTransport = class {
+        /**
+         * @param {WebkitMessagingConfig} config
+         * @param {import('../index.js').MessagingContext} messagingContext
+         */
+        constructor(config, messagingContext) {
+          this.messagingContext = messagingContext;
+          this.config = config;
+          this.globals = captureGlobals();
+          if (!this.config.hasModernWebkitAPI) {
+            this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
+          }
+        }
+        /**
+         * Sends message to the webkit layer (fire and forget)
+         * @param {String} handler
+         * @param {*} data
+         * @internal
+         */
+        wkSend(handler, data = {}) {
+          if (!(handler in this.globals.window.webkit.messageHandlers)) {
+            throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
+          }
+          if (!this.config.hasModernWebkitAPI) {
+            const outgoing = {
+              ...data,
+              messageHandling: {
+                ...data.messageHandling,
+                secret: this.config.secret
+              }
+            };
+            if (!(handler in this.globals.capturedWebkitHandlers)) {
+              throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
+            } else {
+              return this.globals.capturedWebkitHandlers[handler](outgoing);
+            }
+          }
+          return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
+        }
+        /**
+         * Sends message to the webkit layer and waits for the specified response
+         * @param {String} handler
+         * @param {import('../index.js').RequestMessage} data
+         * @returns {Promise<*>}
+         * @internal
+         */
+        async wkSendAndWait(handler, data) {
+          if (this.config.hasModernWebkitAPI) {
+            const response = await this.wkSend(handler, data);
+            return this.globals.JSONparse(response || "{}");
+          }
+          try {
+            const randMethodName = this.createRandMethodName();
+            const key = await this.createRandKey();
+            const iv = this.createRandIv();
+            const {
+              ciphertext,
+              tag
+            } = await new this.globals.Promise((resolve) => {
+              this.generateRandomMethod(randMethodName, resolve);
+              data.messageHandling = new SecureMessagingParams({
+                methodName: randMethodName,
+                secret: this.config.secret,
+                key: this.globals.Arrayfrom(key),
+                iv: this.globals.Arrayfrom(iv)
+              });
+              this.wkSend(handler, data);
+            });
+            const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
+            const decrypted = await this.decrypt(cipher, key, iv);
+            return this.globals.JSONparse(decrypted || "{}");
+          } catch (e) {
+            if (e instanceof MissingHandler) {
+              throw e;
+            } else {
+              console.error("decryption failed", e);
+              console.error(e);
+              return { error: e };
+            }
+          }
+        }
+        /**
+         * @param {import('../index.js').NotificationMessage} msg
+         */
+        notify(msg) {
+          this.wkSend(msg.context, msg);
+        }
+        /**
+         * @param {import('../index.js').RequestMessage} msg
+         */
+        async request(msg) {
+          const data = await this.wkSendAndWait(msg.context, msg);
+          if (isResponseFor(msg, data)) {
+            if (data.result) {
+              return data.result || {};
+            }
+            if (data.error) {
+              throw new Error(data.error.message);
+            }
+          }
+          throw new Error("an unknown error occurred");
+        }
+        /**
+         * Generate a random method name and adds it to the global scope
+         * The native layer will use this method to send the response
+         * @param {string | number} randomMethodName
+         * @param {Function} callback
+         * @internal
+         */
+        generateRandomMethod(randomMethodName, callback) {
+          this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+            enumerable: false,
+            // configurable, To allow for deletion later
+            configurable: true,
+            writable: false,
+            /**
+             * @param {any[]} args
+             */
+            value: (...args) => {
+              callback(...args);
+              delete this.globals.window[randomMethodName];
+            }
+          });
+        }
+        /**
+         * @internal
+         * @return {string}
+         */
+        randomString() {
+          return "" + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
+        }
+        /**
+         * @internal
+         * @return {string}
+         */
+        createRandMethodName() {
+          return "_" + this.randomString();
+        }
+        /**
+         * @type {{name: string, length: number}}
+         * @internal
+         */
+        algoObj = {
+          name: "AES-GCM",
+          length: 256
+        };
+        /**
+         * @returns {Promise<Uint8Array>}
+         * @internal
+         */
+        async createRandKey() {
+          const key = await this.globals.generateKey(this.algoObj, true, ["encrypt", "decrypt"]);
+          const exportedKey = await this.globals.exportKey("raw", key);
+          return new this.globals.Uint8Array(exportedKey);
+        }
+        /**
+         * @returns {Uint8Array}
+         * @internal
+         */
+        createRandIv() {
+          return this.globals.getRandomValues(new this.globals.Uint8Array(12));
+        }
+        /**
+         * @param {BufferSource} ciphertext
+         * @param {BufferSource} key
+         * @param {Uint8Array} iv
+         * @returns {Promise<string>}
+         * @internal
+         */
+        async decrypt(ciphertext, key, iv) {
+          const cryptoKey = await this.globals.importKey("raw", key, "AES-GCM", false, ["decrypt"]);
+          const algo = {
+            name: "AES-GCM",
+            iv
+          };
+          const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
+          const dec = new this.globals.TextDecoder();
+          return dec.decode(decrypted);
+        }
+        /**
+         * When required (such as on macos 10.x), capture the `postMessage` method on
+         * each webkit messageHandler
+         *
+         * @param {string[]} handlerNames
+         */
+        captureWebkitHandlers(handlerNames) {
+          const handlers = window.webkit.messageHandlers;
+          if (!handlers)
+            throw new MissingHandler("window.webkit.messageHandlers was absent", "all");
+          for (const webkitMessageHandlerName of handlerNames) {
+            if (typeof handlers[webkitMessageHandlerName]?.postMessage === "function") {
+              const original = handlers[webkitMessageHandlerName];
+              const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
+              this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
+              delete handlers[webkitMessageHandlerName].postMessage;
+            }
+          }
+        }
+        /**
+         * @param {import('../index.js').Subscription} msg
+         * @param {(value: unknown) => void} callback
+         */
+        subscribe(msg, callback) {
+          if (msg.subscriptionName in this.globals.window) {
+            throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+          }
+          this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+            enumerable: false,
+            configurable: true,
+            writable: false,
+            value: (data) => {
+              if (data && isSubscriptionEventFor(msg, data)) {
+                callback(data.params);
+              } else {
+                console.warn("Received a message that did not match the subscription", data);
+              }
+            }
+          });
+          return () => {
+            this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+          };
+        }
+      };
+      WebkitMessagingConfig = class {
+        /**
+         * @param {object} params
+         * @param {boolean} params.hasModernWebkitAPI
+         * @param {string[]} params.webkitMessageHandlerNames
+         * @param {string} params.secret
+         * @internal
+         */
+        constructor(params) {
+          this.hasModernWebkitAPI = params.hasModernWebkitAPI;
+          this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
+          this.secret = params.secret;
+        }
+      };
+      SecureMessagingParams = class {
+        /**
+         * @param {object} params
+         * @param {string} params.methodName
+         * @param {string} params.secret
+         * @param {number[]} params.key
+         * @param {number[]} params.iv
+         */
+        constructor(params) {
+          this.methodName = params.methodName;
+          this.secret = params.secret;
+          this.key = params.key;
+          this.iv = params.iv;
+        }
+      };
+    }
+  });
+
+  // ../messaging/lib/android.js
+  var AndroidMessagingTransport, AndroidMessagingConfig;
+  var init_android = __esm({
+    "../messaging/lib/android.js"() {
+      "use strict";
+      init_messaging();
+      init_schema();
+      AndroidMessagingTransport = class {
+        /**
+         * @param {AndroidMessagingConfig} config
+         * @param {MessagingContext} messagingContext
+         * @internal
+         */
+        constructor(config, messagingContext) {
+          this.messagingContext = messagingContext;
+          this.config = config;
+        }
+        /**
+         * @param {NotificationMessage} msg
+         */
+        notify(msg) {
+          try {
+            this.config.sendMessageThrows?.(JSON.stringify(msg));
+          } catch (e) {
+            console.error(".notify failed", e);
+          }
+        }
+        /**
+         * @param {RequestMessage} msg
+         * @return {Promise<any>}
+         */
+        request(msg) {
+          return new Promise((resolve, reject) => {
+            const unsub = this.config.subscribe(msg.id, handler);
+            try {
+              this.config.sendMessageThrows?.(JSON.stringify(msg));
+            } catch (e) {
+              unsub();
+              reject(new Error("request failed to send: " + e.message || "unknown error"));
+            }
+            function handler(data) {
+              if (isResponseFor(msg, data)) {
+                if (data.result) {
+                  resolve(data.result || {});
+                  return unsub();
+                }
+                if (data.error) {
+                  reject(new Error(data.error.message));
+                  return unsub();
+                }
+                unsub();
+                throw new Error("unreachable: must have `result` or `error` key by this point");
+              }
+            }
+          });
+        }
+        /**
+         * @param {Subscription} msg
+         * @param {(value: unknown | undefined) => void} callback
+         */
+        subscribe(msg, callback) {
+          const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
+            if (isSubscriptionEventFor(msg, data)) {
+              callback(data.params || {});
+            }
+          });
+          return () => {
+            unsub();
+          };
+        }
+      };
+      AndroidMessagingConfig = class {
+        /** @type {(json: string, secret: string) => void} */
+        _capturedHandler;
+        /**
+         * @param {object} params
+         * @param {Record<string, any>} params.target
+         * @param {boolean} params.debug
+         * @param {string} params.messageSecret - a secret to ensure that messages are only
+         * processed by the correct handler
+         * @param {string} params.javascriptInterface - the name of the javascript interface
+         * registered on the native side
+         * @param {string} params.messageCallback - the name of the callback that the native
+         * side will use to send messages back to the javascript side
+         */
+        constructor(params) {
+          this.target = params.target;
+          this.debug = params.debug;
+          this.javascriptInterface = params.javascriptInterface;
+          this.messageSecret = params.messageSecret;
+          this.messageCallback = params.messageCallback;
+          this.listeners = new globalThis.Map();
+          this._captureGlobalHandler();
+          this._assignHandlerMethod();
+        }
+        /**
+         * The transport can call this to transmit a JSON payload along with a secret
+         * to the native Android handler.
+         *
+         * Note: This can throw - it's up to the transport to handle the error.
+         *
+         * @type {(json: string) => void}
+         * @throws
+         * @internal
+         */
+        sendMessageThrows(json) {
+          this._capturedHandler(json, this.messageSecret);
+        }
+        /**
+         * A subscription on Android is just a named listener. All messages from
+         * android -> are delivered through a single function, and this mapping is used
+         * to route the messages to the correct listener.
+         *
+         * Note: Use this to implement request->response by unsubscribing after the first
+         * response.
+         *
+         * @param {string} id
+         * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+         * @returns {() => void}
+         * @internal
+         */
+        subscribe(id, callback) {
+          this.listeners.set(id, callback);
+          return () => {
+            this.listeners.delete(id);
+          };
+        }
+        /**
+         * Accept incoming messages and try to deliver it to a registered listener.
+         *
+         * This code is defensive to prevent any single handler from affecting another if
+         * it throws (producer interference).
+         *
+         * @param {MessageResponse | SubscriptionEvent} payload
+         * @internal
+         */
+        _dispatch(payload) {
+          if (!payload)
+            return this._log("no response");
+          if ("id" in payload) {
+            if (this.listeners.has(payload.id)) {
+              this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+            } else {
+              this._log("no listeners for ", payload);
+            }
+          }
+          if ("subscriptionName" in payload) {
+            if (this.listeners.has(payload.subscriptionName)) {
+              this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+            } else {
+              this._log("no subscription listeners for ", payload);
+            }
+          }
+        }
+        /**
+         *
+         * @param {(...args: any[]) => any} fn
+         * @param {string} [context]
+         */
+        _tryCatch(fn, context = "none") {
+          try {
+            return fn();
+          } catch (e) {
+            if (this.debug) {
+              console.error("AndroidMessagingConfig error:", context);
+              console.error(e);
+            }
+          }
+        }
+        /**
+         * @param {...any} args
+         */
+        _log(...args) {
+          if (this.debug) {
+            console.log("AndroidMessagingConfig", ...args);
+          }
+        }
+        /**
+         * Capture the global handler and remove it from the global object.
+         */
+        _captureGlobalHandler() {
+          const { target, javascriptInterface } = this;
+          if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
+            this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface]);
+            delete target[javascriptInterface];
+          } else {
+            this._capturedHandler = () => {
+              this._log("Android messaging interface not available", javascriptInterface);
+            };
+          }
+        }
+        /**
+         * Assign the incoming handler method to the global object.
+         * This is the method that Android will call to deliver messages.
+         */
+        _assignHandlerMethod() {
+          const responseHandler = (providedSecret, response) => {
+            if (providedSecret === this.messageSecret) {
+              this._dispatch(response);
+            }
+          };
+          Object.defineProperty(this.target, this.messageCallback, {
+            value: responseHandler
+          });
+        }
+      };
+    }
+  });
+
+  // ../messaging/lib/typed-messages.js
+  function createTypedMessages(base, messaging) {
+    const asAny = (
+      /** @type {any} */
+      messaging
+    );
+    return (
+      /** @type {BaseClass} */
+      asAny
+    );
+  }
+  var init_typed_messages = __esm({
+    "../messaging/lib/typed-messages.js"() {
+      "use strict";
+    }
+  });
+
+  // ../messaging/index.js
+  var messaging_exports = {};
+  __export(messaging_exports, {
+    AndroidMessagingConfig: () => AndroidMessagingConfig,
+    AndroidMessagingTransport: () => AndroidMessagingTransport,
+    MessageError: () => MessageError,
+    MessageResponse: () => MessageResponse,
+    Messaging: () => Messaging,
+    MessagingContext: () => MessagingContext,
+    MessagingTransport: () => MessagingTransport,
+    MissingHandler: () => MissingHandler,
+    NotificationMessage: () => NotificationMessage,
+    RequestMessage: () => RequestMessage,
+    Subscription: () => Subscription,
+    SubscriptionEvent: () => SubscriptionEvent,
+    TestTransport: () => TestTransport,
+    TestTransportConfig: () => TestTransportConfig,
+    WebkitMessagingConfig: () => WebkitMessagingConfig,
+    WebkitMessagingTransport: () => WebkitMessagingTransport,
+    WindowsInteropMethods: () => WindowsInteropMethods,
+    WindowsMessagingConfig: () => WindowsMessagingConfig,
+    WindowsMessagingTransport: () => WindowsMessagingTransport,
+    WindowsNotification: () => WindowsNotification,
+    WindowsRequestMessage: () => WindowsRequestMessage,
+    createTypedMessages: () => createTypedMessages
+  });
+  function getTransport(config, messagingContext) {
+    if (config instanceof WebkitMessagingConfig) {
+      return new WebkitMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof WindowsMessagingConfig) {
+      return new WindowsMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof AndroidMessagingConfig) {
+      return new AndroidMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof TestTransportConfig) {
+      return new TestTransport(config, messagingContext);
+    }
+    throw new Error("unreachable");
+  }
+  var MessagingContext, Messaging, MessagingTransport, TestTransportConfig, TestTransport, MissingHandler;
+  var init_messaging = __esm({
+    "../messaging/index.js"() {
+      "use strict";
+      init_windows();
+      init_webkit();
+      init_schema();
+      init_android();
+      init_typed_messages();
+      MessagingContext = class {
+        /**
+         * @param {object} params
+         * @param {string} params.context
+         * @param {string} params.featureName
+         * @param {"production" | "development"} params.env
+         * @internal
+         */
+        constructor(params) {
+          this.context = params.context;
+          this.featureName = params.featureName;
+          this.env = params.env;
+        }
+      };
+      Messaging = class {
+        /**
+         * @param {MessagingContext} messagingContext
+         * @param {MessagingConfig} config
+         */
+        constructor(messagingContext, config) {
+          this.messagingContext = messagingContext;
+          this.transport = getTransport(config, this.messagingContext);
+        }
+        /**
+         * Send a 'fire-and-forget' message.
+         * @throws {MissingHandler}
+         *
+         * @example
+         *
+         * ```ts
+         * const messaging = new Messaging(config)
+         * messaging.notify("foo", {bar: "baz"})
+         * ```
+         * @param {string} name
+         * @param {Record<string, any>} [data]
+         */
+        notify(name, data = {}) {
+          const message = new NotificationMessage({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            method: name,
+            params: data
+          });
+          this.transport.notify(message);
+        }
+        /**
+         * Send a request, and wait for a response
+         * @throws {MissingHandler}
+         *
+         * @example
+         * ```
+         * const messaging = new Messaging(config)
+         * const response = await messaging.request("foo", {bar: "baz"})
+         * ```
+         *
+         * @param {string} name
+         * @param {Record<string, any>} [data]
+         * @return {Promise<any>}
+         */
+        request(name, data = {}) {
+          const id = globalThis?.crypto?.randomUUID?.() || name + ".response";
+          const message = new RequestMessage({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            method: name,
+            params: data,
+            id
+          });
+          return this.transport.request(message);
+        }
+        /**
+         * @param {string} name
+         * @param {(value: unknown) => void} callback
+         * @return {() => void}
+         */
+        subscribe(name, callback) {
+          const msg = new Subscription({
+            context: this.messagingContext.context,
+            featureName: this.messagingContext.featureName,
+            subscriptionName: name
+          });
+          return this.transport.subscribe(msg, callback);
+        }
+      };
+      MessagingTransport = class {
+        /**
+         * @param {NotificationMessage} msg
+         * @returns {void}
+         */
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        notify(msg) {
+          throw new Error("must implement 'notify'");
+        }
+        /**
+         * @param {RequestMessage} msg
+         * @param {{signal?: AbortSignal}} [options]
+         * @return {Promise<any>}
+         */
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        request(msg, options = {}) {
+          throw new Error("must implement");
+        }
+        /**
+         * @param {Subscription} msg
+         * @param {(value: unknown) => void} callback
+         * @return {() => void}
+         */
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        subscribe(msg, callback) {
+          throw new Error("must implement");
+        }
+      };
+      TestTransportConfig = class {
+        /**
+         * @param {MessagingTransport} impl
+         */
+        constructor(impl) {
+          this.impl = impl;
+        }
+      };
+      TestTransport = class {
+        /**
+         * @param {TestTransportConfig} config
+         * @param {MessagingContext} messagingContext
+         */
+        constructor(config, messagingContext) {
+          this.config = config;
+          this.messagingContext = messagingContext;
+        }
+        notify(msg) {
+          return this.config.impl.notify(msg);
+        }
+        request(msg) {
+          return this.config.impl.request(msg);
+        }
+        subscribe(msg, callback) {
+          return this.config.impl.subscribe(msg, callback);
+        }
+      };
+      MissingHandler = class extends Error {
+        /**
+         * @param {string} message
+         * @param {string} handlerName
+         */
+        constructor(message, handlerName) {
+          super(message);
+          this.handlerName = handlerName;
+        }
+      };
+    }
+  });
+
   // ../../src/dom-utils.js
   var Template = class _Template {
     constructor(strings, values) {
@@ -101,978 +1172,46 @@
     }
   };
 
-  // ../messaging/lib/windows.js
-  var WindowsMessagingTransport = class {
-    /**
-     * @param {WindowsMessagingConfig} config
-     * @param {import('../index.js').MessagingContext} messagingContext
-     * @internal
-     */
-    constructor(config, messagingContext) {
-      this.messagingContext = messagingContext;
-      this.config = config;
-      this.globals = {
-        window,
-        JSONparse: window.JSON.parse,
-        JSONstringify: window.JSON.stringify,
-        Promise: window.Promise,
-        Error: window.Error,
-        String: window.String
-      };
-      for (const [methodName, fn] of Object.entries(this.config.methods)) {
-        if (typeof fn !== "function") {
-          throw new Error("cannot create WindowsMessagingTransport, missing the method: " + methodName);
-        }
-      }
-    }
-    /**
-     * @param {import('../index.js').NotificationMessage} msg
-     */
-    notify(msg) {
-      const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
-      const notification = WindowsNotification.fromNotification(msg, data);
-      this.config.methods.postMessage(notification);
-    }
-    /**
-     * @param {import('../index.js').RequestMessage} msg
-     * @param {{signal?: AbortSignal}} opts
-     * @return {Promise<any>}
-     */
-    request(msg, opts = {}) {
-      const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
-      const outgoing = WindowsRequestMessage.fromRequest(msg, data);
-      this.config.methods.postMessage(outgoing);
-      const comparator = (eventData) => {
-        return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id;
-      };
-      function isMessageResponse(data2) {
-        if ("result" in data2)
-          return true;
-        if ("error" in data2)
-          return true;
-        return false;
-      }
-      return new this.globals.Promise((resolve, reject) => {
-        try {
-          this._subscribe(comparator, opts, (value, unsubscribe) => {
-            unsubscribe();
-            if (!isMessageResponse(value)) {
-              console.warn("unknown response type", value);
-              return reject(new this.globals.Error("unknown response"));
-            }
-            if (value.result) {
-              return resolve(value.result);
-            }
-            const message = this.globals.String(value.error?.message || "unknown error");
-            reject(new this.globals.Error(message));
-          });
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }
-    /**
-     * @param {import('../index.js').Subscription} msg
-     * @param {(value: unknown | undefined) => void} callback
-     */
-    subscribe(msg, callback) {
-      const comparator = (eventData) => {
-        return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.subscriptionName === msg.subscriptionName;
-      };
-      const cb = (eventData) => {
-        return callback(eventData.params);
-      };
-      return this._subscribe(comparator, {}, cb);
-    }
-    /**
-     * @typedef {import('../index.js').MessageResponse | import('../index.js').SubscriptionEvent} Incoming
-     */
-    /**
-     * @param {(eventData: any) => boolean} comparator
-     * @param {{signal?: AbortSignal}} options
-     * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
-     * @internal
-     */
-    _subscribe(comparator, options, callback) {
-      if (options?.signal?.aborted) {
-        throw new DOMException("Aborted", "AbortError");
-      }
-      let teardown;
-      const idHandler = (event) => {
-        if (this.messagingContext.env === "production") {
-          if (event.origin !== null && event.origin !== void 0) {
-            console.warn("ignoring because evt.origin is not `null` or `undefined`");
-            return;
-          }
-        }
-        if (!event.data) {
-          console.warn("data absent from message");
-          return;
-        }
-        if (comparator(event.data)) {
-          if (!teardown)
-            throw new Error("unreachable");
-          callback(event.data, teardown);
-        }
-      };
-      const abortHandler = () => {
-        teardown?.();
-        throw new DOMException("Aborted", "AbortError");
-      };
-      this.config.methods.addEventListener("message", idHandler);
-      options?.signal?.addEventListener("abort", abortHandler);
-      teardown = () => {
-        this.config.methods.removeEventListener("message", idHandler);
-        options?.signal?.removeEventListener("abort", abortHandler);
-      };
-      return () => {
-        teardown?.();
-      };
-    }
-  };
-  var WindowsMessagingConfig = class {
-    /**
-     * @param {object} params
-     * @param {WindowsInteropMethods} params.methods
-     * @internal
-     */
-    constructor(params) {
-      this.methods = params.methods;
-      this.platform = "windows";
-    }
-  };
-  var WindowsNotification = class {
-    /**
-     * @param {object} params
-     * @param {string} params.Feature
-     * @param {string} params.SubFeatureName
-     * @param {string} params.Name
-     * @param {Record<string, any>} [params.Data]
-     * @internal
-     */
-    constructor(params) {
-      this.Feature = params.Feature;
-      this.SubFeatureName = params.SubFeatureName;
-      this.Name = params.Name;
-      this.Data = params.Data;
-    }
-    /**
-     * Helper to convert a {@link NotificationMessage} to a format that Windows can support
-     * @param {NotificationMessage} notification
-     * @returns {WindowsNotification}
-     */
-    static fromNotification(notification, data) {
-      const output = {
-        Data: data,
-        Feature: notification.context,
-        SubFeatureName: notification.featureName,
-        Name: notification.method
-      };
-      return output;
-    }
-  };
-  var WindowsRequestMessage = class {
-    /**
-     * @param {object} params
-     * @param {string} params.Feature
-     * @param {string} params.SubFeatureName
-     * @param {string} params.Name
-     * @param {Record<string, any>} [params.Data]
-     * @param {string} [params.Id]
-     * @internal
-     */
-    constructor(params) {
-      this.Feature = params.Feature;
-      this.SubFeatureName = params.SubFeatureName;
-      this.Name = params.Name;
-      this.Data = params.Data;
-      this.Id = params.Id;
-    }
-    /**
-     * Helper to convert a {@link RequestMessage} to a format that Windows can support
-     * @param {RequestMessage} msg
-     * @param {Record<string, any>} data
-     * @returns {WindowsRequestMessage}
-     */
-    static fromRequest(msg, data) {
-      const output = {
-        Data: data,
-        Feature: msg.context,
-        SubFeatureName: msg.featureName,
-        Name: msg.method,
-        Id: msg.id
-      };
-      return output;
-    }
-  };
-
-  // ../messaging/schema.js
-  var RequestMessage = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.method
-     * @param {string} params.id
-     * @param {Record<string, any>} [params.params]
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.method = params.method;
-      this.id = params.id;
-      this.params = params.params;
-    }
-  };
-  var NotificationMessage = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.method
-     * @param {Record<string, any>} [params.params]
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.method = params.method;
-      this.params = params.params;
-    }
-  };
-  var Subscription = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {string} params.subscriptionName
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.subscriptionName = params.subscriptionName;
-    }
-  };
-  function isResponseFor(request, data) {
-    if ("result" in data) {
-      return data.featureName === request.featureName && data.context === request.context && data.id === request.id;
-    }
-    if ("error" in data) {
-      if ("message" in data.error) {
-        return true;
-      }
-    }
-    return false;
-  }
-  function isSubscriptionEventFor(sub, data) {
-    if ("subscriptionName" in data) {
-      return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName;
-    }
-    return false;
-  }
-
-  // ../messaging/lib/webkit.js
-  var WebkitMessagingTransport = class {
-    /**
-     * @param {WebkitMessagingConfig} config
-     * @param {import('../index.js').MessagingContext} messagingContext
-     */
-    constructor(config, messagingContext) {
-      this.messagingContext = messagingContext;
-      this.config = config;
-      this.globals = captureGlobals();
-      if (!this.config.hasModernWebkitAPI) {
-        this.captureWebkitHandlers(this.config.webkitMessageHandlerNames);
-      }
-    }
-    /**
-     * Sends message to the webkit layer (fire and forget)
-     * @param {String} handler
-     * @param {*} data
-     * @internal
-     */
-    wkSend(handler, data = {}) {
-      if (!(handler in this.globals.window.webkit.messageHandlers)) {
-        throw new MissingHandler(`Missing webkit handler: '${handler}'`, handler);
-      }
-      if (!this.config.hasModernWebkitAPI) {
-        const outgoing = {
-          ...data,
-          messageHandling: {
-            ...data.messageHandling,
-            secret: this.config.secret
-          }
-        };
-        if (!(handler in this.globals.capturedWebkitHandlers)) {
-          throw new MissingHandler(`cannot continue, method ${handler} not captured on macos < 11`, handler);
-        } else {
-          return this.globals.capturedWebkitHandlers[handler](outgoing);
-        }
-      }
-      return this.globals.window.webkit.messageHandlers[handler].postMessage?.(data);
-    }
-    /**
-     * Sends message to the webkit layer and waits for the specified response
-     * @param {String} handler
-     * @param {import('../index.js').RequestMessage} data
-     * @returns {Promise<*>}
-     * @internal
-     */
-    async wkSendAndWait(handler, data) {
-      if (this.config.hasModernWebkitAPI) {
-        const response = await this.wkSend(handler, data);
-        return this.globals.JSONparse(response || "{}");
-      }
-      try {
-        const randMethodName = this.createRandMethodName();
-        const key = await this.createRandKey();
-        const iv = this.createRandIv();
-        const {
-          ciphertext,
-          tag
-        } = await new this.globals.Promise((resolve) => {
-          this.generateRandomMethod(randMethodName, resolve);
-          data.messageHandling = new SecureMessagingParams({
-            methodName: randMethodName,
-            secret: this.config.secret,
-            key: this.globals.Arrayfrom(key),
-            iv: this.globals.Arrayfrom(iv)
-          });
-          this.wkSend(handler, data);
-        });
-        const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-        const decrypted = await this.decrypt(cipher, key, iv);
-        return this.globals.JSONparse(decrypted || "{}");
-      } catch (e) {
-        if (e instanceof MissingHandler) {
-          throw e;
-        } else {
-          console.error("decryption failed", e);
-          console.error(e);
-          return { error: e };
-        }
-      }
-    }
-    /**
-     * @param {import('../index.js').NotificationMessage} msg
-     */
-    notify(msg) {
-      this.wkSend(msg.context, msg);
-    }
-    /**
-     * @param {import('../index.js').RequestMessage} msg
-     */
-    async request(msg) {
-      const data = await this.wkSendAndWait(msg.context, msg);
-      if (isResponseFor(msg, data)) {
-        if (data.result) {
-          return data.result || {};
-        }
-        if (data.error) {
-          throw new Error(data.error.message);
-        }
-      }
-      throw new Error("an unknown error occurred");
-    }
-    /**
-     * Generate a random method name and adds it to the global scope
-     * The native layer will use this method to send the response
-     * @param {string | number} randomMethodName
-     * @param {Function} callback
-     * @internal
-     */
-    generateRandomMethod(randomMethodName, callback) {
-      this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
-        enumerable: false,
-        // configurable, To allow for deletion later
-        configurable: true,
-        writable: false,
-        /**
-         * @param {any[]} args
-         */
-        value: (...args) => {
-          callback(...args);
-          delete this.globals.window[randomMethodName];
-        }
-      });
-    }
-    /**
-     * @internal
-     * @return {string}
-     */
-    randomString() {
-      return "" + this.globals.getRandomValues(new this.globals.Uint32Array(1))[0];
-    }
-    /**
-     * @internal
-     * @return {string}
-     */
-    createRandMethodName() {
-      return "_" + this.randomString();
-    }
-    /**
-     * @type {{name: string, length: number}}
-     * @internal
-     */
-    algoObj = {
-      name: "AES-GCM",
-      length: 256
-    };
-    /**
-     * @returns {Promise<Uint8Array>}
-     * @internal
-     */
-    async createRandKey() {
-      const key = await this.globals.generateKey(this.algoObj, true, ["encrypt", "decrypt"]);
-      const exportedKey = await this.globals.exportKey("raw", key);
-      return new this.globals.Uint8Array(exportedKey);
-    }
-    /**
-     * @returns {Uint8Array}
-     * @internal
-     */
-    createRandIv() {
-      return this.globals.getRandomValues(new this.globals.Uint8Array(12));
-    }
-    /**
-     * @param {BufferSource} ciphertext
-     * @param {BufferSource} key
-     * @param {Uint8Array} iv
-     * @returns {Promise<string>}
-     * @internal
-     */
-    async decrypt(ciphertext, key, iv) {
-      const cryptoKey = await this.globals.importKey("raw", key, "AES-GCM", false, ["decrypt"]);
-      const algo = {
-        name: "AES-GCM",
-        iv
-      };
-      const decrypted = await this.globals.decrypt(algo, cryptoKey, ciphertext);
-      const dec = new this.globals.TextDecoder();
-      return dec.decode(decrypted);
-    }
-    /**
-     * When required (such as on macos 10.x), capture the `postMessage` method on
-     * each webkit messageHandler
-     *
-     * @param {string[]} handlerNames
-     */
-    captureWebkitHandlers(handlerNames) {
-      const handlers = window.webkit.messageHandlers;
-      if (!handlers)
-        throw new MissingHandler("window.webkit.messageHandlers was absent", "all");
-      for (const webkitMessageHandlerName of handlerNames) {
-        if (typeof handlers[webkitMessageHandlerName]?.postMessage === "function") {
-          const original = handlers[webkitMessageHandlerName];
-          const bound = handlers[webkitMessageHandlerName].postMessage?.bind(original);
-          this.globals.capturedWebkitHandlers[webkitMessageHandlerName] = bound;
-          delete handlers[webkitMessageHandlerName].postMessage;
-        }
-      }
-    }
-    /**
-     * @param {import('../index.js').Subscription} msg
-     * @param {(value: unknown) => void} callback
-     */
-    subscribe(msg, callback) {
-      if (msg.subscriptionName in this.globals.window) {
-        throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
-      }
-      this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
-        enumerable: false,
-        configurable: true,
-        writable: false,
-        value: (data) => {
-          if (data && isSubscriptionEventFor(msg, data)) {
-            callback(data.params);
-          } else {
-            console.warn("Received a message that did not match the subscription", data);
-          }
-        }
-      });
-      return () => {
-        this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
-      };
-    }
-  };
-  var WebkitMessagingConfig = class {
-    /**
-     * @param {object} params
-     * @param {boolean} params.hasModernWebkitAPI
-     * @param {string[]} params.webkitMessageHandlerNames
-     * @param {string} params.secret
-     * @internal
-     */
-    constructor(params) {
-      this.hasModernWebkitAPI = params.hasModernWebkitAPI;
-      this.webkitMessageHandlerNames = params.webkitMessageHandlerNames;
-      this.secret = params.secret;
-    }
-  };
-  var SecureMessagingParams = class {
-    /**
-     * @param {object} params
-     * @param {string} params.methodName
-     * @param {string} params.secret
-     * @param {number[]} params.key
-     * @param {number[]} params.iv
-     */
-    constructor(params) {
-      this.methodName = params.methodName;
-      this.secret = params.secret;
-      this.key = params.key;
-      this.iv = params.iv;
-    }
-  };
-  function captureGlobals() {
-    const globals = {
-      window,
-      getRandomValues: window.crypto.getRandomValues.bind(window.crypto),
-      TextEncoder,
-      TextDecoder,
-      Uint8Array,
-      Uint16Array,
-      Uint32Array,
-      JSONstringify: window.JSON.stringify,
-      JSONparse: window.JSON.parse,
-      Arrayfrom: window.Array.from,
-      Promise: window.Promise,
-      Error: window.Error,
-      ReflectDeleteProperty: window.Reflect.deleteProperty.bind(window.Reflect),
-      ObjectDefineProperty: window.Object.defineProperty,
-      addEventListener: window.addEventListener.bind(window),
-      /** @type {Record<string, any>} */
-      capturedWebkitHandlers: {}
-    };
-    if (isSecureContext) {
-      globals.generateKey = window.crypto.subtle.generateKey.bind(window.crypto.subtle);
-      globals.exportKey = window.crypto.subtle.exportKey.bind(window.crypto.subtle);
-      globals.importKey = window.crypto.subtle.importKey.bind(window.crypto.subtle);
-      globals.encrypt = window.crypto.subtle.encrypt.bind(window.crypto.subtle);
-      globals.decrypt = window.crypto.subtle.decrypt.bind(window.crypto.subtle);
-    }
-    return globals;
-  }
-
-  // ../messaging/lib/android.js
-  var AndroidMessagingTransport = class {
-    /**
-     * @param {AndroidMessagingConfig} config
-     * @param {MessagingContext} messagingContext
-     * @internal
-     */
-    constructor(config, messagingContext) {
-      this.messagingContext = messagingContext;
-      this.config = config;
-    }
-    /**
-     * @param {NotificationMessage} msg
-     */
-    notify(msg) {
-      try {
-        this.config.sendMessageThrows?.(JSON.stringify(msg));
-      } catch (e) {
-        console.error(".notify failed", e);
-      }
-    }
-    /**
-     * @param {RequestMessage} msg
-     * @return {Promise<any>}
-     */
-    request(msg) {
-      return new Promise((resolve, reject) => {
-        const unsub = this.config.subscribe(msg.id, handler);
-        try {
-          this.config.sendMessageThrows?.(JSON.stringify(msg));
-        } catch (e) {
-          unsub();
-          reject(new Error("request failed to send: " + e.message || "unknown error"));
-        }
-        function handler(data) {
-          if (isResponseFor(msg, data)) {
-            if (data.result) {
-              resolve(data.result || {});
-              return unsub();
-            }
-            if (data.error) {
-              reject(new Error(data.error.message));
-              return unsub();
-            }
-            unsub();
-            throw new Error("unreachable: must have `result` or `error` key by this point");
-          }
-        }
-      });
-    }
-    /**
-     * @param {Subscription} msg
-     * @param {(value: unknown | undefined) => void} callback
-     */
-    subscribe(msg, callback) {
-      const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
-        if (isSubscriptionEventFor(msg, data)) {
-          callback(data.params || {});
-        }
-      });
-      return () => {
-        unsub();
-      };
-    }
-  };
-  var AndroidMessagingConfig = class {
-    /** @type {(json: string, secret: string) => void} */
-    _capturedHandler;
-    /**
-     * @param {object} params
-     * @param {Record<string, any>} params.target
-     * @param {boolean} params.debug
-     * @param {string} params.messageSecret - a secret to ensure that messages are only
-     * processed by the correct handler
-     * @param {string} params.javascriptInterface - the name of the javascript interface
-     * registered on the native side
-     * @param {string} params.messageCallback - the name of the callback that the native
-     * side will use to send messages back to the javascript side
-     */
-    constructor(params) {
-      this.target = params.target;
-      this.debug = params.debug;
-      this.javascriptInterface = params.javascriptInterface;
-      this.messageSecret = params.messageSecret;
-      this.messageCallback = params.messageCallback;
-      this.listeners = new globalThis.Map();
-      this._captureGlobalHandler();
-      this._assignHandlerMethod();
-    }
-    /**
-     * The transport can call this to transmit a JSON payload along with a secret
-     * to the native Android handler.
-     *
-     * Note: This can throw - it's up to the transport to handle the error.
-     *
-     * @type {(json: string) => void}
-     * @throws
-     * @internal
-     */
-    sendMessageThrows(json) {
-      this._capturedHandler(json, this.messageSecret);
-    }
-    /**
-     * A subscription on Android is just a named listener. All messages from
-     * android -> are delivered through a single function, and this mapping is used
-     * to route the messages to the correct listener.
-     *
-     * Note: Use this to implement request->response by unsubscribing after the first
-     * response.
-     *
-     * @param {string} id
-     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
-     * @returns {() => void}
-     * @internal
-     */
-    subscribe(id, callback) {
-      this.listeners.set(id, callback);
-      return () => {
-        this.listeners.delete(id);
-      };
-    }
-    /**
-     * Accept incoming messages and try to deliver it to a registered listener.
-     *
-     * This code is defensive to prevent any single handler from affecting another if
-     * it throws (producer interference).
-     *
-     * @param {MessageResponse | SubscriptionEvent} payload
-     * @internal
-     */
-    _dispatch(payload) {
-      if (!payload)
-        return this._log("no response");
-      if ("id" in payload) {
-        if (this.listeners.has(payload.id)) {
-          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
-        } else {
-          this._log("no listeners for ", payload);
-        }
-      }
-      if ("subscriptionName" in payload) {
-        if (this.listeners.has(payload.subscriptionName)) {
-          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
-        } else {
-          this._log("no subscription listeners for ", payload);
-        }
-      }
-    }
-    /**
-     *
-     * @param {(...args: any[]) => any} fn
-     * @param {string} [context]
-     */
-    _tryCatch(fn, context = "none") {
-      try {
-        return fn();
-      } catch (e) {
-        if (this.debug) {
-          console.error("AndroidMessagingConfig error:", context);
-          console.error(e);
-        }
-      }
-    }
-    /**
-     * @param {...any} args
-     */
-    _log(...args) {
-      if (this.debug) {
-        console.log("AndroidMessagingConfig", ...args);
-      }
-    }
-    /**
-     * Capture the global handler and remove it from the global object.
-     */
-    _captureGlobalHandler() {
-      const { target, javascriptInterface } = this;
-      if (Object.prototype.hasOwnProperty.call(target, javascriptInterface)) {
-        this._capturedHandler = target[javascriptInterface].process.bind(target[javascriptInterface]);
-        delete target[javascriptInterface];
-      } else {
-        this._capturedHandler = () => {
-          this._log("Android messaging interface not available", javascriptInterface);
-        };
-      }
-    }
-    /**
-     * Assign the incoming handler method to the global object.
-     * This is the method that Android will call to deliver messages.
-     */
-    _assignHandlerMethod() {
-      const responseHandler = (providedSecret, response) => {
-        if (providedSecret === this.messageSecret) {
-          this._dispatch(response);
-        }
-      };
-      Object.defineProperty(this.target, this.messageCallback, {
-        value: responseHandler
-      });
-    }
-  };
-
-  // ../messaging/lib/typed-messages.js
-  function createTypedMessages(base, messaging2) {
-    const asAny = (
-      /** @type {any} */
-      messaging2
-    );
-    return (
-      /** @type {BaseClass} */
-      asAny
-    );
-  }
-
-  // ../messaging/index.js
-  var MessagingContext = class {
-    /**
-     * @param {object} params
-     * @param {string} params.context
-     * @param {string} params.featureName
-     * @param {"production" | "development"} params.env
-     * @internal
-     */
-    constructor(params) {
-      this.context = params.context;
-      this.featureName = params.featureName;
-      this.env = params.env;
-    }
-  };
-  var Messaging = class {
-    /**
-     * @param {MessagingContext} messagingContext
-     * @param {MessagingConfig} config
-     */
-    constructor(messagingContext, config) {
-      this.messagingContext = messagingContext;
-      this.transport = getTransport(config, this.messagingContext);
-    }
-    /**
-     * Send a 'fire-and-forget' message.
-     * @throws {MissingHandler}
-     *
-     * @example
-     *
-     * ```ts
-     * const messaging = new Messaging(config)
-     * messaging.notify("foo", {bar: "baz"})
-     * ```
-     * @param {string} name
-     * @param {Record<string, any>} [data]
-     */
-    notify(name, data = {}) {
-      const message = new NotificationMessage({
-        context: this.messagingContext.context,
-        featureName: this.messagingContext.featureName,
-        method: name,
-        params: data
-      });
-      this.transport.notify(message);
-    }
-    /**
-     * Send a request, and wait for a response
-     * @throws {MissingHandler}
-     *
-     * @example
-     * ```
-     * const messaging = new Messaging(config)
-     * const response = await messaging.request("foo", {bar: "baz"})
-     * ```
-     *
-     * @param {string} name
-     * @param {Record<string, any>} [data]
-     * @return {Promise<any>}
-     */
-    request(name, data = {}) {
-      const id = globalThis?.crypto?.randomUUID?.() || name + ".response";
-      const message = new RequestMessage({
-        context: this.messagingContext.context,
-        featureName: this.messagingContext.featureName,
-        method: name,
-        params: data,
-        id
-      });
-      return this.transport.request(message);
-    }
-    /**
-     * @param {string} name
-     * @param {(value: unknown) => void} callback
-     * @return {() => void}
-     */
-    subscribe(name, callback) {
-      const msg = new Subscription({
-        context: this.messagingContext.context,
-        featureName: this.messagingContext.featureName,
-        subscriptionName: name
-      });
-      return this.transport.subscribe(msg, callback);
-    }
-  };
-  var TestTransportConfig = class {
-    /**
-     * @param {MessagingTransport} impl
-     */
-    constructor(impl) {
-      this.impl = impl;
-    }
-  };
-  var TestTransport = class {
-    /**
-     * @param {TestTransportConfig} config
-     * @param {MessagingContext} messagingContext
-     */
-    constructor(config, messagingContext) {
-      this.config = config;
-      this.messagingContext = messagingContext;
-    }
-    notify(msg) {
-      return this.config.impl.notify(msg);
-    }
-    request(msg) {
-      return this.config.impl.request(msg);
-    }
-    subscribe(msg, callback) {
-      return this.config.impl.subscribe(msg, callback);
-    }
-  };
-  function getTransport(config, messagingContext) {
-    if (config instanceof WebkitMessagingConfig) {
-      return new WebkitMessagingTransport(config, messagingContext);
-    }
-    if (config instanceof WindowsMessagingConfig) {
-      return new WindowsMessagingTransport(config, messagingContext);
-    }
-    if (config instanceof AndroidMessagingConfig) {
-      return new AndroidMessagingTransport(config, messagingContext);
-    }
-    if (config instanceof TestTransportConfig) {
-      return new TestTransport(config, messagingContext);
-    }
-    throw new Error("unreachable");
-  }
-  var MissingHandler = class extends Error {
-    /**
-     * @param {string} message
-     * @param {string} handlerName
-     */
-    constructor(message, handlerName) {
-      super(message);
-      this.handlerName = handlerName;
-    }
-  };
-
-  // shared/create-special-page-messaging.js
-  function createSpecialPageMessaging(opts) {
-    const messageContext = new MessagingContext({
+  // pages/sslerrorpage/src/js/messages.js
+  init_messaging();
+  async function createSSLErrorMessaging(opts) {
+    const { Messaging: Messaging2, MessagingContext: MessagingContext2, WebkitMessagingConfig: WebkitMessagingConfig2 } = await Promise.resolve().then(() => (init_messaging(), messaging_exports));
+    const messageContext = new MessagingContext2({
       context: "specialPages",
-      featureName: opts.pageName,
+      featureName: "sslErrorPage",
       env: opts.env
     });
-    try {
-      if (opts.injectName === "windows") {
-        const opts2 = new WindowsMessagingConfig({
-          methods: {
-            // @ts-expect-error - not in @types/chrome
-            postMessage: window.chrome.webview.postMessage,
-            // @ts-expect-error - not in @types/chrome
-            addEventListener: window.chrome.webview.addEventListener,
-            // @ts-expect-error - not in @types/chrome
-            removeEventListener: window.chrome.webview.removeEventListener
-          }
-        });
-        return new Messaging(messageContext, opts2);
-      } else if (opts.injectName === "apple") {
-        const opts2 = new WebkitMessagingConfig({
-          hasModernWebkitAPI: true,
-          secret: "",
-          webkitMessageHandlerNames: ["specialPages"]
-        });
-        return new Messaging(messageContext, opts2);
-      }
-    } catch (e) {
-      console.error("could not access handlers for %s, falling back to mock interface", opts.injectName);
+    if (opts.injectName === "integration") {
+      const config2 = new TestTransportConfig({
+        notify(msg) {
+          console.log(msg);
+        },
+        request: () => {
+          return Promise.resolve(null);
+        },
+        subscribe() {
+          return () => {
+          };
+        }
+      });
+      return new Messaging2(messageContext, config2);
     }
-    const fallback = new TestTransportConfig({
-      /**
-       * @param {import('@duckduckgo/messaging').NotificationMessage} msg
-       */
-      notify(msg) {
-        console.log(msg);
-      },
-      /**
-       * @param {import('@duckduckgo/messaging').RequestMessage} msg
-       */
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      request: (msg) => {
-        console.log(msg);
-        return Promise.resolve(null);
-      },
-      /**
-       * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
-       */
-      subscribe(msg) {
-        console.log(msg);
-        return () => {
-          console.log("teardown");
-        };
-      }
+    const config = new WebkitMessagingConfig2({
+      hasModernWebkitAPI: true,
+      secret: "",
+      webkitMessageHandlerNames: ["specialPages"]
     });
-    return new Messaging(messageContext, fallback);
+    return new Messaging2(messageContext, config);
   }
 
   // pages/sslerrorpage/src/js/index.js
+  init_messaging();
   var SslerrorpagePage = class {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
-    constructor(messaging2) {
-      this.messaging = createTypedMessages(this, messaging2);
+    constructor(messaging) {
+      this.messaging = createTypedMessages(this, messaging);
     }
     visitSite() {
       return this.messaging.notify("visitSite");
@@ -1081,16 +1220,18 @@
       return this.messaging.notify("leaveSite");
     }
   };
-  var messaging = createSpecialPageMessaging({
-    env: "production",
-    injectName: "apple",
-    pageName: "sslErrorPage"
-  });
-  var page = new SslerrorpagePage(messaging);
-  window.addEventListener("DOMContentLoaded", () => {
-    loadHTML();
-    bindEvents(page);
-  });
+  async function init() {
+    const messaging = await createSSLErrorMessaging({
+      env: "production",
+      injectName: "apple"
+    });
+    const page = new SslerrorpagePage(messaging);
+    window.addEventListener("DOMContentLoaded", () => {
+      loadHTML();
+      bindEvents(page);
+    });
+  }
+  init().catch(console.error);
   function loadHTML() {
     const element = document.querySelector('[data-id="load-time-data"]');
     const parsed = (() => {
@@ -1117,7 +1258,7 @@
       leaveThisSiteBtn: document.getElementById("leaveThisSiteBtn")
     };
   }
-  function bindEvents(page2) {
+  function bindEvents(page) {
     const dom = domElements();
     if (!dom.advanced)
       return console.error("ts unreachable: missing elements");
@@ -1129,7 +1270,7 @@
     if (dom.acceptRiskLink) {
       dom.acceptRiskLink.addEventListener("click", (event) => {
         event.preventDefault();
-        page2.visitSite();
+        page.visitSite();
       });
     } else {
       console.error("Accept risk link not found.");
@@ -1137,7 +1278,7 @@
     if (dom.leaveThisSiteBtn) {
       dom.leaveThisSiteBtn?.addEventListener("click", (event) => {
         event.preventDefault();
-        page2.leaveSite();
+        page.leaveSite();
       });
     } else {
       console.error("Leave Site button not found.");

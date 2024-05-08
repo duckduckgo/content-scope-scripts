@@ -314,282 +314,6 @@ body.faded .toolbar {
 <script>
 "use strict";
 (() => {
-  // pages/duckplayer/src/js/messages.js
-  var DuckPlayerPageMessages = class {
-    /**
-     * @param {import("@duckduckgo/messaging").Messaging} messaging
-     * @param {ImportMeta["injectName"]} injectName
-     * @internal
-     */
-    constructor(messaging, injectName) {
-      this.messaging = messaging;
-      this.injectName = injectName;
-    }
-    /**
-     * This is sent when the user wants to set Duck Player as the default.
-     *
-     * @param {UserValues} userValues
-     */
-    setUserValues(userValues) {
-      return this.messaging.request("setUserValues", userValues);
-    }
-    /**
-     * This is sent when the user wants to set Duck Player as the default.
-     * @return {Promise<UserValues>}
-     */
-    getUserValues() {
-      if (this.injectName === "integration") {
-        return Promise.resolve(new UserValues({
-          overlayInteracted: false,
-          privatePlayerMode: { alwaysAsk: {} }
-        }));
-      }
-      return this.messaging.request("getUserValues");
-    }
-    /**
-     * This is a subscription that we set up when the page loads.
-     * We use this value to show/hide the checkboxes.
-     *
-     * **Integration NOTE**: Native platforms should always send this at least once on initial page load.
-     *
-     * - See {@link Messaging.SubscriptionEvent} for details on each value of this message
-     * - See {@link UserValues} for details on the `params`
-     *
-     * ```json
-     * // the payload that we receive should look like this
-     * {
-     *   "context": "specialPages",
-     *   "featureName": "duckPlayerPage",
-     *   "subscriptionName": "onUserValuesChanged",
-     *   "params": {
-     *     "overlayInteracted": false,
-     *     "privatePlayerMode": {
-     *       "enabled": {}
-     *     }
-     *   }
-     * }
-     * ```
-     *
-     * @param {(value: UserValues) => void} cb
-     */
-    onUserValuesChanged(cb) {
-      return this.messaging.subscribe("onUserValuesChanged", cb);
-    }
-  };
-  var UserValues = class {
-    /**
-     * @param {object} params
-     * @param {{enabled: {}} | {disabled: {}} | {alwaysAsk: {}}} params.privatePlayerMode
-     * @param {boolean} params.overlayInteracted
-     */
-    constructor(params) {
-      this.privatePlayerMode = params.privatePlayerMode;
-      this.overlayInteracted = params.overlayInteracted;
-    }
-  };
-  async function callWithRetry(fn, params = {}) {
-    const { maxAttempts = 10, intervalMs = 300 } = params;
-    let attempt = 1;
-    while (attempt <= maxAttempts) {
-      try {
-        return { value: await fn(), attempt };
-      } catch (error) {
-        if (attempt === maxAttempts) {
-          return { error: `Max attempts reached: ${error}` };
-        }
-        await new Promise((resolve) => setTimeout(resolve, intervalMs));
-        attempt++;
-      }
-    }
-    return { error: "Unreachable: value not retrieved" };
-  }
-
-  // ../../src/dom-utils.js
-  var Template = class _Template {
-    constructor(strings, values) {
-      this.values = values;
-      this.strings = strings;
-    }
-    /**
-     * Escapes any occurrences of &, ", <, > or / with XML entities.
-     *
-     * @param {string} str
-     *        The string to escape.
-     * @return {string} The escaped string.
-     */
-    escapeXML(str) {
-      const replacements = {
-        "&": "&amp;",
-        '"': "&quot;",
-        "'": "&apos;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "/": "&#x2F;"
-      };
-      return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
-    }
-    potentiallyEscape(value) {
-      if (typeof value === "object") {
-        if (value instanceof Array) {
-          return value.map((val) => this.potentiallyEscape(val)).join("");
-        }
-        if (value instanceof _Template) {
-          return value;
-        }
-        throw new Error("Unknown object to escape");
-      }
-      return this.escapeXML(value);
-    }
-    toString() {
-      const result = [];
-      for (const [i, string] of this.strings.entries()) {
-        result.push(string);
-        if (i < this.values.length) {
-          result.push(this.potentiallyEscape(this.values[i]));
-        }
-      }
-      return result.join("");
-    }
-  };
-  function html(strings, ...values) {
-    return new Template(strings, values);
-  }
-
-  // pages/duckplayer/src/js/storage.js
-  function deleteStorage(subject) {
-    Object.keys(subject).forEach((key) => {
-      if (key.indexOf("yt-player") === 0) {
-        return;
-      }
-      subject.removeItem(key);
-    });
-  }
-  function deleteAllCookies() {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i];
-      const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;domain=youtube-nocookie.com;path=/;";
-    }
-  }
-  function initStorage() {
-    window.addEventListener("unload", () => {
-      deleteStorage(localStorage);
-      deleteStorage(sessionStorage);
-      deleteAllCookies();
-    });
-    window.addEventListener("load", () => {
-      deleteStorage(localStorage);
-      deleteStorage(sessionStorage);
-      deleteAllCookies();
-    });
-  }
-
-  // ../../src/features/duckplayer/util.js
-  var VideoParams = class _VideoParams {
-    /**
-     * @param {string} id - the YouTube video ID
-     * @param {string|null|undefined} time - an optional time
-     */
-    constructor(id, time) {
-      this.id = id;
-      this.time = time;
-    }
-    static validVideoId = /^[a-zA-Z0-9-_]+$/;
-    static validTimestamp = /^[0-9hms]+$/;
-    /**
-     * @returns {string}
-     */
-    toPrivatePlayerUrl() {
-      const duckUrl = new URL(`duck://player/${this.id}`);
-      if (this.time) {
-        duckUrl.searchParams.set("t", this.time);
-      }
-      return duckUrl.href;
-    }
-    /**
-     * Create a VideoParams instance from a href, only if it's on the watch page
-     *
-     * @param {string} href
-     * @returns {VideoParams|null}
-     */
-    static forWatchPage(href) {
-      let url;
-      try {
-        url = new URL(href);
-      } catch (e) {
-        return null;
-      }
-      if (!url.pathname.startsWith("/watch")) {
-        return null;
-      }
-      return _VideoParams.fromHref(url.href);
-    }
-    /**
-     * Convert a relative pathname into VideoParams
-     *
-     * @param pathname
-     * @returns {VideoParams|null}
-     */
-    static fromPathname(pathname) {
-      let url;
-      try {
-        url = new URL(pathname, window.location.origin);
-      } catch (e) {
-        return null;
-      }
-      return _VideoParams.fromHref(url.href);
-    }
-    /**
-     * Convert a href into valid video params. Those can then be converted into a private player
-     * link when needed
-     *
-     * @param href
-     * @returns {VideoParams|null}
-     */
-    static fromHref(href) {
-      let url;
-      try {
-        url = new URL(href);
-      } catch (e) {
-        return null;
-      }
-      let id = null;
-      const vParam = url.searchParams.get("v");
-      const tParam = url.searchParams.get("t");
-      if (url.searchParams.has("list") && !url.searchParams.has("index")) {
-        return null;
-      }
-      let time = null;
-      if (vParam && _VideoParams.validVideoId.test(vParam)) {
-        id = vParam;
-      } else {
-        return null;
-      }
-      if (tParam && _VideoParams.validTimestamp.test(tParam)) {
-        time = tParam;
-      }
-      return new _VideoParams(id, time);
-    }
-  };
-
-  // pages/duckplayer/src/js/utils.js
-  function createYoutubeURLForError(href, urlBase) {
-    const valid = VideoParams.forWatchPage(href);
-    if (!valid)
-      return null;
-    const original = new URL(href);
-    if (original.searchParams.get("feature") !== "emb_err_woyt")
-      return null;
-    const url = new URL(urlBase);
-    url.searchParams.set("v", valid.id);
-    if (typeof valid.time === "string") {
-      url.searchParams.set("t", valid.time);
-    }
-    return url.toString();
-  }
-
   // ../messaging/lib/windows.js
   var WindowsMessagingTransport = class {
     /**
@@ -1484,63 +1208,326 @@ body.faded .toolbar {
     }
   };
 
-  // shared/create-special-page-messaging.js
-  function createSpecialPageMessaging(opts) {
+  // pages/duckplayer/src/js/messages.js
+  var DuckPlayerPageMessages = class {
+    /**
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @internal
+     */
+    constructor(messaging) {
+      this.messaging = messaging;
+    }
+    /**
+     * This is sent when the user wants to set Duck Player as the default.
+     *
+     * @param {UserValues} userValues
+     */
+    setUserValues(userValues) {
+      return this.messaging.request("setUserValues", userValues);
+    }
+    /**
+     * This is sent when the user wants to set Duck Player as the default.
+     * @return {Promise<UserValues>}
+     */
+    getUserValues() {
+      return this.messaging.request("getUserValues");
+    }
+    /**
+     * This is a subscription that we set up when the page loads.
+     * We use this value to show/hide the checkboxes.
+     *
+     * **Integration NOTE**: Native platforms should always send this at least once on initial page load.
+     *
+     * - See {@link Messaging.SubscriptionEvent} for details on each value of this message
+     * - See {@link UserValues} for details on the `params`
+     *
+     * ```json
+     * // the payload that we receive should look like this
+     * {
+     *   "context": "specialPages",
+     *   "featureName": "duckPlayerPage",
+     *   "subscriptionName": "onUserValuesChanged",
+     *   "params": {
+     *     "overlayInteracted": false,
+     *     "privatePlayerMode": {
+     *       "enabled": {}
+     *     }
+     *   }
+     * }
+     * ```
+     *
+     * @param {(value: UserValues) => void} cb
+     */
+    onUserValuesChanged(cb) {
+      return this.messaging.subscribe("onUserValuesChanged", cb);
+    }
+  };
+  var UserValues = class {
+    /**
+     * @param {object} params
+     * @param {{enabled: {}} | {disabled: {}} | {alwaysAsk: {}}} params.privatePlayerMode
+     * @param {boolean} params.overlayInteracted
+     */
+    constructor(params) {
+      this.privatePlayerMode = params.privatePlayerMode;
+      this.overlayInteracted = params.overlayInteracted;
+    }
+  };
+  function createDuckPlayerPageMessaging(opts) {
     const messageContext = new MessagingContext({
       context: "specialPages",
-      featureName: opts.pageName,
+      featureName: "duckPlayerPage",
       env: opts.env
     });
-    try {
-      if (opts.injectName === "windows") {
-        const opts2 = new WindowsMessagingConfig({
-          methods: {
-            // @ts-expect-error - not in @types/chrome
-            postMessage: window.chrome.webview.postMessage,
-            // @ts-expect-error - not in @types/chrome
-            addEventListener: window.chrome.webview.addEventListener,
-            // @ts-expect-error - not in @types/chrome
-            removeEventListener: window.chrome.webview.removeEventListener
+    if (opts.injectName === "windows") {
+      const opts2 = new WindowsMessagingConfig({
+        methods: {
+          // @ts-expect-error - not in @types/chrome
+          postMessage: window.chrome.webview.postMessage,
+          // @ts-expect-error - not in @types/chrome
+          addEventListener: window.chrome.webview.addEventListener,
+          // @ts-expect-error - not in @types/chrome
+          removeEventListener: window.chrome.webview.removeEventListener
+        }
+      });
+      const messaging = new Messaging(messageContext, opts2);
+      return new DuckPlayerPageMessages(messaging);
+    } else if (opts.injectName === "apple") {
+      const opts2 = new WebkitMessagingConfig({
+        hasModernWebkitAPI: true,
+        secret: "",
+        webkitMessageHandlerNames: ["specialPages"]
+      });
+      const messaging = new Messaging(messageContext, opts2);
+      return new DuckPlayerPageMessages(messaging);
+    } else if (opts.injectName === "integration") {
+      const config = new TestTransportConfig({
+        notify(msg) {
+          console.log(msg);
+        },
+        request: (msg) => {
+          console.log(msg);
+          if (msg.method === "getUserValues") {
+            return Promise.resolve(new UserValues({
+              overlayInteracted: false,
+              privatePlayerMode: { alwaysAsk: {} }
+            }));
           }
-        });
-        return new Messaging(messageContext, opts2);
-      } else if (opts.injectName === "apple") {
-        const opts2 = new WebkitMessagingConfig({
-          hasModernWebkitAPI: true,
-          secret: "",
-          webkitMessageHandlerNames: ["specialPages"]
-        });
-        return new Messaging(messageContext, opts2);
-      }
-    } catch (e) {
-      console.error("could not access handlers for %s, falling back to mock interface", opts.injectName);
+          return Promise.resolve(null);
+        },
+        subscribe(msg) {
+          console.log(msg);
+          return () => {
+            console.log("teardown");
+          };
+        }
+      });
+      const messaging = new Messaging(messageContext, config);
+      return new DuckPlayerPageMessages(messaging);
     }
-    const fallback = new TestTransportConfig({
-      /**
-       * @param {import('@duckduckgo/messaging').NotificationMessage} msg
-       */
-      notify(msg) {
-        console.log(msg);
-      },
-      /**
-       * @param {import('@duckduckgo/messaging').RequestMessage} msg
-       */
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      request: (msg) => {
-        console.log(msg);
-        return Promise.resolve(null);
-      },
-      /**
-       * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
-       */
-      subscribe(msg) {
-        console.log(msg);
-        return () => {
-          console.log("teardown");
-        };
+    throw new Error("unreachable - platform not supported");
+  }
+  async function callWithRetry(fn, params = {}) {
+    const { maxAttempts = 10, intervalMs = 300 } = params;
+    let attempt = 1;
+    while (attempt <= maxAttempts) {
+      try {
+        return { value: await fn(), attempt };
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          return { error: `Max attempts reached: ${error}` };
+        }
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        attempt++;
       }
+    }
+    return { error: "Unreachable: value not retrieved" };
+  }
+
+  // ../../src/dom-utils.js
+  var Template = class _Template {
+    constructor(strings, values) {
+      this.values = values;
+      this.strings = strings;
+    }
+    /**
+     * Escapes any occurrences of &, ", <, > or / with XML entities.
+     *
+     * @param {string} str
+     *        The string to escape.
+     * @return {string} The escaped string.
+     */
+    escapeXML(str) {
+      const replacements = {
+        "&": "&amp;",
+        '"': "&quot;",
+        "'": "&apos;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "/": "&#x2F;"
+      };
+      return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
+    }
+    potentiallyEscape(value) {
+      if (typeof value === "object") {
+        if (value instanceof Array) {
+          return value.map((val) => this.potentiallyEscape(val)).join("");
+        }
+        if (value instanceof _Template) {
+          return value;
+        }
+        throw new Error("Unknown object to escape");
+      }
+      return this.escapeXML(value);
+    }
+    toString() {
+      const result = [];
+      for (const [i, string] of this.strings.entries()) {
+        result.push(string);
+        if (i < this.values.length) {
+          result.push(this.potentiallyEscape(this.values[i]));
+        }
+      }
+      return result.join("");
+    }
+  };
+  function html(strings, ...values) {
+    return new Template(strings, values);
+  }
+
+  // pages/duckplayer/src/js/storage.js
+  function deleteStorage(subject) {
+    Object.keys(subject).forEach((key) => {
+      if (key.indexOf("yt-player") === 0) {
+        return;
+      }
+      subject.removeItem(key);
     });
-    return new Messaging(messageContext, fallback);
+  }
+  function deleteAllCookies() {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i];
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;domain=youtube-nocookie.com;path=/;";
+    }
+  }
+  function initStorage() {
+    window.addEventListener("unload", () => {
+      deleteStorage(localStorage);
+      deleteStorage(sessionStorage);
+      deleteAllCookies();
+    });
+    window.addEventListener("load", () => {
+      deleteStorage(localStorage);
+      deleteStorage(sessionStorage);
+      deleteAllCookies();
+    });
+  }
+
+  // ../../src/features/duckplayer/util.js
+  var VideoParams = class _VideoParams {
+    /**
+     * @param {string} id - the YouTube video ID
+     * @param {string|null|undefined} time - an optional time
+     */
+    constructor(id, time) {
+      this.id = id;
+      this.time = time;
+    }
+    static validVideoId = /^[a-zA-Z0-9-_]+$/;
+    static validTimestamp = /^[0-9hms]+$/;
+    /**
+     * @returns {string}
+     */
+    toPrivatePlayerUrl() {
+      const duckUrl = new URL(`duck://player/${this.id}`);
+      if (this.time) {
+        duckUrl.searchParams.set("t", this.time);
+      }
+      return duckUrl.href;
+    }
+    /**
+     * Create a VideoParams instance from a href, only if it's on the watch page
+     *
+     * @param {string} href
+     * @returns {VideoParams|null}
+     */
+    static forWatchPage(href) {
+      let url;
+      try {
+        url = new URL(href);
+      } catch (e) {
+        return null;
+      }
+      if (!url.pathname.startsWith("/watch")) {
+        return null;
+      }
+      return _VideoParams.fromHref(url.href);
+    }
+    /**
+     * Convert a relative pathname into VideoParams
+     *
+     * @param pathname
+     * @returns {VideoParams|null}
+     */
+    static fromPathname(pathname) {
+      let url;
+      try {
+        url = new URL(pathname, window.location.origin);
+      } catch (e) {
+        return null;
+      }
+      return _VideoParams.fromHref(url.href);
+    }
+    /**
+     * Convert a href into valid video params. Those can then be converted into a private player
+     * link when needed
+     *
+     * @param href
+     * @returns {VideoParams|null}
+     */
+    static fromHref(href) {
+      let url;
+      try {
+        url = new URL(href);
+      } catch (e) {
+        return null;
+      }
+      let id = null;
+      const vParam = url.searchParams.get("v");
+      const tParam = url.searchParams.get("t");
+      if (url.searchParams.has("list") && !url.searchParams.has("index")) {
+        return null;
+      }
+      let time = null;
+      if (vParam && _VideoParams.validVideoId.test(vParam)) {
+        id = vParam;
+      } else {
+        return null;
+      }
+      if (tParam && _VideoParams.validTimestamp.test(tParam)) {
+        time = tParam;
+      }
+      return new _VideoParams(id, time);
+    }
+  };
+
+  // pages/duckplayer/src/js/utils.js
+  function createYoutubeURLForError(href, urlBase) {
+    const valid = VideoParams.forWatchPage(href);
+    if (!valid)
+      return null;
+    const original = new URL(href);
+    if (original.searchParams.get("feature") !== "emb_err_woyt")
+      return null;
+    const url = new URL(urlBase);
+    url.searchParams.set("v", valid.id);
+    if (typeof valid.time === "string") {
+      url.searchParams.set("t", valid.time);
+    }
+    return url.toString();
   }
 
   // pages/duckplayer/src/js/index.js
@@ -1854,9 +1841,12 @@ body.faded .toolbar {
      *
      * `window.postMessage({ alwaysOpenSetting: false })`
      *
-     * @param {DuckPlayerPageMessages} messaging
+     * @param {object} opts
+     * @param {ImportMeta['env']} opts.env
+     * @param {ImportMeta['injectName']} opts.injectName
      */
-    init: async (messaging) => {
+    init: async (opts) => {
+      const messaging = createDuckPlayerPageMessaging(opts);
       const result = await callWithRetry(() => {
         return messaging.getUserValues();
       });
@@ -2165,13 +2155,10 @@ body.faded .toolbar {
     Setting.init({
       settingsUrl: settingsUrl("apple")
     });
-    const messaging = createSpecialPageMessaging({
+    await Comms.init({
       injectName: "apple",
-      env: "production",
-      pageName: "duckPlayerPage"
+      env: "production"
     });
-    const page = new DuckPlayerPageMessages(messaging, "apple");
-    await Comms.init(page);
     if (!Comms.messaging) {
       console.warn("cannot continue as messaging was not resolved");
       return;
