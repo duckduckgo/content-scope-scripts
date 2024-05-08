@@ -63,6 +63,7 @@ export class IconOverlay {
     /**
      * Moves the hover overlay to a specified videoElement
      * @param {HTMLElement} videoElement - which element to move it to
+     * @returns { string | null | undefined }
      */
     moveHoverOverlayToVideoElement (videoElement) {
         const overlay = this.getHoverOverlay()
@@ -82,9 +83,11 @@ export class IconOverlay {
         overlay.setAttribute('data-size', 'fixed ' + this.getThumbnailSize(videoElement))
 
         const href = videoElement.getAttribute('href')
+        /** @type {null | undefined | string} */
+        let privateUrl = null
 
         if (href) {
-            const privateUrl = VideoParams.fromPathname(href)?.toPrivatePlayerUrl()
+            privateUrl = VideoParams.fromPathname(href)?.toPrivatePlayerUrl()
             if (overlay && privateUrl) {
                 overlay.querySelector('a')?.setAttribute('href', privateUrl)
             }
@@ -92,6 +95,7 @@ export class IconOverlay {
 
         this.hoverOverlayVisible = true
         this.currentVideoElement = videoElement
+        return privateUrl
     }
 
     /**
@@ -166,8 +170,9 @@ export class IconOverlay {
      * the video hover preview on the homepage if the user hovers the overlay, because user is no longer hovering
      * inside a video thumbnail when hovering the overlay. Nice.
      * @param {(href: string) => void} onClick
+     * @param {() => void} onHover
      */
-    appendHoverOverlay (onClick) {
+    appendHoverOverlay (onClick, onHover) {
         this.sideEffects.add('Adding the re-usable overlay to the page ', () => {
             // add the CSS to the head
             const style = document.createElement('style')
@@ -179,6 +184,7 @@ export class IconOverlay {
             document.body.appendChild(element)
 
             this.addClickHandler(element, onClick)
+            this.addHoverListener(element, onHover);
 
             return () => {
                 element.remove()
@@ -191,12 +197,14 @@ export class IconOverlay {
      * @param {HTMLElement} container
      * @param {string} href
      * @param {(href: string) => void} onClick
+     * @param {(href: string) => void} onHover
      */
-    appendSmallVideoOverlay (container, href, onClick) {
+    appendSmallVideoOverlay (container, href, onClick, onHover) {
         this.sideEffects.add('Adding a small overlay for the video player', () => {
             const element = this.create('video-player', href, 'hidden')
 
             this.addClickHandler(element, onClick)
+            this.addHoverListener(element, onHover)
 
             container.appendChild(element)
             element.classList.remove('hidden')
@@ -238,6 +246,18 @@ export class IconOverlay {
      */
     addClickHandler (element, callback) {
         element.addEventListener('click', (event) => {
+            event.preventDefault()
+            event.stopImmediatePropagation()
+            const link = /** @type {HTMLElement} */(event.target).closest('a')
+            const href = link?.getAttribute('href')
+            if (href) {
+                callback(href)
+            }
+        })
+    }
+
+    addHoverListener (element, callback) {
+        element.addEventListener('mouseover', (event) => {
             event.preventDefault()
             event.stopImmediatePropagation()
             const link = /** @type {HTMLElement} */(event.target).closest('a')

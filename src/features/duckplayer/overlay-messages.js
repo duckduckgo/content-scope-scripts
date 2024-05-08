@@ -47,6 +47,30 @@ export class DuckPlayerOverlayMessages {
         })
     }
 
+    /** @type {Set<string>} */
+    queue = new Set()
+    timeout = /** @type {any} */(null)
+
+    /**
+     * Debounced pixels only support string names without params for now.
+     * @param {"thumbnail.icon.shown" | "thumbnail.icon.hovered"} pixel
+     */
+    sendDebouncedPixel (pixel) {
+        this.queue.add(pixel);
+        clearTimeout(this.pixelDebounce);
+
+        // schedule the send
+        this.pixelDebounce = setTimeout(() => {
+            for (let string of this.queue) {
+                this.messaging.notify(constants.MSG_NAME_PIXEL, {
+                    pixelName: pixel,
+                    params: {}
+                })
+            }
+            this.queue.clear();
+        }, 500);
+    }
+
     /**
      * This is sent when the user wants to open Duck Player.
      * See {@link OpenInDuckPlayerMsg} for params
