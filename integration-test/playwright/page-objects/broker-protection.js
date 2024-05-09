@@ -47,6 +47,7 @@ export class BrokerProtectionPage {
         await expect(this.page.getByLabel('Last Name:')).toHaveValue('Smith')
         await expect(this.page.getByLabel('Phone Number:')).toHaveValue(/^\d{10}$/)
         await expect(this.page.getByLabel('State:')).toHaveValue('IL')
+        await expect(this.page.getByLabel('Zip Code:')).toHaveValue(/^\d{5}$/)
     }
 
     /**
