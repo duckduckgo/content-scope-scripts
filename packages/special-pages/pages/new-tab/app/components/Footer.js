@@ -26,7 +26,7 @@ export function CustomizerPopover() {
 
   return (
     <div class={styles.customizer}>
-      <button type={"button"} onClick={openCustomizer}>
+      <button type={"button"} class={styles.trigger} onClick={openCustomizer}>
         {state.value === states.showing_menu && "Hide Customizer"}
         {state.value === states.showing_button && "Show Customizer"}
       </button>
