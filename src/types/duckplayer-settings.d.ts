@@ -1,4 +1,3 @@
-// eslint-disable
 /**
  * @module Duckplayer Settings Schema
  * @description
@@ -20,7 +19,6 @@ export interface DuckPlayerSettings {
    * List of domains with specific patch settings
    */
   domains: Domain[];
-  [k: string]: unknown;
 }
 /**
  * Specific configurations for different overlay types

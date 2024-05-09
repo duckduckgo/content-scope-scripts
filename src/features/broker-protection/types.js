@@ -1,5 +1,7 @@
 /**
  * @typedef {SuccessResponse | ErrorResponse} ActionResponse
+ * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
+ * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string}} Expectation
  */
 
 /**
@@ -64,5 +66,21 @@ export class ProfileResult {
             score: this.score,
             matchedFields: this.matchedFields
         }
+    }
+}
+
+/**
+ * @template JsonValue
+ * @interface
+ */
+export class Extractor {
+    /**
+     * @param {string[]} noneEmptyStringArray
+     * @param {import("./actions/extract").ExtractorParams} extractorParams
+     * @return {JsonValue}
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    extract (noneEmptyStringArray, extractorParams) {
+        throw new Error('must implement extract')
     }
 }

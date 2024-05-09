@@ -89,9 +89,11 @@ const VideoPlayer = {
      * 2. If the video id is correctly formatted, it loads the YouTube video in the iframe, otherwise displays an error message
      * @param {object} opts
      * @param {string} opts.base
+     * @param {ImportMeta['env']} opts.env
      */
     init: (opts) => {
         VideoPlayer.loadVideoById()
+        VideoPlayer.autoFocusVideo(opts.env)
         VideoPlayer.setTabTitle()
         VideoPlayer.setClickListener(opts.base)
     },
@@ -228,6 +230,46 @@ const VideoPlayer = {
                 }
             })
         })
+    },
+
+    /**
+     * Wait for the video to load and then focus it
+     * @param {ImportMeta['env']} env
+     */
+    autoFocusVideo: (env) => {
+        VideoPlayer.onIframeLoaded(() => {
+            const contentDocument = VideoPlayer.iframe().contentDocument
+            if (!contentDocument) return
+
+            const maxAttempts = 1000
+            let attempt = 0
+
+            function check () {
+                if (!contentDocument) return
+                if (attempt > maxAttempts) return
+
+                attempt += 1
+
+                // try to select the video element
+                const video = /** @type {HTMLIFrameElement | null} */(contentDocument?.body.querySelector('#player video'))
+
+                // if the video is absent, try again
+                if (!video) {
+                    requestAnimationFrame(check)
+                    return
+                }
+
+                // programmatically focus the video element
+                video.focus()
+
+                // in a dev/test environment only, append a signal to the outer document
+                if (env === 'development') {
+                    document.body.dataset.videoState = 'loaded+focussed'
+                }
+            }
+
+            requestAnimationFrame(check)
+        })
     }
 }
 
@@ -236,6 +278,7 @@ const Comms = {
     messaging: undefined,
     /**
      * NATIVE NOTE: Gets the video id from the location object, works for MacOS < > 12
+     * @return {string}
      */
     getVideoIdFromLocation: () => {
         /**
@@ -259,21 +302,23 @@ const Comms = {
      * Validates that the input string is a valid video id.
      * If so, returns the video id otherwise returns false.
      * @param {string} input
-     * @returns {(string|false)}
+     * @returns {(string|null)}
      */
-    validateVideoId: (input) => {
-        if (/^[a-zA-Z0-9-_]+$/g.test(input)) {
-            return input
+    sanitiseVideoId: (input) => {
+        if (typeof input !== 'string') return null
+        const subject = input.slice(0, 11)
+        if (/^[a-zA-Z0-9-_]+$/g.test(subject)) {
+            return subject
         }
-        return false
+        return null
     },
 
     /**
      * Returns a sanitized video id if there is a valid one.
-     * @returns {(string|false)}
+     * @returns {(string|null)}
      */
     getValidVideoId: () => {
-        return Comms.validateVideoId(Comms.getVideoIdFromLocation())
+        return Comms.sanitiseVideoId(Comms.getVideoIdFromLocation())
     },
 
     /**
@@ -766,7 +811,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return
     }
     VideoPlayer.init({
-        base: baseUrl(import.meta.injectName)
+        base: baseUrl(import.meta.injectName),
+        env: import.meta.env
     })
     Tooltip.init()
     PlayOnYouTube.init({

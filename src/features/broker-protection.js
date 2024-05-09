@@ -21,9 +21,31 @@ export default class BrokerProtection extends ContentFeature {
                  * Note: We're not currently guarding against concurrent actions here
                  * since the native side contains the scheduling logic to prevent it.
                  */
-                const retryConfig = action.retry?.environment === 'web'
+                let retryConfig = action.retry?.environment === 'web'
                     ? action.retry
                     : undefined
+
+                /**
+                 * Special case for the exact action
+                 */
+                if (!retryConfig && action.actionType === 'extract') {
+                    retryConfig = {
+                        interval: { ms: 1000 },
+                        maxAttempts: 30
+                    }
+                }
+
+                /**
+                 * Special case for when expectation contains a check for an element, retry it
+                 */
+                if (!retryConfig && action.actionType === 'expectation') {
+                    if (action.expectations.some(x => x.type === 'element')) {
+                        retryConfig = {
+                            interval: { ms: 1000 },
+                            maxAttempts: 30
+                        }
+                    }
+                }
 
                 const { result, exceptions } = await retry(() => execute(action, data), retryConfig)
 

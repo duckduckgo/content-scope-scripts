@@ -3,7 +3,7 @@ import {
 } from './messages'
 import { render, h } from 'preact'
 import './styles/global.css' // global styles
-import { App } from './components/App.js'
+import { App, SkipLink } from './components/App.js'
 import { GlobalProvider } from './global'
 import { Components } from './Components'
 import { SettingsProvider, UpdateSettings } from './settings'
@@ -63,7 +63,9 @@ async function init () {
                     messaging={messaging}
                     stepDefinitions={stepDefinitions}
                     firstPage={/** @type {import('./types').Step['id']} */(first)}>
-                    <App />
+                    <App>
+                        {init.env === 'development' && <SkipLink />}
+                    </App>
                 </GlobalProvider>
             </SettingsProvider>
             , root)

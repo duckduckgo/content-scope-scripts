@@ -6,6 +6,12 @@ test.describe('duckplayer iframe', () => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()
+        await duckplayer.videoHasFocus()
+    })
+    test('only accepts first 11 chars of an id', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID('this_has_too_many_chars')
+        await duckplayer.hasLoadedIframe('this_has_to')
     })
     test.skip('reflects title from embed', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)

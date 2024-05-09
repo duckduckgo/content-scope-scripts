@@ -97,9 +97,19 @@ export class DuckPlayerPage {
                     contentType: 'text/html'
                 })
             }
+            const mp4VideoPlaceholderAsDataURI = 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAwFtZGF0AAACogYF//+b3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1MiByMjg1NCBlMjA5YTFjIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNyAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzowMTMzIHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTEgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02MyBsb29rYWhlYWRfdGhyZWFkcz0yIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTMgYl9weXJhbWlkPTIgYl9hZGFwdD1xLTIgYl9iaWFzPTAgZGlyZWN0PTEgd2VpZ2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmM9bG9va2FoZWFkIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCB2YnY9MCBjbG9zZWRfZ29wPTAgY3V0X3Rocm91Z2g9MCAnbm8tZGlndHMuanBnLTFgcC1mbHWinS3SlB8AP0AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABSAAAAAAAAAAAAAAAAAAABBZHJ0AAAAAAAAAA=='
             return request.fulfill({
                 status: 200,
-                body: `<html><head><title>${MOCK_VIDEO_TITLE}</title></head><body>Video Embed</body></html>`
+                contentType: 'text/html',
+                body: `
+                <html>
+                    <head><title>${MOCK_VIDEO_TITLE}</title></head>
+                    <body>Video Embed
+                        <div id="player">
+                            <video src="${mp4VideoPlaceholderAsDataURI}"></video>
+                        </div>
+                    </body>
+                </html>`
             })
         })
 
@@ -139,6 +149,11 @@ export class DuckPlayerPage {
         const expected = new URL(youtubeEmbed(videoID))
         await expect(this.page.locator('iframe'))
             .toHaveAttribute('src', expected.toString())
+    }
+
+    async videoHasFocus () {
+        await expect(this.page.frameLocator('iframe').locator('video')).toBeVisible()
+        await expect(this.page.locator('body')).toHaveAttribute('data-video-state', 'loaded+focussed')
     }
 
     async hasTheSameTitleAsEmbed () {

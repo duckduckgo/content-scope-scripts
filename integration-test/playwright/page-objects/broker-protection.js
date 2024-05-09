@@ -40,6 +40,15 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param {string} selector
+     */
+    async elementIsAbsent (selector) {
+        // control - ensure the element isn't there first
+        const e = await this.page.$(selector)
+        expect(e).toBeNull()
+    }
+
+    /**
      * @return {Promise<void>}
      */
     async isFormFilled () {
@@ -125,6 +134,14 @@ export class BrokerProtectionPage {
     async receivesAction (action) {
         const actionJson = JSON.parse(readFileSync('./integration-test/test-pages/broker-protection/actions/' + action, 'utf8'))
         await this.simulateSubscriptionMessage('onActionReceived', actionJson)
+    }
+
+    /**
+     * @param {{state: {action: Record<string, any>}}} action
+     * @return {Promise<void>}
+     */
+    async receivesInlineAction (action) {
+        await this.simulateSubscriptionMessage('onActionReceived', action)
     }
 
     /**

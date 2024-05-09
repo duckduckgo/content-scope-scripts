@@ -9,6 +9,14 @@ test.describe('onboarding', () => {
         await onboarding.openPage()
         await onboarding.didSendInitialHandshake()
     })
+    test('can be skipped in development', async ({ page }, workerInfo) => {
+        const onboarding = OnboardingPage.create(page, workerInfo)
+        await onboarding.reducedMotion()
+        await onboarding.darkMode()
+        await onboarding.openPage()
+        await onboarding.skipsOnboarding()
+        await onboarding.didDismissToSearch()
+    })
     test('step pixels', async ({ page }, workerInfo) => {
         const onboarding = OnboardingPage.create(page, workerInfo)
         await onboarding.reducedMotion()
@@ -28,6 +36,7 @@ test.describe('onboarding', () => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             await onboarding.reducedMotion()
             await onboarding.openPage({ env: 'app', page: 'summary' })
+            await onboarding.choseToStartBrowsing()
             await onboarding.didDismissToSearch()
         })
         test('Then I can open settings', async ({ page }, workerInfo) => {
