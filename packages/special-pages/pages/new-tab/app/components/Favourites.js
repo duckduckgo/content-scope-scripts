@@ -2,8 +2,36 @@ import { h } from "preact";
 import styles from "./Favourites.module.css";
 import { ShowHide } from "./ShowHide";
 import { favorites } from "../data";
+import {useCustomizer} from "../hooks/useCustomizer";
+import {useContext} from "preact/hooks";
+import {VisibilityContext} from "../hooks/useFeatureSetting";
+import {useTranslation} from "../hooks/use-translation";
 
 export function Favorites() {
+  const { state, toggle } = useContext(VisibilityContext);
+  const { translate } = useTranslation();
+
+  useCustomizer({
+    state,
+    toggle: () => {
+      toggle();
+    },
+    data: {
+      id: 'favorites',
+      title: translate('FAVORITES_MENU_TITLE'),
+      icon: 'shield',
+      desc: translate('FAVORITES_INFO_TT_LABEL'),
+      order: 1,
+    },
+  })
+  return (
+      <div hidden={state === 'hiding'}>
+        <FavoritesInner />
+      </div>
+  )
+}
+
+export function FavoritesInner() {
   const items = favorites.slice(0, 8);
   const maxPerRow = 6;
   const totalItems = items.length + 1; // items plus the add button
