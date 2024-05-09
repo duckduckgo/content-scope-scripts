@@ -1,0 +1,86 @@
+{
+  "FAVORITES_MENU_TITLE": {
+    "text": "Favorites"
+  },
+  "FAVORITES_INFO_TT_LABEL": {
+    "text": "Favorites"
+  },
+  "TRACKER_STATS_RECENT_HEADING": {
+    "text": "Blocked by DuckDuckGo in the last 24 hours",
+    "context": "tracker_stats",
+    "comment": "Header above a list of trackers (or tracking companies) that have been blocked in the past 24 hours."
+  },
+  "TRACKER_STATS_MENU_TITLE": {
+    "text": "Blocked Tracking Attempts",
+    "context": "customizer_menu",
+    "comment": "Used as a toggle label in a page customization menu"
+  },
+  "TRACKER_STATS_RECENT_HEADING_HOUR": {
+    "text": "Blocked by DuckDuckGo in the last hour",
+    "context": "tracker_stats",
+    "comment": "Header above a list of trackers (or tracking companies) that have been blocked in the past hour."
+  },
+  "TRACKER_STATS_NUM_ATTEMPTS_SINGULAR": {
+    "text": "1 attempt",
+    "context": "tracker_stats",
+    "comment": "Number of tracking attempts blocked, when there's only 1"
+  },
+  "TRACKER_STATS_NUM_ATTEMPTS_PLURAL": {
+    "text": "%s attempts",
+    "vals": [
+      "&count"
+    ],
+    "context": "tracker_stats",
+    "comment": "Number of tracking attempts blocked, when there is more than 1. Eg: '2 attempts' or '302 attempts'"
+  },
+  "TRACKER_STATS_NO_ACTIVITY": {
+    "text": "Tracking attempts blocked by DuckDuckGo appear here. Keep browsing to see how many we block.",
+    "context": "tracker_stats",
+    "comment": "Placeholder for when we cannot report any blocked trackers yet"
+  },
+  "TRACKER_STATS_NO_RECENT_ACTIVITY": {
+    "text": "No trackers blocked in the last 24 hours",
+    "context": "tracker_stats",
+    "comment": "Heading for the tracker/companies list when we have observed trackers, but none in the last 24 hours"
+  },
+  "TRACKER_STATS_NO_RECENT_ACTIVITY_HOUR": {
+    "text": "No trackers blocked in the last hour",
+    "context": "tracker_stats",
+    "comment": "Heading for the tracker/companies list when we have observed trackers, but none in the last hour"
+  },
+  "TRACKER_STATS_INFO_TT_LABEL": {
+    "text": "DuckDuckGo blocks trackers on websites you visit, including trackers from companies like Google and Facebook, who often try to track you on other websites.",
+    "comment": "An information popup explaining that we block trackers"
+  },
+  "TRACKER_STATS_NO_RECENT": {
+    "text": "No recent tracking activity",
+    "comment": "Placeholder to indicate that nothing was blocked in the last 24 hours"
+  },
+  "TRACKER_STATS_COUNT_BLOCKED_SINGULAR": {
+    "text": "1 tracking attempt blocked",
+    "comment": "The main headline indicating that 1 tracker was blocked"
+  },
+  "TRACKER_STATS_COUNT_BLOCKED_PLURAL": {
+    "text": "%s tracking attempts blocked",
+    "vals": [
+      "&count"
+    ],
+    "comment": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "TRACKER_STATS_FEED_COUNT_BLOCKED_SINGULAR": {
+    "text": "1 attempt blocked by DuckDuckGo in the last 24 hours",
+    "comment": "A summary description of how many tracking attempts where blocked, when only one exists."
+  },
+  "TRACKER_STATS_FEED_COUNT_BLOCKED_PLURAL": {
+    "text": "%s attempts blocked by DuckDuckGo in the last 24 hours",
+    "vals": [
+      "&count"
+    ],
+    "comment": "A summary description of how many tracking attempts where blocked, when there was more than 1. Eg: '1,028 attempts blocked by DuckDuckGo in the last 24 hours'"
+  },
+  "TRACKER_STATS_TOGGLE_LABEL": {
+    "text": "Show recent activity",
+    "comment": "The aria-label text for a toggle button that shows/hides the detailed feed"
+  }
+}
+

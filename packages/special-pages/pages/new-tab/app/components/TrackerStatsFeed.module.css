@@ -1,0 +1,164 @@
+:root {
+    --ntp-icon-width: 24px;
+    --ntp-icon-margin: 8px;
+}
+
+.list {
+    margin: 0;
+    padding: 0;
+}
+
+.heading {
+    padding: 0;
+    margin-left: 2px;
+    font-size: calc(14 * var(--px-in-rem));
+    color: var(--theme-col-txt-tertiary);
+    font-weight: 400;
+    line-height: 20px;
+    margin-top: 4px;
+}
+
+.withFeed {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+/** FeedListItem */
+/* stylelint-disable-next-line no-descending-specificity, no-duplicate-selectors */
+.item {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: auto calc(50% - 16px);
+    grid-template-areas: "company bar";
+    width: 100%;
+    column-gap: 16px;
+    transition: opacity 700ms ease-in;
+    opacity: 1;
+    margin-bottom: 12px;
+}
+
+.hiddenFeedListItem {
+    visibility: hidden;
+    opacity: 0;
+    margin-bottom: 0;
+    height: 0;
+}
+
+@media only screen and (max-width: 679px) {
+    .item {
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-areas: "company company company count bar bar";
+    }
+}
+
+.name {
+    width: 100%;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    grid-area: company;
+}
+
+.count {
+    text-align: right;
+    grid-area: company;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: var(--theme-col-txt-card-title);
+}
+
+.companyIcon {
+    width: var(--ntp-icon-width);
+    margin-right: var(--ntp-icon-margin);
+    height: 32px;
+    border-radius: var(--rounded-md);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bar {
+    display: flex;
+    width: 100%;
+    grid-area: bar;
+    align-items: center;
+}
+
+.barInner {
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    height: 24px;
+    color: var(--theme-col-txt-bar);
+    background: var(--theme-col-bg-bar);
+    min-width: 30px;
+}
+
+.barInnerText {
+    position: relative;
+    top: 1px; /* better visual alignment */
+}
+
+.companyName {
+    font-size: calc(16 * var(--px-in-rem));
+    font-weight: 700;
+    line-height: 20px;
+    color: var(--theme-col-txt-card-title);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 16px;
+}
+
+.showAll {
+    width: 100%;
+    height: 32px;
+    display: flex;
+    align-items: center;
+}
+
+.showAllLine {
+    top: 16px;
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--sds-color-background-inverse);
+    opacity: 0.09;
+    border-radius: 8px;
+}
+
+.showAllButton {
+    /* !important to avoid override of color when shown over custom themes */
+    color: var(--sds-color-text-01) !important;
+    opacity: 0.6;
+    font-weight: 400;
+    background-color: var(--theme-col-bg-page);
+    text-align: center;
+    display: block;
+    height: 32px;
+    width: fit-content;
+    padding: 0 15px 0 12px;
+    line-height: 32px;
+    position: relative;
+    margin: auto;
+
+    &:hover {
+        color: var(--sds-color-text-01);
+        opacity: 1;
+    }
+
+    & .arrowIcon {
+        margin-left: 6px;
+    }
+}
+
+.itemEnter {
+    opacity: 0;
+}
+
+.itemEnterActive {
+    opacity: 1;
+    transition: opacity 700ms ease-in;
+}
