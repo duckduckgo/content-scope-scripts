@@ -65,6 +65,15 @@ export default defineConfig({
                 injectName: 'apple',
                 platform: 'ios'
             }
+        },
+        {
+            name: 'newtab-windows',
+            testMatch: 'newtab.spec.js',
+            use: {
+                ...devices['Desktop Edge'],
+                injectName: 'windows',
+                platform: 'windows'
+            }
         }
     ],
     fullyParallel: !process.env.CI,

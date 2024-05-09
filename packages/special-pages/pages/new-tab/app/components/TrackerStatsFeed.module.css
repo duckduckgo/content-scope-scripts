@@ -1,0 +1,111 @@
+.list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.heading {
+    padding: 0;
+    margin-left: 2px;
+    font-size: calc(14 * var(--px-in-rem));
+    color: var(--theme-col-txt-tertiary);
+    font-weight: 400;
+    line-height: 20px;
+    margin-top: 4px;
+}
+
+.withFeed {
+    margin-top: 8px;
+    margin-bottom: 13px;
+}
+
+/** FeedListItem */
+/* stylelint-disable-next-line no-descending-specificity, no-duplicate-selectors */
+.item {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: auto 298px;
+    grid-template-areas: "company bar";
+    width: 100%;
+    column-gap: 16px;
+    transition: opacity 700ms ease-in;
+    opacity: 1;
+}
+
+.hiddenFeedListItem {
+    visibility: hidden;
+    opacity: 0;
+    margin-bottom: 0;
+    height: 0;
+}
+
+/*@media only screen and (max-width: 679px) {*/
+/*    .item {*/
+/*        grid-template-columns: 1fr 306px;*/
+/*        grid-template-areas: "company bar";*/
+/*    }*/
+/*}*/
+
+.name {
+    width: 100%;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    grid-area: company;
+}
+
+.count {
+    text-align: right;
+    grid-area: company;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: var(--theme-col-txt-card-title);
+    font-size: calc(14 * var(--px-in-rem));
+}
+
+.companyIcon {
+    width: var(--ntp-icon-width);
+    margin-right: var(--ntp-icon-margin);
+    height: 32px;
+    border-radius: var(--rounded-md);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.bar {
+    display: flex;
+    width: 100%;
+    grid-area: bar;
+    align-items: center;
+}
+
+.barInner {
+    border-radius: 20px;
+    height: 16px;
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    background: var(--theme-col-bg-bar);
+}
+
+.companyName {
+    font-size: calc(16 * var(--px-in-rem));
+    font-weight: 600;
+    line-height: 20px;
+    color: var(--theme-col-txt-card-title);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 16px;
+}
