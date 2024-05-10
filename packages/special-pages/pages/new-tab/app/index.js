@@ -25,12 +25,12 @@ export async function init (messaging) {
                     totalCount: 48_1113,
                     trackerCompanies: [
                         {
-                            displayName: 'Google',
-                            count: 20,
+                            displayName: 'Facebook',
+                            count: 310,
                         },
                         {
-                            displayName: 'Facebook',
-                            count: 18,
+                            displayName: 'Google',
+                            count: 279,
                         },
                         {
                             displayName: 'Other',
