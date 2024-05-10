@@ -8,7 +8,7 @@
     "build": "node index.mjs",
     "build.dev": "node index.mjs --env development",
     "test": "playwright test",
-    "test.windows": "npm run test -- --project duckplayer-windows",
+    "test.windows": "npm run test -- --project newtab-windows --headed",
     "test.apple": "npm run test -- --project duckplayer-apple",
     "test.headed": "npm run test -- --headed",
     "test.ui": "npm run test -- --ui",

@@ -93,43 +93,53 @@ function useFeedDescription(props) {
 }
 
 function FeedListItem(props) {
-    const { item, max, isHidden } = props;
-    const percentage = Math.min((item.count * 100) / max, 100);
-    const valueOrMin = Math.max(percentage, 10);
-    const inlineStyles = {
-        minWidth: `${valueOrMin}%`,
-    };
-    const countText = numberFormatter.format(item.count);
+  const { item, max, isHidden } = props;
+  const percentage = Math.min((item.count * 100) / max, 100);
+  const valueOrMin = Math.max(percentage, 10);
+  const inlineStyles = {
+    minWidth: `${valueOrMin}%`,
+  };
+  const countText = numberFormatter.format(item.count);
 
-    return (
-        <li className={classnames(styles.item, { [styles.hiddenFeedListItem]: isHidden })} data-testid="FeedListItem">
-            <div className={styles.name}>
-                <span className={styles.companyIcon}>
-                    <CompanyIcon name={item.displayName} />
-                </span>
-                <span className={styles.companyName}>{item.displayName}</span>
-            </div>
-            <div className={styles.count}>{countText}</div>
-            <div className={styles.bar}>
-                <div className={styles.barInner} style={inlineStyles}></div>
-            </div>
-        </li>
-    );
+  return (
+    <li
+      className={classnames(styles.item, {
+        [styles.hiddenFeedListItem]: isHidden,
+      })}
+      data-testid="FeedListItem"
+    >
+      <div className={styles.name}>
+        <span className={styles.companyIcon}>
+          <CompanyIcon name={item.displayName} />
+        </span>
+        <span className={styles.companyName}>{item.displayName}</span>
+      </div>
+      <div className={styles.count}>{countText}</div>
+      <div className={styles.bar}>
+        <div className={styles.barInner} style={inlineStyles}></div>
+      </div>
+      <div className={styles.bar}>
+        <div className={styles.barInner} style={{minWidth: '100%'}}></div>
+      </div>
+    </li>
+  );
 }
 
 function EmptyHeading(props) {
-    const { translate } = useTranslation();
-    const headingText = {
-        'no-activity': translate('TRACKER_STATS_NO_ACTIVITY'),
-        'no-recent-activity': translate('TRACKER_STATS_NO_RECENT_ACTIVITY'),
-        'no-recent-activity-hour': translate('TRACKER_STATS_NO_RECENT_ACTIVITY_HOUR'),
-    };
+  const { translate } = useTranslation();
+  const headingText = {
+    "no-activity": translate("TRACKER_STATS_NO_ACTIVITY"),
+    "no-recent-activity": translate("TRACKER_STATS_NO_RECENT_ACTIVITY"),
+    "no-recent-activity-hour": translate(
+      "TRACKER_STATS_NO_RECENT_ACTIVITY_HOUR"
+    ),
+  };
 
-    return (
-        <div>
-            <p className={styles.heading}>{headingText[props.variant]}</p>
-        </div>
-    );
+  return (
+    <div>
+      <p className={styles.heading}>{headingText[props.variant]}</p>
+    </div>
+  );
 }
 
 // EmptyHeading.propTypes = {

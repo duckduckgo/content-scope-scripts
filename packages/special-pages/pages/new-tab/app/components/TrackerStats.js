@@ -11,7 +11,7 @@ import {useCustomizer} from "../hooks/useCustomizer";
 
 export function TrackerStats() {
     return (
-      <div className={styles.stats}>
+      <div className={styles.stats} data-testid="TrackerStats">
           <FeatureToggle />
       </div>
     );

@@ -79,9 +79,9 @@
 }
 
 .titleText {
-    font-size: calc(20 * var(--px-in-rem));
-    font-weight: 700;
-    line-height: 28px;
+    font-size: calc(18 * var(--px-in-rem));
+    line-height: 22px;
+    font-weight: 600;
 }
 
 @media only screen and (max-width: 499px) {
@@ -100,12 +100,11 @@
     justify-content: center;
     font-size: calc(14 * var(--px-in-rem));
     line-height: 1;
-    font-weight: 600;
     border-radius: 6px 0px;
     padding: 2px 8px 0 8px;
     height: 24px;
     text-transform: uppercase;
-    color: var(--col-gray-85)
+    color: var(--col-gray-85);
 }
 
 .toggle {

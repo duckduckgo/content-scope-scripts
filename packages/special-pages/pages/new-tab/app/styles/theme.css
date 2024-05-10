@@ -20,8 +20,7 @@
     --ntp-icon-width: 24px;
     --ntp-icon-margin: 8px;
     --rounded-md: 8px;
-    --theme-col-txt-bar: rgba(0, 0, 0, .84);
-    --theme-col-bg-bar: rgba(0, 0, 0, .09);
+    --theme-col-bg-bar: rgba(0, 0, 0, .03);
     --sds-color-background-inverse: #222222;
     --sds-color-text-01: #222222;
     --theme-col-bg-page: #fff;
@@ -47,8 +46,7 @@
         --ntp-icon-width: 24px;
         --ntp-icon-margin: 8px;
         --rounded-md: 8px;
-        --theme-col-txt-bar: rgba(0, 0, 0, 0.84);
-        --theme-col-bg-bar: rgba(0, 0, 0, 0.12);
+        --theme-col-bg-bar: var(--color-white-at-6);
         --sds-color-background-inverse: #FFFFFF;
         --sds-color-text-01: #FFFFFF;
         --theme-col-bg-page: #1c1c1c;
