@@ -50,7 +50,7 @@ export function fillMany (root, elements, data) {
             results.push(setImageUpload(inputElem))
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()))
-        } else if (element.type === '$generated_zip_code') {
+        } else if (element.type === '$generated_zip_code$') {
             results.push(setValueForInput(inputElem, generateZipCode()))
         } else {
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
