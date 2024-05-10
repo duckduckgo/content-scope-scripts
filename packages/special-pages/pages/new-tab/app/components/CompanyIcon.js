@@ -10,10 +10,10 @@
  * @returns {string | null}
  * @throws
  */
-function loadSvgAsSource(name) {
+function loadSvgAsSource (name) {
     try {
         // eslint-disable-next-line no-undef
-        return require(`../../../../shared/company-icons/${name}.svg`);
+        return require(`../../../../shared/company-icons/${name}.svg`)
     } catch (e) {
         return null
     }
@@ -24,22 +24,22 @@ function loadSvgAsSource(name) {
  * * @param {(name: string) => string|null} [loader]
  * @returns {string | null}
  */
-export function companyNameToSVG(companyName, loader = loadSvgAsSource) {
+export function companyNameToSVG (companyName, loader = loadSvgAsSource) {
     // do nothing with invalid input
-    if (typeof companyName !== 'string' || companyName.length === 0) return null;
+    if (typeof companyName !== 'string' || companyName.length === 0) return null
 
     // only take upto the first `.`, this handles company names like `Amazon.com`
-    const name = companyName.toLowerCase().split('.')[0];
+    const name = companyName.toLowerCase().split('.')[0]
 
     // try to match the name to a known icon in the set above
-    let asFilename = name.replace(/ /g, '-');
-    if (asFilename==='other') asFilename = '~placeholder';
+    let asFilename = name.replace(/ /g, '-')
+    if (asFilename === 'other') asFilename = '~placeholder'
 
     try {
-        return loader(asFilename) || loader(name[0]);
+        return loader(asFilename) || loader(name[0])
     } catch (e) {
-        console.error('An unknown error occured', e);
+        console.error('An unknown error occured', e)
     }
 
-    return null;
+    return null
 }

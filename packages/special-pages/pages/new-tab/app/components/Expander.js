@@ -1,13 +1,13 @@
-import {h} from 'preact';
-import {useEffect, useLayoutEffect, useRef} from 'preact/hooks';
-import styles from './Expander.module.css';
-import {Chevron} from "./Icons";
+import { h } from 'preact'
+import { useEffect, useLayoutEffect, useRef } from 'preact/hooks'
+import styles from './Expander.module.css'
+import { Chevron } from './Icons'
 
 /**
  * The Main UI without a specific provider. Use this to test the UI
  * in Storybook etc.
  */
-export function Expander(props) {
+export function Expander (props) {
     /**
      * The following useState and useEffect are here to
      * allow smooth fade-in/out animations on the feed.
@@ -17,18 +17,18 @@ export function Expander(props) {
      * - data-state="fadingIn"
      * - data-state="fadingOut"
      */
-    const NEXT_EXPANDER_STATE = props.state;
-    const NEXT_FEATURE_STATE = props.featureState;
+    const NEXT_EXPANDER_STATE = props.state
+    const NEXT_FEATURE_STATE = props.featureState
 
     /**
      * This ref is used to track the height of the content to render
      */
-    const bodyRef = useRef(/** @type {null|HTMLElement} */(null));
+    const bodyRef = useRef(/** @type {null|HTMLElement} */(null))
 
     /**
      * This ref is used as the content window that performs the animation
      */
-    const bodyWrapRef = useRef(/** @type {null|HTMLElement} */(null));
+    const bodyWrapRef = useRef(/** @type {null|HTMLElement} */(null))
 
     /**
      * Fade in/out
@@ -37,52 +37,52 @@ export function Expander(props) {
         if (!bodyRef.current) throw new Error('unreachable')
         if (!bodyWrapRef.current) throw new Error('unreachable')
 
-        const currentBodyRef = bodyRef.current;
-        const prev = bodyRef.current.dataset.state;
+        const currentBodyRef = bodyRef.current
+        const prev = bodyRef.current.dataset.state
 
-        if (prev === NEXT_EXPANDER_STATE) return;
+        if (prev === NEXT_EXPANDER_STATE) return
 
         if (!bodyWrapRef.current.dataset.animationsEnabled) {
-            currentBodyRef.dataset.state = NEXT_EXPANDER_STATE;
-            return;
+            currentBodyRef.dataset.state = NEXT_EXPANDER_STATE
+            return
         }
 
         if (NEXT_EXPANDER_STATE === 'hiding') {
             // next state after the fade
-            const handler = () => (currentBodyRef.dataset.state = 'hiding');
-            currentBodyRef.addEventListener('transitionend', handler);
-            currentBodyRef.addEventListener('animationend', handler);
+            const handler = () => (currentBodyRef.dataset.state = 'hiding')
+            currentBodyRef.addEventListener('transitionend', handler)
+            currentBodyRef.addEventListener('animationend', handler)
 
             // apply this state
-            currentBodyRef.dataset.state = 'fadingOut';
+            currentBodyRef.dataset.state = 'fadingOut'
 
             return () => {
-                currentBodyRef.removeEventListener('transitionend', handler);
-                currentBodyRef.removeEventListener('animationend', handler);
-            };
+                currentBodyRef.removeEventListener('transitionend', handler)
+                currentBodyRef.removeEventListener('animationend', handler)
+            }
         }
         if (NEXT_EXPANDER_STATE === 'showing') {
             // next state
-            const handler = () => (currentBodyRef.dataset.state = 'showing');
-            currentBodyRef.addEventListener('transitionend', handler);
-            currentBodyRef.addEventListener('animationend', handler);
+            const handler = () => (currentBodyRef.dataset.state = 'showing')
+            currentBodyRef.addEventListener('transitionend', handler)
+            currentBodyRef.addEventListener('animationend', handler)
 
             // apply this state
-            currentBodyRef.dataset.state = 'fadingIn';
+            currentBodyRef.dataset.state = 'fadingIn'
 
             return () => {
-                currentBodyRef.removeEventListener('transitionend', handler);
-                currentBodyRef.removeEventListener('animationend', handler);
-            };
+                currentBodyRef.removeEventListener('transitionend', handler)
+                currentBodyRef.removeEventListener('animationend', handler)
+            }
         }
 
-        throw new Error('unreachable...');
-    }, [NEXT_FEATURE_STATE, NEXT_EXPANDER_STATE]);
+        throw new Error('unreachable...')
+    }, [NEXT_FEATURE_STATE, NEXT_EXPANDER_STATE])
 
     useEffect(() => {
         if (!bodyWrapRef.current) throw new Error('unreachable')
-        bodyWrapRef.current.dataset.animationsEnabled = 'true';
-    }, []);
+        bodyWrapRef.current.dataset.animationsEnabled = 'true'
+    }, [])
 
     return (
         <div className={styles.root} data-variant={props.variant} data-testid={props.testId}>
@@ -93,7 +93,7 @@ export function Expander(props) {
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
 // Expander.propTypes = {
@@ -111,7 +111,7 @@ export function Expander(props) {
 //     testId: PropTypes.string,
 // };
 
-function ExpanderHeader(props) {
+function ExpanderHeader (props) {
     return (
         <ExpanderHeaderText text={props.children} icon={props.icon}>
             <button
@@ -124,7 +124,7 @@ function ExpanderHeader(props) {
                 <Chevron className={styles.toggleIcon} aria-hidden="true" />
             </button>
         </ExpanderHeaderText>
-    );
+    )
 }
 
 // ExpanderHeader.propTypes = {
@@ -146,12 +146,12 @@ function ExpanderHeader(props) {
 //     labelText: PropTypes.string.isRequired,
 // };
 
-export { ExpanderHeader };
+export { ExpanderHeader }
 
 /**
  * Allow re-use of the basic styles of the heading text + icon
  */
-export function ExpanderHeaderText(props) {
+export function ExpanderHeaderText (props) {
     return (
         <div className={styles.headerText} data-variant={props.variant}>
             <div className={styles.inner}>
@@ -160,9 +160,8 @@ export function ExpanderHeaderText(props) {
                 {props.children}
             </div>
         </div>
-    );
+    )
 }
-
 
 // ExpanderHeaderText.propTypes = {
 //     icon: PropTypes.node.isRequired,

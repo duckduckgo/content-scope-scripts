@@ -39,10 +39,11 @@ export class NewtabPage {
      * This method ensures that mocks are installed and routes are set up before navigating to the page.
      *
      * @param {Object} [params] - Optional parameters for opening the page.
-     * @param {'app' | 'components'} [params.env] - Optional parameters for opening the page.
+     * @param {'debug' | 'production'} [params.mode] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
+     * @param {keyof typeof import("../../pages/new-tab/app/data").stats} [params.stats] - Optional flag to simulate an exception
      */
-    async openPage ({ env = 'app', willThrow = false } = { }) {
+    async openPage ({ mode = 'debug', willThrow = false, stats = 'few' } = { }) {
         await this.mocks.install()
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
@@ -55,7 +56,7 @@ export class NewtabPage {
                 path: join(this.basePath, filepath)
             })
         })
-        const searchParams = new URLSearchParams({ env, debugState: 'true', willThrow: String(willThrow) })
+        const searchParams = new URLSearchParams({ mode, stats, willThrow: String(willThrow) })
         await this.page.goto('/' + '?' + searchParams.toString())
     }
 
@@ -88,7 +89,7 @@ export class NewtabPage {
         await this.page.emulateMedia({ colorScheme: 'dark' })
     }
 
-    async screenshot(locator, name) {
+    async screenshot (locator, name) {
         if (!process.env.CI) {
             await expect(locator).toHaveScreenshot(name)
         }
