@@ -179,6 +179,6 @@ export function generatePhoneNumber () {
 }
 
 export function generateZipCode () {
-    const zipCode = generateRandomInt(10000, 99999).toString();
-    return zipCode;
+    const zipCode = generateRandomInt(10000, 99999).toString()
+    return zipCode
 }

@@ -558,7 +558,7 @@ describe('Actions', () => {
         })
         describe('generateZipCode', () => {
             it('generates a string of integers of an appropriate size', () => {
-                const zipCode = generateZipCode();
+                const zipCode = generateZipCode()
 
                 expect(typeof zipCode).toEqual('string')
                 expect(zipCode.length).toBe(5)
