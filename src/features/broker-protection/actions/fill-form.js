@@ -50,6 +50,8 @@ export function fillMany (root, elements, data) {
             results.push(setImageUpload(inputElem))
         } else if (element.type === '$generated_phone_number$') {
             results.push(setValueForInput(inputElem, generatePhoneNumber()))
+        } else if (element.type === '$generated_zip_code$') {
+            results.push(setValueForInput(inputElem, generateZipCode()))
         } else {
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
                 results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` })
@@ -174,4 +176,9 @@ export function generatePhoneNumber () {
     const lineNumber = generateRandomInt(100, 199).toString().padStart(4, '0')
 
     return `${areaCode}${exchangeCode}${lineNumber}`
+}
+
+export function generateZipCode () {
+    const zipCode = generateRandomInt(10000, 99999).toString()
+    return zipCode
 }

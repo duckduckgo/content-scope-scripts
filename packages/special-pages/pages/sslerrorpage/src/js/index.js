@@ -9,8 +9,8 @@
 
 import { execTemplate } from './template.js'
 import { defaultLoadData } from './defaults.js'
-import { createSSLErrorMessaging } from './messages.js'
 import { createTypedMessages } from '@duckduckgo/messaging'
+import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 
 export class SslerrorpagePage {
     /**
@@ -32,19 +32,17 @@ export class SslerrorpagePage {
     }
 }
 
-async function init () {
-    const messaging = await createSSLErrorMessaging({
-        env: import.meta.env,
-        injectName: import.meta.injectName
-    })
-    const page = new SslerrorpagePage(messaging)
-    window.addEventListener('DOMContentLoaded', () => {
-        loadHTML()
-        bindEvents(page)
-    })
-}
+const messaging = createSpecialPageMessaging({
+    env: import.meta.env,
+    injectName: import.meta.injectName,
+    pageName: 'sslErrorPage'
+})
 
-init().catch(console.error)
+const page = new SslerrorpagePage(messaging)
+window.addEventListener('DOMContentLoaded', () => {
+    loadHTML()
+    bindEvents(page)
+})
 
 /**
  * Construct the HTML, using data retrieved from the load-time JSON
