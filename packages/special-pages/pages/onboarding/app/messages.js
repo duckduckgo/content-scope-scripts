@@ -1,11 +1,3 @@
-import {
-    Messaging,
-    MessagingContext,
-    TestTransportConfig,
-    WebkitMessagingConfig,
-    WindowsMessagingConfig
-} from '@duckduckgo/messaging'
-
 /**
  * @typedef {Object} StepCompleteParams
  * Sent when a user has transitioned from a step to the next one
@@ -22,13 +14,15 @@ import {
 export class OnboardingMessages {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @param {ImportMeta["injectName"]} injectName
      * @internal
      */
-    constructor (messaging) {
+    constructor (messaging, injectName) {
         /**
          * @internal
          */
         this.messaging = messaging
+        this.injectName = injectName
     }
 
     /**
@@ -51,6 +45,15 @@ export class OnboardingMessages {
      * @returns {Promise<InitResponse>}
      */
     async init () {
+        if (this.injectName === 'integration') {
+            return {
+                stepDefinitions: {
+                    systemSettings: {
+                        rows: ['dock', 'import', 'default-browser']
+                    }
+                }
+            }
+        }
         return await this.messaging.request('init')
     }
 
@@ -157,110 +160,4 @@ export class OnboardingMessages {
     reportInitException (params) {
         this.messaging.notify('reportInitException', params)
     }
-}
-
-const fallback = new TestTransportConfig({
-    /**
-     * @param {import('@duckduckgo/messaging').NotificationMessage} msg
-     */
-    notify (msg) {
-        console.log(msg)
-    },
-    /**
-     * @param {import('@duckduckgo/messaging').RequestMessage} msg
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    request: (msg) => {
-        console.log(msg)
-        return Promise.resolve(null)
-    },
-    /**
-     * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
-     */
-    subscribe (msg) {
-        console.log(msg)
-        return () => {
-            console.log('teardown')
-        }
-    }
-})
-
-/**
- * @param {object} opts
- * @param {ImportMeta['env']} opts.env
- * @param {ImportMeta['injectName']} opts.injectName
- * @internal
- */
-export function createOnboardingMessaging (opts) {
-    const messageContext = new MessagingContext({
-        context: 'specialPages',
-        featureName: 'onboarding',
-        env: opts.env
-    })
-    try {
-        if (opts.injectName === 'windows') {
-            const opts = new WindowsMessagingConfig({
-                methods: {
-                    // @ts-expect-error - not in @types/chrome
-                    postMessage: window.chrome.webview.postMessage,
-                    // @ts-expect-error - not in @types/chrome
-                    addEventListener: window.chrome.webview.addEventListener,
-                    // @ts-expect-error - not in @types/chrome
-                    removeEventListener: window.chrome.webview.removeEventListener
-                }
-            })
-            const messaging = new Messaging(messageContext, opts)
-            return new OnboardingMessages(messaging)
-        } else if (opts.injectName === 'apple') {
-            const opts = new WebkitMessagingConfig({
-                hasModernWebkitAPI: true,
-                secret: '',
-                webkitMessageHandlerNames: ['specialPages']
-            })
-            const messaging = new Messaging(messageContext, opts)
-            return new OnboardingMessages(messaging)
-        }
-    } catch (e) {
-        console.error('could not access handlers for %s, falling back to mock interface', opts.injectName)
-    }
-    const messaging = new Messaging(messageContext, fallback)
-    return new OnboardingMessages(messaging)
-}
-
-/**
- * This will return either { value: awaited value },
- *                         { error: error message }
- *
- * It will execute the given function in uniform intervals
- * until either:
- *   1: the given function stops throwing errors
- *   2: the maxAttempts limit is reached
- *
- * This is useful for situations where you don't want to continue
- * until a result is found - normally to work around race-conditions
- *
- * @template {(...args: any[]) => any} FN
- * @param {FN} fn
- * @param {{maxAttempts?: number, intervalMs?: number}} params
- * @returns {Promise<{ value: Awaited<ReturnType<FN>>, attempt: number } | { error: string }>}
- * @internal
- */
-export async function callWithRetry (fn, params = {}) {
-    const { maxAttempts = 10, intervalMs = 300 } = params
-    let attempt = 1
-
-    while (attempt <= maxAttempts) {
-        try {
-            return { value: await fn(), attempt }
-        } catch (error) {
-            if (attempt === maxAttempts) {
-                return { error: `Max attempts reached: ${error}` }
-            }
-
-            await new Promise((resolve) => setTimeout(resolve, intervalMs))
-            attempt++
-        }
-    }
-
-    return { error: 'Unreachable: value not retrieved' }
 }
