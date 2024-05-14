@@ -226,8 +226,6 @@ export function shimInterface (
     options,
     definePropertyFn
 ) {
-    // TODO: document in readme
-
     if (import.meta.injectName === 'integration') {
         if (!globalThis.origInterfaceDescriptors) globalThis.origInterfaceDescriptors = {}
         const descriptor = Object.getOwnPropertyDescriptor(globalThis, interfaceName)
@@ -340,8 +338,6 @@ export function shimInterface (
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
 export function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
-    // TODO: split changes into smaller PRs
-
     if (import.meta.injectName === 'integration') {
         if (!globalThis.origPropDescriptors) globalThis.origPropDescriptors = []
         const descriptor = Object.getOwnPropertyDescriptor(baseObject, propertyName)
