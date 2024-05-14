@@ -254,7 +254,7 @@ export function aggregateFields (profile) {
     // aliases
     const alternativeNames = [...new Set(profile.alternativeNamesList)]
 
-    return {
+    let result = {
         name: profile.name,
         alternativeNames,
         age: profile.age,
@@ -263,6 +263,12 @@ export function aggregateFields (profile) {
         relatives,
         ...profile.profileUrl
     }
+
+    if (!result.profileUrl && !result.identifier) {
+        result.identifier = generateProfileId(profile);
+    }
+
+    return result;
 }
 
 /**
@@ -394,4 +400,16 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
     }
 
     return elementValue
+}
+
+export async function generateProfileId(profile) {
+    const stringifiedProfile = JSON.stringify(profile);
+    const encoder = new TextEncoder();
+    const buffer = encoder.encode(stringifiedProfile);
+
+    const hash = await crypto.subtle.digest('SHA-1', buffer);
+    const hashArray = Array.prototype.map.call(new Uint8Array(hash), x => ('00' + x.toString(16)).slice(-2));
+    const profileId = hashArray.join('');
+    
+    return profileId;
 }
