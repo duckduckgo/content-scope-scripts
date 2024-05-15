@@ -32,7 +32,7 @@ export function Favorites () {
 }
 
 export function FavoritesInner () {
-    const items = favorites.slice(0, 8)
+    const items = favorites.slice(0, 3)
     const maxPerRow = 6
     const totalItems = items.length + 1 // items plus the add button
     const rows = Math.ceil(totalItems / maxPerRow)
@@ -59,7 +59,7 @@ export function FavoritesInner () {
                         <span class={[styles.icon, styles.plus].join(' ')}>
                             <PlusIcon />
                         </span>
-                        <span class={styles.title}>Add Favorite</span>
+                        <span>Add Favorite</span>
                     </button>
                 </li>
                 {placeholders.map((item, index) => {

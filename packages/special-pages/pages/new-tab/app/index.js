@@ -1,4 +1,4 @@
-import { render, h } from 'preact'
+import { h, hydrate} from 'preact'
 import './styles/global.css' // global styles
 import { Layout } from './components/Layout'
 import { TrackerStats } from './components/TrackerStats'
@@ -23,7 +23,7 @@ export async function init (messaging, mode = 'production') {
         : 'none'
     const trackerStats = stats[key] || stats.few
 
-    render(
+    hydrate(
         <Layout>
             <VisibilityProvider storageKey="hide_new_tab_page_favorites_feature">
                 <Favorites />

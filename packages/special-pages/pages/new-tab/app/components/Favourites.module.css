@@ -12,7 +12,9 @@
     grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
 }
 
-.listItem {}
+.listItem {
+    height: 90px;
+}
 
 .placeholder {
 }
