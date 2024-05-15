@@ -2,7 +2,8 @@ import {
     cleanArray,
     getElement,
     getElementMatches,
-    getElements
+    getElements,
+    sortAddressesByStateAndCity
 } from '../utils.js' // Assuming you have imported the address comparison function
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
@@ -21,7 +22,7 @@ import { ProfileUrlExtractor } from '../extractors/profile-url.js'
  */
 
 /**
- * @typedef {'param'|'path'} IdentifierType
+ * @typedef {'param'|'path'|'hash'} IdentifierType
  * @typedef {Object} ExtractProfileProperty
  * For example: {
  *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
@@ -241,20 +242,20 @@ export function aggregateFields (profile) {
         ...profile.addressFull || []
     ]
     const addressMap = new Map(combinedAddresses.map(addr => [`${addr.city},${addr.state}`, addr]))
-    const addresses = [...addressMap.values()]
+    const addresses = sortAddressesByStateAndCity([...addressMap.values()])
 
     // phone
     const phoneArray = profile.phone || []
     const phoneListArray = profile.phoneList || []
-    const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])]
+    const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])].sort((a, b) => parseInt(a) - parseInt(b))
 
     // relatives
-    const relatives = [...new Set(profile.relativesList)]
+    const relatives = [...new Set(profile.relativesList)].sort()
 
     // aliases
-    const alternativeNames = [...new Set(profile.alternativeNamesList)]
+    const alternativeNames = [...new Set(profile.alternativeNamesList)].sort()
 
-    let result = {
+    return {
         name: profile.name,
         alternativeNames,
         age: profile.age,
@@ -263,12 +264,6 @@ export function aggregateFields (profile) {
         relatives,
         ...profile.profileUrl
     }
-
-    if (!result.profileUrl && !result.identifier) {
-        result.identifier = generateProfileId(profile);
-    }
-
-    return result;
 }
 
 /**
@@ -402,14 +397,12 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
     return elementValue
 }
 
-export async function generateProfileId(profile) {
-    const stringifiedProfile = JSON.stringify(profile);
+export async function generateIdFromProfile(profile) {
+    const jsonStr = JSON.stringify(profile);
     const encoder = new TextEncoder();
-    const buffer = encoder.encode(stringifiedProfile);
+    const uint8Array = encoder.encode(jsonStr);
+    const hash = await crypto.subtle.digest('SHA-256', uint8Array);
+    const hashHex = Array.prototype.map.call(new Uint8Array(hash), x => ('00' + x.toString(16)).slice(-2)).join('');
 
-    const hash = await crypto.subtle.digest('SHA-1', buffer);
-    const hashArray = Array.prototype.map.call(new Uint8Array(hash), x => ('00' + x.toString(16)).slice(-2));
-    const profileId = hashArray.join('');
-    
-    return profileId;
+    return hashHex;
 }

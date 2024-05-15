@@ -216,3 +216,17 @@ export function matchingPair (a, b) {
     if (!nonEmptyString(b)) return false
     return a.toLowerCase().trim() === b.toLowerCase().trim()
 }
+
+/**
+ * Sorts an array of addresses by state, then by city within the state.
+ * 
+ * @param {any} addresses
+ * @return {Array}
+ */
+export function sortAddressesByStateAndCity(addresses) {
+    return addresses.sort((a, b) => {
+        if (a.state < b.state) { return -1; }
+        if (a.state > b.state) { return 1; }
+        return a.city.localCompare(b.city);
+    });
+}
