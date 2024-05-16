@@ -1,4 +1,4 @@
-import { ddgShimMark, shimInterface, shimProperty } from '../src/wrapper-utils.js'
+import { shimInterface, shimProperty } from '../src/wrapper-utils.js'
 
 describe('Shim API', () => {
     // MediaSession is just an example, to make it close to reality
@@ -44,14 +44,12 @@ describe('Shim API', () => {
                 disallowConstructor: false,
                 allowConstructorCall: false
             }, definePropertyFn)
-            expect(definePropertyFn).toHaveBeenCalledTimes(3)
+            expect(definePropertyFn).toHaveBeenCalledTimes(2)
             const NewMediaSession = globalThis.MediaSession
             expect(NewMediaSession).toBeDefined()
             const newPropertyDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'MediaSession')
 
             expect({ ...newPropertyDescriptor, value: null }).withContext('property descriptors should match').toEqual({ value: null, writable: true, enumerable: false, configurable: true })
-            expect(NewMediaSession[ddgShimMark]).withContext('class should be marked as shimmed').toBe(true)
-            expect(MyMediaSession[ddgShimMark]).withContext('class should be marked as shimmed').toBe(true)
             expect(NewMediaSession.name).toBe('MediaSession')
 
             expect((new MyMediaSession()) instanceof NewMediaSession).withContext('instances should pass the instanceof check').toBeTrue()
@@ -139,10 +137,6 @@ describe('Shim API', () => {
             expect(navigator.mediaSession.setActionHandler()).withContext('method should return expected value').toBe(123)
             expect(navigator.mediaSession.toString()).toBe('[object MediaSession]')
             expect(navigator.mediaSession.toString.toString()).toBe('function toString() { [native code] }')
-        })
-
-        it('should throw when the class has not been prepared', () => {
-            expect(() => shimProperty(navigatorPrototype, 'mediaSession', new MyMediaSession(), false, definePropertyFn)).toThrowError(TypeError)
         })
 
         it('should support writable properties', () => {
