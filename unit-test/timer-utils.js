@@ -30,7 +30,6 @@ describe('retry function tests', () => {
         await fc.assert(
             fc.asyncProperty(defaultProps(), async (config) => {
                 let callCount = 0
-
                 const successfulFunction = jasmine.createSpy('successfulFunction', () => {
                     callCount += 1
                     // The function fails for the first (n-1) times and succeeds on the last try
