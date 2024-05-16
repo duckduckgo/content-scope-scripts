@@ -13,7 +13,7 @@ import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/b
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
 import { generateRandomInt } from '../src/features/broker-protection/utils.js'
-import { generatePhoneNumber } from '../src/features/broker-protection/actions/fill-form.js'
+import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
 
 describe('Actions', () => {
@@ -554,6 +554,15 @@ describe('Actions', () => {
                 expect(typeof phoneNumber).toEqual('string')
                 expect(phoneNumber.length).toBe(10)
                 expect(phoneNumber).toMatch(/^\d{10}$/)
+            })
+        })
+        describe('generateZipCode', () => {
+            it('generates a string of integers of an appropriate size', () => {
+                const zipCode = generateZipCode()
+
+                expect(typeof zipCode).toEqual('string')
+                expect(zipCode.length).toBe(5)
+                expect(zipCode).toMatch(/^\d{5}$/)
             })
         })
     })
