@@ -40,7 +40,7 @@ test.describe('Broker Protection communications', () => {
                 ],
                 phoneNumbers: [],
                 relatives: [
-                    'Cheryl Lamar'
+                    'Cheryl Lamarsss'
                 ],
                 profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
                 identifier: baseURL + 'view/John-Smith-CyFdD.F'

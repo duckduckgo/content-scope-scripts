@@ -227,6 +227,6 @@ export function sortAddressesByStateAndCity(addresses) {
     return addresses.sort((a, b) => {
         if (a.state < b.state) { return -1; }
         if (a.state > b.state) { return 1; }
-        return a.city.localCompare(b.city);
+        return a.city.localeCompare(b.city);
     });
 }
