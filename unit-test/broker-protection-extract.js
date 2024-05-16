@@ -167,7 +167,7 @@ describe('create profiles from extracted data', () => {
         for (const elementExample of elementExamples) {
             const elementFactory = () => elementExample.elements
             const profile = createProfile(elementFactory, elementExample.selectors)
-            const aggregated = await aggregateFields(profile)
+            const aggregated = await aggregateFields(profile, {})
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses)
         }
     })
@@ -191,7 +191,7 @@ describe('create profiles from extracted data', () => {
 
         const elementFactory = () => example.elements
         const profile = createProfile(elementFactory, /** @type {any} */(example.selectors))
-        const aggregated = await aggregateFields(profile)
+        const aggregated = await aggregateFields(profile, {})
 
         expect(aggregated.addresses).toEqual(example.expected.addresses)
     })
@@ -215,7 +215,7 @@ describe('create profiles from extracted data', () => {
         for (const elementExample of elementExamples) {
             const elementFactory = () => elementExample.elements
             const profile = createProfile(elementFactory, /** @type {any} */(elementExample.selectors))
-            const aggregated = await aggregateFields(profile)
+            const aggregated = await aggregateFields(profile, {})
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses)
         }
     })
@@ -295,7 +295,7 @@ describe('create profiles from extracted data', () => {
         const expected = [{ city: 'Dallas', state: 'TX' }]
 
         const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
-        const actual = await aggregateFields(scraped)
+        const actual = await aggregateFields(scraped, {})
         expect(actual.addresses).toEqual(expected)
     })
 })
