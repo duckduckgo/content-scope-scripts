@@ -301,13 +301,16 @@ export function shimInterface (
         }
     }
 
-    // mark the class as a shimmed class
-    definePropertyFn(ImplClass, ddgShimMark, {
-        value: true,
-        configurable: false,
-        enumerable: false,
-        writable: false
-    })
+    if (import.meta.injectName === 'integration') {
+        // mark the class as a shimmed class
+        // we do it only in test mode, to avoid potential side effects in production. See the playwright test in integration-test/test-pages/webcompat/pages/shims.html
+        definePropertyFn(ImplClass, ddgShimMark, {
+            value: true,
+            configurable: false,
+            enumerable: false,
+            writable: false
+        })
+    }
 
     // mock the name property
     definePropertyFn(ImplClass, 'name', {
@@ -338,18 +341,18 @@ export function shimInterface (
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  */
 export function shimProperty (baseObject, propertyName, implInstance, readOnly, definePropertyFn) {
+    // @ts-expect-error - implInstance is a class instance
+    const ImplClass = implInstance.constructor
+
     if (import.meta.injectName === 'integration') {
         if (!globalThis.origPropDescriptors) globalThis.origPropDescriptors = []
         const descriptor = Object.getOwnPropertyDescriptor(baseObject, propertyName)
         globalThis.origPropDescriptors.push([baseObject, propertyName, descriptor])
 
         globalThis.ddgShimMark = ddgShimMark
-    }
-
-    // @ts-expect-error - implInstance is a class instance
-    const ImplClass = implInstance.constructor
-    if (ImplClass[ddgShimMark] !== true) {
-        throw new TypeError('implInstance must be an instance of a shimmed class')
+        if (ImplClass[ddgShimMark] !== true) {
+            throw new TypeError('implInstance must be an instance of a shimmed class')
+        }
     }
 
     // mask toString() and toString.toString() on the instance
