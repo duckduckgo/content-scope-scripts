@@ -35,12 +35,12 @@ test.describe('Broker Protection communications', () => {
                 age: '38',
                 addresses: [
                     { city: 'Chicago', state: 'IL' },
-                    { city: 'Ypsilanti', state: 'MI' },
-                    { city: 'Cadillac', state: 'MI' }
+                    { city: 'Cadillac', state: 'MI' },
+                    { city: 'Ypsilanti', state: 'MI' }
                 ],
                 phoneNumbers: [],
                 relatives: [
-                    'Cheryl Lamarsss'
+                    'Cheryl Lamar'
                 ],
                 profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
                 identifier: baseURL + 'view/John-Smith-CyFdD.F'
@@ -60,8 +60,8 @@ test.describe('Broker Protection communications', () => {
                 age: '38',
                 addresses: [
                     { city: 'Chicago', state: 'IL' },
-                    { city: 'Ypsilanti', state: 'MI' },
-                    { city: 'Cadillac', state: 'MI' }
+                    { city: 'Cadillac', state: 'MI' },
+                    { city: 'Ypsilanti', state: 'MI' }
                 ],
                 phoneNumbers: [],
                 relatives: [
@@ -112,9 +112,9 @@ test.describe('Broker Protection communications', () => {
                 {
                     name: 'Benjamin H Smith',
                     alternativeNames: [
-                        'Benjamin Smith',
+                        'Bejamin Smith',
                         'Ben Smith',
-                        'Bejamin Smith'
+                        'Benjamin Smith'
                     ],
                     age: '39',
                     addresses: [
@@ -150,13 +150,13 @@ test.describe('Broker Protection communications', () => {
                 name: 'John A Smith',
                 age: '63',
                 alternativeNames: [
-                    'Jonathan Smith',
-                    'John Smithe'
+                    'John Smithe',
+                    'Jonathan Smith'
                 ],
                 addresses: [
+                    { city: 'Miami', state: 'FL' },
                     { city: 'Orlando', state: 'FL' },
-                    { city: 'Plantation', state: 'FL' },
-                    { city: 'Miami', state: 'FL' }
+                    { city: 'Plantation', state: 'FL' }
                 ],
                 profileUrl: baseURL + 'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
                 identifier: baseURL + 'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
@@ -223,12 +223,12 @@ test.describe('Broker Protection communications', () => {
                 name: 'John M Smith',
                 age: '75',
                 alternativeNames: [
+                    'John Ark',
+                    'John Mark',
                     'John Smith',
-                    'Johnmark Smith',
                     'John-Mark Smith',
                     'Johna Smith',
-                    'John Mark',
-                    'John Ark'
+                    'Johnmark Smith'
                 ],
                 addresses: [
                     { city: 'Chicago', state: 'IL' },
@@ -256,15 +256,15 @@ test.describe('Broker Protection communications', () => {
                 name: 'John Smith',
                 age: '71',
                 addresses: [
-                    { city: 'Crown Point', state: 'IN' },
+                    { city: 'Chicago', state: 'IL' },
                     { city: 'South Holland', state: 'IL' },
-                    { city: 'Chicago', state: 'IL' }
+                    { city: 'Crown Point', state: 'IN' }
                 ],
                 alternativeNames: [],
                 relatives: [
-                    'Joyce E Doyle',
                     'Brittany J Hoard',
-                    'Jame...'
+                    'Jame...',
+                    'Joyce E Doyle'
                 ],
                 profileUrl: baseURL + 'find/person/p286nuu00u98lu9n0n96',
                 identifier: baseURL + 'find/person/p286nuu00u98lu9n0n96',
@@ -284,19 +284,19 @@ test.describe('Broker Protection communications', () => {
                 age: '59',
                 addresses: [
                     { city: 'Chicago', state: 'IL' },
-                    { city: 'River Forest', state: 'IL' },
                     { city: 'Forest Park', state: 'IL' },
-                    { city: 'Oak Park', state: 'IL' }
+                    { city: 'Oak Park', state: 'IL' },
+                    { city: 'River Forest', state: 'IL' }
                 ],
                 alternativeNames: [
+                    'John Farmersmith',
                     'John Smith',
-                    'Johni Smith',
-                    'John Farmersmith'
+                    'Johni Smith'
                 ],
                 phoneNumbers: [],
                 relatives: [
-                    'Ethel Makely',
                     'Alexander Makely',
+                    'Ethel Makely',
                     'Veronica Berrios'
                 ],
                 profileUrl: baseURL + 'people/John-Smith-AIGwGOFD',

@@ -44,16 +44,18 @@ import { ProfileUrlExtractor } from '../extractors/profile-url.js'
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export function extract (action, userData, root = document) {
+export async function extract (action, userData, root = document) {
     const extractResult = extractProfiles(action, userData, root)
 
     if ('error' in extractResult) {
         return new ErrorResponse({ actionID: action.id, message: extractResult.error })
     }
 
-    const filtered = extractResult.results
+    const filteredPromises = extractResult.results
         .filter(x => x.result === true)
-        .map(async x => await aggregateFields(x.scrapedData))
+        .map(x => aggregateFields(x.scrapedData))
+
+    const filtered = await Promise.all(filteredPromises);
 
     // omit the DOM node from data transfer
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -265,9 +267,10 @@ export async function aggregateFields (profile) {
         ...profile.profileUrl
     };
 
+    /*
     if (profile.identifierType === 'hash') {
-        result.identifier = await generateIdFromProfile(result);
-    }
+        result.identifier = generateIdFromProfile(result);
+    }*/
 
     return result;
 }

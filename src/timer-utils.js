@@ -18,7 +18,7 @@ export async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
     const exceptions = []
     for (let i = 0; i < config.maxAttempts; i++) {
         try {
-            lastResult = fn()
+            lastResult = await Promise.resolve(fn())
         } catch (e) {
             exceptions.push(e.toString())
         }

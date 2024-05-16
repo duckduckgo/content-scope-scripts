@@ -15,7 +15,7 @@ import { ErrorResponse } from './types.js'
  * @param {Document} [root] - optional root element
  * @return {import('./types.js').ActionResponse}
  */
-export function execute (action, inputData, root = document) {
+export async function execute (action, inputData, root = document) {
     try {
         switch (action.actionType) {
         case 'navigate':
