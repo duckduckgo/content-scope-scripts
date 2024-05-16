@@ -304,7 +304,7 @@ test.describe('Broker Protection communications', () => {
             }])
         })
 
-        test('extracts profile and generates id', async ({ page, baseURL }, workerInfo) => {
+        test('extracts profile and generates id', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
             await dbp.navigatesTo('results.html')

@@ -10,7 +10,7 @@ export class ProfileUrlExtractor {
      * @param {string[]} strs
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
-    async extract (strs, extractorParams) {
+    extract (strs, extractorParams) {
         if (strs.length === 0) return null
         const profile = {
             profileUrl: strs[0],
