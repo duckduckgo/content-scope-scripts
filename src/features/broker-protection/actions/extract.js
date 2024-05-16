@@ -42,7 +42,7 @@ import { ProfileUrlExtractor } from '../extractors/profile-url.js'
  * @param {Action} action
  * @param {Record<string, any>} userData
  * @param {Document | HTMLElement} root
- * @return {import('../types.js').ActionResponse}
+ * @return {Promise<import('../types.js').ActionResponse>}
  */
 export async function extract (action, userData, root = document) {
     const extractResult = extractProfiles(action, userData, root)
@@ -53,9 +53,9 @@ export async function extract (action, userData, root = document) {
 
     const filteredPromises = extractResult.results
         .filter(x => x.result === true)
-        .map(x => aggregateFields(x.scrapedData))
+        .map(x => aggregateFields(x.scrapedData, action))
 
-    const filtered = await Promise.all(filteredPromises);
+    const filtered = await Promise.all(filteredPromises)
 
     // omit the DOM node from data transfer
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -235,7 +235,7 @@ export function scrapedDataMatchesUserData (userData, scrapedData) {
 /**
  * @param {Record<string, any>} profile
  */
-export async function aggregateFields (profile) {
+export async function aggregateFields (profile, action) {
     // addresses
     const combinedAddresses = [
         ...profile.addressCityState || [],
@@ -265,14 +265,13 @@ export async function aggregateFields (profile) {
         phoneNumbers,
         relatives,
         ...profile.profileUrl
-    };
+    }
 
-    /*
-    if (profile.identifierType === 'hash') {
-        result.identifier = generateIdFromProfile(result);
-    }*/
+    if (action?.profile?.profileUrl?.identifierType === 'hash') {
+        result.identifier = await generateIdFromProfile(result)
+    }
 
-    return result;
+    return result
 }
 
 /**
@@ -408,15 +407,12 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
 
 /**
  * Returns a SHA-1 hash of the profile
- * 
- * @param {*} profile {name: string, age: number, addresses: Array, phoneNumbers: Array, relatives: Array, profileUrl: string, id: string}
- * @returns Promise<string>
  */
-export async function generateIdFromProfile(profile) {
-    const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)); // encode as (utf-8)
-    const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8); // hash the message
-    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+export async function generateIdFromProfile (profile) {
+    const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)) // encode as (utf-8)
+    const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
+    const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
 
-    return hashHex;
+    return hashHex
 }

@@ -219,14 +219,14 @@ export function matchingPair (a, b) {
 
 /**
  * Sorts an array of addresses by state, then by city within the state.
- * 
+ *
  * @param {any} addresses
  * @return {Array}
  */
-export function sortAddressesByStateAndCity(addresses) {
+export function sortAddressesByStateAndCity (addresses) {
     return addresses.sort((a, b) => {
-        if (a.state < b.state) { return -1; }
-        if (a.state > b.state) { return 1; }
-        return a.city.localeCompare(b.city);
-    });
+        if (a.state < b.state) { return -1 }
+        if (a.state > b.state) { return 1 }
+        return a.city.localeCompare(b.city)
+    })
 }

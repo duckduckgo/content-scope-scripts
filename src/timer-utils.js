@@ -9,7 +9,7 @@ export const DEFAULT_RETRY_CONFIG = {
  *
  * @template T
  * @template {{ success: T } | { error: { message: string } }} FnReturn
- * @param {() => FnReturn} fn
+ * @param {() => Promise<FnReturn>} fn
  * @param {typeof DEFAULT_RETRY_CONFIG} [config]
  * @return {Promise<{ result: FnReturn | undefined, exceptions: string[] }>}
  */

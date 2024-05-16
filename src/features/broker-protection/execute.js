@@ -13,7 +13,7 @@ import { ErrorResponse } from './types.js'
  * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
  * @param {Record<string, any>} inputData
  * @param {Document} [root] - optional root element
- * @return {import('./types.js').ActionResponse}
+ * @return {Promise<import('./types.js').ActionResponse>}
  */
 export async function execute (action, inputData, root = document) {
     try {
@@ -21,7 +21,7 @@ export async function execute (action, inputData, root = document) {
         case 'navigate':
             return buildUrl(action, data(action, inputData, 'userProfile'))
         case 'extract':
-            return extract(action, data(action, inputData, 'userProfile'), root)
+            return await extract(action, data(action, inputData, 'userProfile'), root)
         case 'click':
             return click(action, data(action, inputData, 'userProfile'), root)
         case 'expectation':

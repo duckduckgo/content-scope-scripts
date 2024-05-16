@@ -303,6 +303,31 @@ test.describe('Broker Protection communications', () => {
                 identifier: baseURL + 'people/John-Smith-AIGwGOFD'
             }])
         })
+
+        test('extracts profile and generates id', async ({ page, baseURL }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results.html')
+            await dbp.receivesAction('extract-generate-id.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
+                name: 'John Smith',
+                alternativeNames: [],
+                age: '38',
+                addresses: [
+                    { city: 'Chicago', state: 'IL' },
+                    { city: 'Cadillac', state: 'MI' },
+                    { city: 'Ypsilanti', state: 'MI' }
+                ],
+                phoneNumbers: [],
+                relatives: [
+                    'Cheryl Lamar'
+                ],
+                identifier: 'b3ccf90a0ffaaa5f57fd262ab1b694b3c208d622'
+            }])
+            dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
+        })
     })
     test.describe('Executes action and sends success message', () => {
         test('buildUrl', async ({ page }, workerInfo) => {
