@@ -333,26 +333,6 @@ const rules = {
 }
 
 /**
- * Parse a profile id from a profile URL
- * @param {string} profileUrl
- * @param {IdentifierType} identifierType
- * @param {string} identifier
- * @return {string}
- */
-export function getIdFromProfileUrl (profileUrl, identifierType, identifier) {
-    const parsedUrl = new URL(profileUrl)
-    const urlParams = parsedUrl.searchParams
-
-    // Attempt to parse out an id from the search parameters
-    if (identifierType === 'param' && urlParams.has(identifier)) {
-        const profileId = urlParams.get(identifier)
-        return profileId || profileUrl
-    }
-
-    return profileUrl
-}
-
-/**
  * Remove common prefixes and suffixes such as
  *
  * - AKA: <value>

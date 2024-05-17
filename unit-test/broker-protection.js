@@ -3,7 +3,6 @@ import { isSameAge } from '../src/features/broker-protection/comparisons/is-same
 import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
 import {
     stringToList,
-    getIdFromProfileUrl,
     extractValue
 } from '../src/features/broker-protection/actions/extract.js'
 import {
@@ -260,43 +259,6 @@ describe('Actions', () => {
                 it('should not match when city/state is not present', () => {
                     expect(addressMatch(userData.addresses, [{ city: 'los angeles', state: 'ca' }])).toBe(false)
                 })
-            })
-        })
-
-        describe('getIdFromProfileUrl', () => {
-            it('should return the profile URL as the identifier if the identifierType is "path"', () => {
-                const profileUrl = 'https://duckduckgo.com/my/profile/john-smith/223'
-                const identifierType = 'path'
-                // eslint-disable-next-line no-template-curly-in-string
-                const identifier = 'https://duckduckgo.com/my/profile/${firstName}-${lastName}/${id}'
-
-                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
-            })
-
-            it('should return the profile URL as the identifier if the identifierType is "param" and the param is not found', () => {
-                const profileUrl = 'https://duckduckgo.com/my/profile?id=test'
-                const identifierType = 'param'
-                const identifier = 'pid'
-
-                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
-            })
-
-            it('should return the profile URL as the identifier if the identifierType is "param" and the identifier is a path', () => {
-                const profileUrl = 'https://duckduckgo.com/my/profile/john-smith/223'
-                const identifierType = 'param'
-                // eslint-disable-next-line no-template-curly-in-string
-                const identifier = 'https://duckduckgo.com/my/profile/${firstName}-${lastName}/${id}'
-
-                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
-            })
-
-            it('should return the id as the identifier if the identifierType is "param" and the param is found in the url', () => {
-                const id = 'test'
-                const profileUrl = `https://duckduckgo.com/my/profile?id=${id}`
-                const identifierType = 'param'
-                const identifier = 'id'
-
-                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(id)
             })
         })
     })
