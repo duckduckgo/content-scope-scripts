@@ -12,7 +12,7 @@ import {
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
-import { generateRandomInt, generateIdFromProfile } from '../src/features/broker-protection/utils.js'
+import { generateRandomInt, generateIdFromProfile, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
 
@@ -625,6 +625,42 @@ describe('utils', () => {
 
             const finalResult = await generateIdFromProfile(profile)
             expect(finalResult).toEqual(originalResult)
+        })
+    })
+
+    describe('sortAddressesByStateAndCity', () => {
+        it('sorts addresses by state and city', () => {
+            const addresses = [
+                {
+                    city: 'Houston',
+                    state: 'TX'
+                },
+                {
+                    city: 'Ontario',
+                    state: 'CA'
+                },
+                {
+                    city: 'Dallas',
+                    state: 'TX'
+                }
+            ]
+    
+            const result = sortAddressesByStateAndCity(addresses)
+    
+            expect(result).toEqual([
+                {
+                    city: 'Ontario',
+                    state: 'CA'
+                },
+                {
+                    city: 'Dallas',
+                    state: 'TX'
+                },
+                {
+                    city: 'Houston',
+                    state: 'TX'
+                }
+            ])
         })
     })
 })
