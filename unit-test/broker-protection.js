@@ -166,22 +166,21 @@ describe('Actions', () => {
                 expect(generatedProfile).toEqual(profile)
             })
 
-            // Jasmine doesn't have access to the crypto API, so this test is disabled.
-            /*
             it('Should return a profile with a hash in the identifier if the identifierType is set to hash', async () => {
+                const crypto = new Crypto()
+
                 const profile = {
                     firstName: 'John',
                     lastName: 'Doe'
                 }
 
                 const profileUrl = {
-                    identifierType: ('hash')
+                    identifierType: /** @type {IdentifierType} */ ('hash')
                 }
 
-                const generatedProfile = await generateProfileId(profile, profileUrl)
+                const generatedProfile = await generateProfileId(profile, profileUrl, crypto)
                 expect(generatedProfile.identifier).toMatch(/^[0-9a-f]{40}$/)
             })
-            */
         })
 
         describe('get correct city state combos from list', () => {
