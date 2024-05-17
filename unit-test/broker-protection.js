@@ -15,7 +15,6 @@ import { names } from '../src/features/broker-protection/comparisons/constants.j
 import { generateRandomInt, generateIdFromProfile } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
-// import { Crypto } from '@peculiar/webcrypto'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -167,9 +166,6 @@ describe('Actions', () => {
             })
 
             it('Should return a profile with a hash in the identifier if the identifierType is set to hash', async () => {
-                // const crypto = new Crypto()
-                // spyOn(crypto, 'subtle').and.callFake(crypto.subtle);
-
                 const profile = {
                     firstName: 'John',
                     lastName: 'Doe'
@@ -599,8 +595,6 @@ describe('utils', () => {
     })
 
     describe('generateIdFromProfile', () => {
-        // const crypto = new Crypto()
-
         it('generates a hash from a profile', async () => {
             const profile = {
                 firstName: 'John',
