@@ -644,9 +644,9 @@ describe('utils', () => {
                     state: 'TX'
                 }
             ]
-    
+
             const result = sortAddressesByStateAndCity(addresses)
-    
+
             expect(result).toEqual([
                 {
                     city: 'Ontario',
