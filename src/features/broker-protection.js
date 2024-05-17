@@ -47,7 +47,21 @@ export default class BrokerProtection extends ContentFeature {
                     }
                 }
 
+                const beforeUnloadPromise = new Promise((resolve) => {
+                    window.onbeforeunload = () => {
+                        resolve('pageunload')
+                        window.onbeforeunload = null
+                    }
+                })
+
+                // Send an action error back with the debugging information
                 const { result, exceptions } = await retry(() => execute(action, data), retryConfig)
+                const winnerPromise = Promise.race([beforeUnloadPromise, result])
+                const winner = await winnerPromise
+
+                if (winner === 'pageunload') {
+                    throw new Error('The page unloaded!')
+                }
 
                 if (result) {
                     this.messaging.notify('actionCompleted', { result })
