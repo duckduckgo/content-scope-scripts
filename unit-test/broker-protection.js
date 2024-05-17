@@ -15,7 +15,7 @@ import { names } from '../src/features/broker-protection/comparisons/constants.j
 import { generateRandomInt, generateIdFromProfile } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
-import { Crypto } from '@peculiar/webcrypto'
+//import { Crypto } from '@peculiar/webcrypto'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -167,7 +167,9 @@ describe('Actions', () => {
             })
 
             it('Should return a profile with a hash in the identifier if the identifierType is set to hash', async () => {
-                const crypto = new Crypto()
+                //const crypto = new Crypto()
+                // @ts-ignore
+                //spyOn(crypto, 'subtle').and.callFake(crypto.subtle);
 
                 const profile = {
                     firstName: 'John',
@@ -178,7 +180,7 @@ describe('Actions', () => {
                     identifierType: /** @type {IdentifierType} */ ('hash')
                 }
 
-                const generatedProfile = await generateProfileId(profile, profileUrl, crypto)
+                const generatedProfile = await generateProfileId(profile, profileUrl)
                 expect(generatedProfile.identifier).toMatch(/^[0-9a-f]{40}$/)
             })
         })
@@ -598,7 +600,7 @@ describe('utils', () => {
     })
 
     describe('generateIdFromProfile', () => {
-        const crypto = new Crypto()
+        //const crypto = new Crypto()
 
         it('generates a hash from a profile', async () => {
             const profile = {
@@ -606,7 +608,7 @@ describe('utils', () => {
                 lastName: 'Doe'
             }
 
-            const result = await generateIdFromProfile(profile, crypto)
+            const result = await generateIdFromProfile(profile)
 
             expect(typeof result).toEqual('string')
             expect(result.length).toBe(40)
@@ -619,16 +621,16 @@ describe('utils', () => {
                 lastName: 'Doe'
             }
 
-            const originalResult = await generateIdFromProfile(profile, crypto)
+            const originalResult = await generateIdFromProfile(profile)
 
             profile.middleName = 'David'
 
-            const updatedResult = await generateIdFromProfile(profile, crypto)
+            const updatedResult = await generateIdFromProfile(profile)
             expect(originalResult).not.toEqual(updatedResult)
 
             delete profile.middleName
 
-            const finalResult = await generateIdFromProfile(profile, crypto)
+            const finalResult = await generateIdFromProfile(profile)
             expect(finalResult).toEqual(originalResult)
         })
     })

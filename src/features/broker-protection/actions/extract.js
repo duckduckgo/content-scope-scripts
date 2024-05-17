@@ -386,16 +386,15 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
  *
  * @param {Record<string, any>} originalProfile
  * @param {ProfileUrlParams=} profileUrl
- * @param {Crypto=} cryptoLibrary
  * @return {Promise<Record<string, any>>}
  */
-export async function generateProfileId (originalProfile, profileUrl, cryptoLibrary) {
+export async function generateProfileId (originalProfile, profileUrl) {
     if (profileUrl?.identifierType !== 'hash') {
         return originalProfile
     }
 
     const profile = structuredClone(originalProfile)
-    profile.identifier = await generateIdFromProfile(profile, cryptoLibrary)
+    profile.identifier = await generateIdFromProfile(profile)
 
     return profile
 }
