@@ -12,7 +12,7 @@ import {
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
-import { generateRandomInt, generateIdFromProfile } from '../src/features/broker-protection/utils.js'
+import { generateRandomInt } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
 
@@ -637,5 +637,5 @@ describe('utils', () => {
             const finalResult = await generateIdFromProfile(profile)
             expect(finalResult).toEqual(originalResult)
         })
-    })*/
+    }) */
 })
