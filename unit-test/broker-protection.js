@@ -3,7 +3,8 @@ import { isSameAge } from '../src/features/broker-protection/comparisons/is-same
 import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
 import {
     stringToList,
-    extractValue
+    extractValue,
+    generateProfileId
 } from '../src/features/broker-protection/actions/extract.js'
 import {
     addressMatch
@@ -11,9 +12,14 @@ import {
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
-import { generateRandomInt } from '../src/features/broker-protection/utils.js'
+import { generateRandomInt, generateIdFromProfile } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
+
+// This ensures that we can test the web crypto API in a Node environment
+import { Crypto } from '@peculiar/webcrypto'
+const crypto = new Crypto()
+globalThis.crypto = crypto
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -133,6 +139,50 @@ describe('Actions', () => {
                         expect(typeof result).toBe('boolean')
                     }
                 ), { seed: 203542789, path: '70:1:0:0:1:85:86:85:86:86', endOnFailure: true })
+            })
+        })
+
+        describe('generateProfileId', () => {
+            /**
+             * @typedef {import("../src/features/broker-protection/actions/extract.js").IdentifierType} IdentifierType
+             */
+            it('Should return the profile unchanged if profileUrl is not present', async () => {
+                const profile = {
+                    firstName: 'John',
+                    lastName: 'Doe'
+                }
+
+                const generatedProfile = await generateProfileId(profile, undefined)
+                expect(generatedProfile).toEqual(profile)
+            })
+
+            it('Should return the profile unchanged if identifierType is not set to hash', async () => {
+                const profile = {
+                    firstName: 'John',
+                    lastName: 'Doe'
+                }
+
+                const profileUrl = {
+                    identifierType: /** @type {IdentifierType} */ ('param')
+                }
+
+                const generatedProfile = await generateProfileId(profile, profileUrl)
+                expect(generatedProfile).toEqual(profile)
+            })
+
+            // Jasmine doesn't have access to the crypto API, so this test is disabled.
+            it('Should return a profile with a hash in the identifier if the identifierType is set to hash', async () => {
+                const profile = {
+                    firstName: 'John',
+                    lastName: 'Doe'
+                }
+
+                const profileUrl = {
+                    identifierType: /** @type {IdentifierType} */ ('hash')
+                }
+
+                const generatedProfile = await generateProfileId(profile, profileUrl)
+                expect(generatedProfile.identifier).toMatch(/^[0-9a-f]{40}$/)
             })
         })
 
@@ -547,6 +597,40 @@ describe('utils', () => {
                     )
                 })
             )
+        })
+    })
+
+    describe('generateIdFromProfile', () => {
+        it('generates a hash from a profile', async () => {
+            const profile = {
+                firstName: 'John',
+                lastName: 'Doe'
+            }
+
+            const result = await generateIdFromProfile(profile)
+
+            expect(typeof result).toEqual('string')
+            expect(result.length).toBe(40)
+            expect(result).toMatch(/^[0-9a-f]{40}$/)
+        })
+
+        it('generates a stable hash from a profile', async () => {
+            const profile = {
+                firstName: 'John',
+                lastName: 'Doe'
+            }
+
+            const originalResult = await generateIdFromProfile(profile)
+
+            profile.middleName = 'David'
+
+            const updatedResult = await generateIdFromProfile(profile)
+            expect(originalResult).not.toEqual(updatedResult)
+
+            delete profile.middleName
+
+            const finalResult = await generateIdFromProfile(profile)
+            expect(finalResult).toEqual(originalResult)
         })
     })
 })

@@ -55,7 +55,7 @@ export async function extract (action, userData, root = document) {
     const filteredPromises = extractResult.results
         .filter(x => x.result === true)
         .map(x => aggregateFields(x.scrapedData))
-        .map(profile => generateProfileId(profile, action.profile.profileUrl))
+        .map(profile => generateProfileId(profile, action?.profile?.profileUrl))
 
     const filtered = await Promise.all(filteredPromises)
 
@@ -382,11 +382,13 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
 }
 
 /**
+ * @typedef {Pick<ExtractorParams, 'identifierType'>} ProfileUrlParams
+ *
  * @param {Record<string, any>} originalProfile
- * @param {ExtractProfileProperty} profileUrl
+ * @param {ProfileUrlParams=} profileUrl
  * @return {Promise<Record<string, any>>}
  */
-async function generateProfileId (originalProfile, profileUrl) {
+export async function generateProfileId (originalProfile, profileUrl) {
     if (profileUrl?.identifierType !== 'hash') {
         return originalProfile
     }
