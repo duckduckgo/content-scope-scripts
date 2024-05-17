@@ -148,7 +148,7 @@ describe('create profiles from extracted data', () => {
         }
     })
 
-    it('should omit duplicate addresses when aggregated', async () => {
+    it('should omit duplicate addresses when aggregated', () => {
         const elementExamples = [
             {
                 selectors: {
@@ -167,12 +167,12 @@ describe('create profiles from extracted data', () => {
         for (const elementExample of elementExamples) {
             const elementFactory = () => elementExample.elements
             const profile = createProfile(elementFactory, elementExample.selectors)
-            const aggregated = await aggregateFields(profile, {})
+            const aggregated = aggregateFields(profile)
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses)
         }
     })
 
-    it('should handle addressCityStateList', async () => {
+    it('should handle addressCityStateList', () => {
         const example = {
             selectors: {
                 addressCityStateList: {
@@ -191,12 +191,12 @@ describe('create profiles from extracted data', () => {
 
         const elementFactory = () => example.elements
         const profile = createProfile(elementFactory, /** @type {any} */(example.selectors))
-        const aggregated = await aggregateFields(profile, {})
+        const aggregated = aggregateFields(profile)
 
         expect(aggregated.addresses).toEqual(example.expected.addresses)
     })
 
-    it('should include addresses from `addressFullList` - https://app.asana.com/0/0/1206856260863051/f', async () => {
+    it('should include addresses from `addressFullList` - https://app.asana.com/0/0/1206856260863051/f', () => {
         const elementExamples = [
             {
                 selectors: {
@@ -215,7 +215,7 @@ describe('create profiles from extracted data', () => {
         for (const elementExample of elementExamples) {
             const elementFactory = () => elementExample.elements
             const profile = createProfile(elementFactory, /** @type {any} */(elementExample.selectors))
-            const aggregated = await aggregateFields(profile, {})
+            const aggregated = aggregateFields(profile)
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses)
         }
     })
@@ -269,7 +269,7 @@ describe('create profiles from extracted data', () => {
         })
     })
 
-    it('(1) Addresses: general validation [validation] https://app.asana.com/0/0/1206808587680141/f', async () => {
+    it('(1) Addresses: general validation [validation] https://app.asana.com/0/0/1206808587680141/f', () => {
         const selectors = {
             name: {
                 selector: 'example'
@@ -295,7 +295,7 @@ describe('create profiles from extracted data', () => {
         const expected = [{ city: 'Dallas', state: 'TX' }]
 
         const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
-        const actual = await aggregateFields(scraped, {})
+        const actual = aggregateFields(scraped)
         expect(actual.addresses).toEqual(expected)
     })
 })

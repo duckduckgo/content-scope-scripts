@@ -3,7 +3,8 @@ import {
     getElement,
     getElementMatches,
     getElements,
-    sortAddressesByStateAndCity
+    sortAddressesByStateAndCity,
+    generateIdFromProfile
 } from '../utils.js' // Assuming you have imported the address comparison function
 import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
@@ -53,7 +54,8 @@ export async function extract (action, userData, root = document) {
 
     const filteredPromises = extractResult.results
         .filter(x => x.result === true)
-        .map(x => aggregateFields(x.scrapedData, action))
+        .map(x => aggregateFields(x.scrapedData))
+        .map(profile => generateProfileId(profile, action.profile.profileUrl))
 
     const filtered = await Promise.all(filteredPromises)
 
@@ -235,7 +237,7 @@ export function scrapedDataMatchesUserData (userData, scrapedData) {
 /**
  * @param {Record<string, any>} profile
  */
-export async function aggregateFields (profile, action) {
+export function aggregateFields (profile) {
     // addresses
     const combinedAddresses = [
         ...profile.addressCityState || [],
@@ -257,7 +259,7 @@ export async function aggregateFields (profile, action) {
     // aliases
     const alternativeNames = [...new Set(profile.alternativeNamesList)].sort()
 
-    const result = {
+    return {
         name: profile.name,
         alternativeNames,
         age: profile.age,
@@ -266,12 +268,6 @@ export async function aggregateFields (profile, action) {
         relatives,
         ...profile.profileUrl
     }
-
-    if (action?.profile?.profileUrl?.identifierType === 'hash') {
-        result.identifier = await generateIdFromProfile(result)
-    }
-
-    return result
 }
 
 /**
@@ -386,13 +382,16 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
 }
 
 /**
- * Returns a SHA-1 hash of the profile
+ * @param {Record<string, any>} originalProfile
+ * @param {ExtractProfileProperty} profileUrl
+ * @return {Promise<Record<string, any>>}
  */
-export async function generateIdFromProfile (profile) {
-    const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)) // encode as (utf-8)
-    const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
-    const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
+async function generateProfileId (originalProfile, profileUrl) {
+    const profile = structuredClone(originalProfile)
 
-    return hashHex
+    if (profileUrl.identifierType === 'hash') {
+        profile.identifier = await generateIdFromProfile(profile)
+    }
+
+    return profile
 }
