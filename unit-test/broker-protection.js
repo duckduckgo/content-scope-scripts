@@ -12,16 +12,10 @@ import {
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
-import { generateRandomInt } from '../src/features/broker-protection/utils.js'
+import { generateRandomInt, generateIdFromProfile } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
-
-// This ensures that we can test the web crypto API in a Node environment
-/*
 import { Crypto } from '@peculiar/webcrypto'
-const crypto = new Crypto()
-globalThis.crypto = crypto
-*/
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -604,15 +598,16 @@ describe('utils', () => {
         })
     })
 
-    /*
     describe('generateIdFromProfile', () => {
+        const crypto = new Crypto()
+
         it('generates a hash from a profile', async () => {
             const profile = {
                 firstName: 'John',
                 lastName: 'Doe'
             }
 
-            const result = await generateIdFromProfile(profile)
+            const result = await generateIdFromProfile(profile, crypto)
 
             expect(typeof result).toEqual('string')
             expect(result.length).toBe(40)
@@ -625,17 +620,17 @@ describe('utils', () => {
                 lastName: 'Doe'
             }
 
-            const originalResult = await generateIdFromProfile(profile)
+            const originalResult = await generateIdFromProfile(profile, crypto)
 
             profile.middleName = 'David'
 
-            const updatedResult = await generateIdFromProfile(profile)
+            const updatedResult = await generateIdFromProfile(profile, crypto)
             expect(originalResult).not.toEqual(updatedResult)
 
             delete profile.middleName
 
-            const finalResult = await generateIdFromProfile(profile)
+            const finalResult = await generateIdFromProfile(profile, crypto)
             expect(finalResult).toEqual(originalResult)
         })
-    }) */
+    })
 })
