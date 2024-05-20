@@ -22,6 +22,8 @@ export default class FingerprintingBattery extends ContentFeature {
             for (const [prop, val] of Object.entries(spoofedValues)) {
                 try {
                     this.defineProperty(BatteryManager.prototype, prop, {
+                        enumerable: true,
+                        configurable: true,
                         get: () => {
                             return val
                         }
@@ -31,6 +33,9 @@ export default class FingerprintingBattery extends ContentFeature {
             for (const eventProp of eventProperties) {
                 try {
                     this.defineProperty(BatteryManager.prototype, eventProp, {
+                        enumerable: true,
+                        configurable: true,
+                        set: x => x, // noop
                         get: () => {
                             return null
                         }

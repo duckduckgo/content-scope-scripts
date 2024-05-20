@@ -515,8 +515,12 @@ export class DDGProxy {
     }
 
     overloadDescriptor () {
+        // TODO: this is not always correct! Use wrap* or shim* methods instead
         this.feature.defineProperty(this.objectScope, this.property, {
-            value: this.internal
+            value: this.internal,
+            writable: true,
+            enumerable: true,
+            configurable: true
         })
     }
 }

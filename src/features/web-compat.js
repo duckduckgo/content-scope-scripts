@@ -191,21 +191,19 @@ export class WebCompat extends ContentFeature {
             },
             writable: true,
             configurable: true,
-            enumerable: false
+            enumerable: true
         })
 
         this.defineProperty(window.Notification, 'permission', {
-            value: 'denied',
-            writable: true,
+            get: () => 'denied',
             configurable: true,
             enumerable: false
         })
 
         this.defineProperty(window.Notification, 'maxActions', {
-            value: 2,
-            writable: true,
+            get: () => 2,
             configurable: true,
-            enumerable: false
+            enumerable: true
         })
     }
 
@@ -360,16 +358,17 @@ export class WebCompat extends ContentFeature {
             if ('credentials' in navigator && 'get' in navigator.credentials) {
                 return
             }
-            // TODO: change the property descriptor shape to match the original
             const value = {
                 get () {
                     return Promise.reject(new Error())
                 }
             }
+            // TODO: original property is an accessor descriptor
             this.defineProperty(Navigator.prototype, 'credentials', {
                 value,
                 configurable: true,
-                enumerable: true
+                enumerable: true,
+                writable: true
             })
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
@@ -436,60 +435,40 @@ export class WebCompat extends ContentFeature {
 
     mediaSessionFix () {
         try {
-            if (window.navigator.mediaSession) {
+            if (window.navigator.mediaSession && import.meta.injectName !== 'integration') {
                 return
             }
 
-            this.defineProperty(window.navigator, 'mediaSession', {
-                value: {
-                },
-                writable: true,
-                configurable: true,
-                enumerable: true
-            })
-            this.defineProperty(window.navigator.mediaSession, 'metadata', {
-                value: null,
-                writable: true,
-                configurable: false,
-                enumerable: false
-            })
-            this.defineProperty(window.navigator.mediaSession, 'playbackState', {
-                value: 'none',
-                writable: true,
-                configurable: false,
-                enumerable: false
-            })
-            this.defineProperty(window.navigator.mediaSession, 'setActionHandler', {
-                value: () => {},
-                configurable: true,
-                enumerable: true
-            })
-            this.defineProperty(window.navigator.mediaSession, 'setCameraActive', {
-                value: () => {},
-                configurable: true,
-                enumerable: true
-            })
-            this.defineProperty(window.navigator.mediaSession, 'setMicrophoneActive', {
-                value: () => {},
-                configurable: true,
-                enumerable: true
-            })
-            this.defineProperty(window.navigator.mediaSession, 'setPositionState', {
-                value: () => {},
-                configurable: true,
-                enumerable: true
-            })
+            class MyMediaSession {
+                metadata = null
+                /** @type {MediaSession['playbackState']} */
+                playbackState = 'none'
 
-            class MediaMetadata {
+                setActionHandler () {}
+                setCameraActive () {}
+                setMicrophoneActive () {}
+                setPositionState () {}
+            }
+
+            this.shimInterface('MediaSession', MyMediaSession, {
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
+            })
+            this.shimProperty(Navigator.prototype, 'mediaSession', new MyMediaSession(), true)
+
+            this.shimInterface('MediaMetadata', class {
                 constructor (metadata = {}) {
                     this.title = metadata.title
                     this.artist = metadata.artist
                     this.album = metadata.album
                     this.artwork = metadata.artwork
                 }
-            }
-
-            window.MediaMetadata = new Proxy(MediaMetadata, {})
+            }, {
+                disallowConstructor: false,
+                allowConstructorCall: false,
+                wrapToString: true
+            })
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
         }
@@ -498,29 +477,55 @@ export class WebCompat extends ContentFeature {
     presentationFix () {
         try {
             // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-            if (window.navigator.presentation) {
+            if (window.navigator.presentation && import.meta.injectName !== 'integration') {
                 return
             }
 
-            this.defineProperty(window.navigator, 'presentation', {
-                value: {
-                },
-                writable: true,
-                configurable: true,
-                enumerable: true
+            const MyPresentation = class {
+                get defaultRequest () {
+                    return null
+                }
+
+                get receiver () {
+                    return null
+                }
+            }
+
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            this.shimInterface('Presentation', MyPresentation, {
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
             })
-            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-            this.defineProperty(window.navigator.presentation, 'defaultRequest', {
-                value: null,
-                configurable: true,
-                enumerable: true
+
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            this.shimInterface('PresentationAvailability', class {
+                // class definition is empty because there's no way to get an instance of it anyways
+            }, {
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
             })
-            // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-            this.defineProperty(window.navigator.presentation, 'receiver', {
-                value: null,
-                configurable: true,
-                enumerable: true
+
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            this.shimInterface('PresentationRequest', class {
+                // class definition is empty because there's no way to get an instance of it anyways
+            }, {
+                disallowConstructor: true,
+                allowConstructorCall: false,
+                wrapToString: true
             })
+
+            /** TODO: add shims for other classes in the Presentation API:
+             * PresentationConnection,
+             * PresentationReceiver,
+             * PresentationConnectionList,
+             * PresentationConnectionAvailableEvent,
+             * PresentationConnectionCloseEvent
+             */
+
+            // @ts-expect-error Presentation API is still experimental, TS types are missing
+            this.shimProperty(Navigator.prototype, 'presentation', new MyPresentation(), true)
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
         }
