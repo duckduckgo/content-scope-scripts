@@ -15,7 +15,23 @@
     --theme-ui-border: var(--color-black-at-9);
     --theme-ui-border-hover: var(--color-black-at-12);
 
-    @media (prefers-color-scheme: dark) {
+    --theme-col-txt-tertiary: var(--col-shade-60);
+    --theme-col-txt-card-title: #222;
+    --ntp-icon-width: 24px;
+    --ntp-icon-margin: 8px;
+    --rounded-md: 8px;
+    --theme-col-bg-bar: rgba(0, 0, 0, .03);
+    --sds-color-background-inverse: #222222;
+    --sds-color-text-01: #222222;
+    --theme-col-bg-page: #fff;
+
+    --col-gray-85: #333;
+    --rounded: 4px;
+    --theme-col-bg-pill: #f5f5f5;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
         --theme-page-bg: #333333;
         --theme-ddg-color-primary: var(--ddg-color-primary-dark);
         --theme-txt-link-color: var(--ddg-color-primary-dark);
@@ -24,5 +40,16 @@
         --theme-txt-color-progress: var(--color-white-at-50);
         --theme-ui-border: var(--color-white-at-9);
         --theme-ui-border-hover: var(--color-white-at-12);
+
+        --theme-col-txt-tertiary: var(--col-tint-50);
+        --theme-col-txt-card-title: #fff;
+        --ntp-icon-width: 24px;
+        --ntp-icon-margin: 8px;
+        --rounded-md: 8px;
+        --theme-col-bg-bar: var(--color-white-at-6);
+        --sds-color-background-inverse: #FFFFFF;
+        --sds-color-text-01: #FFFFFF;
+        --theme-col-bg-page: #1c1c1c;
+        --theme-col-bg-pill: #444;
     }
 }

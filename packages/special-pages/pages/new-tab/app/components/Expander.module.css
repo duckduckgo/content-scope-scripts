@@ -1,0 +1,142 @@
+/* stylelint-disable no-descending-specificity */
+.root {
+    position: relative;
+}
+.inner {
+    display: flex;
+    align-items: center;
+    padding-left: 32px;
+    position: relative;
+
+    & svg {
+        flex-shrink: 0;
+    }
+}
+.bodyWrap {
+    overflow: hidden;
+}
+
+.bodyWrap[data-animations-enabled=true] {
+    transition: height 0.3s ease-out;
+}
+
+.body {
+    padding-bottom: 28px;
+    visibility: visible;
+    transition: opacity .3s;
+
+    & *, & *:before, & *:after {
+        box-sizing: border-box;
+    }
+
+}
+
+[data-variant="embedded"] .body {
+    padding-bottom: 0;
+}
+
+.body[data-state="hiding"] {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.body[data-state="fadingOut"] {
+    animation: fadeOut .3s forwards;
+}
+
+.body[data-state="fadingIn"] {
+    animation: fadeIn .3s forwards;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; visibility: hidden }
+    100% { opacity: 1; visibility: visible }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; visibility: visible }
+    100% { opacity: 0; visibility: hidden }
+}
+
+.icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(calc(-50% - 1px));
+}
+.icon svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.titleText {
+    font-size: calc(18 * var(--px-in-rem));
+    line-height: 22px;
+    font-weight: 600;
+}
+
+@media only screen and (max-width: 499px) {
+
+    /* This was not part of the original design, but it prevents the layout breaking */
+    /* on very small screens */
+    .titleText {
+        font-size: calc(16 * var(--px-in-rem));
+    }
+}
+
+.infoLabel {
+    background: #FFD000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(14 * var(--px-in-rem));
+    line-height: 1;
+    border-radius: 6px 0px;
+    padding: 2px 8px 0 8px;
+    height: 24px;
+    text-transform: uppercase;
+    color: var(--col-gray-85);
+}
+
+.toggle {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    width: var(--ntp-icon-width);
+    height: var(--ntp-icon-width);
+    margin-left: auto;
+    padding: 0;
+    border-radius: var(--rounded);
+
+    &:hover {
+        background: var(--theme-col-bg-pill);
+    }
+
+    &[aria-pressed='false'] .toggleIcon {
+        transform: rotate(180deg);
+    }
+}
+
+.toggleIcon {
+    display: inline-block;
+    transform: rotate(0);
+    transition: transform 0.4s;
+
+    & path {
+        stroke: var(--theme-col-txt-card-title);
+    }
+}
+
+.headerText[data-variant="centered"] {
+    display: inline-block;
+    white-space: nowrap;
+}

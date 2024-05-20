@@ -49,8 +49,14 @@ const messaging = createSpecialPageMessaging({
 })
 
 const newTabMessaging = new NewTabPage(messaging, import.meta.injectName)
+/** @type {'debug' | 'production'} */
+let mode = 'production'
+const param = new URL(window.location.href).searchParams.get('mode') || 'production'
+if (param === 'debug' || param === 'production') {
+    mode = param
+}
 
-init(newTabMessaging).catch(e => {
+init(newTabMessaging, mode).catch(e => {
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
     newTabMessaging.reportInitException(msg)

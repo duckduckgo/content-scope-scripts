@@ -53,6 +53,12 @@
     }
 }
 
+.img {
+    display: block;
+    width: 32px;
+    height: 32px;
+}
+
 .plus {
     background-color: transparent;
     border: 1.5px solid var(--theme-ui-border);
@@ -60,15 +66,14 @@
     &:hover, &:focus-visible {
         background-color: var(--theme-ui-border);
     }
+
+    .img {
+        height: 22px;
+        width: 22px;
+    }
 }
 
 .empty {
     background-color: transparent;
     border: 1.5px dashed var(--theme-ui-border);
-}
-
-.img {
-    display: block;
-    width: 32px;
-    height: 32px;
 }
