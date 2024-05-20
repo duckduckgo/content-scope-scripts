@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Extractor } from '../types.js'
+import { AsyncProfileTransform, Extractor } from '../types.js'
+import { hashObject } from '../utils.js'
 
 /**
  * @implements {Extractor<{profileUrl: string; identifier: string} | null>}
@@ -44,4 +45,28 @@ export class ProfileUrlExtractor {
 
         return profileUrl
     };
+}
+
+/**
+ * If a hash is needed, compute it from the profile and
+ * set it as the 'identifier'
+ *
+ * @implements {AsyncProfileTransform}
+ */
+export class ProfileHashTransformer {
+    /**
+     * @param {Record<string, any>} profile
+     * @param {Record<string, any> } params
+     * @return {Promise<Record<string, any>>}
+     */
+    async transform (profile, params) {
+        if (params?.profileUrl?.identifierType !== 'hash') {
+            return profile
+        }
+
+        return {
+            ...profile,
+            identifier: await hashObject(profile)
+        }
+    }
 }

@@ -3,10 +3,13 @@ import {
     getElement,
     getElementMatches,
     getElements,
-    sortAddressesByStateAndCity,
-    generateIdFromProfile
+    sortAddressesByStateAndCity
 } from '../utils.js' // Assuming you have imported the address comparison function
-import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
+import {
+    ErrorResponse,
+    ProfileResult,
+    SuccessResponse
+} from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
 import { addressMatch } from '../comparisons/address.js'
@@ -15,7 +18,7 @@ import { AlternativeNamesExtractor, NameExtractor } from '../extractors/name.js'
 import { AddressFullExtractor, CityStateExtractor } from '../extractors/address.js'
 import { PhoneExtractor } from '../extractors/phone.js'
 import { RelativesExtractor } from '../extractors/relatives.js'
-import { ProfileUrlExtractor } from '../extractors/profile-url.js'
+import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profile-url.js'
 
 /**
  * Adding these types here so that we can switch to generated ones later
@@ -55,7 +58,7 @@ export async function extract (action, userData, root = document) {
     const filteredPromises = extractResult.results
         .filter(x => x.result === true)
         .map(x => aggregateFields(x.scrapedData))
-        .map(profile => generateProfileId(profile, action?.profile?.profileUrl))
+        .map(profile => applyPostTransforms(profile, action.profile))
 
     const filtered = await Promise.all(filteredPromises)
 
@@ -312,6 +315,28 @@ export function extractValue (outputFieldKey, extractorParams, elementValues) {
 }
 
 /**
+ * A list of transforms that should be applied to the profile after extraction/aggregation
+ *
+ * @param {Record<string, any>} profile
+ * @param {Record<string, ExtractProfileProperty>} params
+ * @return {Promise<Record<string, any>>}
+ */
+async function applyPostTransforms (profile, params) {
+    /** @type {import("../types.js").AsyncProfileTransform[]} */
+    const transforms = [
+        // creates a hash if needed
+        new ProfileHashTransformer()
+    ]
+
+    let output = profile
+    for (const knownTransform of transforms) {
+        output = await knownTransform.transform(output, params)
+    }
+
+    return output
+}
+
+/**
  * @param {string} inputList
  * @param {string} [separator]
  * @return {string[]}
@@ -379,22 +404,4 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
     }
 
     return elementValue
-}
-
-/**
- * @typedef {Pick<ExtractorParams, 'identifierType'>} ProfileUrlParams
- *
- * @param {Record<string, any>} originalProfile
- * @param {ProfileUrlParams=} profileUrl
- * @return {Promise<Record<string, any>>}
- */
-export async function generateProfileId (originalProfile, profileUrl) {
-    if (profileUrl?.identifierType !== 'hash') {
-        return originalProfile
-    }
-
-    const profile = structuredClone(originalProfile)
-    profile.identifier = await generateIdFromProfile(profile)
-
-    return profile
 }
