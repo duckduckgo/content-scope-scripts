@@ -2,14 +2,14 @@ import { Mocks } from './mocks.js'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
-import { defaultLoadData } from '../../pages/sslerrorpage/src/js/defaults'
+import { defaultLoadData } from '../../pages/specialerrorpage/src/js/defaults'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').PlatformInfo} PlatformInfo
  */
 
-export class SSLErrorPage {
+export class SpecialErrorPage {
     /**
      * @param {import("@playwright/test").Page} page
      * @param {Build} build
@@ -62,7 +62,7 @@ export class SSLErrorPage {
      */
     get basePath () {
         return this.build.switch({
-            apple: () => '../../Sources/ContentScopeScripts/dist/pages/sslerrorpage'
+            apple: () => '../../Sources/ContentScopeScripts/dist/pages/specilalerrorpage'
         })
     }
 
@@ -73,7 +73,7 @@ export class SSLErrorPage {
     static create (page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
-        return new SSLErrorPage(page, build, platformInfo)
+        return new SpecialErrorPage(page, build, platformInfo)
     }
 
     async darkMode () {

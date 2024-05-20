@@ -21,8 +21,8 @@ export default defineConfig({
             }
         },
         {
-            name: 'sslerrorpage-apple',
-            testMatch: 'sslerror.spec.js',
+            name: 'specialerrorpage-apple',
+            testMatch: 'specialerror.spec.js',
             use: {
                 ...devices['Desktop Safari'],
                 injectName: 'apple',

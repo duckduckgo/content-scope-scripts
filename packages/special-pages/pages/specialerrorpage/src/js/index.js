@@ -1,18 +1,18 @@
 /**
- * @module PhishingError Page
+ * @module SpecialError Page
  * @category Special Pages
  *
  * @description
  *
- * [[include:packages/special-pages/pages/sslerrorpage/readme.md]]
+ * [[include:packages/special-pages/pages/specialerrorpage/readme.md]]
  */
 
 import { execTemplate } from './template.js'
 import { defaultLoadData } from './defaults.js'
-import { createPhishingErrorMessaging } from './messages.js'
+import { createSpecialErrorMessaging } from './messages.js'
 import { createTypedMessages } from '@duckduckgo/messaging'
 
-export class PhishingerrorpagePage {
+export class SpecialerrorpagePage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
@@ -33,11 +33,11 @@ export class PhishingerrorpagePage {
 }
 
 async function init () {
-    const messaging = await createPhishingErrorMessaging({
+    const messaging = await createSpecialErrorMessaging({
         env: import.meta.env,
         injectName: import.meta.injectName
     })
-    const page = new PhishingerrorpagePage(messaging)
+    const page = new SpecialerrorpagePage(messaging)
     window.addEventListener('DOMContentLoaded', () => {
         loadHTML()
         bindEvents(page)
@@ -86,7 +86,7 @@ function domElements () {
 }
 
 /**
- * @param {PhishingerrorpagePage} page
+ * @param {SpecialerrorpagePage} page
  */
 function bindEvents (page) {
     const dom = domElements()

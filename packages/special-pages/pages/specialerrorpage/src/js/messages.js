@@ -5,11 +5,11 @@ import { TestTransportConfig } from '@duckduckgo/messaging'
  * @param {ImportMeta['env']} opts.env
  * @param {ImportMeta['injectName']} opts.injectName
  */
-export async function createSSLErrorMessaging (opts) {
+export async function createSpecialErrorMessaging (opts) {
     const { Messaging, MessagingContext, WebkitMessagingConfig } = await import('@duckduckgo/messaging')
     const messageContext = new MessagingContext({
         context: 'specialPages',
-        featureName: 'sslErrorPage',
+        featureName: 'specialErrorPage',
         env: opts.env
     })
     if (opts.injectName === 'integration') {
