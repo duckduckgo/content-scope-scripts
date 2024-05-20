@@ -182,9 +182,9 @@ describe('create profiles from extracted data', () => {
             elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
             expected: {
                 addresses: [
+                    { city: 'Carrollton', state: 'TX' },
                     { city: 'Dallas', state: 'TX' },
-                    { city: 'The Colony', state: 'TX' },
-                    { city: 'Carrollton', state: 'TX' }
+                    { city: 'The Colony', state: 'TX' }
                 ]
             }
         }
@@ -207,7 +207,7 @@ describe('create profiles from extracted data', () => {
                 },
                 elements: [{ innerText: '123 fake street,\nDallas, TX 75215' }, { innerText: '123 fake street,\nMiami, FL 75215' }],
                 expected: {
-                    addresses: [{ city: 'Dallas', state: 'TX' }, { city: 'Miami', state: 'FL' }]
+                    addresses: [{ city: 'Miami', state: 'FL' }, { city: 'Dallas', state: 'TX' }]
                 }
             }
         ]
@@ -297,5 +297,93 @@ describe('create profiles from extracted data', () => {
         const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
         const actual = aggregateFields(scraped)
         expect(actual.addresses).toEqual(expected)
+    })
+
+    it('should sort relatives by name alphabetically', () => {
+        const selectors = {
+            relativesList: {
+                selector: 'example',
+                findElements: true
+            }
+        }
+        const elementFactory = (key) => {
+            return {
+                relativesList: [
+                    { innerText: 'Dale Johnson' },
+                    { innerText: 'John Smith' },
+                    { innerText: 'Jimmy Smith' },
+                    { innerText: 'Jill Johnson' },
+                    { innerText: 'Jack Johnson' }
+                ]
+            }[key]
+        }
+        const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
+        const actual = aggregateFields(scraped)
+
+        expect(actual.relatives).toEqual([
+            'Dale Johnson',
+            'Jack Johnson',
+            'Jill Johnson',
+            'Jimmy Smith',
+            'John Smith'
+        ])
+    })
+
+    it('should sort phone numbers numerically', () => {
+        const selectors = {
+            phoneList: {
+                selector: 'example',
+                findElements: true
+            }
+        }
+        const elementFactory = (key) => {
+            return {
+                phoneList: [
+                    { innerText: '123-456-7895' },
+                    { innerText: '123-456-7894' },
+                    { innerText: '123-456-7892' },
+                    { innerText: '123-456-7891' },
+                    { innerText: '123-456-7890' }
+                ]
+            }[key]
+        }
+        const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
+        const actual = aggregateFields(scraped)
+
+        expect(actual.phoneNumbers).toEqual([
+            '1234567890',
+            '1234567891',
+            '1234567892',
+            '1234567894',
+            '1234567895'
+        ])
+    })
+
+    it('should sort alternative names alphabetically', () => {
+        const selectors = {
+            alternativeNamesList: {
+                selector: 'example',
+                findElements: true
+            }
+        }
+        const elementFactory = (key) => {
+            return {
+                alternativeNamesList: [
+                    { innerText: 'Jerry Doug' },
+                    { innerText: 'Marvin Smith' },
+                    { innerText: 'Roger Star' },
+                    { innerText: 'Fred Firth' }
+                ]
+            }[key]
+        }
+        const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
+        const actual = aggregateFields(scraped)
+
+        expect(actual.alternativeNames).toEqual([
+            'Fred Firth',
+            'Jerry Doug',
+            'Marvin Smith',
+            'Roger Star'
+        ])
     })
 })
