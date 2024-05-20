@@ -12137,6 +12137,32 @@
     }
 
     /**
+     * Sorts an array of addresses by state, then by city within the state.
+     *
+     * @param {any} addresses
+     * @return {Array}
+     */
+    function sortAddressesByStateAndCity (addresses) {
+        return addresses.sort((a, b) => {
+            if (a.state < b.state) { return -1 }
+            if (a.state > b.state) { return 1 }
+            return a.city.localeCompare(b.city)
+        })
+    }
+
+    /**
+     * Returns a SHA-1 hash of the profile
+     */
+    async function hashObject (profile) {
+        const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)); // encode as (utf-8)
+        const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8); // hash the message
+        const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+
+        return hashHex
+    }
+
+    /**
      * @param {{city: string; state: string | null}[]} userAddresses
      * @param {{city: string; state: string | null}[]} foundAddresses
      * @return {boolean}
@@ -15544,8 +15570,52 @@
             }
 
             const profileUrl = strs[0];
-            profile.identifier = getIdFromProfileUrl(profileUrl, extractorParams.identifierType, extractorParams.identifier);
+            profile.identifier = this.getIdFromProfileUrl(profileUrl, extractorParams.identifierType, extractorParams.identifier);
             return profile
+        }
+
+        /**
+         * Parse a profile id from a profile URL
+         * @param {string} profileUrl
+         * @param {import('../actions/extract.js').IdentifierType} identifierType
+         * @param {string} identifier
+         * @return {string}
+         */
+        getIdFromProfileUrl (profileUrl, identifierType, identifier) {
+            const parsedUrl = new URL(profileUrl);
+            const urlParams = parsedUrl.searchParams;
+
+            // Attempt to parse out an id from the search parameters
+            if (identifierType === 'param' && urlParams.has(identifier)) {
+                const profileId = urlParams.get(identifier);
+                return profileId || profileUrl
+            }
+
+            return profileUrl
+        };
+    }
+
+    /**
+     * If a hash is needed, compute it from the profile and
+     * set it as the 'identifier'
+     *
+     * @implements {AsyncProfileTransform}
+     */
+    class ProfileHashTransformer {
+        /**
+         * @param {Record<string, any>} profile
+         * @param {Record<string, any> } params
+         * @return {Promise<Record<string, any>>}
+         */
+        async transform (profile, params) {
+            if (params?.profileUrl?.identifierType !== 'hash') {
+                return profile
+            }
+
+            return {
+                ...profile,
+                identifier: await hashObject(profile)
+            }
         }
     }
 
@@ -15555,7 +15625,7 @@
      */
 
     /**
-     * @typedef {'param'|'path'} IdentifierType
+     * @typedef {'param'|'path'|'hash'} IdentifierType
      * @typedef {Object} ExtractProfileProperty
      * For example: {
      *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
@@ -15575,18 +15645,21 @@
      * @param {Action} action
      * @param {Record<string, any>} userData
      * @param {Document | HTMLElement} root
-     * @return {import('../types.js').ActionResponse}
+     * @return {Promise<import('../types.js').ActionResponse>}
      */
-    function extract (action, userData, root = document) {
+    async function extract (action, userData, root = document) {
         const extractResult = extractProfiles(action, userData, root);
 
         if ('error' in extractResult) {
             return new ErrorResponse({ actionID: action.id, message: extractResult.error })
         }
 
-        const filtered = extractResult.results
+        const filteredPromises = extractResult.results
             .filter(x => x.result === true)
-            .map(x => aggregateFields(x.scrapedData));
+            .map(x => aggregateFields(x.scrapedData))
+            .map(profile => applyPostTransforms(profile, action.profile));
+
+        const filtered = await Promise.all(filteredPromises);
 
         // omit the DOM node from data transfer
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -15775,18 +15848,18 @@
             ...profile.addressFull || []
         ];
         const addressMap = new Map(combinedAddresses.map(addr => [`${addr.city},${addr.state}`, addr]));
-        const addresses = [...addressMap.values()];
+        const addresses = sortAddressesByStateAndCity([...addressMap.values()]);
 
         // phone
         const phoneArray = profile.phone || [];
         const phoneListArray = profile.phoneList || [];
-        const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])];
+        const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])].sort((a, b) => parseInt(a) - parseInt(b));
 
         // relatives
-        const relatives = [...new Set(profile.relativesList)];
+        const relatives = [...new Set(profile.relativesList)].sort();
 
         // aliases
-        const alternativeNames = [...new Set(profile.alternativeNamesList)];
+        const alternativeNames = [...new Set(profile.alternativeNamesList)].sort();
 
         return {
             name: profile.name,
@@ -15841,6 +15914,28 @@
     }
 
     /**
+     * A list of transforms that should be applied to the profile after extraction/aggregation
+     *
+     * @param {Record<string, any>} profile
+     * @param {Record<string, ExtractProfileProperty>} params
+     * @return {Promise<Record<string, any>>}
+     */
+    async function applyPostTransforms (profile, params) {
+        /** @type {import("../types.js").AsyncProfileTransform[]} */
+        const transforms = [
+            // creates a hash if needed
+            new ProfileHashTransformer()
+        ];
+
+        let output = profile;
+        for (const knownTransform of transforms) {
+            output = await knownTransform.transform(output, params);
+        }
+
+        return output
+    }
+
+    /**
      * @param {string} inputList
      * @param {string} [separator]
      * @return {string[]}
@@ -15856,26 +15951,6 @@
             return link?.href ?? null
         }
     };
-
-    /**
-     * Parse a profile id from a profile URL
-     * @param {string} profileUrl
-     * @param {IdentifierType} identifierType
-     * @param {string} identifier
-     * @return {string}
-     */
-    function getIdFromProfileUrl (profileUrl, identifierType, identifier) {
-        const parsedUrl = new URL(profileUrl);
-        const urlParams = parsedUrl.searchParams;
-
-        // Attempt to parse out an id from the search parameters
-        if (identifierType === 'param' && urlParams.has(identifier)) {
-            const profileId = urlParams.get(identifier);
-            return profileId || profileUrl
-        }
-
-        return profileUrl
-    }
 
     /**
      * Remove common prefixes and suffixes such as
@@ -16497,15 +16572,15 @@
      * @param {"extract" | "fillForm" | "click" | "expectation" | "getCaptchaInfo" | "solveCaptcha" | "navigate"} action.actionType
      * @param {Record<string, any>} inputData
      * @param {Document} [root] - optional root element
-     * @return {import('./types.js').ActionResponse}
+     * @return {Promise<import('./types.js').ActionResponse>}
      */
-    function execute (action, inputData, root = document) {
+    async function execute (action, inputData, root = document) {
         try {
             switch (action.actionType) {
             case 'navigate':
                 return buildUrl(action, data(action, inputData, 'userProfile'))
             case 'extract':
-                return extract(action, data(action, inputData, 'userProfile'), root)
+                return await extract(action, data(action, inputData, 'userProfile'), root)
             case 'click':
                 return click(action, data(action, inputData, 'userProfile'), root)
             case 'expectation':
@@ -16557,7 +16632,7 @@
      *
      * @template T
      * @template {{ success: T } | { error: { message: string } }} FnReturn
-     * @param {() => FnReturn} fn
+     * @param {() => Promise<FnReturn>} fn
      * @param {typeof DEFAULT_RETRY_CONFIG} [config]
      * @return {Promise<{ result: FnReturn | undefined, exceptions: string[] }>}
      */
@@ -16566,7 +16641,7 @@
         const exceptions = [];
         for (let i = 0; i < config.maxAttempts; i++) {
             try {
-                lastResult = fn();
+                lastResult = await Promise.resolve(fn());
             } catch (e) {
                 exceptions.push(e.toString());
             }

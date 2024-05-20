@@ -2,9 +2,14 @@ import {
     cleanArray,
     getElement,
     getElementMatches,
-    getElements
+    getElements,
+    sortAddressesByStateAndCity
 } from '../utils.js' // Assuming you have imported the address comparison function
-import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
+import {
+    ErrorResponse,
+    ProfileResult,
+    SuccessResponse
+} from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
 import { addressMatch } from '../comparisons/address.js'
@@ -13,7 +18,7 @@ import { AlternativeNamesExtractor, NameExtractor } from '../extractors/name.js'
 import { AddressFullExtractor, CityStateExtractor } from '../extractors/address.js'
 import { PhoneExtractor } from '../extractors/phone.js'
 import { RelativesExtractor } from '../extractors/relatives.js'
-import { ProfileUrlExtractor } from '../extractors/profile-url.js'
+import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profile-url.js'
 
 /**
  * Adding these types here so that we can switch to generated ones later
@@ -21,7 +26,7 @@ import { ProfileUrlExtractor } from '../extractors/profile-url.js'
  */
 
 /**
- * @typedef {'param'|'path'} IdentifierType
+ * @typedef {'param'|'path'|'hash'} IdentifierType
  * @typedef {Object} ExtractProfileProperty
  * For example: {
  *   "selector": ".//div[@class='col-sm-24 col-md-8 relatives']//li"
@@ -41,18 +46,21 @@ import { ProfileUrlExtractor } from '../extractors/profile-url.js'
  * @param {Action} action
  * @param {Record<string, any>} userData
  * @param {Document | HTMLElement} root
- * @return {import('../types.js').ActionResponse}
+ * @return {Promise<import('../types.js').ActionResponse>}
  */
-export function extract (action, userData, root = document) {
+export async function extract (action, userData, root = document) {
     const extractResult = extractProfiles(action, userData, root)
 
     if ('error' in extractResult) {
         return new ErrorResponse({ actionID: action.id, message: extractResult.error })
     }
 
-    const filtered = extractResult.results
+    const filteredPromises = extractResult.results
         .filter(x => x.result === true)
         .map(x => aggregateFields(x.scrapedData))
+        .map(profile => applyPostTransforms(profile, action.profile))
+
+    const filtered = await Promise.all(filteredPromises)
 
     // omit the DOM node from data transfer
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -241,18 +249,18 @@ export function aggregateFields (profile) {
         ...profile.addressFull || []
     ]
     const addressMap = new Map(combinedAddresses.map(addr => [`${addr.city},${addr.state}`, addr]))
-    const addresses = [...addressMap.values()]
+    const addresses = sortAddressesByStateAndCity([...addressMap.values()])
 
     // phone
     const phoneArray = profile.phone || []
     const phoneListArray = profile.phoneList || []
-    const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])]
+    const phoneNumbers = [...new Set([...phoneArray, ...phoneListArray])].sort((a, b) => parseInt(a) - parseInt(b))
 
     // relatives
-    const relatives = [...new Set(profile.relativesList)]
+    const relatives = [...new Set(profile.relativesList)].sort()
 
     // aliases
-    const alternativeNames = [...new Set(profile.alternativeNamesList)]
+    const alternativeNames = [...new Set(profile.alternativeNamesList)].sort()
 
     return {
         name: profile.name,
@@ -307,6 +315,28 @@ export function extractValue (outputFieldKey, extractorParams, elementValues) {
 }
 
 /**
+ * A list of transforms that should be applied to the profile after extraction/aggregation
+ *
+ * @param {Record<string, any>} profile
+ * @param {Record<string, ExtractProfileProperty>} params
+ * @return {Promise<Record<string, any>>}
+ */
+async function applyPostTransforms (profile, params) {
+    /** @type {import("../types.js").AsyncProfileTransform[]} */
+    const transforms = [
+        // creates a hash if needed
+        new ProfileHashTransformer()
+    ]
+
+    let output = profile
+    for (const knownTransform of transforms) {
+        output = await knownTransform.transform(output, params)
+    }
+
+    return output
+}
+
+/**
  * @param {string} inputList
  * @param {string} [separator]
  * @return {string[]}
@@ -321,26 +351,6 @@ const rules = {
     profileUrl: function (link) {
         return link?.href ?? null
     }
-}
-
-/**
- * Parse a profile id from a profile URL
- * @param {string} profileUrl
- * @param {IdentifierType} identifierType
- * @param {string} identifier
- * @return {string}
- */
-export function getIdFromProfileUrl (profileUrl, identifierType, identifier) {
-    const parsedUrl = new URL(profileUrl)
-    const urlParams = parsedUrl.searchParams
-
-    // Attempt to parse out an id from the search parameters
-    if (identifierType === 'param' && urlParams.has(identifier)) {
-        const profileId = urlParams.get(identifier)
-        return profileId || profileUrl
-    }
-
-    return profileUrl
 }
 
 /**

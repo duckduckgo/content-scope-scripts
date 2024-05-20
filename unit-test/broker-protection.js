@@ -3,7 +3,6 @@ import { isSameAge } from '../src/features/broker-protection/comparisons/is-same
 import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
 import {
     stringToList,
-    getIdFromProfileUrl,
     extractValue
 } from '../src/features/broker-protection/actions/extract.js'
 import {
@@ -12,9 +11,10 @@ import {
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
-import { generateRandomInt } from '../src/features/broker-protection/utils.js'
+import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
+import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -134,6 +134,54 @@ describe('Actions', () => {
                         expect(typeof result).toBe('boolean')
                     }
                 ), { seed: 203542789, path: '70:1:0:0:1:85:86:85:86:86', endOnFailure: true })
+            })
+        })
+
+        describe('ProfileHashTransformer', () => {
+            /**
+             * @typedef {import("../src/features/broker-protection/actions/extract.js").IdentifierType} IdentifierType
+             */
+            it('Should return the profile unchanged if profileUrl is not present', async () => {
+                const profile = {
+                    firstName: 'John',
+                    lastName: 'Doe'
+                }
+
+                const generatedProfile = await new ProfileHashTransformer().transform(profile, {})
+                expect(generatedProfile).toEqual(profile)
+            })
+
+            it('Should return the profile unchanged if identifierType is not set to hash', async () => {
+                const profile = {
+                    firstName: 'John',
+                    lastName: 'Doe'
+                }
+
+                const params = {
+                    profileUrl: {
+                        identifierType: /** @type {IdentifierType} */ ('param')
+                    }
+                }
+
+                const generatedProfile = await new ProfileHashTransformer().transform(profile, params)
+                expect(generatedProfile).toEqual(profile)
+            })
+
+            it('Should return a profile with a hash in the identifier if the identifierType is set to hash', async () => {
+                const profile = {
+                    firstName: 'John',
+                    lastName: 'Doe'
+                }
+
+                const params = {
+                    profileUrl: {
+                        identifierType: /** @type {IdentifierType} */ ('hash')
+                    }
+                }
+
+                const generatedProfile =
+                  await new ProfileHashTransformer().transform(profile, params)
+                expect(generatedProfile.identifier).toMatch(/^[0-9a-f]{40}$/)
             })
         })
 
@@ -260,43 +308,6 @@ describe('Actions', () => {
                 it('should not match when city/state is not present', () => {
                     expect(addressMatch(userData.addresses, [{ city: 'los angeles', state: 'ca' }])).toBe(false)
                 })
-            })
-        })
-
-        describe('getIdFromProfileUrl', () => {
-            it('should return the profile URL as the identifier if the identifierType is "path"', () => {
-                const profileUrl = 'https://duckduckgo.com/my/profile/john-smith/223'
-                const identifierType = 'path'
-                // eslint-disable-next-line no-template-curly-in-string
-                const identifier = 'https://duckduckgo.com/my/profile/${firstName}-${lastName}/${id}'
-
-                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
-            })
-
-            it('should return the profile URL as the identifier if the identifierType is "param" and the param is not found', () => {
-                const profileUrl = 'https://duckduckgo.com/my/profile?id=test'
-                const identifierType = 'param'
-                const identifier = 'pid'
-
-                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
-            })
-
-            it('should return the profile URL as the identifier if the identifierType is "param" and the identifier is a path', () => {
-                const profileUrl = 'https://duckduckgo.com/my/profile/john-smith/223'
-                const identifierType = 'param'
-                // eslint-disable-next-line no-template-curly-in-string
-                const identifier = 'https://duckduckgo.com/my/profile/${firstName}-${lastName}/${id}'
-
-                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(profileUrl)
-            })
-
-            it('should return the id as the identifier if the identifierType is "param" and the param is found in the url', () => {
-                const id = 'test'
-                const profileUrl = `https://duckduckgo.com/my/profile?id=${id}`
-                const identifierType = 'param'
-                const identifier = 'id'
-
-                expect(getIdFromProfileUrl(profileUrl, identifierType, identifier)).toEqual(id)
             })
         })
     })
@@ -585,6 +596,76 @@ describe('utils', () => {
                     )
                 })
             )
+        })
+    })
+
+    describe('generateIdFromProfile', () => {
+        it('generates a hash from a profile', async () => {
+            const profile = {
+                firstName: 'John',
+                lastName: 'Doe'
+            }
+
+            const result = await hashObject(profile)
+
+            expect(typeof result).toEqual('string')
+            expect(result.length).toBe(40)
+            expect(result).toMatch(/^[0-9a-f]{40}$/)
+        })
+
+        it('generates a stable hash from a profile', async () => {
+            const profile = {
+                firstName: 'John',
+                lastName: 'Doe'
+            }
+
+            const originalResult = await hashObject(profile)
+
+            profile.middleName = 'David'
+
+            const updatedResult = await hashObject(profile)
+            expect(originalResult).not.toEqual(updatedResult)
+
+            delete profile.middleName
+
+            const finalResult = await hashObject(profile)
+            expect(finalResult).toEqual(originalResult)
+        })
+    })
+
+    describe('sortAddressesByStateAndCity', () => {
+        it('sorts addresses by state and city', () => {
+            const addresses = [
+                {
+                    city: 'Houston',
+                    state: 'TX'
+                },
+                {
+                    city: 'Ontario',
+                    state: 'CA'
+                },
+                {
+                    city: 'Dallas',
+                    state: 'TX'
+                }
+            ]
+
+            const result = sortAddressesByStateAndCity(addresses)
+
+            expect(result).toEqual([
+                {
+                    city: 'Ontario',
+                    state: 'CA'
+                },
+                {
+                    city: 'Dallas',
+                    state: 'TX'
+                },
+                {
+                    city: 'Houston',
+                    state: 'TX'
+                }
+            ])
         })
     })
 })

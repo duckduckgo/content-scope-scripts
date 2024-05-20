@@ -216,3 +216,29 @@ export function matchingPair (a, b) {
     if (!nonEmptyString(b)) return false
     return a.toLowerCase().trim() === b.toLowerCase().trim()
 }
+
+/**
+ * Sorts an array of addresses by state, then by city within the state.
+ *
+ * @param {any} addresses
+ * @return {Array}
+ */
+export function sortAddressesByStateAndCity (addresses) {
+    return addresses.sort((a, b) => {
+        if (a.state < b.state) { return -1 }
+        if (a.state > b.state) { return 1 }
+        return a.city.localeCompare(b.city)
+    })
+}
+
+/**
+ * Returns a SHA-1 hash of the profile
+ */
+export async function hashObject (profile) {
+    const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)) // encode as (utf-8)
+    const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
+    const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
+
+    return hashHex
+}
