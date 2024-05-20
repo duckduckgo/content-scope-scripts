@@ -3,8 +3,7 @@ import { isSameAge } from '../src/features/broker-protection/comparisons/is-same
 import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
 import {
     stringToList,
-    extractValue,
-    generateProfileId
+    extractValue
 } from '../src/features/broker-protection/actions/extract.js'
 import {
     addressMatch
@@ -12,9 +11,10 @@ import {
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
-import { generateRandomInt, generateIdFromProfile, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils.js'
+import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils.js'
 import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
+import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -137,7 +137,7 @@ describe('Actions', () => {
             })
         })
 
-        describe('generateProfileId', () => {
+        describe('ProfileHashTransformer', () => {
             /**
              * @typedef {import("../src/features/broker-protection/actions/extract.js").IdentifierType} IdentifierType
              */
@@ -147,7 +147,7 @@ describe('Actions', () => {
                     lastName: 'Doe'
                 }
 
-                const generatedProfile = await generateProfileId(profile, undefined)
+                const generatedProfile = await new ProfileHashTransformer().transform(profile, {})
                 expect(generatedProfile).toEqual(profile)
             })
 
@@ -157,11 +157,13 @@ describe('Actions', () => {
                     lastName: 'Doe'
                 }
 
-                const profileUrl = {
-                    identifierType: /** @type {IdentifierType} */ ('param')
+                const params = {
+                    profileUrl: {
+                        identifierType: /** @type {IdentifierType} */ ('param')
+                    }
                 }
 
-                const generatedProfile = await generateProfileId(profile, profileUrl)
+                const generatedProfile = await new ProfileHashTransformer().transform(profile, params)
                 expect(generatedProfile).toEqual(profile)
             })
 
@@ -171,11 +173,14 @@ describe('Actions', () => {
                     lastName: 'Doe'
                 }
 
-                const profileUrl = {
-                    identifierType: /** @type {IdentifierType} */ ('hash')
+                const params = {
+                    profileUrl: {
+                        identifierType: /** @type {IdentifierType} */ ('hash')
+                    }
                 }
 
-                const generatedProfile = await generateProfileId(profile, profileUrl)
+                const generatedProfile =
+                  await new ProfileHashTransformer().transform(profile, params)
                 expect(generatedProfile.identifier).toMatch(/^[0-9a-f]{40}$/)
             })
         })
@@ -601,7 +606,7 @@ describe('utils', () => {
                 lastName: 'Doe'
             }
 
-            const result = await generateIdFromProfile(profile)
+            const result = await hashObject(profile)
 
             expect(typeof result).toEqual('string')
             expect(result.length).toBe(40)
@@ -614,16 +619,16 @@ describe('utils', () => {
                 lastName: 'Doe'
             }
 
-            const originalResult = await generateIdFromProfile(profile)
+            const originalResult = await hashObject(profile)
 
             profile.middleName = 'David'
 
-            const updatedResult = await generateIdFromProfile(profile)
+            const updatedResult = await hashObject(profile)
             expect(originalResult).not.toEqual(updatedResult)
 
             delete profile.middleName
 
-            const finalResult = await generateIdFromProfile(profile)
+            const finalResult = await hashObject(profile)
             expect(finalResult).toEqual(originalResult)
         })
     })

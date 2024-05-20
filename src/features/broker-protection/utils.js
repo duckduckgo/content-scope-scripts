@@ -234,7 +234,7 @@ export function sortAddressesByStateAndCity (addresses) {
 /**
  * Returns a SHA-1 hash of the profile
  */
-export async function generateIdFromProfile (profile) {
+export async function hashObject (profile) {
     const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)) // encode as (utf-8)
     const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
     const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
