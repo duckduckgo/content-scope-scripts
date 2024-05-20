@@ -4,6 +4,18 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const delay = parseInt(new URLSearchParams(location.search).get('delay') || '0');
+                const internalNav = new URLSearchParams(location.search).has('internal-nav');
+                const unload = new URLSearchParams(location.search).has('unload');
+                if (internalNav) {
+                    setTimeout(() => {
+                        window.history.pushState({}, 'internal nav', '/other')
+                    }, delay/2)
+                }
+                if (unload) {
+                    setTimeout(() => {
+                        window.location.href = 'https://example.com'
+                    }, delay/2)
+                }
                 setTimeout(() => {
                     document.querySelectorAll('.__search-item').forEach((elem) =>{
                         elem.classList.add('search-item')

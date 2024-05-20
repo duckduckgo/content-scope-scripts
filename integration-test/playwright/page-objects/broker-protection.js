@@ -240,12 +240,13 @@ export class BrokerProtectionPage {
 
     /**
      * @param {string} method
+     * @param {number} count - when to stop waiting.
      * @return {Promise<object>}
      */
-    async waitForMessage (method) {
+    async waitForMessage (method, count = 1) {
         await this.page.waitForFunction(waitForCallCount, {
             method,
-            count: 1
+            count
         }, { timeout: 5000, polling: 100 })
         const calls = await this.page.evaluate(readOutgoingMessages)
         return calls.filter(v => v.payload.method === method)

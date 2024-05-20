@@ -72,6 +72,30 @@ test.describe('Broker Protection communications', () => {
             }])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
+        test('extract with retry error handling', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results.html?delay=2000&internal-nav')
+            await dbp.receivesAction('extract.json')
+            const errorResponse = await dbp.waitForMessage('actionCompleted')
+            dbp.isErrorMessage(errorResponse)
+
+            await page.waitForTimeout(1000)
+
+            // the second time, the url does not change during execution, so we should get a reply
+            await dbp.receivesAction('extract.json')
+            const responses = await dbp.waitForMessage('actionCompleted', 2)
+
+            dbp.responseContainsMetadata(responses[1].payload.params.result.success.meta)
+        })
+        test.skip('extract with retry error handling (unload)', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results.html?delay=2000&unload')
+            await dbp.receivesAction('extract.json')
+            const errorResponse = await dbp.waitForMessage('actionCompleted')
+            dbp.isErrorMessage(errorResponse)
+        })
 
         test('extract multiple profiles', async ({ page, baseURL }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)

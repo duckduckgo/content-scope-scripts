@@ -14,7 +14,8 @@ describe('retry function tests', () => {
                     throw new Error('Always fails')
                 }).and.callThrough()
 
-                const { result, exceptions } = await retry(errorFunction, config)
+                const controller = new AbortController()
+                const { result, exceptions } = await retry(errorFunction, controller.signal, config)
 
                 // result should be undefined since we always throw
                 expect(result).toBe(undefined)
@@ -40,7 +41,8 @@ describe('retry function tests', () => {
                     }
                 }).and.callThrough()
 
-                const { result, exceptions } = await retry(successfulFunction, config)
+                const controller = new AbortController()
+                const { result, exceptions } = await retry(successfulFunction, controller.signal, config)
 
                 // Expect retry to eventually return a successful result
                 expect(result).toEqual({ success: 'Function succeeded' })
@@ -59,7 +61,8 @@ describe('retry function tests', () => {
                     return { error: { message: 'something went wrong' } }
                 }).and.callThrough()
 
-                const { result, exceptions } = await retry(errorFunction, config)
+                const controller = new AbortController()
+                const { result, exceptions } = await retry(errorFunction, controller.signal, config)
 
                 // this line just helps typescript understand that we're expecting 'result.error'
                 if (result && !('error' in result)) throw new Error('unreachable')

@@ -1,6 +1,7 @@
 import ContentFeature from '../content-feature.js'
 import { execute } from './broker-protection/execute.js'
-import { retry } from '../timer-utils.js'
+import { pageDidUnload, retry, urlDidChange } from '../timer-utils.js'
+import { ErrorResponse } from './broker-protection/types.js'
 
 /**
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
@@ -47,7 +48,37 @@ export default class BrokerProtection extends ContentFeature {
                     }
                 }
 
-                const { result, exceptions } = await retry(() => execute(action, data), retryConfig)
+                const controller = new AbortController()
+
+                // eslint-disable-next-line promise/prefer-await-to-then
+                const urlCheck = urlDidChange(controller.signal).then(() => {
+                    return {
+                        result: new ErrorResponse({ actionID: action.id, message: 'url changed' }),
+                        exceptions: []
+                    }
+                })
+
+                // eslint-disable-next-line promise/prefer-await-to-then
+                const unloaded = pageDidUnload(controller.signal).then(() => {
+                    return {
+                        result: new ErrorResponse({ actionID: action.id, message: 'page unloaded' }),
+                        exceptions: []
+                    }
+                })
+
+                const actionResponse = retry(() => execute(action, data), controller.signal, retryConfig)
+
+                // race them all, first one that wins..
+                const execResult = await Promise.race([
+                    unloaded,
+                    urlCheck,
+                    actionResponse
+                ])
+
+                // cleanup
+                controller.abort()
+
+                const { result, exceptions } = execResult
 
                 if (result) {
                     this.messaging.notify('actionCompleted', { result })
