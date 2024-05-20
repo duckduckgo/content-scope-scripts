@@ -84,3 +84,18 @@ export class Extractor {
         throw new Error('must implement extract')
     }
 }
+
+/**
+ * @interface
+ */
+export class AsyncProfileTransform {
+    /**
+     * @param {Record<string, any>} profile - The current profile value
+     * @param {Record<string, any>} profileParams - the original action params from `action.profile`
+     * @return {Promise<Record<string, any>>}
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    transform (profile, profileParams) {
+        throw new Error('must implement extract')
+    }
+}

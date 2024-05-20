@@ -9,7 +9,7 @@ export const DEFAULT_RETRY_CONFIG = {
  *
  * @template T
  * @template {{ success: T } | { error: { message: string } }} FnReturn
- * @param {() => FnReturn} fn
+ * @param {() => Promise<FnReturn>} fn
  * @param {typeof DEFAULT_RETRY_CONFIG} [config]
  * @return {Promise<{ result: FnReturn | undefined, exceptions: string[] }>}
  */
@@ -18,7 +18,7 @@ export async function retry (fn, config = DEFAULT_RETRY_CONFIG) {
     const exceptions = []
     for (let i = 0; i < config.maxAttempts; i++) {
         try {
-            lastResult = fn()
+            lastResult = await Promise.resolve(fn())
         } catch (e) {
             exceptions.push(e.toString())
         }
