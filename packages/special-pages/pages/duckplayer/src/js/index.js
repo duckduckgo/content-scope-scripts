@@ -33,13 +33,13 @@
  */
 import {
     callWithRetry,
-    createDuckPlayerPageMessaging,
     DuckPlayerPageMessages,
     UserValues
 } from './messages'
 import { html } from '../../../../../../src/dom-utils'
 import { initStorage } from './storage'
 import { createYoutubeURLForError } from './utils'
+import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 
 // for docs
 export { DuckPlayerPageMessages, UserValues }
@@ -411,12 +411,9 @@ const Comms = {
      *
      * `window.postMessage({ alwaysOpenSetting: false })`
      *
-     * @param {object} opts
-     * @param {ImportMeta['env']} opts.env
-     * @param {ImportMeta['injectName']} opts.injectName
+     * @param {DuckPlayerPageMessages} messaging
      */
-    init: async (opts) => {
-        const messaging = createDuckPlayerPageMessaging(opts)
+    init: async (messaging) => {
         // try to make communication with the native side.
         const result = await callWithRetry(() => {
             return messaging.getUserValues()
@@ -802,10 +799,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     Setting.init({
         settingsUrl: settingsUrl(import.meta.injectName)
     })
-    await Comms.init({
+
+    const messaging = createSpecialPageMessaging({
         injectName: import.meta.injectName,
-        env: import.meta.env
+        env: import.meta.env,
+        pageName: 'duckPlayerPage'
     })
+
+    const page = new DuckPlayerPageMessages(messaging, import.meta.injectName)
+
+    await Comms.init(page)
+
     if (!Comms.messaging) {
         console.warn('cannot continue as messaging was not resolved')
         return

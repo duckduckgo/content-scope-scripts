@@ -67,7 +67,8 @@ export default class FingerprintingScreenSize extends ContentFeature {
                 get: () => value,
                 // eslint-disable-next-line @typescript-eslint/no-empty-function
                 set: () => {},
-                configurable: true
+                configurable: true,
+                enumerable: true
             })
         } catch (e) {}
     }

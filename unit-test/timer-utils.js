@@ -30,13 +30,17 @@ describe('retry function tests', () => {
         await fc.assert(
             fc.asyncProperty(defaultProps(), async (config) => {
                 let callCount = 0
+
+                /**
+                 * @type {jasmine.Spy<() => Promise<{ success: string } | { error: { message: string } }>>}
+                 */
                 const successfulFunction = jasmine.createSpy('successfulFunction', () => {
                     callCount += 1
                     // The function fails for the first (n-1) times and succeeds on the last try
                     if (callCount === config.maxAttempts) {
-                        return { success: 'Function succeeded' }
+                        return Promise.resolve({ success: 'Function succeeded' })
                     } else {
-                        return { error: { message: 'something went wrong' } }
+                        return Promise.resolve({ error: { message: 'something went wrong' } })
                     }
                 }).and.callThrough()
 
@@ -55,8 +59,11 @@ describe('retry function tests', () => {
     it('should return last result if a function is never successful', async () => {
         await fc.assert(
             fc.asyncProperty(defaultProps(), async (config) => {
+                /**
+                 * @type {jasmine.Spy<() => Promise<{ success: string } | { error: { message: string } }>>}
+                 */
                 const errorFunction = jasmine.createSpy('successfulFunction', () => {
-                    return { error: { message: 'something went wrong' } }
+                    return Promise.resolve({ error: { message: 'something went wrong' } })
                 }).and.callThrough()
 
                 const { result, exceptions } = await retry(errorFunction, config)

@@ -1,5 +1,5 @@
 import {
-    createOnboardingMessaging
+    OnboardingMessages
 } from './messages'
 import { render, h } from 'preact'
 import './styles/global.css' // global styles
@@ -9,15 +9,19 @@ import { Components } from './Components'
 import { SettingsProvider, UpdateSettings } from './settings'
 import { PAGE_IDS, PLATFORMS } from './types'
 import { stepDefinitions } from './data'
+import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging'
 
 // share this in the app, it's an instance of `OnboardingMessages` where all your native comms should be
-const messaging = createOnboardingMessaging({
+const messaging = createSpecialPageMessaging({
     injectName: import.meta.injectName,
-    env: import.meta.env
+    env: import.meta.env,
+    pageName: 'onboarding'
 })
 
+const onboarding = new OnboardingMessages(messaging, import.meta.injectName)
+
 async function init () {
-    const init = await messaging.init()
+    const init = await onboarding.init()
 
     for (const [key, value] of Object.entries(init?.stepDefinitions || {})) {
         if (PAGE_IDS.includes(/** @type {any} */(key))) {
@@ -60,7 +64,7 @@ async function init () {
             >
                 <UpdateSettings search={window.location.search} />
                 <GlobalProvider
-                    messaging={messaging}
+                    messaging={onboarding}
                     stepDefinitions={stepDefinitions}
                     firstPage={/** @type {import('./types').Step['id']} */(first)}>
                     <App>
@@ -82,5 +86,5 @@ async function init () {
 init().catch(e => {
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
-    messaging.reportInitException({ message: msg })
+    onboarding.reportInitException({ message: msg })
 })

@@ -1,10 +1,8 @@
-/* global cloneInto, exportFunction */
-
 import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFeatureSettings } from './utils.js'
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
-import { hasMozProxies, wrapToString } from './wrapper-utils.js'
-import { getOwnPropertyDescriptor, objectKeys } from './captured-globals.js'
+import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js'
+import { Proxy, Reflect } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../packages/messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
@@ -21,8 +19,6 @@ import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
  * @property {boolean} [allowlisted]
  * @property {string[]} [enabledFeatures]
  */
-
-const globalObj = typeof window === 'undefined' ? globalThis : window
 
 export default class ContentFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -316,10 +312,11 @@ export default class ContentFeature {
     }
 
     /**
-     * Define a property descriptor. Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * Define a property descriptor with debug flags.
+     * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
      * @param {string} propertyName
-     * @param {PropertyDescriptor} descriptor
+     * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     defineProperty (object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
@@ -328,111 +325,67 @@ export default class ContentFeature {
             const descriptorProp = descriptor[k]
             if (typeof descriptorProp === 'function') {
                 const addDebugFlag = this.addDebugFlag.bind(this)
-                descriptor[k] = function () {
-                    addDebugFlag()
-                    return Reflect.apply(descriptorProp, this, arguments)
-                }
+                const wrapper = new Proxy(descriptorProp, {
+                    apply (target, thisArg, argumentsList) {
+                        addDebugFlag()
+                        return Reflect.apply(descriptorProp, thisArg, argumentsList)
+                    }
+                })
+                descriptor[k] = wrapToString(wrapper, descriptorProp)
             }
         })
 
-        if (hasMozProxies) {
-            const usedObj = object.wrappedJSObject || object
-            const UsedObjectInterface = globalObj.wrappedJSObject.Object
-            const definedDescriptor = new UsedObjectInterface();
-            ['configurable', 'enumerable', 'value', 'writable'].forEach((propertyName) => {
-                if (propertyName in descriptor) {
-                    definedDescriptor[propertyName] = cloneInto(
-                        descriptor[propertyName],
-                        definedDescriptor,
-                        { cloneFunctions: true })
-                }
-            });
-            ['get', 'set'].forEach((methodName) => {
-                if (methodName in descriptor && typeof descriptor[methodName] !== 'undefined') { // Firefox returns undefined for missing getters/setters
-                    exportFunction(descriptor[methodName], definedDescriptor, { defineAs: methodName })
-                }
-            })
-            UsedObjectInterface.defineProperty(usedObj, propertyName, definedDescriptor)
-        } else {
-            Object.defineProperty(object, propertyName, descriptor)
-        }
+        return defineProperty(object, propertyName, descriptor)
     }
 
     /**
      * Wrap a `get`/`set` or `value` property descriptor. Only for data properties. For methods, use wrapMethod(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
      * @param {string} propertyName
      * @param {Partial<PropertyDescriptor>} descriptor
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapProperty (object, propertyName, descriptor) {
-        if (!object) {
-            return
-        }
-        if (hasMozProxies) {
-            object = object.wrappedJSObject || object
-        }
-
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
-        if (!origDescriptor) {
-            // this happens if the property is not implemented in the browser
-            return
-        }
-
-        if (('value' in origDescriptor && 'value' in descriptor) ||
-            ('get' in origDescriptor && 'get' in descriptor) ||
-            ('set' in origDescriptor && 'set' in descriptor)
-        ) {
-            wrapToString(descriptor.value, origDescriptor.value)
-            wrapToString(descriptor.get, origDescriptor.get)
-            wrapToString(descriptor.set, origDescriptor.set)
-
-            this.defineProperty(object, propertyName, {
-                ...origDescriptor,
-                ...descriptor
-            })
-            return origDescriptor
-        } else {
-            // if the property is defined with get/set it must be wrapped with a get/set. If it's defined with a `value`, it must be wrapped with a `value`
-            throw new Error(`Property descriptor for ${propertyName} may only include the following keys: ${objectKeys(origDescriptor)}`)
-        }
+        return wrapProperty(object, propertyName, descriptor, this.defineProperty.bind(this))
     }
 
     /**
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype)
+     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
      * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapMethod (object, propertyName, wrapperFn) {
-        if (!object) {
-            return
-        }
-        if (hasMozProxies) {
-            object = object.wrappedJSObject || object
-        }
-        const origDescriptor = getOwnPropertyDescriptor(object, propertyName)
-        if (!origDescriptor) {
-            // this happens if the property is not implemented in the browser
-            return
-        }
+        return wrapMethod(object, propertyName, wrapperFn, this.defineProperty.bind(this))
+    }
 
-        const origFn = origDescriptor.value
-        if (!origFn || typeof origFn !== 'function') {
-            // method properties are expected to be defined with a `value`
-            throw new Error(`Property ${propertyName} does not look like a method`)
-        }
+    /**
+     * @template {keyof typeof globalThis} StandardInterfaceName
+     * @param {StandardInterfaceName} interfaceName - the name of the interface to shim (must be some known standard API, e.g. 'MediaSession')
+     * @param {typeof globalThis[StandardInterfaceName]} ImplClass - the class to use as the shim implementation
+     * @param {import('./wrapper-utils').DefineInterfaceOptions} options
+     */
+    shimInterface (
+        interfaceName,
+        ImplClass,
+        options
+    ) {
+        return shimInterface(interfaceName, ImplClass, options, this.defineProperty.bind(this))
+    }
 
-        const newFn = function () {
-            return wrapperFn.call(this, origFn, ...arguments)
-        }
-        wrapToString(newFn, origFn)
-
-        this.defineProperty(object, propertyName, {
-            ...origDescriptor,
-            value: newFn
-        })
-        return origDescriptor
+    /**
+     * Define a missing standard property on a global (prototype) object. Only for data properties.
+     * For constructors, use shimInterface().
+     * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
+     * @template Base
+     * @template {keyof Base & string} K
+     * @param {Base} instanceHost - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
+     * @param {K} instanceProp - name of the property to shim (e.g. 'mediaSession')
+     * @param {Base[K]} implInstance - instance to use as the shim (e.g. new MyMediaSession())
+     * @param {boolean} [readOnly] - whether the property should be read-only (default: false)
+     */
+    shimProperty (instanceHost, instanceProp, implInstance, readOnly = false) {
+        return shimProperty(instanceHost, instanceProp, implInstance, readOnly, this.defineProperty.bind(this))
     }
 }
