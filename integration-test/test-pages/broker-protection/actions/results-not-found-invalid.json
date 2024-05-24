@@ -4,6 +4,11 @@
         "actionType": "extract",
         "selector": ".search-item-invalid",
         "noResultsSelector": ".none",
+        "retry": {
+          "environment": "web",
+          "interval": { "ms": 1000 },
+          "maxAttempts": 1
+        },
         "profile": {
           "name": {
             "selector": "h4"
@@ -45,4 +50,3 @@
       }
     }
   }
-  
