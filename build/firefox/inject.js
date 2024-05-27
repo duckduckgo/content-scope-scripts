@@ -3957,7 +3957,7 @@
                 }
             }
 
-            this.defineProperty(Document.prototype, 'cookie', {
+            this.defineProperty(globalThis.Document.prototype, 'cookie', {
                 enumerable: true,
                 configurable: true,
                 set: setCookiePolicy,
