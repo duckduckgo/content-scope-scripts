@@ -792,6 +792,26 @@ const MouseMove = {
     }
 }
 
+const PiP = {
+    /**
+     * Returns the PiP button
+     * @returns {HTMLElement}
+     */
+    button: () => {
+        return document.querySelector('.pip-button')
+    },
+
+    /**
+     * Initializes the PiP button
+     * @param {VideoPlayer} videoPlayer
+     */
+    init: (videoPlayer) => {
+        PiP.button().addEventListener('click', () => {
+            videoPlayer?.iframe()?.contentDocument?.querySelector('video')?.requestPictureInPicture();
+
+        })
+    }
+}
 /**
  * Initializes all parts of the page on load.
  */
@@ -823,6 +843,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         base: baseUrl(import.meta.injectName)
     })
     MouseMove.init()
+    PiP.init(VideoPlayer)
 })
 
 /**
