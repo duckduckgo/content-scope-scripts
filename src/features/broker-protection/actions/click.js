@@ -1,4 +1,4 @@
-import { getElement } from '../utils.js'
+import { getElements } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
 import { extractProfiles } from './extract.js'
 
@@ -12,18 +12,25 @@ export function click (action, userData, root = document) {
     // there can be multiple elements provided by the action
     for (const element of action.elements) {
         const rootElement = selectRootElement(element, userData, root)
-        const elem = getElement(rootElement, element.selector)
+        const elements = getElements(rootElement, element.selector)
 
-        if (!elem) {
+        if (!elements?.length) {
             return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
         }
-        if ('disabled' in elem) {
-            if (elem.disabled) {
-                return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
+
+        const loopLength = action.multiple ? elements.length : 1
+
+        for (let i = 0; i < loopLength; i++) {
+            const elem = elements[i];
+
+            if ('disabled' in element) {
+                if (element.disabled) {
+                    return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
+                }
             }
-        }
-        if ('click' in elem && typeof elem.click === 'function') {
-            elem.click()
+            if ('click' in elem && typeof elem.click === 'function') {
+                elem.click()
+            }
         }
     }
 
