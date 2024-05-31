@@ -381,6 +381,18 @@ test.describe('Broker Protection communications', () => {
             await page.waitForURL(url => url.hash === '#2', { timeout: 2000 })
         })
 
+        test('click multiple targets', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('click-multiple.html')
+            await dbp.receivesAction('click-multiple.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+            await page.pause()
+            await page.waitForURL(url => url.hash === '#1-2', { timeout: 2000 })
+        })
+
         test('getCaptchaInfo', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
@@ -485,7 +497,7 @@ test.describe('Broker Protection communications', () => {
                     }
                 }
             })
-
+            await page.pause()
             await page.getByRole('heading', { name: 'Retry' }).waitFor({ timeout: 5000 })
 
             const response = await dbp.waitForMessage('actionCompleted')
