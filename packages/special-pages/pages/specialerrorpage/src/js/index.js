@@ -32,9 +32,14 @@ export class SpecialerrorpagePage {
   }
 
   /**
-   * @param {string} url
+   * @param {string|null|undefined} url
    */
   visitURL(url) {
+    if (!url) {
+      console.warn("Missing url parameter");
+      return;
+    }
+
     window.open(url, "_blank");
   }
 }

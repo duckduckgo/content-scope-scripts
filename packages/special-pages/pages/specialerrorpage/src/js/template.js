@@ -2,8 +2,6 @@ import { html, trustedUnsafeEscaped } from "../../../../../../src/dom-utils.js";
 import shieldIcon from "../img/Shield-Alert-96x96.data.svg";
 
 export function execTemplate(strings) {
-  console.log("STRINGS", strings);
-
   const learnMoreLink =
     strings.learnMoreText && strings.learnMoreURL
       ? html`<a
@@ -13,8 +11,6 @@ export function execTemplate(strings) {
           >${strings.learnMoreText}</a
         >`
       : "";
-
-  console.log("LEARN MORE", learnMoreLink);
 
   return html`
     <div class="full-container" id="fullContainer" data-state="closed">
