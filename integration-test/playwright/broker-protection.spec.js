@@ -497,7 +497,6 @@ test.describe('Broker Protection communications', () => {
                     }
                 }
             })
-            await page.pause()
             await page.getByRole('heading', { name: 'Retry' }).waitFor({ timeout: 5000 })
 
             const response = await dbp.waitForMessage('actionCompleted')

@@ -23,8 +23,8 @@ export function click (action, userData, root = document) {
         for (let i = 0; i < loopLength; i++) {
             const elem = elements[i]
 
-            if ('disabled' in element) {
-                if (element.disabled) {
+            if ('disabled' in elem) {
+                if (elem.disabled) {
                     return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
                 }
             }
