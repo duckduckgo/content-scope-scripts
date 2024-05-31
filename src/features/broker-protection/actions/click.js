@@ -18,7 +18,7 @@ export function click (action, userData, root = document) {
             return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
         }
 
-        const loopLength = element.multiple ? elements.length : 1
+        const loopLength = element.multiple && element.multiple === true ? elements.length : 1
 
         for (let i = 0; i < loopLength; i++) {
             const elem = elements[i]
