@@ -49,10 +49,6 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
 }
 
-a {
-  color: var(--link-color);
-}
-
 .full-container {
   display: flex;
   position: absolute;
@@ -192,6 +188,10 @@ a {
   cursor: pointer;
   color: var(--accept-risk-color);
   padding: 0;
+}
+
+.learn-more {
+  color: var(--link-color);
 }
 
 @media (prefers-color-scheme: dark) {
