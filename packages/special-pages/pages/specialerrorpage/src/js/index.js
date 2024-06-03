@@ -1,11 +1,11 @@
 /**
-* @module SpecialError Page
-* @category Special Pages
-*
-* @description
-*
-* [[include:packages/special-pages/pages/specialerrorpage/readme.md]]
-*/
+ * @module SpecialError Page
+ * @category Special Pages
+ *
+ * @description
+ *
+ * [[include:packages/special-pages/pages/specialerrorpage/readme.md]]
+ */
 
 import { execTemplate } from './template.js'
 import { loadData } from './loadData.js'
@@ -14,12 +14,12 @@ import { createSpecialPageMessaging } from '../../../../shared/create-special-pa
 
 export class SpecialerrorpagePage {
     /**
-    * @param {import("@duckduckgo/messaging").Messaging} messaging
-    */
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     */
     constructor (messaging) {
         /**
-        * @internal
-        */
+         * @internal
+         */
         this.messaging = createTypedMessages(this, messaging)
     }
 
@@ -45,8 +45,8 @@ window.addEventListener('DOMContentLoaded', () => {
 })
 
 /**
-* Construct the HTML, using data retrieved from the load-time JSON
-*/
+ * Construct the HTML, using data retrieved from the load-time JSON
+ */
 function loadHTML () {
     const element = document.querySelector('[data-id="load-time-data"]')
     const parsed = (() => {
@@ -67,13 +67,13 @@ function loadHTML () {
 }
 
 /**
-* @return {{
-*   advanced: HTMLElement | null,
-*   acceptRiskLink: HTMLElement | null,
-*   leaveThisSiteBtn: HTMLElement | null,
-*   fullContainer: HTMLElement | null,
-* }}
-*/
+ * @return {{
+ *   advanced: HTMLElement | null,
+ *   acceptRiskLink: HTMLElement | null,
+ *   leaveThisSiteBtn: HTMLElement | null,
+ *   fullContainer: HTMLElement | null,
+ * }}
+ */
 function domElements () {
     return {
         advanced: document.getElementById('advancedBtn'),
@@ -84,15 +84,15 @@ function domElements () {
 }
 
 /**
-* @param {SpecialerrorpagePage} page
-*/
+ * @param {SpecialerrorpagePage} page
+ */
 function bindEvents (page) {
     const dom = domElements()
 
     if (!dom.advanced) return console.error('ts unreachable: missing elements')
 
     dom.advanced.addEventListener('click', function () {
-        if (!dom.fullContainer) { return console.error('ts unreachable: missing elements') }
+        if (!dom.fullContainer) return console.error('ts unreachable: missing elements')
         dom.fullContainer.dataset.state = 'open'
     })
 
