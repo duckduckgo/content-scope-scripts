@@ -812,8 +812,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const result = await Comms.init(page)
 
     if (!('value' in result)) {
-        console.warn('cannot continue as the initialSetup call didnt complete');
-        console.error(result.error);
+        console.warn('cannot continue as the initialSetup call didnt complete')
+        console.error(result.error)
         return
     }
 

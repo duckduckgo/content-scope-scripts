@@ -49,10 +49,10 @@ export class DuckPlayerPage {
             initialSetup: {
                 settings: {
                     pip: {
-                        status: "disabled"
+                        status: 'disabled'
                     }
                 },
-                userValues:  {
+                userValues: {
                     privatePlayerMode: { alwaysAsk: {} },
                     overlayInteracted: false
                 }
