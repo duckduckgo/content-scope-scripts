@@ -45,6 +45,19 @@ export class DuckPlayerPage {
         })
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses({
+            /** @type {Awaited<ReturnType<import("../../pages/duckplayer/src/js/index.js").DuckPlayerPageMessages['initialSetup']>>} */
+            initialSetup: {
+                settings: {
+                    pip: {
+                        status: "disabled"
+                    }
+                },
+                userValues:  {
+                    privatePlayerMode: { alwaysAsk: {} },
+                    overlayInteracted: false
+                }
+
+            },
             /** @type {import("../../pages/duckplayer/src/js/index.js").UserValues} */
             getUserValues: {
                 privatePlayerMode: { alwaysAsk: {} },

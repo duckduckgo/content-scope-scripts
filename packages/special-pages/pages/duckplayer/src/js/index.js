@@ -412,16 +412,18 @@ const Comms = {
      * `window.postMessage({ alwaysOpenSetting: false })`
      *
      * @param {DuckPlayerPageMessages} messaging
+     * @return {Promise<{value: import('./messages').InitialSetup} | { error: string}>}
      */
     init: async (messaging) => {
         // try to make communication with the native side.
         const result = await callWithRetry(() => {
-            return messaging.getUserValues()
+            return messaging.initialSetup()
         })
         // if we received a connection, use the initial values
         if ('value' in result) {
             Comms.messaging = messaging
-            if ('enabled' in result.value.privatePlayerMode) {
+            const { userValues } = result.value
+            if ('enabled' in userValues.privatePlayerMode) {
                 Setting.setState(true)
             } else {
                 Setting.setState(false)
@@ -434,9 +436,8 @@ const Comms = {
                     Setting.setState(false)
                 }
             })
-        } else {
-            console.error(result.error)
         }
+        return result
     },
     /**
      * From the player page, all we can do is 'setUserValues' to {enabled: {}}
@@ -808,12 +809,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const page = new DuckPlayerPageMessages(messaging, import.meta.injectName)
 
-    await Comms.init(page)
+    const result = await Comms.init(page)
 
-    if (!Comms.messaging) {
-        console.warn('cannot continue as messaging was not resolved')
+    if (!('value' in result)) {
+        console.warn('cannot continue as the initialSetup call didnt complete');
+        console.error(result.error);
         return
     }
+
+    // here we have access to userValues and settings
+    console.log(result.value.userValues)
+    console.log(result.value.settings)
+
     VideoPlayer.init({
         base: baseUrl(import.meta.injectName),
         env: import.meta.env
