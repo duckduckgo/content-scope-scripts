@@ -8,7 +8,7 @@
  */
 
 import { execTemplate } from "./template.js";
-import { defaultLoadData } from "./defaults.js";
+import { loadData } from "./loadData.js";
 import { createTypedMessages } from "@duckduckgo/messaging";
 import { createSpecialPageMessaging } from "../../../../shared/create-special-page-messaging";
 
@@ -73,7 +73,7 @@ function loadHTML() {
   if (!parsed.strings) {
     console.warn("missing `strings` from the incoming json data");
   }
-  const mergedStrings = { ...defaultLoadData.strings, ...parsed.strings };
+  const mergedStrings = { ...loadData.ssl.strings, ...parsed.strings };
   container.innerHTML = execTemplate(mergedStrings).toString();
   document.body.appendChild(container);
 }
@@ -84,7 +84,6 @@ function loadHTML() {
  *   acceptRiskLink: HTMLElement | null,
  *   leaveThisSiteBtn: HTMLElement | null,
  *   fullContainer: HTMLElement | null,
- *   learnMoreLink: HTMLElement | null,
  * }}
  */
 function domElements() {
@@ -93,7 +92,6 @@ function domElements() {
     fullContainer: document.getElementById("fullContainer"),
     acceptRiskLink: document.getElementById("acceptRiskLink"),
     leaveThisSiteBtn: document.getElementById("leaveThisSiteBtn"),
-    learnMoreLink: document.getElementById("learnMoreLink"),
   };
 }
 
@@ -118,15 +116,6 @@ function bindEvents(page) {
     });
   } else {
     console.error("Accept risk link not found.");
-  }
-
-  if (dom.learnMoreLink) {
-    dom.learnMoreLink.addEventListener("click", (event) => {
-      event.preventDefault();
-      page.visitURL(dom.learnMoreLink?.getAttribute("href"));
-    });
-  } else {
-    console.error("Learn More link not found.");
   }
 
   if (dom.leaveThisSiteBtn) {

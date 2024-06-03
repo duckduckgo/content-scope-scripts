@@ -2,16 +2,6 @@ import { html, trustedUnsafeEscaped } from "../../../../../../src/dom-utils.js";
 import shieldIcon from "../img/Shield-Alert-96x96.data.svg";
 
 export function execTemplate(strings) {
-  const learnMoreLink =
-    strings.learnMoreText && strings.learnMoreURL
-      ? html`<a
-          id="learnMoreLink"
-          class="learn-more"
-          href="${strings.learnMoreURL}"
-          >${strings.learnMoreText}</a
-        >`
-      : "";
-
   return html`
     <div class="full-container" id="fullContainer" data-state="closed">
       <div class="warning-container">
@@ -20,7 +10,7 @@ export function execTemplate(strings) {
           ${strings.header}
         </h1>
         <p class="warning-text">
-          ${trustedUnsafeEscaped(strings.body)} ${learnMoreLink}
+          ${trustedUnsafeEscaped(strings.body)}
         </p>
         <div class="buttons">
           <button class="button advanced" id="advancedBtn">

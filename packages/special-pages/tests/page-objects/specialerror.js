@@ -1,8 +1,9 @@
 import { Mocks } from './mocks.js'
+import { expect } from '@playwright/test'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
-import { defaultLoadData } from '../../pages/specialerrorpage/src/js/defaults'
+import { loadData } from '../../pages/specialerrorpage/src/js/loadData'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -30,8 +31,9 @@ export class SpecialErrorPage {
     /**
      * Opens a page with optional parameters.
      * This method ensures that mocks are installed and routes are set up before navigating to the page.
+     * @param {'ssl'|'phishing'} [errorType]
      */
-    async openPage () {
+    async openPage (errorType = 'ssl') {
         await this.mocks.install()
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
@@ -40,7 +42,7 @@ export class SpecialErrorPage {
             if (filepath === '/') {
                 filepath = 'index.html'
                 const html = readFileSync(join(this.basePath, filepath), 'utf8')
-                const next = html.replace('$LOAD_TIME_DATA$', JSON.stringify(defaultLoadData))
+                const next = html.replace('$LOAD_TIME_DATA$', JSON.stringify(loadData[errorType])) // Strings File
                 return route.fulfill({
                     body: next,
                     status: 200,
@@ -62,7 +64,7 @@ export class SpecialErrorPage {
      */
     get basePath () {
         return this.build.switch({
-            apple: () => '../../Sources/ContentScopeScripts/dist/pages/specilalerrorpage'
+            apple: () => '../../Sources/ContentScopeScripts/dist/pages/specialerrorpage'
         })
     }
 
@@ -88,8 +90,43 @@ export class SpecialErrorPage {
     async visitsSite () {
         const { page } = this
         await page.pause()
-        await page.getByRole('button', { name: 'Advanced...' }).click()
+        this.showsAdvancedInfo()
         await page.getByRole('button', { name: 'Accept Risk and Visit Site' }).click()
         await this.mocks.waitForCallCount({ method: 'visitSite', count: 1 })
+    }
+
+    /**
+     * Clicks on help links in Phishing page
+     */
+    async opensPhishingHelpPage() {
+        await this.opensNewPage('Learn more', 'https://duckduckgo.com/duckduckgo-help-pages/');
+        await this.showsAdvancedInfo()
+        await this.opensNewPage('Phishing and Malware Protection help page', 'https://duckduckgo.com/duckduckgo-help-pages/');
+    }
+
+    /**
+     * Clicks on advanced link to show expanded info
+     */
+    async showsAdvancedInfo () {
+        const { page } = this
+        await page.getByRole('button', { name: 'Advanced...' }).click()
+    }
+
+    /**
+     * Clicks on link and expects it to open a URL in a new window
+     *
+     * @param string linkName
+     * @param string newTabURL
+    */
+    async opensNewPage (linkName, newTabURL) {
+        const { page } = this
+        const newPagePromise = page.waitForEvent('popup');
+
+        await page.pause()
+        await expect(page.getByRole('link', { name: linkName })).toBeVisible();
+        await page.getByRole('link', { name: linkName }).click()
+
+        const newPage = await newPagePromise;
+        await expect(newPage).toHaveURL(newTabURL);
     }
 }
