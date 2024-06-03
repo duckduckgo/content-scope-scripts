@@ -98,10 +98,10 @@ export class SpecialErrorPage {
     /**
      * Clicks on help links in Phishing page
      */
-    async opensPhishingHelpPage() {
-        await this.opensNewPage('Learn more', 'https://duckduckgo.com/duckduckgo-help-pages/');
+    async opensPhishingHelpPage () {
+        await this.opensNewPage('Learn more', 'https://duckduckgo.com/duckduckgo-help-pages/')
         await this.showsAdvancedInfo()
-        await this.opensNewPage('Phishing and Malware Protection help page', 'https://duckduckgo.com/duckduckgo-help-pages/');
+        await this.opensNewPage('Phishing and Malware Protection help page', 'https://duckduckgo.com/duckduckgo-help-pages/')
     }
 
     /**
@@ -120,13 +120,13 @@ export class SpecialErrorPage {
     */
     async opensNewPage (linkName, newTabURL) {
         const { page } = this
-        const newPagePromise = page.waitForEvent('popup');
+        const newPagePromise = page.waitForEvent('popup')
 
         await page.pause()
-        await expect(page.getByRole('link', { name: linkName })).toBeVisible();
+        await expect(page.getByRole('link', { name: linkName })).toBeVisible()
         await page.getByRole('link', { name: linkName }).click()
 
-        const newPage = await newPagePromise;
-        await expect(newPage).toHaveURL(newTabURL);
+        const newPage = await newPagePromise
+        await expect(newPage).toHaveURL(newTabURL)
     }
 }
