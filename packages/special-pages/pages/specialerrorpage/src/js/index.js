@@ -8,7 +8,7 @@
  */
 
 import { execTemplate } from './template.js'
-import { defaultLoadData } from './defaults.js'
+import { loadData } from './loadData.js'
 import { createTypedMessages } from '@duckduckgo/messaging'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 
@@ -61,7 +61,7 @@ function loadHTML () {
     if (!parsed.strings) {
         console.warn('missing `strings` from the incoming json data')
     }
-    const mergedStrings = { ...defaultLoadData.strings, ...parsed.strings }
+    const mergedStrings = { ...loadData.ssl.strings, ...parsed.strings }
     container.innerHTML = execTemplate(mergedStrings).toString()
     document.body.appendChild(container)
 }
