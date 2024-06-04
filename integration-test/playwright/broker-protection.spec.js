@@ -328,6 +328,25 @@ test.describe('Broker Protection communications', () => {
             }])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
+
+        test('returns an empty array when no profile selector matches but the no results selector is present', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results-not-found.html')
+            await dbp.receivesAction('results-not-found-valid.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [])
+        })
+
+        test('returns an error when no profile selector matches and the no results selector is not present', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results.html')
+            await dbp.receivesAction('results-not-found-invalid.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isErrorMessage(response)
+        })
     })
     test.describe('Executes action and sends success message', () => {
         test('buildUrl', async ({ page }, workerInfo) => {
