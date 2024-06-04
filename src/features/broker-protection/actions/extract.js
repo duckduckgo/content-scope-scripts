@@ -87,7 +87,16 @@ export function extractProfiles (action, userData, root = document) {
     const profilesElementList = getElements(root, action.selector) ?? []
 
     if (profilesElementList.length === 0) {
-        return { error: 'no root elements found for ' + action.selector }
+        if (!action.noResultsSelector) {
+            return { error: 'no root elements found for ' + action.selector }
+        }
+
+        // Look for the Results Not Found element
+        const foundNoResultsElement = getElement(root, action.noResultsSelector)
+
+        if (!foundNoResultsElement) {
+            return { error: 'no results found for ' + action.selector + ' or the no results selector ' + action.noResultsSelector }
+        }
     }
 
     return {
