@@ -10447,7 +10447,16 @@
         const profilesElementList = getElements(root, action.selector) ?? [];
 
         if (profilesElementList.length === 0) {
-            return { error: 'no root elements found for ' + action.selector }
+            if (!action.noResultsSelector) {
+                return { error: 'no root elements found for ' + action.selector }
+            }
+
+            // Look for the Results Not Found element
+            const foundNoResultsElement = getElement(root, action.noResultsSelector);
+
+            if (!foundNoResultsElement) {
+                return { error: 'no results found for ' + action.selector + ' or the no results selector ' + action.noResultsSelector }
+            }
         }
 
         return {
@@ -11142,18 +11151,25 @@
         // there can be multiple elements provided by the action
         for (const element of action.elements) {
             const rootElement = selectRootElement(element, userData, root);
-            const elem = getElement(rootElement, element.selector);
+            const elements = getElements(rootElement, element.selector);
 
-            if (!elem) {
+            if (!elements?.length) {
                 return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
             }
-            if ('disabled' in elem) {
-                if (elem.disabled) {
-                    return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
+
+            const loopLength = element.multiple && element.multiple === true ? elements.length : 1;
+
+            for (let i = 0; i < loopLength; i++) {
+                const elem = elements[i];
+
+                if ('disabled' in elem) {
+                    if (elem.disabled) {
+                        return new ErrorResponse({ actionID: action.id, message: `could not click disabled element ${element.selector}'!` })
+                    }
                 }
-            }
-            if ('click' in elem && typeof elem.click === 'function') {
-                elem.click();
+                if ('click' in elem && typeof elem.click === 'function') {
+                    elem.click();
+                }
             }
         }
 
