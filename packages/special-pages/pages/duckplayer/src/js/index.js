@@ -841,10 +841,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return
     }
 
-    // here we have access to userValues and settings
-    console.log(result.value.userValues)
-    console.log(result.value.settings)
-
     VideoPlayer.init({
         base: baseUrl(import.meta.injectName),
         env: import.meta.env,
