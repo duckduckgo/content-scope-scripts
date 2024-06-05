@@ -90,12 +90,16 @@ const VideoPlayer = {
      * @param {object} opts
      * @param {string} opts.base
      * @param {ImportMeta['env']} opts.env
+     * @param {import('./messages').DuckPlayerPageSettings} opts.settings
      */
     init: (opts) => {
         VideoPlayer.loadVideoById()
         VideoPlayer.autoFocusVideo(opts.env)
         VideoPlayer.setTabTitle()
         VideoPlayer.setClickListener(opts.base)
+        if (opts.settings.pip.status === 'enabled') {
+            VideoPlayer.enablePiP()
+        }
     },
 
     /**
@@ -229,6 +233,26 @@ const VideoPlayer = {
                     document.title = 'Duck Player - ' + validTitle
                 }
             })
+        })
+    },
+
+    enablePiP: () => {
+        VideoPlayer.onIframeLoaded(() => {
+            try {
+                const iframe = VideoPlayer.iframe()
+                const iframeDocument = iframe?.contentDocument
+                const iframeWindow = iframe?.contentWindow
+                if (iframeDocument && iframeWindow) {
+                    // @ts-expect-error - typescript doesn't know about CSSStyleSheet here for some reason
+                    const styleSheet = new iframeWindow.CSSStyleSheet();
+                    styleSheet.replaceSync("button.ytp-pip-button { display: inline-block !important; }");
+                    // See https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets#append_a_new_stylesheet
+                    iframeDocument.adoptedStyleSheets = [...iframeDocument.adoptedStyleSheets, styleSheet];
+                }
+            } catch (e) {
+                // ignore errors
+                console.warn(e)
+            }
         })
     },
 
@@ -823,7 +847,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     VideoPlayer.init({
         base: baseUrl(import.meta.injectName),
-        env: import.meta.env
+        env: import.meta.env,
+        settings: result.value.settings
     })
     Tooltip.init()
     PlayOnYouTube.init({
