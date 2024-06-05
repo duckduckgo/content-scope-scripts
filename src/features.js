@@ -19,6 +19,7 @@ const otherFeatures = /** @type {const} */([
     'cookie',
     'duckPlayer',
     'harmfulApis',
+    'readerMode',
     'webCompat',
     'windowsPermissionUsage',
     'brokerProtection',
@@ -36,6 +37,7 @@ export const platformSupport = {
         'duckPlayer',
         'brokerProtection',
         'performanceMetrics',
+        'readerMode',
         'clickToLoad'
     ],
     android: [
@@ -45,6 +47,7 @@ export const platformSupport = {
     ],
     windows: [
         'cookie',
+        'readerMode',
         ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer',
