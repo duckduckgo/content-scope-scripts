@@ -26,6 +26,7 @@ export interface ReaderContentExtractedNotification {
  */
 export interface ReaderContentExtracted {
   readerContent: ReaderContent;
+  isError: boolean;
 }
 /**
  * Result from the readability library

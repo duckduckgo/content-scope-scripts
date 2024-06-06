@@ -6,9 +6,13 @@
   "properties": {
     "readerContent": {
       "$ref": "ReaderContent.json"
+    },
+    "isError": {
+      "type": "boolean"
     }
   },
   "required": [
-    "readerContent"
+    "readerContent",
+    "isError"
   ]
 }
