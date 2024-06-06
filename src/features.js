@@ -22,7 +22,8 @@ const otherFeatures = /** @type {const} */([
     'webCompat',
     'windowsPermissionUsage',
     'brokerProtection',
-    'performanceMetrics'
+    'performanceMetrics',
+    'myFeature'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -30,13 +31,14 @@ const otherFeatures = /** @type {const} */([
 export const platformSupport = {
     apple: [
         'webCompat',
-        ...baseFeatures
+        ...baseFeatures,
+        'myFeature',
     ],
     'apple-isolated': [
         'duckPlayer',
         'brokerProtection',
         'performanceMetrics',
-        'clickToLoad'
+        'clickToLoad',
     ],
     android: [
         ...baseFeatures,
@@ -48,7 +50,8 @@ export const platformSupport = {
         ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer',
-        'brokerProtection'
+        'brokerProtection',
+        'myFeature',
     ],
     firefox: [
         'cookie',
