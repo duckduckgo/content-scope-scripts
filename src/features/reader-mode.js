@@ -16,20 +16,15 @@ import ContentFeature from '../content-feature'
  */
 export class ReaderMode extends ContentFeature {
     init () {
-        document.addEventListener('DOMContentLoaded', this.createButton.bind(this))
+        document.addEventListener('DOMContentLoaded', this.checkReaderable.bind(this))
+        this.subscribe('extractReaderContent', this.activateReaderMode.bind(this))
     }
 
-    createButton () {
-        console.log(isProbablyReaderable(document))
-        const button = document.createElement('button')
-        button.textContent = isProbablyReaderable(document) ? 'Reader Mode' : 'Reader Mode (Forced)'
-        button.addEventListener('click', this.activateReaderMode.bind(this))
-        button.style.position = 'fixed'
-        button.style.top = '0'
-        button.style.right = '0'
-        button.style.zIndex = '999999'
-        button.style.padding = '10px'
-        document.body.appendChild(button)
+    checkReaderable () {
+        const isReaderable = isProbablyReaderable(document)
+        if (isReaderable) {
+            this.notify('readerModeAvailable')
+        }
     }
 
     activateReaderMode () {
@@ -44,11 +39,32 @@ export class ReaderMode extends ContentFeature {
         console.log(reader)
 
         if (reader) {
-            // construct URL and pass reader content in get parameter
-            const base = 'https://muodov-playground.glitch.me/reflect-xss.html'
-            const url = new URL(base)
-            url.searchParams.set('content', reader.content)
-            location.href = url.href
+            this.notify('readerContentExtracted', {
+                readerContent: {
+                    url: globalThis.location.href,
+                    byline: reader.byline,
+                    html: reader.content,
+                    dir: reader.dir,
+                    excerpt: reader.excerpt,
+                    language: reader.lang,
+                    length: reader.length,
+                    publicationDate: reader.publishedTime,
+                    siteName: reader.siteName,
+                    text: reader.textContent,
+                    title: reader.title
+                },
+                isError: false
+            })
+        } else {
+            this.notify('readerContentExtracted', {
+                readerContent: {
+                    url: globalThis.location.href,
+                    html: '',
+                    length: 0,
+                    text: 'No'
+                },
+                isError: true
+            })
         }
     }
 }
