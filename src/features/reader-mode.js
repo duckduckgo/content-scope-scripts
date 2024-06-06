@@ -25,6 +25,8 @@ export class ReaderMode extends ContentFeature {
         if (isReaderable) {
             console.log('Reader mode is available, notifying the browser...')
             this.notify('readerModeAvailable')
+        } else {
+            console.log('Reader mode is not recommended for this page.')
         }
     }
 
