@@ -129,6 +129,15 @@ To handle the difference in scope injection we expose multiple utilities which b
 - `DDGReflect`
     - Calls into wrappedJSObject.Reflect for Firefox but otherwise exactly the same as [window.Reflect](Sources/BrowserServicesKit/UserScript/ContentScopeUserScript.swift) 
 
+### Messaging
+To communicate between ContentFeature instances and the platform we use a [Messaging](https://duckduckgo.github.io/content-scope-scripts/modules/Messaging.html) system. After setting up, ContentFeature API methods provide proper type annotations: `.notify()`, `.request()`, `.subscribe()`.
+
+To set up messaging for a new feature:
+1. Create a new folder under [src/messages/](https://github.com/duckduckgo/content-scope-scripts/tree/main/src/messages). The name of the folder must match the feature name.
+2. Provide JSON schemas for all the messages inside that folder. Each message must be represented by a separate JSON file, and the naming convention is `<messageId>.<messageType>.json`, where `messageType` can be one of `notify`, `request`, `subscribe`, or `response`. Look at the existing schemas for reference.
+    > JSON schema files that do not follow this naming convention will not produce new message types, but if you link to those from your message schemas, type validation will work as expected. This is useful for defining objects that are used in multiple message types.
+3. run `npm run build-types` to generate the typescript types for the messages.
+
 ### Testing Locally
 
 Depending on what you are changing, you may need to run the build processes locally, or individual tests.
@@ -183,7 +192,7 @@ npm run test-unit
 Everything within `integration-test` (minus the playwright folder) is controlled by Jasmine + Puppeteer.
 The configuration is within `integration-test/config.js`
 
-Note: when you run this command, it will also be executed all workspaces too. For example, within `packages/special-pages` 
+Note: when you run this command, it will also be executed all workspaces too. For example, within `packages/special-pages`
 
 ```shell
 npm run test-int
