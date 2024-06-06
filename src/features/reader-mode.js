@@ -14,7 +14,7 @@ import ContentFeature from '../content-feature'
  * Adds a reader mode button.
  * @internal
  */
-export default class ReaderMode extends ContentFeature {
+export class ReaderMode extends ContentFeature {
     init () {
         document.addEventListener('DOMContentLoaded', this.createButton.bind(this))
     }
@@ -52,3 +52,5 @@ export default class ReaderMode extends ContentFeature {
         }
     }
 }
+
+export default ReaderMode

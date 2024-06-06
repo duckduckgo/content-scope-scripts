@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReaderContent",
+  "description": "Result from the readability library",
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string",
+      "description": "The URL of the page"
+    },
+    "byline": {
+      "type": "string"
+    },
+    "html": {
+      "type": "string",
+      "description": "The readerable HTML version of the page"
+    },
+    "dir": {
+      "type": "string",
+      "description": "The text direction on the page"
+    },
+    "excerpt": {
+      "type": "string",
+      "description": "Excerpt of the page"
+    },
+    "language": {
+      "type": "string",
+      "description": "Page language"
+    },
+    "length": {
+      "type": "number",
+      "description": "The length of the page"
+    },
+    "publicationDate": {
+      "type": "string",
+      "description": "Publication timestamp per ISO 8601-1:2019"
+    },
+    "siteName": {
+      "type": "string",
+      "description": "The site name"
+    },
+    "text": {
+      "type": "string",
+      "description": "Text content of the page, without the HTML tags"
+    },
+    "title": {
+      "type": "string",
+      "description": "The title of the page"
+    }
+  },
+  "required": [
+    "url",
+    "html",
+    "length",
+    "text"
+  ]
+}

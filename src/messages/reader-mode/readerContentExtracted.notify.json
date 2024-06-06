@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReaderContentExtracted",
+  "description": "Message to send the readability result to the platform",
+  "type": "object",
+  "properties": {
+    "readerContent": {
+      "$ref": "ReaderContent.json"
+    }
+  },
+  "required": [
+    "readerContent"
+  ]
+}
