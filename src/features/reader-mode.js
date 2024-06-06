@@ -23,11 +23,13 @@ export class ReaderMode extends ContentFeature {
     checkReaderable () {
         const isReaderable = isProbablyReaderable(document)
         if (isReaderable) {
+            console.log('Reader mode is available, notifying the browser...')
             this.notify('readerModeAvailable')
         }
     }
 
     activateReaderMode () {
+        console.log('extractReaderContent received')
         /** @type {Document} */
         // @ts-expect-error this is a document
         const doc = document.cloneNode(true)
@@ -36,7 +38,8 @@ export class ReaderMode extends ContentFeature {
         }
         const article = new Readability(doc, options)
         const reader = article.parse()
-        console.log(reader)
+        console.log('reader result:', reader)
+        console.log('sending the reader content to the browser...')
 
         if (reader) {
             this.notify('readerContentExtracted', {
