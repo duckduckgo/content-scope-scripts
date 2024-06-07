@@ -22,7 +22,8 @@ const otherFeatures = /** @type {const} */([
     'webCompat',
     'windowsPermissionUsage',
     'brokerProtection',
-    'performanceMetrics'
+    'performanceMetrics',
+    'copyPasteMenuSelectionOverride'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -36,7 +37,8 @@ export const platformSupport = {
         'duckPlayer',
         'brokerProtection',
         'performanceMetrics',
-        'clickToLoad'
+        'clickToLoad',
+        'copyPasteMenuSelectionOverride'
     ],
     android: [
         ...baseFeatures,
