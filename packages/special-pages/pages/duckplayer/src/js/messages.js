@@ -32,7 +32,7 @@ export class DuckPlayerPageMessages {
             return Promise.resolve({
                 settings: {
                     pip: {
-                        status: 'enabled'
+                        state: 'enabled'
                     }
                 },
                 userValues: new UserValues({
@@ -138,7 +138,7 @@ export class DuckPlayerPageSettings {
     /**
      * @param {object} params
      * @param {object} params.pip
-     * @param {"enabled" | "disabled"} params.pip.status
+     * @param {"enabled" | "disabled"} params.pip.state
      */
     constructor (params) {
         /**

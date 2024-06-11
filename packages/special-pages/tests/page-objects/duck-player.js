@@ -49,7 +49,7 @@ export class DuckPlayerPage {
             initialSetup: {
                 settings: {
                     pip: {
-                        status: 'disabled'
+                        state: 'disabled'
                     }
                 },
                 userValues: {

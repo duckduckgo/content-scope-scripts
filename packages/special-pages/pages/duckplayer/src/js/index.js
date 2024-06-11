@@ -97,7 +97,7 @@ const VideoPlayer = {
         VideoPlayer.autoFocusVideo(opts.env)
         VideoPlayer.setTabTitle()
         VideoPlayer.setClickListener(opts.base)
-        if (opts.settings.pip.status === 'enabled') {
+        if (opts.settings.pip.state === 'enabled') {
             VideoPlayer.enablePiP()
         }
     },
