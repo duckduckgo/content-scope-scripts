@@ -90,12 +90,16 @@ const VideoPlayer = {
      * @param {object} opts
      * @param {string} opts.base
      * @param {ImportMeta['env']} opts.env
+     * @param {import('./messages').DuckPlayerPageSettings} opts.settings
      */
     init: (opts) => {
         VideoPlayer.loadVideoById()
         VideoPlayer.autoFocusVideo(opts.env)
         VideoPlayer.setTabTitle()
         VideoPlayer.setClickListener(opts.base)
+        if (opts.settings.pip.state === 'enabled') {
+            VideoPlayer.enablePiP()
+        }
     },
 
     /**
@@ -229,6 +233,26 @@ const VideoPlayer = {
                     document.title = 'Duck Player - ' + validTitle
                 }
             })
+        })
+    },
+
+    enablePiP: () => {
+        VideoPlayer.onIframeLoaded(() => {
+            try {
+                const iframe = VideoPlayer.iframe()
+                const iframeDocument = iframe?.contentDocument
+                const iframeWindow = iframe?.contentWindow
+                if (iframeDocument && iframeWindow) {
+                    // @ts-expect-error - typescript doesn't know about CSSStyleSheet here for some reason
+                    const styleSheet = new iframeWindow.CSSStyleSheet()
+                    styleSheet.replaceSync('button.ytp-pip-button { display: inline-block !important; }')
+                    // See https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets#append_a_new_stylesheet
+                    iframeDocument.adoptedStyleSheets = [...iframeDocument.adoptedStyleSheets, styleSheet]
+                }
+            } catch (e) {
+                // ignore errors
+                console.warn(e)
+            }
         })
     },
 
@@ -412,16 +436,18 @@ const Comms = {
      * `window.postMessage({ alwaysOpenSetting: false })`
      *
      * @param {DuckPlayerPageMessages} messaging
+     * @return {Promise<{value: import('./messages').InitialSetup} | { error: string}>}
      */
     init: async (messaging) => {
         // try to make communication with the native side.
         const result = await callWithRetry(() => {
-            return messaging.getUserValues()
+            return messaging.initialSetup()
         })
         // if we received a connection, use the initial values
         if ('value' in result) {
             Comms.messaging = messaging
-            if ('enabled' in result.value.privatePlayerMode) {
+            const { userValues } = result.value
+            if ('enabled' in userValues.privatePlayerMode) {
                 Setting.setState(true)
             } else {
                 Setting.setState(false)
@@ -434,9 +460,8 @@ const Comms = {
                     Setting.setState(false)
                 }
             })
-        } else {
-            console.error(result.error)
         }
+        return result
     },
     /**
      * From the player page, all we can do is 'setUserValues' to {enabled: {}}
@@ -808,15 +833,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const page = new DuckPlayerPageMessages(messaging, import.meta.injectName)
 
-    await Comms.init(page)
+    const result = await Comms.init(page)
 
-    if (!Comms.messaging) {
-        console.warn('cannot continue as messaging was not resolved')
+    if (!('value' in result)) {
+        console.warn('cannot continue as the initialSetup call didnt complete')
+        console.error(result.error)
         return
     }
+
     VideoPlayer.init({
         base: baseUrl(import.meta.injectName),
-        env: import.meta.env
+        env: import.meta.env,
+        settings: result.value.settings
     })
     Tooltip.init()
     PlayOnYouTube.init({
