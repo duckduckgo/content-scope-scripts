@@ -41,7 +41,8 @@ export const platformSupport = {
     android: [
         ...baseFeatures,
         'webCompat',
-        'clickToLoad'
+        'clickToLoad',
+        'duckPlayer',
     ],
     windows: [
         'cookie',
