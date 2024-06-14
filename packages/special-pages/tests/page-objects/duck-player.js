@@ -49,7 +49,7 @@ export class DuckPlayerPage {
             initialSetup: {
                 settings: {
                     pip: {
-                        status: 'disabled'
+                        state: 'disabled'
                     }
                 },
                 userValues: {
@@ -312,7 +312,7 @@ export class DuckPlayerPage {
      * @return {Promise<void>}
      */
     async didReceiveFirstSettingsUpdate () {
-        await this.mocks.waitForCallCount({ count: 1, method: 'getUserValues' })
+        await this.mocks.waitForCallCount({ count: 1, method: 'initialSetup' })
     }
 
     async toggleAlwaysOpenSetting () {

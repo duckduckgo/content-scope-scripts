@@ -28,6 +28,19 @@ export class DuckPlayerPageMessages {
      * @returns {Promise<InitialSetup>} params
      */
     initialSetup () {
+        if (this.injectName === 'integration') {
+            return Promise.resolve({
+                settings: {
+                    pip: {
+                        state: 'enabled'
+                    }
+                },
+                userValues: new UserValues({
+                    overlayInteracted: false,
+                    privatePlayerMode: { alwaysAsk: {} }
+                })
+            })
+        }
         return this.messaging.request('initialSetup')
     }
 
@@ -125,7 +138,7 @@ export class DuckPlayerPageSettings {
     /**
      * @param {object} params
      * @param {object} params.pip
-     * @param {"enabled" | "disabled"} params.pip.status
+     * @param {"enabled" | "disabled"} params.pip.state
      */
     constructor (params) {
         /**
