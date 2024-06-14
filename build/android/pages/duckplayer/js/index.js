@@ -1890,15 +1890,19 @@
     }
   };
   document.addEventListener("DOMContentLoaded", async () => {
+    let injectName = "android";
+    let fromParam = new URLSearchParams(location.search).get("platform");
+    if (fromParam === "integration")
+      injectName = "integration";
     Setting.init({
-      settingsUrl: settingsUrl("android")
+      settingsUrl: settingsUrl(injectName)
     });
     const messaging = createSpecialPageMessaging({
-      injectName: "android",
+      injectName,
       env: "production",
       pageName: "duckPlayerPage"
     });
-    const page = new DuckPlayerPageMessages(messaging, "android");
+    const page = new DuckPlayerPageMessages(messaging, injectName);
     const result = await Comms.init(page);
     if (!("value" in result)) {
       console.warn("cannot continue as the initialSetup call didnt complete");
@@ -1906,13 +1910,13 @@
       return;
     }
     VideoPlayer.init({
-      base: baseUrl("android"),
+      base: baseUrl(injectName),
       env: "production",
       settings: result.value.settings
     });
     Tooltip.init();
     PlayOnYouTube.init({
-      base: baseUrl("android")
+      base: baseUrl(injectName)
     });
     MouseMove.init();
   });

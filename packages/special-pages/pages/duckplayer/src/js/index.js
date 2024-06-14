@@ -821,17 +821,21 @@ const MouseMove = {
  * Initializes all parts of the page on load.
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    let injectName = import.meta.injectName;
+    let fromParam = new URLSearchParams(location.search).get('platform');
+    if (fromParam === 'integration') injectName = 'integration';
+
     Setting.init({
-        settingsUrl: settingsUrl(import.meta.injectName)
+        settingsUrl: settingsUrl(injectName)
     })
 
     const messaging = createSpecialPageMessaging({
-        injectName: import.meta.injectName,
+        injectName: injectName,
         env: import.meta.env,
         pageName: 'duckPlayerPage'
     })
 
-    const page = new DuckPlayerPageMessages(messaging, import.meta.injectName)
+    const page = new DuckPlayerPageMessages(messaging, injectName)
 
     const result = await Comms.init(page)
 
@@ -842,13 +846,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     VideoPlayer.init({
-        base: baseUrl(import.meta.injectName),
+        base: baseUrl(injectName),
         env: import.meta.env,
         settings: result.value.settings
     })
     Tooltip.init()
     PlayOnYouTube.init({
-        base: baseUrl(import.meta.injectName)
+        base: baseUrl(injectName)
     })
     MouseMove.init()
 })
