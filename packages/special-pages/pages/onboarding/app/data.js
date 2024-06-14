@@ -1,5 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { availableIcons } from './components/ListItem'
+import pinning_animation from "./taskbar_pinning.riv";
+import import_animation from "./import.riv";
+import default_animation from "./set_default.riv";
 
 /**
  * @typedef {Record<import('./types').Step['id'], import('./types').Step>} StepDefinitions
@@ -51,6 +54,21 @@ export const stepDefinitions = {
         kind: 'settings',
         rows: ['import', 'default-browser']
     },
+    dockSingle: {
+        id: 'dockSingle',
+        kind: 'settings',
+        rows: ['dock']
+    },
+    importSingle: {
+        id: 'importSingle',
+        kind: 'settings',
+        rows: ['import']
+    },
+    makeDefaultSingle: {
+        id: 'makeDefaultSingle',
+        kind: 'settings',
+        rows: ['default-browser']
+    },
     customize: {
         id: 'customize',
         kind: 'settings',
@@ -62,6 +80,33 @@ export const stepDefinitions = {
     }
 }
 
+export const stepMeta= /** @type {const} */({
+    dockSingle: {
+        rows: {
+            dock: {
+                kind: 'animation',
+                path: pinning_animation
+            }
+        }
+    },
+    importSingle: {
+        rows: {
+            import: {
+                kind: 'animation',
+                path: import_animation
+            }
+        }
+    },
+    makeDefaultSingle: {
+        rows: {
+            'default-browser': {
+                kind: 'animation',
+                path: default_animation
+            }
+        }
+    }
+}
+)
 /**
  * Row items that do not cause system settings to be altered
  * @type {Record<string, Omit<RowData, "id" | "acceptText"> & { id: string }>}

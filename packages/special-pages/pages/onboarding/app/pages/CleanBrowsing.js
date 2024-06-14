@@ -15,6 +15,8 @@ import { BeforeAfter } from '../components/BeforeAfter'
 import { useContext } from 'preact/hooks'
 import { SettingsContext } from '../settings'
 
+import animation from '../Onboarding.riv'
+
 /**
  * @param {object} props
  * @param {(args: any) => void} props.onNextPage
@@ -79,6 +81,7 @@ function RowItem ({ isCurrent, row, index, advance }) {
                             media={({ state }) => {
                                 const animationState = (state === 'initial' || state === 'before') ? 'before' : 'after'
                                 return <RiveAnimation
+                                    animation={animation}
                                     state={animationState}
                                     isDarkMode={isDarkMode}
                                     artboard={meta.artboard}

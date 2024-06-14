@@ -1,6 +1,7 @@
 import { createContext, h } from 'preact'
 import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks'
-import { PAGE_IDS } from './types'
+import {ALT_ORDER, DEFAULT_ORDER, PAGE_IDS} from './types'
+import {useTranslation} from "./translations";
 
 /**
  * @typedef {import("./types.js").GlobalState} GlobalState
@@ -18,6 +19,11 @@ export const GlobalDispatch = createContext(/** @type {import("preact/hooks").Di
  * @return {GlobalState}
  */
 export function reducer (state, action) {
+    // console.group('reducer');
+    // console.log('state', state);
+    // console.log('action', action);
+    // console.groupEnd()
+
     switch (state.status.kind) {
     case 'idle': {
         switch (action.kind) {
@@ -40,6 +46,7 @@ export function reducer (state, action) {
                 return {
                     ...state,
                     activeStep: state.order[nextPageIndex],
+                    nextStep: state.order[nextPageIndex+1],
                     activeRow: 0,
                     activeStepVisible: false,
                     exiting: false,
@@ -121,10 +128,11 @@ export function reducer (state, action) {
 export function GlobalProvider ({ children, stepDefinitions, messaging, firstPage = 'welcome' }) {
     const [state, dispatch] = useReducer(reducer, {
         status: { kind: 'idle' },
-        order: PAGE_IDS,
+        order: ALT_ORDER,
         stepDefinitions,
         step: stepDefinitions[firstPage],
         activeStep: firstPage,
+        nextStep: ALT_ORDER[1],
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,

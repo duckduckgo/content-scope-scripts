@@ -2,19 +2,18 @@ import { h } from 'preact'
 import { useEffect, useRef } from 'preact/hooks'
 import { Rive } from '@rive-app/canvas-single'
 
-import animation from '../Onboarding.riv'
-
 /**
  * Renders a Rive animation on a canvas element and provides functionality to toggle inputs.
  *
  * @param {Object} props - The options for the RiveAnimation.
  * @param {'before' | 'after'} props.state - The name of the state machine to load.
- * @param {string} props.stateMachine - The name of the state machine to load.
- * @param {string} props.artboard - The name of the artboard to display.
- * @param {string} props.inputName - The name of the input to toggle.
+ * @param {string} [props.stateMachine] - The name of the state machine to load. (optional)
+ * @param {string} props.animation - The path to the animation file
+ * @param {string} [props.artboard] - The name of the artboard to display. (optional)
+ * @param {string} [props.inputName] - The name of the input to toggle. (optional)
  * @param {boolean} props.isDarkMode - Indicates if dark mode is enabled.
  */
-export function RiveAnimation ({ state, stateMachine, artboard, inputName, isDarkMode }) {
+export function RiveAnimation ({ animation, state, stateMachine, artboard, inputName, isDarkMode }) {
     const ref = useRef(/** @type {null | HTMLCanvasElement} */(null))
     const rive = useRef(/** @type {null | Rive} */(null))
 
@@ -36,6 +35,7 @@ export function RiveAnimation ({ state, stateMachine, artboard, inputName, isDar
 
     // handle a before/after value
     useEffect(() => {
+        if (!stateMachine) return;
         const inputs = rive.current?.stateMachineInputs(stateMachine)
         if (!inputs) return
 
@@ -48,6 +48,7 @@ export function RiveAnimation ({ state, stateMachine, artboard, inputName, isDar
     // handle light/dark mode
     useEffect(() => {
         function handle () {
+            if (!stateMachine) return;
             const inputs = rive.current?.stateMachineInputs(stateMachine)
             const themeInput = inputs?.find(i => i.name === 'Light?')
             if (themeInput) {
@@ -62,6 +63,6 @@ export function RiveAnimation ({ state, stateMachine, artboard, inputName, isDar
     }, [isDarkMode])
 
     return (
-        <canvas width="432" height="208" ref={ref}></canvas>
+        <canvas width="432" height="208" ref={ref} style="border-radius: 12px; overflow: hidden"></canvas>
     )
 }

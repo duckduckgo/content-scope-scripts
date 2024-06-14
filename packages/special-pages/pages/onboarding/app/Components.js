@@ -14,6 +14,9 @@ import { Summary } from './pages/Summary'
 import { Switch } from './components/Switch'
 import { useState } from 'preact/hooks'
 import { Typed } from './components/Typed'
+import animation from "./Onboarding.riv";
+import {RiveAnimation} from "./components/RiveAnimation";
+import {CleanBrowsing} from "./pages/CleanBrowsing";
 
 function noop (name) {
     return () => {
@@ -42,6 +45,9 @@ export function Components () {
                     <p><a href="?env=app">Onboarding Flow</a></p>
                     <Header><Typed text={'Welcome to DuckDuckGo'}/></Header>
                     <Progress current={1} total={4}/>
+                    <div>
+                        <CleanBrowsing onNextPage={console.log}/>
+                    </div>
                     <div>
                         <ButtonBar>
                             <NewCheck variant={'windows'}/>
