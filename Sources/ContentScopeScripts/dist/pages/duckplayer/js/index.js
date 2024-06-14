@@ -14,6 +14,27 @@
     /**
      * This is sent when the user wants to set Duck Player as the default.
      *
+     * @returns {Promise<InitialSetup>} params
+     */
+    initialSetup() {
+      if (this.injectName === "integration") {
+        return Promise.resolve({
+          settings: {
+            pip: {
+              state: "enabled"
+            }
+          },
+          userValues: new UserValues({
+            overlayInteracted: false,
+            privatePlayerMode: { alwaysAsk: {} }
+          })
+        });
+      }
+      return this.messaging.request("initialSetup");
+    }
+    /**
+     * This is sent when the user wants to set Duck Player as the default.
+     *
      * @param {UserValues} userValues
      */
     setUserValues(userValues) {
@@ -1269,12 +1290,16 @@
      * @param {object} opts
      * @param {string} opts.base
      * @param {ImportMeta['env']} opts.env
+     * @param {import('./messages').DuckPlayerPageSettings} opts.settings
      */
     init: (opts) => {
       VideoPlayer.loadVideoById();
       VideoPlayer.autoFocusVideo(opts.env);
       VideoPlayer.setTabTitle();
       VideoPlayer.setClickListener(opts.base);
+      if (opts.settings.pip.state === "enabled") {
+        VideoPlayer.enablePiP();
+      }
     },
     /**
      * In certain circumstances, we may want to intercept
@@ -1388,6 +1413,22 @@
             document.title = "Duck Player - " + validTitle;
           }
         });
+      });
+    },
+    enablePiP: () => {
+      VideoPlayer.onIframeLoaded(() => {
+        try {
+          const iframe = VideoPlayer.iframe();
+          const iframeDocument = iframe?.contentDocument;
+          const iframeWindow = iframe?.contentWindow;
+          if (iframeDocument && iframeWindow) {
+            const styleSheet = new iframeWindow.CSSStyleSheet();
+            styleSheet.replaceSync("button.ytp-pip-button { display: inline-block !important; }");
+            iframeDocument.adoptedStyleSheets = [...iframeDocument.adoptedStyleSheets, styleSheet];
+          }
+        } catch (e) {
+          console.warn(e);
+        }
       });
     },
     /**
@@ -1541,14 +1582,16 @@
      * `window.postMessage({ alwaysOpenSetting: false })`
      *
      * @param {DuckPlayerPageMessages} messaging
+     * @return {Promise<{value: import('./messages').InitialSetup} | { error: string}>}
      */
     init: async (messaging) => {
       const result = await callWithRetry(() => {
-        return messaging.getUserValues();
+        return messaging.initialSetup();
       });
       if ("value" in result) {
         Comms.messaging = messaging;
-        if ("enabled" in result.value.privatePlayerMode) {
+        const { userValues } = result.value;
+        if ("enabled" in userValues.privatePlayerMode) {
           Setting.setState(true);
         } else {
           Setting.setState(false);
@@ -1560,9 +1603,8 @@
             Setting.setState(false);
           }
         });
-      } else {
-        console.error(result.error);
       }
+      return result;
     },
     /**
      * From the player page, all we can do is 'setUserValues' to {enabled: {}}
@@ -1857,14 +1899,16 @@
       pageName: "duckPlayerPage"
     });
     const page = new DuckPlayerPageMessages(messaging, "apple");
-    await Comms.init(page);
-    if (!Comms.messaging) {
-      console.warn("cannot continue as messaging was not resolved");
+    const result = await Comms.init(page);
+    if (!("value" in result)) {
+      console.warn("cannot continue as the initialSetup call didnt complete");
+      console.error(result.error);
       return;
     }
     VideoPlayer.init({
       base: baseUrl("apple"),
-      env: "production"
+      env: "production",
+      settings: result.value.settings
     });
     Tooltip.init();
     PlayOnYouTube.init({
