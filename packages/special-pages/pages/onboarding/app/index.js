@@ -7,7 +7,7 @@ import { App, SkipLink } from './components/App.js'
 import { GlobalProvider } from './global'
 import { Components } from './Components'
 import { SettingsProvider, UpdateSettings } from './settings'
-import { PAGE_IDS, PLATFORMS } from './types'
+import { ALT_ORDER, DEFAULT_ORDER, PAGE_IDS, PLATFORMS } from './types'
 import { stepDefinitions } from './data'
 import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging'
 
@@ -42,6 +42,13 @@ async function init () {
         console.warn('tried to skip to an unsupported page')
     }
 
+    let order = DEFAULT_ORDER
+    const allowedOverrides = { v2: ALT_ORDER }
+    const orderParam = params.get('order')
+    if (orderParam && Object.keys(allowedOverrides).includes(orderParam)) {
+        order = allowedOverrides[orderParam]
+    }
+
     let platform = /** @type {any} */(document.documentElement.dataset.platform || 'windows')
     if (!PLATFORMS.includes(/** @type {any} */(platform))) {
         platform = 'windows'
@@ -64,6 +71,7 @@ async function init () {
             >
                 <UpdateSettings search={window.location.search} />
                 <GlobalProvider
+                    order={order}
                     messaging={onboarding}
                     stepDefinitions={stepDefinitions}
                     firstPage={/** @type {import('./types').Step['id']} */(first)}>

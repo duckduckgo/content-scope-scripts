@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { availableIcons } from './components/ListItem'
-import pinning_animation from "./taskbar_pinning.riv";
-import import_animation from "./import.riv";
-import default_animation from "./set_default.riv";
+import pinningAnimation from './taskbar_pinning.riv'
+import importAnimation from './import.riv'
+import defaultAnimation from './set_default.riv'
 
 /**
  * @typedef {Record<import('./types').Step['id'], import('./types').Step>} StepDefinitions
@@ -80,12 +80,12 @@ export const stepDefinitions = {
     }
 }
 
-export const stepMeta= /** @type {const} */({
+export const stepMeta = /** @type {const} */({
     dockSingle: {
         rows: {
             dock: {
                 kind: 'animation',
-                path: pinning_animation
+                path: pinningAnimation
             }
         }
     },
@@ -93,7 +93,7 @@ export const stepMeta= /** @type {const} */({
         rows: {
             import: {
                 kind: 'animation',
-                path: import_animation
+                path: importAnimation
             }
         }
     },
@@ -101,7 +101,7 @@ export const stepMeta= /** @type {const} */({
         rows: {
             'default-browser': {
                 kind: 'animation',
-                path: default_animation
+                path: defaultAnimation
             }
         }
     }

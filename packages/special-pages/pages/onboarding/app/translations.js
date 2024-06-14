@@ -8,9 +8,6 @@ export const TranslationContext = createContext({
      * @return {string}
      */
     t: (key) => {
-        if (!i18n.en.translation.hasOwnProperty(key)) {
-            // console.warn('missing translation for ', key);
-        }
         return i18n.en.translation[key]
     }
 })

@@ -9,7 +9,7 @@ import { useGlobalDispatch, useGlobalState } from '../global'
 import { useTranslation } from '../translations'
 import { useRollin } from '../hooks/useRollin'
 import { Switch } from '../components/Switch'
-import {RiveAnimation} from "../components/RiveAnimation";
+import { RiveAnimation } from '../components/RiveAnimation'
 
 /**
  * @param {object} props

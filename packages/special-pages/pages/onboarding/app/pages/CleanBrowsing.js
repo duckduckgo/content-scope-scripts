@@ -17,6 +17,8 @@ import { SettingsContext } from '../settings'
 
 import animation from '../Onboarding.riv'
 
+export { animation }
+
 /**
  * @param {object} props
  * @param {(args: any) => void} props.onNextPage

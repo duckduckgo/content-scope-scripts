@@ -43,7 +43,7 @@ export const PAGE_IDS = [
     'summary',
     'dockSingle',
     'importSingle',
-    'makeDefaultSingle',
+    'makeDefaultSingle'
 ]
 
 /** @type {Step['id'][]} */
@@ -54,7 +54,7 @@ export const DEFAULT_ORDER = [
     'cleanerBrowsing',
     'systemSettings',
     'customize',
-    'summary',
+    'summary'
 ]
 
 /** @type {Step['id'][]} */
@@ -67,7 +67,7 @@ export const ALT_ORDER = [
     'importSingle',
     'makeDefaultSingle',
     'customize',
-    'summary',
+    'summary'
 ]
 
 /**

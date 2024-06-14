@@ -1,15 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { h } from 'preact'
-import {useContext, useEffect, useRef} from 'preact/hooks'
+import { useContext, useRef } from 'preact/hooks'
 import styles from './App.module.css'
 import { Summary } from '../pages/Summary'
 import { GlobalContext, GlobalDispatch } from '../global'
 import { Background } from './Background'
 import { GetStarted } from '../pages/Welcome'
 import { PrivacyDefault } from '../pages/PrivacyDefault'
-import { CleanBrowsing } from '../pages/CleanBrowsing'
+import { CleanBrowsing, animation } from '../pages/CleanBrowsing'
 import { SettingsStep } from '../pages/SettingsStep'
-import {settingsRowItems, stepMeta} from '../data'
+import { settingsRowItems, stepMeta } from '../data'
 import { useTranslation } from '../translations'
 import { SettingsContext } from '../settings'
 import { Header } from './Header'
@@ -65,17 +65,21 @@ export function App ({ children }) {
     }
 
     /** @type {import('../types').Step['id'][]} */
-    const progress = order.slice(2, -1);
+    const progress = order.slice(2, -1)
     const showProgress = progress.includes(activeStep)
 
-    function onAnimationEnd(e) {
-        if (e.target.dataset.exiting === "true") {
-            next();
+    function onAnimationEnd (e) {
+        if (e.target.dataset.exiting === 'true') {
+            next()
         }
     }
 
     return (
         <main className={styles.main}>
+            <link rel="preload" href={['js', animation].join('/')} as="image"/>
+            <link rel="preload" href={['js', stepMeta.dockSingle.rows.dock.path].join('/')} as="image"/>
+            <link rel="preload" href={['js', stepMeta.importSingle.rows.import.path].join('/')} as="image"/>
+            <link rel="preload" href={['js', stepMeta.makeDefaultSingle.rows['default-browser'].path].join('/')} as="image"/>
             <Background/>
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep}>
@@ -93,14 +97,14 @@ export function App ({ children }) {
                         <div data-current={activeStep} data-exiting={String(exiting)} onAnimationEnd={onAnimationEnd}>
                             {activeStepVisible && (
                                 <Content>
-                                    {step.kind === "settings" && <SettingsStep
+                                    {step.kind === 'settings' && <SettingsStep
                                         key={activeStep}
                                         subtitle={pageSubTitle}
                                         data={settingsRowItems}
                                         metaData={stepMeta}
                                         onNextPage={enqueueNext}
                                     />}
-                                    {step.kind === "info" && infoPages[activeStep]()}
+                                    {step.kind === 'info' && infoPages[activeStep]()}
                                 </Content>
                             )}
                         </div>
@@ -127,7 +131,7 @@ function Debug (props) {
 function DebugLinks ({ current }) {
     const globalState = useContext(GlobalContext)
 
-    const exceptionUrl = new URL(window.location.href);
+    const exceptionUrl = new URL(window.location.href)
     exceptionUrl.searchParams.set('page', 'welcome')
     exceptionUrl.searchParams.set('willThrow', 'true')
 
@@ -135,8 +139,8 @@ function DebugLinks ({ current }) {
     return (
         <div style={{ display: 'flex', gap: '10px', position: 'fixed', bottom: '1rem', justifyContent: 'center', width: '100%' }}>
             {Object.keys(globalState.stepDefinitions).slice(1).map(pageId => {
-                const next = new URL(window.location.href);
-                next.searchParams.set('page', pageId);
+                const next = new URL(window.location.href)
+                next.searchParams.set('page', pageId)
                 return (
                     <a href={next.toString()} key={pageId} style={{
                         textDecoration: current === pageId ? 'none' : 'underline',

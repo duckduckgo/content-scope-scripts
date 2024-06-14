@@ -1,7 +1,5 @@
 import { createContext, h } from 'preact'
 import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks'
-import {ALT_ORDER, DEFAULT_ORDER, PAGE_IDS} from './types'
-import {useTranslation} from "./translations";
 
 /**
  * @typedef {import("./types.js").GlobalState} GlobalState
@@ -46,7 +44,7 @@ export function reducer (state, action) {
                 return {
                     ...state,
                     activeStep: state.order[nextPageIndex],
-                    nextStep: state.order[nextPageIndex+1],
+                    nextStep: state.order[nextPageIndex + 1],
                     activeRow: 0,
                     activeStepVisible: false,
                     exiting: false,
@@ -120,19 +118,20 @@ export function reducer (state, action) {
 /**
  * Provides navigation functionality for the application.
  * @param {Object} props - The properties for the NavigationProvider component.
+ * @param {import('./types').Step['id'][]} props.order - The order of screens to display
  * @param {import("preact").ComponentChild} props.children - The children components.
  * @param {import('./data').StepDefinitions} props.stepDefinitions -
  * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
  */
-export function GlobalProvider ({ children, stepDefinitions, messaging, firstPage = 'welcome' }) {
+export function GlobalProvider ({ order, children, stepDefinitions, messaging, firstPage = 'welcome' }) {
     const [state, dispatch] = useReducer(reducer, {
         status: { kind: 'idle' },
-        order: ALT_ORDER,
+        order,
         stepDefinitions,
         step: stepDefinitions[firstPage],
         activeStep: firstPage,
-        nextStep: ALT_ORDER[1],
+        nextStep: order[1],
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,

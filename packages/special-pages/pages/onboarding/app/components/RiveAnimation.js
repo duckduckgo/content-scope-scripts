@@ -35,7 +35,7 @@ export function RiveAnimation ({ animation, state, stateMachine, artboard, input
 
     // handle a before/after value
     useEffect(() => {
-        if (!stateMachine) return;
+        if (!stateMachine) return
         const inputs = rive.current?.stateMachineInputs(stateMachine)
         if (!inputs) return
 
@@ -48,7 +48,7 @@ export function RiveAnimation ({ animation, state, stateMachine, artboard, input
     // handle light/dark mode
     useEffect(() => {
         function handle () {
-            if (!stateMachine) return;
+            if (!stateMachine) return
             const inputs = rive.current?.stateMachineInputs(stateMachine)
             const themeInput = inputs?.find(i => i.name === 'Light?')
             if (themeInput) {
