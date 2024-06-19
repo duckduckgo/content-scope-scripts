@@ -1,34 +1,25 @@
-This is an example 'special' page. It's designed to be a template for future pages.
-
 ### Integration
 
 Serve the entire folder found under `build/<PLATFORM>/pages/example`
 
-### Platform Integration
+### Platform Integrations
 
-- On Windows, do x, y, z
-- On Android, do a, b, c
+So far, the following platforms are supported
+
+- Windows
 
 ---
 
 ## Contributing
 
 ### HTML
-The main HTML file is located at `public/index.html`. You can edit this file directly
+The main HTML file is located at `src/index.html`. You can edit this file directly
 
 ### CSS
-The main stylesheet is located at `public/style.css`. You can edit this file directly
+The App Component can be used as the entry point for the application CSS
 
 ### Javascript
-JavaScript source files are located in the `src` directory. The build process will create a bundle and place it inside `public/generated`. 
+JavaScript source files are located in the `src/js` directory.
 
-This is why the `index.html` file has the following `<script>` tag.
-
-```html
-<script type="module" src="generated/js/index.js"></script>
-```
-
-Don't edit the generated files directly - any changes you make will not be reflected in the final build output. 
-
-Instead, make your changes in `src/' and then run `npm run build.pages` from the `packages/special-pages` folder
+Make your changes in `src/' and then run `npm run build` from the `packages/special-pages` folder
 
