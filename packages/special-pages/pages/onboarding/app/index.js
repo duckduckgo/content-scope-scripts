@@ -30,8 +30,8 @@ async function init () {
     const environment = baseEnvironment.withEnv(init.env)
 
     const settings = new Settings()
-        .withOrder(init.order)
         .withStepDefinitions(init.stepDefinitions)
+        .withNamedOrder(init.order)
         .withNamedOrder(environment.urlParams.get('order'))
         .withFirst(environment.urlParams.get('page'))
 

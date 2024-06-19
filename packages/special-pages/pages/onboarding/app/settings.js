@@ -53,6 +53,8 @@ export class Settings {
                 ...this,
                 order: ALT_ORDER
             })
+        } else {
+            console.warn('ignoring named order:', named)
         }
         return this
     }

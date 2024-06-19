@@ -5,7 +5,7 @@
  *
  * @typedef {Object} InitResponse
  * @property {Record<string, any>} stepDefinitions
- * @property {string[]} [order] - ability to override the screen order
+ * @property {string} [order] - ability to override the screen order
  * @property {ImportMeta['env']} [env] - optional override for the running override
  */
 

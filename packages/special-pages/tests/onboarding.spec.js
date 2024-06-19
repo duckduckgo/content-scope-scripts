@@ -112,4 +112,39 @@ test.describe('onboarding', () => {
             await onboarding.canToggleHomeButton()
         })
     })
+    test.describe('v2', () => {
+        test('shows v2 flow', async ({page}, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo)
+            await onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        // this 'dock' is not part of the default
+                        rows: ['dock', 'import', 'default-browser']
+                    }
+                },
+                env: 'development',
+                order: 'v2'
+            })
+            await onboarding.reducedMotion()
+            await onboarding.darkMode()
+            await onboarding.openPage()
+            await page.getByRole('button', { name: 'Get Started' }).click();
+            await page.getByRole('button', { name: 'Got It' }).click();
+            await page.getByRole('button', { name: 'See With Tracker Blocking' }).click();
+            await page.getByRole('button', { name: 'Got It' }).click();
+            await page.getByRole('button', { name: 'See With Duck Player' }).click();
+            await page.getByRole('button', { name: 'Got It' }).click();
+            await page.getByRole('button', { name: 'Next' }).click();
+            await page.getByRole('button', { name: 'Skip' }).click();
+            await page.getByRole('button', { name: 'Next' }).click();
+            await page.getByRole('button', { name: 'Skip' }).click();
+            await page.getByRole('button', { name: 'Next' }).click();
+            await page.getByRole('button', { name: 'Skip' }).click();
+            await page.getByRole('button', { name: 'Next' }).click();
+            await page.getByLabel('Customize your experience').waitFor({timeout: 1000})
+
+
+            await page.pause();
+        })
+    })
 })

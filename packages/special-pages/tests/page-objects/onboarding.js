@@ -25,8 +25,7 @@ export class OnboardingPage {
             env: 'development'
         })
         this.page.on('console', console.log)
-        // default mocks - just enough to render the first page without error
-        this.mocks.defaultResponses({
+        this.defaultResponses = {
             requestSetAsDefault: {},
             requestImport: {},
             stepCompleted: {},
@@ -38,9 +37,17 @@ export class OnboardingPage {
                         rows: ['dock', 'import', 'default-browser']
                     }
                 },
-                order: DEFAULT_ORDER,
                 env: 'development'
             }
+        };
+        // default mocks - just enough to render the first page without error
+        this.mocks.defaultResponses(this.defaultResponses)
+    }
+
+    async withInitData(data){
+        this.mocks.defaultResponses({
+            ...this.defaultResponses,
+            init: data
         })
     }
 
