@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ReportPageException",
+  "additionalProperties": false,
+  "description": "todo description",
+  "properties": {
+    "message": {
+      "description": "todo: add description for 'title' field",
+      "type": "string"
+    }
+  },
+  "required": ["message"]
+}

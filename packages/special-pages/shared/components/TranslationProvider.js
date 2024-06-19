@@ -4,9 +4,10 @@ import { useCallback, useContext } from 'preact/hooks'
 export const TranslationContext = createContext({
     /**
      * @param {string} key
+     * @param {Record<string, string>} [replacements]
      * @return {string}
      */
-    t: (key) => {
+    t: (key, replacements) => {
         throw new Error('must implement')
     }
 })
@@ -17,7 +18,13 @@ export const TranslationContext = createContext({
  * @param {{en: Record<string, any>}} props.text
  */
 export function TranslationProvider ({ children, text }) {
-    const t = useCallback((key) => {
+    const t = useCallback((key, replacements) => {
+        if (replacements) {
+            const regex = RegExp(Object.keys(replacements).map((s) => (`\\{(${s})\\}`)).join('|'), 'gm');
+            console.log('REGEX', regex);
+            return text.en.translations[key].title.replace(regex, (_, id) => replacements[id]);
+        }
+
         return text.en.translations[key].title
     }, [text])
     return (
