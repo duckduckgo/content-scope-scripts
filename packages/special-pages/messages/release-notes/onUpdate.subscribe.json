@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "UpdateMessage",
+  "additionalProperties": false,
+  "description": "Message sent from browser when release notes are updated",
+  "properties": {
+    "version": {
+      "description": "todo: add description for 'title' field",
+      "type": "number"
+    },
+    "lastUpdate": {
+      "description": "todo: add description for 'url' field",
+      "type": "number"
+    },
+    "status": {
+      "description": "todo: add description for 'text' field",
+      "type": "string",
+      "enum": ["loading", "loaded", "new-version"]
+    },
+    "releaseNotes": {
+      "description": "todo: add description for 'text' field",
+      "type": "string"
+    }
+  },
+  "required": ["lastUpdate", "status"]
+}

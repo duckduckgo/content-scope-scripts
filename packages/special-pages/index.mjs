@@ -54,6 +54,10 @@ export const support = {
     example: {
         'integration': ['copy', 'build-js']
     },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    'release-notes': {
+        'integration': ['copy', 'build-js']
+    },
 }
 
 /** @type {{src: string, dest: string, injectName: string}[]} */
