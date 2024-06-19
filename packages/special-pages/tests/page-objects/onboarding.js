@@ -2,7 +2,7 @@ import { Mocks } from './mocks.js'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 import { join } from 'node:path'
 import { expect } from '@playwright/test'
-import {DEFAULT_ORDER} from "../../pages/onboarding/app/types";
+import { DEFAULT_ORDER } from '../../pages/onboarding/app/types'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -29,6 +29,8 @@ export class OnboardingPage {
         this.mocks.defaultResponses({
             requestSetAsDefault: {},
             requestImport: {},
+            stepCompleted: {},
+            reportPageException: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {

@@ -15,7 +15,7 @@ import { useEnv } from '../environment'
  */
 export function Switch ({ checked = false, variant, ...props }) {
     const { onChecked, onUnchecked, ariaLabel, pending } = props
-    const env = useEnv();
+    const env = useEnv()
     const platform = variant || env.platform
     function change (e) {
         if (e.target.checked === true) {

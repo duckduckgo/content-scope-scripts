@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {availableIcons} from './components/ListItem'
+import { availableIcons } from './components/ListItem'
 import pinningAnimation from './taskbar_pinning.riv'
 import importAnimation from './import.riv'
 import defaultAnimation from './set_default.riv'

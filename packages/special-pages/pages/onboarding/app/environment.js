@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact'
-import {useContext, useEffect, useState} from 'preact/hooks'
+import { useContext, useEffect, useState } from 'preact/hooks'
 
 /**
  * A container for environment related settings/updates
@@ -14,27 +14,27 @@ export class Environment {
      * @param {boolean} [params.willThrow] - whether the application will simulate an error
      * @param {boolean} [params.debugState] - whether to show debugging UI
      */
-    constructor({
+    constructor ({
         display = 'app',
         env = 'production',
         urlParams = new URLSearchParams(location.search),
         platform = 'windows',
-        willThrow = urlParams.has('willthrow'),
-        debugState = urlParams.has('debugState'),
+        willThrow = urlParams.get('willThrow') === 'true',
+        debugState = urlParams.has('debugState')
     } = {}) {
-        this.display = display;
-        this.urlParams = urlParams;
-        this.platform = platform;
-        this.willThrow = willThrow;
-        this.debugState = debugState;
-        this.env = env;
+        this.display = display
+        this.urlParams = urlParams
+        this.platform = platform
+        this.willThrow = willThrow
+        this.debugState = debugState
+        this.env = env
     }
 
     /**
      * @param {string|null|undefined} platform
      * @returns {Environment}
      */
-    withPlatform(platform) {
+    withPlatform (platform) {
         if (!platform) return this
         if (!isPlatform(platform)) return this
         return new Environment({
@@ -47,13 +47,13 @@ export class Environment {
      * @param {string|null|undefined} env
      * @returns {Environment}
      */
-    withEnv(env) {
-        if (!env) return this;
-        if (env !== 'production' && env !== 'development') return this;
+    withEnv (env) {
+        if (!env) return this
+        if (env !== 'production' && env !== 'development') return this
 
         return new Environment({
             ...this,
-            env,
+            env
         })
     }
 }
@@ -148,6 +148,6 @@ export function UpdateEnvironment ({ search }) {
     return null
 }
 
-export function useEnv() {
+export function useEnv () {
     return useContext(EnvironmentContext)
 }

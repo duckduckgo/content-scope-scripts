@@ -6,9 +6,9 @@ import './styles/global.css' // global styles
 import { App, SkipLink } from './components/App.js'
 import { GlobalProvider } from './global'
 import { Components } from './Components'
-import {Environment, EnvironmentProvider, UpdateEnvironment} from './environment'
+import { Environment, EnvironmentProvider, UpdateEnvironment } from './environment'
 import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging'
-import {Settings} from "./settings";
+import { Settings } from './settings'
 
 const baseEnvironment = new Environment()
     .withPlatform(document.documentElement.dataset.platform)
@@ -24,17 +24,16 @@ const messaging = createSpecialPageMessaging({
 const onboarding = new OnboardingMessages(messaging, baseEnvironment.platform)
 
 async function init () {
-
     const init = await onboarding.init()
 
     // update the 'env' in case it was changed by native
-    const environment = baseEnvironment.withEnv(init.env);
+    const environment = baseEnvironment.withEnv(init.env)
 
     const settings = new Settings()
         .withOrder(init.order)
         .withStepDefinitions(init.stepDefinitions)
         .withNamedOrder(environment.urlParams.get('order'))
-        .withFirst(environment.urlParams.get('first'));
+        .withFirst(environment.urlParams.get('page'))
 
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')

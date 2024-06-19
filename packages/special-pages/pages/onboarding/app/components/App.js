@@ -154,7 +154,7 @@ function DebugLinks ({ current }) {
 }
 
 function WillThrow () {
-    const { willThrow } = useEnv();
+    const { willThrow } = useEnv()
     if (willThrow) {
         throw new Error('Simulated Exception')
     }
