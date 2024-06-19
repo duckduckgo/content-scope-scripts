@@ -38,6 +38,7 @@ export function RiveAnimation ({ animation, state, stateMachine, artboard, input
         if (!stateMachine) return
         const inputs = rive.current?.stateMachineInputs(stateMachine)
         if (!inputs) return
+        if (!inputName) return;
 
         const toggle = inputs.find(i => i.name === inputName)
         if (!toggle) return console.warn('could not find input')
@@ -50,7 +51,7 @@ export function RiveAnimation ({ animation, state, stateMachine, artboard, input
         function handle () {
             if (!stateMachine) return
             const inputs = rive.current?.stateMachineInputs(stateMachine)
-            const themeInput = inputs?.find(i => i.name === 'Light?')
+            const themeInput = inputs?.find(i => i.name.startsWith('Light'))
             if (themeInput) {
                 themeInput.value = !isDarkMode
             }

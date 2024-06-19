@@ -10,6 +10,7 @@ import { useTranslation } from '../translations'
 import { useRollin } from '../hooks/useRollin'
 import { Switch } from '../components/Switch'
 import { RiveAnimation } from '../components/RiveAnimation'
+import {useEnv} from "../environment";
 
 /**
  * @param {object} props
@@ -157,6 +158,8 @@ function SettingListItem ({ index, item, dispatch }) {
         return { kind: 'button-bar' }
     })()
 
+    const { isDarkMode } = useEnv();
+
     return (
         <ListItem
             key={data.id}
@@ -179,8 +182,9 @@ function SettingListItem ({ index, item, dispatch }) {
                 <Stack gap='var(--sp-3)'>
                     <RiveAnimation
                         animation={display.path}
-                        state={'after'}
-                        isDarkMode={false}
+                        state={'before'}
+                        isDarkMode={isDarkMode}
+                        stateMachine={'State Machine 1'}
                     />
                     <ButtonBar>
                         <Button disabled={item.pending} variant={'secondary'} onClick={deny}>Skip</Button>

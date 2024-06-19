@@ -14,7 +14,7 @@ import { RiveAnimation } from '../components/RiveAnimation'
 import { BeforeAfter } from '../components/BeforeAfter'
 import { useEnv } from '../environment'
 
-import animation from '../Onboarding.riv'
+import animation from '../animations/Onboarding.riv'
 
 export { animation }
 

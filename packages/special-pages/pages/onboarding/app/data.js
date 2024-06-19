@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { availableIcons } from './components/ListItem'
-import pinningAnimation from './taskbar_pinning.riv'
-import importAnimation from './import.riv'
-import defaultAnimation from './set_default.riv'
+import pinningAnimation from './animations/taskbar_pinning.riv'
+import importAnimation from './animations/import.riv'
+import defaultAnimation from './animations/set_default.riv'
 
 /**
  * @typedef {object} RowData
