@@ -33,7 +33,7 @@
  */
 
 /** @type {Step['id'][]} */
-export const PAGE_IDS = [
+export const EVERY_PAGE_ID = [
     'welcome',
     'getStarted',
     'privateByDefault',

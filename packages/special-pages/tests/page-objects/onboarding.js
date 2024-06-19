@@ -2,6 +2,7 @@ import { Mocks } from './mocks.js'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 import { join } from 'node:path'
 import { expect } from '@playwright/test'
+import {DEFAULT_ORDER} from "../../pages/onboarding/app/types";
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -31,9 +32,11 @@ export class OnboardingPage {
             init: {
                 stepDefinitions: {
                     systemSettings: {
+                        // this 'dock' is not part of the default
                         rows: ['dock', 'import', 'default-browser']
                     }
                 },
+                order: DEFAULT_ORDER,
                 env: 'development'
             }
         })

@@ -12,8 +12,7 @@ import { Delay } from '../components/Timeout'
 import { Animate } from '../components/Animate'
 import { RiveAnimation } from '../components/RiveAnimation'
 import { BeforeAfter } from '../components/BeforeAfter'
-import { useContext } from 'preact/hooks'
-import { SettingsContext } from '../settings'
+import { useEnv } from '../environment'
 
 import animation from '../Onboarding.riv'
 
@@ -61,7 +60,7 @@ export function CleanBrowsing ({ onNextPage }) {
 }
 
 function RowItem ({ isCurrent, row, index, advance }) {
-    const { isDarkMode } = useContext(SettingsContext)
+    const { isDarkMode } = useEnv()
     const meta = beforeAfterMeta[row.id]
     return (
         <ListItem

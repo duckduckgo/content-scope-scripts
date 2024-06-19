@@ -2,7 +2,7 @@
 import { h } from 'preact'
 import { useState, useEffect, useRef, useContext } from 'preact/hooks'
 
-import { SettingsContext } from '../settings'
+import { useEnv } from '../environment'
 import { GlobalContext } from '../global'
 
 /**
@@ -37,7 +37,7 @@ export function Typed ({ text, children = null, onComplete = null, delay = 20, .
 }
 
 function TypedInner ({ text, onComplete, delay, children, ...rest }) {
-    const { isReducedMotion } = useContext(SettingsContext)
+    const { isReducedMotion } = useEnv()
     const [screenWidth, setScreenWidth] = useState(0)
     const [coords, setCoords] = useState({ left: 0, width: 0 })
     const [complete, setLocalComplete] = useState(false)

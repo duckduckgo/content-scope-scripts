@@ -11,7 +11,7 @@ import { CleanBrowsing, animation } from '../pages/CleanBrowsing'
 import { SettingsStep } from '../pages/SettingsStep'
 import { settingsRowItems, stepMeta } from '../data'
 import { useTranslation } from '../translations'
-import { SettingsContext } from '../settings'
+import { useEnv } from '../environment'
 import { Header } from './Header'
 import { Typed } from './Typed'
 import { Stack } from './Stack'
@@ -26,7 +26,7 @@ import { Progress } from './Progress'
  * @param {import("preact").ComponentChild} props.children
  */
 export function App ({ children }) {
-    const { debugState } = useContext(SettingsContext)
+    const { debugState } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTranslation()
@@ -154,7 +154,8 @@ function DebugLinks ({ current }) {
 }
 
 function WillThrow () {
-    if (useContext(SettingsContext).willThrow) {
+    const { willThrow } = useEnv();
+    if (willThrow) {
         throw new Error('Simulated Exception')
     }
     return null

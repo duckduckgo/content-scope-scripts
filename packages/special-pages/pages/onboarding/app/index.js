@@ -6,87 +6,64 @@ import './styles/global.css' // global styles
 import { App, SkipLink } from './components/App.js'
 import { GlobalProvider } from './global'
 import { Components } from './Components'
-import { SettingsProvider, UpdateSettings } from './settings'
-import { ALT_ORDER, DEFAULT_ORDER, PAGE_IDS, PLATFORMS } from './types'
-import { stepDefinitions } from './data'
+import {Environment, EnvironmentProvider, UpdateEnvironment} from './environment'
 import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging'
+import {Settings} from "./settings";
+
+const baseEnvironment = new Environment()
+    .withPlatform(document.documentElement.dataset.platform)
+    .withEnv(import.meta.env) // use the build's ENV
 
 // share this in the app, it's an instance of `OnboardingMessages` where all your native comms should be
 const messaging = createSpecialPageMessaging({
-    injectName: import.meta.injectName,
-    env: import.meta.env,
+    injectName: baseEnvironment.platform,
+    env: baseEnvironment.env,
     pageName: 'onboarding'
 })
 
-const onboarding = new OnboardingMessages(messaging, import.meta.injectName)
+const onboarding = new OnboardingMessages(messaging, baseEnvironment.platform)
 
 async function init () {
+
     const init = await onboarding.init()
 
-    for (const [key, value] of Object.entries(init?.stepDefinitions || {})) {
-        if (PAGE_IDS.includes(/** @type {any} */(key))) {
-            // this mutates the object in place, fine since we only use it once in the entire lifetime of the app
-            Object.assign(stepDefinitions[key], value)
-        }
-    }
+    // update the 'env' in case it was changed by native
+    const environment = baseEnvironment.withEnv(init.env);
+
+    const settings = new Settings()
+        .withOrder(init.order)
+        .withStepDefinitions(init.stepDefinitions)
+        .withNamedOrder(environment.urlParams.get('order'))
+        .withFirst(environment.urlParams.get('first'));
 
     const root = document.querySelector('#app')
-    const params = new URLSearchParams(location.search)
-
-    const env = params.get('env') || 'app'
-
-    // can we skip to a page?
-    let first = params.get('page') || 'welcome'
-    if (!PAGE_IDS.includes(/** @type {any} */(first))) {
-        first = 'welcome'
-        console.warn('tried to skip to an unsupported page')
-    }
-
-    let order = DEFAULT_ORDER
-    const allowedOverrides = { v2: ALT_ORDER }
-    const orderParam = params.get('order')
-    if (orderParam && Object.keys(allowedOverrides).includes(orderParam)) {
-        order = allowedOverrides[orderParam]
-    }
-
-    let platform = /** @type {any} */(document.documentElement.dataset.platform || 'windows')
-    if (!PLATFORMS.includes(/** @type {any} */(platform))) {
-        platform = 'windows'
-    }
-
-    // should we should some debugging overlays
-    const debugState = params.has('debugState')
-
-    // should we simulate a fatal exception (something we can't recover from)
-    const willThrow = (params.get('willthrow') || params.get('willThrow')) === 'true'
-
     if (!root) throw new Error('could not render, root element missing')
 
-    if (env === 'app') {
+    if (environment.display === 'app') {
         render(
-            <SettingsProvider
-                debugState={debugState}
-                platform={platform}
-                willThrow={willThrow}
+            <EnvironmentProvider
+                debugState={environment.debugState}
+                platform={environment.platform}
+                willThrow={environment.willThrow}
             >
-                <UpdateSettings search={window.location.search} />
+                <UpdateEnvironment search={window.location.search} />
                 <GlobalProvider
-                    order={order}
                     messaging={onboarding}
-                    stepDefinitions={stepDefinitions}
-                    firstPage={/** @type {import('./types').Step['id']} */(first)}>
+                    order={settings.order}
+                    stepDefinitions={settings.stepDefinitions}
+                    firstPage={settings.first}>
                     <App>
-                        {init.env === 'development' && <SkipLink />}
+                        {environment.env === 'development' && <SkipLink />}
                     </App>
                 </GlobalProvider>
-            </SettingsProvider>
+            </EnvironmentProvider>
             , root)
     }
-    if (env === 'components') {
+    if (environment.display === 'components') {
         render(
-            <SettingsProvider debugState={false} platform={platform}>
+            <EnvironmentProvider debugState={false} platform={environment.platform}>
                 <Components />
-            </SettingsProvider>
+            </EnvironmentProvider>
             , root)
     }
 }

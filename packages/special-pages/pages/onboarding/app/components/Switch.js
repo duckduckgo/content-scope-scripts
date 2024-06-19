@@ -1,7 +1,6 @@
 import { h } from 'preact'
 import styles from './Switch.module.css'
-import { SettingsContext } from '../settings'
-import { useContext } from 'preact/hooks'
+import { useEnv } from '../environment'
 
 /**
  * Switch component used to toggle between two states.
@@ -16,7 +15,8 @@ import { useContext } from 'preact/hooks'
  */
 export function Switch ({ checked = false, variant, ...props }) {
     const { onChecked, onUnchecked, ariaLabel, pending } = props
-    const platform = variant || useContext(SettingsContext).platform
+    const env = useEnv();
+    const platform = variant || env.platform
     function change (e) {
         if (e.target.checked === true) {
             onChecked()
