@@ -4,6 +4,7 @@
     --px-in-rem: calc(1rem / 16);
 
     /* Spacing */
+    --sp-320: 80rem;   /* 1280px */
     --sp-256: 64rem;   /* 1024px */
     --sp-192: 48rem;   /* 768px */
     --sp-96:  24rem;   /* 384px */

@@ -1,11 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { h } from 'preact'
+import { Fragment, h } from 'preact'
 import styles from './App.module.css'
 import { ErrorBoundary } from "../../../../shared/components/ErrorBoundary";
 import { useEnv } from "../../../../shared/components/EnvironmentProvider";
 import { useTranslation } from "../../../../shared/components/TranslationProvider";
 import { MessagingContext } from '../index';
 import { useContext, useEffect, useState } from "preact/hooks";
+import { DuckDuckGoLogo } from '../../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo';
+import { Card } from '../../../../shared/components/Card/Card';
 
 /**
  * @param {object} props
@@ -33,31 +35,36 @@ function ReleaseNotes({ releaseData })  {
     const releaseVersion = latestVersion || currentVersion;
 
     return (
-        <article className={styles.core}> {/* Fragment? */}
-            <header>
-                <h1>{t('Browser Release Notes')}</h1>
-                <div className={styles.statusContainer}>
-                    <div className={styles.icon}></div>
+        <Fragment>
+            <DuckDuckGoLogo />
+            <article className={styles.content}>
+                <header>
+                    <h1>{t('Browser Release Notes')}</h1>
+                    <div className={styles.statusContainer}>
+                        <div className={styles.icon}></div>
 
-                    {currentVersion &&
-                        <p className={styles.statusText}>{t('Version number', { version: `${currentVersion}` })}</p>}
+                        {currentVersion &&
+                            <p className={styles.statusText}>{t('Version number', { version: `${currentVersion}` })}</p>}
 
-                    <p className={styles.lastChecked}>{t('Last checked', { date: (new Date(lastUpdate).toLocaleDateString('en')) })}</p>
-                </div>
-            </header>
-            {status !== 'loading' &&
-                <section className={styles.releaseNotesContainer}>
-                    <header>
-                        {releaseTitle && <h2>{releaseTitle}</h2>}
-                        <p>{releaseVersion}</p>
-                    </header>
-                    {releaseNotes?.length &&
-                        <ReleaseNotesList notes={releaseNotes} />}
+                        <p className={styles.lastChecked}>{t('Last checked', { date: (new Date(lastUpdate).toLocaleDateString('en')) })}</p>
+                    </div>
+                </header>
+                {
+                    status !== 'loading' &&
+                    <Card className={styles.releaseNotesContent}>
+                        <header>
+                            {releaseTitle && <h2>{releaseTitle}</h2>}
+                            <p>{releaseVersion}</p>
+                        </header>
+                        {releaseNotes?.length &&
+                            <ReleaseNotesList notes={releaseNotes} />}
 
-                    {releaseNotesPrivacyPro?.length &&
-                        <ReleaseNotesList notes={releaseNotesPrivacyPro} title={t('Privacy Pro')}/>}
-                </section>}
-        </article>
+                        {releaseNotesPrivacyPro?.length &&
+                            <ReleaseNotesList notes={releaseNotesPrivacyPro} title={t('Privacy Pro')}/>}
+                    </Card>
+                }
+            </article>
+        </Fragment>
     )
 }
 

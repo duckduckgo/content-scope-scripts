@@ -1,10 +1,23 @@
-.main {
-    position: relative;
+body {
+    @media (prefers-color-scheme: dark) {
+        background: #222; /* TODO: Check color */
+    }
 }
 
-.core {
+.main {
+    margin: var(--sp-6) auto var(--sp-8);
+    padding: 0 var(--sp-5);
+    position: relative;
+    max-width: var(--sp-320);
+}
+
+.content {
     margin: 0 auto;
     max-width: 580px;
+}
+
+.releaseNotesContent {
+    margin-top: var(--sp-9);
 }
 
 .releaseNotesList {
