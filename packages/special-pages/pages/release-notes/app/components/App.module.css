@@ -1,4 +1,6 @@
 body {
+    margin: var(--sp-6) 0 var(--sp-8);
+
     @media (prefers-color-scheme: dark) {
         background: #222; /* TODO: Check color */
     }
@@ -14,16 +16,67 @@ body {
 .content {
     margin: 0 auto;
     max-width: 580px;
+    padding: var(--sp-6) 0;
+}
+
+.title {
+    font-size: 50px; /* Multiple of 4? */
+    font-weight: 800;
+}
+
+.statusGrid {
+    display: grid;
+    gap: var(--sp-1) var(--sp-2);
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    margin: var(--sp-3) 0;
+}
+
+.statusIcon {
+    grid-row: span 2;
+}
+
+.statusText {
+    font-size: var(--sp-4);
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.statusTimestamp {
+    color: var(--color-black-at-60);
+    font-size: 13px; /* Multiple of 4? */
+    line-height: 1.25;
 }
 
 .releaseNotesContent {
     margin-top: var(--sp-9);
 }
 
+.releaseTitle {
+    font-size: 26px; /* Multiple of 4? */
+}
+
+.releaseVersion {
+    color: var(--color-black-at-60);
+    font-size: 17px; /* Multiple of 4? */
+    font-weight: 600;
+    line-height: 1.25;
+}
+
 .releaseNotesList {
     margin: var(--sp-6) 0;
 
+    &:last-of-type {
+        margin-bottom: 0;
+    }
+
     & li {
         margin: 0 0 var(--sp-4);
+        font-size: 13px; /* Multiple of 4? */
+        line-height: 1.25;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
     }
 }
