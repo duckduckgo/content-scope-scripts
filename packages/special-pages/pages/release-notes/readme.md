@@ -62,6 +62,7 @@ So far, the following platforms are supported
         "Privacy Pro is currently available to U.S. residents only"
     ]
 }
+```
 
 ## Contributing
 
