@@ -1,3 +1,16 @@
 .main {
     position: relative;
 }
+
+.core {
+    margin: 0 auto;
+    max-width: 580px;
+}
+
+.releaseNotesList {
+    margin: var(--sp-6) 0;
+
+    & li {
+        margin: 0 0 var(--sp-4);
+    }
+}

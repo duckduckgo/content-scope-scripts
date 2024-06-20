@@ -79,21 +79,33 @@ export interface OnUpdateSubscription {
  */
 export interface UpdateMessage {
   /**
-   * todo: add description for 'title' field
+   * Current status of version check
    */
-  version?: number;
+  status: "loading" | "loaded" | "updateReady";
   /**
-   * todo: add description for 'url' field
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Latest version of the app. May be the same as currentVersion
+   */
+  latestVersion?: string;
+  /**
+   * Timestamp of last check for version updates
    */
   lastUpdate: number;
   /**
-   * todo: add description for 'text' field
+   * Name of the current release (e.g. April 26 2024)
    */
-  status: "loading" | "loaded" | "new-version";
+  releaseTitle?: string;
   /**
-   * todo: add description for 'text' field
+   * Array containing notes for the latest release
    */
-  releaseNotes?: string;
+  releaseNotes?: string[];
+  /**
+   * Array containing Privacy Pro notes for the latest release
+   */
+  releaseNotesPrivacyPro?: string[];
 }
 
 /**
