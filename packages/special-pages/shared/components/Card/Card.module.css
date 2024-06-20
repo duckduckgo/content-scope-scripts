@@ -5,6 +5,7 @@
     padding: var(--sp-6) var(--sp-6) var(--sp-8);
 
     @media (prefers-color-scheme: dark) {
-        /* TODO: Dark mode */
+        background: var(--color-white-at-3);
+        border-color: var(--color-white-at-9);
     }
 }
