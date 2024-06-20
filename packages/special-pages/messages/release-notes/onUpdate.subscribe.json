@@ -5,23 +5,41 @@
   "additionalProperties": false,
   "description": "Message sent from browser when release notes are updated",
   "properties": {
-    "version": {
-      "description": "todo: add description for 'title' field",
-      "type": "number"
+    "status": {
+      "description": "Current status of version check",
+      "type": "string",
+      "enum": ["loading", "loaded", "updateReady"]
+    },
+    "currentVersion": {
+      "description": "Current version of the app",
+      "type": "string"
+    },
+    "latestVersion": {
+      "description": "Latest version of the app. May be the same as currentVersion",
+      "type": "string"
     },
     "lastUpdate": {
-      "description": "todo: add description for 'url' field",
+      "description": "Timestamp of last check for version updates",
       "type": "number"
     },
-    "status": {
-      "description": "todo: add description for 'text' field",
-      "type": "string",
-      "enum": ["loading", "loaded", "new-version"]
+    "releaseTitle": {
+      "description": "Name of the current release (e.g. April 26 2024)",
+      "type": "string"
     },
     "releaseNotes": {
-      "description": "todo: add description for 'text' field",
-      "type": "string"
+      "description": "Array containing notes for the latest release",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "releaseNotesPrivacyPro": {
+      "description": "Array containing Privacy Pro notes for the latest release",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   },
-  "required": ["lastUpdate", "status"]
+  "required": ["currentVersion", "lastUpdate", "status"]
 }
