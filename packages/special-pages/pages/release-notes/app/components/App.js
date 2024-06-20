@@ -16,12 +16,40 @@ import { Card } from '../../../../shared/components/Card/Card';
  */
 function ReleaseNotesList({ notes, title }) {
     return (
-        <section>
+        <Fragment>
             {title && <h3>{title}</h3>}
             <ul className={styles.releaseNotesList}>
                 {notes?.map(note => (<li>{note}</li>))}
             </ul>
-        </section>
+        </Fragment>
+    )
+}
+
+/**
+ * @param {object} props
+ * @param {string} [props.status]
+ * @param {string} [props.currentVersion]
+ */
+function StatusText({ status, currentVersion }) {
+    const { t } = useTranslation();
+
+    let statusText;
+
+    switch(status) {
+        case 'updateReady':
+            statusText = t('newer version available')
+            break;
+        case 'loaded':
+            statusText = t('DuckDuckGo is up to date')
+            break;
+        default:
+            statusText = t('Checking for update')
+    }
+
+    return (
+        <p className={styles.statusText}>
+            {t('Version number', { version: `${currentVersion}` })} — {statusText}
+        </p>
     )
 }
 
@@ -34,27 +62,28 @@ function ReleaseNotes({ releaseData })  {
     const { status, currentVersion, latestVersion, lastUpdate, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData;
     const releaseVersion = latestVersion || currentVersion;
 
+
+
     return (
         <Fragment>
             <DuckDuckGoLogo />
             <article className={styles.content}>
                 <header>
-                    <h1>{t('Browser Release Notes')}</h1>
-                    <div className={styles.statusContainer}>
-                        <div className={styles.icon}></div>
+                    <h1 className={styles.title}>{t('Browser Release Notes')}</h1>
+                    <div className={styles.statusGrid}>
+                        <div className={styles.statusIcon}>Icon</div>
 
-                        {currentVersion &&
-                            <p className={styles.statusText}>{t('Version number', { version: `${currentVersion}` })}</p>}
+                        {currentVersion && <StatusText status={status} currentVersion={currentVersion} />}
 
-                        <p className={styles.lastChecked}>{t('Last checked', { date: (new Date(lastUpdate).toLocaleDateString('en')) })}</p>
+                        <p className={styles.statusTimestamp}>{t('Last checked', { date: (new Date(lastUpdate).toLocaleDateString('en')) })}</p>
                     </div>
                 </header>
                 {
                     status !== 'loading' &&
                     <Card className={styles.releaseNotesContent}>
                         <header>
-                            {releaseTitle && <h2>{releaseTitle}</h2>}
-                            <p>{releaseVersion}</p>
+                            {releaseTitle && <h2 className={styles.releaseTitle}>{releaseTitle}</h2>}
+                            <p className={styles.releaseVersion}>{t('Version number', { version: `${releaseVersion}` })}</p>
                         </header>
                         {releaseNotes?.length &&
                             <ReleaseNotesList notes={releaseNotes} />}
