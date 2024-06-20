@@ -1,0 +1,10 @@
+/* Header */
+.header {
+    background: url(../../assets/img/Logo-Horizontal.svg) no-repeat;
+    margin: var(--sp-6) 0 var(--sp-8);
+    height: var(--sp-10);
+
+    @media (prefers-color-scheme: dark) {
+        background: url(../../assets/img/Logo-Horizontal-Dark.svg) no-repeat;
+    }
+}

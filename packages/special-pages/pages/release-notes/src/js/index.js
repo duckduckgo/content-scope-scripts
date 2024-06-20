@@ -105,7 +105,7 @@ export class ReleaseNotesPage {
                             "Privacy Pro is currently available to U.S. residents only"
                         ]
                     });
-                }, 4000);
+                }, 1000);
             }
             return () => { console.log('Unsubscribed') };
         }
