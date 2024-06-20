@@ -37,7 +37,7 @@ export function reducer (state, action) {
                 activeStepVisible: true
             }
         }
-        case 'next-for-real': {
+        case 'advance': {
             const currentPageIndex = state.order.indexOf(state.activeStep)
             const nextPageIndex = currentPageIndex + 1
             if (nextPageIndex < state.order.length) {
@@ -53,7 +53,7 @@ export function reducer (state, action) {
             }
             return state
         }
-        case 'next': {
+        case 'enqueue-next': {
             return {
                 ...state,
                 exiting: true
@@ -155,7 +155,7 @@ export function GlobalProvider ({ order, children, stepDefinitions, messaging, f
         /**
          * Side effects that don't impact global state
          */
-        if (msg.kind === 'next') {
+        if (msg.kind === 'advance') {
             messaging.stepCompleted({ id: state.activeStep })
         }
         if (msg.kind === 'dismiss-to-settings') {

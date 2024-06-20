@@ -26,16 +26,22 @@ import { Progress } from './Progress'
  * @param {import("preact").ComponentChild} props.children
  */
 export function App ({ children }) {
-    const { debugState } = useEnv()
+    const { debugState, isReducedMotion } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTranslation()
 
     const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState
 
-    // events
-    const enqueueNext = () => dispatch({ kind: 'next' })
-    const next = () => dispatch({ kind: 'next-for-real' })
+    const enqueueNext = () => {
+        if (isReducedMotion) {
+            dispatch({ kind: 'advance' })
+        } else {
+            dispatch({ kind: 'enqueue-next' });
+        }
+    }
+
+    const advance = () => dispatch({ kind: 'advance' })
     const titleDone = () => dispatch({ kind: 'title-complete' })
     const dismiss = () => dispatch({ kind: 'dismiss' })
     const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
@@ -68,9 +74,9 @@ export function App ({ children }) {
     const progress = order.slice(2, -1)
     const showProgress = progress.includes(activeStep)
 
-    function onAnimationEnd (e) {
-        if (e.target.dataset.exiting === 'true') {
-            next()
+    function animationDidFinish (e) {
+        if (e.target?.dataset?.exiting === 'true') {
+            advance()
         }
     }
 
@@ -85,8 +91,7 @@ export function App ({ children }) {
             <div className={styles.container} data-current={activeStep}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
                     <Stack>
-                        <Header aside={showProgress &&
-                            <Progress current={progress.indexOf(activeStep) + 1} total={progress.length}/>}>
+                        <Header aside={showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length}/>}>
                             <Typed
                                 onComplete={titleDone}
                                 text={pageTitle}
@@ -94,16 +99,18 @@ export function App ({ children }) {
                                 data-exiting={pageTitle !== nextPageTitle && String(exiting)}
                             />
                         </Header>
-                        <div data-current={activeStep} data-exiting={String(exiting)} onAnimationEnd={onAnimationEnd}>
+                        <div data-current={activeStep} data-exiting={String(exiting)} onAnimationEnd={animationDidFinish}>
                             {activeStepVisible && (
                                 <Content>
-                                    {step.kind === 'settings' && <SettingsStep
-                                        key={activeStep}
-                                        subtitle={pageSubTitle}
-                                        data={settingsRowItems}
-                                        metaData={stepMeta}
-                                        onNextPage={enqueueNext}
-                                    />}
+                                    {step.kind === 'settings' && (
+                                        <SettingsStep
+                                            key={activeStep}
+                                            subtitle={pageSubTitle}
+                                            data={settingsRowItems}
+                                            metaData={stepMeta}
+                                            onNextPage={enqueueNext}
+                                        />
+                                    )}
                                     {step.kind === 'info' && infoPages[activeStep]()}
                                 </Content>
                             )}

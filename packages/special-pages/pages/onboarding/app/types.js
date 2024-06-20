@@ -99,7 +99,7 @@ export const ALT_ORDER = [
  */
 
 /**
- * @typedef {NextForRealEvent
+ * @typedef {AdvanceEvent
  *   | TitleCompleteEvent
  *   | NextEvent
  *   | UpdateSystemValueEvent
@@ -109,8 +109,8 @@ export const ALT_ORDER = [
  *   | DismisstoSettingsEvent
  *   | ErrorBoundaryEvent} GlobalEvents
  *  All the events that the UI can dispatch
- * @typedef {{ kind: "next" }} NextEvent
- * @typedef {{ kind: "next-for-real" }} NextForRealEvent
+ * @typedef {{ kind: "enqueue-next"; }} NextEvent
+ * @typedef {{ kind: "advance" }} AdvanceEvent
  * @typedef {{ kind: "update-system-value"; id: SystemValueId; payload: SystemValue; current: boolean;}} UpdateSystemValueEvent
  * @typedef {{ kind: "exec-complete"; id: SystemValueId; payload: SystemValue }} ExecCompleteEvent
  * @typedef {{ kind: "exec-error"; id: SystemValueId; message: string }} ExecErrorEvent

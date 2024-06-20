@@ -128,23 +128,7 @@ test.describe('onboarding', () => {
             await onboarding.reducedMotion()
             await onboarding.darkMode()
             await onboarding.openPage()
-            await page.getByRole('button', { name: 'Get Started' }).click();
-            await page.getByRole('button', { name: 'Got It' }).click();
-            await page.getByRole('button', { name: 'See With Tracker Blocking' }).click();
-            await page.getByRole('button', { name: 'Got It' }).click();
-            await page.getByRole('button', { name: 'See With Duck Player' }).click();
-            await page.getByRole('button', { name: 'Got It' }).click();
-            await page.getByRole('button', { name: 'Next' }).click();
-            await page.getByRole('button', { name: 'Skip' }).click();
-            await page.getByRole('button', { name: 'Next' }).click();
-            await page.getByRole('button', { name: 'Skip' }).click();
-            await page.getByRole('button', { name: 'Next' }).click();
-            await page.getByRole('button', { name: 'Skip' }).click();
-            await page.getByRole('button', { name: 'Next' }).click();
-            await page.getByLabel('Customize your experience').waitFor({timeout: 1000})
-
-
-            await page.pause();
+            await onboarding.completesOrderV2()
         })
     })
 })
