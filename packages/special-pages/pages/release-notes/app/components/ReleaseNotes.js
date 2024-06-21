@@ -7,54 +7,43 @@ import styles from './ReleaseNotes.module.css'
 import { Button } from '../../../../shared/components/Button/Button'
 
 /**
+ * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ */
+
+/**
  * @param {object} props
- * @param {string} [props.status]
- * @param {string} [props.currentVersion]
+ * @param {UpdateMessage['status']} [props.status]
+ * @param {UpdateMessage['currentVersion']} [props.currentVersion]
  */
 function StatusText({ status, currentVersion }) {
     const { t } = useTranslation()
 
-    let statusText
-
-    switch(status) {
-        case 'updateReady':
-            statusText = t('newer version available')
-            break
-        case 'loaded':
-            statusText = t('DuckDuckGo is up to date')
-            break
-        default:
-            statusText = t('Checking for update')
+    const statusTexts = {
+        loaded: t('DuckDuckGo is up to date'),
+        loading: t('Checking for update'),
+        updateReady: t('newer version available'),
     }
 
     return (
         <p className={styles.statusText}>
-            {t('Version number', { version: `${currentVersion}` })} — {statusText}
+            {t('Version number', { version: `${currentVersion}` })} — {statusTexts[status]}
         </p>
     )
 }
 
 /**
  * @param {object} props
- * @param {string} [props.status]
+ * @param {UpdateMessage['status']} [props.status]
  * @param {string} [props.className]
  */
 function StatusIcon({ status, className }) {
-    let iconClass
-
-    switch(status) {
-        case 'updateReady':
-            iconClass = styles.alertIcon
-            break
-        case 'loaded':
-            iconClass = styles.checkIcon
-            break
-        default:
-            iconClass = styles.spinnerIcon
-            break
+    const iconClasses = {
+        loaded: styles.checkIcon,
+        loading: styles.spinnerIcon,
+        updateReady: styles.alertIcon,
     }
 
-    return <div className={classNames(styles.statusIcon, iconClass, className)} />
+    return <div className={classNames(styles.statusIcon, iconClasses[status], className)} />
 }
 
 /**
@@ -129,7 +118,7 @@ function ContentPlaceholder() {
 
 /**
  * @param {object} props
- * @param {import('../../../../types/release-notes').UpdateMessage} props.releaseData
+ * @param {UpdateMessage} props.releaseData
  */
 export function ReleaseNotes({ releaseData })  {
     const { t } = useTranslation()
