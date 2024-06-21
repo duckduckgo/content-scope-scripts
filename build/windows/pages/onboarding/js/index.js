@@ -4342,7 +4342,9 @@
             systemSettings: {
               rows: ["dock", "import", "default-browser"]
             }
-          }
+          },
+          exclude: [],
+          order: "v1"
         };
       }
       return await this.messaging.request("init");
@@ -8085,17 +8087,20 @@
     /**
      * @param {object} params
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
+     * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
     constructor({
       order = DEFAULT_ORDER,
       stepDefinitions: stepDefinitions2 = stepDefinitions,
-      first = "welcome"
+      first = "welcome",
+      exclude = []
     } = {}) {
       this.order = order;
       this.stepDefinitions = stepDefinitions2;
       this.first = first;
+      this.exclude = exclude;
     }
     /**
      * @param {string[]|null|undefined} order
@@ -8134,6 +8139,12 @@
     withNamedOrder(named) {
       if (!named)
         return this;
+      if (named === "v1") {
+        return new _Settings({
+          ...this,
+          order: DEFAULT_ORDER
+        });
+      }
       if (named === "v2") {
         return new _Settings({
           ...this,
@@ -8143,6 +8154,25 @@
         console.warn("ignoring named order:", named);
       }
       return this;
+    }
+    /**
+     * @param {string[]|null|undefined} exclude
+     */
+    withExcludedScreens(exclude) {
+      if (!exclude)
+        return this;
+      if (!Array.isArray(exclude) || exclude.length === 0)
+        return this;
+      if (!exclude.every((screen) => (
+        /** @type {string[]} */
+        this.order
+      )))
+        return this;
+      return new _Settings({
+        ...this,
+        exclude,
+        order: this.order.filter((screen) => !exclude.includes(screen))
+      });
     }
     /**
      * @param {string|undefined|null} first
@@ -8199,7 +8229,7 @@
   async function init() {
     const init2 = await onboarding.init();
     const environment = baseEnvironment.withEnv(init2.env);
-    const settings = new Settings().withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withFirst(environment.urlParams.get("page"));
+    const settings = new Settings().withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page"));
     const root2 = document.querySelector("#app");
     if (!root2)
       throw new Error("could not render, root element missing");
