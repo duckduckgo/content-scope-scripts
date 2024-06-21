@@ -1,6 +1,10 @@
 /**
-* @type {Record<'loading'|'loaded'|'updateReady', import('../../../../types/release-notes').UpdateMessage>}
-*/
+ * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ */
+
+/**
+ * @type {Record<UpdateMessage['status'], UpdateMessage>}
+ */
 export const integrationData = {
     loading: {
         status: "loading",
