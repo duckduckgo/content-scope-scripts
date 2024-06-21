@@ -43,7 +43,7 @@ export class OnboardingPage {
         this.mocks.defaultResponses(this.defaultResponses)
     }
 
-    async withInitData (data) {
+    withInitData (data) {
         this.mocks.defaultResponses({
             ...this.defaultResponses,
             init: data
