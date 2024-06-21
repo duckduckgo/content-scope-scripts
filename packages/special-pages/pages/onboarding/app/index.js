@@ -33,6 +33,8 @@ async function init () {
         .withStepDefinitions(init.stepDefinitions)
         .withNamedOrder(init.order)
         .withNamedOrder(environment.urlParams.get('order'))
+        .withExcludedScreens(init.exclude)
+        .withExcludedScreens(environment.urlParams.getAll('exclude'))
         .withFirst(environment.urlParams.get('page'))
 
     const root = document.querySelector('#app')

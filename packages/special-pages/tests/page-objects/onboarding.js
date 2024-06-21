@@ -346,4 +346,22 @@ export class OnboardingPage {
         await page.getByRole('button', { name: 'Next' }).click();
         await page.getByLabel('Customize your experience').waitFor({timeout: 1000})
     }
+
+    async completesOrderV2WithoutDock() {
+        const { page } = this
+        await page.getByRole('button', { name: 'Get Started' }).click();
+        await page.getByRole('button', { name: 'Got It' }).click();
+        await page.getByRole('button', { name: 'See With Tracker Blocking' }).click();
+        await page.getByRole('button', { name: 'Got It' }).click();
+        await page.getByRole('button', { name: 'See With Duck Player' }).click();
+        await page.getByRole('button', { name: 'Got It' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+        await page.getByText('Bring your stuff').waitFor({timeout: 1000});
+        await page.getByRole('button', { name: 'Skip' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+        await page.getByText('Switch your default browser').waitFor({timeout: 1000})
+        await page.getByRole('button', { name: 'Skip' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+        await page.getByLabel('Customize your experience').waitFor({timeout: 1000})
+    }
 }

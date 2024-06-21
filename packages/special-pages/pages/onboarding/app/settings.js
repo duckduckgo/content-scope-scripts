@@ -8,17 +8,20 @@ export class Settings {
     /**
      * @param {object} params
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
+     * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
     constructor ({
         order = DEFAULT_ORDER,
         stepDefinitions = defaultStepDefinitions,
-        first = 'welcome'
+        first = 'welcome',
+        exclude = []
     } = {}) {
         this.order = order
         this.stepDefinitions = stepDefinitions
         this.first = first
+        this.exclude = exclude
     }
 
     /**
@@ -48,6 +51,12 @@ export class Settings {
      */
     withNamedOrder (named) {
         if (!named) return this
+        if (named === 'v1') {
+            return new Settings({
+                ...this,
+                order: DEFAULT_ORDER
+            })
+        }
         if (named === 'v2') {
             return new Settings({
                 ...this,
@@ -57,6 +66,20 @@ export class Settings {
             console.warn('ignoring named order:', named)
         }
         return this
+    }
+
+    /**
+     * @param {string[]|null|undefined} exclude
+     */
+    withExcludedScreens(exclude) {
+        if (!exclude) return this;
+        if (!Array.isArray(exclude) || exclude.length === 0) return this;
+        if (!exclude.every(screen => /** @type {string[]} */(this.order))) return this;
+        return new Settings({
+            ...this,
+            exclude,
+            order: this.order.filter(screen => !exclude.includes(screen))
+        })
     }
 
     /**

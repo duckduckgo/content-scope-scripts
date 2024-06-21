@@ -130,5 +130,23 @@ test.describe('onboarding', () => {
             await onboarding.openPage()
             await onboarding.completesOrderV2()
         })
+        test('shows v2 flow without pinning step', async ({page}, workerInfo) => {
+            const onboarding = OnboardingPage.create(page, workerInfo)
+            await onboarding.withInitData({
+                stepDefinitions: {
+                    systemSettings: {
+                        // this 'dock' is not part of the default
+                        rows: ['dock', 'import', 'default-browser']
+                    }
+                },
+                env: 'development',
+                order: 'v2',
+                exclude: ['dockSingle']
+            })
+            await onboarding.reducedMotion()
+            await onboarding.darkMode()
+            await onboarding.openPage()
+            await onboarding.completesOrderV2WithoutDock()
+        })
     })
 })
