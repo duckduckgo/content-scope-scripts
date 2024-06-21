@@ -2,26 +2,9 @@
 import { Fragment, h } from 'preact'
 import classNames from 'classnames'
 import { useTranslation } from "../../../../shared/components/TranslationProvider"
-import { DuckDuckGoLogo } from '../../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo'
 import { Card } from '../../../../shared/components/Card/Card'
 import styles from './ReleaseNotes.module.css'
 import { Button } from '../../../../shared/components/Button/Button'
-
-/**
- * @param {object} props
- * @param {string} [props.title]
- * @param {string[]} props.notes
- */
-function ReleaseNotesList({ notes, title }) {
-    return (
-        <Fragment>
-            {title && <h3 className={styles.releaseNotesSubheading}>{title}</h3>}
-            <ul className={styles.releaseNotesList}>
-                {notes?.map(note => (<li>{note}</li>))}
-            </ul>
-        </Fragment>
-    )
-}
 
 /**
  * @param {object} props
@@ -75,6 +58,51 @@ function StatusIcon({ status, className }) {
 }
 
 /**
+ * @param {object} props
+ * @param {number} props.timestamp
+ */
+function StatusTimestamp({ timestamp }) {
+    const { t } = useTranslation()
+
+    const date = new Date(timestamp)
+    const today = new Date()
+    const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+
+    const timeString = date.toLocaleTimeString('en', { timeStyle: 'short'});
+    let dateString = `${date.toLocaleDateString('en', { dateStyle: 'full'})} ${timeString}`
+
+    if (
+        date.getDate() === yesterday.getDate() &&
+        date.getMonth() === yesterday.getMonth() &&
+        date.getFullYear() === yesterday.getFullYear()
+      ) dateString = t('Yesterday at', { time: timeString })
+
+    if (
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+      ) dateString = t('Today at', { time: timeString })
+
+    return <p className={styles.statusTimestamp}>{t('Last checked', { date: dateString })}</p>
+}
+
+/**
+ * @param {object} props
+ * @param {string} [props.title]
+ * @param {string[]} props.notes
+ */
+function ReleaseNotesList({ notes, title }) {
+    return (
+        <Fragment>
+            {title && <h3 className={styles.releaseNotesSubheading}>{title}</h3>}
+            <ul className={styles.releaseNotesList}>
+                {notes?.map(note => (<li>{note}</li>))}
+            </ul>
+        </Fragment>
+    )
+}
+
+/**
  *
  */
 function NewTag() {
@@ -108,63 +136,40 @@ export function ReleaseNotes({ releaseData })  {
     const { status, currentVersion, latestVersion, lastUpdate, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
     const releaseVersion = latestVersion || currentVersion
 
-    // TODO: Move date logic outside of component
-    const updatedDate = new Date(lastUpdate)
-    const today = new Date()
-    const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
-
-    const timeString = updatedDate.toLocaleTimeString('en', { timeStyle: 'short'});
-    let dateString = `${updatedDate.toLocaleDateString('en', { dateStyle: 'full'})} ${timeString}`
-
-    if (
-        updatedDate.getDate() === yesterday.getDate() &&
-        updatedDate.getMonth() === yesterday.getMonth() &&
-        updatedDate.getFullYear() === yesterday.getFullYear()
-      ) dateString = t('Yesterday at', { time: timeString })
-
-    if (
-        updatedDate.getDate() === today.getDate() &&
-        updatedDate.getMonth() === today.getMonth() &&
-        updatedDate.getFullYear() === today.getFullYear()
-      ) dateString = t('Today at', { time: timeString })
-
       return (
-        <Fragment>
-            <DuckDuckGoLogo />
-            <article className={styles.content}>
-                <header>
-                    <h1 className={styles.title}>{t('Browser Release Notes')}</h1>
-                    <div className={styles.statusGrid}>
-                        <StatusIcon status={status} className={styles.gridIcon}/>
+        <article className={styles.content}>
+            <header>
+                <h1 className={styles.title}>{t('Browser Release Notes')}</h1>
+                <div className={styles.statusGrid}>
+                    <StatusIcon status={status} className={styles.gridIcon}/>
 
-                        {currentVersion && <StatusText status={status} currentVersion={currentVersion} />}
+                    {currentVersion && <StatusText status={status} currentVersion={currentVersion} />}
 
-                        <p className={styles.statusTimestamp}>{t('Last checked', { date: dateString })}</p>
-                    </div>
-                    {status === 'updateReady' && <Button>{t('Restart to Update')}</Button>}
-                </header>
-                <Card className={styles.releaseNotesContent}>
-                    {status === 'loading'
-                        ? <ContentPlaceholder />
-                        : <Fragment>
-                            <header>
-                                {releaseTitle &&
-                                <h2 className={styles.releaseTitle}>
-                                    {releaseTitle} <NewTag />
-                                </h2>}
-                                <p className={styles.releaseVersion}>
-                                    {t('Version number', { version: `${releaseVersion}` })}
-                                </p>
-                            </header>
+                    <StatusTimestamp timestamp={lastUpdate} />
+                </div>
+                {status === 'updateReady' && <Button>{t('Restart to Update')}</Button>}
+            </header>
+            <Card className={styles.releaseNotesContent}>
+                {status === 'loading'
+                    ? <ContentPlaceholder />
+                    : <Fragment>
+                        <header>
+                            {releaseTitle &&
+                            <h2 className={styles.releaseTitle}>
+                                {releaseTitle} <NewTag />
+                            </h2>}
+                            <p className={styles.releaseVersion}>
+                                {t('Version number', { version: `${releaseVersion}` })}
+                            </p>
+                        </header>
 
-                            {releaseNotes?.length &&
-                                <ReleaseNotesList notes={releaseNotes} />}
+                        {releaseNotes?.length &&
+                            <ReleaseNotesList notes={releaseNotes} />}
 
-                            {releaseNotesPrivacyPro?.length &&
-                                <ReleaseNotesList notes={releaseNotesPrivacyPro} title={t('For Privacy Pro Subscribers')}/>}
-                        </Fragment>}
-                </Card>
-            </article>
-        </Fragment>
+                        {releaseNotesPrivacyPro?.length &&
+                            <ReleaseNotesList notes={releaseNotesPrivacyPro} title={t('For Privacy Pro Subscribers')}/>}
+                    </Fragment>}
+            </Card>
+        </article>
     )
 }

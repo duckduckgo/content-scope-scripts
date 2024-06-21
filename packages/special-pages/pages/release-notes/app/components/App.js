@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "preact/hooks"
 import { MessagingContext } from '../index'
 import { ErrorBoundary } from "../../../../shared/components/ErrorBoundary"
 import { useEnv } from "../../../../shared/components/EnvironmentProvider"
+import { DuckDuckGoLogo } from '../../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo'
 import { ReleaseNotes } from './ReleaseNotes'
 import styles from './App.module.css'
 
@@ -15,11 +16,11 @@ export function App ({ children }) {
     const { messages } = useContext(MessagingContext)
     // TODO: Replace with schema
     /** @type {ReturnType<typeof useState<import('../../../../types/release-notes').UpdateMessage>>} */
-    const [state, setState] = useState()
+    const [releaseData, setReleaseData] = useState()
 
     useEffect(() => {
-        return messages?.subscribeToUpdates((releaseData) => {
-            setState(releaseData)
+        return messages?.subscribeToUpdates((data) => {
+            setReleaseData(data)
         })
     }, [])
 
@@ -34,7 +35,8 @@ export function App ({ children }) {
     return (
         <ErrorBoundary didCatch={didCatch} fallback={<p>Error occurred</p>}>
             <main className={styles.main}>
-                {state && <ReleaseNotes releaseData={state} />}
+                <DuckDuckGoLogo />
+                {releaseData && <ReleaseNotes releaseData={releaseData} />}
                 <WillThrow />
             </main>
             {children}
