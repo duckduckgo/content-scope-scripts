@@ -79,6 +79,10 @@
     --color-white-at-84: rgba(255, 255, 255, 0.84);
     --color-white-at-96: rgba(255, 255, 255, 0.96);
 
+    --color-yellow-50: #ffcc33;
+
+    --color-blue-shade-24: rgba(57, 105, 239, 0.24);
+
     --anim-delay: 300ms;
     --anim-delay-double: 600ms;
 

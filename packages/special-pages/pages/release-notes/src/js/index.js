@@ -17,6 +17,7 @@ import { init } from '../../app/index.js'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js';
 import { Environment } from '../../../../shared/components/EnvironmentProvider.js';
 import { createTypedMessages } from '@duckduckgo/messaging';
+import { integrationData } from './integrationData.js';
 
 /**
  * This describes the messages that will be sent to the native layer,
@@ -33,6 +34,23 @@ export class ReleaseNotesPage {
          */
         this.messaging = createTypedMessages(this, messaging)
         this.injectName = injectName
+
+        this.setupIntegration();
+    }
+
+    /**
+     * Sets up integration environment
+     */
+    setupIntegration() {
+        if (this.injectName !== 'integration') return;
+
+        const url = new URL(window.location.href)
+        const params = Object.fromEntries(url.searchParams)
+        const allowedStates = Object.keys(integrationData);
+
+        this.integrationState = params.state && allowedStates.includes(params.state)
+         ? params.state
+         : 'loaded'; // Default state for integration
     }
 
     /**
@@ -80,33 +98,16 @@ export class ReleaseNotesPage {
      * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
      */
     subscribeToUpdates (callback) {
-        if (this.injectName === 'integration') {
-            if (callback) {
-                callback({
-                    status: "loading",
-                    currentVersion: "1.0.1",
-                    lastUpdate: Date.now(),
-                });
+        if (this.integrationState && callback) {
+            callback(integrationData.loading);
 
+            // Simulates load latency
+            if (this.integrationState !== 'loading') {
                 setTimeout(() => {
-                    callback({
-                        currentVersion: "1.0.1",
-                        latestVersion: "1.2.0",
-                        lastUpdate: Date.now(),
-                        status: "loaded",
-                        releaseTitle: "May 20 2024",
-                        releaseNotes: [
-                            "Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.",
-                            "Fixed an issue where Microsoft Teams links wouldn't open the Teams app.",
-                            "Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish."
-                        ],
-                        releaseNotesPrivacyPro: [
-                            "Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.",
-                            "Privacy Pro is currently available to U.S. residents only"
-                        ]
-                    });
+                    this.integrationState && callback(integrationData[this.integrationState]);
                 }, 1000);
             }
+
             return () => { console.log('Unsubscribed') };
         }
 

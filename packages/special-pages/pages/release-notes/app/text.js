@@ -29,9 +29,13 @@ export const i18n = {
                 title: 'Restart to Update',
                 note: 'Label for a button that triggers a browser restart after a version update',
             },
-            'Privacy Pro': {
-                title: 'Privacy Pro',
-                note: 'Heading label for release notes specific to Privacy Pro (do not translate)'
+            'For Privacy Pro Subscribers': {
+                title: 'For Privacy Pro Subscribers',
+                note: 'Heading label for release notes specific to Privacy Pro Subscribers (do not translate Privacy Pro)'
+            },
+            'New': {
+                title: 'New',
+                note: 'Text for tag that appears next to version number to indicate it is newly released'
             }
         }
     },
