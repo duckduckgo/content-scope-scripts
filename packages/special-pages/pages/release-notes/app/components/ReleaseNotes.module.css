@@ -14,7 +14,7 @@
     display: grid;
     gap: var(--sp-1) var(--sp-2);
     grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: var(--sp-6) auto;
     margin: var(--sp-3) 0;
 }
 
@@ -52,6 +52,7 @@
 
 /* Status Text */
 .statusText {
+    align-self: center;
     font-size: var(--sp-4);
     font-weight: 600;
     line-height: 1.25;
