@@ -191,6 +191,13 @@
             left: 0;
         }
 
+        @media (prefers-color-scheme: dark) {
+            &::before {
+                background: var(--color-white-at-6);
+            }
+        }
+
+
         p {
             width: 100%;
 
