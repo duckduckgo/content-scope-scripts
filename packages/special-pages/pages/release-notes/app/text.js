@@ -13,6 +13,14 @@ export const i18n = {
                 title: 'Last checked: {date}',
                 note: 'Text that contains the date and time of the last check for version updates',
             },
+            'Today at': {
+                title: 'Today at {time}',
+                note: 'Text that marks an event as having happened today at a set time (ex: Today at 7:34pm)',
+            },
+            'Yesterday at': {
+                title: 'Yesterday at {time}',
+                note: 'Text that marks an event as having happened yesterday at a set time (ex: Yesterday at 7:34pm)',
+            },
             'DuckDuckGo is up to date': {
                 title: 'DuckDuckGo is up to date',
                 note: 'Status text for when the browser is already up to date',

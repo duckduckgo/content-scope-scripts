@@ -108,7 +108,27 @@ export function ReleaseNotes({ releaseData })  {
     const { status, currentVersion, latestVersion, lastUpdate, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
     const releaseVersion = latestVersion || currentVersion
 
-    return (
+    // TODO: Move date logic outside of component
+    const updatedDate = new Date(lastUpdate)
+    const today = new Date()
+    const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+
+    const timeString = updatedDate.toLocaleTimeString('en', { timeStyle: 'short'});
+    let dateString = `${updatedDate.toLocaleDateString('en', { dateStyle: 'full'})} ${timeString}`
+
+    if (
+        updatedDate.getDate() === yesterday.getDate() &&
+        updatedDate.getMonth() === yesterday.getMonth() &&
+        updatedDate.getFullYear() === yesterday.getFullYear()
+      ) dateString = t('Yesterday at', { time: timeString })
+
+    if (
+        updatedDate.getDate() === today.getDate() &&
+        updatedDate.getMonth() === today.getMonth() &&
+        updatedDate.getFullYear() === today.getFullYear()
+      ) dateString = t('Today at', { time: timeString })
+
+      return (
         <Fragment>
             <DuckDuckGoLogo />
             <article className={styles.content}>
@@ -119,7 +139,7 @@ export function ReleaseNotes({ releaseData })  {
 
                         {currentVersion && <StatusText status={status} currentVersion={currentVersion} />}
 
-                        <p className={styles.statusTimestamp}>{t('Last checked', { date: (new Date(lastUpdate).toLocaleDateString('en')) })}</p>
+                        <p className={styles.statusTimestamp}>{t('Last checked', { date: dateString })}</p>
                     </div>
                     {status === 'updateReady' && <Button>{t('Restart to Update')}</Button>}
                 </header>

@@ -5,7 +5,7 @@ export const integrationData = {
     loading: {
         status: "loading",
         currentVersion: "1.0.1",
-        lastUpdate: Date.now(),
+        lastUpdate: Date.now() - (24 * 60 * 60 * 1000),
     },
     loaded: {
         currentVersion: "1.0.1",

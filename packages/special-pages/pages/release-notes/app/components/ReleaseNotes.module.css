@@ -175,6 +175,20 @@
     li {
         margin-top: var(--sp-4);
         padding-left: var(--sp-5);
+        position: relative;
+        padding-left: var(--sp-6);
+
+        &::before {
+            background: var(--color-black-at-6);
+            border-radius: 0.375rem;
+            content: '';
+            display: inline-block;
+            width: var(--sp-3);
+            height: var(--sp-3);
+            position: absolute;
+            top: 0.125rem;
+            left: 0;
+        }
 
         p {
             width: 100%;
