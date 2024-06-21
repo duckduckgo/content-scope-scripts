@@ -10,7 +10,7 @@ import { useTranslation } from '../translations'
 import { useRollin } from '../hooks/useRollin'
 import { Switch } from '../components/Switch'
 import { RiveAnimation } from '../components/RiveAnimation'
-import {useEnv} from "../environment";
+import { useEnv } from '../environment'
 
 /**
  * @param {object} props
@@ -158,7 +158,7 @@ function SettingListItem ({ index, item, dispatch }) {
         return { kind: 'button-bar' }
     })()
 
-    const { isDarkMode } = useEnv();
+    const { isDarkMode } = useEnv()
 
     return (
         <ListItem

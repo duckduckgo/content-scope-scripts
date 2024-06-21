@@ -37,7 +37,7 @@ export function App ({ children }) {
         if (isReducedMotion) {
             dispatch({ kind: 'advance' })
         } else {
-            dispatch({ kind: 'enqueue-next' });
+            dispatch({ kind: 'enqueue-next' })
         }
     }
 

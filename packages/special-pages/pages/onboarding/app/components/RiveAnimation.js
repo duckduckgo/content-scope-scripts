@@ -38,7 +38,7 @@ export function RiveAnimation ({ animation, state, stateMachine, artboard, input
         if (!stateMachine) return
         const inputs = rive.current?.stateMachineInputs(stateMachine)
         if (!inputs) return
-        if (!inputName) return;
+        if (!inputName) return
 
         const toggle = inputs.find(i => i.name === inputName)
         if (!toggle) return console.warn('could not find input')

@@ -113,7 +113,7 @@ test.describe('onboarding', () => {
         })
     })
     test.describe('v2', () => {
-        test('shows v2 flow', async ({page}, workerInfo) => {
+        test('shows v2 flow', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             await onboarding.withInitData({
                 stepDefinitions: {
@@ -130,7 +130,7 @@ test.describe('onboarding', () => {
             await onboarding.openPage()
             await onboarding.completesOrderV2()
         })
-        test('shows v2 flow without pinning step', async ({page}, workerInfo) => {
+        test('shows v2 flow without pinning step', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             await onboarding.withInitData({
                 stepDefinitions: {

@@ -57,7 +57,7 @@ export class OnboardingMessages {
                     }
                 },
                 exclude: [],
-                order: "v1"
+                order: 'v1'
             }
         }
         return await this.messaging.request('init')

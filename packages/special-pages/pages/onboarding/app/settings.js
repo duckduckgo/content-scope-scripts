@@ -71,10 +71,10 @@ export class Settings {
     /**
      * @param {string[]|null|undefined} exclude
      */
-    withExcludedScreens(exclude) {
-        if (!exclude) return this;
-        if (!Array.isArray(exclude) || exclude.length === 0) return this;
-        if (!exclude.every(screen => /** @type {string[]} */(this.order))) return this;
+    withExcludedScreens (exclude) {
+        if (!exclude) return this
+        if (!Array.isArray(exclude) || exclude.length === 0) return this
+        if (!exclude.every(screen => /** @type {string[]} */(this.order).includes(screen))) return this
         return new Settings({
             ...this,
             exclude,
