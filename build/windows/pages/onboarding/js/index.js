@@ -8165,7 +8165,7 @@
         return this;
       if (!exclude.every((screen) => (
         /** @type {string[]} */
-        this.order
+        this.order.includes(screen)
       )))
         return this;
       return new _Settings({
