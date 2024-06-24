@@ -117,79 +117,25 @@
 /* New Tag */
 .newTag {
     background-color: var(--color-yellow-50);
-    border-radius: 0.625rem;
+    border-radius: 0.625rem 0.625rem 0.625rem 0;
     color: var(--color-black-at-84);
     display: inline-block;
     font-size: calc(13 * var(--px-in-rem));
     font-weight: 700;
     line-height: calc(20 * var(--px-in-rem));
     padding: 0 0.625rem;
+    position: relative;
     text-transform: uppercase;
-    margin-top: var(--sp-1);
-}
+    top: calc(-2 * var(--px-in-rem));
 
-/* Content Placeholder */
-
-.contentPlaceholder {
-    & h2,
-    & p {
-        background: var(--color-black-at-6);
-
-        @media (prefers-color-scheme: dark) {
-            background: var(--color-white-at-6);
-        }
+    &::after {
+        background-color: var(--color-yellow-50);
+        mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'><path fill='currentColor' d='M0 0v5.336A13.975 13.975 0 0 1 10.699 0H0Z'/></svg>");
+        content: '';
+        height: 6px;
+        left: 0;
+        position: absolute;
+        top: calc(20 * var(--px-in-rem));
+        width: 11px;
     }
-
-    h2 {
-        border-radius: var(--sp-3);
-        height: var(--sp-6);
-        width: 75%;
-    }
-
-    p {
-        border-radius: var(--sp-2);
-        height: var(--sp-4);
-        margin-top: var(--sp-2);
-        width: 50%;
-    }
-
-    ul {
-        margin-top: var(--sp-6);
-    }
-
-    li {
-        margin-top: var(--sp-4);
-        padding-left: var(--sp-5);
-        position: relative;
-        padding-left: var(--sp-6);
-
-        &::before {
-            background: var(--color-black-at-6);
-            border-radius: 0.375rem;
-            content: '';
-            display: inline-block;
-            width: var(--sp-3);
-            height: var(--sp-3);
-            position: absolute;
-            top: 0.125rem;
-            left: 0;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            &::before {
-                background: var(--color-white-at-6);
-            }
-        }
-
-
-        p {
-            width: 100%;
-
-            &:last-child {
-                width: 50%;
-            }
-        }
-    }
-
-
 }

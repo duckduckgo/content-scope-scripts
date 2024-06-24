@@ -5,6 +5,7 @@ import { useTranslation } from "../../../../shared/components/TranslationProvide
 import { Text } from '../../../../shared/components/Text/Text'
 import { Card } from '../../../../shared/components/Card/Card'
 import { Button } from '../../../../shared/components/Button/Button'
+import { ContentPlaceholder } from './ContentPlaceholder'
 
 import styles from './ReleaseNotes.module.css'
 
@@ -94,31 +95,6 @@ function ReleaseNotesList({ notes, title }) {
 }
 
 /**
- *
- */
-function NewTag() {
-    const { t } = useTranslation()
-
-    return <span className={styles.newTag}>{t('New')}</span>
-}
-
-/**
- * Renders a purely visual placeholder for when content is still loading
- */
-function ContentPlaceholder() {
-    return (
-        <div className={styles.contentPlaceholder} aria-hidden="true">
-            <h2></h2>
-            <p></p>
-            <ul>
-                <li><p></p><p></p></li>
-                <li><p></p><p></p></li>
-            </ul>
-        </div>
-    )
-}
-
-/**
  * @param {object} props
  * @param {UpdateMessage} props.releaseData
  */
@@ -147,7 +123,8 @@ export function ReleaseNotes({ releaseData })  {
                         <header>
                             {releaseTitle &&
                             <h2 className={styles.releaseTitle}>
-                                {releaseTitle} <NewTag />
+                                {releaseTitle}
+                                <span className={styles.newTag}>{t('New')}</span>
                             </h2>}
                             <Text variant="title-2" className={styles.releaseVersion}>
                                 {t('Version number', { version: `${releaseVersion}` })}
