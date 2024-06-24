@@ -84,8 +84,8 @@ export function App ({ children }) {
     // otherwise, for none-animating steps, just advance immediately when 'exiting' is set
     const didRender = (e) => {
         /** @type {import('../types').Step['id'][]} */
-        const ignoredSteps = ['welcome', 'getStarted'];
-        const shouldSkipAnimation = ignoredSteps.includes(e?.dataset?.current);
+        const ignoredSteps = ['welcome', 'getStarted']
+        const shouldSkipAnimation = ignoredSteps.includes(e?.dataset?.current)
         if (shouldSkipAnimation && exiting === true) {
             advance()
         }
