@@ -18,15 +18,19 @@ export const TranslationContext = createContext({
  * @param {{en: Record<string, any>}} props.text
  */
 export function TranslationProvider ({ children, text }) {
-    const t = useCallback((key, replacements) => {
-        if (replacements) {
-            const regex = RegExp(Object.keys(replacements).map((s) => (`\\{(${s})\\}`)).join('|'), 'gm');
-            console.log('REGEX', regex);
-            return text.en.translations[key].title.replace(regex, (_, id) => replacements[id]);
-        }
+    const t = useCallback(
+        /**
+         * @param {string} key
+         * @param {Record<string, string>} [replacements]
+         */
+        (key, replacements) => {
+            if (replacements) {
+                const regex = RegExp(Object.keys(replacements).map((s) => (`\\{(${s})\\}`)).join('|'), 'gm')
+                return text.en.translations[key].title.replace(regex, (_, id) => replacements[id])
+            }
 
-        return text.en.translations[key].title
-    }, [text])
+            return text.en.translations[key].title
+        }, [text])
     return (
         <TranslationContext.Provider value={{ t }}>{children}</TranslationContext.Provider>
     )

@@ -37,9 +37,40 @@
     --sp-2:   0.5rem;  /* 8px */
     --sp-1:   0.25rem; /* 4px */
 
-    --ddg-color-primary: #3969ef;
+    /* Base colors */
+    --color-red-50: #de5833;
+    --color-purple-50: #5132a9;
+    --color-yellow-50: #fcd00a;
+    --color-green-50: #4cba3c;
 
-    --ddg-color-primary-dark: #7295F6;
+    /* Shade system */
+    --color-blue-100: #051133;
+    --color-blue-90: #0B2059;
+    --color-blue-80: #14307E;
+    --color-blue-70: #1E42A4;
+    --color-blue-60: #2B55CA;
+    --color-blue-50: #3969ef;
+    --color-blue-40: #557FF3;
+    --color-blue-30: #7295F6;
+    --color-blue-20: #8FABF9;
+    --color-blue-10: #ADC2FC;
+    --color-blue-0: #ccdaff; /* Misidentified in Figma. TODO: alert design */
+
+    --color-black: #000;
+    --color-gray-95: #111;
+    --color-gray-90: #222;
+    --color-gray-85: #333;
+    --color-gray-80: #444;
+    --color-gray-70: #666;
+    --color-gray-60: #888;
+    --color-gray-50: #aaa;
+    --color-gray-40: #ccc;
+    --color-gray-30: #ddd;
+    --color-gray-25: #e5e5e5;
+    --color-gray-20: #eee;
+    --color-gray-10: #f5f5f5;
+    --color-gray-0: #fafafa;
+    --color-white: #fff;
 
     --color-black-at-1: rgba(0, 0, 0, 0.01);
     --color-black-at-3: rgba(0, 0, 0, 0.03);
@@ -79,24 +110,22 @@
     --color-white-at-84: rgba(255, 255, 255, 0.84);
     --color-white-at-96: rgba(255, 255, 255, 0.96);
 
-    --color-yellow-50: #ffcc33;
-
     --color-blue-shade-24: rgba(57, 105, 239, 0.24);
 
-    --anim-delay: 300ms;
-    --anim-delay-double: 600ms;
+    /* Semantic tokens */
 
-    --theme-ddg-color-primary: var(--ddg-color-primary);
-    --theme-txt-link-color: var(--ddg-color-primary);
-    --theme-txt-color: var(--color-black-at-84);
-    --theme-txt-color-title: var(--color-black-at-84);
-    --theme-txt-color-progress: var(--color-black-at-60);
+    --ddg-color-primary: var(--color-blue-50);
+    --ddg-color-primary-dark: var(--color-blue-30);
+
+    --background-color: var(--color-white);
+
+    --text-primary-color: var(--color-black-at-84);
+    --text-secondary-color: var(--color-black-at-60);
 
     @media (prefers-color-scheme: dark) {
-        --theme-ddg-color-primary: var(--ddg-color-primary-dark);
-        --theme-txt-link-color: var(--ddg-color-primary-dark);
-        --theme-txt-color: var(--color-white-at-84);
-        --theme-txt-color-title: var(--color-white-at-84);
-        --theme-txt-color-progress: var(--color-white-at-50);
+        --background-color: var(--color-gray-90);
+
+        --text-primary-color: var(--color-white-at-84);
+        --text-secondary-color: var(--color-white-at-60);
     }
 }

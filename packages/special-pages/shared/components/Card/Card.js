@@ -4,12 +4,12 @@ import styles from './Card.module.css'
 
 /**
  * @param {object} props
+ * @param {string} [props.className]
  * @param {import("preact").ComponentChild} [props.children]
- * @param {string} props.className
  */
-export function Card({ children, className }) {
+export function Card({ className, children }) {
     return (
-        <section className={classNames(styles.card, className)} tabindex={0}>
+        <section className={classNames(styles.card, className)}>
             {children}
         </section>
     )

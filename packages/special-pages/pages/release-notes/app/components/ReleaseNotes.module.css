@@ -5,8 +5,9 @@
 }
 
 .title {
-    font-size: 3.125rem; /* 50px Multiple of 4? */
+    font-size: calc(50 * var(--px-in-rem));
     font-weight: 800;
+    line-height: normal;
 }
 
 /* Status */
@@ -53,19 +54,10 @@
 /* Status Text */
 .statusText {
     align-self: center;
-    font-size: var(--sp-4);
-    font-weight: 600;
-    line-height: 1.25;
 }
 
 .statusTimestamp {
-    color: var(--color-black-at-60);
-    font-size: 0.8125rem; /* 13px Multiple of 4? */
-    line-height: 1.25;
-
-    @media (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-    }
+    color: var(--text-secondary-color);
 }
 
 /* Release Notes */
@@ -76,25 +68,19 @@
 .releaseTitle {
     align-items: flex-start;
     display: flex;
-    font-size: 1.625rem; /* 26px Multiple of 4? */
+    font-size: calc(26 * var(--px-in-rem));
+    font-weight: 600;
     gap: var(--sp-2);
+    line-height: 1;
+    letter-spacing: calc(-0.26 * var(--px-in-rem));
+    margin-bottom: calc(2 * var(--px-in-rem));
 }
 
 .releaseVersion {
-    color: var(--color-black-at-60);
-    font-size: 1.0625rem; /* 17px Multiple of 4? */
-    font-weight: 600;
-    line-height: 1.25;
-
-    @media (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-    }
+    color: var(--text-secondary-color);
 }
 
 .releaseNotesSubheading {
-    font-size: 0.8125rem; /* 13px Multiple of 4? */
-    font-weight: 600;
-    line-height: 1.25;
     margin: var(--sp-9) 0 var(--sp-4);
 }
 
@@ -106,9 +92,7 @@
     }
 
     & li {
-        margin: 0 0 var(--sp-4);
-        font-size: 0.8125rem; /* 13px Multiple of 4? */
-        line-height: 1.25;
+        margin: 0 0 calc(18 * var(--px-in-rem));
         position: relative;
         padding-left: var(--sp-6);
 
@@ -136,9 +120,9 @@
     border-radius: 0.625rem;
     color: var(--color-black-at-84);
     display: inline-block;
-    font-size: 0.8125rem; /* 13px Multiple of 4? */
+    font-size: calc(13 * var(--px-in-rem));
     font-weight: 700;
-    line-height: var(--sp-5);
+    line-height: calc(20 * var(--px-in-rem));
     padding: 0 0.625rem;
     text-transform: uppercase;
     margin-top: var(--sp-1);
