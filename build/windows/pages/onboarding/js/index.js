@@ -6864,6 +6864,13 @@
         advance();
       }
     }
+    const didRender = (e3) => {
+      const ignoredSteps = ["welcome", "getStarted"];
+      const shouldSkipAnimation = ignoredSteps.includes(e3?.dataset?.current);
+      if (shouldSkipAnimation && exiting === true) {
+        advance();
+      }
+    };
     return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y("link", { rel: "preload", href: ["js", Onboarding_default].join("/"), as: "image" }), /* @__PURE__ */ y("link", { rel: "preload", href: ["js", stepMeta.dockSingle.rows.dock.path].join("/"), as: "image" }), /* @__PURE__ */ y("link", { rel: "preload", href: ["js", stepMeta.importSingle.rows.import.path].join("/"), as: "image" }), /* @__PURE__ */ y("link", { rel: "preload", href: ["js", stepMeta.makeDefaultSingle.rows["default-browser"].path].join("/"), as: "image" }), /* @__PURE__ */ y(Background, null), debugState && /* @__PURE__ */ y(Debug, { state: globalState }), /* @__PURE__ */ y("div", { className: App_default.container, "data-current": activeStep }, /* @__PURE__ */ y(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ y(Fallback, null) }, /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y(Header, { aside: showProgress && /* @__PURE__ */ y(Progress, { current: progress.indexOf(activeStep) + 1, total: progress.length }) }, /* @__PURE__ */ y(
       Typed,
       {
@@ -6872,7 +6879,7 @@
         "data-current": activeStep,
         "data-exiting": pageTitle !== nextPageTitle && String(exiting)
       }
-    )), /* @__PURE__ */ y("div", { "data-current": activeStep, "data-exiting": String(exiting), onAnimationEnd: animationDidFinish }, activeStepVisible && /* @__PURE__ */ y(Content, null, step.kind === "settings" && /* @__PURE__ */ y(
+    )), /* @__PURE__ */ y("div", { "data-current": activeStep, "data-exiting": String(exiting), ref: didRender, onAnimationEnd: animationDidFinish }, activeStepVisible && /* @__PURE__ */ y(Content, null, step.kind === "settings" && /* @__PURE__ */ y(
       SettingsStep,
       {
         key: activeStep,

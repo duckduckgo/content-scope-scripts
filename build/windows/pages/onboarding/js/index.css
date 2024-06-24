@@ -195,6 +195,7 @@ h2 {
   }
   &[data-current=welcome],
   [data-current=getStarted] {
+    animation: none;
   }
 }
 @keyframes App_slideout {
