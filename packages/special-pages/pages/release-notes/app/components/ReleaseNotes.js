@@ -2,9 +2,11 @@
 import { Fragment, h } from 'preact'
 import classNames from 'classnames'
 import { useTranslation } from "../../../../shared/components/TranslationProvider"
+import { Text } from '../../../../shared/components/Text/Text'
 import { Card } from '../../../../shared/components/Card/Card'
-import styles from './ReleaseNotes.module.css'
 import { Button } from '../../../../shared/components/Button/Button'
+
+import styles from './ReleaseNotes.module.css'
 
 /**
  * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
@@ -25,9 +27,9 @@ function StatusText({ status, currentVersion }) {
     }
 
     return (
-        <p className={styles.statusText}>
+        <Text variant="title-2" className={styles.statusText}>
             {t('Version number', { version: `${currentVersion}` })} — {statusTexts[status]}
-        </p>
+        </Text>
     )
 }
 
@@ -72,7 +74,7 @@ function StatusTimestamp({ timestamp }) {
         date.getFullYear() === today.getFullYear()
       ) dateString = t('Today at', { time: timeString })
 
-    return <p className={styles.statusTimestamp}>{t('Last checked', { date: dateString })}</p>
+    return <Text variant="body" className={styles.statusTimestamp}>{t('Last checked', { date: dateString })}</Text>
 }
 
 /**
@@ -83,9 +85,9 @@ function StatusTimestamp({ timestamp }) {
 function ReleaseNotesList({ notes, title }) {
     return (
         <Fragment>
-            {title && <h3 className={styles.releaseNotesSubheading}>{title}</h3>}
+            {title && <Text as="h3" variant="headline" className={styles.releaseNotesSubheading}>{title}</Text>}
             <ul className={styles.releaseNotesList}>
-                {notes?.map(note => (<li>{note}</li>))}
+                {notes?.map(note => (<Text as="li" variant="body">{note}</Text>))}
             </ul>
         </Fragment>
     )
@@ -147,9 +149,9 @@ export function ReleaseNotes({ releaseData })  {
                             <h2 className={styles.releaseTitle}>
                                 {releaseTitle} <NewTag />
                             </h2>}
-                            <p className={styles.releaseVersion}>
+                            <Text variant="title-2" className={styles.releaseVersion}>
                                 {t('Version number', { version: `${releaseVersion}` })}
-                            </p>
+                            </Text>
                         </header>
 
                         {releaseNotes?.length &&

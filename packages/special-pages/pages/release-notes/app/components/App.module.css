@@ -7,13 +7,9 @@ body {
 }
 
 .main {
-    color: var(--color-black-at-84);
+    color: var(--text-primary-color);
     margin: var(--sp-6) auto var(--sp-8);
+    max-width: var(--sp-320);
     padding: 0 var(--sp-5);
     position: relative;
-    max-width: var(--sp-320);
-
-    @media (prefers-color-scheme: dark) {
-        color: var(--color-white-at-84);
-    }
 }

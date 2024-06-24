@@ -1,13 +1,18 @@
 *, *:after, *:before {
     box-sizing: border-box
 }
+
 html[data-reduced-motion=true] * {
     animation: none!important;
     transition: none!important;
 }
+
 /* Base styles */
 body {
     font-family: system-ui;
+    font-size: 15px;
+    line-height: 20px;
+    letter-spacing: -0.08px;
     margin: 0;
 
     height: 100vh;
@@ -18,20 +23,30 @@ body {
     user-select: none;
     -webkit-user-select: none;
     cursor: default;
+    color: var(--theme-txt-color);
 }
+
 body > main {
     width: 100%;
 }
+
 h1,
 h2,
 h3,
 h4,
 p {
+    font-weight: normal;
     margin: 0;
 }
+
+a {
+    color: var(--theme-txt-link-color)
+}
+
 button {
     font-family: system-ui, sans-serif;
 }
+
 ul {
     margin: 0;
     padding: 0;
@@ -41,8 +56,4 @@ li {
     list-style: none;
     margin: 0;
     padding: 0;
-}
-
-h2 {
-    font-style: normal;
 }
