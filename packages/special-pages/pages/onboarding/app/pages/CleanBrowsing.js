@@ -12,8 +12,11 @@ import { Delay } from '../components/Timeout'
 import { Animate } from '../components/Animate'
 import { RiveAnimation } from '../components/RiveAnimation'
 import { BeforeAfter } from '../components/BeforeAfter'
-import { useContext } from 'preact/hooks'
-import { SettingsContext } from '../settings'
+import { useEnv } from '../environment'
+
+import animation from '../animations/Onboarding.riv'
+
+export { animation }
 
 /**
  * @param {object} props
@@ -57,7 +60,7 @@ export function CleanBrowsing ({ onNextPage }) {
 }
 
 function RowItem ({ isCurrent, row, index, advance }) {
-    const { isDarkMode } = useContext(SettingsContext)
+    const { isDarkMode } = useEnv()
     const meta = beforeAfterMeta[row.id]
     return (
         <ListItem
@@ -79,6 +82,7 @@ function RowItem ({ isCurrent, row, index, advance }) {
                             media={({ state }) => {
                                 const animationState = (state === 'initial' || state === 'before') ? 'before' : 'after'
                                 return <RiveAnimation
+                                    animation={animation}
                                     state={animationState}
                                     isDarkMode={isDarkMode}
                                     artboard={meta.artboard}

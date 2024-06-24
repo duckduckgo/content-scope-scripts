@@ -15,6 +15,6 @@ if (isAllowed(param)) {
  */
 function isAllowed (input) {
     /** @type {ImportMeta['injectName'][]} */
-    const allowed = ['windows', 'apple']
+    const allowed = ['windows', 'apple', 'integration']
     return allowed.includes(input)
 }

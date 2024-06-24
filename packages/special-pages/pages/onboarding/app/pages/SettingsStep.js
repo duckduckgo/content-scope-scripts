@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { h } from 'preact'
+import { h, Fragment } from 'preact'
 import { ListItem } from '../components/ListItem'
 import { BounceIn, Check, FadeIn, SlideUp } from '../components/Icons'
 import { List } from '../components/List'
@@ -9,14 +9,17 @@ import { useGlobalDispatch, useGlobalState } from '../global'
 import { useTranslation } from '../translations'
 import { useRollin } from '../hooks/useRollin'
 import { Switch } from '../components/Switch'
+import { RiveAnimation } from '../components/RiveAnimation'
+import { useEnv } from '../environment'
 
 /**
  * @param {object} props
  * @param {(args: any) => void} props.onNextPage
  * @param {typeof import('../data').settingsRowItems} props.data
+ * @param {typeof import('../data').stepMeta} props.metaData
  * @param {string} [props.subtitle] - optional subtitle
  */
-export function SettingsStep ({ onNextPage, data, subtitle }) {
+export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
     const { state } = useRollin([300])
     const { t } = useTranslation()
 
@@ -37,7 +40,8 @@ export function SettingsStep ({ onNextPage, data, subtitle }) {
             uiValue: appState.UIValues[rowId],
             pending: pendingId === rowId,
             id: rowId,
-            data: data[rowId]
+            data: data[rowId],
+            meta: metaData[step.id]?.rows?.[rowId]
         }
     })
 
@@ -81,6 +85,7 @@ export function SettingsStep ({ onNextPage, data, subtitle }) {
  *    systemValue: import('../types').SystemValue | null;
  *    data: import('../data').RowData;
  *    uiValue: import('../types').UIValue;
+ *    meta: Record<string, any>;
  * }} props.item - The item object containing the row data.
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch - The function to dispatch actions.
  * @param {number} props.index
@@ -146,6 +151,15 @@ function SettingListItem ({ index, item, dispatch }) {
         throw new Error('unreachable')
     })()
 
+    const display = (() => {
+        if (item.meta) {
+            return item.meta
+        }
+        return { kind: 'button-bar' }
+    })()
+
+    const { isDarkMode } = useEnv()
+
     return (
         <ListItem
             key={data.id}
@@ -156,13 +170,27 @@ function SettingListItem ({ index, item, dispatch }) {
             animate={true}
             index={index}
         >
-            {item.current && (
+            {item.current && display.kind === 'button-bar' && (
                 <ListItem.Indent>
                     <ButtonBar>
                         <Button disabled={item.pending} variant={'secondary'} onClick={deny}>Skip</Button>
                         <Button disabled={item.pending} variant={'secondary'} onClick={accept}>{item.data.acceptText}</Button>
                     </ButtonBar>
                 </ListItem.Indent>
+            )}
+            {item.current && display.kind === 'animation' && (
+                <Stack gap='var(--sp-3)'>
+                    <RiveAnimation
+                        animation={display.path}
+                        state={'before'}
+                        isDarkMode={isDarkMode}
+                        stateMachine={'State Machine 1'}
+                    />
+                    <ButtonBar>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>Skip</Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={accept}>{item.data.acceptText}</Button>
+                    </ButtonBar>
+                </Stack>
             )}
         </ListItem>
     )

@@ -9,6 +9,9 @@ export const i18n = {
             customize_title: 'Customize your experience',
             customize_subtitle: 'Make DuckDuckGo work just the way you want.',
             summary_title: 'You\'re all\u00A0set!',
+            dockSingle_title: 'Make privacy your go-to',
+            importSingle_title: 'Make privacy your go-to',
+            makeDefaultSingle_title: 'Make privacy your go-to',
 
             // 1:1 strings
             'Get Started': 'Get Started',
