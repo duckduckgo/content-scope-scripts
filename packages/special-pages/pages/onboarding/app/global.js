@@ -1,6 +1,5 @@
 import { createContext, h } from 'preact'
 import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks'
-import { PAGE_IDS } from './types'
 
 /**
  * @typedef {import("./types.js").GlobalState} GlobalState
@@ -18,6 +17,11 @@ export const GlobalDispatch = createContext(/** @type {import("preact/hooks").Di
  * @return {GlobalState}
  */
 export function reducer (state, action) {
+    // console.group('reducer');
+    // console.log('state', state);
+    // console.log('action', action);
+    // console.groupEnd()
+
     switch (state.status.kind) {
     case 'idle': {
         switch (action.kind) {
@@ -33,13 +37,14 @@ export function reducer (state, action) {
                 activeStepVisible: true
             }
         }
-        case 'next-for-real': {
+        case 'advance': {
             const currentPageIndex = state.order.indexOf(state.activeStep)
             const nextPageIndex = currentPageIndex + 1
             if (nextPageIndex < state.order.length) {
                 return {
                     ...state,
                     activeStep: state.order[nextPageIndex],
+                    nextStep: state.order[nextPageIndex + 1],
                     activeRow: 0,
                     activeStepVisible: false,
                     exiting: false,
@@ -48,7 +53,7 @@ export function reducer (state, action) {
             }
             return state
         }
-        case 'next': {
+        case 'enqueue-next': {
             return {
                 ...state,
                 exiting: true
@@ -113,18 +118,20 @@ export function reducer (state, action) {
 /**
  * Provides navigation functionality for the application.
  * @param {Object} props - The properties for the NavigationProvider component.
+ * @param {import('./types').Step['id'][]} props.order - The order of screens to display
  * @param {import("preact").ComponentChild} props.children - The children components.
  * @param {import('./data').StepDefinitions} props.stepDefinitions -
  * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
  */
-export function GlobalProvider ({ children, stepDefinitions, messaging, firstPage = 'welcome' }) {
+export function GlobalProvider ({ order, children, stepDefinitions, messaging, firstPage = 'welcome' }) {
     const [state, dispatch] = useReducer(reducer, {
         status: { kind: 'idle' },
-        order: PAGE_IDS,
+        order,
         stepDefinitions,
         step: stepDefinitions[firstPage],
         activeStep: firstPage,
+        nextStep: order[1],
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,
@@ -148,7 +155,7 @@ export function GlobalProvider ({ children, stepDefinitions, messaging, firstPag
         /**
          * Side effects that don't impact global state
          */
-        if (msg.kind === 'next') {
+        if (msg.kind === 'advance') {
             messaging.stepCompleted({ id: state.activeStep })
         }
         if (msg.kind === 'dismiss-to-settings') {

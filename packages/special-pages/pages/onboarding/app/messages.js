@@ -5,6 +5,8 @@
  *
  * @typedef {Object} InitResponse
  * @property {Record<string, any>} stepDefinitions
+ * @property {string} [order] - ability to override the screen order
+ * @property {string[]} [exclude] - ability to exclude screens
  * @property {ImportMeta['env']} [env] - optional override for the running override
  */
 
@@ -35,7 +37,9 @@ export class OnboardingMessages {
      *     "systemSettings": {
      *       "rows": ["dock", "import", "default-browser"]
      *     }
-     *   }
+     *   },
+     *   "order": "v2",
+     *   "exclude": ["dockSingle"]
      * }
      * ```
      *
@@ -51,7 +55,9 @@ export class OnboardingMessages {
                     systemSettings: {
                         rows: ['dock', 'import', 'default-browser']
                     }
-                }
+                },
+                exclude: [],
+                order: 'v1'
             }
         }
         return await this.messaging.request('init')

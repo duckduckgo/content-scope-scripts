@@ -2,7 +2,8 @@
 import { h } from 'preact'
 import { useState, useEffect, useRef, useContext } from 'preact/hooks'
 
-import { SettingsContext } from '../settings'
+import { useEnv } from '../environment'
+import { GlobalContext } from '../global'
 
 /**
  * Renders a component that types out the given text.
@@ -14,13 +15,29 @@ import { SettingsContext } from '../settings'
  * @param {number} [props.delay=20] - The delay (in milliseconds) between each character being typed.
  */
 export function Typed ({ text, children = null, onComplete = null, delay = 20, ...rest }) {
+    const globalState = useContext(GlobalContext)
+    const { activeStep } = globalState
+    const pre = useRef(/** @type {string|undefined} */(undefined))
+    useEffect(() => {
+        if (activeStep && pre.current) {
+            if (text === pre.current) {
+                onComplete?.()
+                return
+            }
+        }
+        pre.current = text
+    }, [activeStep, text])
     return (
-        <TypedInner key={text} text={text} onComplete={onComplete} delay={delay} {...rest}>{children}</TypedInner>
+        <TypedInner key={text}
+            text={text}
+            onComplete={onComplete}
+            delay={delay}
+            {...rest}>{children}</TypedInner>
     )
 }
 
 function TypedInner ({ text, onComplete, delay, children, ...rest }) {
-    const { isReducedMotion } = useContext(SettingsContext)
+    const { isReducedMotion } = useEnv()
     const [screenWidth, setScreenWidth] = useState(0)
     const [coords, setCoords] = useState({ left: 0, width: 0 })
     const [complete, setLocalComplete] = useState(false)

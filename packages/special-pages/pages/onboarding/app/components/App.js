@@ -7,11 +7,11 @@ import { GlobalContext, GlobalDispatch } from '../global'
 import { Background } from './Background'
 import { GetStarted } from '../pages/Welcome'
 import { PrivacyDefault } from '../pages/PrivacyDefault'
-import { CleanBrowsing } from '../pages/CleanBrowsing'
+import { CleanBrowsing, animation } from '../pages/CleanBrowsing'
 import { SettingsStep } from '../pages/SettingsStep'
-import { settingsRowItems } from '../data'
+import { settingsRowItems, stepMeta } from '../data'
 import { useTranslation } from '../translations'
-import { SettingsContext } from '../settings'
+import { useEnv } from '../environment'
 import { Header } from './Header'
 import { Typed } from './Typed'
 import { Stack } from './Stack'
@@ -26,16 +26,22 @@ import { Progress } from './Progress'
  * @param {import("preact").ComponentChild} props.children
  */
 export function App ({ children }) {
-    const { debugState } = useContext(SettingsContext)
+    const { debugState, isReducedMotion } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTranslation()
 
-    const { activeStep, activeStepVisible, exiting } = globalState
+    const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState
 
-    // events
-    const enqueueNext = () => dispatch({ kind: 'next' })
-    const next = () => dispatch({ kind: 'next-for-real' })
+    const enqueueNext = () => {
+        if (isReducedMotion) {
+            dispatch({ kind: 'advance' })
+        } else {
+            dispatch({ kind: 'enqueue-next' })
+        }
+    }
+
+    const advance = () => dispatch({ kind: 'advance' })
     const titleDone = () => dispatch({ kind: 'title-complete' })
     const dismiss = () => dispatch({ kind: 'dismiss' })
     const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
@@ -47,30 +53,14 @@ export function App ({ children }) {
 
     // typescript is not quite smart enough to figure this part out
     const pageTitle = t(/** @type {any} */(activeStep + '_title'))
+    const nextPageTitle = t(/** @type {any} */(nextStep + '_title'))
     const pageSubTitle = t(/** @type {any} */(activeStep + '_subtitle'))
 
-    /** @type {Record<import('../types').Step['id'], () => import("preact").ComponentChild>} */
-    const pages = {
+    const infoPages = {
         welcome: () => <Timeout onComplete={enqueueNext} ignore={true} />,
         getStarted: () => <GetStarted onNextPage={enqueueNext} />,
         privateByDefault: () => <PrivacyDefault onNextPage={enqueueNext} />,
         cleanerBrowsing: () => <CleanBrowsing onNextPage={enqueueNext} />,
-        systemSettings: () => (
-            <SettingsStep
-                key={'systemSettings'}
-                subtitle={pageSubTitle}
-                data={settingsRowItems}
-                onNextPage={enqueueNext}
-            />
-        ),
-        customize: () => (
-            <SettingsStep
-                key={'customize'}
-                subtitle={pageSubTitle}
-                data={settingsRowItems}
-                onNextPage={enqueueNext}
-            />
-        ),
         summary: () => (
             <Summary
                 values={globalState.values}
@@ -81,38 +71,66 @@ export function App ({ children }) {
     }
 
     /** @type {import('../types').Step['id'][]} */
-    const progress = ['privateByDefault', 'cleanerBrowsing', 'systemSettings', 'customize']
+    const progress = order.slice(2, -1)
     const showProgress = progress.includes(activeStep)
+
+    // for screens that animate out, trigger the 'advance' when it's finished.
+    function animationDidFinish (e) {
+        if (e.target?.dataset?.exiting === 'true') {
+            advance()
+        }
+    }
+
+    // otherwise, for none-animating steps, just advance immediately when 'exiting' is set
+    const didRender = (e) => {
+        /** @type {import('../types').Step['id'][]} */
+        const ignoredSteps = ['welcome', 'getStarted']
+        const shouldSkipAnimation = ignoredSteps.includes(e?.dataset?.current)
+        if (shouldSkipAnimation && exiting === true) {
+            advance()
+        }
+    }
 
     return (
         <main className={styles.main}>
-            <Background />
-            {debugState && <Debug state={globalState} />}
+            <link rel="preload" href={['js', animation].join('/')} as="image"/>
+            <link rel="preload" href={['js', stepMeta.dockSingle.rows.dock.path].join('/')} as="image"/>
+            <link rel="preload" href={['js', stepMeta.importSingle.rows.import.path].join('/')} as="image"/>
+            <link rel="preload" href={['js', stepMeta.makeDefaultSingle.rows['default-browser'].path].join('/')} as="image"/>
+            <Background/>
+            {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep}>
-                <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
-                    {/* This is used to allow an 'exit' animation to take place */}
-                    {exiting && <Timeout onComplete={next} timeout={['welcome', 'getStarted'].includes(activeStep) ? 0 : 600} />}
+                <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
                     <Stack>
-                        <Header aside={showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length} />}>
+                        <Header aside={showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length}/>}>
                             <Typed
                                 onComplete={titleDone}
                                 text={pageTitle}
                                 data-current={activeStep}
-                                data-exiting={String(exiting)}
+                                data-exiting={pageTitle !== nextPageTitle && String(exiting)}
                             />
                         </Header>
-                        <div data-current={activeStep} data-exiting={String(exiting)}>
+                        <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
                             {activeStepVisible && (
                                 <Content>
-                                    {pages[activeStep]()}
+                                    {step.kind === 'settings' && (
+                                        <SettingsStep
+                                            key={activeStep}
+                                            subtitle={pageSubTitle}
+                                            data={settingsRowItems}
+                                            metaData={stepMeta}
+                                            onNextPage={enqueueNext}
+                                        />
+                                    )}
+                                    {step.kind === 'info' && infoPages[activeStep]()}
                                 </Content>
                             )}
                         </div>
                     </Stack>
-                    <WillThrow />
+                    <WillThrow/>
                 </ErrorBoundary>
             </div>
-            {debugState && <DebugLinks current={activeStep} />}
+            {debugState && <DebugLinks current={activeStep}/>}
             {children}
         </main>
     )
@@ -130,24 +148,32 @@ function Debug (props) {
 
 function DebugLinks ({ current }) {
     const globalState = useContext(GlobalContext)
+
+    const exceptionUrl = new URL(window.location.href)
+    exceptionUrl.searchParams.set('page', 'welcome')
+    exceptionUrl.searchParams.set('willThrow', 'true')
+
     if (window.__playwright_01) return null
     return (
         <div style={{ display: 'flex', gap: '10px', position: 'fixed', bottom: '1rem', justifyContent: 'center', width: '100%' }}>
             {Object.keys(globalState.stepDefinitions).slice(1).map(pageId => {
+                const next = new URL(window.location.href)
+                next.searchParams.set('page', pageId)
                 return (
-                    <a href={`?page=${pageId}`} key={pageId} style={{
+                    <a href={next.toString()} key={pageId} style={{
                         textDecoration: current === pageId ? 'none' : 'underline',
                         color: current === pageId ? 'black' : undefined
                     }}>{pageId}</a>
                 )
             })}
-            <a href={'?page=welcome&willThrow=true'}>Exception</a>
+            <a href={exceptionUrl.toString()}>Exception</a>
         </div>
     )
 }
 
 function WillThrow () {
-    if (useContext(SettingsContext).willThrow) {
+    const { willThrow } = useEnv()
+    if (willThrow) {
         throw new Error('Simulated Exception')
     }
     return null

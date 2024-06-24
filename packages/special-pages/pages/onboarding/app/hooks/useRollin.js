@@ -1,6 +1,6 @@
-import { useContext, useEffect, useReducer } from 'preact/hooks'
+import { useEffect, useReducer } from 'preact/hooks'
 
-import { SettingsContext } from '../settings'
+import { useEnv } from '../environment'
 
 /**
  * @typedef {Object} RollInState
@@ -15,7 +15,7 @@ import { SettingsContext } from '../settings'
  * @return {{state: RollInState, advance: () => void}} - An object containing the current state and an 'advance' function.
  */
 export function useRollin (frames) {
-    const { isReducedMotion } = useContext(SettingsContext)
+    const { isReducedMotion } = useEnv()
     const [state, dispatch] = useReducer((/** @type {RollInState} */prev) => {
         if (prev.current === prev.frames.length) {
             return prev

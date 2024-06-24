@@ -24,18 +24,29 @@ export class OnboardingPage {
             env: 'development'
         })
         this.page.on('console', console.log)
-        // default mocks - just enough to render the first page without error
-        this.mocks.defaultResponses({
+        this.defaultResponses = {
             requestSetAsDefault: {},
             requestImport: {},
+            stepCompleted: {},
+            reportPageException: {},
             init: {
                 stepDefinitions: {
                     systemSettings: {
+                        // this 'dock' is not part of the default
                         rows: ['dock', 'import', 'default-browser']
                     }
                 },
                 env: 'development'
             }
+        }
+        // default mocks - just enough to render the first page without error
+        this.mocks.defaultResponses(this.defaultResponses)
+    }
+
+    withInitData (data) {
+        this.mocks.defaultResponses({
+            ...this.defaultResponses,
+            init: data
         })
     }
 
@@ -312,5 +323,44 @@ export class OnboardingPage {
                 }
             }
         ])
+    }
+
+    async completesOrderV2 () {
+        const { page } = this
+        await page.getByRole('button', { name: 'Get Started' }).click()
+        await page.getByRole('button', { name: 'Got It' }).click()
+        await page.getByRole('button', { name: 'See With Tracker Blocking' }).click()
+        await page.getByRole('button', { name: 'Got It' }).click()
+        await page.getByRole('button', { name: 'See With Duck Player' }).click()
+        await page.getByRole('button', { name: 'Got It' }).click()
+        await page.getByRole('button', { name: 'Next' }).click()
+        await page.getByText('Keep DuckDuckGo in your Taskbar').waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Skip' }).click()
+        await page.getByRole('button', { name: 'Next' }).click()
+        await page.getByText('Bring your stuff').waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Skip' }).click()
+        await page.getByRole('button', { name: 'Next' }).click()
+        await page.getByText('Switch your default browser').waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Skip' }).click()
+        await page.getByRole('button', { name: 'Next' }).click()
+        await page.getByLabel('Customize your experience').waitFor({ timeout: 1000 })
+    }
+
+    async completesOrderV2WithoutDock () {
+        const { page } = this
+        await page.getByRole('button', { name: 'Get Started' }).click()
+        await page.getByRole('button', { name: 'Got It' }).click()
+        await page.getByRole('button', { name: 'See With Tracker Blocking' }).click()
+        await page.getByRole('button', { name: 'Got It' }).click()
+        await page.getByRole('button', { name: 'See With Duck Player' }).click()
+        await page.getByRole('button', { name: 'Got It' }).click()
+        await page.getByRole('button', { name: 'Next' }).click()
+        await page.getByText('Bring your stuff').waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Skip' }).click()
+        await page.getByRole('button', { name: 'Next' }).click()
+        await page.getByText('Switch your default browser').waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Skip' }).click()
+        await page.getByRole('button', { name: 'Next' }).click()
+        await page.getByLabel('Customize your experience').waitFor({ timeout: 1000 })
     }
 }

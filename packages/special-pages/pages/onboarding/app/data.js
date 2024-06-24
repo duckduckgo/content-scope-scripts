@@ -1,9 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { availableIcons } from './components/ListItem'
-
-/**
- * @typedef {Record<import('./types').Step['id'], import('./types').Step>} StepDefinitions
- */
+import pinningAnimation from './animations/taskbar_pinning.riv'
+import importAnimation from './animations/import.riv'
+import defaultAnimation from './animations/set_default.riv'
 
 /**
  * @typedef {object} RowData
@@ -14,6 +13,10 @@ import { availableIcons } from './components/ListItem'
  * @property {string} secondaryText
  * @property {string} acceptText
  * @property {string} summary
+ */
+
+/**
+ * @typedef {Record<import('./types').Step['id'], import('./types').Step>} StepDefinitions
  */
 
 /**
@@ -51,6 +54,21 @@ export const stepDefinitions = {
         kind: 'settings',
         rows: ['import', 'default-browser']
     },
+    dockSingle: {
+        id: 'dockSingle',
+        kind: 'settings',
+        rows: ['dock']
+    },
+    importSingle: {
+        id: 'importSingle',
+        kind: 'settings',
+        rows: ['import']
+    },
+    makeDefaultSingle: {
+        id: 'makeDefaultSingle',
+        kind: 'settings',
+        rows: ['default-browser']
+    },
     customize: {
         id: 'customize',
         kind: 'settings',
@@ -62,6 +80,33 @@ export const stepDefinitions = {
     }
 }
 
+export const stepMeta = /** @type {const} */({
+    dockSingle: {
+        rows: {
+            dock: {
+                kind: 'animation',
+                path: pinningAnimation
+            }
+        }
+    },
+    importSingle: {
+        rows: {
+            import: {
+                kind: 'animation',
+                path: importAnimation
+            }
+        }
+    },
+    makeDefaultSingle: {
+        rows: {
+            'default-browser': {
+                kind: 'animation',
+                path: defaultAnimation
+            }
+        }
+    }
+}
+)
 /**
  * Row items that do not cause system settings to be altered
  * @type {Record<string, Omit<RowData, "id" | "acceptText"> & { id: string }>}
