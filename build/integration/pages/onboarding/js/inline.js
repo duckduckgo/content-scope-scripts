@@ -6,7 +6,7 @@
     document.documentElement.dataset.platform = String(param);
   }
   function isAllowed(input) {
-    const allowed = ["windows", "apple"];
+    const allowed = ["windows", "apple", "integration"];
     return allowed.includes(input);
   }
 })();

@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact'
-import { useContext, useReducer } from 'preact/hooks'
+import { useReducer } from 'preact/hooks'
 import { Stack } from './Stack'
 import { Button, ButtonBar } from './Buttons'
 import { Play, Replay, SlideIn } from './Icons'
@@ -7,7 +7,7 @@ import { Play, Replay, SlideIn } from './Icons'
 import styles from './BeforeAfter.module.css'
 import { useTranslation } from '../translations'
 import { useAutoAnimate } from '@formkit/auto-animate/preact'
-import { SettingsContext } from '../settings'
+import { useEnv } from '../environment'
 
 /**
  * A component that renders an image with a before and after effect.
@@ -20,7 +20,7 @@ import { SettingsContext } from '../settings'
  */
 export function BeforeAfter ({ media, onDone, btnBefore, btnAfter }) {
     const { t } = useTranslation()
-    const { isReducedMotion } = useContext(SettingsContext)
+    const { isReducedMotion } = useEnv()
     const [imageParent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : undefined)
 
     // differentiate between initial states vs before/after

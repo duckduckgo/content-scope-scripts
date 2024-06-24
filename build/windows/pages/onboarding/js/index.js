@@ -4324,7 +4324,9 @@
      *     "systemSettings": {
      *       "rows": ["dock", "import", "default-browser"]
      *     }
-     *   }
+     *   },
+     *   "order": "v2",
+     *   "exclude": ["dockSingle"]
      * }
      * ```
      *
@@ -4340,7 +4342,9 @@
             systemSettings: {
               rows: ["dock", "import", "default-browser"]
             }
-          }
+          },
+          exclude: [],
+          order: "v1"
         };
       }
       return await this.messaging.request("init");
@@ -5400,8 +5404,66 @@
     return [element, setEnabled];
   }
 
-  // pages/onboarding/app/settings.js
-  var SettingsContext = F({
+  // pages/onboarding/app/environment.js
+  var Environment = class _Environment {
+    /**
+     * @param {object} params
+     * @param {'app' | 'components'} [params.display] - whether to show the application or component list
+     * @param {'production' | 'development'} [params.env] - whether to show the application or component list
+     * @param {URLSearchParams} [params.urlParams] - whether to show the application or component list
+     * @param {ImportMeta['injectName']} [params.platform] - whether to show the application or component list
+     * @param {boolean} [params.willThrow] - whether the application will simulate an error
+     * @param {boolean} [params.debugState] - whether to show debugging UI
+     */
+    constructor({
+      display = "app",
+      env = "production",
+      urlParams = new URLSearchParams(location.search),
+      platform = "windows",
+      willThrow = urlParams.get("willThrow") === "true",
+      debugState = urlParams.has("debugState")
+    } = {}) {
+      this.display = display;
+      this.urlParams = urlParams;
+      this.platform = platform;
+      this.willThrow = willThrow;
+      this.debugState = debugState;
+      this.env = env;
+    }
+    /**
+     * @param {string|null|undefined} platform
+     * @returns {Environment}
+     */
+    withPlatform(platform) {
+      if (!platform)
+        return this;
+      if (!isPlatform(platform))
+        return this;
+      return new _Environment({
+        ...this,
+        platform
+      });
+    }
+    /**
+     * @param {string|null|undefined} env
+     * @returns {Environment}
+     */
+    withEnv(env) {
+      if (!env)
+        return this;
+      if (env !== "production" && env !== "development")
+        return this;
+      return new _Environment({
+        ...this,
+        env
+      });
+    }
+  };
+  function isPlatform(input) {
+    const allowed = ["windows", "apple", "integration"];
+    return allowed.includes(input);
+  }
+  var EnvironmentContext = F({
     isReducedMotion: (
       /** @type {boolean} */
       false
@@ -5415,7 +5477,7 @@
       false
     ),
     platform: (
-      /** @type {'apple' | 'windows'} */
+      /** @type {ImportMeta['injectName']} */
       "windows"
     ),
     willThrow: (
@@ -5425,7 +5487,7 @@
   });
   var QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function SettingsProvider({ children, debugState, willThrow = false, platform = "windows" }) {
+  function EnvironmentProvider({ children, debugState, willThrow = false, platform = "windows" }) {
     const [theme, setTheme] = h2(window.matchMedia(QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     p2(() => {
@@ -5444,7 +5506,7 @@
       });
       return () => mediaQueryList.removeEventListener("change", listener);
     }, []);
-    return /* @__PURE__ */ y(SettingsContext.Provider, { value: {
+    return /* @__PURE__ */ y(EnvironmentContext.Provider, { value: {
       isReducedMotion,
       debugState,
       isDarkMode: theme === "dark",
@@ -5452,7 +5514,7 @@
       willThrow
     } }, children);
   }
-  function UpdateSettings({ search }) {
+  function UpdateEnvironment({ search }) {
     p2(() => {
       const params = new URLSearchParams(search);
       if (params.has("reduced-motion")) {
@@ -5463,10 +5525,13 @@
     }, [search]);
     return null;
   }
+  function useEnv() {
+    return q2(EnvironmentContext);
+  }
 
   // pages/onboarding/app/components/Stack.js
   function Stack({ children, gap = "var(--sp-6)", animate: animate2 = false, debug = false }) {
-    const { isReducedMotion } = q2(SettingsContext);
+    const { isReducedMotion } = useEnv();
     const [parent] = useAutoAnimate({ duration: isReducedMotion ? 0 : 300 });
     return /* @__PURE__ */ y("div", { class: Stack_default.stack, ref: animate2 ? parent : null, "data-debug": String(debug), style: { gap } }, children);
   }
@@ -5630,6 +5695,15 @@
     return /* @__PURE__ */ y("li", { className: ListItem_default.plain, "data-testid": "ListItem" }, /* @__PURE__ */ y(Check, null), /* @__PURE__ */ y("div", { className: ListItem_default.plainContent }, /* @__PURE__ */ y("div", { className: ListItem_default.iconSmall, style: `background-image: url(${path});` }), /* @__PURE__ */ y("p", { className: ListItem_default.title }, props.title)));
   }
 
+  // pages/onboarding/app/animations/taskbar_pinning.riv
+  var taskbar_pinning_default = "./taskbar_pinning-6NHIEEJL.riv";
+
+  // pages/onboarding/app/animations/import.riv
+  var import_default = "./import-HLF6I3ZA.riv";
+
+  // pages/onboarding/app/animations/set_default.riv
+  var set_default_default = "./set_default-6KY7WB33.riv";
+
   // pages/onboarding/app/data.js
   var stepDefinitions = {
     welcome: {
@@ -5653,6 +5727,21 @@
       kind: "settings",
       rows: ["import", "default-browser"]
     },
+    dockSingle: {
+      id: "dockSingle",
+      kind: "settings",
+      rows: ["dock"]
+    },
+    importSingle: {
+      id: "importSingle",
+      kind: "settings",
+      rows: ["import"]
+    },
+    makeDefaultSingle: {
+      id: "makeDefaultSingle",
+      kind: "settings",
+      rows: ["default-browser"]
+    },
     customize: {
       id: "customize",
       kind: "settings",
@@ -5663,6 +5752,35 @@
       kind: "info"
     }
   };
+  var stepMeta = (
+    /** @type {const} */
+    {
+      dockSingle: {
+        rows: {
+          dock: {
+            kind: "animation",
+            path: taskbar_pinning_default
+          }
+        }
+      },
+      importSingle: {
+        rows: {
+          import: {
+            kind: "animation",
+            path: import_default
+          }
+        }
+      },
+      makeDefaultSingle: {
+        rows: {
+          "default-browser": {
+            kind: "animation",
+            path: set_default_default
+          }
+        }
+      }
+    }
+  );
   var noneSettingsRowItems = {
     search: {
       id: "search",
@@ -5789,7 +5907,7 @@
 
   // pages/onboarding/app/components/List.js
   function List(props) {
-    const { isReducedMotion } = q2(SettingsContext);
+    const { isReducedMotion } = useEnv();
     const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
     return /* @__PURE__ */ y("ul", { className: List_default.list, ref: props.animate ? parent : null }, props.children);
   }
@@ -5809,6 +5927,9 @@
         customize_title: "Customize your experience",
         customize_subtitle: "Make DuckDuckGo work just the way you want.",
         summary_title: "You're all\xA0set!",
+        dockSingle_title: "Make privacy your go-to",
+        importSingle_title: "Make privacy your go-to",
+        makeDefaultSingle_title: "Make privacy your go-to",
         // 1:1 strings
         "Get Started": "Get Started",
         "Got It": "Got It",
@@ -5872,21 +5993,6 @@
     } }, t3("You can change your choices any time in"), " ", /* @__PURE__ */ y("a", { onClick: onSettingsHandler, href: "about:preferences" }, t3("Settings")), "."));
   }
 
-  // pages/onboarding/app/types.js
-  var PAGE_IDS = [
-    "welcome",
-    "getStarted",
-    "privateByDefault",
-    "cleanerBrowsing",
-    "systemSettings",
-    "customize",
-    "summary"
-  ];
-  var PLATFORMS = [
-    "apple",
-    "windows"
-  ];
-
   // pages/onboarding/app/global.js
   var GlobalContext = F(
     /** @type {GlobalState} */
@@ -5912,13 +6018,14 @@
               activeStepVisible: true
             };
           }
-          case "next-for-real": {
+          case "advance": {
             const currentPageIndex = state.order.indexOf(state.activeStep);
             const nextPageIndex = currentPageIndex + 1;
             if (nextPageIndex < state.order.length) {
               return {
                 ...state,
                 activeStep: state.order[nextPageIndex],
+                nextStep: state.order[nextPageIndex + 1],
                 activeRow: 0,
                 activeStepVisible: false,
                 exiting: false,
@@ -5927,7 +6034,7 @@
             }
             return state;
           }
-          case "next": {
+          case "enqueue-next": {
             return {
               ...state,
               exiting: true
@@ -5980,13 +6087,14 @@
     }
     return state;
   }
-  function GlobalProvider({ children, stepDefinitions: stepDefinitions2, messaging: messaging2, firstPage = "welcome" }) {
+  function GlobalProvider({ order, children, stepDefinitions: stepDefinitions2, messaging: messaging2, firstPage = "welcome" }) {
     const [state, dispatch] = s2(reducer, {
       status: { kind: "idle" },
-      order: PAGE_IDS,
+      order,
       stepDefinitions: stepDefinitions2,
       step: stepDefinitions2[firstPage],
       activeStep: firstPage,
+      nextStep: order[1],
       activeRow: 0,
       activeStepVisible: false,
       exiting: false,
@@ -6002,7 +6110,7 @@
     });
     const proxy = T2((msg) => {
       dispatch(msg);
-      if (msg.kind === "next") {
+      if (msg.kind === "advance") {
         messaging2.stepCompleted({ id: state.activeStep });
       }
       if (msg.kind === "dismiss-to-settings") {
@@ -6130,7 +6238,7 @@
 
   // pages/onboarding/app/hooks/useRollin.js
   function useRollin(frames) {
-    const { isReducedMotion } = q2(SettingsContext);
+    const { isReducedMotion } = useEnv();
     const [state, dispatch] = s2(
       (prev) => {
         if (prev.current === prev.frames.length) {
@@ -6195,7 +6303,7 @@
 
   // pages/onboarding/app/components/Timeout.js
   function Timeout({ onComplete, ignore, timeout = 1e3 }) {
-    const { isReducedMotion } = q2(SettingsContext);
+    const { isReducedMotion } = useEnv();
     p2(() => {
       let int;
       if (ignore) {
@@ -6209,7 +6317,7 @@
   }
   function Delay({ children, ms = 1e3 }) {
     const [shown, setShown] = h2(false);
-    const { isReducedMotion } = q2(SettingsContext);
+    const { isReducedMotion } = useEnv();
     p2(() => {
       const int = setTimeout(() => setShown(true), isReducedMotion ? 0 : ms);
       return () => clearTimeout(int);
@@ -6223,19 +6331,14 @@
 
   // pages/onboarding/app/components/Animate.js
   function Animate(props) {
-    const { isReducedMotion } = q2(SettingsContext);
+    const { isReducedMotion } = useEnv();
     const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
     return /* @__PURE__ */ y("div", { ref: parent }, props.children);
   }
 
   // pages/onboarding/app/components/RiveAnimation.js
   var import_canvas_single = __toESM(require_rive());
-
-  // pages/onboarding/app/Onboarding.riv
-  var Onboarding_default = "./Onboarding-QFOHFYKL.riv";
-
-  // pages/onboarding/app/components/RiveAnimation.js
-  function RiveAnimation({ state, stateMachine, artboard, inputName, isDarkMode }) {
+  function RiveAnimation({ animation, state, stateMachine, artboard, inputName, isDarkMode }) {
     const ref = _(
       /** @type {null | HTMLCanvasElement} */
       null
@@ -6248,7 +6351,7 @@
       if (!ref.current)
         return;
       rive.current = new import_canvas_single.Rive({
-        src: ["js", Onboarding_default].join("/"),
+        src: ["js", animation].join("/"),
         canvas: ref.current,
         enableRiveAssetCDN: false,
         autoplay: true,
@@ -6260,8 +6363,12 @@
       };
     }, [stateMachine, inputName, artboard]);
     p2(() => {
+      if (!stateMachine)
+        return;
       const inputs = rive.current?.stateMachineInputs(stateMachine);
       if (!inputs)
+        return;
+      if (!inputName)
         return;
       const toggle = inputs.find((i3) => i3.name === inputName);
       if (!toggle)
@@ -6273,8 +6380,10 @@
     }, [state]);
     p2(() => {
       function handle() {
+        if (!stateMachine)
+          return;
         const inputs = rive.current?.stateMachineInputs(stateMachine);
-        const themeInput = inputs?.find((i3) => i3.name === "Light?");
+        const themeInput = inputs?.find((i3) => i3.name.startsWith("Light"));
         if (themeInput) {
           themeInput.value = !isDarkMode;
         }
@@ -6293,7 +6402,7 @@
         );
       };
     }, [isDarkMode]);
-    return /* @__PURE__ */ y("canvas", { width: "432", height: "208", ref });
+    return /* @__PURE__ */ y("canvas", { width: "432", height: "208", ref, style: "border-radius: 12px; overflow: hidden" });
   }
 
   // pages/onboarding/app/components/BeforeAfter.module.css
@@ -6305,7 +6414,7 @@
   // pages/onboarding/app/components/BeforeAfter.js
   function BeforeAfter({ media, onDone, btnBefore, btnAfter }) {
     const { t: t3 } = useTranslation();
-    const { isReducedMotion } = q2(SettingsContext);
+    const { isReducedMotion } = useEnv();
     const [imageParent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
     const [state, dispatch] = s2((prev) => {
       if (prev === "initial")
@@ -6318,6 +6427,9 @@
     }, "initial");
     return /* @__PURE__ */ y(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ y("div", { className: BeforeAfter_default.imgWrap, ref: imageParent }, media({ state, className: BeforeAfter_default.media })), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { variant: "secondary", onClick: () => dispatch("toggle"), style: { minWidth: "210px" } }, state === "after" && /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Replay, null), btnAfter), (state === "before" || state === "initial") && /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Play, null), btnBefore)), state !== "initial" && /* @__PURE__ */ y(SlideIn, { delay: "double" }, /* @__PURE__ */ y(Button, { onClick: onDone }, t3("Got It")))));
   }
+
+  // pages/onboarding/app/animations/Onboarding.riv
+  var Onboarding_default = "./Onboarding-QFOHFYKL.riv";
 
   // pages/onboarding/app/pages/CleanBrowsing.js
   function CleanBrowsing({ onNextPage }) {
@@ -6334,7 +6446,7 @@
     }))), state.isLast && /* @__PURE__ */ y(SlideUp, { delay: "double" }, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "large" }, t3("Next")))));
   }
   function RowItem({ isCurrent, row, index, advance }) {
-    const { isDarkMode } = q2(SettingsContext);
+    const { isDarkMode } = useEnv();
     const meta = beforeAfterMeta[row.id];
     return /* @__PURE__ */ y(
       ListItem,
@@ -6358,6 +6470,7 @@
             return /* @__PURE__ */ y(
               RiveAnimation,
               {
+                animation: Onboarding_default,
                 state: animationState,
                 isDarkMode,
                 artboard: meta.artboard,
@@ -6381,7 +6494,8 @@
   // pages/onboarding/app/components/Switch.js
   function Switch({ checked = false, variant, ...props }) {
     const { onChecked, onUnchecked, ariaLabel, pending } = props;
-    const platform = variant || q2(SettingsContext).platform;
+    const env = useEnv();
+    const platform = variant || env.platform;
     function change(e3) {
       if (e3.target.checked === true) {
         onChecked();
@@ -6393,7 +6507,7 @@
   }
 
   // pages/onboarding/app/pages/SettingsStep.js
-  function SettingsStep({ onNextPage, data, subtitle }) {
+  function SettingsStep({ onNextPage, data, metaData, subtitle }) {
     const { state } = useRollin([300]);
     const { t: t3 } = useTranslation();
     const dispatch = useGlobalDispatch();
@@ -6411,7 +6525,8 @@
         uiValue: appState.UIValues[rowId],
         pending: pendingId === rowId,
         id: rowId,
-        data: data[rowId]
+        data: data[rowId],
+        meta: metaData[step.id]?.rows?.[rowId]
       };
     });
     return /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y(Stack, { animate: true }, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ y("p", null, appState.status.error), state.current > 0 && /* @__PURE__ */ y(Stack, { gap: Stack.gaps["4"] }, subtitle && /* @__PURE__ */ y("h2", null, subtitle), /* @__PURE__ */ y(List, null, rows.filter((item) => item.visible).map((item, index) => {
@@ -6462,6 +6577,13 @@
       }
       throw new Error("unreachable");
     })();
+    const display = (() => {
+      if (item.meta) {
+        return item.meta;
+      }
+      return { kind: "button-bar" };
+    })();
+    const { isDarkMode } = useEnv();
     return /* @__PURE__ */ y(
       ListItem,
       {
@@ -6473,7 +6595,16 @@
         animate: true,
         index
       },
-      item.current && /* @__PURE__ */ y(ListItem.Indent, null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, "Skip"), /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText)))
+      item.current && display.kind === "button-bar" && /* @__PURE__ */ y(ListItem.Indent, null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, "Skip"), /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText))),
+      item.current && display.kind === "animation" && /* @__PURE__ */ y(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ y(
+        RiveAnimation,
+        {
+          animation: display.path,
+          state: "before",
+          isDarkMode,
+          stateMachine: "State Machine 1"
+        }
+      ), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, "Skip"), /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText)))
     );
   }
 
@@ -6495,10 +6626,35 @@
 
   // pages/onboarding/app/components/Typed.js
   function Typed({ text, children = null, onComplete = null, delay = 20, ...rest }) {
-    return /* @__PURE__ */ y(TypedInner, { key: text, text, onComplete, delay, ...rest }, children);
+    const globalState = q2(GlobalContext);
+    const { activeStep } = globalState;
+    const pre = _(
+      /** @type {string|undefined} */
+      void 0
+    );
+    p2(() => {
+      if (activeStep && pre.current) {
+        if (text === pre.current) {
+          onComplete?.();
+          return;
+        }
+      }
+      pre.current = text;
+    }, [activeStep, text]);
+    return /* @__PURE__ */ y(
+      TypedInner,
+      {
+        key: text,
+        text,
+        onComplete,
+        delay,
+        ...rest
+      },
+      children
+    );
   }
   function TypedInner({ text, onComplete, delay, children, ...rest }) {
-    const { isReducedMotion } = q2(SettingsContext);
+    const { isReducedMotion } = useEnv();
     const [screenWidth, setScreenWidth] = h2(0);
     const [coords2, setCoords] = h2({ left: 0, width: 0 });
     const [complete, setLocalComplete] = h2(false);
@@ -6655,13 +6811,19 @@
 
   // pages/onboarding/app/components/App.js
   function App({ children }) {
-    const { debugState } = q2(SettingsContext);
+    const { debugState, isReducedMotion } = useEnv();
     const globalState = q2(GlobalContext);
     const dispatch = q2(GlobalDispatch);
     const { t: t3 } = useTranslation();
-    const { activeStep, activeStepVisible, exiting } = globalState;
-    const enqueueNext = () => dispatch({ kind: "next" });
-    const next = () => dispatch({ kind: "next-for-real" });
+    const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState;
+    const enqueueNext = () => {
+      if (isReducedMotion) {
+        dispatch({ kind: "advance" });
+      } else {
+        dispatch({ kind: "enqueue-next" });
+      }
+    };
+    const advance = () => dispatch({ kind: "advance" });
     const titleDone = () => dispatch({ kind: "title-complete" });
     const dismiss = () => dispatch({ kind: "dismiss" });
     const dismissToSettings = () => dispatch({ kind: "dismiss-to-settings" });
@@ -6673,33 +6835,19 @@
       /** @type {any} */
       activeStep + "_title"
     );
+    const nextPageTitle = t3(
+      /** @type {any} */
+      nextStep + "_title"
+    );
     const pageSubTitle = t3(
       /** @type {any} */
       activeStep + "_subtitle"
     );
-    const pages = {
+    const infoPages = {
       welcome: () => /* @__PURE__ */ y(Timeout, { onComplete: enqueueNext, ignore: true }),
       getStarted: () => /* @__PURE__ */ y(GetStarted, { onNextPage: enqueueNext }),
       privateByDefault: () => /* @__PURE__ */ y(PrivacyDefault, { onNextPage: enqueueNext }),
       cleanerBrowsing: () => /* @__PURE__ */ y(CleanBrowsing, { onNextPage: enqueueNext }),
-      systemSettings: () => /* @__PURE__ */ y(
-        SettingsStep,
-        {
-          key: "systemSettings",
-          subtitle: pageSubTitle,
-          data: settingsRowItems,
-          onNextPage: enqueueNext
-        }
-      ),
-      customize: () => /* @__PURE__ */ y(
-        SettingsStep,
-        {
-          key: "customize",
-          subtitle: pageSubTitle,
-          data: settingsRowItems,
-          onNextPage: enqueueNext
-        }
-      ),
       summary: () => /* @__PURE__ */ y(
         Summary,
         {
@@ -6709,34 +6857,61 @@
         }
       )
     };
-    const progress = ["privateByDefault", "cleanerBrowsing", "systemSettings", "customize"];
+    const progress = order.slice(2, -1);
     const showProgress = progress.includes(activeStep);
-    return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y(Background, null), debugState && /* @__PURE__ */ y(Debug, { state: globalState }), /* @__PURE__ */ y("div", { className: App_default.container, "data-current": activeStep }, /* @__PURE__ */ y(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ y(Fallback, null) }, exiting && /* @__PURE__ */ y(Timeout, { onComplete: next, timeout: ["welcome", "getStarted"].includes(activeStep) ? 0 : 600 }), /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y(Header, { aside: showProgress && /* @__PURE__ */ y(Progress, { current: progress.indexOf(activeStep) + 1, total: progress.length }) }, /* @__PURE__ */ y(
+    function animationDidFinish(e3) {
+      if (e3.target?.dataset?.exiting === "true") {
+        advance();
+      }
+    }
+    const didRender = (e3) => {
+      const ignoredSteps = ["welcome", "getStarted"];
+      const shouldSkipAnimation = ignoredSteps.includes(e3?.dataset?.current);
+      if (shouldSkipAnimation && exiting === true) {
+        advance();
+      }
+    };
+    return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y("link", { rel: "preload", href: ["js", Onboarding_default].join("/"), as: "image" }), /* @__PURE__ */ y("link", { rel: "preload", href: ["js", stepMeta.dockSingle.rows.dock.path].join("/"), as: "image" }), /* @__PURE__ */ y("link", { rel: "preload", href: ["js", stepMeta.importSingle.rows.import.path].join("/"), as: "image" }), /* @__PURE__ */ y("link", { rel: "preload", href: ["js", stepMeta.makeDefaultSingle.rows["default-browser"].path].join("/"), as: "image" }), /* @__PURE__ */ y(Background, null), debugState && /* @__PURE__ */ y(Debug, { state: globalState }), /* @__PURE__ */ y("div", { className: App_default.container, "data-current": activeStep }, /* @__PURE__ */ y(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ y(Fallback, null) }, /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y(Header, { aside: showProgress && /* @__PURE__ */ y(Progress, { current: progress.indexOf(activeStep) + 1, total: progress.length }) }, /* @__PURE__ */ y(
       Typed,
       {
         onComplete: titleDone,
         text: pageTitle,
         "data-current": activeStep,
-        "data-exiting": String(exiting)
+        "data-exiting": pageTitle !== nextPageTitle && String(exiting)
       }
-    )), /* @__PURE__ */ y("div", { "data-current": activeStep, "data-exiting": String(exiting) }, activeStepVisible && /* @__PURE__ */ y(Content, null, pages[activeStep]()))), /* @__PURE__ */ y(WillThrow, null))), debugState && /* @__PURE__ */ y(DebugLinks, { current: activeStep }), children);
+    )), /* @__PURE__ */ y("div", { "data-current": activeStep, "data-exiting": String(exiting), ref: didRender, onAnimationEnd: animationDidFinish }, activeStepVisible && /* @__PURE__ */ y(Content, null, step.kind === "settings" && /* @__PURE__ */ y(
+      SettingsStep,
+      {
+        key: activeStep,
+        subtitle: pageSubTitle,
+        data: settingsRowItems,
+        metaData: stepMeta,
+        onNextPage: enqueueNext
+      }
+    ), step.kind === "info" && infoPages[activeStep]()))), /* @__PURE__ */ y(WillThrow, null))), debugState && /* @__PURE__ */ y(DebugLinks, { current: activeStep }), children);
   }
   function Debug(props) {
     return /* @__PURE__ */ y("div", { style: { position: "absolute", top: 0, right: 0, overflowY: "scroll", height: "100vh" } }, /* @__PURE__ */ y("pre", null, /* @__PURE__ */ y("code", null, JSON.stringify(props, null, 2))));
   }
   function DebugLinks({ current }) {
     const globalState = q2(GlobalContext);
+    const exceptionUrl = new URL(window.location.href);
+    exceptionUrl.searchParams.set("page", "welcome");
+    exceptionUrl.searchParams.set("willThrow", "true");
     if (window.__playwright_01)
       return null;
     return /* @__PURE__ */ y("div", { style: { display: "flex", gap: "10px", position: "fixed", bottom: "1rem", justifyContent: "center", width: "100%" } }, Object.keys(globalState.stepDefinitions).slice(1).map((pageId) => {
-      return /* @__PURE__ */ y("a", { href: `?page=${pageId}`, key: pageId, style: {
+      const next = new URL(window.location.href);
+      next.searchParams.set("page", pageId);
+      return /* @__PURE__ */ y("a", { href: next.toString(), key: pageId, style: {
         textDecoration: current === pageId ? "none" : "underline",
         color: current === pageId ? "black" : void 0
       } }, pageId);
-    }), /* @__PURE__ */ y("a", { href: "?page=welcome&willThrow=true" }, "Exception"));
+    }), /* @__PURE__ */ y("a", { href: exceptionUrl.toString() }, "Exception"));
   }
   function WillThrow() {
-    if (q2(SettingsContext).willThrow) {
+    const { willThrow } = useEnv();
+    if (willThrow) {
       throw new Error("Simulated Exception");
     }
     return null;
@@ -6775,7 +6950,7 @@
     );
   }
   function Components() {
-    return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y(Background, null), /* @__PURE__ */ y("div", { class: App_default.container }, /* @__PURE__ */ y(Stack, { gap: "var(--sp-8)" }, /* @__PURE__ */ y("p", null, /* @__PURE__ */ y("a", { href: "?env=app" }, "Onboarding Flow")), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: "Welcome to DuckDuckGo" })), /* @__PURE__ */ y(Progress, { current: 1, total: 4 }), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(NewCheck, { variant: "windows" }), /* @__PURE__ */ y(NewCheck, { variant: "apple" })), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(
+    return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y(Background, null), /* @__PURE__ */ y("div", { class: App_default.container }, /* @__PURE__ */ y(Stack, { gap: "var(--sp-8)" }, /* @__PURE__ */ y("p", null, /* @__PURE__ */ y("a", { href: "?env=app" }, "Onboarding Flow")), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: "Welcome to DuckDuckGo" })), /* @__PURE__ */ y(Progress, { current: 1, total: 4 }), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(CleanBrowsing, { onNextPage: console.log })), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(NewCheck, { variant: "windows" }), /* @__PURE__ */ y(NewCheck, { variant: "apple" })), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(
       Switch,
       {
         pending: false,
@@ -7880,77 +8055,218 @@
     return new Messaging(messageContext, fallback);
   }
 
+  // pages/onboarding/app/types.js
+  var EVERY_PAGE_ID = [
+    "welcome",
+    "getStarted",
+    "privateByDefault",
+    "cleanerBrowsing",
+    "systemSettings",
+    "customize",
+    "summary",
+    "dockSingle",
+    "importSingle",
+    "makeDefaultSingle"
+  ];
+  var DEFAULT_ORDER = [
+    "welcome",
+    "getStarted",
+    "privateByDefault",
+    "cleanerBrowsing",
+    "systemSettings",
+    "customize",
+    "summary"
+  ];
+  var ALT_ORDER = [
+    "welcome",
+    "getStarted",
+    "privateByDefault",
+    "cleanerBrowsing",
+    "dockSingle",
+    "importSingle",
+    "makeDefaultSingle",
+    "customize",
+    "summary"
+  ];
+
+  // pages/onboarding/app/settings.js
+  var Settings = class _Settings {
+    /**
+     * @param {object} params
+     * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
+     * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
+     * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
+     * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
+     */
+    constructor({
+      order = DEFAULT_ORDER,
+      stepDefinitions: stepDefinitions2 = stepDefinitions,
+      first = "welcome",
+      exclude = []
+    } = {}) {
+      this.order = order;
+      this.stepDefinitions = stepDefinitions2;
+      this.first = first;
+      this.exclude = exclude;
+    }
+    /**
+     * @param {string[]|null|undefined} order
+     * @return {Settings}
+     */
+    withOrder(order) {
+      if (!order)
+        return this;
+      if (Array.isArray(order) && order.length === 0)
+        return this;
+      const valid = order.filter((item) => EVERY_PAGE_ID.includes(
+        /** @type {any} */
+        item
+      ));
+      const invalid = order.filter((item) => !EVERY_PAGE_ID.includes(
+        /** @type {any} */
+        item
+      ));
+      if (invalid.length > 0) {
+        console.error("ignoring screen order because of invalid entries:", invalid);
+      } else {
+        return new _Settings({
+          order: (
+            /** @type {any} */
+            valid
+          ),
+          stepDefinitions: this.stepDefinitions
+        });
+      }
+      return this;
+    }
+    /**
+     * @param {string|null|undefined} named
+     * @return {Settings}
+     */
+    withNamedOrder(named) {
+      if (!named)
+        return this;
+      if (named === "v1") {
+        return new _Settings({
+          ...this,
+          order: DEFAULT_ORDER
+        });
+      }
+      if (named === "v2") {
+        return new _Settings({
+          ...this,
+          order: ALT_ORDER
+        });
+      } else {
+        console.warn("ignoring named order:", named);
+      }
+      return this;
+    }
+    /**
+     * @param {string[]|null|undefined} exclude
+     */
+    withExcludedScreens(exclude) {
+      if (!exclude)
+        return this;
+      if (!Array.isArray(exclude) || exclude.length === 0)
+        return this;
+      if (!exclude.every((screen) => (
+        /** @type {string[]} */
+        this.order.includes(screen)
+      )))
+        return this;
+      return new _Settings({
+        ...this,
+        exclude,
+        order: this.order.filter((screen) => !exclude.includes(screen))
+      });
+    }
+    /**
+     * @param {string|undefined|null} first
+     * @return {Settings}
+     */
+    withFirst(first) {
+      if (!first)
+        return this;
+      if (
+        /** @type {string[]} */
+        this.order.includes(first)
+      ) {
+        return new _Settings({
+          ...this,
+          first
+        });
+      }
+      return this;
+    }
+    /**
+     * @param {import('./data.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
+     * @return {Settings}
+     */
+    withStepDefinitions(stepDefinitions2) {
+      if (!stepDefinitions2)
+        return this;
+      if (!Object.keys(stepDefinitions2)?.length)
+        return this;
+      const nextSteps = { ...this.stepDefinitions };
+      for (const [key, value] of Object.entries(stepDefinitions2 || {})) {
+        if (!this.order.includes(
+          /** @type {any} */
+          key
+        )) {
+          continue;
+        }
+        nextSteps[key] = { ...nextSteps[key], ...value };
+      }
+      return new _Settings({
+        ...this,
+        stepDefinitions: nextSteps
+      });
+    }
+  };
+
   // pages/onboarding/app/index.js
+  var baseEnvironment = new Environment().withPlatform(document.documentElement.dataset.platform).withEnv("production");
   var messaging = createSpecialPageMessaging({
-    injectName: "windows",
-    env: "production",
+    injectName: baseEnvironment.platform,
+    env: baseEnvironment.env,
     pageName: "onboarding"
   });
-  var onboarding = new OnboardingMessages(messaging, "windows");
+  var onboarding = new OnboardingMessages(messaging, baseEnvironment.platform);
   async function init() {
     const init2 = await onboarding.init();
-    for (const [key, value] of Object.entries(init2?.stepDefinitions || {})) {
-      if (PAGE_IDS.includes(
-        /** @type {any} */
-        key
-      )) {
-        Object.assign(stepDefinitions[key], value);
-      }
-    }
+    const environment = baseEnvironment.withEnv(init2.env);
+    const settings = new Settings().withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page"));
     const root2 = document.querySelector("#app");
-    const params = new URLSearchParams(location.search);
-    const env = params.get("env") || "app";
-    let first = params.get("page") || "welcome";
-    if (!PAGE_IDS.includes(
-      /** @type {any} */
-      first
-    )) {
-      first = "welcome";
-      console.warn("tried to skip to an unsupported page");
-    }
-    let platform = (
-      /** @type {any} */
-      document.documentElement.dataset.platform || "windows"
-    );
-    if (!PLATFORMS.includes(
-      /** @type {any} */
-      platform
-    )) {
-      platform = "windows";
-    }
-    const debugState = params.has("debugState");
-    const willThrow = (params.get("willthrow") || params.get("willThrow")) === "true";
     if (!root2)
       throw new Error("could not render, root element missing");
-    if (env === "app") {
+    if (environment.display === "app") {
       q(
         /* @__PURE__ */ y(
-          SettingsProvider,
+          EnvironmentProvider,
           {
-            debugState,
-            platform,
-            willThrow
+            debugState: environment.debugState,
+            platform: environment.platform,
+            willThrow: environment.willThrow
           },
-          /* @__PURE__ */ y(UpdateSettings, { search: window.location.search }),
+          /* @__PURE__ */ y(UpdateEnvironment, { search: window.location.search }),
           /* @__PURE__ */ y(
             GlobalProvider,
             {
               messaging: onboarding,
-              stepDefinitions,
-              firstPage: (
-                /** @type {import('./types').Step['id']} */
-                first
-              )
+              order: settings.order,
+              stepDefinitions: settings.stepDefinitions,
+              firstPage: settings.first
             },
-            /* @__PURE__ */ y(App, null, init2.env === "development" && /* @__PURE__ */ y(SkipLink, null))
+            /* @__PURE__ */ y(App, null, environment.env === "development" && /* @__PURE__ */ y(SkipLink, null))
           )
         ),
         root2
       );
     }
-    if (env === "components") {
+    if (environment.display === "components") {
       q(
-        /* @__PURE__ */ y(SettingsProvider, { debugState: false, platform }, /* @__PURE__ */ y(Components, null)),
+        /* @__PURE__ */ y(EnvironmentProvider, { debugState: false, platform: environment.platform }, /* @__PURE__ */ y(Components, null)),
         root2
       );
     }
