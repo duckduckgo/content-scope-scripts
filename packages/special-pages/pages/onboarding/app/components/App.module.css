@@ -39,7 +39,7 @@
     }
 
     &[data-current="welcome"], [data-current="getStarted"] {
-        /*animation: none;*/
+        animation: none;
     }
 }
 

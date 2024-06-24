@@ -74,8 +74,19 @@ export function App ({ children }) {
     const progress = order.slice(2, -1)
     const showProgress = progress.includes(activeStep)
 
+    // for screens that animate out, trigger the 'advance' when it's finished.
     function animationDidFinish (e) {
         if (e.target?.dataset?.exiting === 'true') {
+            advance()
+        }
+    }
+
+    // otherwise, for none-animating steps, just advance immediately when 'exiting' is set
+    const didRender = (e) => {
+        /** @type {import('../types').Step['id'][]} */
+        const ignoredSteps = ['welcome', 'getStarted'];
+        const shouldSkipAnimation = ignoredSteps.includes(e?.dataset?.current);
+        if (shouldSkipAnimation && exiting === true) {
             advance()
         }
     }
@@ -99,7 +110,7 @@ export function App ({ children }) {
                                 data-exiting={pageTitle !== nextPageTitle && String(exiting)}
                             />
                         </Header>
-                        <div data-current={activeStep} data-exiting={String(exiting)} onAnimationEnd={animationDidFinish}>
+                        <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
                             {activeStepVisible && (
                                 <Content>
                                     {step.kind === 'settings' && (
