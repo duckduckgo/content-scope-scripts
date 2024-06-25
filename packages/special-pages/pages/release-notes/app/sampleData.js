@@ -1,11 +1,11 @@
 /**
- * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ * @typedef {import('../../../types/release-notes').UpdateMessage} UpdateMessage
  */
 
 /**
  * @type {Record<UpdateMessage['status'], UpdateMessage>}
  */
-export const integrationData = {
+export const sampleData = {
     loading: {
         status: "loading",
         currentVersion: "1.0.1",

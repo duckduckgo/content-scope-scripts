@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Fragment, h } from 'preact'
+import { useMessaging } from '../index.js'
 import classNames from 'classnames'
 import { useTranslation } from "../../../../shared/components/TranslationProvider"
 import { Text } from '../../../../shared/components/Text/Text'
@@ -100,10 +101,16 @@ function ReleaseNotesList({ notes, title }) {
  */
 export function ReleaseNotes({ releaseData })  {
     const { t } = useTranslation()
+    const { messages } = useMessaging()
+
     const { status, currentVersion, latestVersion, lastUpdate, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
     const releaseVersion = latestVersion || currentVersion
 
-      return (
+    const onRestartButtonClick = () => {
+        messages?.browserRestart('browserRestart');
+    }
+
+    return (
         <article className={styles.content}>
             <header>
                 <h1 className={styles.title}>{t('Browser Release Notes')}</h1>
@@ -114,7 +121,7 @@ export function ReleaseNotes({ releaseData })  {
 
                     <StatusTimestamp timestamp={lastUpdate} />
                 </div>
-                {status === 'updateReady' && <Button>{t('Restart to Update')}</Button>}
+                {status === 'updateReady' && <Button onClick={onRestartButtonClick}>{t('Restart to Update')}</Button>}
             </header>
             <Card className={styles.releaseNotesContent}>
                 {status === 'loading'

@@ -3,10 +3,10 @@
   "type": "object",
   "title": "ReportPageException",
   "additionalProperties": false,
-  "description": "todo description",
+  "description": "Notifies browser of an in-page exception",
   "properties": {
     "message": {
-      "description": "todo: add description for 'title' field",
+      "description": "Exception description",
       "type": "string"
     }
   },
