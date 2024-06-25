@@ -1,5 +1,4 @@
 body {
-    background: var(--background-color);
     color: var(--text-primary-color);
     margin: var(--sp-6) 0 var(--sp-8);
 }
