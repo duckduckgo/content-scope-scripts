@@ -11,6 +11,7 @@
     "test": "npm run test.unit && playwright test",
     "test.windows": "npm run test -- --project duckplayer-windows",
     "test.apple": "npm run test -- --project duckplayer-apple",
+    "test.release-notes": "npm run test -- --project release-notes-apple",
     "test.headed": "npm run test -- --headed",
     "test.ui": "npm run test -- --ui",
     "test.unit": "node --test unit-test/* ",

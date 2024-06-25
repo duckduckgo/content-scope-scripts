@@ -11,10 +11,21 @@
  * Requests, Notifications and Subscriptions from the ReleaseNotes feature
  */
 export interface ReleaseNotesMessages {
-  notifications: ReportInitExceptionNotification | ReportPageExceptionNotification;
+  notifications: BrowserRestartNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
   requests: InitialSetupRequest;
   subscriptions: OnUpdateSubscription;
 }
+/**
+ * Generated from @see "../messages/release-notes/browserRestart.notify.json"
+ */
+export interface BrowserRestartNotification {
+  method: "browserRestart";
+  params: BrowserRestart;
+}
+/**
+ * Notifies browser that user has requested a restart
+ */
+export interface BrowserRestart {}
 /**
  * Generated from @see "../messages/release-notes/reportInitException.notify.json"
  */
@@ -23,11 +34,11 @@ export interface ReportInitExceptionNotification {
   params: ReportInitException;
 }
 /**
- * todo description
+ * Notifies browser of a page initialization exception
  */
 export interface ReportInitException {
   /**
-   * todo: add description for 'title' field
+   * Exception description
    */
   message: string;
 }
@@ -39,11 +50,11 @@ export interface ReportPageExceptionNotification {
   params: ReportPageException;
 }
 /**
- * todo description
+ * Notifies browser of an in-page exception
  */
 export interface ReportPageException {
   /**
-   * todo: add description for 'title' field
+   * Exception description
    */
   message: string;
 }
@@ -55,15 +66,15 @@ export interface InitialSetupRequest {
   result: InitialSetupResponse;
 }
 /**
- * todo description
+ * Response message to page setup request
  */
 export interface InitialSetupResponse {
   /**
-   * todo: add description for 'title' field
+   * Browser environment
    */
   env: "development" | "production";
   /**
-   * todo
+   * Browser locale
    */
   locale: string;
 }

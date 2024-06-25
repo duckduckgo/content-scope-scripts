@@ -7,7 +7,7 @@ import styles from './ContentPlaceholder.module.css'
 
 export function ContentPlaceholder() {
     return (
-        <div className={styles.contentPlaceholder} aria-hidden="true">
+        <div className={styles.contentPlaceholder} aria-hidden="true" data-testid="placeholder">
             <h2></h2>
             <p></p>
             <ul>

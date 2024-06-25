@@ -1,13 +1,10 @@
 body {
+    background: var(--background-color);
+    color: var(--text-primary-color);
     margin: var(--sp-6) 0 var(--sp-8);
-
-    @media (prefers-color-scheme: dark) {
-        background: #222; /* TODO: Check color */
-    }
 }
 
 .main {
-    color: var(--text-primary-color);
     margin: var(--sp-6) auto var(--sp-8);
     max-width: var(--sp-320);
     padding: 0 var(--sp-5);

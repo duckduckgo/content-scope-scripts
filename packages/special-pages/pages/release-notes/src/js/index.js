@@ -17,7 +17,7 @@ import { init } from '../../app/index.js'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js';
 import { Environment } from '../../../../shared/components/EnvironmentProvider.js';
 import { createTypedMessages } from '@duckduckgo/messaging';
-import { integrationData } from './integrationData.js';
+import { sampleData } from '../../app/sampleData.js';
 
 /**
  * This describes the messages that will be sent to the native layer,
@@ -46,7 +46,7 @@ export class ReleaseNotesPage {
 
         const url = new URL(window.location.href)
         const params = Object.fromEntries(url.searchParams)
-        const allowedStates = Object.keys(integrationData);
+        const allowedStates = Object.keys(sampleData);
 
         this.integrationState = params.state && allowedStates.includes(params.state)
          ? params.state
@@ -94,17 +94,24 @@ export class ReleaseNotesPage {
     }
 
     /**
+     * Forwards a click on restart button to browser
+     */
+    browserRestart (params) {
+        this.messaging.notify('browserRestart', {})
+    }
+
+    /**
      * Subscribes to release info updates from browser
      * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
      */
     subscribeToUpdates (callback) {
         if (this.integrationState && callback) {
-            callback(integrationData.loading);
+            callback(sampleData.loading);
 
             // Simulates load latency
             if (this.integrationState !== 'loading') {
                 setTimeout(() => {
-                    this.integrationState && callback(integrationData[this.integrationState]);
+                    this.integrationState && callback(sampleData[this.integrationState]);
                 }, 1000);
             }
 
@@ -123,7 +130,7 @@ const baseEnvironment = new Environment()
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.platform,
     env: import.meta.env,
-    pageName: 'example'
+    pageName: 'release-notes'
 })
 
 const messages = new ReleaseNotesPage(messaging, baseEnvironment.platform)

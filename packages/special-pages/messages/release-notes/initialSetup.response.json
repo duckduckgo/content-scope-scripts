@@ -2,15 +2,15 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "title": "InitialSetupResponse",
-  "description": "todo description",
+  "description": "Response message to page setup request",
   "properties": {
     "env": {
-      "description": "todo: add description for 'title' field",
+      "description": "Browser environment",
       "type": "string",
       "enum": ["development", "production"]
     },
     "locale": {
-      "description": "todo",
+      "description": "Browser locale",
       "type": "string"
     }
   },
