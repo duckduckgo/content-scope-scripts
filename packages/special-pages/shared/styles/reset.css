@@ -23,7 +23,9 @@ body {
     user-select: none;
     -webkit-user-select: none;
     cursor: default;
-    color: var(--theme-txt-color);
+
+    background: var(--background-color);
+    color: var(--text-primary-color);
 }
 
 body > main {
