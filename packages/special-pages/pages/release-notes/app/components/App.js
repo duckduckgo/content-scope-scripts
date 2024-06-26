@@ -10,13 +10,16 @@ import { ReleaseNotes } from './ReleaseNotes'
 import styles from './App.module.css'
 
 /**
+ * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ */
+
+/**
  * @param {object} props
  * @param {import("preact").ComponentChild} [props.children]
  */
 export function App ({ children }) {
     const { messages } = useMessaging()
-    // TODO: Replace with schema
-    /** @type {ReturnType<typeof useState<import('../../../../types/release-notes').UpdateMessage>>} */
+    /** @type {ReturnType<typeof useState<UpdateMessage>>} */
     const [releaseData, setReleaseData] = useState()
 
     useEffect(() => {

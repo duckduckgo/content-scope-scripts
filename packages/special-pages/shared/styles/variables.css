@@ -46,16 +46,16 @@
 
     /* Shade system */
     --color-blue-100: #051133;
-    --color-blue-90: #0B2059;
-    --color-blue-80: #14307E;
-    --color-blue-70: #1E42A4;
-    --color-blue-60: #2B55CA;
+    --color-blue-90: #0b2059;
+    --color-blue-80: #14307e;
+    --color-blue-70: #1e42a4;
+    --color-blue-60: #2b55ca;
     --color-blue-50: #3969ef;
-    --color-blue-40: #557FF3;
-    --color-blue-30: #7295F6;
-    --color-blue-20: #8FABF9;
-    --color-blue-10: #ADC2FC;
-    --color-blue-0: #ccdaff; /* Misidentified in Figma. TODO: alert design */
+    --color-blue-40: #557ff3;
+    --color-blue-30: #7295f6;
+    --color-blue-20: #8fabf9;
+    --color-blue-10: #adc2fc;
+    --color-blue-0: #ccdaff;
 
     --color-black: #000;
     --color-gray-95: #111;
