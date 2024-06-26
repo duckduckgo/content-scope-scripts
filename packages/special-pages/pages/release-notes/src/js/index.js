@@ -3,8 +3,7 @@
  * @category Special Pages
  *
  * @description
- * TODO: description
- *
+ * Special Page that displays release notes for the browser's current or updated version
  */
 
 /**
