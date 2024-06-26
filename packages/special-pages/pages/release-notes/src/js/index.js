@@ -130,7 +130,7 @@ const baseEnvironment = new Environment()
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.platform,
     env: import.meta.env,
-    pageName: 'release-notes'
+    pageName: 'releaseNotes'
 })
 
 const messages = new ReleaseNotesPage(messaging, baseEnvironment.platform)
