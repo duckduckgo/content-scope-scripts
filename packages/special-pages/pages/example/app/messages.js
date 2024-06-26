@@ -4,7 +4,7 @@
  * @property {string} [locale] - optional override for the locale
  */
 
-import {createContext} from "preact";
+import { createContext } from 'preact'
 
 /**
  * This describes the messages that will be sent to the native layer,
@@ -39,8 +39,8 @@ export class ExampleMessages {
     async initialSetup () {
         if (this.injectName === 'integration') {
             return {
-                env: "development",
-                locale: "en"
+                env: 'development',
+                locale: 'en'
             }
         }
         return await this.messaging.request('initialSetup')

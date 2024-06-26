@@ -14,10 +14,10 @@
  */
 
 import { init } from '../../app/index.js'
-import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js';
-import { Environment } from '../../../../shared/components/EnvironmentProvider.js';
-import { createTypedMessages } from '@duckduckgo/messaging';
-import { sampleData } from '../../app/sampleData.js';
+import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js'
+import { Environment } from '../../../../shared/components/EnvironmentProvider.js'
+import { createTypedMessages } from '@duckduckgo/messaging'
+import { sampleData } from '../../app/sampleData.js'
 
 /**
  * This describes the messages that will be sent to the native layer,
@@ -35,22 +35,22 @@ export class ReleaseNotesPage {
         this.messaging = createTypedMessages(this, messaging)
         this.injectName = injectName
 
-        this.setupIntegration();
+        this.setupIntegration()
     }
 
     /**
      * Sets up integration environment
      */
-    setupIntegration() {
-        if (this.injectName !== 'integration') return;
+    setupIntegration () {
+        if (this.injectName !== 'integration') return
 
         const url = new URL(window.location.href)
         const params = Object.fromEntries(url.searchParams)
-        const allowedStates = Object.keys(sampleData);
+        const allowedStates = Object.keys(sampleData)
 
         this.integrationState = params.state && allowedStates.includes(params.state)
-         ? params.state
-         : 'loaded'; // Default state for integration
+            ? params.state
+            : 'loaded' // Default state for integration
     }
 
     /**
@@ -69,8 +69,8 @@ export class ReleaseNotesPage {
     async initialSetup () {
         if (this.injectName === 'integration') {
             return {
-                env: "development",
-                locale: "en"
+                env: 'development',
+                locale: 'en'
             }
         }
         return await this.messaging.request('initialSetup')
@@ -96,7 +96,7 @@ export class ReleaseNotesPage {
     /**
      * Forwards a click on restart button to browser
      */
-    browserRestart (params) {
+    browserRestart () {
         this.messaging.notify('browserRestart', {})
     }
 
@@ -106,16 +106,16 @@ export class ReleaseNotesPage {
      */
     subscribeToUpdates (callback) {
         if (this.integrationState && callback) {
-            callback(sampleData.loading);
+            callback(sampleData.loading)
 
             // Simulates load latency
             if (this.integrationState !== 'loading') {
                 setTimeout(() => {
-                    this.integrationState && callback(sampleData[this.integrationState]);
-                }, 1000);
+                    this.integrationState && callback(sampleData[this.integrationState])
+                }, 1000)
             }
 
-            return () => { console.log('Unsubscribed') };
+            return () => { console.log('Unsubscribed') }
         }
 
         return this.messaging.subscribe('onUpdate', callback)

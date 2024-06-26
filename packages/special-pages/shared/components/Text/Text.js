@@ -9,7 +9,7 @@ import styles from './Text.module.css'
  * @param {string} [props.className]
  * @param {import("preact").ComponentChild} [props.children]
  */
-export function Text({ as: Comp = 'p', variant, className, children }) {
+export function Text ({ as: Comp = 'p', variant, className, children }) {
     return (
         <Comp className={classNames({ [styles[`${variant}`]]: variant }, className)}>
             {children}

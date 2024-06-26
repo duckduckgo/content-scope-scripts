@@ -2,7 +2,7 @@
 import { Fragment, h } from 'preact'
 import { useMessaging } from '../index.js'
 import classNames from 'classnames'
-import { useTranslation } from "../../../../shared/components/TranslationProvider"
+import { useTranslation } from '../../../../shared/components/TranslationProvider'
 import { Text } from '../../../../shared/components/Text/Text'
 import { Card } from '../../../../shared/components/Card/Card'
 import { Button } from '../../../../shared/components/Button/Button'
@@ -19,13 +19,13 @@ import styles from './ReleaseNotes.module.css'
  * @param {UpdateMessage['status']} [props.status]
  * @param {UpdateMessage['currentVersion']} [props.currentVersion]
  */
-function StatusText({ status, currentVersion }) {
+function StatusText ({ status, currentVersion }) {
     const { t } = useTranslation()
 
     const statusTexts = {
         loaded: t('DuckDuckGo is up to date'),
         loading: t('Checking for update'),
-        updateReady: t('newer version available'),
+        updateReady: t('newer version available')
     }
 
     return (
@@ -40,11 +40,11 @@ function StatusText({ status, currentVersion }) {
  * @param {UpdateMessage['status']} [props.status]
  * @param {string} [props.className]
  */
-function StatusIcon({ status, className }) {
+function StatusIcon ({ status, className }) {
     const iconClasses = {
         loaded: styles.checkIcon,
         loading: styles.spinnerIcon,
-        updateReady: styles.alertIcon,
+        updateReady: styles.alertIcon
     }
 
     return <div className={classNames(styles.statusIcon, iconClasses[status], className)} />
@@ -54,27 +54,27 @@ function StatusIcon({ status, className }) {
  * @param {object} props
  * @param {number} props.timestamp
  */
-function StatusTimestamp({ timestamp }) {
+function StatusTimestamp ({ timestamp }) {
     const { t } = useTranslation()
 
     const date = new Date(timestamp)
     const today = new Date()
-    const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+    const yesterday = new Date(today.getTime() - (24 * 60 * 60 * 1000))
 
-    const timeString = date.toLocaleTimeString('en', { timeStyle: 'short'});
-    let dateString = `${date.toLocaleDateString('en', { dateStyle: 'full'})} ${timeString}`
+    const timeString = date.toLocaleTimeString('en', { timeStyle: 'short' })
+    let dateString = `${date.toLocaleDateString('en', { dateStyle: 'full' })} ${timeString}`
 
     if (
         date.getDate() === yesterday.getDate() &&
         date.getMonth() === yesterday.getMonth() &&
         date.getFullYear() === yesterday.getFullYear()
-      ) dateString = t('Yesterday at', { time: timeString })
+    ) dateString = t('Yesterday at', { time: timeString })
 
     if (
         date.getDate() === today.getDate() &&
         date.getMonth() === today.getMonth() &&
         date.getFullYear() === today.getFullYear()
-      ) dateString = t('Today at', { time: timeString })
+    ) dateString = t('Today at', { time: timeString })
 
     return <Text variant="body" className={styles.statusTimestamp}>{t('Last checked', { date: dateString })}</Text>
 }
@@ -84,7 +84,7 @@ function StatusTimestamp({ timestamp }) {
  * @param {string} [props.title]
  * @param {string[]} props.notes
  */
-function ReleaseNotesList({ notes, title }) {
+function ReleaseNotesList ({ notes, title }) {
     return (
         <Fragment>
             {title && <Text as="h3" variant="headline" className={styles.releaseNotesSubheading}>{title}</Text>}
@@ -99,7 +99,7 @@ function ReleaseNotesList({ notes, title }) {
  * @param {object} props
  * @param {UpdateMessage} props.releaseData
  */
-export function ReleaseNotes({ releaseData })  {
+export function ReleaseNotes ({ releaseData }) {
     const { t } = useTranslation()
     const { messages } = useMessaging()
 
@@ -107,7 +107,7 @@ export function ReleaseNotes({ releaseData })  {
     const releaseVersion = latestVersion || currentVersion
 
     const onRestartButtonClick = () => {
-        messages?.browserRestart('browserRestart');
+        messages?.browserRestart()
     }
 
     return (

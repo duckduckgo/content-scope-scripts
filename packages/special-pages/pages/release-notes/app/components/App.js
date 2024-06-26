@@ -1,9 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { h } from 'preact'
-import { useContext, useEffect, useState } from "preact/hooks"
+import { useEffect, useState } from 'preact/hooks'
 import { useMessaging } from '../index'
-import { ErrorBoundary } from "../../../../shared/components/ErrorBoundary"
-import { useEnv } from "../../../../shared/components/EnvironmentProvider"
+import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 import { Fallback } from '../../../onboarding/app/pages/Fallback'
 import { DuckDuckGoLogo } from '../../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo'
 import { ReleaseNotes } from './ReleaseNotes'
@@ -28,7 +28,7 @@ export function App ({ children }) {
     /**
      * @param {Error} error
      */
-    function didCatch(error) {
+    function didCatch (error) {
         const message = error?.message || 'unknown'
         console.error('ErrorBoundary', message)
         messages?.reportPageException({ message })

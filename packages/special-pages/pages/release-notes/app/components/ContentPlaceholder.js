@@ -5,7 +5,7 @@
 import { h } from 'preact'
 import styles from './ContentPlaceholder.module.css'
 
-export function ContentPlaceholder() {
+export function ContentPlaceholder () {
     return (
         <div className={styles.contentPlaceholder} aria-hidden="true" data-testid="placeholder">
             <h2></h2>
