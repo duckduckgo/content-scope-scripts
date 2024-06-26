@@ -6,9 +6,9 @@ import '../../../shared/styles/global.css' // global styles
 import { App } from './components/App.js'
 import { Components } from './Components'
 import { createSpecialPageMessaging } from '../../../shared/create-special-page-messaging'
-import {Environment, EnvironmentProvider} from "../../../shared/components/EnvironmentProvider";
-import { TranslationProvider } from "../../../shared/components/TranslationProvider";
-import { i18n } from "./text";
+import { Environment, EnvironmentProvider } from '../../../shared/components/EnvironmentProvider'
+import { TranslationProvider } from '../../../shared/components/TranslationProvider'
+import { i18n } from './text'
 
 const baseEnvironment = new Environment()
     .withPlatform(document.documentElement.dataset.platform)
@@ -36,12 +36,12 @@ async function init () {
         render(
             <EnvironmentProvider environment={environment}>
                 <TranslationProvider text={i18n}>
-                    <MessagingContext.Provider value={{messages: exampleMessages}}>
+                    <MessagingContext.Provider value={{ messages: exampleMessages }}>
                         <App />
                     </MessagingContext.Provider>
                 </TranslationProvider>
             </EnvironmentProvider>
-        , root)
+            , root)
     }
     if (environment.display === 'components') {
         render(

@@ -30,8 +30,8 @@ export class ReleaseNotesPage {
         this.mocks.defaultResponses({
             initialSetup: {
                 env: 'development',
-                locale: 'en',
-            },
+                locale: 'en'
+            }
         })
     }
 
@@ -94,7 +94,7 @@ export class ReleaseNotesPage {
      * @param {UpdateMessage['status']} messageType
      */
     async sendSubscriptionMessage (messageType) {
-        const calls = await this.mocks.simulateSubscriptionMessage('onUpdate', sampleData[messageType])
+        await this.mocks.simulateSubscriptionMessage('onUpdate', sampleData[messageType])
     }
 
     async handlesFatalException () {
@@ -108,7 +108,7 @@ export class ReleaseNotesPage {
                     featureName: 'releaseNotes',
                     method: 'reportPageException',
                     params: {
-                        message: 'unknown',
+                        message: 'unknown'
                     }
                 }
             }
@@ -168,7 +168,7 @@ export class ReleaseNotesPage {
 
     async didRequestRestart () {
         const { page } = this
-        page.getByRole('button', { name: 'Restart to Update' }).click();
+        page.getByRole('button', { name: 'Restart to Update' }).click()
         const calls = await this.mocks.waitForCallCount({ method: 'browserRestart', count: 1 })
         expect(calls).toMatchObject([
             {
@@ -182,4 +182,3 @@ export class ReleaseNotesPage {
         ])
     }
 }
-

@@ -6,5 +6,5 @@ export const i18n = {
                 note: 'Page title for the homepage'
             }
         }
-    },
+    }
 }

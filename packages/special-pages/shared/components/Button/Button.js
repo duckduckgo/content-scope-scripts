@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import classNames from 'classnames';
+import classNames from 'classnames'
 import styles from './Button.module.css'
 
 /**
@@ -9,7 +9,7 @@ import styles from './Button.module.css'
  * @param {import("preact").JSX.MouseEventHandler<EventTarget>} props.onClick
  * @param {import('preact').ComponentProps<'button'>} [props.otherProps]
  */
-export function Button({ platform = 'apple', children, onClick }) {
+export function Button ({ platform = 'apple', children, onClick }) {
     return (
         <button
             className={classNames(styles.button, styles[platform])}
@@ -19,7 +19,7 @@ export function Button({ platform = 'apple', children, onClick }) {
                  */
                 (event) => {
                     if (onClick) {
-                    onClick(event);
+                        onClick(event)
                     }
                 }}
         >
