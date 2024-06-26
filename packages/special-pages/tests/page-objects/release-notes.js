@@ -22,7 +22,7 @@ export class ReleaseNotesPage {
         this.platform = platform
         this.mocks = new Mocks(page, build, platform, {
             context: 'specialPages',
-            featureName: 'release-notes',
+            featureName: 'releaseNotes',
             env: 'development'
         })
         this.page.on('console', console.log)
@@ -105,7 +105,7 @@ export class ReleaseNotesPage {
             {
                 payload: {
                     context: 'specialPages',
-                    featureName: 'release-notes',
+                    featureName: 'releaseNotes',
                     method: 'reportPageException',
                     params: {
                         message: 'unknown',
@@ -121,7 +121,7 @@ export class ReleaseNotesPage {
             {
                 payload: {
                     context: 'specialPages',
-                    featureName: 'release-notes',
+                    featureName: 'releaseNotes',
                     method: 'initialSetup'
                 }
             }
@@ -174,7 +174,7 @@ export class ReleaseNotesPage {
             {
                 payload: {
                     context: 'specialPages',
-                    featureName: 'release-notes',
+                    featureName: 'releaseNotes',
                     method: 'browserRestart',
                     params: {}
                 }
