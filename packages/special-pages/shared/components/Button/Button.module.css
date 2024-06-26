@@ -14,4 +14,12 @@
     font-weight: 600;
     line-height: var(--sp-8);
     padding: 0 var(--sp-4);
+
+    &:hover {
+        background: linear-gradient(0deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.16) 100%), #2749db;
+    }
+
+    &:active {
+        background: linear-gradient(0deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.16) 100%), #1743d1;
+    }
 }
