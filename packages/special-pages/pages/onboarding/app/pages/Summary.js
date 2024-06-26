@@ -7,7 +7,8 @@ import { noneSettingsRowItems, settingsRowItems } from '../data'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ListItemPlain, availableIcons } from '../components/ListItem'
 import { SummaryList } from '../components/List'
-import { useTranslation } from '../translations'
+import { Trans } from '../../../../shared/components/TranslationsProvider'
+import { useTypedTranslation } from '../types'
 
 /**
  * Renders a summary component
@@ -18,24 +19,29 @@ import { useTranslation } from '../translations'
  * @param {() => void} props.onSettings - The function to call when opening settings
  */
 export function Summary ({ values, onDismiss, onSettings }) {
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
 
     // list of features that are 'on by default', so we always show them
     /** @type {{icon: availableIcons[number]; summary: string}[]} */
-    const items = Object.keys(noneSettingsRowItems).map(key => {
+    const items = Object.values(noneSettingsRowItems).map(fn => {
+        const subject = fn(t)
         return {
-            icon: noneSettingsRowItems[key].icon,
-            summary: noneSettingsRowItems[key].summary
+            icon: subject.icon,
+            summary: subject.summary
         }
     })
 
     // list of settings that were enabled by the user during onboarding
-    const enabledSettingsItems = Object.keys(values || {})
-        .filter(key => values[key].enabled === true)
+    /** @type {{icon: availableIcons[number]; summary: string}[]} */
+    const enabledSettingsItems = Object.keys(values)
+        // only include items that were 'enabled' + have corresponding data
+        .filter(key => values[key].enabled === true && Object.hasOwnProperty.call(settingsRowItems, key))
+        // for each enabled item, select the corresponding data
         .map(key => {
+            const subject = settingsRowItems[key](t)
             return {
-                icon: settingsRowItems[key].icon,
-                summary: settingsRowItems[key].summary
+                icon: subject.icon,
+                summary: subject.summary
             }
         })
 
@@ -55,14 +61,21 @@ export function Summary ({ values, onDismiss, onSettings }) {
             </SummaryList>
             <SlideUp>
                 <ButtonBar style={{ marginTop: '19px' /* this matches the designs perfectly */ }}>
-                    <Button onClick={onDismiss} size={'xl'}>{t('Start Browsing')}
+                    <Button onClick={onDismiss} size={'xl'}>{t('startBrowsing')}
                         <Launch/>
                     </Button>
                 </ButtonBar>
             </SlideUp>
             <div style={{ marginTop: '50px' /* this matches the designs perfectly */ }}>
-                {t('You can change your choices any time in')}{' '}
-                <a onClick={onSettingsHandler} href="about:preferences">{t('Settings')}</a>.
+                <Trans
+                    str={t('youCanChangeYourChoicesAnyTimeInSettings')}
+                    values={{
+                        a: {
+                            href: 'about:preferences',
+                            click: onSettingsHandler
+                        }
+                    }}
+                />
             </div>
         </Stack>
     )

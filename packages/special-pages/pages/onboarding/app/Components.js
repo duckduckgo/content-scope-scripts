@@ -15,6 +15,7 @@ import { Switch } from './components/Switch'
 import { useState } from 'preact/hooks'
 import { Typed } from './components/Typed'
 import { CleanBrowsing } from './pages/CleanBrowsing'
+import { useTypedTranslation } from './types'
 
 function noop (name) {
     return () => {
@@ -35,13 +36,20 @@ function NewCheck ({ variant }) {
 }
 
 export function Components () {
+    const { t } = useTypedTranslation()
     return (
         <main className={styles.main}>
             <Background/>
             <div class={styles.container}>
                 <Stack gap='var(--sp-8)'>
                     <p><a href="?env=app">Onboarding Flow</a></p>
-                    <Header><Typed text={'Welcome to DuckDuckGo'}/></Header>
+                    <Header><Typed text={t('welcome_title')}/></Header>
+                    <Header><Typed text={t('getStarted_title', { newline: '\n' })}/></Header>
+                    <Header><Typed text={t('privateByDefault_title', { newline: '\n' })}/></Header>
+                    <Header><Typed text={t('cleanerBrowsing_title', { newline: '\n' })}/></Header>
+                    <Header><Typed text={t('systemSettings_title')}/></Header>
+                    <Header><Typed text={t('customize_title')}/></Header>
+                    <Header><Typed text={t('summary_title')}/></Header>
                     <Progress current={1} total={4}/>
                     <div>
                         <CleanBrowsing onNextPage={console.log}/>
@@ -127,9 +135,9 @@ export function Components () {
                             <List>
                                 {Object.keys(settingsRowItems).map(key => {
                                     return <ListItem
-                                        icon={settingsRowItems[key].icon}
-                                        title={settingsRowItems[key].title}
-                                        secondaryText={settingsRowItems[key].secondaryText}
+                                        icon={settingsRowItems[key](t).icon}
+                                        title={settingsRowItems[key](t).title}
+                                        secondaryText={settingsRowItems[key](t).secondaryText}
                                     />
                                 })}
                             </List>

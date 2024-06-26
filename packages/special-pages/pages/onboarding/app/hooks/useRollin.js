@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from 'preact/hooks'
 
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * @typedef {Object} RollInState
