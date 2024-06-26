@@ -36,6 +36,7 @@
     --sp-3:   0.75rem; /* 12px */
     --sp-2:   0.5rem;  /* 8px */
     --sp-1:   0.25rem; /* 4px */
+    --sp-0_5: 0.125rem;/* 2px */
 
     /* Base colors */
     --color-red-50: #de5833;
@@ -108,9 +109,8 @@
     --color-white-at-70: rgba(255, 255, 255, 0.7);
     --color-white-at-80: rgba(255, 255, 255, 0.8);
     --color-white-at-84: rgba(255, 255, 255, 0.84);
+    --color-white-at-85: rgba(255, 255, 255, 0.85);
     --color-white-at-96: rgba(255, 255, 255, 0.96);
-
-    --color-blue-shade-24: rgba(57, 105, 239, 0.24);
 
     /* Semantic tokens */
 
@@ -123,9 +123,9 @@
     --text-secondary-color: var(--color-black-at-60);
 
     @media (prefers-color-scheme: dark) {
-        --background-color: var(--color-gray-90);
+        --background-color: var(--color-gray-95);
 
-        --text-primary-color: var(--color-white-at-84);
-        --text-secondary-color: var(--color-white-at-60);
+        --text-primary-color: var(--color-white-at-85);
+        --text-secondary-color: var(--color-white-at-50);
     }
 }
