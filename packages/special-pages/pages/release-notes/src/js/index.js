@@ -7,6 +7,10 @@
  */
 
 /**
+ * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ */
+
+/**
  * @typedef {Object} InitResponse
  * @property {ImportMeta['env']} [env] - optional override for the env
  * @property {string} [locale] - optional override for the locale
@@ -25,30 +29,29 @@ export class ReleaseNotesPage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      * @param {ImportMeta["injectName"]} injectName
+     * @param {UpdateMessage['status']} status
      * @internal
      */
-    constructor (messaging, injectName) {
+    constructor (messaging, injectName, status = "loaded") {
         /**
          * @internal
          */
         this.messaging = createTypedMessages(this, messaging)
         this.injectName = injectName
 
-        this.setupIntegration()
+        this.setupIntegration(status);
     }
 
     /**
      * Sets up integration environment
+     * @param {UpdateMessage['status']} status
      */
-    setupIntegration () {
+    setupIntegration (status) {
         if (this.injectName !== 'integration') return
-
-        const url = new URL(window.location.href)
-        const params = Object.fromEntries(url.searchParams)
         const allowedStates = Object.keys(sampleData)
 
-        this.integrationState = params.state && allowedStates.includes(params.state)
-            ? params.state
+        this.integrationState = status && allowedStates.includes(status)
+            ? status
             : 'loaded' // Default state for integration
     }
 
@@ -121,9 +124,16 @@ export class ReleaseNotesPage {
     }
 }
 
+const url = new URL(window.location.href)
+const params = Object.fromEntries(url.searchParams)
+const display = /** @type {'app'|'components'} */(params.display || 'app')
+const status = /** @type {UpdateMessage['status']} */(params.state || 'loaded')
+
+
 const baseEnvironment = new Environment()
     .withPlatform(document.documentElement.dataset.platform)
     .withEnv(import.meta.env) // use the build's ENV
+    .withDisplay(display)
 
 // share this in the app, it's an instance of `ReleaseNotesMessages` where all your native comms should be
 const messaging = createSpecialPageMessaging({
@@ -132,7 +142,7 @@ const messaging = createSpecialPageMessaging({
     pageName: 'releaseNotes'
 })
 
-const messages = new ReleaseNotesPage(messaging, baseEnvironment.platform)
+const messages = new ReleaseNotesPage(messaging, baseEnvironment.platform, status)
 
 init(messages, baseEnvironment).catch(e => {
     console.error(e)

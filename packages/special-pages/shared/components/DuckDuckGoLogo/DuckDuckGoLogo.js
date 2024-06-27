@@ -1,4 +1,5 @@
 import { h } from 'preact'
+import classNames from 'classnames'
 import styles from './DuckDuckGoLogo.module.css'
 
 /**
@@ -7,7 +8,7 @@ import styles from './DuckDuckGoLogo.module.css'
 export function DuckDuckGoLogo () {
     return (
         <span className={styles.logo}>
-            <span className="offscreen">DuckDuckGo</span>
+            <span className={classNames(styles.logo, 'offscreen')}>DuckDuckGo</span>
         </span>
     )
 }

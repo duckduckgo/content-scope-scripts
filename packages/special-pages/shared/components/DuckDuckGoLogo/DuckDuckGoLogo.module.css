@@ -2,7 +2,6 @@
 .logo {
     background: url(../../assets/img/Logo-Horizontal.svg) no-repeat;
     height: var(--sp-10);
-    width: 221px;
     display: block;
 
     @media (prefers-color-scheme: dark) {

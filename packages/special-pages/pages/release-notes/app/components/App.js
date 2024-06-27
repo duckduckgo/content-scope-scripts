@@ -42,7 +42,7 @@ export function App ({ children }) {
                 <header className={styles.header}>
                     <DuckDuckGoLogo />
                 </header>
-                <div class={styles.inner}>
+                <div class={styles.core}>
                     {releaseData && <ReleaseNotes releaseData={releaseData}/>}
                 </div>
                 <WillThrow/>

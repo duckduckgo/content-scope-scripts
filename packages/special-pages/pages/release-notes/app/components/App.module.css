@@ -1,13 +1,17 @@
+:root {
+    --sp-145: calc(580 * var(--px-in-rem));; /* 580px */
+}
+
 body {
     color: var(--text-primary-color);
     margin: var(--sp-6) 0 var(--sp-8);
 }
 
 .main {
-    padding: 24px var(--sp-5);
+    padding: var(--sp-6) var(--sp-5);
     position: relative;
     display: grid;
-    gap: 32px;
+    gap: var(--sp-8);
 }
 
 .header {
@@ -16,8 +20,8 @@ body {
     margin: 0 auto;
 }
 
-.inner {
+.core {
     width: 100%;
-    max-width: 580px;
+    max-width: var(--sp-145);
     margin: 0 auto;
 }
