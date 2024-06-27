@@ -39,7 +39,11 @@ export async function init (messages, baseEnvironment) {
     if (environment.display === 'components') {
         render(
             <EnvironmentProvider platform={platform} debugState={debugState} willThrow={willThrow}>
-                <Components />
+                <TranslationProvider text={i18n}>
+                    <MessagingContext.Provider value={{ messages }}>
+                        <Components />
+                    </MessagingContext.Provider>
+                </TranslationProvider>
             </EnvironmentProvider>
             , root)
     }

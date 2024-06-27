@@ -1,6 +1,9 @@
 /* Component-specific variables */
 :root {
     --bullet-color: rgba(57, 105, 239, 0.24);
+    --sp-4_5: calc(18 * var(--px-in-rem)); /* 18px */
+    --sp-2_5: calc(10 * var(--px-in-rem)); /* 10px */
+    --sp-1_5: calc(6 * var(--px-in-rem));  /* 6px */
 
     @media (prefers-color-scheme: dark) {
         --bullet-color: var(--color-blue-20);
@@ -11,26 +14,20 @@
     margin: 0 auto;
     width: 100%;
     display: grid;
-    gap: 36px;
-    padding-top: 24px;
+    gap: var(--sp-9);
+    padding-top: var(--sp-6);
 }
 
 .header {
     display: grid;
     width: 100%;
-    gap: 8px;
+    gap: var(--sp-2);
 }
 
 .card {
     display: grid;
     width: 100%;
-    gap: 36px;
-}
-
-.main {
-    display: grid;
-    width: 100%;
-    gap: 24px;
+    gap: var(--sp-6);
 }
 
 .title {
@@ -92,7 +89,7 @@
 
 .notesHeading {
     display: grid;
-    gap: 2px;
+    gap: var(--sp-0_5);
 }
 
 .releaseTitle {
@@ -111,13 +108,19 @@
 
 .listContainer {
     display: grid;
-    gap: 18px;
+    gap: var(--sp-4_5);
     width: 100%;
+}
+
+.listGrid {
+    display: grid;
+    gap: var(--sp-9);
+    width: 100;
 }
 
 .list {
     display: grid;
-    gap: 18px;
+    gap: var(--sp-4_5);
     padding: 0;
     margin: 0;
     width: 100%;
@@ -134,13 +137,13 @@
 
     &::before {
         background: var(--bullet-color);
-        border-radius: 0.375rem;
+        border-radius: var(--sp-1_5);
         content: '';
         display: inline-block;
         width: var(--sp-3);
         height: var(--sp-3);
         position: absolute;
-        top: 0.125rem;
+        top: var(--sp-0_5);
         left: 0;
     }
 }
@@ -148,10 +151,10 @@
 /* New Tag */
 .newTag {
     background-color: var(--color-yellow-50);
-    border-radius: 0.625rem 0.625rem 0.625rem 0;
+    border-radius: var(--sp-2_5) var(--sp-2_5) var(--sp-2_5) 0;
     color: var(--color-black-at-84);
     display: inline-block;
-    padding: 0 0.625rem;
+    padding: 0 var(--sp-2_5);
     position: relative;
     text-transform: uppercase;
     top: calc(-1 * var(--sp-0_5));
@@ -164,10 +167,10 @@
         background-color: var(--color-yellow-50);
         mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'><path fill='currentColor' d='M0 0v5.336A13.975 13.975 0 0 1 10.699 0H0Z'/></svg>");
         content: '';
-        height: 6px;
+        height: calc(6 * var(--px-in-rem));;
         left: 0;
         position: absolute;
         top: calc(20 * var(--px-in-rem));
-        width: 11px;
+        width: calc(11 * var(--px-in-rem));;
     }
 }
