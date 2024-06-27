@@ -14,7 +14,7 @@
 
 import { init } from '../../app/index.js'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js'
-import { Environment } from '../../../../shared/components/EnvironmentProvider.js'
+import { Environment } from '../../../../shared/environment.js'
 import { createTypedMessages } from '@duckduckgo/messaging'
 import { sampleData } from '../../app/sampleData.js'
 
