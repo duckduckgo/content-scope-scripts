@@ -145,11 +145,13 @@ export function ReleaseNotesList ({ notes, title }) {
 
 /**
  * @param {Object} props
- * @param {string} props.title
+ * @param {string} [props.title]
  * @param {string} props.version
  * @param {Notes[]} props.releaseNotes
  */
 export function ReleaseNotesContent ({ title, version, releaseNotes }) {
+    if (!title || !releaseNotes.length) return null
+
     return (
         <Fragment>
             <ReleaseNotesHeader title={title} version={version}/>
@@ -177,10 +179,15 @@ export function ReleaseNotes ({ releaseData }) {
     /**
      * @type {Notes[]}
      */
-    const notes = [
-        ...releaseNotes?.length ? [{ notes: releaseNotes }] : [],
-        ...releaseNotesPrivacyPro?.length ? [{ title: t('For Privacy Pro Subscribers'), notes: releaseNotesPrivacyPro }] : []
-    ]
+    const notes = []
+
+    if (releaseNotes?.length) {
+        notes.push({ notes: releaseNotes })
+    }
+
+    if (releaseNotesPrivacyPro?.length) {
+        notes.push({ title: t('For Privacy Pro Subscribers'), notes: releaseNotesPrivacyPro })
+    }
 
     return (
         <article className={styles.article}>
@@ -192,7 +199,7 @@ export function ReleaseNotes ({ releaseData }) {
             <Card className={styles.card}>
                 {status === 'loading'
                     ? <ContentPlaceholder />
-                    : releaseTitle && notes.length && <ReleaseNotesContent title={releaseTitle} version={latestVersion || currentVersion} releaseNotes={notes}/>}
+                    : <ReleaseNotesContent title={releaseTitle} version={latestVersion || currentVersion} releaseNotes={notes}/>}
             </Card>
         </article>
     )
