@@ -37,7 +37,7 @@
     "note" : "Page title for the first step in the process"
   },
   "getStarted_title" : {
-    "title" : "Надоело отслеживание онлайн?{newline}DuckDuckGo спешит на помощь!",
+    "title" : "Устали от слежки в Интернете?{newline}DuckDuckGo спешит на помощь!",
     "note" : "Page title indicating that DuckDuckGo can help against online trackers. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "privateByDefault_title" : {
@@ -145,19 +145,19 @@
     "note" : "The text shown in the button to confirm pinning DuckDuckGo to the taskbar."
   },
   "row_dock_macos_title" : {
-    "title" : "DuckDuckGo на вашей док-панели",
+    "title" : "DuckDuckGo на вашей панели Dock",
     "note" : "Suggests users to keep DuckDuckGo in their Dock for quick access."
   },
   "row_dock_macos_accept" : {
-    "title" : "Держать на док-панели",
+    "title" : "Закрепить приложение в Dock",
     "note" : "The text shown on the button to perform the action to keep DuckDuckGo in the users Dock."
   },
   "row_import_title" : {
-    "title" : "Все свое с собой",
+    "title" : "Всё своё – с собой",
     "note" : "Title for importing user data (bookmarks, favorites, passwords) to DuckDuckGo from other browsers."
   },
   "row_import_summary" : {
-    "title" : "Импортирование",
+    "title" : "Импорт данных",
     "note" : "Summary title for the import feature, refers to personal browser data."
   },
   "row_import_desc" : {
