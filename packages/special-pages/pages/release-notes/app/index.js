@@ -23,9 +23,11 @@ export async function init (messages, baseEnvironment) {
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')
 
+    const { platform, debugState, willThrow } = environment;
+
     if (environment.display === 'app') {
         render(
-            <EnvironmentProvider environment={environment}>
+            <EnvironmentProvider platform={platform} debugState={debugState} willThrow={willThrow}>
                 <TranslationProvider text={i18n}>
                     <MessagingContext.Provider value={{ messages }}>
                         <App />
@@ -36,7 +38,7 @@ export async function init (messages, baseEnvironment) {
     }
     if (environment.display === 'components') {
         render(
-            <EnvironmentProvider environment={environment}>
+            <EnvironmentProvider platform={platform} debugState={debugState} willThrow={willThrow}>
                 <Components />
             </EnvironmentProvider>
             , root)
