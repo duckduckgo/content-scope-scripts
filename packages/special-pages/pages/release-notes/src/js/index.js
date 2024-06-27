@@ -32,14 +32,14 @@ export class ReleaseNotesPage {
      * @param {UpdateMessage['status']} status
      * @internal
      */
-    constructor (messaging, injectName, status = "loaded") {
+    constructor (messaging, injectName, status = 'loaded') {
         /**
          * @internal
          */
         this.messaging = createTypedMessages(this, messaging)
         this.injectName = injectName
 
-        this.setupIntegration(status);
+        this.setupIntegration(status)
     }
 
     /**
@@ -128,7 +128,6 @@ const url = new URL(window.location.href)
 const params = Object.fromEntries(url.searchParams)
 const display = /** @type {'app'|'components'} */(params.display || 'app')
 const status = /** @type {UpdateMessage['status']} */(params.state || 'loaded')
-
 
 const baseEnvironment = new Environment()
     .withPlatform(document.documentElement.dataset.platform)

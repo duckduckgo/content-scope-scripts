@@ -42,8 +42,8 @@ export function Components () {
             <hr/>
 
             <h2>Release Notes List</h2>
-            <ReleaseNotesList notes={["This is a release notes list without a subheading", "Feature description #2", "Feature description #3",]} />
-            <ReleaseNotesList title="Release Notes Subheading" notes={["This is a release notes list with a subheading", "Feature description #2", "Feature description #3",]} />
+            <ReleaseNotesList notes={['This is a release notes list without a subheading', 'Feature description #2', 'Feature description #3']} />
+            <ReleaseNotesList title="Release Notes Subheading" notes={['This is a release notes list with a subheading', 'Feature description #2', 'Feature description #3']} />
             <hr/>
 
             <h2>Content Placeholder Inside a Card</h2>
@@ -55,8 +55,8 @@ export function Components () {
             <h2>Release Notes List Inside a Card</h2>
             <Card className={styles.card}>
                 <ReleaseNotesContent title="May 10 2024" version="1.2.0" releaseNotes={
-                    [{ notes: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel viverra est. Ut non nisi lacus. Ut sodales leo sed ex condimentum tincidunt.", "Sed eget risus luctus, convallis sapien nec, tincidunt orci.", "Sed et lobortis enim. Curabitur sit amet placerat felis."] },
-                     { title: "For Privacy Pro Subscribers",  notes: ["Cras egestas, dui eu sodales congue, ex augue vehicula ipsum, sed egestas est justo in enim.", "Duis varius in ex at vestibulum. Morbi finibus fringilla urna, ac varius quam vestibulum sit amet.", "Morbi a ligula vel metus ultrices sodales quis vel velit."] }]} />
+                    [{ notes: ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel viverra est. Ut non nisi lacus. Ut sodales leo sed ex condimentum tincidunt.', 'Sed eget risus luctus, convallis sapien nec, tincidunt orci.', 'Sed et lobortis enim. Curabitur sit amet placerat felis.'] },
+                        { title: 'For Privacy Pro Subscribers', notes: ['Cras egestas, dui eu sodales congue, ex augue vehicula ipsum, sed egestas est justo in enim.', 'Duis varius in ex at vestibulum. Morbi finibus fringilla urna, ac varius quam vestibulum sit amet.', 'Morbi a ligula vel metus ultrices sodales quis vel velit.'] }]} />
             </Card>
         </main>
     )

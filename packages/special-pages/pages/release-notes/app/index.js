@@ -3,7 +3,7 @@ import { useContext } from 'preact/hooks'
 import { App } from './components/App.js'
 import { Components } from './Components'
 import { EnvironmentProvider } from '../../../shared/components/EnvironmentProvider'
-import { TranslationProvider } from '../../../shared/components/TranslationProvider'
+import { TranslationProvider } from '../../../shared/components/TranslationsProvider'
 import { i18n } from './text'
 
 import '../../../shared/styles/global.css' // global styles
@@ -23,12 +23,12 @@ export async function init (messages, baseEnvironment) {
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')
 
-    const { platform, debugState, willThrow } = environment;
+    const { platform, locale, debugState, willThrow, textLength } = environment
 
     if (environment.display === 'app') {
         render(
             <EnvironmentProvider platform={platform} debugState={debugState} willThrow={willThrow}>
-                <TranslationProvider text={i18n}>
+                <TranslationProvider translationObject={i18n[locale]?.translations} fallback={i18n.en.translations} textLength={textLength}>
                     <MessagingContext.Provider value={{ messages }}>
                         <App />
                     </MessagingContext.Provider>
@@ -39,7 +39,7 @@ export async function init (messages, baseEnvironment) {
     if (environment.display === 'components') {
         render(
             <EnvironmentProvider platform={platform} debugState={debugState} willThrow={willThrow}>
-                <TranslationProvider text={i18n}>
+                <TranslationProvider translationObject={i18n[locale]?.translations} fallback={i18n.en.translations} textLength={textLength}>
                     <MessagingContext.Provider value={{ messages }}>
                         <Components />
                     </MessagingContext.Provider>
