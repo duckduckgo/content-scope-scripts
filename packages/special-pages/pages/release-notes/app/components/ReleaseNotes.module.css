@@ -7,10 +7,30 @@
     }
 }
 
-.content {
+.article {
     margin: 0 auto;
-    max-width: 36.25rem;
-    padding: var(--sp-6) 0;
+    width: 100%;
+    display: grid;
+    gap: 36px;
+    padding-top: 24px;
+}
+
+.header {
+    display: grid;
+    width: 100%;
+    gap: 8px;
+}
+
+.card {
+    display: grid;
+    width: 100%;
+    gap: 36px;
+}
+
+.main {
+    display: grid;
+    width: 100%;
+    gap: 24px;
 }
 
 .title {
@@ -22,10 +42,10 @@
 /* Status */
 .statusGrid {
     display: grid;
+    width: 100%;
     gap: var(--sp-1) var(--sp-2);
     grid-template-columns: auto 1fr;
     grid-template-rows: var(--sp-6) auto;
-    margin: var(--sp-3) 0;
 }
 
 .gridIcon {
@@ -36,20 +56,20 @@
 .statusIcon {
     width: var(--sp-6);
     height: var(--sp-6);
+}
 
-    &.alertIcon {
-        background: url(../../../../shared/assets/img/icons/Alert-Recolorable-24.svg) no-repeat;
-    }
+.checkIcon {
+    background: url(../../../../shared/assets/img/icons/Check-Recolorable-24.svg) no-repeat;
+}
 
-    &.checkIcon {
-        background: url(../../../../shared/assets/img/icons/Check-Recolorable-24.svg) no-repeat;
-    }
+.alertIcon {
+    background: url(../../../../shared/assets/img/icons/Alert-Recolorable-24.svg) no-repeat;
+}
 
-    &.spinnerIcon {
-        mask: url(../../../../shared/assets/img/icons/Spinner-16.svg) no-repeat;
-        background: var(--text-primary-color);
-        animation: spinner 1500ms infinite linear;
-    }
+.spinnerIcon {
+    mask: url(../../../../shared/assets/img/icons/Spinner-16.svg) no-repeat;
+    background: var(--text-primary-color);
+    animation: spinner 1500ms infinite linear;
 }
 
 @keyframes spinner {
@@ -70,9 +90,9 @@
     color: var(--text-secondary-color);
 }
 
-/* Release Notes */
-.releaseNotesContent {
-    margin-top: var(--sp-9);
+.notesHeading {
+    display: grid;
+    gap: 2px;
 }
 
 .releaseTitle {
@@ -83,44 +103,45 @@
     gap: var(--sp-2);
     line-height: 1;
     letter-spacing: calc(-0.26 * var(--px-in-rem));
-    margin-bottom: var(--sp-0_5);
 }
 
 .releaseVersion {
     color: var(--text-secondary-color);
 }
 
-.releaseNotesSubheading {
-    margin: var(--sp-9) 0 var(--sp-4);
+.listContainer {
+    display: grid;
+    gap: 18px;
+    width: 100%;
 }
 
-.releaseNotesList {
-    margin: var(--sp-6) 0;
+.list {
+    display: grid;
+    gap: 18px;
+    padding: 0;
+    margin: 0;
+    width: 100%;
 
     &:last-of-type {
         margin-bottom: 0;
     }
+}
 
-    & li {
-        margin: 0 0 1.125rem;
-        position: relative;
-        padding-left: var(--sp-6);
+.listItem {
+    margin: 0 0 0;
+    position: relative;
+    padding-left: var(--sp-6);
 
-        &:last-child {
-            margin-bottom: 0;
-        }
-
-        &::before {
-            background: var(--bullet-color);
-            border-radius: 0.375rem;
-            content: '';
-            display: inline-block;
-            width: var(--sp-3);
-            height: var(--sp-3);
-            position: absolute;
-            top: 0.125rem;
-            left: 0;
-        }
+    &::before {
+        background: var(--bullet-color);
+        border-radius: 0.375rem;
+        content: '';
+        display: inline-block;
+        width: var(--sp-3);
+        height: var(--sp-3);
+        position: absolute;
+        top: 0.125rem;
+        left: 0;
     }
 }
 

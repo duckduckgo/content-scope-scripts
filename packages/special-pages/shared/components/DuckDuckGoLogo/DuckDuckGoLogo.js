@@ -6,8 +6,8 @@ import styles from './DuckDuckGoLogo.module.css'
  */
 export function DuckDuckGoLogo () {
     return (
-        <header className={styles.header}>
+        <span className={styles.logo}>
             <span className="offscreen">DuckDuckGo</span>
-        </header>
+        </span>
     )
 }

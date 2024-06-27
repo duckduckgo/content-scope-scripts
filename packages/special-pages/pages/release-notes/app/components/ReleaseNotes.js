@@ -86,12 +86,12 @@ function StatusTimestamp ({ timestamp }) {
  */
 function ReleaseNotesList ({ notes, title }) {
     return (
-        <Fragment>
-            {title && <Text as="h3" variant="headline" className={styles.releaseNotesSubheading}>{title}</Text>}
-            <ul className={styles.releaseNotesList}>
-                {notes?.map(note => (<Text as="li" variant="body">{note}</Text>))}
+        <div class={styles.listContainer}>
+            {title && <Text as="h3" variant="headline">{title}</Text>}
+            <ul className={styles.list}>
+                {notes?.map(note => (<Text as="li" variant="body" className={styles.listItem}>{note}</Text>))}
             </ul>
-        </Fragment>
+        </div>
     )
 }
 
@@ -111,38 +111,38 @@ export function ReleaseNotes ({ releaseData }) {
     }
 
     return (
-        <article className={styles.content}>
-            <header>
+        <article className={styles.article}>
+            <header className={styles.header}>
                 <h1 className={styles.title}>{t('Browser Release Notes')}</h1>
                 <div className={styles.statusGrid}>
                     <StatusIcon status={status} className={styles.gridIcon}/>
-
                     {currentVersion && <StatusText status={status} currentVersion={currentVersion} />}
-
                     <StatusTimestamp timestamp={lastUpdate} />
                 </div>
                 {status === 'updateReady' && <Button onClick={onRestartButtonClick}>{t('Restart to Update')}</Button>}
             </header>
-            <Card className={styles.releaseNotesContent}>
+            <Card className={styles.card}>
                 {status === 'loading'
                     ? <ContentPlaceholder />
                     : <Fragment>
-                        <header>
-                            {releaseTitle &&
-                            <h2 className={styles.releaseTitle}>
-                                {releaseTitle}
-                                <span className={styles.newTag}>{t('New')}</span>
-                            </h2>}
-                            <Text variant="title-2" className={styles.releaseVersion}>
-                                {t('Version number', { version: `${releaseVersion}` })}
-                            </Text>
-                        </header>
+                        <div className={styles.main}>
+                            <header className={styles.notesHeading}>
+                                <h2 className={styles.releaseTitle}>
+                                    {releaseTitle}
+                                    <span className={styles.newTag}>{t('New')}</span>
+                                </h2>
+                                <Text variant="title-2" className={styles.releaseVersion}>
+                                    {t('Version number', { version: `${releaseVersion}` })}
+                                </Text>
+                            </header>
 
-                        {releaseNotes?.length &&
-                            <ReleaseNotesList notes={releaseNotes} />}
-
-                        {releaseNotesPrivacyPro?.length &&
-                            <ReleaseNotesList notes={releaseNotesPrivacyPro} title={t('For Privacy Pro Subscribers')}/>}
+                            {releaseNotes?.length &&
+                                <ReleaseNotesList notes={releaseNotes} />}
+                        </div>
+                        <div>
+                            {releaseNotesPrivacyPro?.length &&
+                                <ReleaseNotesList notes={releaseNotesPrivacyPro} title={t('For Privacy Pro Subscribers')}/>}
+                        </div>
                     </Fragment>}
             </Card>
         </article>

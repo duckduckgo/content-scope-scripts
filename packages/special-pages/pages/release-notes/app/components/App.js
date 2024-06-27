@@ -39,9 +39,13 @@ export function App ({ children }) {
     return (
         <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
             <main className={styles.main}>
-                <DuckDuckGoLogo />
-                {releaseData && <ReleaseNotes releaseData={releaseData} />}
-                <WillThrow />
+                <header className={styles.header}>
+                    <DuckDuckGoLogo />
+                </header>
+                <div class={styles.inner}>
+                    {releaseData && <ReleaseNotes releaseData={releaseData}/>}
+                </div>
+                <WillThrow/>
             </main>
             {children}
         </ErrorBoundary>

@@ -19,7 +19,7 @@
     "test-int-x": "npm run test",
     "test-int": "npm run test",
     "serve": "http-server -c-1 --port 3210 ../../",
-    "watch": "chokidar pages/**/* shared/**/* --initial -c 'npm run build.dev'"
+    "watch": "chokidar pages shared --initial -c 'npm run build.dev'"
   },
   "license": "ISC",
   "devDependencies": {
