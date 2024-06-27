@@ -2,14 +2,14 @@ import { createContext, h } from 'preact'
 import { useContext, useEffect, useState } from 'preact/hooks'
 
 const EnvironmentContext = createContext({
-    isReducedMotion: /** @type {boolean} */(false),
-    isDarkMode: /** @type {boolean} */(false),
-    debugState: /** @type {boolean} */(false),
+    isReducedMotion: false,
+    isDarkMode: false,
+    debugState: false,
     platform: /** @type {import('../environment').Environment['platform']} */('windows'),
-    willThrow: /** @type {boolean} */(false)
+    willThrow: false
 })
 
-const QUERY = '(prefers-color-scheme: dark)'
+const THEME_QUERY = '(prefers-color-scheme: dark)'
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 /**
@@ -22,11 +22,11 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
  * @param {boolean} [props.willThrow] - used to simulate a fatal exception
  */
 export function EnvironmentProvider ({ children, debugState, willThrow = false, platform = 'windows' }) {
-    const [theme, setTheme] = useState(window.matchMedia(QUERY).matches ? 'dark' : 'light')
+    const [theme, setTheme] = useState(window.matchMedia(THEME_QUERY).matches ? 'dark' : 'light')
     const [isReducedMotion, setReducedMotion] = useState(window.matchMedia(REDUCED_MOTION_QUERY).matches)
 
     useEffect(() => {
-        const mediaQueryList = window.matchMedia(QUERY)
+        const mediaQueryList = window.matchMedia(THEME_QUERY)
         const listener = (e) => setTheme(e.matches ? 'dark' : 'light')
         mediaQueryList.addEventListener('change', listener)
         return () => mediaQueryList.removeEventListener('change', listener)
