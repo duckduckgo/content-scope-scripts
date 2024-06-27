@@ -2,7 +2,7 @@
 import { Fragment, h } from 'preact'
 import { useMessaging } from '../index.js'
 import classNames from 'classnames'
-import { useTranslation } from '../../../../shared/components/TranslationProvider'
+import { useTypedTranslation } from '../types.js'
 import { Text } from '../../../../shared/components/Text/Text'
 import { Card } from '../../../../shared/components/Card/Card'
 import { Button } from '../../../../shared/components/Button/Button'
@@ -31,7 +31,7 @@ export function PageTitle ({ title }) {
  * @param {string} props.version
  */
 function StatusText ({ status, version }) {
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
 
     const statusTexts = {
         loaded: t('DuckDuckGo is up to date'),
@@ -66,7 +66,7 @@ function StatusIcon ({ status, className }) {
  * @param {number} props.timestamp
  */
 function StatusTimestamp ({ timestamp }) {
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
 
     const date = new Date(timestamp)
     const today = new Date()
@@ -111,8 +111,8 @@ export function UpdateStatus ({ status, lastUpdate, version }) {
  * @param {string} props.title
  * @param {string} props.version
  */
-export function ReleaseNotesHeader ({ title, version}) {
-    const { t } = useTranslation()
+export function ReleaseNotesHeader ({ title, version }) {
+    const { t } = useTypedTranslation()
 
     return (
         <header className={styles.notesHeading}>
@@ -154,10 +154,10 @@ export function ReleaseNotesContent ({ title, version, releaseNotes }) {
         <Fragment>
             <ReleaseNotesHeader title={title} version={version}/>
             <div className={styles.listGrid}>
-                {releaseNotes.map(({title, notes}) => <ReleaseNotesList title={title} notes={notes}/>)}
+                {releaseNotes.map(({ title, notes }) => <ReleaseNotesList title={title} notes={notes}/>)}
             </div>
         </Fragment>
-    );
+    )
 }
 
 /**
@@ -165,7 +165,7 @@ export function ReleaseNotesContent ({ title, version, releaseNotes }) {
  * @param {UpdateMessage} props.releaseData
  */
 export function ReleaseNotes ({ releaseData }) {
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
     const { messages } = useMessaging()
 
     const onRestartButtonClick = () => {
@@ -179,7 +179,7 @@ export function ReleaseNotes ({ releaseData }) {
      */
     const notes = [
         ...releaseNotes?.length ? [{ notes: releaseNotes }] : [],
-        ...releaseNotesPrivacyPro?.length ? [{ title: t('For Privacy Pro Subscribers'), notes: releaseNotesPrivacyPro }] : [],
+        ...releaseNotesPrivacyPro?.length ? [{ title: t('For Privacy Pro Subscribers'), notes: releaseNotesPrivacyPro }] : []
     ]
 
     return (
