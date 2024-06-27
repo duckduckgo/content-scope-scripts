@@ -4,8 +4,20 @@ body {
 }
 
 .main {
-    margin: var(--sp-6) auto var(--sp-8);
-    max-width: var(--sp-320);
-    padding: 0 var(--sp-5);
+    padding: 24px var(--sp-5);
     position: relative;
+    display: grid;
+    gap: 32px;
+}
+
+.header {
+    max-width: var(--sp-320);
+    width: 100%;
+    margin: 0 auto;
+}
+
+.inner {
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
 }
