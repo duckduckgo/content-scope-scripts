@@ -39,6 +39,15 @@ export default defineConfig({
             }
         },
         {
+            name: 'onboarding-apple',
+            testMatch: 'onboarding.spec.js',
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos'
+            }
+        },
+        {
             name: 'release-notes-apple',
             testMatch: 'release-notes.spec.js',
             use: {

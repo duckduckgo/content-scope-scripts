@@ -7,12 +7,12 @@ import { Stack } from '../components/Stack'
 import { Button, ButtonBar } from '../components/Buttons'
 import { useRollin } from '../hooks/useRollin'
 import { beforeAfterMeta, noneSettingsRowItems } from '../data'
-import { useTranslation } from '../translations'
 import { Delay } from '../components/Timeout'
 import { Animate } from '../components/Animate'
 import { RiveAnimation } from '../components/RiveAnimation'
 import { BeforeAfter } from '../components/BeforeAfter'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
+import { useTypedTranslation } from '../types'
 
 import animation from '../animations/Onboarding.riv'
 
@@ -23,11 +23,11 @@ export { animation }
  * @param {(args: any) => void} props.onNextPage
  */
 export function CleanBrowsing ({ onNextPage }) {
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
 
     const rows = [
-        noneSettingsRowItems.fewerAds,
-        noneSettingsRowItems.duckPlayer
+        noneSettingsRowItems.fewerAds(t),
+        noneSettingsRowItems.duckPlayer(t)
     ]
 
     // show each after interaction
@@ -51,7 +51,7 @@ export function CleanBrowsing ({ onNextPage }) {
             {state.isLast && (
                 <SlideUp delay={'double'}>
                     <ButtonBar>
-                        <Button onClick={onNextPage} size={'large'}>{t('Next')}</Button>
+                        <Button onClick={onNextPage} size={'large'}>{t('nextButton')}</Button>
                     </ButtonBar>
                 </SlideUp>
             )}
@@ -61,7 +61,8 @@ export function CleanBrowsing ({ onNextPage }) {
 
 function RowItem ({ isCurrent, row, index, advance }) {
     const { isDarkMode } = useEnv()
-    const meta = beforeAfterMeta[row.id]
+    const { t } = useTypedTranslation()
+    const meta = beforeAfterMeta[row.id](t)
     return (
         <ListItem
             key={row.icon}

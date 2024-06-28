@@ -6,11 +6,11 @@ import { List } from '../components/List'
 import { Stack } from '../components/Stack'
 import { Button, ButtonBar } from '../components/Buttons'
 import { useGlobalDispatch, useGlobalState } from '../global'
-import { useTranslation } from '../translations'
 import { useRollin } from '../hooks/useRollin'
 import { Switch } from '../components/Switch'
+import { useTypedTranslation } from '../types'
 import { RiveAnimation } from '../components/RiveAnimation'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * @param {object} props
@@ -20,8 +20,9 @@ import { useEnv } from '../environment'
  * @param {string} [props.subtitle] - optional subtitle
  */
 export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
+    const { platform } = useEnv()
     const { state } = useRollin([300])
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
 
     const dispatch = useGlobalDispatch()
     const appState = useGlobalState()
@@ -40,7 +41,7 @@ export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
             uiValue: appState.UIValues[rowId],
             pending: pendingId === rowId,
             id: rowId,
-            data: data[rowId],
+            data: data[rowId](t, platform),
             meta: metaData[step.id]?.rows?.[rowId]
         }
     })
@@ -65,7 +66,7 @@ export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
             {complete && (
                 <SlideUp delay={'double'}>
                     <ButtonBar>
-                        <Button onClick={onNextPage} size={'large'}>{t('Next')}</Button>
+                        <Button onClick={onNextPage} size={'large'}>{t('nextButton')}</Button>
                     </ButtonBar>
                 </SlideUp>
             )}
@@ -92,6 +93,7 @@ export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
  */
 function SettingListItem ({ index, item, dispatch }) {
     const data = item.data
+    const { t } = useTypedTranslation()
 
     const accept = () => {
         dispatch({
@@ -173,7 +175,7 @@ function SettingListItem ({ index, item, dispatch }) {
             {item.current && display.kind === 'button-bar' && (
                 <ListItem.Indent>
                     <ButtonBar>
-                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>Skip</Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>{t('skipButton')}</Button>
                         <Button disabled={item.pending} variant={'secondary'} onClick={accept}>{item.data.acceptText}</Button>
                     </ButtonBar>
                 </ListItem.Indent>
@@ -187,7 +189,7 @@ function SettingListItem ({ index, item, dispatch }) {
                         stateMachine={'State Machine 1'}
                     />
                     <ButtonBar>
-                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>Skip</Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>{t('skipButton')}</Button>
                         <Button disabled={item.pending} variant={'secondary'} onClick={accept}>{item.data.acceptText}</Button>
                     </ButtonBar>
                 </Stack>

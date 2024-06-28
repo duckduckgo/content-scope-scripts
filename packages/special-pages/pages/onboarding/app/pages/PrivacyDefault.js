@@ -7,19 +7,19 @@ import { Stack } from '../components/Stack'
 import { Button, ButtonBar } from '../components/Buttons'
 import { useRollin } from '../hooks/useRollin'
 import { noneSettingsRowItems } from '../data'
-import { useTranslation } from '../translations'
+import { useTypedTranslation } from '../types'
 
 /**
  * @param {object} props
  * @param {(args: any) => void} props.onNextPage
  */
 export function PrivacyDefault ({ onNextPage }) {
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
 
     const rows = [
-        noneSettingsRowItems.search,
-        noneSettingsRowItems.trackingProtection,
-        noneSettingsRowItems.cookieManagement
+        noneSettingsRowItems.search(t),
+        noneSettingsRowItems.trackingProtection(t),
+        noneSettingsRowItems.cookieManagement(t)
     ]
 
     // manual timings for this step
@@ -52,7 +52,7 @@ export function PrivacyDefault ({ onNextPage }) {
             {state.isLast && (
                 <SlideUp>
                     <ButtonBar>
-                        <Button onClick={onNextPage} size={'large'}>{t('Got It')}</Button>
+                        <Button onClick={onNextPage} size={'large'}>{t('gotIt')}</Button>
                     </ButtonBar>
                 </SlideUp>
             )}

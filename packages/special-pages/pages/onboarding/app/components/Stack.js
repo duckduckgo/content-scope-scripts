@@ -1,7 +1,7 @@
 import { h } from 'preact'
 import styles from './Stack.module.css'
 import { useAutoAnimate } from '@formkit/auto-animate/preact'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * Represents a stack component, use it for vertical spacing

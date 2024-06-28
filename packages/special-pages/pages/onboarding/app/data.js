@@ -109,122 +109,143 @@ export const stepMeta = /** @type {const} */({
 )
 /**
  * Row items that do not cause system settings to be altered
- * @type {Record<string, Omit<RowData, "id" | "acceptText"> & { id: string }>}
+ * @type {Record<string, (t: import('./types').TranslationFn) => Omit<RowData, "id" | "acceptText"> & { id: string }>}
  */
 export const noneSettingsRowItems = {
-    search: {
+    search: (t) => ({
         id: 'search',
-        summary: 'Private Search',
+        summary: t('row_search_summary'),
         icon: 'search.png',
-        title: 'Private Search',
-        secondaryText: "We don't track you. Ever.",
+        title: t('row_search_title'),
+        secondaryText: t('row_search_desc'),
         kind: 'one-time'
-    },
-    trackingProtection: {
+    }),
+    trackingProtection: (t) => ({
         id: 'trackingProtection',
-        summary: 'Advanced Tracking Protection',
+        summary: t('row_trackingProtection_summary'),
         icon: 'shield.png',
-        title: 'Advanced Tracking Protection',
-        secondaryText: 'We block most trackers before they even load.',
+        title: t('row_trackingProtection_title'),
+        secondaryText: t('row_trackingProtection_desc'),
         kind: 'one-time'
-    },
-    cookieManagement: {
+    }),
+    cookieManagement: (t) => ({
         id: 'cookieManagement',
-        summary: 'Automatic Cookie Pop-Up Blocking',
+        summary: t('row_cookieManagement_summary'),
         icon: 'cookie.png',
-        title: 'Automatic Cookie Pop-Up Blocking',
-        secondaryText: 'We deny optional cookies for you & hide pop-ups.',
+        title: t('row_cookieManagement_title'),
+        secondaryText: t('row_cookieManagement_desc'),
         kind: 'one-time'
-    },
-    fewerAds: {
+    }),
+    fewerAds: (t) => ({
         id: 'fewerAds',
-        summary: 'See Fewer Ads & Pop-Ups',
+        summary: t('row_fewerAds_summary'),
         icon: 'browsing.png',
-        title: 'While browsing the web',
-        secondaryText: 'Our tracker blocking eliminates most ads.',
+        title: t('row_fewerAds_title'),
+        secondaryText: t('row_fewerAds_desc'),
         kind: 'one-time'
-    },
-    duckPlayer: {
+    }),
+    duckPlayer: (t) => ({
         id: 'duckPlayer',
-        summary: 'Distraction-Free YouTube',
+        summary: t('row_duckPlayer_summary'),
         icon: 'duckplayer.png',
-        title: 'While watching YouTube',
-        secondaryText: 'Enforce YouTube’s strictest privacy settings by default. Watch videos in a clean viewing experience without personalized ads.',
+        title: t('row_duckPlayer_title'),
+        secondaryText: t('row_duckPlayer_desc'),
         kind: 'one-time'
-    }
+    })
 }
 
-/** @type {Record<import('./types').SystemValueId, RowData>} */
+/** @type {Record<import('./types').SystemValueId, (t: import('./types').TranslationFn, platform: ImportMeta['injectName']) => RowData>} */
 export const settingsRowItems = {
-    dock: {
-        id: 'dock',
-        icon: 'dock.png',
-        title: 'Keep DuckDuckGo in your Taskbar',
-        secondaryText: 'Get to DuckDuckGo faster.',
-        summary: 'Pin to Taskbar',
-        kind: 'one-time',
-        acceptText: 'Pin to Taskbar'
+    dock: (t, platform) => {
+        const title = platform === 'apple' ? t('row_dock_macos_title') : t('row_dock_title')
+        const acceptText = platform === 'apple' ? t('row_dock_macos_accept') : t('row_dock_accept')
+        return {
+            id: 'dock',
+            icon: 'dock.png',
+            title,
+            secondaryText: t('row_dock_desc'),
+            summary: t('row_dock_summary'),
+            kind: 'one-time',
+            acceptText
+        }
     },
-    import: {
+    import: (t) => ({
         id: 'import',
         icon: 'import.png',
-        title: 'Bring your stuff',
-        secondaryText: 'Import bookmarks, favorites, and passwords.',
-        summary: 'Import Your Stuff',
+        title: t('row_import_title'),
+        secondaryText: t('row_import_desc'),
+        summary: t('row_import_summary'),
         kind: 'one-time',
-        acceptText: 'Import'
-    },
-    'default-browser': {
+        acceptText: t('row_import_accept')
+    }),
+    'default-browser': (t) => ({
         id: 'default-browser',
         icon: 'switch.png',
-        title: 'Switch your default browser',
-        secondaryText: 'Always browse privately by default.',
-        summary: 'Default Browser',
+        title: t('row_default-browser_title'),
+        secondaryText: t('row_default-browser_desc'),
+        summary: t('row_default-browser_summary'),
         kind: 'one-time',
-        acceptText: 'Make Default'
-    },
-    bookmarks: {
+        acceptText: t('row_default-browser_accept')
+    }),
+    bookmarks: (t) => ({
         id: 'bookmarks',
         icon: 'bookmarks.png',
-        title: 'Put your bookmarks in easy reach',
-        secondaryText: 'Show a bookmarks bar with your favorite bookmarks.',
-        summary: 'Bookmarks Bar',
+        title: t('row_bookmarks_title'),
+        secondaryText: t('row_bookmarks_desc'),
+        summary: t('row_bookmarks_summary'),
         kind: 'toggle',
-        acceptText: 'Show Bookmarks Bar'
-    },
-    'session-restore': {
+        acceptText: t('row_bookmarks_accept')
+    }),
+    'session-restore': (t) => ({
         id: 'session-restore',
         icon: 'session-restore.png',
-        title: 'Pick up where you left off',
-        secondaryText: 'Always restart with all windows from your last session.',
-        summary: 'Session Restore',
+        title: t('row_session-restore_title'),
+        secondaryText: t('row_session-restore_desc'),
+        summary: t('row_session-restore_summary'),
         kind: 'toggle',
-        acceptText: 'Enable Session Restore'
-    },
-    'home-shortcut': {
+        acceptText: t('row_session-restore_accept')
+    }),
+    'home-shortcut': (t) => ({
         id: 'home-shortcut',
         icon: 'home.png',
-        title: 'Add a shortcut to your homepage',
-        secondaryText: 'Show a home button in your toolbar.',
-        summary: 'Home Button',
+        title: t('row_home-shortcut_title'),
+        secondaryText: t('row_home-shortcut_desc'),
+        summary: t('row_home-shortcut_summary'),
         kind: 'toggle',
-        acceptText: 'Show Home Button'
-    }
+        acceptText: t('row_home-shortcut_accept')
+    })
 }
 
-export const beforeAfterMeta = /** @type {const} */({
-    fewerAds: {
-        btnBeforeText: 'See With Tracker Blocking',
-        btnAfterText: 'See Without Tracker Blocking',
+/**
+ * @typedef {Object} BeforeAfter
+ * @property {string} btnBeforeText
+ * @property {string} btnAfterText
+ * @property {string} artboard
+ * @property {string} inputName
+ * @property {string} stateMachine
+ */
+
+/**
+ * @type {Record<string, (fn: import('./types').TranslationFn) => BeforeAfter>} */
+export const beforeAfterMeta = {
+    /**
+     * @param {import('./types').TranslationFn} t
+     */
+    fewerAds: (t) => ({
+        btnBeforeText: t('beforeAfter_fewerAds_show'),
+        btnAfterText: t('beforeAfter_fewerAds_hide'),
         artboard: 'Ad Blocking',
         inputName: 'DDG?',
         stateMachine: 'State Machine 2'
-    },
-    duckPlayer: {
-        btnBeforeText: 'See With Duck Player',
-        btnAfterText: 'See Without Duck Player',
+    }),
+    /**
+     * @param {import('./types').TranslationFn} t
+     */
+    duckPlayer: (t) => ({
+        btnBeforeText: t('beforeAfter_duckPlayer_show'),
+        btnAfterText: t('beforeAfter_duckPlayer_hide'),
         artboard: 'Duck Player',
         inputName: 'Duck Player?',
         stateMachine: 'State Machine 2'
-    }
-})
+    })
+}

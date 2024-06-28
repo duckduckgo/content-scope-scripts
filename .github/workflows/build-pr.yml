@@ -1,0 +1,51 @@
+name: PR Build and Release
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed, ready_for_review]
+
+jobs:
+  build:
+    if: github.event.pull_request.draft == false && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run build
+        run: npm run build
+
+      - name: Create and push release branch
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b pr-releases/pr-${PR_NUMBER}
+          git add -f build
+          git commit -m "Add build folder for PR #${PR_NUMBER}"
+          git push -u origin pr-releases/pr-${PR_NUMBER} --force
+
+  clean_up:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Delete release branch
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin --delete pr-releases/pr-${PR_NUMBER}

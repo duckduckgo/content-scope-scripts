@@ -312,7 +312,11 @@ export class OnboardingPage {
 
     async keepInTaskbar () {
         const { page } = this
-        await page.getByRole('button', { name: 'Pin to Taskbar' }).click()
+        const locator = this.build.switch({
+            apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
+            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' })
+        })
+        await locator.click()
         const calls = await this.mocks.waitForCallCount({ method: 'requestDockOptIn', count: 1 })
         expect(calls).toMatchObject([
             {
@@ -334,7 +338,13 @@ export class OnboardingPage {
         await page.getByRole('button', { name: 'See With Duck Player' }).click()
         await page.getByRole('button', { name: 'Got It' }).click()
         await page.getByRole('button', { name: 'Next' }).click()
-        await page.getByText('Keep DuckDuckGo in your Taskbar').waitFor({ timeout: 1000 })
+
+        const dockTitle = this.build.switch({
+            windows: () => page.getByText('Keep DuckDuckGo in your Taskbar'),
+            apple: () => page.getByText('Keep DuckDuckGo in your Dock')
+        })
+
+        await dockTitle.waitFor({ timeout: 1000 })
         await page.getByRole('button', { name: 'Skip' }).click()
         await page.getByRole('button', { name: 'Next' }).click()
         await page.getByText('Bring your stuff').waitFor({ timeout: 1000 })

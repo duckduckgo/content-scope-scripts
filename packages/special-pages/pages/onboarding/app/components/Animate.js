@@ -1,6 +1,6 @@
 import { useAutoAnimate } from '@formkit/auto-animate/preact'
 import { h } from 'preact'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * Apply auto-animate to arbitrary elements
