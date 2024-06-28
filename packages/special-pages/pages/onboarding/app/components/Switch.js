@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import styles from './Switch.module.css'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * Switch component used to toggle between two states.

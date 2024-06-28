@@ -5,9 +5,9 @@ import { Button, ButtonBar } from './Buttons'
 import { Play, Replay, SlideIn } from './Icons'
 
 import styles from './BeforeAfter.module.css'
-import { useTranslation } from '../translations'
 import { useAutoAnimate } from '@formkit/auto-animate/preact'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
+import { useTypedTranslation } from '../types'
 
 /**
  * A component that renders an image with a before and after effect.
@@ -19,7 +19,7 @@ import { useEnv } from '../environment'
  * @param {(args: {state: 'initial' | 'before' | 'after', className: string}) => import("preact").ComponentChild} props.media - A function that returns the media to display
  */
 export function BeforeAfter ({ media, onDone, btnBefore, btnAfter }) {
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
     const { isReducedMotion } = useEnv()
     const [imageParent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : undefined)
 
@@ -50,7 +50,7 @@ export function BeforeAfter ({ media, onDone, btnBefore, btnAfter }) {
                     )}
                 </Button>
                 {state !== 'initial' && (
-                    <SlideIn delay="double"><Button onClick={onDone}>{t('Got It')}</Button></SlideIn>
+                    <SlideIn delay="double"><Button onClick={onDone}>{t('gotIt')}</Button></SlideIn>
                 )}
             </ButtonBar>
         </Stack>
