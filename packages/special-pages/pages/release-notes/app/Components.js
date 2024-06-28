@@ -10,8 +10,8 @@ import styles from './Components.module.css'
 
 export function Components () {
     const { t } = useTypedTranslation()
-    const todayTimestamp = Date.now()
-    const yesterdayTimestamp = new Date(todayTimestamp - (24 * 60 * 60 * 1000)).getTime()
+    const todayInMilliseconds = Date.now()
+    const yesterdayInMilliseconds = new Date(todayInMilliseconds - (24 * 60 * 60 * 1000)).getTime()
 
     /**
      * @type {import('../app/types.js').Notes[]}
@@ -44,9 +44,9 @@ export function Components () {
             <hr/>
 
             <h2>Update Status</h2>
-            <UpdateStatus status="loading" version="1.0.1" lastUpdate={yesterdayTimestamp}/>
-            <UpdateStatus status="loaded" version="1.0.1" lastUpdate={todayTimestamp}/>
-            <UpdateStatus status="updateReady" version="1.2.0" lastUpdate={todayTimestamp}/>
+            <UpdateStatus status="loading" version="1.0.1" timestamp={yesterdayInMilliseconds}/>
+            <UpdateStatus status="loaded" version="1.0.1" timestamp={todayInMilliseconds}/>
+            <UpdateStatus status="updateReady" version="1.2.0" timestamp={todayInMilliseconds}/>
             <hr/>
 
             <h2>Restart Button</h2>

@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Fragment, h } from 'preact'
-import { useMessaging } from '../index.js'
+import { useMessaging } from '../index'
 import classNames from 'classnames'
-import { useTypedTranslation } from '../types.js'
+import { useTypedTranslation } from '../types'
 import { Text } from '../../../../shared/components/Text/Text'
 import { Card } from '../../../../shared/components/Card/Card'
 import { Button } from '../../../../shared/components/Button/Button'
@@ -63,7 +63,7 @@ function StatusIcon ({ status, className }) {
 
 /**
  * @param {object} props
- * @param {number} props.timestamp
+ * @param {number} props.timestamp - in milliseconds
  */
 function StatusTimestamp ({ timestamp }) {
     const { t } = useTypedTranslation()
@@ -93,15 +93,15 @@ function StatusTimestamp ({ timestamp }) {
 /**
  * @param {object} props
  * @param {UpdateMessage['status']} props.status
- * @param {number} props.lastUpdate
+ * @param {number} props.timestamp - in milliseconds
  * @param {string} props.version
  */
-export function UpdateStatus ({ status, lastUpdate, version }) {
+export function UpdateStatus ({ status, timestamp, version }) {
     return (
         <div className={styles.statusContainer}>
             <StatusIcon status={status} className={styles.gridIcon}/>
             <StatusText status={status} version={version} />
-            <StatusTimestamp timestamp={lastUpdate} />
+            <StatusTimestamp timestamp={timestamp} />
         </div>
     )
 }
@@ -188,6 +188,7 @@ export function ReleaseNotes ({ releaseData }) {
     }
 
     const { status, currentVersion, lastUpdate, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
+    const timestampInMilliseconds = lastUpdate * 1000;
 
     /**
      * @type {Notes[]}
@@ -210,7 +211,7 @@ export function ReleaseNotes ({ releaseData }) {
         <article className={styles.article}>
             <header className={styles.heading}>
                 <PageTitle title={t('browserReleaseNotes')}/>
-                <UpdateStatus status={status} lastUpdate={lastUpdate} version={currentVersion}/>
+                <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion}/>
                 {status === 'updateReady' &&
                     <div className={styles.buttonContainer}>
                         <Button onClick={onRestartButtonClick}>{t('restartToUpdate')}</Button>

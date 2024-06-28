@@ -2,6 +2,8 @@
  * @typedef {import('../../../types/release-notes').UpdateMessage} UpdateMessage
  */
 
+const timestampInSeconds = Date.now() / 1000;
+
 /**
  * @type {Record<UpdateMessage['status'], UpdateMessage>}
  */
@@ -9,12 +11,12 @@ export const sampleData = {
     loading: {
         status: 'loading',
         currentVersion: '1.0.1',
-        lastUpdate: Date.now() - (24 * 60 * 60 * 1000)
+        lastUpdate: timestampInSeconds - (24 * 60 * 60)
     },
     loaded: {
         currentVersion: '1.0.1',
         latestVersion: '1.0.1',
-        lastUpdate: Date.now(),
+        lastUpdate: timestampInSeconds,
         status: 'loaded',
         releaseTitle: 'May 20 2024',
         releaseNotes: [
@@ -30,7 +32,7 @@ export const sampleData = {
     updateReady: {
         currentVersion: '1.0.1',
         latestVersion: '1.2.0',
-        lastUpdate: Date.now(),
+        lastUpdate: timestampInSeconds,
         status: 'updateReady',
         releaseTitle: 'June 20 2024',
         releaseNotes: [
