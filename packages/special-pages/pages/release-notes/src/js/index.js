@@ -16,11 +16,11 @@
  * @property {string} [locale] - optional override for the locale
  */
 
-import { init } from '../../app/index.js'
-import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js'
-import { Environment } from '../../../../shared/environment.js'
+import { init } from '../../app/index'
+import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
+import { Environment } from '../../../../shared/environment'
 import { createTypedMessages } from '@duckduckgo/messaging'
-import { sampleData } from '../../app/sampleData.js'
+import { sampleData } from '../../app/sampleData'
 
 /**
  * This describes the messages that will be sent to the native layer,
