@@ -29,19 +29,19 @@
     "note" : "A message shown when the application experienced a crash"
   },
   "youCanChangeYourChoicesAnyTimeInSettings" : {
-    "title" : "Puedes cambiar tus opciones en cualquier momento en <a>Configuración</a>.",
+    "title" : "Puedes cambiar <a>tus preferencias</a> en cualquier momento en DuckDuckGo",
     "note" : "This is a statement with inline link, informing users that they can alter their preferences in `Settings` anytime. Please maintain the position of the opening `<a>` and closing `</a>` tag since they are used to create a link for the enclosed word only."
   },
   "welcome_title" : {
-    "title" : "¡Bienvenido a DuckDuckGo!",
+    "title" : "Te damos la bienvenida a DuckDuckGo",
     "note" : "Page title for the first step in the process"
   },
   "getStarted_title" : {
-    "title" : "¿Cansado de que te rastreen en línea?{newline}¡Podemos ayudarte!",
+    "title" : "¿Te haz cansado de que te rastreen en línea?{newline}¡Podemos ayudarte!",
     "note" : "Page title indicating that DuckDuckGo can help against online trackers. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "privateByDefault_title" : {
-    "title" : "A diferencia de otros navegadores,{newline}DuckDuckGo viene con privacidad por defecto",
+    "title" : "A diferencia de otros navegadores,{newline}DuckDuckGo incluye privacidad por defecto",
     "note" : "Page title indicating that this application is private by default, requiring little to no user configuration. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "cleanerBrowsing_title" : {
@@ -49,7 +49,7 @@
     "note" : "Page title highlighting that DuckDuckGo shows less advertisements and popups. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "systemSettings_title" : {
-    "title" : "Haz de la privacidad tu opción preferida",
+    "title" : "Convierte la privacidad en tu opción preferida",
     "note" : "Page title used in lists of toggle & switches that enable or disable particular privacy features"
   },
   "customize_title" : {
@@ -61,7 +61,7 @@
     "note" : "Shown under the main page title as encouragement to enable particular features"
   },
   "summary_title" : {
-    "title" : "¡Ya está todo listo!",
+    "title" : "¡Todo Listo!",
     "note" : "Page title of the summary page. Indicates that all steps are complete"
   },
   "nextButton" : {
@@ -73,7 +73,7 @@
     "note" : "Title for the search feature status row, shows the status of the private search feature."
   },
   "row_search_desc" : {
-    "title" : "Nosotros nunca te rastreamos.",
+    "title" : "Nunca te rastreamos",
     "note" : "Description for the search feature status row, emphasizes privacy."
   },
   "row_search_summary" : {
@@ -85,7 +85,7 @@
     "note" : "Title for the tracking protection feature status row."
   },
   "row_trackingProtection_desc" : {
-    "title" : "Bloqueamos la mayoría de los rastreadores incluso antes de que se carguen.",
+    "title" : "Bloqueamos la mayoria de rastreadores, incluso antes de que se carguen",
     "note" : "Description for the tracking protection feature status row, emphasizes proactive blocking."
   },
   "row_trackingProtection_summary" : {
@@ -93,7 +93,7 @@
     "note" : "Summary title for the tracking protection feature."
   },
   "row_cookieManagement_title" : {
-    "title" : "Bloqueo automático de ventanas emergentes de cookies",
+    "title" : "Bloqueo automatico de ventanas emergentes y cookies",
     "note" : "Title for the cookie management feature status row."
   },
   "row_cookieManagement_desc" : {
@@ -101,11 +101,11 @@
     "note" : "Description for the cookie management feature status row, emphasizes automated protection."
   },
   "row_cookieManagement_summary" : {
-    "title" : "Bloqueo automático de ventanas emergentes de cookies",
+    "title" : "Bloqueo automatico de ventanas emergentes y cookies",
     "note" : "Summary title for the automatic cookie pop-up blocking feature."
   },
   "row_fewerAds_title" : {
-    "title" : "Mientras navegas por Internet",
+    "title" : "> Mientras navegas en internet",
     "note" : "Title for the fewer ads feature status row gist, clarifies where the feature is relevant."
   },
   "row_fewerAds_summary" : {
@@ -137,7 +137,7 @@
     "note" : "The text shown on the button to perform the action to pin DuckDuckGo to the taskbar."
   },
   "row_dock_desc" : {
-    "title" : "Llega a DuckDuckGo más rápido.",
+    "title" : "Accede a DuckDuckGo mas rápido",
     "note" : "Description for keeping DuckDuckGo in the taskbar, emphasizes on speed and ease of access."
   },
   "row_dock_accept" : {
@@ -157,7 +157,7 @@
     "note" : "Title for importing user data (bookmarks, favorites, passwords) to DuckDuckGo from other browsers."
   },
   "row_import_summary" : {
-    "title" : "Importa tus cosas",
+    "title" : "Importar tus cosas",
     "note" : "Summary title for the import feature, refers to personal browser data."
   },
   "row_import_desc" : {
@@ -185,7 +185,7 @@
     "note" : "The text shown in the button to perform the action to make DuckDuckGo the default browser."
   },
   "row_bookmarks_title" : {
-    "title" : "Pon tus marcadores al alcance de la mano",
+    "title" : "Tus marcadores al alcance de la mano",
     "note" : "Title for the bookmarks bar feature, suggests placing bookmarks in an easily accessible location."
   },
   "row_bookmarks_summary" : {
@@ -193,7 +193,7 @@
     "note" : "Summary title for the bookmarks bar."
   },
   "row_bookmarks_desc" : {
-    "title" : "Muestra una barra de marcadores con tus marcadores favoritos.",
+    "title" : "Muestra una barra de marcadores con tus favoritos",
     "note" : "Description for the bookmarks bar feature, describes the outcome."
   },
   "row_bookmarks_accept" : {
