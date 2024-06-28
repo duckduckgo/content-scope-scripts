@@ -25,8 +25,8 @@ export const i18n = {
                 title: 'DuckDuckGo is up to date',
                 note: 'Status text for when the browser is already up to date'
             },
-            'newer version available': {
-                title: 'newer version available',
+            'Newer version available': {
+                title: 'A newer version of the browser is available',
                 note: 'Status text for when a new browser version is available'
             },
             'Checking for update': {

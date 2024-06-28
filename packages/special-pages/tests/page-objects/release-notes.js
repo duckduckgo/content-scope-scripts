@@ -159,7 +159,7 @@ export class ReleaseNotesPage {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'Browser Release Notes' })).toBeVisible()
         await expect(page.getByText('Last checked: Today')).toBeVisible()
-        await expect(page.getByText('Version 1.0.1 — newer version available')).toBeVisible()
+        await expect(page.getByText('Version 1.0.1 — A newer version of the browser is available')).toBeVisible()
         await expect(page.getByRole('button', { name: 'Restart to Update' })).toBeVisible()
         await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible()
 
