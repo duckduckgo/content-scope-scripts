@@ -41,11 +41,11 @@
     "note" : "Page title indicating that DuckDuckGo can help against online trackers. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "privateByDefault_title" : {
-    "title" : "Contrairement à d'autres {newline}navigateurs, DuckDuckGo est doté par défaut d'une fonction de{newline} confidentialité",
+    "title" : "Contrairement à d'autres{newline}navigateurs, DuckDuckGo est doté par défaut d'une fonction de confidentialité",
     "note" : "Page title indicating that this application is private by default, requiring little to no user configuration. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "cleanerBrowsing_title" : {
-    "title" : "La confidentialité est aussi synonyme de moins de publicités et de popups.",
+    "title" : "La confidentialité est aussi synonyme{newline}de moins de moins de publicités et de popups.",
     "note" : "Page title highlighting that DuckDuckGo shows less advertisements and popups. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "systemSettings_title" : {
