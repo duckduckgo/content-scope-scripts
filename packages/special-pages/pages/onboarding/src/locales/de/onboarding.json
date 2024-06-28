@@ -41,7 +41,7 @@
     "note" : "Page title indicating that DuckDuckGo can help against online trackers. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "privateByDefault_title" : {
-    "title" : "Im Gegensatz zu anderen Browsern ist bei DuckDuckGo{newline}der Datenschutz standardmäßig aktiviert.",
+    "title" : "Im Gegensatz zu anderen Browsern ist bei DuckDuckGo der{newline} Datenschutz standardmäßig aktiviert.",
     "note" : "Page title indicating that this application is private by default, requiring little to no user configuration. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "cleanerBrowsing_title" : {
