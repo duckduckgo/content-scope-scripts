@@ -41,11 +41,11 @@
     "note" : "Page title indicating that DuckDuckGo can help against online trackers. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "privateByDefault_title" : {
-    "title" : "Contrairement à d'autres navigateurs, DuckDuckGo{newline}est doté par défaut d'une fonction de confidentialité",
+    "title" : "Contrairement à d'autres {newline}navigateurs, DuckDuckGo est doté par défaut d'une fonction de{newline} confidentialité",
     "note" : "Page title indicating that this application is private by default, requiring little to no user configuration. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "cleanerBrowsing_title" : {
-    "title" : "La confidentialité est aussi synonyme de{newline}moins de publicités et de fenêtres contextuelles.",
+    "title" : "La confidentialité est aussi synonyme de moins de publicités et de popups.",
     "note" : "Page title highlighting that DuckDuckGo shows less advertisements and popups. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "systemSettings_title" : {
@@ -93,15 +93,15 @@
     "note" : "Summary title for the tracking protection feature."
   },
   "row_cookieManagement_title" : {
-    "title" : "Blocage automatique des fenêtres contextuelles de cookies",
+    "title" : "Blocage automatique des popups pour cookies",
     "note" : "Title for the cookie management feature status row."
   },
   "row_cookieManagement_desc" : {
-    "title" : "Nous refusons les cookies facultatifs pour vous et masquons les fenêtres contextuelles.",
+    "title" : "Nous refusons les cookies facultatifs pour vous et masquons les popups.",
     "note" : "Description for the cookie management feature status row, emphasizes automated protection."
   },
   "row_cookieManagement_summary" : {
-    "title" : "Blocage automatique des fenêtres contextuelles de cookies",
+    "title" : "Blocage automatique des popups pour cookies",
     "note" : "Summary title for the automatic cookie pop-up blocking feature."
   },
   "row_fewerAds_title" : {
@@ -109,7 +109,7 @@
     "note" : "Title for the fewer ads feature status row gist, clarifies where the feature is relevant."
   },
   "row_fewerAds_summary" : {
-    "title" : "Voir moins de publicités et de fenêtres contextuelles",
+    "title" : "Moins de publicités et de popups",
     "note" : "Summary title for the fewer ads feature, describes the intended effect."
   },
   "row_fewerAds_desc" : {
@@ -169,7 +169,7 @@
     "note" : "The text shown in the button to perform the import action."
   },
   "row_default-browser_title" : {
-    "title" : "Changer de navigateur par défaut",
+    "title" : "Changez de navigateur par défaut",
     "note" : "Title for the default browser suggestion, encourages users to make DuckDuckGo their primary browser."
   },
   "row_default-browser_summary" : {
