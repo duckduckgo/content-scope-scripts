@@ -2,7 +2,7 @@
 import { h } from 'preact'
 import { useState, useEffect, useRef, useContext } from 'preact/hooks'
 
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 import { GlobalContext } from '../global'
 
 /**

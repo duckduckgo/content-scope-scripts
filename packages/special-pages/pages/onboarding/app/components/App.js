@@ -10,16 +10,16 @@ import { PrivacyDefault } from '../pages/PrivacyDefault'
 import { CleanBrowsing, animation } from '../pages/CleanBrowsing'
 import { SettingsStep } from '../pages/SettingsStep'
 import { settingsRowItems, stepMeta } from '../data'
-import { useTranslation } from '../translations'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 import { Header } from './Header'
 import { Typed } from './Typed'
 import { Stack } from './Stack'
 import { Timeout } from './Timeout'
 import { Content } from './Content'
-import { ErrorBoundary } from '../ErrorBoundary'
+import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { Fallback } from '../pages/Fallback'
 import { Progress } from './Progress'
+import { useTypedTranslation } from '../types'
 
 /**
  * @param {object} props
@@ -29,7 +29,7 @@ export function App ({ children }) {
     const { debugState, isReducedMotion } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
 
     const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState
 
@@ -51,10 +51,28 @@ export function App ({ children }) {
         dispatch({ kind: 'error-boundary', error: { message, id: activeStep } })
     }
 
+    /** @type {Record<import('../types').Step['id'], string>} */
+    const titles = {
+        welcome: t('welcome_title'),
+        getStarted: t('getStarted_title', { newline: '\n' }),
+        privateByDefault: t('privateByDefault_title', { newline: '\n' }),
+        cleanerBrowsing: t('cleanerBrowsing_title', { newline: '\n' }),
+        systemSettings: t('systemSettings_title'),
+        customize: t('customize_title'),
+        summary: t('summary_title'),
+        dockSingle: t('systemSettings_title'),
+        importSingle: t('systemSettings_title'),
+        makeDefaultSingle: t('systemSettings_title')
+    }
+
     // typescript is not quite smart enough to figure this part out
-    const pageTitle = t(/** @type {any} */(activeStep + '_title'))
-    const nextPageTitle = t(/** @type {any} */(nextStep + '_title'))
+    const pageTitle = titles[activeStep]
+    const nextPageTitle = titles[/** @type {any} */(nextStep)]
     const pageSubTitle = t(/** @type {any} */(activeStep + '_subtitle'))
+
+    if (!pageTitle || pageTitle.length === 0) {
+        console.warn('missing page title for ', activeStep)
+    }
 
     const infoPages = {
         welcome: () => <Timeout onComplete={enqueueNext} ignore={true} />,

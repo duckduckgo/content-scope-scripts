@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks'
 import { h } from 'preact'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * Renders the first page of the application and provides an option to move to the next page.

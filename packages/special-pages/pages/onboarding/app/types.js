@@ -1,3 +1,8 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import json from '../src/locales/en/onboarding.json'
+import { TranslationContext } from '../../../shared/components/TranslationsProvider'
+import { useContext } from 'preact/hooks'
+
 /**
  * @typedef {'dock'
  *   | 'import'
@@ -128,3 +133,17 @@ export const PLATFORMS = [
 ]
 
 export {}
+
+/**
+ * @typedef {ReturnType<useTypedTranslation>['t']} TranslationFn
+ */
+
+/**
+ * This is a wrapper to only allow keys from the default translation file
+ * @type {() => { t: (key: keyof json, replacements?: Record<string, string>) => string }}
+ */
+export function useTypedTranslation () {
+    return {
+        t: useContext(TranslationContext).t
+    }
+}
