@@ -33,7 +33,7 @@
     "note" : "This is a statement with inline link, informing users that they can alter their preferences in `Settings` anytime. Please maintain the position of the opening `<a>` and closing `</a>` tag since they are used to create a link for the enclosed word only."
   },
   "welcome_title" : {
-    "title" : "Te damos la bienvenida a DuckDuckGo",
+    "title" : "¡Te damos la bienvenida a DuckDuckGo!",
     "note" : "Page title for the first step in the process"
   },
   "getStarted_title" : {
