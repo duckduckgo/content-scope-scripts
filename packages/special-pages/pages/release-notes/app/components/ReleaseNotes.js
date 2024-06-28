@@ -12,7 +12,7 @@ import styles from './ReleaseNotes.module.css'
 
 /**
  * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
- * @typedef {{ title?: string, notes: string[] }} Notes
+ * @typedef {import('../types.js').Notes} Notes
  */
 
 /**
@@ -111,7 +111,7 @@ export function UpdateStatus ({ status, lastUpdate, version }) {
  * @param {string} props.title
  * @param {string} props.version
  */
-export function ReleaseNotesHeader ({ title, version }) {
+export function ReleaseNotesHeading ({ title, version }) {
     const { t } = useTypedTranslation()
 
     return (
@@ -128,18 +128,26 @@ export function ReleaseNotesHeader ({ title, version }) {
 }
 
 /**
- * @param {object} props
- * @param {string} [props.title]
+ * @param {Omit<Notes, 'notes'>} props
+ */
+export function ReleaseNotesSubheading ({ icon, title }) {
+    return (
+        <div className={styles.notesSubheading}>
+            { icon && <span className={classNames(styles.notesIcon, styles[`notesIcon${icon}`])} />}
+            <Text as="h3" variant="headline">{title}</Text>
+        </div>
+    )
+}
+
+/**
+ * @param {Object} props
  * @param {string[]} props.notes
  */
-export function ReleaseNotesList ({ notes, title }) {
+export function ReleaseNotesList ({ notes }) {
     return (
-        <div class={styles.listContainer}>
-            {title && <Text as="h3" variant="headline">{title}</Text>}
-            <ul className={styles.list}>
-                {notes.map(note => (<Text as="li" variant="body" className={styles.listItem}>{note}</Text>))}
-            </ul>
-        </div>
+        <ul className={styles.list}>
+            {notes.map(note => (<Text as="li" variant="body" className={styles.listItem}>{note}</Text>))}
+        </ul>
     )
 }
 
@@ -147,16 +155,21 @@ export function ReleaseNotesList ({ notes, title }) {
  * @param {Object} props
  * @param {string} [props.title]
  * @param {string} props.version
- * @param {Notes[]} props.releaseNotes
+ * @param {Notes[]} props.notes
  */
-export function ReleaseNotesContent ({ title, version, releaseNotes }) {
-    if (!title || !releaseNotes.length) return null
+export function ReleaseNotesContent ({ title: releaseTitle, version: releaseVersion, notes: releaseNotes }) {
+    if (!releaseTitle || !releaseNotes.length) return null
 
     return (
         <Fragment>
-            <ReleaseNotesHeader title={title} version={version}/>
+            <ReleaseNotesHeading title={releaseTitle} version={releaseVersion}/>
             <div className={styles.listGrid}>
-                {releaseNotes.map(({ title, notes }) => <ReleaseNotesList title={title} notes={notes}/>)}
+                {releaseNotes.map(({ icon, title, notes }) => (
+                    <div class={styles.listContainer}>
+                        {title && <ReleaseNotesSubheading title={title} icon={icon} />}
+                        <ReleaseNotesList notes={notes} />
+                    </div>
+                ))}
             </div>
         </Fragment>
     )
@@ -186,12 +199,16 @@ export function ReleaseNotes ({ releaseData }) {
     }
 
     if (releaseNotesPrivacyPro?.length) {
-        notes.push({ title: t('For Privacy Pro Subscribers'), notes: releaseNotesPrivacyPro })
+        notes.push({
+            icon: 'PrivacyPro',
+            title: t('For Privacy Pro Subscribers'),
+            notes: releaseNotesPrivacyPro
+        })
     }
 
     return (
         <article className={styles.article}>
-            <header className={styles.header}>
+            <header className={styles.heading}>
                 <PageTitle title={t('Browser Release Notes')}/>
                 <UpdateStatus status={status} lastUpdate={lastUpdate} version={currentVersion}/>
                 {status === 'updateReady' && <Button onClick={onRestartButtonClick}>{t('Restart to Update')}</Button>}
@@ -199,7 +216,10 @@ export function ReleaseNotes ({ releaseData }) {
             <Card className={styles.card}>
                 {status === 'loading'
                     ? <ContentPlaceholder />
-                    : <ReleaseNotesContent title={releaseTitle} version={latestVersion || currentVersion} releaseNotes={notes}/>}
+                    : <ReleaseNotesContent
+                        title={releaseTitle}
+                        version={latestVersion || currentVersion}
+                        notes={notes}/>}
             </Card>
         </article>
     )
