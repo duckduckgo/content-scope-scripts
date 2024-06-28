@@ -65,7 +65,7 @@
     "note" : "Page title of the summary page. Indicates that all steps are complete"
   },
   "nextButton" : {
-    "title" : "Volgende",
+    "title" : "Ga verder",
     "note" : "Button text used to advance to the next step"
   },
   "row_search_title" : {
