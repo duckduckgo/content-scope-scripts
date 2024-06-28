@@ -18,7 +18,7 @@
     padding-top: var(--sp-6);
 }
 
-.header {
+.heading {
     display: grid;
     width: 100%;
     gap: var(--sp-2);
@@ -92,6 +92,23 @@
     gap: var(--sp-0_5);
 }
 
+.notesSubheading {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-3);
+}
+
+.notesIcon {
+    background-repeat: no-repeat;
+    display: block;
+    width: var(--sp-4);
+    height: var(--sp-4);
+}
+
+.notesIconPrivacyPro {
+    background-image: url(../../../../shared/assets/img/icons/Privacy-Pro-Color-16.svg);
+}
+
 .releaseTitle {
     align-items: flex-start;
     display: flex;
@@ -133,7 +150,7 @@
 .listItem {
     margin: 0 0 0;
     position: relative;
-    padding-left: var(--sp-6);
+    padding-left: var(--sp-7);
 
     &::before {
         background: var(--bullet-color);
@@ -144,7 +161,7 @@
         height: var(--sp-3);
         position: absolute;
         top: var(--sp-0_5);
-        left: 0;
+        left: var(--sp-0_5);
     }
 }
 
