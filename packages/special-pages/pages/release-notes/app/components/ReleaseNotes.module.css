@@ -37,12 +37,12 @@
 }
 
 /* Status */
-.statusGrid {
+.statusContainer {
     display: grid;
     width: 100%;
     gap: var(--sp-1) var(--sp-2);
     grid-template-columns: auto 1fr;
-    grid-template-rows: var(--sp-6) auto;
+    grid-template-rows: auto;
 }
 
 .gridIcon {

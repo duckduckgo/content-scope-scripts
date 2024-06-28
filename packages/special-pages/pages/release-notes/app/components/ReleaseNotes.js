@@ -34,14 +34,14 @@ function StatusText ({ status, version }) {
     const { t } = useTypedTranslation()
 
     const statusTexts = {
-        loaded: t('DuckDuckGo is up to date'),
-        loading: t('Checking for update'),
-        updateReady: t('Newer version available')
+        loaded: t('browserUpToDate'),
+        loading: t('checkingForUpdate'),
+        updateReady: t('newVersionAvailable')
     }
 
     return (
         <Text variant="title-2" className={styles.statusText}>
-            {t('Version number', { version: `${version}` })} — {statusTexts[status]}
+            {t('versionNumber', { version: `${version}` })} — {statusTexts[status]}
         </Text>
     )
 }
@@ -79,15 +79,15 @@ function StatusTimestamp ({ timestamp }) {
         date.getDate() === yesterday.getDate() &&
         date.getMonth() === yesterday.getMonth() &&
         date.getFullYear() === yesterday.getFullYear()
-    ) dateString = t('Yesterday at', { time: timeString })
+    ) dateString = t('yesterdayAt', { time: timeString })
 
     if (
         date.getDate() === today.getDate() &&
         date.getMonth() === today.getMonth() &&
         date.getFullYear() === today.getFullYear()
-    ) dateString = t('Today at', { time: timeString })
+    ) dateString = t('todayAt', { time: timeString })
 
-    return <Text variant="body" className={styles.statusTimestamp}>{t('Last checked', { date: dateString })}</Text>
+    return <Text variant="body" className={styles.statusTimestamp}>{t('lastChecked', { date: dateString })}</Text>
 }
 
 /**
@@ -98,7 +98,7 @@ function StatusTimestamp ({ timestamp }) {
  */
 export function UpdateStatus ({ status, lastUpdate, version }) {
     return (
-        <div className={styles.statusGrid}>
+        <div className={styles.statusContainer}>
             <StatusIcon status={status} className={styles.gridIcon}/>
             <StatusText status={status} version={version} />
             <StatusTimestamp timestamp={lastUpdate} />
@@ -118,10 +118,10 @@ export function ReleaseNotesHeading ({ title, version }) {
         <header className={styles.notesHeading}>
             <h2 className={styles.releaseTitle}>
                 {title}
-                <span className={styles.newTag}>{t('New')}</span>
+                <span className={styles.newTag}>{t('new')}</span>
             </h2>
             <Text variant="title-2" className={styles.releaseVersion}>
-                {t('Version number', { version: `${version}` })}
+                {t('versionNumber', { version: `${version}` })}
             </Text>
         </header>
     )
@@ -201,7 +201,7 @@ export function ReleaseNotes ({ releaseData }) {
     if (releaseNotesPrivacyPro?.length) {
         notes.push({
             icon: 'PrivacyPro',
-            title: t('For Privacy Pro Subscribers'),
+            title: t('forPrivacyProSubscribers'),
             notes: releaseNotesPrivacyPro
         })
     }
@@ -209,9 +209,12 @@ export function ReleaseNotes ({ releaseData }) {
     return (
         <article className={styles.article}>
             <header className={styles.heading}>
-                <PageTitle title={t('Browser Release Notes')}/>
+                <PageTitle title={t('browserReleaseNotes')}/>
                 <UpdateStatus status={status} lastUpdate={lastUpdate} version={currentVersion}/>
-                {status === 'updateReady' && <div className={styles.buttonContainer}><Button onClick={onRestartButtonClick}>{t('Restart to Update')}</Button></div>}
+                {status === 'updateReady' &&
+                    <div className={styles.buttonContainer}>
+                        <Button onClick={onRestartButtonClick}>{t('restartToUpdate')}</Button>
+                    </div>}
             </header>
             <Card className={styles.card}>
                 {status === 'loading'

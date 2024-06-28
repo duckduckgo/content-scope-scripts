@@ -4,30 +4,32 @@ import { PageTitle, UpdateStatus, ReleaseNotesHeading, ReleaseNotesSubheading, R
 import { Button } from '../../../shared/components/Button/Button'
 import { Card } from '../../../shared/components/Card/Card'
 import { ContentPlaceholder } from './components/ContentPlaceholder'
+import { useTypedTranslation } from '../app/types'
 
 import styles from './Components.module.css'
 
-/**
- * @type {import('../app/types.js').Notes[]}
- */
-const sampleNotesData = [
-    {
-        notes: [
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel viverra est. Ut non nisi lacus. Ut sodales leo sed ex condimentum tincidunt.',
-            'Sed eget risus luctus, convallis sapien nec, tincidunt orci.', 'Sed et lobortis enim. Curabitur sit amet placerat felis.']
-    }, {
-        icon: 'PrivacyPro',
-        title: 'For Privacy Pro Subscribers',
-        notes: [
-            'Cras egestas, dui eu sodales congue, ex augue vehicula ipsum, sed egestas est justo in enim.',
-            'Duis varius in ex at vestibulum. Morbi finibus fringilla urna, ac varius quam vestibulum sit amet.',
-            'Morbi a ligula vel metus ultrices sodales quis vel velit.'
-        ]
-    }]
-
 export function Components () {
+    const { t } = useTypedTranslation()
     const todayTimestamp = Date.now()
     const yesterdayTimestamp = new Date(todayTimestamp - (24 * 60 * 60 * 1000)).getTime()
+
+    /**
+     * @type {import('../app/types.js').Notes[]}
+     */
+    const sampleNotesData = [
+        {
+            notes: [
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel viverra est. Ut non nisi lacus. Ut sodales leo sed ex condimentum tincidunt.',
+                'Sed eget risus luctus, convallis sapien nec, tincidunt orci.', 'Sed et lobortis enim. Curabitur sit amet placerat felis.']
+        }, {
+            icon: 'PrivacyPro',
+            title: t('forPrivacyProSubscribers'),
+            notes: [
+                'Cras egestas, dui eu sodales congue, ex augue vehicula ipsum, sed egestas est justo in enim.',
+                'Duis varius in ex at vestibulum. Morbi finibus fringilla urna, ac varius quam vestibulum sit amet.',
+                'Morbi a ligula vel metus ultrices sodales quis vel velit.'
+            ]
+        }]
 
     return (
         <main className={styles.main}>
@@ -38,7 +40,7 @@ export function Components () {
             <hr/>
 
             <h2>Page Title</h2>
-            <PageTitle title="Browser Release Notes"/>
+            <PageTitle title={t('browserReleaseNotes')}/>
             <hr/>
 
             <h2>Update Status</h2>
@@ -49,7 +51,7 @@ export function Components () {
 
             <h2>Restart Button</h2>
             <div>
-                <Button platform="apple">Restart to Update</Button>
+                <Button platform="apple">{t('restartToUpdate')}</Button>
             </div>
             <hr/>
 

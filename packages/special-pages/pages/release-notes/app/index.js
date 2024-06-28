@@ -1,10 +1,10 @@
 import { h, render, createContext } from 'preact'
 import { useContext } from 'preact/hooks'
-import { App } from './components/App.js'
+import { App } from './components/App'
 import { Components } from './Components'
 import { EnvironmentProvider } from '../../../shared/components/EnvironmentProvider'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider'
-import { i18n } from './text'
+import enStrings from '../src/locales/en/release-notes.json'
 
 import '../../../shared/styles/global.css' // global styles
 
@@ -19,16 +19,31 @@ export async function init (messages, baseEnvironment) {
 
     const environment = baseEnvironment
         .withEnv(init.env)
+        .withLocale(init.locale)
+        .withLocale(baseEnvironment.urlParams.get('locale'))
+        .withTextLength(baseEnvironment.urlParams.get('textLength'))
+        .withDisplay(baseEnvironment.urlParams.get('display'))
+
+    const strings = environment.locale === 'en'
+        ? enStrings
+        : await fetch(`./locales/${environment.locale}/release-notes.json`)
+            .then(x => x.json())
+            .catch(e => {
+                console.error('Could not load locale', environment.locale, e)
+                return enStrings
+            })
 
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')
 
-    const { platform, locale, debugState, willThrow, textLength } = environment
-
     if (environment.display === 'app') {
         render(
-            <EnvironmentProvider platform={platform} debugState={debugState} willThrow={willThrow}>
-                <TranslationProvider translationObject={i18n[locale]?.translations} fallback={i18n.en.translations} textLength={textLength}>
+            <EnvironmentProvider
+                debugState={environment.debugState}
+                platform={environment.platform}
+                willThrow={environment.willThrow}
+            >
+                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingContext.Provider value={{ messages }}>
                         <App />
                     </MessagingContext.Provider>
@@ -38,8 +53,12 @@ export async function init (messages, baseEnvironment) {
     }
     if (environment.display === 'components') {
         render(
-            <EnvironmentProvider platform={platform} debugState={debugState} willThrow={willThrow}>
-                <TranslationProvider translationObject={i18n[locale]?.translations} fallback={i18n.en.translations} textLength={textLength}>
+            <EnvironmentProvider
+                debugState={environment.debugState}
+                platform={environment.platform}
+                willThrow={environment.willThrow}
+            >
+                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingContext.Provider value={{ messages }}>
                         <Components />
                     </MessagingContext.Provider>
