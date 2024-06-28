@@ -36,7 +36,7 @@ function StatusText ({ status, version }) {
     const statusTexts = {
         loaded: t('DuckDuckGo is up to date'),
         loading: t('Checking for update'),
-        updateReady: t('newer version available')
+        updateReady: t('Newer version available')
     }
 
     return (
