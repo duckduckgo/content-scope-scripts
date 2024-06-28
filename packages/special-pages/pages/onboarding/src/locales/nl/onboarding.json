@@ -17,7 +17,7 @@
     "note" : "Button text in the button used to start the process"
   },
   "gotIt" : {
-    "title" : "Ik snap het",
+    "title" : "Ga verder",
     "note" : "Button text used to confirm understanding of a particular step, used as an action to proceed"
   },
   "startBrowsing" : {
@@ -41,7 +41,7 @@
     "note" : "Page title indicating that DuckDuckGo can help against online trackers. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "privateByDefault_title" : {
-    "title" : "In tegenstelling tot andere browsers biedt DuckDuckGo{newline}standaard privacy",
+    "title" : "In tegenstelling tot andere browsers biedt DuckDuckGo standaard{newline} privacy",
     "note" : "Page title indicating that this application is private by default, requiring little to no user configuration. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "cleanerBrowsing_title" : {
@@ -113,7 +113,7 @@
     "note" : "Summary title for the fewer ads feature, describes the intended effect."
   },
   "row_fewerAds_desc" : {
-    "title" : "Onze trackerblokkering veegt de meeste advertenties van het scherm.",
+    "title" : "Onze trackerblokkering verbergt de meeste advertenties",
     "note" : "Description for the fewer ads feature status row, explains how the feature works."
   },
   "row_duckPlayer_summary" : {
