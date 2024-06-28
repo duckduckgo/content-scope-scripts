@@ -17,7 +17,7 @@
     "note" : "Button text in the button used to start the process"
   },
   "gotIt" : {
-    "title" : "Fatto",
+    "title" : "Capito",
     "note" : "Button text used to confirm understanding of a particular step, used as an action to proceed"
   },
   "startBrowsing" : {
@@ -37,11 +37,11 @@
     "note" : "Page title for the first step in the process"
   },
   "getStarted_title" : {
-    "title" : "Non vuoi più essere tracciato online?{newline}Possiamo aiutarti!",
+    "title" : "Stufo di essere tracciato online?{newline}Possiamo aiutarti!",
     "note" : "Page title indicating that DuckDuckGo can help against online trackers. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "privateByDefault_title" : {
-    "title" : "A differenza di altri browser, DuckDuckGo{newline}include la privacy per impostazione predefinita",
+    "title" : "A differenza di altri browser,{newline}DuckDuckGo è privato di default",
     "note" : "Page title indicating that this application is private by default, requiring little to no user configuration. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "cleanerBrowsing_title" : {
@@ -49,7 +49,7 @@
     "note" : "Page title highlighting that DuckDuckGo shows less advertisements and popups. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "systemSettings_title" : {
-    "title" : "Fai in modo che la privacy sia il tuo punto di riferimento",
+    "title" : "Metti la privacy al centro di tutto",
     "note" : "Page title used in lists of toggle & switches that enable or disable particular privacy features"
   },
   "customize_title" : {
@@ -97,7 +97,7 @@
     "note" : "Title for the cookie management feature status row."
   },
   "row_cookieManagement_desc" : {
-    "title" : "Rifiutiamo i cookie opzionali per te e nascondiamo i pop-up.",
+    "title" : "Rifiutiamo per te i cookie opzionali e nascondiamo i pop-up.",
     "note" : "Description for the cookie management feature status row, emphasizes automated protection."
   },
   "row_cookieManagement_summary" : {
@@ -125,7 +125,7 @@
     "note" : "Title for the Duck Player feature status row, clarifies where the feature is relevant."
   },
   "row_duckPlayer_desc" : {
-    "title" : "Applica le impostazioni sulla privacy più severe di YouTube per impostazione predefinita. Guarda i video in un'esperienza di visione lineare, senza annunci personalizzati.",
+    "title" : "Applica automaticamente le impostazioni più private su YouTube. Guarda i video in una visualizzazione semplificata, senza annunci personalizzati.",
     "note" : "Description for the Duck Player feature status row, states the feature's purpose and execution."
   },
   "row_dock_title" : {
@@ -169,7 +169,7 @@
     "note" : "The text shown in the button to perform the import action."
   },
   "row_default-browser_title" : {
-    "title" : "Passa al tuo browser predefinito",
+    "title" : "Imposta come browser predefinito",
     "note" : "Title for the default browser suggestion, encourages users to make DuckDuckGo their primary browser."
   },
   "row_default-browser_summary" : {
@@ -177,7 +177,7 @@
     "note" : "Summary title for the default browser switch feature."
   },
   "row_default-browser_desc" : {
-    "title" : "Naviga sempre in privato per impostazione predefinita.",
+    "title" : "Naviga sempre privatamente.",
     "note" : "Description for the default browser switch feature, emphasizes privacy."
   },
   "row_default-browser_accept" : {
