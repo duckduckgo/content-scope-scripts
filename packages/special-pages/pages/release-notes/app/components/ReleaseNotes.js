@@ -211,7 +211,7 @@ export function ReleaseNotes ({ releaseData }) {
             <header className={styles.heading}>
                 <PageTitle title={t('Browser Release Notes')}/>
                 <UpdateStatus status={status} lastUpdate={lastUpdate} version={currentVersion}/>
-                {status === 'updateReady' && <Button onClick={onRestartButtonClick}>{t('Restart to Update')}</Button>}
+                {status === 'updateReady' && <div className={styles.buttonContainer}><Button onClick={onRestartButtonClick}>{t('Restart to Update')}</Button></div>}
             </header>
             <Card className={styles.card}>
                 {status === 'loading'

@@ -48,7 +48,9 @@ export function Components () {
             <hr/>
 
             <h2>Restart Button</h2>
-            <Button platform="apple">Restart to Update</Button>
+            <div>
+                <Button platform="apple">Restart to Update</Button>
+            </div>
             <hr/>
 
             <h2>Content Placeholder</h2>

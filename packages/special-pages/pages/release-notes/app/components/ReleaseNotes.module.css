@@ -87,6 +87,12 @@
     color: var(--text-secondary-color);
 }
 
+/* Restart Button */
+.buttonContainer {
+    padding-top: var(--sp-1_5)
+}
+
+/* Release Notes */
 .notesHeading {
     display: grid;
     gap: var(--sp-0_5);
