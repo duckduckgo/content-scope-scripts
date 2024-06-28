@@ -3,10 +3,12 @@
  * that might be needed in CSS or JS
  */
 
-const param = new URLSearchParams(window.location.search).get('platform') || import.meta.injectName
+const param = new URLSearchParams(window.location.search).get('platform')
 
 if (isAllowed(param)) {
     document.documentElement.dataset.platform = String(param)
+} else {
+    document.documentElement.dataset.platform = import.meta.injectName
 }
 
 /**
