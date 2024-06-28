@@ -1,5 +1,5 @@
 import { useContext } from 'preact/hooks'
-import { TranslationContext } from '../../../shared/components/TranslationsProvider.js'
+import { TranslationContext } from '../../../shared/components/TranslationsProvider'
 
 /**
  * @typedef {'PrivacyPro'} NotesIcon // Allows for more icons to be added in the future
