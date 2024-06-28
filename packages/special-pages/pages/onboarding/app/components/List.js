@@ -1,7 +1,7 @@
 import { h } from 'preact'
 import styles from './List.module.css'
 import { useAutoAnimate } from '@formkit/auto-animate/preact'
-import { useEnv } from '../environment'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * List component is used to display an item in a styled

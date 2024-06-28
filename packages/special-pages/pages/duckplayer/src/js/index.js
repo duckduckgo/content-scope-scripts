@@ -32,7 +32,6 @@
  * Please see {@link DuckPlayerPageMessages} for the up-to-date list
  */
 import {
-    callWithRetry,
     DuckPlayerPageMessages,
     UserValues
 } from './messages'
@@ -40,6 +39,7 @@ import { html } from '../../../../../../src/dom-utils'
 import { initStorage } from './storage'
 import { createYoutubeURLForError } from './utils'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
+import { callWithRetry } from '../../../../shared/call-with-retry'
 
 // for docs
 export { DuckPlayerPageMessages, UserValues }

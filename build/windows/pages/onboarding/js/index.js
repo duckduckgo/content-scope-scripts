@@ -4326,7 +4326,8 @@
      *     }
      *   },
      *   "order": "v2",
-     *   "exclude": ["dockSingle"]
+     *   "exclude": ["dockSingle"],
+     *   "locale": "en"
      * }
      * ```
      *
@@ -4344,7 +4345,8 @@
             }
           },
           exclude: [],
-          order: "v1"
+          order: "v1",
+          locale: "en"
         };
       }
       return await this.messaging.request("init");
@@ -5404,94 +5406,24 @@
     return [element, setEnabled];
   }
 
-  // pages/onboarding/app/environment.js
-  var Environment = class _Environment {
-    /**
-     * @param {object} params
-     * @param {'app' | 'components'} [params.display] - whether to show the application or component list
-     * @param {'production' | 'development'} [params.env] - whether to show the application or component list
-     * @param {URLSearchParams} [params.urlParams] - whether to show the application or component list
-     * @param {ImportMeta['injectName']} [params.platform] - whether to show the application or component list
-     * @param {boolean} [params.willThrow] - whether the application will simulate an error
-     * @param {boolean} [params.debugState] - whether to show debugging UI
-     */
-    constructor({
-      display = "app",
-      env = "production",
-      urlParams = new URLSearchParams(location.search),
-      platform = "windows",
-      willThrow = urlParams.get("willThrow") === "true",
-      debugState = urlParams.has("debugState")
-    } = {}) {
-      this.display = display;
-      this.urlParams = urlParams;
-      this.platform = platform;
-      this.willThrow = willThrow;
-      this.debugState = debugState;
-      this.env = env;
-    }
-    /**
-     * @param {string|null|undefined} platform
-     * @returns {Environment}
-     */
-    withPlatform(platform) {
-      if (!platform)
-        return this;
-      if (!isPlatform(platform))
-        return this;
-      return new _Environment({
-        ...this,
-        platform
-      });
-    }
-    /**
-     * @param {string|null|undefined} env
-     * @returns {Environment}
-     */
-    withEnv(env) {
-      if (!env)
-        return this;
-      if (env !== "production" && env !== "development")
-        return this;
-      return new _Environment({
-        ...this,
-        env
-      });
-    }
-  };
-  function isPlatform(input) {
-    const allowed = ["windows", "apple", "integration"];
-    return allowed.includes(input);
-  }
+  // shared/components/EnvironmentProvider.js
   var EnvironmentContext = F({
-    isReducedMotion: (
-      /** @type {boolean} */
-      false
-    ),
-    isDarkMode: (
-      /** @type {boolean} */
-      false
-    ),
-    debugState: (
-      /** @type {boolean} */
-      false
-    ),
+    isReducedMotion: false,
+    isDarkMode: false,
+    debugState: false,
     platform: (
-      /** @type {ImportMeta['injectName']} */
+      /** @type {import('../environment').Environment['platform']} */
       "windows"
     ),
-    willThrow: (
-      /** @type {boolean} */
-      false
-    )
+    willThrow: false
   });
-  var QUERY = "(prefers-color-scheme: dark)";
+  var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
   function EnvironmentProvider({ children, debugState, willThrow = false, platform = "windows" }) {
-    const [theme, setTheme] = h2(window.matchMedia(QUERY).matches ? "dark" : "light");
+    const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     p2(() => {
-      const mediaQueryList = window.matchMedia(QUERY);
+      const mediaQueryList = window.matchMedia(THEME_QUERY);
       const listener = (e3) => setTheme(e3.matches ? "dark" : "light");
       mediaQueryList.addEventListener("change", listener);
       return () => mediaQueryList.removeEventListener("change", listener);
@@ -5643,7 +5575,7 @@
   };
 
   // pages/onboarding/app/components/Buttons.js
-  var import_classnames = __toESM(require_classnames());
+  var import_classnames = __toESM(require_classnames(), 1);
   function ButtonBar(props) {
     const { children, ...rest } = props;
     return /* @__PURE__ */ y("div", { className: Buttons_default.buttons, ...rest }, children);
@@ -5660,7 +5592,7 @@
   }
 
   // pages/onboarding/app/components/ListItem.js
-  var import_classnames2 = __toESM(require_classnames());
+  var import_classnames2 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/components/ListItem.module.css
   var ListItem_default = {
@@ -5782,122 +5714,129 @@
     }
   );
   var noneSettingsRowItems = {
-    search: {
+    search: (t3) => ({
       id: "search",
-      summary: "Private Search",
+      summary: t3("row_search_summary"),
       icon: "search.png",
-      title: "Private Search",
-      secondaryText: "We don't track you. Ever.",
+      title: t3("row_search_title"),
+      secondaryText: t3("row_search_desc"),
       kind: "one-time"
-    },
-    trackingProtection: {
+    }),
+    trackingProtection: (t3) => ({
       id: "trackingProtection",
-      summary: "Advanced Tracking Protection",
+      summary: t3("row_trackingProtection_summary"),
       icon: "shield.png",
-      title: "Advanced Tracking Protection",
-      secondaryText: "We block most trackers before they even load.",
+      title: t3("row_trackingProtection_title"),
+      secondaryText: t3("row_trackingProtection_desc"),
       kind: "one-time"
-    },
-    cookieManagement: {
+    }),
+    cookieManagement: (t3) => ({
       id: "cookieManagement",
-      summary: "Automatic Cookie Pop-Up Blocking",
+      summary: t3("row_cookieManagement_summary"),
       icon: "cookie.png",
-      title: "Automatic Cookie Pop-Up Blocking",
-      secondaryText: "We deny optional cookies for you & hide pop-ups.",
+      title: t3("row_cookieManagement_title"),
+      secondaryText: t3("row_cookieManagement_desc"),
       kind: "one-time"
-    },
-    fewerAds: {
+    }),
+    fewerAds: (t3) => ({
       id: "fewerAds",
-      summary: "See Fewer Ads & Pop-Ups",
+      summary: t3("row_fewerAds_summary"),
       icon: "browsing.png",
-      title: "While browsing the web",
-      secondaryText: "Our tracker blocking eliminates most ads.",
+      title: t3("row_fewerAds_title"),
+      secondaryText: t3("row_fewerAds_desc"),
       kind: "one-time"
-    },
-    duckPlayer: {
+    }),
+    duckPlayer: (t3) => ({
       id: "duckPlayer",
-      summary: "Distraction-Free YouTube",
+      summary: t3("row_duckPlayer_summary"),
       icon: "duckplayer.png",
-      title: "While watching YouTube",
-      secondaryText: "Enforce YouTube\u2019s strictest privacy settings by default. Watch videos in a clean viewing experience without personalized ads.",
+      title: t3("row_duckPlayer_title"),
+      secondaryText: t3("row_duckPlayer_desc"),
       kind: "one-time"
-    }
+    })
   };
   var settingsRowItems = {
-    dock: {
-      id: "dock",
-      icon: "dock.png",
-      title: "Keep DuckDuckGo in your Taskbar",
-      secondaryText: "Get to DuckDuckGo faster.",
-      summary: "Pin to Taskbar",
-      kind: "one-time",
-      acceptText: "Pin to Taskbar"
+    dock: (t3, platform) => {
+      const title = platform === "apple" ? t3("row_dock_macos_title") : t3("row_dock_title");
+      const acceptText = platform === "apple" ? t3("row_dock_macos_accept") : t3("row_dock_accept");
+      return {
+        id: "dock",
+        icon: "dock.png",
+        title,
+        secondaryText: t3("row_dock_desc"),
+        summary: t3("row_dock_summary"),
+        kind: "one-time",
+        acceptText
+      };
     },
-    import: {
+    import: (t3) => ({
       id: "import",
       icon: "import.png",
-      title: "Bring your stuff",
-      secondaryText: "Import bookmarks, favorites, and passwords.",
-      summary: "Import Your Stuff",
+      title: t3("row_import_title"),
+      secondaryText: t3("row_import_desc"),
+      summary: t3("row_import_summary"),
       kind: "one-time",
-      acceptText: "Import"
-    },
-    "default-browser": {
+      acceptText: t3("row_import_accept")
+    }),
+    "default-browser": (t3) => ({
       id: "default-browser",
       icon: "switch.png",
-      title: "Switch your default browser",
-      secondaryText: "Always browse privately by default.",
-      summary: "Default Browser",
+      title: t3("row_default-browser_title"),
+      secondaryText: t3("row_default-browser_desc"),
+      summary: t3("row_default-browser_summary"),
       kind: "one-time",
-      acceptText: "Make Default"
-    },
-    bookmarks: {
+      acceptText: t3("row_default-browser_accept")
+    }),
+    bookmarks: (t3) => ({
       id: "bookmarks",
       icon: "bookmarks.png",
-      title: "Put your bookmarks in easy reach",
-      secondaryText: "Show a bookmarks bar with your favorite bookmarks.",
-      summary: "Bookmarks Bar",
+      title: t3("row_bookmarks_title"),
+      secondaryText: t3("row_bookmarks_desc"),
+      summary: t3("row_bookmarks_summary"),
       kind: "toggle",
-      acceptText: "Show Bookmarks Bar"
-    },
-    "session-restore": {
+      acceptText: t3("row_bookmarks_accept")
+    }),
+    "session-restore": (t3) => ({
       id: "session-restore",
       icon: "session-restore.png",
-      title: "Pick up where you left off",
-      secondaryText: "Always restart with all windows from your last session.",
-      summary: "Session Restore",
+      title: t3("row_session-restore_title"),
+      secondaryText: t3("row_session-restore_desc"),
+      summary: t3("row_session-restore_summary"),
       kind: "toggle",
-      acceptText: "Enable Session Restore"
-    },
-    "home-shortcut": {
+      acceptText: t3("row_session-restore_accept")
+    }),
+    "home-shortcut": (t3) => ({
       id: "home-shortcut",
       icon: "home.png",
-      title: "Add a shortcut to your homepage",
-      secondaryText: "Show a home button in your toolbar.",
-      summary: "Home Button",
+      title: t3("row_home-shortcut_title"),
+      secondaryText: t3("row_home-shortcut_desc"),
+      summary: t3("row_home-shortcut_summary"),
       kind: "toggle",
-      acceptText: "Show Home Button"
-    }
+      acceptText: t3("row_home-shortcut_accept")
+    })
   };
-  var beforeAfterMeta = (
-    /** @type {const} */
-    {
-      fewerAds: {
-        btnBeforeText: "See With Tracker Blocking",
-        btnAfterText: "See Without Tracker Blocking",
-        artboard: "Ad Blocking",
-        inputName: "DDG?",
-        stateMachine: "State Machine 2"
-      },
-      duckPlayer: {
-        btnBeforeText: "See With Duck Player",
-        btnAfterText: "See Without Duck Player",
-        artboard: "Duck Player",
-        inputName: "Duck Player?",
-        stateMachine: "State Machine 2"
-      }
-    }
-  );
+  var beforeAfterMeta = {
+    /**
+     * @param {import('./types').TranslationFn} t
+     */
+    fewerAds: (t3) => ({
+      btnBeforeText: t3("beforeAfter_fewerAds_show"),
+      btnAfterText: t3("beforeAfter_fewerAds_hide"),
+      artboard: "Ad Blocking",
+      inputName: "DDG?",
+      stateMachine: "State Machine 2"
+    }),
+    /**
+     * @param {import('./types').TranslationFn} t
+     */
+    duckPlayer: (t3) => ({
+      btnBeforeText: t3("beforeAfter_duckPlayer_show"),
+      btnAfterText: t3("beforeAfter_duckPlayer_hide"),
+      artboard: "Duck Player",
+      inputName: "Duck Player?",
+      stateMachine: "State Machine 2"
+    })
+  };
 
   // pages/onboarding/app/components/List.module.css
   var List_default = {
@@ -5915,67 +5854,376 @@
     return /* @__PURE__ */ y("ul", { className: List_default.summaryList }, props.children);
   }
 
-  // pages/onboarding/app/text.js
-  var i18n = {
-    en: {
-      translation: {
-        welcome_title: "Welcome To DuckDuckGo!",
-        getStarted_title: "Tired of being tracked online?\nWe can help!",
-        privateByDefault_title: "Unlike other browsers, DuckDuckGo\ncomes with privacy by default",
-        cleanerBrowsing_title: "Private also means\nfewer ads and pop-ups",
-        systemSettings_title: "Make privacy your go-to",
-        customize_title: "Customize your experience",
-        customize_subtitle: "Make DuckDuckGo work just the way you want.",
-        summary_title: "You're all\xA0set!",
-        dockSingle_title: "Make privacy your go-to",
-        importSingle_title: "Make privacy your go-to",
-        makeDefaultSingle_title: "Make privacy your go-to",
-        // 1:1 strings
-        "Get Started": "Get Started",
-        "Got It": "Got It",
-        Next: "Next",
-        "Start Browsing": "Start Browsing",
-        "You can change your choices any time in": "You can change your choices any time in",
-        Settings: "Settings",
-        "Show Home Button": "Show Home Button",
-        "Home Button": "Home Button",
-        Hide: "Hide",
-        "Show left of the back button": "Show left of the back button",
-        "Show right of the reload button": "Show right of the reload button",
-        "Something went wrong": "Something went wrong",
-        "You can continue browsing as normal, or visit our ": "You can continue browsing as normal, or visit our ",
-        "Help pages": "Help pages"
+  // shared/translations.js
+  function apply(subject, replacements, textLength = 1) {
+    if (typeof subject !== "string" || subject.length === 0)
+      return "";
+    let out = subject;
+    if (replacements) {
+      for (let [name, value] of Object.entries(replacements)) {
+        if (typeof value !== "string")
+          value = "";
+        out = out.replaceAll(`{${name}}`, value);
       }
+    }
+    if (textLength !== 1 && textLength > 0 && textLength <= 2) {
+      const targetLen = Math.ceil(out.length * textLength);
+      const target2 = Math.ceil(textLength);
+      const combined = out.repeat(target2);
+      return combined.slice(0, targetLen);
+    }
+    return out;
+  }
+
+  // shared/components/TranslationsProvider.js
+  var TranslationContext = F({
+    /** @type {LocalTranslationFn} */
+    t: () => {
+      throw new Error("must implement");
+    }
+  });
+  function TranslationProvider({ children, translationObject, fallback, textLength = 1 }) {
+    function t3(inputKey, replacements) {
+      const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
+      return apply(subject, replacements, textLength);
+    }
+    return /* @__PURE__ */ y(TranslationContext.Provider, { value: { t: t3 } }, children);
+  }
+  function Trans({ str, values }) {
+    const ref = _(null);
+    const cleanups = _([]);
+    p2(() => {
+      if (!ref.current)
+        return;
+      const curr = ref.current;
+      const cleanupsCurr = cleanups.current;
+      Object.entries(values).forEach(([tag, attributes]) => {
+        curr.querySelectorAll(tag).forEach((el) => {
+          Object.entries(attributes).forEach(([key, value]) => {
+            if (typeof value === "function") {
+              el.addEventListener(key, value);
+              cleanupsCurr.push(() => el.removeEventListener(key, value));
+            } else {
+              el.setAttribute(key, value);
+            }
+          });
+        });
+      });
+      return () => {
+        cleanupsCurr.forEach((fn) => fn());
+      };
+    }, [values, str]);
+    return /* @__PURE__ */ y("span", { ref, dangerouslySetInnerHTML: { __html: str } });
+  }
+
+  // pages/onboarding/src/locales/en/onboarding.json
+  var onboarding_default = {
+    smartling: {
+      string_format: "icu",
+      translate_paths: [
+        {
+          path: "*/title",
+          key: "{*}/title",
+          instruction: "*/note"
+        }
+      ]
+    },
+    skipButton: {
+      title: "Skip",
+      note: "Used to advance to the next step in the process"
+    },
+    getStartedButton: {
+      title: "Get Started",
+      note: "Button text in the button used to start the process"
+    },
+    gotIt: {
+      title: "Got It",
+      note: "Button text used to confirm understanding of a particular step, used as an action to proceed"
+    },
+    startBrowsing: {
+      title: "Start Browsing",
+      note: "Used as the final step in the process - to indicate that the next step will be using the browser"
+    },
+    somethingWentWrong: {
+      title: "Something went wrong",
+      note: "A message shown when the application experienced a crash"
+    },
+    youCanChangeYourChoicesAnyTimeInSettings: {
+      title: "You can change your choices any time in <a>Settings</a>.",
+      note: "This is a statement with inline link, informing users that they can alter their preferences in `Settings` anytime. Please maintain the position of the opening `<a>` and closing `</a>` tag since they are used to create a link for the enclosed word only."
+    },
+    welcome_title: {
+      title: "Welcome To DuckDuckGo!",
+      note: "Page title for the first step in the process"
+    },
+    getStarted_title: {
+      title: "Tired of being tracked online?{newline}We can help!",
+      note: "Page title indicating that DuckDuckGo can help against online trackers. Please adjust `{newline}` placement ensuring visual balance and readability."
+    },
+    privateByDefault_title: {
+      title: "Unlike other browsers, DuckDuckGo{newline}comes with privacy by default",
+      note: "Page title indicating that this application is private by default, requiring little to no user configuration. Please adjust `{newline}` placement ensuring visual balance and readability."
+    },
+    cleanerBrowsing_title: {
+      title: "Private also means{newline}fewer ads and pop-ups",
+      note: "Page title highlighting that DuckDuckGo shows less advertisements and popups. Please adjust `{newline}` placement ensuring visual balance and readability."
+    },
+    systemSettings_title: {
+      title: "Make privacy your go-to",
+      note: "Page title used in lists of toggle & switches that enable or disable particular privacy features"
+    },
+    customize_title: {
+      title: "Customize your experience",
+      note: "Page title used in lists of toggle & switches that enable or disable particular features"
+    },
+    customize_subtitle: {
+      title: "Make DuckDuckGo work just the way you want.",
+      note: "Shown under the main page title as encouragement to enable particular features"
+    },
+    summary_title: {
+      title: "You're all set!",
+      note: "Page title of the summary page. Indicates that all steps are complete"
+    },
+    nextButton: {
+      title: "Next",
+      note: "Button text used to advance to the next step"
+    },
+    row_search_title: {
+      title: "Private Search",
+      note: "Title for the search feature status row, shows the status of the private search feature."
+    },
+    row_search_desc: {
+      title: "We don't track you. Ever.",
+      note: "Description for the search feature status row, emphasizes privacy."
+    },
+    row_search_summary: {
+      title: "Private Search",
+      note: "Summary title for the private search feature."
+    },
+    row_trackingProtection_title: {
+      title: "Advanced Tracking Protection",
+      note: "Title for the tracking protection feature status row."
+    },
+    row_trackingProtection_desc: {
+      title: "We block most trackers before they even load.",
+      note: "Description for the tracking protection feature status row, emphasizes proactive blocking."
+    },
+    row_trackingProtection_summary: {
+      title: "Advanced Tracking Protection",
+      note: "Summary title for the tracking protection feature."
+    },
+    row_cookieManagement_title: {
+      title: "Automatic Cookie Pop-Up Blocking",
+      note: "Title for the cookie management feature status row."
+    },
+    row_cookieManagement_desc: {
+      title: "We deny optional cookies for you & hide pop-ups.",
+      note: "Description for the cookie management feature status row, emphasizes automated protection."
+    },
+    row_cookieManagement_summary: {
+      title: "Automatic Cookie Pop-Up Blocking",
+      note: "Summary title for the automatic cookie pop-up blocking feature."
+    },
+    row_fewerAds_title: {
+      title: "While browsing the web",
+      note: "Title for the fewer ads feature status row gist, clarifies where the feature is relevant."
+    },
+    row_fewerAds_summary: {
+      title: "See Fewer Ads & Pop-Ups",
+      note: "Summary title for the fewer ads feature, describes the intended effect."
+    },
+    row_fewerAds_desc: {
+      title: "Our tracker blocking eliminates most ads.",
+      note: "Description for the fewer ads feature status row, explains how the feature works."
+    },
+    row_duckPlayer_summary: {
+      title: "Distraction-Free YouTube",
+      note: "Summary title for the Duck Player feature, emphasizes a cleaner experience."
+    },
+    row_duckPlayer_title: {
+      title: "While watching YouTube",
+      note: "Title for the Duck Player feature status row, clarifies where the feature is relevant."
+    },
+    row_duckPlayer_desc: {
+      title: "Enforce YouTube\u2019s strictest privacy settings by default. Watch videos in a clean viewing experience without personalized ads.",
+      note: "Description for the Duck Player feature status row, states the feature's purpose and execution."
+    },
+    row_dock_title: {
+      title: "Keep DuckDuckGo in your Taskbar",
+      note: "Suggests users to keep DuckDuckGo in their taskbar for quick access."
+    },
+    row_dock_summary: {
+      title: "Pin to Taskbar",
+      note: "The text shown on the button to perform the action to pin DuckDuckGo to the taskbar."
+    },
+    row_dock_desc: {
+      title: "Get to DuckDuckGo faster.",
+      note: "Description for keeping DuckDuckGo in the taskbar, emphasizes on speed and ease of access."
+    },
+    row_dock_accept: {
+      title: "Pin to Taskbar",
+      note: "The text shown in the button to confirm pinning DuckDuckGo to the taskbar."
+    },
+    row_dock_macos_title: {
+      title: "Keep DuckDuckGo in your Dock",
+      note: "Suggests users to keep DuckDuckGo in their Dock for quick access."
+    },
+    row_dock_macos_accept: {
+      title: "Keep in Dock",
+      note: "The text shown on the button to perform the action to keep DuckDuckGo in the users Dock."
+    },
+    row_import_title: {
+      title: "Bring your stuff",
+      note: "Title for importing user data (bookmarks, favorites, passwords) to DuckDuckGo from other browsers."
+    },
+    row_import_summary: {
+      title: "Import Your Stuff",
+      note: "Summary title for the import feature, refers to personal browser data."
+    },
+    row_import_desc: {
+      title: "Import bookmarks, favorites, and passwords.",
+      note: "Description for the import feature, lists specific items that can be imported."
+    },
+    row_import_accept: {
+      title: "Import",
+      note: "The text shown in the button to perform the import action."
+    },
+    "row_default-browser_title": {
+      title: "Switch your default browser",
+      note: "Title for the default browser suggestion, encourages users to make DuckDuckGo their primary browser."
+    },
+    "row_default-browser_summary": {
+      title: "Default Browser",
+      note: "Summary title for the default browser switch feature."
+    },
+    "row_default-browser_desc": {
+      title: "Always browse privately by default.",
+      note: "Description for the default browser switch feature, emphasizes privacy."
+    },
+    "row_default-browser_accept": {
+      title: "Make Default",
+      note: "The text shown in the button to perform the action to make DuckDuckGo the default browser."
+    },
+    row_bookmarks_title: {
+      title: "Put your bookmarks in easy reach",
+      note: "Title for the bookmarks bar feature, suggests placing bookmarks in an easily accessible location."
+    },
+    row_bookmarks_summary: {
+      title: "Bookmarks Bar",
+      note: "Summary title for the bookmarks bar."
+    },
+    row_bookmarks_desc: {
+      title: "Show a bookmarks bar with your favorite bookmarks.",
+      note: "Description for the bookmarks bar feature, describes the outcome."
+    },
+    row_bookmarks_accept: {
+      title: "Show Bookmarks Bar",
+      note: "The text shown on the button to show the bookmarks bar."
+    },
+    "row_session-restore_title": {
+      title: "Pick up where you left off",
+      note: "Title for the session restoring feature, suggests resuming from the point where the user last stopped."
+    },
+    "row_session-restore_summary": {
+      title: "Session Restore",
+      note: "Summary title for the session restore feature."
+    },
+    "row_session-restore_desc": {
+      title: "Always restart with all windows from your last session.",
+      note: "Description for the session restoring feature, elaborates on its functionality."
+    },
+    "row_session-restore_accept": {
+      title: "Enable Session Restore",
+      note: "The text shown on the button to enable the session restore feature."
+    },
+    "row_home-shortcut_title": {
+      title: "Add a shortcut to your homepage",
+      note: "Title for the home button feature, suggests adding a shortcut to the homepage for easy access."
+    },
+    "row_home-shortcut_summary": {
+      title: "Home Button",
+      note: "Summary title for the home button, refers to a toolbar feature."
+    },
+    "row_home-shortcut_desc": {
+      title: "Show a home button in your toolbar.",
+      note: "Description for the home button feature, outlines the outcome."
+    },
+    "row_home-shortcut_accept": {
+      title: "Show Home Button",
+      note: "The text shown on the button to show the home button."
+    },
+    beforeAfter_fewerAds_show: {
+      title: "See With Tracker Blocking",
+      note: "Option for comparing browsing with and without tracker blocking."
+    },
+    beforeAfter_fewerAds_hide: {
+      title: "See Without Tracker Blocking",
+      note: "Option for comparing browsing with and without tracker blocking."
+    },
+    beforeAfter_duckPlayer_show: {
+      title: "See With Duck Player",
+      note: "Option for comparing YouTube viewing experience with and without Duck Player."
+    },
+    beforeAfter_duckPlayer_hide: {
+      title: "See Without Duck Player",
+      note: "Option for comparing YouTube viewing experience with and without Duck Player."
     }
   };
 
-  // pages/onboarding/app/translations.js
-  var TranslationContext = F({
-    /**
-     * @param {keyof i18n['en']['translation']} key
-     * @return {string}
-     */
-    t: (key) => {
-      return i18n.en.translation[key];
-    }
-  });
-  function useTranslation() {
-    return q2(TranslationContext);
+  // pages/onboarding/app/types.js
+  var EVERY_PAGE_ID = [
+    "welcome",
+    "getStarted",
+    "privateByDefault",
+    "cleanerBrowsing",
+    "systemSettings",
+    "customize",
+    "summary",
+    "dockSingle",
+    "importSingle",
+    "makeDefaultSingle"
+  ];
+  var DEFAULT_ORDER = [
+    "welcome",
+    "getStarted",
+    "privateByDefault",
+    "cleanerBrowsing",
+    "systemSettings",
+    "customize",
+    "summary"
+  ];
+  var ALT_ORDER = [
+    "welcome",
+    "getStarted",
+    "privateByDefault",
+    "cleanerBrowsing",
+    "dockSingle",
+    "importSingle",
+    "makeDefaultSingle",
+    "customize",
+    "summary"
+  ];
+  function useTypedTranslation() {
+    return {
+      t: q2(TranslationContext).t
+    };
   }
 
   // pages/onboarding/app/pages/Summary.js
   function Summary({ values, onDismiss, onSettings }) {
-    const { t: t3 } = useTranslation();
-    const items = Object.keys(noneSettingsRowItems).map((key) => {
+    const { t: t3 } = useTypedTranslation();
+    const items = Object.values(noneSettingsRowItems).map((fn) => {
+      const subject = fn(t3);
       return {
-        icon: noneSettingsRowItems[key].icon,
-        summary: noneSettingsRowItems[key].summary
+        icon: subject.icon,
+        summary: subject.summary
       };
     });
-    const enabledSettingsItems = Object.keys(values || {}).filter((key) => values[key].enabled === true).map((key) => {
+    const enabledSettingsItems = Object.keys(values).filter((key) => values[key].enabled === true && Object.hasOwnProperty.call(settingsRowItems, key)).map((key) => {
+      const subject = settingsRowItems[key](t3);
       return {
-        icon: settingsRowItems[key].icon,
-        summary: settingsRowItems[key].summary
+        icon: subject.icon,
+        summary: subject.summary
       };
     });
     function onSettingsHandler(e3) {
@@ -5987,10 +6235,21 @@
     })), /* @__PURE__ */ y(SlideUp, null, /* @__PURE__ */ y(ButtonBar, { style: {
       marginTop: "19px"
       /* this matches the designs perfectly */
-    } }, /* @__PURE__ */ y(Button, { onClick: onDismiss, size: "xl" }, t3("Start Browsing"), /* @__PURE__ */ y(Launch, null)))), /* @__PURE__ */ y("div", { style: {
+    } }, /* @__PURE__ */ y(Button, { onClick: onDismiss, size: "xl" }, t3("startBrowsing"), /* @__PURE__ */ y(Launch, null)))), /* @__PURE__ */ y("div", { style: {
       marginTop: "50px"
       /* this matches the designs perfectly */
-    } }, t3("You can change your choices any time in"), " ", /* @__PURE__ */ y("a", { onClick: onSettingsHandler, href: "about:preferences" }, t3("Settings")), "."));
+    } }, /* @__PURE__ */ y(
+      Trans,
+      {
+        str: t3("youCanChangeYourChoicesAnyTimeInSettings"),
+        values: {
+          a: {
+            href: "about:preferences",
+            click: onSettingsHandler
+          }
+        }
+      }
+    )));
   }
 
   // pages/onboarding/app/global.js
@@ -6225,15 +6484,15 @@
   };
 
   // pages/onboarding/app/components/Background.js
-  var import_classnames3 = __toESM(require_classnames());
+  var import_classnames3 = __toESM(require_classnames(), 1);
   function Background() {
     return /* @__PURE__ */ y("div", { className: Background_default.background }, /* @__PURE__ */ y("div", { className: (0, import_classnames3.default)(Background_default.foreground, Background_default.layer1) }), /* @__PURE__ */ y("div", { className: (0, import_classnames3.default)(Background_default.foreground, Background_default.layer2) }), /* @__PURE__ */ y("div", { className: (0, import_classnames3.default)(Background_default.foreground, Background_default.layer3) }));
   }
 
   // pages/onboarding/app/pages/Welcome.js
   function GetStarted({ onNextPage }) {
-    const { t: t3 } = useTranslation();
-    return /* @__PURE__ */ y(SlideUp, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "xl" }, t3("Get Started")));
+    const { t: t3 } = useTypedTranslation();
+    return /* @__PURE__ */ y(SlideUp, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "xl" }, t3("getStartedButton")));
   }
 
   // pages/onboarding/app/hooks/useRollin.js
@@ -6277,11 +6536,11 @@
 
   // pages/onboarding/app/pages/PrivacyDefault.js
   function PrivacyDefault({ onNextPage }) {
-    const { t: t3 } = useTranslation();
+    const { t: t3 } = useTypedTranslation();
     const rows = [
-      noneSettingsRowItems.search,
-      noneSettingsRowItems.trackingProtection,
-      noneSettingsRowItems.cookieManagement
+      noneSettingsRowItems.search(t3),
+      noneSettingsRowItems.trackingProtection(t3),
+      noneSettingsRowItems.cookieManagement(t3)
     ];
     const { state } = useRollin([0, 1e3, 1e3, 800]);
     const check = /* @__PURE__ */ y(BounceIn, { delay: "double" }, /* @__PURE__ */ y(Check, null));
@@ -6298,7 +6557,7 @@
           animate: true
         }
       );
-    }))), state.isLast && /* @__PURE__ */ y(SlideUp, null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "large" }, t3("Got It")))));
+    }))), state.isLast && /* @__PURE__ */ y(SlideUp, null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "large" }, t3("gotIt")))));
   }
 
   // pages/onboarding/app/components/Timeout.js
@@ -6337,7 +6596,7 @@
   }
 
   // pages/onboarding/app/components/RiveAnimation.js
-  var import_canvas_single = __toESM(require_rive());
+  var import_canvas_single = __toESM(require_rive(), 1);
   function RiveAnimation({ animation, state, stateMachine, artboard, inputName, isDarkMode }) {
     const ref = _(
       /** @type {null | HTMLCanvasElement} */
@@ -6413,7 +6672,7 @@
 
   // pages/onboarding/app/components/BeforeAfter.js
   function BeforeAfter({ media, onDone, btnBefore, btnAfter }) {
-    const { t: t3 } = useTranslation();
+    const { t: t3 } = useTypedTranslation();
     const { isReducedMotion } = useEnv();
     const [imageParent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
     const [state, dispatch] = s2((prev) => {
@@ -6425,7 +6684,7 @@
         return "before";
       throw new Error("unreachable");
     }, "initial");
-    return /* @__PURE__ */ y(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ y("div", { className: BeforeAfter_default.imgWrap, ref: imageParent }, media({ state, className: BeforeAfter_default.media })), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { variant: "secondary", onClick: () => dispatch("toggle"), style: { minWidth: "210px" } }, state === "after" && /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Replay, null), btnAfter), (state === "before" || state === "initial") && /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Play, null), btnBefore)), state !== "initial" && /* @__PURE__ */ y(SlideIn, { delay: "double" }, /* @__PURE__ */ y(Button, { onClick: onDone }, t3("Got It")))));
+    return /* @__PURE__ */ y(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ y("div", { className: BeforeAfter_default.imgWrap, ref: imageParent }, media({ state, className: BeforeAfter_default.media })), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { variant: "secondary", onClick: () => dispatch("toggle"), style: { minWidth: "210px" } }, state === "after" && /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Replay, null), btnAfter), (state === "before" || state === "initial") && /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Play, null), btnBefore)), state !== "initial" && /* @__PURE__ */ y(SlideIn, { delay: "double" }, /* @__PURE__ */ y(Button, { onClick: onDone }, t3("gotIt")))));
   }
 
   // pages/onboarding/app/animations/Onboarding.riv
@@ -6433,21 +6692,22 @@
 
   // pages/onboarding/app/pages/CleanBrowsing.js
   function CleanBrowsing({ onNextPage }) {
-    const { t: t3 } = useTranslation();
+    const { t: t3 } = useTypedTranslation();
     const rows = [
-      noneSettingsRowItems.fewerAds,
-      noneSettingsRowItems.duckPlayer
+      noneSettingsRowItems.fewerAds(t3),
+      noneSettingsRowItems.duckPlayer(t3)
     ];
     const frames = new Array(rows.length).fill("start-trigger");
     const { state, advance } = useRollin([300, ...frames]);
     return /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y(Stack, { animate: true }, state.current > 0 && /* @__PURE__ */ y(List, { animate: true }, rows.slice(0, state.current).map((row, index) => {
       const isCurrent = state.current === index + 1;
       return /* @__PURE__ */ y(RowItem, { isCurrent, row, index, advance });
-    }))), state.isLast && /* @__PURE__ */ y(SlideUp, { delay: "double" }, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "large" }, t3("Next")))));
+    }))), state.isLast && /* @__PURE__ */ y(SlideUp, { delay: "double" }, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "large" }, t3("nextButton")))));
   }
   function RowItem({ isCurrent, row, index, advance }) {
     const { isDarkMode } = useEnv();
-    const meta = beforeAfterMeta[row.id];
+    const { t: t3 } = useTypedTranslation();
+    const meta = beforeAfterMeta[row.id](t3);
     return /* @__PURE__ */ y(
       ListItem,
       {
@@ -6508,8 +6768,9 @@
 
   // pages/onboarding/app/pages/SettingsStep.js
   function SettingsStep({ onNextPage, data, metaData, subtitle }) {
+    const { platform } = useEnv();
     const { state } = useRollin([300]);
-    const { t: t3 } = useTranslation();
+    const { t: t3 } = useTypedTranslation();
     const dispatch = useGlobalDispatch();
     const appState = useGlobalState();
     if (appState.step.kind !== "settings")
@@ -6525,16 +6786,17 @@
         uiValue: appState.UIValues[rowId],
         pending: pendingId === rowId,
         id: rowId,
-        data: data[rowId],
+        data: data[rowId](t3, platform),
         meta: metaData[step.id]?.rows?.[rowId]
       };
     });
     return /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y(Stack, { animate: true }, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ y("p", null, appState.status.error), state.current > 0 && /* @__PURE__ */ y(Stack, { gap: Stack.gaps["4"] }, subtitle && /* @__PURE__ */ y("h2", null, subtitle), /* @__PURE__ */ y(List, null, rows.filter((item) => item.visible).map((item, index) => {
       return /* @__PURE__ */ y(SettingListItem, { key: item.id, dispatch, item, index });
-    })))), complete && /* @__PURE__ */ y(SlideUp, { delay: "double" }, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "large" }, t3("Next")))));
+    })))), complete && /* @__PURE__ */ y(SlideUp, { delay: "double" }, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { onClick: onNextPage, size: "large" }, t3("nextButton")))));
   }
   function SettingListItem({ index, item, dispatch }) {
     const data = item.data;
+    const { t: t3 } = useTypedTranslation();
     const accept = () => {
       dispatch({
         kind: "update-system-value",
@@ -6595,7 +6857,7 @@
         animate: true,
         index
       },
-      item.current && display.kind === "button-bar" && /* @__PURE__ */ y(ListItem.Indent, null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, "Skip"), /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText))),
+      item.current && display.kind === "button-bar" && /* @__PURE__ */ y(ListItem.Indent, null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText))),
       item.current && display.kind === "animation" && /* @__PURE__ */ y(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ y(
         RiveAnimation,
         {
@@ -6604,7 +6866,7 @@
           isDarkMode,
           stateMachine: "State Machine 1"
         }
-      ), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, "Skip"), /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText)))
+      ), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ y(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText)))
     );
   }
 
@@ -6767,7 +7029,7 @@
     return /* @__PURE__ */ y("div", { className: Content_default.indent }, /* @__PURE__ */ y("div", { className: Content_default.wrapper }, children));
   }
 
-  // pages/onboarding/app/ErrorBoundary.js
+  // shared/components/ErrorBoundary.js
   var ErrorBoundary = class extends b {
     /**
      * @param {{didCatch: (params: {error: Error; info: any}) => void}} props
@@ -6780,6 +7042,8 @@
       return { hasError: true };
     }
     componentDidCatch(error, info) {
+      console.error(error);
+      console.log(info);
       this.props.didCatch({ error, info });
     }
     render() {
@@ -6792,8 +7056,8 @@
 
   // pages/onboarding/app/pages/Fallback.js
   function Fallback() {
-    const { t: t3 } = useTranslation();
-    return /* @__PURE__ */ y(Content, null, /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y("h1", null, t3("Something went wrong")), /* @__PURE__ */ y("p", null, t3("You can continue browsing as normal, or visit our "), /* @__PURE__ */ y("a", { href: "https://duckduckgo.com/help" }, t3("Help pages")))));
+    const { t: t3 } = useTypedTranslation();
+    return /* @__PURE__ */ y(Content, null, /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y("h1", null, t3("somethingWentWrong"))));
   }
 
   // pages/onboarding/app/components/Progress.module.css
@@ -6814,7 +7078,7 @@
     const { debugState, isReducedMotion } = useEnv();
     const globalState = q2(GlobalContext);
     const dispatch = q2(GlobalDispatch);
-    const { t: t3 } = useTranslation();
+    const { t: t3 } = useTypedTranslation();
     const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState;
     const enqueueNext = () => {
       if (isReducedMotion) {
@@ -6831,18 +7095,30 @@
       const message = error?.message || "unknown";
       dispatch({ kind: "error-boundary", error: { message, id: activeStep } });
     };
-    const pageTitle = t3(
+    const titles = {
+      welcome: t3("welcome_title"),
+      getStarted: t3("getStarted_title", { newline: "\n" }),
+      privateByDefault: t3("privateByDefault_title", { newline: "\n" }),
+      cleanerBrowsing: t3("cleanerBrowsing_title", { newline: "\n" }),
+      systemSettings: t3("systemSettings_title"),
+      customize: t3("customize_title"),
+      summary: t3("summary_title"),
+      dockSingle: t3("systemSettings_title"),
+      importSingle: t3("systemSettings_title"),
+      makeDefaultSingle: t3("systemSettings_title")
+    };
+    const pageTitle = titles[activeStep];
+    const nextPageTitle = titles[
       /** @type {any} */
-      activeStep + "_title"
-    );
-    const nextPageTitle = t3(
-      /** @type {any} */
-      nextStep + "_title"
-    );
+      nextStep
+    ];
     const pageSubTitle = t3(
       /** @type {any} */
       activeStep + "_subtitle"
     );
+    if (!pageTitle || pageTitle.length === 0) {
+      console.warn("missing page title for ", activeStep);
+    }
     const infoPages = {
       welcome: () => /* @__PURE__ */ y(Timeout, { onComplete: enqueueNext, ignore: true }),
       getStarted: () => /* @__PURE__ */ y(GetStarted, { onNextPage: enqueueNext }),
@@ -6929,7 +7205,7 @@
   }
 
   // pages/onboarding/app/Components.js
-  var import_classnames4 = __toESM(require_classnames());
+  var import_classnames4 = __toESM(require_classnames(), 1);
   function noop(name) {
     return () => {
       console.log("clicked " + name);
@@ -6950,7 +7226,8 @@
     );
   }
   function Components() {
-    return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y(Background, null), /* @__PURE__ */ y("div", { class: App_default.container }, /* @__PURE__ */ y(Stack, { gap: "var(--sp-8)" }, /* @__PURE__ */ y("p", null, /* @__PURE__ */ y("a", { href: "?env=app" }, "Onboarding Flow")), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: "Welcome to DuckDuckGo" })), /* @__PURE__ */ y(Progress, { current: 1, total: 4 }), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(CleanBrowsing, { onNextPage: console.log })), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(NewCheck, { variant: "windows" }), /* @__PURE__ */ y(NewCheck, { variant: "apple" })), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(
+    const { t: t3 } = useTypedTranslation();
+    return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y(Background, null), /* @__PURE__ */ y("div", { class: App_default.container }, /* @__PURE__ */ y(Stack, { gap: "var(--sp-8)" }, /* @__PURE__ */ y("p", null, /* @__PURE__ */ y("a", { href: "?env=app" }, "Onboarding Flow")), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: t3("welcome_title") })), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: t3("getStarted_title", { newline: "\n" }) })), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: t3("privateByDefault_title", { newline: "\n" }) })), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: t3("cleanerBrowsing_title", { newline: "\n" }) })), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: t3("systemSettings_title") })), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: t3("customize_title") })), /* @__PURE__ */ y(Header, null, /* @__PURE__ */ y(Typed, { text: t3("summary_title") })), /* @__PURE__ */ y(Progress, { current: 1, total: 4 }), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(CleanBrowsing, { onNextPage: console.log })), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(NewCheck, { variant: "windows" }), /* @__PURE__ */ y(NewCheck, { variant: "apple" })), /* @__PURE__ */ y(ButtonBar, null, /* @__PURE__ */ y(
       Switch,
       {
         pending: false,
@@ -7077,9 +7354,9 @@
       return /* @__PURE__ */ y(
         ListItem,
         {
-          icon: settingsRowItems[key].icon,
-          title: settingsRowItems[key].title,
-          secondaryText: settingsRowItems[key].secondaryText
+          icon: settingsRowItems[key](t3).icon,
+          title: settingsRowItems[key](t3).title,
+          secondaryText: settingsRowItems[key](t3).secondaryText
         }
       );
     })))), /* @__PURE__ */ y("div", { style: { width: "480px" } }, /* @__PURE__ */ y(Stack, null, /* @__PURE__ */ y(List, null, /* @__PURE__ */ y(ListItem, { icon: "browsing.png", title: "While browsing the web", inline: /* @__PURE__ */ y(Check, null) }), /* @__PURE__ */ y(
@@ -7100,6 +7377,118 @@
         }
       }
     )), /* @__PURE__ */ y("div", { style: { height: "100px" } })), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(App_default.foreground, App_default.layer1) }), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(App_default.foreground, App_default.layer2) }), /* @__PURE__ */ y("div", { className: (0, import_classnames4.default)(App_default.foreground, App_default.layer3) }));
+  }
+
+  // shared/environment.js
+  var Environment = class _Environment {
+    /**
+     * @param {object} params
+     * @param {'app' | 'components'} [params.display] - whether to show the application or component list
+     * @param {'production' | 'development'} [params.env] - whether to show the application or component list
+     * @param {URLSearchParams} [params.urlParams] - whether to show the application or component list
+     * @param {ImportMeta['injectName']} [params.platform] - whether to show the application or component list
+     * @param {boolean} [params.willThrow] - whether the application will simulate an error
+     * @param {boolean} [params.debugState] - whether to show debugging UI
+     * @param {string} [params.locale] - for applications strings
+     * @param {number} [params.textLength] - what ratio of text should be used. Set a number higher than 1 to have longer strings for testing
+     */
+    constructor({
+      env = "production",
+      urlParams = new URLSearchParams(location.search),
+      platform = "windows",
+      willThrow = urlParams.get("willThrow") === "true",
+      debugState = urlParams.has("debugState"),
+      display = "app",
+      locale = "en",
+      textLength = 1
+    } = {}) {
+      this.display = display;
+      this.urlParams = urlParams;
+      this.platform = platform;
+      this.willThrow = willThrow;
+      this.debugState = debugState;
+      this.env = env;
+      this.locale = locale;
+      this.textLength = textLength;
+    }
+    /**
+     * @param {string|null|undefined} platform
+     * @returns {Environment}
+     */
+    withPlatform(platform) {
+      if (!platform)
+        return this;
+      if (!isPlatform(platform))
+        return this;
+      return new _Environment({
+        ...this,
+        platform
+      });
+    }
+    /**
+     * @param {string|null|undefined} env
+     * @returns {Environment}
+     */
+    withEnv(env) {
+      if (!env)
+        return this;
+      if (env !== "production" && env !== "development")
+        return this;
+      return new _Environment({
+        ...this,
+        env
+      });
+    }
+    /**
+     * @param {string|null|undefined} display
+     * @returns {Environment}
+     */
+    withDisplay(display) {
+      if (!display)
+        return this;
+      if (display !== "app" && display !== "components")
+        return this;
+      return new _Environment({
+        ...this,
+        display
+      });
+    }
+    /**
+     * @param {string|null|undefined} locale
+     * @returns {Environment}
+     */
+    withLocale(locale) {
+      if (!locale)
+        return this;
+      if (typeof locale !== "string")
+        return this;
+      if (locale.length !== 2)
+        return this;
+      return new _Environment({
+        ...this,
+        locale
+      });
+    }
+    /**
+     * @param {string|number|null|undefined} length
+     * @returns {Environment}
+     */
+    withTextLength(length) {
+      if (!length)
+        return this;
+      const num = Number(length);
+      if (num >= 1 && num <= 2) {
+        return new _Environment({
+          ...this,
+          textLength: num
+        });
+      }
+      return this;
+    }
+  };
+  function isPlatform(input) {
+    const allowed = ["windows", "apple", "integration"];
+    return allowed.includes(input);
   }
 
   // ../messaging/lib/windows.js
@@ -8055,40 +8444,6 @@
     return new Messaging(messageContext, fallback);
   }
 
-  // pages/onboarding/app/types.js
-  var EVERY_PAGE_ID = [
-    "welcome",
-    "getStarted",
-    "privateByDefault",
-    "cleanerBrowsing",
-    "systemSettings",
-    "customize",
-    "summary",
-    "dockSingle",
-    "importSingle",
-    "makeDefaultSingle"
-  ];
-  var DEFAULT_ORDER = [
-    "welcome",
-    "getStarted",
-    "privateByDefault",
-    "cleanerBrowsing",
-    "systemSettings",
-    "customize",
-    "summary"
-  ];
-  var ALT_ORDER = [
-    "welcome",
-    "getStarted",
-    "privateByDefault",
-    "cleanerBrowsing",
-    "dockSingle",
-    "importSingle",
-    "makeDefaultSingle",
-    "customize",
-    "summary"
-  ];
-
   // pages/onboarding/app/settings.js
   var Settings = class _Settings {
     /**
@@ -8225,6 +8580,24 @@
     }
   };
 
+  // shared/call-with-retry.js
+  async function callWithRetry(fn, params = {}) {
+    const { maxAttempts = 10, intervalMs = 300 } = params;
+    let attempt = 1;
+    while (attempt <= maxAttempts) {
+      try {
+        return { value: await fn(), attempt };
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          return { error: `Max attempts reached: ${error}` };
+        }
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        attempt++;
+      }
+    }
+    return { error: "Unreachable: value not retrieved" };
+  }
+
   // pages/onboarding/app/index.js
   var baseEnvironment = new Environment().withPlatform(document.documentElement.dataset.platform).withEnv("production");
   var messaging = createSpecialPageMessaging({
@@ -8234,8 +8607,16 @@
   });
   var onboarding = new OnboardingMessages(messaging, baseEnvironment.platform);
   async function init() {
-    const init2 = await onboarding.init();
-    const environment = baseEnvironment.withEnv(init2.env);
+    const result = await callWithRetry(() => onboarding.init());
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+    const init2 = result.value;
+    const environment = baseEnvironment.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment.urlParams.get("locale")).withTextLength(baseEnvironment.urlParams.get("textLength")).withDisplay(baseEnvironment.urlParams.get("display"));
+    const strings = environment.locale === "en" ? onboarding_default : await fetch(`./locales/${environment.locale}/onboarding.json`).then((x2) => x2.json()).catch((e3) => {
+      console.error("Could not load locale", environment.locale, e3);
+      return onboarding_default;
+    });
     const settings = new Settings().withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page"));
     const root2 = document.querySelector("#app");
     if (!root2)
@@ -8250,7 +8631,7 @@
             willThrow: environment.willThrow
           },
           /* @__PURE__ */ y(UpdateEnvironment, { search: window.location.search }),
-          /* @__PURE__ */ y(
+          /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ y(
             GlobalProvider,
             {
               messaging: onboarding,
@@ -8259,14 +8640,14 @@
               firstPage: settings.first
             },
             /* @__PURE__ */ y(App, null, environment.env === "development" && /* @__PURE__ */ y(SkipLink, null))
-          )
+          ))
         ),
         root2
       );
     }
     if (environment.display === "components") {
       q(
-        /* @__PURE__ */ y(EnvironmentProvider, { debugState: false, platform: environment.platform }, /* @__PURE__ */ y(Components, null)),
+        /* @__PURE__ */ y(EnvironmentProvider, { debugState: false, platform: environment.platform }, /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: onboarding_default }, /* @__PURE__ */ y(Components, null))),
         root2
       );
     }

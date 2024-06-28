@@ -94,22 +94,6 @@
       this.overlayInteracted = params.overlayInteracted;
     }
   };
-  async function callWithRetry(fn, params = {}) {
-    const { maxAttempts = 10, intervalMs = 300 } = params;
-    let attempt = 1;
-    while (attempt <= maxAttempts) {
-      try {
-        return { value: await fn(), attempt };
-      } catch (error) {
-        if (attempt === maxAttempts) {
-          return { error: `Max attempts reached: ${error}` };
-        }
-        await new Promise((resolve) => setTimeout(resolve, intervalMs));
-        attempt++;
-      }
-    }
-    return { error: "Unreachable: value not retrieved" };
-  }
 
   // ../../src/dom-utils.js
   var Template = class _Template {
@@ -1248,6 +1232,24 @@
       }
     });
     return new Messaging(messageContext, fallback);
+  }
+
+  // shared/call-with-retry.js
+  async function callWithRetry(fn, params = {}) {
+    const { maxAttempts = 10, intervalMs = 300 } = params;
+    let attempt = 1;
+    while (attempt <= maxAttempts) {
+      try {
+        return { value: await fn(), attempt };
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          return { error: `Max attempts reached: ${error}` };
+        }
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        attempt++;
+      }
+    }
+    return { error: "Unreachable: value not retrieved" };
   }
 
   // pages/duckplayer/src/js/index.js

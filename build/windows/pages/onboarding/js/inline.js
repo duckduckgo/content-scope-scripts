@@ -1,9 +1,11 @@
 "use strict";
 (() => {
   // pages/onboarding/src/js/inline.js
-  var param = new URLSearchParams(window.location.search).get("platform") || "windows";
+  var param = new URLSearchParams(window.location.search).get("platform");
   if (isAllowed(param)) {
     document.documentElement.dataset.platform = String(param);
+  } else {
+    document.documentElement.dataset.platform = "windows";
   }
   function isAllowed(input) {
     const allowed = ["windows", "apple", "integration"];

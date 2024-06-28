@@ -8,6 +8,7 @@
  * @property {string} [order] - ability to override the screen order
  * @property {string[]} [exclude] - ability to exclude screens
  * @property {ImportMeta['env']} [env] - optional override for the running override
+ * @property {string} locale
  */
 
 /**
@@ -39,7 +40,8 @@ export class OnboardingMessages {
      *     }
      *   },
      *   "order": "v2",
-     *   "exclude": ["dockSingle"]
+     *   "exclude": ["dockSingle"],
+     *   "locale": "en"
      * }
      * ```
      *
@@ -57,7 +59,8 @@ export class OnboardingMessages {
                     }
                 },
                 exclude: [],
-                order: 'v1'
+                order: 'v1',
+                locale: 'en'
             }
         }
         return await this.messaging.request('init')
