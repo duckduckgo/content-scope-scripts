@@ -1,0 +1,45 @@
+*, *:after, *:before {
+    box-sizing: border-box
+}
+html[data-reduced-motion=true] * {
+    animation: none!important;
+    transition: none!important;
+}
+/* Base styles */
+body {
+    font-family: system-ui;
+    margin: 0;
+
+    height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+
+    /* Make it feel more like something native */
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+    color: var(--theme-txt-color);
+    background: var(--theme-page-bg);
+}
+body > main {
+    width: 100%;
+}
+h1,
+h2,
+h3,
+h4 {
+    margin: 0;
+}
+button {
+    font-family: system-ui, sans-serif;
+}
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
