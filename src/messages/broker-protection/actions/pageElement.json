@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PageElement",
+  "required": ["type", "selector"],
+  "properties": {
+    "type": {
+      "type": "string"
+    },
+    "selector": {
+      "type": "string"
+    },
+    "parent": {
+      "type": "object",
+      "title": "ParentElement",
+      "required": ["profileMatch"],
+      "properties": {
+        "profileMatch": {
+          "type": "object",
+          "properties": {
+            "profile": {
+              "$ref": "./extractProfileSelectors.json"
+            }
+          }
+        }
+      }
+    }
+  }
+}

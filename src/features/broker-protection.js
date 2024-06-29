@@ -6,9 +6,9 @@ import { retry } from '../timer-utils.js'
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
  */
 
-export default class BrokerProtection extends ContentFeature {
+export class BrokerProtection extends ContentFeature {
     init () {
-        this.messaging.subscribe('onActionReceived', async (/** @type {any} */params) => {
+        this.subscribe('onActionReceived', async (params) => {
             try {
                 const action = params.state.action
                 const data = params.state.data
@@ -61,3 +61,5 @@ export default class BrokerProtection extends ContentFeature {
         })
     }
 }
+
+export default BrokerProtection

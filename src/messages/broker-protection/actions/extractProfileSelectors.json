@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExtractProfileSelectors",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "alternativeNamesList": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "addressCityStateList": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "addressCityState": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "phone": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "phoneList": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "relativesList": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "profileUrl": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "age": {
+      "$ref": "#/definitions/profileSelector"
+    },
+    "reportId": {
+      "type": "string"
+    }
+  },
+  "definitions": {
+    "profileSelector": {
+      "title": "ProfileSelector",
+      "description": "Only selector is required, everything else is optional",
+      "type": "object",
+      "required": ["selector"],
+      "properties": {
+        "selector": {
+          "type": "string"
+        },
+        "findElements": {
+          "type": "boolean"
+        },
+        "afterText": {
+          "type": "string"
+        },
+        "beforeText": {
+          "type": "string"
+        },
+        "separator": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

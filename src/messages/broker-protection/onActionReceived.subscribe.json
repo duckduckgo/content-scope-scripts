@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["state"],
+  "properties": {
+    "state": {
+      "type": "object",
+      "required": ["action", "data"],
+      "properties": {
+        "action": {
+          "oneOf": [
+            { "$ref": "./actions/click.json" },
+            { "$ref": "./actions/expectation.json" },
+            { "$ref": "./actions/navigate.json" }
+          ]
+        },
+        "data": { "type": "object" }
+      }
+    }
+  }
+}
