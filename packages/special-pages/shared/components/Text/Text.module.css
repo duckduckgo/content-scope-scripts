@@ -1,3 +1,7 @@
+a {
+    color: (--ddg-color-primary)
+}
+
 .title-1 {
     font-size: calc(22 * var(--px-in-rem));
     line-height: calc(26 * var(--px-in-rem));

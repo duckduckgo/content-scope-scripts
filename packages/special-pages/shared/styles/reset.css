@@ -24,8 +24,8 @@ body {
     -webkit-user-select: none;
     cursor: default;
 
-    background: var(--background-color);
-    color: var(--text-primary-color);
+    background: var(--theme-background-color);
+    color: var(--theme-text-primary-color);
 }
 
 body > main {
@@ -42,7 +42,7 @@ p {
 }
 
 a {
-    color: var(--theme-txt-link-color)
+    color: var(--theme-text-link-color)
 }
 
 button {

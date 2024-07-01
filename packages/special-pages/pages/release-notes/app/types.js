@@ -2,8 +2,9 @@ import { useContext } from 'preact/hooks'
 import { TranslationContext } from '../../../shared/components/TranslationsProvider'
 
 /**
+ * @typedef {string|}
  * @typedef {'PrivacyPro'} NotesIcon // Allows for more icons to be added in the future
- * @typedef {{ icon?: NotesIcon, title?: string, notes: string[] }} Notes
+ * @typedef {{ icon?: NotesIcon, title?: string, notes: import('preact').ComponentChild[] }} Notes
  */
 
 /**
