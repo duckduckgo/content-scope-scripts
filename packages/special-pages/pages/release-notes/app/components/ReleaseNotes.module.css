@@ -65,7 +65,7 @@
 
 .spinnerIcon {
     mask: url(../../../../shared/assets/img/icons/Spinner-16.svg) no-repeat;
-    background: var(--text-primary-color);
+    background: var(--theme-text-primary-color);
     animation: spinner 1500ms infinite linear;
 }
 
@@ -84,7 +84,7 @@
 }
 
 .statusTimestamp {
-    color: var(--text-secondary-color);
+    color: var(--theme-text-secondary-color);
 }
 
 /* Restart Button */
@@ -126,7 +126,7 @@
 }
 
 .releaseVersion {
-    color: var(--text-secondary-color);
+    color: var(--theme-text-secondary-color);
 }
 
 .listContainer {

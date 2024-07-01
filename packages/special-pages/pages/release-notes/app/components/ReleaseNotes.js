@@ -141,12 +141,14 @@ export function ReleaseNotesSubheading ({ icon, title }) {
 
 /**
  * @param {Object} props
- * @param {string[]} props.notes
+ * @param {import("preact").ComponentChild[]} props.notes
+ * @param {import("preact").ComponentChild} [props.children]
  */
-export function ReleaseNotesList ({ notes }) {
+export function ReleaseNotesList ({ notes, children }) {
     return (
         <ul className={styles.list}>
             {notes.map(note => (<Text as="li" variant="body" className={styles.listItem}>{note}</Text>))}
+            {children}
         </ul>
     )
 }
@@ -203,7 +205,11 @@ export function ReleaseNotes ({ releaseData }) {
         notes.push({
             icon: 'PrivacyPro',
             title: t('forPrivacyProSubscribers'),
-            notes: releaseNotesPrivacyPro
+            notes: [
+                ...releaseNotesPrivacyPro,
+                /* The following should only get translated when the full Release Notes are localized */
+                <span>Not subscribed? Find out more at <a href="https://duckduckgo.com/pro" target="_blank">duckduckgo.com/pro</a></span>
+            ]
         })
     }
 

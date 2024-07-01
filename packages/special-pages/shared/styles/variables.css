@@ -117,15 +117,17 @@
     --ddg-color-primary: var(--color-blue-50);
     --ddg-color-primary-dark: var(--color-blue-30);
 
-    --background-color: var(--color-white);
+    --theme-background-color: var(--color-white);
 
-    --text-primary-color: var(--color-black-at-84);
-    --text-secondary-color: var(--color-black-at-60);
+    --theme-text-primary-color: var(--color-black-at-84);
+    --theme-text-secondary-color: var(--color-black-at-60);
+    --theme-text-link-color: var(--ddg-color-primary);
 
     @media (prefers-color-scheme: dark) {
-        --background-color: var(--color-gray-95);
+        --theme-background-color: var(--color-gray-95);
 
-        --text-primary-color: var(--color-white-at-85);
-        --text-secondary-color: var(--color-white-at-50);
+        --theme-text-primary-color: var(--color-white-at-85);
+        --theme-text-secondary-color: var(--color-white-at-50);
+        --theme-text-link-color: var(--ddg-color-primary-dark);
     }
 }

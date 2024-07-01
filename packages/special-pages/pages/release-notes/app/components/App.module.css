@@ -3,7 +3,7 @@
 }
 
 body {
-    color: var(--text-primary-color);
+    color: var(--theme-text-primary-color);
     margin: var(--sp-6) 0 var(--sp-8);
 }
 
