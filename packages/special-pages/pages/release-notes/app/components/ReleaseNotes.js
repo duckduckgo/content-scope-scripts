@@ -142,13 +142,11 @@ export function ReleaseNotesSubheading ({ icon, title }) {
 /**
  * @param {Object} props
  * @param {import("preact").ComponentChild[]} props.notes
- * @param {import("preact").ComponentChild} [props.children]
  */
-export function ReleaseNotesList ({ notes, children }) {
+export function ReleaseNotesList ({ notes }) {
     return (
         <ul className={styles.list}>
             {notes.map(note => (<Text as="li" variant="body" className={styles.listItem}>{note}</Text>))}
-            {children}
         </ul>
     )
 }
