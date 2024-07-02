@@ -24,7 +24,7 @@ export function App ({ children }) {
 
     useEffect(() => {
         return messages?.subscribeToUpdates((data) => {
-            console.log('DATA RECEIVED', data);
+            console.log('DATA RECEIVED', data)
             setReleaseData(data)
         })
     }, [])
