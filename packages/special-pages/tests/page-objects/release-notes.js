@@ -93,14 +93,34 @@ export class ReleaseNotesPage {
     /**
      * @param {UpdateMessage['status']} messageType
      * @param {Object} [options]
-     * @param {boolean} [options.excludePrivacyProNotes]
+     * @param {boolean} [options.privacyPro]
      */
     async sendSubscriptionMessage (messageType, options) {
-        const data = options?.excludePrivacyProNotes
-            ? { ...sampleData[messageType], releaseNotesPrivacyPro: null }
-            : { ...sampleData[messageType] }
+        const data = options?.privacyPro
+            ? { ...sampleData[messageType] }
+            : { ...sampleData[messageType], releaseNotesPrivacyPro: null }
 
         await this.mocks.simulateSubscriptionMessage('onUpdate', data)
+    }
+
+    async releaseNotesLoading () {
+        await this.sendSubscriptionMessage('loading')
+    }
+
+    async releaseNotesLoaded () {
+        await this.sendSubscriptionMessage('loaded')
+    }
+
+    async releaseNotesLoadedWithPrivacyPro () {
+        await this.sendSubscriptionMessage('loaded', { privacyPro: true })
+    }
+
+    async releaseNotesUpdateReady () {
+        await this.sendSubscriptionMessage('updateReady')
+    }
+
+    async releaseNotesUpdateReadyWithPrivacyPro () {
+        await this.sendSubscriptionMessage('updateReady', { privacyPro: true })
     }
 
     async handlesFatalException () {
@@ -169,27 +189,33 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).not.toBeVisible()
     }
 
-    /**
-     * @param {Object} options
-     * @param {number} options.listCount
-     * @param {number} options.listItemCount
-     * @param {boolean} [options.privacyPro]
-     */
-    async didShowReleaseNotesList ({ listCount, listItemCount, privacyPro }) {
+    async didShowReleaseNotesList () {
         const { page } = this
-        await expect(page.getByRole('list')).toHaveCount(listCount)
-        await expect(page.getByRole('listitem')).toHaveCount(listItemCount)
 
-        const privacyProHeadingElement = page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })
-        const privacyProLink = page.getByRole('link', { name: 'duckduckgo.com/pro' })
+        await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible();
+        await expect(page.getByText('Fixed an issue where Microsoft Teams links wouldn\'t open the Teams app.')).toBeVisible();
+        await expect(page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')).toBeVisible();
 
-        if (privacyPro) {
-            await expect(privacyProHeadingElement).toBeVisible()
-            await expect(privacyProLink).toBeVisible()
-        } else {
-            await expect(privacyProHeadingElement).not.toBeVisible()
-            await expect(privacyProLink).not.toBeVisible()
-        }
+        await expect(page.getByText('Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.')).not.toBeVisible();
+        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible();
+
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
+        await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).not.toBeVisible()
+    }
+
+    async didShowReleaseNotesListWithPrivacyPro () {
+        const { page } = this
+
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).toBeVisible()
+        await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).toBeVisible()
+
+        await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible();
+        await expect(page.getByText('Fixed an issue where Microsoft Teams links wouldn\'t open the Teams app.')).toBeVisible();
+        await expect(page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')).toBeVisible();
+
+        await expect(page.getByText('Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.')).toBeVisible();
+        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).toBeVisible();
+        await expect(page.getByText('Not subscribed? Find out more at duckduckgo.com/pro')).toBeVisible();
     }
 
     async didRequestRestart () {
