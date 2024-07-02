@@ -34,7 +34,7 @@ test.describe('release-notes', () => {
         await releaseNotes.didShowReleaseNotesList({
             listCount: 2,
             listItemCount: 6,
-            privacyPro: true,
+            privacyPro: true
         })
     })
 
@@ -47,7 +47,7 @@ test.describe('release-notes', () => {
         await releaseNotes.didShowReleaseNotesList({
             listCount: 1,
             listItemCount: 3,
-            privacyPro: false,
+            privacyPro: false
         })
     })
 
@@ -60,7 +60,7 @@ test.describe('release-notes', () => {
         await releaseNotes.didShowReleaseNotesList({
             listCount: 2,
             listItemCount: 6,
-            privacyPro: true,
+            privacyPro: true
         })
     })
 
@@ -73,7 +73,7 @@ test.describe('release-notes', () => {
         await releaseNotes.didShowReleaseNotesList({
             listCount: 1,
             listItemCount: 3,
-            privacyPro: false,
+            privacyPro: false
         })
     })
 
