@@ -46,6 +46,15 @@ export default defineConfig({
                 injectName: 'apple',
                 platform: 'macos'
             }
+        },
+        {
+            name: 'release-notes-apple',
+            testMatch: 'release-notes.spec.js',
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos'
+            }
         }
     ],
     fullyParallel: !process.env.CI,

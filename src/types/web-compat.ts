@@ -38,9 +38,6 @@ export interface WebShareParams {
   text?: string;
 }
 
-/**
- * The following types enforce a schema-first workflow for messages 
- */ 
 declare module "../features/web-compat.js" {
   export interface WebCompat {
     request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<WebCompatMessages>['request']
