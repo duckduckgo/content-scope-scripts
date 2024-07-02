@@ -26,9 +26,6 @@ export interface VisitSiteNotification {
   method: "visitSite";
 }
 
-/**
- * The following types enforce a schema-first workflow for messages 
- */ 
 declare module "../pages/sslerrorpage/src/js/index.js" {
   export interface SslerrorpagePage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SslerrorpageMessages>['notify']

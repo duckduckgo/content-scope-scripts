@@ -119,9 +119,6 @@ export interface UpdateMessage {
   releaseNotesPrivacyPro?: string[];
 }
 
-/**
- * The following types enforce a schema-first workflow for messages 
- */ 
 declare module "../pages/release-notes/src/js/index.js" {
   export interface ReleaseNotesPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ReleaseNotesMessages>['notify'],
