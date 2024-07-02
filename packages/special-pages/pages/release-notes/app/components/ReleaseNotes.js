@@ -188,7 +188,7 @@ export function ReleaseNotes ({ releaseData }) {
     }
 
     const { status, currentVersion, lastUpdate, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
-    const timestampInMilliseconds = lastUpdate * 1000;
+    const timestampInMilliseconds = lastUpdate * 1000
 
     /**
      * @type {Notes[]}
