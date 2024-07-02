@@ -3,7 +3,6 @@ import { perPlatform } from '../../../../integration-test/playwright/type-helper
 import { join } from 'node:path'
 import { expect } from '@playwright/test'
 import { sampleData } from '../../pages/release-notes/app/sampleData.js'
-import { options } from 'preact'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
