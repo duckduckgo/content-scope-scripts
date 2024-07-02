@@ -192,12 +192,12 @@ export class ReleaseNotesPage {
     async didShowReleaseNotesList () {
         const { page } = this
 
-        await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible();
-        await expect(page.getByText('Fixed an issue where Microsoft Teams links wouldn\'t open the Teams app.')).toBeVisible();
-        await expect(page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')).toBeVisible();
+        await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible()
+        await expect(page.getByText('Fixed an issue where Microsoft Teams links wouldn\'t open the Teams app.')).toBeVisible()
+        await expect(page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')).toBeVisible()
 
-        await expect(page.getByText('Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.')).not.toBeVisible();
-        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible();
+        await expect(page.getByText('Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.')).not.toBeVisible()
+        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible()
 
         await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).not.toBeVisible()
@@ -209,13 +209,13 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).toBeVisible()
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).toBeVisible()
 
-        await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible();
-        await expect(page.getByText('Fixed an issue where Microsoft Teams links wouldn\'t open the Teams app.')).toBeVisible();
-        await expect(page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')).toBeVisible();
+        await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible()
+        await expect(page.getByText('Fixed an issue where Microsoft Teams links wouldn\'t open the Teams app.')).toBeVisible()
+        await expect(page.getByText('Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.')).toBeVisible()
 
-        await expect(page.getByText('Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.')).toBeVisible();
-        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).toBeVisible();
-        await expect(page.getByText('Not subscribed? Find out more at duckduckgo.com/pro')).toBeVisible();
+        await expect(page.getByText('Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.')).toBeVisible()
+        await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).toBeVisible()
+        await expect(page.getByText('Not subscribed? Find out more at duckduckgo.com/pro')).toBeVisible()
     }
 
     async didRequestRestart () {
