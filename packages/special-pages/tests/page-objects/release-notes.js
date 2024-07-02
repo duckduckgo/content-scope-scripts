@@ -3,6 +3,7 @@ import { perPlatform } from '../../../../integration-test/playwright/type-helper
 import { join } from 'node:path'
 import { expect } from '@playwright/test'
 import { sampleData } from '../../pages/release-notes/app/sampleData.js'
+import { options } from 'preact'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -92,9 +93,15 @@ export class ReleaseNotesPage {
 
     /**
      * @param {UpdateMessage['status']} messageType
+     * @param {Object} [options]
+     * @param {boolean} [options.excludePrivacyProNotes]
      */
-    async sendSubscriptionMessage (messageType) {
-        await this.mocks.simulateSubscriptionMessage('onUpdate', sampleData[messageType])
+    async sendSubscriptionMessage (messageType, options) {
+        const data = options?.excludePrivacyProNotes
+            ? { ...sampleData[messageType], releaseNotesPrivacyPro: null }
+            : { ...sampleData[messageType] }
+
+        await this.mocks.simulateSubscriptionMessage('onUpdate', data)
     }
 
     async handlesFatalException () {
@@ -147,9 +154,6 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).toBeVisible()
         await expect(page.getByText('Version 1.0.1 — DuckDuckGo is up to date')).toBeVisible()
         await expect(page.getByText('Version 1.0.1', { exact: true })).toBeVisible()
-        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).toBeVisible()
-        await expect(page.getByRole('list')).toHaveCount(2)
-        await expect(page.getByRole('listitem')).toHaveCount(5)
 
         await expect(page.getByTestId('placeholder')).not.toBeVisible()
         await expect(page.getByRole('button', { name: 'Restart to Update' })).not.toBeVisible()
@@ -164,6 +168,29 @@ export class ReleaseNotesPage {
         await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible()
 
         await expect(page.getByTestId('placeholder')).not.toBeVisible()
+    }
+
+    /**
+     * @param {Object} options
+     * @param {number} options.listCount
+     * @param {number} options.listItemCount
+     * @param {boolean} [options.privacyPro]
+     */
+    async didShowReleaseNotesList ({ listCount, listItemCount, privacyPro }) {
+        const { page } = this
+        await expect(page.getByRole('list')).toHaveCount(listCount)
+        await expect(page.getByRole('listitem')).toHaveCount(listItemCount)
+
+        const privacyProHeadingElement = page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })
+        const privacyProLink = page.getByRole('link', { name: 'duckduckgo.com/pro' })
+
+        if (privacyPro) {
+            await expect(privacyProHeadingElement).toBeVisible()
+            await expect(privacyProLink).toBeVisible()
+        } else {
+            await expect(privacyProHeadingElement).not.toBeVisible()
+            await expect(privacyProLink).not.toBeVisible()
+        }
     }
 
     async didRequestRestart () {

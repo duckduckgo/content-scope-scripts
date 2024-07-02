@@ -51,5 +51,9 @@
   "new" : {
     "title" : "Nowa",
     "note" : "Text for tag that appears next to version number to indicate it is newly released"
+  },
+  "somethingWentWrong" : {
+    "title" : "Wystąpił błąd",
+    "note" : "A message shown when the application experienced a crash"
   }
 }
