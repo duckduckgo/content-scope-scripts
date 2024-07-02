@@ -38,18 +38,18 @@ export function App ({ children }) {
         messages?.reportPageException({ message })
     }
     return (
-            <main className={styles.main}>
-                <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
-                    <header className={styles.header}>
-                        <DuckDuckGoLogo />
-                    </header>
-                    <div class={styles.core}>
-                        {releaseData && <ReleaseNotes releaseData={releaseData}/>}
-                    </div>
-                    <WillThrow/>
-                    {children}
-                </ErrorBoundary>
-            </main>
+        <main className={styles.main}>
+            <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
+                <header className={styles.header}>
+                    <DuckDuckGoLogo />
+                </header>
+                <div class={styles.core}>
+                    {releaseData && <ReleaseNotes releaseData={releaseData}/>}
+                </div>
+                <WillThrow/>
+                {children}
+            </ErrorBoundary>
+        </main>
     )
 }
 
