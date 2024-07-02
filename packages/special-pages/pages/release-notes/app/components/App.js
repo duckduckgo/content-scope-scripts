@@ -23,7 +23,7 @@ export function App ({ children }) {
     const [releaseData, setReleaseData] = useState()
 
     useEffect(() => {
-        return messages?.subscribeToUpdates((data) => {
+        return messages?.onUpdate((data) => {
             console.log('DATA RECEIVED', data)
             setReleaseData(data)
         })

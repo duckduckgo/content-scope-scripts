@@ -106,7 +106,7 @@ export class ReleaseNotesPage {
      * Subscribes to release info updates from browser
      * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
      */
-    subscribeToUpdates (callback) {
+    onUpdate (callback) {
         if (this.integrationState && callback) {
             callback(sampleData.loading)
 
