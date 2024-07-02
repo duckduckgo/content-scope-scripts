@@ -3,8 +3,8 @@ import { h } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
 import { useMessaging } from '../index'
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
+import { ErrorFallback } from './ErrorFallback'
 import { useEnv } from '../../../../shared/components/EnvironmentProvider'
-import { Fallback } from '../../../onboarding/app/pages/Fallback'
 import { DuckDuckGoLogo } from '../../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo'
 import { ReleaseNotes } from './ReleaseNotes'
 import styles from './App.module.css'
@@ -38,18 +38,18 @@ export function App ({ children }) {
         messages?.reportPageException({ message })
     }
     return (
-        <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
             <main className={styles.main}>
-                <header className={styles.header}>
-                    <DuckDuckGoLogo />
-                </header>
-                <div class={styles.core}>
-                    {releaseData && <ReleaseNotes releaseData={releaseData}/>}
-                </div>
-                <WillThrow/>
+                <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
+                    <header className={styles.header}>
+                        <DuckDuckGoLogo />
+                    </header>
+                    <div class={styles.core}>
+                        {releaseData && <ReleaseNotes releaseData={releaseData}/>}
+                    </div>
+                    <WillThrow/>
+                    {children}
+                </ErrorBoundary>
             </main>
-            {children}
-        </ErrorBoundary>
     )
 }
 
