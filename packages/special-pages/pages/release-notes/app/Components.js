@@ -35,7 +35,7 @@ export function Components () {
         <main className={styles.main}>
             <h1>Release Notes Components</h1>
 
-            <h2>Duck Duck Logo</h2>
+            <h2>DuckDuckGo Logo</h2>
             <DuckDuckGoLogo />
             <hr/>
 
