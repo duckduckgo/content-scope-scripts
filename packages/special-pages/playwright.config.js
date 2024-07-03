@@ -21,6 +21,15 @@ export default defineConfig({
             }
         },
         {
+            name: 'duckplayer-android',
+            testMatch: 'duckplayer.spec.js',
+            use: {
+                ...devices['Galaxy S III'],
+                injectName: 'android',
+                platform: 'android'
+            }
+        },
+        {
             name: 'sslerrorpage-apple',
             testMatch: 'sslerror.spec.js',
             use: {

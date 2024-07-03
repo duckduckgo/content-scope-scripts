@@ -236,6 +236,7 @@ export class DuckPlayerPage {
 
         const expected = this.build.switch({
             windows: () => 'duck://settings/duckplayer',
+            android: () => 'duck://settings/duckplayer',
             apple: () => 'about:preferences/duckplayer'
         })
 
@@ -286,6 +287,11 @@ export class DuckPlayerPage {
                 expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
             },
             apple: async () => {
+                await action()
+                await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`)
+            },
+            // todo(shane): verify how to handle this on android
+            android: async () => {
                 await action()
                 await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`)
             }
@@ -362,6 +368,7 @@ export class DuckPlayerPage {
     get basePath () {
         return this.build.switch({
             windows: () => '../../build/windows/pages/duckplayer',
+            android: () => '../../build/android/pages/duckplayer',
             apple: () => '../../Sources/ContentScopeScripts/dist/pages/duckplayer'
         })
     }

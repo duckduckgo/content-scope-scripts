@@ -94,6 +94,7 @@ test.describe('duckplayer toolbar', () => {
 
 test.describe('duckplayer settings', () => {
     test('always open setting', async ({ page }, workerInfo) => {
+        test.skip(isAndroid(workerInfo))
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         // load as normal
         await duckplayer.openWithVideoID()
@@ -110,6 +111,7 @@ test.describe('duckplayer settings', () => {
         await duckplayer.sentUpdatedSettings()
     })
     test('when a new value arrives via subscription', async ({ page }, workerInfo) => {
+        test.skip(isAndroid(workerInfo))
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         // load as normal
         await duckplayer.openWithVideoID()
@@ -124,3 +126,11 @@ test.describe('duckplayer settings', () => {
         await duckplayer.checkboxWasChecked()
     })
 })
+
+/**
+ * @param {import("@playwright/test").TestInfo} testInfo
+ */
+function isAndroid (testInfo) {
+    const u = /** @type {any} */(testInfo.project.use)
+    return u?.platform === 'android'
+}
