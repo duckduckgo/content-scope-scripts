@@ -30,8 +30,8 @@ test.describe('release-notes', () => {
         await releaseNotes.reducedMotion()
         await releaseNotes.openPage({ env: 'app' })
         await releaseNotes.releaseNotesLoaded()
-        await releaseNotes.didShowReleaseNotesList()
         await releaseNotes.didShowUpToDateState()
+        await releaseNotes.didShowReleaseNotesList()
     })
 
     test('shows up-to-date state with Privacy Pro notes', async ({ page }, workerInfo) => {
@@ -65,7 +65,7 @@ test.describe('release-notes', () => {
         const releaseNotes = ReleaseNotesPage.create(page, workerInfo)
         await releaseNotes.reducedMotion()
         await releaseNotes.openPage({ env: 'app' })
-        await releaseNotes.sendSubscriptionMessage('updateReady')
+        await releaseNotes.releaseNotesUpdateReady()
         await releaseNotes.didRequestRestart()
     })
 })
