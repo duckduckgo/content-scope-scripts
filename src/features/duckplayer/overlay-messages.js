@@ -22,7 +22,7 @@ export class DuckPlayerOverlayMessages {
     }
 
     /**
-     * @returns {Promise<import("../duck-player.js").InitialSetup>}
+     * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
      */
     initialSetup () {
         return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)
