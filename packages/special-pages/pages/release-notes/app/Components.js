@@ -65,8 +65,8 @@ export function Components () {
             <hr/>
 
             <h2>Release Notes Subheading</h2>
-            <ReleaseNotesSubheading title="Release Notes Heading without Icon"/>
-            <ReleaseNotesSubheading icon="PrivacyPro" title="Release Notes Heading with Privacy Pro Icon"/>
+            <ReleaseNotesSubheading title="Release Notes Subheading without Icon"/>
+            <ReleaseNotesSubheading icon="PrivacyPro" title="Release Notes Subheading with Privacy Pro Icon"/>
             <hr/>
 
             <h2>Release Notes List</h2>
