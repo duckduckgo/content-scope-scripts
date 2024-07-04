@@ -169,8 +169,9 @@ export class ReleaseNotesPage {
     async didShowUpToDateState () {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'Browser Release Notes' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'May 20 2024', exact: true })).toBeVisible()
+
         await expect(page.getByText('Last checked: Today')).toBeVisible()
-        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).toBeVisible()
         await expect(page.getByText('Version 1.0.1 — DuckDuckGo is up to date')).toBeVisible()
         await expect(page.getByText('Version 1.0.1', { exact: true })).toBeVisible()
 
@@ -181,6 +182,8 @@ export class ReleaseNotesPage {
     async didShowUpdateReadyState () {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'Browser Release Notes' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible()
+
         await expect(page.getByText('Last checked: Today')).toBeVisible()
         await expect(page.getByText('Version 1.0.1 — A newer version of the browser is available')).toBeVisible()
         await expect(page.getByRole('button', { name: 'Restart to Update' })).toBeVisible()

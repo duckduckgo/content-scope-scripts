@@ -60,7 +60,8 @@ export function Components () {
             <hr/>
 
             <h2>Release Notes Heading</h2>
-            <ReleaseNotesHeading title="May 10 2024" version="1.2.0"/>
+            <ReleaseNotesHeading title="May 10 2023" version="1.0.0" showNewTag={false}/>
+            <ReleaseNotesHeading title="May 10 2024" version="1.2.0" showNewTag={true}/>
             <hr/>
 
             <h2>Release Notes Subheading</h2>
@@ -80,7 +81,7 @@ export function Components () {
 
             <h2>Release Notes Inside a Card</h2>
             <Card className={styles.card}>
-                <ReleaseNotesContent title="May 10 2024" version="1.2.0" notes={sampleNotesData} />
+                <ReleaseNotesContent status="updateReady" title="May 10 2024" version="1.2.0" notes={sampleNotesData} />
             </Card>
         </main>
     )

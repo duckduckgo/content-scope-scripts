@@ -110,15 +110,16 @@ export function UpdateStatus ({ status, timestamp, version }) {
  * @param {Object} props
  * @param {string} props.title
  * @param {string} props.version
+ * @param {boolean} [props.showNewTag]
  */
-export function ReleaseNotesHeading ({ title, version }) {
+export function ReleaseNotesHeading ({ title, version, showNewTag = false }) {
     const { t } = useTypedTranslation()
 
     return (
         <header className={styles.notesHeading}>
             <h2 className={styles.releaseTitle}>
                 {title}
-                <span className={styles.newTag}>{t('new')}</span>
+                {showNewTag && <span className={styles.newTag}>{t('new')}</span>}
             </h2>
             <Text variant="title-2" className={styles.releaseVersion}>
                 {t('versionNumber', { version: `${version}` })}
@@ -153,16 +154,17 @@ export function ReleaseNotesList ({ notes }) {
 
 /**
  * @param {Object} props
+ * @param {UpdateMessage['status']} props.status
  * @param {string} [props.title]
  * @param {string} props.version
  * @param {Notes[]} props.notes
  */
-export function ReleaseNotesContent ({ title: releaseTitle, version: releaseVersion, notes: releaseNotes }) {
+export function ReleaseNotesContent ({ status, title: releaseTitle, version: releaseVersion, notes: releaseNotes }) {
     if (!releaseTitle || !releaseNotes.length) return null
 
     return (
         <Fragment>
-            <ReleaseNotesHeading title={releaseTitle} version={releaseVersion}/>
+            <ReleaseNotesHeading title={releaseTitle} version={releaseVersion} showNewTag={status === 'updateReady'}/>
             <div className={styles.listGrid}>
                 {releaseNotes.map(({ icon, title, notes }) => (
                     <div class={styles.listContainer}>
@@ -225,6 +227,7 @@ export function ReleaseNotes ({ releaseData }) {
                 {status === 'loading'
                     ? <ContentPlaceholder />
                     : <ReleaseNotesContent
+                        status={status}
                         title={releaseTitle}
                         version={latestVersion || currentVersion}
                         notes={notes}/>}
