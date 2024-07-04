@@ -28,12 +28,19 @@ export async function initOverlays (settings, environment, messages) {
 
     let { userValues } = initialSetup
 
+    // TODO: remove
+    // const { ui } = initialSetup
+
+    console.log('INITIAL SETUP', initialSetup)
+    /** @type {import('../duck-player.js').UISettings} */
+    const ui = { overlayCopy: 'v2' }
+
     /**
      * Create the instance - this might fail if settings or user preferences prevent it
      * @type {Thumbnails|undefined}
      */
     let thumbnails = thumbnailsFeatureFromSettings(userValues, settings, messages, environment)
-    let videoOverlays = videoOverlaysFeatureFromSettings(userValues, settings, messages, environment)
+    let videoOverlays = videoOverlaysFeatureFromSettings(userValues, settings, messages, environment, ui)
 
     if (thumbnails || videoOverlays) {
         if (videoOverlays) {
@@ -67,7 +74,7 @@ export async function initOverlays (settings, environment, messages) {
         thumbnails?.init()
 
         // re-create video overlay
-        videoOverlays = videoOverlaysFeatureFromSettings(userValues, settings, messages, environment)
+        videoOverlays = videoOverlaysFeatureFromSettings(userValues, settings, messages, environment, ui)
         videoOverlays?.init('preferences-changed')
     }
 
@@ -114,12 +121,13 @@ function thumbnailsFeatureFromSettings (userPreferences, settings, messages, env
  * @param {import("../duck-player.js").OverlaysFeatureSettings} settings
  * @param {import("../duck-player.js").DuckPlayerOverlayMessages} messages
  * @param {import("./overlays.js").Environment} environment
+ * @param {import("../duck-player.js").UISettings} ui
  * @returns {VideoOverlay | undefined}
  */
-function videoOverlaysFeatureFromSettings (userValues, settings, messages, environment) {
+function videoOverlaysFeatureFromSettings (userValues, settings, messages, environment, ui) {
     if (settings.videoOverlays.state !== 'enabled') return undefined
 
-    return new VideoOverlay(userValues, settings, environment, messages)
+    return new VideoOverlay(userValues, settings, environment, messages, ui)
 }
 
 export class Environment {

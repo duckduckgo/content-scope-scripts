@@ -5,17 +5,41 @@ const text = {
     playText: {
         title: 'Duck Player'
     },
-    videoOverlayTitle: {
+    videoOverlayTitle_default: {
         title: 'Tired of targeted YouTube ads and recommendations?'
     },
-    videoOverlaySubtitle: {
+    videoOverlayTitle_v1: {
+        title: 'Turn on Duck Player to watch without targeted ads'
+    },
+    videoOverlayTitle_v2: {
+        title: 'Drowning in ads in YouTube?{newline}Turn on Duck Player.'
+    },
+    videoOverlaySubtitle_default: {
         title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'
     },
-    videoButtonOpen: {
+    videoOverlaySubtitle_v1: {
+        title: 'What you watch in DuckDuckGo won’t influence your recommendations on YouTube.'
+    },
+    videoOverlaySubtitle_v2: {
+        title: 'What you watch in DuckDuckGo won’t influence your recommendations on YouTube.'
+    },
+    videoButtonOpen_default: {
         title: 'Watch in Duck Player'
     },
-    videoButtonOptOut: {
+    videoButtonOpen_v1: {
+        title: 'Turn On Duck Player'
+    },
+    videoButtonOpen_v2: {
+        title: 'Turn On Duck Player'
+    },
+    videoButtonOptOut_default: {
         title: 'Watch Here'
+    },
+    videoButtonOptOut_v1: {
+        title: 'No Thanks'
+    },
+    videoButtonOptOut_v2: {
+        title: 'No Thanks'
     },
     rememberLabel: {
         title: 'Remember my choice'

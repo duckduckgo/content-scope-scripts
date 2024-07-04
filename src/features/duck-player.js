@@ -46,8 +46,14 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
  */
 
 /**
+ * @typedef UISettings - UI-specific settings
+ * @property {'default'|'v1'|'v2'} overlayCopy
+ */
+
+/**
  * @typedef OverlaysInitialSettings - The initial payload used to communicate render-blocking information
  * @property {UserValues} userValues
+ * @property {UISettings} ui
  */
 
 /**

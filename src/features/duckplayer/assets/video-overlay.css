@@ -75,12 +75,15 @@
 
 .ddg-vpo-title {
     font-size: 22px;
-    font-weight: 400;
+    font-weight: 700;
     line-height: 26px;
+    letter-spacing: -0.26px;
     margin-top: 25px;
 }
 
 .ddg-vpo-text {
+    font-size: 14px;
+    line-height: 20px;
     margin-top: 16px;
     width: 496px;
     margin-left: auto;
@@ -92,8 +95,11 @@
 }
 
 .ddg-vpo-buttons {
+    display: flex;
+    justify-content: center;
     margin-top: 25px;
 }
+
 .ddg-vpo-buttons > * {
     display: inline-block;
     margin: 0;
@@ -121,9 +127,11 @@
 }
 
 .ddg-vpo-open {
+    flex: 1 0 auto;
     background: #3969EF;
     border: 0.5px solid rgba(40, 145, 255, 0.05);
     box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.1), 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 1px rgba(0, 0, 0, 0.2), inset 0px 0.5px 0px rgba(255, 255, 255, 0.2), inset 0px 1px 0px rgba(255, 255, 255, 0.05);
+    max-width: 250px;
 }
 
 .ddg-vpo-open:hover {
