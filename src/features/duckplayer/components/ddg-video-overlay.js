@@ -72,7 +72,7 @@ export class DDGVideoOverlay extends HTMLElement {
      * @returns {HTMLDivElement}
      */
     createOverlay () {
-        const overlayCopy = this.getCopyForVariant(this.ui.overlayCopy)
+        const overlayCopy = this.getCopyForVariant(this.ui?.overlayCopy)
         const overlayElement = document.createElement('div')
         overlayElement.classList.add('ddg-video-player-overlay')
         const svgIcon = trustedUnsafe(dax)

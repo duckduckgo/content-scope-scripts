@@ -131,7 +131,7 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage()
 
-        // Then then the overlay shows and blocks the video from playing
+        // Then the overlay shows and blocks the video from playing
         await overlays.overlayBlocksVideo()
     })
     test('Overlay blocks video from playing (supporting DOM appearing over time)', async ({ page }, workerInfo) => {
@@ -144,7 +144,7 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage({ variant: 'incremental-dom' })
 
-        // Then then the overlay shows and blocks the video from playing
+        // Then the overlay shows and blocks the video from playing
         await overlays.overlayBlocksVideo()
     })
     test('Overlay is removed when new settings arrive', async ({ page }, workerInfo) => {
@@ -297,6 +297,49 @@ test.describe('Video Player overlays', () => {
             await overlays.userSettingIs('always ask')
             await overlays.gotoPlayerPage({ pageType: 'videoAltSelectors' })
             await overlays.overlayBlocksVideo()
+        })
+    })
+    test.describe('with UI settings overrides', () => {
+        test('displays default overlay copy', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask' with 'default overlay copy'
+            await overlays.initialSetupIs('always ask', 'default overlay copy')
+            await overlays.gotoPlayerPage()
+
+            // Then the overlay shows the correct copy for v1
+            await overlays.overlayCopyIsDefault()
+        })
+
+        test('displays overlay copy version 1', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask' with 'overlay copy v1'
+            await overlays.initialSetupIs('always ask', 'overlay copy v1')
+            await overlays.gotoPlayerPage()
+
+            // Then the overlay shows the correct copy for v1
+            await overlays.overlayCopyIsV1()
+        })
+
+        test('displays overlay copy version 2', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask' with 'overlay copy v1'
+            await overlays.initialSetupIs('always ask', 'overlay copy v2')
+            await overlays.gotoPlayerPage()
+
+            // Then the overlay shows the correct copy for v1
+            await overlays.overlayCopyIsV2()
         })
     })
 })
