@@ -44,7 +44,7 @@ const baseEnvironment = new Environment()
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.platform,
     env: baseEnvironment.env,
-    pageName: 'example'
+    pageName: /** @type {string} */(import.meta.pageName)
 })
 
 const example = new ExamplePage(messaging)

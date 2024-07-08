@@ -54,7 +54,7 @@ export const support = {
 
 /** @type {{src: string, dest: string, injectName: string}[]} */
 const copyJobs = []
-/** @type {{entryPoints: string[], outputDir: string, injectName: string}[]} */
+/** @type {{entryPoints: string[], outputDir: string, injectName: string, pageName: string}[]} */
 const buildJobs = []
 /** @type {{src: string}[]} */
 const inlineJobs = []
@@ -93,7 +93,8 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                 buildJobs.push({
                     entryPoints,
                     outputDir,
-                    injectName
+                    injectName,
+                    pageName
                 })
             }
             if (job === 'inline-html') {
@@ -150,6 +151,7 @@ for (const buildJob of buildJobs) {
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),
                 'import.meta.injectName': JSON.stringify(buildJob.injectName),
+                'import.meta.pageName': JSON.stringify(buildJob.pageName),
             }
         })
     }

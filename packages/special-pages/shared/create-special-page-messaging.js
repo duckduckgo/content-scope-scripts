@@ -14,7 +14,6 @@ import {
  * @internal
  */
 export function createSpecialPageMessaging (opts) {
-    console.log(opts)
     const messageContext = new MessagingContext({
         context: 'specialPages',
         featureName: opts.pageName,

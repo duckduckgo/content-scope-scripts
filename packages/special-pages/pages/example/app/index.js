@@ -54,8 +54,7 @@ export async function init (messaging, baseEnvironment) {
                 willThrow={environment.willThrow}
             >
                 <UpdateEnvironment search={window.location.search}/>
-                <TranslationProvider translationObject={strings} fallback={enStrings}
-                    textLength={environment.textLength}>
+                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <App/>
                 </TranslationProvider>
             </EnvironmentProvider>
@@ -63,7 +62,7 @@ export async function init (messaging, baseEnvironment) {
     } else if (environment.display === 'components') {
         render(
             <EnvironmentProvider debugState={false} platform={environment.platform}>
-                <TranslationProvider translationObject={strings} fallback={enStrings}>
+                <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <Components />
                 </TranslationProvider>
             </EnvironmentProvider>
