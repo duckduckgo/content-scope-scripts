@@ -12,13 +12,15 @@ import * as constants from './constants.js'
 export class DuckPlayerOverlayMessages {
     /**
      * @param {Messaging} messaging
+     * @param {ImportMeta['injectName']} injectName
      * @internal
      */
-    constructor (messaging) {
+    constructor (messaging, injectName) {
         /**
          * @internal
          */
         this.messaging = messaging
+        this.injectName = injectName
     }
 
     /**
@@ -41,6 +43,12 @@ export class DuckPlayerOverlayMessages {
      * @returns {Promise<import("../duck-player.js").UserValues>}
      */
     getUserValues () {
+        if (this.injectName === 'integration') {
+            return Promise.resolve({
+              overlayInteracted: false,
+              privatePlayerMode: { alwaysAsk: {} }
+            })
+        }
         return this.messaging.request(constants.MSG_NAME_READ_VALUES, {})
     }
 
