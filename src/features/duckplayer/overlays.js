@@ -124,7 +124,7 @@ function thumbnailsFeatureFromSettings (userPreferences, settings, messages, env
 function videoOverlaysFeatureFromSettings (userValues, settings, messages, environment, ui) {
     if (settings.videoOverlays.state !== 'enabled') return undefined
 
-    return new VideoOverlay(userValues, settings, environment, messages, ui)
+    return new VideoOverlay({ userValues, settings, environment, messages, ui })
 }
 
 export class Environment {

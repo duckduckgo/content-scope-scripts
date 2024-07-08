@@ -43,13 +43,14 @@ export class VideoOverlay {
     lastVideoId = null
 
     /**
-     * @param {import("../duck-player.js").UserValues} userValues
-     * @param {import("../duck-player.js").OverlaysFeatureSettings} settings
-     * @param {import("./overlays.js").Environment} environment
-     * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} messages
-     * @param {import("../duck-player.js").UISettings} ui
+     * @param {object} options
+     * @param {import("../duck-player.js").UserValues} options.userValues
+     * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
+     * @param {import("./overlays.js").Environment} options.environment
+     * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} options.messages
+     * @param {import("../duck-player.js").UISettings} options.ui
      */
-    constructor (userValues, settings, environment, messages, ui) {
+    constructor ({ userValues, settings, environment, messages, ui }) {
         this.userValues = userValues
         this.settings = settings
         this.environment = environment
@@ -220,7 +221,13 @@ export class VideoOverlay {
         this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} to the page`, () => {
             this.messages.sendPixel(new Pixel({ name: 'overlay' }))
 
-            const overlayElement = new DDGVideoOverlay(this.environment, this.ui, params, this)
+            const { environment, ui } = this
+            const overlayElement = new DDGVideoOverlay({
+                environment,
+                ui,
+                params,
+                manager: this
+            })
             targetElement.appendChild(overlayElement)
 
             /**

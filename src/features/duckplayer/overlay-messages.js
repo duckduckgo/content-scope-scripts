@@ -28,10 +28,15 @@ export class DuckPlayerOverlayMessages {
      */
     initialSetup () {
         if (this.injectName === 'integration') {
+            const overlayCopy = /** @type {import("../duck-player.js").UISettings['overlayCopy']} */ (new URLSearchParams(window.location.href).get('overlayCopy') || 'default');
+
             return Promise.resolve({
                 userValues: {
                     overlayInteracted: false,
                     privatePlayerMode: { alwaysAsk: {} }
+                },
+                ui: {
+                    overlayCopy
                 }
             })
         }

@@ -1,9 +1,11 @@
 import css from '../assets/video-overlay.css'
-import dax from '../assets/dax.svg'
+import dax from '../assets/dax-v2.svg'
 import { i18n } from '../text.js'
 import { appendImageAsBackground } from '../util.js'
 import { VideoOverlay } from '../video-overlay.js'
 import { html, trustedUnsafe } from '../../../dom-utils.js'
+
+const nl2br = text => html`${text.split('{newline}').map((t, i) => i === 0 ? t : html`<br>${t}`)}`
 
 /**
  * The custom element that we use to present our UI elements
@@ -12,12 +14,13 @@ import { html, trustedUnsafe } from '../../../dom-utils.js'
 export class DDGVideoOverlay extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-overlay'
     /**
-     * @param {import("../overlays.js").Environment} environment
-     * @param {import("../../duck-player.js").UISettings} ui
-     * @param {import("../util").VideoParams} params
-     * @param {VideoOverlay} manager
+     * @param {object} options
+     * @param {import("../overlays.js").Environment} options.environment
+     * @param {import("../../duck-player.js").UISettings} options.ui
+     * @param {import("../util").VideoParams} options.params
+     * @param {VideoOverlay} options.manager
      */
-    constructor (environment, ui, params, manager) {
+    constructor ({ environment, ui, params, manager }) {
         super()
         if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments')
         this.environment = environment
@@ -55,10 +58,8 @@ export class DDGVideoOverlay extends HTMLElement {
      * @param {import('../../duck-player').UISettings['overlayCopy']} variant
      */
     getCopyForVariant (variant = 'default') {
-        const title = i18n.t(`videoOverlayTitle_${variant}`)
-        const subtitle = variant === 'default'
-            ? html`<b>${i18n.t('playText')}</b> ${i18n.t(`videoOverlaySubtitle_${variant}`)}`
-            : i18n.t(`videoOverlaySubtitle_${variant}`)
+        const title = nl2br(i18n.t(`videoOverlayTitle_${variant}`))
+        const subtitle = nl2br(i18n.t(`videoOverlaySubtitle_${variant}`))
         const buttonOptOut = i18n.t(`videoButtonOptOut_${variant}`)
         const buttonOpen = i18n.t(`videoButtonOpen_${variant}`)
         const rememberLabel = i18n.t('rememberLabel')

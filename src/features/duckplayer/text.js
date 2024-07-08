@@ -12,10 +12,10 @@ const text = {
         title: 'Turn on Duck Player to watch without targeted ads'
     },
     videoOverlayTitle_v2: {
-        title: 'Drowning in ads in YouTube? Turn on Duck Player.'
+        title: 'Drowning in ads in YouTube?{newline}Turn on Duck Player.'
     },
     videoOverlaySubtitle_default: {
-        title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'
+        title: 'Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'
     },
     videoOverlaySubtitle_v1: {
         title: 'What you watch in DuckDuckGo won’t influence your recommendations on YouTube.'

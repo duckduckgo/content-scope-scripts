@@ -582,8 +582,8 @@ export class DuckplayerOverlays {
      */
     async overlayCopyIsDefault () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByText('Tired of targeted YouTube ads and recommendations?', { exact: true }).waitFor({ state: 'visible', timeout: 1000})
-        await this.page.getByText('Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.', { exact: true }).waitFor({ state: 'visible', timeout: 1000})
+        await this.page.getByText('Tired of targeted YouTube ads and recommendations?', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
 
         await this.page.getByRole('link', { name: 'Watch in Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
         await this.page.getByRole('button', { name: 'Watch Here' }).waitFor({ state: 'visible', timeout: 1000 })
@@ -596,8 +596,8 @@ export class DuckplayerOverlays {
      */
     async overlayCopyIsV1 () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByText('Turn on Duck Player to watch without targeted ads', { exact: true }).waitFor({ state: 'visible', timeout: 1000})
-        await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000})
+        await this.page.getByText('Turn on Duck Player to watch without targeted ads', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
 
         await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
         await this.page.getByRole('button', { name: 'No Thanks' }).waitFor({ state: 'visible', timeout: 1000 })
@@ -610,8 +610,8 @@ export class DuckplayerOverlays {
      */
     async overlayCopyIsV2 () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByText('Drowning in ads in YouTube? Turn on Duck Player.', { exact: true }).waitFor({ state: 'visible', timeout: 1000})
-        await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000})
+        await this.page.getByText('Drowning in ads in YouTube? Turn on Duck Player.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
 
         await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
         await this.page.getByRole('button', { name: 'No Thanks' }).waitFor({ state: 'visible', timeout: 1000 })
