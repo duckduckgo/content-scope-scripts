@@ -14,6 +14,7 @@ import {
  * @internal
  */
 export function createSpecialPageMessaging (opts) {
+    console.log(opts)
     const messageContext = new MessagingContext({
         context: 'specialPages',
         featureName: opts.pageName,
@@ -58,6 +59,12 @@ export function createSpecialPageMessaging (opts) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         request: (msg) => {
             console.log(msg)
+            if (msg.method === 'initialSetup') {
+                return Promise.resolve({
+                    locale: 'en',
+                    env: opts.env
+                })
+            }
             return Promise.resolve(null)
         },
         /**
