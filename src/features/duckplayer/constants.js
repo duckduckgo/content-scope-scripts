@@ -1,3 +1,4 @@
+export const MSG_NAME_INITIAL_SETUP = 'initialSetup'
 export const MSG_NAME_SET_VALUES = 'setUserValues'
 export const MSG_NAME_READ_VALUES = 'getUserValues'
 export const MSG_NAME_READ_VALUES_SERP = 'readUserValues'

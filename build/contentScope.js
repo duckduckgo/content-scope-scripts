@@ -11755,6 +11755,7 @@
         }
     }
 
+    const MSG_NAME_INITIAL_SETUP = 'initialSetup';
     const MSG_NAME_SET_VALUES = 'setUserValues';
     const MSG_NAME_READ_VALUES = 'getUserValues';
     const MSG_NAME_READ_VALUES_SERP = 'readUserValues';
@@ -11784,6 +11785,13 @@
              * @internal
              */
             this.messaging = messaging;
+        }
+
+        /**
+         * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
+         */
+        initialSetup () {
+            return this.messaging.request(MSG_NAME_INITIAL_SETUP)
         }
 
         /**
@@ -13242,19 +13250,21 @@
         // bind early to attach all listeners
         const domState = new DomState();
 
-        /** @type {import("../duck-player.js").UserValues} */
-        let userValues;
+        /** @type {import("../duck-player.js").OverlaysInitialSettings} */
+        let initialSetup;
         try {
-            userValues = await messages.getUserValues();
+            initialSetup = await messages.initialSetup();
         } catch (e) {
             console.error(e);
             return
         }
 
-        if (!userValues) {
+        if (!initialSetup) {
             console.error('cannot continue without user settings');
             return
         }
+
+        let { userValues } = initialSetup;
 
         /**
          * Create the instance - this might fail if settings or user preferences prevent it
@@ -13429,7 +13439,7 @@
      * #### Messages:
      *
      * On Page Load
-     *   - {@link DuckPlayerOverlayMessages.getUserValues} is initially called to get the current settings
+     *   - {@link DuckPlayerOverlayMessages.initialSetup} is initially called to get the current settings
      *   - {@link DuckPlayerOverlayMessages.onUserValuesChanged} subscription begins immediately - it will continue to listen for updates
      *
      * Then the following message can be sent at any time
@@ -13455,6 +13465,11 @@
      * @typedef UserValues - A way to communicate user settings
      * @property {{enabled: {}} | {alwaysAsk:{}} | {disabled:{}}} privatePlayerMode - one of 3 values
      * @property {boolean} overlayInteracted - always a boolean
+     */
+
+    /**
+     * @typedef OverlaysInitialSettings - The initial payload used to communicate render-blocking information
+     * @property {UserValues} userValues
      */
 
     /**
