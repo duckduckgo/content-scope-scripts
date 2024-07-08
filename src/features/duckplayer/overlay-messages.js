@@ -27,6 +27,14 @@ export class DuckPlayerOverlayMessages {
      * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
      */
     initialSetup () {
+        if (this.injectName === 'integration') {
+            return Promise.resolve({
+                userValues: {
+                    overlayInteracted: false,
+                    privatePlayerMode: { alwaysAsk: {} }
+                }
+            })
+        }
         return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)
     }
 
@@ -43,12 +51,6 @@ export class DuckPlayerOverlayMessages {
      * @returns {Promise<import("../duck-player.js").UserValues>}
      */
     getUserValues () {
-        if (this.injectName === 'integration') {
-            return Promise.resolve({
-              overlayInteracted: false,
-              privatePlayerMode: { alwaysAsk: {} }
-            })
-        }
         return this.messaging.request(constants.MSG_NAME_READ_VALUES, {})
     }
 
