@@ -344,16 +344,8 @@ export class DuckplayerOverlays {
     }
 
     async watchInDuckPlayer () {
-        const failure = new Promise(resolve => {
-            this.page.context().on('requestfailed', f => {
-                if (f.url().startsWith('duck')) resolve(f.url())
-            })
-        })
-
         await this.page.getByRole('link', { name: 'Watch in Duck Player' }).click()
-
-        // assert the page tried to navigate to duck player
-        expect(await failure).toEqual('duck://player/123')
+        await this.duckPlayerLoadsFor('123')
     }
 
     async watchHere () {

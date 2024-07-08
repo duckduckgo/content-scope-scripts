@@ -1,4 +1,5 @@
 import {
+    AndroidMessagingConfig,
     Messaging,
     MessagingContext,
     TestTransportConfig,
@@ -37,6 +38,15 @@ export function createSpecialPageMessaging (opts) {
                 hasModernWebkitAPI: true,
                 secret: '',
                 webkitMessageHandlerNames: ['specialPages']
+            })
+            return new Messaging(messageContext, opts)
+        } else if (opts.injectName === 'android') {
+            const opts = new AndroidMessagingConfig({
+                messageSecret: 'duckduckgo-android-messaging-secret',
+                messageCallback: 'messageCallback',
+                javascriptInterface: messageContext.context,
+                target: globalThis,
+                debug: true
             })
             return new Messaging(messageContext, opts)
         }

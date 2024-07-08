@@ -870,7 +870,10 @@ function baseUrl (injectName) {
 function settingsUrl (injectName) {
     switch (injectName) {
     // this is different on Windows to allow the native side to intercept the navigation more easily
-    case 'windows': return 'duck://settings/duckplayer'
+    case 'windows':
+    case 'android':
+        return 'duck://settings/duckplayer'
+    // case 'android': return 'duck://player/settings'
     default: return 'about:preferences/duckplayer'
     }
 }

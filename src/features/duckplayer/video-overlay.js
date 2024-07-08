@@ -269,6 +269,8 @@ export class VideoOverlay {
      * But, if the checkbox was not checked, then we want to keep the state
      * as 'alwaysAsk'
      *
+     * @param {boolean} remember
+     * @param {VideoParams} params
      */
     userOptIn (remember, params) {
         /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
@@ -285,7 +287,7 @@ export class VideoOverlay {
             privatePlayerMode
         }
         this.messages.setUserValues(outgoing)
-            .then(() => this.environment.setHref(params.toPrivatePlayerUrl()))
+            .then(() => this.messages.openDuckPlayer({ href: params.toPrivatePlayerUrl() }))
             .catch(e => console.error('error setting user choice', e))
     }
 
