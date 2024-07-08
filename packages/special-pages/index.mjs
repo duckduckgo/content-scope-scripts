@@ -6,8 +6,6 @@
  *
  * A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like `about: pages`
  *
- * - {@link "Example Page"}
- *
  * [[include:packages/special-pages/readme.md]]
  *
  */
@@ -48,11 +46,15 @@ export const support = {
         'windows': ['copy', 'build-js'],
         'apple': ['copy', 'build-js'],
     },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    example: {
+        'integration': ['copy', 'build-js'],
+    },
 }
 
 /** @type {{src: string, dest: string, injectName: string}[]} */
 const copyJobs = []
-/** @type {{entryPoints: string[], outputDir: string, injectName: string}[]} */
+/** @type {{entryPoints: string[], outputDir: string, injectName: string, pageName: string}[]} */
 const buildJobs = []
 /** @type {{src: string}[]} */
 const inlineJobs = []
@@ -91,7 +93,8 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                 buildJobs.push({
                     entryPoints,
                     outputDir,
-                    injectName
+                    injectName,
+                    pageName
                 })
             }
             if (job === 'inline-html') {
@@ -148,6 +151,7 @@ for (const buildJob of buildJobs) {
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),
                 'import.meta.injectName': JSON.stringify(buildJob.injectName),
+                'import.meta.pageName': JSON.stringify(buildJob.pageName),
             }
         })
     }
