@@ -6,8 +6,6 @@
  *
  * A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like `about: pages`
  *
- * - {@link "Example Page"}
- *
  * [[include:packages/special-pages/readme.md]]
  *
  */
