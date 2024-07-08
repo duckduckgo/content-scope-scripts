@@ -22,6 +22,13 @@ export class DuckPlayerOverlayMessages {
     }
 
     /**
+     * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
+     */
+    initialSetup () {
+        return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)
+    }
+
+    /**
      * Inform the native layer that an interaction occurred
      * @param {import("../duck-player.js").UserValues} userValues
      * @returns {Promise<import("../duck-player.js").UserValues>}

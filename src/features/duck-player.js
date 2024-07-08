@@ -12,7 +12,7 @@
  * #### Messages:
  *
  * On Page Load
- *   - {@link DuckPlayerOverlayMessages.getUserValues} is initially called to get the current settings
+ *   - {@link DuckPlayerOverlayMessages.initialSetup} is initially called to get the current settings
  *   - {@link DuckPlayerOverlayMessages.onUserValuesChanged} subscription begins immediately - it will continue to listen for updates
  *
  * Then the following message can be sent at any time
@@ -43,6 +43,11 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
  * @typedef UserValues - A way to communicate user settings
  * @property {{enabled: {}} | {alwaysAsk:{}} | {disabled:{}}} privatePlayerMode - one of 3 values
  * @property {boolean} overlayInteracted - always a boolean
+ */
+
+/**
+ * @typedef OverlaysInitialSettings - The initial payload used to communicate render-blocking information
+ * @property {UserValues} userValues
  */
 
 /**

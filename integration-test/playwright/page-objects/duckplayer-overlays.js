@@ -247,7 +247,9 @@ export class DuckplayerOverlays {
     async userSettingIs (setting) {
         await this.page.addInitScript(mockResponses, {
             responses: {
-                getUserValues: userValues[setting]
+                initialSetup: {
+                    userValues: userValues[setting]
+                }
             }
         })
     }
@@ -445,6 +447,12 @@ export class DuckplayerOverlays {
                 featureName: 'duckPlayer'
             },
             responses: {
+                initialSetup: {
+                    userValues: {
+                        privatePlayerMode: { alwaysAsk: {} },
+                        overlayInteracted: false
+                    }
+                },
                 getUserValues: {
                     privatePlayerMode: { alwaysAsk: {} },
                     overlayInteracted: false
