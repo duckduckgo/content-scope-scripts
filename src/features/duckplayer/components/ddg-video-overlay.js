@@ -1,11 +1,9 @@
 import css from '../assets/video-overlay.css'
-import dax from '../assets/dax-v2.svg'
-import { i18n } from '../text.js'
+import dax from '../assets/dax.svg'
+import { overlayCopyVariants } from '../text.js'
 import { appendImageAsBackground } from '../util.js'
 import { VideoOverlay } from '../video-overlay.js'
 import { html, trustedUnsafe } from '../../../dom-utils.js'
-
-const nl2br = text => html`${text.split('{newline}').map((t, i) => i === 0 ? t : html`<br>${t}`)}`
 
 /**
  * The custom element that we use to present our UI elements
@@ -55,25 +53,10 @@ export class DDGVideoOverlay extends HTMLElement {
     }
 
     /**
-     * @param {import('../../duck-player').UISettings['overlayCopy']} variant
-     */
-    getCopyForVariant (variant = 'default') {
-        const title = nl2br(i18n.t(`videoOverlayTitle_${variant}`))
-        const subtitle = nl2br(i18n.t(`videoOverlaySubtitle_${variant}`))
-        const buttonOptOut = i18n.t(`videoButtonOptOut_${variant}`)
-        const buttonOpen = i18n.t(`videoButtonOpen_${variant}`)
-        const rememberLabel = i18n.t('rememberLabel')
-
-        return {
-            title, subtitle, buttonOptOut, buttonOpen, rememberLabel
-        }
-    }
-
-    /**
      * @returns {HTMLDivElement}
      */
     createOverlay () {
-        const overlayCopy = this.getCopyForVariant(this.ui?.overlayCopy)
+        const overlayCopy = overlayCopyVariants[this.ui?.overlayCopy || 'default']
         const overlayElement = document.createElement('div')
         overlayElement.classList.add('ddg-video-player-overlay')
         const svgIcon = trustedUnsafe(dax)

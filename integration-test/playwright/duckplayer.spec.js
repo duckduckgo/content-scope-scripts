@@ -320,12 +320,12 @@ test.describe('Video Player overlays', () => {
             // Given overlays feature is enabled
             await overlays.withRemoteConfig()
 
-            // And my setting is 'always ask' with 'overlay copy v1'
-            await overlays.initialSetupIs('always ask', 'overlay copy v1')
+            // And my setting is 'always ask' with 'overlay copy a1'
+            await overlays.initialSetupIs('always ask', 'overlay copy a1')
             await overlays.gotoPlayerPage()
 
             // Then the overlay shows the correct copy for v1
-            await overlays.overlayCopyIsV1()
+            await overlays.overlayCopyIsA1()
         })
 
         test('displays overlay copy version 2', async ({ page }, workerInfo) => {
@@ -334,12 +334,12 @@ test.describe('Video Player overlays', () => {
             // Given overlays feature is enabled
             await overlays.withRemoteConfig()
 
-            // And my setting is 'always ask' with 'overlay copy v1'
-            await overlays.initialSetupIs('always ask', 'overlay copy v2')
+            // And my setting is 'always ask' with 'overlay copy b1'
+            await overlays.initialSetupIs('always ask', 'overlay copy b1')
             await overlays.gotoPlayerPage()
 
             // Then the overlay shows the correct copy for v1
-            await overlays.overlayCopyIsV2()
+            await overlays.overlayCopyIsB1()
         })
     })
 })

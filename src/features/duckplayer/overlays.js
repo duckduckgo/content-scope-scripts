@@ -29,9 +29,6 @@ export async function initOverlays (settings, environment, messages) {
     let { userValues } = initialSetup
     const { ui } = initialSetup
 
-    // /** @type {import('../duck-player.js').UISettings} */
-    // const ui = { overlayCopy: 'v2' }
-
     /**
      * Create the instance - this might fail if settings or user preferences prevent it
      * @type {Thumbnails|undefined}
