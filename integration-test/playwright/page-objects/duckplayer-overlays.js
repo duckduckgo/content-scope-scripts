@@ -9,10 +9,6 @@ import { expect } from '@playwright/test'
 import { perPlatform } from '../type-helpers.mjs'
 import { windowsGlobalPolyfills } from '../shared.mjs'
 
-/**
- * @typedef {import('../../../src/features/duck-player.js').UISettings} UISettings
- */
-
 // Every possible combination of UserValues
 const userValues = {
     /** @type {import("../../../src/features/duck-player.js").UserValues} */
@@ -38,14 +34,16 @@ const userValues = {
 }
 
 // Possible UI Settings
-/** @type {Record<string, UISettings>}  */
 const uiSettings = {
+    /** @type {import("../../../src/features/duck-player.js").UISettings} */
     'default overlay copy': {
         overlayCopy: 'default'
     },
+    /** @type {import("../../../src/features/duck-player.js").UISettings} */
     'overlay copy a1': {
         overlayCopy: 'a1'
     },
+    /** @type {import("../../../src/features/duck-player.js").UISettings} */
     'overlay copy b1': {
         overlayCopy: 'b1'
     }
