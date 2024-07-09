@@ -33,8 +33,8 @@ export async function initOverlays (settings, environment, messages) {
      * Create the instance - this might fail if settings or user preferences prevent it
      * @type {Thumbnails|undefined}
      */
-    let thumbnails = thumbnailsFeatureFromSettings(userValues, settings, messages, environment)
-    let videoOverlays = videoOverlaysFeatureFromSettings(userValues, settings, messages, environment, ui)
+    let thumbnails = thumbnailsFeatureFromSettings({ userValues, settings, messages, environment })
+    let videoOverlays = videoOverlaysFeatureFromSettings({ userValues, settings, messages, environment, ui })
 
     if (thumbnails || videoOverlays) {
         if (videoOverlays) {
@@ -64,11 +64,11 @@ export async function initOverlays (settings, environment, messages) {
         videoOverlays?.destroy()
 
         // re-create thumbs
-        thumbnails = thumbnailsFeatureFromSettings(userValues, settings, messages, environment)
+        thumbnails = thumbnailsFeatureFromSettings({ userValues, settings, messages, environment })
         thumbnails?.init()
 
         // re-create video overlay
-        videoOverlays = videoOverlaysFeatureFromSettings(userValues, settings, messages, environment, ui)
+        videoOverlays = videoOverlaysFeatureFromSettings({ userValues, settings, messages, environment, ui })
         videoOverlays?.init('preferences-changed')
     }
 
@@ -82,15 +82,16 @@ export async function initOverlays (settings, environment, messages) {
 }
 
 /**
- * @param {import("../duck-player.js").UserValues} userPreferences
- * @param {import("../duck-player.js").OverlaysFeatureSettings} settings
- * @param {import("../duck-player.js").DuckPlayerOverlayMessages} messages
- * @param {Environment} environment
+ * @param {object} options
+ * @param {import("../duck-player.js").UserValues} options.userValues
+ * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
+ * @param {import("../duck-player.js").DuckPlayerOverlayMessages} options.messages
+ * @param {Environment} options.environment
  * @returns {Thumbnails | ClickInterception | undefined}
  */
-function thumbnailsFeatureFromSettings (userPreferences, settings, messages, environment) {
-    const showThumbs = 'alwaysAsk' in userPreferences.privatePlayerMode && settings.thumbnailOverlays.state === 'enabled'
-    const interceptClicks = 'enabled' in userPreferences.privatePlayerMode && settings.clickInterception.state === 'enabled'
+function thumbnailsFeatureFromSettings ({ userValues, settings, messages, environment }) {
+    const showThumbs = 'alwaysAsk' in userValues.privatePlayerMode && settings.thumbnailOverlays.state === 'enabled'
+    const interceptClicks = 'enabled' in userValues.privatePlayerMode && settings.clickInterception.state === 'enabled'
 
     if (showThumbs) {
         return new Thumbnails({
@@ -111,14 +112,15 @@ function thumbnailsFeatureFromSettings (userPreferences, settings, messages, env
 }
 
 /**
- * @param {import("../duck-player.js").UserValues} userValues
- * @param {import("../duck-player.js").OverlaysFeatureSettings} settings
- * @param {import("../duck-player.js").DuckPlayerOverlayMessages} messages
- * @param {import("./overlays.js").Environment} environment
- * @param {import("../duck-player.js").UISettings} ui
+ * @param {object} options
+ * @param {import("../duck-player.js").UserValues} options.userValues
+ * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
+ * @param {import("../duck-player.js").DuckPlayerOverlayMessages} options.messages
+ * @param {import("./overlays.js").Environment} options.environment
+ * @param {import("../duck-player.js").UISettings} options.ui
  * @returns {VideoOverlay | undefined}
  */
-function videoOverlaysFeatureFromSettings (userValues, settings, messages, environment, ui) {
+function videoOverlaysFeatureFromSettings ({ userValues, settings, messages, environment, ui }) {
     if (settings.videoOverlays.state !== 'enabled') return undefined
 
     return new VideoOverlay({ userValues, settings, environment, messages, ui })

@@ -61,7 +61,7 @@ export const i18n = {
  * Converts occurrences of {newline} in a string to <br> tags
  * @param {string} text
  */
-export function nl2br(text) {
+export function nl2br (text) {
     return html`${text.split('{newline}')
         .map((line, i) => i === 0 ? line : html`<br>${line}`)}`
 }
@@ -85,7 +85,7 @@ export function nl2br(text) {
 export const overlayCopyVariants = {
     default: {
         title: i18n.t('videoOverlayTitle'),
-        subtitle: i18n.t('videoOverlaySubtitle'),
+        subtitle: html`<b>${i18n.t('playText')}</b> ${i18n.t('videoOverlaySubtitle')}`,
         buttonOptOut: i18n.t('videoButtonOptOut'),
         buttonOpen: i18n.t('videoButtonOpen'),
         rememberLabel: i18n.t('rememberLabel')

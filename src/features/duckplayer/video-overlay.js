@@ -224,8 +224,8 @@ export class VideoOverlay {
             const { environment, ui } = this
             const overlayElement = new DDGVideoOverlay({
                 environment,
-                ui,
                 params,
+                ui,
                 manager: this
             })
             targetElement.appendChild(overlayElement)

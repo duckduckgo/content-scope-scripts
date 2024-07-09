@@ -14,11 +14,11 @@ export class DDGVideoOverlay extends HTMLElement {
     /**
      * @param {object} options
      * @param {import("../overlays.js").Environment} options.environment
-     * @param {import("../../duck-player.js").UISettings} options.ui
      * @param {import("../util").VideoParams} options.params
+     * @param {import("../../duck-player.js").UISettings} options.ui
      * @param {VideoOverlay} options.manager
      */
-    constructor ({ environment, ui, params, manager }) {
+    constructor ({ environment, params, ui, manager }) {
         super()
         if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments')
         this.environment = environment
