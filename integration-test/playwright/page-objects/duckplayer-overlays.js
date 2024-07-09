@@ -272,16 +272,21 @@ export class DuckplayerOverlays {
 
     /**
      * @param {keyof userValues} userValueSetting
-     * @param {keyof uiSettings} uiSetting
+     * @param {keyof uiSettings} [uiSetting]
      * @return {Promise<void>}
      */
     async initialSetupIs (userValueSetting, uiSetting) {
+        const initialSetupResponse = {
+            userValues: userValues[userValueSetting]
+        }
+
+        if (uiSetting && uiSettings[uiSetting]) {
+            initialSetupResponse.ui = uiSettings[uiSetting]
+        }
+
         await this.page.addInitScript(mockResponses, {
             responses: {
-                initialSetup: {
-                    userValues: userValues[userValueSetting],
-                    ui: uiSettings[uiSetting]
-                }
+                initialSetup: initialSetupResponse
             }
         })
     }
