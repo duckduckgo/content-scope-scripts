@@ -48,7 +48,7 @@ export class Build {
             }
             return fn()
         }
-        throw new Error('missing impl for that')
+        throw new Error('missing impl for that on platform: ' + this.name)
     }
 
     /**
