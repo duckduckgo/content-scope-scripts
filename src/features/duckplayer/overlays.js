@@ -127,7 +127,7 @@ export class Environment {
 
     /**
      * @param {object} params
-     * @param {import('../../utils.js').Platform} params.platform
+     * @param {{name: string}} params.platform
      * @param {boolean|null|undefined} [params.debug]
      */
     constructor (params) {
