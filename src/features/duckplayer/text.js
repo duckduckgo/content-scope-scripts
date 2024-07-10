@@ -10,28 +10,28 @@ const text = {
     videoOverlayTitle: {
         title: 'Tired of targeted YouTube ads and recommendations?'
     },
-    videoOverlayTitle_a1: {
+    videoOverlayTitle2: {
         title: 'Turn on Duck Player to watch without targeted ads'
     },
-    videoOverlayTitle_b1: {
+    videoOverlayTitle3: {
         title: 'Drowning in ads in YouTube? {newline} Turn on Duck Player.'
     },
     videoOverlaySubtitle: {
         title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'
     },
-    videoOverlaySubtitle_a1_b1: {
+    videoOverlaySubtitle2: {
         title: 'What you watch in DuckDuckGo won’t influence your recommendations on YouTube.'
     },
     videoButtonOpen: {
         title: 'Watch in Duck Player'
     },
-    videoButtonOpen_a1_b1: {
+    videoButtonOpen2: {
         title: 'Turn On Duck Player'
     },
     videoButtonOptOut: {
         title: 'Watch Here'
     },
-    videoButtonOptOut_a1_b1: {
+    videoButtonOptOut2: {
         title: 'No Thanks'
     },
     rememberLabel: {
@@ -91,17 +91,17 @@ export const overlayCopyVariants = {
         rememberLabel: i18n.t('rememberLabel')
     },
     a1: {
-        title: i18n.t('videoOverlayTitle_a1'),
-        subtitle: i18n.t('videoOverlaySubtitle_a1_b1'),
-        buttonOptOut: i18n.t('videoButtonOptOut_a1_b1'),
-        buttonOpen: i18n.t('videoButtonOpen_a1_b1'),
+        title: i18n.t('videoOverlayTitle2'),
+        subtitle: i18n.t('videoOverlaySubtitle2'),
+        buttonOptOut: i18n.t('videoButtonOptOut2'),
+        buttonOpen: i18n.t('videoButtonOpen2'),
         rememberLabel: i18n.t('rememberLabel')
     },
     b1: {
-        title: nl2br(i18n.t('videoOverlayTitle_b1')),
-        subtitle: i18n.t('videoOverlaySubtitle_a1_b1'),
-        buttonOptOut: i18n.t('videoButtonOptOut_a1_b1'),
-        buttonOpen: i18n.t('videoButtonOpen_a1_b1'),
+        title: nl2br(i18n.t('videoOverlayTitle3')),
+        subtitle: i18n.t('videoOverlaySubtitle2'),
+        buttonOptOut: i18n.t('videoButtonOptOut2'),
+        buttonOpen: i18n.t('videoButtonOpen2'),
         rememberLabel: i18n.t('rememberLabel')
     }
 }
