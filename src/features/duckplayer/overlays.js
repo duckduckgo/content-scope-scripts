@@ -133,9 +133,11 @@ export class Environment {
      * @param {object} params
      * @param {{name: string}} params.platform
      * @param {boolean|null|undefined} [params.debug]
+     * @param {ImportMeta['injectName']} params.injectName
      */
     constructor (params) {
         this.debug = Boolean(params.debug)
+        this.injectName = params.injectName
         this.platform = params.platform
     }
 
@@ -186,6 +188,26 @@ export class Environment {
             console.error(e)
         }
         return false
+    }
+
+    /**
+     * @returns {import("../duck-player.js").UISettings['overlayCopy'] | null}
+     */
+    getOverlayCopyOverride () {
+        if (this.isIntegrationMode()) {
+            const allowedOverlayCopyOverrides = ['default', 'a1', 'b1']
+
+            const url = new URLSearchParams(window.location.href)
+            const override = url.get('overlayCopy')
+            if (override && allowedOverlayCopyOverrides.includes(override)) {
+                return /** @type {import("../duck-player.js").UISettings['overlayCopy']} */ (override)
+            }
+        }
+        return null
+    }
+
+    isIntegrationMode () {
+        return this.debug === true && this.injectName === 'integration'
     }
 
     isTestMode () {

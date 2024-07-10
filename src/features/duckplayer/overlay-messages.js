@@ -12,31 +12,29 @@ import * as constants from './constants.js'
 export class DuckPlayerOverlayMessages {
     /**
      * @param {Messaging} messaging
-     * @param {ImportMeta['injectName']} injectName
+     * @param {import('./overlays.js').Environment} environment
      * @internal
      */
-    constructor (messaging, injectName) {
+    constructor (messaging, environment) {
         /**
          * @internal
          */
         this.messaging = messaging
-        this.injectName = injectName
+        this.environment = environment
     }
 
     /**
      * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
      */
     initialSetup () {
-        if (this.injectName === 'integration') {
-            const overlayCopy = /** @type {import("../duck-player.js").UISettings['overlayCopy']} */ (new URLSearchParams(window.location.href).get('overlayCopy') || 'default')
-
+        if (this.environment.isIntegrationMode()) {
             return Promise.resolve({
                 userValues: {
                     overlayInteracted: false,
                     privatePlayerMode: { alwaysAsk: {} }
                 },
                 ui: {
-                    overlayCopy
+                    overlayCopy: this.environment.getOverlayCopyOverride() || 'default'
                 }
             })
         }

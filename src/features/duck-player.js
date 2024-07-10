@@ -93,11 +93,11 @@ export default class DuckPlayerFeature extends ContentFeature {
             throw new Error('cannot operate duck player without a messaging backend')
         }
 
-        const comms = new DuckPlayerOverlayMessages(this.messaging, import.meta.injectName)
         const env = new Environment({
             debug: args.debug,
-            platform: this.platform
+            injectName: import.meta.injectName
         })
+        const comms = new DuckPlayerOverlayMessages(this.messaging, env)
 
         if (overlaysEnabled) {
             initOverlays(overlaySettings.youtube, env, comms)
