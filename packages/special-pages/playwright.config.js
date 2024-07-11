@@ -19,7 +19,7 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'onboarding.spec.js',
-                'sslerror.spec.js',
+                'sslerror.spec.js'
 
             ],
             use: {
