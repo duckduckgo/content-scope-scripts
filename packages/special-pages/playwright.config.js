@@ -3,8 +3,11 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
     projects: [
         {
-            name: 'duckplayer-windows',
-            testMatch: 'duckplayer.spec.js',
+            name: 'windows',
+            testMatch: [
+                'duckplayer.spec.js',
+                'onboarding.spec.js'
+            ],
             use: {
                 ...devices['Desktop Edge'],
                 injectName: 'windows',
@@ -12,35 +15,13 @@ export default defineConfig({
             }
         },
         {
-            name: 'duckplayer-apple',
-            testMatch: 'duckplayer.spec.js',
-            use: {
-                ...devices['Desktop Safari'],
-                injectName: 'apple',
-                platform: 'macos'
-            }
-        },
-        {
-            name: 'sslerrorpage-apple',
-            testMatch: 'sslerror.spec.js',
-            use: {
-                ...devices['Desktop Safari'],
-                injectName: 'apple',
-                platform: 'macos'
-            }
-        },
-        {
-            name: 'onboarding-windows',
-            testMatch: 'onboarding.spec.js',
-            use: {
-                ...devices['Desktop Edge'],
-                injectName: 'windows',
-                platform: 'windows'
-            }
-        },
-        {
-            name: 'onboarding-apple',
-            testMatch: 'onboarding.spec.js',
+            name: 'macos',
+            testMatch: [
+                'duckplayer.spec.js',
+                'onboarding.spec.js',
+                'sslerror.spec.js',
+
+            ],
             use: {
                 ...devices['Desktop Safari'],
                 injectName: 'apple',
