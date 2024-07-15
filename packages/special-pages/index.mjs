@@ -48,10 +48,6 @@ export const support = {
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     example: {
-        'integration': ['copy', 'build-js'],
-    },
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    example: {
         'integration': ['copy', 'build-js']
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */

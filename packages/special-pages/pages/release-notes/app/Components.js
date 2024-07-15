@@ -1,12 +1,22 @@
 import { h } from 'preact'
 import { DuckDuckGoLogo } from '../../../shared/components/DuckDuckGoLogo/DuckDuckGoLogo'
-import { PageTitle, UpdateStatus, ReleaseNotesHeading, ReleaseNotesSubheading, ReleaseNotesList, ReleaseNotesContent } from './components/ReleaseNotes'
+import {
+    PageTitle,
+    UpdateStatus,
+    ReleaseNotesHeading,
+    ReleaseNotesSubheading,
+    ReleaseNotesList,
+    ReleaseNotesContent,
+    ReleaseNotes
+} from './components/ReleaseNotes'
 import { Button } from '../../../shared/components/Button/Button'
 import { Card } from '../../../shared/components/Card/Card'
 import { ContentPlaceholder } from './components/ContentPlaceholder'
 import { useTypedTranslation } from '../app/types'
 
 import styles from './Components.module.css'
+import { sampleData } from './sampleData.js'
+import { useEffect, useState } from 'preact/hooks'
 
 export function Components () {
     const { t } = useTypedTranslation()
@@ -83,6 +93,23 @@ export function Components () {
             <Card className={styles.card}>
                 <ReleaseNotesContent status="updateReady" title="May 10 2024" version="1.2.0" notes={sampleNotesData} />
             </Card>
+
+            <ReleaseNotes releaseData={sampleData.loading} />
+            <LoadingThen>
+                <ReleaseNotes releaseData={sampleData.loaded} />
+            </LoadingThen>
+            <LoadingThen>
+                <ReleaseNotes releaseData={sampleData.updateReady} />
+            </LoadingThen>
         </main>
     )
+}
+
+function LoadingThen ({ children }) {
+    const [ready, setReady] = useState(false)
+    useEffect(() => {
+        setTimeout(() => setReady(true), 1000)
+    }, [])
+    if (ready) return children
+    return <ReleaseNotes releaseData={sampleData.loading} />
 }
