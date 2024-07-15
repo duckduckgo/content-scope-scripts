@@ -7384,9 +7384,9 @@
     /**
      * @param {object} params
      * @param {'app' | 'components'} [params.display] - whether to show the application or component list
-     * @param {'production' | 'development'} [params.env] - whether to show the application or component list
-     * @param {URLSearchParams} [params.urlParams] - whether to show the application or component list
-     * @param {ImportMeta['injectName']} [params.platform] - whether to show the application or component list
+     * @param {'production' | 'development'} [params.env] - application environment
+     * @param {URLSearchParams} [params.urlParams] - URL params passed into the page
+     * @param {ImportMeta['injectName']} [params.platform] - application platform
      * @param {boolean} [params.willThrow] - whether the application will simulate an error
      * @param {boolean} [params.debugState] - whether to show debugging UI
      * @param {string} [params.locale] - for applications strings

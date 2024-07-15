@@ -46,9 +46,6 @@ export interface InitialSetupResponse {
   env: "development" | "production";
 }
 
-/**
- * The following types enforce a schema-first workflow for messages 
- */ 
 declare module "../pages/example/src/js/index.js" {
   export interface ExamplePage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<ExampleMessages>['notify'],
