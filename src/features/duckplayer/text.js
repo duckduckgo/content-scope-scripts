@@ -14,7 +14,7 @@ const text = {
         title: 'Turn on Duck Player to watch without targeted ads'
     },
     videoOverlayTitle3: {
-        title: 'Drowning in ads in YouTube? {newline} Turn on Duck Player.'
+        title: 'Drowning in ads on YouTube? {newline} Turn on Duck Player.'
     },
     videoOverlaySubtitle: {
         title: 'provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.'

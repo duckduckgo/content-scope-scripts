@@ -613,7 +613,7 @@ export class DuckplayerOverlays {
      */
     async overlayCopyIsB1 () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByText('Drowning in ads in YouTube? Turn on Duck Player.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('Drowning in ads on YouTube? Turn on Duck Player.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
         await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
 
         await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })

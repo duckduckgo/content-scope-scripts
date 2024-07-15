@@ -345,7 +345,7 @@ test.describe('Video Player overlays', () => {
             await overlays.overlayCopyIsA1()
         })
 
-        test('displays overlay copy for cohort A2', async ({ page }, workerInfo) => {
+        test('displays overlay copy for cohort B1', async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo)
 
             // Given overlays feature is enabled
