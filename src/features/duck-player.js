@@ -89,7 +89,8 @@ export default class DuckPlayerFeature extends ContentFeature {
 
         const comms = new DuckPlayerOverlayMessages(this.messaging)
         const env = new Environment({
-            debug: args.debug
+            debug: args.debug,
+            platform: this.platform
         })
 
         if (overlaysEnabled) {
