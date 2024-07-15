@@ -58,7 +58,7 @@
 import { SideEffects, VideoParams } from './util.js'
 import { IconOverlay } from './icon-overlay.js'
 import { Environment } from './overlays.js'
-import { OpenInDuckPlayerMsg } from './overlay-messages.js'
+import { OpenInDuckPlayerMsg, Pixel } from './overlay-messages.js'
 
 /**
  * @typedef ThumbnailParams
@@ -92,6 +92,10 @@ export class Thumbnails {
             // create the icon & append it to the page
             const icon = new IconOverlay()
             icon.appendHoverOverlay((href) => {
+                if (this.environment.opensVideoOverlayLinksViaMessage) {
+                    this.messages.sendPixel(new Pixel({ name: 'play.use.thumbnail' }))
+                }
+
                 this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }))
             })
 

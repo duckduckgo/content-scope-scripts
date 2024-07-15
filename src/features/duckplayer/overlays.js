@@ -127,10 +127,12 @@ export class Environment {
 
     /**
      * @param {object} params
+     * @param {{name: string}} params.platform
      * @param {boolean|null|undefined} [params.debug]
      */
     constructor (params) {
         this.debug = Boolean(params.debug)
+        this.platform = params.platform
     }
 
     /**
@@ -184,5 +186,9 @@ export class Environment {
 
     isTestMode () {
         return this.debug === true
+    }
+
+    get opensVideoOverlayLinksViaMessage () {
+        return this.platform.name !== 'windows'
     }
 }
