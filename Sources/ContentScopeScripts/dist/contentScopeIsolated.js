@@ -3439,7 +3439,10 @@
     class Pixel {
         /**
          * A list of known pixels
-         * @param {{name: "overlay"} | {name: "play.use", remember: "0" | "1"} | {name: "play.do_not_use", remember: "0" | "1"}} input
+         * @param {{name: "overlay"}
+         *   | {name: "play.use", remember: "0" | "1"}
+         *   | {name: "play.use.thumbnail"}
+         *   | {name: "play.do_not_use", remember: "0" | "1"}} input
          */
         constructor (input) {
             this.input = input;
@@ -3452,6 +3455,7 @@
         params () {
             switch (this.input.name) {
             case 'overlay': return {}
+            case 'play.use.thumbnail': return {}
             case 'play.use':
             case 'play.do_not_use': {
                 return { remember: this.input.remember }
@@ -4181,6 +4185,10 @@
                 // create the icon & append it to the page
                 const icon = new IconOverlay();
                 icon.appendHoverOverlay((href) => {
+                    if (this.environment.opensVideoOverlayLinksViaMessage) {
+                        this.messages.sendPixel(new Pixel({ name: 'play.use.thumbnail' }));
+                    }
+
                     this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href }));
                 });
 
@@ -4791,6 +4799,8 @@
          * But, if the checkbox was not checked, then we want to keep the state
          * as 'alwaysAsk'
          *
+         * @param {boolean} remember
+         * @param {VideoParams} params
          */
         userOptIn (remember, params) {
             /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
@@ -4807,7 +4817,12 @@
                 privatePlayerMode
             };
             this.messages.setUserValues(outgoing)
-                .then(() => this.environment.setHref(params.toPrivatePlayerUrl()))
+                .then(() => {
+                    if (this.environment.opensVideoOverlayLinksViaMessage) {
+                        return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }))
+                    }
+                    return this.environment.setHref(params.toPrivatePlayerUrl())
+                })
                 .catch(e => console.error('error setting user choice', e));
         }
 
@@ -4986,10 +5001,12 @@
 
         /**
          * @param {object} params
+         * @param {{name: string}} params.platform
          * @param {boolean|null|undefined} [params.debug]
          */
         constructor (params) {
             this.debug = Boolean(params.debug);
+            this.platform = params.platform;
         }
 
         /**
@@ -5043,6 +5060,10 @@
 
         isTestMode () {
             return this.debug === true
+        }
+
+        get opensVideoOverlayLinksViaMessage () {
+            return this.platform.name !== 'windows'
         }
     }
 
@@ -5132,7 +5153,8 @@
 
             const comms = new DuckPlayerOverlayMessages(this.messaging);
             const env = new Environment({
-                debug: args.debug
+                debug: args.debug,
+                platform: this.platform
             });
 
             if (overlaysEnabled) {
