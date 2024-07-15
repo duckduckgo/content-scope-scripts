@@ -53,7 +53,7 @@ export const support = {
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'release-notes': {
         'integration': ['copy', 'build-js'],
-        'apple': ['copy', 'build-js', 'inline-html'],
+        'apple': ['copy', 'build-js'],
     },
 }
 
