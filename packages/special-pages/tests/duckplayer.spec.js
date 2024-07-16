@@ -45,6 +45,11 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.withStorageValues()
         await duckplayer.storageClearedAfterReload()
     })
+    test('allows popups from embed', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID()
+        await duckplayer.allowsPopups()
+    })
 })
 
 test.describe('duckplayer toolbar', () => {
