@@ -21,10 +21,11 @@ export function App ({ children }) {
     const { messages } = useMessaging()
     /** @type {ReturnType<typeof useState<UpdateMessage>>} */
     const [releaseData, setReleaseData] = useState()
+    const { debugState } = useEnv()
 
     useEffect(() => {
         return messages?.onUpdate((data) => {
-            console.log('DATA RECEIVED', data)
+            if (debugState) console.log('DATA RECEIVED', data)
             setReleaseData(data)
         })
     }, [])
