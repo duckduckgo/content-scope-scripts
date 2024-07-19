@@ -22,6 +22,13 @@ export class DuckPlayerOverlayMessages {
     }
 
     /**
+     * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
+     */
+    initialSetup () {
+        return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)
+    }
+
+    /**
      * Inform the native layer that an interaction occurred
      * @param {import("../duck-player.js").UserValues} userValues
      * @returns {Promise<import("../duck-player.js").UserValues>}
@@ -114,7 +121,10 @@ function assertCustomEvent (event) {
 export class Pixel {
     /**
      * A list of known pixels
-     * @param {{name: "overlay"} | {name: "play.use", remember: "0" | "1"} | {name: "play.do_not_use", remember: "0" | "1"}} input
+     * @param {{name: "overlay"}
+     *   | {name: "play.use", remember: "0" | "1"}
+     *   | {name: "play.use.thumbnail"}
+     *   | {name: "play.do_not_use", remember: "0" | "1"}} input
      */
     constructor (input) {
         this.input = input
@@ -127,6 +137,7 @@ export class Pixel {
     params () {
         switch (this.input.name) {
         case 'overlay': return {}
+        case 'play.use.thumbnail': return {}
         case 'play.use':
         case 'play.do_not_use': {
             return { remember: this.input.remember }

@@ -7,24 +7,27 @@ import { Stack } from '../components/Stack'
 import { Button, ButtonBar } from '../components/Buttons'
 import { useRollin } from '../hooks/useRollin'
 import { beforeAfterMeta, noneSettingsRowItems } from '../data'
-import { useTranslation } from '../translations'
 import { Delay } from '../components/Timeout'
 import { Animate } from '../components/Animate'
 import { RiveAnimation } from '../components/RiveAnimation'
 import { BeforeAfter } from '../components/BeforeAfter'
-import { useContext } from 'preact/hooks'
-import { SettingsContext } from '../settings'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
+import { useTypedTranslation } from '../types'
+
+import animation from '../animations/Onboarding.riv'
+
+export { animation }
 
 /**
  * @param {object} props
  * @param {(args: any) => void} props.onNextPage
  */
 export function CleanBrowsing ({ onNextPage }) {
-    const { t } = useTranslation()
+    const { t } = useTypedTranslation()
 
     const rows = [
-        noneSettingsRowItems.fewerAds,
-        noneSettingsRowItems.duckPlayer
+        noneSettingsRowItems.fewerAds(t),
+        noneSettingsRowItems.duckPlayer(t)
     ]
 
     // show each after interaction
@@ -48,7 +51,7 @@ export function CleanBrowsing ({ onNextPage }) {
             {state.isLast && (
                 <SlideUp delay={'double'}>
                     <ButtonBar>
-                        <Button onClick={onNextPage} size={'large'}>{t('Next')}</Button>
+                        <Button onClick={onNextPage} size={'large'}>{t('nextButton')}</Button>
                     </ButtonBar>
                 </SlideUp>
             )}
@@ -57,8 +60,9 @@ export function CleanBrowsing ({ onNextPage }) {
 }
 
 function RowItem ({ isCurrent, row, index, advance }) {
-    const { isDarkMode } = useContext(SettingsContext)
-    const meta = beforeAfterMeta[row.id]
+    const { isDarkMode } = useEnv()
+    const { t } = useTypedTranslation()
+    const meta = beforeAfterMeta[row.id](t)
     return (
         <ListItem
             key={row.icon}
@@ -79,6 +83,7 @@ function RowItem ({ isCurrent, row, index, advance }) {
                             media={({ state }) => {
                                 const animationState = (state === 'initial' || state === 'before') ? 'before' : 'after'
                                 return <RiveAnimation
+                                    animation={animation}
                                     state={animationState}
                                     isDarkMode={isDarkMode}
                                     artboard={meta.artboard}

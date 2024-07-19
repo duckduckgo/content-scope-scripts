@@ -27,8 +27,8 @@ export interface VisitSiteNotification {
 }
 
 /**
- * The following types enforce a schema-first workflow for messages 
- */ 
+ * The following types enforce a schema-first workflow for messages
+ */
 declare module "../pages/specialerrorpage/src/js/index.js" {
   export interface SpecialerrorpagePage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SpecialerrorpageMessages>['notify']

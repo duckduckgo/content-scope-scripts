@@ -328,6 +328,25 @@ test.describe('Broker Protection communications', () => {
             }])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
+
+        test('returns an empty array when no profile selector matches but the no results selector is present', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results-not-found.html')
+            await dbp.receivesAction('results-not-found-valid.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isSuccessMessage(response)
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [])
+        })
+
+        test('returns an error when no profile selector matches and the no results selector is not present', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('results.html')
+            await dbp.receivesAction('results-not-found-invalid.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+            dbp.isErrorMessage(response)
+        })
     })
     test.describe('Executes action and sends success message', () => {
         test('buildUrl', async ({ page }, workerInfo) => {
@@ -379,6 +398,17 @@ test.describe('Broker Protection communications', () => {
 
             dbp.isSuccessMessage(response)
             await page.waitForURL(url => url.hash === '#2', { timeout: 2000 })
+        })
+
+        test('click multiple targets', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('click-multiple.html')
+            await dbp.receivesAction('click-multiple.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+            await page.waitForURL(url => url.hash === '#1-2', { timeout: 2000 })
         })
 
         test('getCaptchaInfo', async ({ page }, workerInfo) => {
@@ -485,7 +515,6 @@ test.describe('Broker Protection communications', () => {
                     }
                 }
             })
-
             await page.getByRole('heading', { name: 'Retry' }).waitFor({ timeout: 5000 })
 
             const response = await dbp.waitForMessage('actionCompleted')
