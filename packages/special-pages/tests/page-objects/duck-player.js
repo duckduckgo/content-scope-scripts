@@ -45,6 +45,19 @@ export class DuckPlayerPage {
         })
         // default mocks - just enough to render the first page without error
         this.mocks.defaultResponses({
+            /** @type {Awaited<ReturnType<import("../../pages/duckplayer/src/js/index.js").DuckPlayerPageMessages['initialSetup']>>} */
+            initialSetup: {
+                settings: {
+                    pip: {
+                        state: 'disabled'
+                    }
+                },
+                userValues: {
+                    privatePlayerMode: { alwaysAsk: {} },
+                    overlayInteracted: false
+                }
+
+            },
             /** @type {import("../../pages/duckplayer/src/js/index.js").UserValues} */
             getUserValues: {
                 privatePlayerMode: { alwaysAsk: {} },
@@ -299,7 +312,7 @@ export class DuckPlayerPage {
      * @return {Promise<void>}
      */
     async didReceiveFirstSettingsUpdate () {
-        await this.mocks.waitForCallCount({ count: 1, method: 'getUserValues' })
+        await this.mocks.waitForCallCount({ count: 1, method: 'initialSetup' })
     }
 
     async toggleAlwaysOpenSetting () {
@@ -361,5 +374,10 @@ export class DuckPlayerPage {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new DuckPlayerPage(page, build, platformInfo)
+    }
+
+    async allowsPopups () {
+        const expected = 'allow-popups allow-scripts allow-same-origin allow-popups-to-escape-sandbox'
+        await expect(this.page.locator('iframe')).toHaveAttribute('sandbox', expected)
     }
 }

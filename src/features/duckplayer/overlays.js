@@ -12,19 +12,21 @@ export async function initOverlays (settings, environment, messages) {
     // bind early to attach all listeners
     const domState = new DomState()
 
-    /** @type {import("../duck-player.js").UserValues} */
-    let userValues
+    /** @type {import("../duck-player.js").OverlaysInitialSettings} */
+    let initialSetup
     try {
-        userValues = await messages.getUserValues()
+        initialSetup = await messages.initialSetup()
     } catch (e) {
         console.error(e)
         return
     }
 
-    if (!userValues) {
+    if (!initialSetup) {
         console.error('cannot continue without user settings')
         return
     }
+
+    let { userValues } = initialSetup
 
     /**
      * Create the instance - this might fail if settings or user preferences prevent it
@@ -125,10 +127,12 @@ export class Environment {
 
     /**
      * @param {object} params
+     * @param {{name: string}} params.platform
      * @param {boolean|null|undefined} [params.debug]
      */
     constructor (params) {
         this.debug = Boolean(params.debug)
+        this.platform = params.platform
     }
 
     /**
@@ -182,5 +186,9 @@ export class Environment {
 
     isTestMode () {
         return this.debug === true
+    }
+
+    get opensVideoOverlayLinksViaMessage () {
+        return this.platform.name !== 'windows'
     }
 }

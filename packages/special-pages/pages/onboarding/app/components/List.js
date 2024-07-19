@@ -1,8 +1,7 @@
 import { h } from 'preact'
 import styles from './List.module.css'
 import { useAutoAnimate } from '@formkit/auto-animate/preact'
-import { useContext } from 'preact/hooks'
-import { SettingsContext } from '../settings'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * List component is used to display an item in a styled
@@ -11,7 +10,7 @@ import { SettingsContext } from '../settings'
  * @param {boolean} [props.animate=false] - Should immediate children be animated into place?
  */
 export function List (props) {
-    const { isReducedMotion } = useContext(SettingsContext)
+    const { isReducedMotion } = useEnv()
     const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : undefined)
     return (
         <ul className={styles.list} ref={props.animate ? parent : null}>

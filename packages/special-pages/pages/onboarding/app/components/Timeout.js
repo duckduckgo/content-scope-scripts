@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from 'preact/hooks'
+import { useEffect, useState } from 'preact/hooks'
 import { h } from 'preact'
-import { SettingsContext } from '../settings'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 /**
  * Renders the first page of the application and provides an option to move to the next page.
@@ -11,7 +11,7 @@ import { SettingsContext } from '../settings'
  * @param {boolean} [props.ignore] - Callback function to be called when the "Get Started" button is clicked.
  */
 export function Timeout ({ onComplete, ignore, timeout = 1000 }) {
-    const { isReducedMotion } = useContext(SettingsContext)
+    const { isReducedMotion } = useEnv()
     useEffect(() => {
         let int
         if (ignore) {
@@ -33,7 +33,7 @@ export function Timeout ({ onComplete, ignore, timeout = 1000 }) {
  */
 export function Delay ({ children, ms = 1000 }) {
     const [shown, setShown] = useState(false)
-    const { isReducedMotion } = useContext(SettingsContext)
+    const { isReducedMotion } = useEnv()
     useEffect(() => {
         const int = setTimeout(() => setShown(true), isReducedMotion ? 0 : ms)
         return () => clearTimeout(int)

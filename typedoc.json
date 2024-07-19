@@ -15,10 +15,12 @@
         "packages/messaging/schema.js",
         "packages/messaging/native.js",
         "packages/special-pages",
-        "packages/special-pages/pages/example/src/index.js",
+        "packages/special-pages/pages/example/src/js/index.js",
         "packages/special-pages/pages/duckplayer/src/js/index.js",
         "packages/special-pages/pages/onboarding/src/js/index.js",
-        "packages/special-pages/pages/onboarding/app/types.js"
+        "packages/special-pages/pages/onboarding/app/types.js",
+        "packages/special-pages/pages/release-notes/src/js/index.js",
+        "packages/special-pages/pages/release-notes/app/types.js"
     ],
     "categoryOrder": [
         "Special Pages",
