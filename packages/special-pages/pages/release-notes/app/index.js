@@ -4,6 +4,7 @@ import { App } from './components/App'
 import { Components } from './Components'
 import { EnvironmentProvider } from '../../../shared/components/EnvironmentProvider'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider'
+import { callWithRetry } from '../../../shared/call-with-retry.js'
 import enStrings from '../src/locales/en/release-notes.json'
 
 import '../../../shared/styles/global.css' // global styles
@@ -15,7 +16,13 @@ export const MessagingContext = createContext({
 export const useMessaging = () => useContext(MessagingContext)
 
 export async function init (messages, baseEnvironment) {
-    const init = await messages.initialSetup()
+    const result = await callWithRetry(() => messages.initialSetup())
+
+    if ('error' in result) {
+        throw new Error(result.error)
+    }
+
+    const init = result.value
 
     const environment = baseEnvironment
         .withEnv(init.env)
