@@ -19,8 +19,8 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'onboarding.spec.js',
-                'sslerror.spec.js'
-
+                'sslerror.spec.js',
+                'release-notes.spec.js'
             ],
             use: {
                 ...devices['Desktop Safari'],

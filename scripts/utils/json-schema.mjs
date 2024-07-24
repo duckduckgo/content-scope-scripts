@@ -185,9 +185,6 @@ export function createMessagingTypes(job, { featurePath, className }) {
         lines.push(`subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${job.topLevelType}>['subscribe']`)
     }
     return `
-/**
- * The following types enforce a schema-first workflow for messages 
- */ 
 declare module ${JSON.stringify(featurePath)} {
   export interface ${className} {
     ${lines.join(',\n    ')}

@@ -375,4 +375,9 @@ export class DuckPlayerPage {
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new DuckPlayerPage(page, build, platformInfo)
     }
+
+    async allowsPopups () {
+        const expected = 'allow-popups allow-scripts allow-same-origin allow-popups-to-escape-sandbox'
+        await expect(this.page.locator('iframe')).toHaveAttribute('sandbox', expected)
+    }
 }
