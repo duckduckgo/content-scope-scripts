@@ -14,12 +14,12 @@ export const loadData = {
     phishing: {
         strings: {
             header: 'Warning: This site puts your personal information at risk',
-            body: 'This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. <a class="learn-more" href="https://duckduckgo.com/duckduckgo-help-pages/" target="_blank">Learn more</a>',
+            body: 'This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. <a href="https://duckduckgo.com/duckduckgo-help-pages/" target="_blank">Learn more</a>',
             advancedInfoHeader: 'DuckDuckGo warns you when a website has been flagged as malicious.',
             advancedButton: 'Advanced...',
             leaveSiteButton: 'Leave This Site',
             specificMessage: '',
-            advancedInfoBody: 'Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.<br><br>See our <a class="learn-more" href="https://duckduckgo.com/duckduckgo-help-pages/" target="_blank">Phishing and Malware Protection help page</a> for more information.',
+            advancedInfoBody: 'Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.<br><br>See our <a href="https://duckduckgo.com/duckduckgo-help-pages/" target="_blank">Phishing and Malware Protection help page</a> for more information.',
             visitSiteBody: 'Accept Risk and Visit Site'
         }
     }

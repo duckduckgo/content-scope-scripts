@@ -190,7 +190,8 @@ body {
     padding: 0;
 }
 
-.learn-more {
+.advanced-info a,
+.warning-text a {
     color: var(--link-color);
 }
 
