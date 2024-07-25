@@ -48,7 +48,8 @@ export const platformSupport = {
         ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer',
-        'brokerProtection'
+        'brokerProtection',
+        'performanceMetrics'
     ],
     firefox: [
         'cookie',
