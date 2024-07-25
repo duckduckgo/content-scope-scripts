@@ -1,18 +1,18 @@
 /**
- * @module SSLError Page
+ * @module SpecialError Page
  * @category Special Pages
  *
  * @description
  *
- * [[include:packages/special-pages/pages/sslerrorpage/readme.md]]
+ * [[include:packages/special-pages/pages/specialerrorpage/readme.md]]
  */
 
 import { execTemplate } from './template.js'
-import { defaultLoadData } from './defaults.js'
+import { loadData } from './loadData.js'
 import { createTypedMessages } from '@duckduckgo/messaging'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 
-export class SslerrorpagePage {
+export class SpecialerrorpagePage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
@@ -35,10 +35,10 @@ export class SslerrorpagePage {
 const messaging = createSpecialPageMessaging({
     env: import.meta.env,
     injectName: import.meta.injectName,
-    pageName: 'sslErrorPage'
+    pageName: 'specialErrorPage'
 })
 
-const page = new SslerrorpagePage(messaging)
+const page = new SpecialerrorpagePage(messaging)
 window.addEventListener('DOMContentLoaded', () => {
     loadHTML()
     bindEvents(page)
@@ -61,7 +61,7 @@ function loadHTML () {
     if (!parsed.strings) {
         console.warn('missing `strings` from the incoming json data')
     }
-    const mergedStrings = { ...defaultLoadData.strings, ...parsed.strings }
+    const mergedStrings = { ...loadData.ssl.strings, ...parsed.strings }
     container.innerHTML = execTemplate(mergedStrings).toString()
     document.body.appendChild(container)
 }
@@ -84,7 +84,7 @@ function domElements () {
 }
 
 /**
- * @param {SslerrorpagePage} page
+ * @param {SpecialerrorpagePage} page
  */
 function bindEvents (page) {
     const dom = domElements()

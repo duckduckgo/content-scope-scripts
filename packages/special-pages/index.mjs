@@ -36,7 +36,7 @@ export const support = {
         'apple': ['copy', 'inline-html'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    sslerrorpage: {
+    specialerrorpage: {
         'integration': ['copy', 'build-js'],
          'apple': ['copy', 'build-js', 'inline-html'],
     },
