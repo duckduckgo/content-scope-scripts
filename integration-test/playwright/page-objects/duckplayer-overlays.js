@@ -33,6 +33,22 @@ const userValues = {
     }
 }
 
+// Possible UI Settings
+const uiSettings = {
+    /** @type {import("../../../src/features/duck-player.js").UISettings} */
+    'default overlay copy': {
+        overlayCopy: 'default'
+    },
+    /** @type {import("../../../src/features/duck-player.js").UISettings} */
+    'overlay copy a1': {
+        overlayCopy: 'a1'
+    },
+    /** @type {import("../../../src/features/duck-player.js").UISettings} */
+    'overlay copy b1': {
+        overlayCopy: 'b1'
+    }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const configFiles = /** @type {const} */([
     'overlays.json',
@@ -250,6 +266,27 @@ export class DuckplayerOverlays {
                 initialSetup: {
                     userValues: userValues[setting]
                 }
+            }
+        })
+    }
+
+    /**
+     * @param {keyof userValues} userValueSetting
+     * @param {keyof uiSettings} [uiSetting]
+     * @return {Promise<void>}
+     */
+    async initialSetupIs (userValueSetting, uiSetting) {
+        const initialSetupResponse = {
+            userValues: userValues[userValueSetting]
+        }
+
+        if (uiSetting && uiSettings[uiSetting]) {
+            initialSetupResponse.ui = uiSettings[uiSetting]
+        }
+
+        await this.page.addInitScript(mockResponses, {
+            responses: {
+                initialSetup: initialSetupResponse
             }
         })
     }
@@ -541,6 +578,48 @@ export class DuckplayerOverlays {
                 resolve(req.url())
             })
         })
+    }
+
+    /**
+     * Checks for presence of default overlay copy
+     */
+    async overlayCopyIsDefault () {
+        await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('Tired of targeted YouTube ads and recommendations?', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+
+        await this.page.getByRole('link', { name: 'Watch in Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByRole('button', { name: 'Watch Here' }).waitFor({ state: 'visible', timeout: 1000 })
+
+        await this.page.getByLabel('Remember my choice').waitFor({ state: 'visible', timeout: 1000 })
+    }
+
+    /**
+     * Checks for presence of overlay copy A1 experiment
+     */
+    async overlayCopyIsA1 () {
+        await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('Turn on Duck Player to watch without targeted ads', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+
+        await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByRole('button', { name: 'No Thanks' }).waitFor({ state: 'visible', timeout: 1000 })
+
+        await this.page.getByLabel('Remember my choice').waitFor({ state: 'visible', timeout: 1000 })
+    }
+
+    /**
+     * Checks for presence of overlay copy B1 experiment
+     */
+    async overlayCopyIsB1 () {
+        await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('Drowning in ads on YouTube? Turn on Duck Player.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
+
+        await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByRole('button', { name: 'No Thanks' }).waitFor({ state: 'visible', timeout: 1000 })
+
+        await this.page.getByLabel('Remember my choice').waitFor({ state: 'visible', timeout: 1000 })
     }
 }
 

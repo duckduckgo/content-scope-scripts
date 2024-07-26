@@ -46,8 +46,14 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
  */
 
 /**
+ * @typedef UISettings - UI-specific settings
+ * @property {'default'|'a1'|'b1'} overlayCopy
+ */
+
+/**
  * @typedef OverlaysInitialSettings - The initial payload used to communicate render-blocking information
  * @property {UserValues} userValues
+ * @property {UISettings} ui
  */
 
 /**
@@ -87,11 +93,12 @@ export default class DuckPlayerFeature extends ContentFeature {
             throw new Error('cannot operate duck player without a messaging backend')
         }
 
-        const comms = new DuckPlayerOverlayMessages(this.messaging)
         const env = new Environment({
             debug: args.debug,
+            injectName: import.meta.injectName,
             platform: this.platform
         })
+        const comms = new DuckPlayerOverlayMessages(this.messaging, env)
 
         if (overlaysEnabled) {
             initOverlays(overlaySettings.youtube, env, comms)
