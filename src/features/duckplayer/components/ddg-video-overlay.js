@@ -1,6 +1,6 @@
 import css from '../assets/video-overlay.css'
 import dax from '../assets/dax.svg'
-import { i18n } from '../text.js'
+import { overlayCopyVariants } from '../text.js'
 import { appendImageAsBackground } from '../util.js'
 import { VideoOverlay } from '../video-overlay.js'
 import { html, trustedUnsafe } from '../../../dom-utils.js'
@@ -12,14 +12,17 @@ import { html, trustedUnsafe } from '../../../dom-utils.js'
 export class DDGVideoOverlay extends HTMLElement {
     static CUSTOM_TAG_NAME = 'ddg-video-overlay'
     /**
-     * @param {import("../overlays.js").Environment} environment
-     * @param {import("../util").VideoParams} params
-     * @param {VideoOverlay} manager
+     * @param {object} options
+     * @param {import("../overlays.js").Environment} options.environment
+     * @param {import("../util").VideoParams} options.params
+     * @param {import("../../duck-player.js").UISettings} options.ui
+     * @param {VideoOverlay} options.manager
      */
-    constructor (environment, params, manager) {
+    constructor ({ environment, params, ui, manager }) {
         super()
         if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments')
         this.environment = environment
+        this.ui = ui
         this.params = params
         this.manager = manager
 
@@ -53,6 +56,7 @@ export class DDGVideoOverlay extends HTMLElement {
      * @returns {HTMLDivElement}
      */
     createOverlay () {
+        const overlayCopy = overlayCopyVariants[this.ui?.overlayCopy || 'default']
         const overlayElement = document.createElement('div')
         overlayElement.classList.add('ddg-video-player-overlay')
         const svgIcon = trustedUnsafe(dax)
@@ -60,17 +64,17 @@ export class DDGVideoOverlay extends HTMLElement {
             <div class="ddg-vpo-bg"></div>
             <div class="ddg-vpo-content">
                 <div class="ddg-eyeball">${svgIcon}</div>
-                <div class="ddg-vpo-title">${i18n.t('videoOverlayTitle')}</div>
+                <div class="ddg-vpo-title">${overlayCopy.title}</div>
                 <div class="ddg-vpo-text">
-                    <b>${i18n.t('playText')}</b> ${i18n.t('videoOverlaySubtitle')}
+                    ${overlayCopy.subtitle}
                 </div>
                 <div class="ddg-vpo-buttons">
-                    <button class="ddg-vpo-button ddg-vpo-cancel" type="button">${i18n.t('videoButtonOptOut')}</button>
-                    <a class="ddg-vpo-button ddg-vpo-open" href="#">${i18n.t('videoButtonOpen')}</a>
+                    <button class="ddg-vpo-button ddg-vpo-cancel" type="button">${overlayCopy.buttonOptOut}</button>
+                    <a class="ddg-vpo-button ddg-vpo-open" href="#">${overlayCopy.buttonOpen}</a>
                 </div>
                 <div class="ddg-vpo-remember">
                     <label for="remember">
-                        <input id="remember" type="checkbox" name="ddg-remember"> ${i18n.t('rememberLabel')}
+                        <input id="remember" type="checkbox" name="ddg-remember"> ${overlayCopy.rememberLabel}
                     </label>
                 </div>
             </div>

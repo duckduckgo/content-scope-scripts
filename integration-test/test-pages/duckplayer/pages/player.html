@@ -98,6 +98,34 @@
         </div>
     </div>
 </template>
+<script>
+    (async () => {
+        if (!new URLSearchParams(location.search).has('preview')) {
+            return;
+        }
+        await import("/build/integration/contentScope.js").catch(console.error)
+        const overlays = await fetch('/integration-test/test-pages/duckplayer/config/overlays.json').then(x => x.json())
+        document.dispatchEvent(new CustomEvent('content-scope-init-args', {
+            detail: {
+                debug: true,
+                platform: {
+                    name: 'macos'
+                },
+                site: {
+                    domain: location.hostname,
+                    isBroken: false,
+                    allowlisted: false,
+                    enabledFeatures: [
+                        'duckPlayer'
+                    ]
+                },
+                featureSettings: {
+                    duckPlayer: overlays.features.duckPlayer.settings,
+                }
+            }
+        }))
+    })();
+</script>
 
 <script type="module">
     const variant = new URLSearchParams(window.location.search).get('variant') || 'default';
@@ -140,7 +168,7 @@
                 const params = new URLSearchParams(a.search);
                 const current = new URL(window.location.href);
                 current.searchParams.set('v', params.get('v'));
-                history.pushState('','',current.toString());
+                history.pushState('', '', current.toString());
                 document.title = a.title;
                 return;
             }

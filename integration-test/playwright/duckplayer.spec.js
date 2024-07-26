@@ -131,7 +131,7 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage()
 
-        // Then then the overlay shows and blocks the video from playing
+        // Then the overlay shows and blocks the video from playing
         await overlays.overlayBlocksVideo()
     })
     test('Overlay blocks video from playing (supporting DOM appearing over time)', async ({ page }, workerInfo) => {
@@ -144,7 +144,7 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage({ variant: 'incremental-dom' })
 
-        // Then then the overlay shows and blocks the video from playing
+        // Then the overlay shows and blocks the video from playing
         await overlays.overlayBlocksVideo()
     })
     test('Overlay is removed when new settings arrive', async ({ page }, workerInfo) => {
@@ -297,6 +297,67 @@ test.describe('Video Player overlays', () => {
             await overlays.userSettingIs('always ask')
             await overlays.gotoPlayerPage({ pageType: 'videoAltSelectors' })
             await overlays.overlayBlocksVideo()
+        })
+    })
+    test.describe('with UI settings overrides', () => {
+        test('displays default overlay copy when no cohort is given', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask'
+            // And no overlay copy experiment cohort is set
+            await overlays.initialSetupIs('always ask')
+            await overlays.gotoPlayerPage()
+
+            // Then the overlay shows the correct copy for the default variant
+            await overlays.overlayCopyIsDefault()
+        })
+
+        test('displays default overlay copy in control cohort', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask'
+            // And I'm in the 'control' experiment cohort
+            await overlays.initialSetupIs('always ask', 'default overlay copy')
+            await overlays.gotoPlayerPage()
+
+            // Then the overlay shows the correct copy for the default variant
+            await overlays.overlayCopyIsDefault()
+        })
+
+        test('displays overlay copy for cohort A1', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask'
+            // And I'm in the 'A1' experiment cohort
+            await overlays.initialSetupIs('always ask', 'overlay copy a1')
+            await overlays.gotoPlayerPage()
+
+            // Then the overlay shows the correct copy for the A1 variant
+            await overlays.overlayCopyIsA1()
+        })
+
+        test('displays overlay copy for cohort B1', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask'
+            // And I'm in the 'B1' experiment cohort
+            await overlays.initialSetupIs('always ask', 'overlay copy b1')
+            await overlays.gotoPlayerPage()
+
+            // Then the overlay shows the correct copy for the B1 variant
+            await overlays.overlayCopyIsB1()
         })
     })
 })
