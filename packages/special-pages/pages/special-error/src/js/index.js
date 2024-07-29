@@ -1,9 +1,9 @@
 /**
- * @module Example Page
+ * @module SSL Error Page
  * @category Special Pages
  *
  * @description
- * Special Page example. Used as a template for new special pages.
+ * Special Page that displays a
  */
 
 import { createTypedMessages } from '@duckduckgo/messaging'
@@ -11,7 +11,7 @@ import { Environment } from '../../../../shared/environment.js'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js'
 import { init } from '../../app/index.js'
 
-export class ExamplePage {
+export class SpecialErrorPage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
@@ -30,7 +30,7 @@ export class ExamplePage {
      * }
      * ```
      *
-     * @returns {Promise<import('../../../../types/example').InitialSetupResponse>}
+     * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
      */
     initialSetup () {
         return this.messaging.request('initialSetup')
@@ -64,11 +64,11 @@ const messaging = createSpecialPageMessaging({
     pageName: /** @type {string} */(import.meta.pageName)
 })
 
-const example = new ExamplePage(messaging)
+const specialErrorPage = new SpecialErrorPage(messaging)
 
-init(example, baseEnvironment).catch(e => {
+init(specialErrorPage, baseEnvironment).catch(e => {
     // messages.
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
-    example.reportInitException({ message: msg })
+    specialErrorPage.reportInitException({ message: msg })
 })

@@ -20,7 +20,8 @@ export default defineConfig({
                 'duckplayer.spec.js',
                 'onboarding.spec.js',
                 'sslerror.spec.js',
-                'release-notes.spec.js'
+                'release-notes.spec.js',
+                'special-error.spec.js'
             ],
             use: {
                 ...devices['Desktop Safari'],
@@ -28,6 +29,7 @@ export default defineConfig({
                 platform: 'macos'
             }
         }
+        // TODO: Add iOS
     ],
     fullyParallel: !process.env.CI,
     /* Don't allow `.only` in CI */
