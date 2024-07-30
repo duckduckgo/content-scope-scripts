@@ -127,7 +127,7 @@ function videoOverlaysFeatureFromSettings ({ userValues, settings, messages, env
 }
 
 export class Environment {
-    allowedProxyOrigins = ['duckduckgo.com']
+    allowedProxyOrigins = ['duckduckgo.com', 'mgurgel.duckduckgo.com']
 
     /**
      * @param {object} params
