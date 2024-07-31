@@ -2,50 +2,13 @@
 <html lang="en">
 <head>
     <title>Duck Player</title>
+    <meta name="robots" content="noindex,nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./assets/player.css" />
+    <script src="js/inline.js"></script>
+    <link rel="stylesheet" href="./js/index.css" />
 </head>
 <body>
-<div class="bg"></div>
-<div class="content-hover">
-    <div class="player-container">
-        <iframe
-                id="player"
-                frameborder="0"
-                allow="autoplay; encrypted-media; fullscreen"
-                allowfullscreen
-                sandbox="allow-popups allow-scripts allow-same-origin allow-popups-to-escape-sandbox"
-        ></iframe>
-    </div>
-    <div class="toolbar">
-        <div class="logo">
-            <img src="./assets/img/dax.svg" class="dax-icon" alt="" />
-            Duck Player
-            <div class="info-icon-container">
-                <img src="./assets/img/info-icon.svg" alt="" class="info-icon" />
-                <div class="info-icon-tooltip">
-                    Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from
-                    influencing your YouTube recommendations.
-                </div>
-            </div>
-        </div>
-        <div class="options">
-            <form class="setting-container invisible">
-                <label for="setting" class="settings-label">
-                    <input id="setting" type="checkbox" class="settings-checkbox" />
-                    <span>Always open YouTube videos in Duck Player</span>
-                </label>
-            </form>
-            <a href="#" aria-label="Open Settings" target="_blank" class="options-button open-settings" rel="noopener">
-                <img src="./assets/img/cog.svg" alt="" />
-            </a>
-            <a href="#" class="options-button play-on-youtube" rel="noopener">
-                <img src="./assets/img/open.svg" alt="" />
-                <span>Watch on YouTube</span>
-            </a>
-        </div>
-    </div>
-</div>
+<div id="app"></div>
 <script type="module" src="js/index.js"></script>
 </body>
 </html>
