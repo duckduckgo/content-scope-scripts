@@ -1,8 +1,51 @@
-.main {
+html,
+body {
+    height: 100%;
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
 
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
+
+.main {
+    display: flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% - 16px));
+    width: 504px;
+    min-width: 400px;
+    flex-direction: column;
+    align-items: flex-start;
+    background: var(--warning-container-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+
+    @media (max-height: 320px) {
+        top: 40px;
+        transform: translateX(-50%);
+    }
+}
+
+.main[data-state="open"] {
+    @media (max-height: 460px) {
+        top: 40px;
+        transform: translateX(-50%);
+    }
 }
 
 /* Legacy CSS */
+
+
+/* TODO: Use shared colors */
 
 :root {
     /* Light theme colors */
@@ -38,85 +81,26 @@
     --max-height-for-query: 320px;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: var(--background-color-dark);
+        --text-color: var(--text-color-dark);
+        --link-color: var(--link-color-dark);
+        --border-color: var(--border-color-dark);
+        --warning-container-bg: var(--warning-container-bg-dark);
+        --advanced-info-bg: var(--advanced-info-bg-dark);
+        --button-bg: var(--button-bg-dark);
+        --button-active-bg: var(--button-active-bg-dark);
+        --button-text: var(--button-text-dark);
+        --leave-site-btn-bg: var(--leave-site-btn-bg-dark);
+        --leave-site-btn-border-color: var(--leave-site-btn-border-color-dark);
+        --leave-site-btn-shadow-color: var(--leave-site-btn-shadow-color-dark);
+        --accept-risk-color: var(--accept-risk-color-dark);
+    }
+}
+
 /* Base styles */
-html,
-body {
-    height: 100%;
-    margin: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
-}
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-}
-
-.full-container {
-    display: flex;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, calc(-50% - 16px));
-    width: 504px;
-    min-width: 400px;
-    flex-direction: column;
-    align-items: flex-start;
-    background: var(--warning-container-bg);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-}
-
-.full-container {
-    @media (max-height: 320px) {
-        top: 40px;
-        transform: translateX(-50%);
-    }
-}
-
-.full-container[data-state="open"] {
-    @media (max-height: 460px) {
-        top: 40px;
-        transform: translateX(-50%);
-    }
-}
-
-.warning-container {
-    overflow: hidden;
-    padding: 32px 40px;
-    gap: 16px;
-    background: var(--warning-container-bg);
-    margin-block: 0;
-}
-
-.warning-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-size: 17px;
-    margin-block: 0;
-    min-height: 32px;
-    position: relative;
-    padding-left: 48px;
-}
-
-.warning-header img {
-    position: absolute;
-    left: -8px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-}
-
-.warning-text {
-    font-size: 13px;
-    line-height: 16px;
-    margin-block: 16px;
-}
 
 .advanced-info {
     box-shadow: inset 0 1px 0 0 var(--border-color);
@@ -146,12 +130,7 @@ body {
     margin-bottom: 0;
 }
 
-.buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 6px;
-    padding-block-start: 8px;
-}
+
 
 .button {
     height: 20px;
@@ -201,20 +180,3 @@ body {
     color: var(--link-color);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background-color: var(--background-color-dark);
-        --text-color: var(--text-color-dark);
-        --link-color: var(--link-color-dark);
-        --border-color: var(--border-color-dark);
-        --warning-container-bg: var(--warning-container-bg-dark);
-        --advanced-info-bg: var(--advanced-info-bg-dark);
-        --button-bg: var(--button-bg-dark);
-        --button-active-bg: var(--button-active-bg-dark);
-        --button-text: var(--button-text-dark);
-        --leave-site-btn-bg: var(--leave-site-btn-bg-dark);
-        --leave-site-btn-border-color: var(--leave-site-btn-border-color-dark);
-        --leave-site-btn-shadow-color: var(--leave-site-btn-shadow-color-dark);
-        --accept-risk-color: var(--accept-risk-color-dark);
-    }
-}

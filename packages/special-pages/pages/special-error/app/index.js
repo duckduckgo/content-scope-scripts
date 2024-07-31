@@ -1,4 +1,3 @@
-import { callWithRetry } from '../../../shared/call-with-retry.js'
 import { h, render } from 'preact'
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js'
 
@@ -7,6 +6,9 @@ import { Components } from './components/Components.jsx'
 
 import enStrings from '../src/locales/en/special-error.json'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
+import { callWithRetry } from '../../../shared/call-with-retry.js'
+
+import '../../../shared/styles/global.css' // global styles
 
 /**
  * @param {import("../src/js/index.js").SpecialErrorPage} messaging

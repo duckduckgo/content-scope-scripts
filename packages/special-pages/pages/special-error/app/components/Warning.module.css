@@ -1,0 +1,39 @@
+.container {
+    overflow: hidden;
+    padding: 32px 40px;
+    gap: 16px;
+    background: var(--warning-container-bg);
+    margin-block: 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 17px;
+    margin-block: 0;
+    min-height: 32px;
+    position: relative;
+    padding-left: 48px;
+}
+
+.header img {
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.warningText {
+    font-size: 13px;
+    line-height: 16px;
+    margin-block: 16px;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    padding-block-start: 8px;
+}

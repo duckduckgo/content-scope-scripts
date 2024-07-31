@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["locale", "env"],
+  "required": ["locale", "env", "errorData"],
   "properties": {
     "locale": {
       "type": "string"
@@ -9,6 +9,80 @@
     "env": {
       "type": "string",
       "enum": ["development", "production"]
+    },
+    "errorData": {
+      "type": "object",
+      "oneOf": [
+        {
+          "type": "object",
+          "title": "Phishing",
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "phishing"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "SSL Expired Certificate",
+          "required": ["kind", "sslError", "domain"],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "ssl"
+            },
+            "sslError": {
+              "type": "string",
+              "const": "expiredCertificate"
+            },
+            "domain": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "SSL Wrong Host",
+          "required": ["kind", "sslError", "domain", "eTldPlus1"],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "ssl"
+            },
+            "sslError": {
+              "type": "string",
+              "const": "wrongHost"
+            },
+            "domain": {
+              "type": "string"
+            },
+            "eTldPlus1": {
+              "type": "string"
+            }
+
+          }
+        },
+        {
+          "type": "object",
+          "title": "SSL Self Signed Certificate",
+          "required": ["kind", "sslError", "domain"],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "ssl"
+            },
+            "sslError": {
+              "type": "string",
+              "const": "selfSignedCertificate"
+            },
+            "domain": {
+              "type": "string"
+            }
+          }
+        }
+      ]
     }
   }
 }
