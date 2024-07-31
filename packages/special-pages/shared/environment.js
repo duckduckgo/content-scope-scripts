@@ -112,6 +112,6 @@ export class Environment {
  */
 function isPlatform (input) {
     /** @type {ImportMeta['injectName'][]} */
-    const allowed = ['windows', 'apple', 'integration']
+    const allowed = ['windows', 'apple', 'integration', 'android']
     return allowed.includes(input)
 }

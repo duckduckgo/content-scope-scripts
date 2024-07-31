@@ -164,6 +164,62 @@ export function mockWebkitMessaging(params) {
 }
 
 /**
+ * Install a mock interface for android messaging
+ * @param {{
+ *  messagingContext: import('../index.js').MessagingContext,
+ *  responses: Record<string, any>,
+ *  messageCallback: string
+ * }} params
+ */
+export function mockAndroidMessaging(params) {
+    window.__playwright_01 = {
+        mockResponses: params.responses,
+        subscriptionEvents: [],
+        mocks: {
+            outgoing: []
+        }
+    }
+    window[params.messagingContext.context] = {
+        /**
+         * @param {string} jsonString
+         * @param {string} secret
+         * @return {Promise<void>}
+         */
+        process: async (jsonString, secret) => {
+
+            /** @type {RequestMessage | NotificationMessage} */
+            const msg = JSON.parse(jsonString);
+
+            window.__playwright_01.mocks.outgoing.push(JSON.parse(JSON.stringify({
+                payload: msg
+            })))
+
+            // if it's a notification, simulate the empty response and don't check for a response
+            if (!('id' in msg)) {
+                return console.warn("no id");
+            }
+
+            if (!(msg.method in window.__playwright_01.mockResponses)) {
+                throw new Error('response not found for ' + msg.method)
+            }
+
+            const response = window.__playwright_01.mockResponses[msg.method]
+
+            /** @type {Omit<MessageResponse, 'error'>} */
+            const r = {
+                result: response,
+                context: msg.context,
+                featureName: msg.featureName,
+                // @ts-ignore - shane: fix this
+                id: msg.id,
+            }
+
+            globalThis['messageCallback']?.(secret, r);
+        }
+    }
+}
+
+/**
  * @param {object} params
  * @param {Record<string, any>} params.responses
  */
