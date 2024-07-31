@@ -1,0 +1,105 @@
+:root {
+    /* Set video to take up 80vw width */
+    --video-width: 80vw;
+}
+
+@media screen and (max-width: 1080px) {
+    :root {
+        --video-width: 85vw;
+    }
+}
+
+@media screen and (max-width: 740px) {
+    :root {
+        --video-width: 90vw;
+    }
+}
+
+body[data-layout="mobile"] {
+    --video-width: 100%;
+}
+
+:root [data-layout="desktop"] {
+    --frame-height: min(
+            calc(var(--video-width) * calc(9 / 16)),
+            80vh
+    )
+}
+
+:root [data-layout="mobile"] {
+    --frame-height: min(
+            calc(100vw * calc(9 / 16)),
+            calc(100vh - 250px)
+    )
+}
+
+:root [data-layout="mobile"][data-player="enabled"] {
+    --frame-height: min(
+            calc(100vw * calc(9 / 16)),
+            calc(100vh - 182px)
+    )
+}
+
+.app {
+    max-width: 3840px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    width: 100%;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.mobile {
+    height: 100%;
+    display: grid;
+    align-self: center;
+    grid-template-areas:
+        'header'
+        'main'
+        'footer';
+    grid-template-rows: max-content 1fr max-content;
+}
+
+.desktop {
+    height: 100%;
+    width: var(--video-width);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.header {
+    grid-area: header;
+    padding-top: 48px;
+    @media screen and (max-height: 500px) {
+        padding-top: 32px;
+    }
+}
+.main {
+    grid-area: main;
+    align-self: center;
+}
+
+.footer {
+    grid-area: footer;
+}
+
+[data-focus-mode="on"] .hideInFocus[data-style="fade"] {
+    opacity: 0;
+    visibility: hidden;
+}
+
+[data-focus-mode="on"] .hideInFocus[data-style="slide"] {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-100%);
+}
+
+.hideInFocus {
+    opacity: 1;
+    visibility: visible;
+    top: 0;
+    transition: all .3s;
+}
