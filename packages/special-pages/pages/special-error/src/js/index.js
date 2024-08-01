@@ -66,6 +66,20 @@ export class SpecialErrorPage {
     reportInitException (params) {
         this.messaging.notify('reportInitException', params)
     }
+
+    /**
+     * This will be sent when the user chooses to leave the current site
+     */
+    leaveSite () {
+        this.messaging.notify('leaveSite')
+    }
+
+    /**
+     * This will be sent when the user chooses to visit the current site despite warnings
+     */
+    visitSite () {
+        this.messaging.notify('visitSite')
+    }
 }
 
 const baseEnvironment = new Environment()

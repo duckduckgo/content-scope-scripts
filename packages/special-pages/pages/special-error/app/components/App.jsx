@@ -10,7 +10,11 @@ import styles from "./App.module.css";
 
 /**
  * @typedef {import("../../../../types/special-error.js").InitialSetupResponse['errorData']} ErrorData
- * @typedef {import("../../../../types/special-error.js").SSLWrongHost|import("../../../../types/special-error.js").SSLExpiredCertificate|import("../../../../types/special-error.js").SSLSelfSignedCertificate|import("../../../../types/special-error.js").SSLInvalidCertificate} SSLError
+ * @typedef {import("../../../../types/special-error.js").SSLExpiredCertificate} SSLExpiredCertificate
+ * @typedef {import("../../../../types/special-error.js").SSLInvalidCertificate} SSLInvalidCertificate
+ * @typedef {import("../../../../types/special-error.js").SSLSelfSignedCertificate} SSLSelfSignedCertificate
+ * @typedef {import("../../../../types/special-error.js").SSLWrongHost} SSLWrongHost
+ * @typedef {SSLExpiredCertificate|SSLInvalidCertificate|SSLSelfSignedCertificate|SSLWrongHost} SSLError
  */
 
 function SSLWarningText() {
@@ -30,7 +34,7 @@ function SSLWarningText() {
             text = t('sslSelfSignedWarningText', { domain })
             break
         case 'wrongHost':
-            const { eTldPlus1 } = /** @type {import("../../../../types/special-error.js").SSLWrongHost} */(errorData)
+            const { eTldPlus1 } = /** @type {SSLWrongHost} */(errorData)
             text = t('sslWrongHostWarningText', { domain, eTldPlus1 })
         default:
             throw new Error(`Unhandled SSL error type ${errorType}`)
@@ -39,10 +43,32 @@ function SSLWarningText() {
     return <Text as="p" variant="body">{text}</Text>
 }
 
-/**
- * @param {object} props
- */
-function SSLError(props) {
+function SSLAdvancedInfoText() {
+    const errorData = (useErrorData())
+    const { errorType } = /** @type {SSLError}} */(errorData)
+    const { t } = useTypedTranslation()
+    let text;
+
+    switch (errorType) {
+        case 'expired':
+            text = t('sslExpiredAdvancedInfoText')
+            break
+        case 'invalid':
+            text = t('sslInvalidAdvancedInfoText')
+            break
+        case 'selfSigned':
+            text = t('sslSelfSignedAdvancedInfoText')
+            break
+        case 'wrongHost':
+            text = t('sslWrongHostAdvancedInfoText')
+        default:
+            throw new Error(`Unhandled SSL error type ${errorType}`)
+    }
+
+    return <Text as="p" variant="body">{text}</Text>
+}
+
+function SSLError() {
     const { t } = useTypedTranslation()
     const [advancedInfo, setAdvancedInfo] = useState(false)
     const advancedInfoToggle = () => setAdvancedInfo(value => !value)
@@ -54,7 +80,7 @@ function SSLError(props) {
             </Warning>
             { advancedInfo &&
                 <AdvancedInfo heading={t('sslAdvancedInfoHeading')}>
-                    <Text as="p" variant="body"></Text>
+                    <SSLAdvancedInfoText />
                 </AdvancedInfo> }
         </>
     )
@@ -75,8 +101,8 @@ function PhishingError(props) {
             </Warning>
             { advancedInfo &&
                 <AdvancedInfo heading={t('phishingAdvancedInfoHeading')}>
-                    <Text as="p" variant="body">{t('phishingAdvancedInfoMessage_1')}</Text>
-                    <Text as="p" variant="body">{t('phishingAdvancedInfoMessage_2')}</Text>
+                    <Text as="p" variant="body">{t('phishingAdvancedInfoText_1')}</Text>
+                    <Text as="p" variant="body">{t('phishingAdvancedInfoText_2')}</Text>
                 </AdvancedInfo> }
         </>
     )
@@ -85,7 +111,7 @@ function PhishingError(props) {
 /**
  * @param {ErrorData['kind']} kind
  */
-function getErrorComponent(kind) {
+function getSpecialErrorComponent(kind) {
     switch (kind) {
         case 'ssl':
             return SSLError;
@@ -98,13 +124,15 @@ function getErrorComponent(kind) {
 
 export function App() {
     const { kind } = useErrorData();
-    const ErrorComponent = getErrorComponent(kind)
+    const SpecialError = getSpecialErrorComponent(kind)
 
     console.log('ERROR KIND', kind)
 
     return (
-        <main class={styles.main}>
-            <ErrorComponent />
+        <main className={styles.main}>
+            <div className={styles.container}>
+                <SpecialError />
+            </div>
         </main>
     )
 }
