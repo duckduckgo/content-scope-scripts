@@ -7,6 +7,7 @@ import { Components } from './components/Components.jsx'
 import enStrings from '../src/locales/en/special-error.json'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
 import { ErrorDataProvider } from '../../release-notes/app/ErrorDataProvider.js'
+import { MessagingProvider } from './MessagingProvider.js'
 import { callWithRetry } from '../../../shared/call-with-retry.js'
 
 import '../../../shared/styles/global.css' // global styles
@@ -63,9 +64,11 @@ export async function init (messaging, baseEnvironment) {
             >
                 <UpdateEnvironment search={window.location.search}/>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <ErrorDataProvider errorData={errorData}>
-                        <App/>
-                    </ErrorDataProvider>
+                    <MessagingProvider messaging={messaging}>
+                        <ErrorDataProvider errorData={errorData}>
+                            <App/>
+                        </ErrorDataProvider>
+                    </MessagingProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)

@@ -6,12 +6,27 @@
     flex-flow: column;
     gap: var(--sp-4);
     box-shadow: inset 0 1px 0 0 var(--border-color); /* TODO */
-    padding: var(--sp-6) var(--sp-10);
-    /* TODO: Animate */
-    /* transition: padding 200ms, height 200ms; */
     width: 100%;
+
+    animation-name: scaleIn;
+    animation-duration: 300ms;
+    animation-fill-mode: forwards;
 }
 
-.link {
+@keyframes scaleIn {
+    0% {
+        padding: 0 var(--sp-10);
+        max-height: 0;
+    }
+    100% {
+        padding: var(--sp-6) var(--sp-10);
+        max-height: 400px;
+    }
+}
+
+.visitSite {
     align-self: flex-end;
+    color: var(--accept-risk-color); /* TODO */
+    cursor: pointer;
+    text-decoration: underline;
 }
