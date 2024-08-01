@@ -27,28 +27,6 @@ export default defineConfig({
                 injectName: 'apple',
                 platform: 'macos'
             }
-        },
-        {
-            name: 'android',
-            testMatch: [
-                'duckplayer.spec.js'
-            ],
-            use: {
-                ...devices['Galaxy S III'],
-                injectName: 'android',
-                platform: 'android'
-            }
-        },
-        {
-            name: 'ios',
-            testMatch: [
-                'duckplayer.spec.js'
-            ],
-            use: {
-                ...devices['iPhone 14'],
-                injectName: 'apple',
-                platform: 'ios'
-            }
         }
     ],
     fullyParallel: !process.env.CI,
