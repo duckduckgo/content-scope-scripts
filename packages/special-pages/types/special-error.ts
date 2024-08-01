@@ -60,25 +60,30 @@ export interface InitialSetupRequest {
 export interface InitialSetupResponse {
   locale: string;
   env: "development" | "production";
-  errorData: Phishing | SSLExpiredCertificate | SSLWrongHost | SSLSelfSignedCertificate;
+  errorData: Phishing | SSLExpiredCertificate | SSLWrongHost | SSLSelfSignedCertificate | SSLInvalidCertificate;
 }
 export interface Phishing {
   kind: "phishing";
 }
 export interface SSLExpiredCertificate {
   kind: "ssl";
-  sslError: "expiredCertificate";
+  errorType: "expired";
   domain: string;
 }
 export interface SSLWrongHost {
   kind: "ssl";
-  sslError: "wrongHost";
+  errorType: "wrongHost";
   domain: string;
   eTldPlus1: string;
 }
 export interface SSLSelfSignedCertificate {
   kind: "ssl";
-  sslError: "selfSignedCertificate";
+  errorType: "selfSigned";
+  domain: string;
+}
+export interface SSLInvalidCertificate {
+  kind: "ssl";
+  errorType: "invalid";
   domain: string;
 }
 

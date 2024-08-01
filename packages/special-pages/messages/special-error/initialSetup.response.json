@@ -27,15 +27,15 @@
         {
           "type": "object",
           "title": "SSL Expired Certificate",
-          "required": ["kind", "sslError", "domain"],
+          "required": ["kind", "errorType", "domain"],
           "properties": {
             "kind": {
               "type": "string",
               "const": "ssl"
             },
-            "sslError": {
+            "errorType": {
               "type": "string",
-              "const": "expiredCertificate"
+              "const": "expired"
             },
             "domain": {
               "type": "string"
@@ -45,13 +45,13 @@
         {
           "type": "object",
           "title": "SSL Wrong Host",
-          "required": ["kind", "sslError", "domain", "eTldPlus1"],
+          "required": ["kind", "errorType", "domain", "eTldPlus1"],
           "properties": {
             "kind": {
               "type": "string",
               "const": "ssl"
             },
-            "sslError": {
+            "errorType": {
               "type": "string",
               "const": "wrongHost"
             },
@@ -67,15 +67,33 @@
         {
           "type": "object",
           "title": "SSL Self Signed Certificate",
-          "required": ["kind", "sslError", "domain"],
+          "required": ["kind", "errorType", "domain"],
           "properties": {
             "kind": {
               "type": "string",
               "const": "ssl"
             },
-            "sslError": {
+            "errorType": {
               "type": "string",
-              "const": "selfSignedCertificate"
+              "const": "selfSigned"
+            },
+            "domain": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "title": "SSL Invalid Certificate",
+          "required": ["kind", "errorType", "domain"],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "ssl"
+            },
+            "errorType": {
+              "type": "string",
+              "const": "invalid"
             },
             "domain": {
               "type": "string"
