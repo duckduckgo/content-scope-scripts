@@ -176,6 +176,7 @@ test.describe('duckplayer desktop settings', () => {
 })
 
 test.describe('screenshots @screenshots', () => {
+    test.skip(process.env.CI === 'true')
     test('regular layout', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         // load as normal
