@@ -9,80 +9,76 @@
       }
     ]
   },
-  "phishingErrorPageHeader": {
-    "title": "Warning: This site puts your personal information at risk",
-    "note": "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
-  },
-  "phishingErrorPageTabTitle": {
-    "title": "Warning: Deceptive Site Ahead",
-    "note": "Title shown in an error page tab that warn users of security risks on a website due to Phishing issues"
-  },
-  "phishingErrorPageBody": {
-    "title": "This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. <a href=\"https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/\" target=\"_blank\">Learn more</a>",
-    "note": "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
-  },
-  "phishingErrorPageAdvancedButton": {
+  "advancedButton": {
     "title": "Advanced…",
     "note": "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
   },
-      "phishingErrorPageLeaveSiteButton": {
+  "leaveSiteButton": {
     "title": "Leave This Site",
     "note": "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
   },
-  "phishingErrorPageVisitSiteButton": {
+  "visitSiteButton": {
     "title": "Accept Risk and Visit Site",
     "note": "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
   },
-  "phishingErrorAdvancedInfoTitle": {
+  "phishingPageHeading": {
+    "title": "Warning: This site puts your personal information at risk",
+    "note": "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+  },
+  "phishingWarningText": {
+    "title": "This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. <a href=\"https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/\" target=\"_blank\">Learn more</a>",
+    "note": "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoHeading": {
     "title": "DuckDuckGo warns you when a website has been flagged as malicious.",
     "note": "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
   },
-  "phishingErrorAdvancedInfoBodyPhishing": {
+  "phishingAdvancedInfoMessage_1": {
     "title": "Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.",
     "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
   },
-  "phishingErrorPageReadMore": {
+  "phishingAdvancedInfoMessage_2": {
     "title": "See our <a href=\"https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/\" target=\"_blank\">Phishing and Malware Protection help page</a> for more information.",
     "note": "A call-to-action to read more on our help pages for phishing and malware protection."
   },
-  "sslErrorPageAdvancedButton": {
-    "title": "Advanced…",
-    "note": "Button shown in an error page that warns users of security risks on a website due to SSL issues. The buttons allows the user to see advanced options on click."
-  },
-  "sslErrorPageLeaveSiteButton": {
-    "title": "Leave This Site",
-    "note": "Button shown in an error page that warns users of security risks on a website due to SSL issues. The buttons allows the user to leave the website and navigate to previous page."
-  },
-  "sslErrorPageVisitSiteButton": {
-    "title": "Accept Risk and Visit Site",
-    "note": "Button shown in an error page that warns users of security risks on a website due to SSL issues. The buttons allows the user to visit the website anyway despite the risks."
-  },
-  "sslErrorAdvancedInfoTitle": {
-    "title": "DuckDuckGo warns you when a website has an invalid certificate.",
-    "note": "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
-  },
-  "sslErrorAdvancedInfoBodyWrongHost": {
-    "title": "It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
-    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
-  },
-  "sslErrorAdvancedInfoBodyExpired": {
-    "title": "It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.",
-    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
-  },
-  "sslErrorPageHeader": {
+  "sslPageHeading": {
     "title": "Warning: This site may be insecure",
     "note": "Title shown in an error page that warn users of security risks on a website due to SSL issues"
   },
-  "sslErrorCertificateExpiredMessage": {
+  "sslExpiredWarningText": {
     "title": "The security certificate for {domain} is expired.",
     "note": "Describes an SSL error where a website's security certificate is expired. The placeholder is the site's domain (example: duckduckgo.com)."
   },
-  "sslErrorCertificateWrongHostMessage": {
+  "sslInvalidWarningText": {
+    "title": "The certificate for this site is invalid. You might be connecting to a server that is pretending to be {domain} which could put your confidential information at risk.",
+    "note": "Warns the user that the site's security certificate is self-signed and not trusted. The placeholder is the site's domain (example: duckduckgo.com)."
+  },
+  "sslSelfSignedWarningText": {
+    "title": "The security certificate for {domain} is not trusted by your device's operating system.",
+    "note": "Warns the user that the site's security certificate is self-signed and not trusted. The placeholder is the site's domain (example: duckduckgo.com)."
+  },
+  "sslWrongHostWarningText": {
     "title": "The security certificate for {domain} does not match {eTldPlus1}.",
     "note": "Explains an SSL error when a site's certificate doesn't match its domain. The fist placeholder is the site's domain (example: duckduckgo.com). The second placeholder is... [TBC]"
   },
-  "sslErrorCertificateSelfSignedMessage": {
-    "title": "The security certificate for {domain} is not trusted by your device's operating system.",
-    "note": "Warns the user that the site's security certificate is self-signed and not trusted. The placeholder is the site's domain (example: duckduckgo.com)."
+  "sslAdvancedInfoHeading": {
+    "title": "DuckDuckGo warns you when a website has an invalid certificate.",
+    "note": "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslExpiredAdvancedInfoMessage": {
+    "title": "It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.",
+    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslInvalidAdvancedInfoMessage": {
+    "title": "TODO",
+    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslSelfSignedAdvancedInfoMessage": {
+    "title": "TODO",
+    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslWrongHostAdvancedInfoMessage": {
+    "title": "It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
+    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
   }
 }

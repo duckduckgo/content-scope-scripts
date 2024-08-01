@@ -15,7 +15,8 @@ export class SpecialErrorPage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
-    constructor (messaging) {
+    constructor (messaging, env) {
+        this.integration = env === 'integration'
         this.messaging = createTypedMessages(this, messaging)
     }
 
@@ -33,6 +34,19 @@ export class SpecialErrorPage {
      * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
      */
     initialSetup () {
+        // TODO: Remove all integration rigging
+        if (this.integration) {
+            return Promise.resolve({
+                env: 'development',
+                locale: 'en',
+                errorData: {
+                    kind: 'ssl',
+                    errorType: 'expired',
+                    domain: 'example.com'
+                }
+            })
+        }
+
         return this.messaging.request('initialSetup')
     }
 
@@ -64,7 +78,7 @@ const messaging = createSpecialPageMessaging({
     pageName: /** @type {string} */(import.meta.pageName)
 })
 
-const specialErrorPage = new SpecialErrorPage(messaging)
+const specialErrorPage = new SpecialErrorPage(messaging, baseEnvironment.platform)
 
 init(specialErrorPage, baseEnvironment).catch(e => {
     // messages.
