@@ -3,6 +3,7 @@ import phishingIcon from '../img/Phishing-Alert-128.svg'
 
 export const loadData = {
     ssl: {
+        pageType: "ssl",
         strings: {
             header: 'Warning: This site may be insecure',
             body: 'The certificate for this site is invalid. You might be connecting to a server that is pretending to be <b>example.com</b> which could put your confidential information at risk',
@@ -16,6 +17,7 @@ export const loadData = {
         }
     },
     phishing: {
+        pageType: "phishing",
         strings: {
             header: 'Warning: This site puts your personal information at risk',
             body: 'This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. <a class="learn-more" href="https://duckduckgo.com/duckduckgo-help-pages/" target="_blank">Learn more</a>',
