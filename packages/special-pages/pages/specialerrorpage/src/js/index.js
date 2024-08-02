@@ -47,27 +47,27 @@ window.addEventListener('DOMContentLoaded', () => {
 /**
  * Construct the HTML, using data retrieved from the load-time JSON
  */
-function loadHTML() {
-    const element = document.querySelector('[data-id="load-time-data"]');
+function loadHTML () {
+    const element = document.querySelector('[data-id="load-time-data"]')
     const parsed = (() => {
         try {
-            return JSON.parse(element?.textContent || '{}');
+            return JSON.parse(element?.textContent || '{}')
         } catch (e) {
-            console.warn('could not parse JSON', e);
+            console.warn('could not parse JSON', e)
             return {};
         }
-    })();
+    })()
 
-    const container = document.createElement('div');
+    const container = document.createElement('div')
     if (!parsed.strings) {
-        console.warn('missing `strings` from the incoming json data');
+        console.warn('missing `strings` from the incoming json data')
     }
 
     const pageType = parsed.pageType || 'ssl'; // Default to 'ssl' if pageType is not provided
-    const defaultStrings = loadData[pageType]?.strings || loadData.ssl.strings;
-    const mergedStrings = { ...defaultStrings, ...parsed.strings };
-    container.innerHTML = execTemplate(mergedStrings).toString();
-    document.body.appendChild(container);
+    const defaultStrings = loadData[pageType]?.strings || loadData.ssl.strings
+    const mergedStrings = { ...defaultStrings, ...parsed.strings }
+    container.innerHTML = execTemplate(mergedStrings).toString()
+    document.body.appendChild(container)
 }
 
 /**
