@@ -58,8 +58,6 @@ export function EnvironmentProvider ({ children, debugState, willThrow = false, 
         return () => mediaQueryList.removeEventListener('change', listener)
     }, [])
 
-    console.log('is', isReducedMotion)
-
     return (
         <EnvironmentContext.Provider value={{
             isReducedMotion,

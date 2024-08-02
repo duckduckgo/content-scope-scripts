@@ -226,7 +226,8 @@ export class VideoOverlay {
                 environment,
                 params,
                 ui,
-                manager: this
+                manager: this,
+                layout: this.environment.layout
             })
             targetElement.appendChild(overlayElement)
 

@@ -1,5 +1,8 @@
 import css from '../assets/video-overlay.css'
+import mobilecss from '../assets/mobile-video-overlay.css'
 import dax from '../assets/dax.svg'
+import info from '../assets/info.svg'
+import arrow from '../assets/arrow.svg'
 import { overlayCopyVariants } from '../text.js'
 import { appendImageAsBackground } from '../util.js'
 import { VideoOverlay } from '../video-overlay.js'
@@ -16,15 +19,17 @@ export class DDGVideoOverlay extends HTMLElement {
      * @param {import("../overlays.js").Environment} options.environment
      * @param {import("../util").VideoParams} options.params
      * @param {import("../../duck-player.js").UISettings} options.ui
+     * @param {'mobile' | 'desktop'} [options.layout]
      * @param {VideoOverlay} options.manager
      */
-    constructor ({ environment, params, ui, manager }) {
+    constructor ({ environment, params, ui, manager, layout = 'desktop' }) {
         super()
         if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments')
         this.environment = environment
         this.ui = ui
         this.params = params
         this.manager = manager
+        this.layout = layout
 
         /**
          * Create the shadow root, closed to prevent any outside observers
@@ -37,7 +42,7 @@ export class DDGVideoOverlay extends HTMLElement {
          * @type {HTMLStyleElement}
          */
         const style = document.createElement('style')
-        style.innerText = css
+        style.innerText = this.layout === 'desktop' ? css : mobilecss
 
         /**
          * Create the overlay
@@ -56,11 +61,49 @@ export class DDGVideoOverlay extends HTMLElement {
      * @returns {HTMLDivElement}
      */
     createOverlay () {
-        const overlayCopy = overlayCopyVariants[this.ui?.overlayCopy || 'default']
+        // select copy based on layout
+        const overlayCopy = this.layout === 'desktop'
+            ? overlayCopyVariants[this.ui?.overlayCopy || 'default']
+            : overlayCopyVariants.a1
+
         const overlayElement = document.createElement('div')
         overlayElement.classList.add('ddg-video-player-overlay')
+
+        const content = this.layout === 'desktop'
+            ? this.desktopHtml(overlayCopy)
+            : this.mobileHtml(overlayCopy)
+
+        // append markup based on layout
+        overlayElement.innerHTML = trusted(content)
+
+        /**
+         * Set the link
+         * @type {string}
+         */
+        const href = this.params.toPrivatePlayerUrl()
+        overlayElement.querySelector('.ddg-vpo-open')?.setAttribute('href', href)
+
+        /**
+         * Add thumbnail
+         */
+        if (this.layout === 'desktop') {
+            this.appendThumbnail(overlayElement, this.params.id)
+        }
+
+        /**
+         * Setup the click handlers
+         */
+        this.setupButtonsInsideOverlay(overlayElement, this.params)
+
+        return overlayElement
+    }
+
+    /**
+     * @returns {string}
+     */
+    desktopHtml (overlayCopy) {
         const svgIcon = trustedUnsafe(dax)
-        overlayElement.innerHTML = html`
+        return html`
             <div class="ddg-vpo-bg"></div>
             <div class="ddg-vpo-content">
                 <div class="ddg-eyeball">${svgIcon}</div>
@@ -79,24 +122,51 @@ export class DDGVideoOverlay extends HTMLElement {
                 </div>
             </div>
             `.toString()
-        /**
-         * Set the link
-         * @type {string}
-         */
-        const href = this.params.toPrivatePlayerUrl()
-        overlayElement.querySelector('.ddg-vpo-open')?.setAttribute('href', href)
+    }
 
-        /**
-         * Add thumbnail
-         */
-        this.appendThumbnail(overlayElement, this.params.id)
-
-        /**
-         * Setup the click handlers
-         */
-        this.setupButtonsInsideOverlay(overlayElement, this.params)
-
-        return overlayElement
+    /**
+     * @param {overlayCopyVariants[keyof overlayCopyVariants]} overlayCopy
+     * @returns {string}
+     */
+    mobileHtml (overlayCopy) {
+        const svgIcon = trustedUnsafe(dax)
+        const infoIcon = trustedUnsafe(info)
+        const arrowSvg = trustedUnsafe(arrow)
+        return html`
+            <div class="bg ddg-vpo-bg"></div>
+            <div class="content ios">
+                <div class="logo">${svgIcon}</div>
+                <div class="callout">
+                    <span class="arrow">
+                        ${arrowSvg}
+                    </span>
+                    <div class="title">${overlayCopy.title}</div>
+                    <div class="text">
+                        ${overlayCopy.subtitle}
+                    </div>
+                    <div class="buttons">
+                        <button class="button cancel ddg-vpo-cancel" type="button">${overlayCopy.buttonOptOut}</button>
+                        <a class="button open ddg-vpo-open" href="#">${overlayCopy.buttonOpen}</a>
+                    </div>
+                    <div class="remember">
+                        <div class="remember-label">
+                            <span class="remember-text">
+                                ${overlayCopy.rememberLabel} 
+                            </span>
+                            <span class="remember-checkbox">
+                                <input id="remember" type="checkbox" name="ddg-remember" hidden> 
+                                <button role="switch" aria-checked="false" class="switch ios-switch">
+                                    <span class="thumb"></span>
+                                </button>
+                            </span>
+                        </div>
+                        <button class="button info">
+                            ${infoIcon}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            `.toString()
     }
 
     /**
@@ -113,6 +183,20 @@ export class DDGVideoOverlay extends HTMLElement {
      * @param {import("../util").VideoParams} params
      */
     setupButtonsInsideOverlay (containerElement, params) {
+        const switchElem = containerElement.querySelector('[role=switch]')
+        const remember = containerElement.querySelector('input[name="ddg-remember"]')
+        if (switchElem && remember && remember instanceof HTMLInputElement) {
+            switchElem.addEventListener('click', () => {
+                const current = switchElem.getAttribute('aria-checked')
+                if (current === 'false') {
+                    switchElem.setAttribute('aria-checked', 'true')
+                    remember.checked = true
+                } else {
+                    switchElem.setAttribute('aria-checked', 'false')
+                    remember.checked = false
+                }
+            })
+        }
         const cancelElement = containerElement.querySelector('.ddg-vpo-cancel')
         const watchInPlayer = containerElement.querySelector('.ddg-vpo-open')
         if (!cancelElement) return console.warn('Could not access .ddg-vpo-cancel')
@@ -135,4 +219,14 @@ export class DDGVideoOverlay extends HTMLElement {
         cancelElement.addEventListener('click', optOutHandler)
         watchInPlayer.addEventListener('click', watchInPlayerHandler)
     }
+}
+
+function trusted (string) {
+    if ('trustedTypes' in globalThis) {
+        const policy = globalThis.trustedTypes.createPolicy('default', {
+            createHTML: (s) => s
+        })
+        return policy.createHTML(string)
+    }
+    return string
 }

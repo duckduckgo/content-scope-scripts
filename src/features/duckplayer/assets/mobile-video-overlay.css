@@ -1,0 +1,310 @@
+/* -- VIDEO PLAYER OVERLAY */
+:host {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: white;
+    z-index: 10000;
+}
+
+:host * {
+    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+:root *, :root *:after, :root *:before {
+    box-sizing: border-box;
+}
+
+.ddg-video-player-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: white;
+    z-index: 10000;
+    padding: 12px;
+
+}
+
+.bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: white;
+    background: black;
+    text-align: center;
+}
+
+.bg:before {
+    content: " ";
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+            linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0) 60%),
+            radial-gradient(circle at bottom, rgba(131, 58, 180, 0.8), rgba(253, 29, 29, 0.6), rgba(252, 176, 69, 0.4));
+}
+.bg:after {
+    content: " ";
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    text-align: center;
+}
+
+.content {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: grid;
+    color: rgba(0, 0, 0, 0.84);
+    position: relative;
+    grid-template-columns: 35px auto;
+    grid-column-gap: 9px;
+    grid-template-areas: 'logo callout';
+    grid-template-rows: max-content;
+    align-content: center;
+    justify-content: center;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .content {
+        color: var(--Text-Primary, rgba(255, 255, 255, 0.84));
+    }
+}
+
+.logo {
+    grid-area: logo;
+    /*background: red;*/
+    align-self: start;
+    padding-top: 16px;
+}
+.logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+.callout {
+    grid-area: callout;
+    padding: 16px 12px 12px 12px;
+    border-radius: 16px;
+    box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.10), 0px 20px 40px 0px rgba(0, 0, 0, 0.08);
+    display: grid;
+    position: relative;
+    z-index: 1;
+    background: white;
+    max-width: 373px;
+    grid-template-rows: max-content 16px max-content 8px max-content;
+    grid-template-areas:
+        'title'
+        'gap1'
+        'controls'
+        'gap2'
+        'remember';
+}
+@media screen and (prefers-color-scheme: dark) {
+    .callout {
+        background: #2F2F2F
+    }
+}
+.arrow {
+    position: absolute;
+    top: 48px;
+    left: -18px;
+    color: white;
+    z-index: 0;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .arrow {
+        color: #2F2F2F;
+    }
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 25px;
+    padding-left: 4px;
+    padding-right: 4px;
+    grid-area: title
+}
+.text {
+    display: none;
+}
+
+.buttons {
+    display: flex;
+    gap: 8px;
+    grid-area: controls
+}
+
+.button {
+    margin: 0;
+    -webkit-appearance: none;
+    background: none;
+    box-shadow: none;
+    border: none;
+    display: block;
+    height: 40px;
+    color: rgba(0, 0, 0, 0.84);
+    text-decoration: none;
+    line-height: 40px;
+    padding: 0 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.cancel {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .cancel {
+        color: white;
+        background: rgba(255, 255, 255, 0.18);
+    }
+}
+
+.open {
+    background: #3969EF;
+    color: white;
+    flex: 1;
+    text-align: center;
+}
+
+.open:hover {
+}
+.cancel:hover {
+}
+.remember {
+    grid-area: remember;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 16px;
+    padding-right: 16px;
+    border: 1px solid rgba(221, 221, 221, 1);
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .remember {
+        border: 1px solid #444;
+    }
+}
+
+.remember-label {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.remember-text {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+}
+.remember-checkbox {
+    margin-left: auto;
+    display: flex;
+}
+.button.info {
+    padding: 0;
+    /*border: 1px dotted orange;*/
+    display: flex;
+    align-items: center;
+}
+.button.info svg path {
+    fill: rgba(0, 0, 0, 0.84);
+}
+@media screen and (prefers-color-scheme: dark) {
+    .button.info svg path {
+        fill: rgba(255, 255, 255, 0.84);
+    }
+}
+
+.switch {
+    margin: 0;
+    padding: 0;
+    width: 52px;
+    height: 32px;
+    border: 0;
+    box-shadow: none;
+    background: rgba(120, 120, 128, 0.16);
+    border-radius: 32px;
+    position: relative;
+    transition: all .3s;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+    .switch {
+        background: rgba(136, 136, 136, 0.5);
+    }
+}
+
+.switch:active .thumb {
+    scale: 1.15;
+}
+
+.thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 100%;
+    background: white;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    pointer-events: none;
+    transition: .2s left ease-in-out;
+}
+
+.switch[aria-checked="true"] .thumb {
+    left: calc(100% - 32px + 4px)
+}
+.switch[aria-checked="true"] {
+    background: rgba(57, 105, 239, 1)
+}
+
+.ios-switch {
+    width: 51px;
+    height: 31px;
+}
+
+.ios-switch .thumb {
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)
+}
+
+.ios-switch:active .thumb {
+    scale: 1;
+}
+
+.ios-switch[aria-checked="true"] .thumb {
+    left: calc(100% - 32px + 3px)
+}
+
+.android {}
