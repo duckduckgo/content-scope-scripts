@@ -12,12 +12,12 @@ export const MessagingContext = createContext({
  * @param {import("preact").ComponentChild} props.children
  * @param {import('../src/js/index').SpecialErrorPage | null} props.messaging
  */
-export function MessagingProvider({ children, messaging }) {
+export function MessagingProvider ({ children, messaging }) {
     return (<MessagingContext.Provider value={{ messaging }}>
         {children}
     </MessagingContext.Provider>)
 }
 
-export function useMessaging() {
+export function useMessaging () {
     return useContext(MessagingContext)
 }

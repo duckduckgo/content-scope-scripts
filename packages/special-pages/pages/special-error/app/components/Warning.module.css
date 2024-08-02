@@ -8,6 +8,10 @@
     width: 100%;
 }
 
+.container p a {
+    color: var(--link-color);
+}
+
 .header {
     align-items: center;
     display: flex;
@@ -16,6 +20,9 @@
 
 .icon {
     align-self: flex-start;
+}
+
+.icon.ssl {
     background: url(../../../../shared/assets/img/icons/Shield-Alert-48.svg) no-repeat;
     flex: 0 0 var(--sp-10);
     height: var(--sp-10);
@@ -23,9 +30,47 @@
     background-position: calc(-1 * var(--sp-2)) calc(-1 * var(--sp-1));
 }
 
+.icon.phishing {
+    background: url(../../../../shared/assets/img/icons/Phishing-64.svg) no-repeat;
+    flex: 0 0 var(--sp-16);
+    height: var(--sp-12);
+    width: var(--sp-16);
+}
+
 .buttonContainer {
     display: flex;
     gap: var(--sp-2);
     justify-content: flex-end;
     padding-block-start: var(--sp-2);
+}
+
+/* TODO */
+.button {
+    height: 20px;
+    font-size: 13px;
+    line-height: 1;
+    padding: 0px 12px;
+    align-items: center;
+    border-radius: 5px;
+    border: 0.5px solid var(--border-color);
+    background: var(--button-bg);
+    color: var(--button-text);
+    box-shadow: 0px 1px 1px 0px var(--border-color),
+    0px 0px 1px 0px var(--border-color);
+}
+
+.button:active {
+    background: var(--button-active-bg);
+}
+
+.leaveSite {
+    color: white;
+    border: 0.5px solid var(--leave-site-btn-border-color);
+    background: var(--leave-site-btn-bg);
+    box-shadow: 0px 1px 1px 0px var(--leave-site-btn-shadow-color),
+    0px 0px 1px 0px var(--leave-site-btn-border-color);
+}
+
+.leaveSite:active {
+    background: #798ed6;
 }
