@@ -54,7 +54,7 @@ function loadHTML () {
             return JSON.parse(element?.textContent || '{}')
         } catch (e) {
             console.warn('could not parse JSON', e)
-            return {};
+            return {}
         }
     })()
 
