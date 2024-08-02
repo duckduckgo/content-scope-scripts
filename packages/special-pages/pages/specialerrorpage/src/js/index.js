@@ -63,7 +63,7 @@ function loadHTML () {
         console.warn('missing `strings` from the incoming json data')
     }
 
-    const pageType = parsed.pageType || 'ssl'; // Default to 'ssl' if pageType is not provided
+    const pageType = parsed.pageType || 'ssl' // Default to 'ssl' if pageType is not provided
     const defaultStrings = loadData[pageType]?.strings || loadData.ssl.strings
     const mergedStrings = { ...defaultStrings, ...parsed.strings }
     container.innerHTML = execTemplate(mergedStrings).toString()

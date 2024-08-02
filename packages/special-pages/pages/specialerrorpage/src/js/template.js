@@ -1,6 +1,6 @@
 import { html, trustedUnsafeEscaped } from '../../../../../../src/dom-utils.js'
 
-export function execTemplate(strings) {
+export function execTemplate (strings) {
     return html`
         <div class="full-container" id="fullContainer" data-state="closed">
             <div class="warning-container">
@@ -20,5 +20,5 @@ export function execTemplate(strings) {
                 <button id="acceptRiskLink" class="accept-risk">${strings.visitSiteBody}</button>
             </div>
         </div>
-    `;
+    `
 }
