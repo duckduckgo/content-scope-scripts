@@ -5,6 +5,7 @@ import { useTypedTranslation } from "../types";
 import { Warning } from "./Warning";
 import { AdvancedInfo } from "./AdvancedInfo";
 import { Text } from "../../../../shared/components/Text/Text";
+import { Trans } from "../../../../shared/components/TranslationsProvider";
 
 import styles from "./App.module.css";
 
@@ -75,7 +76,7 @@ function SSLError() {
 
     return (
         <>
-            <Warning heading={t('sslPageHeading')} advancedInfo={advancedInfo} advancedButtonHandler={advancedInfoToggle}>
+            <Warning variant="ssl" heading={t('sslPageHeading')} advancedInfo={advancedInfo} advancedButtonHandler={advancedInfoToggle}>
                 <SSLWarningText />
             </Warning>
             { advancedInfo &&
@@ -94,15 +95,35 @@ function PhishingError(props) {
     const [advancedInfo, setAdvancedInfo] = useState(false)
     const advancedInfoToggle = () => setAdvancedInfo(value => !value)
 
+    const warningText = Trans({
+        str: t('phishingWarningText'),
+        values: {
+            a: {
+                href: 'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/',
+                target: 'blank'
+            }
+        }
+    })
+
+    const advancedInfoText2 = Trans({
+        str: t('phishingAdvancedInfoText_2'),
+        values: {
+            a: {
+                href: 'https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection/',
+                target: 'blank'
+            }
+        }
+    })
+
     return (
         <>
-            <Warning heading={t('phishingPageHeading')} advancedInfo={advancedInfo} advancedButtonHandler={advancedInfoToggle}>
-                <Text as="p" variant="body">{t('phishingWarningText')}</Text>
+            <Warning variant="phishing" heading={t('phishingPageHeading')} advancedInfo={advancedInfo} advancedButtonHandler={advancedInfoToggle}>
+                <Text as="p" variant="body">{warningText}</Text>
             </Warning>
             { advancedInfo &&
                 <AdvancedInfo heading={t('phishingAdvancedInfoHeading')}>
                     <Text as="p" variant="body">{t('phishingAdvancedInfoText_1')}</Text>
-                    <Text as="p" variant="body">{t('phishingAdvancedInfoText_2')}</Text>
+                    <Text as="p" variant="body">{advancedInfoText2}</Text>
                 </AdvancedInfo> }
         </>
     )

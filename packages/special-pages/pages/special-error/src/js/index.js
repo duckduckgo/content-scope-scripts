@@ -40,9 +40,7 @@ export class SpecialErrorPage {
                 env: 'development',
                 locale: 'en',
                 errorData: {
-                    kind: 'ssl',
-                    errorType: 'expired',
-                    domain: 'example.com'
+                    kind: 'phishing'
                 }
             })
         }

@@ -13,6 +13,10 @@
     animation-fill-mode: forwards;
 }
 
+.container p a {
+    color: var(--link-color);
+}
+
 @keyframes scaleIn {
     0% {
         padding: 0 var(--sp-10);
