@@ -1,3 +1,6 @@
+import shieldIcon from '../img/Shield-Alert-96x96.data.svg'
+import phishingIcon from '../img/Phishing-Alert-128.svg'
+
 export const loadData = {
     ssl: {
         strings: {
@@ -8,7 +11,8 @@ export const loadData = {
             leaveSiteButton: 'Leave This Site',
             specificMessage: 'The security certificate for <b>bad.example.com</b> is not trusted by your computer\'s operating system',
             advancedInfoBody: 'It’s possible that the website is misconfigured or that an attacker has compromised your connection.',
-            visitSiteBody: 'Accept Risk and Visit Site'
+            visitSiteBody: 'Accept Risk and Visit Site',
+            iconData: shieldIcon
         }
     },
     phishing: {
@@ -20,7 +24,8 @@ export const loadData = {
             leaveSiteButton: 'Leave This Site',
             specificMessage: '',
             advancedInfoBody: 'Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.<br><br>See our <a class="learn-more" href="https://duckduckgo.com/duckduckgo-help-pages/" target="_blank">Phishing and Malware Protection help page</a> for more information.',
-            visitSiteBody: 'Accept Risk and Visit Site'
+            visitSiteBody: 'Accept Risk and Visit Site',
+            iconData: phishingIcon
         }
     }
 }
