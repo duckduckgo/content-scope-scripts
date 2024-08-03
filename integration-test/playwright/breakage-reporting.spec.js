@@ -55,25 +55,25 @@ export class BreakageReportingSpec {
         await this.setup({ config })
     }
 
-    async navigate() {
+    async navigate () {
         await this.page.goto(this.htmlPage)
 
         await this.page.evaluate(() => {
-            window.location.href = "/breakage-reporting/pages/ref.html"
+            window.location.href = '/breakage-reporting/pages/ref.html'
         })
         await this.page.waitForURL('**/ref.html')
-    
+
         // Wait for first paint event to ensure we can get the performance metrics
         await this.page.evaluate(() => {
             const observer = new PerformanceObserver((list) => {
                 list.getEntries().forEach((entry) => {
                     if (entry.name === 'first-paint') {
-                        observer.disconnect();
+                        observer.disconnect()
                     }
-                });
-            });
-    
-            observer.observe({ entryTypes: ['paint'] });
+                })
+            })
+
+            observer.observe({ entryTypes: ['paint'] })
         })
     }
 
