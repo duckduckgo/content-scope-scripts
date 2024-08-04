@@ -1,7 +1,7 @@
 .switchBar {
     display: flex;
     gap: 8px;
-    border-radius: 8px;
+    border-radius: var(--inner-radius);
     padding: 8px 12px;
     background: rgba(255, 255, 255, 0.03);
     height: 44px;

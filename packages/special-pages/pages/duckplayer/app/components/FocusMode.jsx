@@ -3,6 +3,9 @@ import cn from "classnames";
 import { useCallback, useEffect } from "preact/hooks";
 import styles from "./FocusMode.module.css";
 
+const EVENT_ON = 'ddg-duckplayer-focusmode-on'
+const EVENT_OFF = 'ddg-duckplayer-focusmode-off'
+
 export function FocusMode() {
     useEffect(() => {
         let enabled = true;
@@ -12,7 +15,9 @@ export function FocusMode() {
                 // try again after delay
                 wait()
             } else {
-                if (!enabled) return;
+                if (!enabled) {
+                    return console.warn("ignoring focusMode because it was disabled")
+                }
                 document.documentElement.dataset.focusMode = 'on'
             }
         }
@@ -36,17 +41,24 @@ export function FocusMode() {
 
         // other events that might occur
         window.addEventListener('frame-mousemove', cancel)
-        window.addEventListener('ddg-duckplayer-focusmode-off', () => {
+        window.addEventListener(EVENT_OFF, () => {
             enabled = false;
             off()
         })
-
+        window.addEventListener(EVENT_ON, () => {
+            if (enabled === true) return;
+            enabled = true;
+            on()
+        })
         return () => {
             clearTimeout(timerId);
         }
     }, [])
     return null
 }
+
+FocusMode.enable = () => window.dispatchEvent(new Event(EVENT_ON))
+FocusMode.disable = () => window.dispatchEvent(new Event(EVENT_OFF))
 
 /**
  * Hides the content in focus mode.

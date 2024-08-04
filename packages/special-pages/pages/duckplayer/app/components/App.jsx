@@ -15,10 +15,10 @@ import { SwitchBarMobile } from "./SwitchBarMobile.jsx";
 import { Button, Icon } from "./Button.jsx";
 import info from "../img/info.data.svg";
 import cog from "../img/cog.data.svg";
-import { BottomNavBar, FloatingBar, TopBar } from "./FloatingBar.jsx";
+import { FloatingBar, TopBar } from "./FloatingBar.jsx";
 import { Wordmark } from "./Wordmark.jsx";
 import { SwitchProvider } from "../providers/SwitchProvider.jsx";
-import { useOrientation } from "../providers/OrientationProvider.jsx";
+import { OrientationProvider, useOrientation } from "../providers/OrientationProvider.jsx";
 import { createAppFeaturesFrom } from "../features/app.js";
 import { useTypedTranslation } from "../types.js";
 import { HideInFocusMode } from "./FocusMode.jsx";
@@ -30,7 +30,6 @@ import { HideInFocusMode } from "./FocusMode.jsx";
  */
 export function App({ embed }) {
     const layout = useLayout();
-    const orientation = useOrientation();
     const settings = useSettings();
     const features = createAppFeaturesFrom(settings)
     return (
@@ -39,7 +38,11 @@ export function App({ embed }) {
             {features.focusMode()}
             <main class={styles.app}>
                 {layout === 'desktop' && <DesktopLayout embed={embed} />}
-                {layout === 'mobile' && <MobileLayout embed={embed} orientation={orientation} />}
+                {layout === 'mobile' && (
+                    <OrientationProvider>
+                        <MobileLayout embed={embed} />
+                    </OrientationProvider>
+                )}
             </main>
         </>
     )
@@ -67,10 +70,10 @@ function DesktopLayout({embed}) {
 
 /**
  * @param {object} props
- * @param {ReturnType<useOrientation>} props.orientation
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
-function MobileLayout({orientation, embed}) {
+function MobileLayout({embed}) {
+    const orientation = useOrientation();
     const platformName = usePlatformName();
     const insetPlayer = orientation === "portrait";
     const classes = cn({
@@ -118,11 +121,9 @@ function PortraitControls({embed}) {
     return (
         <div className={styles.controls}>
             <HideInFocusMode>
-                <BottomNavBar>
-                    <FloatingBar inset>
-                        <MobileFooter embed={embed}/>
-                    </FloatingBar>
-                </BottomNavBar>
+                <FloatingBar inset>
+                    <MobileFooter embed={embed}/>
+                </FloatingBar>
             </HideInFocusMode>
         </div>
     )

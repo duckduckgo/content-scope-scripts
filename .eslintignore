@@ -4,6 +4,7 @@ docs/
 Sources/ContentScopeScripts/dist/
 integration-test/extension/contentScope.js
 integration-test/pages/build
+integration-test/test-pages/duckplayer/scripts/dist
 packages/special-pages/pages/**/public
 script-overload-snapshots/
 packages/special-pages/playwright-report/
