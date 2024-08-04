@@ -1,4 +1,5 @@
 import { h } from "preact";
+import cn from "classnames";
 import styles from "./PlayerContainer.module.css";
 
 
@@ -11,7 +12,9 @@ import styles from "./PlayerContainer.module.css";
  */
 export function PlayerContainer({ children, inset }) {
     return (
-        <div class={styles.container} data-inset={String(inset)}>
+        <div class={cn(styles.container, {
+            [styles.inset]: inset
+        })}>
             {children}
         </div>
     )
@@ -25,7 +28,7 @@ export function PlayerContainer({ children, inset }) {
  * @param {boolean} [props.inset] - whether the UI is all inset
  */
 export function PlayerInternal({children, inset}) {
-    return <div class={styles.internals} data-inset={String(inset)}>
+    return <div class={cn(styles.internals, {[styles.insetInternals]: inset})}>
         {children}
     </div>
 }

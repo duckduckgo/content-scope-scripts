@@ -17,7 +17,9 @@ import { useTypedTranslation } from "../types.js";
 export function Player({ src, layout }) {
     const {ref, didLoad} = useIframeEffects(src);
     return (
-        <div class={cn(styles.root, styles.player, {
+        <div class={cn({
+            [styles.root]: true,
+            [styles.player]: true,
             [styles.desktop]: layout === 'desktop',
             [styles.mobile]: layout === 'mobile',
         })}>

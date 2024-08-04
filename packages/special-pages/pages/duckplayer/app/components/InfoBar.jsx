@@ -10,6 +10,7 @@ import { useContext, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { SwitchContext, SwitchProvider } from "../providers/SwitchProvider.jsx";
 import { Tooltip } from "./Tooltip.jsx";
 import { useSetFocusMode } from "./FocusMode.jsx";
+import { useTypedTranslation } from "../types.js";
 
 /**
  * @param {object} props
@@ -28,12 +29,12 @@ export function InfoBar({embed}) {
                 <InfoIcon />
             </div>
             <div class={styles.rhs}>
-                <div class={styles.switch}>
-                    <SwitchProvider>
-                        <SwitchBarDesktop />
-                    </SwitchProvider>
-                </div>
-                <ControlBarDesktop embed={embed} />
+                <SwitchProvider>
+                    <div class={styles.switch}>
+                            <SwitchBarDesktop />
+                    </div>
+                    <ControlBarDesktop embed={embed} />
+                </SwitchProvider>
             </div>
         </div>
     )
@@ -104,6 +105,7 @@ export function InfoIcon({ debugStyles = false }) {
 function ControlBarDesktop({embed}) {
     const settingsUrl = useSettingsUrl()
     const openOnYoutube = useOpenOnYoutubeHandler();
+    const {t} = useTypedTranslation();
     const { state } = useContext(SwitchContext);
     return (
         <div className={styles.controls}>
@@ -114,7 +116,7 @@ function ControlBarDesktop({embed}) {
                 anchorProps={{
                     "href": settingsUrl,
                     target: '_blank',
-                    "aria-label": "Open Settings"
+                    "aria-label": t('openSettingsButton')
                 }}
             ><Icon src={cog}/></ButtonLink>
             <Button

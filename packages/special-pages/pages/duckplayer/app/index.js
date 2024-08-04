@@ -13,6 +13,7 @@ import { UserValuesProvider } from './providers/UserValuesProvider.jsx'
 import { Fallback } from './components/Fallback.jsx'
 import { App } from './components/App.jsx'
 import { Components } from './components/Components.jsx'
+import { OrientationProvider } from './providers/OrientationProvider.jsx'
 
 /**
  * @param {import("../src/js/index.js").DuckplayerPage} messaging
@@ -87,7 +88,9 @@ export async function init (messaging, baseEnvironment) {
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
                                 <UserValuesProvider initial={init.userValues}>
-                                    <App embed={embed} />
+                                    <OrientationProvider>
+                                        <App embed={embed} />
+                                    </OrientationProvider>
                                     <WillThrow />
                                 </UserValuesProvider>
                             </SettingsProvider>

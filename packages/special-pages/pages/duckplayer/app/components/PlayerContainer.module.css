@@ -2,14 +2,14 @@
     border-radius: 14px;
 }
 
-.container[data-inset=true] {
+.inset {
     padding: 8px;
     border-radius: 16px;
     background: rgba(0, 0, 0, 0.3);
     transition: background 1s;
 }
 
-[data-focus-mode=on] .container[data-inset=true] {
+[data-focus-mode=on] .inset {
     background: none;
 }
 
@@ -18,6 +18,6 @@
     overflow: hidden;
 }
 
-.internals[data-inset=true] {
+.insetInternals {
     gap: 8px;
 }

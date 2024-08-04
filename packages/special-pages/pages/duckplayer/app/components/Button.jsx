@@ -1,4 +1,5 @@
 import {h} from "preact"
+import cn from "classnames"
 import styles from "./Button.module.css";
 
 /**
@@ -19,14 +20,17 @@ export function Button({
        highlight = false,
        buttonProps = {}
    }) {
+    const classes = cn({
+        [styles.button]: true,
+        [styles.desktop]: formfactor === "desktop",
+        [styles.highlight]: highlight === true,
+        [styles.fill]: fill === true,
+        [styles.iconOnly]: icon === true,
+    })
     return (
         <button
-            class={styles.button}
+            class={classes}
             type="button"
-            data-icon={icon ? 'only' : 'none'}
-            data-fill={String(fill)}
-            data-highlight={String(highlight)}
-            data-formfactor={formfactor}
             {...buttonProps}
         >
             {children}
@@ -51,14 +55,17 @@ export function ButtonLink({
        highlight = false,
        anchorProps = {}
    }) {
+    const classes = cn({
+        [styles.button]: true,
+        [styles.desktop]: formfactor === "desktop",
+        [styles.highlight]: highlight === true,
+        [styles.fill]: fill === true,
+        [styles.iconOnly]: icon === true,
+    })
     return (
         <a
-            class={styles.button}
+            class={classes}
             type="button"
-            data-icon={icon ? 'only' : 'none'}
-            data-fill={String(fill)}
-            data-highlight={String(highlight)}
-            data-formfactor={formfactor}
             {...anchorProps}
         >
             {children}

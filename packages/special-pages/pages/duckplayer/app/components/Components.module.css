@@ -1,6 +1,5 @@
 .main {
     color: white;
-    width: var(--video-width);
     max-width: 3840px;
     margin: 0 auto;
     padding: 2rem 8px;

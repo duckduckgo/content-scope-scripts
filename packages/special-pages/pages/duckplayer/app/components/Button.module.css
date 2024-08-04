@@ -20,19 +20,18 @@
     background: rgba(255, 255, 255, 0.2);
 }
 
-.button[data-fill=true] {
+.fill {
     flex: 1;
     text-align: center;
     justify-content: center;
+    padding-left: 4px;
+    padding-right: 4px;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
-.button[data-icon="only"] {
-    width: 44px;
-    padding: 0 8px;
-    position: relative;
-
-}
-.button[data-formfactor="desktop"] {
+.desktop {
     height: 32px;
     line-height: 32px;
     font-size: 13px;
@@ -43,32 +42,38 @@
         height: 16px;
     }
 }
-.button[data-formfactor="desktop"][data-icon="only"] {
-    width: 32px;
+
+.iconOnly {
+    width: 44px;
+    padding: 0 8px;
+    position: relative;
 }
 
-.button[data-icon="only"] .icon {
+.iconOnly .icon {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translateY(-50%) translateX(-50%);
 }
 
-.button[data-highlight=true] {
+.icon {}
+.icon img {
+    display: block;
+    width: 100%;
+}
+
+.desktop.iconOnly {
+    width: 32px;
+}
+
+.highlight {
     transition: all .3s ease-in-out;
     transition-delay: 2s;
     background: rgba(255, 255, 255, 0.2);
 }
 
-.button[data-highlight=true] .icon img {
+.highlight .icon img {
     transition: all .3s ease-in-out;
     transition-delay: 2s;
     transform: scale(1.1);
-}
-
-.icon  {
-}
-.icon img {
-    display: block;
-    width: 100%;
 }

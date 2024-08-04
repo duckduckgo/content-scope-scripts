@@ -1,4 +1,5 @@
 import { h, Fragment } from "preact";
+import cn from "classnames";
 import styles from "./App.module.css";
 import { Background } from "./Background.jsx";
 import { InfoBar, InfoBarContainer } from "./InfoBar.jsx";
@@ -17,8 +18,10 @@ import cog from "../img/cog.data.svg";
 import { BottomNavBar, FloatingBar, TopBar } from "./FloatingBar.jsx";
 import { Wordmark } from "./Wordmark.jsx";
 import { SwitchProvider } from "../providers/SwitchProvider.jsx";
+import { useOrientation } from "../providers/OrientationProvider.jsx";
 import { createAppFeaturesFrom } from "../features/app.js";
 import { useTypedTranslation } from "../types.js";
+import { HideInFocusMode } from "./FocusMode.jsx";
 
 
 /**
@@ -27,6 +30,7 @@ import { useTypedTranslation } from "../types.js";
  */
 export function App({ embed }) {
     const layout = useLayout();
+    const orientation = useOrientation();
     const settings = useSettings();
     const features = createAppFeaturesFrom(settings)
     return (
@@ -35,7 +39,7 @@ export function App({ embed }) {
             {features.focusMode()}
             <main class={styles.app}>
                 {layout === 'desktop' && <DesktopLayout embed={embed} />}
-                {layout === 'mobile' && <MobileLayout embed={embed} />}
+                {layout === 'mobile' && <MobileLayout embed={embed} orientation={orientation} />}
             </main>
         </>
     )
@@ -61,60 +65,98 @@ function DesktopLayout({embed}) {
     )
 }
 
-function HideInFocusMode({children, style="fade"}) {
-    return (
-        <div class={styles.hideInFocus} data-style={style}>{children}</div>
-    )
-}
-
 /**
  * @param {object} props
+ * @param {ReturnType<useOrientation>} props.orientation
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
-function MobileLayout({embed}) {
+function MobileLayout({orientation, embed}) {
+    const platformName = usePlatformName();
+    const insetPlayer = orientation === "portrait";
+    const classes = cn({
+        [styles.portrait]: orientation === "portrait",
+        [styles.landscape]: orientation === "landscape"
+    });
     return (
-        <div class={styles.mobile}>
-            <div class={styles.header}>
-                <HideInFocusMode>
-                    <MobileHeader />
-                </HideInFocusMode>
-            </div>
-            <div class={styles.main}>
-                <MobilePlayer embed={embed} />
-            </div>
-            <div class={styles.footer}>
-                <HideInFocusMode>
-                    <MobileFooter embed={embed} />
-                </HideInFocusMode>
+        <div class={classes}>
+            {orientation === "portrait" && (
+                <div class={styles.header}>
+                    <HideInFocusMode>
+                        <TopBar>
+                            <Wordmark />
+                        </TopBar>
+                    </HideInFocusMode>
+                </div>
+            )}
+            <div class={styles.wrapper}>
+                <div class={styles.main}>
+                    <PlayerContainer inset={insetPlayer}>
+                        <PlayerInternal inset={insetPlayer}>
+                            {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'}/>}
+                            {embed !== null && <Player src={embed.toEmbedUrl()} layout={'mobile'}/>}
+                            {orientation === "portrait" && (
+                                <SwitchProvider>
+                                    <SwitchBarMobile platformName={platformName} />
+                                </SwitchProvider>
+                            )}
+                        </PlayerInternal>
+                    </PlayerContainer>
+                </div>
+                {orientation === "landscape" && <LandscapeControls embed={embed} platformName={platformName}/>}
+                {orientation === "portrait" && <PortraitControls embed={embed} />}
             </div>
         </div>
     )
 }
 
-function MobileHeader() {
+/**
+ * How the controls are rendered in Portrait mode.
+ * @param {object} props
+ * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
+ */
+function PortraitControls({embed}) {
     return (
-        <TopBar>
-            <Wordmark />
-        </TopBar>
+        <div className={styles.controls}>
+            <HideInFocusMode>
+                <BottomNavBar>
+                    <FloatingBar inset>
+                        <MobileFooter embed={embed}/>
+                    </FloatingBar>
+                </BottomNavBar>
+            </HideInFocusMode>
+        </div>
     )
 }
 
 /**
+ * How the controls are rendered in Landscape mode
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
+ * @param {ImportMeta['platform']} props.platformName - The name of the platform.
  */
-function MobilePlayer({embed}) {
-    const platformName = usePlatformName();
+function LandscapeControls({embed, platformName}) {
     return (
-        <PlayerContainer inset>
-            <PlayerInternal inset>
-                {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
-                {embed !== null && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
+        <div className={styles.rhs}>
+            <div className={styles.header}>
+                <HideInFocusMode>
+                    <TopBar>
+                        <Wordmark />
+                    </TopBar>
+                </HideInFocusMode>
+            </div>
+            <div className={styles.controls}>
+                <HideInFocusMode>
+                    <FloatingBar>
+                        <MobileFooter embed={embed}/>
+                    </FloatingBar>
+                </HideInFocusMode>
+            </div>
+            <div className={styles.switch}>
                 <SwitchProvider>
-                    <SwitchBarMobile platformName={platformName} />
+                    <SwitchBarMobile platformName={platformName}/>
                 </SwitchProvider>
-            </PlayerInternal>
-        </PlayerContainer>
+            </div>
+        </div>
     )
 }
 
@@ -122,37 +164,35 @@ function MobilePlayer({embed}) {
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
-function MobileFooter({ embed }) {
+function MobileFooter({embed}) {
     const openSettings = useOpenSettingsHandler();
     const openInfo = useOpenInfoHandler();
     const openOnYoutube = useOpenOnYoutubeHandler();
-    const { t } = useTypedTranslation();
+    const {t} = useTypedTranslation();
     return (
-        <BottomNavBar>
-            <FloatingBar>
-                <Button
-                    icon={true}
+        <>
+            <Button
+                icon={true}
+                buttonProps={{
+                    "aria-label": t('openInfoButton'),
+                    onClick: openInfo
+                }}
+            ><Icon src={info}/></Button>
+            <Button
+                icon={true}
+                buttonProps={{
+                    "aria-label": t('openSettingsButton'),
+                    onClick: openSettings
+                }}
+            ><Icon src={cog}/></Button>
+            <Button fill={true}
                     buttonProps={{
-                        "aria-label": t('openInfoButton'),
-                        onClick: openInfo
+                        onClick: () => {
+                            if (embed) openOnYoutube(embed)
+                        }
                     }}
-                ><Icon src={info}/></Button>
-                <Button
-                    icon={true}
-                    buttonProps={{
-                        "aria-label": t('openSettingsButton'),
-                        onClick: openSettings
-                    }}
-                ><Icon src={cog}/></Button>
-                <Button fill={true}
-                        buttonProps={{
-                            onClick: () => {
-                                if (embed) openOnYoutube(embed)
-                            }
-                        }}
-                >{t('watchOnYoutube')}</Button>
-            </FloatingBar>
-        </BottomNavBar>
+            >{t('watchOnYoutube')}</Button>
+        </>
     )
 }
 

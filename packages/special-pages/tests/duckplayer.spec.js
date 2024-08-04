@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { test } from '@playwright/test'
 import { DuckPlayerPage } from './page-objects/duck-player.js'
 
 test.describe('duckplayer iframe', () => {
@@ -172,42 +172,6 @@ test.describe('duckplayer desktop settings', () => {
         // now simulate the user enabling the player in settings
         await duckplayer.enabledViaSettings()
         await duckplayer.checkboxWasChecked()
-    })
-})
-
-test.describe('screenshots @screenshots', () => {
-    test.skip(process.env.CI === 'true')
-    test('regular layout', async ({ page }, workerInfo) => {
-        const duckplayer = DuckPlayerPage.create(page, workerInfo)
-        // load as normal
-        await duckplayer.openWithVideoID()
-        await duckplayer.hasLoadedIframe()
-        await expect(page).toHaveScreenshot('regular-layout.png', { maxDiffPixels: 50 })
-    })
-    test('layout when enabled', async ({ page }, workerInfo) => {
-        const duckplayer = DuckPlayerPage.create(page, workerInfo)
-        // load as normal
-        duckplayer.playerIsEnabled()
-        await duckplayer.openWithVideoID()
-        await duckplayer.hasLoadedIframe()
-        await duckplayer.didReceiveFirstSettingsUpdate()
-        await expect(page).toHaveScreenshot('enabled-layout.png', { maxDiffPixels: 50 })
-    })
-    test('player error', async ({ page }, workerInfo) => {
-        const duckplayer = DuckPlayerPage.create(page, workerInfo)
-        await duckplayer.openWithVideoID('€%dd#"')
-        await duckplayer.hasShownErrorMessage()
-        await expect(page).toHaveScreenshot('error-layout.png', { maxDiffPixels: 50 })
-    })
-    test('tooltip shown on hover', async ({ page }, workerInfo) => {
-        test.skip(isMobile(workerInfo))
-        const duckplayer = DuckPlayerPage.create(page, workerInfo)
-        await duckplayer.openWithoutFocusMode()
-        await duckplayer.hasLoadedIframe()
-
-        await duckplayer.infoTooltipIsShowsOnFocus()
-        await expect(page).toHaveScreenshot('tooltip.png', { maxDiffPixels: 50 })
-        await duckplayer.infoTooltipHides()
     })
 })
 

@@ -1,5 +1,6 @@
 import styles from "./FloatingBar.module.css"
 import { h } from "preact";
+import cn from "classnames";
 
 
 /**
@@ -17,10 +18,11 @@ export function BottomNavBar({children}) {
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
+ * @param {boolean} [props.inset]
  */
-export function FloatingBar({children}) {
+export function FloatingBar({children, inset = false}) {
     return (
-        <div class={styles.floatingBar}>
+        <div class={cn(styles.floatingBar, {[styles.inset]: inset})}>
             {children}
         </div>
     )

@@ -1,4 +1,7 @@
+import { h } from "preact";
+import cn from "classnames";
 import { useCallback, useEffect } from "preact/hooks";
+import styles from "./FocusMode.module.css";
 
 export function FocusMode() {
     useEffect(() => {
@@ -43,6 +46,24 @@ export function FocusMode() {
         }
     }, [])
     return null
+}
+
+/**
+ * Hides the content in focus mode.
+ *
+ * @param {Object} props - The input props.
+ * @param {import("preact").ComponentChild} props.children - The content to be hidden.
+ * @param {"fade" | "slide"} [props.style="fade"] - The style for hiding the content.
+ */
+export function HideInFocusMode({ children, style="fade"}) {
+    const classes = cn({
+        [styles.hideInFocus]: true,
+        [styles.fade]: style==="fade",
+        [styles.slide]: style==="slide",
+    })
+    return (
+        <div class={classes} data-style={style}>{children}</div>
+    )
 }
 
 /**

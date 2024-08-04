@@ -99,4 +99,21 @@ export class Settings {
         default: return 'desktop'
         }
     }
+
+    /**
+     * @return {'desktop' | 'portrait' | 'landscape'}
+     */
+    get orientation () {
+        switch (this.platform.name) {
+        case 'windows':
+        case 'macos': {
+            return 'desktop'
+        }
+        case 'ios':
+        case 'android': {
+            return 'portrait'
+        }
+        default: return 'desktop'
+        }
+    }
 }
