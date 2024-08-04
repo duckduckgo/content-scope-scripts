@@ -217,4 +217,14 @@ export class Environment {
     get opensVideoOverlayLinksViaMessage () {
         return this.platform.name !== 'windows'
     }
+
+    /**
+     * @return {'desktop' | 'mobile'}
+     */
+    get layout () {
+        if (this.platform.name === 'ios' || this.platform.name === 'android') {
+            return 'mobile'
+        }
+        return 'desktop'
+    }
 }
