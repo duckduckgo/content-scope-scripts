@@ -71,12 +71,12 @@ export class BreakageReportingSpec {
                         if (entry.name === 'first-paint') {
                             observer.disconnect()
                             // @ts-expect-error - error TS2810: Expected 1 argument, but got 0. 'new Promise()' needs a JSDoc hint to produce a 'resolve' that can be called without arguments.
-                            resolve();
+                            resolve()
                         }
                     })
                 })
-    
-                observer.observe({ entryTypes: ['paint'] })
+
+                observer.observe({ type: 'paint', buffered: true })
             })
             return response
         })
