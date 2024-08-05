@@ -60,6 +60,9 @@ export interface InitialSetupRequest {
 export interface InitialSetupResponse {
   locale: string;
   env: "development" | "production";
+  platform: {
+    name: "macos" | "windows" | "android" | "ios";
+  };
   errorData: Phishing | SSLExpiredCertificate | SSLInvalidCertificate | SSLSelfSignedCertificate | SSLWrongHost;
 }
 export interface Phishing {
