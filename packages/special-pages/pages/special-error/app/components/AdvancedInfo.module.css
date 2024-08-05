@@ -19,7 +19,7 @@
 
 .visitSite {
     align-self: flex-end;
-    color: var(--accept-risk-color); /* TODO */
+    color: var(--visit-site-color); /* TODO */
     cursor: pointer;
     text-decoration: underline;
 }
