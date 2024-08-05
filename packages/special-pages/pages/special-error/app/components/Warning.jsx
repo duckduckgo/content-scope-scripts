@@ -11,11 +11,11 @@ import styles from './Warning.module.css'
  * @param {object} props
  * @param {string} props.heading
  * @param {'ssl'|'phishing'} props.variant
- * @param {boolean} props.advancedInfo
- * @param {function} props.advancedButtonHandler
+ * @param {boolean} props.showAdvancedInfoButton
+ * @param {function} props.advancedInfoClickHandler
  * @param {import("preact").ComponentChild} props.children
  */
-export function Warning({ heading, variant = 'ssl', children, advancedInfo, advancedButtonHandler }) {
+export function Warning({ heading, variant = 'ssl', children, showAdvancedInfoButton, advancedInfoClickHandler }) {
     const { t } = useTypedTranslation()
     const { messaging } = useMessaging()
 
@@ -27,7 +27,7 @@ export function Warning({ heading, variant = 'ssl', children, advancedInfo, adva
             </header>
             {children}
             <div className={styles.buttonContainer}>
-                {!advancedInfo && <Button className={styles.button} onClick={() => advancedButtonHandler()}>
+                { showAdvancedInfoButton && <Button className={styles.button} onClick={() => advancedInfoClickHandler()}>
                     {t('advancedButton')}
                 </Button>}
                 <Button className={classNames(styles.button, styles.leaveSite)} onClick={() => messaging?.leaveSite()}>

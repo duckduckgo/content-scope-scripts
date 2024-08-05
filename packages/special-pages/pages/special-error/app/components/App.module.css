@@ -43,16 +43,6 @@ body {
     overflow: hidden;
 }
 
-.main[data-state="open"] {
-    @media (max-height: 460px) {
-        top: 40px;
-        transform: translateX(-50%);
-    }
-}
-
-/* Legacy CSS */
-
-
 /* TODO: Use shared colors */
 
 :root {
