@@ -6,7 +6,7 @@ import { Components } from './components/Components.jsx'
 
 import enStrings from '../src/locales/en/special-error.json'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
-import { ErrorDataProvider } from '../../release-notes/app/ErrorDataProvider.js'
+import { PageSettingsProvider } from './PageSettingsProvider.js'
 import { MessagingProvider } from './MessagingProvider.js'
 import { callWithRetry } from '../../../shared/call-with-retry.js'
 
@@ -25,11 +25,12 @@ export async function init (messaging, baseEnvironment) {
     }
 
     const init = result.value
-
-    const { errorData } = init
-    if (!errorData) {
-        throw new Error('Missing error data')
+    const missingProperties = ['errorData', 'platform'].filter(prop => !init[prop])
+    if (missingProperties.length > 0) {
+        throw new Error(`Missing setup data: ${missingProperties.join(', ')}`)
     }
+
+    const { errorData, platform } = init
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -66,9 +67,9 @@ export async function init (messaging, baseEnvironment) {
                 <UpdateEnvironment search={window.location.search}/>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingProvider messaging={messaging}>
-                        <ErrorDataProvider errorData={errorData}>
+                        <PageSettingsProvider errorData={errorData} platformName={platform.name}>
                             <App/>
-                        </ErrorDataProvider>
+                        </PageSettingsProvider>
                     </MessagingProvider>
                 </TranslationProvider>
             </EnvironmentProvider>

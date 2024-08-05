@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["locale", "env", "errorData"],
+  "required": ["locale", "env", "platform", "errorData"],
   "properties": {
     "locale": {
       "type": "string"
@@ -9,6 +9,16 @@
     "env": {
       "type": "string",
       "enum": ["development", "production"]
+    },
+    "platform": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["macos", "windows", "android", "ios"]
+        }
+      }
     },
     "errorData": {
       "type": "object",

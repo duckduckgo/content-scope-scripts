@@ -41,8 +41,9 @@ export class SpecialErrorPage {
             return Promise.resolve({
                 env: 'development',
                 locale: 'en',
+                platform: { name: 'macos' },
                 errorData: kind === 'phishing'
-                    ? { kind: 'phishing'}
+                    ? { kind: 'phishing' }
                     : {
                         kind: 'ssl',
                         errorType: 'expired',

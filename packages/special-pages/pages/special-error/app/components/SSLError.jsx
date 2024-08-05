@@ -1,7 +1,7 @@
 import { Fragment, h } from "preact";
 import { useState } from "preact/hooks";
 import { useTypedTranslation } from "../types"
-import { useErrorData } from "../../../release-notes/app/ErrorDataProvider";
+import { useErrorData } from "../PageSettingsProvider";
 
 import { Warning } from "./Warning";
 import { AdvancedInfo } from "./AdvancedInfo";
