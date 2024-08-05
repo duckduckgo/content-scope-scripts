@@ -30,7 +30,8 @@ const onboarding = new OnboardingMessages(messaging, baseEnvironment.platform)
 async function init () {
     const result = await callWithRetry(() => onboarding.init())
     if ('error' in result) {
-        throw new Error(result.error)
+        console.error(result.error)
+        return location.reload();
     }
 
     const init = result.value
