@@ -31,7 +31,7 @@ async function init () {
     const result = await callWithRetry(() => onboarding.init())
     if ('error' in result) {
         console.error(result.error)
-        return location.reload();
+        return location.reload()
     }
 
     const init = result.value
