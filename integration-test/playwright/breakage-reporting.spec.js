@@ -65,15 +65,20 @@ export class BreakageReportingSpec {
 
         // Wait for first paint event to ensure we can get the performance metrics
         await this.page.evaluate(() => {
-            const observer = new PerformanceObserver((list) => {
-                list.getEntries().forEach((entry) => {
-                    if (entry.name === 'first-paint') {
-                        observer.disconnect()
-                    }
+            const response = new Promise((resolve) => {
+                const observer = new PerformanceObserver((list) => {
+                    list.getEntries().forEach((entry) => {
+                        if (entry.name === 'first-paint') {
+                            observer.disconnect()
+                            // @ts-expect-error - error TS2810: Expected 1 argument, but got 0. 'new Promise()' needs a JSDoc hint to produce a 'resolve' that can be called without arguments.
+                            resolve();
+                        }
+                    })
                 })
+    
+                observer.observe({ entryTypes: ['paint'] })
             })
-
-            observer.observe({ entryTypes: ['paint'] })
+            return response
         })
     }
 
