@@ -36,14 +36,18 @@ export class SpecialErrorPage {
     initialSetup () {
         // TODO: Remove all integration rigging
         if (this.integration) {
+            const kind = new URLSearchParams(window.location.search).get('kind')
+
             return Promise.resolve({
                 env: 'development',
                 locale: 'en',
-                errorData: {
-                    kind: 'ssl',
-                    errorType: 'expired',
-                    domain: 'example.com'
-                }
+                errorData: kind === 'phishing'
+                    ? { kind: 'phishing'}
+                    : {
+                        kind: 'ssl',
+                        errorType: 'expired',
+                        domain: 'example.com'
+                    }
             })
         }
 
