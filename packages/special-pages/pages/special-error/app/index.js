@@ -11,6 +11,7 @@ import { MessagingProvider } from './MessagingProvider.js'
 import { callWithRetry } from '../../../shared/call-with-retry.js'
 
 import '../../../shared/styles/global.css' // global styles
+import './styles/variables.css' // Page-specific variables
 
 /**
  * @param {import("../src/js/index.js").SpecialErrorPage} messaging

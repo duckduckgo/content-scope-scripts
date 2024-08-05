@@ -1,5 +1,7 @@
 import { h } from "preact";
+import classNames from "classnames";
 import { useErrorData } from "../../../release-notes/app/ErrorDataProvider";
+import { useEnv } from "../../../../shared/components/EnvironmentProvider";
 import { SSLError } from "./SSLError";
 import { PhishingWarning } from "./PhishingWarning";
 
@@ -20,11 +22,13 @@ function getSpecialErrorComponent(kind) {
 }
 
 export function App() {
-    const { kind } = useErrorData();
+    const { kind } = useErrorData()
+    const { platform } = useEnv()
+    const platformClass = platform === 'integration' ? 'apple' : platform
     const SpecialErrorComponent = getSpecialErrorComponent(kind)
 
     return (
-        <main className={styles.main}>
+        <main className={classNames(styles.main, styles[platformClass])}>
             <div className={styles.container}>
                 <SpecialErrorComponent />
             </div>

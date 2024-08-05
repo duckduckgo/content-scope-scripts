@@ -1,5 +1,5 @@
 .container {
-    background: var(--warning-container-bg); /* TODO */
+    background: var(--warning-container-bg);
     display: flex;
     flex-flow: column;
     gap: var(--sp-4);
