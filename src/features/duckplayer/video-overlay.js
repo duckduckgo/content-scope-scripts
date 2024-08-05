@@ -338,6 +338,10 @@ export class VideoOverlay {
         }
     }
 
+    openInfo () {
+        this.messages.openInfo()
+    }
+
     /**
      * Remove elements, event listeners etc
      */

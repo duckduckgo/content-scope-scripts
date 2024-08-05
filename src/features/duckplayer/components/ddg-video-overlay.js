@@ -162,7 +162,7 @@ export class DDGVideoOverlay extends HTMLElement {
                                 </button>
                             </span>
                         </div>
-                        <button class="button info">
+                        <button class="button info" type="button">
                             ${infoIcon}
                         </button>
                     </div>
@@ -185,6 +185,9 @@ export class DDGVideoOverlay extends HTMLElement {
      * @param {import("../util").VideoParams} params
      */
     setupButtonsInsideOverlay (containerElement, params) {
+        containerElement.querySelector('.button.info')?.addEventListener('click', () => {
+            this.manager.openInfo()
+        })
         const switchElem = containerElement.querySelector('[role=switch]')
         const remember = containerElement.querySelector('input[name="ddg-remember"]')
         if (switchElem && remember && remember instanceof HTMLInputElement) {
@@ -221,4 +224,14 @@ export class DDGVideoOverlay extends HTMLElement {
         cancelElement.addEventListener('click', optOutHandler)
         watchInPlayer.addEventListener('click', watchInPlayerHandler)
     }
+}
+
+function trusted (string) {
+    if ('trustedTypes' in globalThis) {
+        const policy = globalThis.trustedTypes.createPolicy('ddg-default', {
+            createHTML: (s) => s
+        })
+        return policy.createHTML(string)
+    }
+    return string
 }
