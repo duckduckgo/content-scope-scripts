@@ -60,7 +60,7 @@ export interface InitialSetupRequest {
 export interface InitialSetupResponse {
   locale: string;
   env: "development" | "production";
-  errorData: Phishing | SSLExpiredCertificate | SSLWrongHost | SSLSelfSignedCertificate | SSLInvalidCertificate;
+  errorData: Phishing | SSLExpiredCertificate | SSLInvalidCertificate | SSLSelfSignedCertificate | SSLWrongHost;
 }
 export interface Phishing {
   kind: "phishing";
@@ -70,21 +70,21 @@ export interface SSLExpiredCertificate {
   errorType: "expired";
   domain: string;
 }
-export interface SSLWrongHost {
+export interface SSLInvalidCertificate {
   kind: "ssl";
-  errorType: "wrongHost";
+  errorType: "invalid";
   domain: string;
-  eTldPlus1: string;
 }
 export interface SSLSelfSignedCertificate {
   kind: "ssl";
   errorType: "selfSigned";
   domain: string;
 }
-export interface SSLInvalidCertificate {
+export interface SSLWrongHost {
   kind: "ssl";
-  errorType: "invalid";
+  errorType: "wrongHost";
   domain: string;
+  eTldPlus1: string;
 }
 
 declare module "../pages/special-error/src/js/index.js" {

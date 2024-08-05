@@ -23,8 +23,7 @@
               "const": "phishing"
             }
           }
-        },
-        {
+        }, {
           "type": "object",
           "title": "SSL Expired Certificate",
           "required": ["kind", "errorType", "domain"],
@@ -41,11 +40,10 @@
               "type": "string"
             }
           }
-        },
-        {
+        }, {
           "type": "object",
-          "title": "SSL Wrong Host",
-          "required": ["kind", "errorType", "domain", "eTldPlus1"],
+          "title": "SSL Invalid Certificate",
+          "required": ["kind", "errorType", "domain"],
           "properties": {
             "kind": {
               "type": "string",
@@ -53,18 +51,13 @@
             },
             "errorType": {
               "type": "string",
-              "const": "wrongHost"
+              "const": "invalid"
             },
             "domain": {
               "type": "string"
-            },
-            "eTldPlus1": {
-              "type": "string"
             }
-
           }
-        },
-        {
+        }, {
           "type": "object",
           "title": "SSL Self Signed Certificate",
           "required": ["kind", "errorType", "domain"],
@@ -81,11 +74,10 @@
               "type": "string"
             }
           }
-        },
-        {
+        }, {
           "type": "object",
-          "title": "SSL Invalid Certificate",
-          "required": ["kind", "errorType", "domain"],
+          "title": "SSL Wrong Host",
+          "required": ["kind", "errorType", "domain", "eTldPlus1"],
           "properties": {
             "kind": {
               "type": "string",
@@ -93,9 +85,12 @@
             },
             "errorType": {
               "type": "string",
-              "const": "invalid"
+              "const": "wrongHost"
             },
             "domain": {
+              "type": "string"
+            },
+            "eTldPlus1": {
               "type": "string"
             }
           }
