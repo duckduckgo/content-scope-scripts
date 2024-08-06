@@ -36,12 +36,14 @@ export class SpecialErrorPage {
     initialSetup () {
         // TODO: Remove all integration rigging
         if (this.integration) {
-            const kind = new URLSearchParams(window.location.search).get('kind')
+            const searchParams = new URLSearchParams(window.location.search);
+            const kind = searchParams.get('kind') || 'ssl'
+            const platformName = /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */(searchParams.get('platformName') || 'macos')
 
             return Promise.resolve({
                 env: 'development',
                 locale: 'en',
-                platform: { name: 'macos' },
+                platform: { name: platformName },
                 errorData: kind === 'phishing'
                     ? { kind: 'phishing' }
                     : {

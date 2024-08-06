@@ -8,6 +8,7 @@ import enStrings from '../src/locales/en/special-error.json'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
 import { PageSettingsProvider } from './PageSettingsProvider.js'
 import { MessagingProvider } from './MessagingProvider.js'
+import { UIProvider } from './UIProvider.js'
 import { callWithRetry } from '../../../shared/call-with-retry.js'
 
 import '../../../shared/styles/global.css' // global styles
@@ -68,7 +69,9 @@ export async function init (messaging, baseEnvironment) {
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingProvider messaging={messaging}>
                         <PageSettingsProvider errorData={errorData} platformName={platform.name}>
-                            <App/>
+                            <UIProvider>
+                                <App/>
+                            </UIProvider>
                         </PageSettingsProvider>
                     </MessagingProvider>
                 </TranslationProvider>
@@ -78,7 +81,11 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider debugState={false} platform={environment.platform}>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <Components />
+                    <PageSettingsProvider errorData={errorData} platformName={platform.name}>
+                        <UIProvider>
+                            <Components />
+                        </UIProvider>
+                    </PageSettingsProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)

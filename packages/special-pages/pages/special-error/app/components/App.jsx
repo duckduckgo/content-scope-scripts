@@ -1,5 +1,4 @@
 import { h } from "preact";
-import classNames from "classnames";
 import { useErrorData, usePlatformName } from "../PageSettingsProvider";
 import { SSLError } from "./SSLError";
 import { PhishingWarning } from "./PhishingWarning";
@@ -26,7 +25,7 @@ export function App() {
     const SpecialErrorComponent = getSpecialErrorComponent(kind)
 
     return (
-        <main className={classNames(styles.main, styles[platformName])}>
+        <main className={styles.main} data-platform={platformName}>
             <div className={styles.container}>
                 <SpecialErrorComponent />
             </div>

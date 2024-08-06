@@ -1,7 +1,7 @@
 import { Fragment, h } from "preact";
-import { useState } from "preact/hooks";
 import { useTypedTranslation } from "../types"
 import { useErrorData } from "../PageSettingsProvider";
+import { useAdvancedInfo } from "../UIProvider";
 
 import { Warning } from "./Warning";
 import { AdvancedInfo } from "./AdvancedInfo";
@@ -54,17 +54,11 @@ function useSSLErrorStrings() {
 export function SSLError() {
     const { t } = useTypedTranslation()
     const { warningText, advancedInfoText } = useSSLErrorStrings()
-
-    const [showAdvancedInfo, setShowAdvancedInfo] = useState(false)
-    const advancedInfoClickHandler = () => setShowAdvancedInfo(value => !value)
+    const { showAdvancedInfo } = useAdvancedInfo()
 
     return (
         <>
-            <Warning
-                variant="ssl"
-                heading={t('sslPageHeading')}
-                showAdvancedInfoButton={!showAdvancedInfo}
-                advancedInfoClickHandler={advancedInfoClickHandler}>
+            <Warning variant="ssl" heading={t('sslPageHeading')}>
                 <Text as="p" variant="body">{warningText}</Text>
             </Warning>
             { showAdvancedInfo &&

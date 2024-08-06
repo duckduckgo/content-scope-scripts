@@ -1,7 +1,7 @@
 import { Fragment, h } from "preact";
-import { useState } from "preact/hooks";
 import { useTypedTranslation } from "../types"
 import { Trans } from "../../../../shared/components/TranslationsProvider";
+import { useAdvancedInfo } from "../UIProvider";
 import { phishingHelpPageURL } from "../constants";
 
 import { Warning } from "./Warning";
@@ -10,8 +10,7 @@ import { Text } from "../../../../shared/components/Text/Text";
 
 export function PhishingWarning() {
     const { t } = useTypedTranslation()
-    const [showAdvancedInfo, setShowAdvancedInfo] = useState(false)
-    const advancedInfoClickHandler = () => setShowAdvancedInfo(value => !value)
+    const { showAdvancedInfo } = useAdvancedInfo()
 
     const anchorTagValues = {
             href: phishingHelpPageURL,
@@ -30,11 +29,7 @@ export function PhishingWarning() {
 
     return (
         <>
-            <Warning
-                variant="phishing"
-                heading={t('phishingPageHeading')}
-                showAdvancedInfoButton={!showAdvancedInfo}
-                advancedInfoClickHandler={advancedInfoClickHandler}>
+            <Warning variant="phishing" heading={t('phishingPageHeading')} >
                 <Text as="p" variant="body">{warningText}</Text>
             </Warning>
             { showAdvancedInfo &&
