@@ -96,6 +96,10 @@ export class ReleaseNotesPage {
      * @param {boolean} [options.privacyPro]
      */
     async sendSubscriptionMessage (messageType, options) {
+        // Wait for the subscription handler to appear before trying to simulate push events.
+        // This prevents a race condition where playwright is sending data before `.subscribe` was called
+        await this.page.waitForFunction(() => 'onUpdate' in window && typeof window.onUpdate === 'function')
+
         const data = options?.privacyPro
             ? { ...sampleData[messageType] }
             : { ...sampleData[messageType], releaseNotesPrivacyPro: null }

@@ -70,7 +70,7 @@ export class Build {
      */
     static supported (name) {
         /** @type {ImportMeta['injectName'][]} */
-        const items = ['apple', 'apple-isolated', 'windows', 'integration']
+        const items = ['apple', 'apple-isolated', 'windows', 'integration', 'android']
         if (items.includes(name)) {
             return name
         }
@@ -93,7 +93,7 @@ export class PlatformInfo {
      */
     static supported (name) {
         /** @type {ImportMeta['platform'][]} */
-        const items = ['macos', 'windows']
+        const items = ['macos', 'ios', 'windows', 'android']
         if (items.includes(name)) {
             return name
         }

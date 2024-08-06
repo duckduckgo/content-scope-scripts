@@ -7487,7 +7487,7 @@
     }
   };
   function isPlatform(input) {
-    const allowed = ["windows", "apple", "integration"];
+    const allowed = ["windows", "apple", "integration", "android"];
     return allowed.includes(input);
   }
 
@@ -8410,6 +8410,15 @@
           hasModernWebkitAPI: true,
           secret: "",
           webkitMessageHandlerNames: ["specialPages"]
+        });
+        return new Messaging(messageContext, opts2);
+      } else if (opts.injectName === "android") {
+        const opts2 = new AndroidMessagingConfig({
+          messageSecret: "duckduckgo-android-messaging-secret",
+          messageCallback: "messageCallback",
+          javascriptInterface: messageContext.context,
+          target: globalThis,
+          debug: true
         });
         return new Messaging(messageContext, opts2);
       }

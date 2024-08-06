@@ -22,7 +22,8 @@ const otherFeatures = /** @type {const} */([
     'webCompat',
     'windowsPermissionUsage',
     'brokerProtection',
-    'performanceMetrics'
+    'performanceMetrics',
+    'breakageReporting'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -48,7 +49,8 @@ export const platformSupport = {
         ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer',
-        'brokerProtection'
+        'brokerProtection',
+        'breakageReporting'
     ],
     firefox: [
         'cookie',

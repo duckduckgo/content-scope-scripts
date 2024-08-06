@@ -1034,6 +1034,15 @@
           webkitMessageHandlerNames: ["specialPages"]
         });
         return new Messaging(messageContext, opts2);
+      } else if (opts.injectName === "android") {
+        const opts2 = new AndroidMessagingConfig({
+          messageSecret: "duckduckgo-android-messaging-secret",
+          messageCallback: "messageCallback",
+          javascriptInterface: messageContext.context,
+          target: globalThis,
+          debug: true
+        });
+        return new Messaging(messageContext, opts2);
       }
     } catch (e) {
       console.error("could not access handlers for %s, falling back to mock interface", opts.injectName);

@@ -720,7 +720,8 @@
         'webCompat',
         'windowsPermissionUsage',
         'brokerProtection',
-        'performanceMetrics'
+        'performanceMetrics',
+        'breakageReporting'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -746,7 +747,8 @@
             ...baseFeatures,
             'windowsPermissionUsage',
             'duckPlayer',
-            'brokerProtection'
+            'brokerProtection',
+            'breakageReporting'
         ],
         firefox: [
             'cookie',
