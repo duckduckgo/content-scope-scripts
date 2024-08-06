@@ -81,3 +81,16 @@ function decodeHtml (html) {
     txt.innerHTML = html
     return txt.value
 }
+
+/**
+ * Use a policy if trustedTypes is available
+ * @return {{createHTML: (s: string) => any}}
+ */
+export function createPolicy () {
+    if (globalThis.trustedTypes) {
+        return globalThis.trustedTypes?.createPolicy?.('ddg-default', { createHTML: (s) => s })
+    }
+    return {
+        createHTML: (s) => s
+    }
+}
