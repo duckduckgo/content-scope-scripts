@@ -1,5 +1,4 @@
 .container {
-    background: var(--warning-container-bg);
     display: flex;
     flex-flow: column;
     gap: var(--sp-4);
@@ -19,32 +18,17 @@
 }
 
 .icon {
-    align-self: flex-start;
-}
-
-.icon.ssl {
-    background: url(../../../../shared/assets/img/icons/Shield-Alert-48.svg) no-repeat;
-    flex: 0 0 var(--sp-10);
-    height: var(--sp-10);
-    width: var(--sp-10);
-    background-position: calc(-1 * var(--sp-2)) calc(-1 * var(--sp-1));
-}
-
-.icon.phishing {
-    background: url(../../../../shared/assets/img/icons/Phishing-64.svg) no-repeat;
-    flex: 0 0 var(--sp-16);
-    height: var(--sp-12);
-    width: var(--sp-16);
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .buttonContainer {
     display: flex;
     gap: var(--sp-2);
-    justify-content: flex-end;
     padding-block-start: var(--sp-2);
 }
 
-/* TODO */
+/* TODO: Move to shared? */
 .button {
     height: 20px;
     font-size: 13px;
@@ -73,4 +57,68 @@
 
 .leaveSite:active {
     background: #798ed6;
+}
+
+/* Platform-specific styles */
+
+/* macOS */
+[data-platform="macos"] {
+    & .container {
+        background: var(--warning-container-bg);
+    }
+
+    & .icon {
+        align-self: flex-start;
+    }
+
+    & .icon.ssl {
+        background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
+        flex: 0 0 var(--sp-10);
+        height: var(--sp-10);
+        width: var(--sp-10);
+        background-position: calc(-1 * var(--sp-2)) calc(-1 * var(--sp-1));
+    }
+
+    & .icon.phishing {
+        background-image: url(../../../../shared/assets/img/icons/Phishing-64.svg);
+        flex: 0 0 var(--sp-16);
+        height: var(--sp-12);
+        width: var(--sp-16);
+    }
+
+    & .buttonContainer {
+        justify-content: flex-end;
+    }
+}
+
+
+/* iOS */
+[data-platform="ios"] {
+    & .container {
+        text-align: center;
+    }
+
+    & .header {
+        justify-content: center;
+        flex-flow: column;
+    }
+
+    & .buttonContainer {
+        flex-flow: column-reverse;
+        justify-content: center;
+    }
+
+    & .icon {
+        flex: 0 0 var(--sp-24);
+        height: var(--sp-24);
+        width: var(--sp-32);
+    }
+
+    & .icon.ssl {
+        background-image: url(../../../../shared/assets/img/icons/Shield-Alert-128.svg);
+    }
+
+    & .icon.phishing {
+        background-image: url(../../../../shared/assets/img/icons/Phishing-64.svg);
+    }
 }
