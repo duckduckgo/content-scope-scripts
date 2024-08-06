@@ -1,9 +1,4 @@
 /**
- * Create a policy if available
- */
-const policy = globalThis.trustedTypes?.createPolicy('ddg-default', { createHTML: (s) => s })
-
-/**
  * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
  */
 class Template {
@@ -88,9 +83,14 @@ function decodeHtml (html) {
 }
 
 /**
- * @param {string} string
+ * Use a policy if trustedTypes is available
+ * @return {{createHTML: (s: string) => any}}
  */
-export function trusted (string) {
-    if (policy) return policy.createHTML(string)
-    return string
+export function createPolicy () {
+    if (globalThis.trustedTypes) {
+        return globalThis.trustedTypes?.createPolicy?.('ddg-default', { createHTML: (s) => s })
+    }
+    return {
+        createHTML: (s) => s
+    }
 }

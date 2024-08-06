@@ -2,10 +2,11 @@ import css from './assets/styles.css'
 import { SideEffects, VideoParams } from './util.js'
 import dax from './assets/dax.svg'
 import { i18n } from './text.js'
-import { html, trusted, trustedUnsafe } from '../../dom-utils.js'
+import { createPolicy, html, trustedUnsafe } from '../../dom-utils.js'
 
 export class IconOverlay {
     sideEffects = new SideEffects()
+    policy = createPolicy()
 
     /** @type {HTMLElement | null} */
     element = null
@@ -48,7 +49,7 @@ export class IconOverlay {
                     </div>
                 </a>`.toString()
 
-        overlayElement.innerHTML = trusted(safeString)
+        overlayElement.innerHTML = this.policy.createHTML(safeString)
 
         overlayElement.querySelector('a.ddg-play-privately')?.setAttribute('href', href)
         return overlayElement

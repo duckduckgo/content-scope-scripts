@@ -3,13 +3,15 @@ import dax from '../assets/dax.svg'
 import { overlayCopyVariants } from '../text.js'
 import { appendImageAsBackground } from '../util.js'
 import { VideoOverlay } from '../video-overlay.js'
-import { html, trusted, trustedUnsafe } from '../../../dom-utils.js'
+import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js'
 
 /**
  * The custom element that we use to present our UI elements
  * over the YouTube player
  */
 export class DDGVideoOverlay extends HTMLElement {
+    policy = createPolicy()
+
     static CUSTOM_TAG_NAME = 'ddg-video-overlay'
     /**
      * @param {object} options
@@ -80,7 +82,7 @@ export class DDGVideoOverlay extends HTMLElement {
             </div>
             `.toString()
 
-        overlayElement.innerHTML = trusted(safeString)
+        overlayElement.innerHTML = this.policy.createHTML(safeString)
 
         /**
          * Set the link
