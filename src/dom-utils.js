@@ -56,14 +56,7 @@ class Template {
                 result.push(this.potentiallyEscape(this.values[i]))
             }
         }
-
-        const safeString = result.join('')
-
-        if (policy) {
-            return policy.createHTML(safeString)
-        }
-
-        return safeString
+        return result.join('')
     }
 }
 
@@ -92,4 +85,12 @@ function decodeHtml (html) {
     const txt = document.createElement('textarea')
     txt.innerHTML = html
     return txt.value
+}
+
+/**
+ * @param {string} string
+ */
+export function trusted (string) {
+    if (policy) return policy.createHTML(string)
+    return string
 }

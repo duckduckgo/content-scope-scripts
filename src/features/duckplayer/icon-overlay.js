@@ -2,7 +2,7 @@ import css from './assets/styles.css'
 import { SideEffects, VideoParams } from './util.js'
 import dax from './assets/dax.svg'
 import { i18n } from './text.js'
-import { html, trustedUnsafe } from '../../dom-utils.js'
+import { html, trusted, trustedUnsafe } from '../../dom-utils.js'
 
 export class IconOverlay {
     sideEffects = new SideEffects()
@@ -36,7 +36,7 @@ export class IconOverlay {
         overlayElement.setAttribute('class', 'ddg-overlay' + (extraClass ? ' ' + extraClass : ''))
         overlayElement.setAttribute('data-size', size)
         const svgIcon = trustedUnsafe(dax)
-        overlayElement.innerHTML = html`
+        const safeString = html`
                 <a class="ddg-play-privately" href="#">
                     <div class="ddg-dax">
                     ${svgIcon}
@@ -47,6 +47,8 @@ export class IconOverlay {
                         </div>
                     </div>
                 </a>`.toString()
+
+        overlayElement.innerHTML = trusted(safeString)
 
         overlayElement.querySelector('a.ddg-play-privately')?.setAttribute('href', href)
         return overlayElement
