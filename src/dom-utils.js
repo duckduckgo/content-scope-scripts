@@ -1,4 +1,9 @@
 /**
+ * Create a policy if available
+ */
+const policy = globalThis.trustedTypes?.createPolicy('ddg-default', { createHTML: (s) => s });
+
+/**
  * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
  */
 class Template {
@@ -51,7 +56,14 @@ class Template {
                 result.push(this.potentiallyEscape(this.values[i]))
             }
         }
-        return result.join('')
+
+        const safeString = result.join('')
+
+        if (policy) {
+            return policy.createHTML(safeString)
+        }
+
+        return safeString
     }
 }
 
