@@ -1,11 +1,10 @@
 import ContentFeature from '../content-feature'
+import { getJsPerformanceMetrics } from './breakage-reporting/utils.js'
 
 export default class PerformanceMetrics extends ContentFeature {
     init () {
         this.messaging.subscribe('getVitals', () => {
-            const paintResources = performance.getEntriesByType('paint')
-            const firstPaint = paintResources.find((entry) => entry.name === 'first-contentful-paint')
-            const vitals = firstPaint ? [firstPaint.startTime] : []
+            const vitals = getJsPerformanceMetrics()
             this.messaging.notify('vitalsResult', { vitals })
         })
     }
