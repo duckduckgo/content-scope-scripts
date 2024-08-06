@@ -1,7 +1,7 @@
 /**
  * Create a policy if available
  */
-const policy = globalThis.trustedTypes?.createPolicy('ddg-default', { createHTML: (s) => s });
+const policy = globalThis.trustedTypes?.createPolicy('ddg-default', { createHTML: (s) => s })
 
 /**
  * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
