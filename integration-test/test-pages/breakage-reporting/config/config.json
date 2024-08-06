@@ -1,0 +1,9 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "breakageReporting": {
+      "state": "enabled",
+      "exceptions": []
+    }
+  }
+}
