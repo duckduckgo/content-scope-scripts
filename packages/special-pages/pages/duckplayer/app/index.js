@@ -56,6 +56,7 @@ export async function init (messaging, baseEnvironment) {
             })
 
     const settings = new Settings({})
+        .withPlatformName(baseEnvironment.platform)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withFeatureState('pip', init.settings.pip)

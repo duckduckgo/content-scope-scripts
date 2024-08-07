@@ -59,7 +59,7 @@ export class DuckPlayerPage {
                 },
                 locale: 'en',
                 env: 'development',
-                platform: { name: this.platform.name }
+                platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name }
             },
             /** @type {import('../../types/duckplayer.js').UserValues} */
             getUserValues: {
@@ -325,10 +325,7 @@ export class DuckPlayerPage {
             this.page.context().on('requestfailed', resolve)
         })
 
-        const expected = this.build.switch({
-            windows: () => 'duck://settings/duckplayer',
-            apple: () => 'about:preferences/duckplayer'
-        })
+        const expected = 'duck://settings/duckplayer'
 
         const openSettings = this.page.getByRole('link', { name: 'Open Settings' })
         expect(await openSettings.getAttribute('href')).toEqual(expected)

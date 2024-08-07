@@ -49,17 +49,7 @@ export function useOpenSettingsHandler() {
 }
 
 export function useSettingsUrl() {
-    const settings = useContext(SettingsContext).settings;
-    switch (settings.platform.name) {
-        case "windows":
-            return "duck://settings/duckplayer"
-        case "macos":
-            return "about:preferences/duckplayer"
-        default: {
-            console.warn("unreachable!")
-        }
-    }
-    return ''
+    return 'duck://settings/duckplayer'
 }
 
 export function useSettings() {
