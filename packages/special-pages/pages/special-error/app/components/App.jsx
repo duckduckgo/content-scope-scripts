@@ -1,34 +1,28 @@
 import { h } from "preact";
-import { useErrorData, usePlatformName } from "../PageSettingsProvider";
-import { SSLError } from "./SSLError";
-import { PhishingWarning } from "./PhishingWarning";
+import { usePlatformName } from "../AppSettingsProvider";
+import { Warning } from "./Warning";
+import { AdvancedInfo } from "./AdvancedInfo";
+import { useAdvancedInfo } from "../UIProvider";
 
 import styles from "./App.module.css";
 
-/**
- * @param {import("../../../../types/special-error.js").InitialSetupResponse['errorData']['kind']} kind
- */
-function getSpecialErrorComponent(kind) {
-    switch (kind) {
-        case 'ssl':
-            return SSLError;
-        case 'phishing':
-            return PhishingWarning;
-        default:
-            throw new Error(`Unhandled error page kind: ${kind}`)
-    }
+export function SpecialError() {
+    const { showAdvancedInfo } = useAdvancedInfo()
+
+    return (
+        <div className={styles.container}>
+            <Warning />
+            { showAdvancedInfo && <AdvancedInfo />}
+        </div>
+    )
 }
 
 export function App() {
-    const { kind } = useErrorData()
-    const platformName = usePlatformName()
-    const SpecialErrorComponent = getSpecialErrorComponent(kind)
+    const { platformName } = usePlatformName()
 
     return (
         <main className={styles.main} data-platform={platformName}>
-            <div className={styles.container}>
-                <SpecialErrorComponent />
-            </div>
+            <SpecialError />
         </main>
     )
 }
