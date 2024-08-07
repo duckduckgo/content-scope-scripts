@@ -75,8 +75,7 @@ export function SwitchProvider({ children }) {
     // when the switch is 'completed', reflect that fact to a body attribute,
     // this allows certain screen sizes to alter their layout.
     useEffect(() => {
-        if (state === 'completed') {
-            document.body.dataset.player = 'enabled'
+        if (state === 'exiting') {
             setEnabled()
         }
     }, [state])
