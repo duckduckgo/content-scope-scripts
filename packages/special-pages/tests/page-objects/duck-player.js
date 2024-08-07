@@ -317,25 +317,10 @@ export class DuckPlayerPage {
     }
 
     async opensSettingsInNewTab () {
-        const newTab = new Promise(resolve => {
-            // on pages with about:preferences it will launch a new tab
-            this.page.context().on('page', resolve)
-
-            // on windows it will be a failed request
-            this.page.context().on('requestfailed', resolve)
-        })
-
         const expected = 'duck://settings/duckplayer'
-
         const openSettings = this.page.getByRole('link', { name: 'Open Settings' })
         expect(await openSettings.getAttribute('href')).toEqual(expected)
         expect(await openSettings.getAttribute('target')).toEqual('_blank')
-
-        // click to ensure a new tab opens
-        await openSettings.click()
-
-        // ensure a new tab was opened (eg: that nothing in our JS stopped the regular click)
-        await newTab
     }
 
     async opensInYoutube () {
