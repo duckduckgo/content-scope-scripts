@@ -36,7 +36,7 @@ export class SpecialErrorPage {
     initialSetup () {
         // TODO: Remove all integration rigging
         if (this.integration) {
-            const searchParams = new URLSearchParams(window.location.search);
+            const searchParams = new URLSearchParams(window.location.search)
             const kind = searchParams.get('kind') || 'ssl'
             const platformName = /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */(searchParams.get('platformName') || 'macos')
 

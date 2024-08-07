@@ -2,15 +2,11 @@ html,
 body {
     height: 100%;
     margin: 0;
-    background-color: var(--background-color);
-    color: var(--text-color);
 }
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;
+    background-color: var(--background-color);
+    color: var(--text-color);
     font-family: sans-serif;
 }
 

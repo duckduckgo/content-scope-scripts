@@ -6,13 +6,13 @@ import { Components } from './components/Components.jsx'
 
 import enStrings from '../src/locales/en/special-error.json'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
-import { PageSettingsProvider } from './PageSettingsProvider.js'
+import { AppSettingsProvider } from './AppSettingsProvider.js'
 import { MessagingProvider } from './MessagingProvider.js'
-import { UIProvider } from './UIProvider.js'
 import { callWithRetry } from '../../../shared/call-with-retry.js'
 
 import '../../../shared/styles/global.css' // global styles
 import './styles/variables.css' // Page-specific variables
+import { UIProvider } from './UIProvider.js'
 
 /**
  * @param {import("../src/js/index.js").SpecialErrorPage} messaging
@@ -68,11 +68,11 @@ export async function init (messaging, baseEnvironment) {
                 <UpdateEnvironment search={window.location.search}/>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingProvider messaging={messaging}>
-                        <PageSettingsProvider errorData={errorData} platformName={platform.name}>
+                        <AppSettingsProvider errorData={errorData} platformName={platform.name}>
                             <UIProvider>
                                 <App/>
                             </UIProvider>
-                        </PageSettingsProvider>
+                        </AppSettingsProvider>
                     </MessagingProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
@@ -81,11 +81,11 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider debugState={false} platform={environment.platform}>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <PageSettingsProvider errorData={errorData} platformName={platform.name}>
+                    <AppSettingsProvider errorData={errorData} platformName={platform.name}>
                         <UIProvider>
                             <Components />
                         </UIProvider>
-                    </PageSettingsProvider>
+                    </AppSettingsProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)

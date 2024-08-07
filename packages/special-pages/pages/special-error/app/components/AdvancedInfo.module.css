@@ -12,8 +12,14 @@
     animation-name: appear;
 }
 
-.container p a {
-    color: var(--link-color);
+.content {
+    display: flex;
+    flex-flow: column;
+    gap: var(--sp-5);
+
+    & a {
+        color: var(--link-color);
+    }
 }
 
 .visitSite {
@@ -49,7 +55,14 @@
 /* iOS */
 [data-platform="ios"] {
     & .container {
-        text-align: center;
         align-items: center;
+    }
+
+    & .heading {
+        text-align: center;
+    }
+
+    & .content {
+        text-align: center;
     }
 }

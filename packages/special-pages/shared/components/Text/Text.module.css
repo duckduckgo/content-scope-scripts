@@ -67,3 +67,18 @@ a {
     letter-spacing: calc(0.12 * var(--px-in-rem));
 }
 
+[data-platform="ios"] {
+    & .title-2 {
+        font-size: calc(22 * var(--px-in-rem));
+        font-weight: 600;
+        line-height: calc(28 * var(--px-in-rem));
+        letter-spacing: calc(0.35 * var(--px-in-rem));
+    }
+
+    & .body {
+        font-size: calc(16 * var(--px-in-rem));
+        font-weight: 400;
+        line-height: calc(21 * var(--px-in-rem));
+        letter-spacing: calc(-0.31 * var(--px-in-rem));
+    }
+}

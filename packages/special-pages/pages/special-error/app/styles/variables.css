@@ -1,5 +1,6 @@
 :root {
     /* Light theme colors */
+
     --background-color: var(--color-gray-20);
     --text-color: var(--color-black-at-84);
     --link-color: var(--color-black);
@@ -8,50 +9,22 @@
     --warning-container-bg: var(--color-white);
     --advanced-info-bg: var(--color-black-at-3);
 
-    --button-bg: var(--color-white);
-    --button-active-bg: #e0e0e0;
-    --button-text: var(--color-black);
-
-    --leave-site-btn-bg: linear-gradient(180deg, #4266d8 0%, #224cd2 100%);
-    --leave-site-btn-border-color: rgba(40, 145, 255, 0.05);
-    --leave-site-btn-shadow-color: rgba(40, 145, 255, 0.1);
-
     --visit-site-color: var(--color-black);
 
-    /* Dark theme colors */
-    --background-color-dark: var(--color-gray-85);
-    --text-color-dark: var(--color-white-at-84);
-    --link-color-dark: var(--color-gray-40);
-    --border-color-dark: var(--color-white-at-30);
-
-    --warning-container-bg-dark: var(--color-gray-90);
-    --advanced-info-bg-dark: #2f2f2f;
-
-    --button-bg-dark: var(--color-gray-85);
-    --button-active-bg-dark: #757575;
-    --button-text-dark: var(--color-white);
-
-    --leave-site-btn-bg-dark: linear-gradient(180deg, #4266d8 0%, #224cd2 100%);
-    --leave-site-btn-border-color-dark: rgba(40, 145, 255, 0.2);
-    --leave-site-btn-shadow-color-dark: rgba(40, 145, 255, 0.3);
-
-    --visit-site-color-dark: var(--color-gray-40);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --background-color: var(--background-color-dark);
-        --text-color: var(--text-color-dark);
-        --link-color: var(--link-color-dark);
-        --border-color: var(--border-color-dark);
-        --warning-container-bg: var(--warning-container-bg-dark);
-        --advanced-info-bg: var(--advanced-info-bg-dark);
-        --button-bg: var(--button-bg-dark);
-        --button-active-bg: var(--button-active-bg-dark);
-        --button-text: var(--button-text-dark);
-        --leave-site-btn-bg: var(--leave-site-btn-bg-dark);
-        --leave-site-btn-border-color: var(--leave-site-btn-border-color-dark);
-        --leave-site-btn-shadow-color: var(--leave-site-btn-shadow-color-dark);
-        --visit-site-color: var(--accept-risk-color-dark);
+        /* Dark theme colors */
+
+        --background-color: var(--color-gray-85);
+        --text-color: var(--color-white-at-84);
+        --link-color: var(--color-gray-40);
+        --border-color: var(--color-white-at-30);
+
+        --warning-container-bg: var(--color-gray-90);
+        --advanced-info-bg: #2f2f2f;
+
+        --visit-site-color: var(--color-gray-40);
     }
 }
