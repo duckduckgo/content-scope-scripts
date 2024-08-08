@@ -59,11 +59,8 @@ export function SwitchProvider({ children }) {
     }, initialState);
 
     function onChange() {
-        if (isReducedMotion) {
-            dispatch('done')
-        } else {
-            dispatch('change')
-        }
+        dispatch('change')
+        setEnabled()
     }
 
     // sync the userValues with the state of the switch
@@ -71,14 +68,6 @@ export function SwitchProvider({ children }) {
         const evt = 'enabled' in userValues.privatePlayerMode ? 'enabled' : 'ask'
         dispatch(evt);
     }, [initialState])
-
-    // when the switch is 'completed', reflect that fact to a body attribute,
-    // this allows certain screen sizes to alter their layout.
-    useEffect(() => {
-        if (state === 'exiting') {
-            setEnabled()
-        }
-    }, [state])
 
     function onDone() {
         dispatch('done')

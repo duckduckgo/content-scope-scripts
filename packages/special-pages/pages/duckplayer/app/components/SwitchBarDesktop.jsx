@@ -16,11 +16,18 @@ export function SwitchBarDesktop() {
             return e.preventDefault()
         }
     }
+
+    const classes = cn({
+        [styles.switchBarDesktop]: true,
+        [styles.stateExiting]: state === 'exiting',
+        [styles.stateCompleted]: state === 'completed',
+    })
+
     return (
-        <div class={cn(styles.switchBarDesktop, {
-            [styles.stateExiting]: state === 'exiting',
-            [styles.stateCompleted]: state === 'completed',
-        })} data-state={state} onTransitionEnd={onDone}>
+        <div class={classes}
+             data-state={state}
+             data-allow-animation={true}
+             onTransitionEnd={onDone}>
             <label class={styles.label} onClick={blockClick}>
                 <span class={styles.checkbox}>
                     <input class={styles.input}

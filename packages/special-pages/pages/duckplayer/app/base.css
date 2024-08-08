@@ -1,7 +1,7 @@
 *, *:after, *:before {
     box-sizing: border-box
 }
-html[data-reduced-motion=true] * {
+html[data-reduced-motion=true] *:not([data-allow-animation]) {
     animation: none!important;
     transition: none!important;
 }
