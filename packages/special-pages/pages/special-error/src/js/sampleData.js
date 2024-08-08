@@ -13,5 +13,30 @@ export const sampleData = {
             errorType: 'expired',
             domain: 'example.com'
         }
+    },
+    'ssl.invalid': {
+        name: 'Invalid',
+        data: {
+            kind: 'ssl',
+            errorType: 'invalid',
+            domain: 'example.com'
+        }
+    },
+    'ssl.selfSigned': {
+        name: 'Self-signed',
+        data: {
+            kind: 'ssl',
+            errorType: 'selfSigned',
+            domain: 'example.com'
+        }
+    },
+    'ssl.wrongHost': {
+        name: 'Wrong Host',
+        data: {
+            kind: 'ssl',
+            errorType: 'wrongHost',
+            domain: 'example.com',
+            eTldPlus1: 'anothersite.com'
+        }
     }
 }

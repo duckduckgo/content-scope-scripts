@@ -118,7 +118,7 @@ export function useAdvancedInfoContent() {
             case 'selfSigned':
                 return [t('sslSelfSignedAdvancedInfoText')]
             case 'wrongHost':
-                return [t('sslWrongHostWarningText')]
+                return [t('sslWrongHostAdvancedInfoText')]
             default:
                 throw new Error(`Unhandled SSL error type ${errorType}`)
         }

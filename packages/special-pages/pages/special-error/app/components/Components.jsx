@@ -48,7 +48,7 @@ export function Components() {
     }
 
     return (
-        <UIProvider>
+        <div>
             <div className={styles.selector}>
                 <fieldset>
                     <label for="platform-select">Platform:</label>
@@ -140,6 +140,6 @@ export function Components() {
                     </div>
                 </section>
             </main>
-        </UIProvider>
+        </div>
     )
 }
