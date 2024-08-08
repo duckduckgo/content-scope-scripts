@@ -17,16 +17,48 @@ test.describe('special-error', () => {
         await releaseNotes.handlesFatalException()
     })
 
+    test('shows SSL expired cert error', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo)
+        await special.openPage({ errorId: 'ssl.expired' })
+        await special.showsExpiredPage()
+    })
+
+    test('shows SSL invalid cert error', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo)
+        await special.openPage({ errorId: 'ssl.invalid' })
+        await special.showsInvalidPage()
+    })
+
+    test('shows SSL self signed cert error', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo)
+        await special.openPage({ errorId: 'ssl.selfSigned' })
+        await special.showsSelfSignedPage()
+    })
+
+    test('shows SSL wrong host error', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo)
+        await special.openPage({ errorId: 'ssl.wrongHost' })
+        await special.showsWrongHostPage()
+    })
+
+    test('shows phishing warning', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo)
+        await special.openPage({ errorId: 'phishing' })
+        await special.showsPhishingPage()
+    })
+
     test('leaves site', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo)
         await special.openPage({ errorId: 'ssl.expired' })
         await special.leavesSite()
     })
+
     test('visits site', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo)
         await special.openPage({ errorId: 'ssl.expired' })
         await special.visitsSite()
     })
+
     test('opens phishing help page in a new window', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo)
         await special.openPage({ errorId: 'phishing' })

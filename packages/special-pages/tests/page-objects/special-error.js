@@ -2,7 +2,6 @@ import { Mocks } from './mocks.js'
 import { expect } from '@playwright/test'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 import { join } from 'node:path'
-import { readFileSync } from 'node:fs'
 import { sampleData } from '../../pages/special-error/src/js/sampleData'
 
 /**
@@ -26,18 +25,6 @@ export class SpecialErrorPage {
             env: 'development'
         })
         this.page.on('console', console.log)
-
-        // default mocks - just enough to render the first page without error
-        this.mocks.defaultResponses({
-            initialSetup: {
-                env: 'development',
-                locale: 'en',
-                platform: {
-                    name: 'macos'
-                },
-                errorData: sampleData.phishing.data
-            }
-        })
     }
 
     /**
@@ -51,19 +38,18 @@ export class SpecialErrorPage {
      * @param {'macos'|'ios'} [params.platformName] - platform name
      */
     async openPage ({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = 'macos' } = { }) {
-        // this.mocks.defaultResponses({
-        //     initialSetup: {
-        //         env: 'development',
-        //         locale: 'en',
-        //         platform: {
-        //             name: platformName
-        //         },
-        //         errorData: sampleData[errorId].data
-        //     }
-        // })
+        this.mocks.defaultResponses({
+            initialSetup: {
+                env: 'development',
+                locale: 'en',
+                platform: {
+                    name: platformName
+                },
+                errorData: sampleData[errorId].data
+            }
+        })
 
         await this.mocks.install()
-        await this.page.pause()
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
             // try to serve assets, but change `/` to 'index'
@@ -141,12 +127,57 @@ export class SpecialErrorPage {
         ])
     }
 
+    async showsExpiredPage () {
+        const { page } = this
+        await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
+        await expect(page.getByText('The security certificate for example.com is expired.', { exact: true })).toBeVisible()
+        await this.showsAdvancedInfo()
+        await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
+        await expect(page.getByText('It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.', { exact: true })).toBeVisible()
+    }
+
+    async showsInvalidPage () {
+        const { page } = this
+        await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
+        await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
+        await this.showsAdvancedInfo()
+        await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
+        await expect(page.getByText('TODO', { exact: true })).toBeVisible()
+    }
+
+    async showsSelfSignedPage () {
+        const { page } = this
+        await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
+        await expect(page.getByText('The security certificate for example.com is not trusted by your device’s operating system.', { exact: true })).toBeVisible()
+        await this.showsAdvancedInfo()
+        await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
+        await expect(page.getByText('TODO', { exact: true })).toBeVisible()
+    }
+
+    async showsWrongHostPage () {
+        const { page } = this
+        await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
+        await expect(page.getByText('The security certificate for example.com does not match anothersite.com.', { exact: true })).toBeVisible()
+        await this.showsAdvancedInfo()
+        await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
+        await expect(page.getByText('It’s possible that the website is misconfigured or that an attacker has compromised your connection.', { exact: true })).toBeVisible()
+    }
+
+    async showsPhishingPage () {
+        const { page } = this
+        await expect(page.getByText('Warning: This site puts your personal information at risk', { exact: true })).toBeVisible()
+        await expect(page.getByText('This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers. Learn more', { exact: true })).toBeVisible()
+        await this.showsAdvancedInfo()
+        await expect(page.getByText('DuckDuckGo warns you when a website has been flagged as malicious.', { exact: true })).toBeVisible()
+        await expect(page.getByText('Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.', { exact: true })).toBeVisible()
+        await expect(page.getByText('See our Phishing and Malware Protection help page for more information.', { exact: true })).toBeVisible()
+    }
+
     /**
      * Clicks on advanced link to show expanded info
      */
     async showsAdvancedInfo () {
         const { page } = this
-        await page.pause()
         await page.getByRole('button', { name: 'Advanced...' }).click()
     }
 
@@ -160,7 +191,6 @@ export class SpecialErrorPage {
         const { page } = this
         const newPagePromise = page.waitForEvent('popup')
 
-        await page.pause()
         await expect(page.getByRole('link', { name: linkName })).toBeVisible()
         await page.getByRole('link', { name: linkName }).click()
 

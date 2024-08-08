@@ -47,19 +47,19 @@
   },
   "sslExpiredWarningText": {
     "title": "The security certificate for {domain} is expired.",
-    "note": "Describes an SSL error where a website's security certificate is expired. The placeholder is the site's domain (example: duckduckgo.com)."
+    "note": "Describes an SSL error where a website’s security certificate is expired. The placeholder is the site’s domain (example: duckduckgo.com)."
   },
   "sslInvalidWarningText": {
     "title": "The certificate for this site is invalid. You might be connecting to a server that is pretending to be {domain} which could put your confidential information at risk.",
-    "note": "Warns the user that the site's security certificate is self-signed and not trusted. The placeholder is the site's domain (example: duckduckgo.com)."
+    "note": "Warns the user that the site’s security certificate is self-signed and not trusted. The placeholder is the site’s domain (example: duckduckgo.com)."
   },
   "sslSelfSignedWarningText": {
-    "title": "The security certificate for {domain} is not trusted by your device's operating system.",
-    "note": "Warns the user that the site's security certificate is self-signed and not trusted. The placeholder is the site's domain (example: duckduckgo.com)."
+    "title": "The security certificate for {domain} is not trusted by your device’s operating system.",
+    "note": "Warns the user that the site’s security certificate is self-signed and not trusted. The placeholder is the site’s domain (example: duckduckgo.com)."
   },
   "sslWrongHostWarningText": {
     "title": "The security certificate for {domain} does not match {eTldPlus1}.",
-    "note": "Explains an SSL error when a site's certificate doesn't match its domain. The fist placeholder is the site's domain (example: duckduckgo.com). The second placeholder is... [TBC]"
+    "note": "Explains an SSL error when a site’s certificate doesn’t match its domain. The fist placeholder is the site’s domain (example: duckduckgo.com). The second placeholder is... [TBC]"
   },
   "sslAdvancedInfoHeading": {
     "title": "DuckDuckGo warns you when a website has an invalid certificate.",
