@@ -1,5 +1,9 @@
 import { h } from "preact";
 import { usePlatformName } from "../AppSettingsProvider";
+import { useEnv } from "../../../../shared/components/EnvironmentProvider";
+import { useMessaging } from "../MessagingProvider";
+import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
+import { ErrorFallback } from "./ErrorFallback";
 import { Warning } from "./Warning";
 import { AdvancedInfo } from "./AdvancedInfo";
 import { useAdvancedInfo } from "../UIProvider";
@@ -18,11 +22,32 @@ export function SpecialError() {
 }
 
 export function App() {
+    const { messaging } = useMessaging()
     const { platformName } = usePlatformName()
+
+    /**
+     * @param {Error} error
+     */
+    function didCatch (error) {
+        const message = error?.message || 'unknown'
+        console.error('ErrorBoundary', message)
+        messaging?.reportPageException({ message })
+    }
 
     return (
         <main className={styles.main} data-platform={platformName}>
-            <SpecialError />
+            <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
+                <SpecialError />
+                <WillThrow/>
+            </ErrorBoundary>
         </main>
     )
+}
+
+export function WillThrow () {
+    const env = useEnv()
+    if (env.willThrow) {
+        throw new Error('Simulated Exception')
+    }
+    return null
 }

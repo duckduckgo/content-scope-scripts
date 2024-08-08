@@ -33,8 +33,6 @@ export function AppSettingsProvider ({ children, platformName: initialPlatformNa
     const [platformName, setPlatformName] = useState(initialPlatformName)
     const [errorData, setErrorData] = useState(initialErrorData)
 
-    console.log('P', platformName)
-
     /**
      * @param {AppSettings['platform']['name']} value
      */
