@@ -1,37 +1,40 @@
 :root {
     /* Light theme colors */
-    --background-color:  #eee;
+    --background-color: #eee;
     --text-color: rgba(0, 0, 0, 0.84);
-    --border-color: rgba(0, 0, 0, 0.10);
-    --warning-container-bg: #FFF;
+    --link-color: #000;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --warning-container-bg: #fff;
     --advanced-info-bg: rgba(0, 0, 0, 0.03);
-    --button-bg: #FFF;
-    --button-active-bg:#e0e0e0;
-    --button-text: #000000;
-    --leave-site-btn-bg: linear-gradient(180deg, #4266D8 0%, #224CD2 100%);
+    --button-bg: #fff;
+    --button-active-bg: #e0e0e0;
+    --button-text: #000;
+    --leave-site-btn-bg: linear-gradient(180deg, #4266d8 0%, #224cd2 100%);
     --leave-site-btn-border-color: rgba(40, 145, 255, 0.05);
-    --leave-site-btn-shadow-color: rgba(40, 145, 255, 0.10);
-    --accept-risk-color: black;
+    --leave-site-btn-shadow-color: rgba(40, 145, 255, 0.1);
+    --accept-risk-color: #000;
 
     /* Dark theme colors */
-    --background-color-dark: #333333;
-    --text-color-dark: #FFFFFFD6;
+    --background-color-dark: #333;
+    --text-color-dark: rgba(255, 255, 255, 0.84);
+    --link-color-dark: #ccc;
     --border-color-dark: rgba(255, 255, 255, 0.3);
     --warning-container-bg-dark: #222222;
-    --advanced-info-bg-dark: #2F2F2F;
-    --button-bg-dark: #333333;
-    --button-active-bg-dark:#757575;
-    --button-text-dark: #FFFFFF;
-    --leave-site-btn-bg-dark: linear-gradient(180deg, #4266D8 0%, #224CD2 100%);
+    --advanced-info-bg-dark: #2f2f2f;
+    --button-bg-dark: #333;
+    --button-active-bg-dark: #757575;
+    --button-text-dark: #fff;
+    --leave-site-btn-bg-dark: linear-gradient(180deg, #4266d8 0%, #224cd2 100%);
     --leave-site-btn-border-color-dark: rgba(40, 145, 255, 0.2);
     --leave-site-btn-shadow-color-dark: rgba(40, 145, 255, 0.3);
-    --accept-risk-color-dark: #CCCCCC;
+    --accept-risk-color-dark: #ccc;
 
     --max-height-for-query: 320px;
 }
 
 /* Base styles */
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     background-color: var(--background-color);
@@ -65,14 +68,14 @@ body {
 .full-container {
     @media (max-height: 320px) {
         top: 40px;
-        transform: translateX(-50%)
+        transform: translateX(-50%);
     }
 }
 
-.full-container[data-state=open] {
+.full-container[data-state="open"] {
     @media (max-height: 460px) {
         top: 40px;
-        transform: translateX(-50%)
+        transform: translateX(-50%);
     }
 }
 
@@ -122,7 +125,7 @@ body {
     opacity: 1;
 }
 
-[data-state=closed] .advanced-info {
+[data-state="closed"] .advanced-info {
     opacity: 0;
     height: 0;
     padding-block: 0;
@@ -154,10 +157,11 @@ body {
     border: 0.5px solid var(--border-color);
     background: var(--button-bg);
     color: var(--button-text);
-    box-shadow: 0px 1px 1px 0px var(--border-color), 0px 0px 1px 0px var(--border-color);
+    box-shadow: 0px 1px 1px 0px var(--border-color),
+    0px 0px 1px 0px var(--border-color);
 }
 
-[data-state=open] .button.advanced {
+[data-state="open"] .button.advanced {
     display: none;
 }
 
@@ -169,7 +173,8 @@ body {
     color: white;
     border: 0.5px solid var(--leave-site-btn-border-color);
     background: var(--leave-site-btn-bg);
-    box-shadow: 0px 1px 1px 0px var(--leave-site-btn-shadow-color), 0px 0px 1px 0px var(--leave-site-btn-border-color);
+    box-shadow: 0px 1px 1px 0px var(--leave-site-btn-shadow-color),
+    0px 0px 1px 0px var(--leave-site-btn-border-color);
 }
 
 .leave-this-site:active {
@@ -185,15 +190,21 @@ body {
     padding: 0;
 }
 
+.advanced-info a,
+.warning-text a {
+    color: var(--link-color);
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --background-color: var(--background-color-dark);
         --text-color: var(--text-color-dark);
+        --link-color: var(--link-color-dark);
         --border-color: var(--border-color-dark);
         --warning-container-bg: var(--warning-container-bg-dark);
         --advanced-info-bg: var(--advanced-info-bg-dark);
         --button-bg: var(--button-bg-dark);
-        --button-active-bg:var(--button-active-bg-dark);
+        --button-active-bg: var(--button-active-bg-dark);
         --button-text: var(--button-text-dark);
         --leave-site-btn-bg: var(--leave-site-btn-bg-dark);
         --leave-site-btn-border-color: var(--leave-site-btn-border-color-dark);
