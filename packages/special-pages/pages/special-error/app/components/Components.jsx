@@ -4,30 +4,13 @@ import { UIProvider } from "../UIProvider";
 import { Warning, WarningHeading, WarningContent, AdvancedInfoButton, LeaveSiteButton } from "./Warning";
 import { AdvancedInfo, AdvancedInfoHeading, AdvancedInfoContent, VisitSiteLink } from "./AdvancedInfo";
 import { SpecialError } from "./App";
+import { sampleData } from "../../src/js/sampleData";
 
 import styles from "./Components.module.css";
 
 /**
  * @typedef {Pick<import("../../../../types/special-error.js").InitialSetupResponse, "errorData" | "platform">} AppSettings
  */
-
-/** @type {Record<string, { name: string, data: AppSettings['errorData']}>} */
-const errorDataExamples = {
-    'phishing': {
-        name: 'Phishing',
-        data: {
-            kind: 'phishing'
-        }
-    },
-    'ssl.expired': {
-        name: 'Expired',
-        data: {
-            kind: 'ssl',
-            errorType: 'expired',
-            domain: 'example.com'
-        }
-    }
-}
 
 /** @type {Record<Extract<AppSettings['platform']['name'], "macos"|"ios">, string>} */
 const platforms = {
@@ -59,8 +42,8 @@ export function Components() {
     }
 
     const handleErrorTypeChange = (value) => {
-        if (Object.keys(errorDataExamples).includes(value)) {
-            updateErrorData(errorDataExamples[value].data)
+        if (Object.keys(sampleData).includes(value)) {
+            updateErrorData(sampleData[value].data)
         }
     }
 
@@ -78,7 +61,7 @@ export function Components() {
                 <fieldset>
                     <label for="error-select">Error Type:</label>
                     <select id="error-select" onChange={(e) => handleErrorTypeChange(e.currentTarget?.value)}>
-                        {Object.entries(errorDataExamples).map(([id, data]) => {
+                        {Object.entries(sampleData).map(([id, data]) => {
                             return <option value={id} selected={id === idForError(errorData)}>{data.name}</option>
                         })}
                     </select>
