@@ -49,7 +49,7 @@ export class SpecialErrorPage {
 
             const supportedPlatforms = ['macos', 'ios']
             /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']} */
-            let platform = { name: 'macos'}
+            let platform = { name: 'macos' }
             if (platformName && supportedPlatforms.includes(platformName)) {
                 platform = { name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */(platformName) }
             }
