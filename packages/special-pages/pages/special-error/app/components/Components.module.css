@@ -32,6 +32,10 @@
         padding: var(--sp-3);
         gap: var(--sp-3);
     }
-
-
 }
+
+/* Platform-specific styles */
+[data-platform="macos"], [data-platform="ios"] {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
+
