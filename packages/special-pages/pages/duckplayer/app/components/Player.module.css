@@ -1,0 +1,32 @@
+.root {
+    z-index: 1;
+    position: relative;
+    overflow: hidden;
+    height: var(--frame-height);
+}
+
+.player {
+    font-size: 0;
+}
+.desktop {
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+.mobile {
+    border-radius: 16px;
+}
+
+.iframe {
+    height: var(--frame-height);
+    width: 100%;
+    z-index: 1;
+    position: relative;
+}
+
+.error {
+    height: 100%;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    background: #2f2f2f;
+}
