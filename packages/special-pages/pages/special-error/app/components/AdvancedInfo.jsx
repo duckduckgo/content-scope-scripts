@@ -39,12 +39,14 @@ export function AdvancedInfoContent() {
 
 export function AdvancedInfo() {
     return (
-        <div className={styles.container}>
-            <AdvancedInfoHeading />
+        <div className={styles.wrapper}>
+            <div className={styles.container}>
+                <AdvancedInfoHeading />
 
-            <AdvancedInfoContent />
+                <AdvancedInfoContent />
 
-            <VisitSiteLink />
+                <VisitSiteLink />
+            </div>
         </div>
     )
 }

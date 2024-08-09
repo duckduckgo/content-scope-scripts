@@ -45,11 +45,12 @@ export function LeaveSiteButton() {
 export function WarningHeading() {
     const { kind } = useErrorData().errorData
     const heading = useWarningHeading()
+    const { platformName } = usePlatformName()
 
     return (
-        <header className={styles.heading}>
-            <i className={classNames(styles.icon, styles[kind])} aria-hidden="true" />
-            <Text as="h1" variant="title-2">{heading}</Text>
+        <header className={classNames(styles.heading, styles[kind])}>
+            <i className={styles.icon} aria-hidden="true" />
+            <Text as="h1" variant={platformName === 'macos' ? 'title-2-emphasis' : 'title-2'}>{heading}</Text>
         </header>
     )
 }

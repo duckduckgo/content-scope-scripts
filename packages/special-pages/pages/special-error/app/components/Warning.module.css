@@ -2,6 +2,7 @@
     display: flex;
     flex-flow: column;
     gap: var(--sp-4);
+    max-width: var(--ios-content-max-width);
     padding: var(--sp-8) var(--sp-10);
     overflow: hidden;
     width: 100%;
@@ -42,15 +43,20 @@
         align-self: flex-start;
     }
 
-    & .icon.ssl {
-        background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
-        flex: 0 0 var(--sp-10);
-        height: var(--sp-10);
-        width: var(--sp-10);
-        background-position: calc(-1 * var(--sp-2)) calc(-1 * var(--sp-1));
+    & .ssl.heading {
+        height: var(--sp-8);
     }
 
-    & .icon.phishing {
+    & .ssl .icon {
+        background-image: url(../../../../shared/assets/img/icons/Shield-Alert-96.svg);
+        flex: 0 0 var(--sp-12);
+        height: var(--sp-12);
+        width: var(--sp-12);
+        margin-left: -8px;
+        margin-top: -8px;
+    }
+
+    & .phishing .icon {
         background-image: url(../../../../shared/assets/img/icons/Phishing-64.svg);
         flex: 0 0 var(--sp-16);
         height: var(--sp-12);
@@ -103,11 +109,11 @@
         width: var(--sp-32);
     }
 
-    & .icon.ssl {
+    & .ssl .icon {
         background-image: url(../../../../shared/assets/img/icons/Shield-Alert-128.svg);
     }
 
-    & .icon.phishing {
+    & .phishing .icon {
         background-image: url(../../../../shared/assets/img/icons/Phishing-64.svg);
     }
 }

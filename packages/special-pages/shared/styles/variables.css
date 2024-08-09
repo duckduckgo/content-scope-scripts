@@ -134,4 +134,7 @@
 
     /* macOS */
     --macos-text-primary: var(--color-black-at-84);
+
+    /* iOS */
+    --ios-content-max-width: calc(794 * var(--px-in-rem));
 }

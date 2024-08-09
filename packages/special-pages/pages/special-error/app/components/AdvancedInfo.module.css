@@ -1,9 +1,9 @@
 .container {
     align-items: flex-start;
-    box-shadow: inset 0 1px 0 0 var(--border-color);
     display: flex;
     flex-flow: column;
     gap: var(--sp-4);
+    max-width: var(--ios-content-max-width);
     width: 100%;
 
     animation-duration: 300ms;
@@ -44,6 +44,7 @@
 [data-platform-name="macos"] {
     & .container {
         background: var(--advanced-info-bg);
+        box-shadow: inset 0 1px 0 0 var(--border-color);
     }
 
     & .visitSite {
@@ -53,8 +54,20 @@
 
 /* iOS */
 [data-platform-name="ios"] {
+    & .wrapper {
+        display: flex;
+        justify-content: center;
+        border-top: 1px solid var(--color-black-at-9);
+        width: 100%;
+
+        @media (prefers-color-scheme: dark) {
+            border-top: 1px solid var(--color-white-at-9);
+        }
+    }
+
     & .container {
         align-items: center;
+        gap: var(--sp-6);
     }
 
     & .heading {

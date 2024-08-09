@@ -23,7 +23,6 @@ body {
 }
 
 .container {
-    align-items: flex-start;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -41,7 +40,14 @@ body {
         background: var(--container-bg);
         border-radius: 8px;
         border: 1px solid var(--border-color);
-        min-width: 400px;
-        width: 504px;
+        min-width: calc(400 * var(--px-in-rem));
+        width: calc(504 * var(--px-in-rem));
+    }
+}
+
+/* macOS */
+[data-platform-name="ios"] {
+    & .container {
+        align-items: center;
     }
 }

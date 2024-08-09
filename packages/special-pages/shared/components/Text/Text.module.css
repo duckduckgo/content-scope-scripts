@@ -15,6 +15,13 @@ a {
     letter-spacing: calc(-0.43 * var(--px-in-rem));
 }
 
+.title-2-emphasis {
+    font-size: calc(17 * var(--px-in-rem));
+    font-weight: 700;
+    line-height: calc(22 * var(--px-in-rem));
+    letter-spacing: calc(-0.43 * var(--px-in-rem));
+}
+
 .headline {
     font-size: calc(13 * var(--px-in-rem));
     font-weight: 600;
