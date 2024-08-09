@@ -35,7 +35,7 @@
 }
 
 /* Platform-specific styles */
-[data-platform="macos"], [data-platform="ios"] {
+[data-platform-name="macos"], [data-platform-name="ios"] {
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
 }
 

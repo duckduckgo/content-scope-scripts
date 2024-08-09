@@ -36,12 +36,12 @@ body {
 }
 
 /* Platform-specific styles */
-[data-platform="macos"], [data-platform="ios"] {
+[data-platform-name="macos"], [data-platform-name="ios"] {
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
 }
 
 /* macOS */
-[data-platform="macos"] {
+[data-platform-name="macos"] {
     & .container {
         border-radius: 8px;
         border: 1px solid var(--border-color);

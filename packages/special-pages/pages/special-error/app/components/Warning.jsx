@@ -1,9 +1,9 @@
 import { Fragment, h } from 'preact'
 import classNames from 'classnames'
 import { useTypedTranslation } from '../types'
-import { useMessaging } from '../MessagingProvider'
-import { useAdvancedInfo } from '../UIProvider'
-import { useErrorData, usePlatformName } from '../AppSettingsProvider'
+import { useMessaging } from '../providers/MessagingProvider'
+import { useAdvancedInfo } from '../providers/UIProvider'
+import { useErrorData, usePlatformName } from '../providers/ErrorDataProvider'
 import { useWarningHeading, useWarningContent } from '../hooks/ErrorStrings'
 import { Text } from '../../../../shared/components/Text/Text'
 import { Button } from '../../../../shared/components/Button/Button'
@@ -15,15 +15,16 @@ export function AdvancedInfoButton() {
     const { showAdvancedInfo, advancedButtonHandler } = useAdvancedInfo()
     const { platformName } = usePlatformName()
 
-    return (<>
-            {!showAdvancedInfo &&
-                <Button
-                    variant={platformName === 'ios' ? 'ghost' : 'clear'}
-                    className={classNames(styles.button, styles.advanced)}
-                    onClick={() => advancedButtonHandler()}>
-                    {t('advancedButton')}
-                </Button>}
-            </>)
+    if (showAdvancedInfo) return null
+
+    return (
+        <Button
+            variant={platformName === 'ios' ? 'ghost' : 'clear'}
+            className={classNames(styles.button, styles.advanced)}
+            onClick={() => advancedButtonHandler()}>
+            {t('advancedButton')}
+        </Button>
+    )
 }
 
 export function LeaveSiteButton() {
@@ -31,11 +32,11 @@ export function LeaveSiteButton() {
     const { messaging } = useMessaging()
 
     return (
-            <Button
-                className={classNames(styles.button, styles.leaveSite)}
-                onClick={() => messaging?.leaveSite()} >
-                {t('leaveSiteButton')}
-            </Button>
+        <Button
+            className={classNames(styles.button, styles.leaveSite)}
+            onClick={() => messaging?.leaveSite()} >
+            {t('leaveSiteButton')}
+        </Button>
     )
 }
 
@@ -43,10 +44,12 @@ export function WarningHeading() {
     const { kind } = useErrorData().errorData
     const heading = useWarningHeading()
 
-    return (<header className={styles.heading}>
+    return (
+        <header className={styles.heading}>
             <i className={classNames(styles.icon, styles[kind])} aria-hidden="true" />
             <Text as="h1" variant="title-2">{heading}</Text>
-        </header>)
+        </header>
+    )
 }
 
 export function WarningContent() {
@@ -60,7 +63,6 @@ export function WarningContent() {
 }
 
 export function Warning() {
-
     return (
         <section className={styles.container}>
             <WarningHeading />

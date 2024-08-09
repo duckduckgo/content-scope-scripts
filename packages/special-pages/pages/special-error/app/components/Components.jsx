@@ -1,6 +1,6 @@
 import { h } from "preact";
-import { usePlatformName, useErrorData } from "../AppSettingsProvider";
-import { UIProvider } from "../UIProvider";
+import { usePlatformName, useErrorData } from "../providers/ErrorDataProvider";
+import { UIProvider } from "../providers/UIProvider";
 import { Warning, WarningHeading, WarningContent, AdvancedInfoButton, LeaveSiteButton } from "./Warning";
 import { AdvancedInfo, AdvancedInfoHeading, AdvancedInfoContent, VisitSiteLink } from "./AdvancedInfo";
 import { SpecialError } from "./App";
@@ -67,7 +67,7 @@ export function Components() {
                     </select>
                 </fieldset>
             </div>
-            <main class={styles.main} data-platform={platformName}>
+            <main class={styles.main} data-platform-name={platformName}>
                 <h1>Special Error Components</h1>
 
                 <section>
