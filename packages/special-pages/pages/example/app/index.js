@@ -50,7 +50,7 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider
                 debugState={environment.debugState}
-                platform={environment.platform}
+                injectName={environment.injectName}
                 willThrow={environment.willThrow}
             >
                 <UpdateEnvironment search={window.location.search}/>
@@ -61,7 +61,7 @@ export async function init (messaging, baseEnvironment) {
             , root)
     } else if (environment.display === 'components') {
         render(
-            <EnvironmentProvider debugState={false} platform={environment.platform}>
+            <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <Components />
                 </TranslationProvider>
