@@ -47,7 +47,7 @@ export async function init (messages, baseEnvironment) {
         render(
             <EnvironmentProvider
                 debugState={environment.debugState}
-                platform={environment.platform}
+                injectName={environment.injectName}
                 willThrow={environment.willThrow}
             >
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
@@ -62,7 +62,7 @@ export async function init (messages, baseEnvironment) {
         render(
             <EnvironmentProvider
                 debugState={environment.debugState}
-                platform={environment.platform}
+                injectName={environment.injectName}
                 willThrow={environment.willThrow}
             >
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>

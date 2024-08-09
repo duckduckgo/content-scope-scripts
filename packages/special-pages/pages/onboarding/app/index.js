@@ -15,17 +15,17 @@ import { TranslationProvider } from '../../../shared/components/TranslationsProv
 import enStrings from '../src/locales/en/onboarding.json'
 
 const baseEnvironment = new Environment()
-    .withPlatform(document.documentElement.dataset.platform)
+    .withInjectName(document.documentElement.dataset.platform)
     .withEnv(import.meta.env)
 
 // share this in the app, it's an instance of `OnboardingMessages` where all your native comms should be
 const messaging = createSpecialPageMessaging({
-    injectName: baseEnvironment.platform,
+    injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: 'onboarding'
 })
 
-const onboarding = new OnboardingMessages(messaging, baseEnvironment.platform)
+const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName)
 
 async function init () {
     const result = await callWithRetry(() => onboarding.init())
@@ -67,7 +67,7 @@ async function init () {
         render(
             <EnvironmentProvider
                 debugState={environment.debugState}
-                platform={environment.platform}
+                injectName={environment.injectName}
                 willThrow={environment.willThrow}
             >
                 <UpdateEnvironment search={window.location.search} />
@@ -87,7 +87,7 @@ async function init () {
     }
     if (environment.display === 'components') {
         render(
-            <EnvironmentProvider debugState={false} platform={environment.platform}>
+            <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <TranslationProvider translationObject={strings} fallback={enStrings}>
                     <Components />
                 </TranslationProvider>

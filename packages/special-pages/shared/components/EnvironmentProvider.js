@@ -5,7 +5,7 @@ const EnvironmentContext = createContext({
     isReducedMotion: false,
     isDarkMode: false,
     debugState: false,
-    platform: /** @type {import('../environment').Environment['platform']} */('windows'),
+    injectName: /** @type {import('../environment').Environment['injectName']} */('windows'),
     willThrow: false
 })
 
@@ -18,10 +18,10 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
  * @param {Object} props - The props for the settings provider.
  * @param {import("preact").ComponentChild} props.children - The children components to be wrapped by the settings provider.
  * @param {boolean} props.debugState - The flag indicating if debug state is enabled.
- * @param {ImportMeta['injectName']} [props.platform] - The flag indicating if debug state is enabled.
+ * @param {ImportMeta['injectName']} [props.injectName] - The flag indicating if debug state is enabled.
  * @param {boolean} [props.willThrow] - used to simulate a fatal exception
  */
-export function EnvironmentProvider ({ children, debugState, willThrow = false, platform = 'windows' }) {
+export function EnvironmentProvider ({ children, debugState, willThrow = false, injectName = 'windows' }) {
     const [theme, setTheme] = useState(window.matchMedia(THEME_QUERY).matches ? 'dark' : 'light')
     const [isReducedMotion, setReducedMotion] = useState(window.matchMedia(REDUCED_MOTION_QUERY).matches)
 
@@ -51,7 +51,7 @@ export function EnvironmentProvider ({ children, debugState, willThrow = false, 
             isReducedMotion,
             debugState,
             isDarkMode: theme === 'dark',
-            platform,
+            injectName,
             willThrow
         }}>{children}</EnvironmentContext.Provider>
     )
