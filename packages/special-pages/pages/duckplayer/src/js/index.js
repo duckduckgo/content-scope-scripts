@@ -109,11 +109,11 @@ export class DuckplayerPage {
 }
 
 const baseEnvironment = new Environment()
-    .withPlatform(document.documentElement.dataset.platform)
+    .withInjectName(document.documentElement.dataset.platform)
     .withEnv(import.meta.env)
 
 const messaging = createSpecialPageMessaging({
-    injectName: baseEnvironment.platform,
+    injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: 'duckPlayerPage'
 })

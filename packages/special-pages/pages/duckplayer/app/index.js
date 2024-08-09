@@ -56,7 +56,7 @@ export async function init (messaging, baseEnvironment) {
             })
 
     const settings = new Settings({})
-        .withPlatformName(baseEnvironment.platform)
+        .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withFeatureState('pip', init.settings.pip)
@@ -81,7 +81,7 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider
                 debugState={environment.debugState}
-                platform={environment.platform}
+                injectName={environment.injectName}
                 willThrow={environment.willThrow}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
                     <UpdateEnvironment search={window.location.search}/>
@@ -102,7 +102,7 @@ export async function init (messaging, baseEnvironment) {
             , root)
     } else if (environment.display === 'components') {
         render(
-            <EnvironmentProvider debugState={false} platform={environment.platform}>
+            <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <MessagingContext.Provider value={messaging}>
                     <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                         <Components />
