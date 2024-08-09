@@ -42,7 +42,9 @@ export const platformSupport = {
     android: [
         ...baseFeatures,
         'webCompat',
-        'clickToLoad'
+        'clickToLoad',
+        'brokerProtection',
+        'breakageReporting'
     ],
     windows: [
         'cookie',
