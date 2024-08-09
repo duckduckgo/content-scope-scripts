@@ -604,15 +604,15 @@
     isReducedMotion: false,
     isDarkMode: false,
     debugState: false,
-    platform: (
-      /** @type {import('../environment').Environment['platform']} */
+    injectName: (
+      /** @type {import('../environment').Environment['injectName']} */
       "windows"
     ),
     willThrow: false
   });
   var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({ children, debugState, willThrow = false, platform = "windows" }) {
+  function EnvironmentProvider({ children, debugState, willThrow = false, injectName = "windows" }) {
     const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     p2(() => {
@@ -623,11 +623,15 @@
     }, []);
     p2(() => {
       const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY);
-      const listener = (e3) => setReducedMotion(e3.matches);
+      const listener = (e3) => setter(e3.matches);
       mediaQueryList.addEventListener("change", listener);
+      setter(mediaQueryList.matches);
+      function setter(value) {
+        document.documentElement.dataset.reducedMotion = String(value);
+        setReducedMotion(value);
+      }
       window.addEventListener("toggle-reduced-motion", () => {
-        setReducedMotion(true);
-        document.documentElement.dataset.reducedMotion = String(true);
+        setter(true);
       });
       return () => mediaQueryList.removeEventListener("change", listener);
     }, []);
@@ -635,7 +639,7 @@
       isReducedMotion,
       debugState,
       isDarkMode: theme === "dark",
-      platform,
+      injectName,
       willThrow
     } }, children);
   }
@@ -1072,7 +1076,7 @@
           EnvironmentProvider,
           {
             debugState: environment.debugState,
-            platform: environment.platform,
+            injectName: environment.injectName,
             willThrow: environment.willThrow
           },
           /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ y(MessagingContext.Provider, { value: { messages: messages2 } }, /* @__PURE__ */ y(App, null)))
@@ -1086,7 +1090,7 @@
           EnvironmentProvider,
           {
             debugState: environment.debugState,
-            platform: environment.platform,
+            injectName: environment.injectName,
             willThrow: environment.willThrow
           },
           /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ y(MessagingContext.Provider, { value: { messages: messages2 } }, /* @__PURE__ */ y(Components, null)))
@@ -2083,7 +2087,7 @@
      * @param {'app' | 'components'} [params.display] - whether to show the application or component list
      * @param {'production' | 'development'} [params.env] - application environment
      * @param {URLSearchParams} [params.urlParams] - URL params passed into the page
-     * @param {ImportMeta['injectName']} [params.platform] - application platform
+     * @param {ImportMeta['injectName']} [params.injectName] - application platform
      * @param {boolean} [params.willThrow] - whether the application will simulate an error
      * @param {boolean} [params.debugState] - whether to show debugging UI
      * @param {string} [params.locale] - for applications strings
@@ -2092,7 +2096,7 @@
     constructor({
       env = "production",
       urlParams = new URLSearchParams(location.search),
-      platform = "windows",
+      injectName = "windows",
       willThrow = urlParams.get("willThrow") === "true",
       debugState = urlParams.has("debugState"),
       display = "app",
@@ -2101,7 +2105,7 @@
     } = {}) {
       this.display = display;
       this.urlParams = urlParams;
-      this.platform = platform;
+      this.injectName = injectName;
       this.willThrow = willThrow;
       this.debugState = debugState;
       this.env = env;
@@ -2109,17 +2113,17 @@
       this.textLength = textLength;
     }
     /**
-     * @param {string|null|undefined} platform
+     * @param {string|null|undefined} injectName
      * @returns {Environment}
      */
-    withPlatform(platform) {
-      if (!platform)
+    withInjectName(injectName) {
+      if (!injectName)
         return this;
-      if (!isPlatform(platform))
+      if (!isInjectName(injectName))
         return this;
       return new _Environment({
         ...this,
-        platform
+        injectName
       });
     }
     /**
@@ -2183,7 +2187,7 @@
       return this;
     }
   };
-  function isPlatform(input) {
+  function isInjectName(input) {
     const allowed = ["windows", "apple", "integration", "android"];
     return allowed.includes(input);
   }
@@ -2242,9 +2246,9 @@
       return this.messaging.subscribe("onUpdate", callback);
     }
   };
-  var baseEnvironment = new Environment().withPlatform(document.documentElement.dataset.platform).withEnv("production");
+  var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");
   var messaging = createSpecialPageMessaging({
-    injectName: baseEnvironment.platform,
+    injectName: baseEnvironment.injectName,
     env: "production",
     pageName: "release-notes"
   });

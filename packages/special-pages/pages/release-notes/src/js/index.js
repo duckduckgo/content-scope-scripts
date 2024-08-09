@@ -87,12 +87,12 @@ export class ReleaseNotesPage {
 }
 
 const baseEnvironment = new Environment()
-    .withPlatform(document.documentElement.dataset.platform)
+    .withInjectName(document.documentElement.dataset.platform)
     .withEnv(import.meta.env) // use the build's ENV
 
 // share this in the app, it's an instance of `ReleaseNotesMessages` where all your native comms should be
 const messaging = createSpecialPageMessaging({
-    injectName: baseEnvironment.platform,
+    injectName: baseEnvironment.injectName,
     env: import.meta.env,
     pageName: import.meta.pageName || 'unknown'
 })

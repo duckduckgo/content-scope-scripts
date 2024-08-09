@@ -1,0 +1,693 @@
+/* pages/duckplayer/app/base.css */
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+}
+html[data-reduced-motion=true] *:not([data-allow-animation]) {
+  animation: none !important;
+  transition: none !important;
+}
+body {
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  margin: 0;
+  height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+button {
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+}
+ul {
+  margin: 0;
+  padding: 0;
+}
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* pages/duckplayer/app/index.css */
+body[data-display=app] {
+  color: rgba(242, 242, 242, 1);
+  background: #101010;
+  height: 100vh;
+  overflow: hidden;
+  padding: 8px;
+}
+
+/* pages/duckplayer/app/components/Fallback.module.css */
+.Fallback_fallback {
+  height: 100%;
+  width: 100%;
+}
+
+/* pages/duckplayer/app/components/App.module.css */
+:root {
+  --video-width: 80vw;
+}
+@media screen and (max-width: 1080px) {
+  :root {
+    --video-width: 85vw;
+  }
+}
+@media screen and (max-width: 740px) {
+  :root {
+    --video-width: 90vw;
+  }
+}
+:root [data-layout=desktop] {
+  --frame-height: min( calc(var(--video-width) * calc(9 / 16)), 80vh ) ;
+}
+:root [data-layout=mobile][data-orientation=portrait] {
+  --video-width: calc(100vw - 32px) ;
+}
+:root [data-layout=mobile][data-orientation=landscape] {
+  --video-width: calc(calc(100vw - 32px) * 0.6) ;
+}
+@media screen and (max-width: 700px) {
+  :root [data-layout=mobile][data-orientation=landscape] {
+    --video-width: calc(calc(100vw - 32px) * 0.5) ;
+  }
+}
+:root [data-layout=mobile] {
+  --frame-height: min( calc(var(--video-width) * calc(9 / 16)), calc(100vh - 32px) ) ;
+}
+.App_app {
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  max-width: 3840px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.App_portrait {
+  height: 100%;
+  display: grid;
+  align-self: center;
+  grid-template-areas: "header" "main";
+  grid-template-rows: max-content 1fr;
+}
+.App_landscape {
+  height: 100%;
+  display: grid;
+  align-self: center;
+  align-items: center;
+  align-content: center;
+}
+.App_wrapper {
+}
+.App_portrait .App_wrapper {
+  grid-area: main;
+  display: grid;
+  grid-template-areas: "main" "controls";
+  grid-template-rows: auto max-content;
+}
+.App_landscape .App_wrapper {
+  display: grid;
+  grid-template-columns: 60% 1fr;
+  grid-column-gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 8px;
+  @media screen and (max-width: 700px) {
+    grid-template-columns: 50% 1fr;
+  }
+}
+.App_desktop {
+  height: 100%;
+  width: var(--video-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.App_rhs {
+  display: grid;
+  height: 100%;
+  grid-template-areas: "header" "controls" "switch";
+  grid-template-rows: max-content max-content auto;
+  grid-template-columns: 1fr;
+  grid-row-gap: 12px;
+}
+.App_rhs:has([data-state=completed] [aria-checked=true]) {
+  align-content: center;
+}
+.App_header {
+  grid-area: header;
+  padding-top: 48px;
+  @media screen and (max-height: 500px) {
+    padding-top: 32px;
+  }
+}
+.App_main {
+  align-self: center;
+}
+.App_controls {
+  grid-area: controls;
+}
+.App_switch {
+  grid-area: switch;
+}
+.App_landscape .App_header {
+  padding-top: 8px;
+}
+.App_landscape .App_switch {
+  align-self: end;
+}
+
+/* pages/duckplayer/app/components/Background.module.css */
+.Background_bg {
+  background: url("./player-bg-F7QLKTXS.jpg");
+  background-size: cover;
+}
+[data-layout=mobile] .Background_bg {
+  background: url("./mobile-bg-GCRU67TC.jpg");
+  background-size: cover;
+}
+.Background_bg {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+.Background_bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.48) 32.23%, #000 93.87%);
+  transition: all .3s ease-in-out;
+}
+.Background_bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.48) 0%, rgba(0, 0, 0, 0.90) 34.34%, #000 100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: all .3s ease-in-out;
+}
+[data-focus-mode=on] .Background_bg::before {
+  transition-delay: .1s;
+  opacity: 0;
+}
+[data-focus-mode=off] .Background_bg::after {
+  transition-delay: .1s;
+}
+[data-focus-mode=on] .Background_bg::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* pages/duckplayer/app/components/InfoBar.module.css */
+.InfoBar_infoBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.InfoBar_container {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+.InfoBar_dax {
+  padding: 2px;
+}
+.InfoBar_img {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.InfoBar_text {
+  margin-left: 5px;
+  margin-right: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.InfoBar_info {
+  width: 16px;
+  height: 16px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  &:focus-visible {
+    outline: none;
+  }
+  &:focus-visible[aria-expanded=true] {
+    outline: 1px solid white;
+    outline-offset: 2px;
+    border-radius: 50%;
+  }
+  img {
+    display: block;
+    width: 100%;
+  }
+}
+.InfoBar_lhs {
+  display: flex;
+  align-items: center;
+}
+.InfoBar_rhs {
+  margin-left: auto;
+  display: flex;
+  gap: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.InfoBar_switch {
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.InfoBar_controls {
+  display: flex;
+  gap: 8px;
+}
+
+/* pages/duckplayer/app/components/Button.module.css */
+.Button_button {
+  border: none;
+  outline: none;
+  display: flex;
+  height: 44px;
+  line-height: 44px;
+  font-size: 16px;
+  padding: 0 20px;
+  flex-shrink: 0;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 1);
+  text-decoration: none;
+}
+.Button_button:hover,
+.Button_button:focus-visible {
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.2);
+}
+.Button_fill {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+  padding-left: 4px;
+  padding-right: 4px;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.Button_desktop {
+  height: 32px;
+  line-height: 32px;
+  font-size: 13px;
+  font-weight: 600;
+  .Button_icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+.Button_iconOnly {
+  width: 44px;
+  padding: 0 8px;
+  position: relative;
+}
+.Button_iconOnly .Button_icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%) translateX(-50%);
+}
+.Button_icon {
+}
+.Button_icon img {
+  display: block;
+  width: 100%;
+}
+.Button_desktop.Button_iconOnly {
+  width: 32px;
+}
+.Button_highlight {
+  transition: all .3s ease-in-out;
+  transition-delay: 2s;
+  background: rgba(255, 255, 255, 0.2);
+}
+.Button_highlight .Button_icon img {
+  transition: all .3s ease-in-out;
+  transition-delay: 2s;
+  transform: scale(1.1);
+}
+
+/* pages/duckplayer/app/components/SwitchBarDesktop.module.css */
+.SwitchBarDesktop_switchBarDesktop {
+  display: flex;
+  align-items: center;
+}
+.SwitchBarDesktop_stateCompleted {
+  display: none;
+}
+.SwitchBarDesktop_stateExiting {
+  transition: all .5s ease-in-out;
+  transition-delay: 2s;
+  opacity: 0;
+  visibility: hidden;
+}
+.SwitchBarDesktop_label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.SwitchBarDesktop_stateExiting .SwitchBarDesktop_label {
+  animation: SwitchBarDesktop_slide-out .5s forwards;
+  animation-delay: 2s;
+}
+@keyframes SwitchBarDesktop_slide-out {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.SwitchBarDesktop_checkbox {
+  display: block;
+}
+.SwitchBarDesktop_stateExiting .SwitchBarDesktop_input {
+  pointer-events: none;
+}
+.SwitchBarDesktop_input {
+  display: block;
+  &:focus-visible {
+    outline: 1px solid white;
+    outline-offset: 2px;
+  }
+}
+.SwitchBarDesktop_input[disabled] {
+}
+.SwitchBarDesktop_text {
+  line-height: 1;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+/* pages/duckplayer/app/components/Tooltip.module.css */
+.Tooltip_tooltip {
+  position: absolute;
+  background: linear-gradient(0deg, rgba(48, 48, 48, 0.35), rgba(48, 48, 48, 0.35)), rgba(33, 33, 33, 0.55);
+  background-blend-mode: normal, luminosity;
+  box-shadow: inset 0px 0px 1px #ffffff;
+  filter: drop-shadow(0px 0px 1px #000000) drop-shadow(0px 0px 1px #000000) drop-shadow(0px 0px 1px #000000) drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.2));
+  backdrop-filter: blur(76px);
+  border-radius: 10px;
+  width: 300px;
+  font-weight: normal;
+  padding: 12px;
+  left: -162px;
+  top: 32px;
+  color: white;
+  display: none;
+  z-index: 1;
+}
+.Tooltip_tooltip[aria-hidden=false] {
+  display: block;
+}
+.Tooltip_tooltip::after {
+  content: "";
+  width: 15px;
+  height: 15px;
+  border: 1px solid #5f5f5f;
+  display: block;
+  position: absolute;
+  top: -8px;
+  border-right: none;
+  border-bottom: none;
+  transform: rotate(45deg);
+  background: #1d1d1d;
+  left: 162px;
+}
+.Tooltip_top {
+  top: -100px;
+  z-index: 50;
+}
+.Tooltip_top::after {
+  top: calc(100% - 7px);
+  transform: rotate(225deg);
+}
+.Tooltip_bottom {
+}
+.Tooltip_tooltip.Tooltip_visible {
+  display: block;
+}
+
+/* pages/duckplayer/app/components/FocusMode.module.css */
+[data-focus-mode=on] .FocusMode_fade {
+  opacity: 0;
+  visibility: hidden;
+}
+[data-focus-mode=on] .FocusMode_slide {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-100%);
+}
+.FocusMode_hideInFocus {
+  opacity: 1;
+  visibility: visible;
+  top: 0;
+  transition: all .3s;
+}
+
+/* pages/duckplayer/app/components/PlayerContainer.module.css */
+.PlayerContainer_container {
+  border-radius: 14px;
+}
+.PlayerContainer_inset {
+  padding: 8px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  transition: background 1s;
+}
+[data-focus-mode=on] .PlayerContainer_inset {
+  background: none;
+}
+.PlayerContainer_internals {
+  display: grid;
+  overflow: hidden;
+}
+.PlayerContainer_insetInternals {
+  gap: 8px;
+}
+
+/* pages/duckplayer/app/components/Player.module.css */
+.Player_root {
+  z-index: 1;
+  position: relative;
+  overflow: hidden;
+  height: var(--frame-height);
+}
+.Player_player {
+  font-size: 0;
+}
+.Player_desktop {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+.Player_mobile {
+  border-radius: 16px;
+}
+.Player_iframe {
+  height: var(--frame-height);
+  width: 100%;
+  z-index: 1;
+  position: relative;
+}
+.Player_error {
+  height: 100%;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  background: #2f2f2f;
+}
+
+/* pages/duckplayer/app/components/SwitchBar.module.css */
+.SwitchBar_switchBar {
+  display: flex;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  height: 44px;
+  line-height: 1;
+  align-items: center;
+  width: 100%;
+  transition: all .3s ease-in-out;
+  opacity: 1;
+  visibility: visible;
+}
+[data-focus-mode=on] .SwitchBar_switchBar {
+  opacity: 0;
+  visibility: hidden;
+}
+.SwitchBar_stateExiting {
+  transition: all .3s ease-in-out;
+  transition-delay: 2s;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-50%);
+}
+.SwitchBar_stateHidden {
+  display: none;
+}
+.SwitchBar_label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+.SwitchBar_checkbox {
+}
+.SwitchBar_text {
+  font-weight: bold;
+  font-size: 14px;
+}
+.SwitchBar_placeholder {
+  height: 44px;
+  position: relative;
+  width: 100%;
+  > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+/* pages/duckplayer/app/components/Switch.module.css */
+.Switch_switch {
+  margin: 0;
+  padding: 0;
+  width: 52px;
+  height: 32px;
+  border: 0;
+  box-shadow: none;
+  background: rgba(136, 136, 136, 0.5);
+  border-radius: 32px;
+  position: relative;
+  transition: all .3s;
+}
+.Switch_switch:active .Switch_thumb {
+  scale: 1.15;
+}
+.Switch_thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 100%;
+  background: white;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  pointer-events: none;
+  transition: .2s left ease-in-out;
+}
+.Switch_switch[aria-checked=true] .Switch_thumb {
+  left: calc(100% - 32px + 4px);
+}
+.Switch_switch[aria-checked=true] {
+  background: rgba(57, 105, 239, 1);
+}
+.Switch_ios {
+  width: 51px;
+  height: 31px;
+}
+.Switch_ios .Switch_thumb {
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);
+}
+.Switch_ios:active .Switch_thumb {
+  scale: 1;
+}
+.Switch_ios[aria-checked=true] .Switch_thumb {
+  left: calc(100% - 32px + 3px);
+}
+.Switch_android {
+}
+
+/* pages/duckplayer/app/components/FloatingBar.module.css */
+.FloatingBar_floatingBar {
+  display: flex;
+  gap: 8px;
+}
+.FloatingBar_inset {
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+}
+.FloatingBar_bottomNavBar {
+}
+.FloatingBar_topBar {
+  display: grid;
+  justify-content: center;
+  width: 100%;
+}
+
+/* pages/duckplayer/app/components/Wordmark.module.css */
+.Wordmark_wordmark {
+  display: flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 8px;
+}
+.Wordmark_logo {
+  width: 32px;
+  height: 32px;
+}
+.Wordmark_img {
+  display: block;
+  width: 100%;
+}
+.Wordmark_text {
+  font-size: 19px;
+  font-weight: bold;
+}
+
+/* pages/duckplayer/app/components/Components.module.css */
+.Components_main {
+  color: white;
+  max-width: 3840px;
+  margin: 0 auto;
+  padding: 2rem 8px;
+  position: relative;
+  z-index: 1;
+}
+.Components_tube {
+  max-width: 750px;
+  margin: 0 auto;
+}

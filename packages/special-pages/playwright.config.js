@@ -6,6 +6,7 @@ export default defineConfig({
             name: 'windows',
             testMatch: [
                 'duckplayer.spec.js',
+                'duckplayer-screenshots.spec.js',
                 'onboarding.spec.js'
             ],
             use: {
@@ -18,6 +19,7 @@ export default defineConfig({
             name: 'macos',
             testMatch: [
                 'duckplayer.spec.js',
+                'duckplayer-screenshots.spec.js',
                 'onboarding.spec.js',
                 'sslerror.spec.js',
                 'release-notes.spec.js'

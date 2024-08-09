@@ -28,3 +28,13 @@ export function createYoutubeURLForError (href, urlBase) {
 
     return url.toString()
 }
+
+/**
+ * @param {string|null|undefined} iframeTitle
+ * @return {string | null}
+ */
+export function getValidVideoTitle (iframeTitle) {
+    if (typeof iframeTitle !== 'string') return null
+    if (iframeTitle === 'YouTube') return null
+    return iframeTitle.replace(/ - YouTube$/g, '')
+}

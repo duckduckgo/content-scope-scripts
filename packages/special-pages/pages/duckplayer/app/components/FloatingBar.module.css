@@ -1,0 +1,20 @@
+.floatingBar {
+    display: flex;
+    gap: 8px;
+}
+
+.inset {
+    border-radius: 8px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.bottomNavBar {
+}
+
+
+.topBar {
+    display: grid;
+    justify-content: center;
+    width: 100%;
+}

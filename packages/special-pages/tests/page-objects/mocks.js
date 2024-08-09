@@ -1,4 +1,5 @@
 import {
+    mockAndroidMessaging,
     mockWebkitMessaging,
     mockWindowsMessaging,
     readOutgoingMessages,
@@ -48,6 +49,13 @@ export class Mocks {
                 await this.page.addInitScript(mockWebkitMessaging, {
                     messagingContext: this.messagingContext,
                     responses: this._defaultResponses
+                })
+            },
+            android: async () => {
+                await this.page.addInitScript(mockAndroidMessaging, {
+                    messagingContext: this.messagingContext,
+                    responses: this._defaultResponses,
+                    messageCallback: 'messageCallback'
                 })
             }
         })

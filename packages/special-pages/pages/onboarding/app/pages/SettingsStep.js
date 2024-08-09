@@ -20,7 +20,7 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider'
  * @param {string} [props.subtitle] - optional subtitle
  */
 export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
-    const { platform } = useEnv()
+    const { injectName } = useEnv()
     const { state } = useRollin([300])
     const { t } = useTypedTranslation()
 
@@ -41,7 +41,7 @@ export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
             uiValue: appState.UIValues[rowId],
             pending: pendingId === rowId,
             id: rowId,
-            data: data[rowId](t, platform),
+            data: data[rowId](t, injectName),
             meta: metaData[step.id]?.rows?.[rowId]
         }
     })

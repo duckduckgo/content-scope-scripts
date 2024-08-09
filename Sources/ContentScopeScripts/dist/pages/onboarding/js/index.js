@@ -5411,15 +5411,15 @@
     isReducedMotion: false,
     isDarkMode: false,
     debugState: false,
-    platform: (
-      /** @type {import('../environment').Environment['platform']} */
+    injectName: (
+      /** @type {import('../environment').Environment['injectName']} */
       "windows"
     ),
     willThrow: false
   });
   var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({ children, debugState, willThrow = false, platform = "windows" }) {
+  function EnvironmentProvider({ children, debugState, willThrow = false, injectName = "windows" }) {
     const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     p2(() => {
@@ -5430,11 +5430,15 @@
     }, []);
     p2(() => {
       const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY);
-      const listener = (e3) => setReducedMotion(e3.matches);
+      const listener = (e3) => setter(e3.matches);
       mediaQueryList.addEventListener("change", listener);
+      setter(mediaQueryList.matches);
+      function setter(value) {
+        document.documentElement.dataset.reducedMotion = String(value);
+        setReducedMotion(value);
+      }
       window.addEventListener("toggle-reduced-motion", () => {
-        setReducedMotion(true);
-        document.documentElement.dataset.reducedMotion = String(true);
+        setter(true);
       });
       return () => mediaQueryList.removeEventListener("change", listener);
     }, []);
@@ -5442,7 +5446,7 @@
       isReducedMotion,
       debugState,
       isDarkMode: theme === "dark",
-      platform,
+      injectName,
       willThrow
     } }, children);
   }
@@ -6755,7 +6759,7 @@
   function Switch({ checked = false, variant, ...props }) {
     const { onChecked, onUnchecked, ariaLabel, pending } = props;
     const env = useEnv();
-    const platform = variant || env.platform;
+    const platform = variant || env.injectName;
     function change(e3) {
       if (e3.target.checked === true) {
         onChecked();
@@ -6768,7 +6772,7 @@
 
   // pages/onboarding/app/pages/SettingsStep.js
   function SettingsStep({ onNextPage, data, metaData, subtitle }) {
-    const { platform } = useEnv();
+    const { injectName } = useEnv();
     const { state } = useRollin([300]);
     const { t: t3 } = useTypedTranslation();
     const dispatch = useGlobalDispatch();
@@ -6786,7 +6790,7 @@
         uiValue: appState.UIValues[rowId],
         pending: pendingId === rowId,
         id: rowId,
-        data: data[rowId](t3, platform),
+        data: data[rowId](t3, injectName),
         meta: metaData[step.id]?.rows?.[rowId]
       };
     });
@@ -7386,7 +7390,7 @@
      * @param {'app' | 'components'} [params.display] - whether to show the application or component list
      * @param {'production' | 'development'} [params.env] - application environment
      * @param {URLSearchParams} [params.urlParams] - URL params passed into the page
-     * @param {ImportMeta['injectName']} [params.platform] - application platform
+     * @param {ImportMeta['injectName']} [params.injectName] - application platform
      * @param {boolean} [params.willThrow] - whether the application will simulate an error
      * @param {boolean} [params.debugState] - whether to show debugging UI
      * @param {string} [params.locale] - for applications strings
@@ -7395,7 +7399,7 @@
     constructor({
       env = "production",
       urlParams = new URLSearchParams(location.search),
-      platform = "windows",
+      injectName = "windows",
       willThrow = urlParams.get("willThrow") === "true",
       debugState = urlParams.has("debugState"),
       display = "app",
@@ -7404,7 +7408,7 @@
     } = {}) {
       this.display = display;
       this.urlParams = urlParams;
-      this.platform = platform;
+      this.injectName = injectName;
       this.willThrow = willThrow;
       this.debugState = debugState;
       this.env = env;
@@ -7412,17 +7416,17 @@
       this.textLength = textLength;
     }
     /**
-     * @param {string|null|undefined} platform
+     * @param {string|null|undefined} injectName
      * @returns {Environment}
      */
-    withPlatform(platform) {
-      if (!platform)
+    withInjectName(injectName) {
+      if (!injectName)
         return this;
-      if (!isPlatform(platform))
+      if (!isInjectName(injectName))
         return this;
       return new _Environment({
         ...this,
-        platform
+        injectName
       });
     }
     /**
@@ -7486,7 +7490,7 @@
       return this;
     }
   };
-  function isPlatform(input) {
+  function isInjectName(input) {
     const allowed = ["windows", "apple", "integration", "android"];
     return allowed.includes(input);
   }
@@ -8614,13 +8618,13 @@
   }
 
   // pages/onboarding/app/index.js
-  var baseEnvironment = new Environment().withPlatform(document.documentElement.dataset.platform).withEnv("production");
+  var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");
   var messaging = createSpecialPageMessaging({
-    injectName: baseEnvironment.platform,
+    injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: "onboarding"
   });
-  var onboarding = new OnboardingMessages(messaging, baseEnvironment.platform);
+  var onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName);
   async function init() {
     const result = await callWithRetry(() => onboarding.init());
     if ("error" in result) {
@@ -8642,7 +8646,7 @@
           EnvironmentProvider,
           {
             debugState: environment.debugState,
-            platform: environment.platform,
+            injectName: environment.injectName,
             willThrow: environment.willThrow
           },
           /* @__PURE__ */ y(UpdateEnvironment, { search: window.location.search }),
@@ -8662,7 +8666,7 @@
     }
     if (environment.display === "components") {
       q(
-        /* @__PURE__ */ y(EnvironmentProvider, { debugState: false, platform: environment.platform }, /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: onboarding_default }, /* @__PURE__ */ y(Components, null))),
+        /* @__PURE__ */ y(EnvironmentProvider, { debugState: false, injectName: environment.injectName }, /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: onboarding_default }, /* @__PURE__ */ y(Components, null))),
         root2
       );
     }
