@@ -19,7 +19,7 @@ export function AdvancedInfoButton() {
 
     return (
         <Button
-            variant={platformName === 'ios' ? 'ghost' : 'clear'}
+            type={platformName === 'ios' ? 'ghost' : undefined}
             className={classNames(styles.button, styles.advanced)}
             onClick={() => advancedButtonHandler()}>
             {t('advancedButton')}
@@ -30,9 +30,11 @@ export function AdvancedInfoButton() {
 export function LeaveSiteButton() {
     const { t } = useTypedTranslation()
     const { messaging } = useMessaging()
+    const { platformName } = usePlatformName()
 
     return (
         <Button
+            style={platformName === 'macos' ? 'accent' : undefined}
             className={classNames(styles.button, styles.leaveSite)}
             onClick={() => messaging?.leaveSite()} >
             {t('leaveSiteButton')}

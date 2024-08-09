@@ -42,11 +42,6 @@
         background: var(--warning-container-bg);
     }
 
-    /* TODO: Move to shared */
-    & .button:active {
-        background: var(--button-active-bg);
-    }
-
     & .icon {
         align-self: flex-start;
     }
