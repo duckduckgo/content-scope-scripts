@@ -4,16 +4,17 @@ import styles from './Button.module.css'
 
 /**
  * @param {object} props
- * @param {'default'|'clear'|'ghost'} [props.variant] // More platforms to be supported in the future
+ * @param {'standard'|'accent'} [props.style] - button style (macOS-specific)
+ * @param {'primary'|'ghost'} [props.type] - button type (iOS-specific)
  * @param {string} [props.className]
  * @param {import("preact").ComponentChild} props.children
  * @param {import("preact").JSX.MouseEventHandler<EventTarget>} [props.onClick]
  * @param {import('preact').ComponentProps<'button'>} [props.otherProps]
  */
-export function Button ({ variant = 'default', className, children, onClick }) {
+export function Button ({ style: buttonStyle, type: buttonType , className, children, onClick }) {
     return (
         <button
-            className={classNames(styles.button, styles[variant], className)}
+            className={classNames(styles.button, { [styles[`${buttonStyle}`]]: buttonStyle, [styles[`${buttonType}`]]: buttonType }, className)}
             onClick={
                 /**
                  * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event
