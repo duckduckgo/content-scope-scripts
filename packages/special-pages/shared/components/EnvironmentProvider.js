@@ -35,14 +35,26 @@ export function EnvironmentProvider ({ children, debugState, willThrow = false, 
     useEffect(() => {
         // media query
         const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY)
-        const listener = (e) => setReducedMotion(e.matches)
+
+        const listener = (e) => setter(e.matches)
         mediaQueryList.addEventListener('change', listener)
+
+        // set the initial value
+        setter(mediaQueryList.matches)
+
+        /**
+         * @type {(value: boolean) => void} value
+         */
+        function setter (value) {
+            document.documentElement.dataset.reducedMotion = String(value)
+            setReducedMotion(value)
+        }
 
         // toggle events on window
         window.addEventListener('toggle-reduced-motion', () => {
-            setReducedMotion(true)
-            document.documentElement.dataset.reducedMotion = String(true)
+            setter(true)
         })
+
         return () => mediaQueryList.removeEventListener('change', listener)
     }, [])
 
@@ -83,4 +95,12 @@ export function UpdateEnvironment ({ search }) {
 
 export function useEnv () {
     return useContext(EnvironmentContext)
+}
+
+export function WillThrow () {
+    const env = useEnv()
+    if (env.willThrow) {
+        throw new Error('Simulated Exception')
+    }
+    return null
 }

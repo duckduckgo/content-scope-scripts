@@ -13,7 +13,7 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.openWithVideoID('this_has_too_many_chars')
         await duckplayer.hasLoadedIframe('this_has_to')
     })
-    test.skip('reflects title from embed', async ({ page }, workerInfo) => {
+    test('reflects title from embed', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
         await duckplayer.hasTheSameTitleAsEmbed()
@@ -50,10 +50,29 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.openWithVideoID()
         await duckplayer.allowsPopups()
     })
+    test('pip setting', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        // load as normal
+        duckplayer.pipSettingIs({ state: 'enabled' })
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.hasPipButton()
+    })
+    test('pip setting disabled', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        // load as normal
+        duckplayer.pipSettingIs({ state: 'disabled' })
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.pipButtonIsAbsent()
+    })
 })
 
 test.describe('duckplayer toolbar', () => {
     test('hides toolbar based on user activity', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()
@@ -68,28 +87,15 @@ test.describe('duckplayer toolbar', () => {
         await page.mouse.move(10, 10)
         await duckplayer.toolbarIsVisible()
     })
-    test('tooltip shown on hover', async ({ page }, workerInfo) => {
-        const duckplayer = DuckPlayerPage.create(page, workerInfo)
-        await duckplayer.openWithVideoID()
-        await duckplayer.hasLoadedIframe()
-
-        // 1. Show tooltip on hover of info icon
-        await duckplayer.hoverInfoIcon()
-        await duckplayer.infoTooltipIsShown()
-
-        // 2. Hide tooltip when mouse leaves
-        await page.mouse.move(1, 1)
-        await duckplayer.infoTooltipIsHidden()
-    })
     test('clicking on cog icon opens settings', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()
-
-        await page.mouse.move(1, 1)
         await duckplayer.opensSettingsInNewTab()
     })
     test('opening in youtube', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()
@@ -97,8 +103,46 @@ test.describe('duckplayer toolbar', () => {
     })
 })
 
-test.describe('duckplayer settings', () => {
+test.describe('duckplayer mobile settings', () => {
+    test('open setting on tap', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.openSettings()
+        await duckplayer.didOpenMobileSettings()
+    })
+    test('open info modal on tap', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.openInfo()
+        await duckplayer.didOpenInfo()
+    })
+    test('open on Youtube on tap', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.watchOnYoutube()
+        await duckplayer.didWatchOnYoutube()
+    })
+    test('toggles the switch', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.reducedMotion()
+        await page.getByLabel('Keep Duck Player turned on').click() // can't 'check' here
+        await page.getByLabel('Keep Duck Player turned on').waitFor({ state: 'hidden' })
+        await duckplayer.sentUpdatedSettings()
+    })
+})
+
+test.describe('duckplayer desktop settings', () => {
     test('always open setting', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         // load as normal
         await duckplayer.openWithVideoID()
@@ -114,7 +158,21 @@ test.describe('duckplayer settings', () => {
         await duckplayer.toggleAlwaysOpenSetting()
         await duckplayer.sentUpdatedSettings()
     })
+    test('always open setting (reduced motion)', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        await duckplayer.reducedMotion()
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.didReceiveFirstSettingsUpdate()
+        await duckplayer.settingsAreVisible()
+        await page.mouse.move(1, 1)
+        await page.mouse.move(10, 10)
+        await duckplayer.toggleAlwaysOpenSetting()
+        await duckplayer.sentUpdatedSettings()
+    })
     test('when a new value arrives via subscription', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
         // load as normal
         await duckplayer.openWithVideoID()
@@ -129,3 +187,26 @@ test.describe('duckplayer settings', () => {
         await duckplayer.checkboxWasChecked()
     })
 })
+
+test.describe('reporting exceptions', () => {
+    test('regular layout', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        // load as normal
+        await duckplayer.openWithException()
+        await duckplayer.showsErrorMessage()
+    })
+})
+
+/**
+ * @param {import("@playwright/test").TestInfo} testInfo
+ */
+function isMobile (testInfo) {
+    const u = /** @type {any} */(testInfo.project.use)
+    return u?.platform === 'android' || u?.platform === 'ios'
+}
+/**
+ * @param {import("@playwright/test").TestInfo} testInfo
+ */
+function isDesktop (testInfo) {
+    return !isMobile(testInfo)
+}
