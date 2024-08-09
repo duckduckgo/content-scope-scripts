@@ -42,7 +42,7 @@ export class Environment {
         if (!isInjectName(injectName)) return this
         return new Environment({
             ...this,
-            injectName: injectName
+            injectName
         })
     }
 
