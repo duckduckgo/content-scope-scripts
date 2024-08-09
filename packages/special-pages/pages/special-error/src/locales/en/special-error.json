@@ -45,40 +45,28 @@
     "title": "Warning: This site may be insecure",
     "note": "Title shown in an error page that warn users of security risks on a website due to SSL issues"
   },
-  "sslExpiredWarningText": {
-    "title": "The security certificate for {domain} is expired.",
-    "note": "Describes an SSL error where a website’s security certificate is expired. The placeholder is the site’s domain (example: duckduckgo.com)."
-  },
-  "sslInvalidWarningText": {
-    "title": "The certificate for this site is invalid. You might be connecting to a server that is pretending to be {domain} which could put your confidential information at risk.",
-    "note": "Warns the user that the site’s security certificate is self-signed and not trusted. The placeholder is the site’s domain (example: duckduckgo.com)."
-  },
-  "sslSelfSignedWarningText": {
-    "title": "The security certificate for {domain} is not trusted by your device’s operating system.",
-    "note": "Warns the user that the site’s security certificate is self-signed and not trusted. The placeholder is the site’s domain (example: duckduckgo.com)."
-  },
-  "sslWrongHostWarningText": {
-    "title": "The security certificate for {domain} does not match {eTldPlus1}.",
-    "note": "Explains an SSL error when a site’s certificate doesn’t match its domain. The fist placeholder is the site’s domain (example: duckduckgo.com). The second placeholder is... [TBC]"
+  "sslWarningText": {
+    "title": "The certificate for this site is invalid. You might be connecting to a server that is pretending to be <b>{domain}</b> which could put your confidential information at risk.",
+    "note": "Describes an SSL error where a website’s security certificate is invalid. The placeholder is the site’s domain (example: duckduckgo.com)."
   },
   "sslAdvancedInfoHeading": {
     "title": "DuckDuckGo warns you when a website has an invalid certificate.",
     "note": "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
   },
   "sslExpiredAdvancedInfoText": {
-    "title": "It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.",
+    "title": "The security certificate for <b>{domain}</b> is expired. It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect",
     "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
   },
   "sslInvalidAdvancedInfoText": {
-    "title": "TODO",
-    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+    "title": "The security certificate for <b>{domain}</b> is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
+    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
   },
   "sslSelfSignedAdvancedInfoText": {
-    "title": "TODO",
-    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+    "title": "The security certificate for <b>{domain}</b> is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
+    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
   },
   "sslWrongHostAdvancedInfoText": {
-    "title": "It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
-    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+    "title": "The security certificate for <b>{domain}</b> does not match <b>*.{eTldPlus1}</b>. It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
+    "note": "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The two placeholders are website domain names (example: duckduckgo.com)."
   }
 }

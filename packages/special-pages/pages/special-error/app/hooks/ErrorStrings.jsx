@@ -23,8 +23,7 @@ const phishingAnchorTagValues = {
  */
 export function useWarningHeading() {
     const { t } = useTypedTranslation()
-    const { errorData } = useErrorData()
-    const { kind } = errorData
+    const { kind } = useErrorData().errorData
 
     if (kind === 'phishing') {
         return t('phishingPageHeading')
@@ -52,20 +51,10 @@ export function useWarningContent() {
     }
 
     if (kind === 'ssl') {
-        const { errorType, domain } = /** @type {SSLError}} */(errorData)
-        switch (errorType) {
-            case 'expired':
-                return [t('sslExpiredWarningText', { domain })]
-            case 'invalid':
-                return [t('sslInvalidWarningText', { domain })]
-            case 'selfSigned':
-                return [t('sslSelfSignedWarningText', { domain })]
-            case 'wrongHost':
-                const { eTldPlus1 } = /** @type {SSLWrongHost} */(errorData)
-                return [t('sslWrongHostWarningText', { domain, eTldPlus1 })]
-            default:
-                throw new Error(`Unhandled SSL error type ${errorType}`)
-        }
+        const { domain } = /** @type {SSLError}} */(errorData)
+        return [
+            <Trans str={t('sslWarningText', { domain })} values=""/>
+        ]
     }
 
     throw new Error(`Unhandled error kind ${kind}`)
@@ -76,8 +65,7 @@ export function useWarningContent() {
  */
 export function useAdvancedInfoHeading() {
     const { t } = useTypedTranslation()
-    const { errorData } = useErrorData()
-    const { kind } = errorData
+    const { kind } = useErrorData().errorData
 
     if (kind === 'phishing') {
         return t('phishingAdvancedInfoHeading')
@@ -109,13 +97,22 @@ export function useAdvancedInfoContent() {
         const { errorType, domain } = /** @type {SSLError}} */(errorData)
         switch (errorType) {
             case 'expired':
-                return [t('sslExpiredAdvancedInfoText')]
+                return [
+                    <Trans str={t('sslExpiredAdvancedInfoText', { domain })} values=""/>
+                ]
             case 'invalid':
-                return [t('sslInvalidAdvancedInfoText')]
+                return [
+                    <Trans str={t('sslInvalidAdvancedInfoText', { domain })} values=""/>
+                ]
             case 'selfSigned':
-                return [t('sslSelfSignedAdvancedInfoText')]
+                return [
+                    <Trans str={t('sslSelfSignedAdvancedInfoText', { domain })} values=""/>
+                ]
             case 'wrongHost':
-                return [t('sslWrongHostAdvancedInfoText')]
+                const { eTldPlus1 } = /** @type {SSLWrongHost} */(errorData)
+                return [
+                    <Trans str={t('sslWrongHostAdvancedInfoText', { domain, eTldPlus1 })} values=""/>
+                ]
             default:
                 throw new Error(`Unhandled SSL error type ${errorType}`)
         }
