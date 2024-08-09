@@ -22,7 +22,7 @@ export function AdvancedInfoButton() {
             variant={platformName === 'macos' ? 'standard' : 'ghost'}
             className={classNames(styles.button, styles.advanced)}
             onClick={() => advancedButtonHandler()}>
-            {t('advancedButton')}
+            {platformName === 'ios' ? t('advancedButton') : t('advancedEllipsisButton')}
         </Button>
     )
 }

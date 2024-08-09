@@ -52,7 +52,7 @@
 }
 
 /* iOS */
-[data-platform="ios"] {
+[data-platform-name="ios"] {
     & .container {
         align-items: center;
     }
