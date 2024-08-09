@@ -5,66 +5,64 @@
     cursor: pointer;
 }
 
-[data-platform-name="macos"] {
-    & .button {
-        border: 0;
-        border-radius: calc(5 * var(--px-in-rem));
-        box-shadow: var(--button-shadow);
-        font-size: calc(13 * var(--px-in-rem));
-        height: var(--sp-5);
-        opacity: var(--button-opacity);
-        padding: 0 var(--sp-3);
+/* macOS Base Style */
+[data-platform-name="macos"] .button {
+    border: 0;
+    border-radius: calc(5 * var(--px-in-rem));
+    box-shadow: var(--button-shadow);
+    font-size: calc(13 * var(--px-in-rem));
+    height: var(--sp-5);
+    opacity: var(--button-opacity);
+    padding: 0 var(--sp-3);
 
-        &:active {
-            background: var(--button-bg--active);
-            box-shadow: var(--button-shadow--active);
-            color: var(--button-text--active);
-            opacity: var(--button-opacity--active);
-        }
+    &:active {
+        background: var(--button-bg--active, var(--button-bg));
+        box-shadow: var(--button-shadow--active, var(--button-shadow));
+        color: var(--button-text--active, var(--button-text));
+        opacity: var(--button-opacity--active, var(--button-opacity));
+    }
 
-        &:disabled {
-            background: var(--button-bg--disabled);
-            box-shadow: var(--button-shadow--disabled);
-            color: var(--button-text--disabled);
-            opacity: var(--button-opacity--disabled);
-        }
+    &:disabled {
+        background: var(--button-bg--disabled, var(--button-bg));
+        box-shadow: var(--button-shadow--disabled, var(--button-shadow));
+        color: var(--button-text--disabled, var(--button-text));
+        opacity: var(--button-opacity--disabled, var(--button-opacity));
+    }
 
-        &:focus {
-            background: var(--button-bg--focus);
-            box-shadow: var(--button-shadow--focus);
-            color: var(--button-text--focus);
-            opacity: var(--button-opacity--focus);
-        }
+    &:focus {
+        background: var(--button-bg--focus, var(--button-bg));
+        box-shadow: var(--button-shadow--focus, var(--button-shadow));
+        color: var(--button-text--focus, var(--button-text));
+        opacity: var(--button-opacity--focus, var(--button-opacity));
+    }
 
-        &:hover {
-            background: var(--button-bg--hover);
-            box-shadow: var(--button-shadow--hover);
-            color: var(--button-text--hover);
-            opacity: var(--button-opacity--hover);
-        }
+    &:hover {
+        background: var(--button-bg);
+        box-shadow: var(--button-shadow--hover, var(--button-shadow));
+        color: var(--button-text--hover, var(--button-text));
+        opacity: var(--button-opacity--hover, var(--button-opacity));
     }
 }
 
-[data-platform-name="ios"] {
-    & .button {
-        border-radius: var(--sp-2);
-        border: 0;
-        font-size: calc(15 * var(--px-in-rem));
-        font-weight: 600;
-        height: calc(50 * var(--px-in-rem));
-        letter-spacing: calc(-0.23 * var(--px-in-rem));
-        padding: 0 var(--sp-6);
-        text-align: center;
+/* iOS Base Style */
+[data-platform-name="ios"] .button {
+    border-radius: var(--sp-2);
+    border: 0;
+    font-size: calc(15 * var(--px-in-rem));
+    font-weight: 600;
+    height: calc(50 * var(--px-in-rem));
+    letter-spacing: calc(-0.23 * var(--px-in-rem));
+    padding: 0 var(--sp-6);
+    text-align: center;
 
-        &:active {
-            background: var(--button-bg--active);
-            color: var(--button-text--active);
-        }
+    &:active {
+        background: var(--button-bg--active, var(--button-bg));
+        color: var(--button-text--active, var(--button-text));
+    }
 
-        &:disabled {
-            background: var(--button-bg--disabled);
-            color: var(--button-text--disabled);
-        }
+    &:disabled {
+        background: var(--button-bg--disabled, var(--button-bg));
+        color: var(--button-text--disabled, var(--button-text));
     }
 }
 
@@ -72,10 +70,10 @@
 [data-platform-name=""] {
     .button {
         background-blend-mode: normal, color-burn, normal;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.06) 100%), #007aff;
+        background: linear-gradient(180deg, var(rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.06) 100%)), #007aff;
         border-radius: var(--sp-2);
-        border: 1px solid rgba(40, 145, 255, 0.05);
-        box-shadow: 0 0 1px 0 rgba(40, 145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1);
+        border: 1px solid rgba(40, var(145, 255, 0.05));
+        box-shadow: 0 0 1px 0 rgba(40, var(145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1));
         color: white;
         font-size: calc(13 * var(--px-in-rem));
         font-weight: 600;
@@ -83,16 +81,16 @@
         padding: 0 var(--sp-4);
 
         &:hover {
-            background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749db;
+            background: linear-gradient(0deg, var(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%)), #2749db;
         }
 
         &:active {
-            background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #1743d1;
+            background: linear-gradient(0deg, var(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%)), #1743d1;
         }
     }
 }
 
-/* PLATFORM BUTTON VARIABLES */
+/* macOs Design System Button Tokens */
 [data-platform-name="macos"] {
     --macos-control-standard-background-rest: #fff;
     --macos-control-standard-background-pressed: #e7e7e7;
@@ -105,38 +103,29 @@
     --macos-control-focused-shadow: 0 0 0 3px rgba(57, 105, 239, 0.55), 0 0 0 1px rgba(57, 105, 239, 0.55) inset, 0 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* VARIABLES */
+/* macOS Variables */
 [data-platform-name="macos"] .button {
-    /* Defaults to standard style */
-    --button-bg: var(--macos-control-standard-background-rest);
-    --button-text: var(--macos-text-primary);
-    --button-shadow: var(--macos-control-standard-shadow);
-    --button-opacity: 1;
+    &.standard {
+        --button-bg: var(--macos-control-standard-background-rest);
+        --button-text: var(--macos-text-primary);
+        --button-shadow: var(--macos-control-standard-shadow);
+        --button-opacity: 1;
 
-    /* Active */
-    --button-bg--active: var(--macos-control-standard-background-pressed);
-    --button-text--active: var(--button-text);
-    --button-shadow--active: var(--button-shadow);
-    --button-opacity--active: var(--button-opacity);
+        /* Active */
+        --button-bg--active: var(--macos-control-standard-background-pressed);
 
-    /* Disabled */
-    --button-bg--disabled: var(--button-bg);
-    --button-text--disabled: var(--button-text);
-    --button-shadow--disabled: var(--button-shadow);
-    --button-opacity--disabled: 0.4;
+        /* Disabled */
+        --button-bg--disabled: var(--macos-control-standard-background-rest);
+        --button-text--disabled: var(--macos-text-primary);
+        --button-shadow--disabled: var(--macos-control-standard-shadow);
+        --button-opacity--disabled: 0.4;
 
-    /* Focus */
-    --button-bg--focus: var(--button-bg);
-    --button-text--focus: var(--button-text);
-    --button-shadow--focus: var(--macos-control-focused-shadow);
-    --button-opacity--focus: var(--button-opacity);
+        /* Focus */
+        --button-shadow--focus: var(--macos-control-focused-shadow);
 
-    /* Hover */
-    /* TODO: No difference on hover according to Figma(?) */
-    --button-bg--hover: var(--button-bg);
-    --button-text--hover: var(--button-text);
-    --button-shadow--hover: var(--button-shadow);
-    --button-opacity--hover: var(--button-opacity);
+        /* Hover */
+        /* TODO: No difference on hover according to Figma(?) */
+    }
 
     &.accent {
         --button-bg: var(--macos-control-accent-branded-background-rest);
@@ -146,9 +135,6 @@
 
         /* Active */
         --button-bg--active: var(--macos-control-accent-branded-background-pressed);
-        --button-text--active: var(--button-text);
-        --button-shadow: var(--macos-control-accent-shadow);
-        --button-opacity--active: var(--button-opacity);
 
         /* Disabled */
         --button-bg--disabled: var(--macos-control-standard-background-rest);
@@ -157,16 +143,10 @@
         --button-opacity--disabled: 0.4;
 
         /* Focus */
-        --button-bg--focus: var(--button-bg);
-        --button-text--focus: var(--button-text);
         --button-shadow--focus: var(--macos-control-focused-shadow);
-        --button-opacity--focus: var(--button-opacity);
 
         /* Hover */
-        --button-bg--hover: var(--button-bg);
-        --button-text--hover: var(--button-text);
-        --button-shadow--hover: var(--button-shadow);
-        --button-opacity--hover: var(--button-opacity);
+        /* TODO: No difference on hover according to Figma(?) */
     }
 
     @media (prefers-color-scheme: dark) {
@@ -174,25 +154,27 @@
     }
 }
 
+/* iOS Variables */
 [data-platform-name="ios"] .button {
-    /* Defaults to primary type */
-    --button-bg: var(--color-blue-50);
-    --button-text: var(--color-white);
+    &.primary {
+        --button-bg: var(--color-blue-50);
+        --button-text: var(--color-white);
 
-    /* Active */
-    --button-bg--active: var(--color-blue-70);
-    --button-text--active: var(--color-white);
+        /* Active */
+        --button-bg--active: var(--color-blue-70);
+        --button-text--active: var(--color-white);
 
-    /* Disabled */
-    --button-bg--disabled: var(--color-black-at-6);
-    --button-text--disabled: var(--color-black-at-36);
+        /* Disabled */
+        --button-bg--disabled: var(--color-black-at-6);
+        --button-text--disabled: var(--color-black-at-36);
+    }
 
     &.ghost {
         --button-bg: transparent;
         --button-text: var(--color-blue-50);
 
         /* Active */
-        --button-bg--active: rgba(57, 105, 239, 0.12);
+        --button-bg--active: rgba(57, var(105, 239, 0.12));
         --button-text--active: var(--color-blue-70);
 
         /* Disabled */
@@ -218,7 +200,7 @@
             --button-text: var(--color-blue-30);
 
             /* Active */
-            --button-bg--active: rgba(114, 149, 246, 0.2);
+            --button-bg--active: rgba(114, var(149, 246, 0.2));
             --button-text--active: var(--color-blue-20);
 
             /* Disabled */
