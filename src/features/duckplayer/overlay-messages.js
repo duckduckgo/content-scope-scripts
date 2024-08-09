@@ -31,7 +31,7 @@ export class DuckPlayerOverlayMessages {
             return Promise.resolve({
                 userValues: {
                     overlayInteracted: false,
-                    privatePlayerMode: { alwaysAsk: {} }
+                    privatePlayerMode: { enabled: {} }
                 },
                 ui: {
                     overlayCopy: this.environment.getOverlayCopyOverride() || 'default'
@@ -74,6 +74,13 @@ export class DuckPlayerOverlayMessages {
      */
     openDuckPlayer (params) {
         return this.messaging.notify(constants.MSG_NAME_OPEN_PLAYER, params)
+    }
+
+    /**
+     * This is sent when the user wants to open Duck Player.
+     */
+    openInfo () {
+        return this.messaging.notify(constants.MSG_NAME_OPEN_INFO)
     }
 
     /**

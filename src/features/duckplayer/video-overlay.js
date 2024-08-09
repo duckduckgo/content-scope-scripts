@@ -226,7 +226,8 @@ export class VideoOverlay {
                 environment,
                 params,
                 ui,
-                manager: this
+                manager: this,
+                layout: this.environment.layout
             })
             targetElement.appendChild(overlayElement)
 
@@ -335,6 +336,10 @@ export class VideoOverlay {
             this.destroy()
             this.addSmallDaxOverlay(params)
         }
+    }
+
+    openInfo () {
+        this.messages.openInfo()
     }
 
     /**
