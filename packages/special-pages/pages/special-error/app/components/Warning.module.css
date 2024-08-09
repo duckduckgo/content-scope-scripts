@@ -38,10 +38,6 @@
 
 /* macOS */
 [data-platform-name="macos"] {
-    & .container {
-        background: var(--warning-container-bg);
-    }
-
     & .icon {
         align-self: flex-start;
     }

@@ -1,28 +1,25 @@
 :root {
     /* Light theme colors */
-
-    --background-color: var(--color-gray-20);
-    --text-color: var(--color-black-at-84);
+    --theme-background-color: var(--color-gray-20);
+    --theme-text-primary-color: var(--color-black-at-84);
     --link-color: var(--color-black);
     --border-color: var(--color-black-at-1);
 
-    --warning-container-bg: var(--color-white);
+    --container-bg: var(--color-white);
     --advanced-info-bg: var(--color-black-at-3);
 
     --visit-site-color: var(--color-black);
-
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
         /* Dark theme colors */
-
-        --background-color: var(--color-gray-85);
-        --text-color: var(--color-white-at-84);
+        --theme-background-color: var(--color-gray-85);
+        --theme-text-primary-color: var(--color-white-at-84);
         --link-color: var(--color-gray-40);
         --border-color: var(--color-white-at-30);
 
-        --warning-container-bg: var(--color-gray-90);
+        --container-bg: var(--color-gray-90);
         --advanced-info-bg: #2f2f2f;
 
         --visit-site-color: var(--color-gray-40);

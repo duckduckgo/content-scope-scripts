@@ -4,14 +4,9 @@ body {
     margin: 0;
 }
 
-body {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-family: sans-serif;
-}
-
 .main {
     display: flex;
+    font-family: sans-serif;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -43,6 +38,7 @@ body {
 /* macOS */
 [data-platform-name="macos"] {
     & .container {
+        background: var(--container-bg);
         border-radius: 8px;
         border: 1px solid var(--border-color);
         min-width: 400px;
