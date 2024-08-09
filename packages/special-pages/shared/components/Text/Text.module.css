@@ -67,7 +67,7 @@ a {
     letter-spacing: calc(0.12 * var(--px-in-rem));
 }
 
-[data-platform="ios"] {
+[data-platform-name="ios"] {
     & .title-2 {
         font-size: calc(22 * var(--px-in-rem));
         font-weight: 600;

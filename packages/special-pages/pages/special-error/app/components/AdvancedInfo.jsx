@@ -1,7 +1,7 @@
 import { h } from 'preact'
 import { useTypedTranslation } from '../types'
 import { Text } from '../../../../shared/components/Text/Text'
-import { useMessaging } from '../MessagingProvider'
+import { useMessaging } from '../providers/MessagingProvider'
 import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorStrings'
 
 import styles from './AdvancedInfo.module.css'

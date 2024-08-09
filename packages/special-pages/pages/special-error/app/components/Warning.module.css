@@ -37,7 +37,7 @@
 /* Platform-specific styles */
 
 /* macOS */
-[data-platform="macos"] {
+[data-platform-name="macos"] {
     & .container {
         background: var(--warning-container-bg);
     }
@@ -73,7 +73,7 @@
 
 
 /* iOS */
-[data-platform="ios"] {
+[data-platform-name="ios"] {
     & .container {
         gap: var(--sp-6);
     }

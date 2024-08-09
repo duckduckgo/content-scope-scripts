@@ -2,22 +2,22 @@ import { createContext, h } from 'preact'
 import { useContext, useState } from 'preact/hooks'
 
 /**
- * @typedef {Pick<import("../../../types/special-error.js").InitialSetupResponse, "errorData" | "platform">} AppSettings
+ * @typedef {Pick<import("../../../../types/special-error.js").InitialSetupResponse, "errorData" | "platform">} ErrorData
  */
 /**
  * @typedef {(key: string, replacements?: Record<string, any>) => string} LocalTranslationFn
  */
 
-export const AppSettingsContext = createContext({
-    /** @type {AppSettings['platform']['name']} */
+export const ErrorDataContext = createContext({
+    /** @type {ErrorData['platform']['name']} */
     platformName: ('macos'),
-    /** @type {(value: AppSettings['platform']['name']) => void} */
+    /** @type {(value: ErrorData['platform']['name']) => void} */
     updatePlatformName: () => {},
-    /** @type {AppSettings['errorData']} */
+    /** @type {ErrorData['errorData']} */
     errorData: ({
         kind: 'phishing'
     }),
-    /** @type {(value: AppSettings['errorData']) => void} */
+    /** @type {(value: ErrorData['errorData']) => void} */
     updateErrorData: () => {}
 })
 
@@ -26,37 +26,36 @@ export const AppSettingsContext = createContext({
  *
  * @param {Object} props - The component props.
  * @param {import("preact").ComponentChild} [props.children] - The child elements.
- * @param {AppSettings['platform']['name']} props.platformName - The browser platform.
- * @param {AppSettings['errorData']} props.errorData - The error data object.
+ * @param {ErrorData['platform']['name']} props.platformName - The browser platform.
+ * @param {ErrorData['errorData']} props.errorData - The error data object.
  */
-export function AppSettingsProvider ({ children, platformName: initialPlatformName, errorData: initialErrorData }) {
+export function ErrorDataProvider ({ children, platformName: initialPlatformName, errorData: initialErrorData }) {
     const [platformName, setPlatformName] = useState(initialPlatformName)
     const [errorData, setErrorData] = useState(initialErrorData)
 
     /**
-     * @param {AppSettings['platform']['name']} value
+     * @param {ErrorData['platform']['name']} value
      */
     const updatePlatformName = value => {
-        console.log('SET PLAT', value)
         setPlatformName(value)
     }
 
     /**
-     * @param {AppSettings['errorData']} value
+     * @param {ErrorData['errorData']} value
      */
     const updateErrorData = value => setErrorData(value)
 
     return (
-        <AppSettingsContext.Provider value={{ platformName, updatePlatformName, errorData, updateErrorData }}>{children}</AppSettingsContext.Provider>
+        <ErrorDataContext.Provider value={{ platformName, updatePlatformName, errorData, updateErrorData }}>{children}</ErrorDataContext.Provider>
     )
 }
 
 export function useErrorData () {
-    const { errorData, updateErrorData } = useContext(AppSettingsContext)
+    const { errorData, updateErrorData } = useContext(ErrorDataContext)
     return { errorData, updateErrorData }
 }
 
 export function usePlatformName () {
-    const context = useContext(AppSettingsContext)
+    const context = useContext(ErrorDataContext)
     return { platformName: context.platformName, updatePlatformName: context.updatePlatformName }
 }

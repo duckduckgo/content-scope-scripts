@@ -1,12 +1,12 @@
 import { h } from "preact";
-import { usePlatformName } from "../AppSettingsProvider";
+import { usePlatformName } from "../providers/ErrorDataProvider";
 import { useEnv } from "../../../../shared/components/EnvironmentProvider";
-import { useMessaging } from "../MessagingProvider";
+import { useMessaging } from "../providers/MessagingProvider";
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { ErrorFallback } from "./ErrorFallback";
 import { Warning } from "./Warning";
 import { AdvancedInfo } from "./AdvancedInfo";
-import { useAdvancedInfo } from "../UIProvider";
+import { useAdvancedInfo } from "../providers/UIProvider";
 
 import styles from "./App.module.css";
 
@@ -35,7 +35,7 @@ export function App() {
     }
 
     return (
-        <main className={styles.main} data-platform={platformName}>
+        <main className={styles.main} data-platform-name={platformName}>
             <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
                 <SpecialError />
                 <WillThrow/>

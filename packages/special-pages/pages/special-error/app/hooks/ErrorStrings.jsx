@@ -1,5 +1,6 @@
+import { h } from 'preact'
 import { useTypedTranslation } from "../types"
-import { useErrorData } from "../AppSettingsProvider";
+import { useErrorData } from "../providers/ErrorDataProvider";
 import { Trans } from "../../../../shared/components/TranslationsProvider";
 import { phishingHelpPageURL } from "../constants";
 
@@ -45,10 +46,9 @@ export function useWarningContent() {
     const { kind } = errorData
 
     if (kind === 'phishing') {
-        return [Trans({
-            str: t('phishingWarningText'),
-            values: { a: phishingAnchorTagValues }
-        })]
+        return [
+            <Trans str={t('phishingWarningText')} values={{ a: phishingAnchorTagValues }}/>
+        ]
     }
 
     if (kind === 'ssl') {
@@ -101,10 +101,7 @@ export function useAdvancedInfoContent() {
     if (kind === 'phishing') {
         return [
             t('phishingAdvancedInfoText_1'),
-            Trans({
-                str: t('phishingAdvancedInfoText_2'),
-                values: { a: phishingAnchorTagValues }
-            })
+            <Trans str={t('phishingAdvancedInfoText_2')} values={{ a: phishingAnchorTagValues }}/>
         ]
     }
 

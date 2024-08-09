@@ -1,10 +1,62 @@
 .button {
     appearance: none;
+    background: var(--button-bg);
+    color: var(--button-text);
     cursor: pointer;
+
+    &:active {
+        background: var(--button-bg--active);
+        color: var(--button-text--active);
+    }
+
+    &:disabled {
+        background: var(--button-bg--disabled);
+        color: var(--button-text--disabled);
+    }
+}
+
+.button.clear {
+    background: var(--button-clear-bg);
+    color: var(--button-clear-text);
+    box-shadow: var(--button-clear-shadow);
+
+    &:active {
+        background: var(--button-ghost-bg--active);
+        color: var(--button-ghost-text--active);
+    }
+
+    &:disabled {
+        background: var(--button-ghost-bg--disabled);
+        color: var(--button-ghost-text--disabled);
+    }
+}
+
+[data-platform-name="macos"] {
+    & .button {
+        border: 0;
+        border-radius: calc(5 * var(--px-in-rem));
+        box-shadow: var(--button-shadow);
+        font-size: calc(13 * var(--px-in-rem));
+        height: var(--sp-5);
+        padding: 0 var(--sp-3);
+    }
+}
+
+[data-platform-name="ios"] {
+    & .button {
+        border-radius: var(--sp-2);
+        border: 0;
+        font-size: calc(15 * var(--px-in-rem));
+        font-weight: 600;
+        height: calc(50 * var(--px-in-rem));
+        letter-spacing: calc(-0.23 * var(--px-in-rem));
+        padding: 0 var(--sp-6);
+        text-align: center;
+    }
 }
 
 /* Backward-compatible styles for use with Release Notes */
-[data-platform=""] {
+[data-platform-name=""] {
     .button {
         background-blend-mode: normal, color-burn, normal;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.06) 100%), #007aff;
@@ -27,70 +79,82 @@
     }
 }
 
-[data-platform="macos"] {
-    & .button {
-        background: var(--macos-bg);
-        border: 0;
-        border-radius: calc(5 * var(--px-in-rem));
-        box-shadow: var(--macos-shadow);
-        color: var(--macos-text);
-        font-size: calc(13 * var(--px-in-rem));
-        height: var(--sp-5);
-        padding: 0 var(--sp-3);
-    }
-
-    & .button.clear {
-        background: var(--macos-clear-bg);
-        color: var(--macos-clear-text);
-        box-shadow: var(--macos-clear-shadow);
-    }
-}
-
-[data-platform="ios"] {
-    .button {
-        background-color: var(--ios-button-bg);
-        border-radius: var(--sp-2);
-        border: 0;
-        color: var(--ios-button-text);
-        font-size: calc(15 * var(--px-in-rem));
-        font-weight: 600;
-        height: calc(50 * var(--px-in-rem));
-        letter-spacing: calc(-0.23 * var(--px-in-rem));
-        padding: 0 var(--sp-6);
-        text-align: center;
-    }
-
-    & .button.ghost {
-        background: var(--ios-ghost-button-bg);
-        color: var(--ios-ghost-button-text);
-    }
-}
-
 /* VARIABLES */
-.button {
-    --macos-bg: linear-gradient(0deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.16) 100%), var(--Mac-Control-Accent-Branded-Background-Rest, #2749db);
-    --macos-text: var(--color-white);
-    --macos-shadow: 0px 1 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 0px 0px 1px rgba(0, 122, 255, 0.05), 0px 0px 1px 0px rgba(0, 122, 255, 0.05), 0px 1px 1px 0px rgba(0, 122, 255, 0.10);
+[data-platform-name="macos"] .button {
+    --button-bg: linear-gradient(0deg, rgba(255, 255, 255, 0.00) 0%, rgba(255, 255, 255, 0.16) 100%), var(--Mac-Control-Accent-Branded-Background-Rest, #2749db);
+    --button-text: var(--color-white);
+    --button-shadow: 0px 1 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 0px 0px 1px rgba(0, 122, 255, 0.05), 0px 0px 1px 0px rgba(0, 122, 255, 0.05), 0px 1px 1px 0px rgba(0, 122, 255, 0.10);
 
-    --macos-clear-bg: transparent;
-    --macos-clear-text: var(--color-black-at-84);
-    --macos-clear-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.2) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+    /* --button-bg--active:
+    --button-text--active:
+    --button-shadow--active:
 
-    --ios-button-bg: var(--color-blue-50);
-    --ios-button-text: var(--color-white);
+    --button-bg--focus:
+    --button-text--focus:
+    --button-shadow--focus:
 
-    --ios-ghost-button-bg: transparent;
-    --ios-ghost-button-text: var(--color-blue-50);
+    --button-bg--hover:
+    --button-text--hover:
+    --button-shadow--hover:
+
+    --button-bg--disabled:
+    --button-text--disabled:
+    --button-shadow--disabled: */
+
+    --button-clear-bg: transparent;
+    --button-clear-text: var(--color-black-at-84);
+    --button-clear-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.2) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
 
     @media (prefers-color-scheme: dark) {
-        --macos-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 0px 1px 0px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.15);
+        --button-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 0px 1px 0px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.15);
 
-        --macos-clear-text: var(--color-white-at-84);
-        --macos-clear-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 0px 1px 0px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.15);
-
-        --ios-button-bg: var(--color-blue-30);
-        --ios-button-text: var(--color-black-at-84);
-
-        --ios-ghost-button-text: var(--color-blue-30);
+        --button-clear-text: var(--color-white-at-84);
+        --button-clear-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 0px 1px 0px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.15);
     }
 }
+
+[data-platform-name="ios"] .button {
+    --button-bg: var(--color-blue-50);
+    --button-text: var(--color-white);
+
+    --button-bg--active: var(--color-blue-70);
+    --button-text--active: var(--color-white);
+
+    --button-bg--disabled: var(--color-black-at-6);
+    --button-text--disabled: var(--color-black-at-36);
+
+    &.ghost {
+        --button-bg: transparent;
+        --button-text: var(--color-blue-50);
+
+        --button-bg--active: rgba(57, 105, 239, 0.12);
+        --button-text--active: var(--color-blue-70);
+
+        --button-bg--disabled: transparent;
+        --button-text--disabled: var(--color-black-at-36);
+    }
+
+
+    @media (prefers-color-scheme: dark) {
+        --button-bg: var(--color-blue-30);
+        --button-text: var(--color-black-at-84);
+
+        --button-bg--active: var(--color-blue-50);
+        --button-text--active: var(--color-black-at-84);
+
+        --button-bg--disabled: var(--color-black-at-6);
+        --button-text--disabled: var(--color-black-at-36);
+
+        &.ghost {
+            --button-bg: transparent;
+            --button-text: var(--color-blue-30);
+
+            --button-bg--active: rgba(114, 149, 246, 0.2);
+            --button-text--active: var(--color-blue-20);
+
+            --button-bg--disabled: transparent;
+            --button-text--disabled: var(--color-black-at-36);
+        }
+    }
+}
+
