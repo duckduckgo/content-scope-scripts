@@ -1,0 +1,67 @@
+.container {
+    align-items: flex-start;
+    box-shadow: inset 0 1px 0 0 var(--border-color);
+    display: flex;
+    flex-flow: column;
+    gap: var(--sp-4);
+    width: 100%;
+
+    animation-duration: 300ms;
+    animation-fill-mode: forwards;
+    animation-name: appear;
+}
+
+.content {
+    display: flex;
+    flex-flow: column;
+    gap: var(--sp-5);
+
+    & a {
+        color: var(--link-color);
+    }
+}
+
+.visitSite {
+    color: var(--visit-site-color);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+@keyframes appear {
+    0% {
+        padding: 0 var(--sp-10);
+        max-height: 0;
+    }
+    100% {
+        padding: var(--sp-6) var(--sp-10);
+        max-height: 400px;
+    }
+}
+
+/* Platform-specific styles */
+
+/* macOS */
+[data-platform-name="macos"] {
+    & .container {
+        background: var(--advanced-info-bg);
+    }
+
+    & .visitSite {
+        align-self: flex-end;
+    }
+}
+
+/* iOS */
+[data-platform-name="ios"] {
+    & .container {
+        align-items: center;
+    }
+
+    & .heading {
+        text-align: center;
+    }
+
+    & .content {
+        text-align: center;
+    }
+}

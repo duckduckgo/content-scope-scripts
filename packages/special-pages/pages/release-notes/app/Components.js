@@ -61,7 +61,7 @@ export function Components () {
 
             <h2>Restart Button</h2>
             <div>
-                <Button platform="apple">{t('restartToUpdate')}</Button>
+                <Button>{t('restartToUpdate')}</Button>
             </div>
             <hr/>
 

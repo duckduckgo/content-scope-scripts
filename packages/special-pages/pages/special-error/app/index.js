@@ -4,14 +4,18 @@ import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/componen
 import { App } from './components/App.jsx'
 import { Components } from './components/Components.jsx'
 
-import enStrings from '../src/locales/en/example.json'
+import enStrings from '../src/locales/en/special-error.json'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
+import { ErrorDataProvider } from './providers/ErrorDataProvider.js'
+import { MessagingProvider } from './providers/MessagingProvider.js'
 import { callWithRetry } from '../../../shared/call-with-retry.js'
 
 import '../../../shared/styles/global.css' // global styles
+import './styles/variables.css' // Page-specific variables
+import { UIProvider } from './providers/UIProvider.js'
 
 /**
- * @param {import("../src/js/index.js").ExamplePage} messaging
+ * @param {import("../src/js/index.js").SpecialErrorPage} messaging
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  * @return {Promise<void>}
  */
@@ -22,6 +26,12 @@ export async function init (messaging, baseEnvironment) {
     }
 
     const init = result.value
+    const missingProperties = ['errorData', 'platform'].filter(prop => !init[prop])
+    if (missingProperties.length > 0) {
+        throw new Error(`Missing setup data: ${missingProperties.join(', ')}`)
+    }
+
+    const { errorData, platform } = init
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -33,7 +43,7 @@ export async function init (messaging, baseEnvironment) {
 
     const strings = environment.locale === 'en'
         ? enStrings
-        : await fetch(`./locales/${environment.locale}/example.json`)
+        : await fetch(`./locales/${environment.locale}/special-error.json`)
             .then(resp => {
                 if (!resp.ok) {
                     throw new Error('did not give a result')
@@ -52,20 +62,30 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider
                 debugState={environment.debugState}
-                injectName={environment.injectName}
+                platform={environment.platform}
                 willThrow={environment.willThrow}
             >
                 <UpdateEnvironment search={window.location.search}/>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <App/>
+                    <MessagingProvider messaging={messaging}>
+                        <ErrorDataProvider errorData={errorData} platformName={platform.name}>
+                            <UIProvider>
+                                <App/>
+                            </UIProvider>
+                        </ErrorDataProvider>
+                    </MessagingProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)
     } else if (environment.display === 'components') {
         render(
-            <EnvironmentProvider debugState={false} injectName={environment.injectName}>
+            <EnvironmentProvider debugState={false} platform={environment.platform}>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <Components />
+                    <ErrorDataProvider errorData={errorData} platformName='macos'>
+                        <UIProvider>
+                            <Components />
+                        </UIProvider>
+                    </ErrorDataProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)
