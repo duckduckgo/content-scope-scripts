@@ -60,18 +60,6 @@ function TypedInner ({ text, onComplete, delay, children, ...rest }) {
         }
     }, [isReducedMotion, localOnComplete])
 
-    /**
-     * Support skipping the animation when clicked
-     */
-    useEffect(() => {
-        const controller = new AbortController()
-        document.body.addEventListener('pointerdown', () => {
-            setCurrentText(text)
-            setCurrentIndex(text.length)
-        }, { signal: controller.signal })
-        return () => controller.abort()
-    }, [text])
-
     useEffect(() => {
         const handler = () => {
             setScreenWidth(window.innerWidth)
@@ -84,19 +72,31 @@ function TypedInner ({ text, onComplete, delay, children, ...rest }) {
     }, [])
 
     useEffect(() => {
+        const controller = new AbortController()
+        let enabled = true
+
+        document.body.addEventListener('pointerdown', () => {
+            setCurrentText(text)
+            setCurrentIndex(text.length)
+            enabled = false
+        }, { signal: controller.signal })
+
         if (currentIndex < text.length) {
             const timeout = setTimeout(
                 () => {
+                    if (!enabled) return
                     setCurrentText((prevText) => prevText + text[currentIndex])
                     setCurrentIndex((prevIndex) => prevIndex + 1)
                 },
                 text[currentIndex] === '\n' ? delay * 10 : delay
             )
-
-            return () => clearTimeout(timeout)
+            return () => {
+                clearTimeout(timeout)
+                controller.abort()
+            }
         } else {
             localOnComplete()
-            return () => {}
+            return () => controller.abort()
         }
     }, [currentIndex, delay, text])
 
