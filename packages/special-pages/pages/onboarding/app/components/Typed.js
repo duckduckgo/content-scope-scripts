@@ -60,6 +60,18 @@ function TypedInner ({ text, onComplete, delay, children, ...rest }) {
         }
     }, [isReducedMotion, localOnComplete])
 
+    /**
+     * Support skipping the animation when clicked
+     */
+    useEffect(() => {
+        const controller = new AbortController();
+        document.body.addEventListener('pointerdown', () => {
+            setCurrentText(text)
+            setCurrentIndex(text.length)
+        }, { signal: controller.signal })
+        return () => controller.abort();
+    }, [text])
+
     useEffect(() => {
         const handler = () => {
             setScreenWidth(window.innerWidth)
