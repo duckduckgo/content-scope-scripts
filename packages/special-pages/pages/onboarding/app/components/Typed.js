@@ -64,12 +64,12 @@ function TypedInner ({ text, onComplete, delay, children, ...rest }) {
      * Support skipping the animation when clicked
      */
     useEffect(() => {
-        const controller = new AbortController();
+        const controller = new AbortController()
         document.body.addEventListener('pointerdown', () => {
             setCurrentText(text)
             setCurrentIndex(text.length)
         }, { signal: controller.signal })
-        return () => controller.abort();
+        return () => controller.abort()
     }, [text])
 
     useEffect(() => {
