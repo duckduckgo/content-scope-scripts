@@ -93,6 +93,7 @@
 /* macOs Design System Button Tokens */
 [data-platform-name="macos"] {
     --macos-control-standard-background-rest: #fff;
+    --macos-control-standard-background-rest--dark: rgba(255, 255, 255, 0.28);
     --macos-control-standard-background-pressed: #e7e7e7;
 
     --macos-control-accent-branded-background-rest: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749db;
@@ -150,7 +151,12 @@
     }
 
     @media (prefers-color-scheme: dark) {
-        /** TODO: Confirm that colors don't change in Dark Mode for macOS */
+        &.standard {
+            --button-bg: var(--macos-control-standard-background-rest--dark);
+            --button-text: var(--color-white-at-84);
+        }
+
+        /** TODO: Confirm that colors don't change in Dark Mode for accented macOS button */
     }
 }
 
