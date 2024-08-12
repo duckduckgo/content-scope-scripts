@@ -6,7 +6,6 @@ body {
 
 .main {
     display: flex;
-    font-family: sans-serif;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -30,9 +29,6 @@ body {
 }
 
 /* Platform-specific styles */
-[data-platform-name="macos"], [data-platform-name="ios"] {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-}
 
 /* macOS */
 [data-platform-name="macos"] {
@@ -45,7 +41,7 @@ body {
     }
 }
 
-/* macOS */
+/* iOS */
 [data-platform-name="ios"] {
     & .container {
         align-items: center;

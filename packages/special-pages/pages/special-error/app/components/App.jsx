@@ -2,7 +2,6 @@ import { h } from "preact";
 import { useState } from "preact/hooks";
 import { useEnv } from "../../../../shared/components/EnvironmentProvider";
 import { useMessaging } from "../providers/MessagingProvider";
-import { usePlatformName } from "../providers/SettingsProvider";
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { ErrorFallback } from "./ErrorFallback";
 import { Warning } from "./Warning";
@@ -27,7 +26,6 @@ export function SpecialErrorView() {
 
 export function App() {
     const { messaging } = useMessaging()
-    const platformName = usePlatformName()
 
     /**
      * @param {Error} error
@@ -39,7 +37,7 @@ export function App() {
     }
 
     return (
-        <main className={styles.main} data-platform-name={platformName}>
+        <main className={styles.main}>
             <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
                 <SpecialErrorView />
                 <WillThrow/>

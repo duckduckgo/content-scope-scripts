@@ -19,5 +19,5 @@ export function SettingsProvider({ settings, children }) {
 }
 
 export function usePlatformName() {
-    return useContext(SettingsContext).settings.platform.name
+    return useContext(SettingsContext).settings.platform?.name
 }

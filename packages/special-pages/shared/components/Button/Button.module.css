@@ -190,16 +190,18 @@
 
 
     @media (prefers-color-scheme: dark) {
-        --button-bg: var(--color-blue-30);
-        --button-text: var(--color-black-at-84);
+        &.primary {
+            --button-bg: var(--color-blue-30);
+            --button-text: var(--color-black-at-84);
 
-        /* Active */
-        --button-bg--active: var(--color-blue-50);
-        --button-text--active: var(--color-black-at-84);
+            /* Active */
+            --button-bg--active: var(--color-blue-50);
+            --button-text--active: var(--color-black-at-84);
 
-        /* Disabled */
-        --button-bg--disabled: var(--color-black-at-6);
-        --button-text--disabled: var(--color-black-at-36);
+            /* Disabled */
+            --button-bg--disabled: var(--color-black-at-6);
+            --button-text--disabled: var(--color-black-at-36);
+        }
 
         &.ghost {
             --button-bg: transparent;

@@ -24,4 +24,15 @@
 
         --visit-site-color: var(--color-gray-40);
     }
+
+    [data-platform-name="ios"] {
+        --theme-background-color: #222;
+    }
 }
+
+[data-platform-name="macos"], [data-platform-name="ios"] {
+    --theme-font: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
+
+
+

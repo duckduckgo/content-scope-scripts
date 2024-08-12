@@ -61,6 +61,8 @@ export async function init (messaging, baseEnvironment) {
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
 
+    document.body.dataset.platformName = settings.platform?.name
+
     const specialError = new SpecialError({ errorData: init.errorData })
         .withSampleErrorId(baseEnvironment.urlParams.get('errorId'))
 
