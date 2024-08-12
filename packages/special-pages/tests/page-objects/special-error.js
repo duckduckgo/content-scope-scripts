@@ -130,10 +130,10 @@ export class SpecialErrorPage {
     async showsExpiredPage () {
         const { page } = this
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
-        await expect(page.getByText('The security certificate for example.com is expired.', { exact: true })).toBeVisible()
+        await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
-        await expect(page.getByText('It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.', { exact: true })).toBeVisible()
+        await expect(page.getByText('The security certificate for example.com is expired. It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.', { exact: true })).toBeVisible()
     }
 
     async showsInvalidPage () {
@@ -142,25 +142,25 @@ export class SpecialErrorPage {
         await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
-        await expect(page.getByText('TODO', { exact: true })).toBeVisible()
+        await expect(page.getByText('The security certificate for example.com is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.', { exact: true })).toBeVisible()
     }
 
     async showsSelfSignedPage () {
         const { page } = this
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
-        await expect(page.getByText('The security certificate for example.com is not trusted by your device’s operating system.', { exact: true })).toBeVisible()
+        await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
-        await expect(page.getByText('TODO', { exact: true })).toBeVisible()
+        await expect(page.getByText('The security certificate for example.com is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.', { exact: true })).toBeVisible()
     }
 
     async showsWrongHostPage () {
         const { page } = this
         await expect(page.getByText('Warning: This site may be insecure', { exact: true })).toBeVisible()
-        await expect(page.getByText('The security certificate for example.com does not match anothersite.com.', { exact: true })).toBeVisible()
+        await expect(page.getByText('The certificate for this site is invalid. You might be connecting to a server that is pretending to be example.com which could put your confidential information at risk.', { exact: true })).toBeVisible()
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
-        await expect(page.getByText('It’s possible that the website is misconfigured or that an attacker has compromised your connection.', { exact: true })).toBeVisible()
+        await expect(page.getByText('The security certificate for example.com does not match *.anothersite.com. It’s possible that the website is misconfigured or that an attacker has compromised your connection.', { exact: true })).toBeVisible()
     }
 
     async showsPhishingPage () {
