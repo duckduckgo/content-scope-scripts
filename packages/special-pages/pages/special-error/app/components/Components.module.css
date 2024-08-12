@@ -17,19 +17,19 @@
     padding: var(--sp-5);
     gap: var(--sp-5);
 
-    & h1 {
-        padding: var(--sp-3) 0;
-    }
-
-    & h2 {
-        padding: var(--sp-2) 0;
-    }
-
-    section {
+    & > section {
         display: flex;
         flex-flow: column;
         border-top: 1px solid var(--theme-text-primary-color);
         padding: var(--sp-3);
         gap: var(--sp-3);
+
+        & > h1 {
+            padding: var(--sp-3) 0;
+        }
+
+        & > h2 {
+            padding: var(--sp-2) 0;
+        }
     }
 }

@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import { useTypedTranslation } from "../types"
-import { useErrorData } from "../providers/ErrorDataProvider";
+import { useErrorData } from "../providers/SpecialErrorProvider";
 import { Trans } from "../../../../shared/components/TranslationsProvider";
 import { phishingHelpPageURL } from "../constants";
 
@@ -23,7 +23,7 @@ const phishingAnchorTagValues = {
  */
 export function useWarningHeading() {
     const { t } = useTypedTranslation()
-    const { kind } = useErrorData().errorData
+    const { kind } = useErrorData()
 
     if (kind === 'phishing') {
         return t('phishingPageHeading')
@@ -41,8 +41,8 @@ export function useWarningHeading() {
  */
 export function useWarningContent() {
     const { t } = useTypedTranslation()
-    const { errorData } = useErrorData()
-    const { kind } = errorData
+    const errorData = useErrorData()
+    const { kind } = useErrorData()
 
     if (kind === 'phishing') {
         return [
@@ -65,7 +65,7 @@ export function useWarningContent() {
  */
 export function useAdvancedInfoHeading() {
     const { t } = useTypedTranslation()
-    const { kind } = useErrorData().errorData
+    const { kind } = useErrorData()
 
     if (kind === 'phishing') {
         return t('phishingAdvancedInfoHeading')
@@ -83,7 +83,7 @@ export function useAdvancedInfoHeading() {
  */
 export function useAdvancedInfoContent() {
     const { t } = useTypedTranslation()
-    const { errorData } = useErrorData()
+    const errorData = useErrorData()
     const { kind } = errorData
 
     if (kind === 'phishing') {

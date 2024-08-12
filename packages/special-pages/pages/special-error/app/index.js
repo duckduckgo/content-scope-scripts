@@ -6,13 +6,16 @@ import { Components } from './components/Components.jsx'
 
 import enStrings from '../src/locales/en/special-error.json'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
-import { ErrorDataProvider } from './providers/ErrorDataProvider.js'
 import { MessagingProvider } from './providers/MessagingProvider.js'
+import { SettingsProvider } from './providers/SettingsProvider.jsx'
+import { SpecialErrorProvider } from './providers/SpecialErrorProvider.js'
 import { callWithRetry } from '../../../shared/call-with-retry.js'
+
+import { Settings } from './settings.js'
+import { SpecialError } from './specialError.js'
 
 import '../../../shared/styles/global.css' // global styles
 import './styles/variables.css' // Page-specific variables
-import { UIProvider } from './providers/UIProvider.js'
 
 /**
  * @param {import("../src/js/index.js").SpecialErrorPage} messaging
@@ -30,8 +33,6 @@ export async function init (messaging, baseEnvironment) {
     if (missingProperties.length > 0) {
         throw new Error(`Missing setup data: ${missingProperties.join(', ')}`)
     }
-
-    const { errorData, platform } = init
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -55,6 +56,14 @@ export async function init (messaging, baseEnvironment) {
                 return enStrings
             })
 
+    const settings = new Settings({})
+        .withPlatformName(baseEnvironment.injectName)
+        .withPlatformName(init.platform?.name)
+        .withPlatformName(baseEnvironment.urlParams.get('platform'))
+
+    const specialError = new SpecialError({ errorData: init.errorData })
+        .withSampleErrorId(baseEnvironment.urlParams.get('errorId'))
+
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')
 
@@ -62,30 +71,30 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider
                 debugState={environment.debugState}
-                platform={environment.platform}
+                injectName={environment.injectName}
                 willThrow={environment.willThrow}
             >
                 <UpdateEnvironment search={window.location.search}/>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingProvider messaging={messaging}>
-                        <ErrorDataProvider errorData={errorData} platformName={platform.name}>
-                            <UIProvider>
+                        <SettingsProvider settings={settings}>
+                            <SpecialErrorProvider specialError={specialError}>
                                 <App/>
-                            </UIProvider>
-                        </ErrorDataProvider>
+                            </SpecialErrorProvider>
+                        </SettingsProvider>
                     </MessagingProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)
     } else if (environment.display === 'components') {
         render(
-            <EnvironmentProvider debugState={false} platform={environment.platform}>
+            <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <ErrorDataProvider errorData={errorData} platformName='macos'>
-                        <UIProvider>
+                    <SettingsProvider settings={settings}>
+                        <SpecialErrorProvider specialError={specialError}>
                             <Components />
-                        </UIProvider>
-                    </ErrorDataProvider>
+                        </SpecialErrorProvider>
+                    </SettingsProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)

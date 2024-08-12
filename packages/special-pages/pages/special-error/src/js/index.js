@@ -102,18 +102,18 @@ export class IntegrationSpecialErrorPage extends SpecialErrorPage {
 }
 
 const baseEnvironment = new Environment()
-    .withPlatform(document.documentElement.dataset.platform)
+    .withInjectName(document.documentElement.dataset.platform)
     .withEnv(import.meta.env)
 
 const messaging = createSpecialPageMessaging({
-    injectName: baseEnvironment.platform,
+    injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
     pageName: /** @type {string} */(import.meta.pageName)
 })
 
-const specialErrorPage = baseEnvironment.platform === 'integration'
-    ? new IntegrationSpecialErrorPage(messaging, baseEnvironment.platform)
-    : new SpecialErrorPage(messaging, baseEnvironment.platform)
+const specialErrorPage = baseEnvironment.injectName === 'integration'
+    ? new IntegrationSpecialErrorPage(messaging, baseEnvironment.injectName)
+    : new SpecialErrorPage(messaging, baseEnvironment.injectName)
 
 init(specialErrorPage, baseEnvironment).catch(e => {
     // messages.

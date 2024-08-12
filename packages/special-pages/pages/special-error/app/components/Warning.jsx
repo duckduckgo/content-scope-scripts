@@ -1,27 +1,28 @@
-import { Fragment, h } from 'preact'
+import { h } from 'preact'
 import classNames from 'classnames'
 import { useTypedTranslation } from '../types'
 import { useMessaging } from '../providers/MessagingProvider'
-import { useAdvancedInfo } from '../providers/UIProvider'
-import { useErrorData, usePlatformName } from '../providers/ErrorDataProvider'
+import { useErrorData } from '../providers/SpecialErrorProvider'
+import { usePlatformName } from '../providers/SettingsProvider'
 import { useWarningHeading, useWarningContent } from '../hooks/ErrorStrings'
 import { Text } from '../../../../shared/components/Text/Text'
 import { Button } from '../../../../shared/components/Button/Button'
 
 import styles from './Warning.module.css'
 
-export function AdvancedInfoButton() {
+/**
+ * @param {object} props
+ * @param {import('preact').JSX.MouseEventHandler<EventTarget>} props.onClick
+ */
+export function AdvancedInfoButton({ onClick }) {
     const { t } = useTypedTranslation()
-    const { showAdvancedInfo, advancedButtonHandler } = useAdvancedInfo()
-    const { platformName } = usePlatformName()
-
-    if (showAdvancedInfo) return null
+    const platformName = usePlatformName()
 
     return (
         <Button
             variant={platformName === 'macos' ? 'standard' : 'ghost'}
             className={classNames(styles.button, styles.advanced)}
-            onClick={() => advancedButtonHandler()}>
+            onClick={onClick}>
             {platformName === 'ios' ? t('advancedButton') : t('advancedEllipsisButton')}
         </Button>
     )
@@ -30,7 +31,7 @@ export function AdvancedInfoButton() {
 export function LeaveSiteButton() {
     const { t } = useTypedTranslation()
     const { messaging } = useMessaging()
-    const { platformName } = usePlatformName()
+    const platformName = usePlatformName()
 
     return (
         <Button
@@ -43,9 +44,9 @@ export function LeaveSiteButton() {
 }
 
 export function WarningHeading() {
-    const { kind } = useErrorData().errorData
+    const { kind } = useErrorData()
     const heading = useWarningHeading()
-    const { platformName } = usePlatformName()
+    const platformName = usePlatformName()
 
     return (
         <header className={classNames(styles.heading, styles[kind])}>
@@ -65,7 +66,12 @@ export function WarningContent() {
     )
 }
 
-export function Warning() {
+/**
+ * @param {object} props
+ * @param {boolean} props.advancedInfoVisible
+ * @param {() => void} props.advancedButtonHandler
+ */
+export function Warning({ advancedInfoVisible, advancedButtonHandler}) {
     return (
         <section className={styles.container}>
             <WarningHeading />
@@ -73,7 +79,7 @@ export function Warning() {
             <WarningContent />
 
             <div className={styles.buttonContainer}>
-                <AdvancedInfoButton />
+                {!advancedInfoVisible && <AdvancedInfoButton onClick={() => advancedButtonHandler()}/>}
                 <LeaveSiteButton />
             </div>
         </section>

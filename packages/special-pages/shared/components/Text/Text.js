@@ -7,12 +7,13 @@ import styles from './Text.module.css'
  * @param {import('preact').JSX.ElementType} [props.as]
  * @param {Omit<keyof styles, "text">} [props.variant]
  * @param {string} [props.className]
+ * @param {boolean} [props.strictSpacing]
  * @param {import("preact").ComponentChild} [props.children]
  * @param {import("preact").JSX.MouseEventHandler<EventTarget>} [props.onClick]
  */
-export function Text ({ as: Comp = 'p', variant, className, children, onClick }) {
+export function Text ({ as: Comp = 'p', variant, strictSpacing = true, className, children, onClick }) {
     return (
-        <Comp className={classNames({ [styles[`${variant}`]]: variant }, className)}
+        <Comp className={classNames({ [styles[`${variant}`]]: variant, [styles.strictSpacing]: strictSpacing }, className)}
             onClick={
                 /**
                  * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event

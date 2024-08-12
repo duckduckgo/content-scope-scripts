@@ -1,29 +1,33 @@
 import { h } from "preact";
-import { usePlatformName } from "../providers/ErrorDataProvider";
+import { useState } from "preact/hooks";
 import { useEnv } from "../../../../shared/components/EnvironmentProvider";
 import { useMessaging } from "../providers/MessagingProvider";
+import { usePlatformName } from "../providers/SettingsProvider";
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { ErrorFallback } from "./ErrorFallback";
 import { Warning } from "./Warning";
 import { AdvancedInfo } from "./AdvancedInfo";
-import { useAdvancedInfo } from "../providers/UIProvider";
 
 import styles from "./App.module.css";
 
-export function SpecialError() {
-    const { showAdvancedInfo } = useAdvancedInfo()
+export function SpecialErrorView() {
+    const [advancedInfoVisible, setAdvancedInfoVisible] = useState(false)
+
+    const advancedButtonHandler = () => {
+        setAdvancedInfoVisible(true)
+    }
 
     return (
         <div className={styles.container}>
-            <Warning />
-            { showAdvancedInfo && <AdvancedInfo />}
+            <Warning advancedInfoVisible={advancedInfoVisible} advancedButtonHandler={advancedButtonHandler}/>
+            { advancedInfoVisible && <AdvancedInfo />}
         </div>
     )
 }
 
 export function App() {
     const { messaging } = useMessaging()
-    const { platformName } = usePlatformName()
+    const platformName = usePlatformName()
 
     /**
      * @param {Error} error
@@ -37,7 +41,7 @@ export function App() {
     return (
         <main className={styles.main} data-platform-name={platformName}>
             <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
-                <SpecialError />
+                <SpecialErrorView />
                 <WillThrow/>
             </ErrorBoundary>
         </main>

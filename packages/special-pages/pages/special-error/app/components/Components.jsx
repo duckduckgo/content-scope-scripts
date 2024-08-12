@@ -1,18 +1,14 @@
 import { h } from "preact";
-import { usePlatformName, useErrorData } from "../providers/ErrorDataProvider";
-import { UIProvider } from "../providers/UIProvider";
+import { usePlatformName } from "../providers/SettingsProvider";
+import { useErrorData } from "../providers/SpecialErrorProvider";
 import { Warning, WarningHeading, WarningContent, AdvancedInfoButton, LeaveSiteButton } from "./Warning";
 import { AdvancedInfo, AdvancedInfoHeading, AdvancedInfoContent, VisitSiteLink } from "./AdvancedInfo";
-import { SpecialError } from "./App";
+import { SpecialErrorView } from "./App";
 import { sampleData } from "../../src/js/sampleData";
 
 import styles from "./Components.module.css";
 
-/**
- * @typedef {Pick<import("../../../../types/special-error.js").InitialSetupResponse, "errorData" | "platform">} AppSettings
- */
-
-/** @type {Record<Extract<AppSettings['platform']['name'], "macos"|"ios">, string>} */
+/** @type {Record<Extract<import("../../../../types/special-error.js").InitialSetupResponse['platform']['name'], "macos"|"ios">, string>} */
 const platforms = {
     'macos': 'macOS',
     'ios': 'iOS'
@@ -32,18 +28,22 @@ function idForError(errorData) {
 }
 
 export function Components() {
-    const { platformName, updatePlatformName } = usePlatformName()
-    const { errorData, updateErrorData } = useErrorData()
+    const platformName = usePlatformName()
+    const errorData = useErrorData()
 
     const handlePlatformChange = (value) => {
         if (Object.keys(platforms).includes(value)) {
-            updatePlatformName(value)
+            const url = new URL(window.location.href)
+            url.searchParams.set('platform', value)
+            window.location.href = url.toString()
         }
     }
 
     const handleErrorTypeChange = (value) => {
         if (Object.keys(sampleData).includes(value)) {
-            updateErrorData(sampleData[value].data)
+            const url = new URL(window.location.href)
+            url.searchParams.set('errorId', value)
+            window.location.href = url.toString()
         }
     }
 
@@ -108,7 +108,7 @@ export function Components() {
                 <section>
                     <h2>Advanced Info Button</h2>
                     <div>
-                        <AdvancedInfoButton />
+                        <AdvancedInfoButton onClick={() => {}}/>
                     </div>
                 </section>
 
@@ -122,7 +122,7 @@ export function Components() {
                 <section>
                     <h2>Warning</h2>
                     <div>
-                        <Warning />
+                        <Warning advancedInfoVisible={false} advancedButtonHandler={() => {}}/>
                     </div>
                 </section>
 
@@ -134,9 +134,9 @@ export function Components() {
                 </section>
 
                 <section>
-                    <h2>Special Error</h2>
+                    <h2>Special Error View</h2>
                     <div>
-                        <SpecialError />
+                        <SpecialErrorView />
                     </div>
                 </section>
             </main>
