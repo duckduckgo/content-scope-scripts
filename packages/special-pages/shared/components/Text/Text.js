@@ -7,7 +7,7 @@ import styles from './Text.module.css'
  * @param {import('preact').JSX.ElementType} [props.as]
  * @param {Omit<keyof styles, "text">} [props.variant]
  * @param {string} [props.className]
- * @param {boolean} [props.strictSpacing]
+ * @param {boolean} [props.strictSpacing] - Apply Design System letter spacing. Default: true
  * @param {import("preact").ComponentChild} [props.children]
  * @param {import("preact").JSX.MouseEventHandler<EventTarget>} [props.onClick]
  */
