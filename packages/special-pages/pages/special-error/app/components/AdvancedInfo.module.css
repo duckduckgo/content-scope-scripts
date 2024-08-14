@@ -34,7 +34,7 @@
     }
     100% {
         padding: var(--sp-6) var(--sp-10);
-        max-height: 400px;
+        max-height: calc(400 * var(--px-in-rem));
     }
 }
 
