@@ -6954,19 +6954,30 @@
       };
     }, []);
     p2(() => {
+      const controller = new AbortController();
+      let enabled2 = true;
+      document.body.addEventListener("pointerdown", () => {
+        setCurrentText(text);
+        setCurrentIndex(text.length);
+        enabled2 = false;
+      }, { signal: controller.signal });
       if (currentIndex < text.length) {
         const timeout = setTimeout(
           () => {
+            if (!enabled2)
+              return;
             setCurrentText((prevText) => prevText + text[currentIndex]);
             setCurrentIndex((prevIndex) => prevIndex + 1);
           },
           text[currentIndex] === "\n" ? delay * 10 : delay
         );
-        return () => clearTimeout(timeout);
+        return () => {
+          clearTimeout(timeout);
+          controller.abort();
+        };
       } else {
         localOnComplete();
-        return () => {
-        };
+        return () => controller.abort();
       }
     }, [currentIndex, delay, text]);
     function updatePlacement() {
