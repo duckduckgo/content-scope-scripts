@@ -728,7 +728,8 @@
         android: [
             ...baseFeatures,
             'webCompat',
-            'clickToLoad'
+            'clickToLoad',
+            'breakageReporting'
         ],
         windows: [
             'cookie',
