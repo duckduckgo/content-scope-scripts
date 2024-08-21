@@ -108,7 +108,7 @@
       ]
     },
     "localeStrings": {
-      "type": "object",
+      "type": "string",
       "description": "Optional locale-specific strings"
     }
   }

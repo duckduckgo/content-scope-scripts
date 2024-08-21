@@ -67,7 +67,7 @@ export interface InitialSetupResponse {
   /**
    * Optional locale-specific strings
    */
-  localeStrings?: {};
+  localeStrings?: string;
 }
 export interface Phishing {
   kind: "phishing";

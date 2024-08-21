@@ -45,7 +45,7 @@ export async function init (messaging, baseEnvironment) {
 
     const strings = environment.locale === 'en'
         ? enStrings
-        : init.localeStrings || await loadDynamic(environment.locale)
+        : await loadDynamic(init.localeStrings, environment.locale)
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -94,7 +94,20 @@ export async function init (messaging, baseEnvironment) {
     }
 }
 
-function loadDynamic (locale) {
+/**
+ * @param {string|null|undefined} maybeString
+ * @param {string} locale
+ * @return {Promise<any>|any}
+ */
+function loadDynamic (maybeString, locale) {
+    if (typeof maybeString === 'string') {
+        try {
+            return JSON.parse(maybeString)
+        } catch (e) {
+            console.log('could not use string', e)
+            console.log('trying to load from disk...')
+        }
+    }
     const v = document.querySelector('[id="locale-strings"]')
     if (v) {
         try {
