@@ -45,7 +45,7 @@ export async function init (messaging, baseEnvironment) {
 
     const strings = environment.locale === 'en'
         ? enStrings
-        : await loadDynamic(environment.locale)
+        : init.localeStrings || await loadDynamic(environment.locale)
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
