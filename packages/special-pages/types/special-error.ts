@@ -64,6 +64,9 @@ export interface InitialSetupResponse {
     name: "macos" | "windows" | "android" | "ios";
   };
   errorData: Phishing | SSLExpiredCertificate | SSLInvalidCertificate | SSLSelfSignedCertificate | SSLWrongHost;
+  /**
+   * Optional locale-specific strings
+   */
   localeStrings?: {};
 }
 export interface Phishing {
