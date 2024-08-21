@@ -53,7 +53,7 @@ export const support = {
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'special-error': {
         'integration': ['copy', 'build-js'],
-        'apple': ['copy', 'build-js'],
+        'apple': ['copy', 'build-js', 'inline-html'],
     },
 }
 
