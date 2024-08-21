@@ -16,7 +16,7 @@ import { SpecialError } from './specialError.js'
 
 import '../../../shared/styles/global.css' // global styles
 import './styles/variables.css'
-import { decodeHtml } from "../../../../../src/dom-utils.js"; // Page-specific variables
+import { decodeHtml } from '../../../../../src/dom-utils.js' // Page-specific variables
 
 /**
  * @param {import("../src/js/index.js").SpecialErrorPage} messaging
@@ -94,22 +94,24 @@ export async function init (messaging, baseEnvironment) {
     }
 }
 
-function loadDynamic(locale) {
-    const v = document.querySelector('[id="locale-strings"]');
+function loadDynamic (locale) {
+    const v = document.querySelector('[id="locale-strings"]')
     if (v) {
         try {
             console.log('raw', v.textContent)
-            const decoded = decodeHtml(v.textContent);
+            const decoded = decodeHtml(v.textContent)
             console.log('decoded', decoded)
-            const json = JSON.parse(decoded);
-            console.log('did load', json);
+            const json = JSON.parse(decoded)
+            console.log('did load', json)
             return json
         } catch (e) {
-            console.log('did not load', e);
-            console.log('trying to load from disk...');
+            console.log('did not load', e)
+            console.log('trying to load from disk...')
         }
     }
+
     return fetch(`./locales/${locale}/special-error.json`)
+        // eslint-disable-next-line promise/prefer-await-to-then
         .then(resp => {
             if (!resp.ok) {
                 throw new Error('did not give a result')
@@ -117,6 +119,7 @@ function loadDynamic(locale) {
             console.log('resp?', resp)
             return resp.json()
         })
+        // eslint-disable-next-line promise/prefer-await-to-then
         .catch(e => {
             console.error('Could not load locale', locale, e)
             return enStrings
