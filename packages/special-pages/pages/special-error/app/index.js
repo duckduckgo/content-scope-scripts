@@ -45,7 +45,8 @@ export async function init (messaging, baseEnvironment) {
 
     const strings = environment.locale === 'en'
         ? enStrings
-        : await loadDynamic(init.localeStrings, environment.locale)
+        : await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale)
+            || enStrings
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -95,46 +96,40 @@ export async function init (messaging, baseEnvironment) {
 }
 
 /**
- * @param {string|null|undefined} maybeString
+ * @param {string|null|undefined} stringInput
  * @param {string} locale
- * @return {Promise<any>|any}
+ * @return {Promise<Record<string, any> | null>}
  */
-function loadDynamic (maybeString, locale) {
-    if (typeof maybeString === 'string') {
-        try {
-            return JSON.parse(maybeString)
-        } catch (e) {
-            console.log('could not use string', e)
-            console.log('trying to load from disk...')
+async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
+    let jsonData;
+
+    /**
+     * This is a special situation - the native side (iOS/macOS at the time) wanted to
+     * use a single HTML file for the error pages. This created an issues since special pages
+     * would like to load the translation files dynamically. The solution we came up with,
+     * is to add the translation data as a string on the native side. This keeps all
+     * the translations in the FE codebase.
+     */
+    try {
+        if (stringInput) {
+            jsonData = JSON.parse(stringInput);
+            return jsonData;  // Return if parsing is successful
         }
-    }
-    const v = document.querySelector('[id="locale-strings"]')
-    if (v) {
-        try {
-            console.log('raw', v.textContent)
-            const decoded = decodeHtml(v.textContent)
-            console.log('decoded', decoded)
-            const json = JSON.parse(decoded)
-            console.log('did load', json)
-            return json
-        } catch (e) {
-            console.log('did not load', e)
-            console.log('trying to load from disk...')
-        }
+    } catch (e) {
+        console.warn("String could not be parsed. Falling back to fetch...");
     }
 
-    return fetch(`./locales/${locale}/special-error.json`)
-        // eslint-disable-next-line promise/prefer-await-to-then
-        .then(resp => {
-            if (!resp.ok) {
-                throw new Error('did not give a result')
-            }
-            console.log('resp?', resp)
-            return resp.json()
-        })
-        // eslint-disable-next-line promise/prefer-await-to-then
-        .catch(e => {
-            console.error('Could not load locale', locale, e)
-            return enStrings
-        })
+    // If parsing failed or stringInput was null/undefined, proceed with fetch
+    try {
+        const response = await fetch(`./locales/${locale}/special-error.json`);
+        if (!response.ok) {
+            console.error("Network response was not ok");
+            return null
+        }
+        jsonData = await response.json();
+        return jsonData;  // Return the fetched and parsed JSON data
+    } catch (e) {
+        console.error("Failed to fetch or parse JSON from the network:", e);
+        return null
+    }
 }
