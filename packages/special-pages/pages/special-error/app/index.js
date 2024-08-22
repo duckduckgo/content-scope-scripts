@@ -16,7 +16,6 @@ import { SpecialError } from './specialError.js'
 
 import '../../../shared/styles/global.css' // global styles
 import './styles/variables.css'
-import { decodeHtml } from '../../../../../src/dom-utils.js' // Page-specific variables
 
 /**
  * @param {import("../src/js/index.js").SpecialErrorPage} messaging
@@ -45,8 +44,8 @@ export async function init (messaging, baseEnvironment) {
 
     const strings = environment.locale === 'en'
         ? enStrings
-        : await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale)
-            || enStrings
+        : await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale) ||
+            enStrings
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -96,13 +95,11 @@ export async function init (messaging, baseEnvironment) {
 }
 
 /**
- * @param {string|null|undefined} stringInput
+ * @param {string|null|undefined} stringInput - optional string input. Might be a string of JSON
  * @param {string} locale
  * @return {Promise<Record<string, any> | null>}
  */
-async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
-    let jsonData;
-
+async function getTranslationsFromStringOrLoadDynamically (stringInput, locale) {
     /**
      * This is a special situation - the native side (iOS/macOS at the time) wanted to
      * use a single HTML file for the error pages. This created an issues since special pages
@@ -110,26 +107,24 @@ async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
      * is to add the translation data as a string on the native side. This keeps all
      * the translations in the FE codebase.
      */
-    try {
-        if (stringInput) {
-            jsonData = JSON.parse(stringInput);
-            return jsonData;  // Return if parsing is successful
+    if (stringInput) {
+        try {
+            return JSON.parse(stringInput)
+        } catch (e) {
+            console.warn('String could not be parsed. Falling back to fetch...')
         }
-    } catch (e) {
-        console.warn("String could not be parsed. Falling back to fetch...");
     }
 
     // If parsing failed or stringInput was null/undefined, proceed with fetch
     try {
-        const response = await fetch(`./locales/${locale}/special-error.json`);
+        const response = await fetch(`./locales/${locale}/special-error.json`)
         if (!response.ok) {
-            console.error("Network response was not ok");
+            console.error('Network response was not ok')
             return null
         }
-        jsonData = await response.json();
-        return jsonData;  // Return the fetched and parsed JSON data
+        return await response.json()
     } catch (e) {
-        console.error("Failed to fetch or parse JSON from the network:", e);
+        console.error('Failed to fetch or parse JSON from the network:', e)
         return null
     }
 }
