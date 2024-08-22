@@ -23,6 +23,12 @@ test.describe('special-error', () => {
         await special.showsExpiredPage()
     })
 
+    test('shows SSL expired cert error in polish', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo)
+        await special.openPage({ errorId: 'ssl.expired', locale: 'pl' })
+        await special.showsExpiredPageInPolish()
+    })
+
     test('shows SSL invalid cert error', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo)
         await special.openPage({ errorId: 'ssl.invalid' })

@@ -3,6 +3,9 @@ import { expect } from '@playwright/test'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 import { join } from 'node:path'
 import { sampleData } from '../../pages/special-error/src/js/sampleData'
+import { createRequire } from 'node:module'
+import { readFileSync } from 'node:fs'
+const require = createRequire(import.meta.url)
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -34,22 +37,40 @@ export class SpecialErrorPage {
      * @param {Object} [params] - Optional parameters for opening the page.
      * @param {'app'|'components'} [params.env] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
-]    * @param {keyof sampleData} [params.errorId] - ID of the error to be mocked (see sampleData.js)
+     * @param {keyof sampleData} [params.errorId] - ID of the error to be mocked (see sampleData.js)
      * @param {'macos'|'ios'} [params.platformName] - platform name
+     * @param {string} [params.locale] - locale
      */
-    async openPage ({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = 'macos' } = { }) {
+    async openPage ({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = 'macos', locale } = { }) {
+        /** @type {import('../../types/special-error.js').InitialSetupResponse} */
+        const initialSetup = {
+            env: 'development',
+            locale: 'en',
+            platform: {
+                name: platformName
+            },
+            errorData: sampleData[errorId].data
+        }
+
+        /**
+         * This is here to mimic the logic that will occur in the native layer.
+         * A JSON file will be selected based on the user's locale setting and will be delivered as a string
+         *
+         * NOTE: this will throw an execution if the file is absent, but I am deliberately not
+         * catching it here and letting it bubble up to fail the playwright test in question.
+         */
+        if (locale && locale.length === 2) {
+            const localeStrings = readFileSync(require.resolve(`../../pages/special-error/src/locales/${locale}/special-error.json`), 'utf8')
+            initialSetup.localeStrings = localeStrings
+            initialSetup.locale = locale
+        }
+
         this.mocks.defaultResponses({
-            initialSetup: {
-                env: 'development',
-                locale: 'en',
-                platform: {
-                    name: platformName
-                },
-                errorData: sampleData[errorId].data
-            }
+            initialSetup
         })
 
         await this.mocks.install()
+
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
             // try to serve assets, but change `/` to 'index'
@@ -134,6 +155,11 @@ export class SpecialErrorPage {
         await this.showsAdvancedInfo()
         await expect(page.getByText('DuckDuckGo warns you when a website has an invalid certificate.', { exact: true })).toBeVisible()
         await expect(page.getByText('The security certificate for example.com is expired. It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.', { exact: true })).toBeVisible()
+    }
+
+    async showsExpiredPageInPolish () {
+        const { page } = this
+        await expect(page.getByRole('heading')).toContainText('Ostrzeżenie: ta witryna może być niebezpieczna')
     }
 
     async showsInvalidPage () {
