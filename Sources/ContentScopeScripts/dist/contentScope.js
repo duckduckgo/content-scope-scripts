@@ -3025,7 +3025,10 @@
           forcedValues["user-scalable"] = "yes";
           forcedValues["maximum-scale"] = 10;
         }
-        if (!viewportTag || this.desktopModeEnabled) {
+        if (this.getFeatureSettingEnabled("plainTextViewPort") && document.contentType === "text/plain") {
+          forcedValues.width = "device-width";
+          forcedValues["initial-scale"] = 1;
+        } else if (!viewportTag || this.desktopModeEnabled) {
           forcedValues.width = screen.width >= 1280 ? 1280 : 980;
           forcedValues["initial-scale"] = (screen.width / forcedValues.width).toFixed(3);
           forcedValues["user-scalable"] = "yes";
