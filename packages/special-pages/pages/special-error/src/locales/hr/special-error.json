@@ -25,7 +25,7 @@
     "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
   },
   "phishingPageHeading" : {
-    "title" : "Upozorenje: ovo web-mjesto ugrožava vaše osobne podatke",
+    "title" : "Upozorenje: ovo web-mjesto ugrožava tvoje osobne podatke",
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
   },
   "phishingWarningText" : {
@@ -37,11 +37,11 @@
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
   },
   "phishingAdvancedInfoText_1" : {
-    "title" : "Warnings are shown for websites that have been reported to be deceptive. Deceptive websites try to trick you into believing they are legitimate websites you trust. If you understand the risks involved, you can continue anyway.",
+    "title" : "Upozorenja se prikazuju za web-mjesta za koje je prijavljeno da su obmanjujuća. Obmanjujuća web-mjesta pokušavaju te prevariti u smislu da povjerujete kako se radi o stvarnim web-mjestima kojima se može vjerovati. Ako razumiješ rizike, svejedno možeš nastaviti.",
     "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
   },
   "phishingAdvancedInfoText_2" : {
-    "title" : "See our <a>Phishing and Malware Protection help page</a> for more information.",
+    "title" : "Više informacija potraži na našoj <a>stranici pomoći za zaštitu od krađe identiteta i zlonamjernog softvera</a> .",
     "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
   },
   "sslPageHeading" : {
@@ -57,19 +57,19 @@
     "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
   },
   "sslExpiredAdvancedInfoText" : {
-    "title" : "The security certificate for <b>{domain}</b> is expired. It’s possible that the website is misconfigured, that an attacker has compromised your connection, or that your system clock is incorrect.",
+    "title" : "Sigurnosni certifikat za <b>{domain}</b> je istekao. Moguće je da je web-mjesto pogrešno konfigurirano, da je napadač ugrozio tvoju vezu ili da je sat tvog sustava netočan.",
     "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
   },
   "sslInvalidAdvancedInfoText" : {
-    "title" : "The security certificate for <b>{domain}</b> is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
+    "title" : "Operativni sustav tvog uređaja ne vjeruje sigurnosnom certifikatu za <b>{domain}</b>. Moguće je da je web-mjesto pogrešno konfigurirano ili da je napadač ugrozio tvoju vezu.",
     "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
   },
   "sslSelfSignedAdvancedInfoText" : {
-    "title" : "The security certificate for <b>{domain}</b> is not trusted by your device’s operating system. It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
+    "title" : "Operativni sustav tvog uređaja ne vjeruje sigurnosnom certifikatu za <b>{domain}</b>. Moguće je da je web-mjesto pogrešno konfigurirano ili da je napadač ugrozio tvoju vezu.",
     "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
   },
   "sslWrongHostAdvancedInfoText" : {
-    "title" : "The security certificate for <b>{domain}</b> does not match <b>*.{eTldPlus1}</b>. It’s possible that the website is misconfigured or that an attacker has compromised your connection.",
+    "title" : "Sigurnosni certifikat za <b>{domain}</b> ne odgovara <b>*.{eTldPlus1}</b>. Moguće je da je web-mjesto pogrešno konfigurirano ili da je napadač ugrozio tvoju vezu.",
     "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The two placeholders are website domain names (example: duckduckgo.com)."
   }
 }
