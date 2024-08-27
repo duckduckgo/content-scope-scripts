@@ -194,6 +194,12 @@ function stringValuesFromElements (elements, key, extractField) {
     })
 }
 
+export function calculateMatchingScore(userData, scrapedData) {
+    const nameMatches = getNameMatches() // exact, partial, multiple
+    const ageMatches = getAgeMatches() // exact, partial
+    const addressMatches = getAddressMatches() // exact, partial, multiple
+};
+
 /**
  * Try to filter partial data based on the user's actual profile data
  * @param {Record<string, any>} userData
