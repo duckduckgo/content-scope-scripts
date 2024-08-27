@@ -96,6 +96,9 @@ export interface DuckPlayerPageSettings {
   autoplay?: {
     state: "enabled" | "disabled";
   };
+  focusMode?: {
+    state: "enabled" | "disabled";
+  };
 }
 /**
  * Generated from @see "../messages/duckplayer/setUserValues.request.json"

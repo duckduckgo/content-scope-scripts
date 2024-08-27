@@ -51,6 +51,9 @@ export class DuckPlayerPage {
                 settings: {
                     pip: {
                         state: 'disabled'
+                    },
+                    focusMode: {
+                        state: 'disabled'
                     }
                 },
                 userValues: {
@@ -115,6 +118,15 @@ export class DuckPlayerPage {
     }
 
     /**
+     * @param {{ state: 'enabled' | 'disabled' }} setting
+     */
+    focusModeSettingIs (setting) {
+        const clone = structuredClone(this.defaults)
+        clone.initialSetup.settings.focusMode = setting
+        this.mocks.defaultResponses(clone)
+    }
+
+    /**
      * We don't need to actually load the content for these tests.
      * By mocking the response, we make the tests about 10x faster and also ensure they work offline.
      * @param {URLSearchParams} urlParams
@@ -160,7 +172,7 @@ export class DuckPlayerPage {
                             padding: 0;
                             height: 100%;
                             width: 100%;
-                            background: black; 
+                            background: black;
                             color: white;
                             display: grid;
                             align-items: center;
@@ -257,6 +269,17 @@ export class DuckPlayerPage {
     async pipButtonIsAbsent () {
         const count = await this.page.frameLocator('iframe').getByRole('button', { name: 'PIP' }).count()
         expect(count).toBe(0)
+    }
+
+    /**
+     * @param {'on'|'off'} focusModeValue
+     */
+    async focusModeIs (focusModeValue) {
+        await expect(this.page.getByRole('document')).toHaveAttribute('data-focus-mode', focusModeValue)
+    }
+
+    async focusModeIsAbsent () {
+        await expect(this.page.getByRole('document')).not.toHaveAttribute('data-focus-mode')
     }
 
     async hasTheSameTitleAsEmbed () {
