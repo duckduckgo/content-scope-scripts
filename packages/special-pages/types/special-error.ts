@@ -12,11 +12,18 @@
  */
 export interface SpecialErrorMessages {
   notifications:
+    | AdvancedInfoNotification
     | LeaveSiteNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | VisitSiteNotification;
   requests: InitialSetupRequest;
+}
+/**
+ * Generated from @see "../messages/special-error/advancedInfo.notify.json"
+ */
+export interface AdvancedInfoNotification {
+  method: "advancedInfo";
 }
 /**
  * Generated from @see "../messages/special-error/leaveSite.notify.json"

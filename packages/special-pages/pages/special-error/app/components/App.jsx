@@ -11,8 +11,10 @@ import styles from "./App.module.css";
 
 export function SpecialErrorView() {
     const [advancedInfoVisible, setAdvancedInfoVisible] = useState(false)
+    const { messaging } = useMessaging()
 
     const advancedButtonHandler = () => {
+        messaging?.advancedInfo()
         setAdvancedInfoVisible(true)
     }
 

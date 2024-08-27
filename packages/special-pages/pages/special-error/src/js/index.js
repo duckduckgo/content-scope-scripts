@@ -68,6 +68,13 @@ export class SpecialErrorPage {
     visitSite () {
         this.messaging.notify('visitSite')
     }
+
+    /**
+     * This will be sent when the user clicks the Advanced Info button
+     */
+    advancedInfo () {
+        this.messaging.notify('advancedInfo')
+    }
 }
 
 export class IntegrationSpecialErrorPage extends SpecialErrorPage {
