@@ -19,6 +19,13 @@ body {
         padding-top: var(--sp-10);
         align-items: flex-start;
     }
+
+    @media (max-height: 700px) {
+        [data-platform-name="ios"] & {
+            padding-top: var(--sp-10);
+            align-items: flex-start;
+        }
+    }
 }
 
 .container {
