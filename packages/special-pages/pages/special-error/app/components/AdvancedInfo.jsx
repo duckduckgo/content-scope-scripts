@@ -14,8 +14,11 @@ export function VisitSiteLink() {
     const { t } = useTypedTranslation()
 
     useEffect(() => {
+        if (!spanRef.current) return;
+        const span =  spanRef.current;
+
         const scrollToLink = () => {
-            spanRef.current?.scrollIntoView({ behavior: 'smooth' })
+            span.scrollIntoView({ behavior: 'smooth' })
         }
         window.addEventListener('advanced-info-animation-end', scrollToLink)
 
