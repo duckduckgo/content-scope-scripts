@@ -16,14 +16,14 @@ export function VisitSiteLink() {
     useEffect(() => {
         if (!spanRef.current) return;
         const span =  spanRef.current;
+        const controller = new AbortController();
 
-        const scrollToLink = () => {
+        window.addEventListener('advanced-info-animation-end', () => {
             span.scrollIntoView({ behavior: 'smooth' })
-        }
-        window.addEventListener('advanced-info-animation-end', scrollToLink)
+        }, { signal: controller.signal })
 
         return () => {
-            window.removeEventListener('advanced-info-animation-end', scrollToLink)
+            controller.abort()
         }
     }, [])
 
