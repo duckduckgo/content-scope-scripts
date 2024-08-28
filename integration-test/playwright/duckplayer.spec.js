@@ -359,6 +359,51 @@ test.describe('Video Player overlays', () => {
             // Then the overlay shows the correct copy for the B1 variant
             await overlays.overlayCopyIsB1()
         })
+
+        test('forces next video to play in Duck Player', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask'
+            // And the UI setting for 'play in Duck Player' is set to true
+            await overlays.initialSetupIs('always ask', 'play in duck player')
+            await overlays.gotoThumbsPage()
+            await overlays.overlaysDontShow()
+
+            // When I click on the first thumbnail
+            await overlays.clicksFirstThumbnail()
+
+            // Then our player loads for the correct video
+            await overlays.duckPlayerLoadsFor('1')
+        })
+
+        test('forces next video to play in Duck Player after UI settings change', async ({ page }, workerInfo) => {
+            const overlays = DuckplayerOverlays.create(page, workerInfo)
+
+            // Given overlays feature is enabled
+            await overlays.withRemoteConfig()
+
+            // And my setting is 'always ask'
+            // And the UI setting for 'play in Duck Player' is not set
+            await overlays.initialSetupIs('always ask')
+            await overlays.gotoThumbsPage()
+
+
+            // Then overlays act as normal initially
+            await overlays.hoverAThumbnail()
+            await overlays.isVisible()
+
+            // When a UI settings update arrives
+            await overlays.uiChangedSettingTo('play in duck player')
+
+            // And I click on the first thumbnail
+            await overlays.clicksFirstThumbnail()
+
+            // Then our player loads for the correct video
+            await overlays.duckPlayerLoadsFor('1')
+        })
     })
 })
 
