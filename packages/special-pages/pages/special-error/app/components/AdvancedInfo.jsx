@@ -1,6 +1,5 @@
 import { h } from 'preact'
-import { forwardRef } from 'preact/compat'
-import { useRef, useImperativeHandle } from 'preact/hooks'
+import { useRef, useEffect } from 'preact/hooks'
 import { useTypedTranslation } from '../types'
 import { Text } from '../../../../shared/components/Text/Text'
 import { useMessaging } from '../providers/MessagingProvider'
@@ -8,29 +7,29 @@ import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorSt
 
 import styles from './AdvancedInfo.module.css'
 
-export const VisitSiteLink = forwardRef((_, ref) => {
+export function VisitSiteLink() {
     /** @type {import("preact/hooks").MutableRef<HTMLSpanElement|null>} */
     const spanRef = useRef(null)
-
     const { messaging } = useMessaging()
     const { t } = useTypedTranslation()
 
-    useImperativeHandle(ref, () => {
-        return {
-            scroll() {
-                if (spanRef.current) {
-                    spanRef.current.scrollIntoView({ behavior: 'smooth' })
-                }
-            }
+    useEffect(() => {
+        const scrollToLink = () => {
+            spanRef.current?.scrollIntoView({ behavior: 'smooth' })
         }
-    })
+        window.addEventListener('advanced-info-animation-end', scrollToLink)
+
+        return () => {
+            window.removeEventListener('advanced-info-animation-end', scrollToLink)
+        }
+    }, [])
 
     return (
         <Text as="a" variant="body" className={styles.visitSite} onClick={() => messaging?.visitSite()}>
             <span ref={spanRef}>{t('visitSiteButton')}</span>
         </Text>
     )
-})
+}
 
 export function AdvancedInfoHeading() {
     const heading = useAdvancedInfoHeading()
@@ -53,11 +52,8 @@ export function AdvancedInfoContent() {
 }
 
 export function AdvancedInfo() {
-    /** @type {import("preact/hooks").MutableRef<HTMLSpanElement|null>} */
-    const visitSiteRef = useRef(null)
-
     const animationDidEnd = () => {
-        visitSiteRef.current?.scroll()
+        window.dispatchEvent(new CustomEvent('advanced-info-animation-end'))
     }
 
     return (
@@ -67,7 +63,7 @@ export function AdvancedInfo() {
 
                 <AdvancedInfoContent />
 
-                <VisitSiteLink ref={visitSiteRef}/>
+                <VisitSiteLink />
             </div>
         </div>
     )
