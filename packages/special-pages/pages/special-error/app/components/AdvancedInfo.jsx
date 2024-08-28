@@ -1,5 +1,6 @@
 import { h } from 'preact'
-import { useLayoutEffect, useRef } from 'preact/hooks'
+import { forwardRef } from 'preact/compat'
+import { useRef, useImperativeHandle } from 'preact/hooks'
 import { useTypedTranslation } from '../types'
 import { Text } from '../../../../shared/components/Text/Text'
 import { useMessaging } from '../providers/MessagingProvider'
@@ -7,28 +8,29 @@ import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorSt
 
 import styles from './AdvancedInfo.module.css'
 
-export function VisitSiteLink() {
+export const VisitSiteLink = forwardRef((_, ref) => {
+    /** @type {import("preact/hooks").MutableRef<HTMLSpanElement|null>} */
+    const spanRef = useRef(null)
+
     const { messaging } = useMessaging()
     const { t } = useTypedTranslation()
-    /**
-     * @type {import("preact/hooks").MutableRef<HTMLDivElement|null>}
-     */
-    const ref = useRef(null)
 
-    useLayoutEffect(() => {
-        setTimeout(() => {
-            if (ref.current) {
-                ref.current.scrollIntoView({ behavior: 'smooth' })
+    useImperativeHandle(ref, () => {
+        return {
+            scroll() {
+                if (spanRef.current) {
+                    spanRef.current.scrollIntoView({ behavior: 'smooth' })
+                }
             }
-        }, 300) // Must be the same duration as CSS 'appear' animation in AdvancedInfo.module.css
-    }, [])
+        }
+    })
 
     return (
         <Text as="a" variant="body" className={styles.visitSite} onClick={() => messaging?.visitSite()}>
-            <span ref={ref}>{t('visitSiteButton')}</span>
+            <span ref={spanRef}>{t('visitSiteButton')}</span>
         </Text>
     )
-}
+})
 
 export function AdvancedInfoHeading() {
     const heading = useAdvancedInfoHeading()
@@ -51,14 +53,21 @@ export function AdvancedInfoContent() {
 }
 
 export function AdvancedInfo() {
+    /** @type {import("preact/hooks").MutableRef<HTMLSpanElement|null>} */
+    const visitSiteRef = useRef(null)
+
+    const animationDidEnd = () => {
+        visitSiteRef.current?.scroll()
+    }
+
     return (
         <div className={styles.wrapper}>
-            <div className={styles.container}>
+            <div className={styles.container} onAnimationEnd={animationDidEnd}>
                 <AdvancedInfoHeading />
 
                 <AdvancedInfoContent />
 
-                <VisitSiteLink />
+                <VisitSiteLink ref={visitSiteRef}/>
             </div>
         </div>
     )
