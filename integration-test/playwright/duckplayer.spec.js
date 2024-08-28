@@ -390,7 +390,6 @@ test.describe('Video Player overlays', () => {
             await overlays.initialSetupIs('always ask')
             await overlays.gotoThumbsPage()
 
-
             // Then overlays act as normal initially
             await overlays.hoverAThumbnail()
             await overlays.isVisible()
