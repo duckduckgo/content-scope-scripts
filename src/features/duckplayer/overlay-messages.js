@@ -85,6 +85,14 @@ export class DuckPlayerOverlayMessages {
     }
 
     /**
+     * Get notification when ui settings changed
+     * @param {(userValues: import("../duck-player.js").UISettings) => void} cb
+     */
+    onUIValuesChanged (cb) {
+        return this.messaging.subscribe('onUIValuesChanged', cb)
+    }
+
+    /**
      * This allows our SERP to interact with Duck Player settings.
      */
     serpProxy () {

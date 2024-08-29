@@ -26,8 +26,11 @@ export class Settings {
     withFeatureState (named, settings) {
         if (!settings) return this
         /** @type {(keyof import("../../../types/duckplayer").DuckPlayerPageSettings)[]} */
-        const valid = ['pip', 'autoplay']
-        if (!valid.includes(named)) return this
+        const valid = ['pip', 'autoplay', 'focusMode']
+        if (!valid.includes(named)) {
+            console.warn(`Excluding invalid feature key ${named}`)
+            return this
+        }
 
         if (settings.state === 'enabled' || settings.state === 'disabled') {
             return new Settings({
@@ -51,19 +54,18 @@ export class Settings {
     }
 
     /**
-     * @param {boolean} condition
+     * @param {string|null|undefined} newState
      * @return {Settings}
      */
-    withDisabledFocusMode (condition) {
-        /** @type {ImportMeta['platform'][]} */
-        return new Settings({
-            ...this,
-            focusMode: {
-                state: condition
-                    ? 'disabled'
-                    : 'enabled'
-            }
-        })
+    withDisabledFocusMode (newState) {
+        if (newState === 'disabled' || newState === 'enabled') {
+            return new Settings({
+                ...this,
+                focusMode: { state: newState }
+            })
+        }
+
+        return this
     }
 
     /**

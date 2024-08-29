@@ -61,7 +61,8 @@ export async function init (messaging, baseEnvironment) {
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withFeatureState('pip', init.settings.pip)
         .withFeatureState('autoplay', init.settings.autoplay)
-        .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode') === 'disabled')
+        .withFeatureState('focusMode', init.settings.focusMode)
+        .withDisabledFocusMode(baseEnvironment.urlParams.get('focusMode'))
 
     console.log(settings)
 
