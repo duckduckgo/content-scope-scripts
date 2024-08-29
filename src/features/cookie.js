@@ -154,7 +154,7 @@ export default class CookieFeature extends ContentFeature {
             } else if (isTrackingCookie() || isNonTrackingCookie()) {
                 debugHelper('ignore', '3p frame', getCookieContext)
             }
-            // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
+            // @ts-expect-error - error TS18048: 'cookieGetter' is possibly 'undefined'.
             return cookieGetter.call(this)
         }
 
@@ -225,9 +225,7 @@ export default class CookieFeature extends ContentFeature {
             }
         }
 
-        this.defineProperty(globalThis.Document.prototype, 'cookie', {
-            enumerable: true,
-            configurable: true,
+        this.wrapProperty(globalThis.Document.prototype, 'cookie', {
             set: setCookiePolicy,
             get: getCookiePolicy
         })
