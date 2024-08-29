@@ -14,6 +14,7 @@
  * On Page Load
  *   - {@link DuckPlayerOverlayMessages.initialSetup} is initially called to get the current settings
  *   - {@link DuckPlayerOverlayMessages.onUserValuesChanged} subscription begins immediately - it will continue to listen for updates
+ *   - {@link DuckPlayerOverlayMessages.onUIValuesChanged} subscription begins immediately - it will continue to listen for updates
  *
  * Then the following message can be sent at any time
  *   - {@link DuckPlayerOverlayMessages.setUserValues}
@@ -47,7 +48,8 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
 
 /**
  * @typedef UISettings - UI-specific settings
- * @property {'default'|'a1'|'b1'} overlayCopy
+ * @property {'default'|'a1'|'b1'} overlayCopy - Overlay copy experiment variant
+ * @property {boolean} [playInDuckPlayer] - Forces next video to be played in Duck Player regardless of user setting
  */
 
 /**

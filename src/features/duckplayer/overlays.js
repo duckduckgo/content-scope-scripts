@@ -4,6 +4,15 @@ import { VideoOverlay } from './video-overlay.js'
 import { registerCustomElements } from './components/index.js'
 
 /**
+ * @typedef {object} OverlayOptions
+ * @property {import("../duck-player.js").UserValues} userValues
+ * @property {import("../duck-player.js").OverlaysFeatureSettings} settings
+ * @property {import("../duck-player.js").DuckPlayerOverlayMessages} messages
+ * @property {import("../duck-player.js").UISettings} ui
+ * @property {Environment} environment
+ */
+
+/**
  * @param {import("../duck-player.js").OverlaysFeatureSettings} settings - methods to read environment-sensitive things like the current URL etc
  * @param {import("./overlays.js").Environment} environment - methods to read environment-sensitive things like the current URL etc
  * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} messages - methods to communicate with a native backend
@@ -26,14 +35,13 @@ export async function initOverlays (settings, environment, messages) {
         return
     }
 
-    let { userValues } = initialSetup
-    const { ui } = initialSetup
+    let { userValues, ui } = initialSetup
 
     /**
      * Create the instance - this might fail if settings or user preferences prevent it
-     * @type {Thumbnails|undefined}
+     * @type {Thumbnails|ClickInterception|null}
      */
-    let thumbnails = thumbnailsFeatureFromSettings({ userValues, settings, messages, environment })
+    let thumbnails = thumbnailsFeatureFromOptions({ userValues, settings, messages, environment, ui })
     let videoOverlays = videoOverlaysFeatureFromSettings({ userValues, settings, messages, environment, ui })
 
     if (thumbnails || videoOverlays) {
@@ -64,7 +72,7 @@ export async function initOverlays (settings, environment, messages) {
         videoOverlays?.destroy()
 
         // re-create thumbs
-        thumbnails = thumbnailsFeatureFromSettings({ userValues, settings, messages, environment })
+        thumbnails = thumbnailsFeatureFromOptions({ userValues, settings, messages, environment, ui })
         thumbnails?.init()
 
         // re-create video overlay
@@ -79,45 +87,76 @@ export async function initOverlays (settings, environment, messages) {
         userValues = _userValues
         update()
     })
+
+    /**
+     * Continue to listen for updated UI settings and try to re-initiate
+     */
+    messages.onUIValuesChanged(_ui => {
+        ui = _ui
+        update()
+    })
 }
 
 /**
- * @param {object} options
- * @param {import("../duck-player.js").UserValues} options.userValues
- * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
- * @param {import("../duck-player.js").DuckPlayerOverlayMessages} options.messages
- * @param {Environment} options.environment
- * @returns {Thumbnails | ClickInterception | undefined}
+ * @param {OverlayOptions} options
+ * @returns {Thumbnails | ClickInterception | null}
  */
-function thumbnailsFeatureFromSettings ({ userValues, settings, messages, environment }) {
-    const showThumbs = 'alwaysAsk' in userValues.privatePlayerMode && settings.thumbnailOverlays.state === 'enabled'
-    const interceptClicks = 'enabled' in userValues.privatePlayerMode && settings.clickInterception.state === 'enabled'
-
-    if (showThumbs) {
-        return new Thumbnails({
-            environment,
-            settings,
-            messages
-        })
-    }
-    if (interceptClicks) {
-        return new ClickInterception({
-            environment,
-            settings,
-            messages
-        })
-    }
-
-    return undefined
+function thumbnailsFeatureFromOptions (options) {
+    return thumbnailOverlays(options) || clickInterceptions(options)
 }
 
 /**
- * @param {object} options
- * @param {import("../duck-player.js").UserValues} options.userValues
- * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
- * @param {import("../duck-player.js").DuckPlayerOverlayMessages} options.messages
- * @param {import("./overlays.js").Environment} options.environment
- * @param {import("../duck-player.js").UISettings} options.ui
+ * @param {OverlayOptions} options
+ * @return {Thumbnails | null}
+ */
+function thumbnailOverlays ({ userValues, settings, messages, environment, ui }) {
+    // bail if not enabled remotely
+    if (settings.thumbnailOverlays.state !== 'enabled') return null
+
+    const conditions = [
+        // must be in 'always ask' mode
+        'alwaysAsk' in userValues.privatePlayerMode,
+        // must not be set to play in DuckPlayer
+        ui?.playInDuckPlayer !== true
+    ]
+
+    // Only show thumbnails if ALL conditions above are met
+    if (!conditions.every(Boolean)) return null
+
+    return new Thumbnails({
+        environment,
+        settings,
+        messages
+    })
+}
+
+/**
+ * @param {OverlayOptions} options
+ * @return {ClickInterception | null}
+ */
+function clickInterceptions ({ userValues, settings, messages, environment, ui }) {
+    // bail if not enabled remotely
+    if (settings.clickInterception.state !== 'enabled') return null
+
+    const conditions = [
+        // either enabled via prefs
+        'enabled' in userValues.privatePlayerMode,
+        // or has a one-time override
+        ui?.playInDuckPlayer === true
+    ]
+
+    // Intercept clicks if ANY of the conditions above are met
+    if (!conditions.some(Boolean)) return null
+
+    return new ClickInterception({
+        environment,
+        settings,
+        messages
+    })
+}
+
+/**
+ * @param {OverlayOptions} options
  * @returns {VideoOverlay | undefined}
  */
 function videoOverlaysFeatureFromSettings ({ userValues, settings, messages, environment, ui }) {

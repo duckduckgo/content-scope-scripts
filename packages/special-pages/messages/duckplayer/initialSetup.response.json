@@ -28,6 +28,16 @@
               "enum": ["enabled", "disabled"]
             }
           }
+        },
+        "focusMode": {
+          "type": "object",
+          "required": ["state"],
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": ["enabled", "disabled"]
+            }
+          }
         }
       }
     },

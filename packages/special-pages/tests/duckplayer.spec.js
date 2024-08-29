@@ -68,6 +68,32 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.hasLoadedIframe()
         await duckplayer.pipButtonIsAbsent()
     })
+    test('focusMode on by default', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        // load as normal
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.focusModeIs('on')
+    })
+    test('focusMode setting', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        // load as normal
+        duckplayer.focusModeSettingIs({ state: 'enabled' })
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.focusModeIs('on')
+    })
+    test('focusMode setting disabled', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        // load as normal
+        duckplayer.focusModeSettingIs({ state: 'disabled' })
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.focusModeIsAbsent()
+    })
 })
 
 test.describe('duckplayer toolbar', () => {
