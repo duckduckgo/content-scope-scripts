@@ -46,7 +46,7 @@ export const platformSupport = {
         'breakageReporting'
     ],
     windows: [
-        'cookie',
+        // 'cookie',
         ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer',
