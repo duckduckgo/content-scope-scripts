@@ -669,7 +669,9 @@
   // shared/components/Text/Text.module.css
   var Text_default = {
     "title-1": "Text_title-1",
+    strictSpacing: "Text_strictSpacing",
     "title-2": "Text_title-2",
+    "title-2-emphasis": "Text_title-2-emphasis",
     headline: "Text_headline",
     subheadline: "Text_subheadline",
     body: "Text_body",
@@ -681,8 +683,8 @@
   };
 
   // shared/components/Text/Text.js
-  function Text({ as: Comp = "p", variant, className, children }) {
-    return /* @__PURE__ */ y(Comp, { className: (0, import_classnames2.default)({ [Text_default[`${variant}`]]: variant }, className) }, children);
+  function Text({ as: Comp = "p", variant, strictSpacing = true, className, children }) {
+    return /* @__PURE__ */ y(Comp, { className: (0, import_classnames2.default)({ [Text_default[`${variant}`]]: variant, [Text_default.strictSpacing]: strictSpacing }, className) }, children);
   }
 
   // shared/components/Card/Card.js
@@ -704,15 +706,18 @@
   // shared/components/Button/Button.module.css
   var Button_default = {
     button: "Button_button",
-    apple: "Button_apple"
+    standard: "Button_standard",
+    accent: "Button_accent",
+    primary: "Button_primary",
+    ghost: "Button_ghost"
   };
 
   // shared/components/Button/Button.js
-  function Button({ platform = "apple", children, onClick }) {
+  function Button({ variant, className, children, onClick }) {
     return /* @__PURE__ */ y(
       "button",
       {
-        className: (0, import_classnames4.default)(Button_default.button, Button_default[platform]),
+        className: (0, import_classnames4.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
         onClick: (
           /**
            * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event
@@ -956,7 +961,7 @@
         ]
       }
     ];
-    return /* @__PURE__ */ y("main", { className: Components_default.main }, /* @__PURE__ */ y("h1", null, "Release Notes Components"), /* @__PURE__ */ y("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ y(DuckDuckGoLogo, null), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Page Title"), /* @__PURE__ */ y(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Update Status"), /* @__PURE__ */ y(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ y(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ y(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Restart Button"), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(Button, { platform: "apple" }, t3("restartToUpdate"))), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Content Placeholder"), /* @__PURE__ */ y(ContentPlaceholder, null), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Release Notes Heading"), /* @__PURE__ */ y(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ y(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Release Notes Subheading"), /* @__PURE__ */ y(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ y(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Release Notes List"), /* @__PURE__ */ y(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ y(Card, { className: Components_default.card }, /* @__PURE__ */ y(ContentPlaceholder, null)), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ y(Card, { className: Components_default.card }, /* @__PURE__ */ y(ReleaseNotesContent, { status: "updateReady", title: "May 10 2024", version: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ y(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ y(LoadingThen, null, /* @__PURE__ */ y(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ y(LoadingThen, null, /* @__PURE__ */ y(ReleaseNotes, { releaseData: sampleData.updateReady })));
+    return /* @__PURE__ */ y("main", { className: Components_default.main }, /* @__PURE__ */ y("h1", null, "Release Notes Components"), /* @__PURE__ */ y("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ y(DuckDuckGoLogo, null), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Page Title"), /* @__PURE__ */ y(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Update Status"), /* @__PURE__ */ y(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ y(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ y(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Restart Button"), /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(Button, null, t3("restartToUpdate"))), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Content Placeholder"), /* @__PURE__ */ y(ContentPlaceholder, null), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Release Notes Heading"), /* @__PURE__ */ y(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ y(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Release Notes Subheading"), /* @__PURE__ */ y(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ y(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Release Notes List"), /* @__PURE__ */ y(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ y(Card, { className: Components_default.card }, /* @__PURE__ */ y(ContentPlaceholder, null)), /* @__PURE__ */ y("hr", null), /* @__PURE__ */ y("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ y(Card, { className: Components_default.card }, /* @__PURE__ */ y(ReleaseNotesContent, { status: "updateReady", title: "May 10 2024", version: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ y(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ y(LoadingThen, null, /* @__PURE__ */ y(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ y(LoadingThen, null, /* @__PURE__ */ y(ReleaseNotes, { releaseData: sampleData.updateReady })));
   }
   function LoadingThen({ children }) {
     const [ready, setReady] = h2(false);

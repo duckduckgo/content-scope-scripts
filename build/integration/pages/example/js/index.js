@@ -1092,24 +1092,6 @@
     return new Messaging(messageContext, fallback);
   }
 
-  // shared/call-with-retry.js
-  async function callWithRetry(fn, params = {}) {
-    const { maxAttempts = 10, intervalMs = 300 } = params;
-    let attempt = 1;
-    while (attempt <= maxAttempts) {
-      try {
-        return { value: await fn(), attempt };
-      } catch (error) {
-        if (attempt === maxAttempts) {
-          return { error: `Max attempts reached: ${error}` };
-        }
-        await new Promise((resolve) => setTimeout(resolve, intervalMs));
-        attempt++;
-      }
-    }
-    return { error: "Unreachable: value not retrieved" };
-  }
-
   // ../../node_modules/preact/dist/preact.module.js
   var n;
   var l;
@@ -1696,6 +1678,24 @@
     return /* @__PURE__ */ y("main", { class: Components_default.main }, "Component list here!");
   }
 
+  // shared/call-with-retry.js
+  async function callWithRetry(fn, params = {}) {
+    const { maxAttempts = 10, intervalMs = 300 } = params;
+    let attempt = 1;
+    while (attempt <= maxAttempts) {
+      try {
+        return { value: await fn(), attempt };
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          return { error: `Max attempts reached: ${error}` };
+        }
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+        attempt++;
+      }
+    }
+    return { error: "Unreachable: value not retrieved" };
+  }
+
   // pages/example/app/index.js
   async function init(messaging2, baseEnvironment2) {
     const result = await callWithRetry(() => messaging2.initialSetup());
@@ -1747,8 +1747,17 @@
       this.messaging = createTypedMessages(this, messaging2);
     }
     /**
-     * This will be sent if the application has loaded, but a client-side error
-     * has occurred that cannot be recovered from
+     * Sends an initial message to the native layer. This is the opportunity for the native layer
+     * to provide the initial state of the application or any configuration, for example:
+     *
+     * ```json
+     * {
+     *   "env": "development",
+     *   "locale": "en"
+     * }
+     * ```
+     *
+     * @returns {Promise<import('../../../../types/example').InitialSetupResponse>}
      */
     initialSetup() {
       return this.messaging.request("initialSetup");

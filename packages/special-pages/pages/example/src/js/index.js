@@ -1,3 +1,11 @@
+/**
+ * @module Example Page
+ * @category Special Pages
+ *
+ * @description
+ * Special Page example. Used as a template for new special pages.
+ */
+
 import { createTypedMessages } from '@duckduckgo/messaging'
 import { Environment } from '../../../../shared/environment.js'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js'
@@ -12,8 +20,17 @@ export class ExamplePage {
     }
 
     /**
-     * This will be sent if the application has loaded, but a client-side error
-     * has occurred that cannot be recovered from
+     * Sends an initial message to the native layer. This is the opportunity for the native layer
+     * to provide the initial state of the application or any configuration, for example:
+     *
+     * ```json
+     * {
+     *   "env": "development",
+     *   "locale": "en"
+     * }
+     * ```
+     *
+     * @returns {Promise<import('../../../../types/example').InitialSetupResponse>}
      */
     initialSetup () {
         return this.messaging.request('initialSetup')
