@@ -51,9 +51,6 @@ export class DuckPlayerPage {
                 settings: {
                     pip: {
                         state: 'disabled'
-                    },
-                    focusMode: {
-                        state: 'disabled'
                     }
                 },
                 userValues: {

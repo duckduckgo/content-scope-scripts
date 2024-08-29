@@ -68,6 +68,14 @@ test.describe('duckplayer iframe', () => {
         await duckplayer.hasLoadedIframe()
         await duckplayer.pipButtonIsAbsent()
     })
+    test('focusMode on by default', async ({ page }, workerInfo) => {
+        test.skip(isMobile(workerInfo))
+        const duckplayer = DuckPlayerPage.create(page, workerInfo)
+        // load as normal
+        await duckplayer.openWithVideoID()
+        await duckplayer.hasLoadedIframe()
+        await duckplayer.focusModeIs('on')
+    })
     test('focusMode setting', async ({ page }, workerInfo) => {
         test.skip(isMobile(workerInfo))
         const duckplayer = DuckPlayerPage.create(page, workerInfo)
