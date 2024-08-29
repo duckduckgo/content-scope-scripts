@@ -2054,9 +2054,11 @@
     withFeatureState(named, settings) {
       if (!settings)
         return this;
-      const valid = ["pip", "autoplay"];
-      if (!valid.includes(named))
+      const valid = ["pip", "autoplay", "focusMode"];
+      if (!valid.includes(named)) {
+        console.warn(`Excluding invalid feature key ${named}`);
         return this;
+      }
       if (settings.state === "enabled" || settings.state === "disabled") {
         return new _Settings({
           ...this,
@@ -2079,16 +2081,17 @@
       return this;
     }
     /**
-     * @param {boolean} condition
+     * @param {string|null|undefined} newState
      * @return {Settings}
      */
-    withDisabledFocusMode(condition) {
-      return new _Settings({
-        ...this,
-        focusMode: {
-          state: condition ? "disabled" : "enabled"
-        }
-      });
+    withDisabledFocusMode(newState) {
+      if (newState === "disabled" || newState === "enabled") {
+        return new _Settings({
+          ...this,
+          focusMode: { state: newState }
+        });
+      }
+      return this;
     }
     /**
      * @return {string}
@@ -3371,7 +3374,7 @@
       console.error("Could not load locale", environment.locale, e3);
       return duckplayer_default;
     });
-    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("pip", init2.settings.pip).withFeatureState("autoplay", init2.settings.autoplay).withDisabledFocusMode(baseEnvironment2.urlParams.get("focusMode") === "disabled");
+    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("pip", init2.settings.pip).withFeatureState("autoplay", init2.settings.autoplay).withFeatureState("focusMode", init2.settings.focusMode).withDisabledFocusMode(baseEnvironment2.urlParams.get("focusMode"));
     console.log(settings);
     const embed = createEmbedSettings(window.location.href, settings);
     const didCatch = (error) => {

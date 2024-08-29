@@ -46,6 +46,9 @@ const uiSettings = {
     /** @type {import("../../../src/features/duck-player.js").UISettings} */
     'overlay copy b1': {
         overlayCopy: 'b1'
+    },
+    'play in duck player': {
+        playInDuckPlayer: true
     }
 }
 
@@ -303,6 +306,22 @@ export class DuckplayerOverlays {
             },
             name: 'onUserValuesChanged',
             payload: userValues[setting],
+            injectName: this.build.name
+        })
+    }
+
+    /**
+     * @param {keyof uiSettings} setting
+     */
+    async uiChangedSettingTo (setting) {
+        await this.page.evaluate(simulateSubscriptionMessage, {
+            messagingContext: {
+                context: this.messagingContext,
+                featureName: 'duckPlayer',
+                env: 'development'
+            },
+            name: 'onUIValuesChanged',
+            payload: uiSettings[setting],
             injectName: this.build.name
         })
     }
