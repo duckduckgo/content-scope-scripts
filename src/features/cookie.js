@@ -155,7 +155,7 @@ export default class CookieFeature extends ContentFeature {
                 debugHelper('ignore', '3p frame', getCookieContext)
             }
             // @ts-expect-error - error TS18048: 'cookieSetter' is possibly 'undefined'.
-            return cookieGetter.call(document)
+            return cookieGetter.call(this)
         }
 
         /**
