@@ -4,6 +4,15 @@ import { VideoOverlay } from './video-overlay.js'
 import { registerCustomElements } from './components/index.js'
 
 /**
+ * @typedef {object} OverlayOptions
+ * @property {import("../duck-player.js").UserValues} userValues
+ * @property {import("../duck-player.js").OverlaysFeatureSettings} settings
+ * @property {import("../duck-player.js").DuckPlayerOverlayMessages} messages
+ * @property {import("../duck-player.js").UISettings} ui
+ * @property {Environment} environment
+ */
+
+/**
  * @param {import("../duck-player.js").OverlaysFeatureSettings} settings - methods to read environment-sensitive things like the current URL etc
  * @param {import("./overlays.js").Environment} environment - methods to read environment-sensitive things like the current URL etc
  * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} messages - methods to communicate with a native backend
@@ -89,12 +98,7 @@ export async function initOverlays (settings, environment, messages) {
 }
 
 /**
- * @param {object} options
- * @param {import("../duck-player.js").UserValues} options.userValues
- * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
- * @param {import("../duck-player.js").DuckPlayerOverlayMessages} options.messages
- * @param {import("../duck-player.js").UISettings} options.ui
- * @param {Environment} options.environment
+ * @param {OverlayOptions} options
  * @returns {Thumbnails | ClickInterception | null}
  */
 function thumbnailsFeatureFromOptions (options) {
@@ -102,24 +106,21 @@ function thumbnailsFeatureFromOptions (options) {
 }
 
 /**
- * @param userValues
- * @param settings
- * @param messages
- * @param environment
- * @param ui
+ * @param {OverlayOptions} options
  * @return {Thumbnails | null}
  */
-function thumbnailOverlays({ userValues, settings, messages, environment, ui }) {
+function thumbnailOverlays ({ userValues, settings, messages, environment, ui }) {
+    // bail if not enabled remotely
+    if (settings.thumbnailOverlays.state !== 'enabled') return null
 
     const conditions = [
-        // must be enabled remotely
-        settings.thumbnailOverlays.state === 'enabled',
         // must be in 'always ask' mode
         'alwaysAsk' in userValues.privatePlayerMode,
-        // must not be set yo place in DuckPlayer
+        // must not be set to play in DuckPlayer
         ui?.playInDuckPlayer !== true
-    ];
+    ]
 
+    // Only show thumbnails if ALL conditions above are met
     if (!conditions.every(Boolean)) return null
 
     return new Thumbnails({
@@ -130,25 +131,22 @@ function thumbnailOverlays({ userValues, settings, messages, environment, ui }) 
 }
 
 /**
- * @param userValues
- * @param settings
- * @param messages
- * @param environment
- * @param ui
+ * @param {OverlayOptions} options
  * @return {ClickInterception | null}
  */
-function clickInterceptions({ userValues, settings, messages, environment, ui }) {
+function clickInterceptions ({ userValues, settings, messages, environment, ui }) {
     // bail if not enabled remotely
     if (settings.clickInterception.state !== 'enabled') return null
 
-    const options = [
+    const conditions = [
         // either enabled via prefs
         'enabled' in userValues.privatePlayerMode,
         // or has a one-time override
         ui?.playInDuckPlayer === true
-    ];
+    ]
 
-    if (!options.some(Boolean)) return null
+    // Intercept clicks if ANY of the conditions above are met
+    if (!conditions.some(Boolean)) return null
 
     return new ClickInterception({
         environment,
@@ -158,12 +156,7 @@ function clickInterceptions({ userValues, settings, messages, environment, ui })
 }
 
 /**
- * @param {object} options
- * @param {import("../duck-player.js").UserValues} options.userValues
- * @param {import("../duck-player.js").OverlaysFeatureSettings} options.settings
- * @param {import("../duck-player.js").DuckPlayerOverlayMessages} options.messages
- * @param {import("./overlays.js").Environment} options.environment
- * @param {import("../duck-player.js").UISettings} options.ui
+ * @param {OverlayOptions} options
  * @returns {VideoOverlay | undefined}
  */
 function videoOverlaysFeatureFromSettings ({ userValues, settings, messages, environment, ui }) {
