@@ -68,21 +68,6 @@ export function trustedUnsafe (string) {
 }
 
 /**
- * @param {string} string
- * @return {Template}
- */
-export function trustedUnsafeEscaped (string) {
-    const decoded = decodeHtml(string)
-    return html([decoded])
-}
-
-function decodeHtml (html) {
-    const txt = document.createElement('textarea')
-    txt.innerHTML = html
-    return txt.value
-}
-
-/**
  * Use a policy if trustedTypes is available
  * @return {{createHTML: (s: string) => any}}
  */
