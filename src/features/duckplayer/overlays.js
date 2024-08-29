@@ -30,9 +30,9 @@ export async function initOverlays (settings, environment, messages) {
 
     /**
      * Create the instance - this might fail if settings or user preferences prevent it
-     * @type {Thumbnails|undefined}
+     * @type {Thumbnails|ClickInterception|null}
      */
-    let thumbnails = thumbnailsFeatureFromSettings({ userValues, settings, messages, environment, ui })
+    let thumbnails = thumbnailsFeatureFromOptions({ userValues, settings, messages, environment, ui })
     let videoOverlays = videoOverlaysFeatureFromSettings({ userValues, settings, messages, environment, ui })
 
     if (thumbnails || videoOverlays) {
@@ -63,7 +63,7 @@ export async function initOverlays (settings, environment, messages) {
         videoOverlays?.destroy()
 
         // re-create thumbs
-        thumbnails = thumbnailsFeatureFromSettings({ userValues, settings, messages, environment, ui })
+        thumbnails = thumbnailsFeatureFromOptions({ userValues, settings, messages, environment, ui })
         thumbnails?.init()
 
         // re-create video overlay
@@ -95,28 +95,66 @@ export async function initOverlays (settings, environment, messages) {
  * @param {import("../duck-player.js").DuckPlayerOverlayMessages} options.messages
  * @param {import("../duck-player.js").UISettings} options.ui
  * @param {Environment} options.environment
- * @returns {Thumbnails | ClickInterception | undefined}
+ * @returns {Thumbnails | ClickInterception | null}
  */
-function thumbnailsFeatureFromSettings ({ userValues, settings, messages, environment, ui }) {
-    const addOverlayToThumbs = 'alwaysAsk' in userValues.privatePlayerMode && settings.thumbnailOverlays.state === 'enabled' && !ui?.playInDuckPlayer
-    const interceptClicks = ('enabled' in userValues.privatePlayerMode || !!ui?.playInDuckPlayer) && settings.clickInterception.state === 'enabled'
+function thumbnailsFeatureFromOptions (options) {
+    return thumbnailOverlays(options) || clickInterceptions(options)
+}
 
-    if (addOverlayToThumbs) {
-        return new Thumbnails({
-            environment,
-            settings,
-            messages
-        })
-    }
-    if (interceptClicks) {
-        return new ClickInterception({
-            environment,
-            settings,
-            messages
-        })
-    }
+/**
+ * @param userValues
+ * @param settings
+ * @param messages
+ * @param environment
+ * @param ui
+ * @return {Thumbnails | null}
+ */
+function thumbnailOverlays({ userValues, settings, messages, environment, ui }) {
 
-    return undefined
+    const conditions = [
+        // must be enabled remotely
+        settings.thumbnailOverlays.state === 'enabled',
+        // must be in 'always ask' mode
+        'alwaysAsk' in userValues.privatePlayerMode,
+        // must not be set yo place in DuckPlayer
+        ui?.playInDuckPlayer !== true
+    ];
+
+    if (!conditions.every(Boolean)) return null
+
+    return new Thumbnails({
+        environment,
+        settings,
+        messages
+    })
+}
+
+/**
+ * @param userValues
+ * @param settings
+ * @param messages
+ * @param environment
+ * @param ui
+ * @return {ClickInterception | null}
+ */
+function clickInterceptions({ userValues, settings, messages, environment, ui }) {
+    // bail if not enabled remotely
+    if (settings.clickInterception.state !== 'enabled') return null
+
+    const options = [
+        // either enabled via prefs
+        'enabled' in userValues.privatePlayerMode,
+        // or has a one-time override
+        ui?.playInDuckPlayer === true
+    ];
+
+    if (!options.some(Boolean)) return null
+
+    return new ClickInterception({
+        environment,
+        settings,
+        messages
+    })
 }
 
 /**
