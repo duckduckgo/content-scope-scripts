@@ -1,25 +1,25 @@
 import { h } from 'preact'
 import { useRef, useEffect } from 'preact/hooks'
 import { useTypedTranslation } from '../types'
-import { Text, Link } from '../../../../shared/components/Text/Text'
+import { Text } from '../../../../shared/components/Text/Text'
 import { useMessaging } from '../providers/MessagingProvider'
 import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorStrings'
 
 import styles from './AdvancedInfo.module.css'
 
 export function VisitSiteLink() {
-    /** @type {import("preact/hooks").MutableRef<HTMLSpanElement|null>} */
-    const spanRef = useRef(null)
+    /** @type {import("preact/hooks").MutableRef<HTMLAnchorElement|null>} */
+    const linkRef = useRef(null)
     const { messaging } = useMessaging()
     const { t } = useTypedTranslation()
 
     useEffect(() => {
-        if (!spanRef.current) return;
-        const span =  spanRef.current;
+        if (!linkRef.current) return;
+        const link =  linkRef.current;
         const controller = new AbortController();
 
         window.addEventListener('advanced-info-animation-end', () => {
-            span.scrollIntoView({ behavior: 'smooth' })
+            link.scrollIntoView({ behavior: 'smooth' })
         }, { signal: controller.signal })
 
         return () => {
@@ -28,9 +28,9 @@ export function VisitSiteLink() {
     }, [])
 
     return (
-        <Link variant="body" className={styles.visitSite} onClick={() => messaging?.visitSite()}>
-            <span ref={spanRef}>{t('visitSiteButton')}</span>
-        </Link>
+        <a className={styles.visitSite} onClick={() => messaging?.visitSite()} ref={linkRef}>
+            {t('visitSiteButton')}
+        </a>
     )
 }
 
