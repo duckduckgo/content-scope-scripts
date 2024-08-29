@@ -7,28 +7,26 @@ import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorSt
 
 import styles from './AdvancedInfo.module.css'
 
-export function VisitSiteLink() {
+function useScrollTarget() {
     /** @type {import("preact/hooks").MutableRef<HTMLAnchorElement|null>} */
     const linkRef = useRef(null)
-    const { messaging } = useMessaging()
-    const { t } = useTypedTranslation()
-
-    useEffect(() => {
-        if (!linkRef.current) return;
-        const link =  linkRef.current;
-        const controller = new AbortController();
-
-        window.addEventListener('advanced-info-animation-end', () => {
-            link.scrollIntoView({ behavior: 'smooth' })
-        }, { signal: controller.signal })
-
-        return () => {
-            controller.abort()
+    return {
+        ref: linkRef,
+        trigger: () => {
+            linkRef.current?.scrollIntoView({ behavior: 'smooth' })
         }
-    }, [])
+    }
+}
 
+/**
+ * @param {object} props
+ * @param {import("preact/hooks").MutableRef<HTMLAnchorElement|null>} [props.elemRef]
+ */
+export function VisitSiteLink({ elemRef }) {
+    const { t } = useTypedTranslation();
+    const {messaging} = useMessaging();
     return (
-        <a className={styles.visitSite} onClick={() => messaging?.visitSite()} ref={linkRef}>
+        <a className={styles.visitSite} onClick={() => messaging?.visitSite()} ref={elemRef}>
             {t('visitSiteButton')}
         </a>
     )
@@ -55,18 +53,16 @@ export function AdvancedInfoContent() {
 }
 
 export function AdvancedInfo() {
-    const animationDidEnd = () => {
-        window.dispatchEvent(new Event('advanced-info-animation-end'))
-    }
+    const { ref, trigger } = useScrollTarget();
 
     return (
         <div className={styles.wrapper}>
-            <div className={styles.container} onAnimationEnd={animationDidEnd}>
+            <div className={styles.container} onAnimationEnd={trigger}>
                 <AdvancedInfoHeading />
 
                 <AdvancedInfoContent />
 
-                <VisitSiteLink />
+                <VisitSiteLink elemRef={ref}/>
             </div>
         </div>
     )
