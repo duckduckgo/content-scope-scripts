@@ -1,7 +1,7 @@
 import { h } from 'preact'
 import { useRef, useEffect } from 'preact/hooks'
 import { useTypedTranslation } from '../types'
-import { Text } from '../../../../shared/components/Text/Text'
+import { Text, Link } from '../../../../shared/components/Text/Text'
 import { useMessaging } from '../providers/MessagingProvider'
 import { useAdvancedInfoHeading, useAdvancedInfoContent } from '../hooks/ErrorStrings'
 
@@ -28,9 +28,9 @@ export function VisitSiteLink() {
     }, [])
 
     return (
-        <Text as="a" variant="body" className={styles.visitSite} onClick={() => messaging?.visitSite()}>
+        <Link variant="body" className={styles.visitSite} onClick={() => messaging?.visitSite()}>
             <span ref={spanRef}>{t('visitSiteButton')}</span>
-        </Text>
+        </Link>
     )
 }
 
@@ -56,7 +56,7 @@ export function AdvancedInfoContent() {
 
 export function AdvancedInfo() {
     const animationDidEnd = () => {
-        window.dispatchEvent(new CustomEvent('advanced-info-animation-end'))
+        window.dispatchEvent(new Event('advanced-info-animation-end'))
     }
 
     return (
