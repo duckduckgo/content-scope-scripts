@@ -18,6 +18,10 @@
           "selector": "#user_phone"
         },
         {
+          "type": "$generated_street_address$",
+          "selector": "#user_street_address"
+        },
+        {
           "type": "state",
           "selector": "#state"
         },
