@@ -54,6 +54,7 @@ export function fillMany (root, elements, data) {
             results.push(setValueForInput(inputElem, generateZipCode()))
         } else if (element.type === '$generated_random_number$') {
             if (!element.min || !element.max) {
+                results.push({ result: false, error: `element found with selector '${element.selector}', but missing min and/or max values` })
                 continue
             }
             const minInt = parseInt(element?.min)
