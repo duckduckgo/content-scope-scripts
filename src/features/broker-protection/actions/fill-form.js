@@ -32,7 +32,7 @@ export function fillForm (action, userData, root = document) {
 /**
  * Try to fill form elements. Collecting results + warnings for reporting.
  * @param {HTMLElement} root
- * @param {{selector: string; type: string}[]} elements
+ * @param {{selector: string; type: string; min?: string; max?: string;}[]} elements
  * @param {Record<string, any>} data
  * @return {({result: true} | {result: false; error: string})[]}
  */
@@ -52,6 +52,20 @@ export function fillMany (root, elements, data) {
             results.push(setValueForInput(inputElem, generatePhoneNumber()))
         } else if (element.type === '$generated_zip_code$') {
             results.push(setValueForInput(inputElem, generateZipCode()))
+        } else if (element.type === '$generated_random_number$') {
+            if (!element.min || !element.max) {
+                results.push({ result: false, error: `element found with selector '${element.selector}', but missing min and/or max values` })
+                continue
+            }
+            const minInt = parseInt(element?.min)
+            const maxInt = parseInt(element?.max)
+
+            if (isNaN(minInt) || isNaN(maxInt)) {
+                results.push({ result: false, error: `element found with selector '${element.selector}', but min or max was not a number` })
+                continue
+            }
+
+            results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()))
         } else {
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
                 results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` })
