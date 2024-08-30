@@ -57,6 +57,13 @@ export class BrokerProtectionPage {
         await expect(this.page.getByLabel('Phone Number:')).toHaveValue(/^\d{10}$/)
         await expect(this.page.getByLabel('State:')).toHaveValue('IL')
         await expect(this.page.getByLabel('Zip Code:')).toHaveValue(/^\d{5}$/)
+
+        const randomValue = await this.page.getByLabel('Random number between 5 and 15:').inputValue()
+        const randomValueInt = parseInt(randomValue)
+
+        expect(Number.isInteger(randomValueInt)).toBe(true)
+        expect(randomValueInt).toBeGreaterThanOrEqual(5)
+        expect(randomValueInt).toBeLessThanOrEqual(15)
     }
 
     /**
