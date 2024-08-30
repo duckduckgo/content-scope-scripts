@@ -24,6 +24,12 @@
         {
           "type": "$generated_zip_code$",
           "selector": "#user_zip_code"
+        },
+        {
+          "type": "$generated_random_number$",
+          "selector": "#random_number",
+          "min": "5",
+          "max": "15"
         }
       ]
     },
