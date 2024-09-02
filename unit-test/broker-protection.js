@@ -12,7 +12,7 @@ import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/b
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
 import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../src/features/broker-protection/utils.js'
-import { generatePhoneNumber, generateZipCode } from '../src/features/broker-protection/actions/fill-form.js'
+import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js'
 
@@ -556,24 +556,33 @@ describe('Actions', () => {
             )
         })
     })
+})
 
-    describe('fillForm', () => {
-        describe('generateRandomPhoneNumber', () => {
-            it('generates a string of integers of an appropriate size', () => {
-                const phoneNumber = generatePhoneNumber()
+describe('generators', () => {
+    describe('generateRandomPhoneNumber', () => {
+        it('generates a string of integers of an appropriate size', () => {
+            const phoneNumber = generatePhoneNumber()
 
-                expect(typeof phoneNumber).toEqual('string')
-                expect(phoneNumber.length).toBe(10)
-                expect(phoneNumber).toMatch(/^\d{10}$/)
-            })
+            expect(typeof phoneNumber).toEqual('string')
+            expect(phoneNumber.length).toBe(10)
+            expect(phoneNumber).toMatch(/^\d{10}$/)
         })
-        describe('generateZipCode', () => {
-            it('generates a string of integers of an appropriate size', () => {
-                const zipCode = generateZipCode()
+    })
+    describe('generateZipCode', () => {
+        it('generates a string of integers of an appropriate size', () => {
+            const zipCode = generateZipCode()
 
-                expect(typeof zipCode).toEqual('string')
-                expect(zipCode.length).toBe(5)
-                expect(zipCode).toMatch(/^\d{5}$/)
+            expect(typeof zipCode).toEqual('string')
+            expect(zipCode.length).toBe(5)
+            expect(zipCode).toMatch(/^\d{5}$/)
+        })
+    })
+    describe('generateStreetAddress', () => {
+        it('generates a string of integers of an appropriate size', () => {
+            Array.from({ length: 30 }).forEach(() => {
+                const streetAddress = generateStreetAddress()
+                expect(typeof streetAddress).toEqual('string')
+                expect(streetAddress).toMatch(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/)
             })
         })
     })
