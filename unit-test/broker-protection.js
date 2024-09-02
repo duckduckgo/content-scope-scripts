@@ -579,9 +579,11 @@ describe('generators', () => {
     })
     describe('generateStreetAddress', () => {
         it('generates a string of integers of an appropriate size', () => {
-            const streetAddress = generateStreetAddress()
-            expect(typeof streetAddress).toEqual('string')
-            expect(streetAddress).toMatch(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/)
+            Array.from({ length: 30 }).forEach(() => {
+                const streetAddress = generateStreetAddress()
+                expect(typeof streetAddress).toEqual('string')
+                expect(streetAddress).toMatch(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/)
+            })
         })
     })
 })
