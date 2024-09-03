@@ -1,5 +1,6 @@
 import { getElement, generateRandomInt } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
+import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js'
 
 /**
  * @param {Record<string, any>} action
@@ -32,7 +33,7 @@ export function fillForm (action, userData, root = document) {
 /**
  * Try to fill form elements. Collecting results + warnings for reporting.
  * @param {HTMLElement} root
- * @param {{selector: string; type: string}[]} elements
+ * @param {{selector: string; type: string; min?: string; max?: string;}[]} elements
  * @param {Record<string, any>} data
  * @return {({result: true} | {result: false; error: string})[]}
  */
@@ -52,6 +53,22 @@ export function fillMany (root, elements, data) {
             results.push(setValueForInput(inputElem, generatePhoneNumber()))
         } else if (element.type === '$generated_zip_code$') {
             results.push(setValueForInput(inputElem, generateZipCode()))
+        } else if (element.type === '$generated_random_number$') {
+            if (!element.min || !element.max) {
+                results.push({ result: false, error: `element found with selector '${element.selector}', but missing min and/or max values` })
+                continue
+            }
+            const minInt = parseInt(element?.min)
+            const maxInt = parseInt(element?.max)
+
+            if (isNaN(minInt) || isNaN(maxInt)) {
+                results.push({ result: false, error: `element found with selector '${element.selector}', but min or max was not a number` })
+                continue
+            }
+
+            results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()))
+        } else if (element.type === '$generated_street_address$') {
+            results.push(setValueForInput(inputElem, generateStreetAddress()))
         } else {
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
                 results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` })
@@ -162,23 +179,4 @@ function setImageUpload (element) {
         // failed
         return { result: false, error: e.toString() }
     }
-}
-
-export function generatePhoneNumber () {
-    /**
-     * 3 digits, 2-8, last two digits technically can't end in two 1s, but we'll ignore that requirement
-     * Source: https://math.stackexchange.com/questions/920972/how-many-different-phone-numbers-are-possible-within-an-area-code/1115411#1115411
-     */
-    const areaCode = generateRandomInt(200, 899).toString()
-
-    // 555-0100 through 555-0199 are for fictional use (https://en.wikipedia.org/wiki/555_(telephone_number)#Fictional_usage)
-    const exchangeCode = '555'
-    const lineNumber = generateRandomInt(100, 199).toString().padStart(4, '0')
-
-    return `${areaCode}${exchangeCode}${lineNumber}`
-}
-
-export function generateZipCode () {
-    const zipCode = generateRandomInt(10000, 99999).toString()
-    return zipCode
 }
