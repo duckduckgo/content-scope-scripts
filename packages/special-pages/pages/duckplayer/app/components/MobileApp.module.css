@@ -66,6 +66,10 @@ body:has([data-state="completed"] [aria-checked="true"]) .main {
     --row-7: auto;
 }
 
+body:has([data-state="completed"] [aria-checked="true"]) .switch {
+    background: transparent;
+}
+
 .embed {
     background: var(--bg-color);
     grid-area: embed;
@@ -134,6 +138,9 @@ body:has([data-state="completed"] [aria-checked="true"]) .main {
     /* remove the switch height, to keep everything centered */
     body:has([data-state="completed"] [aria-checked="true"]) .main {
         grid-template-rows: max-content max-content 0 0;
+    }
+    body:has([data-state="completed"] [aria-checked="true"]) .switch {
+        background: var(--bg-color);
     }
 }
 @media screen and (min-width: 900px) and (min-height: 660px)  {
