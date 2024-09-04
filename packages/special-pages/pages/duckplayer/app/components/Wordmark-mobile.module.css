@@ -1,0 +1,19 @@
+.logo {
+    height: 44px;
+    display: grid;
+    width: 100%;
+    align-items: center;
+    grid-column-gap: 8px;
+    grid-template-columns: max-content max-content;
+}
+.logoSvg {
+    img {
+        display: block;
+        width: 32px;
+        height: 32px;
+    }
+}
+.text {
+    font-size: 17px;
+    font-weight: 600;
+}

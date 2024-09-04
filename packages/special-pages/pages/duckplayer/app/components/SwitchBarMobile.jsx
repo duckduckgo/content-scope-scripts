@@ -1,6 +1,6 @@
 import { h } from "preact";
 import cn from "classnames";
-import styles from "./SwitchBar.module.css"
+import styles from "./SwitchBarMobile.module.css"
 import { useContext } from "preact/hooks";
 import { SwitchContext } from "../providers/SwitchProvider.jsx";
 import { Switch } from "./Switch.jsx";

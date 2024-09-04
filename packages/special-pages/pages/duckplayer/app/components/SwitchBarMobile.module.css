@@ -1,25 +1,24 @@
 .switchBar {
-    display: flex;
-    gap: 8px;
-    border-radius: var(--inner-radius);
-    padding: 8px 12px;
+    display: grid;
+    border-radius: 16px;
     background: rgba(255, 255, 255, 0.03);
-    height: 44px;
-    line-height: 1;
-    align-items: center;
-    width: 100%;
-    transition: all .3s ease-in-out;
-    opacity: 1;
-    visibility: visible;
+    padding-inline: 16px;
+    height: 100%;
+    line-height: 1.1;
 }
 
-[data-focus-mode="on"] .switchBar {
-    opacity: 0;
-    visibility: hidden;
+@media screen and (min-width: 900px) {
+    .switchBar {
+        border-radius: 8px;
+    }
+}
+@media screen and (min-width: 667px) and (max-height: 450px) {
+    .switchBar {
+        border-radius: 8px;
+    }
 }
 
 .stateExiting {
-
     transition: all .3s ease-in-out;
     transition-delay: 2s;
     opacity: 0;

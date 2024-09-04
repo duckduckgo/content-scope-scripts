@@ -11,8 +11,9 @@ import { SettingsProvider } from './providers/SettingsProvider.jsx'
 import { MessagingContext } from './types.js'
 import { UserValuesProvider } from './providers/UserValuesProvider.jsx'
 import { Fallback } from './components/Fallback.jsx'
-import { App } from './components/App.jsx'
 import { Components } from './components/Components.jsx'
+import { MobileApp } from './components/MobileApp.jsx'
+import { DesktopApp } from './components/DesktopApp.jsx'
 
 /**
  * @param {import("../src/js/index.js").DuckplayerPage} messaging
@@ -80,7 +81,8 @@ export async function init (messaging, baseEnvironment) {
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
                                 <UserValuesProvider initial={init.userValues}>
-                                    <App embed={embed} />
+                                    {settings.layout === 'desktop' && <DesktopApp embed={embed} />}
+                                    {settings.layout === 'mobile' && <MobileApp embed={embed} />}
                                     <WillThrow />
                                 </UserValuesProvider>
                             </SettingsProvider>

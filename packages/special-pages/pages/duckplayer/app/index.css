@@ -10,5 +10,5 @@ html, body {
 body[data-display="app"] {
     color: rgba(242, 242, 242, 1);
     background: #101010;
-    padding: 8px;
+    padding: 16px;
 }
