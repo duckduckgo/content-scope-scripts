@@ -1,0 +1,39 @@
+.container {
+    align-self: center;
+    justify-self: center;
+    background-color: #f0e68c; /* Soft, muted yellow for an older look */
+    display: flex;
+    color: #333; /* Darker text for contrast */
+    font-family: 'VT323', monospace; /* Nostalgic 8-bit/16-bit font */
+    justify-content: center;
+    padding: 20px 10px;
+    width: 80%;
+    max-width: 600px;
+    aspect-ratio: 1.6;
+}
+
+.overlay {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    flex-flow: column;
+    gap: 16px;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+}
+
+.overlay h1 {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.overlay p {
+    font-size: 16px;
+}
+
+.iframe {
+    border: 0;
+    width: 100%;
+    height: 100%;
+}

@@ -9,6 +9,7 @@ import {
     ReleaseNotesContent,
     ReleaseNotes
 } from './components/ReleaseNotes'
+import { EasterEgg } from './components/EasterEgg'
 import { Button } from '../../../shared/components/Button/Button'
 import { Card } from '../../../shared/components/Card/Card'
 import { ContentPlaceholder } from './components/ContentPlaceholder'
@@ -93,6 +94,9 @@ export function Components () {
             <Card className={styles.card}>
                 <ReleaseNotesContent status="updateReady" title="May 10 2024" version="1.2.0" notes={sampleNotesData} />
             </Card>
+
+            <h2>Easter Egg</h2>
+            <EasterEgg />
 
             <ReleaseNotes releaseData={sampleData.loading} />
             <LoadingThen>
