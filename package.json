@@ -85,8 +85,9 @@
     "rollup": "^3.29.4",
     "rollup-plugin-import-css": "^3.3.5",
     "rollup-plugin-svg-import": "^2.1.0",
-    "stylelint": "^16.9.0",
-    "stylelint-config-standard": "^36.0.1",
+    "stylelint": "^15.11.0",
+    "stylelint-config-standard": "^34.0.0",
+    "stylelint-csstree-validator": "^3.0.0",
     "typedoc": "^0.25.12",
     "typescript": "^5.4.3"
   }
