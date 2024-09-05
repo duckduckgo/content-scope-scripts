@@ -183,26 +183,29 @@ a {
     color: var(--button-text--disabled, var(--button-text));
   }
 }
-[data-platform-name=""] {
-  .Button_button {
+body:not([data-platform-name]) {
+  & .Button_button {
     background-blend-mode:
       normal,
       color-burn,
       normal;
-    background: linear-gradient(180deg, var(rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%), linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.06) 100%)), #007aff;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 100%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.06) 100%),
+      #007aff;
     border-radius: var(--sp-2);
-    border: 1px solid rgba(40, var(145, 255, 0.05));
-    box-shadow: 0 0 1px 0 rgba(40, var(145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1));
+    border: 1px solid rgba(40, 145, 255, 0.05);
+    box-shadow: 0 0 1px 0 rgba(40, 145, 255, 0.05), 0 1px 1px 0 rgba(40, 145, 255, 0.1);
     color: white;
     font-size: calc(13 * var(--px-in-rem));
     font-weight: 600;
     line-height: var(--sp-8);
     padding: 0 var(--sp-4);
     &:hover {
-      background: linear-gradient(0deg, var(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%)), #2749db;
+      background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #2749db;
     }
     &:active {
-      background: linear-gradient(0deg, var(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%)), #1743d1;
+      background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.16) 100%), #1743d1;
     }
   }
 }
