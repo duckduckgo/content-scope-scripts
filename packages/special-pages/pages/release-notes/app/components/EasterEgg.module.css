@@ -26,10 +26,13 @@
 .overlay h1 {
     font-size: 32px;
     font-weight: bold;
+    line-height: 1.2;
+    text-align: center;
 }
 
 .overlay p {
     font-size: 16px;
+    text-align: center;
 }
 
 .iframe {
