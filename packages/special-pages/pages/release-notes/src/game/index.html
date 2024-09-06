@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Want to Help Us Squash Bugs?</title>
+    <style>
+        /* Retro-inspired body styling */
+        body {
+            margin: 0;
+            padding: 0;
+            color: #333; /* Darker text for contrast */
+        }
+
+        /* Game Container with retro pixel frame */
+        .game-container {
+            width: calc(100vw - 20px);
+            height: calc(100vh - 40px);
+            overflow: hidden;
+            position: relative;
+            background-color: #87ceeb; /* Soft blue for a classic sky look */
+            margin: 10px auto;
+            border: 8px solid #333; /* Thick border to simulate retro display frame */
+            box-shadow: 4px 4px 0px #999; /* Giving the game a 'window' look */
+        }
+
+        /* Score counter styled to look retro */
+        .score-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #333;
+            padding: 5px;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            font-family: 'VT323', monospace;
+        }
+
+        /* Retro duck */
+        .duck {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background-image: url('duck.png'); /* Replace with a pixelated image for retro feel */
+            background-size: cover;
+            background-repeat: no-repeat;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            filter: pixelate(2px); /* Add pixelation effect */
+        }
+
+        /* Retro bug */
+        .bug {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-image: url('tracker.png'); /* Replace with pixelated bug image */
+            background-size: cover;
+            background-repeat: no-repeat;
+            filter: pixelate(2px); /* Add pixelation effect */
+        }
+
+        /* Footprint with pixelation effect */
+        .footprint {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-image: url('footprint.png'); /* Replace with retro-style footprint */
+            background-size: cover;
+            background-repeat: no-repeat;
+            z-index: 5;
+            filter: pixelate(2px); /* Add pixelation effect */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="game-container" id="game-container">
+        <div class="duck" id="duck"></div>
+        <!-- Score counter displayed in the top-right corner -->
+        <div class="score-counter" id="score-counter">Score: 0</div>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const duck = document.getElementById('duck');
+        const scoreCounter = document.getElementById('score-counter');
+        let score = 0;
+
+        // Initialize duck position
+        let duckLeft = 40;
+        let duckTop = 40;
+        duck.style.left = duckLeft + 'vw';
+        duck.style.top = duckTop + 'vh';
+
+        // Get the dimensions of the game container and the duck
+        const containerWidth = gameContainer.offsetWidth;
+        const containerHeight = gameContainer.offsetHeight;
+        const duckWidth = duck.offsetWidth;
+        const duckHeight = duck.offsetHeight;
+
+        // Move the duck with arrow keys and prevent it from going outside the container
+        document.addEventListener('keydown', function(event) {
+            event.preventDefault();
+            let left = parseFloat(duck.style.left);
+            let top = parseFloat(duck.style.top);
+
+            // Check for arrow key inputs and adjust the duck's position
+            if (event.key === 'ArrowUp') top -= 2;
+            if (event.key === 'ArrowDown') top += 2;
+            if (event.key === 'ArrowLeft') left -= 2;
+            if (event.key === 'ArrowRight') left += 2;
+
+            // Convert the width and height of the duck from px to vw/vh units
+            const duckWidthVW = (duckWidth / containerWidth) * 100;
+            const duckHeightVH = (duckHeight / containerHeight) * 100;
+
+            // Boundary checks to prevent the duck from going outside the container
+            if (left < 0) left = 0;
+            if (left > 100 - duckWidthVW) left = 100 - duckWidthVW;
+            if (top < 0) top = 0;
+            if (top > 100 - duckHeightVH) top = 100 - duckHeightVH;
+
+            // Update duck position
+            duck.style.left = `${left}vw`;
+            duck.style.top = `${top}vh`;
+
+            checkForBugSquash(left, top);
+        });
+
+        // Spawn bugs
+        function spawnBug() {
+            const bug = document.createElement('div');
+            bug.classList.add('bug');
+            bug.style.left = `${Math.random() * 55}vw`; /* Adjusted for the game field size */
+            bug.style.top = `${Math.random() * 55}vh`;  /* Adjusted for the game field size */
+            gameContainer.appendChild(bug);
+
+            // Despawn the bug after a certain amount of time
+            setTimeout(() => {
+                bug.remove();
+            }, 5000);
+        }
+
+        // Check for collisions between duck and bugs (with improved sensitivity)
+        function checkForBugSquash(duckLeft, duckTop) {
+            const bugs = document.getElementsByClassName('bug');
+            Array.from(bugs).forEach(bug => {
+                const bugLeft = parseFloat(bug.style.left);
+                const bugTop = parseFloat(bug.style.top);
+
+                // Adjusting sensitivity by increasing collision area
+                const sensitivityRange = 4; // Smaller value means more sensitive to overlap
+
+                // Check if the duck is within a smaller range of the bug for collision detection
+                if (
+                    Math.abs(duckLeft - bugLeft) < sensitivityRange &&
+                    Math.abs(duckTop - bugTop) < sensitivityRange
+                ) {
+                    // Bug squashed
+                    const footprint = document.createElement('div');
+                    footprint.classList.add('footprint');
+                    footprint.style.left = `${bugLeft}vw`;
+                    footprint.style.top = `${bugTop}vh`;
+                    gameContainer.appendChild(footprint);
+
+                    bug.remove(); // Remove the bug
+
+                    // Update score
+                    score++;
+                    scoreCounter.innerText = `Score: ${score}`; // Update the score in the score counter
+                    console.log('Bug squashed! Score: ', score);
+                }
+            });
+        }
+
+        // Start the game loop
+        setInterval(spawnBug, 2000);
+
+    </script>
+</body>
+</html>
