@@ -29,7 +29,6 @@ export interface WebCompatSettings {
       undefined: string[];
     };
   };
-  modifyLocalStorage?: State;
   domains?: Domains;
 }
 export interface Domain {
