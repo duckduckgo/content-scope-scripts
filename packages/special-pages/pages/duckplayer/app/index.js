@@ -41,19 +41,20 @@ export async function init (messaging, baseEnvironment) {
 
     document.body.dataset.display = environment.display
 
-    const strings = environment.locale === 'en'
-        ? enStrings
-        : await fetch(`./locales/${environment.locale}/duckplayer.json`)
-            .then(resp => {
-                if (!resp.ok) {
-                    throw new Error('did not give a result')
-                }
-                return resp.json()
-            })
-            .catch(e => {
-                console.error('Could not load locale', environment.locale, e)
-                return enStrings
-            })
+    // This will be re-enabled in the mobile PR
+    // const strings = environment.locale === 'en'
+    //     ? enStrings
+    //     : await fetch(`./locales/${environment.locale}/duckplayer.json`)
+    //         .then(resp => {
+    //             if (!resp.ok) {
+    //                 throw new Error('did not give a result')
+    //             }
+    //             return resp.json()
+    //         })
+    //         .catch(e => {
+    //             console.error('Could not load locale', environment.locale, e)
+    //             return enStrings
+    //         })
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
