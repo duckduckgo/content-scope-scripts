@@ -741,7 +741,8 @@
             ...baseFeatures,
             'webCompat',
             'clickToLoad',
-            'breakageReporting'
+            'breakageReporting',
+            'duckPlayer'
         ],
         windows: [
             'cookie',

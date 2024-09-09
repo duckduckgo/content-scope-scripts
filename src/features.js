@@ -43,7 +43,8 @@ export const platformSupport = {
         ...baseFeatures,
         'webCompat',
         'clickToLoad',
-        'breakageReporting'
+        'breakageReporting',
+        'duckPlayer'
     ],
     windows: [
         'cookie',

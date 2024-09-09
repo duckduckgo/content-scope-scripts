@@ -2023,6 +2023,9 @@
     invalidIdError: {
       title: "<b>ERROR:</b> Invalid video id",
       note: "Shown when the page URL doesn't match a known video ID. Note for translators: The <b> tag makes the word 'ERROR:' bold. Depending on the grammar of the target language, you might need to move it so that the correct word is emphasized."
+    },
+    tooltipInfo: {
+      title: "Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations."
     }
   };
 
@@ -2127,23 +2130,6 @@
           return "desktop";
       }
     }
-    /**
-     * @return {'desktop' | 'portrait' | 'landscape'}
-     */
-    get orientation() {
-      switch (this.platform.name) {
-        case "windows":
-        case "macos": {
-          return "desktop";
-        }
-        case "ios":
-        case "android": {
-          return "portrait";
-        }
-        default:
-          return "desktop";
-      }
-    }
   };
 
   // pages/duckplayer/app/types.js
@@ -2168,9 +2154,6 @@
   }
   function usePlatformName() {
     return q2(SettingsContext).settings.platform.name;
-  }
-  function useLayout() {
-    return q2(SettingsContext).settings.layout;
   }
   function useOpenSettingsHandler() {
     const settings = q2(SettingsContext).settings;
@@ -2285,49 +2268,32 @@
     return /* @__PURE__ */ y("div", { class: Fallback_default.fallback }, /* @__PURE__ */ y("div", null, /* @__PURE__ */ y("p", null, "Something went wrong!"), showDetails && /* @__PURE__ */ y("p", null, "Please check logs for a message called ", /* @__PURE__ */ y("code", null, "reportPageException"))));
   }
 
-  // pages/duckplayer/app/components/App.jsx
-  var import_classnames10 = __toESM(require_classnames(), 1);
-
-  // pages/duckplayer/app/components/App.module.css
-  var App_default = {
-    app: "App_app",
-    portrait: "App_portrait",
-    landscape: "App_landscape",
-    wrapper: "App_wrapper",
-    desktop: "App_desktop",
-    rhs: "App_rhs",
-    header: "App_header",
-    main: "App_main",
-    controls: "App_controls",
-    switch: "App_switch"
+  // pages/duckplayer/app/components/Components.module.css
+  var Components_default = {
+    main: "Components_main",
+    tube: "Components_tube"
   };
 
-  // pages/duckplayer/app/components/Background.module.css
-  var Background_default = {
-    bg: "Background_bg"
+  // pages/duckplayer/app/components/PlayerContainer.jsx
+  var import_classnames = __toESM(require_classnames(), 1);
+
+  // pages/duckplayer/app/components/PlayerContainer.module.css
+  var PlayerContainer_default = {
+    container: "PlayerContainer_container",
+    inset: "PlayerContainer_inset",
+    internals: "PlayerContainer_internals",
+    insetInternals: "PlayerContainer_insetInternals"
   };
 
-  // pages/duckplayer/app/components/Background.jsx
-  function Background() {
-    return /* @__PURE__ */ y("div", { class: Background_default.bg });
+  // pages/duckplayer/app/components/PlayerContainer.jsx
+  function PlayerContainer({ children, inset }) {
+    return /* @__PURE__ */ y("div", { class: (0, import_classnames.default)(PlayerContainer_default.container, {
+      [PlayerContainer_default.inset]: inset
+    }) }, children);
   }
-
-  // pages/duckplayer/app/components/InfoBar.module.css
-  var InfoBar_default = {
-    infoBar: "InfoBar_infoBar",
-    container: "InfoBar_container",
-    dax: "InfoBar_dax",
-    img: "InfoBar_img",
-    text: "InfoBar_text",
-    info: "InfoBar_info",
-    lhs: "InfoBar_lhs",
-    rhs: "InfoBar_rhs",
-    switch: "InfoBar_switch",
-    controls: "InfoBar_controls"
-  };
-
-  // pages/duckplayer/app/img/dax.data.svg
-  var dax_data_default = 'data:image/svg+xml,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">%0A    <path d="M12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23Z" fill="%23DE5833"/>%0A    <path d="M14.1404 21.001C13.7872 20.3171 13.4179 19.3192 13.202 18.889C12.5118 17.4948 11.8167 15.5303 12.1324 14.2629C12.1896 14.0322 11.4814 5.73576 10.981 5.46712C10.4249 5.16882 9.21625 4.77493 8.58985 4.66945C8.15317 4.59859 8.05504 4.72219 7.87186 4.75021C8.04522 4.76834 8.86625 5.17541 9.02489 5.19848C8.86625 5.30726 8.39686 5.19519 8.09756 5.32868C7.94546 5.39955 7.83261 5.65994 7.83588 5.7819C8.69125 5.69455 10.0275 5.78025 10.819 6.13294C10.1894 6.20546 9.2326 6.28621 8.82209 6.50376C7.62817 7.13662 7.10154 8.61824 7.41555 10.3949C7.70667 12.0479 8.99561 18.4844 9.51734 21.001C10.4365 21.3174 11.1214 21.4768 12.1453 21.4768C13.1398 21.4768 13.5844 21.1081 14.1404 21.001Z" fill="%23D5D7D8"/>%0A    <path fill-rule="evenodd" clip-rule="evenodd" d="M9.98431 21.1699C9.80923 19.9162 9.49398 18.6007 9.23216 17.3624C8.65596 14.6372 7.93939 11.248 7.72236 10.0352C7.40449 8.25212 7.72236 6.97898 8.9359 6.33992C9.35145 6.12139 9.94414 5.96245 10.5799 5.89126C9.77859 5.53531 8.82828 5.3979 7.9591 5.48564C7.95693 5.2445 8.23556 5.17084 8.49618 5.10193C8.63279 5.06582 8.76446 5.03101 8.84815 4.97407C8.77135 4.96299 8.64002 4.87503 8.50451 4.78428C8.35667 4.68527 8.20384 4.58292 8.11142 4.57342C9.21403 4.38468 10.3481 4.56183 11.3381 5.08168C11.8431 5.3532 12.2007 5.64292 12.4209 5.9459C12.9954 6.05682 13.5036 6.26377 13.8364 6.59654C14.8579 7.61637 15.7685 9.94412 15.3877 11.2835C15.2801 11.6543 15.035 11.9258 14.7271 12.1493C14.49 12.3221 14.3637 12.2786 14.2048 12.2239C13.9631 12.1407 13.6463 12.0316 12.7503 12.6179C12.6178 12.7039 12.576 13.1735 12.5437 13.5358C12.5288 13.7031 12.5159 13.8476 12.497 13.9208C12.1792 15.194 12.8795 17.1658 13.5798 18.568C13.7139 18.8353 13.8898 19.1724 14.0885 19.5531C14.1984 19.7636 14.5199 20.5797 14.6405 20.8125C12.4209 21.639 12.1751 21.7333 9.98431 21.1699Z" fill="white"/>%0A    <path d="M9.85711 10.5714C10.2516 10.5714 10.5714 10.2916 10.5714 9.94641C10.5714 9.60123 10.2516 9.32141 9.85711 9.32141C9.46262 9.32141 9.14282 9.60123 9.14282 9.94641C9.14282 10.2916 9.46262 10.5714 9.85711 10.5714Z" fill="%232D4F8E"/>%0A    <path d="M10.1723 9.93979C10.2681 9.93979 10.3458 9.86211 10.3458 9.76628C10.3458 9.67046 10.2681 9.59277 10.1723 9.59277C10.0765 9.59277 9.99878 9.67046 9.99878 9.76628C9.99878 9.86211 10.0765 9.93979 10.1723 9.93979Z" fill="white"/>%0A    <path d="M14.2664 10.3734C14.5539 10.3734 14.7869 10.1015 14.7869 9.7661C14.7869 9.43071 14.5539 9.15881 14.2664 9.15881C13.9789 9.15881 13.7458 9.43071 13.7458 9.7661C13.7458 10.1015 13.9789 10.3734 14.2664 10.3734Z" fill="%232D4F8E"/>%0A    <path d="M14.469 9.67966C14.5489 9.67966 14.6137 9.60198 14.6137 9.50615C14.6137 9.41032 14.5489 9.33264 14.469 9.33264C14.389 9.33264 14.3242 9.41032 14.3242 9.50615C14.3242 9.60198 14.389 9.67966 14.469 9.67966Z" fill="white"/>%0A    <path d="M9.9291 8.17747C9.9291 8.17747 9.46635 7.96895 9.01725 8.24947C8.56968 8.52849 8.58485 8.81201 8.58485 8.81201C8.58485 8.81201 8.34664 8.28697 8.98084 8.02896C9.61959 7.77394 9.9291 8.17747 9.9291 8.17747Z" fill="%232D4F8E"/>%0A    <path d="M14.6137 8.07779C14.6137 8.07779 14.2487 7.93456 13.9655 7.93685C13.3839 7.94144 13.2256 8.1179 13.2256 8.1179C13.2256 8.1179 13.3239 7.69738 14.0671 7.78217C14.3087 7.81196 14.5137 7.92196 14.6137 8.07779Z" fill="%232D4F8E"/>%0A    <path d="M12.0108 12.7346C12.0749 12.338 13.061 11.5901 13.7612 11.5432C14.4613 11.4979 14.6786 11.5092 15.2615 11.3635C15.846 11.2194 17.3526 10.831 17.7668 10.6319C18.1841 10.4327 19.9501 10.7306 18.7061 11.4509C18.1669 11.7633 16.715 12.3364 15.6772 12.6585C14.6411 12.979 14.0112 12.3509 13.6674 12.8803C13.3939 13.2995 13.6127 13.8742 14.8505 13.9939C16.5243 14.1542 18.1278 13.2137 18.3044 13.7139C18.481 14.2141 16.8681 14.8357 15.8835 14.8567C14.9005 14.8761 12.9188 14.1833 12.6234 13.9697C12.3249 13.756 11.9295 13.2542 12.0108 12.7346Z" fill="%23FDD20A"/>%0A    <path d="M15.438 16.6617C15.1403 16.5928 13.9974 17.4122 13.5492 17.7446C13.531 17.6708 13.5161 17.6103 13.5012 17.5767C13.4285 17.3937 12.3286 17.4978 12.0375 17.7749C11.3429 17.4239 9.91387 16.754 9.8841 17.1654C9.8411 17.7127 9.8841 19.9425 10.1735 20.112C10.3852 20.2363 11.5479 19.5966 12.1599 19.2423C12.1781 19.249 12.1946 19.2541 12.2161 19.2608C12.5883 19.3464 13.2928 19.2608 13.5426 19.0929C13.5674 19.0761 13.5872 19.0475 13.6021 19.014C14.1661 19.2356 15.3156 19.6621 15.562 19.5697C15.8928 19.4388 15.8101 16.7473 15.438 16.6617Z" fill="%2365BC46"/>%0A    <path d="M12.3032 19.1199C11.9194 19.0371 12.0491 18.6648 12.0491 17.7943L12.0474 17.7926C12.0474 17.791 12.0491 17.7877 12.0491 17.786C11.9484 17.8439 11.8836 17.9118 11.8836 17.9879H11.8853C11.8853 18.8584 11.7557 19.2324 12.1394 19.3151C12.5249 19.3979 13.2514 19.3151 13.509 19.1497C13.5516 19.1215 13.5806 19.0669 13.5994 18.9941C13.2992 19.1331 12.6562 19.1976 12.3032 19.1199Z" fill="%2343A244"/>%0A    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" fill="white"/>%0A</svg>%0A';
+  function PlayerInternal({ children, inset }) {
+    return /* @__PURE__ */ y("div", { class: (0, import_classnames.default)(PlayerContainer_default.internals, { [PlayerContainer_default.insetInternals]: inset }) }, children);
+  }
 
   // pages/duckplayer/app/img/info.data.svg
   var info_data_default = 'data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">%0A    <path d="M10.604 4.55627C9.67439 4.55627 9.10934 5.3036 9.10934 5.99623C9.10934 6.83469 9.7473 7.1081 10.3123 7.1081C11.3513 7.1081 11.7888 6.32432 11.7888 5.68637C11.7888 4.88437 11.1508 4.55627 10.604 4.55627Z" fill="white"/>%0A    <path d="M11.1413 8.18192L8.85806 8.55106C8.78817 9.10365 8.68764 9.66256 8.58552 10.2303C8.38843 11.326 8.18542 12.4546 8.18542 13.6339C8.18542 14.8049 8.88572 15.444 9.99318 15.444C11.258 15.444 11.4745 14.6501 11.5235 13.9309C10.475 14.083 10.2447 13.6097 10.416 12.4959C10.5874 11.382 11.1413 8.18192 11.1413 8.18192Z" fill="white"/>%0A    <path fill-rule="evenodd" clip-rule="evenodd" d="M10 0C4.47715 0 0 4.47715 0 10C0 15.5228 4.47715 20 10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0ZM1.875 10C1.875 5.51269 5.51269 1.875 10 1.875C14.4873 1.875 18.125 5.51269 18.125 10C18.125 14.4873 14.4873 18.125 10 18.125C5.51269 18.125 1.875 14.4873 1.875 10Z" fill="white"/>%0A</svg>%0A';
@@ -2336,7 +2302,7 @@
   var cog_data_default = 'data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">%0A    <path fill-rule="evenodd" clip-rule="evenodd" d="M10 5.625C12.4162 5.625 14.375 7.58375 14.375 10C14.375 12.4162 12.4162 14.375 10 14.375C7.58375 14.375 5.625 12.4162 5.625 10C5.625 7.58375 7.58375 5.625 10 5.625ZM12.5 10C12.5 8.61929 11.3807 7.5 10 7.5C8.61929 7.5 7.5 8.61929 7.5 10C7.5 11.3807 8.61929 12.5 10 12.5C11.3807 12.5 12.5 11.3807 12.5 10Z" fill="white"/>%0A    <path fill-rule="evenodd" clip-rule="evenodd" d="M10.625 0C11.5695 0 12.3509 0.698404 12.481 1.60697C13.0763 1.7827 13.6451 2.01996 14.1799 2.31125C14.9143 1.76035 15.9611 1.81892 16.6291 2.48696L17.513 3.37084C18.181 4.03887 18.2396 5.08556 17.6887 5.82C17.98 6.35484 18.2173 6.92365 18.393 7.51901C19.3016 7.64906 20 8.43047 20 9.375V10.625C20 11.5695 19.3016 12.3509 18.393 12.481C18.2173 13.0763 17.98 13.6451 17.6887 14.1799C18.2396 14.9143 18.1811 15.9611 17.513 16.6291L16.6292 17.513C15.9611 18.181 14.9144 18.2396 14.18 17.6887C13.6451 17.98 13.0763 18.2173 12.481 18.393C12.3509 19.3016 11.5695 20 10.625 20H9.375C8.43047 20 7.64906 19.3016 7.51901 18.393C6.92365 18.2173 6.35484 17.98 5.82 17.6887C5.08557 18.2396 4.03887 18.181 3.37084 17.513L2.48695 16.6291C1.81892 15.9611 1.76035 14.9143 2.31125 14.1799C2.01996 13.6451 1.7827 13.0763 1.60697 12.481C0.698404 12.3509 0 11.5695 0 10.625V9.375C0 8.43047 0.698404 7.64906 1.60697 7.51901C1.78271 6.92365 2.01998 6.35484 2.3113 5.82C1.76042 5.08557 1.81899 4.03887 2.48702 3.37084L3.37091 2.48695C4.03894 1.81892 5.08566 1.76035 5.82009 2.31125C6.35491 2.01996 6.92368 1.7827 7.51901 1.60697C7.64906 0.698403 8.43047 0 9.375 0H10.625ZM10.625 1.875H9.375C9.375 2.60562 8.86376 3.1857 8.2228 3.35667C7.63403 3.51372 7.07618 3.7471 6.5604 4.04579C5.98574 4.37857 5.21357 4.32962 4.69673 3.81278L3.81285 4.69666C4.32968 5.21349 4.37863 5.98566 4.04584 6.56031C3.74713 7.07612 3.51373 7.634 3.35667 8.2228C3.1857 8.86377 2.60562 9.375 1.875 9.375V10.625C2.60562 10.625 3.1857 11.1362 3.35667 11.7772C3.51372 12.366 3.7471 12.9238 4.04579 13.4396C4.37857 14.0143 4.32962 14.7864 3.81278 15.3033L4.69666 16.1872C5.21349 15.6703 5.98566 15.6214 6.56031 15.9542C7.07612 16.2529 7.634 16.4863 8.2228 16.6433C8.86376 16.8143 9.375 17.3944 9.375 18.125H10.625V17.6562C10.625 17.2103 10.939 16.8262 11.376 16.7375C12.1135 16.5878 12.8082 16.3199 13.4397 15.9542C14.0143 15.6214 14.7865 15.6703 15.3033 16.1871L16.1872 15.3033C15.6704 14.7864 15.6214 14.0143 15.9542 13.4396C16.2529 12.9238 16.4863 12.366 16.6433 11.7772C16.8143 11.1362 17.3944 10.625 18.125 10.625V9.375C17.3944 9.375 16.8143 8.86376 16.6433 8.2228C16.4863 7.63399 16.2529 7.07611 15.9542 6.5603C15.6214 5.98566 15.6703 5.2135 16.1871 4.69667L15.3033 3.81278C14.7864 4.32962 14.0143 4.37857 13.4396 4.04579C12.9238 3.7471 12.366 3.51372 11.7772 3.35667C11.1362 3.1857 10.625 2.60562 10.625 1.875Z" fill="white"/>%0A</svg>%0A';
 
   // pages/duckplayer/app/components/Button.jsx
-  var import_classnames = __toESM(require_classnames(), 1);
+  var import_classnames2 = __toESM(require_classnames(), 1);
 
   // pages/duckplayer/app/components/Button.module.css
   var Button_default = {
@@ -2357,7 +2323,7 @@
     highlight = false,
     buttonProps = {}
   }) {
-    const classes = (0, import_classnames.default)({
+    const classes = (0, import_classnames2.default)({
       [Button_default.button]: true,
       [Button_default.desktop]: formfactor === "desktop",
       [Button_default.highlight]: highlight === true,
@@ -2382,7 +2348,7 @@
     highlight = false,
     anchorProps = {}
   }) {
-    const classes = (0, import_classnames.default)({
+    const classes = (0, import_classnames2.default)({
       [Button_default.button]: true,
       [Button_default.desktop]: formfactor === "desktop",
       [Button_default.highlight]: highlight === true,
@@ -2403,20 +2369,32 @@
     return /* @__PURE__ */ y("span", { class: Button_default.icon }, /* @__PURE__ */ y("img", { src, alt: "" }));
   }
 
-  // pages/duckplayer/app/components/SwitchBarDesktop.module.css
-  var SwitchBarDesktop_default = {
-    switchBarDesktop: "SwitchBarDesktop_switchBarDesktop",
-    stateCompleted: "SwitchBarDesktop_stateCompleted",
-    stateExiting: "SwitchBarDesktop_stateExiting",
-    label: "SwitchBarDesktop_label",
-    "slide-out": "SwitchBarDesktop_slide-out",
-    checkbox: "SwitchBarDesktop_checkbox",
-    input: "SwitchBarDesktop_input",
-    text: "SwitchBarDesktop_text"
+  // pages/duckplayer/app/components/FloatingBar.module.css
+  var FloatingBar_default = {
+    floatingBar: "FloatingBar_floatingBar",
+    inset: "FloatingBar_inset",
+    topBar: "FloatingBar_topBar"
   };
 
-  // pages/duckplayer/app/components/SwitchBarDesktop.jsx
-  var import_classnames2 = __toESM(require_classnames(), 1);
+  // pages/duckplayer/app/components/FloatingBar.jsx
+  var import_classnames3 = __toESM(require_classnames(), 1);
+  function FloatingBar({ children, inset = false }) {
+    return /* @__PURE__ */ y("div", { class: (0, import_classnames3.default)(FloatingBar_default.floatingBar, { [FloatingBar_default.inset]: inset }) }, children);
+  }
+
+  // pages/duckplayer/app/components/SwitchBarMobile.jsx
+  var import_classnames5 = __toESM(require_classnames(), 1);
+
+  // pages/duckplayer/app/components/SwitchBarMobile.module.css
+  var SwitchBarMobile_default = {
+    switchBar: "SwitchBarMobile_switchBar",
+    stateExiting: "SwitchBarMobile_stateExiting",
+    stateHidden: "SwitchBarMobile_stateHidden",
+    label: "SwitchBarMobile_label",
+    checkbox: "SwitchBarMobile_checkbox",
+    text: "SwitchBarMobile_text",
+    placeholder: "SwitchBarMobile_placeholder"
+  };
 
   // pages/duckplayer/app/providers/SwitchProvider.jsx
   var SwitchContext = F({
@@ -2432,7 +2410,6 @@
     }
   });
   function SwitchProvider({ children }) {
-    const { isReducedMotion } = useEnv();
     const userValues = useUserValues();
     const setEnabled = useSetEnabled();
     const initialState = "enabled" in userValues.privatePlayerMode ? "completed" : "showing";
@@ -2479,7 +2456,91 @@
     return /* @__PURE__ */ y(SwitchContext.Provider, { value: { state, onChange, onDone } }, children);
   }
 
+  // pages/duckplayer/app/components/Switch.module.css
+  var Switch_default = {
+    switch: "Switch_switch",
+    thumb: "Switch_thumb",
+    ios: "Switch_ios"
+  };
+
+  // pages/duckplayer/app/components/Switch.jsx
+  var import_classnames4 = __toESM(require_classnames(), 1);
+  function Switch({ checked, onChange, platformName = "ios" }) {
+    return /* @__PURE__ */ y(
+      "button",
+      {
+        role: "switch",
+        "aria-checked": checked,
+        onClick: onChange,
+        className: (0, import_classnames4.default)(Switch_default.switch, {
+          [Switch_default.ios]: platformName === "ios",
+          [Switch_default.android]: platformName === "android"
+        })
+      },
+      /* @__PURE__ */ y("span", { className: Switch_default.thumb })
+    );
+  }
+
+  // pages/duckplayer/app/components/SwitchBarMobile.jsx
+  function SwitchBarMobile({ platformName }) {
+    const { onChange, onDone, state } = q2(SwitchContext);
+    const { t: t3 } = useTypedTranslation();
+    function blockClick(e3) {
+      if (state === "exiting") {
+        return e3.preventDefault();
+      }
+    }
+    function onTransitionEnd(e3) {
+      if (e3.target?.dataset?.state === "exiting") {
+        onDone();
+      }
+    }
+    const classes = (0, import_classnames5.default)({
+      [SwitchBarMobile_default.switchBar]: true,
+      [SwitchBarMobile_default.stateExiting]: state === "exiting",
+      [SwitchBarMobile_default.stateHidden]: state === "completed"
+    });
+    return /* @__PURE__ */ y("div", { class: classes, "data-state": state, onTransitionEnd }, /* @__PURE__ */ y("label", { onClick: blockClick, class: SwitchBarMobile_default.label }, /* @__PURE__ */ y("span", { className: SwitchBarMobile_default.text }, t3("keepEnabled")), /* @__PURE__ */ y(
+      Switch,
+      {
+        checked: state !== "showing",
+        onChange,
+        platformName
+      }
+    )));
+  }
+
+  // pages/duckplayer/app/components/InfoBar.module.css
+  var InfoBar_default = {
+    infoBar: "InfoBar_infoBar",
+    container: "InfoBar_container",
+    dax: "InfoBar_dax",
+    img: "InfoBar_img",
+    text: "InfoBar_text",
+    info: "InfoBar_info",
+    lhs: "InfoBar_lhs",
+    rhs: "InfoBar_rhs",
+    switch: "InfoBar_switch",
+    controls: "InfoBar_controls"
+  };
+
+  // pages/duckplayer/app/img/dax.data.svg
+  var dax_data_default = 'data:image/svg+xml,<svg fill="none" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">%0A    <path fill="%23DE5833" fill-rule="evenodd" d="M64 128c35.346 0 64-28.654 64-64 0-35.346-28.654-64-64-64C28.654 0 0 28.654 0 64c0 35.346 28.654 64 64 64Z" clip-rule="evenodd"/>%0A    <path fill="%23DDD" fill-rule="evenodd" d="M73 111.75c0-.5.123-.614-1.466-3.782-4.224-8.459-8.47-20.384-6.54-28.075.353-1.397-3.978-51.744-7.04-53.365-3.402-1.813-7.588-4.69-11.418-5.33-1.943-.31-4.49-.163-6.482.105-.353.047-.368.683-.03.798 1.308.443 2.895 1.212 3.83 2.375.178.22-.06.566-.342.577-.882.032-2.482.402-4.593 2.195-.244.207-.041.592.273.53 4.536-.897 9.17-.455 11.9 2.027.177.16.084.45-.147.512-23.694 6.44-19.003 27.05-12.696 52.344 5.619 22.53 7.733 29.792 8.4 32.004a.718.718 0 0 0 .423.467C55.228 118.38 73 118.524 73 113v-1.25Z" clip-rule="evenodd"/>%0A    <path fill="%23fff" fill-rule="evenodd" d="M122.75 64c0 32.447-26.303 58.75-58.75 58.75S5.25 96.447 5.25 64 31.553 5.25 64 5.25 122.75 31.553 122.75 64Zm-72.46 51.986c-1.624-5.016-6.161-19.551-10.643-37.92l-.447-1.828-.003-.016c-5.425-22.155-9.855-40.252 14.427-45.937.222-.052.33-.317.183-.492-2.786-3.305-8.005-4.388-14.604-2.111-.27.093-.506-.18-.338-.412 1.294-1.784 3.823-3.155 5.072-3.756.258-.124.242-.502-.031-.588a27.848 27.848 0 0 0-3.771-.9c-.37-.059-.404-.693-.032-.743 9.356-1.259 19.125 1.55 24.028 7.726a.325.325 0 0 0 .185.114c17.953 3.855 19.239 32.235 17.17 33.528-.407.255-1.714.108-3.438-.085-6.985-.781-20.818-2.329-9.401 18.948.113.21-.037.488-.272.525-6.416.997 1.755 21.034 7.812 34.323 23.815-5.52 41.563-26.868 41.563-52.362 0-29.685-24.065-53.75-53.75-53.75S10.25 34.315 10.25 64c0 24.947 16.995 45.924 40.04 51.986Z" clip-rule="evenodd"/>%0A    <path fill="%233CA82B" d="M84.28 90.698c-1.366-.633-6.621 3.135-10.109 6.028-.729-1.031-2.103-1.78-5.204-1.242-2.713.472-4.21 1.126-4.88 2.254-4.282-1.623-11.487-4.13-13.228-1.71-1.903 2.646.475 15.161 3.003 16.786 1.319.849 7.63-3.208 10.926-6.005.532.749 1.388 1.178 3.148 1.137 2.661-.062 6.978-.681 7.648-1.921.04-.075.076-.164.106-.266 3.387 1.266 9.349 2.606 10.681 2.406 3.47-.521-.483-16.723-2.09-17.467Z"/>%0A    <path fill="%234CBA3C" d="M74.49 97.097c.144.256.26.526.358.8.483 1.352 1.27 5.648.674 6.709-.595 1.062-4.459 1.574-6.843 1.615-2.384.041-2.92-.831-3.403-2.181-.387-1.081-.577-3.621-.572-5.075-.098-2.158.69-2.916 4.334-3.506 2.696-.436 4.121.071 4.944.94 3.828-2.857 10.215-6.889 10.838-6.152 3.106 3.674 3.499 12.42 2.826 15.939-.22 1.151-10.505-1.139-10.505-2.38 0-5.152-1.337-6.565-2.65-6.71Zm-22.53-1.609c.843-1.333 7.674.325 11.424 1.993 0 0-.77 3.491.456 7.604.359 1.203-8.627 6.558-9.8 5.637-1.355-1.065-3.85-12.432-2.08-15.234Z"/>%0A    <path fill="%23FC3" fill-rule="evenodd" d="M55.269 68.407c.553-2.404 3.127-6.932 12.321-6.823 4.648-.019 10.422-.002 14.25-.436a51.312 51.312 0 0 0 12.726-3.095c3.98-1.519 5.392-1.18 5.887-.272.544.999-.097 2.722-1.488 4.31-2.656 3.03-7.431 5.378-15.865 6.075-8.433.698-14.02-1.565-16.425 2.118-1.038 1.589-.236 5.333 7.92 6.512 11.02 1.59 20.072-1.917 21.19.201 1.119 2.119-5.323 6.428-16.362 6.518-11.039.09-17.934-3.865-20.379-5.83-3.102-2.495-4.49-6.133-3.775-9.278Z" clip-rule="evenodd"/>%0A    <g fill="%2314307E" opacity=".8">%0A        <path d="M69.327 42.127c.616-1.008 1.981-1.786 4.216-1.786 2.234 0 3.285.889 4.013 1.88.148.202-.076.44-.306.34a59.869 59.869 0 0 1-.168-.073c-.817-.357-1.82-.795-3.54-.82-1.838-.026-2.997.435-3.727.831-.246.134-.634-.133-.488-.372Zm-25.157 1.29c2.17-.907 3.876-.79 5.081-.504.254.06.43-.213.227-.377-.935-.755-3.03-1.692-5.76-.674-2.437.909-3.585 2.796-3.592 4.038-.002.292.6.317.756.07.42-.67 1.12-1.646 3.289-2.553Z"/>%0A        <path fill-rule="evenodd" d="M75.44 55.92a3.47 3.47 0 0 1-3.474-3.462 3.47 3.47 0 0 1 3.475-3.46 3.47 3.47 0 0 1 3.474 3.46 3.47 3.47 0 0 1-3.475 3.462Zm2.447-4.608a.899.899 0 0 0-1.799 0c0 .494.405.895.9.895.499 0 .9-.4.9-.895Zm-25.464 3.542a4.042 4.042 0 0 1-4.049 4.037 4.045 4.045 0 0 1-4.05-4.037 4.045 4.045 0 0 1 4.05-4.037 4.045 4.045 0 0 1 4.05 4.037Zm-1.193-1.338a1.05 1.05 0 0 0-2.097 0 1.048 1.048 0 0 0 2.097 0Z" clip-rule="evenodd"/>%0A    </g>%0A</svg>%0A';
+
+  // pages/duckplayer/app/components/SwitchBarDesktop.module.css
+  var SwitchBarDesktop_default = {
+    switchBarDesktop: "SwitchBarDesktop_switchBarDesktop",
+    stateCompleted: "SwitchBarDesktop_stateCompleted",
+    stateExiting: "SwitchBarDesktop_stateExiting",
+    label: "SwitchBarDesktop_label",
+    "slide-out": "SwitchBarDesktop_slide-out",
+    checkbox: "SwitchBarDesktop_checkbox",
+    input: "SwitchBarDesktop_input",
+    text: "SwitchBarDesktop_text"
+  };
+
   // pages/duckplayer/app/components/SwitchBarDesktop.jsx
+  var import_classnames6 = __toESM(require_classnames(), 1);
   function SwitchBarDesktop() {
     const { onChange, onDone, state } = q2(SwitchContext);
     const { t: t3 } = useTypedTranslation();
@@ -2488,7 +2549,7 @@
         return e3.preventDefault();
       }
     }
-    const classes = (0, import_classnames2.default)({
+    const classes = (0, import_classnames6.default)({
       [SwitchBarDesktop_default.switchBarDesktop]: true,
       [SwitchBarDesktop_default.stateExiting]: state === "exiting",
       [SwitchBarDesktop_default.stateCompleted]: state === "completed"
@@ -2515,7 +2576,7 @@
   }
 
   // pages/duckplayer/app/components/Tooltip.jsx
-  var import_classnames3 = __toESM(require_classnames(), 1);
+  var import_classnames7 = __toESM(require_classnames(), 1);
 
   // pages/duckplayer/app/components/Tooltip.module.css
   var Tooltip_default = {
@@ -2527,10 +2588,11 @@
 
   // pages/duckplayer/app/components/Tooltip.jsx
   function Tooltip({ id, isVisible, position }) {
+    const { t: t3 } = useTypedTranslation();
     return /* @__PURE__ */ y(
       "div",
       {
-        class: (0, import_classnames3.default)(Tooltip_default.tooltip, {
+        class: (0, import_classnames7.default)(Tooltip_default.tooltip, {
           [Tooltip_default.top]: position === "top",
           [Tooltip_default.bottom]: position === "bottom"
         }),
@@ -2538,12 +2600,12 @@
         "aria-hidden": !isVisible,
         id
       },
-      "Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations."
+      t3("tooltipInfo")
     );
   }
 
   // pages/duckplayer/app/components/FocusMode.jsx
-  var import_classnames4 = __toESM(require_classnames(), 1);
+  var import_classnames8 = __toESM(require_classnames(), 1);
 
   // pages/duckplayer/app/components/FocusMode.module.css
   var FocusMode_default = {
@@ -2553,6 +2615,8 @@
   };
 
   // pages/duckplayer/app/components/FocusMode.jsx
+  var EVENT_ON = "ddg-duckplayer-focusmode-on";
+  var EVENT_OFF = "ddg-duckplayer-focusmode-off";
   function FocusMode() {
     p2(() => {
       let enabled = true;
@@ -2561,8 +2625,9 @@
         if (document.documentElement.dataset.focusModeState === "paused") {
           wait();
         } else {
-          if (!enabled)
-            return;
+          if (!enabled) {
+            return console.warn("ignoring focusMode because it was disabled");
+          }
           document.documentElement.dataset.focusMode = "on";
         }
       };
@@ -2580,9 +2645,15 @@
       document.addEventListener("mousemove", cancel);
       document.addEventListener("pointerdown", cancel);
       window.addEventListener("frame-mousemove", cancel);
-      window.addEventListener("ddg-duckplayer-focusmode-off", () => {
+      window.addEventListener(EVENT_OFF, () => {
         enabled = false;
         off();
+      });
+      window.addEventListener(EVENT_ON, () => {
+        if (enabled === true)
+          return;
+        enabled = true;
+        on();
       });
       return () => {
         clearTimeout(timerId);
@@ -2590,8 +2661,10 @@
     }, []);
     return null;
   }
+  FocusMode.disable = () => setTimeout(() => window.dispatchEvent(new Event(EVENT_OFF)), 0);
+  FocusMode.enable = () => setTimeout(() => window.dispatchEvent(new Event(EVENT_ON)), 0);
   function HideInFocusMode({ children, style = "fade" }) {
-    const classes = (0, import_classnames4.default)({
+    const classes = (0, import_classnames8.default)({
       [FocusMode_default.hideInFocus]: true,
       [FocusMode_default.fade]: style === "fade",
       [FocusMode_default.slide]: style === "slide"
@@ -2686,43 +2759,55 @@
           }
         }
       },
-      "Watch on YouTube"
+      t3("watchOnYoutube")
     ));
   }
   function InfoBarContainer({ children }) {
     return /* @__PURE__ */ y("div", { class: InfoBar_default.container }, children);
   }
 
-  // pages/duckplayer/app/components/PlayerContainer.jsx
-  var import_classnames5 = __toESM(require_classnames(), 1);
-
-  // pages/duckplayer/app/components/PlayerContainer.module.css
-  var PlayerContainer_default = {
-    container: "PlayerContainer_container",
-    inset: "PlayerContainer_inset",
-    internals: "PlayerContainer_internals",
-    insetInternals: "PlayerContainer_insetInternals"
+  // pages/duckplayer/app/components/Wordmark.module.css
+  var Wordmark_default = {
+    wordmark: "Wordmark_wordmark",
+    logo: "Wordmark_logo",
+    img: "Wordmark_img",
+    text: "Wordmark_text"
   };
 
-  // pages/duckplayer/app/components/PlayerContainer.jsx
-  function PlayerContainer({ children, inset }) {
-    return /* @__PURE__ */ y("div", { class: (0, import_classnames5.default)(PlayerContainer_default.container, {
-      [PlayerContainer_default.inset]: inset
-    }) }, children);
+  // pages/duckplayer/app/components/Wordmark-mobile.module.css
+  var Wordmark_mobile_default = {
+    logo: "Wordmark_mobile_logo",
+    logoSvg: "Wordmark_mobile_logoSvg",
+    text: "Wordmark_mobile_text"
+  };
+
+  // pages/duckplayer/app/components/Wordmark.jsx
+  function Wordmark() {
+    return /* @__PURE__ */ y("div", { class: Wordmark_default.wordmark }, /* @__PURE__ */ y("div", { className: Wordmark_default.logo }, /* @__PURE__ */ y("img", { src: dax_data_default, className: Wordmark_default.img, alt: "DuckDuckGo logo" })), /* @__PURE__ */ y("div", { className: Wordmark_default.text }, "Duck Player"));
   }
-  function PlayerInternal({ children, inset }) {
-    return /* @__PURE__ */ y("div", { class: (0, import_classnames5.default)(PlayerContainer_default.internals, { [PlayerContainer_default.insetInternals]: inset }) }, children);
+  function MobileWordmark() {
+    return /* @__PURE__ */ y("div", { class: Wordmark_mobile_default.logo }, /* @__PURE__ */ y("span", { class: Wordmark_mobile_default.logoSvg }, /* @__PURE__ */ y("img", { src: dax_data_default, className: Wordmark_mobile_default.img, alt: "DuckDuckGo logo" })), /* @__PURE__ */ y("span", { class: Wordmark_mobile_default.text }, "Duck Player"));
+  }
+
+  // pages/duckplayer/app/components/Background.module.css
+  var Background_default = {
+    bg: "Background_bg"
+  };
+
+  // pages/duckplayer/app/components/Background.jsx
+  function Background() {
+    return /* @__PURE__ */ y("div", { class: Background_default.bg });
   }
 
   // pages/duckplayer/app/components/Player.jsx
-  var import_classnames6 = __toESM(require_classnames(), 1);
+  var import_classnames9 = __toESM(require_classnames(), 1);
 
   // pages/duckplayer/app/components/Player.module.css
   var Player_default = {
     root: "Player_root",
-    player: "Player_player",
     desktop: "Player_desktop",
     mobile: "Player_mobile",
+    player: "Player_player",
     iframe: "Player_iframe",
     error: "Player_error"
   };
@@ -3051,15 +3136,21 @@
   // pages/duckplayer/app/components/Player.jsx
   function Player({ src, layout }) {
     const { ref, didLoad } = useIframeEffects(src);
-    return /* @__PURE__ */ y("div", { class: (0, import_classnames6.default)({
+    const wrapperClasses = (0, import_classnames9.default)({
       [Player_default.root]: true,
       [Player_default.player]: true,
       [Player_default.desktop]: layout === "desktop",
       [Player_default.mobile]: layout === "mobile"
-    }) }, /* @__PURE__ */ y(
+    });
+    const iframeClasses = (0, import_classnames9.default)({
+      [Player_default.iframe]: true,
+      [Player_default.desktop]: layout === "desktop",
+      [Player_default.mobile]: layout === "mobile"
+    });
+    return /* @__PURE__ */ y("div", { class: wrapperClasses }, /* @__PURE__ */ y(
       "iframe",
       {
-        class: Player_default.iframe,
+        class: iframeClasses,
         frameBorder: "0",
         id: "player",
         allow: "autoplay; encrypted-media; fullscreen",
@@ -3076,7 +3167,7 @@
       ["invalid-id"]: /* @__PURE__ */ y("span", { dangerouslySetInnerHTML: { __html: t3("invalidIdError") } })
     };
     const text = errors[kind] || errors["invalid-id"];
-    return /* @__PURE__ */ y("div", { class: (0, import_classnames6.default)(Player_default.root, {
+    return /* @__PURE__ */ y("div", { class: (0, import_classnames9.default)(Player_default.root, {
       [Player_default.desktop]: layout === "desktop",
       [Player_default.mobile]: layout === "mobile"
     }) }, /* @__PURE__ */ y("div", { className: Player_default.error }, /* @__PURE__ */ y("p", null, text)));
@@ -3128,134 +3219,32 @@
     return { ref, didLoad: () => didLoad.current = true };
   }
 
-  // pages/duckplayer/app/components/SwitchBarMobile.jsx
-  var import_classnames8 = __toESM(require_classnames(), 1);
-
-  // pages/duckplayer/app/components/SwitchBar.module.css
-  var SwitchBar_default = {
-    switchBar: "SwitchBar_switchBar",
-    stateExiting: "SwitchBar_stateExiting",
-    stateHidden: "SwitchBar_stateHidden",
-    label: "SwitchBar_label",
-    checkbox: "SwitchBar_checkbox",
-    text: "SwitchBar_text",
-    placeholder: "SwitchBar_placeholder"
-  };
-
-  // pages/duckplayer/app/components/Switch.module.css
-  var Switch_default = {
-    switch: "Switch_switch",
-    thumb: "Switch_thumb",
-    ios: "Switch_ios",
-    android: "Switch_android"
-  };
-
-  // pages/duckplayer/app/components/Switch.jsx
-  var import_classnames7 = __toESM(require_classnames(), 1);
-  function Switch({ checked, onChange, platformName = "ios" }) {
-    return /* @__PURE__ */ y(
-      "button",
-      {
-        role: "switch",
-        "aria-checked": checked,
-        onClick: onChange,
-        className: (0, import_classnames7.default)(Switch_default.switch, {
-          [Switch_default.ios]: platformName === "ios",
-          [Switch_default.android]: platformName === "android"
-        })
-      },
-      /* @__PURE__ */ y("span", { className: Switch_default.thumb })
-    );
-  }
-
-  // pages/duckplayer/app/components/SwitchBarMobile.jsx
-  function SwitchBarMobile({ platformName }) {
-    const { onChange, onDone, state } = q2(SwitchContext);
-    const { t: t3 } = useTypedTranslation();
-    function blockClick(e3) {
-      if (state === "exiting") {
-        return e3.preventDefault();
-      }
-    }
-    function onTransitionEnd(e3) {
-      if (e3.target?.dataset?.state === "exiting") {
-        onDone();
-      }
-    }
-    const classes = (0, import_classnames8.default)({
-      [SwitchBar_default.switchBar]: true,
-      [SwitchBar_default.stateExiting]: state === "exiting",
-      [SwitchBar_default.stateHidden]: state === "completed"
+  // pages/duckplayer/app/components/Components.jsx
+  function Components() {
+    const settings = new Settings({
+      platform: { name: "macos" }
     });
-    return /* @__PURE__ */ y("div", { class: classes, "data-state": state, onTransitionEnd }, /* @__PURE__ */ y("label", { onClick: blockClick, class: SwitchBar_default.label }, /* @__PURE__ */ y("span", { className: SwitchBar_default.text }, t3("keepEnabled")), /* @__PURE__ */ y(
-      Switch,
-      {
-        checked: state !== "showing",
-        onChange,
-        platformName
-      }
-    )));
+    let embed = EmbedSettings.fromHref("https://localhost?videoID=123");
+    let url = embed?.toEmbedUrl();
+    if (!url)
+      throw new Error("unreachable");
+    return /* @__PURE__ */ y(g, null, /* @__PURE__ */ y("div", { "data-layout": "mobile" }, /* @__PURE__ */ y(Background, null)), /* @__PURE__ */ y("main", { class: Components_default.main }, /* @__PURE__ */ y("div", { class: Components_default.tube }, /* @__PURE__ */ y(Wordmark, null), /* @__PURE__ */ y("h2", null, "Floating Bar"), /* @__PURE__ */ y("div", { style: "position: relative; padding-left: 10em; min-height: 150px;" }, /* @__PURE__ */ y(InfoIcon, { debugStyles: true })), /* @__PURE__ */ y("h2", null, "Info Tooltip"), /* @__PURE__ */ y(FloatingBar, null, /* @__PURE__ */ y(Button, { icon: true }, /* @__PURE__ */ y(Icon, { src: info_data_default })), /* @__PURE__ */ y(Button, { icon: true }, /* @__PURE__ */ y(Icon, { src: cog_data_default })), /* @__PURE__ */ y(Button, { fill: true }, "Open in YouTube")), /* @__PURE__ */ y("h2", null, "Info Bar"), /* @__PURE__ */ y(SettingsProvider, { settings }, /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(InfoBar, { embed }))), /* @__PURE__ */ y("br", null), /* @__PURE__ */ y("h2", null, "Mobile Switch Bar (ios)"), /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarMobile, { platformName: "ios" })), /* @__PURE__ */ y("h2", null, "Mobile Switch Bar (android)"), /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarMobile, { platformName: "android" })), /* @__PURE__ */ y("h2", null, "Desktop Switch bar"), /* @__PURE__ */ y("h3", null, "idle"), /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarDesktop, null))), /* @__PURE__ */ y("h2", null, /* @__PURE__ */ y("code", null, "inset=false (desktop)")), /* @__PURE__ */ y(SettingsProvider, { settings }, /* @__PURE__ */ y(PlayerContainer, null, /* @__PURE__ */ y(Player, { src: url, layout: "desktop" }), /* @__PURE__ */ y(InfoBarContainer, null, /* @__PURE__ */ y(InfoBar, { embed })))), /* @__PURE__ */ y("br", null), /* @__PURE__ */ y("h2", null, /* @__PURE__ */ y("code", null, "inset=true (mobile)")), /* @__PURE__ */ y(PlayerContainer, { inset: true }, /* @__PURE__ */ y(PlayerInternal, { inset: true }, /* @__PURE__ */ y(PlayerError, { layout: "mobile", kind: "invalid-id" }), /* @__PURE__ */ y(SwitchBarMobile, { platformName: "ios" }))), /* @__PURE__ */ y("br", null)));
   }
 
-  // pages/duckplayer/app/components/FloatingBar.module.css
-  var FloatingBar_default = {
-    floatingBar: "FloatingBar_floatingBar",
-    inset: "FloatingBar_inset",
-    bottomNavBar: "FloatingBar_bottomNavBar",
-    topBar: "FloatingBar_topBar"
+  // pages/duckplayer/app/components/MobileApp.jsx
+  var import_classnames10 = __toESM(require_classnames(), 1);
+
+  // pages/duckplayer/app/components/MobileApp.module.css
+  var MobileApp_default = {
+    main: "MobileApp_main",
+    hideInFocus: "MobileApp_hideInFocus",
+    fadeout: "MobileApp_fadeout",
+    filler: "MobileApp_filler",
+    switch: "MobileApp_switch",
+    embed: "MobileApp_embed",
+    logo: "MobileApp_logo",
+    buttons: "MobileApp_buttons"
   };
-
-  // pages/duckplayer/app/components/FloatingBar.jsx
-  var import_classnames9 = __toESM(require_classnames(), 1);
-  function BottomNavBar({ children }) {
-    return /* @__PURE__ */ y("div", { class: FloatingBar_default.bottomNavBar }, children);
-  }
-  function FloatingBar({ children, inset = false }) {
-    return /* @__PURE__ */ y("div", { class: (0, import_classnames9.default)(FloatingBar_default.floatingBar, { [FloatingBar_default.inset]: inset }) }, children);
-  }
-  function TopBar({ children }) {
-    return /* @__PURE__ */ y("div", { class: FloatingBar_default.topBar }, children);
-  }
-
-  // pages/duckplayer/app/components/Wordmark.module.css
-  var Wordmark_default = {
-    wordmark: "Wordmark_wordmark",
-    logo: "Wordmark_logo",
-    img: "Wordmark_img",
-    text: "Wordmark_text"
-  };
-
-  // pages/duckplayer/app/components/Wordmark.jsx
-  function Wordmark() {
-    return /* @__PURE__ */ y("div", { class: Wordmark_default.wordmark }, /* @__PURE__ */ y("div", { className: Wordmark_default.logo }, /* @__PURE__ */ y("img", { src: dax_data_default, className: Wordmark_default.img, alt: "DuckDuckGo logo" })), /* @__PURE__ */ y("div", { className: Wordmark_default.text }, "Duck Player"));
-  }
-
-  // pages/duckplayer/app/providers/OrientationProvider.jsx
-  var OrientationContext = F(
-    /** @type {"landscape" | "portrait"} */
-    "portrait"
-  );
-  function OrientationProvider({ children }) {
-    const [orientation, setTheme] = h2(() => {
-      const initial = window.innerWidth > window.innerHeight ? "landscape" : "portrait";
-      return (
-        /** @type {"landscape"|"portrait"} */
-        initial
-      );
-    });
-    p2(() => {
-      const listener = (e3) => setTheme(window.innerWidth > window.innerHeight ? "landscape" : "portrait");
-      window.addEventListener("resize", listener);
-      return () => window.removeEventListener("resize", listener);
-    }, []);
-    p2(() => {
-      document.body.dataset.orientation = orientation;
-    }, [orientation]);
-    return /* @__PURE__ */ y(OrientationContext.Provider, { value: orientation }, children);
-  }
-  function useOrientation() {
-    return q2(OrientationContext);
-  }
 
   // pages/duckplayer/app/features/app.js
   function createAppFeaturesFrom(settings) {
@@ -3270,38 +3259,18 @@
     };
   }
 
-  // pages/duckplayer/app/components/App.jsx
-  function App({ embed }) {
-    const layout = useLayout();
-    const orientation = useOrientation();
-    const settings = useSettings();
-    const features = createAppFeaturesFrom(settings);
-    return /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Background, null), features.focusMode(), /* @__PURE__ */ y("main", { class: App_default.app }, layout === "desktop" && /* @__PURE__ */ y(DesktopLayout, { embed }), layout === "mobile" && /* @__PURE__ */ y(MobileLayout, { embed, orientation })));
-  }
-  function DesktopLayout({ embed }) {
-    return /* @__PURE__ */ y("div", { class: App_default.desktop }, /* @__PURE__ */ y(PlayerContainer, null, embed === null && /* @__PURE__ */ y(PlayerError, { layout: "desktop", kind: "invalid-id" }), embed !== null && /* @__PURE__ */ y(Player, { src: embed.toEmbedUrl(), layout: "desktop" }), /* @__PURE__ */ y(HideInFocusMode, { style: "slide" }, /* @__PURE__ */ y(InfoBarContainer, null, /* @__PURE__ */ y(InfoBar, { embed })))));
-  }
-  function MobileLayout({ orientation, embed }) {
-    const platformName = usePlatformName();
-    const insetPlayer = orientation === "portrait";
-    const classes = (0, import_classnames10.default)({
-      [App_default.portrait]: orientation === "portrait",
-      [App_default.landscape]: orientation === "landscape"
-    });
-    return /* @__PURE__ */ y("div", { class: classes }, orientation === "portrait" && /* @__PURE__ */ y("div", { class: App_default.header }, /* @__PURE__ */ y(HideInFocusMode, null, /* @__PURE__ */ y(TopBar, null, /* @__PURE__ */ y(Wordmark, null)))), /* @__PURE__ */ y("div", { class: App_default.wrapper }, /* @__PURE__ */ y("div", { class: App_default.main }, /* @__PURE__ */ y(PlayerContainer, { inset: insetPlayer }, /* @__PURE__ */ y(PlayerInternal, { inset: insetPlayer }, embed === null && /* @__PURE__ */ y(PlayerError, { layout: "mobile", kind: "invalid-id" }), embed !== null && /* @__PURE__ */ y(Player, { src: embed.toEmbedUrl(), layout: "mobile" }), orientation === "portrait" && /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarMobile, { platformName }))))), orientation === "landscape" && /* @__PURE__ */ y(LandscapeControls, { embed, platformName }), orientation === "portrait" && /* @__PURE__ */ y(PortraitControls, { embed })));
-  }
-  function PortraitControls({ embed }) {
-    return /* @__PURE__ */ y("div", { className: App_default.controls }, /* @__PURE__ */ y(HideInFocusMode, null, /* @__PURE__ */ y(BottomNavBar, null, /* @__PURE__ */ y(FloatingBar, { inset: true }, /* @__PURE__ */ y(MobileFooter, { embed })))));
-  }
-  function LandscapeControls({ embed, platformName }) {
-    return /* @__PURE__ */ y("div", { className: App_default.rhs }, /* @__PURE__ */ y("div", { className: App_default.header }, /* @__PURE__ */ y(HideInFocusMode, null, /* @__PURE__ */ y(TopBar, null, /* @__PURE__ */ y(Wordmark, null)))), /* @__PURE__ */ y("div", { className: App_default.controls }, /* @__PURE__ */ y(HideInFocusMode, null, /* @__PURE__ */ y(FloatingBar, null, /* @__PURE__ */ y(MobileFooter, { embed })))), /* @__PURE__ */ y("div", { className: App_default.switch }, /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarMobile, { platformName }))));
-  }
-  function MobileFooter({ embed }) {
+  // pages/duckplayer/app/components/MobileButtons.module.css
+  var MobileButtons_default = {
+    buttons: "MobileButtons_buttons"
+  };
+
+  // pages/duckplayer/app/components/MobileButtons.jsx
+  function MobileButtons({ embed }) {
     const openSettings = useOpenSettingsHandler();
     const openInfo = useOpenInfoHandler();
     const openOnYoutube = useOpenOnYoutubeHandler();
     const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(
+    return /* @__PURE__ */ y("div", { class: MobileButtons_default.buttons }, /* @__PURE__ */ y(
       Button,
       {
         icon: true,
@@ -3336,22 +3305,78 @@
     ));
   }
 
-  // pages/duckplayer/app/components/Components.module.css
-  var Components_default = {
-    main: "Components_main",
-    tube: "Components_tube"
+  // pages/duckplayer/app/providers/OrientationProvider.jsx
+  function OrientationProvider({ onChange }) {
+    p2(() => {
+      if (!screen.orientation?.type)
+        return;
+      onChange(getOrientationFromScreen());
+      const handleOrientationChange = () => {
+        onChange(getOrientationFromScreen());
+      };
+      screen.orientation.addEventListener("change", handleOrientationChange);
+      return () => screen.orientation.removeEventListener("change", handleOrientationChange);
+    }, []);
+    p2(() => {
+      let timer;
+      const listener = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => onChange(getOrientationFromWidth()), 300);
+      };
+      window.addEventListener("resize", listener);
+      return () => window.removeEventListener("resize", listener);
+    }, []);
+    return null;
+  }
+  function getOrientationFromWidth() {
+    return window.innerWidth > window.innerHeight ? "landscape" : "portrait";
+  }
+  function getOrientationFromScreen() {
+    return screen.orientation.type.includes("landscape") ? "landscape" : "portrait";
+  }
+
+  // pages/duckplayer/app/components/MobileApp.jsx
+  var DISABLED_HEIGHT = 450;
+  function MobileApp({ embed }) {
+    const settings = useSettings();
+    const features = createAppFeaturesFrom(settings);
+    return /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Background, null), features.focusMode(), /* @__PURE__ */ y(OrientationProvider, { onChange: (orientation) => {
+      if (orientation === "portrait") {
+        return FocusMode.enable();
+      }
+      if (window.innerHeight < DISABLED_HEIGHT) {
+        return FocusMode.disable();
+      }
+      return FocusMode.enable();
+    } }), /* @__PURE__ */ y(MobileLayout, { embed }));
+  }
+  function MobileLayout({ embed }) {
+    const platformName = usePlatformName();
+    return /* @__PURE__ */ y("main", { class: MobileApp_default.main }, /* @__PURE__ */ y("div", { class: (0, import_classnames10.default)(MobileApp_default.filler, MobileApp_default.hideInFocus) }), /* @__PURE__ */ y("div", { class: MobileApp_default.embed }, embed === null && /* @__PURE__ */ y(PlayerError, { layout: "mobile", kind: "invalid-id" }), embed !== null && /* @__PURE__ */ y(Player, { src: embed.toEmbedUrl(), layout: "mobile" })), /* @__PURE__ */ y("div", { class: (0, import_classnames10.default)(MobileApp_default.logo, MobileApp_default.hideInFocus) }, /* @__PURE__ */ y(MobileWordmark, null)), /* @__PURE__ */ y("div", { class: (0, import_classnames10.default)(MobileApp_default.switch, MobileApp_default.hideInFocus) }, /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarMobile, { platformName }))), /* @__PURE__ */ y("div", { class: (0, import_classnames10.default)(MobileApp_default.buttons, MobileApp_default.hideInFocus) }, /* @__PURE__ */ y(MobileButtons, { embed })));
+  }
+
+  // pages/duckplayer/app/components/DesktopApp.module.css
+  var DesktopApp_default = {
+    app: "DesktopApp_app",
+    portrait: "DesktopApp_portrait",
+    landscape: "DesktopApp_landscape",
+    wrapper: "DesktopApp_wrapper",
+    desktop: "DesktopApp_desktop",
+    rhs: "DesktopApp_rhs",
+    header: "DesktopApp_header",
+    main: "DesktopApp_main",
+    controls: "DesktopApp_controls",
+    switch: "DesktopApp_switch"
   };
 
-  // pages/duckplayer/app/components/Components.jsx
-  function Components() {
-    const settings = new Settings({
-      platform: { name: "macos" }
-    });
-    let embed = EmbedSettings.fromHref("https://localhost?videoID=123");
-    let url = embed?.toEmbedUrl();
-    if (!url)
-      throw new Error("unreachable");
-    return /* @__PURE__ */ y(g, null, /* @__PURE__ */ y("div", { "data-layout": "mobile" }, /* @__PURE__ */ y(Background, null)), /* @__PURE__ */ y("main", { class: Components_default.main }, /* @__PURE__ */ y("div", { class: Components_default.tube }, /* @__PURE__ */ y(Wordmark, null), /* @__PURE__ */ y("h2", null, "Floating Bar"), /* @__PURE__ */ y("div", { style: "position: relative; padding-left: 10em; min-height: 150px;" }, /* @__PURE__ */ y(InfoIcon, { debugStyles: true })), /* @__PURE__ */ y("h2", null, "Info Tooltip"), /* @__PURE__ */ y(FloatingBar, null, /* @__PURE__ */ y(Button, { icon: true }, /* @__PURE__ */ y(Icon, { src: info_data_default })), /* @__PURE__ */ y(Button, { icon: true }, /* @__PURE__ */ y(Icon, { src: cog_data_default })), /* @__PURE__ */ y(Button, { fill: true }, "Open in YouTube")), /* @__PURE__ */ y("h2", null, "Info Bar"), /* @__PURE__ */ y(SettingsProvider, { settings }, /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(InfoBar, { embed }))), /* @__PURE__ */ y("br", null), /* @__PURE__ */ y("h2", null, "Mobile Switch Bar (ios)"), /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarMobile, { platformName: "ios" })), /* @__PURE__ */ y("h2", null, "Mobile Switch Bar (android)"), /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarMobile, { platformName: "android" })), /* @__PURE__ */ y("h2", null, "Desktop Switch bar"), /* @__PURE__ */ y("h3", null, "idle"), /* @__PURE__ */ y(SwitchProvider, null, /* @__PURE__ */ y(SwitchBarDesktop, null))), /* @__PURE__ */ y("h2", null, /* @__PURE__ */ y("code", null, "inset=false (desktop)")), /* @__PURE__ */ y(SettingsProvider, { settings }, /* @__PURE__ */ y(PlayerContainer, null, /* @__PURE__ */ y(Player, { src: url, layout: "desktop" }), /* @__PURE__ */ y(InfoBarContainer, null, /* @__PURE__ */ y(InfoBar, { embed })))), /* @__PURE__ */ y("br", null), /* @__PURE__ */ y("h2", null, /* @__PURE__ */ y("code", null, "inset=true (mobile)")), /* @__PURE__ */ y(PlayerContainer, { inset: true }, /* @__PURE__ */ y(PlayerInternal, { inset: true }, /* @__PURE__ */ y(PlayerError, { layout: "mobile", kind: "invalid-id" }), /* @__PURE__ */ y(SwitchBarMobile, { platformName: "ios" }))), /* @__PURE__ */ y("br", null)));
+  // pages/duckplayer/app/components/DesktopApp.jsx
+  function DesktopApp({ embed }) {
+    const settings = useSettings();
+    const features = createAppFeaturesFrom(settings);
+    return /* @__PURE__ */ y(g, null, /* @__PURE__ */ y(Background, null), features.focusMode(), /* @__PURE__ */ y("main", { class: DesktopApp_default.app }, /* @__PURE__ */ y(DesktopLayout, { embed })));
+  }
+  function DesktopLayout({ embed }) {
+    return /* @__PURE__ */ y("div", { class: DesktopApp_default.desktop }, /* @__PURE__ */ y(PlayerContainer, null, embed === null && /* @__PURE__ */ y(PlayerError, { layout: "desktop", kind: "invalid-id" }), embed !== null && /* @__PURE__ */ y(Player, { src: embed.toEmbedUrl(), layout: "desktop" }), /* @__PURE__ */ y(HideInFocusMode, { style: "slide" }, /* @__PURE__ */ y(InfoBarContainer, null, /* @__PURE__ */ y(InfoBar, { embed })))));
   }
 
   // pages/duckplayer/app/index.js
@@ -3364,16 +3389,9 @@
     console.log("INITIAL DATA", init2);
     const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
     console.log("environment:", environment);
+    console.log("locale:", environment.locale);
     document.body.dataset.display = environment.display;
-    const strings = environment.locale === "en" ? duckplayer_default : await fetch(`./locales/${environment.locale}/duckplayer.json`).then((resp) => {
-      if (!resp.ok) {
-        throw new Error("did not give a result");
-      }
-      return resp.json();
-    }).catch((e3) => {
-      console.error("Could not load locale", environment.locale, e3);
-      return duckplayer_default;
-    });
+    const strings = environment.locale === "en" ? duckplayer_default : await getTranslationsFromStringOrLoadDynamically(init2.localeStrings, environment.locale) || duckplayer_default;
     const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform")).withFeatureState("pip", init2.settings.pip).withFeatureState("autoplay", init2.settings.autoplay).withFeatureState("focusMode", init2.settings.focusMode).withDisabledFocusMode(baseEnvironment2.urlParams.get("focusMode"));
     console.log(settings);
     const embed = createEmbedSettings(window.location.href, settings);
@@ -3394,13 +3412,13 @@
             injectName: environment.injectName,
             willThrow: environment.willThrow
           },
-          /* @__PURE__ */ y(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ y(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ y(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: duckplayer_default, textLength: environment.textLength }, /* @__PURE__ */ y(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ y(SettingsProvider, { settings }, /* @__PURE__ */ y(UserValuesProvider, { initial: init2.userValues }, /* @__PURE__ */ y(OrientationProvider, null, /* @__PURE__ */ y(App, { embed })), /* @__PURE__ */ y(WillThrow, null))))))
+          /* @__PURE__ */ y(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ y(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ y(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ y(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ y(SettingsProvider, { settings }, /* @__PURE__ */ y(UserValuesProvider, { initial: init2.userValues }, settings.layout === "desktop" && /* @__PURE__ */ y(TranslationProvider, { translationObject: duckplayer_default, fallback: duckplayer_default, textLength: environment.textLength }, /* @__PURE__ */ y(DesktopApp, { embed })), settings.layout === "mobile" && /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: duckplayer_default, textLength: environment.textLength }, /* @__PURE__ */ y(MobileApp, { embed })), /* @__PURE__ */ y(WillThrow, null)))))
         ),
         root
       );
     } else if (environment.display === "components") {
       q(
-        /* @__PURE__ */ y(EnvironmentProvider, { debugState: false, injectName: environment.injectName }, /* @__PURE__ */ y(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: duckplayer_default, textLength: environment.textLength }, /* @__PURE__ */ y(Components, null)))),
+        /* @__PURE__ */ y(EnvironmentProvider, { debugState: false, injectName: environment.injectName }, /* @__PURE__ */ y(MessagingContext2.Provider, { value: messaging2 }, /* @__PURE__ */ y(TranslationProvider, { translationObject: duckplayer_default, fallback: duckplayer_default, textLength: environment.textLength }, /* @__PURE__ */ y(Components, null)))),
         root
       );
     }
@@ -3410,6 +3428,26 @@
     if (!embed)
       return null;
     return embed.withAutoplay(settings.autoplay.state === "enabled").withMuted(settings.platform.name === "ios");
+  }
+  async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
+    if (stringInput) {
+      try {
+        return JSON.parse(stringInput);
+      } catch (e3) {
+        console.warn("String could not be parsed. Falling back to fetch...");
+      }
+    }
+    try {
+      const response = await fetch(`./locales/${locale}/duckplayer.json`);
+      if (!response.ok) {
+        console.error("Network response was not ok");
+        return null;
+      }
+      return await response.json();
+    } catch (e3) {
+      console.error("Failed to fetch or parse JSON from the network:", e3);
+      return null;
+    }
   }
 
   // pages/duckplayer/src/js/storage.js

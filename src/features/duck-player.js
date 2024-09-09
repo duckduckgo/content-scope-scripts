@@ -49,6 +49,7 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
 /**
  * @typedef UISettings - UI-specific settings
  * @property {'default'|'a1'|'b1'} overlayCopy - Overlay copy experiment variant
+ * @property {boolean} [allowFirstVideo] - should the first video be allowed to load/play?
  * @property {boolean} [playInDuckPlayer] - Forces next video to be played in Duck Player regardless of user setting
  */
 
@@ -62,6 +63,7 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     init (args) {
         /**
          * This feature never operates in a frame
@@ -95,10 +97,12 @@ export default class DuckPlayerFeature extends ContentFeature {
             throw new Error('cannot operate duck player without a messaging backend')
         }
 
+        const locale = args?.locale || args?.language || 'en'
         const env = new Environment({
-            debug: args.debug,
+            debug: true,
             injectName: import.meta.injectName,
-            platform: this.platform
+            platform: this.platform,
+            locale
         })
         const comms = new DuckPlayerOverlayMessages(this.messaging, env)
 
