@@ -1,4 +1,3 @@
-import 'preact/devtools'
 import { createTypedMessages } from '@duckduckgo/messaging'
 import { Environment } from '../../../../shared/environment.js'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging.js'
