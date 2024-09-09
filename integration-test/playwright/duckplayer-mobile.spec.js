@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { DuckplayerOverlays } from './page-objects/duckplayer-overlays.js'
 
 test.describe('Video Player overlays', () => {
@@ -106,4 +106,18 @@ test.describe.skip('Translated Overlays', () => {
             await page.locator('.html5-video-player').screenshot({ path: `screens/se-2/${locale}.png` })
         })
     }
+})
+
+/**
+ * Use `npm run playwright-screenshots` to run this test only.
+ */
+test.describe('Overlay screenshot @screenshots', () => {
+    test(`testing Overlay UI 'en'`, async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo)
+        await overlays.withRemoteConfig({ locale: 'en' })
+        await overlays.userSettingIs('always ask')
+        await overlays.gotoPlayerPage()
+        await page.locator('ddg-video-overlay-mobile').nth(0).waitFor()
+        await expect(page.locator('.html5-video-player')).toHaveScreenshot('overlay.png', { maxDiffPixels: 20 })
+    })
 })
