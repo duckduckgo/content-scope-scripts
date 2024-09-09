@@ -105,3 +105,17 @@ export const overlayCopyVariants = {
         rememberLabel: i18n.t('rememberLabel')
     }
 }
+
+/**
+ * @param {Record<string, string>} lookup
+ * @returns {OverlayCopyTranslation}
+ */
+export const mobileStrings = (lookup) => {
+    return {
+        title: lookup.videoOverlayTitle2,
+        subtitle: lookup.videoOverlaySubtitle2,
+        buttonOptOut: lookup.videoButtonOptOut2,
+        buttonOpen: lookup.videoButtonOpen2,
+        rememberLabel: lookup.rememberLabel
+    }
+}
