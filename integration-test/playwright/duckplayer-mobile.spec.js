@@ -112,7 +112,7 @@ test.describe.skip('Translated Overlays', () => {
  * Use `npm run playwright-screenshots` to run this test only.
  */
 test.describe('Overlay screenshot @screenshots', () => {
-    test(`testing Overlay UI 'en'`, async ({ page }, workerInfo) => {
+    test('testing Overlay UI \'en\'', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
         await overlays.withRemoteConfig({ locale: 'en' })
         await overlays.userSettingIs('always ask')
