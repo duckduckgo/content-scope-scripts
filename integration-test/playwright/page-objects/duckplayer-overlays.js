@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs'
 import {
+    mockAndroidMessaging,
     mockResponses, mockWebkitMessaging,
     mockWindowsMessaging,
     readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount, wrapWebkitScripts,
@@ -68,6 +69,8 @@ export class DuckplayerOverlays {
     playerPage = '/duckplayer/pages/player.html'
     videoAltSelectors = '/duckplayer/pages/video-alt-selectors.html'
     serpProxyPage = '/duckplayer/pages/serp-proxy.html'
+    mobile = new DuckplayerOverlaysMobile(this)
+    pixels = new DuckplayerOverlayPixels(this)
     /**
      * @param {import("@playwright/test").Page} page
      * @param {import("../type-helpers.mjs").Build} build
@@ -107,11 +110,6 @@ export class DuckplayerOverlays {
 
     async gotoYoutubeVideo () {
         await this.page.goto('https://www.youtube.com/watch?v=nfWlot6h_JM')
-        // await this.dismissCookies()
-    }
-
-    async gotoYoutubeSearchPage () {
-        await this.page.goto('https://www.youtube.com/results?search_query=taylor+swift')
         // await this.dismissCookies()
     }
 
@@ -241,18 +239,22 @@ export class DuckplayerOverlays {
     /**
      * @param {object} [params]
      * @param {configFiles[number]} [params.json="overlays"] - default is settings for localhost
+     * @param {string} [params.locale] - optional locale
      */
     async withRemoteConfig (params = {}) {
-        const { json = 'overlays.json' } = params
+        const {
+            json = 'overlays.json',
+            locale = 'en'
+        } = params
 
-        await this.setup({ config: loadConfig(json) })
+        await this.setup({ config: loadConfig(json), locale })
     }
 
     async serpProxyEnabled () {
         const config = loadConfig('overlays.json')
         const domains = config.features.duckPlayer.settings.domains[0].patchSettings
         config.features.duckPlayer.settings.domains[0].patchSettings = domains.filter(x => x.path === '/overlays/serpProxy/state')
-        await this.setup({ config })
+        await this.setup({ config, locale: 'en' })
     }
 
     async videoOverlayDoesntShow () {
@@ -267,7 +269,8 @@ export class DuckplayerOverlays {
         await this.page.addInitScript(mockResponses, {
             responses: {
                 initialSetup: {
-                    userValues: userValues[setting]
+                    userValues: userValues[setting],
+                    ui: {}
                 }
             }
         })
@@ -280,7 +283,8 @@ export class DuckplayerOverlays {
      */
     async initialSetupIs (userValueSetting, uiSetting) {
         const initialSetupResponse = {
-            userValues: userValues[userValueSetting]
+            userValues: userValues[userValueSetting],
+            ui: {}
         }
 
         if (uiSetting && uiSettings[uiSetting]) {
@@ -331,7 +335,7 @@ export class DuckplayerOverlays {
         const config = loadConfig('overlays.json')
         // remove all domains from 'overlays', this disables the feature
         config.features.duckPlayer.settings.domains = []
-        await this.setup({ config })
+        await this.setup({ config, locale: 'en' })
     }
 
     async hoverAThumbnail () {
@@ -468,10 +472,11 @@ export class DuckplayerOverlays {
      *
      * @param {object} params
      * @param {Record<string, any>} params.config
+     * @param {string} params.locale
      * @return {Promise<void>}
      */
     async setup (params) {
-        const { config } = params
+        const { config, locale } = params
 
         await this.build.switch({
             windows: async () => {
@@ -483,13 +488,17 @@ export class DuckplayerOverlays {
             },
             'apple-isolated': async () => {
                 // noop
+            },
+            android: async () => {
+                // noop
             }
         })
 
         // read the built file from disk and do replacements
         const wrapFn = this.build.switch({
             'apple-isolated': () => wrapWebkitScripts,
-            windows: () => wrapWindowsScripts
+            windows: () => wrapWindowsScripts,
+            android: () => wrapWebkitScripts
         })
 
         const injectedJS = wrapFn(this.build.artifact, {
@@ -497,13 +506,20 @@ export class DuckplayerOverlays {
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
                 platform: { name: this.platform.name },
-                debug: true
+                debug: true,
+
+                // additional android keys
+                messageCallback: 'messageCallback',
+                messageSecret: 'duckduckgo-android-messaging-secret',
+                javascriptInterface: this.messagingContext,
+                locale
             }
         })
 
         const mockMessaging = this.build.switch({
             windows: () => mockWindowsMessaging,
-            'apple-isolated': () => mockWebkitMessaging
+            'apple-isolated': () => mockWebkitMessaging,
+            android: () => mockAndroidMessaging
         })
 
         await this.page.addInitScript(mockMessaging, {
@@ -517,7 +533,8 @@ export class DuckplayerOverlays {
                     userValues: {
                         privatePlayerMode: { alwaysAsk: {} },
                         overlayInteracted: false
-                    }
+                    },
+                    ui: {}
                 },
                 getUserValues: {
                     privatePlayerMode: { alwaysAsk: {} },
@@ -537,7 +554,6 @@ export class DuckplayerOverlays {
 
     /**
      * @param {string} method
-     * @return {Promise<void>}
      */
     async waitForMessage (method) {
         await this.page.waitForFunction(waitForCallCount, {
@@ -639,6 +655,61 @@ export class DuckplayerOverlays {
         await this.page.getByRole('button', { name: 'No Thanks' }).waitFor({ state: 'visible', timeout: 1000 })
 
         await this.page.getByLabel('Remember my choice').waitFor({ state: 'visible', timeout: 1000 })
+    }
+}
+
+class DuckplayerOverlaysMobile {
+    /**
+     * @param {DuckplayerOverlays} overlays
+     */
+    constructor (overlays) {
+        this.overlays = overlays
+    }
+
+    async choosesWatchHere () {
+        const { page } = this.overlays
+        await page.getByRole('button', { name: 'No Thanks' }).click()
+    }
+
+    async choosesDuckPlayer () {
+        const { page } = this.overlays
+        await page.getByRole('link', { name: 'Turn On Duck Player' }).click()
+    }
+
+    async selectsRemember () {
+        const { page } = this.overlays
+        await page.getByRole('switch').click()
+    }
+
+    async overlayIsRemoved () {
+        const { page } = this.overlays
+        expect(await page.locator('ddg-video-overlay-mobile').count()).toBe(0)
+    }
+
+    async opensInfo () {
+        const { page } = this.overlays
+        await page.getByLabel('Open Information Modal').click()
+        const messages = await this.overlays.waitForMessage('openInfo')
+        expect(messages).toHaveLength(1)
+    }
+}
+
+class DuckplayerOverlayPixels {
+    /**
+     * @param {DuckplayerOverlays} overlays
+     */
+    constructor (overlays) {
+        this.overlays = overlays
+    }
+
+    /**
+     * @param {{pixelName: string, params: Record<string, any>}[]} pixels
+     * @return {Promise<void>}
+     */
+    async sendsPixels (pixels) {
+        const messages = await this.overlays.waitForMessage('sendDuckPlayerPixel')
+        const params = messages.map(x => x.payload.params)
+        expect(params).toMatchObject(pixels)
     }
 }
 
