@@ -86,7 +86,7 @@ export async function init (messaging, baseEnvironment) {
                 willThrow={environment.willThrow}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
                     <UpdateEnvironment search={window.location.search}/>
-                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                    <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
                                 <UserValuesProvider initial={init.userValues}>
@@ -105,7 +105,7 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <MessagingContext.Provider value={messaging}>
-                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                    <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
                         <Components />
                     </TranslationProvider>
                 </MessagingContext.Provider>
