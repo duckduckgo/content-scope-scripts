@@ -1,4 +1,4 @@
-.root {
+.root.desktop {
     z-index: 1;
     position: relative;
     overflow: hidden;
@@ -19,7 +19,7 @@
     font-size: 0;
 }
 
-.iframe {
+.iframe.mobile {
     height: 100%;
     width: 100%;
 }
