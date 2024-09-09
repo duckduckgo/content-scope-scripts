@@ -39,6 +39,7 @@
     "posttest-int": "npm run test-int --workspaces --if-present",
     "posttest-int-x": "npm run test-int-x --workspaces --if-present",
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
+    "serve-special-pages": "http-server -c-1 --port 3221 build/integration/pages",
     "playwright": "playwright test",
     "playwright-headed": "playwright test --headed",
     "preplaywright": "npm run build-windows && npm run build-apple && npm run build-android",

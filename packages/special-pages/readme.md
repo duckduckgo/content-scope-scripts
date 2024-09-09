@@ -15,9 +15,31 @@ Would translate into the following build output
 
 This allows each respective platform to configure their integrations to use the known page.
 
-## Running Tests
- 
-To run tests, use the script command `npm run test`. The process is as follows:
+### Viewing pages locally
+
+- `npm run build`
+- `npm run serve`
+  - This will serve the root folder of this repo
+- Visit the URL of a page, for example
+    - http://127.0.0.1:3210/build/integration/pages/duckplayer
+    - http://127.0.0.1:3210/build/integration/pages/special-error
+
+### Integration Tests
+
+Ensure these commands are run from the `packages/special-pages` folder.
+
+```shell
+# to have all platforms tested (minus screenshots)
+npm run test
+# to only run the iOS tests, likewise for the other platforms
+npm run test -- --project ios
+# to *only* run screenshot tests
+npm run test.screenshots
+# to also update screenshots (if you've made changes to anything visual)
+npm run test.screenshots -- --update-snapshots 
+```
+
+The process is as follows:
 
 ```mermaid
 graph TD
@@ -48,7 +70,3 @@ G --> O[Check if --ui flag]
 O --> P[Execute npm run test.ui]
 P --> H
 ```
-
-## Running tests for a single platform
-
-You can run `npm run test.windows` or `npm run test.macos` to run only tests for a single platform. Consult the file `playwright.config.js` to see what's available.

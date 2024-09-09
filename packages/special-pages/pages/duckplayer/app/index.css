@@ -1,9 +1,14 @@
 @import url("base.css");
 
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 body[data-display="app"] {
     color: rgba(242, 242, 242, 1);
     background: #101010;
-    height: 100vh;
-    overflow: hidden;
-    padding: 8px;
+    padding: 16px;
 }

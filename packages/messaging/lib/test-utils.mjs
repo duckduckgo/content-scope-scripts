@@ -196,7 +196,7 @@ export function mockAndroidMessaging(params) {
 
             // if it's a notification, simulate the empty response and don't check for a response
             if (!('id' in msg)) {
-                return console.warn("no id");
+                return;
             }
 
             if (!(msg.method in window.__playwright_01.mockResponses)) {
@@ -238,7 +238,7 @@ export function mockResponses(params) {
 export function waitForCallCount(params) {
     const outgoing = window.__playwright_01.mocks.outgoing
     const filtered = outgoing.filter(({ payload }) => params.method === payload.method)
-    return filtered.length === params.count
+    return filtered.length >= params.count
 }
 
 /**
