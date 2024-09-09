@@ -16,15 +16,21 @@ import { useTypedTranslation } from "../types.js";
  */
 export function Player({ src, layout }) {
     const {ref, didLoad} = useIframeEffects(src);
+    const wrapperClasses = cn({
+        [styles.root]: true,
+        [styles.player]: true,
+        [styles.desktop]: layout === 'desktop',
+        [styles.mobile]: layout === 'mobile',
+    });
+    const iframeClasses = cn({
+        [styles.iframe]: true,
+        [styles.desktop]: layout === 'desktop',
+        [styles.mobile]: layout === 'mobile',
+    });
     return (
-        <div class={cn({
-            [styles.root]: true,
-            [styles.player]: true,
-            [styles.desktop]: layout === 'desktop',
-            [styles.mobile]: layout === 'mobile',
-        })}>
+        <div class={wrapperClasses}>
             <iframe
-                class={styles.iframe}
+                class={iframeClasses}
                 frameBorder="0"
                 id="player"
                 allow="autoplay; encrypted-media; fullscreen"

@@ -1,6 +1,6 @@
 @import url("base.css");
 
-html, body {
+html:has(body[data-display="app"]) {
     height: 100%;
     margin: 0;
     padding: 0;
@@ -10,5 +10,8 @@ html, body {
 body[data-display="app"] {
     color: rgba(242, 242, 242, 1);
     background: #101010;
+    height: 100vh;
+    overflow: hidden;
     padding: 16px;
 }
+
