@@ -1,9 +1,14 @@
 .root {
     z-index: 1;
     position: relative;
+    overflow: hidden;
+    height: var(--frame-height);
+}
+
+.root.mobile {
     aspect-ratio: 16/9;
     border-radius: var(--inner-radius);
-    overflow: hidden;
+    height: auto;
 }
 
 .root.desktop {
