@@ -4,14 +4,10 @@
 }
 
 .inset {
-    border-radius: 8px;
+    border-radius: var(--outer-radius);
     padding: 8px;
     background: rgba(0, 0, 0, 0.3);
 }
-
-.bottomNavBar {
-}
-
 
 .topBar {
     display: grid;

@@ -1,36 +1,55 @@
-import { h } from "preact";
-import { useContext, useEffect, useState } from "preact/hooks";
-import { createContext } from "preact";
-
-const OrientationContext = createContext(/** @type {"landscape" | "portrait"} */("portrait"))
+import { useEffect } from "preact/hooks";
 
 /**
  * Device orientation
- *
- * @param {Object} props - The props for the settings provider.
- * @param {import("preact").ComponentChild} props.children - The children components to be wrapped by the settings provider.
+ * @param {object} props
+ * @param {(orientation: 'portrait' | 'landscape') => void} props.onChange
  */
-export function OrientationProvider ({ children }) {
-    const [orientation, setTheme] = useState(() => {
-        const initial = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'
-        return /** @type {"landscape"|"portrait"} */(initial)
-    })
+export function OrientationProvider ({ onChange }) {
+    useEffect(() => {
+        if (!screen.orientation?.type) return;
+        onChange(getOrientationFromScreen())
+        const handleOrientationChange = () => {
+            onChange(getOrientationFromScreen());
+        };
+        screen.orientation.addEventListener('change', handleOrientationChange);
+        return () => screen.orientation.removeEventListener('change', handleOrientationChange);
+    }, []);
 
     useEffect(() => {
-        const listener = (e) => setTheme(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait')
+        let timer;
+        const listener = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => onChange(getOrientationFromWidth()), 300)
+        }
         window.addEventListener('resize', listener)
         return () => window.removeEventListener('resize', listener)
     }, [])
 
-    useEffect(() => {
-        document.body.dataset.orientation = orientation
-    }, [orientation])
-
-    return <OrientationContext.Provider value={orientation}>
-        {children}
-    </OrientationContext.Provider>
+    return null
 }
 
-export function useOrientation() {
-    return useContext(OrientationContext)
+
+/**
+ * Retrieves the current orientation of the screen.
+ *
+ * The orientation can either be 'portrait' or 'landscape' based on the height and width of the window.
+ *
+ * If the height of the window is greater than 500, then the orientation is considered 'portrait'. Otherwise,
+ * if the screen.orientation.type includes the word 'landscape', then the orientation is considered 'landscape'.
+ * Otherwise, the orientation is 'portrait'.
+ *
+ * @return {"portrait" | "landscape"} The current orientation of the screen. It can be either 'portrait' or 'landscape'.
+ */
+function getOrientationFromWidth() {
+    return window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'
+}
+
+/**
+ * @return {"portrait" | "landscape"} The current orientation of the screen. It can be either 'portrait' or 'landscape'.
+ */
+function getOrientationFromScreen() {
+    return screen.orientation.type.includes('landscape')
+        ? 'landscape'
+        : 'portrait'
 }
