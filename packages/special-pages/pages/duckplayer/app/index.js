@@ -41,19 +41,20 @@ export async function init (messaging, baseEnvironment) {
 
     document.body.dataset.display = environment.display
 
-    const strings = environment.locale === 'en'
-        ? enStrings
-        : await fetch(`./locales/${environment.locale}/duckplayer.json`)
-            .then(resp => {
-                if (!resp.ok) {
-                    throw new Error('did not give a result')
-                }
-                return resp.json()
-            })
-            .catch(e => {
-                console.error('Could not load locale', environment.locale, e)
-                return enStrings
-            })
+    // This will be re-enabled in the mobile PR
+    // const strings = environment.locale === 'en'
+    //     ? enStrings
+    //     : await fetch(`./locales/${environment.locale}/duckplayer.json`)
+    //         .then(resp => {
+    //             if (!resp.ok) {
+    //                 throw new Error('did not give a result')
+    //             }
+    //             return resp.json()
+    //         })
+    //         .catch(e => {
+    //             console.error('Could not load locale', environment.locale, e)
+    //             return enStrings
+    //         })
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -86,7 +87,7 @@ export async function init (messaging, baseEnvironment) {
                 willThrow={environment.willThrow}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
                     <UpdateEnvironment search={window.location.search}/>
-                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                    <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
                                 <UserValuesProvider initial={init.userValues}>
@@ -105,7 +106,7 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <MessagingContext.Provider value={messaging}>
-                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                    <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
                         <Components />
                     </TranslationProvider>
                 </MessagingContext.Provider>

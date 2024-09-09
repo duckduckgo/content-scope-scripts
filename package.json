@@ -11,7 +11,7 @@
     "copy-sjcl": "node scripts/generateSJCL.js",
     "bundle-config": "node scripts/bundleConfig.mjs",
     "build": "npm run build-locales && npm run build-types && npm run bundle-trackers && npm run build-firefox && npm run build-chrome && npm run build-apple && npm run build-android && npm run build-windows && npm run build-integration && npm run build-chrome-mv3",
-    "build-locales": "node scripts/buildLocales.js --dir src/locales/click-to-load --output build/locales/ctl-locales.js",
+    "build-locales": "node scripts/buildLocales.js",
     "build-firefox": "node scripts/inject.js --platform firefox",
     "build-chrome": "node scripts/inject.js --platform chrome",
     "build-chrome-mv3": "node scripts/inject.js --platform chrome-mv3",
