@@ -21,17 +21,29 @@ export default defineConfig({
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
                 'onboarding.spec.js',
-                'sslerror.spec.js',
                 'release-notes.spec.js',
-                'special-error.spec.js'
+                'release-notes.screenshots.spec.js',
+                'special-error.spec.js',
+                'special-error.screenshots.spec.js'
             ],
             use: {
                 ...devices['Desktop Safari'],
                 injectName: 'apple',
                 platform: 'macos'
             }
+        },
+        {
+            name: 'ios',
+            testMatch: [
+                'special-error.spec.js',
+                'special-error.screenshots.spec.js'
+            ],
+            use: {
+                ...devices['iPhone 14 Pro'],
+                injectName: 'apple',
+                platform: 'ios'
+            }
         }
-        // TODO: Add iOS
     ],
     fullyParallel: !process.env.CI,
     /* Don't allow `.only` in CI */
