@@ -57,6 +57,10 @@
           "enum": ["macos", "windows", "android", "ios"]
         }
       }
+    },
+    "localeStrings": {
+      "type": "string",
+      "description": "Optional locale-specific strings"
     }
   }
 }
