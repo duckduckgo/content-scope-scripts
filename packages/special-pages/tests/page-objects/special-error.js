@@ -204,7 +204,7 @@ export class SpecialErrorPage {
      */
     async showsAdvancedInfo () {
         const { page } = this
-        await page.getByRole('button', { name: 'Advanced...' }).click()
+        await page.getByRole('button', { name: 'Advanced' }).click()
         const calls = await this.mocks.waitForCallCount({ method: 'advancedInfo', count: 1 })
         expect(calls).toMatchObject([
             {
