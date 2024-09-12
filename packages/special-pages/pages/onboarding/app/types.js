@@ -81,7 +81,7 @@ export const ALT_ORDER = [
 export const HIGHLIGHTS_ORDER = [
     'welcome',
     'getStarted',
-    'makeDefaultSingle',
+    'privateByDefault',
     'dockSingle',
     'importSingle',
     'duckPlayerSingle',

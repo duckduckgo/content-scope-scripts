@@ -7,22 +7,55 @@ import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { Fallback } from '../pages/Fallback'
 import { useTypedTranslation } from '../types'
 import { Timeout } from './Timeout'
+import { Background } from './Background'
+import { Button } from './Buttons'
 
 import styles from './App2.module.css'
+
+/**
+ * @param {object} props
+ * @param {boolean} props.isSpeechBubble
+ * @param {import('preact').ComponentChildren} props.children
+ */
+export function Heading({ children, isSpeechBubble = false }) {
+    return (
+        <header className={styles.heading}>
+            <div className={styles.logo}>
+                <img className={styles.svg} src="assets/img/dax.svg" alt="DuckDuckGo Logo" />
+            </div>
+            { isSpeechBubble
+                ? <SpeechBubble>{children}</SpeechBubble>
+                : <div className={styles.headingContents}>{children}</div> }
+        </header>
+    )
+}
+
+/**
+ * @param {object} props
+ * @param {import('preact').ComponentChildren} props.children
+ */
+export function SpeechBubble({ children }) {
+    return (
+        <div className={styles.speechBubble}>
+            <div className={styles.speechBubbleCallout} />
+            <div className={styles.speechBubbleContents}>
+                {children}
+            </div>
+        </div>
+    )
+}
 
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */
 export function App2 ({ children }) {
-    const { isReducedMotion } = useEnv()
+    const { debugState, isReducedMotion } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTypedTranslation()
 
     const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState
-
-    console.log('ORDER', order)
 
     const enqueueNext = () => {
         if (isReducedMotion) {
@@ -91,11 +124,15 @@ export function App2 ({ children }) {
 
     return (
         <main className={styles.main}>
+            <Background/>
+            {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} >
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
-                    <pre><code>{JSON.stringify({step, exiting, activeStep, nextStep}, null, 2)}</code></pre>
-                    <h1>{pageTitle}</h1>
-                    {pageSubTitle && <h2>{pageSubTitle}</h2>}
+                    <Heading isSpeechBubble={step.id !== 'welcome'}>
+                        <h1>{pageTitle}</h1>
+                        {pageSubTitle && <h2>{pageSubTitle}</h2>}
+                        {step.id === 'getStarted' && <Button onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
+                    </Heading>
                     <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
                         {step.id==='welcome' && (
                             <Timeout onComplete={enqueueNext} ignore={true} />
@@ -129,5 +166,18 @@ export function App2 ({ children }) {
                 {children}
             </div>
         </main>
+    )
+}
+
+function Debug (props) {
+    const { order, step, exiting, activeStep, nextStep} = props.state
+    const debugData = { order, step, exiting, activeStep, nextStep}
+
+    return (
+        <div style={{ position: 'absolute', top: 0, right: 0, overflowY: 'scroll', height: '100vh' }}>
+            <pre>
+                <code>{JSON.stringify(debugData, null, 2)}</code>
+            </pre>
+        </div>
     )
 }
