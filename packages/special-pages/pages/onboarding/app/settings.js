@@ -1,4 +1,4 @@
-import { ALT_ORDER, DEFAULT_ORDER, EVERY_PAGE_ID } from './types'
+import { ALT_ORDER, DEFAULT_ORDER, HIGHLIGHTS_ORDER, EVERY_PAGE_ID } from './types'
 import { stepDefinitions as defaultStepDefinitions } from './data'
 
 /**
@@ -61,6 +61,12 @@ export class Settings {
             return new Settings({
                 ...this,
                 order: ALT_ORDER
+            })
+        }
+        if (named === 'v3') {
+            return new Settings({
+                ...this,
+                order: HIGHLIGHTS_ORDER
             })
         } else {
             console.warn('ignoring named order:', named)

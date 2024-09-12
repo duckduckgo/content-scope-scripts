@@ -4,6 +4,7 @@ import {
 import { render, h } from 'preact'
 import './styles/global.css' // global styles
 import { App, SkipLink } from './components/App.js'
+import { App2 } from './components/App2'
 import { GlobalProvider } from './global'
 import { Components } from './Components'
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider'
@@ -60,6 +61,10 @@ async function init () {
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
         .withFirst(environment.urlParams.get('page'))
 
+    // TODO: Make this look nicer
+    const order = environment.urlParams.get('order') || init.order
+    const AppComponent = order === 'v3' ? App2 : App
+
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')
 
@@ -77,9 +82,9 @@ async function init () {
                         order={settings.order}
                         stepDefinitions={settings.stepDefinitions}
                         firstPage={settings.first}>
-                        <App>
+                        <AppComponent>
                             {environment.env === 'development' && <SkipLink />}
-                        </App>
+                        </AppComponent>
                     </GlobalProvider>
                 </TranslationProvider>
             </EnvironmentProvider>

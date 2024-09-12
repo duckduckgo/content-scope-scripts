@@ -59,7 +59,7 @@ export class OnboardingMessages {
                     }
                 },
                 exclude: [],
-                order: 'v1',
+                order: 'v3',
                 locale: 'en'
             }
         }

@@ -69,6 +69,10 @@ export const stepDefinitions = {
         kind: 'settings',
         rows: ['default-browser']
     },
+    duckPlayerSingle: {
+        id: 'duckPlayerSingle',
+        kind: 'info',
+    },
     customize: {
         id: 'customize',
         kind: 'settings',

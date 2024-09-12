@@ -62,7 +62,8 @@ export function App ({ children }) {
         summary: t('summary_title'),
         dockSingle: t('systemSettings_title'),
         importSingle: t('systemSettings_title'),
-        makeDefaultSingle: t('systemSettings_title')
+        makeDefaultSingle: t('systemSettings_title'),
+        duckPlayerSingle: t('duckPlayer_highlights_title'),
     }
 
     // typescript is not quite smart enough to figure this part out
