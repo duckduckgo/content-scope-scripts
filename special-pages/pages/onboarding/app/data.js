@@ -77,6 +77,10 @@ export const stepDefinitions = {
     summary: {
         id: 'summary',
         kind: 'info'
+    },
+    duckPlayerSingle: {
+        id: 'duckPlayerSingle',
+        kind: 'info'
     }
 }
 
