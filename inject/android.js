@@ -33,7 +33,7 @@ function initCode () {
         site: processedConfig.site,
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
-        privileged: processedConfig.privileged
+        isSubscribed: processedConfig.isSubscribed
     })
 
     init(processedConfig)

@@ -23,7 +23,7 @@ test('navigator interface - appends privileged data', async ({ page }, testInfo)
     const collector = ResultsCollector.create(page, testInfo)
 
     await collector
-        .withUserPreferences({ privileged: { isSubscribed: true } })
+        .withUserPreferences({ isSubscribed: true })
         .load(HTML_PATH, PRIVILEGED_CONFIG)
 
     const value = await page.evaluate(() => navigator.duckduckgo?.privileged)
@@ -34,7 +34,7 @@ test('navigator interface - does not append privileged data in a non-privileged 
     const collector = ResultsCollector.create(page, testInfo)
 
     await collector
-        .withUserPreferences({ privileged: { isSubscribed: true } })
+        .withUserPreferences({ isSubscribed: true })
         .load(HTML_PATH, NON_PRIVILEGED_CONFIG)
 
     const value = await page.evaluate(() => navigator.duckduckgo?.privileged)

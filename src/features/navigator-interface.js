@@ -5,7 +5,7 @@ export default class NavigatorInterface extends ContentFeature {
     load (args) {
         if (this.matchDomainFeatureSetting('privilegedDomains').length) {
             this.injectNavigatorInterface(args)
-            this.appendPrivilegedData(args.privileged)
+            this.appendPrivilegedData(args)
         }
     }
 
@@ -44,15 +44,18 @@ export default class NavigatorInterface extends ContentFeature {
     }
 
     /**
-     * Append more, privileged information that should only be accessilble
+     * Append more, privileged information that should only be accessible
      * to a known set of domains
      *
-     * @param {import('../content-scope-features').LoadArgs["privileged"]} privileged
+     * @param {import('../content-scope-features').LoadArgs} args
      */
-    appendPrivilegedData (privileged) {
+    appendPrivilegedData (args) {
         if (!Navigator.prototype.duckduckgo) return
+
         this.defineProperty(Navigator.prototype.duckduckgo, 'privileged', {
-            value: privileged,
+            value: {
+                isSubscribed: args.isSubscribed
+            },
             enumerable: true,
             configurable: false,
             writable: false
