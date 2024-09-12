@@ -4,8 +4,8 @@ import ContentFeature from '../content-feature'
 export default class NavigatorInterface extends ContentFeature {
     load (args) {
         if (this.matchDomainFeatureSetting('privilegedDomains').length) {
-            this.injectNavigatorInterface(args);
-            this.appendPrivilegedData(args.privileged);
+            this.injectNavigatorInterface(args)
+            this.appendPrivilegedData(args.privileged)
         }
     }
 
@@ -32,7 +32,7 @@ export default class NavigatorInterface extends ContentFeature {
                         return DDGPromise.resolve(true)
                     },
                     taints: new Set(),
-                    taintedOrigins: new Set(),
+                    taintedOrigins: new Set()
                 },
                 enumerable: true,
                 configurable: false,
@@ -49,8 +49,8 @@ export default class NavigatorInterface extends ContentFeature {
      *
      * @param {import('../content-scope-features').LoadArgs["privileged"]} privileged
      */
-    appendPrivilegedData(privileged) {
-        if (!Navigator.prototype.duckduckgo) return;
+    appendPrivilegedData (privileged) {
+        if (!Navigator.prototype.duckduckgo) return
         this.defineProperty(Navigator.prototype.duckduckgo, 'privileged', {
             value: privileged,
             enumerable: true,

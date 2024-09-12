@@ -22,11 +22,11 @@ interface ImportMeta {
 }
 
 interface DDGNavigatorInterface {
-    platform: import("./content-scope-features").LoadArgs['platform']['name'],
+    platform: import('./content-scope-features').LoadArgs['platform']['name'],
     isDuckDuckGo(): Promise<boolean>,
-    taints: Set<any>,
-    taintedOrigins: Set<any>,
-    privileged?: Record<string, any>,
+    taints: Set<unknown>,
+    taintedOrigins: Set<unknown>,
+    privileged?: Record<string, unknown>,
 }
 
 interface Navigator {
