@@ -33,6 +33,7 @@ const isHTMLDocument = (
  * @property {string} [injectName]
  * @property {object} trackerLookup - provided currently only by the extension
  * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
+ * @property {Record<string, any>} [privileged] - optional data to be accessed in privileged domains
  */
 
 /**

@@ -1,0 +1,12 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "navigatorInterface": {
+      "exceptions": [],
+      "state": "enabled",
+      "settings": {
+        "privilegedDomains": []
+      }
+    }
+  }
+}

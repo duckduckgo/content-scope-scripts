@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Navigator Interface</title>
+    <link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+<script src="../shared/utils.js"></script>
+
+<p>Navigator Interface</p>
+
+<script>
+    test('has DDG signal', async () => {
+        const result = await captureError(() => navigator.duckduckgo.isDuckDuckGo())
+
+        return [
+            { name: 'navigator.duckduckgo.isDuckDuckGo()', result: String(result), expected: 'true' }
+        ];
+    })
+
+    async function captureError(fn) {
+        try {
+            // ensure Promise.reject is captured
+            return fn().catch(e => e)
+        } catch (e) {
+            return e
+        }
+    }
+
+    renderResults();
+</script>
+</body>
+</html>

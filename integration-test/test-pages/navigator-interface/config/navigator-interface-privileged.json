@@ -1,0 +1,15 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "navigatorInterface": {
+      "state": "enabled",
+      "settings": {
+        "privilegedDomains": [
+          {
+            "domain": "localhost"
+          }
+        ]
+      }
+    }
+  }
+}

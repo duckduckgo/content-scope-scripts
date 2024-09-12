@@ -4,7 +4,8 @@ import ContentFeature from '../content-feature'
 export default class NavigatorInterface extends ContentFeature {
     load (args) {
         if (this.matchDomainFeatureSetting('privilegedDomains').length) {
-            this.injectNavigatorInterface(args)
+            this.injectNavigatorInterface(args);
+            this.appendPrivilegedData(args.privileged);
         }
     }
 
@@ -12,9 +13,11 @@ export default class NavigatorInterface extends ContentFeature {
         this.injectNavigatorInterface(args)
     }
 
+    /**
+     * @param {import('../content-scope-features').LoadArgs} args
+     */
     injectNavigatorInterface (args) {
         try {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             if (navigator.duckduckgo) {
                 return
             }
@@ -22,13 +25,14 @@ export default class NavigatorInterface extends ContentFeature {
                 return
             }
             this.defineProperty(Navigator.prototype, 'duckduckgo', {
+                /** @type {DDGNavigatorInterface} */
                 value: {
                     platform: args.platform.name,
                     isDuckDuckGo () {
                         return DDGPromise.resolve(true)
                     },
                     taints: new Set(),
-                    taintedOrigins: new Set()
+                    taintedOrigins: new Set(),
                 },
                 enumerable: true,
                 configurable: false,
@@ -37,5 +41,21 @@ export default class NavigatorInterface extends ContentFeature {
         } catch {
             // todo: Just ignore this exception?
         }
+    }
+
+    /**
+     * Append more, privileged information that should only be accessilble
+     * to a known set of domains
+     *
+     * @param {import('../content-scope-features').LoadArgs["privileged"]} privileged
+     */
+    appendPrivilegedData(privileged) {
+        if (!Navigator.prototype.duckduckgo) return;
+        this.defineProperty(Navigator.prototype.duckduckgo, 'privileged', {
+            value: privileged,
+            enumerable: true,
+            configurable: false,
+            writable: false
+        })
     }
 }

@@ -26,7 +26,8 @@ export default defineConfig({
         {
             name: 'apple',
             testMatch: [
-                'integration-test/playwright/webcompat.spec.js'
+                'integration-test/playwright/webcompat.spec.js',
+                'integration-test/playwright/navigator-interface.spec.js'
             ],
             use: { injectName: 'apple', platform: 'macos' }
         },

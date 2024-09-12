@@ -21,6 +21,18 @@ interface ImportMeta {
     pageName?: string
 }
 
+interface DDGNavigatorInterface {
+    platform: import("./content-scope-features").LoadArgs['platform']['name'],
+    isDuckDuckGo(): Promise<boolean>,
+    taints: Set<any>,
+    taintedOrigins: Set<any>,
+    privileged?: Record<string, any>,
+}
+
+interface Navigator {
+    duckduckgo?: DDGNavigatorInterface;
+}
+
 declare module '*.svg' {
     const content: string
     export default content
