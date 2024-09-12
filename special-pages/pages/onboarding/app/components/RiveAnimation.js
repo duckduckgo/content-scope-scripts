@@ -11,9 +11,10 @@ import { Rive } from '@rive-app/canvas-single'
  * @param {string} props.animation - The path to the animation file
  * @param {string} [props.artboard] - The name of the artboard to display. (optional)
  * @param {string} [props.inputName] - The name of the input to toggle. (optional)
+ * @param {boolean} [props.autoplay=true] - Whether to autoplay the animation
  * @param {boolean} props.isDarkMode - Indicates if dark mode is enabled.
  */
-export function RiveAnimation ({ animation, state, stateMachine, artboard, inputName, isDarkMode }) {
+export function RiveAnimation ({ animation, state, stateMachine, artboard, inputName, autoplay = true, isDarkMode }) {
     const ref = useRef(/** @type {null | HTMLCanvasElement} */(null))
     const rive = useRef(/** @type {null | Rive} */(null))
 
@@ -24,14 +25,14 @@ export function RiveAnimation ({ animation, state, stateMachine, artboard, input
             src: ['js', animation].join('/'),
             canvas: ref.current,
             enableRiveAssetCDN: false,
-            autoplay: true,
+            autoplay,
             artboard,
             stateMachines: stateMachine
         })
         return () => {
             rive.current?.cleanup()
         }
-    }, [stateMachine, inputName, artboard])
+    }, [stateMachine, inputName, artboard, autoplay])
 
     // handle a before/after value
     useEffect(() => {
