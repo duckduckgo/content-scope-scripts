@@ -9,6 +9,7 @@
  * @property {string[]} [exclude] - ability to exclude screens
  * @property {ImportMeta['env']} [env] - optional override for the running override
  * @property {string} locale
+ * @property {{ name: 'macos'|'windows'|'android'|'ios'}} [platform]
  */
 
 /**
@@ -53,14 +54,11 @@ export class OnboardingMessages {
     async init () {
         if (this.injectName === 'integration') {
             return {
-                stepDefinitions: {
-                    systemSettings: {
-                        rows: ['dock', 'import', 'default-browser']
-                    }
-                },
+                stepDefinitions: {},
                 exclude: [],
-                order: 'v1',
-                locale: 'en'
+                order: 'v3',
+                locale: 'en',
+                env: 'development'
             }
         }
         return await this.messaging.request('init')

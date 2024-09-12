@@ -71,7 +71,7 @@ jobs:
       if: always()
       with:
         name: playwright-report-pages
-        path: packages/special-pages/test-results
+        path: special-pages/test-results
         retention-days: 5
     - name: Build docs
       run: npm run docs
