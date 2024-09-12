@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test'
 import {
-    readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount,
+    readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
-import { ResultsCollector } from "./page-objects/results-collector.js";
+import { ResultsCollector } from './page-objects/results-collector.js'
 
 test('Breakage Reporting Feature', async ({ page }, testInfo) => {
     const htmlPage = '/breakage-reporting/index.html'
@@ -11,7 +11,7 @@ test('Breakage Reporting Feature', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo)
     await collector.load(htmlPage, config)
 
-    const feature = new BreakageFeatureSpec(page);
+    const feature = new BreakageFeatureSpec(page)
     await feature.navigate()
 
     await page.evaluate(simulateSubscriptionMessage, {

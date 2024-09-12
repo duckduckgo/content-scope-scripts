@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { ResultsCollector } from "./page-objects/results-collector.js";
+import { ResultsCollector } from './page-objects/results-collector.js'
 
 test('web compat', async ({ page }, testInfo) => {
     const htmlPage = '/webcompat/index.html'

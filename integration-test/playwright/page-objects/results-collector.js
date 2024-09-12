@@ -1,12 +1,12 @@
-import { readFileSync } from "fs";
+import { readFileSync } from 'fs'
 import {
     mockAndroidMessaging,
     mockWebkitMessaging,
     mockWindowsMessaging,
     wrapWebkitScripts,
     wrapWindowsScripts
-} from "@duckduckgo/messaging/lib/test-utils.mjs";
-import { perPlatform } from "../type-helpers.mjs";
+} from '@duckduckgo/messaging/lib/test-utils.mjs'
+import { perPlatform } from '../type-helpers.mjs'
 
 /**
  * This is designed to allow you to execute Playwright tests using the various
@@ -40,7 +40,7 @@ export class ResultsCollector {
      * @param {import('../type-helpers.mjs').Build} build
      * @param {import('../type-helpers.mjs').PlatformInfo} platform
      */
-    constructor(page, build, platform) {
+    constructor (page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
@@ -53,9 +53,9 @@ export class ResultsCollector {
      * @param {string} htmlPath
      * @param {string} configPath
      */
-    async load(htmlPath, configPath) {
+    async load (htmlPath, configPath) {
         const config = JSON.parse(readFileSync(configPath, 'utf8'))
-        await this.setup({config})
+        await this.setup({ config })
         await this.page.goto(htmlPath)
         return this
     }
@@ -63,9 +63,9 @@ export class ResultsCollector {
     /**
      * @param {Record<string, any>} values
      */
-    withUserPreferences(values) {
-        this.#userPreferences = values;
-        return this;
+    withUserPreferences (values) {
+        this.#userPreferences = values
+        return this
     }
 
     /**
@@ -73,15 +73,14 @@ export class ResultsCollector {
      * @param {Record<string, any>} params.config
      * @return {Promise<void>}
      */
-    async setup(params) {
-        const {config,} = params
-
+    async setup (params) {
+        const { config } = params
 
         const wrapFn = this.build.switch({
             'apple-isolated': () => wrapWebkitScripts,
-            'apple': () => wrapWebkitScripts,
+            apple: () => wrapWebkitScripts,
             android: () => wrapWindowsScripts,
-            windows: () => wrapWindowsScripts,
+            windows: () => wrapWindowsScripts
         })
 
         // read the built file from disk and do replacements
@@ -98,8 +97,8 @@ export class ResultsCollector {
         const messagingMock = this.build.switch({
             apple: () => mockWebkitMessaging,
             'apple-isolated': () => mockWebkitMessaging,
-            'windows': () => mockWindowsMessaging,
-            'android': () => mockAndroidMessaging,
+            windows: () => mockWindowsMessaging,
+            android: () => mockAndroidMessaging
         })
 
         await this.page.addInitScript(messagingMock, {
@@ -115,7 +114,7 @@ export class ResultsCollector {
         await this.page.addInitScript(injectedJS)
     }
 
-    collectResultsFromPage() {
+    collectResultsFromPage () {
         return this.page.evaluate(() => {
             return new Promise(resolve => {
                 // @ts-expect-error - this is added by the test framework
@@ -149,7 +148,7 @@ export class ResultsCollector {
      * @param {import('@playwright/test').Page} page
      * @param {import('@playwright/test').TestInfo} testInfo
      */
-    static create(page, testInfo) {
+    static create (page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const {
             platformInfo,
