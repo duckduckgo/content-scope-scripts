@@ -1,16 +1,18 @@
 import { test, expect } from '@playwright/test'
-import { readFileSync } from 'fs'
 import {
-    mockWindowsMessaging,
-    readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount,
-    wrapWindowsScripts
+    readOutgoingMessages, simulateSubscriptionMessage, waitForCallCount
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
-import { perPlatform } from './type-helpers.mjs'
+import { ResultsCollector } from './page-objects/results-collector.js'
 
 test('Breakage Reporting Feature', async ({ page }, testInfo) => {
-    const breakageFeature = BreakageReportingSpec.create(page, testInfo)
-    await breakageFeature.enabled()
-    await breakageFeature.navigate()
+    const htmlPage = '/breakage-reporting/index.html'
+    const config = './integration-test/test-pages/breakage-reporting/config/config.json'
+
+    const collector = ResultsCollector.create(page, testInfo)
+    await collector.load(htmlPage, config)
+
+    const feature = new BreakageFeatureSpec(page)
+    await feature.navigate()
 
     await page.evaluate(simulateSubscriptionMessage, {
         messagingContext: {
@@ -20,7 +22,7 @@ test('Breakage Reporting Feature', async ({ page }, testInfo) => {
         },
         name: 'getBreakageReportValues',
         payload: {},
-        injectName: breakageFeature.build.name
+        injectName: collector.build.name
     })
 
     await page.waitForFunction(waitForCallCount, {
@@ -36,28 +38,15 @@ test('Breakage Reporting Feature', async ({ page }, testInfo) => {
     expect(result.referrer).toBe('http://localhost:3220/breakage-reporting/index.html')
 })
 
-export class BreakageReportingSpec {
-    htmlPage = '/breakage-reporting/index.html'
-    config = './integration-test/test-pages/breakage-reporting/config/config.json'
+export class BreakageFeatureSpec {
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {import("./type-helpers.mjs").Build} build
-     * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor (page) {
         this.page = page
-        this.build = build
-        this.platform = platform
-    }
-
-    async enabled () {
-        const config = JSON.parse(readFileSync(this.config, 'utf8'))
-        await this.setup({ config })
     }
 
     async navigate () {
-        await this.page.goto(this.htmlPage)
-
         await this.page.evaluate(() => {
             window.location.href = '/breakage-reporting/pages/ref.html'
         })
@@ -80,47 +69,5 @@ export class BreakageReportingSpec {
             })
             return response
         })
-    }
-
-    /**
-     * @param {object} params
-     * @param {Record<string, any>} params.config
-     * @return {Promise<void>}
-     */
-    async setup (params) {
-        const { config } = params
-
-        // read the built file from disk and do replacements
-        const injectedJS = wrapWindowsScripts(this.build.artifact, {
-            $CONTENT_SCOPE$: config,
-            $USER_UNPROTECTED_DOMAINS$: [],
-            $USER_PREFERENCES$: {
-                platform: { name: 'windows' },
-                debug: true
-            }
-        })
-
-        await this.page.addInitScript(mockWindowsMessaging, {
-            messagingContext: {
-                env: 'development',
-                context: 'contentScopeScripts',
-                featureName: 'n/a'
-            },
-            responses: {}
-        })
-
-        // attach the JS
-        await this.page.addInitScript(injectedJS)
-    }
-
-    /**
-     * Helper for creating an instance per platform
-     * @param {import("@playwright/test").Page} page
-     * @param {import("@playwright/test").TestInfo} testInfo
-     */
-    static create (page, testInfo) {
-        // Read the configuration object to determine which platform we're testing against
-        const { platformInfo, build } = perPlatform(testInfo.project.use)
-        return new BreakageReportingSpec(page, build, platformInfo)
     }
 }
