@@ -1,5 +1,11 @@
 import { readFileSync } from "fs";
-import { mockWebkitMessaging, wrapWebkitScripts } from "@duckduckgo/messaging/lib/test-utils.mjs";
+import {
+    mockAndroidMessaging,
+    mockWebkitMessaging,
+    mockWindowsMessaging,
+    wrapWebkitScripts,
+    wrapWindowsScripts
+} from "@duckduckgo/messaging/lib/test-utils.mjs";
 import { perPlatform } from "../type-helpers.mjs";
 
 /**
@@ -70,8 +76,16 @@ export class ResultsCollector {
     async setup(params) {
         const {config,} = params
 
+
+        const wrapFn = this.build.switch({
+            'apple-isolated': () => wrapWebkitScripts,
+            'apple': () => wrapWebkitScripts,
+            android: () => wrapWindowsScripts,
+            windows: () => wrapWindowsScripts,
+        })
+
         // read the built file from disk and do replacements
-        const injectedJS = wrapWebkitScripts(this.build.artifact, {
+        const injectedJS = wrapFn(this.build.artifact, {
             $CONTENT_SCOPE$: config,
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
@@ -81,7 +95,14 @@ export class ResultsCollector {
             }
         })
 
-        await this.page.addInitScript(mockWebkitMessaging, {
+        const messagingMock = this.build.switch({
+            apple: () => mockWebkitMessaging,
+            'apple-isolated': () => mockWebkitMessaging,
+            'windows': () => mockWindowsMessaging,
+            'android': () => mockAndroidMessaging,
+        })
+
+        await this.page.addInitScript(messagingMock, {
             messagingContext: {
                 env: 'development',
                 context: 'contentScopeScripts',
@@ -105,6 +126,22 @@ export class ResultsCollector {
                 })
             })
         })
+    }
+
+    async runTests () {
+        for (const button of await this.page.getByTestId('user-gesture-button').all()) {
+            await button.click()
+        }
+        const resultsPromise = this.page.evaluate(() => {
+            return new Promise(resolve => {
+                window.addEventListener('results-ready', () => {
+                    // @ts-expect-error - this is added by the test framework
+                    resolve(window.results)
+                })
+            })
+        })
+        await this.page.getByTestId('render-results').click()
+        return await resultsPromise
     }
 
     /**
