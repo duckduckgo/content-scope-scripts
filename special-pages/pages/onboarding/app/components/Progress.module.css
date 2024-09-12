@@ -50,3 +50,20 @@
     /* box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12), 0px 1px 1px rgba(0, 0, 0, 0.24); */
     border-radius: 72px;
 }
+
+/* Single Line variant */
+
+.singleLineContainer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--sp-2);
+    align-items: center;
+
+    & .progress {
+        order: -1;
+    }
+
+    [data-reduced-motion="true"] & {
+        opacity: 1;
+    }
+}
