@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [opened, synchronize, closed, ready_for_review]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     if: github.event.pull_request.draft == false && github.event.action != 'closed'
