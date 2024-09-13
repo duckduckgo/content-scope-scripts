@@ -17,7 +17,7 @@ import styles from './App2.module.css'
  * @param {boolean} props.isSpeechBubble
  * @param {import('preact').ComponentChildren} props.children
  */
-export function Heading({ children, isSpeechBubble = false }) {
+export function Heading ({ children, isSpeechBubble = false }) {
     return (
         <header className={styles.heading}>
             <div className={styles.logo}>
@@ -34,7 +34,7 @@ export function Heading({ children, isSpeechBubble = false }) {
  * @param {object} props
  * @param {import('preact').ComponentChildren} props.children
  */
-export function SpeechBubble({ children }) {
+export function SpeechBubble ({ children }) {
     return (
         <div className={styles.speechBubble}>
             <div className={styles.speechBubbleCallout} />
@@ -84,7 +84,7 @@ export function App2 ({ children }) {
         dockSingle: t('dock_highlights_title'),
         importSingle: t('import_highlights_title'),
         duckPlayerSingle: t('duckPlayer_highlights_title'),
-        customize: t('customize_highlights_title'),
+        customize: t('customize_highlights_title')
     }
 
     /** @type {Partial<Record<import('../types').Step['id'], string>>} */
@@ -92,7 +92,7 @@ export function App2 ({ children }) {
         dockSingle: t('dock_highlights_subtitle'),
         importSingle: t('import_highlights_subtitle'),
         duckPlayerSingle: t('duckPlayer_highlights_subtitle'),
-        customize: t('customize_highlights_subtitle'),
+        customize: t('customize_highlights_subtitle')
     }
 
     // typescript is not quite smart enough to figure this part out
@@ -103,7 +103,6 @@ export function App2 ({ children }) {
     if (!pageTitle || pageTitle.length === 0) {
         console.warn('missing page title for ', activeStep)
     }
-
 
     // for screens that animate out, trigger the 'advance' when it's finished.
     function animationDidFinish (e) {
@@ -128,39 +127,41 @@ export function App2 ({ children }) {
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} >
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
-                    <Heading isSpeechBubble={step.id !== 'welcome'}>
-                        <h1>{pageTitle}</h1>
-                        {pageSubTitle && <h2>{pageSubTitle}</h2>}
-                        {step.id === 'getStarted' && <Button onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
-                    </Heading>
-                    <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
-                        {step.id==='welcome' && (
-                            <Timeout onComplete={enqueueNext} ignore={true} />
-                        )}
-                        {step.id==='getStarted' && (
-                            <p>Get Started</p>
-                        )}
-                        {step.id==='makeDefaultSingle' && (
-                            <p>Make Default</p>
-                        )}
-                        {step.id==='dockSingle' && (
-                            <p>Add to Dock / Taskbar</p>
-                        )}
-                        {step.id==='importSingle' && (
-                            <p>Import</p>
-                        )}
-                        {step.id==='duckPlayerSingle' && (
-                            <p>Duck Player</p>
-                        )}
-                        {step.id==='customize' && (
-                            <p>Customize</p>
-                        )}
-                        {step.id !== 'welcome' && (
-                            <div>
-                                <button onClick={enqueueNext}>Begin Exit...</button>
-                                {exiting && <button onClick={advance}>Advance to {nextStep} ➡️</button>}
-                            </div>
-                        )}
+                    <div className={styles.content}>
+                        <Heading isSpeechBubble={step.id !== 'welcome'}>
+                            <h1>{pageTitle}</h1>
+                            {pageSubTitle && <h2>{pageSubTitle}</h2>}
+                            {step.id === 'getStarted' && <Button onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
+                        </Heading>
+                        <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
+                            {step.id === 'welcome' && (
+                                <Timeout onComplete={enqueueNext} ignore={true} />
+                            )}
+                            {step.id === 'getStarted' && (
+                                <p>Get Started</p>
+                            )}
+                            {step.id === 'makeDefaultSingle' && (
+                                <p>Make Default</p>
+                            )}
+                            {step.id === 'dockSingle' && (
+                                <p>Add to Dock / Taskbar</p>
+                            )}
+                            {step.id === 'importSingle' && (
+                                <p>Import</p>
+                            )}
+                            {step.id === 'duckPlayerSingle' && (
+                                <p>Duck Player</p>
+                            )}
+                            {step.id === 'customize' && (
+                                <p>Customize</p>
+                            )}
+                            {step.id !== 'welcome' && (
+                                <div>
+                                    <button onClick={enqueueNext}>Begin Exit...</button>
+                                    {exiting && <button onClick={advance}>Advance to {nextStep} ➡️</button>}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </ErrorBoundary>
                 {children}
@@ -170,8 +171,8 @@ export function App2 ({ children }) {
 }
 
 function Debug (props) {
-    const { order, step, exiting, activeStep, nextStep} = props.state
-    const debugData = { order, step, exiting, activeStep, nextStep}
+    const { order, step, exiting, activeStep, nextStep } = props.state
+    const debugData = { order, step, exiting, activeStep, nextStep }
 
     return (
         <div style={{ position: 'absolute', top: 0, right: 0, overflowY: 'scroll', height: '100vh' }}>

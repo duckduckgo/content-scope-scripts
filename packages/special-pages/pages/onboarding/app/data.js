@@ -71,7 +71,7 @@ export const stepDefinitions = {
     },
     duckPlayerSingle: {
         id: 'duckPlayerSingle',
-        kind: 'info',
+        kind: 'info'
     },
     customize: {
         id: 'customize',
