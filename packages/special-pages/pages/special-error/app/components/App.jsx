@@ -33,18 +33,14 @@ function PageTitle() {
     const { t } = useTypedTranslation()
 
     useEffect(() => {
-        let title
-
         switch(kind) {
             case 'phishing':
-                title = t('phishingPageHeading')
+                document.title = t('phishingPageHeading')
                 break;
             default:
-                title = t('sslPageHeading')
+                document.title = t('sslPageHeading')
         }
-
-        document.title = title
-    }, [])
+    }, [kind, t])
 
     return null
 }
