@@ -3,6 +3,8 @@ import cn from 'classnames'
 import styles from './ListItem.module.css'
 import { Check } from './Icons'
 
+/* TODO: Why PNGs? */
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const availableIcons = /** @type {const} */ ([
     'bookmarks.png',
@@ -15,7 +17,11 @@ export const availableIcons = /** @type {const} */ ([
     'session-restore.png',
     'shield.png',
     'import.png',
-    'switch.png'
+    'switch.png',
+    'shield-green.svg',
+    'fire.svg',
+    'fewer-ads.svg',
+    'video-player.svg'
 ])
 
 const prefix = 'assets/img/steps/'
@@ -23,6 +29,7 @@ const prefix = 'assets/img/steps/'
 /**
  * ListItem component is used to display an item in a list.
  * @param {Object} props - The properties for the ListItem component.
+ * @param {import('preact').JSX.ElementType} [props.as = 'li'] - The element tag in which to wrap the ListItem.
  * @param {availableIcons[number]} props.icon - The icon for the ListItem.
  * @param {import("preact").ComponentChild} [props.inline] - optional inline children
  * @param {number} [props.index=0] - optional inline children
@@ -31,10 +38,10 @@ const prefix = 'assets/img/steps/'
  * @param {import("preact").ComponentChild} [props.secondaryText] - The text for the secondary line
  * @param {boolean} [props.animate=true] - The text for the secondary line
  */
-export function ListItem ({ animate = false, ...props }) {
+export function ListItem ({ animate = false, as: Comp = 'li', ...props }) {
     const path = prefix + props.icon
     return (
-        <li className={cn(styles.step, animate ? styles.slideIn : undefined)} data-testid="ListItem" data-index={String(props.index)}>
+        <Comp className={cn(styles.step, animate ? styles.slideIn : undefined)} data-testid="ListItem" data-index={String(props.index)}>
             <div className={cn(styles.inner)}>
                 <div className={styles.icon} style={`background-image: url(${path});`}></div>
                 <div className={styles.contentWrapper}>
@@ -50,7 +57,7 @@ export function ListItem ({ animate = false, ...props }) {
                 </div>
             </div>
             <div className={styles.children}>{props.children}</div>
-        </li>
+        </Comp>
     )
 }
 

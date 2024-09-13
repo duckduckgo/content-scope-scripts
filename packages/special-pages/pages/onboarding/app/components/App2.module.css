@@ -58,11 +58,16 @@
 /* New styles */
 
 .content {
+    display: grid;
+    padding: var(--sp-6);
+    row-gap: var(--sp-6);
+}
+
+.content.boxed {
     backdrop-filter: blur(var(--sp-16));
     background: var(--color-white-at-24);
     border-radius: var(--sp-8);
     box-shadow: 0px 8px 24px 0px rgba(62, 34, 140, 0.06), 0px 32px 128px 0px rgba(30, 66, 164, 0.09);
-    padding: var(--sp-6);
 
     @media (prefers-color-scheme: dark) {
         background: var(--color-black-at-48);
@@ -73,6 +78,7 @@
 .heading {
     display: inline-grid;
     grid-template-columns: var(--sp-16) auto;
+    justify-self: start;
     margin-top: calc(-1 * var(--sp-10));
     margin-left: calc(-1 * var(--sp-10));
 }
@@ -120,6 +126,7 @@
     color: var(--color-black-at-84);
     display: grid;
     gap: var(--sp-6);
+    justify-items: start;
     min-height: var(--sp-24);
     padding: var(--sp-6) var(--sp-7);
 

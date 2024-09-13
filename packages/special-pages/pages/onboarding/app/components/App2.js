@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { h } from 'preact'
+import cn from 'classnames'
 import { useContext, useRef } from 'preact/hooks'
 import { GlobalContext, GlobalDispatch } from '../global'
 import { useEnv } from '../../../../shared/components/EnvironmentProvider'
@@ -9,6 +10,8 @@ import { useTypedTranslation } from '../types'
 import { Timeout } from './Timeout'
 import { Background } from './Background'
 import { Button } from './Buttons'
+import { Typed } from './Typed'
+import { ComparisonTable } from './ComparisonTable'
 
 import styles from './App2.module.css'
 
@@ -55,7 +58,7 @@ export function App2 ({ children }) {
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTypedTranslation()
 
-    const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState
+    const { nextStep, activeStep, activeStepVisible, activeTitle, exiting, order, step } = globalState
 
     const enqueueNext = () => {
         if (isReducedMotion) {
@@ -67,6 +70,7 @@ export function App2 ({ children }) {
 
     const advance = () => dispatch({ kind: 'advance' })
     const titleDone = () => dispatch({ kind: 'title-complete' })
+    const nextTitle = () => dispatch({ kind: 'next-title' })
     const dismiss = () => dispatch({ kind: 'dismiss' })
     const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
 
@@ -80,7 +84,6 @@ export function App2 ({ children }) {
         welcome: t('welcome_title'),
         getStarted: t('getStarted_highlights_title', { newline: '\n' }),
         privateByDefault: t('privateByDefault_highlights_title', { newline: '\n' }),
-        makeDefaultSingle: t('makeDefault_highlights_title'),
         dockSingle: t('dock_highlights_title'),
         importSingle: t('import_highlights_title'),
         duckPlayerSingle: t('duckPlayer_highlights_title'),
@@ -127,18 +130,33 @@ export function App2 ({ children }) {
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} >
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
-                    <div className={styles.content}>
+                    <div className={cn(styles.content, { [styles.boxed]: step.id !== 'welcome' && step.id !== 'getStarted'})}>
                         <Heading isSpeechBubble={step.id !== 'welcome'}>
-                            <h1>{pageTitle}</h1>
-                            {pageSubTitle && <h2>{pageSubTitle}</h2>}
+                            {pageTitle && <h1>
+                                <Typed
+                                    onComplete={pageSubTitle ? nextTitle : titleDone}
+                                    text={pageTitle}
+                                    data-current={activeStep}
+                                    data-exiting={pageTitle !== nextPageTitle && String(exiting)}
+                                />
+                            </h1>}
+                            {pageSubTitle && <h2>
+                                <Typed
+                                    onComplete={titleDone}
+                                    text={pageSubTitle}
+                                    paused={activeTitle === 0}
+                                    data-current={activeStep}
+                                    data-exiting={pageTitle !== nextPageTitle && String(exiting)}
+                                />
+                            </h2>}
                             {step.id === 'getStarted' && <Button onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
                         </Heading>
                         <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
                             {step.id === 'welcome' && (
                                 <Timeout onComplete={enqueueNext} ignore={true} />
                             )}
-                            {step.id === 'getStarted' && (
-                                <p>Get Started</p>
+                            {step.id === 'privateByDefault' && (
+                                <ComparisonTable />
                             )}
                             {step.id === 'makeDefaultSingle' && (
                                 <p>Make Default</p>
@@ -155,7 +173,7 @@ export function App2 ({ children }) {
                             {step.id === 'customize' && (
                                 <p>Customize</p>
                             )}
-                            {step.id !== 'welcome' && (
+                            {step.id !== 'welcome' && step.id !== 'getStarted' && (
                                 <div>
                                     <button onClick={enqueueNext}>Begin Exit...</button>
                                     {exiting && <button onClick={advance}>Advance to {nextStep} ➡️</button>}

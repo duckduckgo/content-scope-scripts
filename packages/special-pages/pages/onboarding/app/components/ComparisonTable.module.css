@@ -1,0 +1,12 @@
+.table {
+    padding: 0 var(--sp-14);
+    width: 100%;
+
+    th[scope="row"] {
+        padding: var(--sp-3) var(--sp-3) var(--sp-3) 0;
+    }
+
+    td {
+        text-align: center;
+    }
+}
