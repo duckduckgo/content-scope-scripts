@@ -232,7 +232,7 @@ test.describe('Video Player overlays', () => {
         // No video overlay
         await overlays.videoOverlayDoesntShow()
     })
-    test('Selecting \'watch in duck player\'', async ({ page }, workerInfo) => {
+    test('Selecting \'Turn On Duck Player\'', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -242,10 +242,10 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage()
 
-        await overlays.watchInDuckPlayer()
+        await overlays.turnOnDuckPlayer()
         await overlays.userSettingWasUpdatedTo('always ask') // not updated
     })
-    test('Selecting \'watch in duck player\' + remember', async ({ page }, workerInfo) => {
+    test('Selecting \'Turn On Duck Player\' + remember', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -256,10 +256,10 @@ test.describe('Video Player overlays', () => {
         await overlays.gotoPlayerPage()
 
         await overlays.rememberMyChoice()
-        await overlays.watchInDuckPlayer()
+        await overlays.turnOnDuckPlayer()
         await overlays.userSettingWasUpdatedTo('enabled') // updated
     })
-    test('Selecting \'watch here\'', async ({ page }, workerInfo) => {
+    test('Selecting \'No Thanks\'', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -269,10 +269,10 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage()
 
-        await overlays.watchHere()
+        await overlays.noThanks()
         await overlays.secondOverlayExistsOnVideo()
     })
-    test('Selecting \'watch here\' + remember', async ({ page }, workerInfo) => {
+    test('Selecting \'No Thanks\' + remember', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -283,11 +283,11 @@ test.describe('Video Player overlays', () => {
         await overlays.gotoPlayerPage()
 
         await overlays.rememberMyChoice()
-        await overlays.watchHere()
+        await overlays.noThanks()
         await overlays.userSettingWasUpdatedTo('always ask remembered') // updated
     })
     test.describe('with remote config overrides', () => {
-        test('Selecting \'watch here\' + remember', async ({ page }, workerInfo) => {
+        test('Selecting \'No Thanks\' + remember', async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo)
 
             // config with some CSS selectors overridden
