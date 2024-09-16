@@ -281,6 +281,10 @@
     "title": "Tap “Yes” to always have easy access to your new browser.",
     "note": "TODO."
   },
+  "keepInDockButton": {
+    "title": "Keep in Dock",
+    "note": "TODO."
+  },
   "taskbar_success_highlights_title": {
     "title": "Great! I’ll be nesting in the{newline}taskbar when you need me.",
     "note": "TODO."
@@ -295,6 +299,10 @@
   },
   "import_highlights_subtitle": {
     "title": "I’ll protect it like my own ducklings.",
+    "note": "TODO."
+  },
+  "importButton": {
+    "title": "Keep in Dock",
     "note": "TODO."
   },
   "duckPlayer_highlights_title": {

@@ -57,13 +57,13 @@
 
 /* New styles */
 
-.content {
+.panel {
     display: grid;
     padding: var(--sp-6);
     row-gap: var(--sp-6);
 }
 
-.content.boxed {
+.panel.boxed {
     backdrop-filter: blur(var(--sp-16));
     background: var(--color-white-at-24);
     border-radius: var(--sp-8);
@@ -74,6 +74,8 @@
         box-shadow: 0px 8px 24px 0px rgba(7, 0, 25, 0.06), 0px 32px 128px 0px rgba(5, 17, 51, 0.09);
     }
 }
+
+/* Heading */
 
 .heading {
     display: inline-grid;
@@ -97,6 +99,42 @@
     height: var(--sp-16);
     width: var(--sp-16);
 }
+
+/* Core content */
+
+.content {
+    display: grid;
+    gap: var(--sp-8) var(--sp-2);
+    grid-template-rows: auto var(--sp-9);
+    grid-template-columns: var(--sp-20) auto min-content min-content;
+    grid-template-areas:
+        "core core core core"
+        "progress spacer skip accept";
+    align-items: center;
+}
+
+.core {
+    grid-area: core;
+}
+
+.progress {
+    grid-area: progress;
+}
+
+.spacer {
+    grid-area: spacer;
+}
+
+.skip {
+    grid-area: skip;
+}
+
+.accept {
+    grid-area: accept;
+}
+
+
+/* Speech Bubble */
 
 .speechBubble {
     display: inline-grid;

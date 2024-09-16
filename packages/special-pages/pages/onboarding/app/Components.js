@@ -16,6 +16,7 @@ import { useState } from 'preact/hooks'
 import { Typed } from './components/Typed'
 import { CleanBrowsing } from './pages/CleanBrowsing'
 import { useTypedTranslation } from './types'
+import { ComparisonTable } from './components/ComparisonTable'
 
 function noop (name) {
     return () => {
@@ -162,6 +163,8 @@ export function Components () {
                             dock: { enabled: true },
                             'session-restore': { enabled: true }
                         }}/>
+
+                    <ComparisonTable />
                 </Stack>
                 <div style={{ height: '100px' }}/>
             </div>

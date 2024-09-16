@@ -54,6 +54,9 @@ async function init () {
             })
 
     const settings = new Settings()
+        .withPlatformName(baseEnvironment.injectName)
+        // .withPlatformName(init.platform?.name)
+        .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withStepDefinitions(init.stepDefinitions)
         .withNamedOrder(init.order)
         .withNamedOrder(environment.urlParams.get('order'))

@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { h } from 'preact'
+import { h, Fragment } from 'preact'
 import cn from 'classnames'
 import { useContext, useRef } from 'preact/hooks'
 import { GlobalContext, GlobalDispatch } from '../global'
@@ -12,6 +12,7 @@ import { Background } from './Background'
 import { Button } from './Buttons'
 import { Typed } from './Typed'
 import { ComparisonTable } from './ComparisonTable'
+import { Progress } from './Progress'
 
 import styles from './App2.module.css'
 
@@ -67,6 +68,10 @@ export function App2 ({ children }) {
             dispatch({ kind: 'enqueue-next' })
         }
     }
+
+    /** @type {import('../types').Step['id'][]} */
+    const progress = order.slice(2, order.length)
+    const showProgress = progress.includes(activeStep)
 
     const advance = () => dispatch({ kind: 'advance' })
     const titleDone = () => dispatch({ kind: 'title-complete' })
@@ -130,7 +135,7 @@ export function App2 ({ children }) {
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} >
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
-                    <div className={cn(styles.content, { [styles.boxed]: step.id !== 'welcome' && step.id !== 'getStarted'})}>
+                    <div className={cn(styles.panel, { [styles.boxed]: step.id !== 'welcome' && step.id !== 'getStarted'})}>
                         <Heading isSpeechBubble={step.id !== 'welcome'}>
                             {pageTitle && <h1>
                                 <Typed
@@ -151,33 +156,54 @@ export function App2 ({ children }) {
                             </h2>}
                             {step.id === 'getStarted' && <Button onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
                         </Heading>
-                        <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
-                            {step.id === 'welcome' && (
-                                <Timeout onComplete={enqueueNext} ignore={true} />
-                            )}
-                            {step.id === 'privateByDefault' && (
-                                <ComparisonTable />
-                            )}
-                            {step.id === 'makeDefaultSingle' && (
-                                <p>Make Default</p>
-                            )}
-                            {step.id === 'dockSingle' && (
-                                <p>Add to Dock / Taskbar</p>
-                            )}
-                            {step.id === 'importSingle' && (
-                                <p>Import</p>
-                            )}
-                            {step.id === 'duckPlayerSingle' && (
-                                <p>Duck Player</p>
-                            )}
-                            {step.id === 'customize' && (
-                                <p>Customize</p>
-                            )}
+
+                        <div className={styles.content} data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
+                            <div className={styles.core}>
+                                {step.id === 'welcome' && (
+                                    <Timeout onComplete={enqueueNext} ignore={true} />
+                                )}
+                                {step.id === 'privateByDefault' && (
+                                    <ComparisonTable />
+                                )}
+                                {step.id === 'makeDefaultSingle' && (
+                                    <p>Make Default</p>
+                                )}
+                                {step.id === 'dockSingle' && (
+                                    <p>Add to Dock / Taskbar</p>
+                                )}
+                                {step.id === 'importSingle' && (
+                                    <p>Import</p>
+                                )}
+                                {step.id === 'duckPlayerSingle' && (
+                                    <p>Duck Player</p>
+                                )}
+                                {step.id === 'customize' && (
+                                    <p>Customize</p>
+                                )}
+                            </div>
                             {step.id !== 'welcome' && step.id !== 'getStarted' && (
-                                <div>
-                                    <button onClick={enqueueNext}>Begin Exit...</button>
-                                    {exiting && <button onClick={advance}>Advance to {nextStep} ➡️</button>}
+                                <>
+                                <div className={styles.progress}>
+                                    {showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length}/>}
                                 </div>
+                                <div className={styles.spacer}></div>
+                                <div className={styles.skip}>
+                                    {(step.id === 'privateByDefault' || step.id === 'dockSingle' || step.id === 'importSingle') &&
+                                        <Button onClick={enqueueNext} variant='secondary'>{t('skipButton')}</Button> }
+                                </div>
+                                <div className={styles.accept}>
+                                    {step.id === 'privateByDefault' &&
+                                        <Button onClick={enqueueNext}>{t('makeDefaultButton')}</Button> }
+                                    {step.id === 'dockSingle' &&
+                                        <Button onClick={enqueueNext}>{t('keepInDockButton')}</Button> }
+                                    {step.id === 'importSingle' &&
+                                        <Button onClick={enqueueNext}>{t('importButton')}</Button> }
+                                    {step.id === 'duckPlayerSingle' &&
+                                        <Button onClick={enqueueNext}>{t('nextButton')}</Button> }
+                                    {step.id === 'customize' &&
+                                        <Button onClick={enqueueNext}>{t('startBrowsing')}</Button> }
+                                </div>
+                                </>
                             )}
                         </div>
                     </div>

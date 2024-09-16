@@ -7,21 +7,36 @@ import { stepDefinitions as defaultStepDefinitions } from './data'
 export class Settings {
     /**
      * @param {object} params
+     * @param {{name: ImportMeta['platform']}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
     constructor ({
+        platform = { name: 'macos' },
         order = DEFAULT_ORDER,
         stepDefinitions = defaultStepDefinitions,
         first = 'welcome',
         exclude = []
     } = {}) {
+        this.platform = platform
         this.order = order
         this.stepDefinitions = stepDefinitions
         this.first = first
         this.exclude = exclude
+    }
+
+    withPlatformName (name) {
+        /** @type {ImportMeta['platform'][]} */
+        const valid = ['windows', 'macos', 'ios', 'android']
+        if (valid.includes(/** @type {any} */(name))) {
+            return new Settings({
+                ...this,
+                platform: { name }
+            })
+        }
+        return this
     }
 
     /**
