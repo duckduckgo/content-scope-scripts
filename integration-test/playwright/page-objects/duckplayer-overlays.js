@@ -36,18 +36,6 @@ const userValues = {
 
 // Possible UI Settings
 const uiSettings = {
-    /** @type {import("../../../src/features/duck-player.js").UISettings} */
-    'default overlay copy': {
-        overlayCopy: 'default'
-    },
-    /** @type {import("../../../src/features/duck-player.js").UISettings} */
-    'overlay copy a1': {
-        overlayCopy: 'a1'
-    },
-    /** @type {import("../../../src/features/duck-player.js").UISettings} */
-    'overlay copy b1': {
-        overlayCopy: 'b1'
-    },
     'play in duck player': {
         playInDuckPlayer: true
     }
