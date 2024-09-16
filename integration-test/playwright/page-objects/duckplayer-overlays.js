@@ -190,9 +190,9 @@ export class DuckplayerOverlays {
 
     async overlayBlocksVideo () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByRole('link', { name: 'Watch in Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
         await this.page
-            .getByText('Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.')
+            .getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.')
             .waitFor({ timeout: 100 })
     }
 
@@ -205,7 +205,7 @@ export class DuckplayerOverlays {
 
         // this is added because 'getAttribute' does not auto-wait
         await expect(async () => {
-            const link = await this.page.getByRole('link', { name: 'Watch in Duck Player' }).getAttribute('href')
+            const link = await this.page.getByRole('link', { name: 'Turn On Duck Player' }).getAttribute('href')
             expect(link).toEqual('duck://player/' + videoID)
         }).toPass({ timeout: 5000 })
     }
@@ -612,7 +612,7 @@ export class DuckplayerOverlays {
         await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
 
         await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByRole('button', { name: 'Watch Here' }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByRole('button', { name: 'No Thanks' }).waitFor({ state: 'visible', timeout: 1000 })
 
         await this.page.getByLabel('Remember my choice').waitFor({ state: 'visible', timeout: 1000 })
     }
