@@ -1,6 +1,12 @@
+:global #app {
+    height: 100%;
+}
+
 .main {
     position: relative;
+    height: 100%;
 }
+
 .container {
     position: relative;
     width: calc(100% - 64px);
@@ -53,6 +59,12 @@
         transform: translateY(-100px);
         opacity: 0;
     }
+}
+
+.hiker {
+    position: absolute;
+    bottom: 0;
+    right: var(--sp-35);
 }
 
 /* New styles */

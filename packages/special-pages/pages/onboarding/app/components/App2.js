@@ -49,6 +49,12 @@ export function SpeechBubble ({ children }) {
     )
 }
 
+export function Hiker () {
+    return (
+        <img className={styles.hiker} src="assets/img/hiker.svg" alt="Image of hiker" />
+    )
+}
+
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
@@ -210,6 +216,9 @@ export function App2 ({ children }) {
                 </ErrorBoundary>
                 {children}
             </div>
+            {(step.id === 'welcome' || step.id === 'getStarted') && (
+                            <Hiker />
+                        )}
         </main>
     )
 }
