@@ -80,25 +80,11 @@ export function nl2br (text) {
  */
 
 /**
- *  @type {Record<import('../duck-player').UISettings['overlayCopy'], OverlayCopyTranslation>}
+ *  @type {Record<'default', OverlayCopyTranslation>}
  */
 export const overlayCopyVariants = {
     default: {
-        title: i18n.t('videoOverlayTitle'),
-        subtitle: html`<b>${i18n.t('playText')}</b> ${i18n.t('videoOverlaySubtitle')}`,
-        buttonOptOut: i18n.t('videoButtonOptOut'),
-        buttonOpen: i18n.t('videoButtonOpen'),
-        rememberLabel: i18n.t('rememberLabel')
-    },
-    a1: {
         title: i18n.t('videoOverlayTitle2'),
-        subtitle: i18n.t('videoOverlaySubtitle2'),
-        buttonOptOut: i18n.t('videoButtonOptOut2'),
-        buttonOpen: i18n.t('videoButtonOpen2'),
-        rememberLabel: i18n.t('rememberLabel')
-    },
-    b1: {
-        title: nl2br(i18n.t('videoOverlayTitle3')),
         subtitle: i18n.t('videoOverlaySubtitle2'),
         buttonOptOut: i18n.t('videoButtonOptOut2'),
         buttonOpen: i18n.t('videoButtonOpen2'),
