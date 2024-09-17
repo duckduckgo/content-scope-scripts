@@ -176,29 +176,35 @@ export function App2 ({ children }) {
                                 )}
                                 {step.id === 'importSingle' && (
                                     <PlainList>
-                                        <ListItem icon={'v3/bookmarks.svg'} title={t('bookmarksAndFavorites')}secondaryText={t('bookmarksAndFavorites_description')} />
-                                        <ListItem icon={'v3/key.svg'} title={t('passwords')}secondaryText={t('passwords_description')} />
+                                        <ListItem icon={'v3/bookmarks.svg'} title={t('bookmarksAndFavorites')} secondaryText={t('bookmarksAndFavorites_description')} />
+                                        <ListItem icon={'v3/key.svg'} title={t('passwords')} secondaryText={t('passwords_description')} />
                                     </PlainList>
                                 )}
                                 {step.id === 'duckPlayerSingle' && (
-                                    <BeforeAfter
-                                        onDone={() => {}}
-                                        btnBefore={t('beforeAfter_duckPlayer_show')}
-                                        btnAfter={t('beforeAfter_duckPlayer_hide')}
-                                        media={({ state }) => {
-                                            const animationState = (state === 'initial' || state === 'before') ? 'before' : 'after'
-                                            return <RiveAnimation
-                                                animation={onboardingAnimation}
-                                                state={animationState}
-                                                isDarkMode={isDarkMode}
-                                                artboard='Duck Player'
-                                                inputName='Duck Player?'
-                                                stateMachine='State Machine 2'
-                                            />}}
-                                        />
+                                    <div style={{ display: 'inline-block', width: '432px', height: '208px'}}>
+                                        <BeforeAfter
+                                            onDone={() => {}}
+                                            btnBefore={t('beforeAfter_duckPlayer_show')}
+                                            btnAfter={t('beforeAfter_duckPlayer_hide')}
+                                            media={({ state }) => {
+                                                const animationState = (state === 'initial' || state === 'before') ? 'before' : 'after'
+                                                return <RiveAnimation
+                                                    animation={onboardingAnimation}
+                                                    state={animationState}
+                                                    isDarkMode={isDarkMode}
+                                                    artboard='Duck Player'
+                                                    inputName='Duck Player?'
+                                                    stateMachine='State Machine 2'
+                                                />}}
+                                            />
+                                    </div>
                                 )}
                                 {step.id === 'customize' && (
-                                    <p>Customize</p>
+                                    <PlainList variant='bordered'>
+                                        <ListItem icon={'v3/favorite.svg'} title={t('bookmarksBar')}/>
+                                        <ListItem icon={'v3/session-restore.svg'} title={t('restoreSession')}/>
+                                        <ListItem icon={'v3/home.svg'} title={t('addHomeShortcut')}/>
+                                    </PlainList>
                                 )}
                             </div>
                             {step.id !== 'welcome' && step.id !== 'getStarted' && (

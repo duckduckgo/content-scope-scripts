@@ -21,9 +21,12 @@ export const availableIcons = /** @type {const} */ ([
     'v3/ads.svg',
     'v3/bookmarks.svg',
     'v3/cookie.svg',
+    'v3/favorite.svg',
     'v3/fire.svg',
+    'v3/home.svg',
     'v3/key.svg',
     'v3/search.svg',
+    'v3/session-restore.svg',
     'v3/shield.svg',
     'v3/video-player.svg'
 ])

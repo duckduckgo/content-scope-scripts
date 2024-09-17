@@ -336,5 +336,17 @@
   "passwords_description": {
     "title": "On-device encryption keeps your data secure.",
     "note": "TODO."
+  },
+  "bookmarksBar": {
+    "title": "Show a bookmarks bar with your favorite sites",
+    "note": "TODO."
+  },
+  "restoreSession": {
+    "title": "Restore previous websites on startup",
+    "note": "TODO."
+  },
+  "addHomeShortcut": {
+    "title": "Add a shortcut to your homepage in the toolbar",
+    "note": "TODO."
   }
 }

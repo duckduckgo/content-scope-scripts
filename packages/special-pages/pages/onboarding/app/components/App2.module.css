@@ -183,7 +183,7 @@
     display: grid;
     gap: var(--sp-8) var(--sp-2);
     grid-template-rows: auto var(--sp-9);
-    grid-template-columns: var(--sp-20) auto min-content min-content;
+    grid-template-columns: var(--sp-20) 1fr min-content min-content;
     grid-template-areas:
         "core core core core"
         "progress spacer skip accept";
