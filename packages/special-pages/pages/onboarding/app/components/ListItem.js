@@ -13,15 +13,19 @@ export const availableIcons = /** @type {const} */ ([
     'dock.png',
     'duckplayer.png',
     'home.png',
+    'import.png',
     'search.png',
     'session-restore.png',
     'shield.png',
-    'import.png',
     'switch.png',
-    'shield-green.svg',
-    'fire.svg',
-    'fewer-ads.svg',
-    'video-player.svg'
+    'v3/ads.svg',
+    'v3/bookmarks.svg',
+    'v3/cookie.svg',
+    'v3/fire.svg',
+    'v3/key.svg',
+    'v3/search.svg',
+    'v3/shield.svg',
+    'v3/video-player.svg'
 ])
 
 const prefix = 'assets/img/steps/'

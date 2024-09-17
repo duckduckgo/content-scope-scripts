@@ -38,6 +38,15 @@
     }
 }
 
+.plainList {
+    border-radius: var(--sp-3);
+    display: grid;
+    gap: var(--sp-8);
+    margin: 0;
+    padding: var(--sp-7) var(--sp-14);
+    width: 100%;
+}
+
 .summaryList {
     display: flex;
     flex-direction: column;

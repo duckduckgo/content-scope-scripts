@@ -13,8 +13,14 @@ import { Button } from './Buttons'
 import { Typed } from './Typed'
 import { ComparisonTable } from './ComparisonTable'
 import { Progress } from './Progress'
+import { PlainList } from './List'
+import { ListItem } from './ListItem'
+import pinningAnimation from '../animations/taskbar_pinning.riv'
+import onboardingAnimation from '../animations/Onboarding.riv'
 
 import styles from './App2.module.css'
+import { RiveAnimation } from './RiveAnimation'
+import { BeforeAfter } from './BeforeAfter'
 
 /**
  * @param {object} props
@@ -60,7 +66,7 @@ export function Hiker () {
  * @param {import("preact").ComponentChild} props.children
  */
 export function App2 ({ children }) {
-    const { debugState, isReducedMotion } = useEnv()
+    const { debugState, isReducedMotion, isDarkMode } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTypedTranslation()
@@ -81,7 +87,6 @@ export function App2 ({ children }) {
 
     const advance = () => dispatch({ kind: 'advance' })
     const titleDone = () => dispatch({ kind: 'title-complete' })
-    const nextTitle = () => dispatch({ kind: 'next-title' })
     const dismiss = () => dispatch({ kind: 'dismiss' })
     const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
 
@@ -143,24 +148,19 @@ export function App2 ({ children }) {
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
                     <div className={cn(styles.panel, { [styles.boxed]: step.id !== 'welcome' && step.id !== 'getStarted'})}>
                         <Heading isSpeechBubble={step.id !== 'welcome'}>
-                            {pageTitle && <h1>
+                            {pageTitle && <h1 className={styles.title}>
                                 <Typed
-                                    onComplete={pageSubTitle ? nextTitle : titleDone}
+                                    onComplete={titleDone}
                                     text={pageTitle}
                                     data-current={activeStep}
                                     data-exiting={pageTitle !== nextPageTitle && String(exiting)}
                                 />
                             </h1>}
-                            {pageSubTitle && <h2>
-                                <Typed
-                                    onComplete={titleDone}
-                                    text={pageSubTitle}
-                                    paused={activeTitle === 0}
-                                    data-current={activeStep}
-                                    data-exiting={pageTitle !== nextPageTitle && String(exiting)}
-                                />
-                            </h2>}
-                            {step.id === 'getStarted' && <Button onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
+                            {pageSubTitle && <h2 className={cn({
+                                    [styles.subTitle]: true,
+                                    [styles.hidden]: !activeStepVisible,
+                                })}>{pageSubTitle}</h2>}
+                            {step.id === 'getStarted' && activeStepVisible && <Button size="large" onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
                         </Heading>
 
                         <div className={styles.content} data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
@@ -171,17 +171,31 @@ export function App2 ({ children }) {
                                 {step.id === 'privateByDefault' && (
                                     <ComparisonTable />
                                 )}
-                                {step.id === 'makeDefaultSingle' && (
-                                    <p>Make Default</p>
-                                )}
                                 {step.id === 'dockSingle' && (
-                                    <p>Add to Dock / Taskbar</p>
+                                    <RiveAnimation animation={pinningAnimation} state="before" isDarkMode={isDarkMode}/>
                                 )}
                                 {step.id === 'importSingle' && (
-                                    <p>Import</p>
+                                    <PlainList>
+                                        <ListItem icon={'v3/bookmarks.svg'} title={t('bookmarksAndFavorites')}secondaryText={t('bookmarksAndFavorites_description')} />
+                                        <ListItem icon={'v3/key.svg'} title={t('passwords')}secondaryText={t('passwords_description')} />
+                                    </PlainList>
                                 )}
                                 {step.id === 'duckPlayerSingle' && (
-                                    <p>Duck Player</p>
+                                    <BeforeAfter
+                                        onDone={() => {}}
+                                        btnBefore={t('beforeAfter_duckPlayer_show')}
+                                        btnAfter={t('beforeAfter_duckPlayer_hide')}
+                                        media={({ state }) => {
+                                            const animationState = (state === 'initial' || state === 'before') ? 'before' : 'after'
+                                            return <RiveAnimation
+                                                animation={onboardingAnimation}
+                                                state={animationState}
+                                                isDarkMode={isDarkMode}
+                                                artboard='Duck Player'
+                                                inputName='Duck Player?'
+                                                stateMachine='State Machine 2'
+                                            />}}
+                                        />
                                 )}
                                 {step.id === 'customize' && (
                                     <p>Customize</p>
@@ -190,24 +204,24 @@ export function App2 ({ children }) {
                             {step.id !== 'welcome' && step.id !== 'getStarted' && (
                                 <>
                                 <div className={styles.progress}>
-                                    {showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length}/>}
+                                    {showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length} variant='single-line'/>}
                                 </div>
                                 <div className={styles.spacer}></div>
                                 <div className={styles.skip}>
                                     {(step.id === 'privateByDefault' || step.id === 'dockSingle' || step.id === 'importSingle') &&
-                                        <Button onClick={enqueueNext} variant='secondary'>{t('skipButton')}</Button> }
+                                        <Button size="large" onClick={enqueueNext} variant='secondary'>{t('skipButton')}</Button> }
                                 </div>
                                 <div className={styles.accept}>
                                     {step.id === 'privateByDefault' &&
-                                        <Button onClick={enqueueNext}>{t('makeDefaultButton')}</Button> }
+                                        <Button size="large" onClick={enqueueNext}>{t('makeDefaultButton')}</Button> }
                                     {step.id === 'dockSingle' &&
-                                        <Button onClick={enqueueNext}>{t('keepInDockButton')}</Button> }
+                                        <Button size="large" onClick={enqueueNext}>{t('keepInDockButton')}</Button> }
                                     {step.id === 'importSingle' &&
-                                        <Button onClick={enqueueNext}>{t('importButton')}</Button> }
+                                        <Button size="large" onClick={enqueueNext}>{t('importButton')}</Button> }
                                     {step.id === 'duckPlayerSingle' &&
-                                        <Button onClick={enqueueNext}>{t('nextButton')}</Button> }
+                                        <Button size="large" onClick={enqueueNext}>{t('nextButton')}</Button> }
                                     {step.id === 'customize' &&
-                                        <Button onClick={enqueueNext}>{t('startBrowsing')}</Button> }
+                                        <Button size="large" onClick={enqueueNext}>{t('startBrowsing')}</Button> }
                                 </div>
                                 </>
                             )}
@@ -216,9 +230,7 @@ export function App2 ({ children }) {
                 </ErrorBoundary>
                 {children}
             </div>
-            {(step.id === 'welcome' || step.id === 'getStarted') && (
-                            <Hiker />
-                        )}
+            {(step.id === 'welcome' || step.id === 'getStarted') && <Hiker />}
         </main>
     )
 }
@@ -228,7 +240,7 @@ function Debug (props) {
     const debugData = { order, step, exiting, activeStep, nextStep }
 
     return (
-        <div style={{ position: 'absolute', top: 0, right: 0, overflowY: 'scroll', height: '100vh' }}>
+        <div style={{ position: 'absolute', top: 0, right: 0, overflowY: 'scroll', height: '100vh', zIndex: 10000 }}>
             <pre>
                 <code>{JSON.stringify(debugData, null, 2)}</code>
             </pre>

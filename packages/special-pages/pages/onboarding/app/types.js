@@ -120,7 +120,6 @@ export const HIGHLIGHTS_ORDER = [
 /**
  * @typedef {AdvanceEvent
  *   | TitleCompleteEvent
- *   | NextTitleEvent
  *   | NextEvent
  *   | UpdateSystemValueEvent
  *   | ExecCompleteEvent
@@ -138,7 +137,6 @@ export const HIGHLIGHTS_ORDER = [
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
- * @typedef {{ kind: "next-title"; }} NextTitleEvent *
  */
 
 /** @type {ImportMeta['injectName'][]} */

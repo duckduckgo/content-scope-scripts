@@ -52,6 +52,7 @@ export function Components () {
                     <Header><Typed text={t('customize_title')}/></Header>
                     <Header><Typed text={t('summary_title')}/></Header>
                     <Progress current={1} total={4}/>
+                    <Progress current={2} total={5} variant='single-line'/>
                     <div>
                         <CleanBrowsing onNextPage={console.log}/>
                     </div>

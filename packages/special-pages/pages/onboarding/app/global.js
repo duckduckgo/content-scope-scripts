@@ -37,12 +37,6 @@ export function reducer (state, action) {
                 activeStepVisible: true
             }
         }
-        case 'next-title': {
-            return {
-                ...state,
-                activeTitle: state.activeTitle + 1
-            }
-        }
         case 'advance': {
             const currentPageIndex = state.order.indexOf(state.activeStep)
             const nextPageIndex = currentPageIndex + 1

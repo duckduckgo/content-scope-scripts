@@ -302,7 +302,7 @@
     "note": "TODO."
   },
   "importButton": {
-    "title": "Keep in Dock",
+    "title": "Import",
     "note": "TODO."
   },
   "duckPlayer_highlights_title": {
@@ -319,6 +319,22 @@
   },
   "customize_highlights_subtitle": {
     "title": "Set things up just the way you want.",
+    "note": "TODO."
+  },
+  "bookmarksAndFavorites": {
+    "title": "Bookmarks & Favorites",
+    "note": "TODO."
+  },
+  "bookmarksAndFavorites_description": {
+    "title": "Start off with your go-to sites in easy reach.",
+    "note": "TODO."
+  },
+  "passwords": {
+    "title": "Passwords",
+    "note": "TODO."
+  },
+  "passwords_description": {
+    "title": "On-device encryption keeps your data secure.",
     "note": "TODO."
   }
 }

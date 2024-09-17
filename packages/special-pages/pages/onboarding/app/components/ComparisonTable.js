@@ -16,32 +16,32 @@ const supportStatus = {
 /** @type {TableData[]} */
 const tableData = [
     {
-        icon: 'search.png',
+        icon: 'v3/search.svg',
         title: 'Search privately by default',
         values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'shield-green.svg',
+        icon: 'v3/shield.svg',
         title: 'Block 3rd party trackers',
         values: [supportStatus.NOT_SUPPORTED, supportStatus.PARTIAL_SUPPORT, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'cookie.png',
+        icon: 'v3/cookie.svg',
         title: 'Block cookie requests & popups',
         values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'fewer-ads.svg',
+        icon: 'v3/ads.svg',
         title: 'Block targeted ads',
         values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'fire.svg',
+        icon: 'v3/fire.svg',
         title: 'Erase browsing data swiftly',
         values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'video-player.svg',
+        icon: 'v3/video-player.svg',
         title: 'Watch YouTube more privately',
         values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     }

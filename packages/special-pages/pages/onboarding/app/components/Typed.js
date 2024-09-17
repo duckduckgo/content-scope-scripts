@@ -13,9 +13,8 @@ import { GlobalContext } from '../global'
  * @param {import("preact").ComponentChild} [props.children=null] - Child components to be rendered.
  * @param {(() => void) | null} [props.onComplete=null] - A callback function to be called when the typing is complete.
  * @param {number} [props.delay=20] - The delay (in milliseconds) between each character being typed.
- * @param {boolean} [props.paused=false] - Pauses typing
  */
-export function Typed ({ text, children = null, onComplete = null, delay = 20, paused = false, ...rest }) {
+export function Typed ({ text, children = null, onComplete = null, delay = 20, ...rest }) {
     const globalState = useContext(GlobalContext)
     const { activeStep } = globalState
     const pre = useRef(/** @type {string|undefined} */(undefined))
@@ -33,12 +32,11 @@ export function Typed ({ text, children = null, onComplete = null, delay = 20, p
             text={text}
             onComplete={onComplete}
             delay={delay}
-            paused={paused}
             {...rest}>{children}</TypedInner>
     )
 }
 
-function TypedInner ({ text, onComplete, delay, children, paused, ...rest }) {
+function TypedInner ({ text, onComplete, delay, children, ...rest }) {
     const { isReducedMotion } = useEnv()
     const [screenWidth, setScreenWidth] = useState(0)
     const [coords, setCoords] = useState({ left: 0, width: 0 })
@@ -83,7 +81,7 @@ function TypedInner ({ text, onComplete, delay, children, paused, ...rest }) {
             enabled = false
         }, { signal: controller.signal })
 
-        if (currentIndex < text.length && !paused) {
+        if (currentIndex < text.length) {
             const timeout = setTimeout(
                 () => {
                     if (!enabled) return
@@ -100,7 +98,7 @@ function TypedInner ({ text, onComplete, delay, children, paused, ...rest }) {
             localOnComplete()
             return () => controller.abort()
         }
-    }, [currentIndex, delay, text, paused])
+    }, [currentIndex, delay, text])
 
     function updatePlacement () {
         const actualCurrent = /** @type {HTMLSpanElement} */(actual.current)
