@@ -5,7 +5,7 @@ customElements.define(DDGVideoOverlayMobile.CUSTOM_TAG_NAME, DDGVideoOverlayMobi
 
 const elem = /** @type {DDGVideoOverlayMobile} */(document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME))
 elem.testMode = true
-elem.text = overlayCopyVariants.a1
+elem.text = overlayCopyVariants.default
 
 elem.addEventListener('opt-in', (/** @type {CustomEvent} */e) => {
     console.log('did opt in?', e.detail)

@@ -48,7 +48,6 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
 
 /**
  * @typedef UISettings - UI-specific settings
- * @property {'default'|'a1'|'b1'} overlayCopy - Overlay copy experiment variant
  * @property {boolean} [allowFirstVideo] - should the first video be allowed to load/play?
  * @property {boolean} [playInDuckPlayer] - Forces next video to be played in Duck Player regardless of user setting
  */

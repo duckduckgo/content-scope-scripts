@@ -243,22 +243,6 @@ export class Environment {
         return false
     }
 
-    /**
-     * @returns {import("../duck-player.js").UISettings['overlayCopy'] | null}
-     */
-    getOverlayCopyOverride () {
-        if (this.isIntegrationMode()) {
-            const allowedOverlayCopyOverrides = ['default', 'a1', 'b1']
-
-            const url = new URLSearchParams(window.location.href)
-            const override = url.get('overlayCopy')
-            if (override && allowedOverlayCopyOverrides.includes(override)) {
-                return /** @type {import("../duck-player.js").UISettings['overlayCopy']} */ (override)
-            }
-        }
-        return null
-    }
-
     isIntegrationMode () {
         return this.debug === true && this.injectName === 'integration'
     }
