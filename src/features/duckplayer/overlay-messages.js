@@ -33,9 +33,7 @@ export class DuckPlayerOverlayMessages {
                     overlayInteracted: false,
                     privatePlayerMode: { alwaysAsk: {} }
                 },
-                ui: {
-                    overlayCopy: this.environment.getOverlayCopyOverride() || 'default'
-                }
+                ui: {}
             })
         }
         return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)

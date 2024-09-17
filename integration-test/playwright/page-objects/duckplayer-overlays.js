@@ -36,18 +36,6 @@ const userValues = {
 
 // Possible UI Settings
 const uiSettings = {
-    /** @type {import("../../../src/features/duck-player.js").UISettings} */
-    'default overlay copy': {
-        overlayCopy: 'default'
-    },
-    /** @type {import("../../../src/features/duck-player.js").UISettings} */
-    'overlay copy a1': {
-        overlayCopy: 'a1'
-    },
-    /** @type {import("../../../src/features/duck-player.js").UISettings} */
-    'overlay copy b1': {
-        overlayCopy: 'b1'
-    },
     'play in duck player': {
         playInDuckPlayer: true
     }
@@ -202,9 +190,9 @@ export class DuckplayerOverlays {
 
     async overlayBlocksVideo () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByRole('link', { name: 'Watch in Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
+        await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
         await this.page
-            .getByText('Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.')
+            .getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.')
             .waitFor({ timeout: 100 })
     }
 
@@ -217,7 +205,7 @@ export class DuckplayerOverlays {
 
         // this is added because 'getAttribute' does not auto-wait
         await expect(async () => {
-            const link = await this.page.getByRole('link', { name: 'Watch in Duck Player' }).getAttribute('href')
+            const link = await this.page.getByRole('link', { name: 'Turn On Duck Player' }).getAttribute('href')
             expect(link).toEqual('duck://player/' + videoID)
         }).toPass({ timeout: 5000 })
     }
@@ -405,8 +393,8 @@ export class DuckplayerOverlays {
         // if we get here, the element was absent
     }
 
-    async watchInDuckPlayer () {
-        const action = () => this.page.getByRole('link', { name: 'Watch in Duck Player' }).click()
+    async turnOnDuckPlayer () {
+        const action = () => this.page.getByRole('link', { name: 'Turn On Duck Player' }).click()
 
         await this.build.switch({
             'apple-isolated': async () => {
@@ -428,8 +416,8 @@ export class DuckplayerOverlays {
         })
     }
 
-    async watchHere () {
-        await this.page.getByText('Watch Here').click()
+    async noThanks () {
+        await this.page.getByText('No Thanks').click()
     }
 
     async rememberMyChoice () {
@@ -620,35 +608,7 @@ export class DuckplayerOverlays {
      */
     async overlayCopyIsDefault () {
         await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByText('Tired of targeted YouTube ads and recommendations?', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByText('Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
-
-        await this.page.getByRole('link', { name: 'Watch in Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByRole('button', { name: 'Watch Here' }).waitFor({ state: 'visible', timeout: 1000 })
-
-        await this.page.getByLabel('Remember my choice').waitFor({ state: 'visible', timeout: 1000 })
-    }
-
-    /**
-     * Checks for presence of overlay copy A1 experiment
-     */
-    async overlayCopyIsA1 () {
-        await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
         await this.page.getByText('Turn on Duck Player to watch without targeted ads', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
-
-        await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByRole('button', { name: 'No Thanks' }).waitFor({ state: 'visible', timeout: 1000 })
-
-        await this.page.getByLabel('Remember my choice').waitFor({ state: 'visible', timeout: 1000 })
-    }
-
-    /**
-     * Checks for presence of overlay copy B1 experiment
-     */
-    async overlayCopyIsB1 () {
-        await this.page.locator('ddg-video-overlay').waitFor({ state: 'visible', timeout: 1000 })
-        await this.page.getByText('Drowning in ads on YouTube? Turn on Duck Player.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
         await this.page.getByText('What you watch in DuckDuckGo won’t influence your recommendations on YouTube.', { exact: true }).waitFor({ state: 'visible', timeout: 1000 })
 
         await this.page.getByRole('link', { name: 'Turn On Duck Player' }).waitFor({ state: 'visible', timeout: 1000 })
