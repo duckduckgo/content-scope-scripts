@@ -29,8 +29,30 @@ export interface WebCompatSettings {
       undefined: string[];
     };
   };
-  modifyLocalStorage?: State;
+  modifyLocalStorage?: {
+    state: State;
+    changes: {}[];
+  };
+  notification?: {
+    state: State;
+  };
+  permissions?: {
+    state: State;
+    supportedPermissions: {};
+  };
+  mediaSession?: State;
+  presentation?: State;
+  webShare?: State;
+  viewportWidth?:
+    | State
+    | {
+        state: State;
+        forcedDesktopValue?: string;
+        forcedMobileValue?: string;
+      };
+  screenLock?: State;
   domains?: Domains;
+  plainTextViewPort?: State;
 }
 export interface Domain {
   /**
