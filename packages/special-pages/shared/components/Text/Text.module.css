@@ -1,5 +1,5 @@
 a {
-    color: (--ddg-color-primary)
+    color: var(--ddg-color-primary)
 }
 
 .title-1 {
