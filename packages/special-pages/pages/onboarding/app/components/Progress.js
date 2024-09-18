@@ -10,7 +10,7 @@ import cn from 'classnames'
  * @param {number} props.current - The current value of the progress
  * @param {'default' | 'single-line'} [props.variant="default"] - Style variant
  */
-export function Progress ({ total, current, variant='default' }) {
+export function Progress ({ total, current, variant = 'default' }) {
     const classes = cn({
         [styles.progressContainer]: true,
         [styles.singleLine]: variant === 'single-line'

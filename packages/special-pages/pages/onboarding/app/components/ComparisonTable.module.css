@@ -2,25 +2,43 @@
     border-spacing: 0;
     padding: 0 var(--sp-14);
     width: 100%;
+}
 
-    th[scope="row"] {
-        padding: var(--sp-3) var(--sp-3) var(--sp-3) 0;
-    }
+.rowHeading {
+    padding: var(--sp-3) var(--sp-3) var(--sp-3) 0;
+}
 
-    td {
-        text-align: center;
-    }
+.rowCell {
+    text-align: center;
+}
 
-    tr:not(:last-child) {
-        & th[scope="row"],
-        & td {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+.row:not(:last-child) {
+    & .rowHeading,
+    & .rowCell {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.09);
 
-            @media (prefers-color-scheme: dark) {
-                border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-            }
+        @media (prefers-color-scheme: dark) {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
     }
+}
+
+.rowHeadingContents {
+    align-items: center;
+    display: flex;
+    gap: var(--sp-4);
+    text-align: left;
+}
+
+.rowIcon {
+    height: var(--sp-6);
+    width: var(--sp-6);
+}
+
+.rowText {
+    font-size: calc(14 * var(--px-in-rem));
+    font-weight: 600;
+    line-height: normal;
 }
 
 .status {
@@ -61,7 +79,7 @@
     background-image: url('../../src/assets/img/icons/safari.svg');
 }
 
-.browserIconDDG {
+.browserIconDuckDuckGo {
     background-color: #de5833;
     background-image: url('../../src/assets/img/icons/ddg.svg');
 }

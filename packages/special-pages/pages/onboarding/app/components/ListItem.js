@@ -18,17 +18,11 @@ export const availableIcons = /** @type {const} */ ([
     'session-restore.png',
     'shield.png',
     'switch.png',
-    'v3/ads.svg',
     'v3/bookmarks.svg',
-    'v3/cookie.svg',
     'v3/favorite.svg',
-    'v3/fire.svg',
     'v3/home.svg',
     'v3/key.svg',
-    'v3/search.svg',
-    'v3/session-restore.svg',
-    'v3/shield.svg',
-    'v3/video-player.svg'
+    'v3/session-restore.svg'
 ])
 
 const prefix = 'assets/img/steps/'
@@ -36,7 +30,6 @@ const prefix = 'assets/img/steps/'
 /**
  * ListItem component is used to display an item in a list.
  * @param {Object} props - The properties for the ListItem component.
- * @param {import('preact').JSX.ElementType} [props.as = 'li'] - The element tag in which to wrap the ListItem.
  * @param {availableIcons[number]} props.icon - The icon for the ListItem.
  * @param {import("preact").ComponentChild} [props.inline] - optional inline children
  * @param {number} [props.index=0] - optional inline children
@@ -45,10 +38,10 @@ const prefix = 'assets/img/steps/'
  * @param {import("preact").ComponentChild} [props.secondaryText] - The text for the secondary line
  * @param {boolean} [props.animate=true] - The text for the secondary line
  */
-export function ListItem ({ animate = false, as: Comp = 'li', ...props }) {
+export function ListItem ({ animate = false, ...props }) {
     const path = prefix + props.icon
     return (
-        <Comp className={cn(styles.step, animate ? styles.slideIn : undefined)} data-testid="ListItem" data-index={String(props.index)}>
+        <li className={cn(styles.step, animate ? styles.slideIn : undefined)} data-testid="ListItem" data-index={String(props.index)}>
             <div className={cn(styles.inner)}>
                 <div className={styles.icon} style={`background-image: url(${path});`}></div>
                 <div className={styles.contentWrapper}>
@@ -64,7 +57,7 @@ export function ListItem ({ animate = false, as: Comp = 'li', ...props }) {
                 </div>
             </div>
             <div className={styles.children}>{props.children}</div>
-        </Comp>
+        </li>
     )
 }
 

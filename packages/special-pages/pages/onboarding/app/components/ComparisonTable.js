@@ -1,6 +1,5 @@
 import { h } from 'preact'
 import cn from 'classnames'
-import { ListItem, availableIcons } from './ListItem'
 import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
 import styles from './ComparisonTable.module.css'
@@ -12,73 +11,118 @@ const supportStatus = {
     FULL_SUPPORT: 'fullSupport'
 }
 
-/** @typedef {{ icon: availableIcons[number], title: string, values: supportStatus[] }} TableData */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const availableIcons = [
+    'ads.svg',
+    'cookie.svg',
+    'fire.svg',
+    'search.svg',
+    'shield.svg',
+    'video-player.svg'
+]
+
+const prefix = 'assets/img/steps/v3/'
+
+/** @typedef {{ icon: availableIcons[number], title: string, statuses: supportStatus[] }} TableData */
 /** @type {TableData[]} */
 const tableData = [
     {
-        icon: 'v3/search.svg',
+        icon: 'search.svg',
         title: 'Search privately by default',
-        values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'v3/shield.svg',
+        icon: 'shield.svg',
         title: 'Block 3rd party trackers',
-        values: [supportStatus.NOT_SUPPORTED, supportStatus.PARTIAL_SUPPORT, supportStatus.FULL_SUPPORT]
+        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.PARTIAL_SUPPORT, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'v3/cookie.svg',
+        icon: 'cookie.svg',
         title: 'Block cookie requests & popups',
-        values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'v3/ads.svg',
+        icon: 'ads.svg',
         title: 'Block targeted ads',
-        values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'v3/fire.svg',
+        icon: 'fire.svg',
         title: 'Erase browsing data swiftly',
-        values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     },
     {
-        icon: 'v3/video-player.svg',
+        icon: 'video-player.svg',
         title: 'Watch YouTube more privately',
-        values: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
     }
 ]
 
 /**
  * @param {object} props
- * @param {availableIcons[number]} props.icon
  * @param {string} props.title
- * @param {supportStatus[]} props.values
  */
-export function ComparisonTableRow({ icon, title, values }) {
-    const { injectName: platform } = useEnv()
-    const [chromeStatus, safariStatus, ddgStatus] = values
+export function ComparisonTableColumnHeading ({ title }) {
+    const className = `browserIcon${title}`
 
     return (
-        <tr>
-            <th scope="row">
-                <ListItem as="div" icon={icon} title={title} />
-            </th>
-            { platform === 'windows' && <td>
-                <span className={cn(styles.status, styles[chromeStatus])} aria-label="TODO"></span>
-            </td> }
-            { platform === 'apple' || platform === 'integration' && <td>
-                <span className={cn(styles.status, styles[safariStatus])} aria-label="TODO"></span>
-            </td> }
-            <td>
-                <span className={cn(styles.status, styles[ddgStatus])} aria-label="TODO"></span>
-            </td>
-        </tr>
+        <th>
+            <span className={cn(styles.browserIcon, styles[className])} aria-label={title}></span>
+        </th>
     )
 }
 
 /**
  * @param {object} props
+ * @param {availableIcons[number]} props.icon
+ * @param {string} props.title
  */
-export function ComparisonTable({}) {
+export function ComparisonTableRowHeading ({ icon, title }) {
+    const path = prefix + icon
+
+    return (
+        <th scope="row" className={styles.rowHeading}>
+            <div className={styles.rowHeadingContents}>
+                <img className={styles.rowIcon} src={path} aria-hidden="true" />
+                {title}
+            </div>
+        </th>
+    )
+}
+
+/**
+ * @param {object} props
+ * @param {supportStatus} props.status
+ */
+export function ComparisonTableCell ({ status }) {
+    return (
+        <td className={styles.rowCell}>
+            <span className={cn(styles.status, styles[status])} aria-label="TODO"></span>
+        </td>
+    )
+}
+
+/**
+ * @param {object} props
+ * @param {availableIcons[number]} props.icon
+ * @param {string} props.title
+ * @param {supportStatus[]} props.statuses
+ * @param {ReturnType<useEnv>['injectName']} props.platform
+ */
+export function ComparisonTableRow ({ icon, title, statuses, platform }) {
+    const [chromeStatus, safariStatus, ddgStatus] = statuses
+
+    return (
+        <tr className={styles.row}>
+            <ComparisonTableRowHeading icon={icon} title={title} />
+            { platform === 'windows' && <ComparisonTableCell status={chromeStatus} /> }
+            { (platform === 'apple' || platform === 'integration') && <ComparisonTableCell status={safariStatus} /> }
+            <ComparisonTableCell status={ddgStatus} />
+        </tr>
+    )
+}
+
+export function ComparisonTable () {
     const { injectName: platform } = useEnv()
 
     return (
@@ -87,21 +131,14 @@ export function ComparisonTable({}) {
             <thead>
                 <tr>
                     <th></th>
-                    { platform === 'windows' && <th>
-                        <span className={cn(styles.browserIcon, styles.browserIconChrome)} aria-label="Chrome"></span>
-                    </th> }
-                    { platform === 'apple' || platform === 'integration' && <th>
-                        <span className={cn(styles.browserIcon, styles.browserIconSafari)} aria-label="Safari"></span>
-                    </th> }
-                    <th>
-                        <span className={cn(styles.browserIcon, styles.browserIconDDG)} aria-label="DuckDuckGo"></span>
-                    </th>
+                    { platform === 'windows' && <ComparisonTableColumnHeading title="Chrome" /> }
+                    { (platform === 'apple' || platform === 'integration') && <ComparisonTableColumnHeading title="Safari" /> }
+                    <ComparisonTableColumnHeading title="DuckDuckGo" />
                 </tr>
             </thead>
             <tbody>
-                {tableData.map(data => <ComparisonTableRow {...data} />)}
+                {tableData.map(data => <ComparisonTableRow {...data} platform={platform} />)}
             </tbody>
         </table>
     )
-
 }

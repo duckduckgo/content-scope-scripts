@@ -146,7 +146,7 @@ export function App2 ({ children }) {
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} >
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
-                    <div className={cn(styles.panel, { [styles.boxed]: step.id !== 'welcome' && step.id !== 'getStarted'})}>
+                    <div className={cn(styles.panel, { [styles.boxed]: step.id !== 'welcome' && step.id !== 'getStarted' })}>
                         <Heading isSpeechBubble={step.id !== 'welcome'}>
                             {pageTitle && <h1 className={styles.title}>
                                 <Typed
@@ -157,9 +157,9 @@ export function App2 ({ children }) {
                                 />
                             </h1>}
                             {pageSubTitle && <h2 className={cn({
-                                    [styles.subTitle]: true,
-                                    [styles.hidden]: !activeStepVisible,
-                                })}>{pageSubTitle}</h2>}
+                                [styles.subTitle]: true,
+                                [styles.hidden]: !activeStepVisible
+                            })}>{pageSubTitle}</h2>}
                             {step.id === 'getStarted' && activeStepVisible && <Button size="large" onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
                         </Heading>
 
@@ -181,7 +181,7 @@ export function App2 ({ children }) {
                                     </PlainList>
                                 )}
                                 {step.id === 'duckPlayerSingle' && (
-                                    <div style={{ display: 'inline-block', width: '432px', height: '208px'}}>
+                                    <div style={{ display: 'inline-block', width: '432px', height: '208px' }}>
                                         <BeforeAfter
                                             onDone={() => {}}
                                             btnBefore={t('beforeAfter_duckPlayer_show')}
@@ -195,8 +195,9 @@ export function App2 ({ children }) {
                                                     artboard='Duck Player'
                                                     inputName='Duck Player?'
                                                     stateMachine='State Machine 2'
-                                                />}}
-                                            />
+                                                />
+                                            }}
+                                        />
                                     </div>
                                 )}
                                 {step.id === 'customize' && (
@@ -209,26 +210,26 @@ export function App2 ({ children }) {
                             </div>
                             {step.id !== 'welcome' && step.id !== 'getStarted' && (
                                 <>
-                                <div className={styles.progress}>
-                                    {showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length} variant='single-line'/>}
-                                </div>
-                                <div className={styles.spacer}></div>
-                                <div className={styles.skip}>
-                                    {(step.id === 'privateByDefault' || step.id === 'dockSingle' || step.id === 'importSingle') &&
+                                    <div className={styles.progress}>
+                                        {showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length} variant='single-line'/>}
+                                    </div>
+                                    <div className={styles.spacer}></div>
+                                    <div className={styles.skip}>
+                                        {(step.id === 'privateByDefault' || step.id === 'dockSingle' || step.id === 'importSingle') &&
                                         <Button size="large" onClick={enqueueNext} variant='secondary'>{t('skipButton')}</Button> }
-                                </div>
-                                <div className={styles.accept}>
-                                    {step.id === 'privateByDefault' &&
+                                    </div>
+                                    <div className={styles.accept}>
+                                        {step.id === 'privateByDefault' &&
                                         <Button size="large" onClick={enqueueNext}>{t('makeDefaultButton')}</Button> }
-                                    {step.id === 'dockSingle' &&
+                                        {step.id === 'dockSingle' &&
                                         <Button size="large" onClick={enqueueNext}>{t('keepInDockButton')}</Button> }
-                                    {step.id === 'importSingle' &&
+                                        {step.id === 'importSingle' &&
                                         <Button size="large" onClick={enqueueNext}>{t('importButton')}</Button> }
-                                    {step.id === 'duckPlayerSingle' &&
+                                        {step.id === 'duckPlayerSingle' &&
                                         <Button size="large" onClick={enqueueNext}>{t('nextButton')}</Button> }
-                                    {step.id === 'customize' &&
+                                        {step.id === 'customize' &&
                                         <Button size="large" onClick={enqueueNext}>{t('startBrowsing')}</Button> }
-                                </div>
+                                    </div>
                                 </>
                             )}
                         </div>

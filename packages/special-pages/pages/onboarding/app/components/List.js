@@ -27,7 +27,7 @@ export function List ({ animate = false, children }) {
  * @param {'default'|'bordered'} [props.variant='default'] - Whether to show a border between list items
  * @param {import("preact").ComponentChild} props.children - List children
  */
-export function PlainList({ children, variant }) {
+export function PlainList ({ children, variant }) {
     const classes = cn({
         [styles.plainList]: true,
         [styles.borderedList]: variant === 'bordered'
@@ -38,7 +38,6 @@ export function PlainList({ children, variant }) {
             {children}
         </ul>
     )
-
 }
 
 /**
