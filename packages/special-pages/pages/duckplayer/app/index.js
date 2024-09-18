@@ -11,9 +11,9 @@ import { SettingsProvider } from './providers/SettingsProvider.jsx'
 import { MessagingContext } from './types.js'
 import { UserValuesProvider } from './providers/UserValuesProvider.jsx'
 import { Fallback } from './components/Fallback.jsx'
-import { App } from './components/App.jsx'
 import { Components } from './components/Components.jsx'
-import { OrientationProvider } from './providers/OrientationProvider.jsx'
+import { MobileApp } from './components/MobileApp.jsx'
+import { DesktopApp } from './components/DesktopApp.jsx'
 
 /**
  * @param {import("../src/js/index.js").DuckplayerPage} messaging
@@ -38,22 +38,13 @@ export async function init (messaging, baseEnvironment) {
         .withDisplay(baseEnvironment.urlParams.get('display'))
 
     console.log('environment:', environment)
+    console.log('locale:', environment.locale)
 
     document.body.dataset.display = environment.display
 
     const strings = environment.locale === 'en'
         ? enStrings
-        : await fetch(`./locales/${environment.locale}/duckplayer.json`)
-            .then(resp => {
-                if (!resp.ok) {
-                    throw new Error('did not give a result')
-                }
-                return resp.json()
-            })
-            .catch(e => {
-                console.error('Could not load locale', environment.locale, e)
-                return enStrings
-            })
+        : await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale) || enStrings
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -86,18 +77,23 @@ export async function init (messaging, baseEnvironment) {
                 willThrow={environment.willThrow}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
                     <UpdateEnvironment search={window.location.search}/>
-                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                        <MessagingContext.Provider value={messaging}>
-                            <SettingsProvider settings={settings}>
-                                <UserValuesProvider initial={init.userValues}>
-                                    <OrientationProvider>
-                                        <App embed={embed} />
-                                    </OrientationProvider>
-                                    <WillThrow />
-                                </UserValuesProvider>
-                            </SettingsProvider>
-                        </MessagingContext.Provider>
-                    </TranslationProvider>
+                    <MessagingContext.Provider value={messaging}>
+                        <SettingsProvider settings={settings}>
+                            <UserValuesProvider initial={init.userValues}>
+                                {settings.layout === 'desktop' && (
+                                    <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
+                                        <DesktopApp embed={embed} />
+                                    </TranslationProvider>
+                                )}
+                                {settings.layout === 'mobile' && (
+                                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                                        <MobileApp embed={embed} />
+                                    </TranslationProvider>
+                                )}
+                                <WillThrow />
+                            </UserValuesProvider>
+                        </SettingsProvider>
+                    </MessagingContext.Provider>
                 </ErrorBoundary>
             </EnvironmentProvider>
             , root)
@@ -105,7 +101,7 @@ export async function init (messaging, baseEnvironment) {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <MessagingContext.Provider value={messaging}>
-                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                    <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
                         <Components />
                     </TranslationProvider>
                 </MessagingContext.Provider>
@@ -126,4 +122,39 @@ function createEmbedSettings (href, settings) {
     return embed
         .withAutoplay(settings.autoplay.state === 'enabled')
         .withMuted(settings.platform.name === 'ios')
+}
+
+/**
+ * @param {string|null|undefined} stringInput - optional string input. Might be a string of JSON
+ * @param {string} locale
+ * @return {Promise<Record<string, any> | null>}
+ */
+async function getTranslationsFromStringOrLoadDynamically (stringInput, locale) {
+    /**
+     * This is a special situation - the native side (iOS/macOS at the time) wanted to
+     * use a single HTML file for the error pages. This created an issues since special pages
+     * would like to load the translation files dynamically. The solution we came up with,
+     * is to add the translation data as a string on the native side. This keeps all
+     * the translations in the FE codebase.
+     */
+    if (stringInput) {
+        try {
+            return JSON.parse(stringInput)
+        } catch (e) {
+            console.warn('String could not be parsed. Falling back to fetch...')
+        }
+    }
+
+    // If parsing failed or stringInput was null/undefined, proceed with fetch
+    try {
+        const response = await fetch(`./locales/${locale}/duckplayer.json`)
+        if (!response.ok) {
+            console.error('Network response was not ok')
+            return null
+        }
+        return await response.json()
+    } catch (e) {
+        console.error('Failed to fetch or parse JSON from the network:', e)
+        return null
+    }
 }

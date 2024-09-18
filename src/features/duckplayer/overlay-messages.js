@@ -33,9 +33,7 @@ export class DuckPlayerOverlayMessages {
                     overlayInteracted: false,
                     privatePlayerMode: { alwaysAsk: {} }
                 },
-                ui: {
-                    overlayCopy: this.environment.getOverlayCopyOverride() || 'default'
-                }
+                ui: {}
             })
         }
         return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP)
@@ -77,6 +75,13 @@ export class DuckPlayerOverlayMessages {
     }
 
     /**
+     * This is sent when the user wants to open Duck Player.
+     */
+    openInfo () {
+        return this.messaging.notify(constants.MSG_NAME_OPEN_INFO)
+    }
+
+    /**
      * Get notification when preferences/state changed
      * @param {(userValues: import("../duck-player.js").UserValues) => void} cb
      */
@@ -114,15 +119,19 @@ export class DuckPlayerOverlayMessages {
             try {
                 assertCustomEvent(evt)
                 if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
-                    this.setUserValues(evt.detail.data)
+                    return this.setUserValues(evt.detail.data)
                         .then(updated => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch(console.error)
                 }
                 if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
-                    this.getUserValues()
+                    return this.getUserValues()
                         .then(updated => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch(console.error)
                 }
+                if (evt.detail.kind === constants.MSG_NAME_OPEN_INFO) {
+                    return this.openInfo()
+                }
+                console.warn('unhandled event', evt)
             } catch (e) {
                 console.warn('cannot handle this message', e)
             }

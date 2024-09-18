@@ -29,6 +29,7 @@ export const support = {
         'integration': ['copy', 'build-js'],
         'windows': ['copy', 'build-js'],
         'apple': ['copy', 'build-js', 'inline-html'],
+        'android': ['copy', 'build-js']
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     errorpage: {
