@@ -9,6 +9,7 @@ src/features/click-to-load/ @kzar @ladamski @franfaccin @jonathanKingston @shaky
 src/locales/click-to-load/ @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
 src/features/broker-protection.js @brianhall @shakyShane
 src/features/broker-protection/ @brianhall @shakyShane
+packages/special-pages/ @shakyShane @mgurgel
 
 # Platform owners
 inject/android.js @jonathanKingston @joshliebe
