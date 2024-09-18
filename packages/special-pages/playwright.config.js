@@ -30,8 +30,42 @@ export default defineConfig({
                 injectName: 'apple',
                 platform: 'macos'
             }
+        },
+        {
+            name: 'android',
+            testMatch: [
+                'duckplayer.spec.js',
+                'duckplayer-screenshots.spec.js'
+            ],
+            use: {
+                ...devices['Galaxy S III'],
+                injectName: 'android',
+                platform: 'android'
+            }
+        },
+        {
+            name: 'android-landscape',
+            testMatch: [
+                'duckplayer-screenshots.spec.js'
+            ],
+            use: {
+                ...devices['Galaxy S III landscape'],
+                injectName: 'android',
+                platform: 'android'
+            }
+        },
+        {
+            name: 'ios',
+            testMatch: [
+                'duckplayer.spec.js',
+                'duckplayer-screenshots.spec.js'
+            ],
+            use: {
+                ...devices['iPhone 14'],
+                injectName: 'apple',
+                platform: 'ios'
+            }
         }
-        // TODO: Add iOS
     ],
     fullyParallel: !process.env.CI,
     /* Don't allow `.only` in CI */

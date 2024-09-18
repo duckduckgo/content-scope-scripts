@@ -88,6 +88,10 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios";
   };
+  /**
+   * Optional locale-specific strings
+   */
+  localeStrings?: string;
 }
 export interface DuckPlayerPageSettings {
   pip: {

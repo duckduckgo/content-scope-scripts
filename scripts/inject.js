@@ -42,7 +42,8 @@ const builds = {
         output: [
             'build/integration/contentScope.js',
             'integration-test/extension/contentScope.js',
-            'integration-test/pages/build/contentScope.js'
+            'integration-test/pages/build/contentScope.js',
+            'integration-test/test-pages/build/contentScope.js'
         ]
     },
     'chrome-mv3': {

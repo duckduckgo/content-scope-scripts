@@ -8,7 +8,8 @@
   "scripts": {
     "build": "node index.mjs",
     "build.dev": "node index.mjs --env development",
-    "test": "npm run test.unit && playwright test",
+    "test": "npm run test.unit && playwright test --grep-invert '@screenshots'",
+    "test.screenshots": "npm run test.unit && playwright test --grep '@screenshots'",
     "test.windows": "npm run test -- --project windows",
     "test.macos": "npm run test -- --project macos",
     "test.ios": "npm run test -- --project ios",

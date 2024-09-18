@@ -126,7 +126,7 @@ function ControlBarDesktop({embed}) {
                         if (embed) openOnYoutube(embed)
                     }
                 }}
-            >Watch on YouTube</Button>
+            >{t('watchOnYoutube')}</Button>
         </div>
     )
 }

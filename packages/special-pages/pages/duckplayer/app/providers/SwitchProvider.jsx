@@ -23,7 +23,6 @@ export const SwitchContext = createContext({
 })
 
 export function SwitchProvider({ children }) {
-    const { isReducedMotion } = useEnv();
     const userValues = useUserValues();
     const setEnabled = useSetEnabled();
     const initialState = 'enabled' in userValues.privatePlayerMode ? 'completed' : 'showing'

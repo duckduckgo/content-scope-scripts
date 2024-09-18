@@ -1,6 +1,7 @@
 import { h } from "preact";
 import cn from "classnames";
 import styles from "./Tooltip.module.css";
+import { useTypedTranslation } from "../types.js";
 
 /**
  * @param {object} props
@@ -9,6 +10,7 @@ import styles from "./Tooltip.module.css";
  * @param {'top' | 'bottom'} props.position
  */
 export function Tooltip({ id, isVisible, position }) {
+    const { t } = useTypedTranslation();
     return (
         <div class={cn(styles.tooltip, {
             [styles.top]: position === 'top',
@@ -17,8 +19,7 @@ export function Tooltip({ id, isVisible, position }) {
              role="tooltip"
              aria-hidden={!isVisible}
              id={id}>
-            Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from
-            influencing your YouTube recommendations.
+            {t('tooltipInfo')}
         </div>
     )
 }

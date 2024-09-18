@@ -5,7 +5,11 @@ node_modules/
 .build/
 build/
 docs/
+/screens
 test-results/
 playwright-report/
 Sources/ContentScopeScripts/dist/
 test-results
+
+# Local Netlify folder
+.netlify

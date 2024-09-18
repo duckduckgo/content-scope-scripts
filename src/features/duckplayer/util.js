@@ -80,6 +80,14 @@ export function appendImageAsBackground (parent, targetSelector, imageUrl) {
 }
 
 export class SideEffects {
+    /**
+     * @param {object} params
+     * @param {boolean} [params.debug]
+     */
+    constructor ({ debug = false } = { }) {
+        this.debug = debug
+    }
+
     /** @type {{fn: () => void, name: string}[]} */
     _cleanups = []
     /**
@@ -90,7 +98,9 @@ export class SideEffects {
      */
     add (name, fn) {
         try {
-            // console.log('☢️', name)
+            if (this.debug) {
+                console.log('☢️', name)
+            }
             const cleanup = fn()
             if (typeof cleanup === 'function') {
                 this._cleanups.push({ name, fn: cleanup })
@@ -107,7 +117,9 @@ export class SideEffects {
         for (const cleanup of this._cleanups) {
             if (typeof cleanup.fn === 'function') {
                 try {
-                    // console.log('🗑️', cleanup.name)
+                    if (this.debug) {
+                        console.log('🗑️', cleanup.name)
+                    }
                     cleanup.fn()
                 } catch (e) {
                     console.error(`cleanup ${cleanup.name} threw`, e)

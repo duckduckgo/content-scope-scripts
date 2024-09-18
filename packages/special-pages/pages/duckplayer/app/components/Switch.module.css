@@ -54,5 +54,3 @@
 .ios[aria-checked="true"] .thumb {
     left: calc(100% - 32px + 3px)
 }
-
-.android {}

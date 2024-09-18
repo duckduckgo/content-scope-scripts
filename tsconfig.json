@@ -30,6 +30,7 @@
   "exclude": [
     "snapshots/script-overload-snapshots",
     "integration-test/pages",
+    "integration-test/test-pages",
     "integration-test/extension",
     "packages/special-pages/pages/**/public",
     "packages/special-pages/playwright-report",

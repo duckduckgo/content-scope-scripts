@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
-import { parseArgs, write } from './script-utils.js'
+import { write } from './script-utils.js'
 
 /**
  * This script loads the current JSON-based locales files and merges them into
@@ -33,10 +33,12 @@ function bundle (localesRoot) {
         '`'
 }
 
-const requiredFields = ['dir', 'output']
-const help = 'usage: buildLocales <locales/feature dir>'
-const args = parseArgs(process.argv.slice(2), requiredFields, help)
+const jobs = {
+    'src/locales/click-to-load': 'build/locales/ctl-locales.js',
+    'src/locales/duckplayer': 'build/locales/duckplayer-locales.js'
+}
 
-// run the build and write the files
-const bundled = bundle(args.dir)
-write([args.output], bundled)
+for (const [dir, output] of Object.entries(jobs)) {
+    const bundled = bundle(dir)
+    write([output], bundled)
+}

@@ -166,6 +166,26 @@ test.describe('duckplayer mobile settings', () => {
     })
 })
 
+/**
+ * Use this test in `--headed` mode to cycle through every language
+ */
+test.describe('translated DuckPlayer UI', () => {
+    test.skip('testing UI for locales', async ({ page }, workerInfo) => {
+        const items = ['bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'et', 'fi', 'fr', 'hr', 'hu', 'it', 'lt', 'lv', 'nb', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr']
+        for (const locale of items) {
+            const duckplayer = DuckPlayerPage.create(page, workerInfo)
+            await duckplayer.openWithVideoID()
+            await duckplayer.hasLoadedIframe()
+            const params = new URLSearchParams({
+                locale,
+                videoID: 'VIDEO_ID'
+            })
+            await duckplayer.openPage(params)
+            await page.pause()
+        }
+    })
+})
+
 test.describe('duckplayer desktop settings', () => {
     test('always open setting', async ({ page }, workerInfo) => {
         test.skip(isMobile(workerInfo))

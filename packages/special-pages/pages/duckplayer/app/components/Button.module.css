@@ -9,7 +9,7 @@
     flex-shrink: 0;
     box-shadow: none;
     background: rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border-radius: var(--inner-radius);
     font-weight: bold;
     color: rgba(255, 255, 255, 1);
     text-decoration: none;
@@ -24,8 +24,6 @@
     flex: 1;
     text-align: center;
     justify-content: center;
-    padding-left: 4px;
-    padding-right: 4px;
     text-wrap: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

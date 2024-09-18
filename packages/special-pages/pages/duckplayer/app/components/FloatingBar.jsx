@@ -2,19 +2,6 @@ import styles from "./FloatingBar.module.css"
 import { h } from "preact";
 import cn from "classnames";
 
-
-/**
- * @param {object} props
- * @param {import("preact").ComponentChild} props.children
- */
-export function BottomNavBar({children}) {
-    return (
-        <div class={styles.bottomNavBar}>
-            {children}
-        </div>
-    )
-}
-
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children

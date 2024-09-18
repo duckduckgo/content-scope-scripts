@@ -9,10 +9,25 @@
         *, *:before, *:after {
             box-sizing: border-box;
         }
+        body {
+            max-width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        .controls {
+            padding: 1em 0;
+        }
+        [data-layout=mobile] body {
+            padding: 0;
+            margin: 0;
+        }
         .container {
             max-width: 800px;
             aspect-ratio: 16/9;
             background: blue;
+        }
+        [data-layout=mobile] .container {
+            max-width: none;
         }
         #player {
             height: 100%;
@@ -20,10 +35,8 @@
         .html5-video-player {
             position: relative;
             height: 100%;
-            border: 2px dotted red;
-        }
-        body {
-            max-width: 100%;
+            background: black;
+            background-size: contain;
         }
         .tools {
             margin-bottom: 1rem;
@@ -56,6 +69,47 @@
 <body>
 <script src="../../shared/utils.js"></script>
 <p><a href="../index.html">[Duck Player]</a></p>
+
+<div class="controls">
+    <div>
+        <label for="locale-select">Choose locale:</label>
+        <select id="locale-select"></select>
+    </div>
+    <div>
+        <a href="?preview&wait-for-init-args&platform=ios">Preview iOS</a>
+        <a href="?preview&wait-for-init-args&platform=macos">Preview macOS</a>
+    </div>
+</div>
+
+<script>
+    const locales = ['bg', 'cs', 'da', 'de', 'el', 'en', 'es', 'et', 'fi', 'fr', 'hr', 'hu', 'it', 'lt', 'lv', 'nb', 'nl', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr'];
+    const localeSelect = document.getElementById('locale-select');
+
+    // Populate the select element with options
+    locales.forEach(locale => {
+        const option = document.createElement('option');
+        option.value = locale;
+        option.textContent = locale;
+        localeSelect.appendChild(option);
+    });
+
+    // Update the URL with the selected locale value
+    localeSelect.addEventListener('change', (event) => {
+        const selectedLocale = event.target.value;
+        const url = new URL(window.location);
+        url.searchParams.set('locale', selectedLocale);
+        window.location.href = url
+    });
+
+    // Reflect the selected value from the URL param on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const localeFromUrl = urlParams.get('locale');
+        if (localeFromUrl) {
+            localeSelect.value = localeFromUrl;
+        }
+    });
+</script>
 
 <div id="initial"></div>
 <div id="loaded"></div>
@@ -103,13 +157,16 @@
         if (!new URLSearchParams(location.search).has('preview')) {
             return;
         }
-        await import("/build/integration/contentScope.js").catch(console.error)
-        const overlays = await fetch('/integration-test/test-pages/duckplayer/config/overlays.json').then(x => x.json())
+        const platformName = new URLSearchParams(window.location.search).get('platform') || 'macos';
+        const locale = new URLSearchParams(window.location.search).get('locale') || 'en';
+        await import("/build/contentScope.js").catch(console.error)
+        const overlays = await fetch('/duckplayer/config/overlays.json').then(x => x.json())
         document.dispatchEvent(new CustomEvent('content-scope-init-args', {
             detail: {
                 debug: true,
+                locale: locale,
                 platform: {
-                    name: 'macos'
+                    name: platformName,
                 },
                 site: {
                     domain: location.hostname,
@@ -137,6 +194,10 @@
             main.innerHTML += html('template[id="inner-template"]');
             main.innerHTML += html('template[id="related-template"]')
             main.innerHTML += html('template[id="playlist-template"]')
+        },
+        "mobile": () => {
+            main.innerHTML += html('template[id="inner-template"]');
+            document.documentElement.dataset.layout="mobile"
         },
         "incremental-dom": () => {
             main.innerHTML += `<div class="container"><div id="player"></div></div>`

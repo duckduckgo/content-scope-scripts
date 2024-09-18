@@ -173,9 +173,7 @@ export class IconOverlay {
     appendHoverOverlay (onClick) {
         this.sideEffects.add('Adding the re-usable overlay to the page ', () => {
             // add the CSS to the head
-            const style = document.createElement('style')
-            style.textContent = css
-            document.head.appendChild(style)
+            const cleanUpCSS = this.loadCSS()
 
             // create and append the element
             const element = this.create('fixed', '', this.HOVER_CLASS)
@@ -185,9 +183,27 @@ export class IconOverlay {
 
             return () => {
                 element.remove()
-                document.head.removeChild(style)
+                cleanUpCSS()
             }
         })
+    }
+
+    loadCSS () {
+        // add the CSS to the head
+        const id = '__ddg__icon'
+        const style = document.head.querySelector(`#${id}`)
+        if (!style) {
+            const style = document.createElement('style')
+            style.id = id
+            style.textContent = css
+            document.head.appendChild(style)
+        }
+        return () => {
+            const style = document.head.querySelector(`#${id}`)
+            if (style) {
+                document.head.removeChild(style)
+            }
+        }
     }
 
     /**
@@ -197,6 +213,9 @@ export class IconOverlay {
      */
     appendSmallVideoOverlay (container, href, onClick) {
         this.sideEffects.add('Adding a small overlay for the video player', () => {
+            // add the CSS to the head
+            const cleanUpCSS = this.loadCSS()
+
             const element = this.create('video-player', href, 'hidden')
 
             this.addClickHandler(element, onClick)
@@ -206,6 +225,7 @@ export class IconOverlay {
 
             return () => {
                 element?.remove()
+                cleanUpCSS()
             }
         })
     }

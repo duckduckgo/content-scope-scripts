@@ -31,6 +31,20 @@ export default defineConfig({
             use: { injectName: 'apple', platform: 'macos' }
         },
         {
+            name: 'ios',
+            testMatch: [
+                'integration-test/playwright/duckplayer-mobile.spec.js'
+            ],
+            use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] }
+        },
+        {
+            name: 'android',
+            testMatch: [
+                'integration-test/playwright/duckplayer-mobile.spec.js'
+            ],
+            use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] }
+        },
+        {
             name: 'chrome',
             testMatch: 'integration-test/playwright/remote-pages.spec.js',
             use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] }

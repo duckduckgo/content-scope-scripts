@@ -2,6 +2,7 @@ import { DomState } from './util.js'
 import { ClickInterception, Thumbnails } from './thumbnails.js'
 import { VideoOverlay } from './video-overlay.js'
 import { registerCustomElements } from './components/index.js'
+import strings from '../../../build/locales/duckplayer-locales.js'
 
 /**
  * @typedef {object} OverlayOptions
@@ -29,6 +30,8 @@ export async function initOverlays (settings, environment, messages) {
         console.error(e)
         return
     }
+
+    console.log('did get initial setup ', initialSetup)
 
     if (!initialSetup) {
         console.error('cannot continue without user settings')
@@ -117,7 +120,9 @@ function thumbnailOverlays ({ userValues, settings, messages, environment, ui })
         // must be in 'always ask' mode
         'alwaysAsk' in userValues.privatePlayerMode,
         // must not be set to play in DuckPlayer
-        ui?.playInDuckPlayer !== true
+        ui?.playInDuckPlayer !== true,
+        // must be a desktop layout
+        environment.layout === 'desktop'
     ]
 
     // Only show thumbnails if ALL conditions above are met
@@ -167,17 +172,26 @@ function videoOverlaysFeatureFromSettings ({ userValues, settings, messages, env
 
 export class Environment {
     allowedProxyOrigins = ['duckduckgo.com']
+    _strings = JSON.parse(strings)
 
     /**
      * @param {object} params
      * @param {{name: string}} params.platform
      * @param {boolean|null|undefined} [params.debug]
      * @param {ImportMeta['injectName']} params.injectName
+     * @param {string} params.locale
      */
     constructor (params) {
         this.debug = Boolean(params.debug)
         this.injectName = params.injectName
         this.platform = params.platform
+        this.locale = params.locale
+    }
+
+    get strings () {
+        const matched = this._strings[this.locale]
+        if (matched) return matched['overlays.json']
+        return this._strings.en['overlays.json']
     }
 
     /**
@@ -229,22 +243,6 @@ export class Environment {
         return false
     }
 
-    /**
-     * @returns {import("../duck-player.js").UISettings['overlayCopy'] | null}
-     */
-    getOverlayCopyOverride () {
-        if (this.isIntegrationMode()) {
-            const allowedOverlayCopyOverrides = ['default', 'a1', 'b1']
-
-            const url = new URLSearchParams(window.location.href)
-            const override = url.get('overlayCopy')
-            if (override && allowedOverlayCopyOverrides.includes(override)) {
-                return /** @type {import("../duck-player.js").UISettings['overlayCopy']} */ (override)
-            }
-        }
-        return null
-    }
-
     isIntegrationMode () {
         return this.debug === true && this.injectName === 'integration'
     }
@@ -255,5 +253,29 @@ export class Environment {
 
     get opensVideoOverlayLinksViaMessage () {
         return this.platform.name !== 'windows'
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get isMobile () {
+        return this.platform.name === 'ios' || this.platform.name === 'android'
+    }
+
+    /**
+     * @return {boolean}
+     */
+    get isDesktop () {
+        return !this.isMobile
+    }
+
+    /**
+     * @return {'desktop' | 'mobile'}
+     */
+    get layout () {
+        if (this.platform.name === 'ios' || this.platform.name === 'android') {
+            return 'mobile'
+        }
+        return 'desktop'
     }
 }
