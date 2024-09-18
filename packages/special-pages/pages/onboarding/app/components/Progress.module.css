@@ -53,13 +53,11 @@
 
 /* Single Line variant */
 
-.singleLine {
-    &.progressContainer {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        column-gap: var(--sp-2);
-        align-items: center;
-    }
+.singleLineContainer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--sp-2);
+    align-items: center;
 
     & .progress {
         order: -1;

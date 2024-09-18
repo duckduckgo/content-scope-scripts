@@ -1,7 +1,7 @@
 import styles from './components/App.module.css'
 import { Stack } from './components/Stack'
 import { Header } from './components/Header'
-import { Progress } from './components/Progress'
+import { Progress, SingleLineProgress } from './components/Progress'
 import { ListItem } from './components/ListItem'
 import { BounceIn, Check, Launch } from './components/Icons'
 import { List } from './components/List'
@@ -52,7 +52,7 @@ export function Components () {
                     <Header><Typed text={t('customize_title')}/></Header>
                     <Header><Typed text={t('summary_title')}/></Header>
                     <Progress current={1} total={4}/>
-                    <Progress current={2} total={5} variant='single-line'/>
+                    <SingleLineProgress current={2} total={5} />
                     <div>
                         <CleanBrowsing onNextPage={console.log}/>
                     </div>

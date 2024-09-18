@@ -8,16 +8,23 @@ import cn from 'classnames'
  * @param {Object} props - The props object
  * @param {number} props.total - The total value of the progress
  * @param {number} props.current - The current value of the progress
- * @param {'default' | 'single-line'} [props.variant="default"] - Style variant
  */
-export function Progress ({ total, current, variant = 'default' }) {
-    const classes = cn({
-        [styles.progressContainer]: true,
-        [styles.singleLine]: variant === 'single-line'
-    })
-
+export function Progress ({ total, current }) {
     return (
-        <div className={classes}>
+        <div className={styles.progressContainer}>
+            <div className={styles.count}>
+                {current} / {total}
+            </div>
+            <progress className={styles.progress} max={total} value={current}>
+                (Page {current} of circa {total})
+            </progress>
+        </div>
+    )
+}
+
+export function SingleLineProgress ({ total, current }) {
+    return (
+        <div className={cn([styles.progressContainer, styles.singleLineContainer])}>
             <div className={styles.count}>
                 {current} / {total}
             </div>

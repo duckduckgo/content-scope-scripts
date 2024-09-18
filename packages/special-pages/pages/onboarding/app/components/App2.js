@@ -12,7 +12,7 @@ import { Background } from './Background'
 import { Button } from './Buttons'
 import { Typed } from './Typed'
 import { ComparisonTable } from './ComparisonTable'
-import { Progress } from './Progress'
+import { SingleLineProgress } from './Progress'
 import { PlainList } from './List'
 import { ListItem } from './ListItem'
 import pinningAnimation from '../animations/taskbar_pinning.riv'
@@ -211,7 +211,7 @@ export function App2 ({ children }) {
                             {step.id !== 'welcome' && step.id !== 'getStarted' && (
                                 <>
                                     <div className={styles.progress}>
-                                        {showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length} variant='single-line'/>}
+                                        {showProgress && <SingleLineProgress current={progress.indexOf(activeStep) + 1} total={progress.length} />}
                                     </div>
                                     <div className={styles.spacer}></div>
                                     <div className={styles.skip}>
