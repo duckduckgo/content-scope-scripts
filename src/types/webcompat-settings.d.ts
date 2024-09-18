@@ -53,5 +53,5 @@ export interface PatchSetting {
   /**
    * The value to replace at the specified path
    */
-  value: string;
+  value: string | unknown[] | {} | number;
 }
