@@ -47,7 +47,6 @@ export function reducer (state, action) {
                     nextStep: state.order[nextPageIndex + 1],
                     activeRow: 0,
                     activeStepVisible: false,
-                    activeTitle: 0,
                     exiting: false,
                     step: state.stepDefinitions[state.order[nextPageIndex]]
                 }
@@ -136,7 +135,6 @@ export function GlobalProvider ({ order, children, stepDefinitions, messaging, f
         activeRow: 0,
         activeStepVisible: false,
         exiting: false,
-        activeTitle: 0,
         values: {},
         UIValues: {
             dock: 'idle',
