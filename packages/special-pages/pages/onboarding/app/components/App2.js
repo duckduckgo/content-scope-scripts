@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { h, Fragment } from 'preact'
 import cn from 'classnames'
-import { useContext, useRef } from 'preact/hooks'
+import { useContext, useEffect } from 'preact/hooks'
 import { GlobalContext, GlobalDispatch } from '../global'
 import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
@@ -10,12 +10,14 @@ import { useTypedTranslation } from '../types'
 import { Timeout } from './Timeout'
 import { Background } from './Background'
 import { Button } from './Buttons'
-import { Typed } from './Typed'
 import { ComparisonTable } from './ComparisonTable'
 import { PlainList } from './List'
 import { ListItem } from './ListItem'
 import { SingleLineProgress } from './Progress'
 import { Heading } from './Heading'
+import { BounceIn, Check, Launch, Replay } from './Icons'
+import { SettingsStep } from '../pages/v3/SettingsStep'
+import { settingsRowItemsV3 as settingsRowItems, stepMeta } from '../data'
 
 import pinningAnimation from '../animations/taskbar_pinning.riv'
 import onboardingAnimation from '../animations/Onboarding.riv'
@@ -30,16 +32,45 @@ export function Hiker () {
 }
 
 /**
+ *
+ * @param {object} props
+ * @param {'before'|'after'} props.state
+ * @param {boolean} props.isDarkMode
+ */
+export function DuckPlayerStep ({ state, isDarkMode }) {
+    const dispatch = useContext(GlobalDispatch)
+
+    useEffect(() => {
+        setTimeout(() => {
+            dispatch({ kind: 'toggle-before-after' })
+        }, 500)
+    }, [])
+
+    return (
+        <div style={{ display: 'inline-block', width: '432px', height: '208px' }}>
+            <RiveAnimation
+                animation={onboardingAnimation}
+                state={state}
+                isDarkMode={isDarkMode}
+                artboard='Duck Player'
+                inputName='Duck Player?'
+                stateMachine='State Machine 2'
+            />
+        </div>
+    )
+}
+
+/**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */
 export function App2 ({ children }) {
-    const { debugState, isReducedMotion, isDarkMode } = useEnv()
+    const { debugState, isReducedMotion, isDarkMode, injectName: platform } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTypedTranslation()
 
-    const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState
+    const { activeStep, activeStepVisible, exiting, order, step, UIValues, beforeAfter, activeRow } = globalState
 
     const enqueueNext = () => {
         if (isReducedMotion) {
@@ -56,93 +87,156 @@ export function App2 ({ children }) {
     const advance = () => dispatch({ kind: 'advance' })
     const titleDone = () => dispatch({ kind: 'title-complete' })
     const dismiss = () => dispatch({ kind: 'dismiss' })
-    const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
+    // const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
 
     const didCatch = ({ error }) => {
         const message = error?.message || 'unknown'
         dispatch({ kind: 'error-boundary', error: { message, id: activeStep } })
     }
 
+    /**
+     * @typedef {object} StepConfig
+     * @property {string} title
+     * @property {string|null} [subtitle]
+     * @property {h.JSX.Element|null} content
+     * @property {boolean} [showControls]
+     * @property {string|null} [skipButtonText]
+     * @property {() => void|null} [skipHandler]
+     * @property {string|null} [advanceButtonText]
+     * @property {() => void|null} [advanceHandler]
+     */
+
+    /** @type {Partial<Record<import('../types').Step['id'], () => StepConfig>>} */
     const stepsConfig = {
         welcome: () => ({
+            title: t('welcome_title'),
             content: null
         }),
         getStarted: () => ({
+            title: t('getStarted_highlights_title', { newline: '\n' }),
             content: null
         }),
-        privateByDefault: () => ({
-            showControls: true,
-            skipButtonText: t('skipButton'),
-            advanceButtonText: t('makeDefaultButton'),
-            content: <ComparisonTable />
-        }),
-        dockSingle: () => ({
-            showControls: true,
-            skipButtonText: t('skipButton'),
-            advanceButtonText: t('keepInDockButton'),
-            content: <RiveAnimation animation={pinningAnimation} state="before" isDarkMode={isDarkMode}/>
-        }),
-        importSingle: () => ({
-            showControls: true,
-            skipButtonText: t('skipButton'),
-            advanceButtonText: t('importButton'),
-            content: <PlainList>
-                <ListItem icon={'v3/bookmarks.svg'} title={t('bookmarksAndFavorites')} secondaryText={t('bookmarksAndFavorites_description')} />
-                <ListItem icon={'v3/key.svg'} title={t('passwords')} secondaryText={t('passwords_description')} />
-            </PlainList>
-        }),
-        duckPlayerSingle: () => ({
+        makeDefaultV3: () => {
+            const settingIsIdle = UIValues['default-browser'] === 'idle'
+
+            return {
+                title: settingIsIdle ? t('protectionsActivated') : t('makeDefaultSuccess'),
+                showControls: true,
+                skipButtonText: settingIsIdle ? t('skipButton') : null,
+                advanceButtonText: settingIsIdle ? t('makeDefaultButton') : t('nextButton'),
+                advanceHandler: () => {
+                    if (settingIsIdle) {
+                        dispatch({
+                            kind: 'update-system-value',
+                            id: 'default-browser',
+                            payload: { enabled: true },
+                            current: true
+                        })
+                    } else {
+                        enqueueNext()
+                    }
+                },
+                skipHandler: () => {
+                    enqueueNext()
+                },
+                content: <ComparisonTable />
+            }
+        },
+        dockSingle: () => {
+            const settingIsIdle = UIValues.dock === 'idle'
+            const pageStrings = platform === 'windows'
+                ? {
+                    idleTitle: t('stickAroundTaskbarTitle'),
+                    acceptTitle: t('taskbarAcceptTitle', { newline: '\n' }),
+                    idleButtonText: t('nextButton'),
+                    acceptButtonText: t('nextButton')
+                }
+                : {
+                    idleTitle: t('stickAroundDockTitle'),
+                    acceptTitle: t('dockAcceptTitle', { newline: '\n' }),
+                    idleButtonText: t('keepInDockButton'),
+                    acceptButtonText: t('nextButton')
+                }
+
+            return {
+                title: settingIsIdle ? pageStrings.idleTitle : pageStrings.acceptTitle,
+                subtitle: settingIsIdle ? t('dockSubtitle') : null,
+                showControls: true,
+                skipButtonText: platform !== 'windows' && settingIsIdle ? t('skipButton') : null,
+                advanceButtonText: settingIsIdle ? pageStrings.idleButtonText : pageStrings.acceptButtonText,
+                advanceHandler: () => {
+                    if (settingIsIdle) {
+                        dispatch({
+                            kind: 'update-system-value',
+                            id: 'dock',
+                            payload: { enabled: true },
+                            current: true
+                        })
+                    } else {
+                        enqueueNext()
+                    }
+                },
+                skipHandler: () => {
+                    enqueueNext()
+                },
+                content: <RiveAnimation animation={pinningAnimation} state="before" isDarkMode={isDarkMode}/>
+            }
+        },
+        importSingle: () => {
+            const settingIsIdle = UIValues.import === 'idle'
+
+            return {
+                title: t('import_highlights_title'),
+                subtitle: t('import_highlights_subtitle'),
+                showControls: true,
+                skipButtonText: settingIsIdle ? t('skipButton') : null,
+                advanceButtonText: settingIsIdle ? t('importButton') : t('nextButton'),
+                advanceHandler: () => {
+                    if (settingIsIdle) {
+                        dispatch({
+                            kind: 'update-system-value',
+                            id: 'import',
+                            payload: { enabled: true },
+                            current: true
+                        })
+                    } else {
+                        enqueueNext()
+                    }
+                },
+                skipHandler: () => {
+                    enqueueNext()
+                },
+                content: <PlainList>
+                    <ListItem icon={'v3/bookmarks.svg'} title={t('bookmarksAndFavorites')} secondaryText={t('bookmarksAndFavorites_description')} inline={settingIsIdle ? null : <BounceIn><Check/></BounceIn>}/>
+                    <ListItem icon={'v3/key.svg'} title={t('passwords')} secondaryText={t('passwords_description')} inline={settingIsIdle ? null : <BounceIn><Check/></BounceIn>} />
+                </PlainList>
+            }
+        },
+        duckPlayerV3: () => ({
+            title: t('duckPlayer_highlights_title'),
+            subtitle: t('duckPlayer_highlights_subtitle'),
             showControls: true,
             advanceButtonText: t('nextButton'),
-            content: <div style={{ display: 'inline-block', width: '432px', height: '208px' }}>
-                <RiveAnimation
-                        animation={onboardingAnimation}
-                        state={'before'}
-                        isDarkMode={isDarkMode}
-                        artboard='Duck Player'
-                        inputName='Duck Player?'
-                        stateMachine='State Machine 2'
-                    />
-            </div>
+            advanceHandler: enqueueNext,
+            skipButtonText: beforeAfter === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
+            skipHandler: () => {
+                dispatch({ kind: 'toggle-before-after' })
+            },
+            content: <DuckPlayerStep isDarkMode={isDarkMode} state={beforeAfter} />
         }),
-        customize: () => ({
+        customizeV3: () => ({
+            title: t('customize_highlights_title'),
+            subtitle: t('customize_highlights_subtitle'),
             showControls: true,
-            advanceButtonText: t('startBrowsing'),
-            content: <PlainList variant='bordered'>
-                <ListItem icon={'v3/favorite.svg'} title={t('bookmarksBar')}/>
-                <ListItem icon={'v3/session-restore.svg'} title={t('restoreSession')}/>
-                <ListItem icon={'v3/home.svg'} title={t('addHomeShortcut')}/>
-            </PlainList>
+            content: <SettingsStep
+                key={activeStep}
+                data={settingsRowItems}
+                metaData={stepMeta}
+            />
         })
     }
 
-    /** @type {Partial<Record<import('../types').Step['id'], string>>} */
-    const titles = {
-        welcome: t('welcome_title'),
-        getStarted: t('getStarted_highlights_title', { newline: '\n' }),
-        privateByDefault: t('privateByDefault_highlights_title', { newline: '\n' }),
-        dockSingle: t('dock_highlights_title'),
-        importSingle: t('import_highlights_title'),
-        duckPlayerSingle: t('duckPlayer_highlights_title'),
-        customize: t('customize_highlights_title')
-    }
-
-    /** @type {Partial<Record<import('../types').Step['id'], string>>} */
-    const subtitles = {
-        dockSingle: t('dock_highlights_subtitle'),
-        importSingle: t('import_highlights_subtitle'),
-        duckPlayerSingle: t('duckPlayer_highlights_subtitle'),
-        customize: t('customize_highlights_subtitle')
-    }
-
     // typescript is not quite smart enough to figure this part out
-    const pageTitle = titles[activeStep]
-    const nextPageTitle = titles[/** @type {any} */(nextStep)]
-    const pageSubTitle = subtitles[activeStep]
-
-    if (!pageTitle || pageTitle.length === 0) {
-        console.warn('missing page title for ', activeStep)
-    }
 
     // for screens that animate out, trigger the 'advance' when it's finished.
     function animationDidFinish (e) {
@@ -161,7 +255,13 @@ export function App2 ({ children }) {
         }
     }
 
-    const { showControls, advanceButtonText, skipButtonText, content } = stepsConfig[step.id]()
+    const stepConfig = stepsConfig[step.id]
+    if (!stepConfig) {
+        console.warn(`Missing step config for ${step.id}`)
+        return null
+    }
+
+    const { title, subtitle, showControls, advanceButtonText, advanceHandler, skipButtonText, skipHandler, content } = stepConfig()
 
     return (
         <main className={styles.main}>
@@ -171,12 +271,12 @@ export function App2 ({ children }) {
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
                     <div className={cn(styles.panel, { [styles.boxed]: step.id !== 'welcome' && step.id !== 'getStarted' })}>
                         <Heading
-                            title={pageTitle}
-                            subtitle={pageSubTitle}
+                            title={title}
+                            subtitle={subtitle}
                             hideSubtitle={!activeStepVisible}
                             speechBubble={step.id !== 'welcome'}
                             onComplete={titleDone}>
-                                {step.id === 'getStarted' && activeStepVisible && <Button size="large" onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
+                            {step.id === 'getStarted' && activeStepVisible && <Button size="large" onClick={enqueueNext}>{t('getStartedButton_highlights')}</Button>}
                         </Heading>
 
                         {step.id === 'welcome' && <Timeout onComplete={enqueueNext} ignore={true} />}
@@ -186,23 +286,29 @@ export function App2 ({ children }) {
                                 <div className={styles.content}>
                                     {content}
                                 </div>
-                            {showControls && (
-                                <>
-                                    <div className={styles.progress}>
-                                        {showProgress && <SingleLineProgress current={progress.indexOf(activeStep) + 1} total={progress.length} />}
-                                    </div>
+                                {showControls && (
+                                    <>
+                                        <div className={styles.progress}>
+                                            {showProgress && <SingleLineProgress current={progress.indexOf(activeStep) + 1} total={progress.length} />}
+                                        </div>
 
-                                    <div className={styles.spacer}></div>
+                                        <div className={styles.spacer}></div>
 
-                                    <div className={styles.skip}>
-                                        {skipButtonText && <Button size="large" onClick={enqueueNext} variant='secondary'>{skipButtonText}</Button>}
-                                    </div>
+                                        <div className={styles.skip}>
+                                            {skipButtonText && <Button size="large" onClick={skipHandler || enqueueNext} variant='secondary'>
+                                                {step.id === 'duckPlayerV3' && <Replay />}
+                                                {skipButtonText}
+                                            </Button>}
+                                        </div>
 
-                                    <div className={styles.accept}>
-                                        {advanceButtonText && <Button size="large" onClick={enqueueNext}>{advanceButtonText}</Button>}
-                                    </div>
-                                </>
-                            )}
+                                        <div className={styles.accept}>
+                                            {advanceButtonText && <Button size="large" onClick={advanceHandler || enqueueNext}>{advanceButtonText}</Button>}
+                                            {step.id === 'customizeV3' && activeRow >= step.rows.length && <Button onClick={dismiss} size={'large'}>{t('startBrowsing')}
+                                                <Launch/>
+                                            </Button>}
+                                        </div>
+                                    </>
+                                )}
                             </div>}
                     </div>
                 </ErrorBoundary>

@@ -257,7 +257,7 @@
     "title": "Let's Do It!",
     "note": "TODO."
   },
-  "privateByDefault_highlights_title": {
+  "protectionsActivated": {
     "title": "Protections activated!",
     "note": "TODO."
   },
@@ -265,19 +265,19 @@
     "title": "Make DuckDuckGo Your Default",
     "note": "TODO."
   },
-  "makeDefault_success_highlights_title": {
+  "makeDefaultSuccess": {
     "title": "Excellent! I was hoping you’d pick me.",
     "note": "TODO."
   },
-  "taskbar_highlights_title": {
+  "stickAroundTaskbarTitle": {
     "title": "Want me to stick around in the taskbar?",
     "note": "TODO."
   },
-  "dock_highlights_title": {
+  "stickAroundDockTitle": {
     "title": "Want me to stick around in the dock?",
     "note": "TODO."
   },
-  "dock_highlights_subtitle": {
+  "dockSubtitle": {
     "title": "Tap “Yes” to always have easy access to your new browser.",
     "note": "TODO."
   },
@@ -285,11 +285,11 @@
     "title": "Keep in Dock",
     "note": "TODO."
   },
-  "taskbar_success_highlights_title": {
+  "taskbarAcceptTitle": {
     "title": "Great! I’ll be nesting in the{newline}taskbar when you need me.",
     "note": "TODO."
   },
-  "dock_success_highlights_title": {
+  "dockAcceptTitle": {
     "title": "Great! I’ll be nesting in the{newline}dock when you need me. ",
     "note": "TODO."
   },

@@ -10,7 +10,7 @@ import defaultAnimation from './animations/set_default.riv'
  * @property {import('./types').SystemValueId} id
  * @property {typeof availableIcons[number]} icon
  * @property {string} title
- * @property {string} secondaryText
+ * @property {string} [secondaryText]
  * @property {string} acceptText
  * @property {string} summary
  */
@@ -69,10 +69,6 @@ export const stepDefinitions = {
         kind: 'settings',
         rows: ['default-browser']
     },
-    duckPlayerSingle: {
-        id: 'duckPlayerSingle',
-        kind: 'info'
-    },
     customize: {
         id: 'customize',
         kind: 'settings',
@@ -81,6 +77,20 @@ export const stepDefinitions = {
     summary: {
         id: 'summary',
         kind: 'info'
+    },
+    makeDefaultV3: {
+        id: 'makeDefaultV3',
+        kind: 'settings',
+        rows: ['default-browser']
+    },
+    duckPlayerV3: {
+        id: 'duckPlayerV3',
+        kind: 'info'
+    },
+    customizeV3: {
+        id: 'customizeV3',
+        kind: 'settings',
+        rows: ['bookmarks', 'session-restore', 'home-shortcut']
     }
 }
 
@@ -214,6 +224,34 @@ export const settingsRowItems = {
         icon: 'home.png',
         title: t('row_home-shortcut_title'),
         secondaryText: t('row_home-shortcut_desc'),
+        summary: t('row_home-shortcut_summary'),
+        kind: 'toggle',
+        acceptText: t('row_home-shortcut_accept')
+    })
+}
+
+/** @type {Pick<Record<import('./types').SystemValueId, (t: import('./types').TranslationFn, platform: ImportMeta['injectName']) => RowData>, 'bookmarks'|'session-restore'|'home-shortcut'>} */
+export const settingsRowItemsV3 = {
+    bookmarks: (t) => ({
+        id: 'bookmarks',
+        icon: 'v3/favorite.svg',
+        title: t('bookmarksBar'),
+        summary: t('row_bookmarks_summary'),
+        kind: 'toggle',
+        acceptText: t('row_bookmarks_accept')
+    }),
+    'session-restore': (t) => ({
+        id: 'session-restore',
+        icon: 'v3/session-restore.svg',
+        title: t('restoreSession'),
+        summary: t('row_session-restore_summary'),
+        kind: 'toggle',
+        acceptText: t('row_session-restore_accept')
+    }),
+    'home-shortcut': (t) => ({
+        id: 'home-shortcut',
+        icon: 'v3/home.svg',
+        title: t('addHomeShortcut'),
         summary: t('row_home-shortcut_summary'),
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept')

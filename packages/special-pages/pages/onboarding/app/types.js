@@ -10,7 +10,7 @@ import { useContext } from 'preact/hooks'
  *   | 'bookmarks'
  *   | 'session-restore'
  *   | 'home-shortcut'
- * } SystemValueId - Each setting that can be updated should have a unique ID listed here.
+* } SystemValueId - Each setting that can be updated should have a unique ID listed here.
  */
 
 /**
@@ -24,7 +24,9 @@ import { useContext } from 'preact/hooks'
  *   | DockSingleStep
  *   | ImportSingleStep
  *   | MakeDefaultSingleStep
- *   | DuckPlayerSingleStep
+ *   | MakeDefaultV3Step
+ *   | CustomizeV3Step
+ *   | DuckPlayerV3Step
  * } Step
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
  * @typedef {{ kind: 'info'; id: 'getStarted' }} GetStartedStep
@@ -35,7 +37,9 @@ import { useContext } from 'preact/hooks'
  * @typedef {{ kind: 'settings'; id: 'dockSingle'; rows: SystemValueId[]; }} DockSingleStep
  * @typedef {{ kind: 'settings'; id: 'importSingle'; rows: SystemValueId[]; }} ImportSingleStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
- * @typedef {{ kind: 'info'; id: 'duckPlayerSingle'; }} DuckPlayerSingleStep
+ * @typedef {{ kind: 'settings'; id: 'makeDefaultV3'; rows: SystemValueId[]; }} MakeDefaultV3Step
+ * @typedef {{ kind: 'settings'; id: 'customizeV3'; rows: SystemValueId[] }} CustomizeV3Step
+ * @typedef {{ kind: 'info'; id: 'duckPlayerV3' }} DuckPlayerV3Step
  * @typedef {{ kind: 'info'; id: 'summary' }} SummaryStep
  */
 
@@ -78,14 +82,14 @@ export const ALT_ORDER = [
 ]
 
 /** @type {Step['id'][]} */
-export const HIGHLIGHTS_ORDER = [
+export const ORDER_V3 = [
     'welcome',
     'getStarted',
-    'privateByDefault',
+    'makeDefaultV3',
     'dockSingle',
     'importSingle',
-    'duckPlayerSingle',
-    'customize'
+    'duckPlayerV3',
+    'customizeV3'
 ]
 
 /**
@@ -112,6 +116,7 @@ export const HIGHLIGHTS_ORDER = [
  * @property {boolean} activeStepVisible
  * @property {boolean} exiting
  * @property {Status} status
+ * @property {'before'|'after'} beforeAfter
  * @property {Partial<Record<SystemValueId, SystemValue>>} values
  * @property {Record<SystemValueId, UIValue>} UIValues
  */
@@ -125,6 +130,7 @@ export const HIGHLIGHTS_ORDER = [
  *   | ExecErrorEvent
  *   | DismissEvent
  *   | DismisstoSettingsEvent
+ *   | ToggleBeforeAfterEvent
  *   | ErrorBoundaryEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
@@ -134,8 +140,10 @@ export const HIGHLIGHTS_ORDER = [
  * @typedef {{ kind: "exec-error"; id: SystemValueId; message: string }} ExecErrorEvent
  * @typedef {{ kind: "dismiss" }} DismissEvent
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
+ * @typedef {{ kind: "toggle-before-after" }} ToggleBeforeAfterEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
+ *
  */
 
 /** @type {ImportMeta['injectName'][]} */
