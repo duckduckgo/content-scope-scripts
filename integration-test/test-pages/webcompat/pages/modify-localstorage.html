@@ -20,10 +20,12 @@
         // eslint-disable-next-line no-undef
         test('Only specified localStorage entry should be removed', async () => {
             const specifiedKey = window.localStorage.getItem('keyToBeDeleted')
+            const nonexistentKey = window.localStorage.getItem('nonexistentKey')
             const otherKey = window.localStorage.getItem('otherKey')
 
             return [
                 { name: 'specified localStorage entry deleted', result: specifiedKey, expected: null },
+                { name: 'specified localStorage entry that is not present on page load', result: nonexistentKey, expected: null },
                 { name: 'other localStorage entry untouched', result: otherKey, expected: 'valueToRemain' }
             ];
         });

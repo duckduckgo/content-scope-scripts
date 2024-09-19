@@ -23,6 +23,14 @@
                   "key": "keyToBeDeleted",
                   "action": "delete"
                 }
+              },
+              {
+                "op": "add",
+                "path": "/modifyLocalStorage/changes/-",
+                "value": {
+                  "key": "nonexistentKey",
+                  "action": "delete"
+                }
               }
             ]
           }
