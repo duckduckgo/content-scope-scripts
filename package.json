@@ -83,7 +83,7 @@
     "minimist": "^1.2.8",
     "puppeteer": "^21.4.1",
     "rollup": "^3.29.4",
-    "rollup-plugin-import-css": "^3.3.5",
+    "rollup-plugin-import-css": "^3.5.1",
     "rollup-plugin-svg-import": "^2.1.0",
     "typedoc": "^0.25.12",
     "typescript": "^5.4.3"
