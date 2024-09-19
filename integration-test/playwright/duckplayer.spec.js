@@ -232,7 +232,7 @@ test.describe('Video Player overlays', () => {
         // No video overlay
         await overlays.videoOverlayDoesntShow()
     })
-    test('Selecting \'watch in duck player\'', async ({ page }, workerInfo) => {
+    test('Selecting \'Turn On Duck Player\'', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -242,10 +242,10 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage()
 
-        await overlays.watchInDuckPlayer()
+        await overlays.turnOnDuckPlayer()
         await overlays.userSettingWasUpdatedTo('always ask') // not updated
     })
-    test('Selecting \'watch in duck player\' + remember', async ({ page }, workerInfo) => {
+    test('Selecting \'Turn On Duck Player\' + remember', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -256,10 +256,10 @@ test.describe('Video Player overlays', () => {
         await overlays.gotoPlayerPage()
 
         await overlays.rememberMyChoice()
-        await overlays.watchInDuckPlayer()
+        await overlays.turnOnDuckPlayer()
         await overlays.userSettingWasUpdatedTo('enabled') // updated
     })
-    test('Selecting \'watch here\'', async ({ page }, workerInfo) => {
+    test('Selecting \'No Thanks\'', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -269,10 +269,10 @@ test.describe('Video Player overlays', () => {
         await overlays.userSettingIs('always ask')
         await overlays.gotoPlayerPage()
 
-        await overlays.watchHere()
+        await overlays.noThanks()
         await overlays.secondOverlayExistsOnVideo()
     })
-    test('Selecting \'watch here\' + remember', async ({ page }, workerInfo) => {
+    test('Selecting \'No Thanks\' + remember', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)
 
         // Given overlays feature is enabled
@@ -283,11 +283,11 @@ test.describe('Video Player overlays', () => {
         await overlays.gotoPlayerPage()
 
         await overlays.rememberMyChoice()
-        await overlays.watchHere()
+        await overlays.noThanks()
         await overlays.userSettingWasUpdatedTo('always ask remembered') // updated
     })
     test.describe('with remote config overrides', () => {
-        test('Selecting \'watch here\' + remember', async ({ page }, workerInfo) => {
+        test('Selecting \'No Thanks\' + remember', async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo)
 
             // config with some CSS selectors overridden
@@ -300,7 +300,7 @@ test.describe('Video Player overlays', () => {
         })
     })
     test.describe('with UI settings overrides', () => {
-        test('displays default overlay copy when no cohort is given', async ({ page }, workerInfo) => {
+        test('displays default overlay copy', async ({ page }, workerInfo) => {
             const overlays = DuckplayerOverlays.create(page, workerInfo)
 
             // Given overlays feature is enabled
@@ -313,51 +313,6 @@ test.describe('Video Player overlays', () => {
 
             // Then the overlay shows the correct copy for the default variant
             await overlays.overlayCopyIsDefault()
-        })
-
-        test('displays default overlay copy in control cohort', async ({ page }, workerInfo) => {
-            const overlays = DuckplayerOverlays.create(page, workerInfo)
-
-            // Given overlays feature is enabled
-            await overlays.withRemoteConfig()
-
-            // And my setting is 'always ask'
-            // And I'm in the 'control' experiment cohort
-            await overlays.initialSetupIs('always ask', 'default overlay copy')
-            await overlays.gotoPlayerPage()
-
-            // Then the overlay shows the correct copy for the default variant
-            await overlays.overlayCopyIsDefault()
-        })
-
-        test('displays overlay copy for cohort A1', async ({ page }, workerInfo) => {
-            const overlays = DuckplayerOverlays.create(page, workerInfo)
-
-            // Given overlays feature is enabled
-            await overlays.withRemoteConfig()
-
-            // And my setting is 'always ask'
-            // And I'm in the 'A1' experiment cohort
-            await overlays.initialSetupIs('always ask', 'overlay copy a1')
-            await overlays.gotoPlayerPage()
-
-            // Then the overlay shows the correct copy for the A1 variant
-            await overlays.overlayCopyIsA1()
-        })
-
-        test('displays overlay copy for cohort B1', async ({ page }, workerInfo) => {
-            const overlays = DuckplayerOverlays.create(page, workerInfo)
-
-            // Given overlays feature is enabled
-            await overlays.withRemoteConfig()
-
-            // And my setting is 'always ask'
-            // And I'm in the 'B1' experiment cohort
-            await overlays.initialSetupIs('always ask', 'overlay copy b1')
-            await overlays.gotoPlayerPage()
-
-            // Then the overlay shows the correct copy for the B1 variant
-            await overlays.overlayCopyIsB1()
         })
 
         test('forces next video to play in Duck Player', async ({ page }, workerInfo) => {
