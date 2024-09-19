@@ -545,9 +545,7 @@ export class WebCompat extends ContentFeature {
         if (!settings || !settings.changes) return
 
         settings.changes.forEach((change) => {
-            // @ts-expect-error Property 'action' does not exist on type '{}'
             if (change.action === 'delete') {
-                // @ts-expect-error Property 'key' does not exist on type '{}'
                 localStorage.removeItem(change.key)
             }
         })

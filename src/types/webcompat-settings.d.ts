@@ -31,7 +31,10 @@ export interface WebCompatSettings {
   };
   modifyLocalStorage?: {
     state: State;
-    changes: {}[];
+    changes: {
+      key: string;
+      action: string;
+    }[];
   };
   notification?: {
     state: State;
