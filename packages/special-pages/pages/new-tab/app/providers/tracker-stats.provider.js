@@ -1,4 +1,6 @@
 import { createContext, h } from 'preact'
+import { stats } from '../data.js'
+import { useMessaging } from "../types.js";
 
 export const TrackerStatsContext = createContext({
     data: /** @type {any} */(null)
@@ -9,14 +11,19 @@ export const TrackerStatsContext = createContext({
  * data + a toggle function
  *
  * @param {Object} props - The props object containing the data.
- * @param {any} props.data - The static set of data.
+ * @param {import("preact").ComponentChild} props.children - The children elements to be rendered.
  * @param {import("preact").ComponentChild} props.children - The children elements to be rendered.
  *
  */
 export function TrackerStatsProvider (props) {
-    // todo: subscribe to update here?
+    const {messaging} = useMessaging();
+    // messaging.stats.getPrivacyStats()
+    const url = new URL(window.location.href)
+    const key = url.searchParams.get('stats') || 'few'
+    const trackerStats = stats[key] || stats.few
+
     return (
-        <TrackerStatsContext.Provider value={{ data: props.data }}>
+        <TrackerStatsContext.Provider value={{ data: trackerStats }}>
             {props.children}
         </TrackerStatsContext.Provider>
     )

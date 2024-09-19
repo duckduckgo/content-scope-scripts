@@ -1,8 +1,8 @@
 import { h } from 'preact'
 import styles from './TrackerStats.module.css'
 import { TrackerStatsFeed } from './TrackerStatsFeed'
-import { useContext } from 'preact/hooks'
-import { useStorageValue, VisibilityContext } from '../hooks/useFeatureSetting'
+import { useContext, useState } from 'preact/hooks'
+import { useStorageValue, VisibilityContext } from '../providers/visibility.provider.js'
 import { useTranslation } from '../hooks/use-translation'
 import { Expander, ExpanderHeader, ExpanderHeaderText } from './Expander'
 import { Shield } from './Icons'
@@ -10,23 +10,11 @@ import { TrackerStatsContext } from '../providers/tracker-stats.provider'
 import { useCustomizer } from '../hooks/useCustomizer'
 
 export function TrackerStats () {
-    return (
-        <div className={styles.stats} data-testid="TrackerStats">
-            <FeatureToggle />
-        </div>
-    )
-}
-
-/**
- * This contains logic/margins outside of this main component (page layout stuff)
- * so it needs to be
- */
-function FeatureToggle (props) {
-    const { state, toggle } = useContext(VisibilityContext)
+    const { visibility, toggle } = useContext(VisibilityContext)
     const { translate } = useTranslation()
 
     useCustomizer({
-        state,
+        visibility,
         toggle: () => {
             toggle()
         },
@@ -40,26 +28,34 @@ function FeatureToggle (props) {
     })
 
     return (
-        // <NtpFeatureRow state={state} variant={props.variant} data-testid="TrackerStats">
-        <div hidden={state === 'hiding'}>
-            <ExpanderOnly variant={props.variant} featureState={state} />
+        <div className={styles.stats} data-testid="TrackerStats">
+            <div hidden={visibility === 'hidden'}>
+                <ExpanderOnly featureVisibility={visibility}/>
+            </div>
         </div>
-        // </NtpFeatureRow>
     )
 }
 
 /**
  * Exported separately for reviewing various states in Storybook
+ * @param {object} props
+ * @param {import('../../../../types/new-tab').LayoutVisibility} props.featureVisibility
+ * @param {string} [props.variant]
  */
 export function ExpanderOnly (props) {
-    const storage = useStorageValue('hide_new_tab_page_stats')
+    // todo: this will be in the feed for the tracker stats
+    const [expansion, toggle] = useState(/** @type {import('../../../../types/new-tab').LayoutExpansionState} */("expanded"))
     const ctx = useContext(TrackerStatsContext)
+    function onToggle() {
+        toggle(prev => prev === "expanded" ? "collapsed" :"expanded")
+    }
 
     const { translate } = useTranslation()
     const text = <TitleText totalCount={ctx.data.totalCount} />
     const label = translate('TRACKER_STATS_TOGGLE_LABEL')
+
     let header = (
-        <ExpanderHeader state={storage.state} toggle={storage.toggle} icon={<Shield />} labelText={label}>
+        <ExpanderHeader expansion={expansion} toggle={onToggle} icon={<Shield />} labelText={label}>
             {text}
         </ExpanderHeader>
     )
@@ -71,8 +67,8 @@ export function ExpanderOnly (props) {
     return (
         <Expander
             variant={props.variant}
-            state={storage.state}
-            featureState={props.featureState}
+            expansion={expansion}
+            featureState={props.featureVisibility}
             restrictedHeight={true}
             header={header}
             body={<TrackerStatsFeed {...ctx} />}

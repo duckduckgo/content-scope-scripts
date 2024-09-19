@@ -4,17 +4,17 @@ import { useEffect } from 'preact/hooks'
  * Allow features to opt-in to the Customizer window
  *
  * @param {object} params
- * @param {'showing' | 'hiding'} params.state
+ * @param {import('../../../../types/new-tab').LayoutVisibility} params.visibility
  * @param {() => void} params.toggle
  * @param {Omit<import('../providers/customizer.provider').CustomizerItem, 'state'>} params.data
  */
 export function useCustomizer (params) {
-    const { state, toggle, data } = params
+    const { visibility, toggle, data } = params
 
     useEffect(() => {
         const nextData = {
             ...data,
-            state: state === 'showing' ? 'enabled' : 'disabled'
+            state: visibility === 'visible' ? 'enabled' : 'disabled'
         }
 
         const collectEvent = 'customizer-collector'
@@ -40,7 +40,7 @@ export function useCustomizer (params) {
          */
         function handleCustomizerUpdate (e) {
             if (e.detail && typeof e.detail.next === 'function') {
-                const nextState = state === 'showing' ? 'disabled' : 'enabled'
+                const nextState = visibility === 'visible' ? 'disabled' : 'enabled'
                 toggle()
                 e.detail.next({ ...nextData, state: nextState })
             }
@@ -51,5 +51,5 @@ export function useCustomizer (params) {
             window.removeEventListener(collectEvent, handleCustomizerCollect)
             window.removeEventListener(toggleEvent, handleCustomizerUpdate)
         }
-    }, [data, state, toggle])
+    }, [data, visibility, toggle])
 }

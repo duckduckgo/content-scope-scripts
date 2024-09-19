@@ -28,8 +28,27 @@ export class NewtabPage {
         this.mocks.defaultResponses({
             requestSetAsDefault: {},
             requestImport: {},
-            init: {
-                env: 'development'
+            /** @type {import('../../types/new-tab.js').InitialSetupResponse} */
+            initialSetup: {
+                env: 'development',
+                layout: {
+                    widgets: [
+                        {
+                            widgetName: 'Favorites',
+                            visibility: 'visible',
+                            expansion: 'expanded'
+                        },
+                        {
+                            widgetName: 'PrivacyStats',
+                            visibility: 'hidden',
+                            expansion: 'collapsed'
+                        }
+                    ]
+                },
+                locale: 'en',
+                platform: {
+                    name: this.platform.name || 'windows'
+                }
             }
         })
     }

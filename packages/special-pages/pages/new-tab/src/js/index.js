@@ -1,3 +1,4 @@
+import 'preact/devtools'
 /**
  * @module New Tab Page
  * @category Special Pages
@@ -10,8 +11,11 @@ import {
     createTypedMessages
 } from '@duckduckgo/messaging'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
+import { Environment } from '../../../../shared/environment.js'
+import { Stats } from "./stats.js";
 
 export class NewTabPage {
+    stats = new Stats(this)
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      * @param {ImportMeta['injectName']} injectName
@@ -25,13 +29,10 @@ export class NewTabPage {
     }
 
     /**
-     * @return {Promise<import('../../../../types/new-tab.js').InitResponse>}
+     * @return {Promise<import('../../../../types/new-tab.js').InitialSetupResponse>}
      */
     init () {
-        if (this.injectName === 'integration') {
-            return Promise.resolve({ favorites: {}, trackerStats: {} })
-        }
-        return this.messaging.request('init')
+        return this.messaging.request('initialSetup')
     }
 
     /**
@@ -40,7 +41,47 @@ export class NewTabPage {
     reportInitException (message) {
         this.messaging.notify('reportInitException', { message })
     }
+
+    /**
+     * This will be sent if the application has loaded, but a client-side error
+     * has occurred that cannot be recovered from
+     * @param {{message: string}} params
+     */
+    reportPageException (params) {
+        this.messaging.notify('reportPageException', params)
+    }
 }
+
+export class IntegrationOverrides extends NewTabPage {
+    /**
+     * @return {Promise<import('../../../../types/new-tab.js').InitialSetupResponse>}
+     */
+    init () {
+        return Promise.resolve({
+            layout: {
+                widgets: [
+                    {
+                        widgetName: 'Favorites',
+                        visibility: 'visible',
+                        expansion: 'expanded'
+                    },
+                    {
+                        widgetName: 'PrivacyStats',
+                        visibility: 'visible',
+                        expansion: 'collapsed'
+                    }
+                ]
+            },
+            platform: { name: "windows" },
+            env: "development",
+            locale: "en"
+        })
+    }
+}
+
+const baseEnvironment = new Environment()
+    .withInjectName(document.documentElement.dataset.platform)
+    .withEnv(import.meta.env)
 
 const messaging = createSpecialPageMessaging({
     injectName: import.meta.injectName,
@@ -48,7 +89,10 @@ const messaging = createSpecialPageMessaging({
     pageName: 'newTabPage'
 })
 
-const newTabMessaging = new NewTabPage(messaging, import.meta.injectName)
+const newTabMessaging = baseEnvironment.injectName === 'integration' && !window.__playwright_01
+    ? new NewTabPage(messaging, import.meta.injectName)
+    : new IntegrationOverrides(messaging, import.meta.injectName)
+
 /** @type {'debug' | 'production'} */
 let mode = 'production'
 const param = new URL(window.location.href).searchParams.get('mode') || 'production'
@@ -56,7 +100,7 @@ if (param === 'debug' || param === 'production') {
     mode = param
 }
 
-init(newTabMessaging, mode).catch(e => {
+init(newTabMessaging, baseEnvironment).catch(e => {
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
     newTabMessaging.reportInitException(msg)

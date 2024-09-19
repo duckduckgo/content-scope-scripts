@@ -6,6 +6,14 @@ import { Chevron } from './Icons'
 /**
  * The Main UI without a specific provider. Use this to test the UI
  * in Storybook etc.
+ * @param {object} props
+ * @param {import('../../../../types/new-tab').LayoutExpansionState} props.expansion
+ * @param {import('../../../../types/new-tab').LayoutVisibility} props.featureState
+ * @param {any} props.restrictedHeight
+ * @param {any} props.variant
+ * @param {string} [props.testId]
+ * @param {any} props.body
+ * @param {any} props.header
  */
 export function Expander (props) {
     /**
@@ -17,7 +25,7 @@ export function Expander (props) {
      * - data-state="fadingIn"
      * - data-state="fadingOut"
      */
-    const NEXT_EXPANDER_STATE = props.state
+    const NEXT_EXPANDER_STATE = props.expansion
     const NEXT_FEATURE_STATE = props.featureState
 
     /**
@@ -47,7 +55,7 @@ export function Expander (props) {
             return
         }
 
-        if (NEXT_EXPANDER_STATE === 'hiding') {
+        if (NEXT_EXPANDER_STATE === 'collapsed') {
             // next state after the fade
             const handler = () => (currentBodyRef.dataset.state = 'hiding')
             currentBodyRef.addEventListener('transitionend', handler)
@@ -61,7 +69,7 @@ export function Expander (props) {
                 currentBodyRef.removeEventListener('animationend', handler)
             }
         }
-        if (NEXT_EXPANDER_STATE === 'showing') {
+        if (NEXT_EXPANDER_STATE === 'expanded') {
             // next state
             const handler = () => (currentBodyRef.dataset.state = 'showing')
             currentBodyRef.addEventListener('transitionend', handler)
@@ -96,21 +104,14 @@ export function Expander (props) {
     )
 }
 
-// Expander.propTypes = {
-//     header: PropTypes.node,
-//     body: PropTypes.node,
-//     state: PropTypes.oneOf(['showing', 'hiding']),
-//     featureState: PropTypes.oneOf(['showing', 'hiding']),
-//     variant: PropTypes.string,
-//     /**
-//      * Pass this to perform additional checks to prevent animations on
-//      * large containers. For example, when expanding a long list within an
-//      * overflow: scroll container.
-//      */
-//     restrictedHeight: PropTypes.bool,
-//     testId: PropTypes.string,
-// };
-
+/**
+ * @param {object} props
+ * @param {import('../../../../types/new-tab').LayoutExpansionState} props.expansion
+ * @param {import("preact").ComponentChild} props.children
+ * @param {import("preact").ComponentChild} props.icon
+ * @param {string} props.labelText
+ * @param {() => void} props.toggle
+ */
 function ExpanderHeader (props) {
     return (
         <ExpanderHeaderText text={props.children} icon={props.icon}>
@@ -118,7 +119,7 @@ function ExpanderHeader (props) {
                 type="button"
                 className={styles.toggle}
                 onClick={props.toggle}
-                aria-pressed={props.state === 'showing'}
+                aria-pressed={props.expansion === 'expanded'}
                 aria-label={props.labelText}
             >
                 <Chevron className={styles.toggleIcon} aria-hidden="true" />
@@ -126,25 +127,6 @@ function ExpanderHeader (props) {
         </ExpanderHeaderText>
     )
 }
-
-// ExpanderHeader.propTypes = {
-//     /**
-//      * The component will always be in 1 of a finite set of states
-//      */
-//     state: PropTypes.oneOf(['showing', 'hiding']).isRequired,
-//     /**
-//      * A callback to toggle visibility of the feed
-//      */
-//     toggle: PropTypes.func,
-//     /**
-//      * An icon to place at the side
-//      */
-//     icon: PropTypes.node.isRequired,
-//     /**
-//      * Accessibility label for the button
-//      */
-//     labelText: PropTypes.string.isRequired,
-// };
 
 export { ExpanderHeader }
 
@@ -162,9 +144,3 @@ export function ExpanderHeaderText (props) {
         </div>
     )
 }
-
-// ExpanderHeaderText.propTypes = {
-//     icon: PropTypes.node.isRequired,
-//     text: PropTypes.node.isRequired,
-//     variant: PropTypes.oneOf(['centered']),
-// };

@@ -4,15 +4,15 @@ import { ShowHide } from './ShowHide'
 import { favorites } from '../data'
 import { useCustomizer } from '../hooks/useCustomizer'
 import { useContext } from 'preact/hooks'
-import { VisibilityContext } from '../hooks/useFeatureSetting'
+import { VisibilityContext } from '../providers/visibility.provider.js'
 import { useTranslation } from '../hooks/use-translation'
 
 export function Favorites () {
-    const { state, toggle } = useContext(VisibilityContext)
+    const { visibility, toggle } = useContext(VisibilityContext)
     const { translate } = useTranslation()
 
     useCustomizer({
-        state,
+        visibility,
         toggle: () => {
             toggle()
         },
@@ -24,8 +24,9 @@ export function Favorites () {
             order: 1
         }
     })
+
     return (
-        <div hidden={state === 'hiding'}>
+        <div hidden={visibility === 'hidden'}>
             <FavoritesInner />
         </div>
     )

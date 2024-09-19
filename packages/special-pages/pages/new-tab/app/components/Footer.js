@@ -46,7 +46,7 @@ export function NewTabPageCustomizerMenu () {
     useDismiss(contentRef, closeCustomizer)
 
     return (
-        <div class={styles.menu} ref={contentRef}>
+        <div class={styles.menu} ref={contentRef} hidden>
             {state.items.map((item) => {
                 return (
                     <div class={styles.item}>

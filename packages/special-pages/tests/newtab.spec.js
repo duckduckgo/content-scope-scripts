@@ -2,7 +2,7 @@ import { test } from '@playwright/test'
 import { NewtabPage } from './page-objects/newtab'
 
 test.describe('tracker stats widget', () => {
-    test('states', async ({ page }, workerInfo) => {
+    test('stats', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo)
         await ntp.reducedMotion()
         await ntp.openPage({ stats: 'none' })

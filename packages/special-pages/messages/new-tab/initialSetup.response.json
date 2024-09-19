@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["layout", "locale", "env", "platform"],
+  "properties": {
+    "layout": {
+      "$ref": "./layout.json"
+    },
+    "locale": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string",
+      "enum": ["development", "production"]
+    },
+    "platform": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["macos", "windows", "android", "ios"]
+        }
+      }
+    }
+  }
+}
