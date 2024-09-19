@@ -4,6 +4,7 @@ const baseFeatures = /** @type {const} */([
     'fingerprintingBattery',
     'fingerprintingCanvas',
     'googleRejected',
+    'googlePasswordImport',
     'gpc',
     'fingerprintingHardware',
     'referrer',
@@ -38,6 +39,9 @@ export const platformSupport = {
         'brokerProtection',
         'performanceMetrics',
         'clickToLoad'
+    ],
+    'android-for-frames': [
+        'googlePasswordImport'
     ],
     android: [
         ...baseFeatures,

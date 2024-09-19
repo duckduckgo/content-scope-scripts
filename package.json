@@ -16,6 +16,7 @@
     "build-chrome": "node scripts/inject.js --platform chrome",
     "build-chrome-mv3": "node scripts/inject.js --platform chrome-mv3",
     "build-apple": "node scripts/inject.js --platform apple && node scripts/inject.js --platform apple-isolated",
+    "build-android-for-frames": "node scripts/inject.js --platform android-for-frames --for-frames",
     "build-android": "node scripts/inject.js --platform android",
     "build-windows": "node scripts/inject.js --platform windows",
     "build-integration": "node scripts/inject.js --platform integration",
