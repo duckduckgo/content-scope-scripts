@@ -4,7 +4,6 @@ const baseFeatures = /** @type {const} */([
     'fingerprintingBattery',
     'fingerprintingCanvas',
     'googleRejected',
-    'googlePasswordImport',
     'gpc',
     'fingerprintingHardware',
     'referrer',
@@ -24,7 +23,8 @@ const otherFeatures = /** @type {const} */([
     'windowsPermissionUsage',
     'brokerProtection',
     'performanceMetrics',
-    'breakageReporting'
+    'breakageReporting',
+    'googlePasswordImport'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */

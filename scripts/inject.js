@@ -31,7 +31,7 @@ const builds = {
     },
     'android-for-frames': {
         input: 'inject/android.js',
-        output: ['Sources/ContentScopeScripts/dist/androidForFrames.js']
+        output: ['build/android/contentScopeForFrames.js']
     },
     android: {
         input: 'inject/android.js',
