@@ -19,4 +19,3 @@ inject/windows.js @jonathanKingston @q71114 @szanto90balazs
 
 # Test owners
 integration-tests/test-pages/ @kdzwinel @jonathanKingston
-unit-tests/script-overload-snapshots/ @shakyShane @jonathanKingston @englehardt

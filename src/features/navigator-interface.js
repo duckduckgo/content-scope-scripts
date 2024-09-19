@@ -26,9 +26,7 @@ export default class NavigatorInterface extends ContentFeature {
                     platform: args.platform.name,
                     isDuckDuckGo () {
                         return DDGPromise.resolve(true)
-                    },
-                    taints: new Set(),
-                    taintedOrigins: new Set()
+                    }
                 },
                 enumerable: true,
                 configurable: false,

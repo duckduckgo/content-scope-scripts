@@ -8,9 +8,9 @@ function getHARPath (harFile) {
     return path.join(testRoot, 'data', 'har', harFile)
 }
 
-const config = './integration-test/test-pages/runtime-checks/config/replace-element.json'
 const css = readFileSync('./build/integration/contentScope.js', 'utf8')
-const parsedConfig = JSON.parse(readFileSync(config, 'utf8'))
+// TODO flag on all features
+const parsedConfig = {}
 
 function wrapScript (js, replacements) {
     for (const [find, replace] of Object.entries(replacements)) {

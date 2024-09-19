@@ -71,23 +71,6 @@ describe('Test integration pages', () => {
         }
     }
 
-    describe('Runtime checks', () => {
-        const pages = {
-            'runtime-checks/pages/basic-run.html': 'runtime-checks/config/basic-run.json',
-            'runtime-checks/pages/replace-element.html': 'runtime-checks/config/replace-element.json',
-            'runtime-checks/pages/filter-props.html': 'runtime-checks/config/filter-props.json',
-            'runtime-checks/pages/shadow-dom.html': 'runtime-checks/config/shadow-dom.json',
-            'runtime-checks/pages/script-overload.html': 'runtime-checks/config/script-overload.json',
-            'runtime-checks/pages/generic-overload.html': 'runtime-checks/config/generic-overload.json'
-        }
-        for (const pageName in pages) {
-            const configName = pages[pageName]
-            it(`${pageName}`, async () => {
-                await testPage(pageName, process.cwd() + '/integration-test/test-pages/' + configName)
-            })
-        }
-    })
-
     it('Web compat shims correctness', async () => {
         await testPage(
             'webcompat/pages/shims.html',
