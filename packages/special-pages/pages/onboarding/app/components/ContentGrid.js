@@ -1,5 +1,4 @@
 import { h } from 'preact'
-import { useEffect } from 'preact/hooks'
 import { SingleLineProgress } from './Progress'
 
 import styles from './ContentGrid.module.css'

@@ -31,7 +31,7 @@ export function SingleSettingStep ({ currentProgress, totalProgress }) {
                 totalProgress={totalProgress}
                 dismissButton={dismissButton}
                 acceptButton={acceptButton}>
-                    {content}
+                {content}
             </ContentGrid>
         </Panel>
     )

@@ -1,10 +1,14 @@
-import { useContext, useState } from 'preact/hooks'
+import { useContext } from 'preact/hooks'
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
 import { GlobalContext, GlobalDispatch } from '../../global'
 import { useTypedTranslation } from '../../types'
 import { stepsConfig } from './data'
 
-export function useStepConfig() {
+/**
+ *
+ * @returns {import('./data').StepConfigParams & { stepConfig: import('./data').StepConfig }}
+ */
+export function useStepConfig () {
     const env = useEnv()
     const global = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
@@ -42,7 +46,7 @@ export function useStepConfig() {
         enqueueNext,
         dismiss,
         enableSystemValue,
-        setBeforeAfter,
+        setBeforeAfter
     }
 
     if (!stepsConfig[activeStep]) {

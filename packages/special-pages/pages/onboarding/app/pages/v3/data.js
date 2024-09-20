@@ -28,7 +28,9 @@ import { DuckPlayerStep } from './DuckPlayerStep'
  * @property {import('preact').ComponentChild} content
  */
 
-/** @type {Partial<Record<import('../../types').Step['id'], (params: StepConfigParams) => StepConfig>>} */
+/** @typedef {import('../../types').ORDER_V3[number]} StepsV3  */
+
+/** @type {Record<StepsV3, (params: StepConfigParams) => StepConfig>} */
 export const stepsConfig = {
     duckPlayerSingle: ({ t, global, setBeforeAfter }) => {
         const { beforeAfterState } = global
@@ -48,7 +50,7 @@ export const stepsConfig = {
             dismissContent,
             acceptContent: t('nextButton'),
             dismissHandler: () => setBeforeAfter(beforeAfterState === 'before' ? 'after' : 'before'),
-            content: <DuckPlayerStep beforeAfter={beforeAfterState} setBeforeAfter={setBeforeAfter}/>,
+            content: <DuckPlayerStep beforeAfter={beforeAfterState} setBeforeAfter={setBeforeAfter}/>
         }
     },
     importSingle: ({ t, global, enableSystemValue }) => {
@@ -91,7 +93,7 @@ export const stepsConfig = {
     },
     dockSingle: ({ t, env, global, enableSystemValue }) => {
         const { UIValues } = global
-        const isIdle = UIValues['dock'] === 'idle'
+        const isIdle = UIValues.dock === 'idle'
         const { injectName: platform } = env
 
         let title = isIdle ? t('stickAroundDockTitle') : t('dockAcceptTitle', { newline: '\n' })
