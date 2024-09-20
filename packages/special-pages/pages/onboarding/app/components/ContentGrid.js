@@ -5,8 +5,8 @@ import { SingleLineProgress } from './Progress'
 
 /**
  * @param {object} props
- * @param {number} props.currentProgress
- * @param {number} props.totalProgress
+ * @param {number} [props.currentProgress]
+ * @param {number} [props.totalProgress]
  * @param {h.JSX.Element|null} [props.dismissButton=null]
  * @param {h.JSX.Element|null} [props.acceptButton=null]
  * @param {import("preact").ComponentChild} props.children
@@ -18,7 +18,7 @@ export function ContentGrid ({ currentProgress, totalProgress, dismissButton = n
                 {children}
             </div>
             <div className={styles.progress}>
-                <SingleLineProgress current={currentProgress} total={totalProgress} />
+                {currentProgress && totalProgress && <SingleLineProgress current={currentProgress} total={totalProgress} />}
             </div>
 
             <div className={styles.spacer}></div>

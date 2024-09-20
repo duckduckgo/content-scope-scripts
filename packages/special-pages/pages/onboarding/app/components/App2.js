@@ -11,11 +11,7 @@ import { Background } from './Background'
 import { ElasticButton } from './Buttons'
 import { Heading } from './Heading'
 import { Panel } from './Panel'
-import { DuckPlayerStep } from '../pages/v3/DuckPlayerStep'
-import { ImportStep } from '../pages/v3/ImportStep'
-import { MakeDefaultStep } from '../pages/v3/MakeDefaultStep'
-import { CustomizeStep } from '../pages/v3/CustomizeStep'
-import { DockStep } from '../pages/v3/DockStep'
+import { SingleSettingStep } from '../pages/v3/SingleSettingStepV3'
 
 import styles from './App2.module.css'
 
@@ -47,7 +43,8 @@ export function App2 ({ children }) {
 
     /** @type {import('../types').Step['id'][]} */
     const progress = order.slice(2, order.length)
-    const showProgress = progress.includes(activeStep)
+    const currentProgress = progress.indexOf(activeStep) + 1
+    const totalProgress = progress.length
 
     const advance = () => dispatch({ kind: 'advance' })
     // const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
@@ -92,11 +89,7 @@ export function App2 ({ children }) {
 
                             {step.id === 'welcome' && <Timeout onComplete={enqueueNext} ignore={true} />}
                         </Panel> }
-                    {step.id === 'duckPlayerSingle' && <DuckPlayerStep />}
-                    {step.id === 'importSingle' && <ImportStep />}
-                    {step.id === 'makeDefaultSingle' && <MakeDefaultStep />}
-                    {step.id === 'customizeV3' && <CustomizeStep />}
-                    {step.id === 'dockSingle' && <DockStep />}
+                    {step.id !== 'welcome' && step.id !== 'getStarted' && <SingleSettingStep currentProgress={currentProgress} totalProgress={totalProgress} />}
                 </ErrorBoundary>
                 {children}
             </div>

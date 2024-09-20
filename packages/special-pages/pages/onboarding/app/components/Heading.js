@@ -10,8 +10,8 @@ import styles from './Heading.module.css'
  * Animated Dax heading with optional speech bubble
  *
  * @param {object} props
- * @param {string|undefined} props.title - Heading title
- * @param {string|null|undefined} [props.subtitle] - Optional heading subtitle
+ * @param {string|null} [props.title] - Heading title
+ * @param {string|null} [props.subtitle] - Optional heading subtitle
  * @param {boolean} [props.speechBubble=false] - Display title and subtitle inside speech bubble
  * @param {import('preact').ComponentChildren} [props.children]
  */

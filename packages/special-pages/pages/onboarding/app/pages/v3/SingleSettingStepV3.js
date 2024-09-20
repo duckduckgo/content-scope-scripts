@@ -11,14 +11,10 @@ import { stepsConfig } from './data'
 
 /**
  * @param {object} props
- * @param {boolean} [props.isIdle=false]
- * @param {import("preact").ComponentChild} [props.dismissContent]
- * @param {(() => void)|null} [props.dismissHandler]
- * @param {import("preact").ComponentChild} [props.acceptContent]
- * @param {(() => void)|null} [props.acceptHandler]
- * @param {import("preact").ComponentChild} props.children
+ * @param {number} [props.currentProgress]
+ * @param {number} [props.totalProgress]
  */
-export function SingleSettingStep ({ isIdle = false, dismissContent, dismissHandler, acceptContent, acceptHandler, children }) {
+export function SingleSettingStep ({ currentProgress, totalProgress }) {
     const env = useEnv()
     const global = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
@@ -37,6 +33,7 @@ export function SingleSettingStep ({ isIdle = false, dismissContent, dismissHand
 
     const dismiss = () => dispatch({ kind: 'dismiss' })
 
+    /** @type {(id: import('../../types').SystemValueId) => void} */
     const enableSystemValue = (id) => dispatch({
         kind: 'update-system-value',
         id,
@@ -44,6 +41,7 @@ export function SingleSettingStep ({ isIdle = false, dismissContent, dismissHand
         current: true
     })
 
+    /** @type {import('./data').StepConfigParams} */
     const configParams = {
         t,
         env,
@@ -53,7 +51,12 @@ export function SingleSettingStep ({ isIdle = false, dismissContent, dismissHand
         enableSystemValue
     }
 
-    const { title, subtitle } = stepsConfig[activeStep](configParams)
+    if (!stepsConfig[activeStep]) {
+        console.warn(`Missing step config for ${activeStep}`)
+        return null
+    }
+
+    const { title, subtitle, dismissContent, dismissHandler, acceptContent, acceptHandler, content } = stepsConfig[activeStep](configParams)
 
     const dismissButton = dismissContent
         ? <ElasticButton grow={false} onClick={dismissHandler || enqueueNext} variant='secondary'>
@@ -68,11 +71,11 @@ export function SingleSettingStep ({ isIdle = false, dismissContent, dismissHand
             <Heading title={title} subtitle={subtitle} speechBubble={true} />
 
             <ContentGrid
-                currentProgress={1}
-                totalProgress={5}
+                currentProgress={currentProgress}
+                totalProgress={totalProgress}
                 dismissButton={dismissButton}
                 acceptButton={acceptButton}>
-                {children}
+                    {content}
             </ContentGrid>
         </Panel>
     )
