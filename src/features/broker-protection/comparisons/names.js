@@ -1,40 +1,26 @@
 import { names } from './constants.js'
 
 // Account for alternative names here, should be passed in the function signature (instead of fullNameExtracted, maybe fullNames?)
+// We should normalize the alternative names as well, and then just do each check against the normalized names array.
 /**
- * @param {[string]} fullNamesExtracted
+ * @param {string} fullNameExtracted
+ * @param {[string]} alternativeNames
  * @param {string} userFirstName
  * @param {string | null | undefined} userMiddleName
  * @param {string} userLastName
  * @param {string | null} [userSuffix]
  * @return {{exactMatch: boolean, partialMatch: boolean, multipleMatches: number}}
  */
-export function getNameMatches(fullNamesExtracted, userFirstName, userMiddleName, userLastName, userSuffix) {
+export function getNameMatches(fullNameExtracted, alternativeNames, userFirstName, userMiddleName, userLastName, userSuffix) {
     const result = {
         exactMatch: false,
         partialMatch: false,
         multipleMatches: 0,
     };
 
-    return result;
-}
-
-/**
- * @param {string} fullNameExtracted
- * @param {string} userFirstName
- * @param {string | null | undefined} userMiddleName
- * @param {string} userLastName
- * @param {string | null} [userSuffix]
- * @return {boolean}
- */
-export function isSameName (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) {
-    // If there's no name on the website, then there's no way we can match it
-    if (!fullNameExtracted) {
-        return false
+    if (!fullNameExtracted ||!userFirstName || !userLastName) {
+        return result
     }
-
-    // these fields should never be absent. If they are we cannot continue
-    if (!userFirstName || !userLastName) return false
 
     fullNameExtracted = fullNameExtracted.toLowerCase().trim().replace('.', '')
     userFirstName = userFirstName.toLowerCase()
@@ -46,7 +32,7 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
     const names = getNames(userFirstName)
 
     for (const firstName of names) {
-    // Let's check if the name matches right off the bat
+        // Let's check if the name matches right off the bat
         const nameCombo1 = `${firstName} ${userLastName}`
         if (fullNameExtracted === nameCombo1) {
             return true
@@ -164,7 +150,16 @@ export function isSameName (fullNameExtracted, userFirstName, userMiddleName, us
         }
     }
 
-    return false
+    // Do exact match, and add multiple matches
+    // Consider initials as well
+    // Remove the suffix stuff, we don't do suffix.
+    // Can we make this any simpler? We loop through the whole thing with variations, perhaps we can simplify.
+
+    // On the other hand, if we leave the logic mostly as-is, it'll be easier to do comparisons.
+
+    // Decide what constitues an exact and partial match.
+
+    return result;
 }
 
 /**
