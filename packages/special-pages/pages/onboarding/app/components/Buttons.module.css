@@ -126,3 +126,22 @@
     ),
     #1e42a4;
 }
+
+.elasticContainer {
+    align-items: center;
+    display: flex;
+    height: var(--sp-11);
+}
+
+.elastic {
+    --btn-line-height: 1;
+    --btn-font-size: calc(14 * var(--px-in-rem));
+    --btn-height: var(--sp-9);
+    padding: calc(10 * var(--px-in-rem)) var(--sp-6);
+    transition: height 150ms ease-in-out;
+
+    &.growable:hover {
+        --btn-height: var(--sp-11);
+    }
+}
+

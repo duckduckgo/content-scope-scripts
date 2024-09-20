@@ -1,0 +1,39 @@
+.container {
+    display: grid;
+    gap: var(--sp-8) var(--sp-2);
+    grid-template-rows: auto var(--sp-9);
+    grid-template-columns: var(--sp-20) 1fr min-content min-content;
+    grid-template-areas:
+        "content content content content"
+        "progress spacer skip accept";
+    align-items: center;
+
+    [data-platform="windows"] & {
+        grid-template-areas:
+        "content content content content"
+        "progress spacer accept skip";
+    }
+}
+
+.content {
+    grid-area: content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress {
+    grid-area: progress;
+}
+
+.spacer {
+    grid-area: spacer;
+}
+
+.skip {
+    grid-area: skip;
+}
+
+.accept {
+    grid-area: accept;
+}

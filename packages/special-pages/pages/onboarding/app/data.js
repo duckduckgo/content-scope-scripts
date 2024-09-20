@@ -78,13 +78,8 @@ export const stepDefinitions = {
         id: 'summary',
         kind: 'info'
     },
-    makeDefaultV3: {
-        id: 'makeDefaultV3',
-        kind: 'settings',
-        rows: ['default-browser']
-    },
-    duckPlayerV3: {
-        id: 'duckPlayerV3',
+    duckPlayerSingle: {
+        id: 'duckPlayerSingle',
         kind: 'info'
     },
     customizeV3: {
@@ -290,4 +285,32 @@ export const beforeAfterMeta = {
         inputName: 'Duck Player?',
         stateMachine: 'State Machine 2'
     })
+}
+
+export const titles = {
+    duckPlayerSingle: {
+        title: (t) => t('duckPlayer_highlights_title'),
+        subtitle: (t) => t('duckPlayer_highlights_subtitle')
+    },
+    importSingle: {
+        title: (t) => t('import_highlights_title'),
+        subtitle: (t) => t('import_highlights_subtitle')
+    },
+    makeDefaultSingle: {
+        title: (t, isIdle) => isIdle ? t('protectionsActivated') : t('makeDefaultSuccess'),
+        subtitle: () => null
+    },
+    customizeV3: {
+        title: (t) => t('customize_highlights_title'),
+        subtitle: (t) => t('customize_highlights_subtitle')
+    },
+    dockSingle: {
+        title: (t, isIdle, platform) => {
+            if (platform === 'windows') {
+                return isIdle ? t('stickAroundTaskbarTitle') : t('taskbarAcceptTitle', { newline: '\n' })
+            }
+            return isIdle ? t('stickAroundDockTitle') : t('dockAcceptTitle', { newline: '\n' })
+        },
+        subtitle: (t, isIdle) => isIdle ? t('dockSubtitle') : null
+    }
 }

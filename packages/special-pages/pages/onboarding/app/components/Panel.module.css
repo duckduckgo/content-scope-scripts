@@ -1,0 +1,17 @@
+.panel {
+    display: grid;
+    padding: var(--sp-6);
+    row-gap: var(--sp-6);
+}
+
+.boxed {
+    backdrop-filter: blur(var(--sp-16));
+    background: var(--color-white-at-24);
+    border-radius: var(--sp-8);
+    box-shadow: 0px 8px 24px 0px rgba(62, 34, 140, 0.06), 0px 32px 128px 0px rgba(30, 66, 164, 0.09);
+
+    @media (prefers-color-scheme: dark) {
+        background: var(--color-black-at-48);
+        box-shadow: 0px 8px 24px 0px rgba(7, 0, 25, 0.06), 0px 32px 128px 0px rgba(5, 17, 51, 0.09);
+    }
+}

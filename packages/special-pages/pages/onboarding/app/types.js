@@ -24,9 +24,8 @@ import { useContext } from 'preact/hooks'
  *   | DockSingleStep
  *   | ImportSingleStep
  *   | MakeDefaultSingleStep
- *   | MakeDefaultV3Step
  *   | CustomizeV3Step
- *   | DuckPlayerV3Step
+ *   | DuckPlayerSingleStep
  * } Step
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
  * @typedef {{ kind: 'info'; id: 'getStarted' }} GetStartedStep
@@ -37,9 +36,8 @@ import { useContext } from 'preact/hooks'
  * @typedef {{ kind: 'settings'; id: 'dockSingle'; rows: SystemValueId[]; }} DockSingleStep
  * @typedef {{ kind: 'settings'; id: 'importSingle'; rows: SystemValueId[]; }} ImportSingleStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
- * @typedef {{ kind: 'settings'; id: 'makeDefaultV3'; rows: SystemValueId[]; }} MakeDefaultV3Step
  * @typedef {{ kind: 'settings'; id: 'customizeV3'; rows: SystemValueId[] }} CustomizeV3Step
- * @typedef {{ kind: 'info'; id: 'duckPlayerV3' }} DuckPlayerV3Step
+ * @typedef {{ kind: 'info'; id: 'duckPlayerSingle' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'summary' }} SummaryStep
  */
 
@@ -85,10 +83,10 @@ export const ALT_ORDER = [
 export const ORDER_V3 = [
     'welcome',
     'getStarted',
-    'makeDefaultV3',
+    'makeDefaultSingle',
     'dockSingle',
     'importSingle',
-    'duckPlayerV3',
+    'duckPlayerSingle',
     'customizeV3'
 ]
 
@@ -116,7 +114,6 @@ export const ORDER_V3 = [
  * @property {boolean} activeStepVisible
  * @property {boolean} exiting
  * @property {Status} status
- * @property {'before'|'after'} beforeAfter
  * @property {Partial<Record<SystemValueId, SystemValue>>} values
  * @property {Record<SystemValueId, UIValue>} UIValues
  */
@@ -130,7 +127,6 @@ export const ORDER_V3 = [
  *   | ExecErrorEvent
  *   | DismissEvent
  *   | DismisstoSettingsEvent
- *   | ToggleBeforeAfterEvent
  *   | ErrorBoundaryEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
@@ -140,7 +136,6 @@ export const ORDER_V3 = [
  * @typedef {{ kind: "exec-error"; id: SystemValueId; message: string }} ExecErrorEvent
  * @typedef {{ kind: "dismiss" }} DismissEvent
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
- * @typedef {{ kind: "toggle-before-after" }} ToggleBeforeAfterEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
  *

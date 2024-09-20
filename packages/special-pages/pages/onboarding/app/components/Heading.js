@@ -1,6 +1,9 @@
 import { h } from 'preact'
+import { useContext } from 'preact/hooks'
 import cn from 'classnames'
+import { GlobalContext, GlobalDispatch } from '../global'
 import { Typed } from './Typed'
+
 import styles from './Heading.module.css'
 
 /**
@@ -9,12 +12,14 @@ import styles from './Heading.module.css'
  * @param {object} props
  * @param {string|undefined} props.title - Heading title
  * @param {string|null|undefined} [props.subtitle] - Optional heading subtitle
- * @param {boolean} [props.hideSubtitle=false] - Visually hide subtitle
  * @param {boolean} [props.speechBubble=false] - Display title and subtitle inside speech bubble
- * @param {(() => void) | null} [props.onComplete=null] - A callback function to be called when the typing is complete.
- * @param {import('preact').ComponentChildren} props.children
+ * @param {import('preact').ComponentChildren} [props.children]
  */
-export function Heading ({ title, subtitle, hideSubtitle = false, speechBubble = false, onComplete = null, children }) {
+export function Heading ({ title, subtitle, speechBubble = false, children }) {
+    const { activeStepVisible } = useContext(GlobalContext)
+    const dispatch = useContext(GlobalDispatch)
+    const onComplete = () => dispatch({ kind: 'title-complete' })
+
     if (!title) {
         console.warn('Missing title')
         return null
@@ -23,7 +28,7 @@ export function Heading ({ title, subtitle, hideSubtitle = false, speechBubble =
     const HeadingComponent = speechBubble ? SpeechBubble : PlainHeading
     const subtitleClass = cn({
         [styles.subTitle]: true,
-        [styles.hidden]: hideSubtitle
+        [styles.hidden]: !activeStepVisible
     })
 
     return (

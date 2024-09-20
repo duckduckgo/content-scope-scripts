@@ -46,7 +46,6 @@ export function reducer (state, action) {
                     activeStep: state.order[nextPageIndex],
                     nextStep: state.order[nextPageIndex + 1],
                     activeRow: 0,
-                    beforeAfter: 'before',
                     activeStepVisible: false,
                     exiting: false,
                     step: state.stepDefinitions[state.order[nextPageIndex]]
@@ -58,12 +57,6 @@ export function reducer (state, action) {
             return {
                 ...state,
                 exiting: true
-            }
-        }
-        case 'toggle-before-after': { // TODO: REALLY find a better way of doing this
-            return {
-                ...state,
-                beforeAfter: state.beforeAfter === 'before' ? 'after' : 'before'
             }
         }
         default:
@@ -140,7 +133,6 @@ export function GlobalProvider ({ order, children, stepDefinitions, messaging, f
         activeStep: firstPage,
         nextStep: order[1],
         activeRow: 0,
-        beforeAfter: 'before', // TODO: Find a better solution for this
         activeStepVisible: false,
         exiting: false,
         values: {},
