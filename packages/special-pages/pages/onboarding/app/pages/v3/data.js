@@ -1,9 +1,10 @@
 import { h, Fragment } from 'preact'
-import { Launch } from '../../components/Icons'
+import { Launch, Replay } from '../../components/Icons'
 import { CustomizeStep } from './CustomizeStep'
 import { ImportStep } from './ImportStep'
 import { DockStep } from './DockStep'
 import { MakeDefaultStep } from './MakeDefaultStep'
+import { DuckPlayerStep } from './DuckPlayerStep'
 
 /**
  * @typedef {object} StepConfigParams
@@ -13,6 +14,7 @@ import { MakeDefaultStep } from './MakeDefaultStep'
  * @property {() => void} enqueueNext
  * @property {() => void} dismiss
  * @property {(id: import('../../types').SystemValueId) => void} enableSystemValue
+ * @property {(value: 'before'|'after') => void} setBeforeAfter
  */
 
 /**
@@ -28,10 +30,25 @@ import { MakeDefaultStep } from './MakeDefaultStep'
 
 /** @type {Partial<Record<import('../../types').Step['id'], (params: StepConfigParams) => StepConfig>>} */
 export const stepsConfig = {
-    duckPlayerSingle: ({ t }) => {
+    duckPlayerSingle: ({ t, global, setBeforeAfter }) => {
+        const { beforeAfterState } = global
+        let dismissContent = null
+        console.log('BA', beforeAfterState)
+
+        if (beforeAfterState) {
+            dismissContent = <>
+                <Replay />
+                {beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide')}
+            </>
+        }
+
         return {
             title: t('duckPlayer_highlights_title'),
-            subtitle: t('duckPlayer_highlights_subtitle')
+            subtitle: t('duckPlayer_highlights_subtitle'),
+            dismissContent,
+            acceptContent: t('nextButton'),
+            dismissHandler: () => setBeforeAfter(beforeAfterState === 'before' ? 'after' : 'before'),
+            content: <DuckPlayerStep beforeAfter={beforeAfterState} setBeforeAfter={setBeforeAfter}/>,
         }
     },
     importSingle: ({ t, global, enableSystemValue }) => {
@@ -61,8 +78,8 @@ export const stepsConfig = {
         }
     },
     customizeV3: ({ t, global, dismiss }) => {
-        const { step, activeStep, activeRow } = global
-        const isDone = activeRow >= step.rows.length
+        const { step, activeRow } = global
+        const isDone = activeRow >= /** @type {import('../../types').CustomizeV3Step} */(step).rows.length
 
         return {
             title: t('customize_highlights_title'),

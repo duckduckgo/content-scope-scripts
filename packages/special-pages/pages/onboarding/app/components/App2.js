@@ -11,7 +11,7 @@ import { Background } from './Background'
 import { ElasticButton } from './Buttons'
 import { Heading } from './Heading'
 import { Panel } from './Panel'
-import { SingleSettingStep } from '../pages/v3/SingleSettingStepV3'
+import { SingleSettingStep } from '../pages/v3/SingleSettingStep'
 
 import styles from './App2.module.css'
 

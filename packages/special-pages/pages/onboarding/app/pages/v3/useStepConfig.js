@@ -1,5 +1,18 @@
+import { useContext, useState } from 'preact/hooks'
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
+import { GlobalContext, GlobalDispatch } from '../../global'
+import { useTypedTranslation } from '../../types'
+import { stepsConfig } from './data'
 
 export function useStepConfig() {
+    const env = useEnv()
+    const global = useContext(GlobalContext)
+    const dispatch = useContext(GlobalDispatch)
+    const { t } = useTypedTranslation()
+
+    const { isReducedMotion } = env
+    const { activeStep } = global
+
     const enqueueNext = () => {
         if (isReducedMotion) {
             dispatch({ kind: 'advance' })
@@ -9,6 +22,9 @@ export function useStepConfig() {
     }
 
     const dismiss = () => dispatch({ kind: 'dismiss' })
+
+    /** @type {(value: 'before'|'after') => void} */
+    const setBeforeAfter = (value) => dispatch({ kind: 'set-before-after', value })
 
     /** @type {(id: import('../../types').SystemValueId) => void} */
     const enableSystemValue = (id) => dispatch({
@@ -25,6 +41,16 @@ export function useStepConfig() {
         global,
         enqueueNext,
         dismiss,
-        enableSystemValue
+        enableSystemValue,
+        setBeforeAfter,
+    }
+
+    if (!stepsConfig[activeStep]) {
+        throw new Error(`Missing step config for ${activeStep}`)
+    }
+
+    return {
+        ...configParams,
+        stepConfig: stepsConfig[activeStep](configParams)
     }
 }

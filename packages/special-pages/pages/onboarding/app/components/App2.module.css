@@ -3,19 +3,21 @@
 }
 
 .main {
-    position: relative;
+    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     height: 100%;
+    position: relative;
 }
 
 .container {
-    position: relative;
-    width: calc(100% - 64px);
-    max-width:  640px;
     margin-left: auto;
     margin-right: auto;
-    padding-top: 80px;
+    max-width:  640px;
     padding-bottom: 80px;
+    padding-top: 80px;
+    position: relative;
+    width: calc(100% - 64px);
     z-index: 1;
+
     transition: transform 0.3s ease-in-out;
     transform: translateY(0);
 
@@ -76,8 +78,8 @@
 /* Animated hiker */
 
 .hiker {
-    position: absolute;
     bottom: calc(-1 * var(--sp-2));
+    position: absolute;
     right: var(--sp-35);
 
     animation-name: hiker-appear;

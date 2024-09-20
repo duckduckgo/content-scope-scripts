@@ -1,56 +1,36 @@
-import { h, Fragment } from 'preact'
-import { useState, useEffect } from 'preact/hooks'
+import { h } from 'preact'
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
-import { useTypedTranslation } from '../../types'
 import { RiveAnimation } from '../../components/RiveAnimation'
-import { Replay } from '../../components/Icons'
-import { SingleSettingStep } from './SingleSettingStep'
 
 import onboardingAnimation from '../../animations/Onboarding.riv'
 
 import styles from './DuckPlayerStep.module.css'
+import { useEffect } from 'preact/hooks'
 
-export function DuckPlayerStep () {
+/**
+ * @param {object} props
+ * @param {'before'|'after'|null} [props.beforeAfter]
+ * @param {(value: 'before'|'after') => void} [props.setBeforeAfter]
+ */
+export function DuckPlayerStep ({ beforeAfter, setBeforeAfter }) {
     const { isDarkMode } = useEnv()
-    const { t } = useTypedTranslation()
 
     useEffect(() => {
-        setTimeout(() => {
+        setBeforeAfter && setTimeout(() => {
             setBeforeAfter('after')
         }, 500)
     }, [])
 
-    const [beforeAfter, setBeforeAfter] = /** @type ReturnType<typeof useState<'before'|'after'|null>> */(useState(null))
-
-    const dismissContent = () => {
-        if (!beforeAfter) return null
-        return (
-            <>
-                <Replay />
-                {beforeAfter === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide')}
-            </>
-        )
-    }
-
-    const dismissHandler = () => setBeforeAfter(value => value === 'before' ? 'after' : 'before')
-
-    const acceptContent = t('nextButton')
-
     return (
-        <SingleSettingStep
-            dismissContent={dismissContent()}
-            dismissHandler={dismissHandler}
-            acceptContent={acceptContent}>
-            <div style={styles.animationContainer}>
-                <RiveAnimation
-                    animation={onboardingAnimation}
-                    state={beforeAfter || 'before'}
-                    isDarkMode={isDarkMode}
-                    artboard='Duck Player'
-                    inputName='Duck Player?'
-                    stateMachine='State Machine 2'
-                />
-            </div>
-        </SingleSettingStep>
+        <div style={styles.animationContainer}>
+            <RiveAnimation
+                animation={onboardingAnimation}
+                state={beforeAfter || 'before'}
+                isDarkMode={isDarkMode}
+                artboard='Duck Player'
+                inputName='Duck Player?'
+                stateMachine='State Machine 2'
+            />
+        </div>
     )
 }

@@ -111,6 +111,7 @@ export const ORDER_V3 = [
  * @property {Step['id']} activeStep
  * @property {Step['id'] | undefined} nextStep
  * @property {number} activeRow
+ * @property {'before'|'after'|null} beforeAfterState
  * @property {boolean} activeStepVisible
  * @property {boolean} exiting
  * @property {Status} status
@@ -127,7 +128,8 @@ export const ORDER_V3 = [
  *   | ExecErrorEvent
  *   | DismissEvent
  *   | DismisstoSettingsEvent
- *   | ErrorBoundaryEvent} GlobalEvents
+ *   | ErrorBoundaryEvent
+ *   | SetBeforeAfterEvent} GlobalEvents
  *  All the events that the UI can dispatch
  * @typedef {{ kind: "enqueue-next"; }} NextEvent
  * @typedef {{ kind: "advance" }} AdvanceEvent
@@ -138,7 +140,7 @@ export const ORDER_V3 = [
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
- *
+ * @typedef {{ kind: "set-before-after"; value: 'before'|'after' }} SetBeforeAfterEvent
  */
 
 /** @type {ImportMeta['injectName'][]} */
