@@ -9,17 +9,19 @@ import { useEffect } from 'preact/hooks'
 
 /**
  * @param {object} props
- * @param {'before'|'after'|null} [props.beforeAfter]
- * @param {(value: 'before'|'after') => void} [props.setBeforeAfter]
+ * @param {'before'|'after'|null} props.beforeAfter
+ * @param {(value: 'before'|'after') => void} props.setBeforeAfter
  */
 export function DuckPlayerStep ({ beforeAfter, setBeforeAfter }) {
     const { isDarkMode } = useEnv()
 
     useEffect(() => {
-        setBeforeAfter && setTimeout(() => {
+        const id = setTimeout(() => {
             setBeforeAfter('after')
         }, 500)
-    }, [])
+
+        return () => clearTimeout(id)
+    }, [setBeforeAfter])
 
     return (
         <div style={styles.animationContainer}>

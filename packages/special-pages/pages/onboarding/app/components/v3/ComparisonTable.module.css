@@ -48,15 +48,15 @@
 }
 
 .notSupported {
-    background-image: url('../../src/assets/img/icons/cross-24.svg');
+    background-image: url('../../../src/assets/img/icons/cross-24.svg');
 }
 
 .partialSupport {
-    background-image: url('../../src/assets/img/icons/stop-24.svg');
+    background-image: url('../../../src/assets/img/icons/stop-24.svg');
 }
 
 .fullSupport {
-    background-image: url('../../src/assets/img/icons/check-24.svg');
+    background-image: url('../../../src/assets/img/icons/check-24.svg');
 }
 
 .browserIcon {
@@ -72,14 +72,14 @@
 }
 
 .browserIconChrome {
-    background-image: url('../../src/assets/img/icons/chrome.svg');
+    background-image: url('../../../src/assets/img/icons/chrome.svg');
 }
 
 .browserIconSafari {
-    background-image: url('../../src/assets/img/icons/safari.svg');
+    background-image: url('../../../src/assets/img/icons/safari.svg');
 }
 
 .browserIconDuckDuckGo {
     background-color: #de5833;
-    background-image: url('../../src/assets/img/icons/ddg.svg');
+    background-image: url('../../../src/assets/img/icons/ddg.svg');
 }

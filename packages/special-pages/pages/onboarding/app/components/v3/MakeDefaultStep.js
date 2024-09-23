@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { ComparisonTable } from '../../components/ComparisonTable'
+import { ComparisonTable } from './ComparisonTable'
 
 export function MakeDefaultStep () {
     return (

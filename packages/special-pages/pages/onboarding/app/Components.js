@@ -16,7 +16,7 @@ import { useState } from 'preact/hooks'
 import { Typed } from './components/Typed'
 import { CleanBrowsing } from './pages/CleanBrowsing'
 import { useTypedTranslation } from './types'
-import { ComparisonTable } from './components/ComparisonTable'
+import { ComparisonTable } from './components/v3/ComparisonTable'
 
 function noop (name) {
     return () => {

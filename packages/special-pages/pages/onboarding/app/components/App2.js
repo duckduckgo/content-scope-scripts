@@ -5,13 +5,8 @@ import { GlobalContext, GlobalDispatch } from '../global'
 import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { Fallback } from '../pages/Fallback'
-import { useTypedTranslation } from '../types'
-import { Timeout } from './Timeout'
 import { Background } from './Background'
-import { ElasticButton } from './Buttons'
-import { Heading } from './Heading'
-import { Panel } from './Panel'
-import { SingleSettingStep } from '../pages/v3/SingleSettingStep'
+import { StepPanel } from './v3/StepPanel'
 
 import styles from './App2.module.css'
 
@@ -26,25 +21,11 @@ export function Hiker () {
  * @param {import("preact").ComponentChild} props.children
  */
 export function App2 ({ children }) {
-    const { debugState, isReducedMotion } = useEnv()
+    const { debugState } = useEnv()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
-    const { t } = useTypedTranslation()
 
-    const { activeStep, activeStepVisible, exiting, order, step } = globalState
-
-    const enqueueNext = () => {
-        if (isReducedMotion) {
-            dispatch({ kind: 'advance' })
-        } else {
-            dispatch({ kind: 'enqueue-next' })
-        }
-    }
-
-    /** @type {import('../types').Step['id'][]} */
-    const progress = order.slice(2, order.length)
-    const currentProgress = progress.indexOf(activeStep) + 1
-    const totalProgress = progress.length
+    const { activeStep, exiting, step } = globalState
 
     const advance = () => dispatch({ kind: 'advance' })
     // const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
@@ -79,17 +60,7 @@ export function App2 ({ children }) {
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
-                    {(step.id === 'welcome' || step.id === 'getStarted') &&
-                        <Panel boxed={false}>
-                            <Heading
-                                title={step.id === 'welcome' ? t('welcome_title') : t('getStarted_highlights_title', { newline: '\n' })}
-                                speechBubble={step.id !== 'welcome'}>
-                                {step.id === 'getStarted' && activeStepVisible && <ElasticButton onClick={enqueueNext}>{t('getStartedButton_highlights')}</ElasticButton>}
-                            </Heading>
-
-                            {step.id === 'welcome' && <Timeout onComplete={enqueueNext} ignore={true} />}
-                        </Panel> }
-                    {step.id !== 'welcome' && step.id !== 'getStarted' && <SingleSettingStep currentProgress={currentProgress} totalProgress={totalProgress} />}
+                    <StepPanel />
                 </ErrorBoundary>
                 {children}
             </div>

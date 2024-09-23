@@ -6,16 +6,24 @@ import { stepsConfig } from './data'
 
 /**
  *
- * @returns {import('./data').StepConfigParams & { stepConfig: import('./data').StepConfig }}
+ * @returns {import('./data-types').StepData}
  */
 export function useStepConfig () {
     const env = useEnv()
-    const global = useContext(GlobalContext)
+    const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTypedTranslation()
 
     const { isReducedMotion } = env
-    const { activeStep } = global
+    const { activeStep, order } = globalState
+
+    /** @type {import('../../types').Step['id'][]} */
+    const progressSteps = order.slice(2, order.length)
+    /** @type {import('./data-types').Progress} */
+    const progress = {
+        current: progressSteps.indexOf(activeStep) + 1,
+        total: progressSteps.length
+    }
 
     const enqueueNext = () => {
         if (isReducedMotion) {
@@ -38,15 +46,16 @@ export function useStepConfig () {
         current: true
     })
 
-    /** @type {import('./data').StepConfigParams} */
+    /** @type {import('./data-types').StepConfigParams} */
     const configParams = {
         t,
         env,
-        global,
+        globalState,
         enqueueNext,
         dismiss,
         enableSystemValue,
-        setBeforeAfter
+        setBeforeAfter,
+        progress
     }
 
     if (!stepsConfig[activeStep]) {
@@ -55,6 +64,6 @@ export function useStepConfig () {
 
     return {
         ...configParams,
-        stepConfig: stepsConfig[activeStep](configParams)
+        ...stepsConfig[activeStep](configParams)
     }
 }
