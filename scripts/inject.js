@@ -29,9 +29,9 @@ const builds = {
         input: 'inject/apple.js',
         output: ['Sources/ContentScopeScripts/dist/contentScopeIsolated.js']
     },
-    'android-for-frames': {
+    'android-password-import': {
         input: 'inject/android.js',
-        output: ['build/android/contentScopeForFrames.js']
+        output: ['build/android/passwordImport.js']
     },
     android: {
         input: 'inject/android.js',

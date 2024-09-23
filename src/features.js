@@ -24,7 +24,7 @@ const otherFeatures = /** @type {const} */([
     'brokerProtection',
     'performanceMetrics',
     'breakageReporting',
-    'googlePasswordImport'
+    'passwordImport'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -40,8 +40,8 @@ export const platformSupport = {
         'performanceMetrics',
         'clickToLoad'
     ],
-    'android-for-frames': [
-        'googlePasswordImport'
+    'android-password-import': [
+        'passwordImport'
     ],
     android: [
         ...baseFeatures,

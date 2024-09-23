@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature'
 import { getElement } from './broker-protection/utils'
 
-export default class GooglePasswordImport extends ContentFeature {
+export default class PasswordImport extends ContentFeature {
     init () {
         document.addEventListener('DOMContentLoaded', () => {
             const xpath = "//div[text()='Export passwords']/ancestor::li" // Should be configurable

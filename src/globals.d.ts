@@ -16,7 +16,7 @@ interface ImportMeta {
     env: 'production' | 'development'
     platform?: 'windows' | 'macos' | 'android' | 'ios'
     // this represents the different build artifact names
-    injectName?: 'firefox' | 'apple' | 'apple-isolated' | 'android' | 'android-for-frames' | 'windows' | 'integration' | 'chrome-mv3' | 'chrome'
+    injectName?: 'firefox' | 'apple' | 'apple-isolated' | 'android' | 'android-password-import' | 'windows' | 'integration' | 'chrome-mv3' | 'chrome'
     trackerLookup?: Record<string, unknown>
     pageName?: string
 }
