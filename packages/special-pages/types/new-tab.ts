@@ -15,7 +15,6 @@ export type WidgetVisibility = "visible" | "hidden";
  * Configuration settings for widgets
  */
 export type WidgetConfig = WidgetConfigItem[];
-export type Expansion = "expanded" | "collapsed";
 /**
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
@@ -26,7 +25,7 @@ export type WidgetList = WidgetListItem[];
  */
 export interface NewTabMessages {
   notifications: ReportInitExceptionNotification | ReportPageExceptionNotification | SetWidgetConfigNotification;
-  requests: GetPrivacyStatsRequest | InitialSetupRequest;
+  requests: InitialSetupRequest;
   subscriptions: OnWidgetConfigUpdatedSubscription;
 }
 /**
@@ -65,26 +64,6 @@ export interface WidgetConfigItem {
    */
   id: string;
   visibility: WidgetVisibility;
-}
-/**
- * Generated from @see "../messages/new-tab/getPrivacyStats.request.json"
- */
-export interface GetPrivacyStatsRequest {
-  method: "getPrivacyStats";
-  result: PrivacyStats;
-}
-export interface PrivacyStats {
-  /**
-   * Total number of trackers blocked since install
-   */
-  totalCount: number;
-  trackerCompanies: TrackerCompany[];
-  trackerCompaniesPeriod: "last-day" | "last-hour";
-  expansion: Expansion;
-}
-export interface TrackerCompany {
-  displayName: string;
-  count: number;
 }
 /**
  * Generated from @see "../messages/new-tab/initialSetup.request.json"
