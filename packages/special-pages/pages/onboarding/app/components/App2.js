@@ -26,7 +26,7 @@ export function App2 ({ children }) {
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
 
-    const { activeStep, exiting, step } = globalState
+    const { activeStep, activeStepVisible, exiting, step } = globalState
 
     const advance = () => dispatch({ kind: 'advance' })
     // const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
@@ -59,7 +59,7 @@ export function App2 ({ children }) {
         <main className={styles.main}>
             <Background/>
             {debugState && <Debug state={globalState}/>}
-            <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
+            <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} data-step-visible={activeStepVisible} ref={didRender} onAnimationEnd={animationDidFinish}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
                     <BeforeAfterProvider>
                         <SingleStep />

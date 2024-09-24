@@ -51,7 +51,7 @@ export function SettingsStep ({ data, metaData }) {
                 )}
                 {state.current > 0 && (
                     <Stack gap={Stack.gaps['4']}>
-                        <PlainList variant='bordered'>
+                        <PlainList variant='bordered' animate={true}>
                             {rows.filter(item => item.visible).map((item, index) => {
                                 return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
                             })}

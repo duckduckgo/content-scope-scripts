@@ -5,6 +5,7 @@ import { GlobalContext } from '../../global'
 import { PlainList } from '../../components/List'
 import { ListItem } from '../../components/ListItem'
 import { Check, BounceIn } from '../../components/Icons'
+import { SlideIn } from './Animation'
 
 export function ImportStep () {
     const { t } = useTypedTranslation()
@@ -13,17 +14,19 @@ export function ImportStep () {
     const isIdle = UIValues.import === 'idle'
 
     return (
-        <PlainList>
-            <ListItem
-                icon={'v3/bookmarks.svg'}
-                title={t('bookmarksAndFavorites')}
-                secondaryText={t('bookmarksAndFavorites_description')}
-                inline={isIdle ? null : <BounceIn><Check/></BounceIn>}/>
-            <ListItem
-                icon={'v3/key.svg'}
-                title={t('passwords')}
-                secondaryText={t('passwords_description')}
-                inline={isIdle ? null : <BounceIn><Check/></BounceIn>}/>
-        </PlainList>
+        <SlideIn>
+            <PlainList>
+                <ListItem
+                    icon={'v3/bookmarks.svg'}
+                    title={t('bookmarksAndFavorites')}
+                    secondaryText={t('bookmarksAndFavorites_description')}
+                    inline={isIdle ? null : <BounceIn><Check/></BounceIn>}/>
+                <ListItem
+                    icon={'v3/key.svg'}
+                    title={t('passwords')}
+                    secondaryText={t('passwords_description')}
+                    inline={isIdle ? null : <BounceIn><Check/></BounceIn>}/>
+            </PlainList>
+        </SlideIn>
     )
 }

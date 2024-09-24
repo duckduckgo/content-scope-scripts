@@ -1,0 +1,38 @@
+.container {
+    overflow: hidden;
+    position: relative;
+}
+
+.slideIn {
+    animation-name: slidein;
+    animation-duration: 500ms;
+    animation-fill-mode: both;
+    animation-timing-function: ease-in-out;
+    transform: translateX(100vw);
+    animation-play-state: paused;
+
+    &[data-delay="normal"] {
+        animation-delay: var(--anim-delay);
+    }
+    &[data-delay="double"] {
+        animation-delay: var(--anim-delay-double);
+    }
+}
+
+.animating {
+    animation-play-state: running;
+}
+
+@keyframes slidein {
+    0% {
+        transform: translateX(100vw);
+    }
+
+    90% {
+        transform: translateX(-5%);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}

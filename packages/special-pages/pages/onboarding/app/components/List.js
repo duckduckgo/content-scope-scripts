@@ -25,16 +25,20 @@ export function List ({ animate = false, children }) {
  * Plain list component is used to display an item in a list with minimal styling
  * @param {Object} props - The properties for the PlainList component.
  * @param {'default'|'bordered'} [props.variant='default'] - Whether to show a border between list items
+ * @param {boolean} [props.animate=false] - Should immediate children be animated into place?
  * @param {import("preact").ComponentChild} props.children - List children
  */
-export function PlainList ({ children, variant }) {
+export function PlainList ({ variant, animate = false, children }) {
+    const { isReducedMotion } = useEnv()
+    const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : undefined)
+
     const classes = cn({
         [styles.plainList]: true,
         [styles.borderedList]: variant === 'bordered'
     })
 
     return (
-        <ul className={classes}>
+        <ul className={classes} ref={animate ? parent : null}>
             {children}
         </ul>
     )

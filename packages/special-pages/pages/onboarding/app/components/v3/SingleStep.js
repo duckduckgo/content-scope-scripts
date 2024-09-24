@@ -1,9 +1,10 @@
 import { h } from 'preact'
 import cn from 'classnames'
 import { useStepConfig } from './useStepConfig'
-import { Heading } from '../Heading'
+import { Heading } from './Heading'
 import { SingleLineProgress } from '../Progress'
 import { ElasticButton } from '../Buttons'
+import { Stack } from '../Stack'
 
 import styles from './SingleStep.module.css'
 
@@ -51,26 +52,30 @@ export function SingleStep () {
 
     return (
         <div className={classes}>
-            <Heading {...heading} />
+            <Stack animate>
+                <Heading {...heading} />
 
-            { content && <div className={styles.container}>
-                <div className={styles.content}>
-                    {content}
-                </div>
-                <div className={styles.progress}>
-                    <SingleLineProgress current={progress.current} total={progress.total} />
-                </div>
+                { content && <div className={styles.container}>
+                    <div className={styles.content}>
+                        <Stack animate>
+                            {content}
+                        </Stack>
+                    </div>
+                    <div className={styles.progress}>
+                        <SingleLineProgress current={progress.current} total={progress.total} />
+                    </div>
 
-                <div className={styles.spacer}></div>
+                    <div className={styles.spacer}></div>
 
-                <div className={styles.skip}>
-                    {dismissButton && <DismissButton {...dismissButton} />}
-                </div>
+                    <div className={styles.skip}>
+                        {dismissButton && <DismissButton {...dismissButton} />}
+                    </div>
 
-                <div className={styles.accept}>
-                    {acceptButton && <AcceptButton {...acceptButton} />}
-                </div>
-            </div>}
+                    <div className={styles.accept}>
+                        {acceptButton && <AcceptButton {...acceptButton} />}
+                    </div>
+                </div>}
+            </Stack>
         </div>
     )
 }

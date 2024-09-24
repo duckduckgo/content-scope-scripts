@@ -1,8 +1,9 @@
 import { h } from 'preact'
 import { useContext } from 'preact/hooks'
 import cn from 'classnames'
-import { GlobalContext, GlobalDispatch } from '../global'
-import { Typed } from './Typed'
+import { GlobalContext, GlobalDispatch } from '../../global'
+import { Typed } from '../Typed'
+import { Stack } from '../Stack'
 
 import styles from './Heading.module.css'
 
@@ -37,11 +38,13 @@ export function Heading ({ title, subtitle, speechBubble = false, children }) {
                 <img className={styles.svg} src="assets/img/dax.svg" alt="DuckDuckGo Logo" />
             </div>
             <HeadingComponent>
-                <h1 className={styles.title}>
-                    <Typed onComplete={onComplete} text={title} />
-                </h1>
-                {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
-                {children}
+                <Stack animate>
+                    <h1 className={styles.title}>
+                        <Typed onComplete={onComplete} text={title} />
+                    </h1>
+                    {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
+                    {children}
+                </Stack>
             </HeadingComponent>
         </header>
     )

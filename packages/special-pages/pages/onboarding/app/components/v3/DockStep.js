@@ -1,13 +1,25 @@
 import { h } from 'preact'
+import { useState } from 'preact/hooks'
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
 import { RiveAnimation } from '../../components/RiveAnimation'
+import { SlideIn } from './Animation'
 
+import styles from './DockStep.module.css'
 import pinningAnimation from '../../animations/taskbar_pinning.riv'
 
 export function DockStep () {
     const { isDarkMode } = useEnv()
+    const [autoplay, setAutoplay] = useState(false)
+
+    const animationDidEnd = () => {
+        setAutoplay(true)
+    }
 
     return (
-        <RiveAnimation animation={pinningAnimation} state="before" isDarkMode={isDarkMode}/>
+        <SlideIn onAnimationEnd={animationDidEnd}>
+            <div className={styles.animationContainer}>
+                <RiveAnimation animation={pinningAnimation} state="before" isDarkMode={isDarkMode} autoplay={autoplay}/>
+            </div>
+        </SlideIn>
     )
 }
