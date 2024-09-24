@@ -72,7 +72,7 @@
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "config-builder": "github:duckduckgo/privacy-configuration#main",
     "esbuild": "^0.19.5",
-    "eslint": "^8.52.0",
+    "eslint": "^8.57.1",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-node": "^11.1.0",
@@ -83,7 +83,7 @@
     "minimist": "^1.2.8",
     "puppeteer": "^21.4.1",
     "rollup": "^3.29.4",
-    "rollup-plugin-import-css": "^3.3.5",
+    "rollup-plugin-import-css": "^3.5.2",
     "rollup-plugin-svg-import": "^2.1.0",
     "typedoc": "^0.25.12",
     "typescript": "^5.4.3"

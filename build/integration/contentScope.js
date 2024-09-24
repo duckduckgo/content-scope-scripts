@@ -13666,8 +13666,6 @@
             return
         }
 
-        console.log('did get initial setup ', initialSetup);
-
         if (!initialSetup) {
             console.error('cannot continue without user settings');
             return
@@ -14010,7 +14008,7 @@
 
             const locale = args?.locale || args?.language || 'en';
             const env = new Environment({
-                debug: true,
+                debug: args.debug,
                 injectName: "integration",
                 platform: this.platform,
                 locale
