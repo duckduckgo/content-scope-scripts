@@ -1,5 +1,4 @@
 import { h, Fragment } from 'preact'
-import { Stack } from '../../../../shared/components/Stack.js'
 import { useVisibility, WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.provider.js'
 import { useContext } from 'preact/hooks'
 
@@ -12,11 +11,11 @@ export function WidgetList () {
     const { widgets, widgetConfig } = useContext(WidgetConfigContext)
 
     return (
-        <Stack gap={'var(--sp-7)'}>
+        <div>
             {widgets.map((widget) => {
-                const matchingConfig = widgetConfig.find(item => item.id === widget.id);
+                const matchingConfig = widgetConfig.find(item => item.id === widget.id)
                 if (!matchingConfig) {
-                    console.warn("missing config for widget: ", widget)
+                    console.warn('missing config for widget: ', widget)
                     return null
                 }
                 return (
@@ -30,28 +29,28 @@ export function WidgetList () {
                     </Fragment>
                 )
             })}
-        </Stack>
-    )
-}
-
-function Favorites() {
-    const { visibility, id, toggle } = useVisibility();
-    return (
-        <div>
-            <p style={{opacity: visibility === "visible" ? '1' : '0.2'}}>Favorites Component</p>
-            <code><b>{id} visibility: {visibility}</b></code>{" "}
-            <button type={"button"} onClick={toggle}>Toggle Favorites</button>
         </div>
     )
 }
 
-function PrivacyStats() {
-    const {visibility, id, toggle} = useVisibility();
+function Favorites () {
+    const { visibility, id, toggle } = useVisibility()
     return (
         <div>
-            <p style={{opacity: visibility === "visible" ? '1' : '0.2'}}>Privacy Stats Component</p>
-            <code><b>{id} visibility: {visibility}</b></code>{" "}
-            <button type={"button"} onClick={toggle}>Toggle Privacy Stats</button>
+            <p style={{ opacity: visibility === 'visible' ? '1' : '0.2' }}>Favorites Component</p>
+            <code><b>{id} visibility: {visibility}</b></code>{' '}
+            <button type={'button'} onClick={toggle}>Toggle Favorites</button>
+        </div>
+    )
+}
+
+function PrivacyStats () {
+    const { visibility, id, toggle } = useVisibility()
+    return (
+        <div>
+            <p style={{ opacity: visibility === 'visible' ? '1' : '0.2' }}>Privacy Stats Component</p>
+            <code><b>{id} visibility: {visibility}</b></code>{' '}
+            <button type={'button'} onClick={toggle}>Toggle Privacy Stats</button>
         </div>
     )
 }

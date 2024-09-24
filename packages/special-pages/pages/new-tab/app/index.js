@@ -1,5 +1,5 @@
 import { render, h } from 'preact'
-import './styles/global.css' // global styles
+import './styles/base.css' // global styles
 import { App } from './components/App.js'
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js'
 import { Fallback } from '../../duckplayer/app/components/Fallback.jsx'
@@ -8,14 +8,10 @@ import { Settings } from '../../duckplayer/app/settings.js'
 import { SettingsProvider } from './settings.provider.js'
 import { MessagingContext } from './types'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
-import { WidgetConfigAPI } from "./widget-list/widget-config.js";
-import enStrings from "../src/locales/en/newtab.json";
-import {
-    WidgetConfigContext,
-    WidgetConfigProvider,
-    WidgetVisibilityProvider
-} from "./widget-list/widget-config.provider.js";
-import { WidgetList } from "./widget-list/WidgetList.js";
+import { WidgetConfigAPI } from './widget-list/widget-config.js'
+import enStrings from '../src/locales/en/newtab.json'
+import { WidgetConfigProvider } from './widget-list/widget-config.provider.js'
+import { WidgetList } from './widget-list/WidgetList.js'
 
 /**
  * @param {import("../src/js").NewTabPage} messaging
@@ -32,7 +28,7 @@ export async function init (messaging, baseEnvironment) {
     }
 
     // Create an instance of the global widget api
-    const widgetConfigAPI = new WidgetConfigAPI(messaging, init.widgetConfig);
+    const widgetConfigAPI = new WidgetConfigAPI(messaging, init.widgetConfig)
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment

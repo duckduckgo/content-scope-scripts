@@ -1,7 +1,6 @@
 import { Mocks } from './mocks.js'
 import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
 import { join } from 'node:path'
-import { expect } from '@playwright/test'
 
 /**
  * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
@@ -80,7 +79,7 @@ export class NewtabPage {
     get basePath () {
         return this.build.switch({
             windows: () => '../../build/windows/pages/new-tab',
-            integration: () => '../../build/integration/pages/new-tab',
+            integration: () => '../../build/integration/pages/new-tab'
         })
     }
 

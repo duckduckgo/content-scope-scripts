@@ -8,12 +8,11 @@ import 'preact/devtools'
  */
 import { init } from '../../app/index.js'
 import {
-    createTypedMessages, TestTransportConfig,
-    Messaging
+    createTypedMessages
 } from '@duckduckgo/messaging'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 import { Environment } from '../../../../shared/environment.js'
-import { mockTransport } from "./mock-transport.js";
+import { mockTransport } from './mock-transport.js'
 
 export class NewTabPage {
     /**
@@ -65,8 +64,8 @@ const messaging = createSpecialPageMessaging({
         if (baseEnvironment.injectName !== 'integration') return null
         // never in playwright environments
         if (window.__playwright_01) return null
-        let mock = null;
-        // todo(shane): use ESBUILD to drop these labels
+        let mock = null
+        // eslint-disable-next-line no-labels
         $INTEGRATION: mock = mockTransport()
         return mock
     }
