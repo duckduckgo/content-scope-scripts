@@ -7,15 +7,22 @@
  */
 
 /**
+ * @typedef {object} BeforeAfterFunctions
+ * @property {() => import('./BeforeAfterProvider').BeforeAfter|null} get
+ * @property {(value: import('./BeforeAfterProvider').BeforeAfter) => void} set
+ * @property {() => void} toggle
+ */
+
+/**
  * @typedef {object} StepConfigParams
  * @property {ReturnType<typeof import('../../types')['useTypedTranslation']>['t']} t
  * @property {ReturnType<typeof import('../../../../../shared/components/EnvironmentProvider').useEnv>} env
  * @property {import('../../types').GlobalState} globalState
+ * @property {Progress} progress
  * @property {() => void} enqueueNext
  * @property {() => void} dismiss
  * @property {(id: import('../../types').SystemValueId) => void} enableSystemValue
- * @property {(value: 'before'|'after') => void} setBeforeAfter
- * @property {Progress} progress
+ * @property {BeforeAfterFunctions} beforeAfter
  */
 
 /**

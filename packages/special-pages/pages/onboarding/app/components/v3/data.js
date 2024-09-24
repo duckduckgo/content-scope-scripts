@@ -31,8 +31,8 @@ export const stepsConfig = {
             }
         }
     },
-    duckPlayerSingle: ({ t, globalState, enqueueNext, setBeforeAfter }) => {
-        const { beforeAfterState } = globalState
+    duckPlayerSingle: ({ t, enqueueNext, beforeAfter }) => {
+        const beforeAfterState = beforeAfter.get()
 
         return {
             variant: 'box',
@@ -44,14 +44,13 @@ export const stepsConfig = {
             dismissButton: (beforeAfterState && {
                 startIcon: <Replay />,
                 text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
-                handler: () => setBeforeAfter(beforeAfterState === 'before' ? 'after' : 'before')
+                handler: () => beforeAfter.toggle()
             }) || null,
             acceptButton: {
                 text: t('nextButton'),
                 handler: enqueueNext
             },
-            content: <DuckPlayerStep beforeAfter={beforeAfterState} setBeforeAfter={setBeforeAfter}/>
-            // provider: ({ children }) => <DuckPlayerStepContext.Provider value={{}}>{children}</DuckPlayerStepContext.Provider>
+            content: <DuckPlayerStep />
         }
     },
     importSingle: ({ t, globalState, enqueueNext, enableSystemValue }) => {

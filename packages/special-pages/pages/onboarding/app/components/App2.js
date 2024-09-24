@@ -6,7 +6,8 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { Fallback } from '../pages/Fallback'
 import { Background } from './Background'
-import { StepPanel } from './v3/StepPanel'
+import { BeforeAfterProvider } from './v3/BeforeAfterProvider'
+import { SingleStep } from './v3/SingleStep'
 
 import styles from './App2.module.css'
 
@@ -60,7 +61,9 @@ export function App2 ({ children }) {
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
-                    <StepPanel />
+                    <BeforeAfterProvider>
+                        <SingleStep />
+                    </BeforeAfterProvider>
                 </ErrorBoundary>
                 {children}
             </div>

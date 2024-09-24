@@ -5,7 +5,7 @@ import { Heading } from '../Heading'
 import { SingleLineProgress } from '../Progress'
 import { ElasticButton } from '../Buttons'
 
-import styles from './StepPanel.module.css'
+import styles from './SingleStep.module.css'
 
 /**
  * @param {object} props
@@ -41,7 +41,7 @@ export function AcceptButton ({ text, startIcon, endIcon, handler }) {
     )
 }
 
-export function StepPanel () {
+export function SingleStep () {
     const { variant, heading, dismissButton, acceptButton, content, progress } = useStepConfig()
 
     const classes = cn({

@@ -3,6 +3,7 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
 import { GlobalContext, GlobalDispatch } from '../../global'
 import { useTypedTranslation } from '../../types'
 import { stepsConfig } from './data'
+import { useBeforeAfter } from './BeforeAfterProvider'
 
 /**
  *
@@ -13,6 +14,7 @@ export function useStepConfig () {
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTypedTranslation()
+    const { getStep, setStep, toggleStep } = useBeforeAfter()
 
     const { isReducedMotion } = env
     const { activeStep, order } = globalState
@@ -35,9 +37,6 @@ export function useStepConfig () {
 
     const dismiss = () => dispatch({ kind: 'dismiss' })
 
-    /** @type {(value: 'before'|'after') => void} */
-    const setBeforeAfter = (value) => dispatch({ kind: 'set-before-after', value })
-
     /** @type {(id: import('../../types').SystemValueId) => void} */
     const enableSystemValue = (id) => dispatch({
         kind: 'update-system-value',
@@ -46,16 +45,23 @@ export function useStepConfig () {
         current: true
     })
 
+    /** @type {import('./data-types').BeforeAfterFunctions} */
+    const beforeAfter = {
+        get: () => getStep(activeStep),
+        set: (value) => setStep(activeStep, value),
+        toggle: () => toggleStep(activeStep)
+    }
+
     /** @type {import('./data-types').StepConfigParams} */
     const configParams = {
         t,
         env,
         globalState,
+        progress,
         enqueueNext,
         dismiss,
         enableSystemValue,
-        setBeforeAfter,
-        progress
+        beforeAfter
     }
 
     if (!stepsConfig[activeStep]) {
