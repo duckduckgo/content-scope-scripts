@@ -98,7 +98,7 @@ export default class DuckPlayerFeature extends ContentFeature {
 
         const locale = args?.locale || args?.language || 'en'
         const env = new Environment({
-            debug: true,
+            debug: args.debug,
             injectName: import.meta.injectName,
             platform: this.platform,
             locale
