@@ -14606,6 +14606,10 @@
             if (this.getFeatureSettingEnabled('screenLock')) {
                 this.screenLockFix();
             }
+
+            if (this.getFeatureSettingEnabled('modifyLocalStorage')) {
+                this.modifyLocalStorage();
+            }
         }
 
         /** Shim Web Share API in Android WebView */
@@ -15018,6 +15022,22 @@
             } catch {
                 // Ignore exceptions that could be caused by conflicting with other extensions
             }
+        }
+
+        /**
+         * Support for modifying localStorage entries
+         */
+        modifyLocalStorage () {
+            /** @type {import('../types//webcompat-settings').WebCompatSettings['modifyLocalStorage']} */
+            const settings = this.getFeatureSetting('modifyLocalStorage');
+
+            if (!settings || !settings.changes) return
+
+            settings.changes.forEach((change) => {
+                if (change.action === 'delete') {
+                    localStorage.removeItem(change.key);
+                }
+            });
         }
 
         /**

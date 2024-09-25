@@ -2583,6 +2583,9 @@
         if (this.getFeatureSettingEnabled("screenLock")) {
           this.screenLockFix();
         }
+        if (this.getFeatureSettingEnabled("modifyLocalStorage")) {
+          this.modifyLocalStorage();
+        }
       }
       /** Shim Web Share API in Android WebView */
       shimWebShare() {
@@ -2947,6 +2950,19 @@
           this.shimProperty(Navigator.prototype, "presentation", new MyPresentation(), true);
         } catch {
         }
+      }
+      /**
+       * Support for modifying localStorage entries
+       */
+      modifyLocalStorage() {
+        const settings = this.getFeatureSetting("modifyLocalStorage");
+        if (!settings || !settings.changes)
+          return;
+        settings.changes.forEach((change) => {
+          if (change.action === "delete") {
+            localStorage.removeItem(change.key);
+          }
+        });
       }
       /**
        * Support for proxying `window.webkit.messageHandlers`

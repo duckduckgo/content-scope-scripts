@@ -94,4 +94,11 @@ describe('Test integration pages', () => {
             `${process.cwd()}/integration-test/test-pages/webcompat/config/shims.json`
         )
     })
+
+    it('Properly modifies localStorage entries', async () => {
+        await testPage(
+            'webcompat/pages/modify-localstorage.html',
+            `${process.cwd()}/integration-test/test-pages/webcompat/config/modify-localstorage.json`
+        )
+    })
 })
