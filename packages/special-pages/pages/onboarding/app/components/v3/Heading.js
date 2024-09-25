@@ -16,45 +16,25 @@ import styles from './Heading.module.css'
  * @param {import('preact').ComponentChildren} [props.children]
  */
 export function Heading ({ title, subtitle, speechBubble = false, onTitleComplete, children }) {
-    const [typingDone, setTypingDone] = useState(false)
-    const [typingPaused, setTypingPaused] = useState(!!speechBubble)
-
     if (!title) {
         console.warn('Missing title')
         return null
     }
-
-    useEffect(() => {
-        setTypingDone(false)
-        setTypingPaused(!!speechBubble)
-    }, [speechBubble, title, subtitle])
-
-    const onTypingComplete = () => {
-        setTypingDone(true)
+    const onComplete = () => {
         onTitleComplete && onTitleComplete()
     }
-
-    const onAnimationDone = () => {
-        setTypingPaused(false)
-    }
-
     const HeadingComponent = speechBubble ? SpeechBubble : PlainHeading
-    const subtitleClass = cn({
-        [styles.subTitle]: true,
-        [styles.hidden]: !typingDone
-    })
 
     return (
         <header className={styles.heading}>
             <div className={styles.logo}>
                 <img className={styles.svg} src="assets/img/dax.svg" alt="DuckDuckGo Logo" />
             </div>
-            <HeadingComponent onAnimationDone={onAnimationDone}>
-                <h1 className={styles.title}>
-                    <Typed onComplete={onTypingComplete} text={title} paused={typingPaused} />
-                </h1>
-                {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
-                {typingDone && children}
+            <HeadingComponent
+                title={title}
+                subtitle={subtitle}
+                onComplete={onComplete}>
+                {children}
             </HeadingComponent>
         </header>
     )
@@ -62,25 +42,47 @@ export function Heading ({ title, subtitle, speechBubble = false, onTitleComplet
 
 /**
  * @param {object} props
+ * @param {string} props.title - Heading title
+ * @param {string|null} [props.subtitle] - Optional heading subtitle
+ * @param {() => void} [props.onComplete] - Fires when title is done animating
  * @param {import('preact').ComponentChildren} props.children
  */
-function PlainHeading ({ children }) {
+function PlainHeading ({ title, subtitle, onComplete, children }) {
+    const [typingDone, setTypingDone] = useState(false)
+    const onTypingComplete = () => {
+        setTypingDone(true)
+        onComplete && onComplete()
+    }
+
+    const subtitleClass = cn({
+        [styles.subTitle]: true,
+        [styles.hidden]: !typingDone
+    })
+
     return (
         <div className={styles.headingContents}>
-            {children}
+            <h1 className={styles.title}>
+                <Typed onComplete={onTypingComplete} text={title} />
+            </h1>
+            {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
+            {typingDone && children}
         </div>
     )
 }
 
 /**
  * @param {object} props
- * @param {() => void} [props.onAnimationDone]
+ * @param {string} props.title - Heading title
+ * @param {string|null} [props.subtitle] - Optional heading subtitle
+ * @param {() => void} [props.onComplete]
  * @param {import('preact').ComponentChildren} props.children
  */
-function SpeechBubble ({ onAnimationDone, children }) {
+function SpeechBubble ({ title, subtitle, onComplete, children }) {
     const bubbleContents = useRef(null)
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
     const [animationDone, setAnimationDone] = useState(false)
+    const [typingDone, setTypingDone] = useState(false)
+    const [typingPaused, setTypingPaused] = useState(true)
 
     useLayoutEffect(() => {
         if (bubbleContents.current) {
@@ -91,15 +93,29 @@ function SpeechBubble ({ onAnimationDone, children }) {
                 setDimensions({ width, height })
             }
         }
-    }, [bubbleContents, children])
+    }, [bubbleContents, title, subtitle, children, typingDone])
+
+    useEffect(() => {
+        setTypingDone(false)
+        setTypingPaused(true)
+    }, [title])
 
     const onTransitionEnd = () => {
         setAnimationDone(true)
-        onAnimationDone && onAnimationDone()
+        setTypingPaused(false)
     }
 
-    const contentsClass = cn({
-        [styles.speechBubbleContents]: true,
+    const onTypingComplete = () => {
+        setTypingDone(true)
+        onComplete && onComplete()
+    }
+
+    const subtitleClass = cn({
+        [styles.subTitle]: true,
+        [styles.hidden]: !typingDone
+    })
+
+    const childrenClass = cn({
         [styles.hidden]: !animationDone
     })
 
@@ -108,8 +124,14 @@ function SpeechBubble ({ onAnimationDone, children }) {
             <div className={styles.speechBubbleCallout} />
             <div className={styles.speechBubbleContainer}>
                 <div className={styles.speechBubbleBackground} style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }} onTransitionEnd={onTransitionEnd}></div>
-                <div className={contentsClass} ref={bubbleContents}>
-                    {children}
+                <div className={styles.speechBubbleContents} ref={bubbleContents}>
+                    <h1 className={styles.title}>
+                        <Typed onComplete={onTypingComplete} text={title} paused={typingPaused} />
+                    </h1>
+                    {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
+                    {children && typingDone && <div className={childrenClass}>
+                        {children}
+                    </div>}
                 </div>
             </div>
         </div>

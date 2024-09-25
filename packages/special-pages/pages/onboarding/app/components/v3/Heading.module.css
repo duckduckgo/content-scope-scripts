@@ -6,6 +6,8 @@
 
 .headingContents {
     padding: calc(18 * var(--px-in-rem)) var(--sp-6);
+    display: grid;
+    gap: var(--sp-6);
 }
 
 .title { /* TODO: Windows */
