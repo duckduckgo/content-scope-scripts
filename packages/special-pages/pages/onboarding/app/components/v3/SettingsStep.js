@@ -13,10 +13,9 @@ import { PlainList } from '../../components/List'
 
 /**
  * @param {object} props
- * @param {typeof import('../../data').settingsRowItemsV3} props.data
- * @param {typeof import('../../data').stepMeta} props.metaData
+ * @param {typeof import('./data').settingsRowItems} props.data
  */
-export function SettingsStep ({ data, metaData }) {
+export function SettingsStep ({ data }) {
     const { injectName } = useEnv()
     const { state } = useRollin([300])
     const { t } = useTypedTranslation()
@@ -38,8 +37,7 @@ export function SettingsStep ({ data, metaData }) {
             uiValue: appState.UIValues[rowId],
             pending: pendingId === rowId,
             id: rowId,
-            data: data[rowId](t, injectName),
-            meta: metaData[step.id]?.rows?.[rowId]
+            data: data[rowId](t, injectName)
         }
     })
 
@@ -75,7 +73,6 @@ export function SettingsStep ({ data, metaData }) {
  *    systemValue: import('../../types').SystemValue | null;
  *    data: import('../../data').RowData;
  *    uiValue: import('../../types').UIValue;
- *    meta: Record<string, any>;
  * }} props.item - The item object containing the row data.
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch - The function to dispatch actions.
  * @param {number} props.index

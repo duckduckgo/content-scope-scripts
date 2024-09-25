@@ -106,9 +106,9 @@ export const stepsConfig = {
             content: <MakeDefaultStep />
         }
     },
-    customizeV3: ({ t, globalState, dismiss }) => {
+    customize: ({ t, globalState, dismiss }) => {
         const { step, activeRow } = globalState
-        const isDone = activeRow >= /** @type {import('../../types').CustomizeV3Step} */(step).rows.length
+        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */(step).rows.length
 
         return {
             variant: 'box',
@@ -163,4 +163,42 @@ export const stepsConfig = {
             content: <DockStep />
         }
     }
+}
+
+/**
+ * @typedef {object} RowData
+ * @property {'one-time' | 'toggle'} kind
+ * @property {import('../../types').SystemValueId} id
+ * @property {typeof import('../../components/ListItem').availableIcons[number]} icon
+ * @property {string} title
+ * @property {string} acceptText
+ * @property {string} summary
+ */
+
+/** @type {Pick<Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['injectName']) => RowData>, 'bookmarks'|'session-restore'|'home-shortcut'>} */
+export const settingsRowItems = {
+    bookmarks: (t) => ({
+        id: 'bookmarks',
+        icon: 'v3/favorite.svg',
+        title: t('bookmarksBar'),
+        summary: t('row_bookmarks_summary'),
+        kind: 'toggle',
+        acceptText: t('row_bookmarks_accept')
+    }),
+    'session-restore': (t) => ({
+        id: 'session-restore',
+        icon: 'v3/session-restore.svg',
+        title: t('restoreSession'),
+        summary: t('row_session-restore_summary'),
+        kind: 'toggle',
+        acceptText: t('row_session-restore_accept')
+    }),
+    'home-shortcut': (t) => ({
+        id: 'home-shortcut',
+        icon: 'v3/home.svg',
+        title: t('addHomeShortcut'),
+        summary: t('row_home-shortcut_summary'),
+        kind: 'toggle',
+        acceptText: t('row_home-shortcut_accept')
+    })
 }

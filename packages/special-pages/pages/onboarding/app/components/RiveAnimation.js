@@ -11,7 +11,7 @@ import { Rive } from '@rive-app/canvas-single'
  * @param {string} props.animation - The path to the animation file
  * @param {string} [props.artboard] - The name of the artboard to display. (optional)
  * @param {string} [props.inputName] - The name of the input to toggle. (optional)
- * @param {boolean} [props.autoplay=true] - Whether to autplay the animation
+ * @param {boolean} [props.autoplay=true] - Whether to autoplay the animation
  * @param {boolean} props.isDarkMode - Indicates if dark mode is enabled.
  */
 export function RiveAnimation ({ animation, state, stateMachine, artboard, inputName, autoplay = true, isDarkMode }) {

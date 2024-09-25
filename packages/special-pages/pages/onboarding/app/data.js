@@ -10,7 +10,7 @@ import defaultAnimation from './animations/set_default.riv'
  * @property {import('./types').SystemValueId} id
  * @property {typeof availableIcons[number]} icon
  * @property {string} title
- * @property {string} [secondaryText]
+ * @property {string} secondaryText
  * @property {string} acceptText
  * @property {string} summary
  */
@@ -81,11 +81,6 @@ export const stepDefinitions = {
     duckPlayerSingle: {
         id: 'duckPlayerSingle',
         kind: 'info'
-    },
-    customizeV3: {
-        id: 'customizeV3',
-        kind: 'settings',
-        rows: ['bookmarks', 'session-restore', 'home-shortcut']
     }
 }
 
@@ -225,34 +220,6 @@ export const settingsRowItems = {
     })
 }
 
-/** @type {Pick<Record<import('./types').SystemValueId, (t: import('./types').TranslationFn, platform: ImportMeta['injectName']) => RowData>, 'bookmarks'|'session-restore'|'home-shortcut'>} */
-export const settingsRowItemsV3 = {
-    bookmarks: (t) => ({
-        id: 'bookmarks',
-        icon: 'v3/favorite.svg',
-        title: t('bookmarksBar'),
-        summary: t('row_bookmarks_summary'),
-        kind: 'toggle',
-        acceptText: t('row_bookmarks_accept')
-    }),
-    'session-restore': (t) => ({
-        id: 'session-restore',
-        icon: 'v3/session-restore.svg',
-        title: t('restoreSession'),
-        summary: t('row_session-restore_summary'),
-        kind: 'toggle',
-        acceptText: t('row_session-restore_accept')
-    }),
-    'home-shortcut': (t) => ({
-        id: 'home-shortcut',
-        icon: 'v3/home.svg',
-        title: t('addHomeShortcut'),
-        summary: t('row_home-shortcut_summary'),
-        kind: 'toggle',
-        acceptText: t('row_home-shortcut_accept')
-    })
-}
-
 /**
  * @typedef {Object} BeforeAfter
  * @property {string} btnBeforeText
@@ -285,32 +252,4 @@ export const beforeAfterMeta = {
         inputName: 'Duck Player?',
         stateMachine: 'State Machine 2'
     })
-}
-
-export const titles = {
-    duckPlayerSingle: {
-        title: (t) => t('duckPlayer_highlights_title'),
-        subtitle: (t) => t('duckPlayer_highlights_subtitle')
-    },
-    importSingle: {
-        title: (t) => t('import_highlights_title'),
-        subtitle: (t) => t('import_highlights_subtitle')
-    },
-    makeDefaultSingle: {
-        title: (t, isIdle) => isIdle ? t('protectionsActivated') : t('makeDefaultSuccess'),
-        subtitle: () => null
-    },
-    customizeV3: {
-        title: (t) => t('customize_highlights_title'),
-        subtitle: (t) => t('customize_highlights_subtitle')
-    },
-    dockSingle: {
-        title: (t, isIdle, platform) => {
-            if (platform === 'windows') {
-                return isIdle ? t('stickAroundTaskbarTitle') : t('taskbarAcceptTitle', { newline: '\n' })
-            }
-            return isIdle ? t('stickAroundDockTitle') : t('dockAcceptTitle', { newline: '\n' })
-        },
-        subtitle: (t, isIdle) => isIdle ? t('dockSubtitle') : null
-    }
 }

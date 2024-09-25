@@ -24,7 +24,6 @@ import { useContext } from 'preact/hooks'
  *   | DockSingleStep
  *   | ImportSingleStep
  *   | MakeDefaultSingleStep
- *   | CustomizeV3Step
  *   | DuckPlayerSingleStep
  * } Step
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
@@ -36,7 +35,6 @@ import { useContext } from 'preact/hooks'
  * @typedef {{ kind: 'settings'; id: 'dockSingle'; rows: SystemValueId[]; }} DockSingleStep
  * @typedef {{ kind: 'settings'; id: 'importSingle'; rows: SystemValueId[]; }} ImportSingleStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
- * @typedef {{ kind: 'settings'; id: 'customizeV3'; rows: SystemValueId[] }} CustomizeV3Step
  * @typedef {{ kind: 'info'; id: 'duckPlayerSingle' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'summary' }} SummaryStep
  */
@@ -87,7 +85,7 @@ export const ORDER_V3 = [
     'dockSingle',
     'importSingle',
     'duckPlayerSingle',
-    'customizeV3'
+    'customize'
 ]
 
 /**
