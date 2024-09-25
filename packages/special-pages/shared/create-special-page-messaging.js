@@ -12,6 +12,7 @@ import {
  * @param {ImportMeta['env']} opts.env
  * @param {ImportMeta['injectName']} opts.injectName
  * @param {string} opts.pageName
+ * @param {(() => TestTransportConfig|null) | null | undefined} [opts.mockTransport]
  * @internal
  */
 export function createSpecialPageMessaging (opts) {
@@ -55,7 +56,7 @@ export function createSpecialPageMessaging (opts) {
     }
 
     // this fallback allows for the 'integration' target to run without errors
-    const fallback = new TestTransportConfig({
+    const fallback = opts.mockTransport?.() || new TestTransportConfig({
         /**
          * @param {import('@duckduckgo/messaging').NotificationMessage} msg
          */
