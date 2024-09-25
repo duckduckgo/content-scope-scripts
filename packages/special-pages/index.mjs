@@ -56,6 +56,11 @@ export const support = {
         'integration': ['copy', 'build-js'],
         'apple': ['copy', 'build-js', 'inline-html'],
     },
+    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
+    'new-tab': {
+        'integration': ['copy', 'build-js'],
+        'windows': ['copy', 'build-js'],
+    },
 }
 
 /** @type {{src: string, dest: string, injectName: string}[]} */
@@ -157,7 +162,8 @@ for (const buildJob of buildJobs) {
                 'import.meta.env': JSON.stringify(NODE_ENV),
                 'import.meta.injectName': JSON.stringify(buildJob.injectName),
                 'import.meta.pageName': JSON.stringify(buildJob.pageName),
-            }
+            },
+            dropLabels: buildJob.injectName === "integration" ? [] : ["$INTEGRATION"]
         })
     }
 }

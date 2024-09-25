@@ -30,7 +30,7 @@ test('web compat', async ({ page }, testInfo) => {
 })
 
 export class WebcompatSpec {
-    htmlPage = '/webcompat/index.html'
+    htmlPage = '/webcompat/pages/message-handlers.html'
     config = './integration-test/test-pages/webcompat/config/message-handlers.json'
 
     /**
