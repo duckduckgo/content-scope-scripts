@@ -31,8 +31,6 @@ export async function initOverlays (settings, environment, messages) {
         return
     }
 
-    console.log('did get initial setup ', initialSetup)
-
     if (!initialSetup) {
         console.error('cannot continue without user settings')
         return
