@@ -8,14 +8,9 @@ import { Fallback } from '../pages/Fallback'
 import { Background } from './Background'
 import { BeforeAfterProvider } from './v3/BeforeAfterProvider'
 import { SingleStep } from './v3/SingleStep'
+import { Hiker } from './v3/Hiker'
 
 import styles from './App2.module.css'
-
-export function Hiker () {
-    return (
-        <img className={styles.hiker} src="assets/img/hiker.svg" alt="Image of hiker" />
-    )
-}
 
 /**
  * @param {object} props

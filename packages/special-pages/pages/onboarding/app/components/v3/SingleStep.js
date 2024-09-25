@@ -1,6 +1,7 @@
 import { h } from 'preact'
 import cn from 'classnames'
 import { useStepConfig } from './useStepConfig'
+import { useGlobalDispatch } from '../../global'
 import { Heading } from './Heading'
 import { SingleLineProgress } from '../Progress'
 import { ElasticButton } from '../Buttons'
@@ -42,7 +43,38 @@ export function AcceptButton ({ text, startIcon, endIcon, handler }) {
     )
 }
 
+/**
+ * @param {object} props
+ * @param {import('./data-types').Progress} props.progress
+ * @param {import('preact').JSX.Element|null} [props.dismissButton]
+ * @param {import('preact').JSX.Element|null} [props.acceptButton]
+ * @param {import('preact').ComponentChild} [props.children]
+ */
+export function StepGrid ({ progress, dismissButton, acceptButton, children }) {
+    return (<div className={styles.container}>
+        <div className={styles.content}>
+            <Stack animate>
+                {children}
+            </Stack>
+        </div>
+        <div className={styles.progress}>
+            <SingleLineProgress current={progress.current} total={progress.total} />
+        </div>
+
+        <div className={styles.spacer}></div>
+
+        <div className={styles.dismiss}>
+            {dismissButton}
+        </div>
+
+        <div className={styles.accept}>
+            {acceptButton}
+        </div>
+    </div>)
+}
+
 export function SingleStep () {
+    const dispatch = useGlobalDispatch()
     const { variant, heading, dismissButton, acceptButton, content, progress } = useStepConfig()
 
     const classes = cn({
@@ -50,31 +82,22 @@ export function SingleStep () {
         [styles.boxed]: variant === 'box'
     })
 
+    const onTitleComplete = () => dispatch({ kind: 'title-complete' })
+
     return (
         <div className={classes}>
             <Stack animate>
-                <Heading {...heading} />
+                <div className={styles.heading}>
+                    <Heading {...heading} onTitleComplete={onTitleComplete}/>
+                </div>
 
-                { content && <div className={styles.container}>
-                    <div className={styles.content}>
-                        <Stack animate>
-                            {content}
-                        </Stack>
-                    </div>
-                    <div className={styles.progress}>
-                        <SingleLineProgress current={progress.current} total={progress.total} />
-                    </div>
-
-                    <div className={styles.spacer}></div>
-
-                    <div className={styles.skip}>
-                        {dismissButton && <DismissButton {...dismissButton} />}
-                    </div>
-
-                    <div className={styles.accept}>
-                        {acceptButton && <AcceptButton {...acceptButton} />}
-                    </div>
-                </div>}
+                { content &&
+                    <StepGrid
+                        progress={progress}
+                        dismissButton={dismissButton && <DismissButton {...dismissButton} />}
+                        acceptButton={acceptButton && <AcceptButton {...acceptButton} />}>
+                        {content}
+                    </StepGrid>}
             </Stack>
         </div>
     )

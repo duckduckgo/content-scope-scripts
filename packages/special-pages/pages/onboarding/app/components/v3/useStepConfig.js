@@ -6,6 +6,20 @@ import { stepsConfig } from './data'
 import { useBeforeAfter } from './BeforeAfterProvider'
 
 /**
+ * @param {import('../../types').Step['id'][]} order
+ * @param {import('../../types').Step['id']} activeStep
+ * @returns {import('./data-types').Progress}
+ */
+function calculateProgress (order, activeStep) {
+    const progressSteps = order.slice(2, order.length)
+
+    return {
+        current: progressSteps.indexOf(activeStep) + 1,
+        total: progressSteps.length
+    }
+}
+
+/**
  *
  * @returns {import('./data-types').StepData}
  */
@@ -16,23 +30,12 @@ export function useStepConfig () {
     const { t } = useTypedTranslation()
     const { getStep, setStep, toggleStep } = useBeforeAfter()
 
-    const { isReducedMotion } = env
-    const { activeStep, order } = globalState
+    const { order, activeStep } = globalState
 
-    /** @type {import('../../types').Step['id'][]} */
-    const progressSteps = order.slice(2, order.length)
-    /** @type {import('./data-types').Progress} */
-    const progress = {
-        current: progressSteps.indexOf(activeStep) + 1,
-        total: progressSteps.length
-    }
+    const progress = calculateProgress(order, activeStep)
 
-    const enqueueNext = () => {
-        if (isReducedMotion) {
-            dispatch({ kind: 'advance' })
-        } else {
-            dispatch({ kind: 'enqueue-next' })
-        }
+    const advance = () => {
+        dispatch({ kind: 'advance' })
     }
 
     const dismiss = () => dispatch({ kind: 'dismiss' })
@@ -58,7 +61,7 @@ export function useStepConfig () {
         env,
         globalState,
         progress,
-        enqueueNext,
+        advance,
         dismiss,
         enableSystemValue,
         beforeAfter

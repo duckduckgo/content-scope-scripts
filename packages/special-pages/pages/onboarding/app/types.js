@@ -10,7 +10,7 @@ import { useContext } from 'preact/hooks'
  *   | 'bookmarks'
  *   | 'session-restore'
  *   | 'home-shortcut'
-* } SystemValueId - Each setting that can be updated should have a unique ID listed here.
+ * } SystemValueId - Each setting that can be updated should have a unique ID listed here.
  */
 
 /**
@@ -136,6 +136,7 @@ export const ORDER_V3 = [
  * @typedef {{ kind: "dismiss-to-settings" }} DismisstoSettingsEvent
  * @typedef {{ kind: "error-boundary"; error: { message: string; id: Step['id'] }}} ErrorBoundaryEvent
  * @typedef {{ kind: "title-complete"; }} TitleCompleteEvent
+ *
  */
 
 /** @type {ImportMeta['injectName'][]} */

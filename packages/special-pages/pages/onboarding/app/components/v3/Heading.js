@@ -1,7 +1,6 @@
 import { h } from 'preact'
-import { useContext } from 'preact/hooks'
 import cn from 'classnames'
-import { GlobalContext, GlobalDispatch } from '../../global'
+import { useState, useEffect } from 'preact/hooks'
 import { Typed } from '../Typed'
 import { Stack } from '../Stack'
 
@@ -14,22 +13,30 @@ import styles from './Heading.module.css'
  * @param {string|null} [props.title] - Heading title
  * @param {string|null} [props.subtitle] - Optional heading subtitle
  * @param {boolean} [props.speechBubble=false] - Display title and subtitle inside speech bubble
+ * @param {() => void} [props.onTitleComplete] - Fires when title is done animating
  * @param {import('preact').ComponentChildren} [props.children]
  */
-export function Heading ({ title, subtitle, speechBubble = false, children }) {
-    const { activeStepVisible } = useContext(GlobalContext)
-    const dispatch = useContext(GlobalDispatch)
-    const onComplete = () => dispatch({ kind: 'title-complete' })
+export function Heading ({ title, subtitle, speechBubble = false, onTitleComplete, children }) {
+    const [animationDone, setAnimationDone] = useState(false)
 
     if (!title) {
         console.warn('Missing title')
         return null
     }
 
+    useEffect(() => {
+        setAnimationDone(false)
+    }, [title])
+
+    const onComplete = () => {
+        setAnimationDone(true)
+        onTitleComplete && onTitleComplete()
+    }
+
     const HeadingComponent = speechBubble ? SpeechBubble : PlainHeading
     const subtitleClass = cn({
         [styles.subTitle]: true,
-        [styles.hidden]: !activeStepVisible
+        [styles.hidden]: !animationDone
     })
 
     return (
@@ -43,7 +50,7 @@ export function Heading ({ title, subtitle, speechBubble = false, children }) {
                         <Typed onComplete={onComplete} text={title} />
                     </h1>
                     {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
-                    {children}
+                    {!!animationDone && children}
                 </Stack>
             </HeadingComponent>
         </header>

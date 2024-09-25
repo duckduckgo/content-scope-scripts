@@ -3,7 +3,7 @@ import { Stack } from './components/Stack'
 import { Header } from './components/Header'
 import { Progress, SingleLineProgress } from './components/Progress'
 import { ListItem } from './components/ListItem'
-import { BounceIn, Check, Launch } from './components/Icons'
+import { BounceIn, Check, Launch, Replay } from './components/Icons'
 import { List } from './components/List'
 import { Button, ButtonBar } from './components/Buttons'
 import classNames from 'classnames'
@@ -17,6 +17,9 @@ import { Typed } from './components/Typed'
 import { CleanBrowsing } from './pages/CleanBrowsing'
 import { useTypedTranslation } from './types'
 import { ComparisonTable } from './components/v3/ComparisonTable'
+import { DismissButton, AcceptButton } from './components/v3/SingleStep'
+import { Heading } from './components/v3/Heading'
+import { Hiker } from './components/v3/Hiker'
 
 function noop (name) {
     return () => {
@@ -52,7 +55,6 @@ export function Components () {
                     <Header><Typed text={t('customize_title')}/></Header>
                     <Header><Typed text={t('summary_title')}/></Header>
                     <Progress current={1} total={4}/>
-                    <SingleLineProgress current={2} total={5} />
                     <div>
                         <CleanBrowsing onNextPage={console.log}/>
                     </div>
@@ -165,7 +167,31 @@ export function Components () {
                             'session-restore': { enabled: true }
                         }}/>
 
+                    <h2 style={{ fontSize: '24px', fontWeight: 'bold' }}>V3 - Highlights</h2>
+
+                    <Heading title={'Welcome to DuckDuckGo!'} />
+                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'}/>
+                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'}><AcceptButton text={'Next'} handler={() => {}}/></Heading>
+
+                    <Heading title={'Welcome to DuckDuckGo!'} speechBubble={true}/>
+                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'} speechBubble={true}/>
+                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'} speechBubble={true}><AcceptButton text={'Next'} handler={() => {}}/></Heading>
+
+                    <SingleLineProgress current={2} total={5} />
+
                     <ComparisonTable />
+
+                    <DismissButton text={'Skip'} handler={() => {}} />
+                    <DismissButton text={'Replay'} handler={() => {}} startIcon={<Replay />} />
+                    <DismissButton text={'Replay'} handler={() => {}} endIcon={<Replay />}/>
+
+                    <AcceptButton text={'Next'} handler={() => {}} />
+                    <AcceptButton text={'Start Browsing'} handler={() => {}} startIcon={<Launch />}/>
+                    <AcceptButton text={'Start Browsing'} handler={() => {}} endIcon={<Launch />}/>
+
+                    <div style={{ position: 'relative', overflow: 'hidden', width: '400px', height: '400px' }}>
+                        <Hiker />
+                    </div>
                 </Stack>
                 <div style={{ height: '100px' }}/>
             </div>

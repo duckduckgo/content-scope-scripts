@@ -72,21 +72,21 @@ export class Settings {
         if (named === 'v1') {
             return new Settings({
                 ...this,
-                orderName: 'v1',
+                orderName: named,
                 order: DEFAULT_ORDER
             })
         }
         if (named === 'v2') {
             return new Settings({
                 ...this,
-                orderName: 'v2',
+                orderName: named,
                 order: ALT_ORDER
             })
         }
         if (named === 'v3') {
             return new Settings({
                 ...this,
-                orderName: 'v3',
+                orderName: named,
                 order: ORDER_V3
             })
         } else {

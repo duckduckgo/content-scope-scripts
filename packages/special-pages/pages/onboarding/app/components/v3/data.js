@@ -10,28 +10,27 @@ import { Timeout } from '../Timeout'
 
 /** @type {Record<import('./data-types').StepsV3, (params: import('./data-types').StepConfigParams) => import('./data-types').StepConfig>} */
 export const stepsConfig = {
-    welcome: ({ t, enqueueNext }) => {
+    welcome: ({ t, advance }) => {
         return {
             variant: 'plain',
             heading: {
                 title: t('welcome_title'),
                 speechBubble: false,
-                children: <Timeout onComplete={enqueueNext} ignore={true} />
+                children: <Timeout onComplete={advance} ignore={true} />
             }
         }
     },
-    getStarted: ({ t, globalState, enqueueNext }) => {
-        const { activeStepVisible } = globalState
+    getStarted: ({ t, advance }) => {
         return {
             variant: 'plain',
             heading: {
                 title: t('getStarted_highlights_title', { newline: '\n' }),
                 speechBubble: true,
-                children: activeStepVisible && <ElasticButton onClick={enqueueNext}>{t('getStartedButton_highlights')}</ElasticButton>
+                children: <ElasticButton onClick={advance}>{t('getStartedButton_highlights')}</ElasticButton>
             }
         }
     },
-    duckPlayerSingle: ({ t, enqueueNext, beforeAfter }) => {
+    duckPlayerSingle: ({ t, advance, beforeAfter }) => {
         const beforeAfterState = beforeAfter.get()
 
         return {
@@ -41,19 +40,21 @@ export const stepsConfig = {
                 subtitle: t('duckPlayer_highlights_subtitle'),
                 speechBubble: true
             },
-            dismissButton: (beforeAfterState && {
-                startIcon: <Replay />,
-                text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
-                handler: () => beforeAfter.toggle()
-            }) || null,
+            dismissButton: beforeAfterState
+                ? {
+                    startIcon: <Replay />,
+                    text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
+                    handler: () => beforeAfter.toggle()
+                }
+                : null,
             acceptButton: {
                 text: t('nextButton'),
-                handler: enqueueNext
+                handler: advance
             },
             content: <DuckPlayerStep />
         }
     },
-    importSingle: ({ t, globalState, enqueueNext, enableSystemValue }) => {
+    importSingle: ({ t, globalState, advance, enableSystemValue }) => {
         const { UIValues } = globalState
         const isIdle = UIValues.import === 'idle'
 
@@ -64,10 +65,12 @@ export const stepsConfig = {
                 subtitle: t('import_highlights_subtitle'),
                 speechBubble: true
             },
-            dismissButton: (isIdle && {
-                text: t('skipButton'),
-                handler: enqueueNext
-            }) || null,
+            dismissButton: isIdle
+                ? {
+                    text: t('skipButton'),
+                    handler: advance
+                }
+                : null,
             acceptButton: isIdle
                 ? {
                     text: t('importButton'),
@@ -75,12 +78,12 @@ export const stepsConfig = {
                 }
                 : {
                     text: t('nextButton'),
-                    handler: enqueueNext
+                    handler: advance
                 },
             content: <ImportStep />
         }
     },
-    makeDefaultSingle: ({ t, globalState, enqueueNext, enableSystemValue }) => {
+    makeDefaultSingle: ({ t, globalState, advance, enableSystemValue }) => {
         const { UIValues } = globalState
         const isIdle = UIValues['default-browser'] === 'idle'
 
@@ -90,10 +93,12 @@ export const stepsConfig = {
                 title: isIdle ? t('protectionsActivated') : t('makeDefaultSuccess'),
                 speechBubble: true
             },
-            dismissButton: (isIdle && {
-                text: t('skipButton'),
-                handler: enqueueNext
-            }) || null,
+            dismissButton: isIdle
+                ? {
+                    text: t('skipButton'),
+                    handler: advance
+                }
+                : null,
             acceptButton: isIdle
                 ? {
                     text: t('makeDefaultButton'),
@@ -101,7 +106,7 @@ export const stepsConfig = {
                 }
                 : {
                     text: t('nextButton'),
-                    handler: enqueueNext
+                    handler: advance
                 },
             content: <MakeDefaultStep />
         }
@@ -117,15 +122,17 @@ export const stepsConfig = {
                 subtitle: t('customize_highlights_subtitle'),
                 speechBubble: true
             },
-            acceptButton: (isDone && {
-                text: t('startBrowsing'),
-                endIcon: <Launch/>,
-                handler: dismiss
-            }) || null,
+            acceptButton: isDone
+                ? {
+                    text: t('startBrowsing'),
+                    endIcon: <Launch/>,
+                    handler: dismiss
+                }
+                : null,
             content: <CustomizeStep />
         }
     },
-    dockSingle: ({ t, env, globalState, enqueueNext, enableSystemValue }) => {
+    dockSingle: ({ t, env, globalState, advance, enableSystemValue }) => {
         const { UIValues } = globalState
         const isIdle = UIValues.dock === 'idle'
         const { injectName: platform } = env
@@ -148,7 +155,7 @@ export const stepsConfig = {
             dismissButton: platform !== 'windows' && isIdle
                 ? {
                     text: t('skipButton'),
-                    handler: enqueueNext
+                    handler: advance
                 }
                 : null,
             acceptButton: isIdle
@@ -158,7 +165,7 @@ export const stepsConfig = {
                 }
                 : {
                     text: t('nextButton'),
-                    handler: enqueueNext
+                    handler: advance
                 },
             content: <DockStep />
         }

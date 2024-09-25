@@ -19,7 +19,7 @@
  * @property {ReturnType<typeof import('../../../../../shared/components/EnvironmentProvider').useEnv>} env
  * @property {import('../../types').GlobalState} globalState
  * @property {Progress} progress
- * @property {() => void} enqueueNext
+ * @property {() => void} advance
  * @property {() => void} dismiss
  * @property {(id: import('../../types').SystemValueId) => void} enableSystemValue
  * @property {BeforeAfterFunctions} beforeAfter

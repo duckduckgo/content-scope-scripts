@@ -2,8 +2,6 @@
     display: inline-grid;
     grid-template-columns: var(--sp-16) auto;
     justify-self: start;
-    margin-top: calc(-1 * var(--sp-10));
-    margin-left: calc(-1 * var(--sp-10));
 }
 
 .headingContents {
