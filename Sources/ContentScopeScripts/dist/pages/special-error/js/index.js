@@ -1135,7 +1135,7 @@
     } catch (e3) {
       console.error("could not access handlers for %s, falling back to mock interface", opts.injectName);
     }
-    const fallback = new TestTransportConfig({
+    const fallback = opts.mockTransport?.() || new TestTransportConfig({
       /**
        * @param {import('@duckduckgo/messaging').NotificationMessage} msg
        */
