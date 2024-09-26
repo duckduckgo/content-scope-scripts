@@ -1,5 +1,8 @@
-/** @enum {string} */
-export const supportStatus = {
+/**
+ * @enum {string}
+ * @readonly
+ */
+export const SupportStatus = {
     NOT_SUPPORTED: 'notSupported',
     PARTIAL_SUPPORT: 'partialSupport',
     FULL_SUPPORT: 'fullSupport'
@@ -17,38 +20,38 @@ const tableIcons = [
 
 export const tableIconPrefix = 'assets/img/steps/v3/'
 
-/** @typedef {{ icon: tableIcons[number], title: string, statuses: supportStatus[] }} FeatureSupportData */
+/** @typedef {{ icon: tableIcons[number], title: string, statuses: SupportStatus[] }} FeatureSupportData */
 
-/** @type {FeatureSupportData[]} */
-export const comparisonTableData = [
+/** @type {(t: ReturnType<typeof import('../../types')['useTypedTranslation']>['t']) => FeatureSupportData[]} */
+export const comparisonTableData = (t) => ([
     {
         icon: 'search.svg',
-        title: 'Search privately by default',
-        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        title: t('comparison_searchPrivately'),
+        statuses: [SupportStatus.NOT_SUPPORTED, SupportStatus.NOT_SUPPORTED, SupportStatus.FULL_SUPPORT]
     },
     {
         icon: 'shield.svg',
-        title: 'Block 3rd party trackers',
-        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.PARTIAL_SUPPORT, supportStatus.FULL_SUPPORT]
+        title: t('comparison_blockTrackers'),
+        statuses: [SupportStatus.NOT_SUPPORTED, SupportStatus.PARTIAL_SUPPORT, SupportStatus.FULL_SUPPORT]
     },
     {
         icon: 'cookie.svg',
-        title: 'Block cookie requests & popups',
-        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        title: t('comparison_blockCookies'),
+        statuses: [SupportStatus.NOT_SUPPORTED, SupportStatus.NOT_SUPPORTED, SupportStatus.FULL_SUPPORT]
     },
     {
         icon: 'ads.svg',
-        title: 'Block targeted ads',
-        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        title: t('comparison_blockAds'),
+        statuses: [SupportStatus.NOT_SUPPORTED, SupportStatus.NOT_SUPPORTED, SupportStatus.FULL_SUPPORT]
     },
     {
         icon: 'fire.svg',
-        title: 'Erase browsing data swiftly',
-        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        title: t('comparison_eraseData'),
+        statuses: [SupportStatus.NOT_SUPPORTED, SupportStatus.NOT_SUPPORTED, SupportStatus.FULL_SUPPORT]
     },
     {
         icon: 'video-player.svg',
-        title: 'Watch YouTube more privately',
-        statuses: [supportStatus.NOT_SUPPORTED, supportStatus.NOT_SUPPORTED, supportStatus.FULL_SUPPORT]
+        title: t('comparison_privateYoutube'),
+        statuses: [SupportStatus.NOT_SUPPORTED, SupportStatus.NOT_SUPPORTED, SupportStatus.FULL_SUPPORT]
     }
-]
+])

@@ -2,6 +2,7 @@ import { h } from 'preact'
 import cn from 'classnames'
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
 import { comparisonTableData, tableIconPrefix } from './data-comparison-table'
+import { useTypedTranslation } from '../../types'
 
 import styles from './ComparisonTable.module.css'
 
@@ -37,12 +38,17 @@ export function ComparisonTableRowHeading ({ icon, title }) {
 
 /**
  * @param {object} props
- * @param {import('./data-comparison-table').FeatureSupportData['statuses'][number]} props.status
+ * @param {import('./data-comparison-table').SupportStatus} props.status
  */
 export function ComparisonTableCell ({ status }) {
+    const { t } = useTypedTranslation()
+    // eslint-disable-next-line
+    // @ts-ignore TODO: Fix type
+    const arialLabel = t(`comparison_${status}`)
+
     return (
         <td className={styles.rowCell}>
-            <span className={cn(styles.status, styles[status])} aria-label="TODO"></span>
+            <span className={cn(styles.status, styles[status])} aria-label={arialLabel}></span>
         </td>
     )
 }
@@ -66,6 +72,8 @@ export function ComparisonTableRow ({ icon, title, statuses }) {
 
 export function ComparisonTable () {
     const { injectName: platform } = useEnv()
+    const { t } = useTypedTranslation()
+    const tableData = comparisonTableData(t)
 
     return (
         <table className={styles.table}>
@@ -79,7 +87,7 @@ export function ComparisonTable () {
                 </tr>
             </thead>
             <tbody>
-                {comparisonTableData.map(data => <ComparisonTableRow {...data} />)}
+                {tableData.map(data => <ComparisonTableRow {...data} />)}
             </tbody>
         </table>
     )

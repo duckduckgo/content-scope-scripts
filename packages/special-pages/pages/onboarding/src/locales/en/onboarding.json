@@ -249,15 +249,15 @@
     "title": "See Without Duck Player",
     "note": "Option for comparing YouTube viewing experience with and without Duck Player."
   },
-  "getStarted_highlights_title": {
+  "getStarted_title_v3": {
     "title": "Hi there.{newline}Ready for a faster browser that keeps you protected?",
     "note": "TODO. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
-  "getStartedButton_highlights": {
+  "getStartedButton_v3": {
     "title": "Let's Do It!",
     "note": "TODO."
   },
-  "protectionsActivated": {
+  "protectionsActivated_title": {
     "title": "Protections activated!",
     "note": "TODO."
   },
@@ -265,19 +265,19 @@
     "title": "Make DuckDuckGo Your Default",
     "note": "TODO."
   },
-  "makeDefaultSuccess": {
+  "makeDefaultAccept_title": {
     "title": "Excellent! I was hoping you’d pick me.",
     "note": "TODO."
   },
-  "stickAroundTaskbarTitle": {
+  "taskbar_title": {
     "title": "Want me to stick around in the taskbar?",
     "note": "TODO."
   },
-  "stickAroundDockTitle": {
+  "dock_title": {
     "title": "Want me to stick around in the dock?",
     "note": "TODO."
   },
-  "dockSubtitle": {
+  "dock_taskbar_subtitle": {
     "title": "Tap “Yes” to always have easy access to your new browser.",
     "note": "TODO."
   },
@@ -285,19 +285,19 @@
     "title": "Keep in Dock",
     "note": "TODO."
   },
-  "taskbarAcceptTitle": {
+  "taskbarAccept_title": {
     "title": "Great! I’ll be nesting in the{newline}taskbar when you need me.",
     "note": "TODO."
   },
-  "dockAcceptTitle": {
+  "dockAccept_title": {
     "title": "Great! I’ll be nesting in the{newline}dock when you need me. ",
     "note": "TODO."
   },
-  "import_highlights_title": {
+  "import_title": {
     "title": "Want me to migrate your stuff from a different browser?",
     "note": "TODO."
   },
-  "import_highlights_subtitle": {
+  "import_subtitle": {
     "title": "I’ll protect it like my own ducklings.",
     "note": "TODO."
   },
@@ -305,48 +305,84 @@
     "title": "Import",
     "note": "TODO."
   },
-  "duckPlayer_highlights_title": {
+  "duckPlayer_title": {
     "title": "Drowning in ads on YouTube? Not with Duck Player!",
     "note": "TODO."
   },
-  "duckPlayer_highlights_subtitle": {
+  "duckPlayer_subtitle": {
     "title": "No targeted ads. No targeted recommendations. Just your video.",
     "note": "TODO."
   },
-  "customize_highlights_title": {
+  "customize_title_v3": {
     "title": "Let’s customize a few things…",
     "note": "TODO."
   },
-  "customize_highlights_subtitle": {
+  "customize_subtitle_v3": {
     "title": "Set things up just the way you want.",
     "note": "TODO."
   },
-  "bookmarksAndFavorites": {
+  "row_bookmarks-favorites_title_v3": {
     "title": "Bookmarks & Favorites",
     "note": "TODO."
   },
-  "bookmarksAndFavorites_description": {
+  "row_bookmarks-favorites_desc_v3": {
     "title": "Start off with your go-to sites in easy reach.",
     "note": "TODO."
   },
-  "passwords": {
+  "row_passwords_title": {
     "title": "Passwords",
     "note": "TODO."
   },
-  "passwords_description": {
+  "row_passwords_desc": {
     "title": "On-device encryption keeps your data secure.",
     "note": "TODO."
   },
-  "bookmarksBar": {
+  "row_bookmarks_title_v3": {
     "title": "Show a bookmarks bar with your favorite sites",
     "note": "TODO."
   },
-  "restoreSession": {
+  "row_session-restore_title_v3": {
     "title": "Restore previous websites on startup",
     "note": "TODO."
   },
-  "addHomeShortcut": {
+  "row_home-shortcut_title_v3": {
     "title": "Add a shortcut to your homepage in the toolbar",
+    "note": "TODO."
+  },
+  "comparison_searchPrivately": {
+    "title": "Search privately by default",
+    "note": "TODO."
+  },
+  "comparison_blockTrackers": {
+    "title": "Block 3rd party trackers",
+    "note": "TODO."
+  },
+  "comparison_blockCookies": {
+    "title": "Block cookie requests & popups",
+    "note": "TODO."
+  },
+  "comparison_blockAds": {
+    "title": "Block targeted ads",
+    "note": "TODO."
+  },
+  "comparison_eraseData": {
+    "title": "Erase browsing data swiftly",
+    "note": "TODO."
+  },
+  "comparison_privateYoutube": {
+    "title": "Watch YouTube more privately",
+    "note": "TODO."
+  },
+  "comparison_fullSupport": {
+    "title": "Yes",
+    "note": "TODO."
+  },
+  "comparison_partialSupport": {
+    "title": "Partially supported",
+    "note": "TODO."
+  },
+  "comparison_notSupported": {
+    "title": "No",
     "note": "TODO."
   }
 }

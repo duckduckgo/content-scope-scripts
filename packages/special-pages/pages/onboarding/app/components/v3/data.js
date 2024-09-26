@@ -24,9 +24,9 @@ export const stepsConfig = {
         return {
             variant: 'plain',
             heading: {
-                title: t('getStarted_highlights_title', { newline: '\n' }),
+                title: t('getStarted_title_v3', { newline: '\n' }),
                 speechBubble: true,
-                children: <ElasticButton onClick={advance}>{t('getStartedButton_highlights')}</ElasticButton>
+                children: <ElasticButton onClick={advance}>{t('getStartedButton_v3')}</ElasticButton>
             }
         }
     },
@@ -36,8 +36,8 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title: t('duckPlayer_highlights_title'),
-                subtitle: t('duckPlayer_highlights_subtitle'),
+                title: t('duckPlayer_title'),
+                subtitle: t('duckPlayer_subtitle'),
                 speechBubble: true
             },
             dismissButton: beforeAfterState
@@ -61,8 +61,8 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title: t('import_highlights_title'),
-                subtitle: t('import_highlights_subtitle'),
+                title: t('import_title'),
+                subtitle: t('import_subtitle'),
                 speechBubble: true
             },
             dismissButton: isIdle
@@ -90,7 +90,7 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title: isIdle ? t('protectionsActivated') : t('makeDefaultSuccess'),
+                title: isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title'),
                 speechBubble: true
             },
             dismissButton: isIdle
@@ -118,8 +118,8 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title: t('customize_highlights_title'),
-                subtitle: t('customize_highlights_subtitle'),
+                title: t('customize_title_v3'),
+                subtitle: t('customize_subtitle_v3'),
                 speechBubble: true
             },
             acceptButton: isDone
@@ -137,11 +137,11 @@ export const stepsConfig = {
         const isIdle = UIValues.dock === 'idle'
         const { injectName: platform } = env
 
-        let title = isIdle ? t('stickAroundDockTitle') : t('dockAcceptTitle', { newline: '\n' })
+        let title = isIdle ? t('dock_title') : t('dockAccept_title', { newline: '\n' })
         let idleButtonText = t('keepInDockButton')
 
         if (platform === 'windows') {
-            title = isIdle ? t('stickAroundTaskbarTitle') : t('taskbarAcceptTitle', { newline: '\n' })
+            title = isIdle ? t('taskbar_title') : t('taskbarAccept_title', { newline: '\n' })
             idleButtonText = t('nextButton')
         }
 
@@ -149,7 +149,7 @@ export const stepsConfig = {
             variant: 'box',
             heading: {
                 title,
-                subtitle: isIdle ? t('dockSubtitle') : null,
+                subtitle: isIdle ? t('dock_taskbar_subtitle') : null,
                 speechBubble: true
             },
             dismissButton: platform !== 'windows' && isIdle
@@ -187,7 +187,7 @@ export const settingsRowItems = {
     bookmarks: (t) => ({
         id: 'bookmarks',
         icon: 'v3/favorite.svg',
-        title: t('bookmarksBar'),
+        title: t('row_bookmarks_title_v3'),
         summary: t('row_bookmarks_summary'),
         kind: 'toggle',
         acceptText: t('row_bookmarks_accept')
@@ -195,7 +195,7 @@ export const settingsRowItems = {
     'session-restore': (t) => ({
         id: 'session-restore',
         icon: 'v3/session-restore.svg',
-        title: t('restoreSession'),
+        title: t('row_session-restore_title_v3'),
         summary: t('row_session-restore_summary'),
         kind: 'toggle',
         acceptText: t('row_session-restore_accept')
@@ -203,7 +203,7 @@ export const settingsRowItems = {
     'home-shortcut': (t) => ({
         id: 'home-shortcut',
         icon: 'v3/home.svg',
-        title: t('addHomeShortcut'),
+        title: t('row_home-shortcut_title_v3'),
         summary: t('row_home-shortcut_summary'),
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept')

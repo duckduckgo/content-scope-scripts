@@ -18,13 +18,13 @@ export function ImportStep () {
             <PlainList>
                 <ListItem
                     icon={'v3/bookmarks.svg'}
-                    title={t('bookmarksAndFavorites')}
-                    secondaryText={t('bookmarksAndFavorites_description')}
+                    title={t('row_bookmarks-favorites_title_v3')}
+                    secondaryText={t('row_bookmarks-favorites_desc_v3')}
                     inline={isIdle ? null : <BounceIn><Check/></BounceIn>}/>
                 <ListItem
                     icon={'v3/key.svg'}
-                    title={t('passwords')}
-                    secondaryText={t('passwords_description')}
+                    title={t('row_passwords_title')}
+                    secondaryText={t('row_passwords_desc')}
                     inline={isIdle ? null : <BounceIn><Check/></BounceIn>}/>
             </PlainList>
         </SlideIn>

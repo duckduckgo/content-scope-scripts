@@ -93,7 +93,7 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
     /** @type ReturnType<typeof useState<BUBBLE_STATE>> */
     const [bubbleState, setBubbleState] = useState(initialState)
 
-    useLayoutEffect(() => {
+    const handleSizeUpdate = () => {
         if (bubbleContents.current) {
             const div = /** @type {HTMLDivElement} */(bubbleContents.current)
             const { width, height } = div.getBoundingClientRect()
@@ -102,6 +102,10 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
                 setDimensions({ width, height })
             }
         }
+    }
+
+    useLayoutEffect(() => {
+        handleSizeUpdate()
     }, [bubbleContents, title, subtitle, children])
 
     const onTransitionEnd = () => {
@@ -133,6 +137,7 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
                     </h1>
                     {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
                     {children && bubbleState === BUBBLE_STATE.TYPING_DONE && <div className={childrenClass}>
+                        {console.log('CHILDREN')}
                         {children}
                     </div>}
                 </div>
