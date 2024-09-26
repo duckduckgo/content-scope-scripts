@@ -1,6 +1,10 @@
 .animationContainer {
-    width: 100%;
     display: flex;
-    justify-content: center;
     height: 208px;
+    justify-content: center;
+    width: 100%;
+
+    & canvas {
+        border: 1px solid rgba(0, 0, 0, 0.06);
+    }
 }
