@@ -1,82 +1,115 @@
 import ContentFeature from '../content-feature'
-import { DDGProxy, DDGReflect } from '../utils'
+import { DDGProxy, DDGReflect, withExponentialBackoff } from '../utils'
 import { getElement } from './broker-protection/utils'
 
-const MAX_SEARCH_ATTEMPTS = 10
-const INITIAL_ATTEMPT_DELAY = 500 // in ms
+
+const URL_ELEMENT_MAP = {
+    '/': {
+        name: 'cogWheel',
+        style: {
+            scale: 1,
+            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+        }
+    },
+    '/options': {
+        name: 'exportButton', 
+        style: {
+            scale: 1.01,
+            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+        }
+    },
+    '/intro': {
+        name: 'signInButton', 
+        style: {
+            scale: 1.5,
+            backgroundColor: 'rgba(0, 39, 142, 0.3)'
+        },
+    }
+}
 
 export default class PasswordImport extends ContentFeature {
-    searchElements () {
-        return new Promise((resolve, reject) => {
-            const xpath = "//div[text()='Export passwords']/ancestor::li" // Should be configurable
-            const exportElement = getElement(document, xpath)
-            if (exportElement) {
-                if (exportElement) {
-                    exportElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                        inline: 'center'
-                    }) // Scroll into view
-                    const keyframes = [
-                        { backgroundColor: 'transparent' },
-                        { backgroundColor: 'lightblue' },
-                        { backgroundColor: 'transparent' }
-                    ]
-
-                    // Define the animation options
-                    const options = {
-                        duration: 1000, // 1 seconds, should be configurable
-                        iterations: 3 // Max 3 blinks, should be configurable
-                    }
-
-                    // Apply the animation to the element
-                    exportElement.animate(keyframes, options)
-                    resolve(exportElement)
-                }
-            } else {
-                reject(new Error('Export passwords element not found'))
-            }
-        })
+    findExportElement () {
+        const xpath = "//div[text()='Export passwords']/ancestor::li" // Should be configurable
+        return getElement(document, xpath)
     }
 
-    withExponentialBackoff (fn, maxAttempts = MAX_SEARCH_ATTEMPTS, delay = INITIAL_ATTEMPT_DELAY) {
-        return new Promise((resolve, reject) => {
-            const call = (attempt) => {
-                try {
-                    const result = fn()
-                    resolve(result)
-                } catch (error) {
-                    if (attempt >= maxAttempts) {
-                        reject(error)
-                    } else {
-                        setTimeout(() => call(attempt + 1), delay * 2 ** attempt)
-                    }
-                }
-            }
-            call(0)
-        })
+    animateElement (element, style) {
+        element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+        }) // Scroll into view
+        const keyframes = [
+            { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0 },  // Start: transparent
+            { backgroundColor:  style.backgroundColor, offset: 0.5, transform: `scale(${style.scale})` },  // Midpoint: blue with 50% opacity
+            { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 1 }   // End: transparent
+        ]
+
+        // Define the animation options
+        const options = {
+            duration: 1000, // 1 second, should be configurable
+            iterations: Infinity
+        }
+
+        // Apply the animation to the element
+        element.animate(keyframes, options)
+    }
+
+    findSettingsElement () {
+        return document.querySelector('[aria-label=\'Password options\']')
+    }
+
+    findSignInButton () {
+        return document.querySelector('[aria-label="Sign in"]:not([target="_top"])');
+    }
+
+    async findElement (name) {
+        let fn = null
+        switch (name) {
+        case 'exportButton':
+            fn = this.findExportElement
+            break
+        case 'cogWheel':
+            fn = this.findSettingsElement
+            break
+        case 'signInButton':
+            fn = this.findSignInButton
+            break
+        default:
+            throw new Error('Page not supported')
+        }
+        return await withExponentialBackoff(fn)
     }
 
     init () {
-        const searchElements = this.searchElements.bind(this)
-        const withExponentialBackoff = this.withExponentialBackoff.bind(this)
+        const animateElement = this.animateElement.bind(this)
+        const findElement = this.findElement.bind(this)
         // FIXME: this is stolen from element-hiding.js, we would need a global util that would do this,
         // single page applications don't have a DOMContentLoaded event on navigations, so
-        // we use proxy/reflect on history.pushState to call applyRules on page navigations
+        // we use proxy/reflect on history.pushState to find elements on page navigations
         const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-            apply (target, thisArg, args) {
-                withExponentialBackoff(searchElements)
+            async apply (target, thisArg, args) {
+                const pageURL = args[2].split('?')[0]
+                const {name, style} = URL_ELEMENT_MAP[pageURL]
+                const element = await findElement(name)
+                animateElement(element, style)
                 return DDGReflect.apply(target, thisArg, args)
             }
         })
         historyMethodProxy.overload()
         // listen for popstate events in order to run on back/forward navigations
-        window.addEventListener('popstate', () => {
-            withExponentialBackoff(searchElements)
+        window.addEventListener('popstate', async () => {
+            console.log('pushState URL', window.location.pathname)
+            const {name, style} = URL_ELEMENT_MAP[window.location.pathname]
+            const element = await findElement(name)
+            animateElement(element, style)
         })
 
-        document.addEventListener('DOMContentLoaded', () => {
-            withExponentialBackoff(searchElements)
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('pushState URL', window.location.pathname)
+            const {name, style} = URL_ELEMENT_MAP[window.location.pathname]
+            const element = await findElement(name)
+            animateElement(element, style)
         })
     }
 }

@@ -556,6 +556,29 @@
     }
 
     /**
+     *
+     * @param {() => HTMLElement} fn
+     * @param {number} maxAttempts
+     * @param {number} delay
+     * @returns {HTMLElement|undefined}
+     */
+    function withExponentialBackoff (fn, maxAttempts = 4, delay = 500) {
+        const call = (attempt) => {
+            const result = fn();
+            if (result) {
+                return result
+            } else {
+                if (attempt >= maxAttempts) {
+                    throw new Error$1('Could not find element after max attempts')
+                } else {
+                    setTimeout(() => call(attempt + 1), delay * 2 ** attempt);
+                }
+            }
+        };
+        return call(0)
+    }
+
+    /**
      * Takes a version string and nullifies all its components except for the first `keepComponents` ones
      * @param {string} version
      * @returns string
@@ -22012,51 +22035,85 @@
     }
 
     class PasswordImport extends ContentFeature {
-        searchElements () {
+        findExportElement () {
             const xpath = "//div[text()='Export passwords']/ancestor::li"; // Should be configurable
-            const exportElement = getElement(document, xpath);
-            if (exportElement) {
-                exportElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center',
-                    inline: 'center'
-                }); // Scroll into view
-                const keyframes = [
-                    { backgroundColor: 'transparent' },
-                    { backgroundColor: 'lightblue' },
-                    { backgroundColor: 'transparent' }
-                ];
+            return getElement(document, xpath)
+        }
 
-                // Define the animation options
-                const options = {
-                    duration: 1000, // 1 seconds, should be configurable
-                    iterations: 3 // Max 3 blinks, should be configurable
-                };
+        animateElement (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center'
+            }); // Scroll into view
+            const keyframes = [
+                { backgroundColor: 'transparent' },
+                { backgroundColor: 'lightblue' },
+                { backgroundColor: 'transparent' }
+            ];
 
-                // Apply the animation to the element
-                exportElement.animate(keyframes, options);
+            // Define the animation options
+            const options = {
+                duration: 1000, // 1 second, should be configurable
+            };
+
+            // Apply the animation to the element
+            element.animate(keyframes, options);
+        }
+
+        findSettingsElement () {
+            return document.querySelector(`[aria-label='Password options']`)
+        }
+
+        findSignInButton () {
+            return document.querySelector(`[aria-label='Sign in']`)
+        }
+
+        async findElementForPage (page) {
+            switch (page) {
+                case 'exportPasswordsPage':
+                    return this.findExportElement()
+                case 'landingPage':
+                    return this.findSettingsElement()
+                case 'signInPage':
+                    return this.findSignInButton()
+                default:
+                    throw new Error('Page not supported')
             }
         }
 
         init () {
-            const searchElements = this.searchElements.bind(this);
+            const animateElement = this.animateElement.bind(this);
+            const findExportElement = this.findExportElement.bind(this);
             // FIXME: this is stolen from element-hiding.js, we would need a global util that would do this,
             // single page applications don't have a DOMContentLoaded event on navigations, so
-            // we use proxy/reflect on history.pushState to call applyRules on page navigations
+            // we use proxy/reflect on history.pushState to find elements on page navigations
             const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
                 apply (target, thisArg, args) {
-                    searchElements();
+                    console.log("pushState URL", window.location.pathname);
+                    const element = withExponentialBackoff(() => {
+                        return findExportElement()
+                    });
+                    animateElement(element);
                     return DDGReflect.apply(target, thisArg, args)
                 }
             });
             historyMethodProxy.overload();
             // listen for popstate events in order to run on back/forward navigations
             window.addEventListener('popstate', () => {
-                searchElements();
+                console.log("pushState URL", window.location.pathname);
+                const element = withExponentialBackoff(() => {
+                    return findExportElement()
+                });
+                animateElement(element);
             });
 
             document.addEventListener('DOMContentLoaded', () => {
-                searchElements();
+                console.log("pushState URL", window.location.pathname);
+                const element = withExponentialBackoff(() => {
+                    return findExportElement()
+                });
+                animateElement(element);
             });
         }
     }
