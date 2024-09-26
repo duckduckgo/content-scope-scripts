@@ -94,8 +94,9 @@
     backdrop-filter: blur(var(--sp-16));
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.60) 100%);
     border-radius: var(--sp-6);
+    box-sizing: content-box;
     min-height: var(--sp-24);
-    padding: var(--sp-6) var(--sp-7);
+    padding: 0 var(--sp-7);
     position: absolute;
     transition: all 300ms ease-in-out;
     z-index: 1000;

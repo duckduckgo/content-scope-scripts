@@ -61,7 +61,7 @@ export const stepsConfig = {
         return {
             variant: 'box',
             heading: {
-                title: t('import_title'),
+                title: t('import_title', { newline: '\n' }),
                 subtitle: t('import_subtitle'),
                 speechBubble: true
             },

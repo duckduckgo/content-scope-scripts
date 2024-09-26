@@ -5,6 +5,9 @@
 }
 
 .rowHeading {
+    font-size: calc(15 * var(--px-in-rem));
+    font-weight: 500;
+    line-height: normal;
     padding: var(--sp-3) var(--sp-3) var(--sp-3) 0;
 }
 
@@ -33,12 +36,6 @@
 .rowIcon {
     height: var(--sp-6);
     width: var(--sp-6);
-}
-
-.rowText {
-    font-size: calc(14 * var(--px-in-rem));
-    font-weight: 600;
-    line-height: normal;
 }
 
 .status {

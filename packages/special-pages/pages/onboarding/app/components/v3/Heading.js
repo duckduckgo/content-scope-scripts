@@ -71,12 +71,7 @@ function PlainHeading ({ title, subtitle, onComplete, children }) {
     )
 }
 
-/** @enum {number} */
-const BUBBLE_STATE = {
-    ANIMATING: 0,
-    ANIMATION_DONE: 1,
-    TYPING_DONE: 2
-}
+/** @typedef {'animating'|'animation-done'|'typing-done'} AnimationState */
 
 /**
  * @param {object} props
@@ -88,42 +83,50 @@ const BUBBLE_STATE = {
 function SpeechBubble ({ title, subtitle, onComplete, children }) {
     const bubbleContents = useRef(null)
     const { isReducedMotion } = useEnv()
-    const initialState = isReducedMotion ? BUBBLE_STATE.TYPING_DONE : BUBBLE_STATE.ANIMATING
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-    /** @type ReturnType<typeof useState<BUBBLE_STATE>> */
-    const [bubbleState, setBubbleState] = useState(initialState)
 
-    const handleSizeUpdate = () => {
-        if (bubbleContents.current) {
-            const div = /** @type {HTMLDivElement} */(bubbleContents.current)
-            const { width, height } = div.getBoundingClientRect()
-            if (dimensions.width !== width || dimensions.height !== height) {
-                setBubbleState(initialState)
-                setDimensions({ width, height })
-            }
-        }
+    const initialState = /** @type {AnimationState} */(isReducedMotion ? 'typing-done' : 'animating')
+    const [animationState, setAnimationState] = useState(initialState)
+
+    /** @type {(element: HTMLElement) => { width: number, height: number }} */
+    const calculateMaximumWidth = (element) => {
+        const { height } = element.getBoundingClientRect()
+        const widths = Array.from(element.querySelectorAll('.bubbleTitle span, .bubbleSubtitle, .bubbleChildren > *')).map(e => e.getBoundingClientRect().width)
+        const width = Math.max(...widths)
+
+        return { width, height }
     }
 
     useLayoutEffect(() => {
-        handleSizeUpdate()
+        if (bubbleContents.current) {
+            const { width, height } = calculateMaximumWidth(/** @type {HTMLDivElement} */(bubbleContents.current))
+            if (dimensions.width !== width || dimensions.height !== height) {
+                setAnimationState(initialState)
+                setDimensions({ width, height })
+            }
+        }
     }, [bubbleContents, title, subtitle, children])
 
     const onTransitionEnd = () => {
-        setBubbleState(BUBBLE_STATE.ANIMATION_DONE)
+        setAnimationState('animation-done')
     }
 
     const onTypingComplete = () => {
-        setBubbleState(BUBBLE_STATE.TYPING_DONE)
+        setAnimationState('typing-done')
         onComplete && onComplete()
     }
 
+    const titleClass = cn(['bubbleTitle', styles.title])
+
     const subtitleClass = cn({
+        bubbleSubtitle: true,
         [styles.subTitle]: true,
-        [styles.hidden]: bubbleState !== BUBBLE_STATE.TYPING_DONE
+        [styles.hidden]: animationState !== 'typing-done'
     })
 
     const childrenClass = cn({
-        [styles.hidden]: bubbleState !== BUBBLE_STATE.TYPING_DONE
+        bubbleChildren: true,
+        [styles.hidden]: animationState !== 'typing-done'
     })
 
     return (
@@ -132,12 +135,11 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
             <div className={styles.speechBubbleContainer}>
                 <div className={styles.speechBubbleBackground} style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }} onTransitionEnd={onTransitionEnd}></div>
                 <div className={styles.speechBubbleContents} ref={bubbleContents}>
-                    <h1 className={styles.title}>
-                        <Typed onComplete={onTypingComplete} text={title} paused={bubbleState === BUBBLE_STATE.ANIMATING} />
+                    <h1 className={titleClass}>
+                        <Typed onComplete={onTypingComplete} text={title} paused={animationState === 'animating'} />
                     </h1>
                     {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
-                    {children && bubbleState === BUBBLE_STATE.TYPING_DONE && <div className={childrenClass}>
-                        {console.log('CHILDREN')}
+                    {children && animationState === 'typing-done' && <div className={childrenClass}>
                         {children}
                     </div>}
                 </div>

@@ -175,7 +175,7 @@ export function Components () {
 
                     <Heading title={'Welcome to DuckDuckGo!'} speechBubble={true}/>
                     <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'} speechBubble={true}/>
-                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'} speechBubble={true}><AcceptButton text={'Next'} handler={() => {}}/></Heading>
+                    <Heading title={'Welcome to DuckDuckGo!'} speechBubble={true}><AcceptButton text={'Next'} handler={() => {}}/></Heading>
 
                     <SingleLineProgress current={2} total={5} />
 

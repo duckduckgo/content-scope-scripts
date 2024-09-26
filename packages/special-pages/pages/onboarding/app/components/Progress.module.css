@@ -62,4 +62,8 @@
     & .progress {
         order: -1;
     }
+
+    [data-reduced-motion="true"] & {
+        opacity: 1;
+    }
 }
