@@ -1,6 +1,7 @@
 import { h } from 'preact'
-import styles from './Buttons.module.css'
 import cn from 'classnames'
+import { useEffect, useState } from 'preact/hooks'
+import styles from './Buttons.module.css'
 
 /**
  * Renders a button bar component.
@@ -48,6 +49,7 @@ export function Button ({ variant = 'primary', size = 'normal', children, ...res
  * @property {import("preact").ComponentChild} props.children - The content to be displayed inside the button.
  * @property {'primary' | 'secondary'} [props.variant="primary"]
  * @property {boolean} [props.grow=true] - Whether the button should grow on hover
+ * @property {boolean} [props.unique=true] - Generate a new key every time button content changes. Helps in avoiding lingering hover states, for example
  */
 
 /**
@@ -55,7 +57,13 @@ export function Button ({ variant = 'primary', size = 'normal', children, ...res
  *
  * @param {ElasticButtonProps & import("preact").ComponentProps<"button">} props
  */
-export function ElasticButton ({ variant = 'primary', grow = true, children, ...rest }) {
+export function ElasticButton ({ variant = 'primary', grow = true, unique = true, children, ...rest }) {
+    const [key, setKey] = useState('')
+
+    useEffect(() => {
+        unique && setKey(self.crypto.randomUUID())
+    }, [unique, children])
+
     const classes = cn({
         [styles.button]: true,
         [styles.elastic]: true,
@@ -65,7 +73,7 @@ export function ElasticButton ({ variant = 'primary', grow = true, children, ...
     })
     return (
         <div className={styles.elasticContainer}>
-            <button className={classes} {...rest}>
+            <button className={classes} key={key} {...rest}>
                 {children}
             </button>
         </div>

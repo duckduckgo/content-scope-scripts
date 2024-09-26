@@ -10,6 +10,11 @@ const beforeAfterValues = ['before', 'after']
 
 const BeforeAfterContext = createContext({
     /**
+     * @type {StepStates}
+     */
+    stepStates: {},
+
+    /**
      * @param {steps[number]} step
      * @returns {BeforeAfter|null}
      */
@@ -61,7 +66,7 @@ export function BeforeAfterProvider ({ children }) {
     }
 
     return (
-        <BeforeAfterContext.Provider value={{ getStep, setStep, toggleStep }}>
+        <BeforeAfterContext.Provider value={{ stepStates, getStep, setStep, toggleStep }}>
             {children}
         </BeforeAfterContext.Provider>
     )

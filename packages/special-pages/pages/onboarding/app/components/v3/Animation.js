@@ -1,8 +1,8 @@
 import { h } from 'preact'
 import cn from 'classnames'
-import { useContext } from 'preact/hooks'
-import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
+import { useContext, useEffect } from 'preact/hooks'
 import { GlobalContext } from '../../global'
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
 
 import styles from './Animation.module.css'
 
@@ -12,8 +12,12 @@ import styles from './Animation.module.css'
  * @param {import("preact").ComponentChild} props.children
  */
 export function SlideIn ({ children, onAnimationEnd }) {
-    const { isReducedMotion } = useEnv()
     const { activeStepVisible } = useContext(GlobalContext)
+    const { isReducedMotion } = useEnv()
+
+    useEffect(() => {
+        if (isReducedMotion && onAnimationEnd) onAnimationEnd()
+    }, [isReducedMotion])
 
     const animationDidEnd = (e) => {
         if (e.animationName === 'Animation_slidein' && onAnimationEnd) {
@@ -22,7 +26,7 @@ export function SlideIn ({ children, onAnimationEnd }) {
     }
 
     const classes = cn({
-        [styles.slideIn]: !isReducedMotion,
+        [styles.slideIn]: true,
         [styles.animating]: activeStepVisible
     })
 

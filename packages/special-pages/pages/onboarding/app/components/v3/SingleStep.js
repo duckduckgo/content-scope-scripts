@@ -86,7 +86,7 @@ export function SingleStep () {
 
     return (
         <div className={classes}>
-            <Stack animate>
+            <Stack>
                 <div className={styles.heading}>
                     <Heading {...heading} onTitleComplete={onTitleComplete}/>
                 </div>

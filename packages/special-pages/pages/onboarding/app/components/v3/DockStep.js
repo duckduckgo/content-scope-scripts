@@ -8,8 +8,8 @@ import styles from './DockStep.module.css'
 import pinningAnimation from '../../animations/taskbar_pinning.riv'
 
 export function DockStep () {
-    const { isDarkMode } = useEnv()
-    const [autoplay, setAutoplay] = useState(false)
+    const { isDarkMode, isReducedMotion } = useEnv()
+    const [autoplay, setAutoplay] = useState(isReducedMotion)
 
     const animationDidEnd = () => {
         setAutoplay(true)

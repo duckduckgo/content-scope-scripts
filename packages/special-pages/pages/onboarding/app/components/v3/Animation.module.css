@@ -17,6 +17,10 @@
     &[data-delay="double"] {
         animation-delay: var(--anim-delay-double);
     }
+
+    [data-reduced-motion="true"] & {
+        transform: none
+    }
 }
 
 .animating {

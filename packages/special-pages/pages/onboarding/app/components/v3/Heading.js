@@ -1,7 +1,8 @@
 import { h } from 'preact'
 import cn from 'classnames'
-import { useState, useEffect, useRef, useLayoutEffect } from 'preact/hooks'
+import { useState, useRef, useLayoutEffect } from 'preact/hooks'
 import { Typed } from '../Typed'
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
 
 import styles from './Heading.module.css'
 
@@ -70,6 +71,13 @@ function PlainHeading ({ title, subtitle, onComplete, children }) {
     )
 }
 
+/** @enum {number} */
+const BUBBLE_STATE = {
+    ANIMATING: 0,
+    ANIMATION_DONE: 1,
+    TYPING_DONE: 2
+}
+
 /**
  * @param {object} props
  * @param {string} props.title - Heading title
@@ -79,44 +87,39 @@ function PlainHeading ({ title, subtitle, onComplete, children }) {
  */
 function SpeechBubble ({ title, subtitle, onComplete, children }) {
     const bubbleContents = useRef(null)
+    const { isReducedMotion } = useEnv()
+    const initialState = isReducedMotion ? BUBBLE_STATE.TYPING_DONE : BUBBLE_STATE.ANIMATING
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-    const [animationDone, setAnimationDone] = useState(false)
-    const [typingDone, setTypingDone] = useState(false)
-    const [typingPaused, setTypingPaused] = useState(true)
+    /** @type ReturnType<typeof useState<BUBBLE_STATE>> */
+    const [bubbleState, setBubbleState] = useState(initialState)
 
     useLayoutEffect(() => {
         if (bubbleContents.current) {
             const div = /** @type {HTMLDivElement} */(bubbleContents.current)
             const { width, height } = div.getBoundingClientRect()
             if (dimensions.width !== width || dimensions.height !== height) {
-                setAnimationDone(false)
+                setBubbleState(initialState)
                 setDimensions({ width, height })
             }
         }
-    }, [bubbleContents, title, subtitle, children, typingDone])
-
-    useEffect(() => {
-        setTypingDone(false)
-        setTypingPaused(true)
-    }, [title])
+    }, [bubbleContents, title, subtitle, children])
 
     const onTransitionEnd = () => {
-        setAnimationDone(true)
-        setTypingPaused(false)
+        setBubbleState(BUBBLE_STATE.ANIMATION_DONE)
     }
 
     const onTypingComplete = () => {
-        setTypingDone(true)
+        setBubbleState(BUBBLE_STATE.TYPING_DONE)
         onComplete && onComplete()
     }
 
     const subtitleClass = cn({
         [styles.subTitle]: true,
-        [styles.hidden]: !typingDone
+        [styles.hidden]: bubbleState !== BUBBLE_STATE.TYPING_DONE
     })
 
     const childrenClass = cn({
-        [styles.hidden]: !animationDone
+        [styles.hidden]: bubbleState !== BUBBLE_STATE.TYPING_DONE
     })
 
     return (
@@ -126,10 +129,10 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
                 <div className={styles.speechBubbleBackground} style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }} onTransitionEnd={onTransitionEnd}></div>
                 <div className={styles.speechBubbleContents} ref={bubbleContents}>
                     <h1 className={styles.title}>
-                        <Typed onComplete={onTypingComplete} text={title} paused={typingPaused} />
+                        <Typed onComplete={onTypingComplete} text={title} paused={bubbleState === BUBBLE_STATE.ANIMATING} />
                     </h1>
                     {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
-                    {children && typingDone && <div className={childrenClass}>
+                    {children && bubbleState === BUBBLE_STATE.TYPING_DONE && <div className={childrenClass}>
                         {children}
                     </div>}
                 </div>

@@ -16,7 +16,6 @@ import { GlobalContext } from '../global'
  * @param {number} [props.delay=20] - The delay (in milliseconds) between each character being typed.
  */
 export function Typed ({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
-    console.log('PAUSED', paused, text, children)
     const globalState = useContext(GlobalContext)
     const { activeStep } = globalState
     const pre = useRef(/** @type {string|undefined} */(undefined))

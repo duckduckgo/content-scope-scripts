@@ -10,9 +10,11 @@ import onboardingAnimation from '../../animations/Onboarding.riv'
 import styles from './DuckPlayerStep.module.css'
 
 export function DuckPlayerStep () {
-    const { isDarkMode } = useEnv()
+    const { isDarkMode, isReducedMotion } = useEnv()
     const [canPlay, setCanPlay] = useState(false)
-    const { getStep, setStep } = useBeforeAfter()
+    const { stepStates, getStep, setStep } = useBeforeAfter()
+    /** @type ReturnType<typeof useState<ReturnType<typeof getStep>>> */
+    const [animationState, setAnimationState] = useState('before')
 
     useEffect(() => {
         let id
@@ -20,13 +22,15 @@ export function DuckPlayerStep () {
         if (canPlay) {
             id = setTimeout(() => {
                 setStep('duckPlayerSingle', 'after')
-            }, 1000)
+            }, isReducedMotion ? 0 : 300)
         }
 
         return () => id && clearTimeout(id)
-    }, [canPlay])
+    }, [canPlay, isReducedMotion])
 
-    const animationState = getStep('duckPlayerSingle')
+    useEffect(() => {
+        setAnimationState(getStep('duckPlayerSingle'))
+    }, [stepStates])
 
     const animationDidEnd = () => {
         setCanPlay(true)
@@ -37,7 +41,7 @@ export function DuckPlayerStep () {
             <div className={styles.animationContainer}>
                 <RiveAnimation
                     animation={onboardingAnimation}
-                    state={animationState || 'before'}
+                    state={animationState}
                     isDarkMode={isDarkMode}
                     artboard='Duck Player'
                     inputName='Duck Player?'
