@@ -112,15 +112,15 @@ function ExampleSelector({ entries, id }) {
     }
 
     function onChange(event) {
-            if (!event.target) return;
-            if (!(event.target instanceof HTMLSelectElement)) return;
-            const selectedId = event.target.value;
-            if (selectedId) {
-                if (selectedId==="none") return onReset();
-                const url = new URL(window.location.href);
-                url.searchParams.set("id", selectedId);
-                window.location.href = url.toString();
-            }
+        if (!event.target) return;
+        if (!(event.target instanceof HTMLSelectElement)) return;
+        const selectedId = event.target.value;
+        if (selectedId) {
+            if (selectedId==="none") return onReset();
+            const url = new URL(window.location.href);
+            url.searchParams.set("id", selectedId);
+            window.location.href = url.toString();
+        }
     }
     return (
         <div class={styles.buttonRow}>
