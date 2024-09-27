@@ -250,139 +250,152 @@
     "note": "Option for comparing YouTube viewing experience with and without Duck Player."
   },
   "getStarted_title_v3": {
-    "title": "Hi there.{newline}Ready for a faster browser that keeps you protected?",
-    "note": "TODO. Please adjust `{newline}` placement ensuring visual balance and readability."
+    "title": "Hi there.{newline}{newline}Ready for a faster browser that keeps you protected?",
+    "note": "Introductory text when a user starts the onboarding process. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "getStartedButton_v3": {
     "title": "Let's Do It!",
-    "note": "TODO."
+    "note": "Button label prompting user to start the onboarding process."
   },
   "protectionsActivated_title": {
     "title": "Protections activated!",
-    "note": "TODO."
+    "note": "Title for a page that shows all the protections offered by the DuckDuckGo browser and how they compare to other browsers."
   },
   "makeDefaultButton": {
     "title": "Make DuckDuckGo Your Default",
-    "note": "TODO."
+    "note": "Button label prompting user to set DuckDuckGo as their default browser."
   },
   "makeDefaultAccept_title": {
     "title": "Excellent! I was hoping you’d pick me.",
-    "note": "TODO."
+    "note": "Page title shown if a user chose to make DuckDuckGo their default browser."
   },
   "taskbar_title": {
     "title": "Want me to stick around in the taskbar?",
-    "note": "TODO."
+    "note": "Title for a page that asks the user to add the DuckDuckGo browser to their Windows taskbar."
   },
   "dock_title": {
     "title": "Want me to stick around in the dock?",
-    "note": "TODO."
+    "note": "Title for a page that asks the user to add the DuckDuckGo browser to their dock on macOS."
   },
   "dock_taskbar_subtitle": {
     "title": "Tap “Yes” to always have easy access to your new browser.",
-    "note": "TODO."
+    "note": "Subtitle for page explaining what will happen if they accept to add the DuckDuckGo browser to their dock or taskbar."
   },
   "keepInDockButton": {
     "title": "Keep in Dock",
-    "note": "TODO."
+    "note": "Button label prompting the user to add DuckDuckGo to their dock on macOS."
   },
   "taskbarAccept_title": {
     "title": "Great! I’ll be nesting in the{newline}taskbar when you need me.",
-    "note": "TODO."
+    "note": "Page title shown if a user chose to add DuckDuckGo to their Windows taskbar."
   },
   "dockAccept_title": {
     "title": "Great! I’ll be nesting in the{newline}dock when you need me. ",
-    "note": "TODO."
+    "note": "Page title shown if a user chose to add DuckDuckGo to their dock on macOS."
   },
   "import_title": {
     "title": "Want me to migrate your stuff{newline}from a different browser?",
-    "note": "TODO."
+    "note": "Title for a page that asks the user if they would like to import settings and data from another browser."
   },
   "import_subtitle": {
     "title": "I’ll protect it like my own ducklings.",
-    "note": "TODO."
+    "note": "Subtitle for that asks the user if they would like to import settings and data from another browser."
   },
   "importButton": {
     "title": "Import",
-    "note": "TODO."
+    "note": "Button label prompting the user to import their settings and data from another browser."
   },
   "duckPlayer_title": {
     "title": "Drowning in ads on YouTube? Not with Duck Player!",
-    "note": "TODO."
+    "note": "Title for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
   "duckPlayer_subtitle": {
     "title": "No targeted ads. No targeted recommendations. Just your video.",
-    "note": "TODO."
+    "note": "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
   },
   "customize_title_v3": {
     "title": "Let’s customize a few things…",
-    "note": "TODO."
+    "note": "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."
   },
   "customize_subtitle_v3": {
     "title": "Set things up just the way you want.",
-    "note": "TODO."
+    "note": "Subtitle for a page that allows the user to customize specific settings in the DuckDuckGo browser."
   },
   "row_bookmarks-favorites_title_v3": {
     "title": "Bookmarks & Favorites",
-    "note": "TODO."
+    "note": "Section heading for the Bookmarks & Favorites import feature."
   },
   "row_bookmarks-favorites_desc_v3": {
     "title": "Start off with your go-to sites in easy reach.",
-    "note": "TODO."
+    "note": "Section description explaining that the user's bookmarks and favorites will be imported from another browser."
   },
   "row_passwords_title": {
     "title": "Passwords",
-    "note": "TODO."
+    "note": "Section heading for the Passwords import feature."
   },
   "row_passwords_desc": {
     "title": "On-device encryption keeps your data secure.",
-    "note": "TODO."
+    "note": "Section description explaining that the user's passwords will be imported from another browser."
   },
   "row_bookmarks_title_v3": {
     "title": "Show a bookmarks bar with your favorite sites",
-    "note": "TODO."
+    "note": "Heading for a toggle that puts the bookmarks bar withing easy reach of the user."
   },
   "row_session-restore_title_v3": {
     "title": "Restore previous websites on startup",
-    "note": "TODO."
+    "note": "Heading for a toggle that restores the user's previously open tabs when relaunching the browser."
   },
   "row_home-shortcut_title_v3": {
     "title": "Add a shortcut to your homepage in the toolbar",
-    "note": "TODO."
+    "note": "Heading for a toggle that adds the user's homepage to the browser toolbar."
   },
   "comparison_searchPrivately": {
     "title": "Search privately by default",
-    "note": "TODO."
+    "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockTrackers": {
     "title": "Block 3rd party trackers",
-    "note": "TODO."
+    "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies": {
     "title": "Block cookie requests & popups",
-    "note": "TODO."
+    "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds": {
     "title": "Block targeted ads",
-    "note": "TODO."
+    "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData": {
     "title": "Erase browsing data swiftly",
-    "note": "TODO."
+    "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_privateYoutube": {
     "title": "Watch YouTube more privately",
-    "note": "TODO."
+    "note": "The description of a browser privacy feature in the comparison table."
   },
   "comparison_fullSupport": {
-    "title": "Yes",
-    "note": "TODO."
+    "title": "Significant protection",
+    "note": "The level of protection offered by a browser on a specific feature in the comparison table."
   },
   "comparison_partialSupport": {
-    "title": "Partially supported",
-    "note": "TODO."
+    "title": "Limited protection",
+    "note": "The level of protection offered by a browser on a specific feature in the comparison table."
   },
   "comparison_notSupported": {
-    "title": "No",
-    "note": "TODO."
+    "title": "No protection",
+    "note": "The level of protection offered by a browser on a specific feature in the comparison table."
+  },
+  "browser_DuckDuckGo": {
+    "title": "DuckDuckGo",
+    "note": "Brand name of the DuckDuckGo browser"
+  },
+  "browser_Chrome": {
+    "title": "Chrome",
+    "note": "Brand name of the Google Chrome browser"
+  },
+  "browser_Safari": {
+    "title": "Safari",
+    "note": "Brand name of the Apple Safari browser"
   }
+
 }

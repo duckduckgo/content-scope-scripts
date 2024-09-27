@@ -31,7 +31,7 @@
         "progress spacer skip accept";
     align-items: center;
 
-    [data-platform="windows"] & {
+    [data-platform-name="windows"] & {
         grid-template-areas:
         "content content content content"
         "progress spacer accept skip";

@@ -16,7 +16,7 @@
 /**
  * @typedef {object} StepConfigParams
  * @property {ReturnType<typeof import('../../types')['useTypedTranslation']>['t']} t
- * @property {ReturnType<typeof import('../../../../../shared/components/EnvironmentProvider').useEnv>} env
+ * @property {ImportMeta['platform']} platformName
  * @property {import('../../types').GlobalState} globalState
  * @property {Progress} progress
  * @property {() => void} advance

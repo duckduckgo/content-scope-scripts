@@ -132,15 +132,14 @@ export const stepsConfig = {
             content: <CustomizeStep />
         }
     },
-    dockSingle: ({ t, env, globalState, advance, enableSystemValue }) => {
+    dockSingle: ({ t, platformName, globalState, advance, enableSystemValue }) => {
         const { UIValues } = globalState
         const isIdle = UIValues.dock === 'idle'
-        const { injectName: platform } = env
 
         let title = isIdle ? t('dock_title') : t('dockAccept_title', { newline: '\n' })
         let idleButtonText = t('keepInDockButton')
 
-        if (platform === 'windows') {
+        if (platformName === 'windows') {
             title = isIdle ? t('taskbar_title') : t('taskbarAccept_title', { newline: '\n' })
             idleButtonText = t('nextButton')
         }
@@ -152,7 +151,7 @@ export const stepsConfig = {
                 subtitle: isIdle ? t('dock_taskbar_subtitle') : null,
                 speechBubble: true
             },
-            dismissButton: platform !== 'windows' && isIdle
+            dismissButton: platformName !== 'windows' && isIdle
                 ? {
                     text: t('skipButton'),
                     handler: advance

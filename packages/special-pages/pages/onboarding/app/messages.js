@@ -9,6 +9,7 @@
  * @property {string[]} [exclude] - ability to exclude screens
  * @property {ImportMeta['env']} [env] - optional override for the running override
  * @property {string} locale
+ * @property {{ name: 'macos'|'windows'|'android'|'ios'}} [platform]
  */
 
 /**

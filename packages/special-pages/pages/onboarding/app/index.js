@@ -13,6 +13,7 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { Settings } from './settings'
 import { callWithRetry } from '../../../shared/call-with-retry'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider'
+import { SettingsProvider } from './components/SettingsProvider'
 import enStrings from '../src/locales/en/onboarding.json'
 
 const baseEnvironment = new Environment()
@@ -55,7 +56,7 @@ async function init () {
 
     const settings = new Settings()
         .withPlatformName(baseEnvironment.injectName)
-        // .withPlatformName(init.platform?.name)
+        .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withStepDefinitions(init.stepDefinitions)
         .withNamedOrder(init.order)
@@ -80,15 +81,17 @@ async function init () {
             >
                 <UpdateEnvironment search={window.location.search} />
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <GlobalProvider
-                        messaging={onboarding}
-                        order={settings.order}
-                        stepDefinitions={settings.stepDefinitions}
-                        firstPage={settings.first}>
-                        <AppComponent>
-                            {environment.env === 'development' && <SkipLink />}
-                        </AppComponent>
-                    </GlobalProvider>
+                    <SettingsProvider platform={settings.platform}>
+                        <GlobalProvider
+                            messaging={onboarding}
+                            order={settings.order}
+                            stepDefinitions={settings.stepDefinitions}
+                            firstPage={settings.first}>
+                            <AppComponent>
+                                {environment.env === 'development' && <SkipLink />}
+                            </AppComponent>
+                        </GlobalProvider>
+                    </SettingsProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)

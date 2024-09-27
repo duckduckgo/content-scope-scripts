@@ -3,6 +3,7 @@ import { h } from 'preact'
 import { useContext } from 'preact/hooks'
 import { GlobalContext, GlobalDispatch } from '../global'
 import { useEnv } from '../../../../shared/components/EnvironmentProvider'
+import { usePlatformName } from './SettingsProvider'
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { Fallback } from '../pages/Fallback'
 import { Background } from './Background'
@@ -18,13 +19,13 @@ import styles from './App2.module.css'
  */
 export function App2 ({ children }) {
     const { debugState } = useEnv()
+    const platformName = usePlatformName()
     const globalState = useContext(GlobalContext)
     const dispatch = useContext(GlobalDispatch)
 
     const { activeStep, activeStepVisible, exiting, step } = globalState
 
     const advance = () => dispatch({ kind: 'advance' })
-    // const dismissToSettings = () => dispatch({ kind: 'dismiss-to-settings' })
 
     const didCatch = ({ error }) => {
         const message = error?.message || 'unknown'
@@ -51,7 +52,7 @@ export function App2 ({ children }) {
     }
 
     return (
-        <main className={styles.main}>
+        <main className={styles.main} data-platform-name={platformName || 'macos'}>
             <Background/>
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} data-step-visible={activeStepVisible} ref={didRender} onAnimationEnd={animationDidFinish}>

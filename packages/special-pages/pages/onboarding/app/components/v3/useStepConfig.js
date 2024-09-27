@@ -1,7 +1,7 @@
 import { useContext } from 'preact/hooks'
-import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
 import { GlobalContext, GlobalDispatch } from '../../global'
 import { useTypedTranslation } from '../../types'
+import { usePlatformName } from '../SettingsProvider'
 import { stepsConfig } from './data'
 import { useBeforeAfter } from './BeforeAfterProvider'
 
@@ -24,8 +24,8 @@ function calculateProgress (order, activeStep) {
  * @returns {import('./data-types').StepData}
  */
 export function useStepConfig () {
-    const env = useEnv()
     const globalState = useContext(GlobalContext)
+    const platformName = usePlatformName() || 'macos'
     const dispatch = useContext(GlobalDispatch)
     const { t } = useTypedTranslation()
     const { getStep, setStep, toggleStep } = useBeforeAfter()
@@ -58,7 +58,7 @@ export function useStepConfig () {
     /** @type {import('./data-types').StepConfigParams} */
     const configParams = {
         t,
-        env,
+        platformName,
         globalState,
         progress,
         advance,

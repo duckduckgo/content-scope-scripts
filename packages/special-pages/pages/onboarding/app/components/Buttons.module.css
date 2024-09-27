@@ -137,8 +137,14 @@
     --btn-line-height: 1;
     --btn-font-size: calc(14 * var(--px-in-rem));
     --btn-height: var(--sp-9);
+    font-family: system, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-weight: 600;
     padding: calc(10 * var(--px-in-rem)) var(--sp-6);
     transition: height 150ms ease-in-out;
+
+    &.primary {
+        font-weight: 700;
+    }
 
     &.growable:hover {
         --btn-height: var(--sp-11);
