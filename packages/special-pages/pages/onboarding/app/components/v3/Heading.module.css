@@ -7,7 +7,7 @@
 .headingContents {
     padding: calc(18 * var(--px-in-rem)) var(--sp-6);
     display: grid;
-    gap: var(--sp-6);
+    gap: var(--sp-3);
 }
 
 .title { /* TODO: Windows */
@@ -110,7 +110,7 @@
     align-items: center;
     color: var(--color-black-at-84);
     display: grid;
-    gap: var(--sp-6);
+    gap: var(--sp-3);
     height: auto;
     justify-items: start;
     min-height: var(--sp-24);
@@ -128,6 +128,10 @@
         line-height: 1.2;
         font-weight: 600;
     }
+}
+
+.additionalContent {
+    padding-top: var(--sp-3);
 }
 
 .hidden {

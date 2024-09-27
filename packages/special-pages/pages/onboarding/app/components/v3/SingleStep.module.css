@@ -25,17 +25,11 @@
     display: grid;
     gap: var(--sp-8) var(--sp-2);
     grid-template-rows: auto var(--sp-9);
-    grid-template-columns: var(--sp-20) 1fr min-content min-content;
+    grid-template-columns: var(--sp-20) 1fr min-content;
     grid-template-areas:
-        "content content content content"
-        "progress spacer skip accept";
+        "content content content"
+        "progress . buttons";
     align-items: center;
-
-    [data-platform-name="windows"] & {
-        grid-template-areas:
-        "content content content content"
-        "progress spacer accept skip";
-    }
 }
 
 .content {
@@ -49,12 +43,22 @@
     grid-area: progress;
 }
 
-.spacer {
-    grid-area: spacer;
+.buttonBar {
+    grid-area: buttons;
+}
+
+.buttonBarContents {
+    display: grid;
+    gap: var(--sp-2);
+    grid-template-areas: "dismiss accept";
+
+    [data-platform-name="windows"] & {
+        grid-template-areas: "accept dismiss";
+    }
 }
 
 .dismiss {
-    grid-area: skip;
+    grid-area: dismiss;
 }
 
 .accept {

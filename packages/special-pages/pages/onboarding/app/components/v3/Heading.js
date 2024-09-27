@@ -126,6 +126,7 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
 
     const childrenClass = cn({
         bubbleChildren: true,
+        [styles.additionalContent]: true,
         [styles.hidden]: animationState !== 'typing-done'
     })
 

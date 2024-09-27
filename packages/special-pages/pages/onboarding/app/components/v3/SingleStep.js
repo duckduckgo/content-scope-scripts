@@ -6,6 +6,7 @@ import { Heading } from './Heading'
 import { SingleLineProgress } from '../Progress'
 import { ElasticButton } from '../Buttons'
 import { Stack } from '../Stack'
+import { SlideIn } from './Animation'
 
 import styles from './SingleStep.module.css'
 
@@ -61,14 +62,18 @@ export function StepGrid ({ progress, dismissButton, acceptButton, children }) {
             <SingleLineProgress current={progress.current} total={progress.total} />
         </div>
 
-        <div className={styles.spacer}></div>
+        <div className={styles.buttonBar}>
+            <SlideIn>
+                <div class={styles.buttonBarContents}>
+                    <div className={styles.dismiss}>
+                        {dismissButton}
+                    </div>
 
-        <div className={styles.dismiss}>
-            {dismissButton}
-        </div>
-
-        <div className={styles.accept}>
-            {acceptButton}
+                    <div className={styles.accept}>
+                        {acceptButton}
+                    </div>
+                </div>
+            </SlideIn>
         </div>
     </div>)
 }

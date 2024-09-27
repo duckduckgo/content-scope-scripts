@@ -12,7 +12,7 @@ import styles from './Animation.module.css'
  * @param {import("preact").ComponentChild} props.children
  */
 export function SlideIn ({ children, onAnimationEnd }) {
-    const { activeStepVisible } = useContext(GlobalContext)
+    const { activeStepVisible, activeStep } = useContext(GlobalContext)
     const { isReducedMotion } = useEnv()
 
     useEffect(() => {
@@ -31,7 +31,7 @@ export function SlideIn ({ children, onAnimationEnd }) {
     })
 
     return (
-        <div class={styles.container} onAnimationEnd={animationDidEnd}>
+        <div class={styles.container} onAnimationEnd={animationDidEnd} key={activeStep}>
             <div className={classes}>
                 {children}
             </div>

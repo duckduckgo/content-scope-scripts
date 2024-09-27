@@ -134,13 +134,11 @@ export const stepsConfig = {
                 subtitle: t('duckPlayer_subtitle'),
                 speechBubble: true
             },
-            dismissButton: beforeAfterState
-                ? {
-                    startIcon: <Replay />,
-                    text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
-                    handler: () => beforeAfter.toggle()
-                }
-                : null,
+            dismissButton: {
+                startIcon: <Replay />,
+                text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
+                handler: () => beforeAfter.toggle()
+            },
             acceptButton: {
                 text: t('nextButton'),
                 handler: advance
