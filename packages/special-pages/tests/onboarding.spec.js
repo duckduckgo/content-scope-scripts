@@ -179,7 +179,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3',
+                    order: 'v3'
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' })
@@ -202,7 +202,7 @@ test.describe('onboarding', () => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3',
+                    order: 'v3'
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'dockSingle' })
@@ -213,20 +213,20 @@ test.describe('onboarding', () => {
                 onboarding.withInitData({
                     stepDefinitions: null,
                     order: 'v3',
-                    platform: { name: 'macos'}
+                    platform: { name: 'macos' }
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'dockSingle' })
                 await onboarding.skippedCurrent()
                 await page.getByRole('heading', { name: 'Want me to migrate your stuff' }).waitFor()
             })
-        }),
+        })
         test.describe('Given I am on the import step', () => {
             test('Then I can import favorites and passwords into DuckDuckGo', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
-                    order: 'v3',
+                    order: 'v3'
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'importSingle' })

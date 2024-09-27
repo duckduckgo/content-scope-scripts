@@ -532,6 +532,7 @@ export class OnboardingPage {
         await page.getByRole('button', { name: 'Show Home Button' }).click()
         await this.startBrowsing()
     }
+
     async completesOrderV3WithoutDock () {
         const { page } = this
         await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 })
