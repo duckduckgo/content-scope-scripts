@@ -1,4 +1,5 @@
 import { h, createContext } from 'preact'
+import { useContext } from 'preact/hooks'
 
 const SettingsContext = createContext(/** @type {{settings: import("./settings.js").Settings}} */({}))
 
@@ -13,4 +14,8 @@ export function SettingsProvider ({ settings, children }) {
             {children}
         </SettingsContext.Provider>
     )
+}
+
+export function usePlatformName () {
+    return useContext(SettingsContext).settings.platform.name
 }

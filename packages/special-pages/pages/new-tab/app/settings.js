@@ -4,14 +4,14 @@ export class Settings {
      * @param {{name: ImportMeta['platform']}} [params.platform]
      */
     constructor ({
-        platform = { name: 'windows' }
+        platform = { name: 'macos' }
     }) {
         this.platform = platform
     }
 
     withPlatformName (name) {
         /** @type {ImportMeta['platform'][]} */
-        const valid = ['windows', 'macos', 'ios', 'android']
+        const valid = ['windows', 'macos']
         if (valid.includes(/** @type {any} */(name))) {
             return new Settings({
                 ...this,
