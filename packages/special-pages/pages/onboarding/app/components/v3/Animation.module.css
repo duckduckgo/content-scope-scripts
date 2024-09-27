@@ -1,6 +1,10 @@
 .container {
     overflow: hidden;
     position: relative;
+
+    &[data-animation-state="done"] {
+        overflow: visible;
+    }
 }
 
 .slideIn {
@@ -21,10 +25,10 @@
     [data-reduced-motion="true"] & {
         transform: none
     }
-}
 
-.animating {
-    animation-play-state: running;
+    [data-animation-state="animating"] & {
+        animation-play-state: running;
+    }
 }
 
 @keyframes slidein {

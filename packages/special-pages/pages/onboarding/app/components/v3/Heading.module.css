@@ -77,12 +77,14 @@
 }
 
 .speechBubbleCallout {
-    background-image: url('../../../src/assets/img/speech-callout.svg');
-    background-position: right var(--sp-8);
-    background-repeat: no-repeat;
+    backdrop-filter: blur(var(--sp-16));
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(255, 255, 255, 0.60) 100%);
+    mask-image: url('../../../src/assets/img/speech-callout-mask.svg');
+    mask-position: right var(--sp-8);
+    mask-repeat: no-repeat;
 
     @media (prefers-color-scheme: dark) {
-        background-image: url('../../../src/assets/img/speech-callout-dark.svg');
+        background: linear-gradient(180deg, #333 0%, rgba(51, 51, 51, 0.72) 100%);
     }
 }
 
