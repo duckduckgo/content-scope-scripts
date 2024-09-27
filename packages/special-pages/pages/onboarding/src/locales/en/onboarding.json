@@ -254,7 +254,7 @@
     "note": "Introductory text when a user starts the onboarding process. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "getStartedButton_v3": {
-    "title": "Let's Do It!",
+    "title": "Let’s Do It!",
     "note": "Button label prompting user to start the onboarding process."
   },
   "protectionsActivated_title": {

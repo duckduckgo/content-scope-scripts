@@ -30,59 +30,6 @@ export const stepsConfig = {
             }
         }
     },
-    duckPlayerSingle: ({ t, advance, beforeAfter }) => {
-        const beforeAfterState = beforeAfter.get()
-
-        return {
-            variant: 'box',
-            heading: {
-                title: t('duckPlayer_title'),
-                subtitle: t('duckPlayer_subtitle'),
-                speechBubble: true
-            },
-            dismissButton: beforeAfterState
-                ? {
-                    startIcon: <Replay />,
-                    text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
-                    handler: () => beforeAfter.toggle()
-                }
-                : null,
-            acceptButton: {
-                text: t('nextButton'),
-                handler: advance
-            },
-            content: <DuckPlayerStep />
-        }
-    },
-    importSingle: ({ t, globalState, advance, enableSystemValue }) => {
-        const { UIValues } = globalState
-        const isIdle = UIValues.import === 'idle'
-
-        return {
-            variant: 'box',
-            heading: {
-                title: t('import_title', { newline: '\n' }),
-                subtitle: t('import_subtitle'),
-                speechBubble: true
-            },
-            dismissButton: isIdle
-                ? {
-                    text: t('skipButton'),
-                    handler: advance
-                }
-                : null,
-            acceptButton: isIdle
-                ? {
-                    text: t('importButton'),
-                    handler: () => enableSystemValue('import')
-                }
-                : {
-                    text: t('nextButton'),
-                    handler: advance
-                },
-            content: <ImportStep />
-        }
-    },
     makeDefaultSingle: ({ t, globalState, advance, enableSystemValue }) => {
         const { UIValues } = globalState
         const isIdle = UIValues['default-browser'] === 'idle'
@@ -109,27 +56,6 @@ export const stepsConfig = {
                     handler: advance
                 },
             content: <MakeDefaultStep />
-        }
-    },
-    customize: ({ t, globalState, dismiss }) => {
-        const { step, activeRow } = globalState
-        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */(step).rows.length
-
-        return {
-            variant: 'box',
-            heading: {
-                title: t('customize_title_v3'),
-                subtitle: t('customize_subtitle_v3'),
-                speechBubble: true
-            },
-            acceptButton: isDone
-                ? {
-                    text: t('startBrowsing'),
-                    endIcon: <Launch/>,
-                    handler: dismiss
-                }
-                : null,
-            content: <CustomizeStep />
         }
     },
     dockSingle: ({ t, platformName, globalState, advance, enableSystemValue }) => {
@@ -167,6 +93,80 @@ export const stepsConfig = {
                     handler: advance
                 },
             content: <DockStep />
+        }
+    },
+    importSingle: ({ t, globalState, advance, enableSystemValue }) => {
+        const { UIValues } = globalState
+        const isIdle = UIValues.import === 'idle'
+
+        return {
+            variant: 'box',
+            heading: {
+                title: t('import_title', { newline: '\n' }),
+                subtitle: t('import_subtitle'),
+                speechBubble: true
+            },
+            dismissButton: isIdle
+                ? {
+                    text: t('skipButton'),
+                    handler: advance
+                }
+                : null,
+            acceptButton: isIdle
+                ? {
+                    text: t('importButton'),
+                    handler: () => enableSystemValue('import')
+                }
+                : {
+                    text: t('nextButton'),
+                    handler: advance
+                },
+            content: <ImportStep />
+        }
+    },
+    duckPlayerSingle: ({ t, advance, beforeAfter }) => {
+        const beforeAfterState = beforeAfter.get()
+
+        return {
+            variant: 'box',
+            heading: {
+                title: t('duckPlayer_title'),
+                subtitle: t('duckPlayer_subtitle'),
+                speechBubble: true
+            },
+            dismissButton: beforeAfterState
+                ? {
+                    startIcon: <Replay />,
+                    text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
+                    handler: () => beforeAfter.toggle()
+                }
+                : null,
+            acceptButton: {
+                text: t('nextButton'),
+                handler: advance
+            },
+            content: <DuckPlayerStep />
+        }
+    },
+    customize: ({ t, globalState, dismiss }) => {
+        const { step, activeRow } = globalState
+        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */(step).rows.length
+
+        return {
+            variant: 'box',
+            heading: {
+                title: t('customize_title_v3'),
+                subtitle: t('customize_subtitle_v3'),
+                speechBubble: true
+            },
+            acceptButton: isDone
+                ? {
+                    text: t('startBrowsing'),
+                    endIcon: <Launch/>,
+                    handler: dismiss
+                }
+                : null,
+            content: <CustomizeStep />
         }
     }
 }
