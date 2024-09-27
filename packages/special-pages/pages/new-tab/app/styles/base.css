@@ -5,8 +5,15 @@ html[data-reduced-motion=true] * {
     animation: none!important;
     transition: none!important;
 }
-/* Base styles */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+* {
+    margin: 0;
+}
 body {
+    -webkit-font-smoothing: antialiased;
+
     font-family: system-ui;
     margin: 0;
 
@@ -18,12 +25,21 @@ body {
     user-select: none;
     -webkit-user-select: none;
     cursor: default;
-    color: var(--theme-txt-color);
-    background: var(--theme-page-bg);
 }
-body > main {
-    width: 100%;
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
 }
+input, button, textarea, select {
+    font: inherit;
+}
+p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+}
+#app, #__next {
+    isolation: isolate;
+}
+
 h1,
 h2,
 h3,
@@ -43,3 +59,4 @@ li {
     margin: 0;
     padding: 0;
 }
+
