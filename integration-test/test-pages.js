@@ -1,37 +1,24 @@
 /**
  *  Tests for shared pages
  */
-import { processConfig } from '../src/utils.js'
-import { setup } from './helpers/harness.js'
 import * as fs from 'fs'
+import { test as base, expect } from '@playwright/test'
+import { processConfig } from '../src/utils.js'
 import polyfillProcessGlobals from '../unit-test/helpers/pollyfil-for-process-globals.js'
+import { gotoAndWait, testContext } from './helpers/harness.js'
 
-describe('Test integration pages', () => {
-    let browser
-    let server
-    let teardown
-    let setupIntegrationPagesServer
-    let gotoAndWait
-    beforeAll(async () => {
-        ({ browser, setupIntegrationPagesServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
-        server = setupIntegrationPagesServer()
-    })
-    afterAll(async () => {
-        await server?.close()
-        await teardown()
-    })
+const test = testContext(base)
 
+test.describe('Test integration pages', () => {
     /**
+     * @param {import("@playwright/test").Page} page
      * @param {string} pageName
      * @param {string} configPath
      * @param {string} [evalBeforeInit]
      */
-    async function testPage (pageName, configPath, evalBeforeInit) {
-        const port = server.address().port
-        const page = await browser.newPage()
-        const res = fs.readFileSync(configPath)
-        // @ts-expect-error - JSON.parse returns any
-        const config = JSON.parse(res)
+    async function testPage (page, pageName, configPath, evalBeforeInit) {
+        const res = fs.readFileSync(configPath, 'utf8')
+        const config = JSON.parse(res.toString())
         polyfillProcessGlobals()
 
         /** @type {import('../src/utils.js').UserPreferences} */
@@ -43,7 +30,7 @@ describe('Test integration pages', () => {
         }
         const processedConfig = processConfig(config, /* userList */ [], /* preferences */ userPreferences/*, platformSpecificFeatures = [] */)
 
-        await gotoAndWait(page, `http://localhost:${port}/${pageName}?automation=true`, processedConfig, evalBeforeInit)
+        await gotoAndWait(page, `/${pageName}?automation=true`, processedConfig, evalBeforeInit)
         // Check page results
         const pageResults = await page.evaluate(
             () => {
@@ -66,13 +53,14 @@ describe('Test integration pages', () => {
         )
         for (const key in pageResults) {
             for (const result of pageResults[key]) {
-                expect(result.result).withContext(key + ':\n ' + result.name).toEqual(result.expected)
+                expect(result.result).toEqual(result.expected)
             }
         }
     }
 
-    it('Web compat shims correctness', async () => {
+    test('Web compat shims correctness', async ({ page }) => {
         await testPage(
+            page,
             'webcompat/pages/shims.html',
             `${process.cwd()}/integration-test/test-pages/webcompat/config/shims.json`
         )

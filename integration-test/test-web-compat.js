@@ -1,34 +1,17 @@
-/**
- *  Tests for injecting navigator.duckduckgo into the page
- */
-import { setup } from './helpers/harness.js'
+import { gotoAndWait, testContext } from './helpers/harness.js'
+import { test as base, expect } from '@playwright/test'
 
-describe('Ensure safari interface is injected', () => {
-    let browser
-    let server
-    let teardown
-    let setupServer
-    let gotoAndWait
-    beforeAll(async () => {
-        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
-        server = setupServer()
-    })
-    afterAll(async () => {
-        await server?.close()
-        await teardown()
-    })
+const test = testContext(base)
 
-    it('should expose window.safari when enabled', async () => {
-        const port = server.address().port
-        const page = await browser.newPage()
-
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+test.describe('Ensure safari interface is injected', () => {
+    test('should expose window.safari when enabled', async ({ page }) => {
+        await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } })
         const noSafari = await page.evaluate(() => {
             return 'safari' in window
         })
         expect(noSafari).toEqual(false)
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        await gotoAndWait(page, '/blank.html', {
             site: {
                 enabledFeatures: ['webCompat']
             },
@@ -80,24 +63,8 @@ describe('Ensure safari interface is injected', () => {
     })
 })
 
-describe('Ensure Notification interface is injected', () => {
-    let browser
-    let server
-    let teardown
-    let setupServer
-    let gotoAndWait
-    beforeAll(async () => {
-        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
-        server = setupServer()
-    })
-    afterAll(async () => {
-        await server?.close()
-        await teardown()
-    })
-
-    it('should expose window.Notification when enabled', async () => {
-        const port = server.address().port
-        const page = await browser.newPage()
+test.describe('Ensure Notification interface is injected', () => {
+    test('should expose window.Notification when enabled', async ({ page }) => {
         // Fake the Notification API not existing in this browser
         const removeNotificationScript = `
             delete window.Notification
@@ -113,19 +80,19 @@ describe('Ensure Notification interface is injected', () => {
             }
             return out
         }
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+        await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } })
         const initialNotification = await page.evaluate(checkForNotification)
         // Base implementation of the test env should have it.
         expect(initialNotification).toEqual(true)
         const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorSerializedValue)
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removeNotificationScript)
+        await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } }, removeNotificationScript)
         const noNotification = await page.evaluate(() => {
             return 'Notification' in window
         })
         expect(noNotification).toEqual(false)
 
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        await gotoAndWait(page, '/blank.html', {
             site: {
                 enabledFeatures: ['webCompat']
             },
@@ -159,21 +126,7 @@ describe('Ensure Notification interface is injected', () => {
     })
 })
 
-describe('Permissions API', () => {
-    let browser
-    let server
-    let teardown
-    let setupServer
-    let gotoAndWait
-    beforeAll(async () => {
-        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
-        server = setupServer()
-    })
-    afterAll(async () => {
-        await server?.close()
-        await teardown()
-    })
-
+test.describe('Permissions API', () => {
     // Fake the Permission API not existing in this browser
     const removePermissionsScript = `
     Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
@@ -187,31 +140,26 @@ describe('Permissions API', () => {
         return descriptor === undefined
     }
 
-    describe('disabled feature', () => {
-        it('should not expose permissions API', async () => {
-            const port = server.address().port
-            const page = await browser.newPage()
-
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+    test.describe('disabled feature', () => {
+        test('should not expose permissions API', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } })
             const initialPermissions = await page.evaluate(checkForPermissions)
             // Base implementation of the test env should have it.
             expect(initialPermissions).toEqual(true)
             const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
             expect(initialDescriptorSerialization).toEqual(true)
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, removePermissionsScript)
+            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } }, removePermissionsScript)
             const noPermissions = await page.evaluate(checkForPermissions)
             expect(noPermissions).toEqual(false)
         })
     })
 
-    describe('enabled feature', () => {
-        let port
-        let page
-
-        beforeAll(async () => {
-            port = server.address().port
-            page = await browser.newPage()
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+    test.describe('enabled feature', () => {
+        /**
+         * @param {import("@playwright/test").Page} page
+         */
+        async function before (page) {
+            await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat']
                 },
@@ -233,9 +181,13 @@ describe('Permissions API', () => {
                     }
                 }
             }, removePermissionsScript)
-        })
-
-        async function checkPermission (name) {
+        }
+        /**
+         * @param {import("@playwright/test").Page} page
+         * @param {any} name
+         * @return {Promise<{result: any, message: *}>}
+         */
+        async function checkPermission (page, name) {
             const payload = `window.navigator.permissions.query(${JSON.stringify({ name })})`
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
@@ -245,27 +197,32 @@ describe('Permissions API', () => {
             })
             return { result, message }
         }
-        it('should expose window.navigator.permissions when enabled', async () => {
+        test('should expose window.navigator.permissions when enabled', async ({ page }) => {
+            await before(page)
             const hasPermissions = await page.evaluate(checkForPermissions)
             expect(hasPermissions).toEqual(true)
             const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent)
             // This fails in a test condition purely because we have to add a descriptor to modify the prop
             expect(modifiedDescriptorSerialization).toEqual(false)
         })
-        it('should throw error when permission not supported', async () => {
-            const { result } = await checkPermission('notexistent')
+        test('should throw error when permission not supported', async ({ page }) => {
+            await before(page)
+            const { result } = await checkPermission(page, 'notexistent')
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain('notexistent')
         })
-        it('should return prompt by default', async () => {
-            const { result } = await checkPermission('geolocation')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'geolocation', state: 'prompt' }))
+        test('should return prompt by default', async ({ page }) => {
+            await before(page)
+            const { result } = await checkPermission(page, 'geolocation')
+            expect(result).toMatchObject({ name: 'geolocation', state: 'prompt' })
         })
-        it('should return updated name when configured', async () => {
-            const { result } = await checkPermission('push')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'notifications', state: 'prompt' }))
+        test('should return updated name when configured', async ({ page }) => {
+            await before(page)
+            const { result } = await checkPermission(page, 'push')
+            expect(result).toMatchObject({ name: 'notifications', state: 'prompt' })
         })
-        it('should propagate result from native when configured', async () => {
+        test('should propagate result from native when configured', async ({ page }) => {
+            await before(page)
             // Fake result from native
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = (req) => {
@@ -273,52 +230,49 @@ describe('Permissions API', () => {
                     return Promise.resolve({ state: 'granted' })
                 }
             })
-            const { result, message } = await checkPermission('camera')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'granted' }))
-            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
+            const { result, message } = await checkPermission(page, 'camera')
+            expect(result).toMatchObject({ name: 'video_capture', state: 'granted' })
+            expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } })
         })
-        it('should default to prompt when native sends unexpected response', async () => {
+        test('should default to prompt when native sends unexpected response', async ({ page }) => {
+            await before(page)
+            page.on('console', msg => {
+                console.log(`PAGE LOG: ${msg.text()}`)
+            })
+
             await page.evaluate(() => {
-                globalThis.cssMessaging.impl.request = () => {
+                globalThis.cssMessaging.impl.request = (message) => {
+                    globalThis.shareReq = message
                     return Promise.resolve({ noState: 'xxx' })
                 }
             })
-            const { result, message } = await checkPermission('camera')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt' }))
-            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
+            const { result, message } = await checkPermission(page, 'camera')
+            expect(result).toMatchObject({ name: 'video_capture', state: 'prompt' })
+            expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } })
         })
-        it('should default to prompt when native error occurs', async () => {
+        test('should default to prompt when native error occurs', async ({ page }) => {
+            await before(page)
             await page.evaluate(() => {
-                globalThis.cssMessaging.impl.request = () => {
+                globalThis.cssMessaging.impl.request = (message) => {
+                    globalThis.shareReq = message
                     return Promise.reject(new Error('something wrong'))
                 }
             })
-            const { result, message } = await checkPermission('camera')
-            expect(result).toEqual(jasmine.objectContaining({ name: 'video_capture', state: 'prompt' }))
-            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } }))
+            const { result, message } = await checkPermission(page, 'camera')
+            expect(result).toMatchObject({ name: 'video_capture', state: 'prompt' })
+            expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } })
         })
     })
 })
 
-describe('ScreenOrientation API', () => {
-    let browser
-    let server
-    let teardown
-    let setupServer
-    let gotoAndWait
-    let port
-    let page
-    beforeAll(async () => {
-        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
-        server = setupServer()
-    })
-    afterAll(async () => {
-        await server?.close()
-        await teardown()
-    })
-
-    describe('disabled feature', () => {
-        async function checkLockThrows (orientation) {
+test.describe('ScreenOrientation API', () => {
+    test.describe('disabled feature', () => {
+        /**
+         * @param {import("@playwright/test").Page} page
+         * @param {any} orientation
+         * @return {Promise<any>}
+         */
+        async function checkLockThrows (page, orientation) {
             const payload = `screen.orientation.lock(${JSON.stringify(orientation)})`
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
@@ -326,26 +280,18 @@ describe('ScreenOrientation API', () => {
             return result
         }
 
-        it(' should not fix screenOrientation API', async () => {
-            port = server.address().port
-            page = await browser.newPage()
-
+        test(' should not fix screenOrientation API', async ({ page }) => {
             // no screenLock setting
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: ['webCompat'] } })
-            const result = await checkLockThrows('landscape')
+            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: ['webCompat'] } })
+            const result = await checkLockThrows(page, 'landscape')
             expect(result.threw).not.toBeUndefined()
-            expect(result.threw.message).toEqual('screen.orientation.lock() is not available on this device.')
+            expect(result.threw.message).toContain('screen.orientation.lock() is not available on this device.')
         })
     })
 
-    describe('enabled feature', () => {
-        let port
-        let page
-
-        beforeAll(async () => {
-            port = server.address().port
-            page = await browser.newPage()
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+    test.describe('enabled feature', () => {
+        async function beforeAll (page) {
+            await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat']
                 },
@@ -355,9 +301,13 @@ describe('ScreenOrientation API', () => {
                     }
                 }
             })
-        })
+        }
 
-        async function checkLock (orientation) {
+        /**
+         * @param {import("@playwright/test").Page} page
+         * @param {any} orientation
+         */
+        async function checkLock (page, orientation) {
             const payload = `screen.orientation.lock(${JSON.stringify(orientation)})`
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
@@ -368,7 +318,10 @@ describe('ScreenOrientation API', () => {
             return { result, message }
         }
 
-        async function checkUnlock () {
+        /**
+         * @param {import("@playwright/test").Page} page
+         */
+        async function checkUnlock (page) {
             const payload = 'screen.orientation.unlock()'
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
@@ -379,61 +332,68 @@ describe('ScreenOrientation API', () => {
             return { result, message }
         }
 
-        it('should err out when orientation not provided', async () => {
-            const { result } = await checkLock()
+        test('should err out when orientation not provided', async ({ page }) => {
+            await beforeAll(page)
+            const { result } = await checkLock(page, undefined)
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present")
         })
 
-        it('should err out when orientation of unexpected type', async () => {
-            const { result } = await checkLock({})
+        test('should err out when orientation of unexpected type', async ({ page }) => {
+            await beforeAll(page)
+            const { result } = await checkLock(page, {})
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain('not a valid enum value of type OrientationLockType')
         })
 
-        it('should err out when orientation of unexpected value', async () => {
-            const { result } = await checkLock('xxx')
+        test('should err out when orientation of unexpected value', async ({ page }) => {
+            await beforeAll(page)
+            const { result } = await checkLock(page, 'xxx')
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain('not a valid enum value of type OrientationLockType')
         })
 
-        it('should propagate native TypeError', async () => {
+        test('should propagate native TypeError', async ({ page }) => {
+            await beforeAll(page)
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = () => {
                     return Promise.resolve({ failure: { name: 'TypeError', message: 'some error message' } })
                 }
             })
 
-            const { result } = await checkLock('landscape')
+            const { result } = await checkLock(page, 'landscape')
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain('some error message')
         })
 
-        it('should propagate native InvalidStateError', async () => {
+        test('should propagate native InvalidStateError', async ({ page }) => {
+            await beforeAll(page)
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = () => {
                     return Promise.resolve({ failure: { name: 'InvalidStateError', message: 'some error message' } })
                 }
             })
 
-            const { result } = await checkLock('landscape')
+            const { result } = await checkLock(page, 'landscape')
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain('some error message')
         })
 
-        it('should propagate native default error', async () => {
+        test('should propagate native default error', async ({ page }) => {
+            await beforeAll(page)
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = () => {
                     return Promise.resolve({ failure: { name: 'xxx', message: 'some error message' } })
                 }
             })
 
-            const { result } = await checkLock('landscape')
+            const { result } = await checkLock(page, 'landscape')
             expect(result.threw).not.toBeUndefined()
             expect(result.threw.message).toContain('some error message')
         })
 
-        it('should fix screenOrientation API', async () => {
+        test('should fix screenOrientation API', async ({ page }) => {
+            await beforeAll(page)
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = (req) => {
                     globalThis.lockReq = req
@@ -441,12 +401,13 @@ describe('ScreenOrientation API', () => {
                 }
             })
 
-            const { result, message } = await checkLock('landscape')
+            const { result, message } = await checkLock(page, 'landscape')
             expect(result).toBeUndefined()
-            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'screenLock', params: { orientation: 'landscape' } }))
+            expect(message).toMatchObject({ featureName: 'webCompat', method: 'screenLock', params: { orientation: 'landscape' } })
         })
 
-        it('should send message on unlock', async () => {
+        test('should send message on unlock', async ({ page }) => {
+            await beforeAll(page)
             await page.evaluate(() => {
                 globalThis.cssMessaging.impl.request = (req) => {
                     globalThis.lockReq = req
@@ -454,28 +415,14 @@ describe('ScreenOrientation API', () => {
                 }
             })
 
-            const { result, message } = await checkUnlock()
+            const { result, message } = await checkUnlock(page)
             expect(result).toBeUndefined()
-            expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'screenUnlock' }))
+            expect(message).toMatchObject({ featureName: 'webCompat', method: 'screenUnlock' })
         })
     })
 })
 
-describe('Web Share API', () => {
-    let browser
-    let server
-    let teardown
-    let setupServer
-    let gotoAndWait
-    beforeAll(async () => {
-        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
-        server = setupServer()
-    })
-    afterAll(async () => {
-        await server?.close()
-        await teardown()
-    })
-
+test.describe('Web Share API', () => {
     function checkForCanShare () {
         return 'canShare' in navigator
     }
@@ -483,11 +430,9 @@ describe('Web Share API', () => {
         return 'share' in navigator
     }
 
-    describe('disabled feature', () => {
-        it('should not expose navigator.canShare() and navigator.share()', async () => {
-            const port = server.address().port
-            const page = await browser.newPage()
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+    test.describe('disabled feature', () => {
+        test('should not expose navigator.canShare() and navigator.share()', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } })
             const noCanShare = await page.evaluate(checkForCanShare)
             const noShare = await page.evaluate(checkForShare)
             // Base implementation of the test env should not have it (it's only available on mobile)
@@ -496,11 +441,9 @@ describe('Web Share API', () => {
         })
     })
 
-    describe('disabled sub-feature', () => {
-        it('should not expose navigator.canShare() and navigator.share()', async () => {
-            const port = server.address().port
-            const page = await browser.newPage()
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+    test.describe('disabled sub-feature', () => {
+        test('should not expose navigator.canShare() and navigator.share()', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat']
                 },
@@ -518,14 +461,9 @@ describe('Web Share API', () => {
         })
     })
 
-    describe('enabled feature', () => {
-        let port
-        let page
-
-        beforeAll(async () => {
-            port = server.address().port
-            page = await browser.newPage()
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+    test.describe('enabled feature', () => {
+        async function navigate (page) {
+            await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat']
                 },
@@ -535,38 +473,43 @@ describe('Web Share API', () => {
                     }
                 }
             })
-        })
+        }
 
-        it('should expose navigator.canShare() and navigator.share() when enabled', async () => {
+        test('should expose navigator.canShare() and navigator.share() when enabled', async ({ page }) => {
+            await navigate(page)
             const hasCanShare = await page.evaluate(checkForCanShare)
             const hasShare = await page.evaluate(checkForShare)
             expect(hasCanShare).toEqual(true)
             expect(hasShare).toEqual(true)
         })
 
-        describe('navigator.canShare()', () => {
-            it('should not let you share files', async () => {
+        test.describe('navigator.canShare()', () => {
+            test('should not let you share files', async ({ page }) => {
+                await navigate(page)
                 const refuseFileShare = await page.evaluate(() => {
                     return navigator.canShare({ text: 'xxx', files: [] })
                 })
                 expect(refuseFileShare).toEqual(false)
             })
 
-            it('should not let you share non-http urls', async () => {
+            test('should not let you share non-http urls', async ({ page }) => {
+                await navigate(page)
                 const refuseShare = await page.evaluate(() => {
                     return navigator.canShare({ url: 'chrome://bla' })
                 })
                 expect(refuseShare).toEqual(false)
             })
 
-            it('should allow relative links', async () => {
+            test('should allow relative links', async ({ page }) => {
+                await navigate(page)
                 const allowShare = await page.evaluate(() => {
                     return navigator.canShare({ url: 'bla' })
                 })
                 expect(allowShare).toEqual(true)
             })
 
-            it('should support only the specific fields', async () => {
+            test('should support only the specific fields', async ({ page }) => {
+                await navigate(page)
                 const refuseShare = await page.evaluate(() => {
                     // eslint-disable-next-line
                     // @ts-ignore intentionally malformed data
@@ -575,7 +518,8 @@ describe('Web Share API', () => {
                 expect(refuseShare).toEqual(false)
             })
 
-            it('should let you share stuff', async () => {
+            test('should let you share stuff', async ({ page }) => {
+                await navigate(page)
                 let canShare = await page.evaluate(() => {
                     return navigator.canShare({ url: 'http://example.com' })
                 })
@@ -598,94 +542,122 @@ describe('Web Share API', () => {
             })
         })
 
-        describe('navigator.share()', () => {
-            describe('(no errors from Android)', () => {
-                beforeEach(async () => {
-                    await page.evaluate(() => {
-                        globalThis.shareReq = null
-                        globalThis.cssMessaging.impl.request = (req) => {
-                            globalThis.shareReq = req
-                            return Promise.resolve({})
-                        }
-                    })
+        test.describe('navigator.share()', () => {
+            async function beforeEach (page) {
+                await page.evaluate(() => {
+                    globalThis.shareReq = null
+                    globalThis.cssMessaging.impl.request = (req) => {
+                        globalThis.shareReq = req
+                        return Promise.resolve({})
+                    }
                 })
-
-                async function checkShare (data) {
+            }
+            test.describe('(no errors from Android)', () => {
+                /**
+                 * @param {import("@playwright/test").Page} page
+                 * @param {any} data
+                 * @return {Promise<any>}
+                 */
+                async function checkShare (page, data) {
                     const payload = `navigator.share(${JSON.stringify(data)})`
                     const result = await page.evaluate(payload).catch((e) => {
                         return { threw: e }
                     })
+                    console.log('check share')
                     const message = await page.evaluate(() => {
+                        console.log('did read?')
                         return globalThis.shareReq
                     })
                     return { result, message }
                 }
 
-                it('should let you share text', async () => {
-                    const { result, message } = await checkShare({ text: 'xxx' })
-                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { text: 'xxx' } }))
+                test('should let you share text', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { text: 'xxx' })
+                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { text: 'xxx' } })
                     expect(result).toBeUndefined()
                 })
 
-                it('should let you share url', async () => {
-                    const { result, message } = await checkShare({ url: 'http://example.com' })
-                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { url: 'http://example.com/' } }))
+                test('should let you share url', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { url: 'http://example.com' })
+                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { url: 'http://example.com/' } })
                     expect(result).toBeUndefined()
                 })
 
-                it('should let you share title alone', async () => {
-                    const { result, message } = await checkShare({ title: 'xxx' })
-                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', text: '' } }))
+                test('should let you share title alone', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { title: 'xxx' })
+                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', text: '' } })
                     expect(result).toBeUndefined()
                 })
 
-                it('should let you share title and text', async () => {
-                    const { result, message } = await checkShare({ title: 'xxx', text: 'yyy' })
-                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', text: 'yyy' } }))
+                test('should let you share title and text', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { title: 'xxx', text: 'yyy' })
+                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', text: 'yyy' } })
                     expect(result).toBeUndefined()
                 })
 
-                it('should let you share title and url', async () => {
-                    const { result, message } = await checkShare({ title: 'xxx', url: 'http://example.com' })
-                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', url: 'http://example.com/' } }))
+                test('should let you share title and url', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { title: 'xxx', url: 'http://example.com' })
+                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', url: 'http://example.com/' } })
                     expect(result).toBeUndefined()
                 })
 
-                it('should combine text and url when both are present', async () => {
-                    const { result, message } = await checkShare({ text: 'xxx', url: 'http://example.com' })
-                    expect(message).toEqual(jasmine.objectContaining({ featureName: 'webCompat', method: 'webShare', params: { text: 'xxx http://example.com/' } }))
+                test('should combine text and url when both are present', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { text: 'xxx', url: 'http://example.com' })
+                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { text: 'xxx http://example.com/' } })
                     expect(result).toBeUndefined()
                 })
 
-                it('should throw when sharing files', async () => {
-                    const { result, message } = await checkShare({ title: 'title', files: [] })
+                test('should throw when sharing files', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { title: 'title', files: [] })
                     expect(message).toBeNull()
-                    expect(result.threw.message).toEqual('Invalid share data')
-                    expect(result.threw.name).toEqual('TypeError')
+                    expect(result.threw.message).toContain('TypeError: Invalid share data')
                 })
 
-                it('should throw when sharing non-http urls', async () => {
-                    const { result, message } = await checkShare({ url: 'chrome://bla' })
+                test('should throw when sharing non-http urls', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { url: 'chrome://bla' })
                     expect(message).toBeNull()
-                    expect(result.threw.message).toEqual('Invalid share data')
-                    expect(result.threw.name).toEqual('TypeError')
+                    expect(result.threw.message).toContain('TypeError: Invalid share data')
                 })
 
-                it('should handle relative urls', async () => {
-                    const { result, message } = await checkShare({ url: 'bla' })
+                test('should handle relative urls', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { url: 'bla' })
                     expect(message.params.url).toMatch(/^http:\/\/localhost:\d+\/bla$/)
                     expect(result).toBeUndefined()
                 })
 
-                it('should treat empty url as relative', async () => {
-                    const { result, message } = await checkShare({ url: '' })
+                test('should treat empty url as relative', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
+                    const { result, message } = await checkShare(page, { url: '' })
                     expect(message.params.url).toMatch(/^http:\/\/localhost:\d+\//)
                     expect(result).toBeUndefined()
                 })
             })
 
-            describe('(handling errors from Android)', () => {
-                it('should handle messaging error', async () => {
+            test.describe('(handling errors from Android)', () => {
+                test('should handle messaging error', async ({ page }) => {
+                    // page.on('console', (msg) => console.log(msg.type(), msg.text()))
+                    await navigate(page)
+                    await beforeEach(page)
+
                     await page.evaluate(() => {
                         globalThis.cssMessaging.impl.request = () => {
                             return Promise.reject(new Error('something wrong'))
@@ -694,11 +666,14 @@ describe('Web Share API', () => {
                     const result = await page.evaluate('navigator.share({ text: "xxx" })').catch((e) => {
                         return { threw: e }
                     })
-                    expect(result.threw.message).toEqual('something wrong')
-                    expect(result.threw.name).toEqual('DOMException')
+
+                    expect(result.threw.message).toContain('something wrong')
+                    expect(result.threw.message).toContain('DOMException')
                 })
 
-                it('should handle soft failures', async () => {
+                test('should handle soft failures', async ({ page }) => {
+                    await navigate(page)
+                    await beforeEach(page)
                     await page.evaluate(() => {
                         globalThis.cssMessaging.impl.request = () => {
                             return Promise.resolve({ failure: { name: 'AbortError', message: 'some error message' } })
@@ -708,55 +683,33 @@ describe('Web Share API', () => {
                         return { threw: e }
                     })
                     console.error(result.threw)
-                    expect(result.threw.message).toEqual('some error message')
-                    expect(result.threw.name).toEqual('DOMException')
+                    expect(result.threw.message).toContain('some error message')
+                    expect(result.threw.message).toContain('DOMException')
                 })
             })
         })
     })
 })
 
-describe('Viewport fixes', () => {
-    let browser
-    let server
-    let teardown
-    let setupServer
-    let gotoAndWait
-    let port
-    let page
-
-    beforeAll(async () => {
-        ({ browser, setupServer, teardown, gotoAndWait } = await setup({ withExtension: true }))
-        server = setupServer()
-    })
-    afterAll(async () => {
-        await server?.close()
-        await teardown()
-    })
-
-    beforeEach(async () => {
-        port = server.address().port
-        page = await browser.newPage()
-    })
-
+test.describe('Viewport fixes', () => {
     function getViewportValue () {
         return document.querySelector('meta[name="viewport"]')?.getAttribute('content')
     }
 
-    it('should not change viewport if disabled', async () => {
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\'')
+    test('should not change viewport if disabled', async ({ page }) => {
+        await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\'')
         const initialViewportValue = await page.evaluate(getViewportValue)
         // Base implementation of the test env should have it.
         expect(initialViewportValue).toEqual('width=device-width')
 
         // We don't make a change if disabled
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, { site: { enabledFeatures: [] } })
+        await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } })
         const viewportValue = await page.evaluate(getViewportValue)
         expect(viewportValue).toBeUndefined()
     })
 
-    it('should respect forced zoom', async () => {
-        await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+    test('should respect forced zoom', async ({ page }) => {
+        await gotoAndWait(page, '/blank.html', {
             site: { enabledFeatures: ['webCompat'] },
             featureSettings: { webCompat: { viewportWidth: 'enabled' } },
             desktopModeEnabled: false,
@@ -767,9 +720,9 @@ describe('Viewport fixes', () => {
         expect(viewportValue).toEqual('initial-scale=1, user-scalable=yes, maximum-scale=10, width=device-width')
     })
 
-    describe('Desktop mode off', () => {
-        it('should respect the forcedMobileValue config', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+    test.describe('Desktop mode off', () => {
+        test('should respect the forcedMobileValue config', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: { state: 'enabled', forcedMobileValue: 'bla, bla, bla' } } },
                 desktopModeEnabled: false
@@ -778,8 +731,8 @@ describe('Viewport fixes', () => {
             expect(viewportValue).toEqual('bla, bla, bla')
         })
 
-        it('should force wide viewport if the meta tag is not present', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        test('should force wide viewport if the meta tag is not present', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: false
@@ -790,8 +743,8 @@ describe('Viewport fixes', () => {
             expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes`)
         })
 
-        it('should respect forced zoom', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        test('should respect forced zoom', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: false,
@@ -803,8 +756,8 @@ describe('Viewport fixes', () => {
             expect(viewportValue).toEqual(`initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}`)
         })
 
-        it('should fix the WebView edge case', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        test('should fix the WebView edge case', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: false
@@ -813,8 +766,8 @@ describe('Viewport fixes', () => {
             expect(viewportValue).toEqual('width=device-width, initial-scale=1.00001, something-something')
         })
 
-        it('should ignore the character case in the viewport tag', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        test('should ignore the character case in the viewport tag', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: false
@@ -824,9 +777,9 @@ describe('Viewport fixes', () => {
         })
     })
 
-    describe('Desktop mode on', () => {
-        it('should respect the forcedDesktopValue config', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+    test.describe('Desktop mode on', () => {
+        test('should respect the forcedDesktopValue config', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: { state: 'enabled', forcedDesktopValue: 'bla, bla, bla' } } },
                 desktopModeEnabled: true
@@ -835,8 +788,8 @@ describe('Viewport fixes', () => {
             expect(viewportValue).toEqual('bla, bla, bla')
         })
 
-        it('should force wide viewport, ignoring the viewport tag', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        test('should force wide viewport, ignoring the viewport tag', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: true
@@ -847,8 +800,8 @@ describe('Viewport fixes', () => {
             expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`)
         })
 
-        it('should force wide viewport, ignoring the viewport tag 2', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        test('should force wide viewport, ignoring the viewport tag 2', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: true
@@ -859,8 +812,8 @@ describe('Viewport fixes', () => {
             expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`)
         })
 
-        it('should respect forced zoom', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        test('should respect forced zoom', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: true,
@@ -872,8 +825,8 @@ describe('Viewport fixes', () => {
             expect(viewportValue).toEqual(`initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`)
         })
 
-        it('should ignore the character case in the viewport tag', async () => {
-            await gotoAndWait(page, `http://localhost:${port}/blank.html`, {
+        test('should ignore the character case in the viewport tag', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', {
                 site: { enabledFeatures: ['webCompat'] },
                 featureSettings: { webCompat: { viewportWidth: 'enabled' } },
                 desktopModeEnabled: true
