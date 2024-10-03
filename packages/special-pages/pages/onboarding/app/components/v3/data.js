@@ -24,7 +24,7 @@ export const stepsConfig = {
         return {
             variant: 'plain',
             heading: {
-                title: t('getStarted_title_v3', { newline: '\n' }),
+                title: t('getStarted_title_v3').split('{newline}'),
                 speechBubble: true,
                 children: <ElasticButton onClick={advance}>{t('getStartedButton_v3')}</ElasticButton>
             }

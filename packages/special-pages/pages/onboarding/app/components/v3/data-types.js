@@ -27,7 +27,7 @@
 
 /**
  * @typedef {object} HeadingConfig
- * @property {string} title
+ * @property {string|string[]} title
  * @property {string|null} [subtitle]
  * @property {boolean} speechBubble
  * @property {import('preact').ComponentChild} [children]

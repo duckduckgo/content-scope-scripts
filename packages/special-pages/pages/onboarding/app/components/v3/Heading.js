@@ -10,21 +10,24 @@ import styles from './Heading.module.css'
  * Animated Dax heading with optional speech bubble
  *
  * @param {object} props
- * @param {string|null} [props.title] - Heading title
+ * @param {string|string[]|null} [props.title] - Heading title
  * @param {string|null} [props.subtitle] - Optional heading subtitle
  * @param {boolean} [props.speechBubble=false] - Display title and subtitle inside speech bubble
  * @param {() => void} [props.onTitleComplete] - Fires when title is done animating
  * @param {import('preact').ComponentChildren} [props.children]
  */
 export function Heading ({ title, subtitle, speechBubble = false, onTitleComplete, children }) {
-    if (!title) {
-        console.warn('Missing title')
-        return null
-    }
     const onComplete = () => {
         onTitleComplete && onTitleComplete()
     }
     const HeadingComponent = speechBubble ? SpeechBubble : PlainHeading
+
+    if (!title) {
+        console.warn('Missing title')
+        return null
+    }
+
+    const titleArray = Array.isArray(title) ? title : [title]
 
     return (
         <header className={styles.heading}>
@@ -32,7 +35,7 @@ export function Heading ({ title, subtitle, speechBubble = false, onTitleComplet
                 <img className={styles.svg} src="assets/img/dax.svg" alt="DuckDuckGo Logo" />
             </div>
             <HeadingComponent
-                title={title}
+                title={titleArray}
                 subtitle={subtitle}
                 onComplete={onComplete}>
                 {children}
@@ -43,7 +46,7 @@ export function Heading ({ title, subtitle, speechBubble = false, onTitleComplet
 
 /**
  * @param {object} props
- * @param {string} props.title - Heading title
+ * @param {string[]} props.title - Heading title
  * @param {string|null} [props.subtitle] - Optional heading subtitle
  * @param {() => void} [props.onComplete] - Fires when title is done animating
  * @param {import('preact').ComponentChildren} props.children
@@ -63,7 +66,7 @@ function PlainHeading ({ title, subtitle, onComplete, children }) {
     return (
         <div className={styles.headingContents}>
             <h1 className={styles.title}>
-                <Typed onComplete={onTypingComplete} text={title} />
+                {<TypedTitle title={title} paused={false} onComplete={onTypingComplete} />}
             </h1>
             {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
             {typingDone && children}
@@ -75,7 +78,7 @@ function PlainHeading ({ title, subtitle, onComplete, children }) {
 
 /**
  * @param {object} props
- * @param {string} props.title - Heading title
+ * @param {string[]} props.title - Heading title
  * @param {string|null} [props.subtitle] - Optional heading subtitle
  * @param {() => void} [props.onComplete]
  * @param {import('preact').ComponentChildren} props.children
@@ -137,7 +140,7 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
                 <div className={styles.speechBubbleBackground} style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }} onTransitionEnd={onTransitionEnd}></div>
                 <div className={styles.speechBubbleContents} ref={bubbleContents}>
                     <h1 className={titleClass}>
-                        <Typed onComplete={onTypingComplete} text={title} paused={animationState === 'animating'} />
+                        {<TypedTitle title={title} paused={animationState === 'animating'} onComplete={onTypingComplete} />}
                     </h1>
                     {subtitle && <h2 className={subtitleClass}>{subtitle}</h2>}
                     {children && animationState === 'typing-done' && <div className={childrenClass}>
@@ -145,6 +148,30 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
                     </div>}
                 </div>
             </div>
+        </div>
+    )
+}
+
+/**
+ * @param {object} props
+ * @param {string[]} props.title
+ * @param {boolean} [props.paused=true]
+ * @param {() => void} [props.onComplete]
+ */
+export function TypedTitle ({ title, paused = true, onComplete }) {
+    const [textIndex, setTextIndex] = useState(0)
+
+    const onTypingComplete = () => {
+        setTextIndex(value => (value += 1))
+
+        if (textIndex >= title.length - 1) {
+            onComplete && onComplete()
+        }
+    }
+
+    return (
+        <div className={styles.titleContainer}>
+            {title.map((text, index) => <Typed key={index} onComplete={onTypingComplete} text={text} paused={paused || textIndex < index} />)}
         </div>
     )
 }

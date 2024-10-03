@@ -136,6 +136,11 @@
     padding-top: var(--sp-3);
 }
 
+.titleContainer {
+    display: grid;
+    gap: var(--sp-2);
+}
+
 .hidden {
     visibility: hidden;
     opacity: 0;

@@ -250,7 +250,7 @@
     "note": "Option for comparing YouTube viewing experience with and without Duck Player."
   },
   "getStarted_title_v3": {
-    "title": "Hi there.{newline}{newline}Ready for a faster browser that keeps you protected?",
+    "title": "Hi there.{newline}Ready for a faster browser that keeps you protected?",
     "note": "Introductory text when a user starts the onboarding process. Please adjust `{newline}` placement ensuring visual balance and readability."
   },
   "getStartedButton_v3": {
