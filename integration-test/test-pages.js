@@ -66,8 +66,9 @@ test.describe('Test integration pages', () => {
         )
     })
 
-    it('Properly modifies localStorage entries', async () => {
+    test('Properly modifies localStorage entries', async ({ page }) => {
         await testPage(
+            page,
             'webcompat/pages/modify-localstorage.html',
             `${process.cwd()}/integration-test/test-pages/webcompat/config/modify-localstorage.json`
         )
