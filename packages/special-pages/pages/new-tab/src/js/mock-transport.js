@@ -1,6 +1,14 @@
 import { TestTransportConfig } from '@duckduckgo/messaging'
 
 import { stats } from '../../app/privacy-stats/mocks/stats.js'
+import { favorites } from '../../app/favorites/mocks/favorites.data.js'
+
+/**
+ * @typedef {import('../../../../types/new-tab').Favorite} Favorite
+ * @typedef {import('../../../../types/new-tab').FavoritesData} FavoritesData
+ * @typedef {import('../../../../types/new-tab').FavoritesConfig} FavoritesConfig
+ * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
+ */
 
 export function mockTransport () {
     const channel = new BroadcastChannel('ntp')
@@ -18,11 +26,11 @@ export function mockTransport () {
      * @return {any}
      */
     function read (name) {
-        console.log('*will* read from LS', name)
+        // console.log('*will* read from LS', name)
         try {
             const item = localStorage.getItem(name)
             if (!item) return null
-            console.log('did read from LS', item)
+            // console.log('did read from LS', item)
             return JSON.parse(item)
         } catch (e) {
             console.error('Failed to parse initialSetup from localStorage', e)
@@ -37,7 +45,7 @@ export function mockTransport () {
     function write (name, value) {
         try {
             localStorage.setItem(name, JSON.stringify(value))
-            console.log('✅ did write')
+            // console.log('✅ did write')
         } catch (e) {
             console.error('Failed to write', e)
         }
@@ -59,6 +67,18 @@ export function mockTransport () {
                 if (!msg.params) throw new Error('unreachable')
                 write('ntp.stats_config', msg.params)
                 broadcast('ntp.stats_config')
+                return
+            }
+            case 'favorites_setConfig': {
+                if (!msg.params) throw new Error('unreachable')
+                write('ntp.favorites_config', msg.params)
+                broadcast('ntp.favorites_config')
+                return
+            }
+            case 'favorites_setOrder': {
+                if (!msg.params) throw new Error('unreachable')
+                write('ntp.favorites_data', msg.params)
+                broadcast('ntp.favorites_data')
                 return
             }
             default: {
@@ -95,6 +115,30 @@ export function mockTransport () {
                 }, { signal: controller.signal })
                 return () => controller.abort()
             }
+            case 'favorites_onDataUpdate': {
+                const controller = new AbortController()
+                channel.addEventListener('message', (msg) => {
+                    if (msg.data.change === 'ntp.favorites_data') {
+                        const values = read('ntp.favorites_data')
+                        if (values) {
+                            cb(values)
+                        }
+                    }
+                }, { signal: controller.signal })
+                return () => controller.abort()
+            }
+            case 'favorites_onConfigUpdate': {
+                const controller = new AbortController()
+                channel.addEventListener('message', (msg) => {
+                    if (msg.data.change === 'ntp.favorites_config') {
+                        const values = read('ntp.favorites_config')
+                        if (values) {
+                            cb(values)
+                        }
+                    }
+                }, { signal: controller.signal })
+                return () => controller.abort()
+            }
             }
             return () => {}
         },
@@ -108,7 +152,15 @@ export function mockTransport () {
                 return Promise.resolve(stats.few)
             }
             case 'stats_getConfig': {
-                const fromStorage = read('ntp.stats_config') || { expansion: 'expanded' }
+                const fromStorage = read('ntp.stats_config') || /** @type {StatsConfig} */({ expansion: 'expanded' })
+                return Promise.resolve(fromStorage)
+            }
+            case 'favorites_getData': {
+                const fromStorage = read('ntp.favorites_data') || favorites.many
+                return Promise.resolve(fromStorage)
+            }
+            case 'favorites_getConfig': {
+                const fromStorage = read('ntp.favorites_config') || /** @type {FavoritesConfig} */({ expansion: 'expanded' })
                 return Promise.resolve(fromStorage)
             }
             case 'initialSetup': {

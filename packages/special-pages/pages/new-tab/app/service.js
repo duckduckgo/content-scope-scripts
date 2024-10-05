@@ -4,8 +4,10 @@
  * This implements a 'last push wins' strategy for
  * persisting UI state. user-initiated events will be debounced, only
  * taking the last action. These will update the internal/in-memory state
- * and will try to persist it. If a subscription even arrives during the debounced
- * period, it is always respected, and the local sync value will be overwritten
+ * immediately (offering instant updates), and then will try to persist it.
+ *
+ * If a subscription event arrives during the debounced
+ * period, it is always respected, and the local sync value will be overwritten.
  *
  */
 export class Service {

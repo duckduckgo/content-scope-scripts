@@ -9,6 +9,9 @@
  * @param {(s: TState, e: TEvent) => TState} reducer
  */
 export function log (name, state, event, reducer) {
+    if (window.__playwright_01) {
+        return reducer(state, event)
+    }
     console.group(`[${name}]`)
     console.log('  [incoming]', state, event)
     const next = reducer(state, event)
