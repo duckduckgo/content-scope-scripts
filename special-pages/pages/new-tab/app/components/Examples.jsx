@@ -2,6 +2,9 @@ import { h } from "preact";
 import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
 import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
 import { stats } from "../privacy-stats/mocks/stats.js";
+import { MockFavoritesProvider } from "../favorites/mocks/MockFavoritesProvider.js";
+import { favorites } from "../favorites/mocks/favorites.data.js";
+import { FavoritesConsumer } from "../favorites/Favorites.js";
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -30,6 +33,65 @@ export const mainExamples = {
     'stats.heading.none': {
         factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount}/>
     },
+    'favorites.many': {
+        factory: () => (
+            <MockFavoritesProvider data={favorites.many}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.7': {
+        factory: () => (
+            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 7)}}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.7.auto-animate': {
+        factory: () => (
+            <MockFavoritesProvider
+                data={{favorites: favorites.many.favorites.slice(0, 7)}}
+                config={{expansion: "expanded", animation: { kind: "auto-animate" }}}
+            ><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.7.view-transitions': {
+        factory: () => (
+            <MockFavoritesProvider
+                data={{favorites: favorites.many.favorites.slice(0, 7)}}
+                config={{expansion: "expanded", animation: { kind: "view-transitions" }}}
+            ><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.6': {
+        factory: () => (
+            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 6)}}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.5': {
+        factory: () => (
+            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 5)}}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.multi': {
+        factory: () => (
+            <div>
+                <MockFavoritesProvider data={favorites.many}><FavoritesConsumer /></MockFavoritesProvider>
+                <br/>
+                <MockFavoritesProvider data={favorites.two}><FavoritesConsumer /></MockFavoritesProvider>
+                <br/>
+                <MockFavoritesProvider data={favorites.single}><FavoritesConsumer /></MockFavoritesProvider>
+                <br/>
+                <MockFavoritesProvider data={favorites.none}><FavoritesConsumer /></MockFavoritesProvider>
+            </div>
+        )
+    },
+    'favorites.single': {
+        factory: () => (
+            <MockFavoritesProvider data={favorites.single}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.none': {
+        factory: () => (
+            <MockFavoritesProvider data={favorites.none}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    }
 }
 
 export const otherExamples = {
