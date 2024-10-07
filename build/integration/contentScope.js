@@ -22114,18 +22114,25 @@
             return await withExponentialBackoff(fn)
         }
 
-        init () {
+        async animateFromPath (path) {
             const animateElement = this.animateElement.bind(this);
             const findElement = this.findElement.bind(this);
+            const { name, style } = URL_ELEMENT_MAP[path] ?? {};
+            if (name && style) {
+                const element = await findElement(name);
+                animateElement(element, style);
+            }
+        }
+
+        init () {
             // FIXME: this is stolen from element-hiding.js, we would need a global util that would do this,
             // single page applications don't have a DOMContentLoaded event on navigations, so
             // we use proxy/reflect on history.pushState to find elements on page navigations
+            const animateFromPath = this.animateFromPath.bind(this);
             const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
                 async apply (target, thisArg, args) {
-                    const pageURL = args[2].split('?')[0];
-                    const { name, style } = URL_ELEMENT_MAP[pageURL];
-                    const element = await findElement(name);
-                    animateElement(element, style);
+                    const path = args[2].split('?')[0];
+                    await animateFromPath(path);
                     return DDGReflect.apply(target, thisArg, args)
                 }
             });
@@ -22133,16 +22140,14 @@
             // listen for popstate events in order to run on back/forward navigations
             window.addEventListener('popstate', async () => {
                 console.log('pushState URL', window.location.pathname);
-                const { name, style } = URL_ELEMENT_MAP[window.location.pathname];
-                const element = await findElement(name);
-                animateElement(element, style);
+                await animateFromPath(window.location.pathname);
+                console.log("After popstate");
             });
 
             document.addEventListener('DOMContentLoaded', async () => {
                 console.log('pushState URL', window.location.pathname);
-                const { name, style } = URL_ELEMENT_MAP[window.location.pathname];
-                const element = await findElement(name);
-                animateElement(element, style);
+                await animateFromPath(window.location.pathname);
+                console.log("After popstate");
             });
         }
     }
