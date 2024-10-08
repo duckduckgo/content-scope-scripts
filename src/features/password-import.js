@@ -2,34 +2,39 @@ import ContentFeature from '../content-feature'
 import { DDGProxy, DDGReflect, withExponentialBackoff } from '../utils'
 import { getElement } from './broker-protection/utils'
 
-const URL_ELEMENT_MAP = {
-    '/': {
-        name: 'cogWheel',
-        style: {
-            scale: 1,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-        }
-    },
-    '/options': {
-        name: 'exportButton',
-        style: {
-            scale: 1.01,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-        }
-    },
-    '/intro': {
-        name: 'signInButton',
-        style: {
-            scale: 1.5,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-        }
-    }
-}
-
 export default class PasswordImport extends ContentFeature {
-    findExportElement () {
-        const xpath = "//div[text()='Export passwords']/ancestor::li" // Should be configurable
-        return getElement(document, xpath)
+    #exportButtonSettings = {}
+    #settingsButtonSettings = {}
+    #signInButtonSettings = {}
+
+    async getElementAndStyleFromPath (path) {
+        if (path === '/') {
+            return {
+                style: {
+                    scale: 1,
+                    backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                },
+                element: await this.findSettingsElement()
+            }
+        } else if (path === '/options') {
+            return {
+                style: {
+                    scale: 1.01,
+                    backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                },
+                element: this.findExportElement()
+            }
+        } else if (path === '/intro') {
+            return {
+                style: {
+                    scale: 1.5,
+                    backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                },
+                element: this.findSignInButton()
+            }
+        } else {
+            return null
+        }
     }
 
     animateElement (element, style) {
@@ -54,66 +59,96 @@ export default class PasswordImport extends ContentFeature {
         element.animate(keyframes, options)
     }
 
+    autotapElement (element) {
+        element.click()
+    }
+
+    findExportElement () {
+        return withExponentialBackoff(() => getElement(document, this.exportButtonXpath))
+    }
+
     findSettingsElement () {
-        return document.querySelector('[aria-label=\'Password options\']')
+        return withExponentialBackoff(() => document.querySelector(this.settingsButtonSelector))
     }
 
     findSignInButton () {
-        return document.querySelector('[aria-label="Sign in"]:not([target="_top"])')
+        return withExponentialBackoff(() => document.querySelector('[aria-label="Sign in"]:not([target="_top"])'))
     }
 
-    async findElement (name) {
-        let fn = null
-        switch (name) {
-        case 'exportButton':
-            fn = this.findExportElement
-            break
-        case 'cogWheel':
-            fn = this.findSettingsElement
-            break
-        case 'signInButton':
-            fn = this.findSignInButton
-            break
-        default:
-            throw new Error('Page not supported')
-        }
-        return await withExponentialBackoff(fn)
-    }
-
-    async animateFromPath (path) {
+    async handleElementForPath (path) {
         const animateElement = this.animateElement.bind(this)
-        const findElement = this.findElement.bind(this)
-        const { name, style } = URL_ELEMENT_MAP[path] ?? {}
-        if (name && style) {
-            const element = await findElement(name)
+        const { element, style } = await this.getElementAndStyleFromPath(path) ?? {}
+        if (element) {
             animateElement(element, style)
         }
     }
 
-    init () {
+    get exportButtonAnimationType () {
+        return this.#exportButtonSettings.autotap?.enabled
+            ? 'autotap'
+            : this.#exportButtonSettings.highlight?.enabled
+                ? 'highlight'
+                : null
+    }
+
+    get exportButtonXpath () {
+        if (this.exportButtonAnimationType === 'autotap') {
+            return this.#exportButtonSettings.autotap?.xpath
+        } else if (this.exportButtonAnimationType === 'highlight') {
+            return this.#exportButtonSettings.highlight?.xpath
+        } else {
+            return null
+        }
+    }
+
+    get signinButtonSelector () {
+        if (this.exportButtonAnimationType === 'autotap') {
+            return this.#signInButtonSettings.autotap?.selector
+        } else if (this.exportButtonAnimationType === 'highlight') {
+            return this.#signInButtonSettings.highlight?.selector
+        } else {
+            return null
+        }
+    }
+
+    get settingsButtonSelector () {
+        if (this.exportButtonAnimationType === 'autotap') {
+            return this.#settingsButtonSettings.autotap?.selector
+        } else if (this.exportButtonAnimationType === 'highlight') {
+            return this.#settingsButtonSettings.highlight?.selector
+        } else {
+            return null
+        }
+    }
+
+    setButtonSettings (settings) {
+        this.#exportButtonSettings = settings?.exportButton
+        this.#settingsButtonSettings = settings?.settingsButton
+        this.#signInButtonSettings = settings?.signInButton
+    }
+
+    init (args) {
+        this.setButtonSettings(args?.featureSettings?.passwordImport || {})
+
         // FIXME: this is stolen from element-hiding.js, we would need a global util that would do this,
         // single page applications don't have a DOMContentLoaded event on navigations, so
         // we use proxy/reflect on history.pushState to find elements on page navigations
-        const animateFromPath = this.animateFromPath.bind(this)
+        const handleElementForPath = this.handleElementForPath.bind(this)
         const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
             async apply (target, thisArg, args) {
                 const path = args[2].split('?')[0]
-                await animateFromPath(path)
+                await handleElementForPath(path)
                 return DDGReflect.apply(target, thisArg, args)
             }
         })
         historyMethodProxy.overload()
         // listen for popstate events in order to run on back/forward navigations
         window.addEventListener('popstate', async () => {
-            console.log('pushState URL', window.location.pathname)
-            await animateFromPath(window.location.pathname)
-            console.log("After popstate")
+            await handleElementForPath(window.location.pathname)
         })
 
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('pushState URL', window.location.pathname)
-            await animateFromPath(window.location.pathname)
-            console.log("After popstate")
+            await handleElementForPath(window.location.pathname)
         })
     }
 }
