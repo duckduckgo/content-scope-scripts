@@ -7,7 +7,8 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
-                'onboarding.spec.js'
+                'onboarding.spec.js',
+                'new-tab.spec.js'
             ],
             use: {
                 ...devices['Desktop Edge'],
