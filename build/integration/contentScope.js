@@ -22066,7 +22066,8 @@
                         scale: 1,
                         backgroundColor: 'rgba(0, 39, 142, 0.5)'
                     },
-                    element: await this.findSettingsElement()
+                    element: await this.findSettingsElement(),
+                    shouldTap: this.#settingsButtonSettings.autotap?.enabled ?? false
                 }
             } else if (path === '/options') {
                 return {
@@ -22074,7 +22075,8 @@
                         scale: 1.01,
                         backgroundColor: 'rgba(0, 39, 142, 0.5)'
                     },
-                    element: this.findExportElement()
+                    element: await this.findExportElement(),
+                    shouldTap: this.#exportButtonSettings.autotap?.enabled ?? false
                 }
             } else if (path === '/intro') {
                 return {
@@ -22082,7 +22084,8 @@
                         scale: 1.5,
                         backgroundColor: 'rgba(0, 39, 142, 0.5)'
                     },
-                    element: this.findSignInButton()
+                    element: await this.findSignInButton(),
+                    shouldTap: this.#signInButtonSettings.autotap?.enabled ?? false
                 }
             } else {
                 return null
@@ -22096,9 +22099,9 @@
                 inline: 'center'
             }); // Scroll into view
             const keyframes = [
-                { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0 }, // Start: transparent
-                { backgroundColor: style.backgroundColor, offset: 0.5, transform: `scale(${style.scale})` }, // Midpoint: blue with 50% opacity
-                { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 1 } // End: transparent
+                { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0, borderRadus: '2px' }, // Start: transparent
+                { backgroundColor: style.backgroundColor, offset: 0.5, borderRadius: '2px', transform: `scale(${style.scale})` }, // Midpoint: blue with 50% opacity
+                { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 } // End: transparent
             ];
 
             // Define the animation options
@@ -22115,23 +22118,23 @@
             element.click();
         }
 
-        findExportElement () {
-            return withExponentialBackoff(() => getElement(document, this.exportButtonXpath))
+        async findExportElement () {
+            return await withExponentialBackoff(() => getElement(document, this.exportButtonSelector))
         }
 
-        findSettingsElement () {
-            return withExponentialBackoff(() => document.querySelector(this.settingsButtonSelector))
+        async findSettingsElement () {
+            return await withExponentialBackoff(() => document.querySelector(this.settingsButtonSelector))
         }
 
-        findSignInButton () {
-            return withExponentialBackoff(() => document.querySelector('[aria-label="Sign in"]:not([target="_top"])'))
+        async findSignInButton () {
+            return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector))
         }
 
         async handleElementForPath (path) {
             const animateElement = this.animateElement.bind(this);
-            const { element, style } = await this.getElementAndStyleFromPath(path) ?? {};
-            if (element) {
-                animateElement(element, style);
+            const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {};
+            if (element != null) {
+                shouldTap ? this.autotapElement() : animateElement(element, style);
             }
         }
 
@@ -22143,34 +22146,37 @@
                     : null
         }
 
-        get exportButtonXpath () {
-            if (this.exportButtonAnimationType === 'autotap') {
-                return this.#exportButtonSettings.autotap?.xpath
-            } else if (this.exportButtonAnimationType === 'highlight') {
-                return this.#exportButtonSettings.highlight?.xpath
-            } else {
-                return null
-            }
+        get exportButtonSelector () {
+            return '[aria-label="Export"]'
+            // if (this.exportButtonAnimationType === 'autotap') {
+            //     return this.#exportButtonSettings.autotap?.xpath
+            // } else if (this.exportButtonAnimationType === 'highlight') {
+            //     return this.#exportButtonSettings.highlight?.xpath
+            // } else {
+            //     return null
+            // }
         }
 
         get signinButtonSelector () {
-            if (this.exportButtonAnimationType === 'autotap') {
-                return this.#signInButtonSettings.autotap?.selector
-            } else if (this.exportButtonAnimationType === 'highlight') {
-                return this.#signInButtonSettings.highlight?.selector
-            } else {
-                return null
-            }
+            return '[aria-label="Sign in"]:not([target="_top"])'
+            // if (this.exportButtonAnimationType === 'autotap') {
+            //     return this.#signInButtonSettings.autotap?.selector
+            // } else if (this.exportButtonAnimationType === 'highlight') {
+            //     return this.#signInButtonSettings.highlight?.selector
+            // } else {
+            //     return null
+            // }
         }
 
         get settingsButtonSelector () {
-            if (this.exportButtonAnimationType === 'autotap') {
-                return this.#settingsButtonSettings.autotap?.selector
-            } else if (this.exportButtonAnimationType === 'highlight') {
-                return this.#settingsButtonSettings.highlight?.selector
-            } else {
-                return null
-            }
+            return '[aria-label=\'Password options\']'
+            // if (this.exportButtonAnimationType === 'autotap') {
+            //     return this.#settingsButtonSettings.autotap?.selector
+            // } else if (this.exportButtonAnimationType === 'highlight') {
+            //     return this.#settingsButtonSettings.highlight?.selector
+            // } else {
+            //     return null
+            // }
         }
 
         setButtonSettings (settings) {
