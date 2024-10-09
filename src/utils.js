@@ -628,13 +628,22 @@ export function withExponentialBackoff (fn, maxAttempts = 4, delay = 500) {
         let attempts = 0
         const tryFn = () => {
             attempts += 1
-            const element = fn()
-            if (element) {
-                resolve(element)
-            } else if (attempts < maxAttempts) {
-                setTimeout(tryFn, delay * Math.pow(2, attempts))
-            } else {
-                reject(new Error('Element not found'))
+            const error = new Error('Element not found')
+            try {
+                const element = fn()
+                if (element) {
+                    resolve(element)
+                } else if (attempts < maxAttempts) {
+                    setTimeout(tryFn, delay * Math.pow(2, attempts))
+                } else {
+                    reject(error)
+                }
+            } catch {
+                if (attempts < maxAttempts) {
+                    setTimeout(tryFn, delay * Math.pow(2, attempts))
+                } else {
+                    reject(error)
+                }
             }
         }
         tryFn()

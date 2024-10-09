@@ -1,6 +1,5 @@
 import ContentFeature from '../content-feature'
 import { DDGProxy, DDGReflect, withExponentialBackoff } from '../utils'
-import { getElement } from './broker-protection/utils'
 
 export default class PasswordImport extends ContentFeature {
     #exportButtonSettings = {}
@@ -67,7 +66,9 @@ export default class PasswordImport extends ContentFeature {
     }
 
     async findExportElement () {
-        return await withExponentialBackoff(() => getElement(document, this.exportButtonSelector))
+        return await withExponentialBackoff(() => document
+            .querySelectorAll(this.exportButtonSelector)[2]
+            .querySelectorAll('button')[1])
     }
 
     async findSettingsElement () {
@@ -82,7 +83,7 @@ export default class PasswordImport extends ContentFeature {
         const animateElement = this.animateElement.bind(this)
         const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
         if (element != null) {
-            shouldTap ? this.autotapElement() : animateElement(element, style)
+            shouldTap ? this.autotapElement(element) : animateElement(element, style)
         }
     }
 
@@ -95,7 +96,8 @@ export default class PasswordImport extends ContentFeature {
     }
 
     get exportButtonSelector () {
-        return '[aria-label="Export"]'
+        return 'c-wiz[data-p*="options"]'
+        // return '[aria-label="Export"]'
         // if (this.exportButtonAnimationType === 'autotap') {
         //     return this.#exportButtonSettings.autotap?.xpath
         // } else if (this.exportButtonAnimationType === 'highlight') {
@@ -106,7 +108,7 @@ export default class PasswordImport extends ContentFeature {
     }
 
     get signinButtonSelector () {
-        return '[aria-label="Sign in"]:not([target="_top"])'
+        return 'a[href*="ServiceLogin"]:not([target="_top"]'
         // if (this.exportButtonAnimationType === 'autotap') {
         //     return this.#signInButtonSettings.autotap?.selector
         // } else if (this.exportButtonAnimationType === 'highlight') {
@@ -117,7 +119,7 @@ export default class PasswordImport extends ContentFeature {
     }
 
     get settingsButtonSelector () {
-        return '[aria-label=\'Password options\']'
+        return 'a[href*="options"]'
         // if (this.exportButtonAnimationType === 'autotap') {
         //     return this.#settingsButtonSettings.autotap?.selector
         // } else if (this.exportButtonAnimationType === 'highlight') {

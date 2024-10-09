@@ -567,13 +567,22 @@
             let attempts = 0;
             const tryFn = () => {
                 attempts += 1;
-                const element = fn();
-                if (element) {
-                    resolve(element);
-                } else if (attempts < maxAttempts) {
-                    setTimeout(tryFn, delay * Math.pow(2, attempts));
-                } else {
-                    reject(new Error$1('Element not found'));
+                const error = new Error$1('Element not found');
+                try {
+                    const element = fn();
+                    if (element) {
+                        resolve(element);
+                    } else if (attempts < maxAttempts) {
+                        setTimeout(tryFn, delay * Math.pow(2, attempts));
+                    } else {
+                        reject(error);
+                    }
+                } catch {
+                    if (attempts < maxAttempts) {
+                        setTimeout(tryFn, delay * Math.pow(2, attempts));
+                    } else {
+                        reject(error);
+                    }
                 }
             };
             tryFn();
@@ -22119,7 +22128,9 @@
         }
 
         async findExportElement () {
-            return await withExponentialBackoff(() => getElement(document, this.exportButtonSelector))
+            return await withExponentialBackoff(() => document
+                .querySelectorAll(this.exportButtonSelector)[2]
+                .querySelectorAll('button')[1])
         }
 
         async findSettingsElement () {
@@ -22134,7 +22145,7 @@
             const animateElement = this.animateElement.bind(this);
             const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {};
             if (element != null) {
-                shouldTap ? this.autotapElement() : animateElement(element, style);
+                shouldTap ? this.autotapElement(element) : animateElement(element, style);
             }
         }
 
@@ -22147,7 +22158,8 @@
         }
 
         get exportButtonSelector () {
-            return '[aria-label="Export"]'
+            return 'c-wiz[data-p*="options"]'
+            // return '[aria-label="Export"]'
             // if (this.exportButtonAnimationType === 'autotap') {
             //     return this.#exportButtonSettings.autotap?.xpath
             // } else if (this.exportButtonAnimationType === 'highlight') {
@@ -22158,7 +22170,7 @@
         }
 
         get signinButtonSelector () {
-            return '[aria-label="Sign in"]:not([target="_top"])'
+            return 'a[href*="ServiceLogin"]:not([target="_top"]'
             // if (this.exportButtonAnimationType === 'autotap') {
             //     return this.#signInButtonSettings.autotap?.selector
             // } else if (this.exportButtonAnimationType === 'highlight') {
@@ -22169,7 +22181,7 @@
         }
 
         get settingsButtonSelector () {
-            return '[aria-label=\'Password options\']'
+            return 'a[href*="options"]'
             // if (this.exportButtonAnimationType === 'autotap') {
             //     return this.#settingsButtonSettings.autotap?.selector
             // } else if (this.exportButtonAnimationType === 'highlight') {
