@@ -46,8 +46,11 @@ export function Button ({ variant = 'primary', size = 'normal', children, ...res
 
 /**
  * @typedef {Object} ElasticButtonProps
- * @property {import("preact").ComponentChild} props.children - The content to be displayed inside the button.
+ * @property {string} text - Button text
  * @property {'primary' | 'secondary'} [props.variant="primary"]
+ * @property {import('preact').JSX.Element} [startIcon] - Optional leading icon
+ * @property {import('preact').JSX.Element} [endIcon] - Optional trailing icon
+ * @property {string[]} [textVariants] - Optional array of strings that fix the maximum text length for the button
  * @property {boolean} [props.grow=true] - Whether the button should grow on hover
  * @property {boolean} [props.unique=true] - Generate a new key every time button content changes. Helps in avoiding lingering hover states, for example
  */
@@ -57,8 +60,10 @@ export function Button ({ variant = 'primary', size = 'normal', children, ...res
  *
  * @param {ElasticButtonProps & import("preact").ComponentProps<"button">} props
  */
-export function ElasticButton ({ variant = 'primary', grow = true, unique = true, children, ...rest }) {
+export function ElasticButton ({ text, variant = 'primary', startIcon, endIcon, textVariants, grow = true, unique = true, children, ...rest }) {
     const [key, setKey] = useState('')
+
+    console.log('TEXT', text)
 
     useEffect(() => {
         unique && setKey(self.crypto.randomUUID())
@@ -74,8 +79,31 @@ export function ElasticButton ({ variant = 'primary', grow = true, unique = true
     return (
         <div className={styles.elasticContainer}>
             <button className={classes} key={key} {...rest}>
-                {children}
+                {startIcon}
+                {textVariants ? <FixedWidthContent text={text} textVariants={textVariants}/> : text}
+                {endIcon}
             </button>
+        </div>
+    )
+}
+
+/**
+ * Creates a block of text that has a constant width equal to the longest possible string within textVariants
+ *
+ * @param {object} props
+ * @param {string} props.text - Button text
+ * @param {string[]} props.textVariants - All possible strings the button can use as text
+ */
+export function FixedWidthContent ({ text, textVariants }) {
+    // Find the longest possible string
+    const hiddenText = textVariants.reduce((acc, cur) => {
+        return cur.length > acc.length ? cur : acc
+    })
+
+    return (
+        <div className={styles.fixedWidthContainer}>
+            <span aria-hidden={true} className={styles.hiddenContent}>{hiddenText}</span>
+            <span className={styles.visibleContent}>{text}</span>
         </div>
     )
 }

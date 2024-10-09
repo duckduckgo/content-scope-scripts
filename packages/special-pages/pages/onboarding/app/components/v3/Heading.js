@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import cn from 'classnames'
-import { useState, useRef, useLayoutEffect } from 'preact/hooks'
+import { useState, useRef, useLayoutEffect, useEffect } from 'preact/hooks'
 import { Typed } from '../Typed'
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
 
@@ -110,8 +110,33 @@ function SpeechBubble ({ title, subtitle, onComplete, children }) {
         }
     }, [bubbleContents, title, subtitle, children])
 
+    useEffect(() => {
+        let debounce
+        const handleResize = () => {
+            if (bubbleContents.current) {
+                const { width, height } = calculateMaximumWidth(/** @type {HTMLDivElement} */(bubbleContents.current))
+                if (dimensions.width !== width || dimensions.height !== height) {
+                    setDimensions({ width, height })
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            clearTimeout(debounce)
+            debounce = setTimeout(handleResize, 30)
+        })
+
+        return () => {
+            clearTimeout(debounce)
+            window.removeEventListener('resize', handleResize)
+        }
+    })
+
     const onTransitionEnd = () => {
-        setAnimationState('animation-done')
+        setAnimationState(state => {
+            if (state === 'animating') return 'animation-done'
+            return state
+        })
     }
 
     const onTypingComplete = () => {

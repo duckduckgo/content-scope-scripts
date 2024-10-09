@@ -12,40 +12,6 @@ import styles from './SingleStep.module.css'
 
 /**
  * @param {object} props
- * @param {string} props.text
- * @param {h.JSX.Element} [props.startIcon]
- * @param {h.JSX.Element} [props.endIcon]
- * @param {() => void} props.handler
- */
-export function DismissButton ({ text, startIcon, endIcon, handler }) {
-    return (
-        <ElasticButton grow={false} onClick={handler} variant='secondary'>
-            {startIcon}
-            {text}
-            {endIcon}
-        </ElasticButton>
-    )
-}
-
-/**
- * @param {object} props
- * @param {string} props.text
- * @param {h.JSX.Element} [props.startIcon]
- * @param {h.JSX.Element} [props.endIcon]
- * @param {() => void} props.handler
- */
-export function AcceptButton ({ text, startIcon, endIcon, handler }) {
-    return (
-        <ElasticButton onClick={handler}>
-            {startIcon}
-            {text}
-            {endIcon}
-        </ElasticButton>
-    )
-}
-
-/**
- * @param {object} props
  * @param {import('./data-types').Progress} props.progress
  * @param {import('preact').JSX.Element|null} [props.dismissButton]
  * @param {import('preact').JSX.Element|null} [props.acceptButton]
@@ -99,8 +65,8 @@ export function SingleStep () {
                 { content &&
                     <StepGrid
                         progress={progress}
-                        dismissButton={dismissButton && <DismissButton {...dismissButton} />}
-                        acceptButton={acceptButton && <AcceptButton {...acceptButton} />}>
+                        dismissButton={dismissButton && <ElasticButton {...dismissButton} grow={false} variant="secondary" onClick={dismissButton.handler} />}
+                        acceptButton={acceptButton && <ElasticButton {...acceptButton} grow={true} variant="primary" onClick={acceptButton.handler} />}>
                         {content}
                     </StepGrid>}
             </Stack>

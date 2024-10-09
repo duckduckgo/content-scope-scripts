@@ -8,6 +8,13 @@ import { DuckPlayerStep } from './DuckPlayerStep'
 import { ElasticButton } from '../Buttons'
 import { Timeout } from '../Timeout'
 
+/**
+ * This sets up individual steps in the v3 (highlights) version of onboarding
+ *
+ * See `./data-types.js` for documentation on parameters {StepConfigParams}
+ * and return values {StepConfig}
+ */
+
 /** @type {Record<import('./data-types').StepsV3, (params: import('./data-types').StepConfigParams) => import('./data-types').StepConfig>} */
 export const stepsConfig = {
     welcome: ({ t, advance }) => {
@@ -26,7 +33,7 @@ export const stepsConfig = {
             heading: {
                 title: t('getStarted_title_v3').split('{newline}'),
                 speechBubble: true,
-                children: <ElasticButton onClick={advance}>{t('getStartedButton_v3')}</ElasticButton>
+                children: <ElasticButton onClick={advance} text={t('getStartedButton_v3')} />
             }
         }
     },
@@ -137,6 +144,7 @@ export const stepsConfig = {
             dismissButton: {
                 startIcon: <Replay />,
                 text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
+                textVariants: [t('beforeAfter_duckPlayer_show'), t('beforeAfter_duckPlayer_hide')],
                 handler: () => beforeAfter.toggle()
             },
             acceptButton: {

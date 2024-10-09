@@ -151,3 +151,20 @@
     }
 }
 
+.fixedWidthContainer {
+    display: inline-block;
+    position: relative;
+}
+
+.hiddenContent {
+    display: inline-block;
+    visibility: hidden;
+}
+
+.visibleContent {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}

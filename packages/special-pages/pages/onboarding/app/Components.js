@@ -5,7 +5,7 @@ import { Progress, SingleLineProgress } from './components/Progress'
 import { ListItem } from './components/ListItem'
 import { BounceIn, Check, Launch, Replay } from './components/Icons'
 import { List } from './components/List'
-import { Button, ButtonBar } from './components/Buttons'
+import { Button, ButtonBar, ElasticButton } from './components/Buttons'
 import classNames from 'classnames'
 import { h } from 'preact'
 import { Background } from './components/Background'
@@ -17,7 +17,6 @@ import { Typed } from './components/Typed'
 import { CleanBrowsing } from './pages/CleanBrowsing'
 import { useTypedTranslation } from './types'
 import { ComparisonTable } from './components/v3/ComparisonTable'
-import { DismissButton, AcceptButton } from './components/v3/SingleStep'
 import { Heading } from './components/v3/Heading'
 import { Hiker } from './components/v3/Hiker'
 
@@ -171,23 +170,23 @@ export function Components () {
 
                     <Heading title={'Welcome to DuckDuckGo!'} />
                     <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'}/>
-                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'}><AcceptButton text={'Next'} handler={() => {}}/></Heading>
+                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'}><ElasticButton text={'Next'} grow={true}/></Heading>
 
                     <Heading title={'Welcome to DuckDuckGo!'} speechBubble={true}/>
                     <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'} speechBubble={true}/>
-                    <Heading title={'Welcome to DuckDuckGo!'} speechBubble={true}><AcceptButton text={'Next'} handler={() => {}}/></Heading>
+                    <Heading title={'Welcome to DuckDuckGo!'} speechBubble={true}><ElasticButton text={'Next'} grow={true}/></Heading>
 
                     <SingleLineProgress current={2} total={5} />
 
                     <ComparisonTable />
 
-                    <DismissButton text={'Skip'} handler={() => {}} />
-                    <DismissButton text={'Replay'} handler={() => {}} startIcon={<Replay />} />
-                    <DismissButton text={'Replay'} handler={() => {}} endIcon={<Replay />}/>
+                    <ElasticButton text={'Skip'} grow={false}/>
+                    <ElasticButton text={'Replay'} startIcon={<Replay />} grow={false}/>
+                    <ElasticButton text={'Replay'} endIcon={<Replay />} grow={false}/>
 
-                    <AcceptButton text={'Next'} handler={() => {}} />
-                    <AcceptButton text={'Start Browsing'} handler={() => {}} startIcon={<Launch />}/>
-                    <AcceptButton text={'Start Browsing'} handler={() => {}} endIcon={<Launch />}/>
+                    <ElasticButton text={'Next'} grow={true}/>
+                    <ElasticButton text={'Start Browsing'} startIcon={<Launch />} grow={true}/>
+                    <ElasticButton text={'Start Browsing'} endIcon={<Launch />} grow={true}/>
 
                     <div style={{ position: 'relative', overflow: 'hidden', width: '400px', height: '400px' }}>
                         <Hiker />
