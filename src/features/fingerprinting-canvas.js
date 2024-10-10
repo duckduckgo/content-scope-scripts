@@ -1,5 +1,5 @@
-import { DDGProxy, DDGReflect } from '../utils'
-import { computeOffScreenCanvas } from '../canvas'
+import { DDGProxy, DDGReflect, postDebugMessage } from '../utils'
+import { computeOffScreenCanvas, copy2dContextToWebGLContext } from '../canvas'
 import ContentFeature from '../content-feature'
 
 export default class FingerprintingCanvas extends ContentFeature {
@@ -111,6 +111,7 @@ export default class FingerprintingCanvas extends ContentFeature {
             if ('WebGL2RenderingContext' in globalThis) {
                 glContexts.push(WebGL2RenderingContext)
             }
+            const webGLReadMethods = ['readPixels']
             for (const context of glContexts) {
                 for (const methodName of unsafeGlMethods) {
                     // Some methods are browser specific
@@ -123,6 +124,23 @@ export default class FingerprintingCanvas extends ContentFeature {
                             }
                         })
                         unsafeProxy.overload()
+                    }
+                }
+
+                if (this.getFeatureSettingEnabled('webGlReadMethods')) {
+                    for (const methodName of webGLReadMethods) {
+                        const webGLReadMethodsProxy = new DDGProxy(featureName, context.prototype, methodName, {
+                            apply (target, thisArg, args) {
+                                if (thisArg) {
+                                    const { offScreenWebGlCtx } = getCachedOffScreenCanvasOrCompute(thisArg.canvas, domainKey, sessionKey, true)
+                                    if (offScreenWebGlCtx) {
+                                        return DDGReflect.apply(target, offScreenWebGlCtx, args)
+                                    }
+                                }
+                                return DDGReflect.apply(target, thisArg, args)
+                            }
+                        })
+                        webGLReadMethodsProxy.overload()
                     }
                 }
             }
@@ -152,17 +170,18 @@ export default class FingerprintingCanvas extends ContentFeature {
         /**
          * Get cached offscreen if one exists, otherwise compute one
          *
-         * @param {HTMLCanvasElement} canvas
+         * @param {HTMLCanvasElement | OffscreenCanvas} canvas
          * @param {string} domainKey
          * @param {string} sessionKey
+         * @returns {import('../canvas').OffscreenCanvasInfo}
          */
-        function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey) {
+        function getCachedOffScreenCanvasOrCompute (canvas, domainKey, sessionKey, copy2dContextToWebGLContext) {
             let result
             if (canvasCache.has(canvas)) {
                 result = canvasCache.get(canvas)
             } else {
                 const ctx = canvasContexts.get(canvas)
-                result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx)
+                result = computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx, copy2dContextToWebGLContext)
                 canvasCache.set(canvas, result)
             }
             return result
