@@ -1,19 +1,27 @@
-import { h, Fragment } from 'preact'
-import { useVisibility, WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.provider.js'
+import { Fragment, h } from 'preact'
+import { WidgetConfigContext, WidgetVisibilityProvider } from './widget-config.provider.js'
 import { useContext } from 'preact/hooks'
+import { PrivacyStatsCustomized } from '../privacy-stats/PrivacyStats.js'
+import { FavoritesCustomized } from '../favorites/Favorites.js'
+import { Stack } from '../../../onboarding/app/components/Stack.js'
+import { Customizer } from '../customizer/Customizer.js'
 
 const widgetMap = {
-    favorites: () => <Favorites/>,
-    privacyStats: () => <PrivacyStats/>
+    privacyStats: () => (
+        <PrivacyStatsCustomized />
+    ),
+    favorites: () => (
+        <FavoritesCustomized />
+    )
 }
 
 export function WidgetList () {
-    const { widgets, widgetConfig } = useContext(WidgetConfigContext)
+    const { widgets, widgetConfigItems } = useContext(WidgetConfigContext)
 
     return (
-        <div>
+        <Stack>
             {widgets.map((widget) => {
-                const matchingConfig = widgetConfig.find(item => item.id === widget.id)
+                const matchingConfig = widgetConfigItems.find(item => item.id === widget.id)
                 if (!matchingConfig) {
                     console.warn('missing config for widget: ', widget)
                     return null
@@ -29,28 +37,7 @@ export function WidgetList () {
                     </Fragment>
                 )
             })}
-        </div>
-    )
-}
-
-function Favorites () {
-    const { visibility, id, toggle } = useVisibility()
-    return (
-        <div>
-            <p style={{ opacity: visibility === 'visible' ? '1' : '0.2' }}>Favorites Component</p>
-            <code><b>{id} visibility: {visibility}</b></code>{' '}
-            <button type={'button'} onClick={toggle}>Toggle Favorites</button>
-        </div>
-    )
-}
-
-function PrivacyStats () {
-    const { visibility, id, toggle } = useVisibility()
-    return (
-        <div>
-            <p style={{ opacity: visibility === 'visible' ? '1' : '0.2' }}>Privacy Stats Component</p>
-            <code><b>{id} visibility: {visibility}</b></code>{' '}
-            <button type={'button'} onClick={toggle}>Toggle Privacy Stats</button>
-        </div>
+            <Customizer />
+        </Stack>
     )
 }

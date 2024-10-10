@@ -33,7 +33,7 @@ export class NewtabPage {
                     { id: 'favorites' },
                     { id: 'privacyStats' }
                 ],
-                widgetConfig: [
+                widgetConfigs: [
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'visible' }
                 ],
@@ -42,7 +42,10 @@ export class NewtabPage {
                 platform: {
                     name: this.platform.name || 'windows'
                 }
-            }
+            },
+            stats_getConfig: {},
+            stats_getData: {},
+            widgets_setConfig: {}
         })
     }
 

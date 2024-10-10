@@ -7,26 +7,26 @@ test.describe('newtab widgets', () => {
         await ntp.reducedMotion()
         await ntp.openPage()
 
+        await page.pause()
+
         // hide
-        await page.getByRole('button', { name: 'Toggle Privacy Stats' }).click()
-        await expect(page.locator('#app')).toContainText('privacyStats visibility: hidden')
+        await page.getByLabel('privacyStats').uncheck()
 
         // debounced
         await page.waitForTimeout(500)
 
         // verify the single sync call, where one is hidden
-        const outgoing = await ntp.mocks.outgoing({ names: ['setWidgetConfig'] })
+        const outgoing = await ntp.mocks.outgoing({ names: ['widgets_setConfig'] })
+
         expect(outgoing).toStrictEqual([{
             payload: {
                 context: 'specialPages',
                 featureName: 'newTabPage',
-                params: {
-                    widgetConfig: [
-                        { id: 'favorites', visibility: 'visible' },
-                        { id: 'privacyStats', visibility: 'hidden' }
-                    ]
-                },
-                method: 'setWidgetConfig'
+                params: [
+                    { id: 'favorites', visibility: 'visible' },
+                    { id: 'privacyStats', visibility: 'hidden' }
+                ],
+                method: 'widgets_setConfig'
             }
         }])
     })
@@ -36,29 +36,25 @@ test.describe('newtab widgets', () => {
         await ntp.openPage()
 
         // hide
-        await page.getByRole('button', { name: 'Toggle Privacy Stats' }).click()
-        await expect(page.locator('#app')).toContainText('privacyStats visibility: hidden')
+        await page.getByLabel('privacyStats').uncheck()
 
         // show
-        await page.getByRole('button', { name: 'Toggle Privacy Stats' }).click()
-        await expect(page.locator('#app')).toContainText('privacyStats visibility: visible')
+        await page.getByLabel('privacyStats').check()
 
         // debounced
         await page.waitForTimeout(500)
 
         // verify the single sync call, where both are visible.
-        const outgoing = await ntp.mocks.outgoing({ names: ['setWidgetConfig'] })
+        const outgoing = await ntp.mocks.outgoing({ names: ['widgets_setConfig'] })
         expect(outgoing).toStrictEqual([{
             payload: {
                 context: 'specialPages',
                 featureName: 'newTabPage',
-                params: {
-                    widgetConfig: [
-                        { id: 'favorites', visibility: 'visible' },
-                        { id: 'privacyStats', visibility: 'visible' }
-                    ]
-                },
-                method: 'setWidgetConfig'
+                params: [
+                    { id: 'favorites', visibility: 'visible' },
+                    { id: 'privacyStats', visibility: 'visible' }
+                ],
+                method: 'widgets_setConfig'
             }
         }])
     })
