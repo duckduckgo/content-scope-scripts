@@ -5,19 +5,22 @@ import { useTypedTranslation } from '../types.js'
 import { useCallback, useContext, useState } from 'preact/hooks'
 import { PrivacyStatsContext, PrivacyStatsDispatchContext, PrivacyStatsProvider } from './PrivacyStatsProvider.js'
 import { useVisibility } from '../widget-list/widget-config.provider.js'
+import { Chevron } from '../components/Chevron.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').TrackerCompany} TrackerCompany
  * @typedef {import('../../../../types/new-tab').Expansion} Expansion
  * @typedef {import('../../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
+ * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import("./PrivacyStatsProvider.js").Events} Events
  */
 
 /**
  * @param {object} props
  * @param {Expansion} props.expansion
  * @param {PrivacyStatsData} props.data
- * @param {import("./PrivacyStatsProvider.js").Ui} [props.ui]
- * @param {(evt: import("./PrivacyStatsProvider.js").Events) => void} [props.send]
+ * @param {import('../service.hooks').Ui} [props.ui]
+ * @param {(evt: Events) => void} [props.send]
  * @param {()=>void} [props.toggle]
  */
 export function PrivacyStats ({ ui, expansion, data, send, toggle }) {
@@ -97,8 +100,8 @@ export function Heading ({ trackerCompanies, totalCount, onToggle, pressed }) {
 /**
  * @param {object} props
  * @param {TrackerCompany[]} props.trackerCompanies
- * @param {import("./PrivacyStatsProvider.js").Ui} [props.ui]
- * @param {(evt: import("./PrivacyStatsProvider.js").Events) => void} [props.send]
+ * @param {import('../service.hooks').Ui} [props.ui]
+ * @param {(evt: Events) => void} [props.send]
  */
 export function Body ({ trackerCompanies, send, ui }) {
     const max = trackerCompanies[0]?.count ?? 0
@@ -191,16 +194,6 @@ export function PrivacyStatsConsumer () {
         )
     }
     return null
-}
-
-function Chevron () {
-    return (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.5 10L8 4.5L2.5 10" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-        </svg>
-    )
 }
 
 function CompanyIcon ({ company }) {
