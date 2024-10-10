@@ -42,8 +42,3 @@ declare module 'ddg:platformFeatures' {
     const output: Record<string, new (featureName: string) => import('./content-feature').default>
     export default output
 }
-
-declare module 'ddg:runtimeInjects' {
-    const output: Record<string, string>
-    export default output
-}

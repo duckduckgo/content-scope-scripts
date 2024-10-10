@@ -5,54 +5,8 @@ import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
 import css from 'rollup-plugin-import-css'
 import svg from 'rollup-plugin-svg-import'
-import { runtimeInjected, platformSupport } from '../../src/features.js'
+import { platformSupport } from '../../src/features.js'
 import { readFileSync } from 'fs'
-
-/**
- * This is a helper function to require all files in a directory
- * @param {string} pathName
- * @param {string} platform
- */
-async function getAllFeatureCode (pathName, platform) {
-    const fileContents = {}
-    for (const featureName of runtimeInjected) {
-        const fileName = getFileName(featureName)
-        const fullPath = `${pathName}/${fileName}.js`
-        const code = await rollupScript({
-            scriptPath: fullPath,
-            name: featureName,
-            supportsMozProxies: false,
-            platform
-        })
-        fileContents[featureName] = code
-    }
-    return fileContents
-}
-
-/**
- * Allows importing of all features into a custom runtimeInjects export
- * @param {string} platform
- * @returns {import('rollup').Plugin}
- */
-function runtimeInjections (platform) {
-    const customId = 'ddg:runtimeInjects'
-    return {
-        name: customId,
-        resolveId (id) {
-            if (id === customId) {
-                return id
-            }
-            return null
-        },
-        async load (id) {
-            if (id === customId) {
-                const code = await getAllFeatureCode('src/features', platform)
-                return `export default ${JSON.stringify(code, undefined, 4)}`
-            }
-            return null
-        }
-    }
-}
 
 function prefixPlugin (prefixMessage) {
     return {
@@ -108,7 +62,6 @@ export async function rollupScript (params) {
             stringify: true
         }),
         loadFeatures(platform, featureNames),
-        runtimeInjections(platform),
         resolve(),
         commonjs(),
         replace({

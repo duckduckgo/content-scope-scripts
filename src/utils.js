@@ -7,8 +7,6 @@ let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
 
-export const taintSymbol = Symbol('taint')
-
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent
 export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window)
@@ -351,57 +349,6 @@ export function getContextId (scope) {
 }
 
 /**
- * Returns a set of origins that are tainted
- * @returns {Set<string> | null}
- */
-export function taintedOrigins () {
-    return getGlobalObject('taintedOrigins')
-}
-
-/**
- * Returns a set of taints
- * @returns {Set<string> | null}
- */
-export function taints () {
-    return getGlobalObject('taints')
-}
-
-/**
- * @param {string} name
- * @returns {any | null}
- */
-function getGlobalObject (name) {
-    if ('duckduckgo' in navigator &&
-        typeof navigator.duckduckgo === 'object' &&
-        navigator.duckduckgo &&
-        name in navigator.duckduckgo &&
-        navigator.duckduckgo[name]) {
-        return navigator.duckduckgo[name]
-    }
-    return null
-}
-
-export function hasTaintedMethod (scope, shouldStackCheck = false) {
-    if (document?.currentScript?.[taintSymbol]) return true
-    if ('__ddg_taint__' in window) return true
-    if (getContextId(scope)) return true
-    if (!shouldStackCheck || !taintedOrigins()) {
-        return false
-    }
-    const currentTaintedOrigins = taintedOrigins()
-    if (!currentTaintedOrigins || currentTaintedOrigins.size === 0) {
-        return false
-    }
-    const stackOrigins = getStackTraceOrigins(getStack())
-    for (const stackOrigin of stackOrigins) {
-        if (currentTaintedOrigins.has(stackOrigin)) {
-            return true
-        }
-    }
-    return false
-}
-
-/**
  * @param {*[]} argsArray
  * @returns {string}
  */
@@ -438,7 +385,7 @@ export class DDGProxy {
      * @param {string} property
      * @param {ProxyObject<P>} proxyObject
      */
-    constructor (feature, objectScope, property, proxyObject, taintCheck = false) {
+    constructor (feature, objectScope, property, proxyObject) {
         this.objectScope = objectScope
         this.property = property
         this.feature = feature
@@ -446,19 +393,7 @@ export class DDGProxy {
         this.camelFeatureName = camelcase(this.featureName)
         const outputHandler = (...args) => {
             this.feature.addDebugFlag()
-            let isExempt = shouldExemptMethod(this.camelFeatureName)
-            // If taint checking is enabled for this proxy then we should verify that the method is not tainted and exempt if it isn't
-            if (!isExempt && taintCheck) {
-                // eslint-disable-next-line @typescript-eslint/no-this-alias
-                let scope = this
-                try {
-                    // @ts-expect-error - Caller doesn't match this
-                    // eslint-disable-next-line no-caller
-                    scope = arguments.callee.caller
-                } catch {}
-                const isTainted = hasTaintedMethod(scope)
-                isExempt = !isTainted
-            }
+            const isExempt = shouldExemptMethod(this.camelFeatureName)
             // Keep this here as getStack() is expensive
             if (debug) {
                 postDebugMessage(this.camelFeatureName, {
