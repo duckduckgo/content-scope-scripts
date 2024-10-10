@@ -8,7 +8,10 @@ interface UnstableWebkit {
 }
 
 interface UnstableMockCall {
-  payload: import('../index.js').RequestMessage;
+  payload:
+    | import('../index.js').RequestMessage
+    | import('../index.js').NotificationMessage
+    | import('../index.js').Subscription;
   response?: Record<string, unknown>;
 }
 

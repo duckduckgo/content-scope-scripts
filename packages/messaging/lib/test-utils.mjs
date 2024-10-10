@@ -237,7 +237,12 @@ export function mockResponses(params) {
  */
 export function waitForCallCount(params) {
     const outgoing = window.__playwright_01.mocks.outgoing
-    const filtered = outgoing.filter(({ payload }) => params.method === payload.method)
+    const filtered = outgoing.filter(({ payload }) => {
+        if ('method' in payload) {
+            return params.method === payload.method;
+        }
+        return false
+    })
     return filtered.length >= params.count
 }
 

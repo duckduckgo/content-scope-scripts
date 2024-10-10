@@ -57,6 +57,12 @@ export class Mocks {
                     responses: this._defaultResponses,
                     messageCallback: 'messageCallback'
                 })
+            },
+            integration: async () => {
+                await this.page.addInitScript(mockWindowsMessaging, {
+                    messagingContext: this.messagingContext,
+                    responses: this._defaultResponses
+                })
             }
         })
     }

@@ -22,7 +22,9 @@
         "packages/special-pages/pages/release-notes/src/js/index.js",
         "packages/special-pages/pages/release-notes/app/types.js",
         "packages/special-pages/pages/special-error/src/js/index.js",
-        "packages/special-pages/pages/special-error/app/types.js"
+        "packages/special-pages/pages/special-error/app/types.js",
+        "packages/special-pages/pages/new-tab/app/docs.js",
+        "packages/special-pages/types/*"
     ],
     "categoryOrder": [
         "Special Pages",

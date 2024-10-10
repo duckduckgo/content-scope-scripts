@@ -7,12 +7,23 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
-                'onboarding.spec.js',
-                'new-tab.spec.js'
+                'onboarding.spec.js'
             ],
             use: {
                 ...devices['Desktop Edge'],
                 injectName: 'windows',
+                platform: 'windows'
+            }
+        },
+        {
+            name: 'integration',
+            testMatch: [
+                'new-tab-widgets.spec.js',
+                'new-tab.spec.js'
+            ],
+            use: {
+                ...devices['Desktop Chrome'],
+                injectName: 'integration',
                 platform: 'windows'
             }
         },
