@@ -1,22 +1,11 @@
-import { setup } from './helpers/harness.js'
+import { test as base, expect } from '@playwright/test'
+import { gotoAndWait, testContextForExtension } from './helpers/harness.js'
 
-describe('Cookie protection tests', () => {
-    let browser
-    let teardown
-    let setupServer
+const test = testContextForExtension(base)
 
-    beforeAll(async () => {
-        ({ browser, teardown, setupServer } = await setup())
-        setupServer('8080')
-    })
-    afterAll(async () => {
-        await teardown()
-    })
-
-    it('should restrict the expiry of first-party cookies', async () => {
-        const page = await browser.newPage()
-        await page.goto('http://localhost:8080/index.html')
-
+test.describe('Cookie protection tests', () => {
+    test('should restrict the expiry of first-party cookies', async ({ page }) => {
+        await gotoAndWait(page, '/index.html')
         const result = await page.evaluate(async () => {
             document.cookie = 'test=1; expires=Wed, 21 Aug 2040 20:00:00 UTC;'
             // wait for a tick, as cookie modification happens in a promise
@@ -30,9 +19,8 @@ describe('Cookie protection tests', () => {
         expect(result.expires).toBeLessThan(Date.now() + 605_000_000)
     })
 
-    it('non-string cookie values do not bypass protection', async () => {
-        const page = await browser.newPage()
-        await page.goto('http://localhost:8080/index.html')
+    test('non-string cookie values do not bypass protection', async ({ page }) => {
+        await gotoAndWait(page, '/index.html')
 
         const result = await page.evaluate(async () => {
             // @ts-expect-error - Invalid argument to document.cookie on purpose for test
@@ -53,11 +41,11 @@ describe('Cookie protection tests', () => {
         expect(result.expires).toBeLessThan(Date.now() + 605_000_000)
     })
 
-    it('Erroneous values do not throw', async () => {
-        const page = await browser.newPage()
-        await page.goto('http://localhost:8080/index.html')
-
+    test('Erroneous values do not throw', async ({ page }) => {
+        await gotoAndWait(page, '/index.html')
         const result = await page.evaluate(async () => {
+            document.cookie = 'a=b; expires=Wed, 21 Aug 2040 20:00:00 UTC;'
+
             // @ts-expect-error - Invalid argument to document.cookie on purpose for test
             document.cookie = null
 

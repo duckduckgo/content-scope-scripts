@@ -27,7 +27,6 @@
     "./src/features/duckplayer/duckplayer-settings.ts"
   ],
   "exclude": [
-    "integration-test/pages",
     "integration-test/test-pages",
     "integration-test/extension",
     "packages/special-pages/pages/**/public",
