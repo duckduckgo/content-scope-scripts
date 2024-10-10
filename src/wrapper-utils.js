@@ -107,7 +107,6 @@ export function toStringGetTrap (targetFn, mockValue) {
 
 /**
  * Wrap functions to fix toString but also behave as closely to their real function as possible like .name and .length etc.
- * TODO: validate with firefox non runtimeChecks context and also consolidate with wrapToString
  * @param {*} functionValue
  * @param {*} realTarget
  * @returns {Proxy} a proxy for the function
