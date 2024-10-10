@@ -81,7 +81,7 @@
     "jasmine": "^5.3.0",
     "json-schema-to-typescript": "^15.0.2",
     "minimist": "^1.2.8",
-    "rollup": "^3.29.4",
+    "rollup": "^3.29.5",
     "rollup-plugin-import-css": "^3.5.2",
     "rollup-plugin-svg-import": "^2.1.0",
     "typedoc": "^0.25.12",
