@@ -23,12 +23,6 @@ const tests = [
     { url: `http://127.0.0.1:8383${pagePath}` }
 ]
 
-function testFPValues (values) {
-    for (const [name, prop] of Object.entries(values)) {
-        expect(prop).toEqual(expectedFingerprintValues[name])
-    }
-}
-
 test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () => {
     test.describe.serial('Fingerprint Defense Tests', () => {
         for (const _test of tests) {
@@ -51,7 +45,12 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
                         vendorSub: navigator.vendorSub
                     }
                 })
-                testFPValues(values)
+
+                for (const [name, prop] of Object.entries(values)) {
+                    await test.step(name, () => {
+                        expect(prop).toEqual(expectedFingerprintValues[name])
+                    })
+                }
 
                 await page.close()
             })
