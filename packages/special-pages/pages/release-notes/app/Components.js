@@ -9,6 +9,7 @@ import {
     ReleaseNotesContent,
     ReleaseNotes
 } from './components/ReleaseNotes'
+import { EasterEgg } from './components/EasterEgg'
 import { Button } from '../../../shared/components/Button/Button'
 import { Card } from '../../../shared/components/Card/Card'
 import { ContentPlaceholder } from './components/ContentPlaceholder'
@@ -43,63 +44,8 @@ export function Components () {
 
     return (
         <main className={styles.main}>
-            <h1>Release Notes Components</h1>
-
-            <h2>DuckDuckGo Logo</h2>
-            <DuckDuckGoLogo />
-            <hr/>
-
-            <h2>Page Title</h2>
-            <PageTitle title={t('browserReleaseNotes')}/>
-            <hr/>
-
-            <h2>Update Status</h2>
-            <UpdateStatus status="loading" version="1.0.1" timestamp={yesterdayInMilliseconds}/>
-            <UpdateStatus status="loaded" version="1.0.1" timestamp={todayInMilliseconds}/>
-            <UpdateStatus status="updateReady" version="1.2.0" timestamp={todayInMilliseconds}/>
-            <hr/>
-
-            <h2>Restart Button</h2>
-            <div>
-                <Button>{t('restartToUpdate')}</Button>
-            </div>
-            <hr/>
-
-            <h2>Content Placeholder</h2>
-            <ContentPlaceholder/>
-            <hr/>
-
-            <h2>Release Notes Heading</h2>
-            <ReleaseNotesHeading title="May 10 2023" version="1.0.0" showNewTag={false}/>
-            <ReleaseNotesHeading title="May 10 2024" version="1.2.0" showNewTag={true}/>
-            <hr/>
-
-            <h2>Release Notes Subheading</h2>
-            <ReleaseNotesSubheading title="Release Notes Subheading without Icon"/>
-            <ReleaseNotesSubheading icon="PrivacyPro" title="Release Notes Subheading with Privacy Pro Icon"/>
-            <hr/>
-
-            <h2>Release Notes List</h2>
-            <ReleaseNotesList notes={sampleNotesData[0].notes} />
-            <hr/>
-
-            <h2>Content Placeholder Inside a Card</h2>
-            <Card className={styles.card}>
-                <ContentPlaceholder/>
-            </Card>
-            <hr/>
-
-            <h2>Release Notes Inside a Card</h2>
-            <Card className={styles.card}>
-                <ReleaseNotesContent status="updateReady" title="May 10 2024" version="1.2.0" notes={sampleNotesData} />
-            </Card>
-
-            <ReleaseNotes releaseData={sampleData.loading} />
             <LoadingThen>
                 <ReleaseNotes releaseData={sampleData.loaded} />
-            </LoadingThen>
-            <LoadingThen>
-                <ReleaseNotes releaseData={sampleData.updateReady} />
             </LoadingThen>
         </main>
     )
