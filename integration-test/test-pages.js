@@ -53,7 +53,9 @@ test.describe('Test integration pages', () => {
         )
         for (const key in pageResults) {
             for (const result of pageResults[key]) {
-                expect(result.result).toEqual(result.expected)
+                await test.step(`${key}:\n ${result.name}`, () => {
+                    expect(result.result).toEqual(result.expected)
+                })
             }
         }
     }
