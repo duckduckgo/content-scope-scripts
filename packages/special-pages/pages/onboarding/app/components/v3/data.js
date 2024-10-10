@@ -142,7 +142,7 @@ export const stepsConfig = {
                 speechBubble: true
             },
             dismissButton: {
-                startIcon: <Replay />,
+                startIcon: <Replay direction={beforeAfterState === 'before' ? 'forward' : 'backward'} />,
                 text: beforeAfterState === 'before' ? t('beforeAfter_duckPlayer_show') : t('beforeAfter_duckPlayer_hide'),
                 textVariants: [t('beforeAfter_duckPlayer_show'), t('beforeAfter_duckPlayer_hide')],
                 handler: () => beforeAfter.toggle()

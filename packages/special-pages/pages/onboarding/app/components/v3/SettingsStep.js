@@ -152,8 +152,8 @@ export function SettingListItem ({ index, item, dispatch }) {
             {item.current && (
                 <ListItem.Indent>
                     <ButtonBar>
-                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>{t('skipButton')}</Button>
                         <Button disabled={item.pending} variant={'secondary'} onClick={accept}>{item.data.acceptText}</Button>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={deny}>{t('skipButton')}</Button>
                     </ButtonBar>
                 </ListItem.Indent>
             )}
