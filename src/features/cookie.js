@@ -1,4 +1,4 @@
-import { postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdPartyFrame, getTabHostname, matchHostname } from '../utils.js'
+import { postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdPartyFrame, getTabHostname, matchHostname, DDGProxy, DDGReflect } from '../utils.js'
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
 import { isTrackerOrigin } from '../trackers.js'
@@ -91,6 +91,13 @@ function isTrackingCookie () {
 
 function isNonTrackingCookie () {
     return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
+}
+
+function getPolicy () {
+    const { policy, trackerPolicy } = cookiePolicy
+    const stack = getStack()
+    const scriptOrigins = getStackTraceOrigins(stack)
+    return isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy
 }
 
 export default class CookieFeature extends ContentFeature {
@@ -191,11 +198,8 @@ export default class CookieFeature extends ContentFeature {
             try {
                 // wait for config before doing same-site tests
                 loadPolicyThen(() => {
-                    const { shouldBlock, policy, trackerPolicy } = cookiePolicy
-                    const stack = getStack()
-                    const scriptOrigins = getStackTraceOrigins(stack)
-                    const chosenPolicy = isFirstPartyTrackerScript(scriptOrigins) ? trackerPolicy : policy
-                    if (!shouldBlock) {
+                    const chosenPolicy = getPolicy()
+                    if (!cookiePolicy.shouldBlock) {
                         debugHelper('ignore', 'disabled', setCookieContext)
                         return
                     }
@@ -229,6 +233,47 @@ export default class CookieFeature extends ContentFeature {
             set: setCookiePolicy,
             get: getCookiePolicy
         })
+
+        if (globalThis.CookieStore) {
+            // @ts-expect-error - error  'CookieStore' is not defined  no-undef
+            // eslint-disable-next-line no-undef
+            const proxy = new DDGProxy(this, CookieStore.prototype, 'set', {
+                async apply (target, thisArg, args) {
+                    let setCookieContext = null
+                    if (args.length === 0 || !args[0].expires) {
+                        return DDGReflect.apply(target, thisArg, args)
+                    }
+                    await loadPolicy
+                    const chosenPolicy = getPolicy()
+
+                    if (cookiePolicy.debug) {
+                        const stack = getStack()
+                        const cookie = args[0]
+                        setCookieContext = {
+                            stack,
+                            value: `${cookie.name}=${cookie.value}`
+                        }
+                    }
+                    console.log('xxx', cookiePolicy, setCookieContext)
+                    if (!cookiePolicy.shouldBlock) {
+                        debugHelper('ignore', 'disabled (cookieStore)', setCookieContext)
+                        return DDGReflect.apply(target, thisArg, args)
+                    }
+                    if (shouldBlockTrackingCookie() || shouldBlockNonTrackingCookie()) {
+                        debugHelper('block', '3p frame (cookieStore)', setCookieContext)
+                        return undefined
+                    }
+                    if (args[0].expires > Date.now() + (chosenPolicy.threshold * 1000)) {
+                        debugHelper('restrict', 'expiry (cookieStore)', setCookieContext)
+                        args[0].expires = Date.now() + (chosenPolicy.maxAge * 1000)
+                    } else {
+                        debugHelper('ignore', 'expiry (cookieStore)', setCookieContext)
+                    }
+                    return DDGReflect.apply(target, thisArg, args)
+                }
+            })
+            proxy.overload()
+        }
     }
 
     init (args) {
