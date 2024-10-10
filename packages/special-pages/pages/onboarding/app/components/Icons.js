@@ -82,7 +82,7 @@ export function Play () {
  * @param {object} props
  * @param {'backward'|'forward'} [props.direction='backward'] - Direction to which the icon is turning
  */
-export function Replay ({ direction='backward' }) {
+export function Replay ({ direction = 'backward' }) {
     return (
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style={direction === 'forward' ? { transform: 'scale(-1,1)' } : {}}>
             <g clip-path="url(#clip0_10021_2837)">

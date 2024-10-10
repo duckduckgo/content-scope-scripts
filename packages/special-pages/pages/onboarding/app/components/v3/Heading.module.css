@@ -10,14 +10,14 @@
     gap: var(--sp-3);
 }
 
-.title { /* TODO: Windows */
+.title {
     font-size: var(--sp-7);
-    font-family: ui-rounded, 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, Manjari, 'Arial Rounded MT', 'Arial Rounded MT Bold', Calibri, source-sans-pro, sans-serif;
+    font-family: ui-rounded, 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Quicksand, Comfortaa, Manjari, Calibri, 'Arial Rounded MT', 'Arial Rounded MT Bold', source-sans-pro, sans-serif;
     line-height: var(--sp-8);
     font-weight: 700;
 }
 
-.subTitle { /* TODO: Windows */
+.subTitle {
     font-size: var(--sp-4);
     font-weight: 400;
     line-height: 1.25;
@@ -34,14 +34,6 @@
     animation-duration: 500ms;
     animation-fill-mode: both;
     animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-    /* &[data-delay="normal"] {
-        animation-delay: var(--anim-delay);
-    }
-
-    &[data-delay="double"] {
-        animation-delay: var(--anim-delay-double);
-    } */
 }
 
 @keyframes dax-bouncein {
@@ -69,7 +61,7 @@
 .speechBubble {
     display: inline-grid;
     grid-template-columns: var(--sp-8) auto;
-    filter: drop-shadow(0px 0px 1px rgba(255, 255, 255, 0.12)) drop-shadow(0px 8px 24px rgba(62, 34, 140, 0.06)) drop-shadow(0px 8px 32px rgba(30, 66, 164, 0.09));
+    filter: drop-shadow(0px 0px 1px rgba(255, 255, 255, 0.8)) drop-shadow(0px 8px 24px rgba(62, 34, 140, 0.1)) drop-shadow(0px 6px 12px rgba(30, 66, 164, 0.1));
 
     @media (prefers-color-scheme: dark) {
         filter: drop-shadow(0px 0px 1px rgba(255, 255, 255, 0.18)) drop-shadow(0px 8px 24px rgba(7, 0, 25, 0.06)) drop-shadow(0px 8px 32px rgba(5, 17, 51, 0.09));
@@ -125,8 +117,7 @@
         color: var(--color-white-at-84);
     }
 
-    & .title { /* TODO: Windows */
-        font-size: var(--sp-5);
+    & .title {
         line-height: 1.2;
         font-weight: 600;
     }
