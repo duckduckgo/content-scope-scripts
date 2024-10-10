@@ -1,4 +1,4 @@
-const baseFeatures = /** @type {const} */([
+export const baseFeatures = /** @type {const} */([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
