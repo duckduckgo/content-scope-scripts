@@ -1,3 +1,124 @@
+/* shared/styles/variables.css */
+:root {
+  --base: 16px;
+  font-size: calc(16px / var(--base));
+  --px-in-rem: calc(1rem / 16);
+  --sp-320: 80rem;
+  --sp-256: 64rem;
+  --sp-192: 48rem;
+  --sp-96: 24rem;
+  --sp-90: 22.5rem;
+  --sp-80: 20rem;
+  --sp-72: 18rem;
+  --sp-64: 16rem;
+  --sp-56: 14rem;
+  --sp-48: 12rem;
+  --sp-40: 10rem;
+  --sp-35: 8.75rem;
+  --sp-32: 8rem;
+  --sp-30: 7.5rem;
+  --sp-25: 6.25rem;
+  --sp-24: 6rem;
+  --sp-20: 5rem;
+  --sp-16: 4rem;
+  --sp-15: 3.75rem;
+  --sp-14: 3.5rem;
+  --sp-13: 3.25rem;
+  --sp-12: 3rem;
+  --sp-11: 2.75rem;
+  --sp-10: 2.5rem;
+  --sp-9: 2.25rem;
+  --sp-8: 2rem;
+  --sp-7: 1.75rem;
+  --sp-6: 1.5rem;
+  --sp-5: 1.25rem;
+  --sp-4: 1rem;
+  --sp-3: 0.75rem;
+  --sp-2: 0.5rem;
+  --sp-1: 0.25rem;
+  --sp-0_5: 0.125rem;
+  --color-red-50: #de5833;
+  --color-purple-50: #5132a9;
+  --color-yellow-50: #fcd00a;
+  --color-green-50: #4cba3c;
+  --color-blue-100: #051133;
+  --color-blue-90: #0b2059;
+  --color-blue-80: #14307e;
+  --color-blue-70: #1e42a4;
+  --color-blue-60: #2b55ca;
+  --color-blue-50: #3969ef;
+  --color-blue-40: #557ff3;
+  --color-blue-30: #7295f6;
+  --color-blue-20: #8fabf9;
+  --color-blue-10: #adc2fc;
+  --color-blue-0: #ccdaff;
+  --color-black: #000;
+  --color-gray-95: #111;
+  --color-gray-90: #222;
+  --color-gray-85: #333;
+  --color-gray-80: #444;
+  --color-gray-70: #666;
+  --color-gray-60: #888;
+  --color-gray-50: #aaa;
+  --color-gray-40: #ccc;
+  --color-gray-30: #ddd;
+  --color-gray-25: #e5e5e5;
+  --color-gray-20: #eee;
+  --color-gray-10: #f5f5f5;
+  --color-gray-0: #fafafa;
+  --color-white: #fff;
+  --color-black-at-1: rgba(0, 0, 0, 0.01);
+  --color-black-at-3: rgba(0, 0, 0, 0.03);
+  --color-black-at-6: rgba(0, 0, 0, 0.06);
+  --color-black-at-9: rgba(0, 0, 0, 0.09);
+  --color-black-at-12: rgba(0, 0, 0, 0.12);
+  --color-black-at-15: rgba(0, 0, 0, 0.15);
+  --color-black-at-18: rgba(0, 0, 0, 0.18);
+  --color-black-at-36: rgba(0, 0, 0, 0.36);
+  --color-black-at-40: rgba(0, 0, 0, 0.4);
+  --color-black-at-42: rgba(0, 0, 0, 0.42);
+  --color-black-at-48: rgba(0, 0, 0, 0.48);
+  --color-black-at-50: rgba(0, 0, 0, 0.5);
+  --color-black-at-60: rgba(0, 0, 0, 0.6);
+  --color-black-at-72: rgba(0, 0, 0, 0.72);
+  --color-black-at-80: rgba(0, 0, 0, 0.8);
+  --color-black-at-84: rgba(0, 0, 0, 0.84);
+  --color-black-at-90: rgba(0, 0, 0, 0.9);
+  --color-black-at-96: rgba(0, 0, 0, 0.96);
+  --color-gray85-at-80: rgba(51, 51, 51, 0.8);
+  --color-white-at-3: rgba(255, 255, 255, 0.03);
+  --color-white-at-6: rgba(255, 255, 255, 0.06);
+  --color-white-at-9: rgba(255, 255, 255, 0.09);
+  --color-white-at-12: rgba(255, 255, 255, 0.12);
+  --color-white-at-15: rgba(255, 255, 255, 0.15);
+  --color-white-at-18: rgba(255, 255, 255, 0.18);
+  --color-white-at-24: rgba(255, 255, 255, 0.24);
+  --color-white-at-30: rgba(255, 255, 255, 0.3);
+  --color-white-at-36: rgba(255, 255, 255, 0.36);
+  --color-white-at-42: rgba(255, 255, 255, 0.42);
+  --color-white-at-50: rgba(255, 255, 255, 0.5);
+  --color-white-at-60: rgba(255, 255, 255, 0.6);
+  --color-white-at-70: rgba(255, 255, 255, 0.7);
+  --color-white-at-80: rgba(255, 255, 255, 0.8);
+  --color-white-at-84: rgba(255, 255, 255, 0.84);
+  --color-white-at-85: rgba(255, 255, 255, 0.85);
+  --color-white-at-96: rgba(255, 255, 255, 0.96);
+  --ddg-color-primary: var(--color-blue-50);
+  --ddg-color-primary-dark: var(--color-blue-30);
+  --theme-background-color: var(--color-white);
+  --theme-text-primary-color: var(--color-black-at-84);
+  --theme-text-secondary-color: var(--color-black-at-60);
+  --theme-text-link-color: var(--ddg-color-primary);
+  @media (prefers-color-scheme: dark) {
+    --theme-background-color: var(--color-gray-95);
+    --theme-text-primary-color: var(--color-white-at-85);
+    --theme-text-secondary-color: var(--color-white-at-50);
+    --theme-text-link-color: var(--ddg-color-primary-dark);
+  }
+  --macos-text-primary: var(--color-black-at-84);
+  --ios-content-max-width: calc(794 * var(--px-in-rem));
+}
+
 /* pages/new-tab/app/styles/base.css */
 *,
 *:after,
@@ -8,7 +129,16 @@ html[data-reduced-motion=true] * {
   animation: none !important;
   transition: none !important;
 }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+}
 body {
+  -webkit-font-smoothing: antialiased;
   font-family: system-ui;
   margin: 0;
   height: 100vh;
@@ -17,11 +147,33 @@ body {
   user-select: none;
   -webkit-user-select: none;
   cursor: default;
-  color: var(--theme-txt-color);
-  background: var(--theme-page-bg);
 }
-body > main {
-  width: 100%;
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+#app,
+#__next {
+  isolation: isolate;
 }
 h1,
 h2,
@@ -42,11 +194,52 @@ li {
   padding: 0;
 }
 
+/* pages/new-tab/app/styles/ntp-theme.css */
+:root {
+  --ntp-background-color: white;
+  --ntp-surface-background-color: white;
+  --ntp-surface-border-color: var(--color-black-at-6);
+  --ntp-text-normal: var(--color-black-at-84);
+  --body-font-size: 13px;
+  --body-font-weight: 400;
+  --body-line-height: 16px;
+  --title-2-font-size: 17px;
+  --title-2-font-weight: 700;
+  --title-2-line-height: 22px;
+  --title-3-em-font-size: 15px;
+  --title-3-em-font-weight: 590;
+  --title-3-em-line-height: 20px;
+  @media (prefers-color-scheme: dark) {
+    --ntp-background-color: var(--color-gray-85);
+    --ntp-surface-background-color: var(--color-black-at-18);
+    --ntp-surface-border-color: var(--color-black-at-6);
+    --ntp-text-normal: white;
+  }
+}
+:root:has(body[data-platform-name=windows]) {
+  --body-font-size: 14px;
+  --body-font-weight: 400;
+  --body-line-height: 20px;
+  --title-2-font-size: 18px;
+  --title-2-font-weight: 600;
+  --title-2-line-height: 22px;
+  --title-3-em-font-size: 16px;
+  --title-3-em-font-weight: 600;
+  --title-3-em-line-height: 20px;
+}
+
 /* pages/new-tab/app/components/App.module.css */
+body {
+  background: var(--ntp-background-color);
+  color: var(--ntp-text-normal);
+  font-size: var(--body-font-size);
+  font-weight: var(--body-font-weight);
+  line-height: var(--body-line-height);
+}
 .App_layout {
   padding-top: var(--sp-16);
   padding-bottom: var(--sp-16);
-  max-width: 504px;
+  max-width: calc(504 * var(--px-in-rem));
   margin-left: auto;
   margin-right: auto;
 }
@@ -55,4 +248,43 @@ li {
 .Fallback_fallback {
   height: 100%;
   width: 100%;
+}
+
+/* pages/new-tab/app/components/Components.module.css */
+[data-display=components] {
+  a {
+    color: var(--ntp-text-normal);
+  }
+}
+.Components_componentList {
+  padding-top: var(--sp-16);
+  padding-bottom: var(--sp-16);
+  max-width: calc(504 * var(--px-in-rem));
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  grid-template-columns: auto;
+  grid-row-gap: 1rem;
+}
+.Components_debugBar {
+  padding: 1rem;
+  border-bottom: 1px dotted gray;
+  display: grid;
+  grid-row-gap: .5rem;
+  align-items: center;
+  grid-column-gap: 1rem;
+  grid-template-columns: max-content max-content;
+}
+.Components_buttonRow {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.Components_grid-container {
+  display: grid;
+  gap: 1rem;
+}
+.Components_selectItem {
+}
+.Components_item {
 }

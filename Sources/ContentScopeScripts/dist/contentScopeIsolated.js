@@ -400,7 +400,6 @@
     }
 
     const baseFeatures = /** @type {const} */([
-        'runtimeChecks',
         'fingerprintingAudio',
         'fingerprintingBattery',
         'fingerprintingCanvas',
@@ -15649,8 +15648,6 @@
         ddg_feature_performanceMetrics: PerformanceMetrics,
         ddg_feature_clickToLoad: ClickToLoad
     };
-
-    /* global false */
 
     let initArgs = null;
     const updates = [];

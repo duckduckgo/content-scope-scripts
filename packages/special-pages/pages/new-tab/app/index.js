@@ -1,5 +1,4 @@
 import { render, h } from 'preact'
-import './styles/base.css' // global styles
 import { App } from './components/App.js'
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider.js'
 import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx'
@@ -12,6 +11,7 @@ import enStrings from '../src/locales/en/newtab.json'
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js'
 import { WidgetList } from './widget-list/WidgetList.js'
 import { Settings } from './settings.js'
+import { Components } from './components/Components.jsx'
 
 /**
  * @param {import("../src/js").NewTabPage} messaging
@@ -62,6 +62,22 @@ export async function init (messaging, baseEnvironment) {
 
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')
+
+    document.body.dataset.platformName = settings.platform.name
+
+    if (environment.display === 'components') {
+        document.body.dataset.display = 'components'
+        return render(
+            <EnvironmentProvider
+                debugState={environment.debugState}
+                injectName={environment.injectName}
+                willThrow={environment.willThrow}>
+                <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                    <Components />
+                </TranslationProvider>
+            </EnvironmentProvider>
+            , root)
+    }
 
     render(
         <EnvironmentProvider

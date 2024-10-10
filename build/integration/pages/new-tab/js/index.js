@@ -321,11 +321,6 @@
     layout: "App_layout"
   };
 
-  // pages/new-tab/app/components/App.js
-  function App({ children }) {
-    return /* @__PURE__ */ y("div", { className: App_default.layout }, children);
-  }
-
   // ../../node_modules/preact/hooks/dist/hooks.module.js
   var t2;
   var r2;
@@ -470,6 +465,24 @@
     return "function" == typeof t3 ? t3(n2) : t3;
   }
 
+  // pages/new-tab/app/settings.provider.js
+  var SettingsContext = F(
+    /** @type {{settings: import("./settings.js").Settings}} */
+    {}
+  );
+  function SettingsProvider({ settings, children }) {
+    return /* @__PURE__ */ y(SettingsContext.Provider, { value: { settings } }, children);
+  }
+  function usePlatformName() {
+    return q2(SettingsContext).settings.platform.name;
+  }
+
+  // pages/new-tab/app/components/App.js
+  function App({ children }) {
+    const platformName = usePlatformName();
+    return /* @__PURE__ */ y("div", { className: App_default.layout, "data-platform": platformName }, children);
+  }
+
   // shared/components/EnvironmentProvider.js
   var EnvironmentContext = F({
     isReducedMotion: false,
@@ -560,15 +573,6 @@
       return this.props.children;
     }
   };
-
-  // pages/new-tab/app/settings.provider.js
-  var SettingsContext = F(
-    /** @type {{settings: import("./settings.js").Settings}} */
-    {}
-  );
-  function SettingsProvider({ settings, children }) {
-    return /* @__PURE__ */ y(SettingsContext.Provider, { value: { settings } }, children);
-  }
 
   // shared/translations.js
   function apply(subject, replacements, textLength = 1) {
@@ -874,12 +878,12 @@
      * @param {{name: ImportMeta['platform']}} [params.platform]
      */
     constructor({
-      platform = { name: "windows" }
+      platform = { name: "macos" }
     }) {
       this.platform = platform;
     }
     withPlatformName(name) {
-      const valid = ["windows", "macos", "ios", "android"];
+      const valid = ["windows", "macos"];
       if (valid.includes(
         /** @type {any} */
         name
@@ -892,6 +896,89 @@
       return this;
     }
   };
+
+  // pages/new-tab/app/components/Components.module.css
+  var Components_default = {
+    componentList: "Components_componentList",
+    debugBar: "Components_debugBar",
+    buttonRow: "Components_buttonRow",
+    "grid-container": "Components_grid-container",
+    selectItem: "Components_selectItem",
+    item: "Components_item"
+  };
+
+  // pages/new-tab/app/components/Components.jsx
+  var examples = {
+    "first": {
+      factory: () => /* @__PURE__ */ y("p", null, "First")
+    },
+    "second": {
+      factory: () => /* @__PURE__ */ y("p", null, "Second")
+    }
+  };
+  var url = new URL(window.location.href);
+  function Components() {
+    const id = url.searchParams.get("id");
+    const isolated = url.searchParams.has("isolate");
+    const valid = (id || "") in examples;
+    const entries = Object.entries(examples);
+    const filtered = id && valid ? entries.filter(([_id]) => _id === id) : entries;
+    if (isolated) {
+      return /* @__PURE__ */ y(Isolated, { entries: filtered });
+    }
+    return /* @__PURE__ */ y("div", null, /* @__PURE__ */ y(DebugBar, { id, entries }), /* @__PURE__ */ y(Stage, { entries: filtered }));
+  }
+  function Stage({ entries }) {
+    return /* @__PURE__ */ y("div", { class: Components_default.componentList, "data-testid": "stage" }, entries.map(([id, item]) => {
+      return /* @__PURE__ */ y("div", { className: Components_default.item, key: id }, item.factory());
+    }));
+  }
+  function Isolated({ entries }) {
+    return /* @__PURE__ */ y("div", null, entries.map(([id, item]) => {
+      return /* @__PURE__ */ y(g, { key: id }, item.factory());
+    }));
+  }
+  function TextLength() {
+    function onClick() {
+      url.searchParams.set("textLength", "1.5");
+      window.location.href = url.toString();
+    }
+    function onReset() {
+      url.searchParams.delete("textLength");
+      window.location.href = url.toString();
+    }
+    return /* @__PURE__ */ y("div", { class: Components_default.buttonRow }, /* @__PURE__ */ y("button", { onClick: onReset, type: "button" }, "Text Length 1x"), /* @__PURE__ */ y("button", { onClick, type: "button" }, "Text Length 1.5x"));
+  }
+  function Isolate() {
+    const next = new URL(url);
+    next.searchParams.set("isolate", "true");
+    return /* @__PURE__ */ y("div", { class: Components_default.buttonRow }, /* @__PURE__ */ y("a", { href: next.toString(), target: "_blank" }, "Isolate"));
+  }
+  function DebugBar({ entries, id }) {
+    return /* @__PURE__ */ y("div", { class: Components_default.debugBar, "data-testid": "selector" }, /* @__PURE__ */ y(ExampleSelector, { entries, id }), /* @__PURE__ */ y(TextLength, null), /* @__PURE__ */ y(Isolate, null));
+  }
+  function ExampleSelector({ entries, id }) {
+    function onReset() {
+      const url2 = new URL(window.location.href);
+      url2.searchParams.delete("id");
+      window.location.href = url2.toString();
+    }
+    function onChange(event) {
+      if (!event.target)
+        return;
+      if (!(event.target instanceof HTMLSelectElement))
+        return;
+      const selectedId = event.target.value;
+      if (selectedId) {
+        if (selectedId === "none")
+          return onReset();
+        const url2 = new URL(window.location.href);
+        url2.searchParams.set("id", selectedId);
+        window.location.href = url2.toString();
+      }
+    }
+    return /* @__PURE__ */ y("div", { class: Components_default.buttonRow }, /* @__PURE__ */ y("label", null, "Example:", " ", /* @__PURE__ */ y("select", { value: id || "none", onChange }, /* @__PURE__ */ y("option", { value: "none" }, "Select an example"), entries.map(([id2]) => /* @__PURE__ */ y("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ y("button", { hidden: !id, onClick: onReset }, "Reset"));
+  }
 
   // pages/new-tab/app/index.js
   async function init(messaging2, baseEnvironment2) {
@@ -918,6 +1005,22 @@
     const root = document.querySelector("#app");
     if (!root)
       throw new Error("could not render, root element missing");
+    document.body.dataset.platformName = settings.platform.name;
+    if (environment.display === "components") {
+      document.body.dataset.display = "components";
+      return q(
+        /* @__PURE__ */ y(
+          EnvironmentProvider,
+          {
+            debugState: environment.debugState,
+            injectName: environment.injectName,
+            willThrow: environment.willThrow
+          },
+          /* @__PURE__ */ y(TranslationProvider, { translationObject: strings, fallback: strings, textLength: environment.textLength }, /* @__PURE__ */ y(Components, null))
+        ),
+        root
+      );
+    }
     q(
       /* @__PURE__ */ y(
         EnvironmentProvider,
