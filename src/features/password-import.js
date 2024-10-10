@@ -6,8 +6,14 @@ export default class PasswordImport extends ContentFeature {
     #settingsButtonSettings = {}
     #signInButtonSettings = {}
 
+    SUPPORTED_PATHS = {
+        SIGNIN: '/intro',
+        EXPORT: '/options',
+        SETTINGS: '/'
+    }
+
     async getElementAndStyleFromPath (path) {
-        if (path === '/') {
+        if (path === this.SUPPORTED_PATHS.SETTINGS) {
             return {
                 style: {
                     scale: 1,
@@ -16,7 +22,7 @@ export default class PasswordImport extends ContentFeature {
                 element: await this.findSettingsElement(),
                 shouldTap: this.#settingsButtonSettings.autotap?.enabled ?? false
             }
-        } else if (path === '/options') {
+        } else if (path === this.SUPPORTED_PATHS.EXPORT) {
             return {
                 style: {
                     scale: 1.01,
@@ -25,7 +31,7 @@ export default class PasswordImport extends ContentFeature {
                 element: await this.findExportElement(),
                 shouldTap: this.#exportButtonSettings.autotap?.enabled ?? false
             }
-        } else if (path === '/intro') {
+        } else if (path === this.SUPPORTED_PATHS.SIGNIN) {
             return {
                 style: {
                     scale: 1.5,
@@ -46,7 +52,7 @@ export default class PasswordImport extends ContentFeature {
             inline: 'center'
         }) // Scroll into view
         const keyframes = [
-            { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0, borderRadus: '2px' }, // Start: transparent
+            { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0, borderRadius: '2px' }, // Start: transparent
             { backgroundColor: style.backgroundColor, offset: 0.5, borderRadius: '2px', transform: `scale(${style.scale})` }, // Midpoint: blue with 50% opacity
             { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 } // End: transparent
         ]
@@ -80,10 +86,15 @@ export default class PasswordImport extends ContentFeature {
     }
 
     async handleElementForPath (path) {
-        const animateElement = this.animateElement.bind(this)
-        const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
-        if (element != null) {
-            shouldTap ? this.autotapElement(element) : animateElement(element, style)
+        // FIXME: This is a workaround, we need to check if the path is supported, otherwise
+        // for some reason google doesn't wait to proceed with the signin step.
+        // Not too sure why this is happening, there are no errors on the console.
+
+        if (Object.values(this.SUPPORTED_PATHS).includes(path)) {
+            const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
+            if (element != null) {
+                shouldTap ? this.autotapElement(element) : this.animateElement(element, style)
+            }
         }
     }
 
