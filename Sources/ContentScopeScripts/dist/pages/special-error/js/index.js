@@ -1772,9 +1772,6 @@
     return /* @__PURE__ */ y("h1", null, "Something went wrong");
   }
 
-  // pages/special-error/app/components/Warning.jsx
-  var import_classnames3 = __toESM(require_classnames(), 1);
-
   // shared/translations.js
   function apply(subject, replacements, textLength = 1) {
     if (typeof subject !== "string" || subject.length === 0)
@@ -1933,6 +1930,9 @@
   function useErrorData() {
     return q2(SpecialErrorContext).data;
   }
+
+  // pages/special-error/app/components/Warning.jsx
+  var import_classnames3 = __toESM(require_classnames(), 1);
 
   // pages/special-error/app/settings.js
   var Settings = class _Settings {
@@ -2237,6 +2237,20 @@
     };
     return /* @__PURE__ */ y("div", { className: App_default.container }, /* @__PURE__ */ y(Warning, { advancedInfoVisible, advancedButtonHandler }), advancedInfoVisible && /* @__PURE__ */ y(AdvancedInfo, null));
   }
+  function PageTitle() {
+    const { kind } = useErrorData();
+    const { t: t3 } = useTypedTranslation();
+    p2(() => {
+      switch (kind) {
+        case "phishing":
+          document.title = t3("phishingPageHeading");
+          break;
+        default:
+          document.title = t3("sslPageHeading");
+      }
+    }, [kind, t3]);
+    return null;
+  }
   function App() {
     const { messaging: messaging2 } = useMessaging();
     function didCatch(error) {
@@ -2244,7 +2258,7 @@
       console.error("ErrorBoundary", message);
       messaging2?.reportPageException({ message });
     }
-    return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ y(ErrorFallback, null) }, /* @__PURE__ */ y(SpecialErrorView, null), /* @__PURE__ */ y(WillThrow, null)));
+    return /* @__PURE__ */ y("main", { className: App_default.main }, /* @__PURE__ */ y(PageTitle, null), /* @__PURE__ */ y(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ y(ErrorFallback, null) }, /* @__PURE__ */ y(SpecialErrorView, null), /* @__PURE__ */ y(WillThrow, null)));
   }
   function WillThrow() {
     const env = useEnv();
