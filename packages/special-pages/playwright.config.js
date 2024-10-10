@@ -18,6 +18,7 @@ export default defineConfig({
         {
             name: 'integration',
             testMatch: [
+                'new-tab-favorites.spec.js',
                 'new-tab-widgets.spec.js',
                 'new-tab.spec.js'
             ],

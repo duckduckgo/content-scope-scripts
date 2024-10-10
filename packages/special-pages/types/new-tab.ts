@@ -29,12 +29,50 @@ export type Widgets = WidgetListItem[];
  */
 export interface NewTabMessages {
   notifications:
+    | FavoritesSetConfigNotification
+    | FavoritesSetOrderNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | StatsSetConfigNotification
     | WidgetsSetConfigNotification;
-  requests: InitialSetupRequest | StatsGetConfigRequest | StatsGetDataRequest;
-  subscriptions: StatsOnConfigUpdateSubscription | StatsOnDataUpdateSubscription | WidgetsOnConfigUpdatedSubscription;
+  requests:
+    | FavoritesGetConfigRequest
+    | FavoritesGetDataRequest
+    | InitialSetupRequest
+    | StatsGetConfigRequest
+    | StatsGetDataRequest;
+  subscriptions:
+    | FavoritesOnConfigUpdateSubscription
+    | FavoritesOnDataUpdateSubscription
+    | StatsOnConfigUpdateSubscription
+    | StatsOnDataUpdateSubscription
+    | WidgetsOnConfigUpdatedSubscription;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_setConfig.notify.json"
+ */
+export interface FavoritesSetConfigNotification {
+  method: "favorites_setConfig";
+  params: FavoritesConfig;
+}
+export interface FavoritesConfig {
+  expansion: Expansion;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_setOrder.notify.json"
+ */
+export interface FavoritesSetOrderNotification {
+  method: "favorites_setOrder";
+  params: FavoritesData;
+}
+export interface FavoritesData {
+  favorites: Favorite[];
+}
+export interface Favorite {
+  data: string;
+  id: string;
+  title: string;
+  favicon: string;
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"
@@ -79,6 +117,20 @@ export interface WidgetConfigItem {
    */
   id: string;
   visibility: WidgetVisibility;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_getConfig.request.json"
+ */
+export interface FavoritesGetConfigRequest {
+  method: "favorites_getConfig";
+  result: FavoritesConfig;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_getData.request.json"
+ */
+export interface FavoritesGetDataRequest {
+  method: "favorites_getData";
+  result: FavoritesData;
 }
 /**
  * Generated from @see "../messages/new-tab/initialSetup.request.json"
@@ -126,6 +178,20 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_onConfigUpdate.subscribe.json"
+ */
+export interface FavoritesOnConfigUpdateSubscription {
+  subscriptionEvent: "favorites_onConfigUpdate";
+  params: FavoritesConfig;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_onDataUpdate.subscribe.json"
+ */
+export interface FavoritesOnDataUpdateSubscription {
+  subscriptionEvent: "favorites_onDataUpdate";
+  params: FavoritesData;
 }
 /**
  * Generated from @see "../messages/new-tab/stats_onConfigUpdate.subscribe.json"
