@@ -2,9 +2,9 @@
  *  Tests for utils
  */
 import { test as base, expect } from '@playwright/test'
-import { gotoAndWait, testContext } from './helpers/harness.js'
+import { gotoAndWait, testContextForExtension } from './helpers/harness.js'
 
-const test = testContext(base)
+const test = testContextForExtension(base)
 
 test.describe('Ensure utils behave as expected', () => {
     test('should toString DDGProxy correctly', async ({ page }) => {

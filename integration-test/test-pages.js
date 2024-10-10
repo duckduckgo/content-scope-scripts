@@ -5,9 +5,9 @@ import * as fs from 'fs'
 import { test as base, expect } from '@playwright/test'
 import { processConfig } from '../src/utils.js'
 import polyfillProcessGlobals from '../unit-test/helpers/pollyfil-for-process-globals.js'
-import { gotoAndWait, testContext } from './helpers/harness.js'
+import { gotoAndWait, testContextForExtension } from './helpers/harness.js'
 
-const test = testContext(base)
+const test = testContextForExtension(base)
 
 test.describe('Test integration pages', () => {
     /**

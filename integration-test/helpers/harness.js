@@ -10,7 +10,7 @@ const DATA_DIR_PREFIX = 'ddg-temp-'
  * A single place
  * @param {typeof import("@playwright/test").test} test
  */
-export function testContext (test) {
+export function testContextForExtension (test) {
     return test.extend({
         context: async ({ browserName }, use) => {
             const tmpDirPrefix = join(tmpdir(), DATA_DIR_PREFIX)

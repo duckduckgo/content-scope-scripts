@@ -2,9 +2,9 @@
  *  Tests for fingerprint defenses. Ensure that fingerprinting is actually being blocked.
  */
 import { test as base, expect } from '@playwright/test'
-import { testContext } from './helpers/harness.js'
+import { testContextForExtension } from './helpers/harness.js'
 
-const test = testContext(base)
+const test = testContextForExtension(base)
 
 const expectedFingerprintValues = {
     availTop: 0,

@@ -1,7 +1,7 @@
-import { gotoAndWait, testContext } from './helpers/harness.js'
+import { gotoAndWait, testContextForExtension } from './helpers/harness.js'
 import { test as base, expect } from '@playwright/test'
 
-const test = testContext(base)
+const test = testContextForExtension(base)
 
 test.describe('Ensure safari interface is injected', () => {
     test('should expose window.safari when enabled', async ({ page }) => {

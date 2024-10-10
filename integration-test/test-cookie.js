@@ -1,7 +1,7 @@
 import { test as base, expect } from '@playwright/test'
-import { gotoAndWait, testContext } from './helpers/harness.js'
+import { gotoAndWait, testContextForExtension } from './helpers/harness.js'
 
-const test = testContext(base)
+const test = testContextForExtension(base)
 
 test.describe('Cookie protection tests', () => {
     test('should restrict the expiry of first-party cookies', async ({ page }) => {
