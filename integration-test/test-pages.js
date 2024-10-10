@@ -1,5 +1,5 @@
 /**
- *  Tests for runtime checks
+ *  Tests for shared pages
  */
 import { processConfig } from '../src/utils.js'
 import { setup } from './helpers/harness.js'
