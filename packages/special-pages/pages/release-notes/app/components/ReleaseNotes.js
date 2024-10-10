@@ -7,6 +7,7 @@ import { Text } from '../../../../shared/components/Text/Text'
 import { Card } from '../../../../shared/components/Card/Card'
 import { Button } from '../../../../shared/components/Button/Button'
 import { ContentPlaceholder } from './ContentPlaceholder'
+import { EasterEgg } from './EasterEgg'
 
 import styles from './ReleaseNotes.module.css'
 
@@ -231,6 +232,7 @@ export function ReleaseNotes ({ releaseData }) {
                         title={releaseTitle}
                         version={latestVersion || currentVersion}
                         notes={notes}/>}
+                {status === 'loaded' && <EasterEgg />}
             </Card>
         </article>
     )
