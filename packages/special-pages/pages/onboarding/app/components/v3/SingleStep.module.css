@@ -25,10 +25,10 @@
     display: grid;
     gap: var(--sp-8) var(--sp-2);
     grid-template-rows: auto var(--sp-9);
-    grid-template-columns: var(--sp-20) 1fr min-content;
+    grid-template-columns: var(--sp-20) 1fr;
     grid-template-areas:
-        "content content content"
-        "progress . buttons";
+        "content content"
+        "progress buttons";
     align-items: center;
 }
 
@@ -50,7 +50,8 @@
 .buttonBarContents {
     display: grid;
     gap: var(--sp-2);
-    grid-template-areas: "dismiss accept";
+    grid-template-columns: 1fr min-content min-content;
+    grid-template-areas: ". dismiss accept";
 
     [data-platform-name="windows"] & {
         grid-template-areas: "accept dismiss";
