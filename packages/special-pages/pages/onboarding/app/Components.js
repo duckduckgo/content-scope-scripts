@@ -1,11 +1,11 @@
 import styles from './components/App.module.css'
 import { Stack } from './components/Stack'
 import { Header } from './components/Header'
-import { Progress } from './components/Progress'
+import { Progress, SingleLineProgress } from './components/Progress'
 import { ListItem } from './components/ListItem'
-import { BounceIn, Check, Launch } from './components/Icons'
+import { BounceIn, Check, Launch, Replay } from './components/Icons'
 import { List } from './components/List'
-import { Button, ButtonBar } from './components/Buttons'
+import { Button, ButtonBar, ElasticButton } from './components/Buttons'
 import classNames from 'classnames'
 import { h } from 'preact'
 import { Background } from './components/Background'
@@ -16,6 +16,9 @@ import { useState } from 'preact/hooks'
 import { Typed } from './components/Typed'
 import { CleanBrowsing } from './pages/CleanBrowsing'
 import { useTypedTranslation } from './types'
+import { ComparisonTable } from './components/v3/ComparisonTable'
+import { Heading } from './components/v3/Heading'
+import { Hiker } from './components/v3/Hiker'
 
 function noop (name) {
     return () => {
@@ -162,6 +165,32 @@ export function Components () {
                             dock: { enabled: true },
                             'session-restore': { enabled: true }
                         }}/>
+
+                    <h2 style={{ fontSize: '24px', fontWeight: 'bold' }}>V3 - Highlights</h2>
+
+                    <Heading title={'Welcome to DuckDuckGo!'} />
+                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'}/>
+                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'}><ElasticButton text={'Next'} grow={true}/></Heading>
+
+                    <Heading title={'Welcome to DuckDuckGo!'} speechBubble={true}/>
+                    <Heading title={'Welcome to DuckDuckGo!'} subtitle={'Let\'s get you set up...'} speechBubble={true}/>
+                    <Heading title={'Welcome to DuckDuckGo!'} speechBubble={true}><ElasticButton text={'Next'} grow={true}/></Heading>
+
+                    <SingleLineProgress current={2} total={5} />
+
+                    <ComparisonTable />
+
+                    <ElasticButton text={'Skip'} grow={false}/>
+                    <ElasticButton text={'Replay'} startIcon={<Replay />} grow={false}/>
+                    <ElasticButton text={'Replay'} endIcon={<Replay />} grow={false}/>
+
+                    <ElasticButton text={'Next'} grow={true}/>
+                    <ElasticButton text={'Start Browsing'} startIcon={<Launch />} grow={true}/>
+                    <ElasticButton text={'Start Browsing'} endIcon={<Launch />} grow={true}/>
+
+                    <div style={{ position: 'relative', overflow: 'hidden', width: '400px', height: '400px' }}>
+                        <Hiker />
+                    </div>
                 </Stack>
                 <div style={{ height: '100px' }}/>
             </div>

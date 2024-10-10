@@ -12,9 +12,10 @@ import { GlobalContext } from '../global'
  * @param {string} props.text - The text to type out.
  * @param {import("preact").ComponentChild} [props.children=null] - Child components to be rendered.
  * @param {(() => void) | null} [props.onComplete=null] - A callback function to be called when the typing is complete.
+ * @param {boolean} [props.paused=false] - Pauses typing
  * @param {number} [props.delay=20] - The delay (in milliseconds) between each character being typed.
  */
-export function Typed ({ text, children = null, onComplete = null, delay = 20, ...rest }) {
+export function Typed ({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
     const globalState = useContext(GlobalContext)
     const { activeStep } = globalState
     const pre = useRef(/** @type {string|undefined} */(undefined))
@@ -31,12 +32,13 @@ export function Typed ({ text, children = null, onComplete = null, delay = 20, .
         <TypedInner key={text}
             text={text}
             onComplete={onComplete}
+            paused={paused}
             delay={delay}
             {...rest}>{children}</TypedInner>
     )
 }
 
-function TypedInner ({ text, onComplete, delay, children, ...rest }) {
+function TypedInner ({ text, onComplete, paused, delay, children, ...rest }) {
     const { isReducedMotion } = useEnv()
     const [screenWidth, setScreenWidth] = useState(0)
     const [coords, setCoords] = useState({ left: 0, width: 0 })
@@ -72,10 +74,26 @@ function TypedInner ({ text, onComplete, delay, children, ...rest }) {
     }, [])
 
     useEffect(() => {
+        if (paused) return () => {}
+
         const controller = new AbortController()
         let enabled = true
 
-        document.body.addEventListener('pointerdown', () => {
+        document.body.addEventListener('pointerdown', (e) => {
+            // TODO: Check that it's not affecting v1/v2
+            let clickedElement = /** @type {HTMLElement|null} */(e.target)
+            let level = 0
+            const maxLevels = 3
+
+            // Loop through at most 3 parent elements
+            while (clickedElement && level < maxLevels) {
+                if (clickedElement.matches('button')) {
+                    return
+                }
+                clickedElement = clickedElement.parentElement
+                level += 1
+            }
+
             setCurrentText(text)
             setCurrentIndex(text.length)
             enabled = false
@@ -98,7 +116,7 @@ function TypedInner ({ text, onComplete, delay, children, ...rest }) {
             localOnComplete()
             return () => controller.abort()
         }
-    }, [currentIndex, delay, text])
+    }, [currentIndex, delay, text, paused])
 
     function updatePlacement () {
         const actualCurrent = /** @type {HTMLSpanElement} */(actual.current)

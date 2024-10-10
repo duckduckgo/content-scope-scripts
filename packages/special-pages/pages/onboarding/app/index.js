@@ -4,6 +4,7 @@ import {
 import { render, h } from 'preact'
 import './styles/global.css' // global styles
 import { App, SkipLink } from './components/App.js'
+import { App2 } from './components/App2'
 import { GlobalProvider } from './global'
 import { Components } from './Components'
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider'
@@ -12,6 +13,7 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { Settings } from './settings'
 import { callWithRetry } from '../../../shared/call-with-retry'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider'
+import { SettingsProvider } from './components/SettingsProvider'
 import enStrings from '../src/locales/en/onboarding.json'
 
 const baseEnvironment = new Environment()
@@ -53,12 +55,19 @@ async function init () {
             })
 
     const settings = new Settings()
+        .withPlatformName(baseEnvironment.injectName)
+        .withPlatformName(init.platform?.name)
+        .withPlatformName(baseEnvironment.urlParams.get('platform'))
         .withStepDefinitions(init.stepDefinitions)
         .withNamedOrder(init.order)
         .withNamedOrder(environment.urlParams.get('order'))
         .withExcludedScreens(init.exclude)
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
         .withFirst(environment.urlParams.get('page'))
+
+    // TODO: Make this look nicer
+    const order = environment.urlParams.get('order') || init.order
+    const AppComponent = order === 'v3' ? App2 : App
 
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')
@@ -72,15 +81,17 @@ async function init () {
             >
                 <UpdateEnvironment search={window.location.search} />
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <GlobalProvider
-                        messaging={onboarding}
-                        order={settings.order}
-                        stepDefinitions={settings.stepDefinitions}
-                        firstPage={settings.first}>
-                        <App>
-                            {environment.env === 'development' && <SkipLink />}
-                        </App>
-                    </GlobalProvider>
+                    <SettingsProvider platform={settings.platform}>
+                        <GlobalProvider
+                            messaging={onboarding}
+                            order={settings.order}
+                            stepDefinitions={settings.stepDefinitions}
+                            firstPage={settings.first}>
+                            <AppComponent>
+                                {environment.env === 'development' && <SkipLink />}
+                            </AppComponent>
+                        </GlobalProvider>
+                    </SettingsProvider>
                 </TranslationProvider>
             </EnvironmentProvider>
             , root)
