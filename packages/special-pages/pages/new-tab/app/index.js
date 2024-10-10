@@ -6,10 +6,9 @@ import { ErrorBoundary } from '../../../shared/components/ErrorBoundary.js'
 import { SettingsProvider } from './settings.provider.js'
 import { MessagingContext } from './types'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
-import { WidgetConfigAPI } from './widget-list/widget-config.js'
+import { WidgetConfigService } from './widget-list/widget-config.service.js'
 import enStrings from '../src/locales/en/newtab.json'
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js'
-import { WidgetList } from './widget-list/WidgetList.js'
 import { Settings } from './settings.js'
 import { Components } from './components/Components.jsx'
 
@@ -23,12 +22,12 @@ export async function init (messaging, baseEnvironment) {
     if (!Array.isArray(init.widgets)) {
         throw new Error('missing critical initialSetup.widgets array')
     }
-    if (!Array.isArray(init.widgetConfig)) {
+    if (!Array.isArray(init.widgetConfigs)) {
         throw new Error('missing critical initialSetup.widgetConfig array')
     }
 
     // Create an instance of the global widget api
-    const widgetConfigAPI = new WidgetConfigAPI(messaging, init.widgetConfig)
+    const widgetConfigAPI = new WidgetConfigService(messaging, init.widgetConfigs)
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -89,10 +88,8 @@ export async function init (messaging, baseEnvironment) {
                 <MessagingContext.Provider value={messaging}>
                     <SettingsProvider settings={settings}>
                         <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                            <WidgetConfigProvider api={widgetConfigAPI} widgetConfig={init.widgetConfig} widgets={init.widgets}>
-                                <App>
-                                    <WidgetList />
-                                </App>
+                            <WidgetConfigProvider api={widgetConfigAPI} widgetConfigs={init.widgetConfigs} widgets={init.widgets}>
+                                <App />
                             </WidgetConfigProvider>
                         </TranslationProvider>
                     </SettingsProvider>

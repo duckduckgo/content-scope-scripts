@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "array",
-  "title": "Widget List",
+  "title": "Widgets",
   "description": "An ordered list of supported Widgets. Use this to communicate what's supported",
   "items": {
     "type": "object",
