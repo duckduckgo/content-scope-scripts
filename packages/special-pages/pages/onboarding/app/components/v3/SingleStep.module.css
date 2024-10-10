@@ -54,7 +54,7 @@
     grid-template-areas: ". dismiss accept";
 
     [data-platform-name="windows"] & {
-        grid-template-areas: "accept dismiss";
+        grid-template-areas: ". accept dismiss";
     }
 }
 
