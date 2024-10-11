@@ -39,7 +39,6 @@
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
     "@fingerprintjs/fingerprintjs": "^4.1.0",
-    "@playwright/test": "^1.38.1",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
@@ -48,20 +47,11 @@
     "@types/jasmine": "^5.1.4",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "config-builder": "github:duckduckgo/privacy-configuration#main",
-    "esbuild": "^0.19.5",
-    "eslint": "^8.57.1",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.1.1",
     "fast-check": "^3.22.0",
     "jasmine": "^5.3.0",
-    "json-schema-to-typescript": "^15.0.2",
     "minimist": "^1.2.8",
-    "rollup": "^3.29.4",
+    "rollup": "^3.29.5",
     "rollup-plugin-import-css": "^3.5.2",
-    "rollup-plugin-svg-import": "^2.1.0",
-    "typedoc": "^0.25.12",
-    "typescript": "^5.4.3"
+    "rollup-plugin-svg-import": "^2.1.0"
   }
 }
