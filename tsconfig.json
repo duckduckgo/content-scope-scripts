@@ -24,12 +24,9 @@
     "inject",
     "packages",
     "playwright.config.js",
-    "script-overload-snapshots",
     "./src/features/duckplayer/duckplayer-settings.ts"
   ],
   "exclude": [
-    "snapshots/script-overload-snapshots",
-    "integration-test/pages",
     "integration-test/test-pages",
     "integration-test/extension",
     "packages/special-pages/pages/**/public",

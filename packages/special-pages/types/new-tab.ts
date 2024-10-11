@@ -8,25 +8,33 @@
  */
 
 /**
+ * Represents the expansion state of a widget
+ */
+export type Expansion = "expanded" | "collapsed";
+/**
  * The visibility state of the widget, as configured by the user
  */
 export type WidgetVisibility = "visible" | "hidden";
 /**
  * Configuration settings for widgets
  */
-export type WidgetConfig = WidgetConfigItem[];
+export type WidgetConfigs = WidgetConfigItem[];
 /**
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
-export type WidgetList = WidgetListItem[];
+export type Widgets = WidgetListItem[];
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
  */
 export interface NewTabMessages {
-  notifications: ReportInitExceptionNotification | ReportPageExceptionNotification | SetWidgetConfigNotification;
-  requests: InitialSetupRequest;
-  subscriptions: OnWidgetConfigUpdatedSubscription;
+  notifications:
+    | ReportInitExceptionNotification
+    | ReportPageExceptionNotification
+    | StatsSetConfigNotification
+    | WidgetsSetConfigNotification;
+  requests: InitialSetupRequest | StatsGetConfigRequest | StatsGetDataRequest;
+  subscriptions: StatsOnConfigUpdateSubscription | StatsOnDataUpdateSubscription | WidgetsOnConfigUpdatedSubscription;
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"
@@ -49,14 +57,21 @@ export interface ReportPageExceptionNotify {
   message: string;
 }
 /**
- * Generated from @see "../messages/new-tab/setWidgetConfig.notify.json"
+ * Generated from @see "../messages/new-tab/stats_setConfig.notify.json"
  */
-export interface SetWidgetConfigNotification {
-  method: "setWidgetConfig";
-  params: SetWidgetConfigNotify;
+export interface StatsSetConfigNotification {
+  method: "stats_setConfig";
+  params: StatsConfig;
 }
-export interface SetWidgetConfigNotify {
-  widgetConfig: WidgetConfig;
+export interface StatsConfig {
+  expansion: Expansion;
+}
+/**
+ * Generated from @see "../messages/new-tab/widgets_setConfig.notify.json"
+ */
+export interface WidgetsSetConfigNotification {
+  method: "widgets_setConfig";
+  params: WidgetConfigs;
 }
 export interface WidgetConfigItem {
   /**
@@ -73,12 +88,12 @@ export interface InitialSetupRequest {
   result: InitialSetupResponse;
 }
 export interface InitialSetupResponse {
-  widgets: WidgetList;
-  widgetConfig: WidgetConfig;
+  widgets: Widgets;
+  widgetConfigs: WidgetConfigs;
   locale: string;
   env: "development" | "production";
   platform: {
-    name: "macos" | "windows" | "android" | "ios";
+    name: "macos" | "windows" | "android" | "ios" | "integration";
   };
 }
 export interface WidgetListItem {
@@ -88,14 +103,50 @@ export interface WidgetListItem {
   id: string;
 }
 /**
- * Generated from @see "../messages/new-tab/onWidgetConfigUpdated.subscribe.json"
+ * Generated from @see "../messages/new-tab/stats_getConfig.request.json"
  */
-export interface OnWidgetConfigUpdatedSubscription {
-  subscriptionEvent: "onWidgetConfigUpdated";
-  params: OnWidgetConfigUpdatedSubscribe;
+export interface StatsGetConfigRequest {
+  method: "stats_getConfig";
+  result: StatsConfig;
 }
-export interface OnWidgetConfigUpdatedSubscribe {
-  widgetConfig: WidgetConfig;
+/**
+ * Generated from @see "../messages/new-tab/stats_getData.request.json"
+ */
+export interface StatsGetDataRequest {
+  method: "stats_getData";
+  result: PrivacyStatsData;
+}
+export interface PrivacyStatsData {
+  /**
+   * Total number of trackers blocked since install
+   */
+  totalCount: number;
+  trackerCompanies: TrackerCompany[];
+}
+export interface TrackerCompany {
+  displayName: string;
+  count: number;
+}
+/**
+ * Generated from @see "../messages/new-tab/stats_onConfigUpdate.subscribe.json"
+ */
+export interface StatsOnConfigUpdateSubscription {
+  subscriptionEvent: "stats_onConfigUpdate";
+  params: StatsConfig;
+}
+/**
+ * Generated from @see "../messages/new-tab/stats_onDataUpdate.subscribe.json"
+ */
+export interface StatsOnDataUpdateSubscription {
+  subscriptionEvent: "stats_onDataUpdate";
+  params: PrivacyStatsData;
+}
+/**
+ * Generated from @see "../messages/new-tab/widgets_onConfigUpdated.subscribe.json"
+ */
+export interface WidgetsOnConfigUpdatedSubscription {
+  subscriptionEvent: "widgets_onConfigUpdated";
+  params: WidgetConfigs;
 }
 
 declare module "../pages/new-tab/src/js/index.js" {

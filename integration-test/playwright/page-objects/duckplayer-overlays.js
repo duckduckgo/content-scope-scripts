@@ -450,7 +450,12 @@ export class DuckplayerOverlays {
     async duckPlayerLoadedTimes (times = 0) {
         /** @type {UnstableMockCall[]} */
         const calls = await this.page.evaluate(readOutgoingMessages)
-        const opened = calls.filter(call => call.payload.method === 'openDuckPlayer')
+        const opened = calls.filter(call => {
+            if ('method' in call.payload) {
+                return call.payload.method === 'openDuckPlayer'
+            }
+            return false
+        })
         expect(opened.length).toBe(times)
     }
 

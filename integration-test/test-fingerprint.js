@@ -1,8 +1,10 @@
 /**
  *  Tests for fingerprint defenses. Ensure that fingerprinting is actually being blocked.
  */
+import { test as base, expect } from '@playwright/test'
+import { testContextForExtension } from './helpers/harness.js'
 
-import { setup } from './helpers/harness.js'
+const test = testContextForExtension(base)
 
 const expectedFingerprintValues = {
     availTop: 0,
@@ -17,170 +19,117 @@ const expectedFingerprintValues = {
 
 const pagePath = '/index.html'
 const tests = [
-    { url: `localhost:8080${pagePath}` },
-    { url: `127.0.0.1:8383${pagePath}` }
+    { url: `http://localhost:3220${pagePath}` },
+    { url: `http://127.0.0.1:8383${pagePath}` }
 ]
 
-function testFPValues (values) {
-    for (const [name, prop] of Object.entries(values)) {
-        expect(prop).withContext(`${name}`).toEqual(expectedFingerprintValues[name])
-    }
-}
+test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () => {
+    test.describe.serial('Fingerprint Defense Tests', () => {
+        for (const _test of tests) {
+            test(`${_test.url} should include anti-fingerprinting code`, async ({ page, altServerPort }) => {
+                console.log('running:', altServerPort)
+                await page.goto(_test.url)
+                const values = await page.evaluate(() => {
+                    return {
+                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                        availTop: screen.availTop,
+                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                        availLeft: screen.availLeft,
+                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                        wAvailTop: window.screen.availTop,
+                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                        wAvailLeft: window.screen.availLeft,
+                        colorDepth: screen.colorDepth,
+                        pixelDepth: screen.pixelDepth,
+                        productSub: navigator.productSub,
+                        vendorSub: navigator.vendorSub
+                    }
+                })
 
-describe('Fingerprint Defense Tests', () => {
-    let browser
-    let teardown
-    let setupServer
-    beforeAll(async () => {
-        ({ browser, teardown, setupServer } = await setup())
-
-        setupServer('8080')
-        setupServer('8383')
-    })
-    afterAll(async () => {
-        await teardown()
-    })
-
-    for (const test of tests) {
-        it(`${test.url} should include anti-fingerprinting code`, async () => {
-            const page = await browser.newPage()
-
-            try {
-                await page.goto(`http://${test.url}`)
-            } catch (e) {
-                // timed out waiting for page to load, let's try running the test anyway
-            }
-            const values = await page.evaluate(() => {
-                return {
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    availTop: screen.availTop,
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    availLeft: screen.availLeft,
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    wAvailTop: window.screen.availTop,
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    wAvailLeft: window.screen.availLeft,
-                    colorDepth: screen.colorDepth,
-                    pixelDepth: screen.pixelDepth,
-                    productSub: navigator.productSub,
-                    vendorSub: navigator.vendorSub
+                for (const [name, prop] of Object.entries(values)) {
+                    await test.step(name, () => {
+                        expect(prop).toEqual(expectedFingerprintValues[name])
+                    })
                 }
+
+                await page.close()
             })
-            testFPValues(values)
-
-            await page.close()
-        })
-    }
-})
-
-describe('First Party Fingerprint Randomization', () => {
-    let browser
-    let teardown
-    let setupServer
-    beforeAll(async () => {
-        ({ browser, setupServer, teardown } = await setup())
-
-        setupServer('8080')
-        setupServer('8383')
-    })
-    afterAll(async () => {
-        await teardown()
+        }
     })
 
-    async function runTest (test) {
-        const page = await browser.newPage()
+    test.describe.serial('First Party Fingerprint Randomization', () => {
+        /**
+         * @param {import("@playwright/test").Page} page
+         * @param {tests[number]} test
+         */
+        async function runTest (page, test) {
+            await page.goto(test.url)
+            await page.addScriptTag({ path: 'node_modules/@fingerprintjs/fingerprintjs/dist/fp.js' })
 
-        try {
-            await page.goto(`http://${test.url}`)
-        } catch (e) {
-            // timed out waiting for page to load, let's try running the test anyway
+            const fingerprint = await page.evaluate(() => {
+                /* global FingerprintJS */
+                return (async () => {
+                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                    const fp = await FingerprintJS.load()
+                    return fp.get()
+                })()
+            })
+
+            return {
+                canvas: fingerprint.components.canvas.value,
+                plugin: fingerprint.components.plugins.value
+            }
         }
-
-        await page.addScriptTag({ path: 'node_modules/@fingerprintjs/fingerprintjs/dist/fp.js' })
-
-        const fingerprint = await page.evaluate(() => {
-            /* global FingerprintJS */
-            return (async () => {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                const fp = await FingerprintJS.load()
-                return fp.get()
-            })()
-        })
-
-        await page.close()
-
-        return {
-            canvas: fingerprint.components.canvas.value,
-            plugin: fingerprint.components.plugins.value
-        }
-    }
-
-    for (const testCase of tests) {
-        it('Fingerprints should not change amongst page loads', async () => {
-            const result = await runTest(testCase)
-
-            const result2 = await runTest(testCase)
-            expect(result.canvas).toEqual(result2.canvas)
-            expect(result.plugin).toEqual(result2.plugin)
-        })
-    }
-
-    it('Fingerprints should not match across first parties', async () => {
-        const canvas = new Set()
-        const plugin = new Set()
 
         for (const testCase of tests) {
-            const result = await runTest(testCase)
+            test(`Fingerprints should not change amongst page loads test ${testCase.url}`, async ({ page, altServerPort }) => {
+                console.log('running:', altServerPort)
+                const result = await runTest(page, testCase)
 
-            // Add the fingerprints to a set, if the result doesn't match it won't be added
-            canvas.add(JSON.stringify(result.canvas))
-            plugin.add(JSON.stringify(result.plugin))
+                const result2 = await runTest(page, testCase)
+                expect(result.canvas).toEqual(result2.canvas)
+                expect(result.plugin).toEqual(result2.plugin)
+            })
         }
 
-        // Ensure that the number of test pages match the number in the set
-        expect(canvas.size).toEqual(tests.length)
-        expect(plugin.size).toEqual(1)
-    })
-})
+        test('Fingerprints should not match across first parties', async ({ page, altServerPort }) => {
+            console.log('running:', altServerPort)
+            const canvas = new Set()
+            const plugin = new Set()
 
-describe('Verify injected script is not visible to the page', () => {
-    let browser
-    let teardown
-    let setupServer
-    beforeAll(async () => {
-        ({ browser, setupServer, teardown } = await setup())
+            for (const testCase of tests) {
+                const result = await runTest(page, testCase)
 
-        setupServer('8080')
-        setupServer('8383')
-    })
-    afterAll(async () => {
-        await teardown()
-    })
-
-    tests.forEach(test => {
-        it('Fingerprints should not match across first parties', async () => {
-            const page = await browser.newPage(pagePath)
-
-            try {
-                await page.goto(`http://${test.url}`)
-            } catch (e) {
-                // timed out waiting for page to load, let's try running the test anyway
+                // Add the fingerprints to a set, if the result doesn't match it won't be added
+                canvas.add(JSON.stringify(result.canvas))
+                plugin.add(JSON.stringify(result.plugin))
             }
 
-            // give it another second just to be sure
-            await page.waitForTimeout(1000)
+            // Ensure that the number of test pages match the number in the set
+            expect(canvas.size).toEqual(tests.length)
+            expect(plugin.size).toEqual(1)
+        })
+    })
 
-            const sjclVal = await page.evaluate(() => {
-                if ('sjcl' in window) {
-                    return 'visible'
-                } else {
-                    return 'invisible'
-                }
+    test.describe.serial('Verify injected script is not visible to the page', () => {
+        tests.forEach(testCase => {
+            test(`Fingerprints should not match across first parties ${testCase.url}`, async ({ page, altServerPort }) => {
+                console.log('running:', altServerPort)
+                await page.goto(testCase.url)
+
+                // give it another second just to be sure
+                await page.waitForTimeout(1000)
+
+                const sjclVal = await page.evaluate(() => {
+                    if ('sjcl' in window) {
+                        return 'visible'
+                    } else {
+                        return 'invisible'
+                    }
+                })
+
+                expect(sjclVal).toEqual('invisible')
             })
-
-            await page.close()
-
-            expect(sjclVal).toEqual('invisible')
         })
     })
 })

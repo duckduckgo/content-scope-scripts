@@ -1,9 +1,11 @@
 import { h } from "preact";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { useEnv } from "../../../../shared/components/EnvironmentProvider";
 import { useMessaging } from "../providers/MessagingProvider";
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary'
 import { ErrorFallback } from "./ErrorFallback";
+import { useTypedTranslation } from '../types'
+import { useErrorData } from "../providers/SpecialErrorProvider";
 import { Warning } from "./Warning";
 import { AdvancedInfo } from "./AdvancedInfo";
 
@@ -26,6 +28,23 @@ export function SpecialErrorView() {
     )
 }
 
+function PageTitle() {
+    const { kind } = useErrorData()
+    const { t } = useTypedTranslation()
+
+    useEffect(() => {
+        switch(kind) {
+            case 'phishing':
+                document.title = t('phishingPageHeading')
+                break;
+            default:
+                document.title = t('sslPageHeading')
+        }
+    }, [kind, t])
+
+    return null
+}
+
 export function App() {
     const { messaging } = useMessaging()
 
@@ -40,6 +59,7 @@ export function App() {
 
     return (
         <main className={styles.main}>
+            <PageTitle />
             <ErrorBoundary didCatch={didCatch} fallback={<ErrorFallback />}>
                 <SpecialErrorView />
                 <WillThrow/>

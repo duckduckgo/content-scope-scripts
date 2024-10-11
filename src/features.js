@@ -1,5 +1,4 @@
-const baseFeatures = /** @type {const} */([
-    'runtimeChecks',
+export const baseFeatures = /** @type {const} */([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
@@ -78,10 +77,3 @@ export const platformSupport = {
         ...otherFeatures
     ]
 }
-
-// Certain features are injected into the page in Firefox
-// This is because Firefox does not support proxies for custom elements, it's advised you don't use this without a good reason
-/** @type {FeatureName[]} */
-export const runtimeInjected = [
-    'runtimeChecks'
-]
