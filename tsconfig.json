@@ -17,21 +17,25 @@
     "skipLibCheck": true
   },
   "include": [
-    "src",
-    "scripts",
+    "injected/src",
+    "injected/scripts",
+    "injected/unit-test",
+    "injected/integration-test",
+    "injected/inject",
     "unit-test",
-    "integration-test",
-    "inject",
-    "packages",
+    "special-pages",
+    "messaging",
     "playwright.config.js",
-    "./src/features/duckplayer/duckplayer-settings.ts"
+    "injected",
+    "injected/src/globals.d.ts",
+    "injected/src/features/duckplayer/duckplayer-settings.ts"
   ],
   "exclude": [
-    "integration-test/test-pages",
-    "integration-test/extension",
-    "packages/special-pages/pages/**/public",
-    "packages/special-pages/playwright-report",
-    "packages/special-pages/test-results",
+    "injected/integration-test/test-pages",
+    "injected/integration-test/extension",
+    "special-pages/pages/**/public",
+    "special-pages/playwright-report",
+    "special-pages/test-results",
     "docs"
   ]
 }

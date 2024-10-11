@@ -35,8 +35,8 @@ const defaultMapping = {
         className: (topLevelType) => topLevelType.replace('Messages', ''),
     },
     "Page Messages": {
-        schemaDir: join(ROOT, "packages/special-pages/messages"),
-        typesDir: join(ROOT, "packages/special-pages/types"),
+        schemaDir: join(ROOT, "special-pages/messages"),
+        typesDir: join(ROOT, "special-pages/types"),
         // todo: fix this on windows.
         exclude: process.platform === 'win32',
         kind: 'messages',
