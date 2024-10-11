@@ -2,40 +2,96 @@ import { h } from 'preact'
 import cn from 'classnames'
 import styles from './PrivacyStats.module.css'
 import { useTypedTranslation } from '../types.js'
-import { useCallback, useContext, useState } from 'preact/hooks'
-import { PrivacyStatsContext, PrivacyStatsDispatchContext, PrivacyStatsProvider } from './PrivacyStatsProvider.js'
+import { useContext, useState, useId, useCallback } from 'preact/hooks'
+import { PrivacyStatsContext, PrivacyStatsProvider } from './PrivacyStatsProvider.js'
 import { useVisibility } from '../widget-list/widget-config.provider.js'
+import { Chevron } from '../components/Chevron.js'
+import { useAutoAnimate } from '@formkit/auto-animate/preact'
+import { viewTransition } from '../utils.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').TrackerCompany} TrackerCompany
  * @typedef {import('../../../../types/new-tab').Expansion} Expansion
+ * @typedef {import('../../../../types/new-tab').Animation} Animation
  * @typedef {import('../../../../types/new-tab').PrivacyStatsData} PrivacyStatsData
+ * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import("./PrivacyStatsProvider.js").Events} Events
  */
 
 /**
  * @param {object} props
  * @param {Expansion} props.expansion
  * @param {PrivacyStatsData} props.data
- * @param {import("./PrivacyStatsProvider.js").Ui} [props.ui]
- * @param {(evt: import("./PrivacyStatsProvider.js").Events) => void} [props.send]
+ * @param {()=>void} props.toggle
+ * @param {Animation['kind']} [props.animation] - optionally configure animations
+ */
+export function PrivacyStats ({ expansion, data, toggle, animation = 'auto-animate' }) {
+    if (animation === 'auto-animate') {
+        return <WithAutoAnimate data={data} expansion={expansion} toggle={toggle} />
+    }
+
+    if (animation === 'view-transitions') {
+        return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />
+    }
+
+    // no animations
+    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={toggle} />
+}
+
+/**
+ * @param {object} props
+ * @param {Expansion} props.expansion
+ * @param {PrivacyStatsData} props.data
+ * @param {()=>void} props.toggle
+ */
+function WithViewTransitions ({ expansion, data, toggle }) {
+    const willToggle = useCallback(() => {
+        viewTransition(toggle)
+    }, [toggle])
+    return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={willToggle} />
+}
+
+/**
+ * @param {object} props
+ * @param {Expansion} props.expansion
+ * @param {PrivacyStatsData} props.data
  * @param {()=>void} [props.toggle]
  */
-export function PrivacyStats ({ ui, expansion, data, send, toggle }) {
+function WithAutoAnimate ({ expansion, data, toggle }) {
+    const [ref] = useAutoAnimate({ duration: 100 })
+    return <PrivacyStatsConfigured parentRef={ref} expansion={expansion} data={data} toggle={toggle} />
+}
+
+/**
+ * @param {object} props
+ * @param {import("preact").Ref<any>} [props.parentRef]
+ * @param {Expansion} props.expansion
+ * @param {PrivacyStatsData} props.data
+ * @param {()=>void} [props.toggle]
+ */
+function PrivacyStatsConfigured ({ parentRef, expansion, data, toggle }) {
     const expanded = expansion === 'expanded'
-    const exiting = ui && ui === 'exiting'
     const someCompanies = data.trackerCompanies.length > 0
 
+    // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
+    const WIDGET_ID = useId()
+    const TOGGLE_ID = useId()
     return (
-        <div class={styles.root}>
+        <div class={styles.root} ref={parentRef}>
             <Heading
                 totalCount={data.totalCount}
-                pressed={expansion === 'expanded'}
                 trackerCompanies={data.trackerCompanies}
                 onToggle={toggle}
+                buttonAttrs={{
+                    'aria-expanded': expansion === 'expanded',
+                    'aria-pressed': expansion === 'expanded',
+                    'aria-controls': WIDGET_ID,
+                    id: TOGGLE_ID
+                }}
             />
 
-            {(expanded || exiting) && someCompanies && (
-                <Body trackerCompanies={data.trackerCompanies} send={send} ui={ui} />
+            {expanded && someCompanies && (
+                <Body trackerCompanies={data.trackerCompanies} id={WIDGET_ID} />
             )}
         </div>
     )
@@ -46,9 +102,9 @@ export function PrivacyStats ({ ui, expansion, data, send, toggle }) {
  * @param {TrackerCompany[]} props.trackerCompanies
  * @param {number} props.totalCount
  * @param {() => void} [props.onToggle]
- * @param {boolean} [props.pressed]
+ * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs] - The maximum capacity for items to be displayed before hiding.
  */
-export function Heading ({ trackerCompanies, totalCount, onToggle, pressed }) {
+export function Heading ({ trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslation()
     const [formatter] = useState(() => new Intl.NumberFormat())
     const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0)
@@ -76,10 +132,10 @@ export function Heading ({ trackerCompanies, totalCount, onToggle, pressed }) {
             )}
             <span className={styles.expander}>
                 <button
+                    {...buttonAttrs}
                     type="button"
                     className={styles.toggle}
                     onClick={onToggle}
-                    aria-pressed={pressed}
                     aria-label={t('trackerStatsToggleLabel')}
                     hidden={trackerCompanies.length === 0}
                 >
@@ -97,30 +153,18 @@ export function Heading ({ trackerCompanies, totalCount, onToggle, pressed }) {
 /**
  * @param {object} props
  * @param {TrackerCompany[]} props.trackerCompanies
- * @param {import("./PrivacyStatsProvider.js").Ui} [props.ui]
- * @param {(evt: import("./PrivacyStatsProvider.js").Events) => void} [props.send]
+ * @param {string} props.id
  */
-export function Body ({ trackerCompanies, send, ui }) {
+export function Body ({ trackerCompanies, id }) {
     const max = trackerCompanies[0]?.count ?? 0
     const [formatter] = useState(() => new Intl.NumberFormat())
 
-    const exited = useCallback((e) => {
-        if (e.target.classList.contains(styles.exiting)) {
-            send?.({ kind: 'did-exit' })
-        }
-        if (e.target.classList.contains(styles.entering)) {
-            send?.({ kind: 'did-enter' })
-        }
-    }, [send])
-
     const bodyClasses = cn({
-        [styles.list]: true,
-        [styles.exiting]: ui === 'exiting',
-        [styles.entering]: ui === 'entering',
-        [styles.entered]: ui === 'entered'
+        [styles.list]: true
     })
+
     return (
-        <ul className={bodyClasses} onAnimationEnd={exited} onTransitionEnd={exited}>
+        <ul className={bodyClasses} id={id}>
             {trackerCompanies.map(company => {
                 const percentage = Math.min((company.count * 100) / max, 100)
                 const valueOrMin = Math.max(percentage, 10)
@@ -179,28 +223,16 @@ export function PrivacyStatsCustomized () {
 export function PrivacyStatsConsumer () {
     const { state, toggle } = useContext(PrivacyStatsContext)
     if (state.status === 'ready') {
-        const send = useContext(PrivacyStatsDispatchContext)
         return (
             <PrivacyStats
                 expansion={state.config.expansion}
+                animation={state.config.animation?.kind}
                 data={state.data}
-                ui={state.ui}
                 toggle={toggle}
-                send={send}
             />
         )
     }
     return null
-}
-
-function Chevron () {
-    return (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.5 10L8 4.5L2.5 10" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-        </svg>
-    )
 }
 
 function CompanyIcon ({ company }) {

@@ -26,6 +26,12 @@ import { Service } from '../service.js'
  * - {@link "NewTab Messages".StatsSetConfigNotification `stats_setConfig`}
  *   - Sent when the user toggles the expansion of the stats
  *   - sends {@link "NewTab Messages".StatsConfig}
+ *   - example payload:
+ *     ```json
+ *     {
+ *       "expansion": "collapsed"
+ *     }
+ *     ```
  *
  * ## Examples:
  * The following examples show the data types in JSON format
@@ -100,9 +106,9 @@ export class PrivacyStatsService {
     toggleExpansion () {
         this.configService.update(old => {
             if (old.expansion === 'expanded') {
-                return { expansion: /** @type {const} */('collapsed') }
+                return { ...old, expansion: /** @type {const} */('collapsed') }
             } else {
-                return { expansion: /** @type {const} */('expanded') }
+                return { ...old, expansion: /** @type {const} */('expanded') }
             }
         })
     }

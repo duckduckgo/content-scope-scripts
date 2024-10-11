@@ -19,7 +19,7 @@ export function WidgetList () {
     const { widgets, widgetConfigItems } = useContext(WidgetConfigContext)
 
     return (
-        <Stack>
+        <Stack gap={'var(--sp-8)'}>
             {widgets.map((widget) => {
                 const matchingConfig = widgetConfigItems.find(item => item.id === widget.id)
                 if (!matchingConfig) {
