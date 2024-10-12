@@ -58,7 +58,7 @@ export class BrokerProtectionPage {
         await expect(this.page.getByLabel('Street Address:', { exact: true })).toHaveValue(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/)
         await expect(this.page.getByLabel('State:', { exact: true })).toHaveValue('IL')
         await expect(this.page.getByLabel('Zip Code:', { exact: true })).toHaveValue(/^\d{5}$/)
-        await expect(this.page.getByLabel('City / State:', { exact: true })).toHaveValue(/^[A-Za-z\s\-]+, [A-Z]{2}$/)
+        await expect(this.page.getByLabel('City & State:', { exact: true })).toHaveValue(/^[A-Za-z\s-]+, [A-Z]{2}$/)
 
         const randomValue = await this.page.getByLabel('Random number between 5 and 15:').inputValue()
         const randomValueInt = parseInt(randomValue)
