@@ -1,12 +1,12 @@
 import { Mocks } from './mocks.js'
-import { perPlatform } from '../../../../integration-test/playwright/type-helpers.mjs'
+import { perPlatform } from '../../../../integration-test/type-helpers.mjs'
 import { join } from 'node:path'
 import { expect } from '@playwright/test'
 import { sampleData } from '../../pages/release-notes/app/sampleData.js'
 
 /**
- * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').Build} Build
- * @typedef {import('../../../../integration-test/playwright/type-helpers.mjs').PlatformInfo} PlatformInfo
+ * @typedef {import('../../../../integration-test/type-helpers.mjs').Build} Build
+ * @typedef {import('../../../../integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
  * @typedef {import('../../types/release-notes').UpdateMessage} UpdateMessage
  */
 

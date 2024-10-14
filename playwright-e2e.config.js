@@ -8,12 +8,12 @@ export default defineConfig({
     projects: [
         {
             name: 'duckplayer-e2e-setup',
-            testMatch: ['integration-test/playwright/duckplayer.setup.e2e.spec.js'],
+            testMatch: ['integration-test/duckplayer.setup.e2e.spec.js'],
             use: { injectName: 'apple-isolated', platform: 'macos' }
         },
         {
             name: 'duckplayer-e2e',
-            testMatch: ['integration-test/playwright/duckplayer.e2e.spec.js'],
+            testMatch: ['integration-test/duckplayer.e2e.spec.js'],
             use: {
                 injectName: 'apple-isolated',
                 platform: 'macos',

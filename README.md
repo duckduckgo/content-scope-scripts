@@ -178,23 +178,13 @@ Everything for unit-testing is located in the `unit-test` folder. Jasmine config
 npm run test-unit
 ```
 
-#### Feature Integration Tests (puppeteer)
-
-Everything within `integration-test` (minus the playwright folder) is controlled by Jasmine + Puppeteer.
-The configuration is within `integration-test/config.js`
+#### Feature Integration Tests (playwright)
+Everything within `integration-test` is integration tests controlled by Playwright.
 
 Note: when you run this command, it will also be executed all workspaces too. For example, within `packages/special-pages` 
 
 ```shell
 npm run test-int
-```
-
-#### Feature Integration Tests (playwright)
-Everything within `integration-test/playwright` is integration tests controlled by Playwright. These should be defaulted
-to for any new tests that include UI elements (such as click to load)
-
-```shell
-npm run playwright
 ```
 
 #### Special Pages Integration Tests (playwright)

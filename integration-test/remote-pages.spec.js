@@ -3,7 +3,7 @@ import path from 'path'
 import { readFileSync } from 'fs'
 import { baseFeatures } from '../../src/features.js'
 
-const testRoot = path.join('integration-test', 'playwright')
+const testRoot = path.join('integration-test')
 
 function getHARPath (harFile) {
     return path.join(testRoot, 'data', 'har', harFile)
