@@ -56,11 +56,15 @@
 }
 
 .checkIcon {
-    background: url(../../../../shared/assets/img/icons/Check-Recolorable-24.svg) no-repeat;
+    background: url(../../../../shared/assets/img/icons/Check-Color-24.svg) no-repeat;
 }
 
 .alertIcon {
-    background: url(../../../../shared/assets/img/icons/Alert-Recolorable-24.svg) no-repeat;
+    background: url(../../../../shared/assets/img/icons/Exclamation-Color-24.svg) no-repeat;
+}
+
+.warningIcon {
+    background: url(../../../../shared/assets/img/icons/Exclamation-High-Color-24.svg) no-repeat;
 }
 
 .spinnerIcon {

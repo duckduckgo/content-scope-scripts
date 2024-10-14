@@ -34,6 +34,7 @@ export const sampleData = {
         latestVersion: '1.2.0',
         lastUpdate: timestampInSeconds,
         status: 'updateReady',
+        automaticUpdate: true,
         releaseTitle: 'June 20 2024',
         releaseNotes: [
             'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
@@ -44,5 +45,51 @@ export const sampleData = {
             'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
             'Privacy Pro is currently available to U.S. residents only'
         ]
+    },
+    criticalUpdateReady: {
+        currentVersion: '1.0.1',
+        latestVersion: '1.2.0',
+        lastUpdate: timestampInSeconds,
+        status: 'criticalUpdateReady',
+        automaticUpdate: true,
+        releaseTitle: 'June 20 2024',
+        releaseNotes: [
+            'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
+            "Fixed an issue where Microsoft Teams links wouldn't open the Teams app.",
+            'Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.'
+        ],
+        releaseNotesPrivacyPro: [
+            'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
+            'Privacy Pro is currently available to U.S. residents only'
+        ]
+    },
+    updateError: {
+        currentVersion: '1.0.1',
+        latestVersion: '1.2.0',
+        lastUpdate: timestampInSeconds,
+        status: 'updateError',
+        releaseTitle: 'June 20 2024',
+        releaseNotes: [
+            'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',
+            "Fixed an issue where Microsoft Teams links wouldn't open the Teams app.",
+            'Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish.'
+        ],
+        releaseNotesPrivacyPro: [
+            'Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.',
+            'Privacy Pro is currently available to U.S. residents only'
+        ]
+    },
+    updateDownloading: {
+        currentVersion: '1.0.1',
+        latestVersion: '1.2.0',
+        lastUpdate: timestampInSeconds,
+        status: 'updateDownloading',
+        downloadProgress: 0.74
+    },
+    updatePreparing: {
+        currentVersion: '1.0.1',
+        latestVersion: '1.2.0',
+        lastUpdate: timestampInSeconds,
+        status: 'updatePreparing'
     }
 }
