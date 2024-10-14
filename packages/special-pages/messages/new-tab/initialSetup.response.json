@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["widgets", "widgetConfig", "locale", "env", "platform"],
+  "required": ["widgets", "widgetConfigs", "locale", "env", "platform"],
   "properties": {
     "widgets": {
       "$ref": "./types/widget-list.json"
     },
-    "widgetConfig": {
-      "$ref": "./types/widget-config.json"
+    "widgetConfigs": {
+      "$ref": "types/widget-configs.json"
     },
     "locale": {
       "type": "string"
@@ -22,7 +22,7 @@
       "properties": {
         "name": {
           "type": "string",
-          "enum": ["macos", "windows", "android", "ios"]
+          "enum": ["macos", "windows", "android", "ios", "integration"]
         }
       }
     }

@@ -1,27 +1,23 @@
 import { createContext, h } from 'preact'
-import { useCallback, useContext, useEffect, useState } from 'preact/hooks'
+import { useContext, useEffect, useState } from 'preact/hooks'
 
 /**
- * @typedef {import('../../../../types/new-tab.js').WidgetConfig} WidgetConfig
- * @typedef {import('../../../../types/new-tab.js').WidgetList} WidgetList
+ * @typedef {import('../../../../types/new-tab.js').WidgetConfigs} WidgetConfigs
+ * @typedef {import('../../../../types/new-tab.js').Widgets} Widgets
  * @typedef {import("../../../../types/new-tab.js").WidgetConfigItem} WidgetConfigItem
- * @typedef {import("./widget-config.js").WidgetConfigAPI} WidgetConfigAPI
+ * @typedef {import("./widget-config.service.js").WidgetConfigService} WidgetConfigAPI
  */
 
 export const WidgetConfigContext = createContext({
-    /** @type {WidgetList} */
+    /** @type {Widgets} */
     widgets: [],
 
-    /** @type {WidgetConfig} */
-    widgetConfig: [],
+    /** @type {WidgetConfigItem[]} */
+    widgetConfigItems: [],
 
-    /** @type {(name:string) => void} */
-    hide: () => {
-
-    },
-
-    /** @type {(name:string) => void} */
-    show: () => {
+    /** @type {(id:string) => void} */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    toggle: (_id) => {
 
     }
 })
@@ -33,34 +29,25 @@ export const WidgetConfigDispatchContext = createContext({
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
- * @param {WidgetConfig} props.widgetConfig - the initial config data
- * @param {WidgetList} props.widgets - the initial widget list
+ * @param {WidgetConfigItem[]} props.widgetConfigs - the initial config data
+ * @param {Widgets} props.widgets - the initial widget list
  * @param {WidgetConfigAPI} props.api - the stateful API manager
  */
 export function WidgetConfigProvider (props) {
-    const [data, setData] = useState(props.widgetConfig)
+    const [data, setData] = useState(props.widgetConfigs)
 
     useEffect(() => {
-        const unsub = props.api.onUpdate((widgetConfig) => {
-            setData(widgetConfig)
+        const unsub = props.api.onData((widgetConfig) => {
+            setData(widgetConfig.data)
         })
         return () => unsub()
     }, [props.api])
 
     /**
-     * @param {string} name
+     * @param {string} id
      */
-    function hide (name) {
-        console.log('will hide', name)
-        props.api.hide(name)
-    }
-
-    /**
-     * @param {string} name
-     */
-    function show (name) {
-        console.log('will show', name)
-        props.api.show(name)
+    function toggle (id) {
+        props.api.toggleVisibility(id)
     }
 
     return (
@@ -68,9 +55,8 @@ export function WidgetConfigProvider (props) {
             // this field is static for the lifespan of the page
             widgets: props.widgets,
             // this will be updated via subscriptions
-            widgetConfig: data,
-            hide,
-            show
+            widgetConfigItems: data,
+            toggle
         }}>
             {props.children}
         </WidgetConfigContext.Provider>
@@ -80,9 +66,9 @@ export function WidgetConfigProvider (props) {
 const WidgetVisibilityContext = createContext({
     visibility: /** @type {WidgetConfigItem['visibility']} */('visible'),
     id: /** @type {WidgetConfigItem['id']} */(''),
-    toggle: () => {
-
-    }
+    /** @type {(id: string) => void} */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    toggle: (_id) => {}
 })
 
 export function useVisibility () {
@@ -96,20 +82,15 @@ export function useVisibility () {
  * @param {import("preact").ComponentChild} props.children
  */
 export function WidgetVisibilityProvider (props) {
-    const { widgetConfig, show, hide } = useContext(WidgetConfigContext)
-
-    const toggle = useCallback(() => {
-        const matching = widgetConfig.find(x => x.id === props.id)
-        if (matching?.visibility === 'visible') {
-            hide(props.id)
-        } else {
-            show(props.id)
-        }
-    }, [props.id, widgetConfig])
+    const { toggle } = useContext(WidgetConfigContext)
 
     return <WidgetVisibilityContext.Provider value={{
         visibility: props.visibility,
         id: props.id,
         toggle
-    }}>{props.children}</WidgetVisibilityContext.Provider>
+    }}>
+        <div style={{ viewTransitionName: `widget-${props.id}` }}>
+            {props.children}
+        </div>
+    </WidgetVisibilityContext.Provider>
 }

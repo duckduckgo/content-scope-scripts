@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import path from 'path'
 import { readFileSync } from 'fs'
+import { baseFeatures } from '../../src/features.js'
 
 const testRoot = path.join('integration-test', 'playwright')
 
@@ -8,9 +9,14 @@ function getHARPath (harFile) {
     return path.join(testRoot, 'data', 'har', harFile)
 }
 
-const config = './integration-test/test-pages/runtime-checks/config/replace-element.json'
 const css = readFileSync('./build/integration/contentScope.js', 'utf8')
-const parsedConfig = JSON.parse(readFileSync(config, 'utf8'))
+const parsedConfig = {}
+// Construct a parsed config object with all base features enabled
+Object.keys(baseFeatures).forEach((key) => {
+    parsedConfig[key] = {
+        enabled: 'enabled'
+    }
+})
 
 function wrapScript (js, replacements) {
     for (const [find, replace] of Object.entries(replacements)) {

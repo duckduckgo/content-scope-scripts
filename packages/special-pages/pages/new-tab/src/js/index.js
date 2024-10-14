@@ -21,7 +21,7 @@ export class NewTabPage {
      */
     constructor (messaging, injectName) {
         /**
-         * @internal
+         * @internal - test 3
          */
         this.messaging = createTypedMessages(this, messaging)
         this.injectName = injectName
@@ -62,8 +62,6 @@ const messaging = createSpecialPageMessaging({
     mockTransport: () => {
         // only in integration environments
         if (baseEnvironment.injectName !== 'integration') return null
-        // never in playwright environments
-        if (window.__playwright_01) return null
         let mock = null
         // eslint-disable-next-line no-labels
         $INTEGRATION: mock = mockTransport()

@@ -46,7 +46,15 @@ export default defineConfig({
         },
         {
             name: 'chrome',
-            testMatch: 'integration-test/playwright/remote-pages.spec.js',
+            testMatch: [
+                'integration-test/playwright/remote-pages.spec.js',
+                'integration-test/test-cookie.js',
+                'integration-test/test-fingerprint.js',
+                'integration-test/test-navigator-interface.js',
+                'integration-test/test-pages.js',
+                'integration-test/test-utils.js',
+                'integration-test/test-web-compat.js'
+            ],
             use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] }
         },
         {
