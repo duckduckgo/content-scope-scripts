@@ -7,6 +7,7 @@ import css from 'rollup-plugin-import-css'
 import svg from 'rollup-plugin-svg-import'
 import { platformSupport } from '../../src/features.js'
 import { readFileSync } from 'fs'
+import validateCSS from './validateCSS.js'
 
 function prefixPlugin (prefixMessage) {
     return {
@@ -57,7 +58,9 @@ export async function rollupScript (params) {
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
     const mozProxies = supportsMozProxies
     const plugins = [
-        css(),
+        css({
+            transform: (c) => validateCSS(c)
+        }),
         svg({
             stringify: true
         }),
