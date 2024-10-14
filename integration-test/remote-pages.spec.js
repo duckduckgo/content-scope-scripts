@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import path from 'path'
 import { readFileSync } from 'fs'
-import { baseFeatures } from '../../src/features.js'
+import { baseFeatures } from '../src/features.js'
 
 const testRoot = path.join('integration-test')
 
