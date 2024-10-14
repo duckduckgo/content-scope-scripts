@@ -12,6 +12,9 @@ import styles from './ReleaseNotes.module.css'
 
 /**
  * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
+ * @typedef {import('../../../../types/release-notes').ReleaseNotesLoadedState
+ * | import('../../../../types/release-notes').UpdateErrorState
+ * | import('../../../../types/release-notes').UpdateReadyState} UpdateMessageWithReleaseNotes
  * @typedef {import('../types.js').Notes} Notes
  */
 
@@ -170,10 +173,12 @@ export function ReleaseNotesList ({ notes }) {
  */
 export function ReleaseNotesContent ({ title: releaseTitle, currentVersion, latestVersion, notes: releaseNotes }) {
     if (!releaseTitle || !releaseNotes.length) return null
+    const version = latestVersion || currentVersion
+    const showNewTag = !!latestVersion && currentVersion !== latestVersion
 
     return (
         <Fragment>
-            <ReleaseNotesHeading title={releaseTitle} version={latestVersion || currentVersion} showNewTag={!!latestVersion && currentVersion !== latestVersion}/>
+            <ReleaseNotesHeading title={releaseTitle} version={version} showNewTag={showNewTag}/>
             <div className={styles.listGrid}>
                 {releaseNotes.map(({ icon, title, notes }) => (
                     <div class={styles.listContainer}>
@@ -187,6 +192,51 @@ export function ReleaseNotesContent ({ title: releaseTitle, currentVersion, late
 }
 
 /**
+ * Parses release notes data and shows either the loading placeholder or a Release Notes card
+ *
+ * @param {object} props
+ * @param {UpdateMessage} props.releaseData
+ */
+export function CardContents ({ releaseData }) {
+    const { t } = useTypedTranslation()
+    const { status } = releaseData
+    const isLoading = status === 'loading' || status === 'updateDownloading' || status === 'updatePreparing'
+
+    if (isLoading) {
+        return <ContentPlaceholder />
+    }
+
+    /**
+     * @type {Notes[]}
+     */
+    const notes = []
+
+    const { currentVersion, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
+
+    if (releaseNotes?.length) {
+        notes.push({ notes: releaseNotes })
+    }
+
+    if (releaseNotesPrivacyPro?.length) {
+        notes.push({
+            icon: 'PrivacyPro',
+            title: t('forPrivacyProSubscribers'),
+            notes: [
+                ...releaseNotesPrivacyPro,
+                /* The following should only get translated when the contents of the Release Notes update message are localized */
+                <span>Not subscribed? Find out more at <a href="https://duckduckgo.com/pro" target="_blank">duckduckgo.com/pro</a></span>
+            ]
+        })
+    }
+
+    return <ReleaseNotesContent
+        title={releaseTitle}
+        currentVersion={currentVersion}
+        latestVersion={latestVersion}
+        notes={notes}/>
+}
+
+/**
  * @param {object} props
  * @param {UpdateMessage} props.releaseData
  */
@@ -196,38 +246,6 @@ export function ReleaseNotes ({ releaseData }) {
 
     const { status, currentVersion, lastUpdate } = releaseData
     const timestampInMilliseconds = lastUpdate * 1000
-    let cardContents = <ContentPlaceholder />
-
-    if (status === 'loaded' || status === 'updateError' || status === 'updateReady') {
-        /**
-         * @type {Notes[]}
-         */
-        const notes = []
-
-        const { latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
-
-        if (releaseNotes?.length) {
-            notes.push({ notes: releaseNotes })
-        }
-
-        if (releaseNotesPrivacyPro?.length) {
-            notes.push({
-                icon: 'PrivacyPro',
-                title: t('forPrivacyProSubscribers'),
-                notes: [
-                    ...releaseNotesPrivacyPro,
-                    /* The following should only get translated when the contents of the Release Notes update message are localized */
-                    <span>Not subscribed? Find out more at <a href="https://duckduckgo.com/pro" target="_blank">duckduckgo.com/pro</a></span>
-                ]
-            })
-        }
-
-        cardContents = <ReleaseNotesContent
-            title={releaseTitle}
-            currentVersion={currentVersion}
-            latestVersion={latestVersion}
-            notes={notes}/>
-    }
 
     let progress = 0
     if (status === 'updateDownloading') {
@@ -255,7 +273,7 @@ export function ReleaseNotes ({ releaseData }) {
                     </div>}
             </header>
             <Card className={styles.card}>
-                {cardContents}
+                <CardContents releaseData={releaseData} />
             </Card>
         </article>
     )

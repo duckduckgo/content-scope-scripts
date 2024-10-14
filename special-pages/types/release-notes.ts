@@ -10,132 +10,12 @@
  * Message sent from browser when release notes are updated
  */
 export type UpdateMessage =
-  | {
-      status: "loading";
-      /**
-       * Current version of the app
-       */
-      currentVersion: string;
-      /**
-       * Timestamp of last check for version updates
-       */
-      lastUpdate: number;
-    }
-  | {
-      status: "loaded";
-      /**
-       * Current version of the app
-       */
-      currentVersion: string;
-      /**
-       * Latest version of the app. May be the same as currentVersion
-       */
-      latestVersion: string;
-      /**
-       * Timestamp of last check for version updates
-       */
-      lastUpdate: number;
-      /**
-       * Name of the current release (e.g. April 26 2024)
-       */
-      releaseTitle?: string;
-      /**
-       * Array containing notes for the latest release
-       */
-      releaseNotes?: string[];
-      /**
-       * Array containing Privacy Pro notes for the latest release
-       */
-      releaseNotesPrivacyPro?: string[];
-    }
-  | {
-      status: "updateReady";
-      /**
-       * Current version of the app
-       */
-      currentVersion: string;
-      /**
-       * Latest version of the app. May be the same as currentVersion
-       */
-      latestVersion: string;
-      /**
-       * Timestamp of last check for version updates
-       */
-      lastUpdate: number;
-      /**
-       * Name of the current release (e.g. April 26 2024)
-       */
-      releaseTitle?: string;
-      /**
-       * Array containing notes for the latest release
-       */
-      releaseNotes?: string[];
-      /**
-       * Array containing Privacy Pro notes for the latest release
-       */
-      releaseNotesPrivacyPro?: string[];
-    }
-  | {
-      status: "updateError";
-      /**
-       * Current version of the app
-       */
-      currentVersion: string;
-      /**
-       * Latest version of the app. May be the same as currentVersion
-       */
-      latestVersion: string;
-      /**
-       * Timestamp of last check for version updates
-       */
-      lastUpdate: number;
-      /**
-       * Name of the current release (e.g. April 26 2024)
-       */
-      releaseTitle?: string;
-      /**
-       * Array containing notes for the latest release
-       */
-      releaseNotes?: string[];
-      /**
-       * Array containing Privacy Pro notes for the latest release
-       */
-      releaseNotesPrivacyPro?: string[];
-    }
-  | {
-      status: "updateDownloading";
-      /**
-       * Current version of the app
-       */
-      currentVersion: string;
-      /**
-       * Latest version of the app. May be the same as currentVersion
-       */
-      latestVersion: string;
-      /**
-       * Timestamp of last check for version updates
-       */
-      lastUpdate: number;
-      /**
-       * Download progress of new version as a decimal number from 0 to 1, where 1 is fully downloaded
-       */
-      downloadProgress: number;
-    }
-  | {
-      status: "updatePreparing";
-      /**
-       * Current version of the app
-       */
-      currentVersion: string;
-      /**
-       * Latest version of the app. May be the same as currentVersion
-       */
-      latestVersion: string;
-      /**
-       * Timestamp of last check for version updates
-       */
-      lastUpdate: number;
-    };
+  | LoadingState
+  | ReleaseNotesLoadedState
+  | UpdateReadyState
+  | UpdateErrorState
+  | DownloadingUpdateState
+  | PreparingUpdateState;
 
 /**
  * Requests, Notifications and Subscriptions from the ReleaseNotes feature
@@ -229,6 +109,150 @@ export interface InitialSetupResponse {
 export interface OnUpdateSubscription {
   subscriptionEvent: "onUpdate";
   params: UpdateMessage;
+}
+/**
+ * Loading release notes
+ */
+export interface LoadingState {
+  status: "loading";
+  /**
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Timestamp of last check for version updates
+   */
+  lastUpdate: number;
+}
+/**
+ * Release notes loaded. Browser is up-to-date
+ */
+export interface ReleaseNotesLoadedState {
+  status: "loaded";
+  /**
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Latest version of the app. May be the same as currentVersion
+   */
+  latestVersion: string;
+  /**
+   * Timestamp of last check for version updates
+   */
+  lastUpdate: number;
+  /**
+   * Name of the current release (e.g. April 26 2024)
+   */
+  releaseTitle?: string;
+  /**
+   * Array containing notes for the latest release
+   */
+  releaseNotes?: string[];
+  /**
+   * Array containing Privacy Pro notes for the latest release
+   */
+  releaseNotesPrivacyPro?: string[];
+}
+/**
+ * Update downloaded and installed. Restart to update
+ */
+export interface UpdateReadyState {
+  status: "updateReady";
+  /**
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Latest version of the app. May be the same as currentVersion
+   */
+  latestVersion: string;
+  /**
+   * Timestamp of last check for version updates
+   */
+  lastUpdate: number;
+  /**
+   * Name of the current release (e.g. April 26 2024)
+   */
+  releaseTitle?: string;
+  /**
+   * Array containing notes for the latest release
+   */
+  releaseNotes?: string[];
+  /**
+   * Array containing Privacy Pro notes for the latest release
+   */
+  releaseNotesPrivacyPro?: string[];
+}
+/**
+ * An error occurred during the update process
+ */
+export interface UpdateErrorState {
+  status: "updateError";
+  /**
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Latest version of the app. May be the same as currentVersion
+   */
+  latestVersion: string;
+  /**
+   * Timestamp of last check for version updates
+   */
+  lastUpdate: number;
+  /**
+   * Name of the current release (e.g. April 26 2024)
+   */
+  releaseTitle?: string;
+  /**
+   * Array containing notes for the latest release
+   */
+  releaseNotes?: string[];
+  /**
+   * Array containing Privacy Pro notes for the latest release
+   */
+  releaseNotesPrivacyPro?: string[];
+}
+/**
+ * An update is available and being downloaded
+ */
+export interface DownloadingUpdateState {
+  status: "updateDownloading";
+  /**
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Latest version of the app. May be the same as currentVersion
+   */
+  latestVersion: string;
+  /**
+   * Timestamp of last check for version updates
+   */
+  lastUpdate: number;
+  /**
+   * Download progress of new version as a decimal number from 0 to 1, where 1 is fully downloaded
+   */
+  downloadProgress: number;
+}
+/**
+ * An update has been downloaded and is being installed
+ */
+export interface PreparingUpdateState {
+  status: "updatePreparing";
+  /**
+   * Current version of the app
+   */
+  currentVersion: string;
+  /**
+   * Latest version of the app. May be the same as currentVersion
+   */
+  latestVersion: string;
+  /**
+   * Timestamp of last check for version updates
+   */
+  lastUpdate: number;
 }
 
 declare module "../pages/release-notes/src/js/index.js" {
