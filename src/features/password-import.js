@@ -5,49 +5,69 @@ const ANIMATION_DURATION_MS = 1000
 const ANIMATION_ITERATIONS = Infinity
 
 export default class PasswordImport extends ContentFeature {
-    #exportButtonSettings = {}
+    #exportButtonSettings = {
+        labelTexts: ['Export'] // TODO: should be configurable, can have multiple languages
+    }
+
     #settingsButtonSettings = {}
     #signInButtonSettings = {}
-
     SUPPORTED_PATHS = {
         SIGNIN: '/intro',
         EXPORT: '/options',
         SETTINGS: '/'
     }
 
+    /**
+     * @param {string} path
+     * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean}|null>}
+     */
     async getElementAndStyleFromPath (path) {
         if (path === this.SUPPORTED_PATHS.SETTINGS) {
-            return {
-                style: {
-                    scale: 1,
-                    backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                },
-                element: await this.findSettingsElement(),
-                shouldTap: this.#settingsButtonSettings.autotap?.enabled ?? false
-            }
+            const element = await this.findSettingsElement()
+            return element != null
+                ? {
+                    style: {
+                        scale: 1,
+                        backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                    },
+                    element,
+                    shouldTap: this.#settingsButtonSettings.autotap?.enabled ?? false
+                }
+                : null
         } else if (path === this.SUPPORTED_PATHS.EXPORT) {
-            return {
-                style: {
-                    scale: 1.01,
-                    backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                },
-                element: await this.findExportElement(),
-                shouldTap: this.#exportButtonSettings.autotap?.enabled ?? false
-            }
+            const element = await this.findExportElement()
+            return element != null
+                ? {
+                    style: {
+                        scale: 1.01,
+                        backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                    },
+                    element,
+                    shouldTap: this.#exportButtonSettings.autotap?.enabled ?? false
+                }
+                : null
         } else if (path === this.SUPPORTED_PATHS.SIGNIN) {
-            return {
-                style: {
-                    scale: 1.5,
-                    backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                },
-                element: await this.findSignInButton(),
-                shouldTap: this.#signInButtonSettings.autotap?.enabled ?? false
-            }
+            const element = await this.findSignInButton()
+            return element != null
+                ? {
+                    style: {
+                        scale: 1.5,
+                        backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                    },
+                    element,
+                    shouldTap: this.#signInButtonSettings.autotap?.enabled ?? false
+                }
+                : null
         } else {
             return null
         }
     }
 
+    /**
+     *
+     * @param {HTMLElement|Element} element
+     * @param {any} style
+     */
     animateElement (element, style) {
         element.scrollIntoView({
             behavior: 'smooth',
@@ -74,37 +94,44 @@ export default class PasswordImport extends ContentFeature {
         element.click()
     }
 
+    /**
+     * @returns {Promise<HTMLElement|Element|null>}
+     */
     async findExportElement () {
         const findInContainer = () => {
             const exportButtonContainer = document.querySelector(this.exportButtonContainerSelector)
-            if (exportButtonContainer != null) {
-                return exportButtonContainer.querySelectorAll('button')[1]
-            }
-            return null
+            return exportButtonContainer && exportButtonContainer.querySelectorAll('button')[1]
         }
 
         const findWithLabel = () => {
             return document.querySelector(this.exportButtonLabelTextSelector)
         }
 
-        await withExponentialBackoff(() => findInContainer() ?? findWithLabel())
+        return await withExponentialBackoff(() => findInContainer() ?? findWithLabel())
     }
 
+    /**
+     * @returns {Promise<HTMLElement|Element|null>}
+     */
     async findSettingsElement () {
         const fn = () => {
             const settingsButton = document.querySelector(this.settingsButtonSelectors[0])
-            if (settingsButton != null) {
-                return settingsButton
-            }
-            return null
+            return settingsButton
         }
         return await withExponentialBackoff(fn)
     }
 
+    /**
+     * @returns {Promise<HTMLElement|Element|null>}
+     */
     async findSignInButton () {
         return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelectors[0]))
     }
 
+    /**
+     *
+     * @param {string} path
+     */
     async handleElementForPath (path) {
         // FIXME: This is a workaround, we need to check if the path is supported, otherwise
         // for some reason google doesn't wait to proceed with the signin step.
@@ -118,25 +145,41 @@ export default class PasswordImport extends ContentFeature {
         }
     }
 
+    /**
+     * @returns {string}
+     */
     get exportButtonContainerSelector () {
-        return 'c-wiz[data-node-index*="2;0"], c-wiz[data-p*="options"]:nth-child(1), c-wiz[jsdata="deferred-i4"]'
+        return 'c-wiz[data-node-index*="2;0"][data-p*="options"], c-wiz[data-p*="options"][jsdata="deferred-i4"]'
         // return this.#exportButtonSettings?.containerSelectors?.join(',')
     }
 
+    /**
+     * @returns {string}
+     */
     get exportButtonLabelTextSelector () {
         return this.#exportButtonSettings?.labelTexts
             .map(text => `button[arial-label="${text}"]`)
             .join(',')
     }
 
+    /**
+     * @returns {Array<string>}
+     */
     get signinButtonSelectors () {
         return ['a[href*="ServiceLogin"]:not([target="_top"]']
     }
 
+    /**
+     * @returns {Array<string>}
+     */
     get settingsButtonSelectors () {
         return ['a[href*="options"]']
     }
 
+    /**
+     *
+     * @param {any} settings
+     */
     setButtonSettings (settings) {
         this.#exportButtonSettings = settings?.exportButton
         this.#settingsButtonSettings = settings?.settingsButton
