@@ -22063,6 +22063,9 @@
         }
     }
 
+    const ANIMATION_DURATION_MS = 1000;
+    const ANIMATION_ITERATIONS = Infinity;
+
     class PasswordImport extends ContentFeature {
         #exportButtonSettings = {}
         #settingsButtonSettings = {}
@@ -22121,8 +22124,8 @@
 
             // Define the animation options
             const options = {
-                duration: 1000, // 1 second, should be configurable
-                iterations: Infinity
+                duration: ANIMATION_DURATION_MS, // 1 second, should be configurable
+                iterations: ANIMATION_ITERATIONS // Infinite, should be configurable
             };
 
             // Apply the animation to the element
@@ -22134,17 +22137,34 @@
         }
 
         async findExportElement () {
-            return await withExponentialBackoff(() => document
-                .querySelectorAll(this.exportButtonSelector)[2]
-                .querySelectorAll('button')[1])
+            const findInContainer = () => {
+                const exportButtonContainer = document.querySelector(this.exportButtonContainerSelector);
+                if (exportButtonContainer != null) {
+                    return exportButtonContainer.querySelectorAll('button')[1]
+                }
+                return null
+            };
+
+            const findWithLabel = () => {
+                return document.querySelector(this.exportButtonLabelTextSelector)
+            };
+
+            await withExponentialBackoff(() => findInContainer() ?? findWithLabel());
         }
 
         async findSettingsElement () {
-            return await withExponentialBackoff(() => document.querySelector(this.settingsButtonSelector))
+            const fn = () => {
+                const settingsButton = document.querySelector(this.settingsButtonSelectors[0]);
+                if (settingsButton != null) {
+                    return settingsButton
+                }
+                return null
+            };
+            return await withExponentialBackoff(fn)
         }
 
         async findSignInButton () {
-            return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector))
+            return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelectors[0]))
         }
 
         async handleElementForPath (path) {
@@ -22160,46 +22180,23 @@
             }
         }
 
-        get exportButtonAnimationType () {
-            return this.#exportButtonSettings.autotap?.enabled
-                ? 'autotap'
-                : this.#exportButtonSettings.highlight?.enabled
-                    ? 'highlight'
-                    : null
+        get exportButtonContainerSelector () {
+            return 'c-wiz[data-node-index*="2;0"], c-wiz[data-p*="options"]:nth-child(1), c-wiz[jsdata="deferred-i4"]'
+            // return this.#exportButtonSettings?.containerSelectors?.join(',')
         }
 
-        get exportButtonSelector () {
-            return 'c-wiz[data-p*="options"]'
-            // return '[aria-label="Export"]'
-            // if (this.exportButtonAnimationType === 'autotap') {
-            //     return this.#exportButtonSettings.autotap?.xpath
-            // } else if (this.exportButtonAnimationType === 'highlight') {
-            //     return this.#exportButtonSettings.highlight?.xpath
-            // } else {
-            //     return null
-            // }
+        get exportButtonLabelTextSelector () {
+            return this.#exportButtonSettings?.labelTexts
+                .map(text => `button[arial-label="${text}"]`)
+                .join(',')
         }
 
-        get signinButtonSelector () {
-            return 'a[href*="ServiceLogin"]:not([target="_top"]'
-            // if (this.exportButtonAnimationType === 'autotap') {
-            //     return this.#signInButtonSettings.autotap?.selector
-            // } else if (this.exportButtonAnimationType === 'highlight') {
-            //     return this.#signInButtonSettings.highlight?.selector
-            // } else {
-            //     return null
-            // }
+        get signinButtonSelectors () {
+            return ['a[href*="ServiceLogin"]:not([target="_top"]']
         }
 
-        get settingsButtonSelector () {
-            return 'a[href*="options"]'
-            // if (this.exportButtonAnimationType === 'autotap') {
-            //     return this.#settingsButtonSettings.autotap?.selector
-            // } else if (this.exportButtonAnimationType === 'highlight') {
-            //     return this.#settingsButtonSettings.highlight?.selector
-            // } else {
-            //     return null
-            // }
+        get settingsButtonSelectors () {
+            return ['a[href*="options"]']
         }
 
         setButtonSettings (settings) {
@@ -22211,7 +22208,7 @@
         init (args) {
             this.setButtonSettings(args?.featureSettings?.passwordImport || {});
 
-            // FIXME: this is stolen from element-hiding.js, we would need a global util that would do this,
+            // TODO: this is stolen from element-hiding.js, we would need a global util that would do this,
             // single page applications don't have a DOMContentLoaded event on navigations, so
             // we use proxy/reflect on history.pushState to find elements on page navigations
             const handleElementForPath = this.handleElementForPath.bind(this);
