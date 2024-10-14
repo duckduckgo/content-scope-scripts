@@ -29,14 +29,19 @@ export function PageTitle ({ title }) {
  * @param {object} props
  * @param {UpdateMessage['status']} props.status
  * @param {string} props.version
+ * @param {number} [props.progress] - download progress as a number from 0 to 1
  */
-function StatusText ({ status, version }) {
+function StatusText ({ status, version, progress = 0 }) {
     const { t } = useTypedTranslation()
+    const progressPercentage = (progress * 100).toFixed(0)
 
     const statusTexts = {
         loaded: t('browserUpToDate'),
         loading: t('checkingForUpdate'),
-        updateReady: t('newVersionAvailable')
+        updateReady: t('newVersionAvailable'),
+        updateError: t('updateError'),
+        updateDownloading: t('updateDownloading', { progress: progressPercentage }),
+        updatePreparing: t('updatePreparing')
     }
 
     return (
@@ -55,7 +60,10 @@ function StatusIcon ({ status, className }) {
     const iconClasses = {
         loaded: styles.checkIcon,
         loading: styles.spinnerIcon,
-        updateReady: styles.alertIcon
+        updateReady: styles.alertIcon,
+        updateError: styles.alertIcon,
+        updatePreparing: styles.spinnerIcon,
+        updateDownloading: styles.spinnerIcon
     }
 
     return <div className={classNames(styles.statusIcon, iconClasses[status], className)} />
@@ -95,12 +103,13 @@ function StatusTimestamp ({ timestamp }) {
  * @param {UpdateMessage['status']} props.status
  * @param {number} props.timestamp - in milliseconds
  * @param {string} props.version
+ * @param {number} [props.progress] - download progress as a number from 0 to 1
  */
-export function UpdateStatus ({ status, timestamp, version }) {
+export function UpdateStatus ({ status, timestamp, version, progress }) {
     return (
         <div className={styles.statusContainer}>
             <StatusIcon status={status} className={styles.gridIcon}/>
-            <StatusText status={status} version={version} />
+            <StatusText status={status} version={version} progress={progress} />
             <StatusTimestamp timestamp={timestamp} />
         </div>
     )
@@ -154,17 +163,17 @@ export function ReleaseNotesList ({ notes }) {
 
 /**
  * @param {Object} props
- * @param {UpdateMessage['status']} props.status
  * @param {string} [props.title]
- * @param {string} props.version
+ * @param {string} props.currentVersion
+ * @param {string} [props.latestVersion]
  * @param {Notes[]} props.notes
  */
-export function ReleaseNotesContent ({ status, title: releaseTitle, version: releaseVersion, notes: releaseNotes }) {
+export function ReleaseNotesContent ({ title: releaseTitle, currentVersion, latestVersion, notes: releaseNotes }) {
     if (!releaseTitle || !releaseNotes.length) return null
 
     return (
         <Fragment>
-            <ReleaseNotesHeading title={releaseTitle} version={releaseVersion} showNewTag={status === 'updateReady'}/>
+            <ReleaseNotesHeading title={releaseTitle} version={latestVersion || currentVersion} showNewTag={!!latestVersion && currentVersion !== latestVersion}/>
             <div className={styles.listGrid}>
                 {releaseNotes.map(({ icon, title, notes }) => (
                     <div class={styles.listContainer}>
@@ -185,52 +194,68 @@ export function ReleaseNotes ({ releaseData }) {
     const { t } = useTypedTranslation()
     const { messages } = useMessaging()
 
-    const onRestartButtonClick = () => {
-        messages?.browserRestart()
-    }
-
-    const { status, currentVersion, lastUpdate, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
+    const { status, currentVersion, lastUpdate } = releaseData
     const timestampInMilliseconds = lastUpdate * 1000
+    let cardContents = <ContentPlaceholder />
 
-    /**
-     * @type {Notes[]}
-     */
-    const notes = []
+    if (status === 'loaded' || status === 'updateError' || status === 'updateReady') {
+        /**
+         * @type {Notes[]}
+         */
+        const notes = []
 
-    if (releaseNotes?.length) {
-        notes.push({ notes: releaseNotes })
+        const { latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData
+
+        if (releaseNotes?.length) {
+            notes.push({ notes: releaseNotes })
+        }
+
+        if (releaseNotesPrivacyPro?.length) {
+            notes.push({
+                icon: 'PrivacyPro',
+                title: t('forPrivacyProSubscribers'),
+                notes: [
+                    ...releaseNotesPrivacyPro,
+                    /* The following should only get translated when the contents of the Release Notes update message are localized */
+                    <span>Not subscribed? Find out more at <a href="https://duckduckgo.com/pro" target="_blank">duckduckgo.com/pro</a></span>
+                ]
+            })
+        }
+
+        cardContents = <ReleaseNotesContent
+            title={releaseTitle}
+            currentVersion={currentVersion}
+            latestVersion={latestVersion}
+            notes={notes}/>
     }
 
-    if (releaseNotesPrivacyPro?.length) {
-        notes.push({
-            icon: 'PrivacyPro',
-            title: t('forPrivacyProSubscribers'),
-            notes: [
-                ...releaseNotesPrivacyPro,
-                /* The following should only get translated when the full Release Notes are localized */
-                <span>Not subscribed? Find out more at <a href="https://duckduckgo.com/pro" target="_blank">duckduckgo.com/pro</a></span>
-            ]
-        })
+    let progress = 0
+    if (status === 'updateDownloading') {
+        const { downloadProgress } = releaseData
+
+        if (downloadProgress && !Number.isNaN(downloadProgress)) {
+            progress = downloadProgress
+        } else {
+            console.warn('Invalid download progress value in data')
+        }
     }
 
     return (
         <article className={styles.article}>
             <header className={styles.heading}>
                 <PageTitle title={t('browserReleaseNotes')}/>
-                <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion}/>
+                <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion} progress={progress}/>
                 {status === 'updateReady' &&
                     <div className={styles.buttonContainer}>
-                        <Button onClick={onRestartButtonClick}>{t('restartToUpdate')}</Button>
+                        <Button onClick={() => messages?.browserRestart()}>{t('restartToUpdate')}</Button>
+                    </div>}
+                {status === 'updateError' &&
+                    <div className={styles.buttonContainer}>
+                        <Button onClick={() => messages?.retryUpdate()}>{t('retryUpdate')}</Button>
                     </div>}
             </header>
             <Card className={styles.card}>
-                {status === 'loading'
-                    ? <ContentPlaceholder />
-                    : <ReleaseNotesContent
-                        status={status}
-                        title={releaseTitle}
-                        version={latestVersion || currentVersion}
-                        notes={notes}/>}
+                {cardContents}
             </Card>
         </article>
     )

@@ -127,6 +127,22 @@ export class ReleaseNotesPage {
         await this.sendSubscriptionMessage('updateReady', { privacyPro: true })
     }
 
+    async releaseNotesUpdateError () {
+        await this.sendSubscriptionMessage('updateError')
+    }
+
+    async releaseNotesUpdateErrorWithPrivacyPro () {
+        await this.sendSubscriptionMessage('updateError', { privacyPro: true })
+    }
+
+    async releaseNotesUpdateDownloading () {
+        await this.sendSubscriptionMessage('updateDownloading')
+    }
+
+    async releaseNotesUpdatePreparing () {
+        await this.sendSubscriptionMessage('updatePreparing')
+    }
+
     async handlesFatalException () {
         const { page } = this
         await expect(page.getByRole('heading')).toContainText('Something went wrong')
@@ -170,6 +186,30 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('button', { name: 'Restart to Update' })).not.toBeVisible()
     }
 
+    async didShowUpdateDownloadingState () {
+        const { page } = this
+        await expect(page.getByRole('heading', { name: 'Browser Release Notes' })).toBeVisible()
+        await expect(page.getByText('Last checked: Today')).toBeVisible()
+        await expect(page.getByText('Version 1.0.1 — Downloading update 74%')).toBeVisible()
+        await expect(page.getByTestId('placeholder')).toBeVisible()
+
+        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible()
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
+        await expect(page.getByRole('button', { name: 'Restart to Update' })).not.toBeVisible()
+    }
+
+    async didShowUpdatePreparingState () {
+        const { page } = this
+        await expect(page.getByRole('heading', { name: 'Browser Release Notes' })).toBeVisible()
+        await expect(page.getByText('Last checked: Today')).toBeVisible()
+        await expect(page.getByText('Version 1.0.1 — Preparing update')).toBeVisible()
+        await expect(page.getByTestId('placeholder')).toBeVisible()
+
+        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible()
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible()
+        await expect(page.getByRole('button', { name: 'Restart to Update' })).not.toBeVisible()
+    }
+
     async didShowUpToDateState () {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'Browser Release Notes' })).toBeVisible()
@@ -191,6 +231,18 @@ export class ReleaseNotesPage {
         await expect(page.getByText('Last checked: Today')).toBeVisible()
         await expect(page.getByText('Version 1.0.1 — A newer version of the browser is available')).toBeVisible()
         await expect(page.getByRole('button', { name: 'Restart to Update' })).toBeVisible()
+        await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible()
+
+        await expect(page.getByTestId('placeholder')).not.toBeVisible()
+    }
+
+    async didShowUpdateErrorState () {
+        const { page } = this
+        await expect(page.getByRole('heading', { name: 'Browser Release Notes' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible()
+
+        await expect(page.getByText('Last checked: Today')).toBeVisible()
+        await expect(page.getByText('Version 1.0.1 — Update failed')).toBeVisible()
         await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible()
 
         await expect(page.getByTestId('placeholder')).not.toBeVisible()
@@ -235,6 +287,22 @@ export class ReleaseNotesPage {
                     context: 'specialPages',
                     featureName: 'release-notes',
                     method: 'browserRestart',
+                    params: {}
+                }
+            }
+        ])
+    }
+
+    async didRequestRetryUpdate () {
+        const { page } = this
+        page.getByRole('button', { name: 'Retry Update' }).click()
+        const calls = await this.mocks.waitForCallCount({ method: 'retryUpdate', count: 1 })
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'release-notes',
+                    method: 'retryUpdate',
                     params: {}
                 }
             }

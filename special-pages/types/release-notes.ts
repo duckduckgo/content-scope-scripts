@@ -7,10 +7,145 @@
  */
 
 /**
+ * Message sent from browser when release notes are updated
+ */
+export type UpdateMessage =
+  | {
+      status: "loading";
+      /**
+       * Current version of the app
+       */
+      currentVersion: string;
+      /**
+       * Timestamp of last check for version updates
+       */
+      lastUpdate: number;
+    }
+  | {
+      status: "loaded";
+      /**
+       * Current version of the app
+       */
+      currentVersion: string;
+      /**
+       * Latest version of the app. May be the same as currentVersion
+       */
+      latestVersion: string;
+      /**
+       * Timestamp of last check for version updates
+       */
+      lastUpdate: number;
+      /**
+       * Name of the current release (e.g. April 26 2024)
+       */
+      releaseTitle?: string;
+      /**
+       * Array containing notes for the latest release
+       */
+      releaseNotes?: string[];
+      /**
+       * Array containing Privacy Pro notes for the latest release
+       */
+      releaseNotesPrivacyPro?: string[];
+    }
+  | {
+      status: "updateReady";
+      /**
+       * Current version of the app
+       */
+      currentVersion: string;
+      /**
+       * Latest version of the app. May be the same as currentVersion
+       */
+      latestVersion: string;
+      /**
+       * Timestamp of last check for version updates
+       */
+      lastUpdate: number;
+      /**
+       * Name of the current release (e.g. April 26 2024)
+       */
+      releaseTitle?: string;
+      /**
+       * Array containing notes for the latest release
+       */
+      releaseNotes?: string[];
+      /**
+       * Array containing Privacy Pro notes for the latest release
+       */
+      releaseNotesPrivacyPro?: string[];
+    }
+  | {
+      status: "updateError";
+      /**
+       * Current version of the app
+       */
+      currentVersion: string;
+      /**
+       * Latest version of the app. May be the same as currentVersion
+       */
+      latestVersion: string;
+      /**
+       * Timestamp of last check for version updates
+       */
+      lastUpdate: number;
+      /**
+       * Name of the current release (e.g. April 26 2024)
+       */
+      releaseTitle?: string;
+      /**
+       * Array containing notes for the latest release
+       */
+      releaseNotes?: string[];
+      /**
+       * Array containing Privacy Pro notes for the latest release
+       */
+      releaseNotesPrivacyPro?: string[];
+    }
+  | {
+      status: "updateDownloading";
+      /**
+       * Current version of the app
+       */
+      currentVersion: string;
+      /**
+       * Latest version of the app. May be the same as currentVersion
+       */
+      latestVersion: string;
+      /**
+       * Timestamp of last check for version updates
+       */
+      lastUpdate: number;
+      /**
+       * Download progress of new version as a decimal number from 0 to 1, where 1 is fully downloaded
+       */
+      downloadProgress: number;
+    }
+  | {
+      status: "updatePreparing";
+      /**
+       * Current version of the app
+       */
+      currentVersion: string;
+      /**
+       * Latest version of the app. May be the same as currentVersion
+       */
+      latestVersion: string;
+      /**
+       * Timestamp of last check for version updates
+       */
+      lastUpdate: number;
+    };
+
+/**
  * Requests, Notifications and Subscriptions from the ReleaseNotes feature
  */
 export interface ReleaseNotesMessages {
-  notifications: BrowserRestartNotification | ReportInitExceptionNotification | ReportPageExceptionNotification;
+  notifications:
+    | BrowserRestartNotification
+    | ReportInitExceptionNotification
+    | ReportPageExceptionNotification
+    | RetryUpdateNotification;
   requests: InitialSetupRequest;
   subscriptions: OnUpdateSubscription;
 }
@@ -58,6 +193,17 @@ export interface ReportPageException {
   message: string;
 }
 /**
+ * Generated from @see "../messages/release-notes/retryUpdate.notify.json"
+ */
+export interface RetryUpdateNotification {
+  method: "retryUpdate";
+  params: RetryUpdate;
+}
+/**
+ * Notifies browser that user has requested to retry a failed update
+ */
+export interface RetryUpdate {}
+/**
  * Generated from @see "../messages/release-notes/initialSetup.request.json"
  */
 export interface InitialSetupRequest {
@@ -83,39 +229,6 @@ export interface InitialSetupResponse {
 export interface OnUpdateSubscription {
   subscriptionEvent: "onUpdate";
   params: UpdateMessage;
-}
-/**
- * Message sent from browser when release notes are updated
- */
-export interface UpdateMessage {
-  /**
-   * Current status of version check
-   */
-  status: "loading" | "loaded" | "updateReady";
-  /**
-   * Current version of the app
-   */
-  currentVersion: string;
-  /**
-   * Latest version of the app. May be the same as currentVersion
-   */
-  latestVersion?: string;
-  /**
-   * Timestamp of last check for version updates
-   */
-  lastUpdate: number;
-  /**
-   * Name of the current release (e.g. April 26 2024)
-   */
-  releaseTitle?: string;
-  /**
-   * Array containing notes for the latest release
-   */
-  releaseNotes?: string[];
-  /**
-   * Array containing Privacy Pro notes for the latest release
-   */
-  releaseNotesPrivacyPro?: string[];
 }
 
 declare module "../pages/release-notes/src/js/index.js" {
