@@ -57,11 +57,21 @@ export function Components () {
             <UpdateStatus status="loading" version="1.0.1" timestamp={yesterdayInMilliseconds}/>
             <UpdateStatus status="loaded" version="1.0.1" timestamp={todayInMilliseconds}/>
             <UpdateStatus status="updateReady" version="1.2.0" timestamp={todayInMilliseconds}/>
+            <UpdateStatus status="criticalUpdateReady" version="1.2.0" timestamp={todayInMilliseconds}/>
+            <UpdateStatus status="updateError" version="1.2.0" timestamp={todayInMilliseconds}/>
+            <UpdateStatus status="updateDownloading" version="1.2.0" timestamp={todayInMilliseconds} progress={0.35}/>
+            <UpdateStatus status="updatePreparing" version="1.2.0" timestamp={todayInMilliseconds}/>
             <hr/>
 
-            <h2>Restart Button</h2>
+            <h2>Update Buttons</h2>
             <div>
                 <Button>{t('restartToUpdate')}</Button>
+            </div>
+            <div>
+                <Button>{t('updateBrowser')}</Button>
+            </div>
+            <div>
+                <Button>{t('retryUpdate')}</Button>
             </div>
             <hr/>
 
@@ -91,7 +101,7 @@ export function Components () {
 
             <h2>Release Notes Inside a Card</h2>
             <Card className={styles.card}>
-                <ReleaseNotesContent status="updateReady" title="May 10 2024" version="1.2.0" notes={sampleNotesData} />
+                <ReleaseNotesContent title="May 10 2024" currentVersion="1.0.1" latestVersion="1.2.0" notes={sampleNotesData} />
             </Card>
 
             <ReleaseNotes releaseData={sampleData.loading} />
@@ -99,7 +109,22 @@ export function Components () {
                 <ReleaseNotes releaseData={sampleData.loaded} />
             </LoadingThen>
             <LoadingThen>
+                <ReleaseNotes releaseData={sampleData.updateDownloading} />
+            </LoadingThen>
+            <LoadingThen>
+                <ReleaseNotes releaseData={sampleData.updatePreparing} />
+            </LoadingThen>
+            <LoadingThen>
+                <ReleaseNotes releaseData={sampleData.updateError} />
+            </LoadingThen>
+            <LoadingThen>
                 <ReleaseNotes releaseData={sampleData.updateReady} />
+            </LoadingThen>
+            <LoadingThen>
+                <ReleaseNotes releaseData={sampleData.criticalUpdateReady} />
+            </LoadingThen>
+            <LoadingThen>
+                <ReleaseNotes releaseData={/** @type {import('../../../types/release-notes').UpdateMessage} */({ ...sampleData.updateReady, automaticUpdate: false })} />
             </LoadingThen>
         </main>
     )
