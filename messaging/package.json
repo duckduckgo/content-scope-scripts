@@ -6,7 +6,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo '✅ Tests are within parent project'"
+    "test": "echo '✅ Tests are within parent project, for now'"
   },
   "author": "",
   "license": "ISC"

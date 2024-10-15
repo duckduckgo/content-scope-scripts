@@ -6,9 +6,12 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "prebuild": "node types.mjs",
     "build": "node index.mjs",
-    "build.dev": "node index.mjs --env development",
-    "test": "npm run test-unit && playwright test --grep-invert '@screenshots'",
+    "build.dev": "npm run build --env development",
+    "test-unit": "node --test unit-test/* pages/duckplayer/unit-tests/* ",
+    "test-int": "npm run test-unit && playwright test --grep-invert '@screenshots'",
+    "test-int-x": "npm run test-int",
     "test.screenshots": "npm run test-unit && playwright test --grep '@screenshots'",
     "test.windows": "npm run test -- --project windows",
     "test.macos": "npm run test -- --project macos",
@@ -16,11 +19,8 @@
     "test.android": "npm run test -- --project android",
     "test.headed": "npm run test -- --headed",
     "test.ui": "npm run test -- --ui",
-    "test-unit": "node --test unit-test/* pages/duckplayer/unit-tests/* ",
     "pretest": "npm run build.dev",
     "pretest.headed": "npm run build.dev",
-    "test-int-x": "npm run test",
-    "test-int": "npm run test",
     "serve": "http-server -c-1 --port 3210 ../../",
     "watch": "chokidar pages shared --initial -c 'npm run build.dev'"
   },
@@ -29,7 +29,8 @@
     "@duckduckgo/messaging": "*",
     "@playwright/test": "^1.40.1",
     "http-server": "^14.1.1",
-    "web-resource-inliner": "^6.0.1"
+    "web-resource-inliner": "^6.0.1",
+    "fast-check": "^3.22.0"
   },
   "dependencies": {
     "preact": "^10.19.3",

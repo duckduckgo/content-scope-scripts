@@ -17,28 +17,28 @@ const contentScopeName = 'contentScopeFeatures'
 /** @satisfies {BuildManifest} */
 const builds = {
     firefox: {
-        input: 'inject/mozilla.js',
-        output: ['../build/firefox/inject.js']
+        input: 'entry-points/mozilla.js',
+        output: ['../build/firefox/entry-points.js']
     },
     apple: {
-        input: 'inject/apple.js',
+        input: 'entry-points/apple.js',
         postProcess: true,
         output: ['../Sources/ContentScopeScripts/dist/contentScope.js']
     },
     'apple-isolated': {
-        input: 'inject/apple.js',
+        input: 'entry-points/apple.js',
         output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js']
     },
     android: {
-        input: 'inject/android.js',
+        input: 'entry-points/android.js',
         output: ['../build/android/contentScope.js']
     },
     windows: {
-        input: 'inject/windows.js',
+        input: 'entry-points/windows.js',
         output: ['../build/windows/contentScope.js']
     },
     integration: {
-        input: 'inject/integration.js',
+        input: 'entry-points/integration.js',
         output: [
             '../build/integration/contentScope.js',
             'integration-test/extension/contentScope.js',
@@ -46,12 +46,12 @@ const builds = {
         ]
     },
     'chrome-mv3': {
-        input: 'inject/chrome-mv3.js',
-        output: ['../build/chrome-mv3/inject.js']
+        input: 'entry-points/chrome-mv3.js',
+        output: ['../build/chrome-mv3/entry-points.js']
     },
     chrome: {
-        input: 'inject/chrome.js',
-        output: ['../build/chrome/inject.js']
+        input: 'entry-points/chrome.js',
+        output: ['../build/chrome/entry-points.js']
     }
 }
 

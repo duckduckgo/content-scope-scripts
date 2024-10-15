@@ -1,4 +1,4 @@
-import { createMessagingTypes } from '../scripts/utils/json-schema.mjs'
+import { createMessagingTypes } from '../json-schema.mjs'
 
 describe('createMessagingTypes', () => {
     /**

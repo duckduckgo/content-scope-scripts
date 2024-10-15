@@ -23,14 +23,14 @@ const checks = {
         ]
     },
     chrome: {
-        file: join(BUILD, 'chrome/inject.js'),
+        file: join(BUILD, 'chrome/entry-points.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE_CHROME },
             { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true }
         ]
     },
     'chrome-mv3': {
-        file: join(BUILD, 'chrome-mv3/inject.js'),
+        file: join(BUILD, 'chrome-mv3/entry-points.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: 'cloneInto(', includes: false },
@@ -38,7 +38,7 @@ const checks = {
         ]
     },
     firefox: {
-        file: join(BUILD, 'firefox/inject.js'),
+        file: join(BUILD, 'firefox/entry-points.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: 'cloneInto(', includes: true },

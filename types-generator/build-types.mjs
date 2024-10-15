@@ -1,59 +1,37 @@
-import { cwd, isLaunchFile, write } from './script-utils.js'
-import { dirname, join, relative } from 'node:path'
-import { createRequire } from 'node:module'
+import { cwd, write } from '../scripts/script-utils.js'
+import { join, relative } from 'node:path'
 import { compile, compileFromFile } from 'json-schema-to-typescript'
-import { createMessagingTypes } from "./utils/json-schema.mjs";
-import { createSchemasFromFiles } from "./utils/json-schema-fs.mjs";
+import { createMessagingTypes } from "./json-schema.mjs";
+import { createSchemasFromFiles } from "./json-schema-fs.mjs";
 
 const ROOT = join(cwd(import.meta.url), '..')
-const require = createRequire(import.meta.url);
-const configBuilderRoot = dirname(require.resolve("config-builder"));
 
-const defaultMapping = {
-    /**
-     * Add more mappings here
-     *  - `schema` should be an absolute path to a valid JSON Schema document
-     *  - `types` should be an absolute path to the output file
-     */
-    "Webcompat Settings": {
-        schema: join(configBuilderRoot, "tests/schemas/webcompat-settings.json"),
-        types: join(ROOT, "src/types/webcompat-settings.d.ts"),
-        kind: 'settings',
-    },
-    "Duckplayer Settings": {
-        schema: join(configBuilderRoot, "tests/schemas/duckplayer-settings.json"),
-        types: join(ROOT, "src/types/duckplayer-settings.d.ts"),
-        kind: 'settings',
-    },
-    "Schema Messages": {
-        schemaDir: join(ROOT, "src/messages"),
-        typesDir: join(ROOT, "src/types"),
-        // todo: fix this on windows.
-        exclude: process.platform === 'win32',
-        kind: 'messages',
-        resolve: (dirname) => '../features/' + dirname + '.js',
-        className: (topLevelType) => topLevelType.replace('Messages', ''),
-    },
-    "Page Messages": {
-        schemaDir: join(ROOT, "special-pages/messages"),
-        typesDir: join(ROOT, "special-pages/types"),
-        // todo: fix this on windows.
-        exclude: process.platform === 'win32',
-        kind: 'messages',
-        resolve: (dirname) => '../pages/' + dirname + '/src/js/index.js',
-        className: (topLevelType) => topLevelType.replace('Messages', 'Page')
-    }
-}
+/**
+ * @typedef {object} SettingsKind
+ * @property {string} schema Absolute path to a valid JSON Schema document
+ * @property {string} types Absolute path to the output file
+ * @property {'settings'} kind
+ *
+ * @typedef {object} MessagesKind
+ * @property {string} typesDir Directory for the generated types
+ * @property {string} schemaDir Directory containing the schemas
+ * @property {boolean} exclude Whether to exclude this mapping on Windows
+ * @property {function} resolve Function to resolve the path
+ * @property {function} className Function to generate the class name
+ * @property {'messages'} kind
+ *
+ * @typedef {SettingsKind | MessagesKind} Mapping
+ */
 
 /**
  * Read JSON schemas from the privacy-configuration repo and generate TypeScript types
  *
  * **note** we are NOT adding try/catch around each operation here since we want the script to fail fast
  * and the errors given from node are sufficient to debug any issues
+ * @param {Record<string, Mapping>} mapping
  */
-export async function buildTypes(mapping = defaultMapping) {
+export async function buildTypes(mapping) {
     for (let [featureName, manifest] of Object.entries(mapping)) {
-        if (manifest.exclude) continue;
         if (manifest.kind === 'settings') {
             const typescript = await createTypesForSchemaFile(featureName, manifest.schema);
             let content = typescript.replace(/\r\n/g, '\n')
@@ -61,6 +39,7 @@ export async function buildTypes(mapping = defaultMapping) {
             console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
         }
         if (manifest.kind === 'messages') {
+            if (manifest.exclude) continue;
             // create a job for each sub-folder that contains schemas
             const schemas = await createSchemasFromFiles(manifest.schemaDir)
 
@@ -128,11 +107,3 @@ export async function createTypesForSchemaMessages(featureName, schema, rootDir)
     return typescript
 }
 
-
-if (isLaunchFile(import.meta.url)) {
-    buildTypes()
-        .catch((error) => {
-            console.error(error)
-            process.exit(1)
-        })
-}

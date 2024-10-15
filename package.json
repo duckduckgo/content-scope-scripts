@@ -11,14 +11,13 @@
     "test-unit": "npm run test-unit --workspaces --if-present",
     "test-int": "npm run test-int --workspaces --if-present",
     "test-int-x": "npm run test-int-x --workspaces --if-present",
-    "build-types": "node scripts/build-types.mjs",
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
     "docs": "typedoc",
     "docs-watch": "typedoc --watch",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc",
-    "lint-no-output-globals": "eslint --no-eslintrc --config=build-output.eslintrc --no-ignore Sources/ContentScopeScripts/dist/contentScope.js",
+    "postlint": "npm run lint --workspaces --if-present",
     "lint-fix": "eslint . --fix && npm run tsc",
     "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
     "serve-special-pages": "http-server -c-1 --port 3221 build/integration/pages"
@@ -27,13 +26,11 @@
   "workspaces": [
     "injected",
     "special-pages",
-    "messaging"
+    "messaging",
+    "types-generator"
   ],
   "dependencies": {},
   "devDependencies": {
-    "@types/chrome": "^0.0.248",
-    "@types/node": "^20.16.10",
-    "@types/jasmine": "^5.1.4",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "esbuild": "^0.19.5",
     "eslint": "^8.57.1",
@@ -41,9 +38,6 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
-    "fast-check": "^3.22.0",
-    "jasmine": "^5.3.0",
-    "json-schema-to-typescript": "^15.0.2",
     "minimist": "^1.2.8",
     "typedoc": "^0.25.12",
     "typescript": "^5.4.3"

@@ -1,4 +1,4 @@
-import { generateSchema } from '../scripts/utils/json-schema.mjs'
+import { generateSchema } from '../json-schema.mjs'
 
 describe('generateSchema', () => {
     it('generates a schema structure from a file structure', () => {
