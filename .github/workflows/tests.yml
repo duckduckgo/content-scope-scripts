@@ -12,9 +12,6 @@ permissions:
   id-token: write
   deployments: write
 
-env:
-  PUPPETEER_DOWNLOAD_BASE_URL: https://storage.googleapis.com/chrome-for-testing-public
-
 jobs:
   unit:
     runs-on: ${{ matrix.os }}

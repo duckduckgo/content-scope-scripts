@@ -137,10 +137,8 @@ The following all run within GitHub Actions when you create a pull request, but 
 - eslint
 - Typescript
 - Unit tests (jasmine)
-- Feature Integration Tests (puppeteer)
 - Feature Integration Tests (playwright)
-- Special Pages Integration Tests (playwright)
-- Feature Build process + Special Pages Build process
+- Feature Build process
 
 If you want to get a good feeling for whether a PR or CI run will pass/fail, you can run the `test` command
 which chains most of the following together
