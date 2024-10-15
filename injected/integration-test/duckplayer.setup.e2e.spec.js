@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 import { DuckplayerOverlays } from './page-objects/duckplayer-overlays.js'
-import { STORAGE_STATE } from '../../playwright-e2e.config.js'
+import { STORAGE_STATE } from '../playwright-e2e.config.js'
 
 test.describe('e2e: Dismiss cookies', () => {
     test('storage locally', async ({ page }, workerInfo) => {
