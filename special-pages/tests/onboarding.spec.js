@@ -150,7 +150,7 @@ test.describe('onboarding', () => {
         })
     })
     test.describe('v3', () => {
-        test.skip('shows v3 flow', async ({ page }, workerInfo) => {
+        test('shows v3 flow', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             onboarding.withInitData({
                 stepDefinitions: null,
@@ -162,86 +162,103 @@ test.describe('onboarding', () => {
             await onboarding.completesOrderV3()
             await onboarding.startBrowsing()
         })
-        test('shows v3 flow without dock step', async ({ page }, workerInfo) => {
+        test('shows v3 flow without settings step', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             onboarding.withInitData({
                 stepDefinitions: null,
                 order: 'v3',
-                exclude: ['dockSingle']
+                exclude: ['systemSettings']
             })
             await onboarding.reducedMotion()
             await onboarding.darkMode()
             await onboarding.openPage()
-            await onboarding.completesOrderV3WithoutDock()
+            await onboarding.completesOrderV3WithoutSettings()
         })
-        test.describe('Given I am on the make default step', () => {
-            test('Then I can make DuckDuckGo my default browser', async ({ page }, workerInfo) => {
+        test.describe('Given I am on the settings step', () => {
+            test('When I choose to make the browser default', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
                     order: 'v3'
                 })
                 await onboarding.reducedMotion()
-                await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' })
-                await onboarding.makeDefaultV3()
+                await onboarding.openPage({ env: 'app', page: 'systemSettings' })
+
+                // ▶️ Then the browser is set as default
+                await onboarding.makeDefault()
             })
-            test('The I can skip to the next step', async ({ page }, workerInfo) => {
+            test('When I have skipped make default on the settings step', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
                     order: 'v3'
                 })
                 await onboarding.reducedMotion()
-                await onboarding.openPage({ env: 'app', page: 'makeDefaultSingle' })
+                await onboarding.openPage({ env: 'app', page: 'systemSettings' })
                 await onboarding.skippedCurrent()
-                await page.getByRole('heading', { name: 'Want me to stick around' }).waitFor()
+
+                // ▶️ Then I can choose make default afterwards
+                await onboarding.makeDefault()
             })
-        })
-        test.describe('Given I am on the dock/taskbar step', () => {
-            test('Then I can pin DuckDuckGo to my dock/taskbar', async ({ page }, workerInfo) => {
+            test('When I choose to import bookmarks and passwords', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
                     order: 'v3'
                 })
                 await onboarding.reducedMotion()
-                await onboarding.openPage({ env: 'app', page: 'dockSingle' })
-                await onboarding.keepInTaskbarV3()
-            })
-            test('The I can skip to the next step on macOS', async ({ page }, workerInfo) => {
-                const onboarding = OnboardingPage.create(page, workerInfo)
-                onboarding.withInitData({
-                    stepDefinitions: null,
-                    order: 'v3',
-                    platform: { name: 'macos' }
-                })
-                await onboarding.reducedMotion()
-                await onboarding.openPage({ env: 'app', page: 'dockSingle' })
+                await onboarding.openPage({ env: 'app', page: 'systemSettings' })
                 await onboarding.skippedCurrent()
-                await page.getByRole('heading', { name: 'Want me to migrate your stuff' }).waitFor()
+
+                // ▶️ Then I can import the data
+                await onboarding.importUserData()
             })
-        })
-        test.describe('Given I am on the import step', () => {
-            test('Then I can import favorites and passwords into DuckDuckGo', async ({ page }, workerInfo) => {
+            test('When I have skipped import on the customize step', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
                     order: 'v3'
                 })
                 await onboarding.reducedMotion()
-                await onboarding.openPage({ env: 'app', page: 'importSingle' })
-                await onboarding.importV3()
-            })
-            test('The I can skip to the next step', async ({ page }, workerInfo) => {
-                const onboarding = OnboardingPage.create(page, workerInfo)
-                onboarding.withInitData({
-                    stepDefinitions: null,
-                    order: 'v3'
-                })
-                await onboarding.reducedMotion()
-                await onboarding.openPage({ env: 'app', page: 'importSingle' })
+                await onboarding.openPage({ env: 'app', page: 'systemSettings' })
                 await onboarding.skippedCurrent()
-                await page.getByRole('heading', { name: 'Drowning in ads' }).waitFor()
+                await onboarding.skippedCurrent()
+
+                // ▶️ Then I can choose to import afterwards
+                await onboarding.importUserData()
+            })
+            test('When I have choosen to add to dock/taskbar', async ({ page }, workerInfo) => {
+                const onboarding = OnboardingPage.create(page, workerInfo)
+                onboarding.withInitData({
+                    stepDefinitions: null,
+                    order: 'v3'
+                })
+                await onboarding.reducedMotion()
+                await onboarding.openPage({ env: 'app', page: 'systemSettings' })
+
+                // skipped first 2
+                await onboarding.skippedCurrent()
+                await onboarding.skippedCurrent()
+
+                // ▶️ Then I can add to dock/taskbar
+                await onboarding.keepInTaskbar()
+            })
+            test('When I have skipped add to dock/taskbar', async ({ page }, workerInfo) => {
+                const onboarding = OnboardingPage.create(page, workerInfo)
+                onboarding.withInitData({
+                    stepDefinitions: null,
+                    order: 'v3'
+                })
+                await onboarding.reducedMotion()
+                await onboarding.openPage({ env: 'app', page: 'systemSettings' })
+
+                // skipped all
+                await onboarding.skippedCurrent()
+                await onboarding.skippedCurrent()
+                await onboarding.skippedCurrent()
+
+                // ▶️ Then I can add it afterwards
+                await onboarding.keepInTaskbar()
             })
         })
         test.describe('Given I am on the customize step', () => {

@@ -1,6 +1,5 @@
 import { h } from 'preact'
 import cn from 'classnames'
-import { useEffect, useState } from 'preact/hooks'
 import styles from './ElasticButton.module.css'
 
 /**
@@ -11,7 +10,6 @@ import styles from './ElasticButton.module.css'
  * @property {import('preact').JSX.Element} [endIcon] - Optional trailing icon
  * @property {string[]} [textVariants] - Optional array of strings that fix the maximum text length for the button
  * @property {boolean} [props.elastic=true] - Whether the button should grow on hover
- * @property {boolean} [props.unique=true] - Generate a new key every time button content changes. Helps in avoiding lingering hover states, for example
  */
 
 /**
@@ -19,13 +17,7 @@ import styles from './ElasticButton.module.css'
  *
  * @param {ElasticButtonProps & import("preact").ComponentProps<"button">} props
  */
-export function ElasticButton ({ text, variant = 'primary', startIcon, endIcon, textVariants, elastic = true, unique = true, children, ...rest }) {
-    const [key, setKey] = useState('')
-
-    useEffect(() => {
-        unique && setKey(self.crypto.randomUUID())
-    }, [unique, children])
-
+export function ElasticButton ({ text, variant = 'primary', startIcon, endIcon, textVariants, elastic = true, children, ...rest }) {
     const classes = cn({
         [styles.button]: true,
         [styles.primary]: variant === 'primary',
@@ -33,7 +25,7 @@ export function ElasticButton ({ text, variant = 'primary', startIcon, endIcon, 
         [styles.elastic]: elastic === true
     })
     return (
-        <button className={classes} key={key} {...rest}>
+        <button className={classes} {...rest}>
             <div className={styles.background}></div>
             <div class={styles.content}>
                 {startIcon}

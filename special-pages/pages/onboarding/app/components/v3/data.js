@@ -122,8 +122,8 @@ export const stepsConfig = {
  * @property {import('../../types').SystemValueId} id
  * @property {typeof import('../../components/ListItem').availableIcons[number]} icon
  * @property {string} title
+ * @property {string} [secondaryText]
  * @property {string} acceptText
- * @property {string} [summary]
  */
 
 /** @type {Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['platform']) => RowData>} */
@@ -143,14 +143,15 @@ export const settingsRowItems = {
         acceptText: t('row_import_accept')
     }),
     dock: (t, platform) => {
-        console.log('PLATFORM', platform)
         const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3')
         const acceptText = platform === 'macos' ? t('row_dock_macos_accept') : t('row_dock_accept')
+        const secondaryText = platform === 'macos' ? undefined : t('row_taskbar_summary_v3')
 
         return {
             id: 'dock',
             icon: 'v3/dock.svg',
             title,
+            secondaryText,
             kind: 'one-time',
             acceptText
         }
@@ -159,7 +160,6 @@ export const settingsRowItems = {
         id: 'bookmarks',
         icon: 'v3/favorite.svg',
         title: t('row_bookmarks_title_v3'),
-        summary: t('row_bookmarks_summary'),
         kind: 'toggle',
         acceptText: t('row_bookmarks_accept')
     }),
@@ -167,7 +167,6 @@ export const settingsRowItems = {
         id: 'session-restore',
         icon: 'v3/session-restore.svg',
         title: t('row_session-restore_title_v3'),
-        summary: t('row_session-restore_summary'),
         kind: 'toggle',
         acceptText: t('row_session-restore_accept')
     }),
@@ -175,7 +174,6 @@ export const settingsRowItems = {
         id: 'home-shortcut',
         icon: 'v3/home.svg',
         title: t('row_home-shortcut_title_v3'),
-        summary: t('row_home-shortcut_summary'),
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept')
     })

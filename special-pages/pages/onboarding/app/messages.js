@@ -57,7 +57,8 @@ export class OnboardingMessages {
                 stepDefinitions: {},
                 exclude: [],
                 order: 'v3',
-                locale: 'en'
+                locale: 'en',
+                env: 'development'
             }
         }
         return await this.messaging.request('init')

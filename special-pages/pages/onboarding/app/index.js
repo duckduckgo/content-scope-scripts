@@ -67,8 +67,6 @@ async function init () {
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
         .withFirst(environment.urlParams.get('page'))
 
-    console.log('SETTINGS', settings)
-
     const AppComponent = settings.orderName === 'v3' ? App2 : App
 
     const root = document.querySelector('#app')

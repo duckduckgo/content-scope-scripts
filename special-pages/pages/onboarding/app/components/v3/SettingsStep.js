@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { h } from 'preact'
 import { useGlobalDispatch, useGlobalState } from '../../global'
-import { useRollin } from '../../hooks/useRollin'
 import { useTypedTranslation } from '../../types'
 import { usePlatformName } from '../SettingsProvider'
 import { ListItem } from '../../components/ListItem'
@@ -18,14 +17,13 @@ import { SlideIn } from './Animation'
  */
 export function SettingsStep ({ data }) {
     const platform = usePlatformName()
-    const { state } = useRollin([300])
     const { t } = useTypedTranslation()
 
     const dispatch = useGlobalDispatch()
     const appState = useGlobalState()
     if (appState.step.kind !== 'settings') throw new Error('unreachable, for TS benefit')
 
-    const { step, status, activeStep } = appState
+    const { step, status } = appState
     const pendingId = status.kind === 'executing' && status.action.kind === 'update-system-value' && status.action.id
 
     /** @type {import("preact").ComponentProps<SettingListItem>['item'][]} */
@@ -43,21 +41,15 @@ export function SettingsStep ({ data }) {
 
     return (
         <SlideIn>
-            <Stack key={activeStep}>
-                <Stack animate>
-                    {appState.status.kind === 'idle' && appState.status.error && (
-                        <p>{appState.status.error}</p>
-                    )}
-                    {state.current > 0 && (
-                        <Stack gap={Stack.gaps['4']}>
-                            <PlainList variant='bordered' animate={true}>
-                                {rows.filter(item => item.visible).map((item, index) => {
-                                    return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
-                                })}
-                            </PlainList>
-                        </Stack>
-                    )}
-                </Stack>
+            <Stack>
+                {appState.status.kind === 'idle' && appState.status.error && (
+                    <p>{appState.status.error}</p>
+                )}
+                <PlainList variant='bordered' animate={true}>
+                    {rows.filter(item => item.visible).map((item, index) => {
+                        return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
+                    })}
+                </PlainList>
             </Stack>
         </SlideIn>
     )
@@ -146,6 +138,7 @@ export function SettingListItem ({ index, item, dispatch }) {
             key={data.id}
             icon={data.icon}
             title={data.title}
+            secondaryText={item.current && data.secondaryText}
             inline={inline}
             animate={true}
             index={index}

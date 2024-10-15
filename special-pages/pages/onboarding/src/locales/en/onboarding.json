@@ -322,28 +322,12 @@
     "note": "Subtitle for a page that allows the user to customize specific settings in the DuckDuckGo browser."
   },
   "systemSettings_title_v3": {
-    "title": "Let's get you set up!",
+    "title": "Let’s get you set up!",
     "note": "Title for a page that allows the user to customize system settings for the DuckDuckGo browser"
   },
   "systemSettings_subtitle_v3": {
     "title": "Keep me ready for all your browsing needs.",
     "note": "Subtitle for a page that allows the user to customize system settings for the DuckDuckGo browser"
-  },
-  "row_bookmarks-favorites_title_v3": {
-    "title": "Bookmarks & Favorites",
-    "note": "Section heading for the Bookmarks & Favorites import feature."
-  },
-  "row_bookmarks-favorites_desc_v3": {
-    "title": "Start off with your go-to sites in easy reach.",
-    "note": "Section description explaining that the user's bookmarks and favorites will be imported from another browser."
-  },
-  "row_passwords_title": {
-    "title": "Passwords",
-    "note": "Section heading for the Passwords import feature."
-  },
-  "row_passwords_desc": {
-    "title": "On-device encryption keeps your data secure.",
-    "note": "Section description explaining that the user's passwords will be imported from another browser."
   },
   "row_bookmarks_title_v3": {
     "title": "Show a bookmarks bar with your favorite sites",
@@ -368,6 +352,10 @@
   "row_taskbar_title_v3": {
     "title": "Keep DuckDuckGo in your Taskbar",
     "note": "Suggests users to keep DuckDuckGo in their taskbar for quick access."
+  },
+  "row_taskbar_summary_v3": {
+    "title": "Choose \"Yes\" in the notification on your screen.",
+    "note": "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
   },
   "row_dock_title_v3": {
     "title": "Keep DuckDuckGo in your Dock",

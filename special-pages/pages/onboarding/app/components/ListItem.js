@@ -3,8 +3,6 @@ import cn from 'classnames'
 import styles from './ListItem.module.css'
 import { Check } from './Icons'
 
-/* TODO: Why PNGs? */
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const availableIcons = /** @type {const} */ ([
     'bookmarks.png',
@@ -18,13 +16,11 @@ export const availableIcons = /** @type {const} */ ([
     'session-restore.png',
     'shield.png',
     'switch.png',
-    'v3/bookmarks.svg',
     'v3/default-browser.svg',
     'v3/dock.svg',
     'v3/favorite.svg',
     'v3/home.svg',
     'v3/import.svg',
-    'v3/key.svg',
     'v3/session-restore.svg'
 ])
 

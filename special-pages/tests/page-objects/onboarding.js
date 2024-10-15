@@ -151,6 +151,40 @@ export class OnboardingPage {
         await this.page.getByRole('button', { name: 'Skip' }).click()
     }
 
+    async makeDefault () {
+        const { page } = this
+        await page.getByRole('button', { name: 'Make Default' }).click()
+        await page.getByRole('img', { name: 'Completed Action' }).waitFor()
+        const calls = await this.mocks.outgoing({ names: ['requestSetAsDefault'] })
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'requestSetAsDefault',
+                    params: {}
+                }
+            }
+        ])
+    }
+
+    async importUserData () {
+        const { page } = this
+        await page.getByRole('button', { name: 'Import' }).click()
+        await page.getByRole('img', { name: 'Completed Action' }).waitFor()
+        const calls = await this.mocks.outgoing({ names: ['requestImport'] })
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'onboarding',
+                    method: 'requestImport',
+                    params: {}
+                }
+            }
+        ])
+    }
+
     async showBookmarksBar () {
         const { page } = this
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click()
@@ -406,55 +440,6 @@ export class OnboardingPage {
         ])
     }
 
-    async keepInTaskbarV3 () {
-        const { page } = this
-        const locator = this.build.switch({
-            apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
-            windows: () => page.getByRole('button', { name: 'Next' })
-        })
-        await locator.click()
-        const calls = await this.mocks.waitForCallCount({ method: 'requestDockOptIn', count: 1 })
-        expect(calls).toMatchObject([
-            {
-                payload: {
-                    context: 'specialPages',
-                    featureName: 'onboarding',
-                    method: 'requestDockOptIn'
-                }
-            }
-        ])
-    }
-
-    async makeDefaultV3 () {
-        const { page } = this
-        await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click()
-        const calls = await this.mocks.waitForCallCount({ method: 'requestSetAsDefault', count: 1 })
-        expect(calls).toMatchObject([
-            {
-                payload: {
-                    context: 'specialPages',
-                    featureName: 'onboarding',
-                    method: 'requestSetAsDefault'
-                }
-            }
-        ])
-    }
-
-    async importV3 () {
-        const { page } = this
-        await page.getByRole('button', { name: 'Import' }).click()
-        const calls = await this.mocks.waitForCallCount({ method: 'requestImport', count: 1 })
-        expect(calls).toMatchObject([
-            {
-                payload: {
-                    context: 'specialPages',
-                    featureName: 'onboarding',
-                    method: 'requestImport'
-                }
-            }
-        ])
-    }
-
     async completesOrderV2 () {
         const { page } = this
         await page.getByRole('button', { name: 'Get Started' }).click()
@@ -502,54 +487,65 @@ export class OnboardingPage {
 
     async completesOrderV3 () {
         const { page } = this
+        /* Welcome */
         await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 })
-        await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 })
 
+        /* Get started */
+        await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 })
         await page.getByRole('button', { name: 'Let’s Do It' }).click()
 
-        await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click()
-        await page.getByRole('button', { name: 'Next' }).click()
+        /* Comparison table */
+        await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Got It' }).click()
 
-        await page.getByText('Want me to stick around').nth(1).waitFor({ timeout: 1000 })
-        const dockButton = this.build.switch({
-            windows: () => page.getByRole('button', { name: 'Next' }),
-            apple: () => page.getByRole('button', { name: 'Keep in Dock' })
-        })
-        await dockButton.click()
-
-        await page.getByText('Great! I’ll be nesting').nth(1).waitFor({ timeout: 1000 })
-        await page.getByRole('button', { name: 'Next' }).click()
-
+        /* System settings */
+        await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Make Default' }).click()
         await page.getByRole('button', { name: 'Import' }).click()
+        await page.getByRole('button', { name: 'Skip' }).click()
+        // const dockButton = this.build.switch({
+        //     windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
+        //     apple: () => page.getByRole('button', { name: 'Keep in Dock' })
+        // })
+        // await dockButton.click()
         await page.getByRole('button', { name: 'Next' }).click()
 
+        /* Duckplayer */
+        await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 })
         await page.getByRole('button', { name: 'See Without Duck Player' }).click()
         await page.getByRole('button', { name: 'See With Duck Player' }).click()
         await page.getByRole('button', { name: 'Next' }).click()
 
+        /* Customize */
+        await page.getByText('Let’s customize a few things').nth(1).waitFor({ timeout: 1000 })
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click()
         await page.getByRole('button', { name: 'Enable Session Restore' }).click()
         await page.getByRole('button', { name: 'Show Home Button' }).click()
         await this.startBrowsing()
     }
 
-    async completesOrderV3WithoutDock () {
+    async completesOrderV3WithoutSettings () {
         const { page } = this
-        await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 })
-        await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 })
 
+        /* Welcome */
+        await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 })
+
+        /* Get started */
+        await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 })
         await page.getByRole('button', { name: 'Let’s Do It' }).click()
 
-        await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click()
-        await page.getByRole('button', { name: 'Next' }).click()
+        /* Comparison table */
+        await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Got It' }).click()
 
-        await page.getByRole('button', { name: 'Import' }).click()
-        await page.getByRole('button', { name: 'Next' }).click()
-
+        /* Duckplayer */
+        await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 })
         await page.getByRole('button', { name: 'See Without Duck Player' }).click()
         await page.getByRole('button', { name: 'See With Duck Player' }).click()
         await page.getByRole('button', { name: 'Next' }).click()
 
+        /* Customize */
+        await page.getByText('Let’s customize a few things').nth(1).waitFor({ timeout: 1000 })
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click()
         await page.getByRole('button', { name: 'Enable Session Restore' }).click()
         await page.getByRole('button', { name: 'Show Home Button' }).click()
