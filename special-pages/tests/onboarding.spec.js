@@ -160,7 +160,6 @@ test.describe('onboarding', () => {
             await onboarding.darkMode()
             await onboarding.openPage()
             await onboarding.completesOrderV3()
-            await onboarding.startBrowsing()
         })
         test('shows v3 flow without settings step', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo)
