@@ -45,7 +45,7 @@ export function SettingsStep ({ data }) {
                 {appState.status.kind === 'idle' && appState.status.error && (
                     <p>{appState.status.error}</p>
                 )}
-                <PlainList variant='bordered' animate={true}>
+                <PlainList variant='bordered' animate>
                     {rows.filter(item => item.visible).map((item, index) => {
                         return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />
                     })}

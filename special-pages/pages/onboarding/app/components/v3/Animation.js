@@ -33,8 +33,6 @@ export function SlideIn ({ children, onAnimationEnd }) {
         if (e.animationName === 'Animation_slidein') animationEnd()
     }
 
-    console.log('ANIM', animationState)
-
     return (
         <div class={styles.container} onAnimationEnd={animationDidEnd} key={activeStep} data-animation-state={animationState}>
             <div className={styles.slideIn}>
