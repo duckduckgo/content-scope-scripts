@@ -7,7 +7,7 @@ Please check the README.md & package.json in each
 
 ## Child Projects
 
-### [1. Injected](./injected)
+### [Injected](./injected)
 
 This is a framework designed to create specialized JavaScript bundles tailored to specific sets of
 protections and features for different platforms. For instance, Apple platforms might utilize
@@ -16,7 +16,7 @@ a particular combination of features, while Android may require a different conf
 Features here have a deep integration with [privacy-configuration](https://github.com/duckduckgo/privacy-configuration),
 to allow dynamic enabling or disabling of features at runtime.
 
-### [2. Special Pages](./special-pages)
+### [Special Pages](./special-pages)
 
 This project contains a set of isolated JavaScript applications that end up being embedded directly into
 our browsers. A 'special page' can be as simple as a single-screen, or as complex as a New Tab Page.
@@ -24,7 +24,7 @@ our browsers. A 'special page' can be as simple as a single-screen, or as comple
 Special Pages are often developed for a specific platform initially, but can then be easily adopted
 by others when it makes sense.
 
-### [3. Messaging](./messaging)
+### [Messaging](./messaging)
 
 This project serves as an abstraction layer for seamless web-to-native and native-to-web
 communications, inspired by the [JSON-RPC](https://www.jsonrpc.org/specification) format.
@@ -34,7 +34,7 @@ features without worrying about the underlying communication mechanisms.
 The module provides three core methods: `notify` for fire-and-forget messages, `request` for asynchronous request-response
 interactions, and `subscribe` for handling push-based data updates.
 
-### [3. Types-generator](./types-generator)
+### [Types-generator](./types-generator)
 
 This project provides a set of scripts to automatically generate TypeScript types from JSON Schema files. 
 It supports generating types for two main purposes: `settings` and `messages`. These types are 
@@ -74,11 +74,6 @@ various artifacts.
   npm run test-int-x
   ```
 
-- **Build TypeScript types**:
-  ```sh
-  npm run build-types
-  ```
-
 - **Clean tree and check for changes**:
   ```sh
   npm run test-clean-tree
@@ -107,11 +102,6 @@ various artifacts.
 - **Lint the codebase using ESLint**:
   ```sh
   npm run lint
-  ```
-
-- **Lint without outputting globals**:
-  ```sh
-  npm run lint-no-output-globals
   ```
 
 - **Lint and automatically fix issues**:
