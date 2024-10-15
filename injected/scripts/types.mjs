@@ -18,11 +18,15 @@ const injectSchemaMapping = {
     "Webcompat Settings": {
         schema: join(configBuilderRoot, "tests/schemas/webcompat-settings.json"),
         types: join(injectRoot, "src/types/webcompat-settings.d.ts"),
+        // todo: fix this on windows.
+        exclude: process.platform === 'win32',
         kind: 'settings',
     },
     "Duckplayer Settings": {
         schema: join(configBuilderRoot, "tests/schemas/duckplayer-settings.json"),
         types: join(injectRoot, "src/types/duckplayer-settings.d.ts"),
+        // todo: fix this on windows.
+        exclude: process.platform === 'win32',
         kind: 'settings',
     },
     "Schema Messages": {

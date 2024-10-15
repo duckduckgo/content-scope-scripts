@@ -10,12 +10,13 @@ const ROOT = join(cwd(import.meta.url), '..')
  * @typedef {object} SettingsKind
  * @property {string} schema Absolute path to a valid JSON Schema document
  * @property {string} types Absolute path to the output file
+ * @property {boolean} exclude Whether to exclude this mapping
  * @property {'settings'} kind
  *
  * @typedef {object} MessagesKind
  * @property {string} typesDir Directory for the generated types
  * @property {string} schemaDir Directory containing the schemas
- * @property {boolean} exclude Whether to exclude this mapping on Windows
+ * @property {boolean} exclude Whether to exclude this mapping
  * @property {function} resolve Function to resolve the path
  * @property {function} className Function to generate the class name
  * @property {'messages'} kind
