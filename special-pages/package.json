@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "node types.mjs",
     "build": "node index.mjs",
-    "build.dev": "npm run build --env development",
+    "build.dev": "npm run build -- --env development",
     "test-unit": "node --test unit-test/translations.mjs pages/duckplayer/unit-tests/embed-settings.mjs",
     "test-int": "npm run test-unit && playwright test --grep-invert '@screenshots'",
     "test-int-x": "npm run test-int",
