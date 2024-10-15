@@ -17,7 +17,7 @@ import styles from './ElasticButton.module.css'
  *
  * @param {ElasticButtonProps & import("preact").ComponentProps<"button">} props
  */
-export function ElasticButton ({ text, variant = 'primary', startIcon, endIcon, textVariants, elastic = true, children, ...rest }) {
+export function ElasticButton ({ text, variant = 'primary', startIcon, endIcon, textVariants, elastic = true, ...rest }) {
     const classes = cn({
         [styles.button]: true,
         [styles.primary]: variant === 'primary',
