@@ -48,12 +48,12 @@ export default defineConfig({
             name: 'chrome',
             testMatch: [
                 'integration-test/remote-pages.spec.js',
-                'integration-test/test-cookie.js',
-                'integration-test/test-fingerprint.js',
-                'integration-test/test-navigator-interface.js',
-                'integration-test/test-pages.js',
-                'integration-test/test-utils.js',
-                'integration-test/test-web-compat.js'
+                'integration-test/cookie.spec.js',
+                'integration-test/fingerprint.spec.js',
+                'integration-test/navigator-interface.spec.js',
+                'integration-test/pages.spec.js',
+                'integration-test/utils.spec.js',
+                'integration-test/web-compat.spec.js'
             ],
             use: { injectName: 'chrome', platform: 'extension', ...devices['Desktop Chrome'] }
         },
