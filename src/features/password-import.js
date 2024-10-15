@@ -5,12 +5,22 @@ const ANIMATION_DURATION_MS = 1000
 const ANIMATION_ITERATIONS = Infinity
 
 export default class PasswordImport extends ContentFeature {
+    // TODO: The actual values should be configurable, and come from android
     #exportButtonSettings = {
-        labelTexts: ['Export'] // TODO: should be configurable, can have multiple languages
+        containerSelectors: ['c-wiz[data-node-index*="2;0"][data-p*="options"]', 'c-wiz[data-p*="options"][jsdata="deferred-i4"]'],
+        labelTexts: ['Export']
     }
 
-    #settingsButtonSettings = {}
-    #signInButtonSettings = {}
+    #settingsButtonSettings = {
+        selectors: ['a[href*="options"]', 'a[arial-label="Password options"]'],
+        labelTexts: ['Password options']
+    }
+
+    #signInButtonSettings = {
+        selectors: ['a[href*="ServiceLogin"]:not([target="_top"])', 'a[aria-label="Sign in"]:not([target="_top"])'],
+        labelTexts: ['Sign in']
+    }
+
     SUPPORTED_PATHS = {
         SIGNIN: '/intro',
         EXPORT: '/options',
@@ -31,7 +41,7 @@ export default class PasswordImport extends ContentFeature {
                         backgroundColor: 'rgba(0, 39, 142, 0.5)'
                     },
                     element,
-                    shouldTap: this.#settingsButtonSettings.autotap?.enabled ?? false
+                    shouldTap: this.#settingsButtonSettings.shouldAutotap ?? false
                 }
                 : null
         } else if (path === this.SUPPORTED_PATHS.EXPORT) {
@@ -43,7 +53,7 @@ export default class PasswordImport extends ContentFeature {
                         backgroundColor: 'rgba(0, 39, 142, 0.5)'
                     },
                     element,
-                    shouldTap: this.#exportButtonSettings.autotap?.enabled ?? false
+                    shouldTap: this.#exportButtonSettings.shouldAutotap ?? false
                 }
                 : null
         } else if (path === this.SUPPORTED_PATHS.SIGNIN) {
@@ -55,7 +65,7 @@ export default class PasswordImport extends ContentFeature {
                         backgroundColor: 'rgba(0, 39, 142, 0.5)'
                     },
                     element,
-                    shouldTap: this.#signInButtonSettings.autotap?.enabled ?? false
+                    shouldTap: this.#signInButtonSettings.shouldAutotap ?? false
                 }
                 : null
         } else {
@@ -115,7 +125,7 @@ export default class PasswordImport extends ContentFeature {
      */
     async findSettingsElement () {
         const fn = () => {
-            const settingsButton = document.querySelector(this.settingsButtonSelectors[0])
+            const settingsButton = document.querySelector(this.settingsButtonSelector)
             return settingsButton
         }
         return await withExponentialBackoff(fn)
@@ -125,7 +135,7 @@ export default class PasswordImport extends ContentFeature {
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSignInButton () {
-        return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelectors[0]))
+        return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector))
     }
 
     /**
@@ -149,8 +159,7 @@ export default class PasswordImport extends ContentFeature {
      * @returns {string}
      */
     get exportButtonContainerSelector () {
-        return 'c-wiz[data-node-index*="2;0"][data-p*="options"], c-wiz[data-p*="options"][jsdata="deferred-i4"]'
-        // return this.#exportButtonSettings?.containerSelectors?.join(',')
+        return this.#exportButtonSettings?.containerSelectors?.join(',')
     }
 
     /**
@@ -163,27 +172,46 @@ export default class PasswordImport extends ContentFeature {
     }
 
     /**
-     * @returns {Array<string>}
+     * @returns {string}
      */
-    get signinButtonSelectors () {
-        return ['a[href*="ServiceLogin"]:not([target="_top"]']
+    get signinLabelTextSelector () {
+        return this.#signInButtonSettings?.labelTexts
+            .map(text => `a[arial-label="${text}"]:not([target="_top"])`)
+            .join(',')
     }
 
     /**
-     * @returns {Array<string>}
+     * @returns {string}
      */
-    get settingsButtonSelectors () {
-        return ['a[href*="options"]']
+    get signinButtonSelector () {
+        return `${this.#signInButtonSettings?.selectors?.join(',')}, ${this.signinLabelTextSelector}`
     }
 
     /**
-     *
+     * @returns {string}
+     */
+    get settingsLabelTextSelector () {
+        return this.#settingsButtonSettings?.labelTexts
+            .map(text => `a[arial-label="${text}"]`)
+            .join(',')
+    }
+
+    /**
+     * @returns {string}
+     */
+    get settingsButtonSelector () {
+        return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`
+    }
+
+    /**
      * @param {any} settings
      */
     setButtonSettings (settings) {
-        this.#exportButtonSettings = settings?.exportButton
-        this.#settingsButtonSettings = settings?.settingsButton
-        this.#signInButtonSettings = settings?.signInButton
+        console.log('DEEP settings', settings)
+        // TODO: currently all hardcoded as class members, should be configurable
+        // this.#exportButtonSettings = settings?.exportButton
+        // this.#settingsButtonSettings = settings?.settingsButton
+        // this.#signInButtonSettings = settings?.signInButton
     }
 
     init (args) {
