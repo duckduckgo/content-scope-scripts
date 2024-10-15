@@ -6,7 +6,7 @@
  * @typedef {import("../../messaging/index.js").RequestMessage} RequestMessage
  * @typedef {import("../../messaging/index.js").NotificationMessage} NotificationMessage
  * @typedef {WindowsRequestMessage | WindowsNotification | SubscriptionEvent} AnyWindowsMessage
- * @typedef {import("../../injected/integration-test/playwright/type-helpers.mjs").PlatformInfo} PlatformInfo
+ * @typedef {import("../../injected/integration-test/type-helpers.mjs").PlatformInfo} PlatformInfo
  */
 /**
  * Install a mock interface for windows messaging
