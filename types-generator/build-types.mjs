@@ -33,6 +33,7 @@ const ROOT = join(cwd(import.meta.url), '..')
  */
 export async function buildTypes(mapping) {
     for (let [featureName, manifest] of Object.entries(mapping)) {
+        if (manifest.exclude) continue;
         if (manifest.kind === 'settings') {
             const typescript = await createTypesForSchemaFile(featureName, manifest.schema);
             let content = typescript.replace(/\r\n/g, '\n')
@@ -40,7 +41,6 @@ export async function buildTypes(mapping) {
             console.log('✅ %s schema written to `%s` from schema `%s`', featureName, relative(ROOT, manifest.types), manifest.schema)
         }
         if (manifest.kind === 'messages') {
-            if (manifest.exclude) continue;
             // create a job for each sub-folder that contains schemas
             const schemas = await createSchemasFromFiles(manifest.schemaDir)
 
