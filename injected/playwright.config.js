@@ -5,49 +5,49 @@ export default defineConfig({
         {
             name: 'windows',
             testMatch: [
-                'integration-test/playwright/duckplayer.spec.js',
-                'integration-test/playwright/duckplayer-remote-config.spec.js',
-                'integration-test/playwright/harmful-apis.spec.js',
-                'integration-test/playwright/windows-permissions.spec.js',
-                'integration-test/playwright/broker-protection.spec.js',
-                'integration-test/playwright/breakage-reporting.spec.js'
+                'integration-test/duckplayer.spec.js',
+                'integration-test/duckplayer-remote-config.spec.js',
+                'integration-test/harmful-apis.spec.js',
+                'integration-test/windows-permissions.spec.js',
+                'integration-test/broker-protection.spec.js',
+                'integration-test/breakage-reporting.spec.js'
             ],
             use: { injectName: 'windows', platform: 'windows' }
         },
         {
             name: 'apple-isolated',
             testMatch: [
-                'integration-test/playwright/duckplayer.spec.js',
-                'integration-test/playwright/duckplayer-remote-config.spec.js',
-                'integration-test/playwright/broker-protection.spec.js'
+                'integration-test/duckplayer.spec.js',
+                'integration-test/duckplayer-remote-config.spec.js',
+                'integration-test/broker-protection.spec.js'
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' }
         },
         {
             name: 'apple',
             testMatch: [
-                'integration-test/playwright/webcompat.spec.js'
+                'integration-test/webcompat.spec.js'
             ],
             use: { injectName: 'apple', platform: 'macos' }
         },
         {
             name: 'ios',
             testMatch: [
-                'integration-test/playwright/duckplayer-mobile.spec.js'
+                'integration-test/duckplayer-mobile.spec.js'
             ],
             use: { injectName: 'apple-isolated', platform: 'ios', ...devices['iPhone 13'] }
         },
         {
             name: 'android',
             testMatch: [
-                'integration-test/playwright/duckplayer-mobile.spec.js'
+                'integration-test/duckplayer-mobile.spec.js'
             ],
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] }
         },
         {
             name: 'chrome',
             testMatch: [
-                'integration-test/playwright/remote-pages.spec.js',
+                'integration-test/remote-pages.spec.js',
                 'integration-test/test-cookie.js',
                 'integration-test/test-fingerprint.js',
                 'integration-test/test-navigator-interface.js',
@@ -59,7 +59,7 @@ export default defineConfig({
         },
         {
             name: 'firefox',
-            testMatch: 'integration-test/playwright/remote-pages.spec.js',
+            testMatch: 'integration-test/remote-pages.spec.js',
             use: { injectName: 'firefox', platform: 'extension', ...devices['Desktop Firefox'] }
         }
     ],
