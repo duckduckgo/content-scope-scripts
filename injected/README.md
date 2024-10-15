@@ -165,8 +165,7 @@ npm run test-unit
 ```
 
 #### Feature Integration Tests (playwright)
-Everything within `integration-test/playwright` is integration tests controlled by Playwright. These should be defaulted
-to for any new tests that include UI elements (such as click to load)
+Everything within `integration-test` is integration tests controlled by Playwright.
 
 ```shell
 npm run test-int

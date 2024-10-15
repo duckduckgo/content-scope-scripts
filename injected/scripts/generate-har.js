@@ -1,6 +1,6 @@
 import { chromium } from '@playwright/test'
 
-const testPath = 'integration-test/playwright/data/har/duckduckgo.com/search.har'
+const testPath = 'integration-test/data/har/duckduckgo.com/search.har'
 
 async function init () {
     const browser = await chromium.launch()

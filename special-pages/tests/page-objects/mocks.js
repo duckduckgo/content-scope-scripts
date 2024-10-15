@@ -16,8 +16,8 @@ export class Mocks {
 
     /**
      * @param {import("@playwright/test").Page} page
-     * @param {import("../../../injected/integration-test/playwright/type-helpers.mjs").Build} build
-     * @param {import("../../../injected/integration-test/playwright/type-helpers.mjs").PlatformInfo} platform
+     * @param {import("../../../injected/integration-test/type-helpers.mjs").Build} build
+     * @param {import("../../../injected/integration-test/type-helpers.mjs").PlatformInfo} platform
      * @param {import("@duckduckgo/messaging").MessagingContext} messagingContext
      */
     constructor (page, build, platform, messagingContext) {
