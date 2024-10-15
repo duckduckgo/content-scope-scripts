@@ -1,6 +1,6 @@
 # TypeScript Type Generation from JSON Schemas
 
-This project provides a set of scripts to automatically generate TypeScript types from JSON Schema files. It supports generating types for two main purposes: `settings` and `messages`. These types are designed to integrate smoothly with features such as `@duckduckgo/messaging`, and ensure consistency across different schema definitions.
+This project provides a set of scripts to automatically generate TypeScript types from JSON Schema files. It supports generating types for two main purposes: `settings` and `messages`. These types are designed to integrate smoothly with features such as `@duckduckgo/messaging`.
 
 ## How It Works
 

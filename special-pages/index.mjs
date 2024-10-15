@@ -6,7 +6,7 @@
  *
  * A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like `about: pages`
  *
- * [[include:special-pages/readme.md]]
+ * [[include:special-pages/README.md]]
  *
  */
 import { join, relative } from 'node:path'
