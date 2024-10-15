@@ -39,7 +39,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "minimist": "^1.2.8",
-    "typedoc": "^0.25.12",
+    "typedoc": "^0.26.9",
     "typescript": "^5.4.3"
   }
 }
