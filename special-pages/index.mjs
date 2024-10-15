@@ -6,8 +6,6 @@
  *
  * A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like `about: pages`
  *
- * [[include:special-pages/README.md]]
- *
  */
 import { join, relative } from 'node:path'
 import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs'
