@@ -1,6 +1,42 @@
 import { Fragment, h } from "preact";
 import styles from "./Components.module.css";
 import { mainExamples, otherExamples } from "./Examples.jsx";
+import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
+
+import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
+import { stats } from "../privacy-stats/mocks/stats.js";
+import { RemoteMessagingFramework } from "../remote-messaging-framework/RemoteMessagingFramework";
+
+/** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
+const examples = {
+    'stats.few': {
+        factory: () => <PrivacyStatsMockProvider ticker={true}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+    },
+    'stats.few.collapsed': {
+        factory: () => <PrivacyStatsMockProvider config={{ expansion: "collapsed" }}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+    },
+    'stats.single': {
+        factory: () => <PrivacyStatsMockProvider data={stats.single}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+    },
+    'stats.none': {
+        factory: () => <PrivacyStatsMockProvider data={stats.none}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+    },
+    'stats.norecent': {
+        factory: () => <PrivacyStatsMockProvider data={stats.norecent}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+    },
+    'stats.list': {
+        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} />
+    },
+    'stats.heading': {
+        factory: () => <Heading trackerCompanies={stats.few.trackerCompanies} totalCount={stats.few.totalCount} />
+    },
+    'stats.heading.none': {
+        factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount} />
+    },
+    'rmf': {
+        factory: () => <RemoteMessagingFramework messageType="medium" />
+    }
+}
 
 const url = new URL(window.location.href);
 
