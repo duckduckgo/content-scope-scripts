@@ -1,6 +1,8 @@
 name: Release
 
 on:
+  pull_request:
+    types: [opened, synchronize, closed, ready_for_review]
   workflow_dispatch:
     inputs:
       version:
@@ -21,9 +23,10 @@ jobs:
 
       - name: Fetch files and checkout
         run: |
-          git fetch --all
-          git checkout releases
-          git checkout main .
+          git fetch origin
+          git checkout -b main origin/main
+          git checkout -b releases origin/releases
+          git checkout main -- .
 
       - name: Build release
         run: |
@@ -44,15 +47,20 @@ jobs:
 
       - name: Collect commit ranges
         run: |
-          bash ./scripts/changelog.sh > ${{ github.workspace }}-CHANGELOG.txt
+          bash ./scripts/changelog.sh > ${{ github.workspace }}/CHANGELOG.txt
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          body_path: ${{ github.workspace }}-CHANGELOG.txt
-          draft: false
-          prerelease: false
-          tag_name: ${{ github.event.inputs.version }}
-          target_commitish: "releases"
+      - name: Debug changelog file
+        run: |
+          ls -la ${{ github.workspace }}/CHANGELOG.txt
+          cat ${{ github.workspace }}/CHANGELOG.txt
+    
+      #- name: Create Release
+      #  uses: softprops/action-gh-release@v2
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    body_path: ${{ github.workspace }}/CHANGELOG.txt
+      #    draft: false
+      #    prerelease: false
+      #    tag_name: ${{ github.event.inputs.version }}
+      #    target_commitish: "releases"
