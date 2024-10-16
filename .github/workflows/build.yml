@@ -54,13 +54,13 @@ jobs:
           ls -la ${{ github.workspace }}/CHANGELOG.txt
           cat ${{ github.workspace }}/CHANGELOG.txt
     
-      #- name: Create Release
-      #  uses: softprops/action-gh-release@v2
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #  with:
-      #    body_path: ${{ github.workspace }}/CHANGELOG.txt
-      #    draft: false
-      #    prerelease: false
-      #    tag_name: ${{ github.event.inputs.version }}
-      #    target_commitish: "releases"
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          body_path: ${{ github.workspace }}/CHANGELOG.txt
+          draft: true
+          prerelease: false
+          tag_name: "6.22.0"
+          target_commitish: "releases"
