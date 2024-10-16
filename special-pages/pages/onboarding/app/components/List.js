@@ -1,6 +1,7 @@
 import { h } from 'preact'
 import cn from 'classnames'
 import styles from './List.module.css'
+import { useEffect, useRef } from 'preact/hooks'
 import { useAutoAnimate } from '@formkit/auto-animate/preact'
 import { useEnv } from '../../../../shared/components/EnvironmentProvider'
 
@@ -29,18 +30,29 @@ export function List ({ animate = false, children }) {
  * @param {import("preact").ComponentChild} props.children - List children
  */
 export function PlainList ({ variant, animate = false, children }) {
-    const { isReducedMotion } = useEnv()
-    const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : undefined)
+    const listRef = useRef(null)
+    const containerRef = useRef(null)
 
     const classes = cn({
         [styles.plainList]: true,
         [styles.borderedList]: variant === 'bordered'
     })
 
+    useEffect(() => {
+        if (containerRef.current && listRef.current) {
+            const container = /** @type {HTMLElement} */(containerRef.current)
+            const list = /** @type {HTMLElement} */(listRef.current)
+
+            container.style.height = `${list.clientHeight}px`
+        }
+    }, [containerRef, listRef, children])
+
     return (
-        <ul className={classes} ref={animate ? parent : null}>
-            {children}
-        </ul>
+        <div className={styles.plainListContainer} ref={animate ? containerRef : null}>
+            <ul className={classes} ref={animate ? listRef : null}>
+                {children}
+            </ul>
+        </div>
     )
 }
 

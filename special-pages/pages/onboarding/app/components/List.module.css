@@ -38,6 +38,13 @@
     }
 }
 
+.plainListContainer {
+    overflow: hidden;
+    height: 0;
+    transition: height 300ms ease-in-out;
+    min-height: calc(116 * var(--px-in-rem));
+}
+
 .plainList {
     border-radius: var(--sp-3);
     display: grid;
@@ -46,7 +53,7 @@
     padding: var(--sp-7) var(--sp-14);
     width: 100%;
 
-    li {
+    > li {
         position: relative;
     }
 }

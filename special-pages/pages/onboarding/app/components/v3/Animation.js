@@ -30,7 +30,8 @@ export function SlideIn ({ children, onAnimationEnd }) {
     }, [activeStep, activeStepVisible, isReducedMotion])
 
     const animationDidEnd = (e) => {
-        if (e.animationName === 'Animation_slidein') animationEnd()
+        console.log(e)
+        if (e.animationName === 'Animation_slide') animationEnd()
     }
 
     return (
