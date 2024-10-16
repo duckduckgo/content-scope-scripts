@@ -1,6 +1,6 @@
 # Project Overview
 
-A collection of projects that are used within our Browsers.
+A collection of shared JavaScript and HTML projects that are used within our Browsers.
 
 ## Child Projects
 
