@@ -59,6 +59,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const fs = require('fs');
             const prNumber = context.issue.number;
             const diffOutput = fs.readFileSync('diff_output.txt', 'utf-8')
             const commentBody = `
