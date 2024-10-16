@@ -1,7 +1,6 @@
 import { Fragment, h } from "preact";
 import styles from "./Components.module.css";
 import { mainExamples, otherExamples } from "./Examples.jsx";
-
 const url = new URL(window.location.href);
 
 export function Components() {
@@ -23,7 +22,7 @@ export function Components() {
 
     return (
         <div>
-            <DebugBar id={ids[0]} ids={ids} entries={entries}/>
+            <DebugBar id={ids[0]} ids={ids} entries={entries} />
             <Stage entries={/** @type {any} */(filtered)} />
         </div>
     )
@@ -70,18 +69,22 @@ function Stage({ entries }) {
                             <div class={styles.itemLinks}>
                                 <code>{id}</code>
                                 <a href={next.toString()}
-                                   target="_blank"
-                                   title="open in new tab">Open 🔗</a>{" "}
+                                    target="_blank"
+                                    title="open in new tab">Open 🔗</a>{" "}
                                 <a href={without.toString()} hidden={current.length === 0}>Remove</a>
                             </div>
                             <div class={styles.itemLinks}>
                                 <a href={selected.toString()}
-                                   class={styles.itemLink}
-                                   title="show this component only">select</a>{" "}
+                                    class={styles.itemLink}
+                                    title="show this component only">select</a>{" "}
+                                <a href={next.toString()}
+                                    target="_blank"
+                                    class={styles.itemLink}
+                                    title="isolate this component">isolate</a>{" "}
                                 <a href={e2e.toString()}
-                                   target="_blank"
-                                   class={styles.itemLink}
-                                   title="isolate this component">edge-to-edge</a>
+                                    target="_blank"
+                                    class={styles.itemLink}
+                                    title="isolate this component">edge-to-edge</a>
                             </div>
                         </div>
                         <div className={styles.item} key={id}>
@@ -180,7 +183,7 @@ function ExampleSelector({ entries, id }) {
         if (!(event.target instanceof HTMLSelectElement)) return;
         const selectedId = event.target.value;
         if (selectedId) {
-            if (selectedId==="none") return onReset();
+            if (selectedId === "none") return onReset();
             const url = new URL(window.location.href);
             url.searchParams.set("id", selectedId);
             window.location.href = url.toString();
