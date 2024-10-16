@@ -83,6 +83,9 @@ function displayDiffs (dir1Files, dir2Files, isOpen) {
 }
 
 function renderDetails (section, text, isOpen) {
+    if (section == 'dist') {
+        section = 'apple'
+    }
     const open = section !== 'integration' ? 'open' : ''
     return `<details ${open}>
 <summary>${upperCaseFirstLetter(section)}</summary>
@@ -95,8 +98,8 @@ if (process.argv.length !== 4) {
     process.exit(1)
 }
 
-const dir1 = process.argv[2] + '/build'
-const dir2 = process.argv[3] + '/build'
+const dir1 = process.argv[2]
+const dir2 = process.argv[3]
 
 const sections = {
 }
@@ -107,8 +110,12 @@ function sortFiles (dirFiles, dirName) {
     }
 }
 
-sortFiles(readFilesRecursively(dir1), 'dir1')
-sortFiles(readFilesRecursively(dir2), 'dir2')
+const buildDir = '/build'
+const sourcesOutput = '/Sources/ContentScopeScripts/'
+sortFiles(readFilesRecursively(dir1 + buildDir), 'dir1')
+sortFiles(readFilesRecursively(dir2 + buildDir), 'dir2')
+sortFiles(readFilesRecursively(dir1 + sourcesOutput), 'dir1')
+sortFiles(readFilesRecursively(dir2 + sourcesOutput), 'dir2')
 
 
 //console.log(Object.keys(files))
