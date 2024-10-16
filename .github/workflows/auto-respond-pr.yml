@@ -42,7 +42,9 @@ jobs:
           cd ..
 
       - name: Create diff of file outputs
-        run: node pr/.github/scripts/diff-directories.js base pr > diff_output.txt
+        run: |
+          output=$(node pr/.github/scripts/diff-directories.js base pr)
+          echo "SCRIPT_OUTPUT=$output" >> $GITHUB_ENV
 
       - name: Find Previous Comment
         uses: peter-evans/find-comment@v3
@@ -59,9 +61,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const fs = require('fs');
             const prNumber = context.issue.number;
-            const diffOutput = fs.readFileSync('diff_output.txt', 'utf-8')
+            const diffOutput = process.env.SCRIPT_OUTPUT;
             const commentBody = `
             ### Generated file diff
             *Time updated:* ${new Date().toUTCString()}
