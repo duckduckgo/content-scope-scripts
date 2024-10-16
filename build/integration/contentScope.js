@@ -2297,7 +2297,7 @@
      * @example
      *
      * ```javascript
-     * [[include:packages/messaging/lib/examples/windows.example.js]]```
+     * [[include:messaging/lib/examples/windows.example.js]]```
      *
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -2496,7 +2496,7 @@
      * side those handlers `window.chrome.webview` handlers might be deleted and replaces with in-scope variables, such as:
      *
      * ```ts
-     * [[include:packages/messaging/lib/examples/windows.example.js]]```
+     * [[include:messaging/lib/examples/windows.example.js]]```
      *
      */
     class WindowsMessagingConfig {
@@ -3071,7 +3071,7 @@
      * @example Webkit Messaging
      *
      * ```javascript
-     * [[include:packages/messaging/lib/examples/webkit.example.js]]```
+     * [[include:messaging/lib/examples/webkit.example.js]]```
      */
     class WebkitMessagingConfig {
         /**
@@ -3189,7 +3189,7 @@
      * @example
      *
      * ```javascript
-     * [[include:packages/messaging/lib/examples/windows.example.js]]```
+     * [[include:messaging/lib/examples/windows.example.js]]```
      *
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -3654,7 +3654,7 @@
      * for a full integration
      *
      * ```js
-     * [[include:packages/messaging/lib/examples/test.example.js]]```
+     * [[include:messaging/lib/examples/test.example.js]]```
      */
     class TestTransportConfig {
         /**
@@ -3908,7 +3908,7 @@
         #documentOriginIsTracker
         /** @type {Record<string, unknown> | undefined} */
         #bundledfeatureSettings
-        /** @type {import('../packages/messaging').Messaging} */
+        /** @type {import('../../messaging').Messaging} */
         #messaging
         /** @type {boolean} */
         #isDebugFlagSet = false
@@ -11395,7 +11395,7 @@
      *         - `eventTarget` matches a CSS selector in `[config] allowedEventTargets`
      *     - otherwise, do nothing
      *
-     * [[include:src/features/duckplayer/thumbnails.md]]
+     * [[include:injected/src/features/duckplayer/thumbnails.md]]
      */
 
 
@@ -12677,7 +12677,7 @@
      * For example, to enable the Duck Player Overlay on YouTube, the following config is used:
      *
      * ```json
-     * [[include:integration-test/test-pages/duckplayer/config/overlays-live.json]]```
+     * [[include:injected/integration-test/test-pages/duckplayer/config/overlays-live.json]]```
      *
      */
 
@@ -12769,7 +12769,7 @@
      * ## Remote Config
      * The behaviour can be controlled with a remote config. Example:
      * ```json
-     * [[include:integration-test/test-pages/harmful-apis/config/apis.json]]```
+     * [[include:injected/integration-test/test-pages/harmful-apis/config/apis.json]]```
      *
      */
 
