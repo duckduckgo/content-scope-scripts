@@ -25,6 +25,7 @@
   "license": "ISC",
   "devDependencies": {
     "@duckduckgo/messaging": "*",
+    "esbuild": "^0.19.5",
     "@playwright/test": "^1.40.1",
     "http-server": "^14.1.1",
     "web-resource-inliner": "^6.0.1",
