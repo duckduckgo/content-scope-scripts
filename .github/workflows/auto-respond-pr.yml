@@ -1,0 +1,56 @@
+name: Auto Respond to PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  auto_respond:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          path: base
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          path: pr
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          npm install @octokit/rest
+
+      - name: Run build script on base branch
+        run: |
+          cd base
+          npm install
+          npm run build
+          cd ..
+
+      - name: Run build script on PR branch
+        run: |
+          cd pr
+          git config --global user.email "dax@duck.com"
+          git config --global user.name "dax"
+          git rebase origin/${{ github.event.pull_request.base.ref }}
+          npm install
+          npm run build
+          cd ..
+
+      - name: Create diff of file outputs
+        run: node pr/.github/scripts/diff-directories.js base pr > diff_output.txt
+
+      - name: Run auto response script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node pr/.github/scripts/auto-respond-pr.mjs
