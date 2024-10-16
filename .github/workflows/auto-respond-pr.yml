@@ -64,7 +64,7 @@ jobs:
             const prNumber = context.issue.number;
             const diffOut = fs.readFileSync('diff.txt', 'utf8');
             const commentBody = `
-            ### Generated file diff
+            ### *[Beta]* Generated file diff
             *Time updated:* ${new Date().toUTCString()}
 
             ${diffOut}
