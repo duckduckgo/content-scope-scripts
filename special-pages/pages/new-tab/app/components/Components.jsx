@@ -4,6 +4,7 @@ import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacySta
 
 import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
 import { stats } from "../privacy-stats/mocks/stats.js";
+import { RemoteMessagingFramework } from "../remote-messaging-framework/RemoteMessagingFramework";
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 const examples = {
@@ -31,6 +32,9 @@ const examples = {
     'stats.heading.none': {
         factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount} />
     },
+    'rmf': {
+        factory: () => <RemoteMessagingFramework messageType="medium" />
+    }
 }
 
 const url = new URL(window.location.href);
