@@ -43,11 +43,7 @@ jobs:
 
       - name: Create diff of file outputs
         run: |
-          output=$(node pr/.github/scripts/diff-directories.js base pr)
-          # Encode the output in Base64 to avoid issues with special characters
-          encoded_output=$(echo "$output" | base64)
-          # Set the encoded output as an environment variable
-          echo "SCRIPT_OUTPUT=$encoded_output" >> $GITHUB_ENV
+          node pr/.github/scripts/diff-directories.js base pr > diff.txt
 
       - name: Find Previous Comment
         uses: peter-evans/find-comment@v3
@@ -64,14 +60,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const fs = require('fs');
             const prNumber = context.issue.number;
-            const encodedOutput = process.env.SCRIPT_OUTPUT;
-            const decodedOutput = Buffer.from(encodedOutput, 'base64').toString('utf-8');
+            const diffOut = fs.readFileSync('diff.txt', 'utf8');
             const commentBody = `
             ### Generated file diff
             *Time updated:* ${new Date().toUTCString()}
 
-            ${decodedOutput}
+            ${diffOut}
                 `;
             core.setOutput('comment_body', commentBody);
             core.setOutput('pr_number', prNumber);
