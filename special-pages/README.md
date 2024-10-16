@@ -2,9 +2,9 @@
 
 Special Pages gives us a single place to implement isolated HTML/CSS/Javascript projects that can be loaded into a web context that has privileged access to API.
 
-- `packages/special-pages/pages/example`
-- `packages/special-pages/pages/duckplayer`
-- `packages/special-pages/pages/errorpage`
+- `special-pages/pages/example`
+- `special-pages/pages/duckplayer`
+- `special-pages/pages/errorpage`
 
 Would translate into the following build output
 
@@ -26,13 +26,13 @@ This allows each respective platform to configure their integrations to use the 
 
 ### Integration Tests
 
-Ensure these commands are run from the `packages/special-pages` folder.
+Ensure these commands are run from the `special-pages` folder.
 
 ```shell
 # to have all platforms tested (minus screenshots)
-npm run test
+npm run test-int
 # to only run the iOS tests, likewise for the other platforms
-npm run test -- --project ios
+npm run test-int -- --project ios
 # to *only* run screenshot tests
 npm run test.screenshots
 # to also update screenshots (if you've made changes to anything visual)

@@ -1,19 +1,14 @@
 # Project Overview
 
-This repository uses npm workspaces to manage multiple projects within a single codebase. Some scripts, such as those
-for ESLint, TypeScript, and documentation generation, are global in nature (see below).
-
-Please check the README.md & package.json in each
+A collection of shared JavaScript and HTML projects that are used within our Browsers.
 
 ## Child Projects
 
 ### [Injected](./injected)
 
-This is a framework designed to create specialized JavaScript bundles tailored to specific sets of
-protections and features for different platforms. For instance, Apple platforms might utilize
-a particular combination of features, while Android may require a different configuration entirely.
+A library of features/protections that are executed within our browsers. 
 
-Features here have a deep integration with [privacy-configuration](https://github.com/duckduckgo/privacy-configuration),
+Features have a deep integration with [privacy-configuration](https://github.com/duckduckgo/privacy-configuration),
 to allow dynamic enabling or disabling of features at runtime.
 
 ### [Special Pages](./special-pages)
@@ -21,24 +16,17 @@ to allow dynamic enabling or disabling of features at runtime.
 This project contains a set of isolated JavaScript applications that end up being embedded directly into
 our browsers. A 'special page' can be as simple as a single-screen, or as complex as a New Tab Page.
 
-Special Pages are often developed for a specific platform initially, but can then be easily adopted
-by others when it makes sense.
-
 ### [Messaging](./messaging)
 
 This project serves as an abstraction layer for seamless web-to-native and native-to-web
 communications, inspired by the [JSON-RPC](https://www.jsonrpc.org/specification) format.
-Its primary goal is to simplify the development process by allowing engineers to focus on building
-features without worrying about the underlying communication mechanisms.
 
 The module provides three core methods: `notify` for fire-and-forget messages, `request` for asynchronous request-response
 interactions, and `subscribe` for handling push-based data updates.
 
 ### [Types-generator](./types-generator)
 
-This project provides a set of scripts to automatically generate TypeScript types from JSON Schema files. 
-It supports generating types for two main purposes: `settings` and `messages`. These types are 
-designed to integrate smoothly with features such as `@duckduckgo/messaging`.
+Utilities to automatically generate TypeScript types from JSON Schema files.
 
 ---
 
@@ -51,70 +39,71 @@ From the top-level root folder of this npm workspace, you can run the following 
 Use this to produce the same output as a release. The `build` directory will be populated with
 various artifacts.
 
-  ```sh
-  npm run build
-  ```
+```sh
+npm run build
+```
 
 > [!TIP]
 > You can run the `build` command from within any sub-project too, the artifacts will always be
 > lifted out to the root-level `build` folder.
 
 **Run unit tests for all workspaces**:
-  ```sh
-  npm run test-unit
-  ```
 
-- **Run integration tests for all workspaces**:
-  ```sh
-  npm run test-int
-  ```
+```sh
+npm run test-unit
+```
 
-- **Run extended integration tests for all workspaces**:
-  ```sh
-  npm run test-int-x
-  ```
+**Run integration tests for all workspaces**:
+```sh
+npm run test-int
+```
 
-- **Clean tree and check for changes**:
-  ```sh
-  npm run test-clean-tree
-  ```
+**Run extended integration tests for all workspaces**:
+```sh
+npm run test-int-x
+```
 
-- **Generate documentation using TypeDoc**:
-  ```sh
-  npm run docs
-  ```
+**Clean tree and check for changes**:
+```sh
+npm run test-clean-tree
+```
 
-- **Generate and watch documentation using TypeDoc**:
-  ```sh
-  npm run docs-watch
-  ```
+**Generate documentation using TypeDoc**:
+```sh
+npm run docs
+```
 
-- **Compile TypeScript files**:
-  ```sh
-  npm run tsc
-  ```
+**Generate and watch documentation using TypeDoc**:
+```sh
+npm run docs-watch
+```
 
-- **Watch and compile TypeScript files**:
-  ```sh
-  npm run tsc-watch
-  ```
+**Compile TypeScript files**:
+```sh
+npm run tsc
+```
 
-- **Lint the codebase using ESLint**:
-  ```sh
-  npm run lint
-  ```
+**Watch and compile TypeScript files**:
+```sh
+npm run tsc-watch
+```
 
-- **Lint and automatically fix issues**:
-  ```sh
-  npm run lint-fix
-  ```
+**Lint the codebase using ESLint**:
+```sh
+npm run lint
+```
 
-- **Serve integration test pages on port 3220**:
-  ```sh
-  npm run serve
-  ```
+**Lint and automatically fix issues**:
+```sh
+npm run lint-fix
+```
 
-- **Serve special pages on port 3221**:
-  ```sh
-  npm run serve-special-pages
-  ```
+**Serve integration test pages on port 3220**:
+```sh
+npm run serve
+```
+
+**Serve special pages on port 3221**:
+```sh
+npm run serve-special-pages
+```
