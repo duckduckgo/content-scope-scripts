@@ -1,8 +1,6 @@
 name: Release
 
 on:
-  pull_request:
-    types: [opened, synchronize, closed, ready_for_review]
   workflow_dispatch:
     inputs:
       version:
@@ -60,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           body_path: ${{ github.workspace }}/CHANGELOG.txt
-          draft: true
+          draft: false
           prerelease: false
-          tag_name: "6.22.0"
+          tag_name: ${{ github.event.inputs.version }}
           target_commitish: "releases"
