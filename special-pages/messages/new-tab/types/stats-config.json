@@ -4,6 +4,7 @@
   "type": "object",
   "required": ["expansion"],
   "properties": {
-    "expansion": {"$ref":  "./expansion.json"}
+    "expansion": {"$ref":  "./expansion.json"},
+    "animation": {"$ref":  "./animation.json"}
   }
 }
