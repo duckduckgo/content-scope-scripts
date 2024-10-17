@@ -1,0 +1,10 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "brokerProtection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {}
+    }
+  }
+}

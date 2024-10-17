@@ -2087,7 +2087,7 @@
         __privateAdd(this, _documentOriginIsTracker, void 0);
         /** @type {Record<string, unknown> | undefined} */
         __privateAdd(this, _bundledfeatureSettings, void 0);
-        /** @type {import('../packages/messaging').Messaging} */
+        /** @type {import('../../messaging').Messaging} */
         __privateAdd(this, _messaging, void 0);
         /** @type {boolean} */
         __privateAdd(this, _isDebugFlagSet, false);

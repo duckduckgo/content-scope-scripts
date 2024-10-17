@@ -10,6 +10,7 @@ test-results/
 playwright-report/
 Sources/ContentScopeScripts/dist/
 test-results
+!Sources/ContentScopeScripts/dist/pages/.gitignore
 
 # Local Netlify folder
 .netlify

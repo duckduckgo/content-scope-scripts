@@ -1,0 +1,11 @@
+{
+    "features": {
+        "webCompat": {
+            "state": "enabled",
+            "settings": {
+                "mediaSession": "enabled",
+                "presentation": "enabled"
+            }
+        }
+    }
+}
