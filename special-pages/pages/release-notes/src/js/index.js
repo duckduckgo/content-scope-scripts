@@ -94,6 +94,23 @@ export class ReleaseNotesPage {
 
 export class IntegrationReleaseNotesPage extends ReleaseNotesPage {
     /**
+     * Allows for sample data overrides. Overrides can be combined. Ex:
+     *
+     * ?stateId=updateReady&manualUpdate
+     * ?stateId=loaded&noPrivacyPro
+     * ?stateId=updateReady&manualUpdate&noPrivacyPro
+     *
+     * @type Record<string, Partial<UpdateMessage>> */
+    dataOverrides = {
+        manualUpdate: {
+            automaticUpdate: false
+        },
+        noPrivacyPro: {
+            releaseNotesPrivacyPro: undefined
+        }
+    }
+
+    /**
      * Emulates the initial setup response from a browser
      * @returns {Promise<import('../../../../types/release-notes').InitialSetupResponse>}
      */
@@ -114,7 +131,13 @@ export class IntegrationReleaseNotesPage extends ReleaseNotesPage {
         if (!stateId || !sampleData[stateId]) {
             stateId = 'loading'
         }
-        const updateData = sampleData[stateId]
+        let updateData = sampleData[stateId]
+
+        Object.entries(this.dataOverrides).forEach(([key, value]) => {
+            if (searchParams.has(key)) {
+                updateData = { ...updateData, ...value }
+            }
+        })
 
         callback(sampleData.loading)
 

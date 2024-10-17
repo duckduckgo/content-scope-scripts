@@ -71,11 +71,14 @@
       "type": "object",
       "title": "Update Ready State",
       "description": "Update downloaded and installed. Restart to update",
-      "required": ["status", "currentVersion", "latestVersion", "lastUpdate"],
+      "required": ["status", "automaticUpdate", "currentVersion", "latestVersion", "lastUpdate"],
       "properties": {
         "status": {
           "type": "string",
           "const": "updateReady"
+        },
+        "automaticUpdate": {
+          "type": "boolean"
         },
         "currentVersion": {
           "description": "Current version of the app",

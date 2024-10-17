@@ -62,9 +62,12 @@ export function Components () {
             <UpdateStatus status="updatePreparing" version="1.2.0" timestamp={todayInMilliseconds}/>
             <hr/>
 
-            <h2>Restart Button</h2>
+            <h2>Update Buttons</h2>
             <div>
                 <Button>{t('restartToUpdate')}</Button>
+            </div>
+            <div>
+                <Button>{t('updateBrowser')}</Button>
             </div>
             <hr/>
 
@@ -112,6 +115,9 @@ export function Components () {
             </LoadingThen>
             <LoadingThen>
                 <ReleaseNotes releaseData={sampleData.updateReady} />
+            </LoadingThen>
+            <LoadingThen>
+                <ReleaseNotes releaseData={/** @type {import('../../../types/release-notes').UpdateMessage} */({ ...sampleData.updateReady, automaticUpdate: false })} />
             </LoadingThen>
         </main>
     )

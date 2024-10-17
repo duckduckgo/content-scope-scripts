@@ -45,26 +45,35 @@ test.describe('release-notes', () => {
         const releaseNotes = ReleaseNotesPage.create(page, workerInfo)
         await releaseNotes.reducedMotion()
         await releaseNotes.openPage({ env: 'app' })
-        await releaseNotes.releaseNotesLoaded()
+        await releaseNotes.releaseNotesLoadedWithoutPrivacyPro()
         await releaseNotes.didShowUpToDateState()
-        await releaseNotes.didShowReleaseNotesList()
+        await releaseNotes.didShowReleaseNotesListWithoutPrivacyPro()
     })
 
     test('shows up-to-date state with Privacy Pro notes', async ({ page }, workerInfo) => {
         const releaseNotes = ReleaseNotesPage.create(page, workerInfo)
         await releaseNotes.reducedMotion()
         await releaseNotes.openPage({ env: 'app' })
-        await releaseNotes.releaseNotesLoadedWithPrivacyPro()
+        await releaseNotes.releaseNotesLoaded()
         await releaseNotes.didShowUpToDateState()
-        await releaseNotes.didShowReleaseNotesListWithPrivacyPro()
+        await releaseNotes.didShowReleaseNotesList()
     })
 
     test('shows update ready state without Privacy Pro notes', async ({ page }, workerInfo) => {
         const releaseNotes = ReleaseNotesPage.create(page, workerInfo)
         await releaseNotes.reducedMotion()
         await releaseNotes.openPage({ env: 'app' })
-        await releaseNotes.releaseNotesUpdateReady()
-        await releaseNotes.didShowUpdateReadyState()
+        await releaseNotes.releaseNotesUpdateReadyWithoutPrivacyPro()
+        await releaseNotes.didShowAutomaticUpdateReadyState()
+        await releaseNotes.didShowReleaseNotesListWithoutPrivacyPro()
+    })
+
+    test('shows update ready state for manual update', async ({ page }, workerInfo) => {
+        const releaseNotes = ReleaseNotesPage.create(page, workerInfo)
+        await releaseNotes.reducedMotion()
+        await releaseNotes.openPage({ env: 'app' })
+        await releaseNotes.releaseNotesManualUpdateReady()
+        await releaseNotes.didShowManualUpdateReadyState()
         await releaseNotes.didShowReleaseNotesList()
     })
 
@@ -72,27 +81,27 @@ test.describe('release-notes', () => {
         const releaseNotes = ReleaseNotesPage.create(page, workerInfo)
         await releaseNotes.reducedMotion()
         await releaseNotes.openPage({ env: 'app' })
-        await releaseNotes.releaseNotesUpdateReadyWithPrivacyPro()
-        await releaseNotes.didShowUpdateReadyState()
-        await releaseNotes.didShowReleaseNotesListWithPrivacyPro()
+        await releaseNotes.releaseNotesUpdateReady()
+        await releaseNotes.didShowAutomaticUpdateReadyState()
+        await releaseNotes.didShowReleaseNotesList()
     })
 
     test('shows update error state without Privacy Pro notes', async ({ page }, workerInfo) => {
         const releaseNotes = ReleaseNotesPage.create(page, workerInfo)
         await releaseNotes.reducedMotion()
         await releaseNotes.openPage({ env: 'app' })
-        await releaseNotes.releaseNotesUpdateError()
+        await releaseNotes.releaseNotesUpdateErrorWithoutPrivacyPro()
         await releaseNotes.didShowUpdateErrorState()
-        await releaseNotes.didShowReleaseNotesList()
+        await releaseNotes.didShowReleaseNotesListWithoutPrivacyPro()
     })
 
     test('shows update error state with Privacy Pro notes', async ({ page }, workerInfo) => {
         const releaseNotes = ReleaseNotesPage.create(page, workerInfo)
         await releaseNotes.reducedMotion()
         await releaseNotes.openPage({ env: 'app' })
-        await releaseNotes.releaseNotesUpdateErrorWithPrivacyPro()
+        await releaseNotes.releaseNotesUpdateError()
         await releaseNotes.didShowUpdateErrorState()
-        await releaseNotes.didShowReleaseNotesListWithPrivacyPro()
+        await releaseNotes.didShowReleaseNotesList()
     })
 
     test('sends restart click to browser', async ({ page }, workerInfo) => {

@@ -12,9 +12,9 @@ import styles from './ReleaseNotes.module.css'
 
 /**
  * @typedef {import('../../../../types/release-notes').UpdateMessage} UpdateMessage
- * @typedef {import('../../../../types/release-notes').ReleaseNotesLoadedState
- * | import('../../../../types/release-notes').UpdateErrorState
- * | import('../../../../types/release-notes').UpdateReadyState} UpdateMessageWithReleaseNotes
+ * @typedef {import('../../../../types/release-notes').UpdateErrorState} UpdateErrorState
+ * @typedef {import('../../../../types/release-notes').UpdateReadyState} UpdateReadyState
+ * @typedef {import('../../../../types/release-notes').ReleaseNotesLoadedState} ReleaseNotesLoadedState
  * @typedef {import('../types.js').Notes} Notes
  */
 
@@ -238,11 +238,41 @@ export function CardContents ({ releaseData }) {
 
 /**
  * @param {object} props
+ * @param {UpdateReadyState|UpdateErrorState} props.releaseData
+ */
+export function UpdateButton ({ releaseData }) {
+    const { t } = useTypedTranslation()
+    const { messages } = useMessaging()
+
+    const { status } = releaseData
+    let button
+
+    if (status === 'updateError') {
+        button = <Button onClick={() => messages?.retryUpdate()}>{t('retryUpdate')}</Button>
+    }
+
+    if (status === 'updateReady') {
+        const { automaticUpdate } = releaseData
+        const buttonText = automaticUpdate ? t('restartToUpdate') : t('updateBrowser')
+
+        button = <Button onClick={() => messages?.browserRestart()}>{buttonText}</Button>
+    }
+
+    if (!button) return null
+
+    return (
+        <div className={styles.buttonContainer}>
+            {button}
+        </div>
+    )
+}
+
+/**
+ * @param {object} props
  * @param {UpdateMessage} props.releaseData
  */
 export function ReleaseNotes ({ releaseData }) {
     const { t } = useTypedTranslation()
-    const { messages } = useMessaging()
 
     const { status, currentVersion, lastUpdate } = releaseData
     const timestampInMilliseconds = lastUpdate * 1000
@@ -258,19 +288,14 @@ export function ReleaseNotes ({ releaseData }) {
         }
     }
 
+    const shouldShowButton = status === 'updateReady' || status === 'updateError'
+
     return (
         <article className={styles.article}>
             <header className={styles.heading}>
                 <PageTitle title={t('browserReleaseNotes')}/>
                 <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion} progress={progress}/>
-                {status === 'updateReady' &&
-                    <div className={styles.buttonContainer}>
-                        <Button onClick={() => messages?.browserRestart()}>{t('restartToUpdate')}</Button>
-                    </div>}
-                {status === 'updateError' &&
-                    <div className={styles.buttonContainer}>
-                        <Button onClick={() => messages?.retryUpdate()}>{t('retryUpdate')}</Button>
-                    </div>}
+                {shouldShowButton && <UpdateButton releaseData={releaseData} />}
             </header>
             <Card className={styles.card}>
                 <CardContents releaseData={releaseData} />

@@ -34,6 +34,7 @@ export const sampleData = {
         latestVersion: '1.2.0',
         lastUpdate: timestampInSeconds,
         status: 'updateReady',
+        automaticUpdate: true,
         releaseTitle: 'June 20 2024',
         releaseNotes: [
             'Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.',

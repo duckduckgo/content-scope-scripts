@@ -92,17 +92,16 @@ export class ReleaseNotesPage {
 
     /**
      * @param {UpdateMessage['status']} messageType
-     * @param {Object} [options]
-     * @param {boolean} [options.privacyPro]
+     * @param {Partial<UpdateMessage>} [dataOverrides]
      */
-    async sendSubscriptionMessage (messageType, options) {
+    async sendSubscriptionMessage (messageType, dataOverrides) {
         // Wait for the subscription handler to appear before trying to simulate push events.
         // This prevents a race condition where playwright is sending data before `.subscribe` was called
         await this.page.waitForFunction(() => 'onUpdate' in window && typeof window.onUpdate === 'function')
 
-        const data = options?.privacyPro
-            ? { ...sampleData[messageType] }
-            : { ...sampleData[messageType], releaseNotesPrivacyPro: null }
+        const data = dataOverrides
+            ? { ...sampleData[messageType], .../** @type {object} */(dataOverrides) }
+            : { ...sampleData[messageType] }
 
         await this.mocks.simulateSubscriptionMessage('onUpdate', data)
     }
@@ -111,28 +110,32 @@ export class ReleaseNotesPage {
         await this.sendSubscriptionMessage('loading')
     }
 
+    async releaseNotesLoadedWithoutPrivacyPro () {
+        await this.sendSubscriptionMessage('loaded', { releaseNotesPrivacyPro: undefined })
+    }
+
     async releaseNotesLoaded () {
         await this.sendSubscriptionMessage('loaded')
     }
 
-    async releaseNotesLoadedWithPrivacyPro () {
-        await this.sendSubscriptionMessage('loaded', { privacyPro: true })
+    async releaseNotesUpdateReadyWithoutPrivacyPro () {
+        await this.sendSubscriptionMessage('updateReady', { releaseNotesPrivacyPro: undefined })
     }
 
     async releaseNotesUpdateReady () {
         await this.sendSubscriptionMessage('updateReady')
     }
 
-    async releaseNotesUpdateReadyWithPrivacyPro () {
-        await this.sendSubscriptionMessage('updateReady', { privacyPro: true })
+    async releaseNotesManualUpdateReady () {
+        await this.sendSubscriptionMessage('updateReady', { automaticUpdate: false })
+    }
+
+    async releaseNotesUpdateErrorWithoutPrivacyPro () {
+        await this.sendSubscriptionMessage('updateError', { releaseNotesPrivacyPro: undefined })
     }
 
     async releaseNotesUpdateError () {
         await this.sendSubscriptionMessage('updateError')
-    }
-
-    async releaseNotesUpdateErrorWithPrivacyPro () {
-        await this.sendSubscriptionMessage('updateError', { privacyPro: true })
     }
 
     async releaseNotesUpdateDownloading () {
@@ -223,17 +226,35 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('button', { name: 'Restart to Update' })).not.toBeVisible()
     }
 
-    async didShowUpdateReadyState () {
+    /**
+     * @param {object} options
+     * @param {boolean} [options.manual=false]
+     */
+    async didShowUpdateReadyState ({ manual = false }) {
         const { page } = this
         await expect(page.getByRole('heading', { name: 'Browser Release Notes' })).toBeVisible()
         await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible()
 
         await expect(page.getByText('Last checked: Today')).toBeVisible()
         await expect(page.getByText('Version 1.0.1 — A newer version of the browser is available')).toBeVisible()
-        await expect(page.getByRole('button', { name: 'Restart to Update' })).toBeVisible()
+
+        if (manual) {
+            await expect(page.getByRole('button', { name: 'Update DuckDuckGo' })).toBeVisible()
+        } else {
+            await expect(page.getByRole('button', { name: 'Restart to Update' })).toBeVisible()
+        }
+
         await expect(page.getByText('Version 1.2.0', { exact: true })).toBeVisible()
 
         await expect(page.getByTestId('placeholder')).not.toBeVisible()
+    }
+
+    async didShowAutomaticUpdateReadyState () {
+        return await this.didShowUpdateReadyState({ manual: false })
+    }
+
+    async didShowManualUpdateReadyState () {
+        return await this.didShowUpdateReadyState({ manual: true })
     }
 
     async didShowUpdateErrorState () {
@@ -248,7 +269,7 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).not.toBeVisible()
     }
 
-    async didShowReleaseNotesList () {
+    async didShowReleaseNotesListWithoutPrivacyPro () {
         const { page } = this
 
         await expect(page.getByText('Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.')).toBeVisible()
@@ -262,7 +283,7 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).not.toBeVisible()
     }
 
-    async didShowReleaseNotesListWithPrivacyPro () {
+    async didShowReleaseNotesList () {
         const { page } = this
 
         await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).toBeVisible()

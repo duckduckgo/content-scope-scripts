@@ -56,6 +56,10 @@
         "title": "Restart to Update",
         "note": "Label for a button that triggers a browser restart after a version update"
     },
+    "updateBrowser": {
+        "title": "Update DuckDuckGo",
+        "note": "Label for a button that triggers a manual browser update"
+    },
     "retryUpdate": {
         "title": "Retry Update",
         "note": "Label for a button that retries applying the failed update"

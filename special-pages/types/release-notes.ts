@@ -159,6 +159,7 @@ export interface ReleaseNotesLoadedState {
  */
 export interface UpdateReadyState {
   status: "updateReady";
+  automaticUpdate: boolean;
   /**
    * Current version of the app
    */
