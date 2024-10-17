@@ -22,8 +22,19 @@ jobs:
       - name: Fetch files and checkout
         run: |
           git fetch origin
-          git checkout -b main origin/main
-          git checkout -b releases origin/releases
+          # Check if the 'main' branch exists, if not, create it
+          if git rev-parse --verify main >/dev/null 2>&1; then
+            git checkout main
+          else
+            git checkout -b main origin/main
+          fi
+          # Check if the 'releases' branch exists, if not, create it
+          if git rev-parse --verify releases >/dev/null 2>&1; then
+            git checkout releases
+          else
+            git checkout -b releases origin/releases
+          fi
+          # Checkout the code of main onto releases
           git checkout main -- .
 
       - name: Build release
