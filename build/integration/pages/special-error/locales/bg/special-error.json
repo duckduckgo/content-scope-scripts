@@ -1,0 +1,75 @@
+{
+  "smartling" : {
+    "string_format" : "icu",
+    "translate_paths" : [
+    {
+      "path" : "*/title",
+      "key" : "{*}/title",
+      "instruction" : "*/note"
+    }]
+  },
+  "advancedButton" : {
+    "title" : "Разширени",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click."
+  },
+  "advancedEllipsisButton" : {
+    "title" : "Разширени...",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to see advanced options on click. This button contains a trailing ellipsis."
+  },
+  "leaveSiteButton" : {
+    "title" : "Напускане на този сайт",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to leave the website and navigate to previous page."
+  },
+  "visitSiteButton" : {
+    "title" : "Поемане на риска и отваряне на сайта",
+    "note" : "Button shown in an error page that warns users of security risks on a website due to Phishing issues. The buttons allows the user to visit the website anyway despite the risks."
+  },
+  "phishingPageHeading" : {
+    "title" : "Предупреждение: Този сайт излага вашата лична информация на риск",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues"
+  },
+  "phishingWarningText" : {
+    "title" : "Този уебсайт може да имитира легитимен сайт, за да ви подмами да предоставите лична информация, като например пароли или номера на кредитни карти. <a>Научете повече</a>",
+    "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo ви предупреждава, когато даден уебсайт е маркиран като злонамерен.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoText_1" : {
+    "title" : "Показват се предупреждения за уебсайтове, за които е съобщено, че са измамни. Измамните уебсайтове се опитват да ви подмамят да повярвате, че са легитимни уебсайтове, на които имате доверие. Ако разбирате рисковете, можете да продължите въпреки това.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to Phishing issues."
+  },
+  "phishingAdvancedInfoText_2" : {
+    "title" : "За повече информация вижте нашата <a>помощна страница за защита от фишинг и злонамерен софтуер</a>.",
+    "note" : "A call-to-action to read more on our help pages for phishing and malware protection."
+  },
+  "sslPageHeading" : {
+    "title" : "Предупреждение: Този сайт може да не е сигурен",
+    "note" : "Title shown in an error page that warn users of security risks on a website due to SSL issues"
+  },
+  "sslWarningText" : {
+    "title" : "Сертификатът за този сайт е невалиден. Възможно е да се свързвате със сървър, който се представя за <b>{domain}</b>, което може да изложи поверителната Ви информация на риск.",
+    "note" : "Describes an SSL error where a website’s security certificate is invalid. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslAdvancedInfoHeading" : {
+    "title" : "DuckDuckGo Ви предупреждава, когато сертификатът на даден уебсайт е невалиден.",
+    "note" : "Title of the Advanced info section shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslExpiredAdvancedInfoText" : {
+    "title" : "Сертификатът за сигурност за <b>{domain}</b> е изтекъл. Възможно е уебсайтът да е конфигуриран грешно, хакер да е компрометирал връзката ви или системният ви часовник да е неправилно настроен.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues."
+  },
+  "sslInvalidAdvancedInfoText" : {
+    "title" : "Операционната система на вашето устройство не се доверява на сертификата за сигурност за <b>{domain}</b>. Възможно е уебсайтът да е конфигуриран грешно или хакер да е компрометирал връзката ви.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslSelfSignedAdvancedInfoText" : {
+    "title" : "Операционната система на вашето устройство не се доверява на сертификата за сигурност за <b>{domain}</b>. Възможно е уебсайтът да е конфигуриран грешно или хакер да е компрометирал връзката ви.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The placeholder is the site’s domain (example: duckduckgo.com)."
+  },
+  "sslWrongHostAdvancedInfoText" : {
+    "title" : "Сертификатът за сигурност за <b>{domain}</b> не съответства на <b>*.{eTldPlus1}</b>. Възможно е уебсайтът да е конфигуриран грешно или хакер да е компрометирал връзката ви.",
+    "note" : "Body of the text of the Advanced info shown in an error page that warns users of security risks on a website due to SSL issues. The two placeholders are website domain names (example: duckduckgo.com)."
+  }
+}
