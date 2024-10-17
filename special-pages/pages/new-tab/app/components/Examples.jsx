@@ -43,19 +43,11 @@ export const mainExamples = {
             <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 7)}}><FavoritesConsumer /></MockFavoritesProvider>
         )
     },
-    'favorites.few.7.auto-animate': {
+    'favorites.few.7.no-animation': {
         factory: () => (
             <MockFavoritesProvider
                 data={{favorites: favorites.many.favorites.slice(0, 7)}}
-                config={{expansion: "expanded", animation: { kind: "auto-animate" }}}
-            ><FavoritesConsumer /></MockFavoritesProvider>
-        )
-    },
-    'favorites.few.7.view-transitions': {
-        factory: () => (
-            <MockFavoritesProvider
-                data={{favorites: favorites.many.favorites.slice(0, 7)}}
-                config={{expansion: "expanded", animation: { kind: "view-transitions" }}}
+                config={{expansion: "expanded", animation: { kind: "none" }}}
             ><FavoritesConsumer /></MockFavoritesProvider>
         )
     },

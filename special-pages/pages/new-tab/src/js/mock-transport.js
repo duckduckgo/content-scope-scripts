@@ -10,7 +10,7 @@ import { favorites } from '../../app/favorites/mocks/favorites.data.js'
  * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
  */
 
-const VERSION_PREFIX = '__ntp_15__.'
+const VERSION_PREFIX = '__ntp_16__.'
 const url = new URL(window.location.href)
 
 export function mockTransport () {
@@ -171,12 +171,11 @@ export function mockTransport () {
             }
             case 'stats_getConfig': {
                 /** @type {StatsConfig} */
-                const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } }
+                const defaultConfig = { expansion: 'expanded', animation: { kind: 'view-transitions' } }
                 const fromStorage = read('stats_config') || defaultConfig
                 if (url.searchParams.get('animation') === 'none') {
                     fromStorage.animation = { kind: 'none' }
-                }
-                if (url.searchParams.get('animation') === 'view-transitions') {
+                } else {
                     fromStorage.animation = { kind: 'view-transitions' }
                 }
                 return Promise.resolve(fromStorage)
@@ -191,12 +190,11 @@ export function mockTransport () {
             }
             case 'favorites_getConfig': {
                 /** @type {FavoritesConfig} */
-                const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } }
+                const defaultConfig = { expansion: 'expanded', animation: { kind: 'view-transitions' } }
                 const fromStorage = read('favorites_config') || defaultConfig
                 if (url.searchParams.get('animation') === 'none') {
                     fromStorage.animation = { kind: 'none' }
-                }
-                if (url.searchParams.get('animation') === 'view-transitions') {
+                } else {
                     fromStorage.animation = { kind: 'view-transitions' }
                 }
                 return Promise.resolve(fromStorage)
