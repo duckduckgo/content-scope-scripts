@@ -40,6 +40,14 @@ export function useStepConfig () {
 
     const dismiss = () => dispatch({ kind: 'dismiss' })
 
+    /** @type {(id: import('../../types').SystemValueId) => void} */
+    const enableSystemValue = (id) => dispatch({
+        kind: 'update-system-value',
+        id,
+        payload: { enabled: true },
+        current: true
+    })
+
     /** @type {import('./data-types').BeforeAfterFunctions} */
     const beforeAfter = {
         get: () => getStep(activeStep),
@@ -55,6 +63,7 @@ export function useStepConfig () {
         progress,
         advance,
         dismiss,
+        enableSystemValue,
         beforeAfter
     }
 

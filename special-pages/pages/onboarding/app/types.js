@@ -82,7 +82,7 @@ export const ALT_ORDER = [
 export const ORDER_V3 = [
     'welcome',
     'getStarted',
-    'privateByDefault',
+    'makeDefaultSingle',
     'systemSettings',
     'duckPlayerSingle',
     'customize'

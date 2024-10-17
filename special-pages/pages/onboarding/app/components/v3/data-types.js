@@ -14,17 +14,6 @@
  */
 
 /**
- * @typedef {object} StepConfigParams
- * @property {ReturnType<typeof import('../../types')['useTypedTranslation']>['t']} t
- * @property {ImportMeta['platform']} platformName - Current platform
- * @property {import('../../types').GlobalState} globalState - Application state
- * @property {Progress} progress - Step progress
- * @property {() => void} advance - Function that advances to the next step
- * @property {() => void} dismiss - Function that dismisses onboarding completely
- * @property {BeforeAfterFunctions} beforeAfter - Functions that control a step's before/after state
- */
-
-/**
  * @typedef {object} HeadingConfig
  * @property {string|string[]} title - Heading title
  * @property {string|null} [subtitle] - Optional heading subtitle
@@ -39,6 +28,18 @@
  * @property {import('preact').JSX.Element} [endIcon] - Optional trailing icon
  * @property {string[]} [textVariants] - Optional array of all possible strings the button can use as text
  * @property {() => void} handler - Function that gets called on button click
+ */
+
+/**
+ * @typedef {object} StepConfigParams
+ * @property {ReturnType<typeof import('../../types')['useTypedTranslation']>['t']} t
+ * @property {ImportMeta['platform']} platformName - Current platform
+ * @property {import('../../types').GlobalState} globalState - Application state
+ * @property {Progress} progress - Step progress
+ * @property {() => void} advance - Function that advances to the next step
+ * @property {() => void} dismiss - Function that dismisses onboarding completely
+ * @property {(id: import('../../types').SystemValueId) => void} enableSystemValue - Function that switches a system setting to ON
+ * @property {BeforeAfterFunctions} beforeAfter - Functions that control a step's before/after state
  */
 
 /**

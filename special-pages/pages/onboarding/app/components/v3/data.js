@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import { Launch, Replay } from '../../components/Icons'
-import { PrivateByDefaultStep } from './PrivateByDefaultStep'
+import { MakeDefaultStep } from './MakeDefaultStep'
 import { DuckPlayerStep } from './DuckPlayerStep'
 import { ElasticButton } from './ElasticButton'
 import { Timeout } from '../Timeout'
@@ -35,19 +35,32 @@ export const stepsConfig = {
             }
         }
     },
-    privateByDefault: ({ t, advance }) => {
+    makeDefaultSingle: ({ t, globalState, advance, enableSystemValue }) => {
+        const { UIValues } = globalState
+        const isIdle = UIValues['default-browser'] === 'idle'
+
         return {
             variant: 'box',
             heading: {
-                title: t('protectionsActivated_title'),
+                title: isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title'),
                 speechBubble: true
             },
-            dismissButton: null,
-            acceptButton: {
-                text: t('gotIt'),
-                handler: advance
-            },
-            content: <PrivateByDefaultStep />
+            dismissButton: isIdle
+                ? {
+                    text: t('skipButton'),
+                    handler: advance
+                }
+                : null,
+            acceptButton: isIdle
+                ? {
+                    text: t('makeDefaultButton'),
+                    handler: () => enableSystemValue('default-browser')
+                }
+                : {
+                    text: t('nextButton'),
+                    handler: advance
+                },
+            content: <MakeDefaultStep />
         }
     },
     systemSettings: ({ t, globalState, advance }) => {
@@ -124,7 +137,8 @@ export const stepsConfig = {
  * @property {string} title
  * @property {string} [secondaryText]
  * @property {string} acceptText
- */
+ * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined, acceptText is shown.
+*/
 
 /** @type {Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['platform']) => RowData>} */
 export const settingsRowItems = {
@@ -139,8 +153,10 @@ export const settingsRowItems = {
         id: 'import',
         icon: 'v3/import.svg',
         title: t('row_import_title_v3'),
+        secondaryText: t('row_import_summary_v3'),
         kind: 'one-time',
-        acceptText: t('row_import_accept')
+        acceptText: t('row_import_accept_v3'),
+        acceptTextRecall: t('row_import_accept')
     }),
     dock: (t, platform) => {
         const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3')
@@ -183,7 +199,7 @@ export const stepDefinitions = {
     systemSettings: {
         id: 'systemSettings',
         kind: 'settings',
-        rows: ['default-browser', 'import', 'dock']
+        rows: ['dock', 'import']
     },
     customize: {
         id: 'customize',
