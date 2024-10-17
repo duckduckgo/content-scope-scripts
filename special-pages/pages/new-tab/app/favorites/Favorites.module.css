@@ -42,7 +42,7 @@
     padding-right: 10px;
     font-size: 11px;
 
-    &[aria-pressed=false] svg {
+    &[aria-pressed=true] svg {
         transform: rotate(180deg);
     }
 }
