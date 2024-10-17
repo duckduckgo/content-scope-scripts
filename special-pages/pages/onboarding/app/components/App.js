@@ -51,7 +51,7 @@ export function App ({ children }) {
         dispatch({ kind: 'error-boundary', error: { message, id: activeStep } })
     }
 
-    /** @type {Record<import('../types').Step['id'], string>} */
+    /** @type {Partial<Record<import('../types').Step['id'], string>>} */
     const titles = {
         welcome: t('welcome_title'),
         getStarted: t('getStarted_title', { newline: '\n' }),
@@ -121,12 +121,12 @@ export function App ({ children }) {
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
                     <Stack>
                         <Header aside={showProgress && <Progress current={progress.indexOf(activeStep) + 1} total={progress.length}/>}>
-                            <Typed
+                            {pageTitle && <Typed
                                 onComplete={titleDone}
                                 text={pageTitle}
                                 data-current={activeStep}
                                 data-exiting={pageTitle !== nextPageTitle && String(exiting)}
-                            />
+                            />}
                         </Header>
                         <div data-current={activeStep} data-exiting={String(exiting)} ref={didRender} onAnimationEnd={animationDidFinish}>
                             {activeStepVisible && (
