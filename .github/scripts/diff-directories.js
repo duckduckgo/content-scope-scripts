@@ -69,7 +69,8 @@ function displayDiffs (dir1Files, dir2Files, isOpen) {
     }
     const outString = Object.keys(rollupGrouping).map(key => {
         const rollup = rollupGrouping[key]
-        let outString = ''
+        let outString = `
+        `
         let title = key
         if (rollup.files.length) {
             for (const file of rollup.files) {
