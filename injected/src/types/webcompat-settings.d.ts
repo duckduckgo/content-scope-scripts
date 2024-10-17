@@ -29,33 +29,7 @@ export interface WebCompatSettings {
       undefined: string[];
     };
   };
-  modifyLocalStorage?: {
-    state: State;
-    changes: {
-      key: string;
-      action: string;
-    }[];
-  };
-  notification?: {
-    state: State;
-  };
-  permissions?: {
-    state: State;
-    supportedPermissions: {};
-  };
-  mediaSession?: State;
-  presentation?: State;
-  webShare?: State;
-  viewportWidth?:
-    | State
-    | {
-        state: State;
-        forcedDesktopValue?: string;
-        forcedMobileValue?: string;
-      };
-  screenLock?: State;
   domains?: Domains;
-  plainTextViewPort?: State;
 }
 export interface Domain {
   /**
@@ -79,5 +53,5 @@ export interface PatchSetting {
   /**
    * The value to replace at the specified path
    */
-  value: string | unknown[] | {} | number;
+  value: string;
 }

@@ -18,7 +18,7 @@ const contentScopeName = 'contentScopeFeatures'
 const builds = {
     firefox: {
         input: 'entry-points/mozilla.js',
-        output: ['../build/firefox/entry-points.js']
+        output: ['../build/firefox/injected.js']
     },
     apple: {
         input: 'entry-points/apple.js',
@@ -47,11 +47,11 @@ const builds = {
     },
     'chrome-mv3': {
         input: 'entry-points/chrome-mv3.js',
-        output: ['../build/chrome-mv3/entry-points.js']
+        output: ['../build/chrome-mv3/injected.js']
     },
     chrome: {
         input: 'entry-points/chrome.js',
-        output: ['../build/chrome/entry-points.js']
+        output: ['../build/chrome/injected.js']
     }
 }
 
