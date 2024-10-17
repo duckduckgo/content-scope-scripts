@@ -1,6 +1,5 @@
 import { h } from 'preact'
 import cn from 'classnames'
-import { useAutoAnimate } from '@formkit/auto-animate/preact'
 
 import { useVisibility } from '../widget-list/widget-config.provider.js'
 import styles from './Favorites.module.css'
@@ -9,7 +8,7 @@ import { TileMemo } from './Tile.js'
 import { FavoritesContext, FavoritesProvider } from './FavoritesProvider.js'
 import { useGridState } from './FavouritesGrid.js'
 import { memo } from 'preact/compat'
-import { Chevron } from '../components/Chevron.js'
+import { ChevronButton } from '../components/Icons.js'
 import { useTypedTranslation } from '../types.js'
 import { viewTransition } from '../utils.js'
 
@@ -31,9 +30,6 @@ import { viewTransition } from '../utils.js'
  * @param {Animation['kind']} [props.animation] - optionally configure animations
  */
 export function Favorites (props) {
-    if (props.animation === 'auto-animate') {
-        return <WithAutoAnimate {...props} />
-    }
     if (props.animation === 'view-transitions') {
         return <WithViewTransitions {...props} />
     }
@@ -45,19 +41,6 @@ export function Favorites (props) {
             animateItems={'none'}
         />
     )
-}
-
-/**
- * @param {object} props
- * @param {Favorite[]} props.favorites
- * @param {import("preact").ComponentProps<Favorites>['listDidReOrder']} props.listDidReOrder
- * @param {Expansion} props.expansion
- * @param {() => void} props.toggle
- * @param {(id: string) => void} props.openContextMenu
- */
-export function WithAutoAnimate (props) {
-    const [ref] = useAutoAnimate()
-    return <FavoritesConfigured {...props} gridRef={ref} animateItems={'none'} />
 }
 
 /**
@@ -180,17 +163,16 @@ function ShowHide ({ itemCount, expansion, toggle, capacity, buttonAttrs = {} })
                 [styles.showhideVisible]: itemCount > capacity
             })}
         >
-            <div className={styles.showhideInner}>
-                <hr className={styles.hr}/>
-                <button
-                    {...buttonAttrs}
-                    className={styles.showhideButton}
-                    onClick={toggle}>
-                    {expansion === 'expanded' && t('favorites_show_less')}
-                    {expansion === 'collapsed' && t('favorites_show_more')}
-                    <Chevron/>
-                </button>
-            </div>
+            <button
+                {...buttonAttrs}
+                className={styles.showhideButton}
+                aria-label={expansion === 'expanded'
+                    ? t('favorites_show_less')
+                    : t('favorites_show_more')
+                }
+                onClick={toggle}>
+                <ChevronButton />
+            </button>
         </div>
     )
 }
@@ -201,15 +183,12 @@ const PlusIcon = memo(function PlusIcon () {
         <div class={styles.item}>
             <button class={cn(styles.icon, styles.placeholder, styles.plus)} aria-labelledby={labelId}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <g opacity="0.8">
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M8.25 0.5C8.66421 0.5 9 0.835786 9 1.25V7H14.75C15.1642 7 15.5 7.33579 15.5 7.75C15.5 8.16421 15.1642 8.5 14.75 8.5H9V14.25C9 14.6642 8.66421 15 8.25 15C7.83579 15 7.5 14.6642 7.5 14.25V8.5H1.75C1.33579 8.5 1 8.16421 1 7.75C1 7.33579 1.33579 7 1.75 7H7.5V1.25C7.5 0.835786 7.83579 0.5 8.25 0.5Z"
-                            fill="currentColor"
-                            fill-opacity="0.9"
-                        />
-                    </g>
+                    <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M8.25 0.5C8.66421 0.5 9 0.835786 9 1.25V7H14.75C15.1642 7 15.5 7.33579 15.5 7.75C15.5 8.16421 15.1642 8.5 14.75 8.5H9V14.25C9 14.6642 8.66421 15 8.25 15C7.83579 15 7.5 14.6642 7.5 14.25V8.5H1.75C1.33579 8.5 1 8.16421 1 7.75C1 7.33579 1.33579 7 1.75 7H7.5V1.25C7.5 0.835786 7.83579 0.5 8.25 0.5Z"
+                        fill="currentColor"
+                    />
                 </svg>
             </button>
             <div class={styles.text} id={labelId}>

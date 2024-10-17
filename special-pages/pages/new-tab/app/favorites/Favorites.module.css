@@ -10,22 +10,13 @@
 .showhide {
     grid-area: showhide;
     height: 32px;
-}
-
-.showhideInner {
-    opacity: 0;
-    visibility: hidden;
     display: grid;
     justify-items: center;
-    grid-template-columns: auto;
-    grid-template-areas: 'middle';
-    grid-template-rows: auto;
-    align-items: center;
 }
 
 .root {
     &:hover {
-        .showhideVisible .showhideInner {
+        .showhideVisible .showhideButton {
             opacity: 1;
             visibility: visible;
         }
@@ -33,6 +24,9 @@
 }
 
 .showhideButton {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
     cursor: pointer;
     background: none;
     border: none;
@@ -43,9 +37,8 @@
     background: var(--ntp-background-color);
     height: 32px;
     line-height: 32px;
-    grid-area: middle;
     gap: 6px;
-    padding-left: 15px;
+    padding-left: 10px;
     padding-right: 10px;
     font-size: 11px;
 
@@ -137,7 +130,6 @@
     padding: .5em;
     border-radius: 5px;
     background: white;
-    /*color: black;*/
 }
 
 .placeholder {
@@ -151,20 +143,23 @@
 
 .plus {
     border-style: solid;
+    color: var(--color-black-at-90);
+    @media screen and (prefers-color-scheme: dark) {
+        color: var(--color-white-at-85);
+    }
 
     &:hover {
         background: var(--color-black-at-3);
+
+        @media screen and (prefers-color-scheme: dark) {
+            background: var(--color-white-at-9);
+        }
     }
 
     &:active {
         transform: scale(0.95);
     }
 
-    @media screen and (prefers-color-scheme: dark) {
-        &:hover {
-            background: var(--color-white-at-9);
-        }
-    }
 }
 
 .dropper {
