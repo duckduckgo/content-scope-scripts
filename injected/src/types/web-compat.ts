@@ -1,10 +1,9 @@
 /**
- * @module WebCompat Messages
- * @description
- *
  * These types are auto-generated from schema files.
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
+ *
+ * @module WebCompat Messages
  */
 
 /**

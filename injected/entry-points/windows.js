@@ -1,6 +1,5 @@
 /**
  * @module Windows integration
- * @category Content Scope Scripts Integrations
  */
 import { load, init } from '../src/content-scope-features.js'
 import { processConfig, isGloballyDisabled, windowsSpecificFeatures } from './../src/utils'

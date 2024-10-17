@@ -1,7 +1,4 @@
 /**
- * @module Messaging Schema
- *
- * @description
  * These are all the shared data types used throughout. Transports receive these types and
  * can choose how to deliver the message to their respective native platforms.
  *
@@ -10,6 +7,9 @@
  * - Subscriptions via {@link Subscription}
  *
  * Note: For backwards compatibility, some platforms may alter the data shape within the transport.
+ *
+ * @module Messaging Schema
+ *
  */
 
 /**

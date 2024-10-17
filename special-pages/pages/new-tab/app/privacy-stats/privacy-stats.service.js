@@ -34,14 +34,8 @@ import { Service } from '../service.js'
  *     ```
  *
  * ## Examples:
- * The following examples show the data types in JSON format
- * <details open>
- * <summary>Show JSON examples 📝</summary>
- *
- * ```js
- * [[include:special-pages/messages/new-tab/examples/stats.js]]
- * ```
- * </details>
+ * The following examples show the data types in JSON format:
+ * [messages/new-tab/examples/stats.js](../../../../messages/new-tab/examples/stats.js)
  */
 export class PrivacyStatsService {
     /**
