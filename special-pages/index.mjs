@@ -1,11 +1,7 @@
 /**
- * @module Special Pages
- * @category Special Pages
- *
- * @description
- *
  * A collection of HTML/CSS/JS pages that can be loaded into privileged environments, like `about: pages`
  *
+ * @module Special Pages
  */
 import { join, relative } from 'node:path'
 import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs'

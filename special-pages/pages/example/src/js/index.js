@@ -1,9 +1,7 @@
 /**
- * @module Example Page
- * @category Special Pages
- *
- * @description
  * Special Page example. Used as a template for new special pages.
+ *
+ * @module Example Page
  */
 
 import { createTypedMessages } from '@duckduckgo/messaging'
