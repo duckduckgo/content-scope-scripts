@@ -1,9 +1,7 @@
 /**
- * @module SSL Error Page
- * @category Special Pages
+ * Special Page that displays errors
  *
- * @description
- * Special Page that displays a
+ * @module SSL Error Page
  */
 
 import { createTypedMessages } from '@duckduckgo/messaging'

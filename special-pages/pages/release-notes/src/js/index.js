@@ -1,9 +1,7 @@
 /**
- * @module Release Notes Page
- * @category Special Pages
- *
- * @description
  * Special Page that displays release notes for the browser's current or updated version
+ *
+ * @module Release Notes Page
  */
 
 /**
