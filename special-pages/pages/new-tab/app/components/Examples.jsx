@@ -56,9 +56,14 @@ export const mainExamples = {
             <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 6)}}><FavoritesConsumer /></MockFavoritesProvider>
         )
     },
-    'favorites.few.5': {
+    'favorites.few.6': {
         factory: () => (
-            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 5)}}><FavoritesConsumer /></MockFavoritesProvider>
+            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 6)}}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.12': {
+        factory: () => (
+            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 12)}}><FavoritesConsumer /></MockFavoritesProvider>
         )
     },
     'favorites.multi': {
