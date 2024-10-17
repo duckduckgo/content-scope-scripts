@@ -5,9 +5,8 @@ import { useTypedTranslation } from '../types.js'
 import { useContext, useState, useId, useCallback } from 'preact/hooks'
 import { PrivacyStatsContext, PrivacyStatsProvider } from './PrivacyStatsProvider.js'
 import { useVisibility } from '../widget-list/widget-config.provider.js'
-import { Chevron } from '../components/Chevron.js'
-import { useAutoAnimate } from '@formkit/auto-animate/preact'
 import { viewTransition } from '../utils.js'
+import { ChevronButton } from '../components/Icons.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').TrackerCompany} TrackerCompany
@@ -26,10 +25,6 @@ import { viewTransition } from '../utils.js'
  * @param {Animation['kind']} [props.animation] - optionally configure animations
  */
 export function PrivacyStats ({ expansion, data, toggle, animation = 'auto-animate' }) {
-    if (animation === 'auto-animate') {
-        return <WithAutoAnimate data={data} expansion={expansion} toggle={toggle} />
-    }
-
     if (animation === 'view-transitions') {
         return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />
     }
@@ -49,17 +44,6 @@ function WithViewTransitions ({ expansion, data, toggle }) {
         viewTransition(toggle)
     }, [toggle])
     return <PrivacyStatsConfigured expansion={expansion} data={data} toggle={willToggle} />
-}
-
-/**
- * @param {object} props
- * @param {Expansion} props.expansion
- * @param {PrivacyStatsData} props.data
- * @param {()=>void} [props.toggle]
- */
-function WithAutoAnimate ({ expansion, data, toggle }) {
-    const [ref] = useAutoAnimate({ duration: 100 })
-    return <PrivacyStatsConfigured parentRef={ref} expansion={expansion} data={data} toggle={toggle} />
 }
 
 /**
@@ -139,7 +123,7 @@ export function Heading ({ trackerCompanies, totalCount, onToggle, buttonAttrs =
                     aria-label={t('trackerStatsToggleLabel')}
                     hidden={trackerCompanies.length === 0}
                 >
-                    <Chevron/>
+                    <ChevronButton />
                 </button>
             </span>
             <p className={styles.subtitle}>
