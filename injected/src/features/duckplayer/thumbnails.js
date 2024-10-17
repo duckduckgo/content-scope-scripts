@@ -1,7 +1,4 @@
 /**
- * @module Duck Player Thumbnails
- *
- * @description
  *
  * ## Decision flow for `mouseover` (appending Dax)
  *
@@ -52,7 +49,7 @@
  *         - `eventTarget` matches a CSS selector in `[config] allowedEventTargets`
  *     - otherwise, do nothing
  *
- * [[include:injected/src/features/duckplayer/thumbnails.md]]
+ * @module Duck Player Thumbnails
  */
 
 import { SideEffects, VideoParams } from './util.js'

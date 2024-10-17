@@ -1,7 +1,4 @@
 /**
- * @module Duck Player Overlays
- *
- * @description
  *
  * Duck Player Overlays are either the small Dax icons that appear on top of video thumbnails
  * when browsing YouTube. These icons allow users to open the video in Duck Player.
@@ -30,9 +27,9 @@
  *
  * For example, to enable the Duck Player Overlay on YouTube, the following config is used:
  *
- * ```json
- * [[include:injected/integration-test/test-pages/duckplayer/config/overlays-live.json]]```
+ * [📝 JSON example](../../integration-test/test-pages/duckplayer/config/overlays-live.json)
  *
+ * @module Duck Player Overlays
  */
 import ContentFeature from '../content-feature.js'
 
