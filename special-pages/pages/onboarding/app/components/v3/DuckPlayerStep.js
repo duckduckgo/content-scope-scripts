@@ -22,7 +22,7 @@ export function DuckPlayerStep () {
         if (canPlay) {
             id = setTimeout(() => {
                 setStep('duckPlayerSingle', 'after')
-            }, isReducedMotion ? 0 : 300)
+            }, isReducedMotion ? 10 : 300)
         }
 
         return () => id && clearTimeout(id)
