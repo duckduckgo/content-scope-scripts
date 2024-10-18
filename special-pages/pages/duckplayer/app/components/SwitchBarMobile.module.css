@@ -38,6 +38,11 @@
     gap: 16px;
 }
 
+.labelRow label {
+    pointer-events: none;
+}
+
+
 .checkbox {}
 
 .text {
