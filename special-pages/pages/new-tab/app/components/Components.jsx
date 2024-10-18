@@ -1,17 +1,20 @@
 import { Fragment, h } from "preact";
 import styles from "./Components.module.css";
 import { mainExamples, otherExamples } from "./Examples.jsx";
-import { RemoteMessagingFramework } from "../remote-messaging-framework/RemoteMessagingFramework";
 
 const url = new URL(window.location.href);
 
 export function Components() {
     const ids = url.searchParams.getAll("id");
     const isolated = url.searchParams.has("isolate");
-    const valid = (id || '') in examples;
-    const entries = Object.entries(examples);
-    const filtered = id && valid
-        ? entries.filter(([_id]) => _id === id)
+    const e2e = url.searchParams.has("e2e");
+    const entries = Object.entries(mainExamples).concat(Object.entries(otherExamples));
+    const entryIds = entries.map(([id]) => id);
+
+    const validIds = ids.filter(id => entryIds.includes(id));
+
+    const filtered = validIds.length
+        ? validIds.map((id) => /** @type {const} */([id, mainExamples[id] || otherExamples[id]]))
         : entries
 
     if (isolated) {
@@ -20,8 +23,8 @@ export function Components() {
 
     return (
         <div>
-            <DebugBar id={id} entries={entries} />
-            <Stage entries={filtered} />
+            <DebugBar id={ids[0]} ids={ids} entries={entries}/>
+            <Stage entries={/** @type {any} */(filtered)} />
         </div>
     )
 }
@@ -68,16 +71,16 @@ function Stage({ entries }) {
                             <a href={without.toString()} hidden={current.length === 0}>Remove</a>
                             <div>
                                 <a href={selected.toString()}
-                                    class={styles.itemLink}
-                                    title="show this component only">select</a>{" "}
+                                   class={styles.itemLink}
+                                   title="show this component only">select</a>{" "}
                                 <a href={next.toString()}
-                                    target="_blank"
-                                    class={styles.itemLink}
-                                    title="isolate this component">isolate</a>{" "}
+                                   target="_blank"
+                                   class={styles.itemLink}
+                                   title="isolate this component">isolate</a>{" "}
                                 <a href={e2e.toString()}
-                                    target="_blank"
-                                    class={styles.itemLink}
-                                    title="isolate this component">edge-to-edge</a>
+                                   target="_blank"
+                                   class={styles.itemLink}
+                                   title="isolate this component">edge-to-edge</a>
                             </div>
                         </div>
                         <div className={styles.item} key={id}>
@@ -176,7 +179,7 @@ function ExampleSelector({ entries, id }) {
         if (!(event.target instanceof HTMLSelectElement)) return;
         const selectedId = event.target.value;
         if (selectedId) {
-            if (selectedId === "none") return onReset();
+            if (selectedId==="none") return onReset();
             const url = new URL(window.location.href);
             url.searchParams.set("id", selectedId);
             window.location.href = url.toString();
