@@ -2,6 +2,7 @@ import { h } from "preact";
 import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
 import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
 import { stats } from "../privacy-stats/mocks/stats.js";
+import { RemoteMessagingFramework } from "../remote-messaging-framework/RemoteMessagingFramework.js";
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -30,6 +31,60 @@ export const mainExamples = {
     'stats.heading.none': {
         factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount}/>
     },
+    'rmf-small': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="small"
+                titleText="Small title"
+                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
+            />)
+    },
+    'rmf-medium': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="medium"
+                icon="Announce"
+                titleText="Medium title"
+                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
+            />)
+    },
+    'rmf-big-single-action': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="big_single_action"
+                icon="AppUpdate"
+                titleText="Big one button title"
+                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
+                primaryActionText="Take Survey"
+                primaryAction={() => { }}
+            />)
+    },
+    'rmf-big-two-action': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="big_two_action"
+                icon="CriticalUpdate"
+                titleText="Big 2 buttons title"
+                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
+                primaryActionText="Take Survey"
+                primaryAction={() => { }}
+                secondaryActionText="Remind Me Later"
+                secondaryAction={() => { }}
+            />)
+    },
+    'rmf-big-two-action-overflow': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="big_two_action"
+                icon="DDGAnnounce"
+                titleText="Big 2 buttons with long titles"
+                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
+                primaryActionText="How to update Windows with every step fully explained"
+                primaryAction={() => { }}
+                secondaryActionText="Remind me later, but only if I’m actually going to update soon"
+                secondaryAction={() => { }}
+            />)
+    }
 }
 
 export const otherExamples = {
