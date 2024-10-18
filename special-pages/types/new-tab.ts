@@ -26,6 +26,7 @@ export type WidgetConfigs = WidgetConfigItem[];
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
+export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -37,7 +38,11 @@ export interface NewTabMessages {
     | StatsSetConfigNotification
     | WidgetsSetConfigNotification;
   requests: InitialSetupRequest | StatsGetConfigRequest | StatsGetDataRequest;
-  subscriptions: StatsOnConfigUpdateSubscription | StatsOnDataUpdateSubscription | WidgetsOnConfigUpdatedSubscription;
+  subscriptions:
+    | RmfOnDataUpdateSubscription
+    | StatsOnConfigUpdateSubscription
+    | StatsOnDataUpdateSubscription
+    | WidgetsOnConfigUpdatedSubscription;
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"
@@ -145,6 +150,42 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_onDataUpdate.subscribe.json"
+ */
+export interface RmfOnDataUpdateSubscription {
+  subscriptionEvent: "rmf_onDataUpdate";
+  params: RmfMessage;
+}
+export interface RmfMessage {
+  content: RMFMessage;
+}
+export interface SmallMessage {
+  messageType: "small";
+  titleText: string;
+  descriptionText: string;
+}
+export interface MediumMessage {
+  messageType: "medium";
+  titleText: string;
+  descriptionText: string;
+  icon: string;
+}
+export interface BigSingleActionMessage {
+  messageType: "big_single_action";
+  titleText: string;
+  descriptionText: string;
+  icon: string;
+  primaryActionText: string;
+}
+export interface BigTwoActionMessage {
+  messageType: "big_two_action";
+  titleText: string;
+  descriptionText: string;
+  icon: string;
+  primaryActionText: string;
+  secondaryActionText: string;
 }
 /**
  * Generated from @see "../messages/new-tab/stats_onConfigUpdate.subscribe.json"

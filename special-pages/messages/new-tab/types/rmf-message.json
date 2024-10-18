@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["content"],
+  "properties": {
+    "content": {
+      "title": "RMF Message",
+      "oneOf": [
+        {
+          "title": "Small Message",
+          "type": "object",
+          "properties": {
+            "messageType": { "const": "small" },
+            "titleText": { "type": "string" },
+            "descriptionText": { "type": "string" }
+          },
+          "required": ["messageType", "titleText", "descriptionText"]
+        },
+        {
+          "title": "Medium Message",
+          "type": "object",
+          "properties": {
+            "messageType": { "const": "medium" },
+            "titleText": { "type": "string" },
+            "descriptionText": { "type": "string" },
+            "icon": { "type": "string" }
+          },
+          "required": ["messageType", "titleText", "descriptionText", "icon"]
+        },
+        {
+          "title": "Big Single Action Message",
+          "type": "object",
+          "properties": {
+            "messageType": { "const": "big_single_action" },
+            "titleText": { "type": "string" },
+            "descriptionText": { "type": "string" },
+            "icon": { "type": "string" },
+            "primaryActionText": { "type": "string" }
+          },
+          "required": ["messageType", "titleText", "descriptionText", "icon", "primaryActionText"]
+        },
+        {
+          "title": "Big Two Action Message",
+          "type": "object",
+          "properties": {
+            "messageType": { "const": "big_two_action" },
+            "titleText": { "type": "string" },
+            "descriptionText": { "type": "string" },
+            "icon": { "type": "string" },
+            "primaryActionText": { "type": "string" },
+            "secondaryActionText": { "type": "string" }
+          },
+          "required": ["messageType", "titleText", "descriptionText", "icon", "primaryActionText", "secondaryActionText"]
+        }
+      ]
+    }
+  }
+}
