@@ -437,10 +437,20 @@ test.describe('Broker Protection communications', () => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
             await dbp.navigatesTo('conditional-clicks.html')
-            await dbp.receivesAction('conditional-clicks-hard-coded-empty-default.json')
+            await dbp.receivesAction('conditional-clicks-hard-coded-null-default.json')
             const response = await dbp.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
+        })
+
+        test('conditional clicks - throw error if default is undefined', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('conditional-clicks.html')
+            await dbp.receivesAction('conditional-clicks-hard-coded-undefined-default.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isErrorMessage(response)
         })
 
         test('conditional clicks - interpolated success', async ({ page }, workerInfo) => {
