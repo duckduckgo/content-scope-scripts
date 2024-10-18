@@ -1,4 +1,4 @@
-import { ALT_ORDER, DEFAULT_ORDER, EVERY_PAGE_ID } from './types'
+import { ALT_ORDER, DEFAULT_ORDER, EVERY_PAGE_ID, ORDER_V3 } from './types'
 import { stepDefinitions as defaultStepDefinitions } from './data'
 
 /**
@@ -7,21 +7,39 @@ import { stepDefinitions as defaultStepDefinitions } from './data'
 export class Settings {
     /**
      * @param {object} params
+     * @param {{name: ImportMeta['platform']}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
+     * @param {'v1'|'v2'|'v3'} [params.orderName] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
     constructor ({
+        platform = { name: 'macos' },
         order = DEFAULT_ORDER,
+        orderName = 'v1',
         stepDefinitions = defaultStepDefinitions,
         first = 'welcome',
         exclude = []
     } = {}) {
+        this.platform = platform
         this.order = order
+        this.orderName = orderName
         this.stepDefinitions = stepDefinitions
         this.first = first
         this.exclude = exclude
+    }
+
+    withPlatformName (name) {
+        /** @type {ImportMeta['platform'][]} */
+        const valid = ['windows', 'macos', 'ios', 'android']
+        if (valid.includes(/** @type {any} */(name))) {
+            return new Settings({
+                ...this,
+                platform: { name }
+            })
+        }
+        return this
     }
 
     /**
@@ -54,13 +72,22 @@ export class Settings {
         if (named === 'v1') {
             return new Settings({
                 ...this,
+                orderName: named,
                 order: DEFAULT_ORDER
             })
         }
         if (named === 'v2') {
             return new Settings({
                 ...this,
+                orderName: named,
                 order: ALT_ORDER
+            })
+        }
+        if (named === 'v3') {
+            return new Settings({
+                ...this,
+                orderName: named,
+                order: ORDER_V3
             })
         } else {
             console.warn('ignoring named order:', named)
@@ -112,7 +139,7 @@ export class Settings {
             if (!this.order.includes(/** @type {any} */(key))) {
                 continue
             }
-
+            console.log('KV', key, value)
             nextSteps[key] = { ...nextSteps[key], ...value }
         }
 
