@@ -34,54 +34,65 @@ export const mainExamples = {
     'rmf-small': {
         factory: () => (
             <RemoteMessagingFramework
-                messageType="small"
-                titleText="Small title"
-                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
+                message={{
+                    messageType: "small",
+                    titleText: "Small title",
+                    descriptionText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus.",
+                }}
             />)
     },
     'rmf-medium': {
         factory: () => (
             <RemoteMessagingFramework
-                messageType="medium"
-                icon="Announce"
-                titleText="Medium title"
-                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
+                message={{
+                    messageType: "medium",
+                    icon: "Announce",
+                    titleText: "Medium title",
+                    descriptionText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
+                }}
             />)
     },
     'rmf-big-single-action': {
         factory: () => (
             <RemoteMessagingFramework
-                messageType="big_single_action"
-                icon="AppUpdate"
-                titleText="Big one button title"
-                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
-                primaryActionText="Take Survey"
+                message={{
+                    messageType: "big_single_action",
+                    icon: "AppUpdate",
+                    titleText: "Big one button title",
+                    descriptionText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus.",
+                    primaryActionText: "Take Survey"
+                }}
                 primaryAction={() => { }}
             />)
     },
     'rmf-big-two-action': {
         factory: () => (
             <RemoteMessagingFramework
-                messageType="big_two_action"
-                icon="CriticalUpdate"
-                titleText="Big 2 buttons title"
-                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
-                primaryActionText="Take Survey"
+                message={{
+                    messageType: "big_two_action",
+                    icon: "CriticalUpdate",
+                    titleText: "Big 2 buttons title",
+                    descriptionText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus.",
+                    primaryActionText: "Take Survey",
+                    secondaryActionText: "Remind Me Later",
+                }}
                 primaryAction={() => { }}
-                secondaryActionText="Remind Me Later"
                 secondaryAction={() => { }}
             />)
     },
     'rmf-big-two-action-overflow': {
         factory: () => (
             <RemoteMessagingFramework
-                messageType="big_two_action"
-                icon="DDGAnnounce"
-                titleText="Big 2 buttons with long titles"
-                descriptionText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus."
-                primaryActionText="How to update Windows with every step fully explained"
+                message={{
+                    messageType: "big_two_action",
+                    icon: "DDGAnnounce",
+                    titleText: "Big 2 buttons with long titles",
+                    descriptionText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget elit vel ex dapibus.",
+                    primaryActionText: "How to update Windows with every step fully explained",
+                    secondaryActionText: "Remind me later, but only if I’m actually going to update soon",
+
+                }}
                 primaryAction={() => { }}
-                secondaryActionText="Remind me later, but only if I’m actually going to update soon"
                 secondaryAction={() => { }}
             />)
     }
