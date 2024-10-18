@@ -411,6 +411,60 @@ test.describe('Broker Protection communications', () => {
             await page.waitForURL(url => url.hash === '#1-2', { timeout: 2000 })
         })
 
+        test('conditional clicks - hard-coded success', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('conditional-clicks.html')
+            await dbp.receivesAction('conditional-clicks-hard-coded-success.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+            await page.waitForURL(url => url.hash === '#yes', { timeout: 2000 })
+        })
+
+        test('conditional clicks - hard-coded default', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('conditional-clicks.html')
+            await dbp.receivesAction('conditional-clicks-hard-coded-default.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+            await page.waitForURL(url => url.hash === '#no', { timeout: 2000 })
+        })
+
+        test('conditional clicks - do not throw error on defined (but empty) default', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('conditional-clicks.html')
+            await dbp.receivesAction('conditional-clicks-hard-coded-empty-default.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+        })
+
+        test('conditional clicks - interpolated success', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('conditional-clicks.html')
+            await dbp.receivesAction('conditional-clicks-interpolated-success.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+            await page.waitForURL(url => url.hash === '#yes', { timeout: 2000 })
+        })
+
+        test('conditional clicks - interpolated default', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo)
+            await dbp.enabled()
+            await dbp.navigatesTo('conditional-clicks.html')
+            await dbp.receivesAction('conditional-clicks-interpolated-default.json')
+            const response = await dbp.waitForMessage('actionCompleted')
+
+            dbp.isSuccessMessage(response)
+            await page.waitForURL(url => url.hash === '#no', { timeout: 2000 })
+        })
+
         test('getCaptchaInfo', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
