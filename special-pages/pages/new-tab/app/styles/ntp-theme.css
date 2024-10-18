@@ -3,6 +3,8 @@
     --ntp-surface-background-color: white;
     --ntp-surface-border-color: var(--color-black-at-6);
     --ntp-text-normal: var(--color-black-at-84);
+    --ntp-rmf-surface-background-color: rgba(0, 0, 0, .06);
+
 
     /* Mac/System/Body */
     --body-font-size: 13px;
