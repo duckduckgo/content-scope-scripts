@@ -160,7 +160,7 @@ test.describe('duckplayer mobile settings', () => {
         await duckplayer.openWithVideoID()
         await duckplayer.hasLoadedIframe()
         await duckplayer.reducedMotion()
-        await page.getByLabel('Keep Duck Player turned on').click() // can't 'check' here
+        await page.getByRole('switch').click()
         await page.getByLabel('Keep Duck Player turned on').waitFor({ state: 'hidden' })
         await duckplayer.sentUpdatedSettings()
     })

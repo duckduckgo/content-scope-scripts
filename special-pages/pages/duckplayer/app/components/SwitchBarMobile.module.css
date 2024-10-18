@@ -38,7 +38,7 @@
     gap: 16px;
 }
 
-.labelRow label {
+.label {
     pointer-events: none;
 }
 

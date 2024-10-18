@@ -37,9 +37,9 @@ export function SwitchBarMobile({platformName}) {
     });
 
     return (
-        <div class={classes} data-state={state} onTransitionEnd={onTransitionEnd}>
-            <div class={styles.labelRow}>
-                <label onClick={blockClick} for={inputId}>
+        <div class={classes} data-state={state} data-allow-animation="true" onTransitionEnd={onTransitionEnd}>
+            <div class={styles.labelRow} onClick={blockClick}>
+                <label for={inputId} class={styles.label}>
                     <span className={styles.text}>
                         {t('keepEnabled')}
                     </span>
