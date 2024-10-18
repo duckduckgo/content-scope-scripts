@@ -1,7 +1,7 @@
 import { h } from "preact";
 import cn from "classnames";
 import styles from "./SwitchBarMobile.module.css"
-import { useContext } from "preact/hooks";
+import { useContext, useId } from "preact/hooks";
 import { SwitchContext } from "../providers/SwitchProvider.jsx";
 import { Switch } from "./Switch.jsx";
 import { useTypedTranslation } from "../types.js";
@@ -15,6 +15,7 @@ import { useTypedTranslation } from "../types.js";
 export function SwitchBarMobile({platformName}) {
     const {onChange, onDone, state} = useContext(SwitchContext);
     const { t } = useTypedTranslation();
+    const inputId = useId();
 
     function blockClick(e) {
         if (state === 'exiting') {
@@ -37,16 +38,19 @@ export function SwitchBarMobile({platformName}) {
 
     return (
         <div class={classes} data-state={state} onTransitionEnd={onTransitionEnd}>
-            <label onClick={blockClick} class={styles.label}>
-                <span className={styles.text}>
-                    {t('keepEnabled')}
-                </span>
+            <div class={styles.labelRow}>
+                <label onClick={blockClick} for={inputId}>
+                    <span className={styles.text}>
+                        {t('keepEnabled')}
+                    </span>
+                </label>
                 <Switch
                     checked={state !== 'showing'}
                     onChange={onChange}
                     platformName={platformName}
+                    id={inputId}
                 />
-            </label>
+            </div>
         </div>
     )
 }
