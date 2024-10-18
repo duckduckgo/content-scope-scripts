@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import cn from 'classnames'
-import { useEnv } from '../../../../../shared/components/EnvironmentProvider'
+import { usePlatformName } from '../SettingsProvider'
 import { comparisonTableData, tableIconPrefix } from './data-comparison-table'
 import { useTypedTranslation } from '../../types'
 
@@ -57,21 +57,21 @@ export function ComparisonTableCell ({ status }) {
  * @param {import('./data-comparison-table').FeatureSupportData} props
  */
 export function ComparisonTableRow ({ icon, title, statuses }) {
-    const { injectName: platform } = useEnv()
+    const platform = usePlatformName()
     const [chromeStatus, safariStatus, ddgStatus] = statuses
 
     return (
         <tr className={styles.row}>
             <ComparisonTableRowHeading icon={icon} title={title} />
             { platform === 'windows' && <ComparisonTableCell status={chromeStatus} /> }
-            { (platform === 'apple' || platform === 'integration') && <ComparisonTableCell status={safariStatus} /> }
+            { platform === 'macos' && <ComparisonTableCell status={safariStatus} /> }
             <ComparisonTableCell status={ddgStatus} />
         </tr>
     )
 }
 
 export function ComparisonTable () {
-    const { injectName: platform } = useEnv()
+    const platform = usePlatformName()
     const { t } = useTypedTranslation()
     const tableData = comparisonTableData(t)
 
@@ -82,7 +82,7 @@ export function ComparisonTable () {
                 <tr>
                     <th></th>
                     { platform === 'windows' && <ComparisonTableColumnHeading title="Chrome" /> }
-                    { (platform === 'apple' || platform === 'integration') && <ComparisonTableColumnHeading title="Safari" /> }
+                    { platform === 'macos' && <ComparisonTableColumnHeading title="Safari" /> }
                     <ComparisonTableColumnHeading title="DuckDuckGo" />
                 </tr>
             </thead>
