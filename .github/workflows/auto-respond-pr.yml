@@ -6,6 +6,7 @@ on:
 
 jobs:
   auto_respond:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:

@@ -13,7 +13,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -47,7 +47,7 @@ jobs:
           git add -f build/ Sources/
 
       - name: Commit build files
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Release build ${{ github.event.inputs.version }} [ci release]"
           commit_options: '--allow-empty'
