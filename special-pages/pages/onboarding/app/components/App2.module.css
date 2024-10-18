@@ -1,3 +1,4 @@
+/* stylelint-disable-next-line selector-pseudo-class-no-unknown */
 :global #app {
     height: 100%;
 }

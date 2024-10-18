@@ -26,6 +26,7 @@ export class OnboardingPage {
         this.page.on('console', console.log)
         this.defaultResponses = {
             requestSetAsDefault: {},
+            requestDockOptIn: {},
             requestImport: {},
             stepCompleted: {},
             reportPageException: {},
@@ -494,20 +495,20 @@ export class OnboardingPage {
         await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 })
         await page.getByRole('button', { name: 'Let’s Do It' }).click()
 
-        /* Comparison table */
+        /* Make default */
         await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 })
-        await page.getByRole('button', { name: 'Got It' }).click()
+        await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click()
+        await page.getByText('Excellent!').nth(1).waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Next' }).click()
 
         /* System settings */
         await page.getByText('Let’s get you set up!').nth(1).waitFor({ timeout: 1000 })
-        await page.getByRole('button', { name: 'Make Default' }).click()
+        const dockButton = this.build.switch({
+            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
+            apple: () => page.getByRole('button', { name: 'Keep in Dock' })
+        })
+        await dockButton.click()
         await page.getByRole('button', { name: 'Import' }).click()
-        await page.getByRole('button', { name: 'Skip' }).click()
-        // const dockButton = this.build.switch({
-        //     windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
-        //     apple: () => page.getByRole('button', { name: 'Keep in Dock' })
-        // })
-        // await dockButton.click()
         await page.getByRole('button', { name: 'Next' }).click()
 
         /* Duckplayer */
@@ -534,9 +535,11 @@ export class OnboardingPage {
         await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 })
         await page.getByRole('button', { name: 'Let’s Do It' }).click()
 
-        /* Comparison table */
+        /* Make default */
         await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 })
-        await page.getByRole('button', { name: 'Got It' }).click()
+        await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click()
+        await page.getByText('Excellent!').nth(1).waitFor({ timeout: 1000 })
+        await page.getByRole('button', { name: 'Next' }).click()
 
         /* Duckplayer */
         await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 })

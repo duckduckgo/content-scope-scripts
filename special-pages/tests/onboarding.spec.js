@@ -161,7 +161,7 @@ test.describe('onboarding', () => {
             await onboarding.openPage()
             await onboarding.completesOrderV3()
         })
-        test('shows v3 flow without settings step', async ({ page }, workerInfo) => {
+        test('shows v3 flow without system settings step', async ({ page }, workerInfo) => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             onboarding.withInitData({
                 stepDefinitions: null,
@@ -174,7 +174,7 @@ test.describe('onboarding', () => {
             await onboarding.completesOrderV3WithoutSettings()
         })
         test.describe('Given I am on the settings step', () => {
-            test('When I choose to make the browser default', async ({ page }, workerInfo) => {
+            test('When I have choosen to add to dock/taskbar', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
@@ -183,10 +183,10 @@ test.describe('onboarding', () => {
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'systemSettings' })
 
-                // ▶️ Then the browser is set as default
-                await onboarding.makeDefault()
+                // ▶️ Then I can add to dock/taskbar
+                await onboarding.keepInTaskbar()
             })
-            test('When I have skipped make default on the settings step', async ({ page }, workerInfo) => {
+            test('When I have skipped add to dock/taskbar', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
                 onboarding.withInitData({
                     stepDefinitions: null,
@@ -194,10 +194,12 @@ test.describe('onboarding', () => {
                 })
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'systemSettings' })
+
+                // And I have skipped that step
                 await onboarding.skippedCurrent()
 
-                // ▶️ Then I can choose make default afterwards
-                await onboarding.makeDefault()
+                // ▶️ Then I can add it afterwards
+                await onboarding.keepInTaskbar()
             })
             test('When I choose to import bookmarks and passwords', async ({ page }, workerInfo) => {
                 const onboarding = OnboardingPage.create(page, workerInfo)
@@ -221,43 +223,12 @@ test.describe('onboarding', () => {
                 await onboarding.reducedMotion()
                 await onboarding.openPage({ env: 'app', page: 'systemSettings' })
                 await onboarding.skippedCurrent()
+
+                // And I have skipped that step
                 await onboarding.skippedCurrent()
 
                 // ▶️ Then I can choose to import afterwards
                 await onboarding.importUserData()
-            })
-            test('When I have choosen to add to dock/taskbar', async ({ page }, workerInfo) => {
-                const onboarding = OnboardingPage.create(page, workerInfo)
-                onboarding.withInitData({
-                    stepDefinitions: null,
-                    order: 'v3'
-                })
-                await onboarding.reducedMotion()
-                await onboarding.openPage({ env: 'app', page: 'systemSettings' })
-
-                // skipped first 2
-                await onboarding.skippedCurrent()
-                await onboarding.skippedCurrent()
-
-                // ▶️ Then I can add to dock/taskbar
-                await onboarding.keepInTaskbar()
-            })
-            test('When I have skipped add to dock/taskbar', async ({ page }, workerInfo) => {
-                const onboarding = OnboardingPage.create(page, workerInfo)
-                onboarding.withInitData({
-                    stepDefinitions: null,
-                    order: 'v3'
-                })
-                await onboarding.reducedMotion()
-                await onboarding.openPage({ env: 'app', page: 'systemSettings' })
-
-                // skipped all
-                await onboarding.skippedCurrent()
-                await onboarding.skippedCurrent()
-                await onboarding.skippedCurrent()
-
-                // ▶️ Then I can add it afterwards
-                await onboarding.keepInTaskbar()
             })
         })
         test.describe('Given I am on the customize step', () => {
