@@ -7,6 +7,10 @@ updates:
     target-branch: "main"
     labels:
       - "dependencies"
+    ignore:
+      # ignoring https://github.com/duckduckgo/privacy-configuration for now
+      - dependency-name: 'config-builder'
+        versions: ['*']
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
