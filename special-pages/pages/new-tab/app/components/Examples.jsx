@@ -1,8 +1,8 @@
-import { h } from "preact";
-import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
-import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
-import { RemoteMessagingFramework } from "../remote-messaging-framework/RemoteMessagingFramework.js";
-import { stats } from "../privacy-stats/mocks/stats.js";
+import { h } from 'preact';
+import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js';
+import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js';
+import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js';
+import { stats } from '../privacy-stats/mocks/stats.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -10,7 +10,7 @@ export const mainExamples = {
         factory: () => <PrivacyStatsMockProvider ticker={true}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.few.collapsed': {
-        factory: () => <PrivacyStatsMockProvider config={{ expansion: "collapsed" }}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+        factory: () => <PrivacyStatsMockProvider config={{ expansion: 'collapsed' }}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.single': {
         factory: () => <PrivacyStatsMockProvider data={stats.single}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
@@ -69,8 +69,8 @@ export const otherExamples = {
         factory: () => <PrivacyStatsMockProvider
             ticker={true}
             config={{
-                expansion: "expanded",
-                animation: { kind: "none" }
+                expansion: 'expanded',
+                animation: { kind: 'none' }
             }}
         ><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
@@ -78,8 +78,8 @@ export const otherExamples = {
         factory: () => <PrivacyStatsMockProvider
             ticker={true}
             config={{
-                expansion: "expanded",
-                animation: { kind: "view-transitions" }
+                expansion: 'expanded',
+                animation: { kind: 'view-transitions' }
             }}
         ><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
