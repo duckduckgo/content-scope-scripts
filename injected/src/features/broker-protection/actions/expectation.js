@@ -74,7 +74,7 @@ export function elementExpectation (expectation, root) {
 
     const elementExists = getElement(root, expectation.selector) !== null
 
-    if (!elementExists) {
+    if (!elementExists && !expectation.failSilently) {
         return {
             result: false,
             error: `element with selector ${expectation.selector} not found.`
@@ -93,7 +93,7 @@ export function elementExpectation (expectation, root) {
 export function textExpectation (expectation, root) {
     // get the target element first
     const elem = getElement(root, expectation.selector)
-    if (!elem) {
+    if (!elem && !expectation.failSilently) {
         return {
             result: false,
             error: `element with selector ${expectation.selector} not found.`
@@ -111,7 +111,7 @@ export function textExpectation (expectation, root) {
     // todo: is this too strict a match? we may also want to try innerText
     const textExists = Boolean(elem?.textContent?.includes(expectation.expect))
 
-    if (!textExists) {
+    if (!textExists && !expectation.failSilently) {
         return {
             result: false,
             error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`
@@ -138,7 +138,7 @@ export function urlExpectation (expectation) {
         }
     }
 
-    if (!url.includes(expectation.expect)) {
+    if (!url.includes(expectation.expect) && !expectation.failSilently) {
         return {
             result: false,
             error: `expected URL to include ${expectation.expect}, but it didn't`
