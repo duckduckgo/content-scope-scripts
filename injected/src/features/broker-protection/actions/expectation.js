@@ -1,12 +1,14 @@
 import { getElement } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
+import { execute } from '../execute.js'
 
 /**
  * @param {Record<string, any>} action
- * @param {Document | HTMLElement} root
+ * @param {Record<string, any>} userData
+ * @param {Document} root
  * @return {import('../types.js').ActionResponse}
  */
-export function expectation (action, root = document) {
+export function expectation (action, userData, root = document) {
     const results = expectMany(action.expectations, root)
 
     const errors = results.filter(x => x.result === false).map(x => {
@@ -16,6 +18,12 @@ export function expectation (action, root = document) {
 
     if (errors.length > 0) {
         return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
+    }
+
+    if (action.actions?.length) {
+        action.actions.forEach((myAction) => {
+            execute(myAction, userData, root)
+        })
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
