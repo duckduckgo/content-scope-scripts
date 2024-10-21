@@ -37,48 +37,60 @@ export const mainExamples = {
     'rmf.small': {
         factory: () => (
             <RemoteMessagingFramework
-                messageType="small"
-                titleText="Update Available"
-                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
-            />
-        )
-    },
-    'rmf.medium': {
-        factory: () => (
-            <RemoteMessagingFramework
-                messageType="medium"
-                icon="Announce"
-                titleText="Tell Us Your Thoughts on Privacy Pro"
-                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
-            />
-        )
-    },
-    'rmf.big-single-action': {
-        factory: () => (
-            <RemoteMessagingFramework
-                messageType="big_single_action"
-                icon="DDGAnnounce"
-                titleText="New Search Feature!"
-                descriptionText="DuckDuckGo now offers Instant Answers for quicker access to the information you need."
-                primaryAction={() => { }}
-                primaryActionText="Learn More"
-            />
-        )
-    },
-    'rmf.big-two-action': {
-        factory: () => (
-            <RemoteMessagingFramework
-                messageType="big_two_action"
-                icon="AppUpdate"
-                titleText="Update Available"
-                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
-                primaryAction={() => { }}
-                primaryActionText="How to update"
-                secondaryAction={() => { }}
-                secondaryActionText="Remind me later"
-            />
-        )
+                message={
+                    id: "small",
+        messageType: "small",
+        titleText: "Update Available",
+        descriptionText: "A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
     }
+        />
+        )
+    },
+'rmf.medium': {
+    factory: () => (
+        <RemoteMessagingFramework
+            message={
+                id:"medium",
+                    messageType: "medium",
+                        icon: "Announce",
+                            titleText: "Tell Us Your Thoughts on Privacy Pro",
+                                descriptionText: "A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
+}
+        />
+    )
+},
+'rmf.big-single-action': {
+    factory: () => (
+        <RemoteMessagingFramework
+            message={
+                id:"big-single",
+                    messageType: "big_single_action",
+                        icon: "DDGAnnounce",
+                            titleText: "New Search Feature!",
+                                descriptionText: "DuckDuckGo now offers Instant Answers for quicker access to the information you need.",
+                                    primaryActionText: "Learn More",
+            }
+primaryAction = {() => { }}
+        />
+    )
+},
+'rmf.big-two-action': {
+    factory: () => (
+        <RemoteMessagingFramework
+            message={
+                id:"big-two",
+                    messageType: "big_two_action",
+                        icon: "AppUpdate",
+                            titleText: "Update Available",
+                                descriptionText: "A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.",
+                                    primaryActionText: "How to update",
+                                        secondaryActionText: "Remind me later",
+            }
+primaryAction = {() => { }}
+secondaryAction = {() => { }}
+        />
+    )
+}
 }
 
 export const otherExamples = {
@@ -103,14 +115,17 @@ export const otherExamples = {
     'rmf.big-two-action-overflow': {
         factory: () => (
             <RemoteMessagingFramework
-                messageType="big_two_action"
-                icon="CriticalUpdate"
-                titleText="Update Available"
-                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance. A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
+                message={
+                    id: "big-two-overflow",
+        messageType: "big_two_action",
+        icon: "CriticalUpdate",
+        titleText: "Update Available",
+        descriptionText: "A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance. A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.",
+        primaryActionText: "How to update Windows",
+        secondaryActionText: "Remind me later, but only if I’m actually going to update soon",
+    }
                 primaryAction={() => { }}
-                primaryActionText="How to update Windows"
-                secondaryAction={() => { }}
-                secondaryActionText="Remind me later, but only if I’m actually going to update soon"
+secondaryAction = {() => { }}
             />
         )
     },

@@ -80,9 +80,6 @@
                     },
                     "primaryActionText": {
                         "type": "string"
-                    },
-                    "primaryAction": {
-                        "type": () => void
                     }
                 },
                 "required": [
@@ -92,7 +89,6 @@
                     "descriptionText",
                     "icon",
                     "primaryActionText",
-                    "primaryAction"
                 ]
             },
             {
