@@ -31,34 +31,48 @@ export const mainExamples = {
     'stats.heading.none': {
         factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount} />
     },
-    'rmf-small': {
+    'rmf.small': {
         factory: () => (
             <RemoteMessagingFramework
                 messageType="small"
-                title="Update Available"
+                titleText="Update Available"
                 descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
             />
         )
     },
-    'rmf-medium': {
+    'rmf.medium': {
         factory: () => (
             <RemoteMessagingFramework
                 messageType="medium"
                 icon="Announce"
-                title="Tell Us Your Thoughts on Privacy Pro"
+                titleText="Tell Us Your Thoughts on Privacy Pro"
                 descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
             />
         )
     },
-    'rmf-big-single-action': {
+    'rmf.big-single-action': {
         factory: () => (
             <RemoteMessagingFramework
-                messageType="big-single-action"
+                messageType="big_single_action"
                 icon="DDGAnnounce"
-                title="New Search Feature!"
+                titleText="New Search Feature!"
                 descriptionText="DuckDuckGo now offers Instant Answers for quicker access to the information you need."
                 primaryAction={() => { }}
                 primaryActionText="Learn More"
+            />
+        )
+    },
+    'rmf.big-two-action': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="big_two_action"
+                icon="AppUpdate"
+                titleText="Update Available"
+                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
+                primaryAction={() => { }}
+                primaryActionText="How to update"
+                secondaryAction={() => { }}
+                secondaryActionText="Remind me later"
             />
         )
     }
@@ -83,4 +97,18 @@ export const otherExamples = {
             }}
         ><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
+    'rmf.big-two-action-overflow': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="big_two_action"
+                icon="CriticalUpdate"
+                titleText="Update Available"
+                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance. A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
+                primaryAction={() => { }}
+                primaryActionText="How to update Windows"
+                secondaryAction={() => { }}
+                secondaryActionText="Remind me later, but only if I’m actually going to update soon"
+            />
+        )
+    }
 }
