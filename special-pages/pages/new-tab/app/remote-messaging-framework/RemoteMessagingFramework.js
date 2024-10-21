@@ -12,9 +12,9 @@ import MessageIcons from './MessageIcons'
  * @param {string} props.descriptionText
  * @param {"Announce"|"DDGAnnounce"|"CriticalUpdate"|"AppUpdate"|"PrivacyPro"} [props.icon]
  * @param {string} [props.primaryActionText]
- * @param {function} [props.primaryAction]
+ * @param {() => void} [props.primaryAction]
  * @param {string} [props.secondaryActionText]
- * @param {function} [props.secondaryAction]
+ * @param {() => void} [props.secondaryAction]
  */
 
 export function RemoteMessagingFramework ({ id, messageType, titleText, descriptionText, icon, primaryActionText = '', primaryAction, secondaryActionText = '', secondaryAction }) {
