@@ -1,7 +1,12 @@
 import { h, Fragment } from 'preact'
 
-export default function MessageIcons (props) {
-    const { name } = props
+/**
+ *
+ * @param {object} props;
+ * @param {"Announce"|"DDGAnnounce"|"CriticalUpdate"|"AppUpdate"|"PrivacyPro"} [props.name]
+ */
+
+export default function MessageIcons ({ name }) {
     return (
         <>
             {name === 'Announce' && (
