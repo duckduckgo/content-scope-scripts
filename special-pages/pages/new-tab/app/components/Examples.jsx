@@ -2,6 +2,9 @@ import { h } from "preact";
 import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
 import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
 import { stats } from "../privacy-stats/mocks/stats.js";
+import { MockFavoritesProvider } from "../favorites/mocks/MockFavoritesProvider.js";
+import { favorites } from "../favorites/mocks/favorites.data.js";
+import { FavoritesConsumer } from "../favorites/Favorites.js";
 import { noop } from "../utils.js";
 import { CustomizerMenu, CustomizerMenuPositioned } from "../customizer/Customizer.js";
 
@@ -44,6 +47,57 @@ export const mainExamples = {
             />
         )
     },
+    'favorites.many': {
+        factory: () => (
+            <MockFavoritesProvider data={favorites.many}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.7': {
+        factory: () => (
+            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 7)}}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.7.no-animation': {
+        factory: () => (
+            <MockFavoritesProvider
+                data={{favorites: favorites.many.favorites.slice(0, 7)}}
+                config={{expansion: "expanded", animation: { kind: "none" }}}
+            ><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.6': {
+        factory: () => (
+            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 6)}}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.few.12': {
+        factory: () => (
+            <MockFavoritesProvider data={{favorites: favorites.many.favorites.slice(0, 12)}}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.multi': {
+        factory: () => (
+            <div>
+                <MockFavoritesProvider data={favorites.many}><FavoritesConsumer /></MockFavoritesProvider>
+                <br/>
+                <MockFavoritesProvider data={favorites.two}><FavoritesConsumer /></MockFavoritesProvider>
+                <br/>
+                <MockFavoritesProvider data={favorites.single}><FavoritesConsumer /></MockFavoritesProvider>
+                <br/>
+                <MockFavoritesProvider data={favorites.none}><FavoritesConsumer /></MockFavoritesProvider>
+            </div>
+        )
+    },
+    'favorites.single': {
+        factory: () => (
+            <MockFavoritesProvider data={favorites.single}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    },
+    'favorites.none': {
+        factory: () => (
+            <MockFavoritesProvider data={favorites.none}><FavoritesConsumer /></MockFavoritesProvider>
+        )
+    }
 }
 
 export const otherExamples = {
@@ -83,7 +137,7 @@ export const otherExamples = {
                             },
                             "privacy-stats": {
                                 icon: "shield",
-                                title: "Privacy Stats"
+                                title: "Privacy Stats (3)"
                             }
                         }}
                     />
