@@ -10,52 +10,52 @@ import { processTemplateStringWithUserData } from './build-url-transforms.js'
  * @return {import('../types.js').ActionResponse}
  */
 export function click (action, userData, root = document) {
-    let elements = [];
+    let elements = []
 
     if (action.choices?.length) {
         // const elements = evaluateChoices(action.choices, userData, root)
         if ('elements' in action) {
-            return new ErrorResponse({ actionID: action.id, message: 'Elements should be nested inside of choices' });
+            return new ErrorResponse({ actionID: action.id, message: 'Elements should be nested inside of choices' })
         }
 
-        let conditionMet = false;
+        let conditionMet = false
 
         for (const choice of action.choices) {
             if (!('condition' in choice) || !('elements' in choice)) {
-                return new ErrorResponse({ actionID: action.id, message: 'All choices must have a condition and elements' });
+                return new ErrorResponse({ actionID: action.id, message: 'All choices must have a condition and elements' })
             }
 
-            let compare;
+            let compare
 
             try {
-                compare = getComparisonFunction(choice.condition.operation);
+                compare = getComparisonFunction(choice.condition.operation)
             } catch (error) {
-                return new ErrorResponse({ actionID: action.id, message: error.message });
+                return new ErrorResponse({ actionID: action.id, message: error.message })
             }
 
             // Test whether this works without a URL and change the type if so.
-            const left = processTemplateStringWithUserData(choice.condition.left, action, userData);
-            const right = processTemplateStringWithUserData(choice.condition.right, action, userData);
+            const left = processTemplateStringWithUserData(choice.condition.left, action, userData)
+            const right = processTemplateStringWithUserData(choice.condition.right, action, userData)
 
-            let result;
+            let result
 
             try {
-                result = compare(left, right);
+                result = compare(left, right)
             } catch (error) {
-                return new ErrorResponse({ actionID: action.id, message: `Comparison failed with the following error: ${error.message}` });
+                return new ErrorResponse({ actionID: action.id, message: `Comparison failed with the following error: ${error.message}` })
             }
 
             if (result) {
                 // Should we bail here so we don't evaluate two true conditions?
-                elements = choice.elements;
-                conditionMet = true;
+                elements = choice.elements
+                conditionMet = true
             }
         }
 
         if (!conditionMet) {
             // If there's no default defined, return an error.
             if (!('default' in action)) {
-                return new ErrorResponse({ actionID: action.id, message: 'All conditions failed and no default action was provided' });
+                return new ErrorResponse({ actionID: action.id, message: 'All conditions failed and no default action was provided' })
             }
 
             // If there is a default and it's null (meaning skip any further action) return success.
@@ -65,21 +65,21 @@ export function click (action, userData, root = document) {
 
             // If the default is defined and not null (without elements), return an error.
             if (!('elements' in action.default)) {
-                return new ErrorResponse({ actionID: action.id, message: 'No elements were provided in the default action' });
+                return new ErrorResponse({ actionID: action.id, message: 'No elements were provided in the default action' })
             }
 
-            elements = action.default.elements;
+            elements = action.default.elements
         }
     } else {
         if (!('elements' in action)) {
-            return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' });
+            return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' })
         }
 
-        elements = action.elements;
+        elements = action.elements
     }
 
     if (!elements.length) {
-        return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' });
+        return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' })
     }
 
     // there can be multiple elements provided by the action
@@ -138,29 +138,25 @@ function selectRootElement (clickElement, userData, root = document) {
 }
 
 /**
- * 
- * @param {string} operator 
- * @returns 
+ *
+ * @param {string} operator
+ * @returns
  */
-export function getComparisonFunction(operator) {
+export function getComparisonFunction (operator) {
     switch (operator) {
-      case "==":
-        return (a, b) => a == b;
-      case "===":
-        return (a, b) => a === b;
-      case "!=":
-        return (a, b) => a != b;
-      case "!==":
-        return (a, b) => a !== b;
-      case "<":
-        return (a, b) => a < b;
-      case "<=":
-        return (a, b) => a <= b;
-      case ">":
-        return (a, b) => a > b;
-      case ">=":
-        return (a, b) => a >= b;
-      default:
-        throw new Error(`Invalid operator: ${operator}`);
+    case '===':
+        return (a, b) => a === b
+    case '!==':
+        return (a, b) => a !== b
+    case '<':
+        return (a, b) => a < b
+    case '<=':
+        return (a, b) => a <= b
+    case '>':
+        return (a, b) => a > b
+    case '>=':
+        return (a, b) => a >= b
+    default:
+        throw new Error(`Invalid operator: ${operator}`)
     }
 }
