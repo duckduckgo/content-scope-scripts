@@ -2,6 +2,13 @@ import { TestTransportConfig } from '@duckduckgo/messaging'
 
 import { stats } from '../../app/privacy-stats/mocks/stats.js'
 
+/**
+ * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
+ */
+
+const VERSION_PREFIX = '__ntp_15__.'
+const url = new URL(window.location.href)
+
 export function mockTransport () {
     const channel = new BroadcastChannel('ntp')
 
@@ -18,11 +25,11 @@ export function mockTransport () {
      * @return {any}
      */
     function read (name) {
-        console.log('*will* read from LS', name)
+        // console.log('*will* read from LS', name)
         try {
-            const item = localStorage.getItem(name)
+            const item = localStorage.getItem(VERSION_PREFIX + name)
             if (!item) return null
-            console.log('did read from LS', item)
+            // console.log('did read from LS', item)
             return JSON.parse(item)
         } catch (e) {
             console.error('Failed to parse initialSetup from localStorage', e)
@@ -36,8 +43,8 @@ export function mockTransport () {
      */
     function write (name, value) {
         try {
-            localStorage.setItem(name, JSON.stringify(value))
-            console.log('✅ did write')
+            localStorage.setItem(VERSION_PREFIX + name, JSON.stringify(value))
+            // console.log('✅ did write')
         } catch (e) {
             console.error('Failed to write', e)
         }
@@ -51,14 +58,14 @@ export function mockTransport () {
             switch (msg.method) {
             case 'widgets_setConfig': {
                 if (!msg.params) throw new Error('unreachable')
-                write('ntp.widget_config', msg.params)
-                broadcast('ntp.widget_config')
+                write('widget_config', msg.params)
+                broadcast('widget_config')
                 return
             }
             case 'stats_setConfig': {
                 if (!msg.params) throw new Error('unreachable')
-                write('ntp.stats_config', msg.params)
-                broadcast('ntp.stats_config')
+                write('stats_config', msg.params)
+                broadcast('stats_config')
                 return
             }
             default: {
@@ -74,8 +81,8 @@ export function mockTransport () {
             case 'widgets_onConfigUpdated': {
                 const controller = new AbortController()
                 channel.addEventListener('message', (msg) => {
-                    if (msg.data.change === 'ntp.widget_config') {
-                        const values = read('ntp.widget_config')
+                    if (msg.data.change === 'widget_config') {
+                        const values = read('widget_config')
                         if (values) {
                             cb(values)
                         }
@@ -86,8 +93,8 @@ export function mockTransport () {
             case 'stats_onConfigUpdate': {
                 const controller = new AbortController()
                 channel.addEventListener('message', (msg) => {
-                    if (msg.data.change === 'ntp.stats_config') {
-                        const values = read('ntp.stats_config')
+                    if (msg.data.change === 'stats_config') {
+                        const values = read('stats_config')
                         if (values) {
                             cb(values)
                         }
@@ -108,16 +115,24 @@ export function mockTransport () {
                 return Promise.resolve(stats.few)
             }
             case 'stats_getConfig': {
-                const fromStorage = read('ntp.stats_config') || { expansion: 'expanded' }
+                /** @type {StatsConfig} */
+                const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } }
+                const fromStorage = read('stats_config') || defaultConfig
+                if (url.searchParams.get('animation') === 'none') {
+                    fromStorage.animation = { kind: 'none' }
+                }
+                if (url.searchParams.get('animation') === 'view-transitions') {
+                    fromStorage.animation = { kind: 'view-transitions' }
+                }
                 return Promise.resolve(fromStorage)
             }
             case 'initialSetup': {
-                const widgetsFromStorage = read('ntp.widgets') || [
+                const widgetsFromStorage = read('widgets') || [
                     { id: 'favorites' },
                     { id: 'privacyStats' }
                 ]
 
-                const widgetConfigFromStorage = read('ntp.widget_config') || [
+                const widgetConfigFromStorage = read('widget_config') || [
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'visible' }
                 ]

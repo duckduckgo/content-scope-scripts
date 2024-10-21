@@ -24,14 +24,8 @@ import { Service } from '../service.js'
  *   native side.
  *
  * ## Examples:
- * The following examples show the raw JSON payloads
- * <details open>
- * <summary>Show JSON examples 📝</summary>
- *
- * ```js
- * [[include:special-pages/messages/new-tab/examples/widgets.js]]
- * ```
- * </details>
+ * The following examples show the data types in JSON format:
+ * [messages/new-tab/examples/stats.js](../../../../messages/new-tab/examples/widgets.js)
  */
 export class WidgetConfigService {
     /**

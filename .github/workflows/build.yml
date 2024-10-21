@@ -13,7 +13,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -21,9 +21,21 @@ jobs:
 
       - name: Fetch files and checkout
         run: |
-          git fetch --all
-          git checkout releases
-          git checkout main .
+          git fetch origin
+          # Check if the 'main' branch exists, if not, create it
+          if git rev-parse --verify main >/dev/null 2>&1; then
+            git checkout main
+          else
+            git checkout -b main origin/main
+          fi
+          # Check if the 'releases' branch exists, if not, create it
+          if git rev-parse --verify releases >/dev/null 2>&1; then
+            git checkout releases
+          else
+            git checkout -b releases origin/releases
+          fi
+          # Checkout the code of main onto releases
+          git checkout main -- .
 
       - name: Build release
         run: |
@@ -35,7 +47,7 @@ jobs:
           git add -f build/ Sources/
 
       - name: Commit build files
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Release build ${{ github.event.inputs.version }} [ci release]"
           commit_options: '--allow-empty'
@@ -44,14 +56,19 @@ jobs:
 
       - name: Collect commit ranges
         run: |
-          bash ./scripts/changelog.sh > ${{ github.workspace }}-CHANGELOG.txt
+          bash ./scripts/changelog.sh > ${{ github.workspace }}/CHANGELOG.txt
 
+      - name: Debug changelog file
+        run: |
+          ls -la ${{ github.workspace }}/CHANGELOG.txt
+          cat ${{ github.workspace }}/CHANGELOG.txt
+    
       - name: Create Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          body_path: ${{ github.workspace }}/CHANGELOG.txt
           draft: false
           prerelease: false
           tag_name: ${{ github.event.inputs.version }}

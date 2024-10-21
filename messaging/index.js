@@ -1,7 +1,4 @@
 /**
- * @module Messaging
- * @category Libraries
- * @description
  *
  * An abstraction for communications between JavaScript and host platforms.
  *
@@ -21,6 +18,7 @@
  * - Schema: {@link "Messaging Schema"}
  * - Implementation Guide: {@link "Messaging Implementation Guide"}
  *
+ * @module Messaging
  */
 import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods, WindowsNotification, WindowsRequestMessage } from './lib/windows.js'
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
@@ -166,9 +164,6 @@ export class MessagingTransport {
  * It's useful for debugging, and for enabling scripts to run in
  * other environments - for example, testing in a browser without the need
  * for a full integration
- *
- * ```js
- * [[include:messaging/lib/examples/test.example.js]]```
  */
 export class TestTransportConfig {
     /**

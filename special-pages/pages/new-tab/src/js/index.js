@@ -1,10 +1,8 @@
 import 'preact/devtools'
 /**
- * @module New Tab Page
- * @category Special Pages
- *
  * New Tab Page
  *
+ * @module New Tab Page
  */
 import { init } from '../../app/index.js'
 import {

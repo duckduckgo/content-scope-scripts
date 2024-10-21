@@ -1,16 +1,19 @@
 /**
- * @module NewTab Messages
- * @description
- *
  * These types are auto-generated from schema files.
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
+ *
+ * @module NewTab Messages
  */
 
 /**
  * Represents the expansion state of a widget
  */
 export type Expansion = "expanded" | "collapsed";
+/**
+ * Generic Animation configuration
+ */
+export type Animation = None | ViewTransitions | Auto;
 /**
  * The visibility state of the widget, as configured by the user
  */
@@ -65,6 +68,22 @@ export interface StatsSetConfigNotification {
 }
 export interface StatsConfig {
   expansion: Expansion;
+  animation?: Animation;
+}
+export interface None {
+  kind: "none";
+}
+/**
+ * Use CSS view transitions where available
+ */
+export interface ViewTransitions {
+  kind: "view-transitions";
+}
+/**
+ * Use the auto-animate library to provide default animation styles
+ */
+export interface Auto {
+  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/new-tab/widgets_setConfig.notify.json"

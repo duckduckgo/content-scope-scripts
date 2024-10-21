@@ -1,11 +1,12 @@
 /**
- * @module Webcompat Settings Schema
- * @description
+ *
  * These types are auto-generated from schema files.
  * scripts/build-types.mjs is responsible for type generation.
  * See the privacy-configuration repo for the schema files:
  * https://github.com/duckduckgo/privacy-configuration
  * **DO NOT** edit this file directly as your changes will be lost.
+ *
+ * @module Webcompat Settings Schema
  */
 
 export type State = "enabled" | "disabled";

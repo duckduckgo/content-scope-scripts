@@ -1,7 +1,5 @@
 /**
  *
- * @description
- *
  * A wrapper for messaging on WebKit platforms. It supports modern WebKit messageHandlers
  * along with encryption for older versions (like macOS Catalina)
  *
@@ -318,10 +316,7 @@ export class WebkitMessagingTransport {
  *
  * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
  *
- * @example Webkit Messaging
- *
- * ```javascript
- * [[include:messaging/lib/examples/webkit.example.js]]```
+ * [Example](./examples/webkit.example.js)
  */
 export class WebkitMessagingConfig {
     /**
