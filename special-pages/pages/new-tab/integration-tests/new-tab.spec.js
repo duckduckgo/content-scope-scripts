@@ -7,8 +7,11 @@ test.describe('newtab widgets', () => {
         await ntp.reducedMotion()
         await ntp.openPage()
 
+        // menu
+        await page.getByRole('button', { name: 'Customize' }).click()
+
         // hide
-        await page.getByLabel('privacyStats').uncheck()
+        await page.getByLabel('Privacy Stats').uncheck()
 
         // debounced
         await page.waitForTimeout(500)
@@ -33,11 +36,14 @@ test.describe('newtab widgets', () => {
         await ntp.reducedMotion()
         await ntp.openPage()
 
+        // menu
+        await page.getByRole('button', { name: 'Customize' }).click()
+
         // hide
-        await page.getByLabel('privacyStats').uncheck()
+        await page.getByLabel('Privacy Stats').uncheck()
 
         // show
-        await page.getByLabel('privacyStats').check()
+        await page.getByLabel('Privacy Stats').check()
 
         // debounced
         await page.waitForTimeout(500)
