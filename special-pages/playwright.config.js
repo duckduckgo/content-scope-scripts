@@ -18,7 +18,7 @@ export default defineConfig({
         {
             name: 'integration',
             testMatch: [
-                'new-tab-widgets.spec.js',
+                'privacy-stats.spec.js',
                 'new-tab.spec.js'
             ],
             use: {
