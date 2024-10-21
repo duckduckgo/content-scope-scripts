@@ -156,8 +156,13 @@ export function mockTransport () {
                     }
                 }
                 if (url.searchParams.get('rmf') === 'medium') {
-                    payload.content.messageType = 'medium'
-                    payload.content.icon = 'Announce'
+                    payload.content = {
+                        messageType: 'medium',
+                        icon: '',
+                        id: '',
+                        titleText: ',',
+                        descriptionText: ''
+                    }
                 }
                 return Promise.resolve(payload)
             }
