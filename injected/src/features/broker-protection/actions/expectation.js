@@ -9,6 +9,9 @@ import { execute } from '../execute.js'
  * @return {import('../types.js').ActionResponse}
  */
 export function expectation (action, userData, root = document) {
+    /**
+     * @type {Array<import('../types.js').BooleanResult & { failSilently?: boolean }>}
+     */
     const results = expectMany(action.expectations, root)
     const errors = []
     let runActions = true
@@ -20,6 +23,8 @@ export function expectation (action, userData, root = document) {
             if (!x.failSilently) {
                 errors.push('error' in x ? x.error : 'unknown error')
             }
+
+            delete x.failSilently
         }
     })
 
@@ -65,7 +70,7 @@ export function expectMany (expectations, root) {
  *
  * @param {import("../types").Expectation} expectation
  * @param {Document | HTMLElement} root
- * @return {import("../types").BooleanResult}
+ * @return {import("../types").BooleanResult & { failSilently?: boolean }}
  */
 export function elementExpectation (expectation, root) {
     if (expectation.parent) {
@@ -96,7 +101,7 @@ export function elementExpectation (expectation, root) {
  *
  * @param {import("../types").Expectation} expectation
  * @param {Document | HTMLElement} root
- * @return {import("../types").BooleanResult}
+ * @return {import("../types").BooleanResult & { failSilently?: boolean }}
  */
 export function textExpectation (expectation, root) {
     // get the target element first
@@ -135,7 +140,7 @@ export function textExpectation (expectation, root) {
  * Check that the current URL includes a given string
  *
  * @param {import("../types").Expectation} expectation
- * @return {import("../types").BooleanResult}
+ * @return {import("../types").BooleanResult & { failSilently?: boolean }}
  */
 export function urlExpectation (expectation) {
     const url = window.location.href
