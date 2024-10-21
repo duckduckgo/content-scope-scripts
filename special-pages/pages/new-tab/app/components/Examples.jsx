@@ -137,7 +137,7 @@ export const otherExamples = {
                             },
                             "privacy-stats": {
                                 icon: "shield",
-                                title: "Privacy Stats (2)"
+                                title: "Privacy Stats (3)"
                             }
                         }}
                     />
