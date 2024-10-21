@@ -48,7 +48,7 @@
     "@types/jasmine": "^5.1.4",
     "@types/node": "^22.7.6",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
-    "config-builder": "github:duckduckgo/privacy-configuration#d25093d67054ec4850cab4d639eef67428aeecd3",
+    "config-builder": "github:duckduckgo/privacy-configuration#1729260354597",
     "fast-check": "^3.22.0",
     "jasmine": "^5.4.0",
     "minimist": "^1.2.8",
