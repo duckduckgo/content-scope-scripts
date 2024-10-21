@@ -18,7 +18,6 @@ export default defineConfig({
         {
             name: 'integration',
             testMatch: [
-                'favorites.spec.js',
                 'privacy-stats.spec.js',
                 'new-tab.spec.js'
             ],
