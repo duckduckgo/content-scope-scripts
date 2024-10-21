@@ -1,6 +1,5 @@
 import { h } from 'preact'
 import cn from 'classnames'
-import { usePlatformName } from '../SettingsProvider'
 import { comparisonTableData, tableIconPrefix } from './data-comparison-table'
 import { useTypedTranslation } from '../../types'
 
@@ -57,21 +56,18 @@ export function ComparisonTableCell ({ status }) {
  * @param {import('./data-comparison-table').FeatureSupportData} props
  */
 export function ComparisonTableRow ({ icon, title, statuses }) {
-    const platform = usePlatformName()
-    const [chromeStatus, safariStatus, ddgStatus] = statuses
+    const { chrome, ddg } = statuses
 
     return (
         <tr className={styles.row}>
             <ComparisonTableRowHeading icon={icon} title={title} />
-            { platform === 'windows' && <ComparisonTableCell status={chromeStatus} /> }
-            { platform === 'macos' && <ComparisonTableCell status={safariStatus} /> }
-            <ComparisonTableCell status={ddgStatus} />
+            <ComparisonTableCell status={chrome} />
+            <ComparisonTableCell status={ddg} />
         </tr>
     )
 }
 
 export function ComparisonTable () {
-    const platform = usePlatformName()
     const { t } = useTypedTranslation()
     const tableData = comparisonTableData(t)
 
@@ -81,8 +77,7 @@ export function ComparisonTable () {
             <thead>
                 <tr>
                     <th></th>
-                    { platform === 'windows' && <ComparisonTableColumnHeading title="Chrome" /> }
-                    { platform === 'macos' && <ComparisonTableColumnHeading title="Safari" /> }
+                    <ComparisonTableColumnHeading title="Chrome" />
                     <ComparisonTableColumnHeading title="DuckDuckGo" />
                 </tr>
             </thead>
