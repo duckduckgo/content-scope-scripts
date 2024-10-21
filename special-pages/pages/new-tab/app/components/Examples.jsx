@@ -1,35 +1,81 @@
-import { h } from "preact";
-import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
-import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
-import { stats } from "../privacy-stats/mocks/stats.js";
+import { h } from 'preact';
+import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js';
+import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js';
+import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js';
+import { stats } from '../privacy-stats/mocks/stats.js';
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
     'stats.few': {
-        factory: () => <PrivacyStatsMockProvider ticker={true}><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
+        factory: () => <PrivacyStatsMockProvider ticker={true}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.few.collapsed': {
-        factory: () => <PrivacyStatsMockProvider config={{expansion: "collapsed"}}><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
+        factory: () => <PrivacyStatsMockProvider config={{ expansion: 'collapsed' }}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.single': {
-        factory: () => <PrivacyStatsMockProvider data={stats.single}><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
+        factory: () => <PrivacyStatsMockProvider data={stats.single}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.none': {
-        factory: () => <PrivacyStatsMockProvider data={stats.none}><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
+        factory: () => <PrivacyStatsMockProvider data={stats.none}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.norecent': {
         factory: () => <PrivacyStatsMockProvider
-            data={stats.norecent}><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
+            data={stats.norecent}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.list': {
-        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} id='example-stats.list'/>
+        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} id='example-stats.list' />
     },
     'stats.heading': {
-        factory: () => <Heading trackerCompanies={stats.few.trackerCompanies} totalCount={stats.few.totalCount}/>
+        factory: () => <Heading trackerCompanies={stats.few.trackerCompanies} totalCount={stats.few.totalCount} />
     },
     'stats.heading.none': {
-        factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount}/>
+        factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount} />
     },
+    'rmf.small': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="small"
+                titleText="Update Available"
+                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
+            />
+        )
+    },
+    'rmf.medium': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="medium"
+                icon="Announce"
+                titleText="Tell Us Your Thoughts on Privacy Pro"
+                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
+            />
+        )
+    },
+    'rmf.big-single-action': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="big_single_action"
+                icon="DDGAnnounce"
+                titleText="New Search Feature!"
+                descriptionText="DuckDuckGo now offers Instant Answers for quicker access to the information you need."
+                primaryAction={() => { }}
+                primaryActionText="Learn More"
+            />
+        )
+    },
+    'rmf.big-two-action': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="big_two_action"
+                icon="AppUpdate"
+                titleText="Update Available"
+                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
+                primaryAction={() => { }}
+                primaryActionText="How to update"
+                secondaryAction={() => { }}
+                secondaryActionText="Remind me later"
+            />
+        )
+    }
 }
 
 export const otherExamples = {
@@ -37,18 +83,32 @@ export const otherExamples = {
         factory: () => <PrivacyStatsMockProvider
             ticker={true}
             config={{
-                expansion: "expanded",
-                animation: { kind: "none" }
+                expansion: 'expanded',
+                animation: { kind: 'none' }
             }}
-        ><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
+        ><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.with-view-transitions': {
         factory: () => <PrivacyStatsMockProvider
             ticker={true}
             config={{
-                expansion: "expanded",
-                animation: { kind: "view-transitions" }
+                expansion: 'expanded',
+                animation: { kind: 'view-transitions' }
             }}
-        ><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
+        ><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
+    'rmf.big-two-action-overflow': {
+        factory: () => (
+            <RemoteMessagingFramework
+                messageType="big_two_action"
+                icon="CriticalUpdate"
+                titleText="Update Available"
+                descriptionText="A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance. A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance."
+                primaryAction={() => { }}
+                primaryActionText="How to update Windows"
+                secondaryAction={() => { }}
+                secondaryActionText="Remind me later, but only if I’m actually going to update soon"
+            />
+        )
+    }
 }
