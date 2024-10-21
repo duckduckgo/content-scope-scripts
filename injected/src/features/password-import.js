@@ -5,21 +5,9 @@ const ANIMATION_DURATION_MS = 1000
 const ANIMATION_ITERATIONS = Infinity
 
 export default class PasswordImport extends ContentFeature {
-    // TODO: The actual values should be configurable, and come from android
-    #exportButtonSettings = {
-        containerSelectors: ['c-wiz[data-node-index*="2;0"][data-p*="options"]', 'c-wiz[data-p*="options"][jsdata="deferred-i4"]'],
-        labelTexts: ['Export']
-    }
-
-    #settingsButtonSettings = {
-        selectors: ['a[href*="options"]', 'a[arial-label="Password options"]'],
-        labelTexts: ['Password options']
-    }
-
-    #signInButtonSettings = {
-        selectors: ['a[href*="ServiceLogin"]:not([target="_top"])', 'a[aria-label="Sign in"]:not([target="_top"])'],
-        labelTexts: ['Sign in']
-    }
+    #exportButtonSettings
+    #settingsButtonSettings
+    #signInButtonSettings
 
     SUPPORTED_PATHS = {
         SIGNIN: '/intro',
@@ -207,11 +195,9 @@ export default class PasswordImport extends ContentFeature {
      * @param {any} settings
      */
     setButtonSettings (settings) {
-        console.log('DEEP settings', settings)
-        // TODO: currently all hardcoded as class members, should be configurable
-        // this.#exportButtonSettings = settings?.exportButton
-        // this.#settingsButtonSettings = settings?.settingsButton
-        // this.#signInButtonSettings = settings?.signInButton
+        this.#exportButtonSettings = settings?.exportButton
+        this.#settingsButtonSettings = settings?.settingsButton
+        this.#signInButtonSettings = settings?.signInButton
     }
 
     init (args) {
