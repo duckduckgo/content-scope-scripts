@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Favorites Data",
+  "type": "object",
+  "required": ["favorites"],
+  "properties": {
+    "favorites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "title": "Favorite",
+        "required": ["data", "id", "title", "favicon"],
+        "properties": {
+          "data": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "favicon": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
