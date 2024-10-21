@@ -3,6 +3,7 @@ import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMoc
 import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
 import { stats } from "../privacy-stats/mocks/stats.js";
 import { noop } from "../utils.js";
+import { CustomizerMenu, CustomizerMenuPositioned } from "../customizer/Customizer.js";
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -63,5 +64,31 @@ export const otherExamples = {
                 animation: { kind: "view-transitions" }
             }}
         ><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
+    },
+    'customizer-menu': {
+        factory: () => (
+            <div style={{minHeight: '300px', position: 'relative'}}>
+                <CustomizerMenuPositioned>
+                    <CustomizerMenu
+                        toggle={noop('toggle')}
+                        widgets={[{id: "favorites"}, {id: "privacy-stats"}]}
+                        widgetConfigItems={[
+                            {id: "favorites", visibility: "visible"},
+                            {id: "privacy-stats", visibility: "visible"},
+                        ]}
+                        metaData={{
+                            "favorites": {
+                                icon: "star",
+                                title: "Favorites"
+                            },
+                            "privacy-stats": {
+                                icon: "shield",
+                                title: "Privacy Stats"
+                            }
+                        }}
+                    />
+                </CustomizerMenuPositioned>
+            </div>
+        )
     },
 }
