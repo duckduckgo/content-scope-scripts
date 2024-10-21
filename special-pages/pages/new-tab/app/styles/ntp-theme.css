@@ -19,11 +19,15 @@
     --title-3-em-font-weight: 590;
     --title-3-em-line-height: 20px;
 
+    --ntp-focus-outline-color: black;
+
+
     @media (prefers-color-scheme: dark) {
         --ntp-background-color: var(--color-gray-85);
         --ntp-surface-background-color: var(--color-black-at-18);
         --ntp-surface-border-color: var(--color-black-at-6);
         --ntp-text-normal: white;
+        --ntp-focus-outline-color: white;
     }
 }
 

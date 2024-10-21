@@ -26,6 +26,12 @@ body[data-display="components"] {
 
 .itemInfo {
     display: flex;
+    flex-direction: column;
+    gap: .5em;
+}
+
+.itemLinks {
+    display: flex;
     align-items: center;
     gap: 1em;
 }
