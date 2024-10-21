@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact'
+import { h } from 'preact'
 import cn from 'classnames'
 import styles from './RemoteMessagingFramework.module.css'
 import MessageIcons from './MessageIcons'
@@ -17,11 +17,8 @@ import MessageIcons from './MessageIcons'
  * @param {function} [props.secondaryAction]
  */
 
-export function RemoteMessagingFramework({ id, messageType, titleText, descriptionText, icon, primaryActionText = '', primaryAction, secondaryActionText = '', secondaryAction }) {
-
-
+export function RemoteMessagingFramework ({ id, messageType, titleText, descriptionText, icon, primaryActionText = '', primaryAction, secondaryActionText = '', secondaryAction }) {
     return (
-
         <div id={id} class={cn(styles.root, icon && styles.icon)}>
             {icon && (
                 <span class={styles.iconBlock}>
