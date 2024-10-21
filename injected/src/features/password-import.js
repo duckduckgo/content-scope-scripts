@@ -147,7 +147,7 @@ export default class PasswordImport extends ContentFeature {
      * @returns {string}
      */
     get exportButtonContainerSelector () {
-        return this.#exportButtonSettings?.containerSelectors?.join(',')
+        return this.#exportButtonSettings?.selectors?.join(',')
     }
 
     /**
