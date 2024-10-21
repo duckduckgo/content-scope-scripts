@@ -102,6 +102,20 @@ export function mockTransport () {
                 }, { signal: controller.signal })
                 return () => controller.abort()
             }
+            case 'rmf_onDataUpdate': {
+                // const timeout = setTimeout(() => {
+                //     /** @type {import('../../../../types/new-tab.js').SmallMessage} */
+                //     const payload = {
+                //         id: "id-1",
+                //         messageType: "small",
+                //         titleText: "Hello world",
+                //         descriptionText: "My Description"
+                //     }
+                //     cb(payload)
+                // }, 2000)
+                // return () => clearTimeout(timeout)
+                return () => {}
+            }
             }
             return () => {}
         },
@@ -126,15 +140,38 @@ export function mockTransport () {
                 }
                 return Promise.resolve(fromStorage)
             }
+            case 'rmf_getConfig':{
+                /** @type {import('../../../../types/new-tab').RMFConfig} */
+                const defaultConfig = { expansion: 'expanded' }
+                return Promise.resolve(defaultConfig)
+            }
+            case 'rmf_getData':{
+                /** @type {import('../../../../types/new-tab.js').RMFData} */
+                const payload = {
+                    content: {
+                        id: "id-1",
+                        messageType: "small",
+                        titleText: "Hello world",
+                        descriptionText: "My Description"
+                    }
+                }
+                if (url.searchParams.get('rmf') === 'medium') {
+                    payload.content.messageType = 'medium'
+                    payload.content.icon = 'Announce'
+                }
+                return Promise.resolve(payload)
+            }
             case 'initialSetup': {
                 const widgetsFromStorage = read('widgets') || [
+                    { id: 'rmf' },
                     { id: 'favorites' },
-                    { id: 'privacyStats' }
+                    { id: 'privacyStats' },
                 ]
 
                 const widgetConfigFromStorage = read('widget_config') || [
                     { id: 'favorites', visibility: 'visible' },
-                    { id: 'privacyStats', visibility: 'visible' }
+                    { id: 'privacyStats', visibility: 'visible' },
+                    { id: 'rmf', visibility: 'visible' }
                 ]
 
                 /** @type {import('../../../../types/new-tab.js').InitialSetupResponse} */

@@ -8,6 +8,8 @@ import {
     Customizer,
     CustomizerMenuPositionedFixed
 } from '../customizer/Customizer.js'
+import { RMFProvider } from "../remote-messaging-framework/RMFProvider.js";
+import { RMFConsumer } from "../remote-messaging-framework/RemoteMessagingFramework.js";
 
 const widgetMap = {
     privacyStats: () => (
@@ -15,6 +17,11 @@ const widgetMap = {
     ),
     favorites: () => (
         <FavoritesCustomized />
+    ),
+    rmf: () => (
+        <RMFProvider>
+            <RMFConsumer />
+        </RMFProvider>
     )
 }
 

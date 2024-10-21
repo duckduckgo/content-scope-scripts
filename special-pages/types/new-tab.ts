@@ -27,17 +27,22 @@ export type WidgetConfigs = WidgetConfigItem[];
  */
 export type Widgets = WidgetListItem[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
+
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
  */
 export interface NewTabMessages {
   notifications:
-  | ReportInitExceptionNotification
-  | ReportPageExceptionNotification
-  | StatsSetConfigNotification
-  | WidgetsSetConfigNotification;
-  requests: InitialSetupRequest | StatsGetConfigRequest | StatsGetDataRequest;
-  subscriptions: RmfOnDataUpdateSubscription | StatsOnConfigUpdateSubscription | StatsOnDataUpdateSubscription | WidgetsOnConfigUpdatedSubscription;
+    | ReportInitExceptionNotification
+    | ReportPageExceptionNotification
+    | StatsSetConfigNotification
+    | WidgetsSetConfigNotification;
+  requests: InitialSetupRequest | RmfGetConfigRequest | RmfGetDataRequest | StatsGetConfigRequest | StatsGetDataRequest;
+  subscriptions:
+    | RmfOnDataUpdateSubscription
+    | StatsOnConfigUpdateSubscription
+    | StatsOnDataUpdateSubscription
+    | WidgetsOnConfigUpdatedSubscription;
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"
@@ -122,6 +127,56 @@ export interface WidgetListItem {
   id: string;
 }
 /**
+ * Generated from @see "../messages/new-tab/rmf_getConfig.request.json"
+ */
+export interface RmfGetConfigRequest {
+  method: "rmf_getConfig";
+  result: RMFConfig;
+}
+export interface RMFConfig {
+  expansion: Expansion;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_getData.request.json"
+ */
+export interface RmfGetDataRequest {
+  method: "rmf_getData";
+  result: RMFData;
+}
+export interface RMFData {
+  content: RMFMessage;
+}
+export interface SmallMessage {
+  messageType: "small";
+  id: string;
+  titleText: string;
+  descriptionText: string;
+}
+export interface MediumMessage {
+  messageType: "medium";
+  id: string;
+  titleText: string;
+  descriptionText: string;
+  icon: string;
+}
+export interface BigSingleActionMessage {
+  messageType: "big_single_action";
+  id: string;
+  titleText: string;
+  descriptionText: string;
+  icon: string;
+  primaryActionText: string;
+}
+export interface BigTwoActionMessage {
+  messageType: "big_two_action";
+  id: string;
+  titleText: string;
+  descriptionText: string;
+  icon: string;
+  primaryActionText: string;
+  secondaryActionText: string;
+}
+/**
  * Generated from @see "../messages/new-tab/stats_getConfig.request.json"
  */
 export interface StatsGetConfigRequest {
@@ -145,6 +200,13 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_onDataUpdate.subscribe.json"
+ */
+export interface RmfOnDataUpdateSubscription {
+  subscriptionEvent: "rmf_onDataUpdate";
+  params: RMFData;
 }
 /**
  * Generated from @see "../messages/new-tab/stats_onConfigUpdate.subscribe.json"

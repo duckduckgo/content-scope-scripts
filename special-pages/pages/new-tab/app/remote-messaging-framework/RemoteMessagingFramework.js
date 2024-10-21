@@ -2,6 +2,8 @@ import { h } from 'preact'
 import cn from 'classnames'
 import styles from './RemoteMessagingFramework.module.css'
 import MessageIcons from './MessageIcons'
+import { useContext } from "preact/hooks";
+import { RMFContext } from "./RMFProvider.js";
 
 /**
   * @import { RMFMessage } from "../../../../types/new-tab"
@@ -40,4 +42,18 @@ export function RemoteMessagingFramework ({ message, primaryAction, secondaryAct
         </div>
 
     )
+}
+
+export function RMFConsumer () {
+    const { state, primaryAction, secondaryAction } = useContext(RMFContext)
+    if (state.status === 'ready') {
+        return (
+            <RemoteMessagingFramework
+                message={state.data.content}
+                primaryAction={primaryAction}
+                secondaryAction={secondaryAction}
+            />
+        )
+    }
+    return null
 }
