@@ -1,10 +1,10 @@
-import { Mocks } from './mocks.js'
-import { perPlatform } from '../../../injected/integration-test/type-helpers.mjs'
+import { Mocks } from '../../../tests/page-objects/mocks.js'
 import { join } from 'node:path'
+import { perPlatform } from 'injected/integration-test/type-helpers.mjs'
 
 /**
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').Build} Build
- * @typedef {import('../../../injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
+ * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
+ * @typedef {import('injected/integration-test/type-helpers.mjs').PlatformInfo} PlatformInfo
  */
 
 export class NewtabPage {
@@ -27,7 +27,7 @@ export class NewtabPage {
         this.mocks.defaultResponses({
             requestSetAsDefault: {},
             requestImport: {},
-            /** @type {import('../../types/new-tab.js').InitialSetupResponse} */
+            /** @type {import('../../../types/new-tab.ts').InitialSetupResponse} */
             initialSetup: {
                 widgets: [
                     { id: 'favorites' },
@@ -56,8 +56,9 @@ export class NewtabPage {
      * @param {Object} [params] - Optional parameters for opening the page.
      * @param {'debug' | 'production'} [params.mode] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
+     * @param {number} [params.favoritesCount] - Optional flag to preload a list of favorites
      */
-    async openPage ({ mode = 'debug', willThrow = false } = { }) {
+    async openPage ({ mode = 'debug', willThrow = false, favoritesCount } = { }) {
         await this.mocks.install()
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
@@ -71,6 +72,11 @@ export class NewtabPage {
             })
         })
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) })
+
+        if (favoritesCount !== undefined) {
+            searchParams.set('favorites', String(favoritesCount))
+        }
+
         await this.page.goto('/' + '?' + searchParams.toString())
     }
 

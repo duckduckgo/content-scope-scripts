@@ -17,7 +17,7 @@
 .expanded {}
 .heading {
     display: grid;
-    grid-template-columns: 24px auto 24px;
+    grid-template-columns: 24px auto 32px;
     grid-column-gap: 12px;
     grid-row-gap: 12px;
     grid-template-rows: auto auto;
@@ -46,44 +46,15 @@
     font-weight: var(--title-2-font-weight);
     line-height: var(--title-2-line-height);
 }
+
 .expander {
-    grid-area: expander;
-}
-
-.toggle {
-    width: 24px;
-    height: 24px;
     position: relative;
-    background: none;
-    outline: none;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color ease-in-out .2s;
 
-    color: var(--color-black-at-48);
-    @media screen and (prefers-color-scheme: dark) {
-        color: var(--color-white-at-60);
-    }
-
-    &:hover {
-        background: var(--color-black-at-6);
-        @media screen and (prefers-color-scheme: dark) {
-            background: var(--color-white-at-9);
-        }
-
-    }
-
-    svg {
+    & [aria-controls] {
         position: absolute;
         top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        pointer-events: none;
-    }
-
-    &[aria-pressed=false] {
-        transform: rotate(180deg);
+        transform: translateY(-50%);
+        opacity: 1;
     }
 }
 
