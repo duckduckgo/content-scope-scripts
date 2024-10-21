@@ -1,8 +1,4 @@
 /**
- * @module Messaging Implementation Guide
- * @category Libraries
- * @description
- *
  * Messages will be **sent** to native platforms in 2 formats - notifications and requests.
  * Notifications do not require a response, but requests do. The following spec explains the difference and
  * how to handle each.
@@ -219,4 +215,6 @@
  *   "params": { "hello":  "world" }
  * }
  * ```
+ *
+ * @module Messaging Implementation Guide
  */

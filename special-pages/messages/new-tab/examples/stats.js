@@ -13,8 +13,16 @@ const privacyStatsData = {
 /**
  * @type {import("../../../types/new-tab").StatsConfig}
  */
-const statsConfig = {
+const minimumConfig = {
     expansion: "expanded"
+}
+
+/**
+ * @type {import("../../../types/new-tab").StatsConfig}
+ */
+const withAnimation = {
+    expansion: "expanded",
+    animation: { kind: "view-transitions" }
 }
 
 export {}

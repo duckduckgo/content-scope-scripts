@@ -1,14 +1,8 @@
 /**
- * @description
  *
  * A wrapper for messaging on Android.
  *
  * You must share a {@link AndroidMessagingConfig} instance between features
- *
- * @example
- *
- * ```javascript
- * [[include:messaging/lib/examples/windows.example.js]]```
  *
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -166,7 +160,7 @@ export class AndroidMessagingTransport {
  * - `$messageSecret` matches {@link AndroidMessagingConfig.messageSecret}
  * - `$message` is JSON string that represents one of {@link MessageResponse} or {@link SubscriptionEvent}
  *
- * ```kotlin
+ * ```
  * object ReplyHandler {
  *     fun constructReply(message: String, messageCallback: String, messageSecret: String): String {
  *         return """

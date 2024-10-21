@@ -7,8 +7,6 @@ test.describe('newtab widgets', () => {
         await ntp.reducedMotion()
         await ntp.openPage()
 
-        await page.pause()
-
         // hide
         await page.getByLabel('privacyStats').uncheck()
 

@@ -1,14 +1,9 @@
 /**
- * @description
- *
  * A wrapper for messaging on Windows.
  *
  * This requires 3 methods to be available, see {@link WindowsMessagingConfig} for details
  *
- * @example
- *
- * ```javascript
- * [[include:messaging/lib/examples/windows.example.js]]```
+ * @document messaging/lib/examples/windows.example.js
  *
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -207,8 +202,7 @@ export class WindowsMessagingTransport {
  * Depending on where the script is running, we may want to restrict access to those globals. On the native
  * side those handlers `window.chrome.webview` handlers might be deleted and replaces with in-scope variables, such as:
  *
- * ```ts
- * [[include:messaging/lib/examples/windows.example.js]]```
+ * [Example](./examples/windows.example.js)
  *
  */
 export class WindowsMessagingConfig {
