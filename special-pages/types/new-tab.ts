@@ -26,18 +26,18 @@ export type WidgetConfigs = WidgetConfigItem[];
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
-
+export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
  */
 export interface NewTabMessages {
   notifications:
-    | ReportInitExceptionNotification
-    | ReportPageExceptionNotification
-    | StatsSetConfigNotification
-    | WidgetsSetConfigNotification;
+  | ReportInitExceptionNotification
+  | ReportPageExceptionNotification
+  | StatsSetConfigNotification
+  | WidgetsSetConfigNotification;
   requests: InitialSetupRequest | StatsGetConfigRequest | StatsGetDataRequest;
-  subscriptions: StatsOnConfigUpdateSubscription | StatsOnDataUpdateSubscription | WidgetsOnConfigUpdatedSubscription;
+  subscriptions: RmfOnDataUpdateSubscription | StatsOnConfigUpdateSubscription | StatsOnDataUpdateSubscription | WidgetsOnConfigUpdatedSubscription;
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"
