@@ -1,21 +1,41 @@
 import { getElement } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
+import { execute } from '../execute.js'
 
 /**
  * @param {Record<string, any>} action
- * @param {Document | HTMLElement} root
+ * @param {Record<string, any>} userData
+ * @param {Document} root
  * @return {import('../types.js').ActionResponse}
  */
-export function expectation (action, root = document) {
+export function expectation (action, userData, root = document) {
+    /**
+     * @type {Array<import('../types.js').BooleanResult & { failSilently?: boolean }>}
+     */
     const results = expectMany(action.expectations, root)
+    const errors = []
+    let runActions = true
 
-    const errors = results.filter(x => x.result === false).map(x => {
-        if ('error' in x) return x.error
-        return 'unknown error'
+    results.forEach((x) => {
+        if (x.result === false) {
+            runActions = false
+
+            if (!x.failSilently) {
+                errors.push('error' in x ? x.error : 'unknown error')
+            }
+
+            delete x.failSilently
+        }
     })
 
     if (errors.length > 0) {
         return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
+    }
+
+    if (action.actions?.length && runActions) {
+        action.actions.forEach((expectationAction) => {
+            execute(expectationAction, userData, root)
+        })
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
@@ -50,7 +70,7 @@ export function expectMany (expectations, root) {
  *
  * @param {import("../types").Expectation} expectation
  * @param {Document | HTMLElement} root
- * @return {import("../types").BooleanResult}
+ * @return {import("../types").BooleanResult & { failSilently?: boolean }}
  */
 export function elementExpectation (expectation, root) {
     if (expectation.parent) {
@@ -69,7 +89,8 @@ export function elementExpectation (expectation, root) {
     if (!elementExists) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`
+            error: `element with selector ${expectation.selector} not found.`,
+            failSilently: expectation.failSilently
         }
     }
     return { result: true }
@@ -80,7 +101,7 @@ export function elementExpectation (expectation, root) {
  *
  * @param {import("../types").Expectation} expectation
  * @param {Document | HTMLElement} root
- * @return {import("../types").BooleanResult}
+ * @return {import("../types").BooleanResult & { failSilently?: boolean }}
  */
 export function textExpectation (expectation, root) {
     // get the target element first
@@ -88,7 +109,8 @@ export function textExpectation (expectation, root) {
     if (!elem) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`
+            error: `element with selector ${expectation.selector} not found.`,
+            failSilently: expectation.failSilently
         }
     }
 
@@ -106,7 +128,8 @@ export function textExpectation (expectation, root) {
     if (!textExists) {
         return {
             result: false,
-            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`
+            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`,
+            failSilently: expectation.failSilently
         }
     }
 
@@ -117,7 +140,7 @@ export function textExpectation (expectation, root) {
  * Check that the current URL includes a given string
  *
  * @param {import("../types").Expectation} expectation
- * @return {import("../types").BooleanResult}
+ * @return {import("../types").BooleanResult & { failSilently?: boolean }}
  */
 export function urlExpectation (expectation) {
     const url = window.location.href
@@ -133,7 +156,8 @@ export function urlExpectation (expectation) {
     if (!url.includes(expectation.expect)) {
         return {
             result: false,
-            error: `expected URL to include ${expectation.expect}, but it didn't`
+            error: `expected URL to include ${expectation.expect}, but it didn't`,
+            failSilently: expectation.failSilently
         }
     }
 
