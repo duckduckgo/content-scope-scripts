@@ -11,6 +11,9 @@ import { execute } from '../execute.js'
 export function expectation (action, userData, root = document) {
     const results = expectMany(action.expectations, root)
 
+    // Loop through each result, if success and actions, execute actions. Otherwise fix errors and throw
+
+    // Change this filter to look through successes and failures
     const errors = results.filter(x => x.result === false).map(x => {
         if ('error' in x) return x.error
         return 'unknown error'
@@ -93,7 +96,7 @@ export function elementExpectation (expectation, root) {
 export function textExpectation (expectation, root) {
     // get the target element first
     const elem = getElement(root, expectation.selector)
-    if (!elem && !expectation.failSilently) {
+    if (!elem) {
         return {
             result: false,
             error: `element with selector ${expectation.selector} not found.`

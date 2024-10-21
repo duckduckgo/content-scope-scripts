@@ -509,7 +509,7 @@ test.describe('Broker Protection communications', () => {
         const response = await dbp.waitForMessage('actionCompleted')
 
         dbp.isSuccessMessage(response)
-        await page.waitForURL(url => url.hash === '#1', { timeout: 2000 })
+        await page.waitForURL(url => url.hash === '', { timeout: 2000 })
     })
 
     test.describe('retrying', () => {

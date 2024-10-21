@@ -1,6 +1,6 @@
 /**
  * @typedef {SuccessResponse | ErrorResponse} ActionResponse
- * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
+ * @typedef {{ result: true } | { result: false; error: string, failSilently?: boolean }} BooleanResult
  * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string; failSilently?: boolean}} Expectation
  */
 
