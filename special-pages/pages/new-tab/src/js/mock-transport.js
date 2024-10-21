@@ -1,12 +1,16 @@
 import { TestTransportConfig } from '@duckduckgo/messaging'
 
 import { stats } from '../../app/privacy-stats/mocks/stats.js'
+import { favorites, gen } from '../../app/favorites/mocks/favorites.data.js'
 
 /**
+ * @typedef {import('../../../../types/new-tab').Favorite} Favorite
+ * @typedef {import('../../../../types/new-tab').FavoritesData} FavoritesData
+ * @typedef {import('../../../../types/new-tab').FavoritesConfig} FavoritesConfig
  * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
  */
 
-const VERSION_PREFIX = '__ntp_15__.'
+const VERSION_PREFIX = '__ntp_21__.'
 const url = new URL(window.location.href)
 
 export function mockTransport () {
@@ -27,6 +31,10 @@ export function mockTransport () {
     function read (name) {
         // console.log('*will* read from LS', name)
         try {
+            if (url.searchParams.has('skip-read')) {
+                console.warn('not reading from localstorage, because skip-read was in the search')
+                return null
+            }
             const item = localStorage.getItem(VERSION_PREFIX + name)
             if (!item) return null
             // console.log('did read from LS', item)
@@ -43,6 +51,10 @@ export function mockTransport () {
      */
     function write (name, value) {
         try {
+            if (url.searchParams.has('skip-write')) {
+                console.warn('not writing to localstorage, because skip-write was in the search')
+                return
+            }
             localStorage.setItem(VERSION_PREFIX + name, JSON.stringify(value))
             // console.log('✅ did write')
         } catch (e) {
@@ -64,8 +76,40 @@ export function mockTransport () {
             }
             case 'stats_setConfig': {
                 if (!msg.params) throw new Error('unreachable')
-                write('stats_config', msg.params)
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { animation, ...rest } = msg.params
+                write('stats_config', rest)
                 broadcast('stats_config')
+                return
+            }
+            case 'favorites_setConfig': {
+                if (!msg.params) throw new Error('unreachable')
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { animation, ...rest } = msg.params
+                write('favorites_config', rest)
+                broadcast('favorites_config')
+                return
+            }
+            case 'favorites_move': {
+                if (!msg.params) throw new Error('unreachable')
+                const { id, targetIndex } = msg.params
+                const data = read('favorites_data')
+
+                if (Array.isArray(data?.favorites)) {
+                    const favorites = reorderArray(data.favorites, id, targetIndex)
+                    write('favorites_data', { favorites })
+                    broadcast('favorites_data')
+                }
+
+                return
+            }
+            case 'favorites_openContextMenu': {
+                if (!msg.params) throw new Error('unreachable')
+                console.log('mock: ignoring favorites_openContextMenu', msg.params)
+                return
+            }
+            case 'favorites_add': {
+                console.log('mock: ignoring favorites_add')
                 return
             }
             default: {
@@ -102,6 +146,31 @@ export function mockTransport () {
                 }, { signal: controller.signal })
                 return () => controller.abort()
             }
+            case 'favorites_onDataUpdate': {
+                const controller = new AbortController()
+                channel.addEventListener('message', (msg) => {
+                    if (msg.data.change === 'favorites_data') {
+                        const values = read('favorites_data')
+                        if (values) {
+                            cb(values)
+                            cb(values)
+                        }
+                    }
+                }, { signal: controller.signal })
+                return () => controller.abort()
+            }
+            case 'favorites_onConfigUpdate': {
+                const controller = new AbortController()
+                channel.addEventListener('message', (msg) => {
+                    if (msg.data.change === 'favorites_config') {
+                        const values = read('favorites_config')
+                        if (values) {
+                            cb(values)
+                        }
+                    }
+                }, { signal: controller.signal })
+                return () => controller.abort()
+            }
             }
             return () => {}
         },
@@ -116,11 +185,27 @@ export function mockTransport () {
             }
             case 'stats_getConfig': {
                 /** @type {StatsConfig} */
-                const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } }
+                const defaultConfig = { expansion: 'expanded', animation: { kind: 'none' } }
                 const fromStorage = read('stats_config') || defaultConfig
                 if (url.searchParams.get('animation') === 'none') {
                     fromStorage.animation = { kind: 'none' }
+                } else {
+                    fromStorage.animation = { kind: 'view-transitions' }
                 }
+                return Promise.resolve(fromStorage)
+            }
+            case 'favorites_getData': {
+                const dataToWrite = url.searchParams.has('favorites')
+                    ? gen(Number(url.searchParams.get('favorites')))
+                    : read('favorites_data') || favorites.many
+
+                write('favorites_data', dataToWrite)
+                return Promise.resolve(dataToWrite)
+            }
+            case 'favorites_getConfig': {
+                /** @type {FavoritesConfig} */
+                const defaultConfig = { expansion: 'collapsed', animation: { kind: 'none' } }
+                const fromStorage = read('favorites_config') || defaultConfig
                 if (url.searchParams.get('animation') === 'view-transitions') {
                     fromStorage.animation = { kind: 'view-transitions' }
                 }
@@ -154,4 +239,18 @@ export function mockTransport () {
             }
         }
     })
+}
+
+/**
+ * @template {{id: string}} T
+ * @param {T[]} array
+ * @param {string} id
+ * @param {number} toIndex
+ * @return {T[]}
+ */
+function reorderArray (array, id, toIndex) {
+    const fromIndex = array.findIndex(item => item.id === id)
+    const element = array.splice(fromIndex, 1)[0] // Remove the element from the original position
+    array.splice(toIndex, 0, element) // Insert the element at the new position
+    return array
 }

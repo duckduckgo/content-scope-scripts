@@ -32,12 +32,88 @@ export type Widgets = WidgetListItem[];
  */
 export interface NewTabMessages {
   notifications:
+    | FavoritesAddNotification
+    | FavoritesMoveNotification
+    | FavoritesOpenContextMenuNotification
+    | FavoritesSetConfigNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | StatsSetConfigNotification
     | WidgetsSetConfigNotification;
-  requests: InitialSetupRequest | StatsGetConfigRequest | StatsGetDataRequest;
-  subscriptions: StatsOnConfigUpdateSubscription | StatsOnDataUpdateSubscription | WidgetsOnConfigUpdatedSubscription;
+  requests:
+    | FavoritesGetConfigRequest
+    | FavoritesGetDataRequest
+    | InitialSetupRequest
+    | StatsGetConfigRequest
+    | StatsGetDataRequest;
+  subscriptions:
+    | FavoritesOnConfigUpdateSubscription
+    | FavoritesOnDataUpdateSubscription
+    | StatsOnConfigUpdateSubscription
+    | StatsOnDataUpdateSubscription
+    | WidgetsOnConfigUpdatedSubscription;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_add.notify.json"
+ */
+export interface FavoritesAddNotification {
+  method: "favorites_add";
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_move.notify.json"
+ */
+export interface FavoritesMoveNotification {
+  method: "favorites_move";
+  params: FavoritesMoveAction;
+}
+export interface FavoritesMoveAction {
+  /**
+   * Entity ID
+   */
+  id: string;
+  /**
+   * zero-indexed target
+   */
+  targetIndex: number;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_openContextMenu.notify.json"
+ */
+export interface FavoritesOpenContextMenuNotification {
+  method: "favorites_openContextMenu";
+  params: FavoritesOpenContextMenuAction;
+}
+export interface FavoritesOpenContextMenuAction {
+  /**
+   * Entity ID
+   */
+  id: string;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_setConfig.notify.json"
+ */
+export interface FavoritesSetConfigNotification {
+  method: "favorites_setConfig";
+  params: FavoritesConfig;
+}
+export interface FavoritesConfig {
+  expansion: Expansion;
+  animation?: Animation;
+}
+export interface None {
+  kind: "none";
+}
+/**
+ * Use CSS view transitions where available
+ */
+export interface ViewTransitions {
+  kind: "view-transitions";
+}
+/**
+ * Use the auto-animate library to provide default animation styles
+ */
+export interface Auto {
+  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"
@@ -70,21 +146,6 @@ export interface StatsConfig {
   expansion: Expansion;
   animation?: Animation;
 }
-export interface None {
-  kind: "none";
-}
-/**
- * Use CSS view transitions where available
- */
-export interface ViewTransitions {
-  kind: "view-transitions";
-}
-/**
- * Use the auto-animate library to provide default animation styles
- */
-export interface Auto {
-  kind: "auto-animate";
-}
 /**
  * Generated from @see "../messages/new-tab/widgets_setConfig.notify.json"
  */
@@ -98,6 +159,29 @@ export interface WidgetConfigItem {
    */
   id: string;
   visibility: WidgetVisibility;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_getConfig.request.json"
+ */
+export interface FavoritesGetConfigRequest {
+  method: "favorites_getConfig";
+  result: FavoritesConfig;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_getData.request.json"
+ */
+export interface FavoritesGetDataRequest {
+  method: "favorites_getData";
+  result: FavoritesData;
+}
+export interface FavoritesData {
+  favorites: Favorite[];
+}
+export interface Favorite {
+  data: string;
+  id: string;
+  title: string;
+  favicon: string;
 }
 /**
  * Generated from @see "../messages/new-tab/initialSetup.request.json"
@@ -145,6 +229,20 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_onConfigUpdate.subscribe.json"
+ */
+export interface FavoritesOnConfigUpdateSubscription {
+  subscriptionEvent: "favorites_onConfigUpdate";
+  params: FavoritesConfig;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_onDataUpdate.subscribe.json"
+ */
+export interface FavoritesOnDataUpdateSubscription {
+  subscriptionEvent: "favorites_onDataUpdate";
+  params: FavoritesData;
 }
 /**
  * Generated from @see "../messages/new-tab/stats_onConfigUpdate.subscribe.json"
