@@ -10,22 +10,26 @@ import { execute } from '../execute.js'
  */
 export function expectation (action, userData, root = document) {
     const results = expectMany(action.expectations, root)
+    const errors = []
+    let runActions = true
 
-    // Loop through each result, if success and actions, execute actions. Otherwise fix errors and throw
+    results.forEach((x) => {
+        if (x.result === false) {
+            runActions = false
 
-    // Change this filter to look through successes and failures
-    const errors = results.filter(x => x.result === false).map(x => {
-        if ('error' in x) return x.error
-        return 'unknown error'
+            if (!x.failSilently) {
+                errors.push('error' in x ? x.error : 'unknown error')
+            }
+        }
     })
 
     if (errors.length > 0) {
         return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
     }
 
-    if (action.actions?.length) {
-        action.actions.forEach((myAction) => {
-            execute(myAction, userData, root)
+    if (action.actions?.length && runActions) {
+        action.actions.forEach((expectationAction) => {
+            execute(expectationAction, userData, root)
         })
     }
 
@@ -77,10 +81,11 @@ export function elementExpectation (expectation, root) {
 
     const elementExists = getElement(root, expectation.selector) !== null
 
-    if (!elementExists && !expectation.failSilently) {
+    if (!elementExists) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`
+            error: `element with selector ${expectation.selector} not found.`,
+            failSilently: expectation.failSilently
         }
     }
     return { result: true }
@@ -99,7 +104,8 @@ export function textExpectation (expectation, root) {
     if (!elem) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`
+            error: `element with selector ${expectation.selector} not found.`,
+            failSilently: expectation.failSilently
         }
     }
 
@@ -114,10 +120,11 @@ export function textExpectation (expectation, root) {
     // todo: is this too strict a match? we may also want to try innerText
     const textExists = Boolean(elem?.textContent?.includes(expectation.expect))
 
-    if (!textExists && !expectation.failSilently) {
+    if (!textExists) {
         return {
             result: false,
-            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`
+            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`,
+            failSilently: expectation.failSilently
         }
     }
 
@@ -141,10 +148,11 @@ export function urlExpectation (expectation) {
         }
     }
 
-    if (!url.includes(expectation.expect) && !expectation.failSilently) {
+    if (!url.includes(expectation.expect)) {
         return {
             result: false,
-            error: `expected URL to include ${expectation.expect}, but it didn't`
+            error: `expected URL to include ${expectation.expect}, but it didn't`,
+            failSilently: expectation.failSilently
         }
     }
 

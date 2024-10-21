@@ -3,16 +3,12 @@
       "action": {
         "actionType": "expectation",
         "id": "2",
-        "retry": {
-          "environment": "web",
-          "interval": { "ms": 1000 },
-          "maxAttempts": 1
-        },
         "expectations": [
           {
             "type": "text",
             "selector": "body",
-            "expect": "How old is Jane Doe?"
+            "expect": "How old is Jane Doe?",
+            "failSilently": true
           }
         ],
         "actions": [

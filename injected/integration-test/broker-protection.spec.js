@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { BrokerProtectionPage } from './page-objects/broker-protection.js'
 
 test.describe('Broker Protection communications', () => {
@@ -501,15 +501,30 @@ test.describe('Broker Protection communications', () => {
         await page.waitForURL(url => url.hash === '#1', { timeout: 2000 })
     })
 
-    test('expectation with failSilently', async ({ page }, workerInfo) => {
+    test('expectation fails when failSilently is not present', async ({ page }, workerInfo) => {
         const dbp = BrokerProtectionPage.create(page, workerInfo)
         await dbp.enabled()
         await dbp.navigatesTo('expectation-actions.html')
         await dbp.receivesAction('expectation-actions-fail.json')
-        const response = await dbp.waitForMessage('actionCompleted')
 
+        const response = await dbp.waitForMessage('actionCompleted')
+        dbp.isErrorMessage(response)
+
+        const currentUrl = page.url()
+        expect(currentUrl).not.toContain('#')
+    })
+
+    test('expectation succeeds when failSilently is present', async ({ page }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        await dbp.enabled()
+        await dbp.navigatesTo('expectation-actions.html')
+        await dbp.receivesAction('expectation-actions-fail-silently.json')
+
+        const response = await dbp.waitForMessage('actionCompleted')
         dbp.isSuccessMessage(response)
-        await page.waitForURL(url => url.hash === '', { timeout: 2000 })
+
+        const currentUrl = page.url()
+        expect(currentUrl).not.toContain('#')
     })
 
     test.describe('retrying', () => {
