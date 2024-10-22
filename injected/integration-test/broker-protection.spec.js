@@ -527,6 +527,19 @@ test.describe('Broker Protection communications', () => {
         expect(currentUrl).not.toContain('#')
     })
 
+    test('expectation succeeds but subaction fails should throw error', async ({ page }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        await dbp.enabled()
+        await dbp.navigatesTo('expectation-actions.html')
+        await dbp.receivesAction('expectation-actions-subaction-fail.json')
+
+        const response = await dbp.waitForMessage('actionCompleted')
+        dbp.isErrorMessage(response)
+
+        const currentUrl = page.url()
+        expect(currentUrl).not.toContain('#')
+    })
+
     test.describe('retrying', () => {
         test('retrying a click', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)

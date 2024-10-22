@@ -6,36 +6,41 @@ import { execute } from '../execute.js'
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
  * @param {Document} root
- * @return {import('../types.js').ActionResponse}
+ * @return {Promise<import('../types.js').ActionResponse>}
  */
-export function expectation (action, userData, root = document) {
-    /**
-     * @type {Array<import('../types.js').BooleanResult & { failSilently?: boolean }>}
-     */
+export async function expectation (action, userData, root = document) {
     const results = expectMany(action.expectations, root)
-    const errors = []
-    let runActions = true
 
-    results.forEach((x) => {
-        if (x.result === false) {
-            runActions = false
-
-            if (!x.failSilently) {
-                errors.push('error' in x ? x.error : 'unknown error')
-            }
-
-            delete x.failSilently
-        }
-    })
+    // filter out good results + silent failures, leaving only fatal errors
+    const errors = results
+        .filter((x, index) => {
+            if (x.result === true) return false
+            if (action.expectations[index].failSilently) return false
+            return true
+        }).map((x) => {
+            return 'error' in x ? x.error : 'unknown error'
+        })
 
     if (errors.length > 0) {
-        return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
+        return new ErrorResponse({ actionID: action.id, message: 'bees ' + errors.join(', ') + ' error length ' + errors.length })
     }
 
+    // only run later actions if every expectation was met
+    const runActions = results.every(x => x.result === true)
+    const secondaryErrors = []
+
     if (action.actions?.length && runActions) {
-        action.actions.forEach((expectationAction) => {
-            execute(expectationAction, userData, root)
-        })
+        for (const subAction of action.actions) {
+            const result = await execute(subAction, userData, root)
+
+            if ('error' in result) {
+                secondaryErrors.push(result.error)
+            }
+        }
+
+        if (secondaryErrors.length > 0) {
+            return new ErrorResponse({ actionID: action.id, message: secondaryErrors.join(', ') })
+        }
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
@@ -70,7 +75,7 @@ export function expectMany (expectations, root) {
  *
  * @param {import("../types").Expectation} expectation
  * @param {Document | HTMLElement} root
- * @return {import("../types").BooleanResult & { failSilently?: boolean }}
+ * @return {import("../types").BooleanResult}
  */
 export function elementExpectation (expectation, root) {
     if (expectation.parent) {
@@ -89,8 +94,7 @@ export function elementExpectation (expectation, root) {
     if (!elementExists) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`,
-            failSilently: expectation.failSilently
+            error: `element with selector ${expectation.selector} not found.`
         }
     }
     return { result: true }
@@ -101,7 +105,7 @@ export function elementExpectation (expectation, root) {
  *
  * @param {import("../types").Expectation} expectation
  * @param {Document | HTMLElement} root
- * @return {import("../types").BooleanResult & { failSilently?: boolean }}
+ * @return {import("../types").BooleanResult}
  */
 export function textExpectation (expectation, root) {
     // get the target element first
@@ -109,8 +113,7 @@ export function textExpectation (expectation, root) {
     if (!elem) {
         return {
             result: false,
-            error: `element with selector ${expectation.selector} not found.`,
-            failSilently: expectation.failSilently
+            error: `element with selector ${expectation.selector} not found.`
         }
     }
 
@@ -128,8 +131,7 @@ export function textExpectation (expectation, root) {
     if (!textExists) {
         return {
             result: false,
-            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`,
-            failSilently: expectation.failSilently
+            error: `expected element with selector ${expectation.selector} to have text: ${expectation.expect}, but it didn't`
         }
     }
 
@@ -140,7 +142,7 @@ export function textExpectation (expectation, root) {
  * Check that the current URL includes a given string
  *
  * @param {import("../types").Expectation} expectation
- * @return {import("../types").BooleanResult & { failSilently?: boolean }}
+ * @return {import("../types").BooleanResult}
  */
 export function urlExpectation (expectation) {
     const url = window.location.href
@@ -156,8 +158,7 @@ export function urlExpectation (expectation) {
     if (!url.includes(expectation.expect)) {
         return {
             result: false,
-            error: `expected URL to include ${expectation.expect}, but it didn't`,
-            failSilently: expectation.failSilently
+            error: `expected URL to include ${expectation.expect}, but it didn't`
         }
     }
 
