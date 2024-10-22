@@ -10,8 +10,7 @@ export const baseFeatures = /** @type {const} */([
     'fingerprintingTemporaryStorage',
     'navigatorInterface',
     'elementHiding',
-    'exceptionHandler',
-    'passwordImport'
+    'exceptionHandler'
 ])
 
 const otherFeatures = /** @type {const} */([
@@ -23,7 +22,8 @@ const otherFeatures = /** @type {const} */([
     'windowsPermissionUsage',
     'brokerProtection',
     'performanceMetrics',
-    'breakageReporting'
+    'breakageReporting',
+    'passwordImport'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */

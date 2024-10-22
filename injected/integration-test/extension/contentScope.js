@@ -654,8 +654,7 @@
         'fingerprintingTemporaryStorage',
         'navigatorInterface',
         'elementHiding',
-        'exceptionHandler',
-        'passwordImport'
+        'exceptionHandler'
     ]);
 
     const otherFeatures = /** @type {const} */([
@@ -668,6 +667,7 @@
         'brokerProtection',
         'performanceMetrics',
         'breakageReporting',
+        'passwordImport'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -691,7 +691,7 @@
             'duckPlayer'
         ],
         'android-password-import': [
-            'passwordImport',
+            'passwordImport'
         ],
         windows: [
             'cookie',
@@ -2285,16 +2285,11 @@
      */
 
     /**
-     * @description
-     *
      * A wrapper for messaging on Windows.
      *
      * This requires 3 methods to be available, see {@link WindowsMessagingConfig} for details
      *
-     * @example
-     *
-     * ```javascript
-     * [[include:messaging/lib/examples/windows.example.js]]```
+     * @document messaging/lib/examples/windows.example.js
      *
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -2492,8 +2487,7 @@
      * Depending on where the script is running, we may want to restrict access to those globals. On the native
      * side those handlers `window.chrome.webview` handlers might be deleted and replaces with in-scope variables, such as:
      *
-     * ```ts
-     * [[include:messaging/lib/examples/windows.example.js]]```
+     * [Example](./examples/windows.example.js)
      *
      */
     class WindowsMessagingConfig {
@@ -2608,9 +2602,6 @@
     }
 
     /**
-     * @module Messaging Schema
-     *
-     * @description
      * These are all the shared data types used throughout. Transports receive these types and
      * can choose how to deliver the message to their respective native platforms.
      *
@@ -2619,6 +2610,9 @@
      * - Subscriptions via {@link Subscription}
      *
      * Note: For backwards compatibility, some platforms may alter the data shape within the transport.
+     *
+     * @module Messaging Schema
+     *
      */
 
     /**
@@ -2748,8 +2742,6 @@
     }
 
     /**
-     *
-     * @description
      *
      * A wrapper for messaging on WebKit platforms. It supports modern WebKit messageHandlers
      * along with encryption for older versions (like macOS Catalina)
@@ -3065,10 +3057,7 @@
      *
      * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
      *
-     * @example Webkit Messaging
-     *
-     * ```javascript
-     * [[include:messaging/lib/examples/webkit.example.js]]```
+     * [Example](./examples/webkit.example.js)
      */
     class WebkitMessagingConfig {
         /**
@@ -3177,16 +3166,10 @@
     }
 
     /**
-     * @description
      *
      * A wrapper for messaging on Android.
      *
      * You must share a {@link AndroidMessagingConfig} instance between features
-     *
-     * @example
-     *
-     * ```javascript
-     * [[include:messaging/lib/examples/windows.example.js]]```
      *
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -3342,7 +3325,7 @@
      * - `$messageSecret` matches {@link AndroidMessagingConfig.messageSecret}
      * - `$message` is JSON string that represents one of {@link MessageResponse} or {@link SubscriptionEvent}
      *
-     * ```kotlin
+     * ```
      * object ReplyHandler {
      *     fun constructReply(message: String, messageCallback: String, messageSecret: String): String {
      *         return """
@@ -3521,9 +3504,6 @@
     }
 
     /**
-     * @module Messaging
-     * @category Libraries
-     * @description
      *
      * An abstraction for communications between JavaScript and host platforms.
      *
@@ -3543,6 +3523,7 @@
      * - Schema: {@link "Messaging Schema"}
      * - Implementation Guide: {@link "Messaging Implementation Guide"}
      *
+     * @module Messaging
      */
 
     /**
@@ -3649,9 +3630,6 @@
      * It's useful for debugging, and for enabling scripts to run in
      * other environments - for example, testing in a browser without the need
      * for a full integration
-     *
-     * ```js
-     * [[include:messaging/lib/examples/test.example.js]]```
      */
     class TestTransportConfig {
         /**
@@ -6496,226 +6474,6 @@
                 this.addDebugFlag();
             };
             globalThis.addEventListener('error', handleUncaughtException);
-        }
-    }
-
-    const ANIMATION_DURATION_MS = 1000;
-    const ANIMATION_ITERATIONS = Infinity;
-
-    class PasswordImport extends ContentFeature {
-        #exportButtonSettings
-        #settingsButtonSettings
-        #signInButtonSettings
-
-        /**
-         * @param {string} path
-         * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean}|null>}
-         */
-        async getElementAndStyleFromPath (path) {
-            if (path === '/') {
-                const element = await this.findSettingsElement();
-                return element != null
-                    ? {
-                        style: {
-                            scale: 1,
-                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                        },
-                        element,
-                        shouldTap: this.#settingsButtonSettings.shouldAutotap ?? false
-                    }
-                    : null
-            } else if (path === '/options') {
-                const element = await this.findExportElement();
-                return element != null
-                    ? {
-                        style: {
-                            scale: 1.01,
-                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                        },
-                        element,
-                        shouldTap: this.#exportButtonSettings.shouldAutotap ?? false
-                    }
-                    : null
-            } else if (path === '/intro') {
-                const element = await this.findSignInButton();
-                return element != null
-                    ? {
-                        style: {
-                            scale: 1.5,
-                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                        },
-                        element,
-                        shouldTap: this.#signInButtonSettings.shouldAutotap ?? false
-                    }
-                    : null
-            } else {
-                return null
-            }
-        }
-
-        /**
-         *
-         * @param {HTMLElement|Element} element
-         * @param {any} style
-         */
-        animateElement (element, style) {
-            element.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-                inline: 'center'
-            }); // Scroll into view
-            const keyframes = [
-                { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0, borderRadius: '2px' }, // Start: transparent
-                { backgroundColor: style.backgroundColor, offset: 0.5, borderRadius: '2px', transform: `scale(${style.scale})` }, // Midpoint: blue with 50% opacity
-                { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 } // End: transparent
-            ];
-
-            // Define the animation options
-            const options = {
-                duration: ANIMATION_DURATION_MS,
-                iterations: ANIMATION_ITERATIONS
-            };
-
-            // Apply the animation to the element
-            element.animate(keyframes, options);
-        }
-
-        autotapElement (element) {
-            element.click();
-        }
-
-        /**
-         * @returns {Promise<HTMLElement|Element|null>}
-         */
-        async findExportElement () {
-            const findInContainer = () => {
-                const exportButtonContainer = document.querySelector(this.exportButtonContainerSelector);
-                return exportButtonContainer && exportButtonContainer.querySelectorAll('button')[1]
-            };
-
-            const findWithLabel = () => {
-                return document.querySelector(this.exportButtonLabelTextSelector)
-            };
-
-            return await withExponentialBackoff(() => findInContainer() ?? findWithLabel())
-        }
-
-        /**
-         * @returns {Promise<HTMLElement|Element|null>}
-         */
-        async findSettingsElement () {
-            const fn = () => {
-                const settingsButton = document.querySelector(this.settingsButtonSelector);
-                return settingsButton
-            };
-            return await withExponentialBackoff(fn)
-        }
-
-        /**
-         * @returns {Promise<HTMLElement|Element|null>}
-         */
-        async findSignInButton () {
-            return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector))
-        }
-
-        /**
-         *
-         * @param {string} path
-         */
-        async handleElementForPath (path) {
-            // FIXME: we need to check if the path is supported, otherwise
-            // for some reason google doesn't wait to proceed with the signin step.
-            // Not too sure why this is happening, there are no errors on the console.
-
-            if ([this.#exportButtonSettings.path, this.#settingsButtonSettings.path, this.#signInButtonSettings.path].indexOf(path) !== -1) {
-                try {
-                    const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {};
-                    if (element != null) {
-                        shouldTap ? this.autotapElement(element) : this.animateElement(element, style);
-                    }
-                } catch {
-                    console.error('password-import: handleElementForPath failed for path:', path);
-                }
-            }
-        }
-
-        /**
-         * @returns {string}
-         */
-        get exportButtonContainerSelector () {
-            return this.#exportButtonSettings?.selectors?.join(',')
-        }
-
-        /**
-         * @returns {string}
-         */
-        get exportButtonLabelTextSelector () {
-            return this.#exportButtonSettings?.labelTexts
-                .map(text => `button[aria-label="${text}"]`)
-                .join(',')
-        }
-
-        /**
-         * @returns {string}
-         */
-        get signinLabelTextSelector () {
-            return this.#signInButtonSettings?.labelTexts
-                .map(text => `a[aria-label="${text}"]:not([target="_top"])`)
-                .join(',')
-        }
-
-        /**
-         * @returns {string}
-         */
-        get signinButtonSelector () {
-            return `${this.#signInButtonSettings?.selectors?.join(',')}, ${this.signinLabelTextSelector}`
-        }
-
-        /**
-         * @returns {string}
-         */
-        get settingsLabelTextSelector () {
-            return this.#settingsButtonSettings?.labelTexts
-                .map(text => `a[aria-label="${text}"]`)
-                .join(',')
-        }
-
-        /**
-         * @returns {string}
-         */
-        get settingsButtonSelector () {
-            return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`
-        }
-
-        /**
-         * @param {any} settings
-         */
-        setButtonSettings (settings) {
-            this.#exportButtonSettings = settings?.exportButton;
-            this.#settingsButtonSettings = settings?.settingsButton;
-            this.#signInButtonSettings = settings?.signInButton;
-        }
-
-        init (args) {
-            this.setButtonSettings(args?.featureSettings?.passwordImport || {});
-
-            const handleElementForPath = this.handleElementForPath.bind(this);
-            const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
-                async apply (target, thisArg, args) {
-                    const path = args[1];
-                    await handleElementForPath(path);
-                    return DDGReflect.apply(target, thisArg, args)
-                }
-            });
-            historyMethodProxy.overload();
-            // listen for popstate events in order to run on back/forward navigations
-            window.addEventListener('popstate', async () => {
-                await handleElementForPath(window.location.pathname);
-            });
-
-            document.addEventListener('DOMContentLoaded', async () => {
-                await handleElementForPath(window.location.pathname);
-            });
         }
     }
 
@@ -11559,9 +11317,6 @@
     }
 
     /**
-     * @module Duck Player Thumbnails
-     *
-     * @description
      *
      * ## Decision flow for `mouseover` (appending Dax)
      *
@@ -11612,7 +11367,7 @@
      *         - `eventTarget` matches a CSS selector in `[config] allowedEventTargets`
      *     - otherwise, do nothing
      *
-     * [[include:injected/src/features/duckplayer/thumbnails.md]]
+     * @module Duck Player Thumbnails
      */
 
 
@@ -12140,8 +11895,6 @@
     /* eslint-disable promise/prefer-await-to-then */
     /**
      * @module Duck Player Video Overlay
-     *
-     * @description
      *
      * ## Decision flow for appending the Video Overlays
      *
@@ -12862,9 +12615,6 @@
     }
 
     /**
-     * @module Duck Player Overlays
-     *
-     * @description
      *
      * Duck Player Overlays are either the small Dax icons that appear on top of video thumbnails
      * when browsing YouTube. These icons allow users to open the video in Duck Player.
@@ -12893,9 +12643,9 @@
      *
      * For example, to enable the Duck Player Overlay on YouTube, the following config is used:
      *
-     * ```json
-     * [[include:injected/integration-test/test-pages/duckplayer/config/overlays-live.json]]```
+     * [📝 JSON example](../../integration-test/test-pages/duckplayer/config/overlays-live.json)
      *
+     * @module Duck Player Overlays
      */
 
     /**
@@ -12976,17 +12726,14 @@
     }
 
     /**
-     * @module Harmful APIs protection
-     *
-     * @description
      *
      * This protection changes or disables some web APIs that are known to be harmful to privacy.
      * When an API is not removed from the globals, its behaviour is changed to reduce the amount of information it can leak.
      *
      * ## Remote Config
-     * The behaviour can be controlled with a remote config. Example:
-     * ```json
-     * [[include:injected/integration-test/test-pages/harmful-apis/config/apis.json]]```
+     * The behaviour can be controlled with a remote config. [Example](../../integration-test/test-pages/harmful-apis/config/apis.json)
+     *
+     * @module Harmful APIs protection
      *
      */
 
@@ -20973,6 +20720,226 @@
         }
     }
 
+    const ANIMATION_DURATION_MS = 1000;
+    const ANIMATION_ITERATIONS = Infinity;
+
+    class PasswordImport extends ContentFeature {
+        #exportButtonSettings
+        #settingsButtonSettings
+        #signInButtonSettings
+
+        /**
+         * @param {string} path
+         * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean}|null>}
+         */
+        async getElementAndStyleFromPath (path) {
+            if (path === '/') {
+                const element = await this.findSettingsElement();
+                return element != null
+                    ? {
+                        style: {
+                            scale: 1,
+                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                        },
+                        element,
+                        shouldTap: this.#settingsButtonSettings.shouldAutotap ?? false
+                    }
+                    : null
+            } else if (path === '/options') {
+                const element = await this.findExportElement();
+                return element != null
+                    ? {
+                        style: {
+                            scale: 1.01,
+                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                        },
+                        element,
+                        shouldTap: this.#exportButtonSettings.shouldAutotap ?? false
+                    }
+                    : null
+            } else if (path === '/intro') {
+                const element = await this.findSignInButton();
+                return element != null
+                    ? {
+                        style: {
+                            scale: 1.5,
+                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+                        },
+                        element,
+                        shouldTap: this.#signInButtonSettings.shouldAutotap ?? false
+                    }
+                    : null
+            } else {
+                return null
+            }
+        }
+
+        /**
+         *
+         * @param {HTMLElement|Element} element
+         * @param {any} style
+         */
+        animateElement (element, style) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center'
+            }); // Scroll into view
+            const keyframes = [
+                { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0, borderRadius: '2px' }, // Start: transparent
+                { backgroundColor: style.backgroundColor, offset: 0.5, borderRadius: '2px', transform: `scale(${style.scale})` }, // Midpoint: blue with 50% opacity
+                { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 } // End: transparent
+            ];
+
+            // Define the animation options
+            const options = {
+                duration: ANIMATION_DURATION_MS,
+                iterations: ANIMATION_ITERATIONS
+            };
+
+            // Apply the animation to the element
+            element.animate(keyframes, options);
+        }
+
+        autotapElement (element) {
+            element.click();
+        }
+
+        /**
+         * @returns {Promise<HTMLElement|Element|null>}
+         */
+        async findExportElement () {
+            const findInContainer = () => {
+                const exportButtonContainer = document.querySelector(this.exportButtonContainerSelector);
+                return exportButtonContainer && exportButtonContainer.querySelectorAll('button')[1]
+            };
+
+            const findWithLabel = () => {
+                return document.querySelector(this.exportButtonLabelTextSelector)
+            };
+
+            return await withExponentialBackoff(() => findInContainer() ?? findWithLabel())
+        }
+
+        /**
+         * @returns {Promise<HTMLElement|Element|null>}
+         */
+        async findSettingsElement () {
+            const fn = () => {
+                const settingsButton = document.querySelector(this.settingsButtonSelector);
+                return settingsButton
+            };
+            return await withExponentialBackoff(fn)
+        }
+
+        /**
+         * @returns {Promise<HTMLElement|Element|null>}
+         */
+        async findSignInButton () {
+            return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector))
+        }
+
+        /**
+         *
+         * @param {string} path
+         */
+        async handleElementForPath (path) {
+            // FIXME: we need to check if the path is supported, otherwise
+            // for some reason google doesn't wait to proceed with the signin step.
+            // Not too sure why this is happening, there are no errors on the console.
+
+            if ([this.#exportButtonSettings.path, this.#settingsButtonSettings.path, this.#signInButtonSettings.path].indexOf(path) !== -1) {
+                try {
+                    const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {};
+                    if (element != null) {
+                        shouldTap ? this.autotapElement(element) : this.animateElement(element, style);
+                    }
+                } catch {
+                    console.error('password-import: handleElementForPath failed for path:', path);
+                }
+            }
+        }
+
+        /**
+         * @returns {string}
+         */
+        get exportButtonContainerSelector () {
+            return this.#exportButtonSettings?.selectors?.join(',')
+        }
+
+        /**
+         * @returns {string}
+         */
+        get exportButtonLabelTextSelector () {
+            return this.#exportButtonSettings?.labelTexts
+                .map(text => `button[aria-label="${text}"]`)
+                .join(',')
+        }
+
+        /**
+         * @returns {string}
+         */
+        get signinLabelTextSelector () {
+            return this.#signInButtonSettings?.labelTexts
+                .map(text => `a[aria-label="${text}"]:not([target="_top"])`)
+                .join(',')
+        }
+
+        /**
+         * @returns {string}
+         */
+        get signinButtonSelector () {
+            return `${this.#signInButtonSettings?.selectors?.join(',')}, ${this.signinLabelTextSelector}`
+        }
+
+        /**
+         * @returns {string}
+         */
+        get settingsLabelTextSelector () {
+            return this.#settingsButtonSettings?.labelTexts
+                .map(text => `a[aria-label="${text}"]`)
+                .join(',')
+        }
+
+        /**
+         * @returns {string}
+         */
+        get settingsButtonSelector () {
+            return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`
+        }
+
+        /**
+         * @param {any} settings
+         */
+        setButtonSettings (settings) {
+            this.#exportButtonSettings = settings?.exportButton;
+            this.#settingsButtonSettings = settings?.settingsButton;
+            this.#signInButtonSettings = settings?.signInButton;
+        }
+
+        init (args) {
+            this.setButtonSettings(args?.featureSettings?.passwordImport || {});
+
+            const handleElementForPath = this.handleElementForPath.bind(this);
+            const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
+                async apply (target, thisArg, args) {
+                    const path = args[1];
+                    await handleElementForPath(path);
+                    return DDGReflect.apply(target, thisArg, args)
+                }
+            });
+            historyMethodProxy.overload();
+            // listen for popstate events in order to run on back/forward navigations
+            window.addEventListener('popstate', async () => {
+                await handleElementForPath(window.location.pathname);
+            });
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                await handleElementForPath(window.location.pathname);
+            });
+        }
+    }
+
     var platformFeatures = {
         ddg_feature_fingerprintingAudio: FingerprintingAudio,
         ddg_feature_fingerprintingBattery: FingerprintingBattery,
@@ -20986,7 +20953,6 @@
         ddg_feature_navigatorInterface: NavigatorInterface,
         ddg_feature_elementHiding: ElementHiding,
         ddg_feature_exceptionHandler: ExceptionHandler,
-        ddg_feature_passwordImport: PasswordImport,
         ddg_feature_clickToLoad: ClickToLoad,
         ddg_feature_cookie: CookieFeature,
         ddg_feature_duckPlayer: DuckPlayerFeature,
@@ -20995,7 +20961,8 @@
         ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
         ddg_feature_brokerProtection: BrokerProtection,
         ddg_feature_performanceMetrics: PerformanceMetrics,
-        ddg_feature_breakageReporting: BreakageReporting
+        ddg_feature_breakageReporting: BreakageReporting,
+        ddg_feature_passwordImport: PasswordImport
     };
 
     let initArgs = null;
