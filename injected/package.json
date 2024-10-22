@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
-    "@fingerprintjs/fingerprintjs": "^4.1.0",
+    "@fingerprintjs/fingerprintjs": "^4.5.1",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
