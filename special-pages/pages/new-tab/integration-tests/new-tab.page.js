@@ -61,8 +61,9 @@ export class NewtabPage {
      * @param {'debug' | 'production'} [params.mode] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {number} [params.favoritesCount] - Optional flag to preload a list of favorites
+     * @param {string} [params.rmfParam] - Optional flag to point to display=components view with certain rmf example visible
      */
-    async openPage ({ mode = 'debug', willThrow = false, favoritesCount } = { }) {
+    async openPage ({ mode = 'debug', willThrow = false, favoritesCount, rmfParam } = { }) {
         await this.mocks.install()
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
@@ -79,6 +80,11 @@ export class NewtabPage {
 
         if (favoritesCount !== undefined) {
             searchParams.set('favorites', String(favoritesCount))
+        }
+
+        if (rmfParam !== undefined) {
+            searchParams.set('display', 'components')
+            searchParams.set('id', rmfParam)
         }
 
         await this.page.goto('/' + '?' + searchParams.toString())
