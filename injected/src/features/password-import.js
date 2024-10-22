@@ -136,9 +136,13 @@ export default class PasswordImport extends ContentFeature {
         // Not too sure why this is happening, there are no errors on the console.
 
         if (Object.values(this.SUPPORTED_PATHS).includes(path)) {
-            const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
-            if (element != null) {
-                shouldTap ? this.autotapElement(element) : this.animateElement(element, style)
+            try {
+                const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
+                if (element != null) {
+                    shouldTap ? this.autotapElement(element) : this.animateElement(element, style)
+                }
+            } catch {
+                console.error('password-import: handleElementForPath failed for path:', path)
             }
         }
     }
