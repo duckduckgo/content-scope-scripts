@@ -27,6 +27,7 @@ export type WidgetConfigs = WidgetConfigItem[];
  */
 export type Widgets = WidgetListItem[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
+export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -157,14 +158,14 @@ export interface MediumMessage {
   id: string;
   titleText: string;
   descriptionText: string;
-  icon: "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
+  icon: RMFIcon;
 }
 export interface BigSingleActionMessage {
   messageType: "big_single_action";
   id: string;
   titleText: string;
   descriptionText: string;
-  icon: "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
+  icon: RMFIcon;
   primaryActionText: string;
 }
 export interface BigTwoActionMessage {
@@ -172,7 +173,7 @@ export interface BigTwoActionMessage {
   id: string;
   titleText: string;
   descriptionText: string;
-  icon: "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
+  icon: RMFIcon;
   primaryActionText: string;
   secondaryActionText: string;
 }

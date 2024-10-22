@@ -50,14 +50,8 @@
                             "type": "string"
                         },
                         "icon": {
-                            "enum": [
-                                "Announce",
-                                "DDGAnnounce",
-                                "CriticalUpdate",
-                                "AppUpdate",
-                                "PrivacyPro"
-                            ]
-                        },
+                            "$ref": "#/definitions/rmf-icon"
+                        }
                     },
                     "required": [
                         "messageType",
@@ -84,13 +78,7 @@
                             "type": "string"
                         },
                         "icon": {
-                            "enum": [
-                                "Announce",
-                                "DDGAnnounce",
-                                "CriticalUpdate",
-                                "AppUpdate",
-                                "PrivacyPro"
-                            ]
+                            "$ref": "#/definitions/rmf-icon"
                         },
                         "primaryActionText": {
                             "type": "string"
@@ -122,13 +110,7 @@
                             "type": "string"
                         },
                         "icon": {
-                            "enum": [
-                                "Announce",
-                                "DDGAnnounce",
-                                "CriticalUpdate",
-                                "AppUpdate",
-                                "PrivacyPro"
-                            ]
+                            "$ref": "#/definitions/rmf-icon"
                         },
                         "primaryActionText": {
                             "type": "string"
@@ -147,6 +129,19 @@
                         "secondaryActionText"
                     ]
                 }
+            ]
+        }
+    },
+    "definitions": {
+        "rmf-icon": {
+            "title": "RMF Icon",
+            "type": "string",
+            "enum": [
+                "Announce",
+                "DDGAnnounce",
+                "CriticalUpdate",
+                "AppUpdate",
+                "PrivacyPro"
             ]
         }
     }
