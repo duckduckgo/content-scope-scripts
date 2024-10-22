@@ -2,8 +2,8 @@ import { h } from 'preact'
 import cn from 'classnames'
 import styles from './RemoteMessagingFramework.module.css'
 import MessageIcons from './MessageIcons'
-import { useContext } from "preact/hooks";
-import { RMFContext } from "./RMFProvider.js";
+import { useContext } from 'preact/hooks'
+import { RMFContext } from './RMFProvider.js'
 
 /**
   * @import { RMFMessage } from "../../../../types/new-tab"
@@ -17,7 +17,7 @@ export function RemoteMessagingFramework ({ message, primaryAction, secondaryAct
     const { id, messageType, titleText, descriptionText } = message
     return (
         <div id={id} class={cn(styles.root, message.icon && styles.icon)}>
-            {message.icon && (
+            {messageType !== 'small' && message.icon && (
                 <span class={styles.iconBlock}>
                     <MessageIcons name={message.icon} />
                 </span>

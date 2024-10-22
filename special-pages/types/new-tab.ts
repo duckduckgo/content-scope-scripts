@@ -157,14 +157,14 @@ export interface MediumMessage {
   id: string;
   titleText: string;
   descriptionText: string;
-  icon: string;
+  icon: "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
 }
 export interface BigSingleActionMessage {
   messageType: "big_single_action";
   id: string;
   titleText: string;
   descriptionText: string;
-  icon: string;
+  icon: "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
   primaryActionText: string;
 }
 export interface BigTwoActionMessage {
@@ -172,7 +172,7 @@ export interface BigTwoActionMessage {
   id: string;
   titleText: string;
   descriptionText: string;
-  icon: string;
+  icon: "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
   primaryActionText: string;
   secondaryActionText: string;
 }

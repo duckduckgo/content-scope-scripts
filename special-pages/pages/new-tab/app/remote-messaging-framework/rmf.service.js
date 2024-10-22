@@ -14,7 +14,7 @@ export class RMFService {
      * @internal
      */
     constructor (ntp) {
-        this.ntp = ntp;
+        this.ntp = ntp
         /** @type {Service<RMFData>} */
         this.dataService = new Service({
             initial: () => ntp.messaging.request('rmf_getData'),
@@ -22,7 +22,7 @@ export class RMFService {
         })
         /** @type {Service<RMFConfig>} */
         this.configService = new Service({
-            initial: () => ntp.messaging.request('rmf_getConfig'),
+            initial: () => ntp.messaging.request('rmf_getConfig')
         })
     }
 
@@ -51,6 +51,7 @@ export class RMFService {
     onData (cb) {
         return this.dataService.onData(cb)
     }
+
     /**
      * @param {(evt: {data: RMFConfig, source: 'manual' | 'subscription'}) => void} cb
      * @internal
@@ -65,7 +66,8 @@ export class RMFService {
      */
     dismiss (cb) {
         // return this.ntp.messaging.notify('')
+        console.log(cb)
     }
 
-    toggleExpansion() {}
+    toggleExpansion () { }
 }

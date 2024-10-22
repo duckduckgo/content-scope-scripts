@@ -114,10 +114,10 @@ export function mockTransport () {
                 //     cb(payload)
                 // }, 2000)
                 // return () => clearTimeout(timeout)
-                return () => {}
+                return () => { }
             }
             }
-            return () => {}
+            return () => { }
         },
         // eslint-ignore-next-line require-await
         request (_msg) {
@@ -140,28 +140,28 @@ export function mockTransport () {
                 }
                 return Promise.resolve(fromStorage)
             }
-            case 'rmf_getConfig':{
+            case 'rmf_getConfig': {
                 /** @type {import('../../../../types/new-tab').RMFConfig} */
                 const defaultConfig = { expansion: 'expanded' }
                 return Promise.resolve(defaultConfig)
             }
-            case 'rmf_getData':{
+            case 'rmf_getData': {
                 /** @type {import('../../../../types/new-tab.js').RMFData} */
                 const payload = {
                     content: {
-                        id: "id-1",
-                        messageType: "small",
-                        titleText: "Hello world",
-                        descriptionText: "My Description"
+                        id: 'id-1',
+                        messageType: 'small',
+                        titleText: 'Hello world',
+                        descriptionText: 'My Description'
                     }
                 }
                 if (url.searchParams.get('rmf') === 'medium') {
                     payload.content = {
                         messageType: 'medium',
-                        icon: '',
-                        id: '',
-                        titleText: ',',
-                        descriptionText: ''
+                        icon: 'Announce',
+                        id: 'id-2',
+                        titleText: 'Hello Medium!',
+                        descriptionText: 'Here is some mighty fine content'
                     }
                 }
                 return Promise.resolve(payload)
@@ -170,7 +170,7 @@ export function mockTransport () {
                 const widgetsFromStorage = read('widgets') || [
                     { id: 'rmf' },
                     { id: 'favorites' },
-                    { id: 'privacyStats' },
+                    { id: 'privacyStats' }
                 ]
 
                 const widgetConfigFromStorage = read('widget_config') || [

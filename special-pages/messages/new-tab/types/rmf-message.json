@@ -50,8 +50,14 @@
                             "type": "string"
                         },
                         "icon": {
-                            "type": "string"
-                        }
+                            "enum": [
+                                "Announce",
+                                "DDGAnnounce",
+                                "CriticalUpdate",
+                                "AppUpdate",
+                                "PrivacyPro"
+                            ]
+                        },
                     },
                     "required": [
                         "messageType",
@@ -78,7 +84,13 @@
                             "type": "string"
                         },
                         "icon": {
-                            "type": "string"
+                            "enum": [
+                                "Announce",
+                                "DDGAnnounce",
+                                "CriticalUpdate",
+                                "AppUpdate",
+                                "PrivacyPro"
+                            ]
                         },
                         "primaryActionText": {
                             "type": "string"
@@ -110,7 +122,13 @@
                             "type": "string"
                         },
                         "icon": {
-                            "type": "string"
+                            "enum": [
+                                "Announce",
+                                "DDGAnnounce",
+                                "CriticalUpdate",
+                                "AppUpdate",
+                                "PrivacyPro"
+                            ]
                         },
                         "primaryActionText": {
                             "type": "string"

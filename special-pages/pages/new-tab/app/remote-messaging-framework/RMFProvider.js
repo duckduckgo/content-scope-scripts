@@ -68,15 +68,15 @@ export function RMFProvider (props) {
 
     const onDismiss = useCallback(() => {
         console.log('onDismiss')
-    }, [service]);
+    }, [service])
 
     const primaryAction = useCallback(() => {
         console.log('primaryAction')
-    }, [service]);
+    }, [service])
 
     const secondaryAction = useCallback(() => {
         console.log('secondaryAction')
-    }, [service]);
+    }, [service])
 
     console.log(state)
 
