@@ -33,6 +33,10 @@ const builds = {
         input: 'entry-points/android.js',
         output: ['../build/android/contentScope.js']
     },
+    'android-password-import': {
+        input: 'entry-points/android.js',
+        output: ['../build/android/passwordImport.js']
+    },
     windows: {
         input: 'entry-points/windows.js',
         output: ['../build/windows/contentScope.js']

@@ -45,6 +45,13 @@ export default defineConfig({
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] }
         },
         {
+            name: 'android-password-import',
+            testMatch: [
+                'integration-test/password-import.spec.js'
+            ],
+            use: { injectName: 'android-password-import', platform: 'android', ...devices['Galaxy S5'] }
+        },
+        {
             name: 'chrome',
             testMatch: [
                 'integration-test/remote-pages.spec.js',
