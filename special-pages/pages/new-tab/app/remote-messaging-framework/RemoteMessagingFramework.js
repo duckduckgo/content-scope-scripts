@@ -16,7 +16,7 @@ import { RMFContext } from './RMFProvider.js'
 export function RemoteMessagingFramework ({ message, primaryAction, secondaryAction }) {
     const { id, messageType, titleText, descriptionText } = message
     return (
-        <div id={id} class={cn(styles.root, message.icon && styles.icon)}>
+        <div id={id} class={cn(styles.root, (messageType !== 'small' && message.icon) && styles.icon)}>
             {messageType !== 'small' && message.icon && (
                 <span class={styles.iconBlock}>
                     <MessageIcons name={message.icon} />
@@ -26,7 +26,7 @@ export function RemoteMessagingFramework ({ message, primaryAction, secondaryAct
                 <p class={styles.title}>{titleText}</p>
                 <p>{descriptionText}</p>
                 {messageType === 'big_two_action' && (
-                    <div className="buttonRow">
+                    <div class={styles.btnRow}>
                         {primaryAction && message.primaryActionText.length > 0 && (
                             <button class={cn(styles.btn, styles.primary)} onClick={primaryAction}>{message.primaryActionText}</button>
                         )}
@@ -37,7 +37,9 @@ export function RemoteMessagingFramework ({ message, primaryAction, secondaryAct
                 )}
             </div>
             {messageType === 'big_single_action' && message.primaryActionText && primaryAction && (
-                <button class={cn(styles.btn)} onClick={primaryAction}>{message.primaryActionText}</button>
+                <div class={styles.btnBlock}>
+                    <button class={cn(styles.btn)} onClick={primaryAction}>{message.primaryActionText}</button>
+                </div>
             )}
         </div>
 
