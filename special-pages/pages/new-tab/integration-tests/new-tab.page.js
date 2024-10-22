@@ -30,10 +30,12 @@ export class NewtabPage {
             /** @type {import('../../../types/new-tab.ts').InitialSetupResponse} */
             initialSetup: {
                 widgets: [
+                    { id: 'rmf' },
                     { id: 'favorites' },
                     { id: 'privacyStats' }
                 ],
                 widgetConfigs: [
+                    { id: 'rmf', visibility: 'visible' },
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'visible' }
                 ],
@@ -45,6 +47,8 @@ export class NewtabPage {
             },
             stats_getConfig: {},
             stats_getData: {},
+            rmf_getConfig: {},
+            rmf_getData: {},
             widgets_setConfig: {}
         })
     }
