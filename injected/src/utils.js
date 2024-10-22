@@ -746,6 +746,7 @@ export function legacySendMessage (messageType, options) {
 }
 
 /**
+ * Takes a function that returns an element and tries to find it with exponential backoff.
  * @param {number} delay
  * @returns {Promise<Element|HTMLElement|null>}
  */

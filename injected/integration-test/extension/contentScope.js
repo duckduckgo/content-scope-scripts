@@ -612,6 +612,7 @@
     }
 
     /**
+     * Takes a function that returns an element and tries to find it with exponential backoff.
      * @param {number} delay
      * @returns {Promise<Element|HTMLElement|null>}
      */
@@ -20723,12 +20724,20 @@
     const ANIMATION_DURATION_MS = 1000;
     const ANIMATION_ITERATIONS = Infinity;
 
+    /**
+     * This feature is responsible for animating some buttons passwords.google.com,
+     * during a password import flow. The overall approach is:
+     * 1. Check if the path is supported,
+     * 2. Find the element to animate based on the path - using structural selectors first and then fallback to label texts),
+     * 3. Animate the element, or tap it if it should be autotapped.
+     */
     class PasswordImport extends ContentFeature {
         #exportButtonSettings
         #settingsButtonSettings
         #signInButtonSettings
 
         /**
+         * Takes a path and returns the element and style to animate.
          * @param {string} path
          * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean}|null>}
          */
@@ -20775,7 +20784,7 @@
         }
 
         /**
-         *
+         * Moves the element into view and animates it.
          * @param {HTMLElement|Element} element
          * @param {any} style
          */
@@ -20806,6 +20815,9 @@
         }
 
         /**
+         * On passwords.google.com the export button is in a container that is quite ambiguious.
+         * To solve for that we first try to find the container and then the button inside it.
+         * If that fails, we look for the button based on it's label.
          * @returns {Promise<HTMLElement|Element|null>}
          */
         async findExportElement () {
@@ -20840,7 +20852,7 @@
         }
 
         /**
-         *
+         * Checks if the path is supported and animates/taps the element if it is.
          * @param {string} path
          */
         async handleElementForPath (path) {
@@ -20923,7 +20935,7 @@
             const handleElementForPath = this.handleElementForPath.bind(this);
             const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
                 async apply (target, thisArg, args) {
-                    const path = args[1];
+                    const path = args[1] === "" ? args[2].split("?")[0] : args[1];
                     await handleElementForPath(path);
                     return DDGReflect.apply(target, thisArg, args)
                 }
