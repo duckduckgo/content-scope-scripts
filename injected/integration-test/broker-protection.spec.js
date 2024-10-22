@@ -365,7 +365,6 @@ test.describe('Broker Protection communications', () => {
             await dbp.navigatesTo('form.html')
             await dbp.receivesAction('fill-form.json')
             const response = await dbp.waitForMessage('actionCompleted')
-            console.log(JSON.stringify(response, null, 2))
             dbp.isSuccessMessage(response)
             await dbp.isFormFilled()
         })
