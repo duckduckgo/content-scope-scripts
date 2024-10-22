@@ -150,9 +150,11 @@ export function mockTransport () {
                 const payload = {
                     content: {
                         id: 'id-1',
-                        messageType: 'small',
-                        titleText: 'Hello world',
-                        descriptionText: 'My Description'
+                        messageType: 'big_single_action',
+                        titleText: 'Tell Us Your Thoughts on Privacy Pro',
+                        descriptionText: 'Take our short anonymous survey and share your feedback.',
+                        icon: 'Announce',
+                        primaryActionText: 'Take Survey'
                     }
                 }
                 if (url.searchParams.get('rmf') === 'medium') {
