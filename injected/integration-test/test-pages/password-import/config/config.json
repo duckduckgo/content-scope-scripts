@@ -1,0 +1,40 @@
+{
+  "features": {
+    "passwordImport": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "settingsButton": {
+          "shouldAutotap": false,
+          "selectors": [
+            "a[href*='options']"
+          ],
+          "labelTexts": [
+            "Password options"
+          ]
+        },
+        "exportButton": {
+          "shouldAutotap": false,
+          "selectors": [
+            "c-wiz[data-node-index*='2;0'][data-p*='options']",
+            "c-wiz[data-p*='options'][jsdata='deferred-i4']"
+          ],
+          "labelTexts": [
+            "Export"
+          ]
+        },
+        "signInButton": {
+          "shouldAutotap": false,
+          "selectors": [
+            "a[href*='ServiceLogin']:not([target='_top'])",
+            "a[aria-label='Sign in']:not([target='_top'])"
+          ],
+          "labelTexts": [
+            "Sign in"
+          ]
+        }
+      }
+    }
+  },
+  "unprotectedTemporary": []
+}

@@ -80,8 +80,8 @@ export default class PasswordImport extends ContentFeature {
 
         // Define the animation options
         const options = {
-            duration: ANIMATION_DURATION_MS, // 1 second, should be configurable
-            iterations: ANIMATION_ITERATIONS // Infinite, should be configurable
+            duration: ANIMATION_DURATION_MS,
+            iterations: ANIMATION_ITERATIONS
         }
 
         // Apply the animation to the element
@@ -203,9 +203,6 @@ export default class PasswordImport extends ContentFeature {
     init (args) {
         this.setButtonSettings(args?.featureSettings?.passwordImport || {})
 
-        // TODO: this is stolen from element-hiding.js, we would need a global util that would do this,
-        // single page applications don't have a DOMContentLoaded event on navigations, so
-        // we use proxy/reflect on history.pushState to find elements on page navigations
         const handleElementForPath = this.handleElementForPath.bind(this)
         const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
             async apply (target, thisArg, args) {
