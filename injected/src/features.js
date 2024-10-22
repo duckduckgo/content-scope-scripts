@@ -10,7 +10,8 @@ export const baseFeatures = /** @type {const} */([
     'fingerprintingTemporaryStorage',
     'navigatorInterface',
     'elementHiding',
-    'exceptionHandler'
+    'exceptionHandler',
+    'passwordImport'
 ])
 
 const otherFeatures = /** @type {const} */([
@@ -44,6 +45,9 @@ export const platformSupport = {
         'clickToLoad',
         'breakageReporting',
         'duckPlayer'
+    ],
+    'android-password-import': [
+        'passwordImport'
     ],
     windows: [
         'cookie',

@@ -744,3 +744,34 @@ export function legacySendMessage (messageType, options) {
     return originalWindowDispatchEvent && originalWindowDispatchEvent(createCustomEvent('sendMessageProxy' + messageSecret, { detail: { messageType, options } }))
     // TBD other platforms
 }
+
+/**
+ * @param {number} delay
+ * @returns {Promise<Element|HTMLElement|null>}
+ */
+export function withExponentialBackoff (fn, maxAttempts = 4, delay = 500) {
+    return new Promise((resolve, reject) => {
+        let attempts = 0
+        const tryFn = () => {
+            attempts += 1
+            const error = new Error('Element not found')
+            try {
+                const element = fn()
+                if (element) {
+                    resolve(element)
+                } else if (attempts < maxAttempts) {
+                    setTimeout(tryFn, delay * Math.pow(2, attempts))
+                } else {
+                    reject(error)
+                }
+            } catch {
+                if (attempts < maxAttempts) {
+                    setTimeout(tryFn, delay * Math.pow(2, attempts))
+                } else {
+                    reject(error)
+                }
+            }
+        }
+        tryFn()
+    })
+}
