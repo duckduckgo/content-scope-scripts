@@ -9,18 +9,12 @@ export default class PasswordImport extends ContentFeature {
     #settingsButtonSettings
     #signInButtonSettings
 
-    SUPPORTED_PATHS = {
-        SIGNIN: '/intro',
-        EXPORT: '/options',
-        SETTINGS: '/'
-    }
-
     /**
      * @param {string} path
      * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean}|null>}
      */
     async getElementAndStyleFromPath (path) {
-        if (path === this.SUPPORTED_PATHS.SETTINGS) {
+        if (path === '/') {
             const element = await this.findSettingsElement()
             return element != null
                 ? {
@@ -32,7 +26,7 @@ export default class PasswordImport extends ContentFeature {
                     shouldTap: this.#settingsButtonSettings.shouldAutotap ?? false
                 }
                 : null
-        } else if (path === this.SUPPORTED_PATHS.EXPORT) {
+        } else if (path === '/options') {
             const element = await this.findExportElement()
             return element != null
                 ? {
@@ -44,7 +38,7 @@ export default class PasswordImport extends ContentFeature {
                     shouldTap: this.#exportButtonSettings.shouldAutotap ?? false
                 }
                 : null
-        } else if (path === this.SUPPORTED_PATHS.SIGNIN) {
+        } else if (path === '/intro') {
             const element = await this.findSignInButton()
             return element != null
                 ? {
@@ -131,11 +125,11 @@ export default class PasswordImport extends ContentFeature {
      * @param {string} path
      */
     async handleElementForPath (path) {
-        // FIXME: This is a workaround, we need to check if the path is supported, otherwise
+        // FIXME: we need to check if the path is supported, otherwise
         // for some reason google doesn't wait to proceed with the signin step.
         // Not too sure why this is happening, there are no errors on the console.
 
-        if (Object.values(this.SUPPORTED_PATHS).includes(path)) {
+        if ([this.#exportButtonSettings.path, this.#settingsButtonSettings.path, this.#signInButtonSettings.path].indexOf(path) !== -1) {
             try {
                 const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
                 if (element != null) {
@@ -159,7 +153,7 @@ export default class PasswordImport extends ContentFeature {
      */
     get exportButtonLabelTextSelector () {
         return this.#exportButtonSettings?.labelTexts
-            .map(text => `button[arial-label="${text}"]`)
+            .map(text => `button[aria-label="${text}"]`)
             .join(',')
     }
 
@@ -168,7 +162,7 @@ export default class PasswordImport extends ContentFeature {
      */
     get signinLabelTextSelector () {
         return this.#signInButtonSettings?.labelTexts
-            .map(text => `a[arial-label="${text}"]:not([target="_top"])`)
+            .map(text => `a[aria-label="${text}"]:not([target="_top"])`)
             .join(',')
     }
 
@@ -184,7 +178,7 @@ export default class PasswordImport extends ContentFeature {
      */
     get settingsLabelTextSelector () {
         return this.#settingsButtonSettings?.labelTexts
-            .map(text => `a[arial-label="${text}"]`)
+            .map(text => `a[aria-label="${text}"]`)
             .join(',')
     }
 
@@ -210,7 +204,7 @@ export default class PasswordImport extends ContentFeature {
         const handleElementForPath = this.handleElementForPath.bind(this)
         const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
             async apply (target, thisArg, args) {
-                const path = args[2].split('?')[0]
+                const path = args[1]
                 await handleElementForPath(path)
                 return DDGReflect.apply(target, thisArg, args)
             }

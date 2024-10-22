@@ -2,16 +2,22 @@ import { test, expect } from '@playwright/test'
 import { readFileSync } from 'fs'
 import {
     mockAndroidMessaging,
-    mockWindowsMessaging,
     wrapWebkitScripts
 } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from './type-helpers.mjs'
 
-test.only('Password import feature', async ({ page }, testInfo) => {
+test('Password import feature', async ({ page }, testInfo) => {
     const passwordImportFeature = PasswordImportSpec.create(page, testInfo)
     await passwordImportFeature.enabled()
     await passwordImportFeature.navigate()
-    await expect(page).toBeTruthy()
+    await passwordImportFeature.clickOnElement('Home page')
+    await passwordImportFeature.assertElementIsAnimating('a[aria-label="Password options"')
+
+    await passwordImportFeature.clickOnElement('Signin page')
+    await passwordImportFeature.assertElementIsAnimating('a[aria-label="Sign in"')
+
+    await passwordImportFeature.clickOnElement('Export page')
+    await passwordImportFeature.assertElementIsAnimating('button[aria-label="Export"')
 })
 
 export class PasswordImportSpec {
@@ -51,7 +57,10 @@ export class PasswordImportSpec {
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
                 platform: { name: 'android' },
-                debug: true
+                debug: true,
+                javascriptInterface: '',
+                messageCallback: '',
+                sessionKey: ''
             }
         })
 
@@ -78,5 +87,30 @@ export class PasswordImportSpec {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new PasswordImportSpec(page, build, platformInfo)
+    }
+
+    /**
+     * Helper to assert that an element is animating
+     * @param {string} selector
+     */
+    async assertElementIsAnimating (selector) {
+        const isAnimating = await this.page.evaluate((selector) => {
+            const el = document.querySelector(selector)
+            if (el != null) {
+                return el.getAnimations().some((animation) => animation.playState === 'running')
+            } else {
+                return false
+            }
+        }, selector)
+        expect(isAnimating).toBe(true)
+    }
+
+    /**
+     * Helper to click on a button accessed via the aria-label attrbitue
+     * @param {string} text
+     */
+    async clickOnElement (text) {
+        const element = await this.page.getByText(text)
+        await element.click()
     }
 }

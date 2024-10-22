@@ -6,6 +6,7 @@
       "settings": {
         "settingsButton": {
           "shouldAutotap": false,
+          "path": "/",
           "selectors": [
             "a[href*='options']"
           ],
@@ -15,6 +16,7 @@
         },
         "exportButton": {
           "shouldAutotap": false,
+          "path": "/options",
           "selectors": [
             "c-wiz[data-node-index*='2;0'][data-p*='options']",
             "c-wiz[data-p*='options'][jsdata='deferred-i4']"
@@ -25,6 +27,7 @@
         },
         "signInButton": {
           "shouldAutotap": false,
+          "path": "/intro",
           "selectors": [
             "a[href*='ServiceLogin']:not([target='_top'])",
             "a[aria-label='Sign in']:not([target='_top'])"
