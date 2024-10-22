@@ -1,82 +1,5 @@
 "use strict";
 (() => {
-  var __create = Object.create;
-  var __defProp = Object.defineProperty;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getProtoOf = Object.getPrototypeOf;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __commonJS = (cb, mod) => function __require() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  };
-  var __copyProps = (to, from, except, desc) => {
-    if (from && typeof from === "object" || typeof from === "function") {
-      for (let key of __getOwnPropNames(from))
-        if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-    }
-    return to;
-  };
-  var __toESM = (mod, isNodeMode, target2) => (target2 = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-    // If the importer is in node compatibility mode or this is not an ESM
-    // file that has been converted to a CommonJS file using a Babel-
-    // compatible transform (i.e. "__esModule" has not been set), then set
-    // "default" to the CommonJS "module.exports" for node compatibility.
-    isNodeMode || !mod || !mod.__esModule ? __defProp(target2, "default", { value: mod, enumerable: true }) : target2,
-    mod
-  ));
-
-  // ../node_modules/classnames/index.js
-  var require_classnames = __commonJS({
-    "../node_modules/classnames/index.js"(exports, module) {
-      (function() {
-        "use strict";
-        var hasOwn = {}.hasOwnProperty;
-        var nativeCodeString = "[native code]";
-        function classNames() {
-          var classes = [];
-          for (var i4 = 0; i4 < arguments.length; i4++) {
-            var arg = arguments[i4];
-            if (!arg)
-              continue;
-            var argType = typeof arg;
-            if (argType === "string" || argType === "number") {
-              classes.push(arg);
-            } else if (Array.isArray(arg)) {
-              if (arg.length) {
-                var inner = classNames.apply(null, arg);
-                if (inner) {
-                  classes.push(inner);
-                }
-              }
-            } else if (argType === "object") {
-              if (arg.toString !== Object.prototype.toString && !arg.toString.toString().includes("[native code]")) {
-                classes.push(arg.toString());
-                continue;
-              }
-              for (var key in arg) {
-                if (hasOwn.call(arg, key) && arg[key]) {
-                  classes.push(key);
-                }
-              }
-            }
-          }
-          return classes.join(" ");
-        }
-        if (typeof module !== "undefined" && module.exports) {
-          classNames.default = classNames;
-          module.exports = classNames;
-        } else if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
-          define("classnames", [], function() {
-            return classNames;
-          });
-        } else {
-          window.classNames = classNames;
-        }
-      })();
-    }
-  });
-
   // ../node_modules/preact/dist/preact.module.js
   var n;
   var l;
@@ -658,9 +581,6 @@
     } }, /* @__PURE__ */ _("div", { style: { viewTransitionName: `widget-${props.id}` } }, props.children));
   }
 
-  // pages/new-tab/app/privacy-stats/PrivacyStats.js
-  var import_classnames = __toESM(require_classnames(), 1);
-
   // pages/new-tab/app/privacy-stats/PrivacyStats.module.css
   var PrivacyStats_default = {
     root: "PrivacyStats_root",
@@ -670,7 +590,6 @@
     headingIcon: "PrivacyStats_headingIcon",
     title: "PrivacyStats_title",
     expander: "PrivacyStats_expander",
-    toggle: "PrivacyStats_toggle",
     subtitle: "PrivacyStats_subtitle",
     list: "PrivacyStats_list",
     entering: "PrivacyStats_entering",
@@ -767,7 +686,19 @@
     },
     trackerStatsToggleLabel: {
       title: "Show recent activity",
-      note: "The aria-label text for a toggle button that shows/hides the detailed feed"
+      note: "The aria-label text for a toggle button that shows the detailed activity feed"
+    },
+    trackerStatsHideLabel: {
+      title: "Hide recent activity",
+      note: "The aria-label text for a toggle button that hides the detailed activity feed"
+    },
+    favorites_show_less: {
+      title: "Show less",
+      note: ""
+    },
+    favorites_show_more: {
+      title: "Show more ({count} remaining)",
+      note: ""
     }
   };
 
@@ -1137,19 +1068,205 @@
     return service;
   }
 
-  // pages/new-tab/app/components/Chevron.js
-  function Chevron() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+  // pages/new-tab/app/utils.js
+  function viewTransition(fn) {
+    if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
+      return document.startViewTransition(fn);
+    }
+    return fn();
+  }
+  function noop(named) {
+    return () => {
+      console.log(named, "noop");
+    };
+  }
+
+  // pages/new-tab/app/components/ShowHide.module.css
+  var ShowHide_default = {
+    button: "ShowHide_button"
+  };
+
+  // pages/new-tab/app/components/Icons.module.css
+  var Icons_default = {
+    chevron: "Icons_chevron",
+    chevronCircle: "Icons_chevronCircle",
+    chevronArrow: "Icons_chevronArrow"
+  };
+
+  // pages/new-tab/app/components/Icons.js
+  function ChevronButton() {
+    return /* @__PURE__ */ _("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", class: Icons_default.chevron }, /* @__PURE__ */ _("rect", { fill: "black", "fill-opacity": "0.06", width: "24", height: "24", rx: "12", class: Icons_default.chevronCircle }), /* @__PURE__ */ _(
       "path",
       {
-        d: "M13.5 10L8 4.5L2.5 10",
-        stroke: "currentColor",
-        "stroke-width": "1.5",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round"
+        fill: "black",
+        "fill-opacity": "0.6",
+        class: Icons_default.chevronArrow,
+        d: "M6.90039 10.191C6.91514 9.99804 7.00489 9.81855 7.15039 9.69098C7.2879 9.56799 7.46591 9.5 7.65039 9.5C7.83487 9.5 8.01289 9.56799 8.15039 9.69098L12.1504 13.691L16.1504 9.69098C16.2903 9.62414 16.4476 9.60233 16.6004 9.62856C16.7533 9.65479 16.8943 9.72776 17.0039 9.83743C17.1136 9.9471 17.1866 10.0881 17.2128 10.2409C17.239 10.3938 17.2172 10.551 17.1504 10.691L12.6504 15.191C12.5098 15.3314 12.3191 15.4103 12.1204 15.4103C11.9216 15.4103 11.731 15.3314 11.5904 15.191L7.15039 10.691C7.00489 10.5634 6.91514 10.3839 6.90039 10.191Z"
       }
     ));
   }
+
+  // pages/new-tab/app/components/ShowHideButton.jsx
+  function ShowHideButton({ text, onClick, buttonAttrs = {} }) {
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        ...buttonAttrs,
+        class: ShowHide_default.button,
+        "aria-label": text,
+        onClick
+      },
+      /* @__PURE__ */ _(ChevronButton, null)
+    );
+  }
+
+  // pages/new-tab/app/privacy-stats/PrivacyStats.js
+  function PrivacyStats({ expansion, data, toggle, animation = "auto-animate" }) {
+    if (animation === "view-transitions") {
+      return /* @__PURE__ */ _(WithViewTransitions, { data, expansion, toggle });
+    }
+    return /* @__PURE__ */ _(PrivacyStatsConfigured, { expansion, data, toggle });
+  }
+  function WithViewTransitions({ expansion, data, toggle }) {
+    const willToggle = q2(() => {
+      viewTransition(toggle);
+    }, [toggle]);
+    return /* @__PURE__ */ _(PrivacyStatsConfigured, { expansion, data, toggle: willToggle });
+  }
+  function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
+    const expanded = expansion === "expanded";
+    const someCompanies = data.trackerCompanies.length > 0;
+    const WIDGET_ID = g2();
+    const TOGGLE_ID = g2();
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.root, ref: parentRef }, /* @__PURE__ */ _(
+      Heading,
+      {
+        totalCount: data.totalCount,
+        trackerCompanies: data.trackerCompanies,
+        onToggle: toggle,
+        expansion,
+        buttonAttrs: {
+          "aria-controls": WIDGET_ID,
+          id: TOGGLE_ID
+        }
+      }
+    ), expanded && someCompanies && /* @__PURE__ */ _(Body, { trackerCompanies: data.trackerCompanies, listAttrs: { id: WIDGET_ID } }));
+  }
+  function Heading({ expansion, trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
+    const { t: t3 } = useTypedTranslation();
+    const [formatter] = h2(() => new Intl.NumberFormat());
+    const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
+    const recentTitle = recent === 1 ? t3("trackerStatsFeedCountBlockedSingular") : t3("trackerStatsFeedCountBlockedPlural", { count: formatter.format(recent) });
+    const none = totalCount === 0;
+    const some = totalCount > 0;
+    const alltime = formatter.format(totalCount);
+    const alltimeTitle = totalCount === 1 ? t3("trackerStatsCountBlockedSingular") : t3("trackerStatsCountBlockedPlural", { count: alltime });
+    return /* @__PURE__ */ _("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield.svg", alt: "" })), none && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, t3("trackerStatsNoRecent")), some && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, alltimeTitle), /* @__PURE__ */ _("span", { className: PrivacyStats_default.expander }, /* @__PURE__ */ _(
+      ShowHideButton,
+      {
+        buttonAttrs: {
+          ...buttonAttrs,
+          hidden: trackerCompanies.length === 0,
+          "aria-expanded": expansion === "expanded",
+          "aria-pressed": expansion === "expanded"
+        },
+        onClick: onToggle,
+        text: expansion === "expanded" ? t3("trackerStatsHideLabel") : t3("trackerStatsToggleLabel")
+      }
+    )), /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, recent === 0 && t3("trackerStatsNoActivity"), recent > 0 && recentTitle));
+  }
+  function Body({ trackerCompanies, listAttrs = {} }) {
+    const max = trackerCompanies[0]?.count ?? 0;
+    const [formatter] = h2(() => new Intl.NumberFormat());
+    return /* @__PURE__ */ _("ul", { ...listAttrs, class: PrivacyStats_default.list }, trackerCompanies.map((company) => {
+      const percentage = Math.min(company.count * 100 / max, 100);
+      const valueOrMin = Math.max(percentage, 10);
+      const inlineStyles = {
+        width: `${valueOrMin}%`
+      };
+      const countText = formatter.format(company.count);
+      return /* @__PURE__ */ _("li", { key: company.displayName }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { company }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, company.displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles })));
+    }));
+  }
+  function PrivacyStatsCustomized() {
+    const { visibility } = useVisibility();
+    if (visibility === "hidden") {
+      return null;
+    }
+    return /* @__PURE__ */ _(PrivacyStatsProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null));
+  }
+  function PrivacyStatsConsumer() {
+    const { state, toggle } = x2(PrivacyStatsContext);
+    if (state.status === "ready") {
+      return /* @__PURE__ */ _(
+        PrivacyStats,
+        {
+          expansion: state.config.expansion,
+          animation: state.config.animation?.kind,
+          data: state.data,
+          toggle
+        }
+      );
+    }
+    return null;
+  }
+  function CompanyIcon({ company }) {
+    const icon = company.displayName.toLowerCase().split(".")[0];
+    const cleaned = icon.replace(/ /g, "-");
+    const firstChar = icon[0];
+    return /* @__PURE__ */ _("span", { className: PrivacyStats_default.icon }, icon === "other" && /* @__PURE__ */ _(Other, null), icon !== "other" && /* @__PURE__ */ _(
+      "img",
+      {
+        src: `./company-icons/${cleaned}.svg`,
+        alt: icon + " icon",
+        className: PrivacyStats_default.companyImgIcon,
+        onLoad: (e3) => {
+          if (!e3.target)
+            return;
+          if (!(e3.target instanceof HTMLImageElement))
+            return;
+          e3.target.dataset.loaded = String(true);
+        },
+        onError: (e3) => {
+          if (!e3.target)
+            return;
+          if (!(e3.target instanceof HTMLImageElement))
+            return;
+          if (e3.target.dataset.loadingFallback) {
+            e3.target.dataset.errored = String(true);
+            return;
+          }
+          e3.target.dataset.loadingFallback = String(true);
+          e3.target.src = `./company-icons/${firstChar}.svg`;
+        }
+      }
+    ));
+  }
+  function Other() {
+    return /* @__PURE__ */ _("svg", { width: "32", height: "32", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg", class: PrivacyStats_default.other }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M1 16C1 7.71573 7.71573 1 16 1C24.2843 1 31 7.71573 31 16C31 16.0648 30.9996 16.1295 30.9988 16.1941C30.9996 16.2126 31 16.2313 31 16.25C31 16.284 30.9986 16.3177 30.996 16.3511C30.8094 24.4732 24.1669 31 16 31C7.83308 31 1.19057 24.4732 1.00403 16.3511C1.00136 16.3177 1 16.284 1 16.25C1 16.2313 1.00041 16.2126 1.00123 16.1941C1.00041 16.1295 1 16.0648 1 16ZM3.58907 17.5C4.12835 22.0093 7.06824 25.781 11.0941 27.5006C10.8572 27.0971 10.6399 26.674 10.4426 26.24C9.37903 23.9001 8.69388 20.8489 8.53532 17.5H3.58907ZM8.51564 15H3.53942C3.91376 10.2707 6.92031 6.28219 11.0941 4.49944C10.8572 4.90292 10.6399 5.326 10.4426 5.76003C9.32633 8.21588 8.62691 11.4552 8.51564 15ZM11.0383 17.5C11.1951 20.5456 11.8216 23.2322 12.7185 25.2055C13.8114 27.6098 15.0657 28.5 16 28.5C16.9343 28.5 18.1886 27.6098 19.2815 25.2055C20.1784 23.2322 20.8049 20.5456 20.9617 17.5H11.0383ZM20.983 15H11.017C11.1277 11.7487 11.7728 8.87511 12.7185 6.79454C13.8114 4.39021 15.0657 3.5 16 3.5C16.9343 3.5 18.1886 4.39021 19.2815 6.79454C20.2272 8.87511 20.8723 11.7487 20.983 15ZM23.4647 17.5C23.3061 20.8489 22.621 23.9001 21.5574 26.24C21.3601 26.674 21.1428 27.0971 20.9059 27.5006C24.9318 25.781 27.8717 22.0093 28.4109 17.5H23.4647ZM28.4606 15H23.4844C23.3731 11.4552 22.6737 8.21588 21.5574 5.76003C21.3601 5.326 21.1428 4.90291 20.9059 4.49944C25.0797 6.28219 28.0862 10.2707 28.4606 15Z",
+        fill: "currentColor"
+      }
+    ));
+  }
+
+  // pages/new-tab/app/favorites/Favorites.js
+  function FavoritesCustomized() {
+    const { id, visibility } = useVisibility();
+    if (visibility === "hidden") {
+      return null;
+    }
+    return /* @__PURE__ */ _("p", null, "Favourites here... (id: ", /* @__PURE__ */ _("code", null, id), ")");
+  }
+
+  // pages/onboarding/app/components/Stack.module.css
+  var Stack_default = {
+    stack: "Stack_stack"
+  };
 
   // ../node_modules/@formkit/auto-animate/index.mjs
   var parents = /* @__PURE__ */ new Set();
@@ -1637,172 +1754,6 @@
     return [element, setEnabled];
   }
 
-  // pages/new-tab/app/utils.js
-  function viewTransition(fn) {
-    if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
-      return document.startViewTransition(fn);
-    }
-    fn();
-  }
-
-  // pages/new-tab/app/privacy-stats/PrivacyStats.js
-  function PrivacyStats({ expansion, data, toggle, animation = "auto-animate" }) {
-    if (animation === "auto-animate") {
-      return /* @__PURE__ */ _(WithAutoAnimate, { data, expansion, toggle });
-    }
-    if (animation === "view-transitions") {
-      return /* @__PURE__ */ _(WithViewTransitions, { data, expansion, toggle });
-    }
-    return /* @__PURE__ */ _(PrivacyStatsConfigured, { expansion, data, toggle });
-  }
-  function WithViewTransitions({ expansion, data, toggle }) {
-    const willToggle = q2(() => {
-      viewTransition(toggle);
-    }, [toggle]);
-    return /* @__PURE__ */ _(PrivacyStatsConfigured, { expansion, data, toggle: willToggle });
-  }
-  function WithAutoAnimate({ expansion, data, toggle }) {
-    const [ref] = useAutoAnimate({ duration: 100 });
-    return /* @__PURE__ */ _(PrivacyStatsConfigured, { parentRef: ref, expansion, data, toggle });
-  }
-  function PrivacyStatsConfigured({ parentRef, expansion, data, toggle }) {
-    const expanded = expansion === "expanded";
-    const someCompanies = data.trackerCompanies.length > 0;
-    const WIDGET_ID = g2();
-    const TOGGLE_ID = g2();
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.root, ref: parentRef }, /* @__PURE__ */ _(
-      Heading,
-      {
-        totalCount: data.totalCount,
-        trackerCompanies: data.trackerCompanies,
-        onToggle: toggle,
-        buttonAttrs: {
-          "aria-expanded": expansion === "expanded",
-          "aria-pressed": expansion === "expanded",
-          "aria-controls": WIDGET_ID,
-          id: TOGGLE_ID
-        }
-      }
-    ), expanded && someCompanies && /* @__PURE__ */ _(Body, { trackerCompanies: data.trackerCompanies, id: WIDGET_ID }));
-  }
-  function Heading({ trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
-    const { t: t3 } = useTypedTranslation();
-    const [formatter] = h2(() => new Intl.NumberFormat());
-    const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0);
-    const recentTitle = recent === 1 ? t3("trackerStatsFeedCountBlockedSingular") : t3("trackerStatsFeedCountBlockedPlural", { count: formatter.format(recent) });
-    const none = totalCount === 0;
-    const some = totalCount > 0;
-    const alltime = formatter.format(totalCount);
-    const alltimeTitle = totalCount === 1 ? t3("trackerStatsCountBlockedSingular") : t3("trackerStatsCountBlockedPlural", { count: alltime });
-    return /* @__PURE__ */ _("div", { className: PrivacyStats_default.heading }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield.svg", alt: "" })), none && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, t3("trackerStatsNoRecent")), some && /* @__PURE__ */ _("p", { className: PrivacyStats_default.title }, alltimeTitle), /* @__PURE__ */ _("span", { className: PrivacyStats_default.expander }, /* @__PURE__ */ _(
-      "button",
-      {
-        ...buttonAttrs,
-        type: "button",
-        className: PrivacyStats_default.toggle,
-        onClick: onToggle,
-        "aria-label": t3("trackerStatsToggleLabel"),
-        hidden: trackerCompanies.length === 0
-      },
-      /* @__PURE__ */ _(Chevron, null)
-    )), /* @__PURE__ */ _("p", { className: PrivacyStats_default.subtitle }, recent === 0 && t3("trackerStatsNoActivity"), recent > 0 && recentTitle));
-  }
-  function Body({ trackerCompanies, id }) {
-    const max = trackerCompanies[0]?.count ?? 0;
-    const [formatter] = h2(() => new Intl.NumberFormat());
-    const bodyClasses = (0, import_classnames.default)({
-      [PrivacyStats_default.list]: true
-    });
-    return /* @__PURE__ */ _("ul", { className: bodyClasses, id }, trackerCompanies.map((company) => {
-      const percentage = Math.min(company.count * 100 / max, 100);
-      const valueOrMin = Math.max(percentage, 10);
-      const inlineStyles = {
-        width: `${valueOrMin}%`
-      };
-      const countText = formatter.format(company.count);
-      return /* @__PURE__ */ _("li", { key: company.displayName }, /* @__PURE__ */ _("div", { className: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { className: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { company }), /* @__PURE__ */ _("span", { className: PrivacyStats_default.name }, company.displayName)), /* @__PURE__ */ _("span", { className: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { className: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { className: PrivacyStats_default.fill, style: inlineStyles })));
-    }));
-  }
-  function PrivacyStatsCustomized() {
-    const { visibility } = useVisibility();
-    if (visibility === "hidden") {
-      return null;
-    }
-    return /* @__PURE__ */ _(PrivacyStatsProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null));
-  }
-  function PrivacyStatsConsumer() {
-    const { state, toggle } = x2(PrivacyStatsContext);
-    if (state.status === "ready") {
-      return /* @__PURE__ */ _(
-        PrivacyStats,
-        {
-          expansion: state.config.expansion,
-          animation: state.config.animation?.kind,
-          data: state.data,
-          toggle
-        }
-      );
-    }
-    return null;
-  }
-  function CompanyIcon({ company }) {
-    const icon = company.displayName.toLowerCase().split(".")[0];
-    const cleaned = icon.replace(/ /g, "-");
-    const firstChar = icon[0];
-    return /* @__PURE__ */ _("span", { className: PrivacyStats_default.icon }, icon === "other" && /* @__PURE__ */ _(Other, null), icon !== "other" && /* @__PURE__ */ _(
-      "img",
-      {
-        src: `./company-icons/${cleaned}.svg`,
-        alt: icon + " icon",
-        className: PrivacyStats_default.companyImgIcon,
-        onLoad: (e3) => {
-          if (!e3.target)
-            return;
-          if (!(e3.target instanceof HTMLImageElement))
-            return;
-          e3.target.dataset.loaded = String(true);
-        },
-        onError: (e3) => {
-          if (!e3.target)
-            return;
-          if (!(e3.target instanceof HTMLImageElement))
-            return;
-          if (e3.target.dataset.loadingFallback) {
-            e3.target.dataset.errored = String(true);
-            return;
-          }
-          e3.target.dataset.loadingFallback = String(true);
-          e3.target.src = `./company-icons/${firstChar}.svg`;
-        }
-      }
-    ));
-  }
-  function Other() {
-    return /* @__PURE__ */ _("svg", { width: "32", height: "32", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg", class: PrivacyStats_default.other }, /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M1 16C1 7.71573 7.71573 1 16 1C24.2843 1 31 7.71573 31 16C31 16.0648 30.9996 16.1295 30.9988 16.1941C30.9996 16.2126 31 16.2313 31 16.25C31 16.284 30.9986 16.3177 30.996 16.3511C30.8094 24.4732 24.1669 31 16 31C7.83308 31 1.19057 24.4732 1.00403 16.3511C1.00136 16.3177 1 16.284 1 16.25C1 16.2313 1.00041 16.2126 1.00123 16.1941C1.00041 16.1295 1 16.0648 1 16ZM3.58907 17.5C4.12835 22.0093 7.06824 25.781 11.0941 27.5006C10.8572 27.0971 10.6399 26.674 10.4426 26.24C9.37903 23.9001 8.69388 20.8489 8.53532 17.5H3.58907ZM8.51564 15H3.53942C3.91376 10.2707 6.92031 6.28219 11.0941 4.49944C10.8572 4.90292 10.6399 5.326 10.4426 5.76003C9.32633 8.21588 8.62691 11.4552 8.51564 15ZM11.0383 17.5C11.1951 20.5456 11.8216 23.2322 12.7185 25.2055C13.8114 27.6098 15.0657 28.5 16 28.5C16.9343 28.5 18.1886 27.6098 19.2815 25.2055C20.1784 23.2322 20.8049 20.5456 20.9617 17.5H11.0383ZM20.983 15H11.017C11.1277 11.7487 11.7728 8.87511 12.7185 6.79454C13.8114 4.39021 15.0657 3.5 16 3.5C16.9343 3.5 18.1886 4.39021 19.2815 6.79454C20.2272 8.87511 20.8723 11.7487 20.983 15ZM23.4647 17.5C23.3061 20.8489 22.621 23.9001 21.5574 26.24C21.3601 26.674 21.1428 27.0971 20.9059 27.5006C24.9318 25.781 27.8717 22.0093 28.4109 17.5H23.4647ZM28.4606 15H23.4844C23.3731 11.4552 22.6737 8.21588 21.5574 5.76003C21.3601 5.326 21.1428 4.90291 20.9059 4.49944C25.0797 6.28219 28.0862 10.2707 28.4606 15Z",
-        fill: "currentColor"
-      }
-    ));
-  }
-
-  // pages/new-tab/app/favorites/Favorites.js
-  function FavoritesCustomized() {
-    const { id, visibility } = useVisibility();
-    if (visibility === "hidden") {
-      return null;
-    }
-    return /* @__PURE__ */ _("p", null, "Favourites here... (id: ", /* @__PURE__ */ _("code", null, id), ")");
-  }
-
-  // pages/onboarding/app/components/Stack.module.css
-  var Stack_default = {
-    stack: "Stack_stack"
-  };
-
   // shared/components/EnvironmentProvider.js
   var EnvironmentContext = G({
     isReducedMotion: false,
@@ -2045,6 +1996,7 @@
   var Components_default = {
     componentList: "Components_componentList",
     itemInfo: "Components_itemInfo",
+    itemLinks: "Components_itemLinks",
     itemLink: "Components_itemLink",
     debugBar: "Components_debugBar",
     buttonRow: "Components_buttonRow",
@@ -2175,13 +2127,29 @@
       )
     },
     "stats.list": {
-      factory: () => /* @__PURE__ */ _(Body, { trackerCompanies: stats.few.trackerCompanies, id: "example-stats.list" })
+      factory: () => /* @__PURE__ */ _(Body, { trackerCompanies: stats.few.trackerCompanies, listAttrs: { id: "example-stats.list" } })
     },
     "stats.heading": {
-      factory: () => /* @__PURE__ */ _(Heading, { trackerCompanies: stats.few.trackerCompanies, totalCount: stats.few.totalCount })
+      factory: () => /* @__PURE__ */ _(
+        Heading,
+        {
+          trackerCompanies: stats.few.trackerCompanies,
+          totalCount: stats.few.totalCount,
+          expansion: "expanded",
+          onToggle: noop("stats.heading onToggle")
+        }
+      )
     },
     "stats.heading.none": {
-      factory: () => /* @__PURE__ */ _(Heading, { trackerCompanies: stats.none.trackerCompanies, totalCount: stats.none.totalCount })
+      factory: () => /* @__PURE__ */ _(
+        Heading,
+        {
+          trackerCompanies: stats.none.trackerCompanies,
+          totalCount: stats.none.totalCount,
+          expansion: "expanded",
+          onToggle: noop("stats.heading.none")
+        }
+      )
     }
   };
   var otherExamples = {
@@ -2254,7 +2222,15 @@
       for (let string of [...others, ...matchingMinus1]) {
         without.searchParams.append("id", string);
       }
-      return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", { class: Components_default.itemInfo }, /* @__PURE__ */ _("code", null, id), " ", /* @__PURE__ */ _("a", { href: without.toString(), hidden: current.length === 0 }, "Remove"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(
+      return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", { class: Components_default.itemInfo }, /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("code", null, id), /* @__PURE__ */ _(
+        "a",
+        {
+          href: next.toString(),
+          target: "_blank",
+          title: "open in new tab"
+        },
+        "Open \u{1F517}"
+      ), " ", /* @__PURE__ */ _("a", { href: without.toString(), hidden: current.length === 0 }, "Remove")), /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _(
         "a",
         {
           href: selected.toString(),
@@ -2262,15 +2238,6 @@
           title: "show this component only"
         },
         "select"
-      ), " ", /* @__PURE__ */ _(
-        "a",
-        {
-          href: next.toString(),
-          target: "_blank",
-          class: Components_default.itemLink,
-          title: "isolate this component"
-        },
-        "isolate"
       ), " ", /* @__PURE__ */ _(
         "a",
         {
@@ -3695,12 +3662,3 @@
     newTabMessaging.reportInitException(msg);
   });
 })();
-/*! Bundled license information:
-
-classnames/index.js:
-  (*!
-  	Copyright (c) 2018 Jed Watson.
-  	Licensed under the MIT License (MIT), see
-  	http://jedwatson.github.io/classnames
-  *)
-*/

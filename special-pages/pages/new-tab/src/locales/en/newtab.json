@@ -39,6 +39,18 @@
   },
   "trackerStatsToggleLabel": {
     "title": "Show recent activity",
-    "note": "The aria-label text for a toggle button that shows/hides the detailed feed"
+    "note": "The aria-label text for a toggle button that shows the detailed activity feed"
+  },
+  "trackerStatsHideLabel": {
+    "title": "Hide recent activity",
+    "note": "The aria-label text for a toggle button that hides the detailed activity feed"
+  },
+  "favorites_show_less": {
+    "title": "Show less",
+    "note": ""
+  },
+  "favorites_show_more": {
+    "title": "Show more ({count} remaining)",
+    "note": ""
   }
 }

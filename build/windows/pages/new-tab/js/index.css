@@ -209,11 +209,13 @@ li {
   --title-3-em-font-size: 15px;
   --title-3-em-font-weight: 590;
   --title-3-em-line-height: 20px;
+  --ntp-focus-outline-color: black;
   @media (prefers-color-scheme: dark) {
     --ntp-background-color: var(--color-gray-85);
     --ntp-surface-background-color: var(--color-black-at-18);
     --ntp-surface-border-color: var(--color-black-at-6);
     --ntp-text-normal: white;
+    --ntp-focus-outline-color: white;
   }
 }
 :root:has(body[data-platform-name=windows]) {
@@ -266,7 +268,7 @@ body {
 }
 .PrivacyStats_heading {
   display: grid;
-  grid-template-columns: 24px auto 24px;
+  grid-template-columns: 24px auto 32px;
   grid-column-gap: 12px;
   grid-row-gap: 12px;
   grid-template-rows: auto auto;
@@ -292,37 +294,12 @@ body {
   line-height: var(--title-2-line-height);
 }
 .PrivacyStats_expander {
-  grid-area: expander;
-}
-.PrivacyStats_toggle {
-  width: 24px;
-  height: 24px;
   position: relative;
-  background: none;
-  outline: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color ease-in-out .2s;
-  color: var(--color-black-at-48);
-  @media screen and (prefers-color-scheme: dark) {
-    color: var(--color-white-at-60);
-  }
-  &:hover {
-    background: var(--color-black-at-6);
-    @media screen and (prefers-color-scheme: dark) {
-      background: var(--color-white-at-9);
-    }
-  }
-  svg {
+  & [aria-controls] {
     position: absolute;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-  }
-  &[aria-pressed=false] {
-    transform: rotate(180deg);
+    transform: translateY(-50%);
+    opacity: 1;
   }
 }
 .PrivacyStats_subtitle {
@@ -454,6 +431,58 @@ body {
   }
 }
 
+/* pages/new-tab/app/components/ShowHide.module.css */
+.ShowHide_button {
+  opacity: 0;
+  transition: opacity 0.3s;
+  cursor: pointer;
+  background: none;
+  border: none;
+  outline: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--ntp-text-normal);
+  background: var(--ntp-background-color);
+  height: 32px;
+  width: 32px;
+  line-height: 32px;
+  gap: 6px;
+  padding-left: 0;
+  padding-right: 0;
+  font-size: 11px;
+  border-radius: 50%;
+  &[aria-pressed=true] svg {
+    transform: rotate(180deg);
+  }
+  &:focus-visible {
+    opacity: 1;
+    outline: 1px dotted var(--ntp-focus-outline-color);
+  }
+}
+
+/* pages/new-tab/app/components/Icons.module.css */
+.Icons_chevron {
+  &:hover .Icons_chevronCircle {
+    fill: black;
+    fill-opacity: 0.06;
+    @media screen and (prefers-color-scheme: dark) {
+      fill: white;
+      fill-opacity: 0.12;
+    }
+  }
+}
+.Icons_chevronCircle {
+  transition: all .3s;
+  fill-opacity: 0;
+}
+.Icons_chevronArrow {
+  @media screen and (prefers-color-scheme: dark) {
+    fill: white;
+    fill-opacity: 0.5;
+  }
+}
+
 /* pages/onboarding/app/components/Stack.module.css */
 .Stack_stack {
   display: flex;
@@ -512,6 +541,11 @@ body[data-display=components] {
   grid-row-gap: 2rem;
 }
 .Components_itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+}
+.Components_itemLinks {
   display: flex;
   align-items: center;
   gap: 1em;

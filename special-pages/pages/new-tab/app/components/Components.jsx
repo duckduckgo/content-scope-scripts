@@ -67,16 +67,17 @@ function Stage({ entries }) {
                 return (
                     <Fragment>
                         <div class={styles.itemInfo}>
-                            <code>{id}</code>{" "}
-                            <a href={without.toString()} hidden={current.length === 0}>Remove</a>
-                            <div>
+                            <div class={styles.itemLinks}>
+                                <code>{id}</code>
+                                <a href={next.toString()}
+                                   target="_blank"
+                                   title="open in new tab">Open 🔗</a>{" "}
+                                <a href={without.toString()} hidden={current.length === 0}>Remove</a>
+                            </div>
+                            <div class={styles.itemLinks}>
                                 <a href={selected.toString()}
                                    class={styles.itemLink}
                                    title="show this component only">select</a>{" "}
-                                <a href={next.toString()}
-                                   target="_blank"
-                                   class={styles.itemLink}
-                                   title="isolate this component">isolate</a>{" "}
                                 <a href={e2e.toString()}
                                    target="_blank"
                                    class={styles.itemLink}

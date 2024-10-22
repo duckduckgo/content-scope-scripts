@@ -2,6 +2,7 @@ import { h } from "preact";
 import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
 import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
 import { stats } from "../privacy-stats/mocks/stats.js";
+import { noop } from "../utils.js";
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -22,13 +23,25 @@ export const mainExamples = {
             data={stats.norecent}><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
     },
     'stats.list': {
-        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} id='example-stats.list'/>
+        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} listAttrs={{id: 'example-stats.list'}}/>
     },
     'stats.heading': {
-        factory: () => <Heading trackerCompanies={stats.few.trackerCompanies} totalCount={stats.few.totalCount}/>
+        factory: () => <Heading
+            trackerCompanies={stats.few.trackerCompanies}
+            totalCount={stats.few.totalCount}
+            expansion={"expanded"}
+            onToggle={noop("stats.heading onToggle")}
+        />
     },
     'stats.heading.none': {
-        factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount}/>
+        factory: () => (
+            <Heading
+                trackerCompanies={stats.none.trackerCompanies}
+                totalCount={stats.none.totalCount}
+                expansion={"expanded"}
+                onToggle={noop("stats.heading.none")}
+            />
+        )
     },
 }
 

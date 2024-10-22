@@ -70,13 +70,14 @@ async function createTypesForSchemaFile(featureName, schemaFilePath) {
         additionalProperties: false,
         bannerComment: `
                 /**
-                 * @module ${featureName} Schema
-                 * @description 
+                 *
                  * These types are auto-generated from schema files.
                  * scripts/build-types.mjs is responsible for type generation.
                  * See the privacy-configuration repo for the schema files:
                  * https://github.com/duckduckgo/privacy-configuration
                  * **DO NOT** edit this file directly as your changes will be lost.
+                 *
+                 * @module ${featureName} Schema
                  */
                 `
     })
@@ -96,12 +97,11 @@ export async function createTypesForSchemaMessages(featureName, schema, rootDir)
         additionalProperties: false,
         bannerComment: `
             /**
-             * @module ${featureName} Messages
-             * @description 
-             *
              * These types are auto-generated from schema files.
              * scripts/build-types.mjs is responsible for type generation.
              * **DO NOT** edit this file directly as your changes will be lost.
+             *
+             * @module ${featureName} Messages
              */
             `,
     });

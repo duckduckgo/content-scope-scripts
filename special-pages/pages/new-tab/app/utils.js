@@ -41,11 +41,20 @@ export function withLog (name, reducer) {
 }
 
 /**
- * @param {function} fn
+ * @param {(...args: any[]) => void} fn
  */
 export function viewTransition (fn) {
     if ('startViewTransition' in document && typeof document.startViewTransition === 'function') {
         return document.startViewTransition(fn)
     }
-    fn()
+    return fn()
+}
+
+/**
+ *
+ */
+export function noop (named) {
+    return () => {
+        console.log(named, 'noop')
+    }
 }

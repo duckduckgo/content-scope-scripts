@@ -1,26 +1,27 @@
-* @jonathanKingston @shakyShane
+* @duckduckgo/content-scope-scripts-owners
 
 # Feature owners
-injected/src/features/fingerprinting-* @jonathanKingston @englehardt
-injected/src/canvas.js @jonathanKingston @englehardt
-injected/src/element-hiding.js @jonathanKingston @dharb
-injected/src/features/click-to-load.js @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-injected/src/features/click-to-load/ @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-injected/src/locales/click-to-load/ @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-injected/src/features/broker-protection.js @brianhall @shakyShane
-injected/src/features/broker-protection/ @brianhall @shakyShane
+injected/src/features/fingerprinting-* @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
+injected/src/canvas.js @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
+injected/src/element-hiding.js @duckduckgo/content-scope-scripts-owners @jonathanKingston @dharb
+injected/src/features/click-to-load.js @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
+injected/src/features/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
+injected/src/locales/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
+injected/src/features/broker-protection.js @duckduckgo/content-scope-scripts-owners @brianhall @shakyShane
+injected/src/features/broker-protection/ @duckduckgo/content-scope-scripts-owners @brianhall @shakyShane
 
 # Platform owners
-injected/entry-points/android.js @jonathanKingston @joshliebe
-injected/entry-points/chrome-mv3.js @kzar @sammacbeth
-injected/entry-points/chrome.js @jonathanKingston @sammacbeth
-injected/entry-points/windows.js @jonathanKingston @q71114 @szanto90balazs
+Sources/ @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs
+injected/entry-points/android.js @duckduckgo/content-scope-scripts-owners @duckduckgo/android-devs
+injected/entry-points/chrome-mv3.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth
+injected/entry-points/chrome.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth
+injected/entry-points/windows.js @duckduckgo/content-scope-scripts-owners @duckduckgo/team-windows-development
 
 # Test owners
-injected/integration-tests/test-pages/ @kdzwinel @jonathanKingston
+injected/integration-tests/test-pages/ @duckduckgo/content-scope-scripts-owners @kdzwinel @jonathanKingston
 
 # Special Pages
-special-pages/ @shakyShane @mgurgel
+special-pages/ @duckduckgo/content-scope-scripts-owners @shakyShane @mgurgel
 
 # Others
-types-generator/ @shakyShane
+types-generator/ @duckduckgo/content-scope-scripts-owners @shakyShane

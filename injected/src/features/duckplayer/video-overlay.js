@@ -2,8 +2,6 @@
 /**
  * @module Duck Player Video Overlay
  *
- * @description
- *
  * ## Decision flow for appending the Video Overlays
  *
  * We'll try to append the full video overlay (or small Dax icon) onto the main video player
