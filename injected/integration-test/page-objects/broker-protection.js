@@ -52,12 +52,12 @@ export class BrokerProtectionPage {
      * @return {Promise<void>}
      */
     async isFormFilled () {
-        await expect(this.page.getByLabel('First Name:')).toHaveValue('John')
-        await expect(this.page.getByLabel('Last Name:')).toHaveValue('Smith')
-        await expect(this.page.getByLabel('Phone Number:')).toHaveValue(/^\d{10}$/)
-        await expect(this.page.getByLabel('Street Address:')).toHaveValue(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/)
-        await expect(this.page.getByLabel('State:')).toHaveValue('IL')
-        await expect(this.page.getByLabel('Zip Code:')).toHaveValue(/^\d{5}$/)
+        await expect(this.page.getByLabel('First Name:', { exact: true })).toHaveValue('John')
+        await expect(this.page.getByLabel('Last Name:', { exact: true })).toHaveValue('Smith')
+        await expect(this.page.getByLabel('Phone Number:', { exact: true })).toHaveValue(/^\d{10}$/)
+        await expect(this.page.getByLabel('Street Address:', { exact: true })).toHaveValue(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/)
+        await expect(this.page.locator('#state')).toHaveValue('IL')
+        await expect(this.page.getByLabel('Zip Code:', { exact: true })).toHaveValue(/^\d{5}$/)
 
         const randomValue = await this.page.getByLabel('Random number between 5 and 15:').inputValue()
         const randomValueInt = parseInt(randomValue)
@@ -65,6 +65,8 @@ export class BrokerProtectionPage {
         expect(Number.isInteger(randomValueInt)).toBe(true)
         expect(randomValueInt).toBeGreaterThanOrEqual(5)
         expect(randomValueInt).toBeLessThanOrEqual(15)
+
+        await expect(this.page.getByLabel('City & State:', { exact: true })).toHaveValue('Chicago, IL')
     }
 
     /**
