@@ -1,13 +1,11 @@
 import { h } from 'preact'
-import cn from 'classnames'
 import styles from './PrivacyStats.module.css'
 import { useTypedTranslation } from '../types.js'
 import { useContext, useState, useId, useCallback } from 'preact/hooks'
 import { PrivacyStatsContext, PrivacyStatsProvider } from './PrivacyStatsProvider.js'
 import { useVisibility } from '../widget-list/widget-config.provider.js'
-import { Chevron } from '../components/Chevron.js'
-import { useAutoAnimate } from '@formkit/auto-animate/preact'
 import { viewTransition } from '../utils.js'
+import { ShowHideButton } from '../components/ShowHideButton.jsx'
 
 /**
  * @typedef {import('../../../../types/new-tab').TrackerCompany} TrackerCompany
@@ -26,10 +24,6 @@ import { viewTransition } from '../utils.js'
  * @param {Animation['kind']} [props.animation] - optionally configure animations
  */
 export function PrivacyStats ({ expansion, data, toggle, animation = 'auto-animate' }) {
-    if (animation === 'auto-animate') {
-        return <WithAutoAnimate data={data} expansion={expansion} toggle={toggle} />
-    }
-
     if (animation === 'view-transitions') {
         return <WithViewTransitions data={data} expansion={expansion} toggle={toggle} />
     }
@@ -53,21 +47,10 @@ function WithViewTransitions ({ expansion, data, toggle }) {
 
 /**
  * @param {object} props
- * @param {Expansion} props.expansion
- * @param {PrivacyStatsData} props.data
- * @param {()=>void} [props.toggle]
- */
-function WithAutoAnimate ({ expansion, data, toggle }) {
-    const [ref] = useAutoAnimate({ duration: 100 })
-    return <PrivacyStatsConfigured parentRef={ref} expansion={expansion} data={data} toggle={toggle} />
-}
-
-/**
- * @param {object} props
  * @param {import("preact").Ref<any>} [props.parentRef]
  * @param {Expansion} props.expansion
  * @param {PrivacyStatsData} props.data
- * @param {()=>void} [props.toggle]
+ * @param {()=>void} props.toggle
  */
 function PrivacyStatsConfigured ({ parentRef, expansion, data, toggle }) {
     const expanded = expansion === 'expanded'
@@ -82,16 +65,14 @@ function PrivacyStatsConfigured ({ parentRef, expansion, data, toggle }) {
                 totalCount={data.totalCount}
                 trackerCompanies={data.trackerCompanies}
                 onToggle={toggle}
+                expansion={expansion}
                 buttonAttrs={{
-                    'aria-expanded': expansion === 'expanded',
-                    'aria-pressed': expansion === 'expanded',
                     'aria-controls': WIDGET_ID,
                     id: TOGGLE_ID
                 }}
             />
-
             {expanded && someCompanies && (
-                <Body trackerCompanies={data.trackerCompanies} id={WIDGET_ID} />
+                <Body trackerCompanies={data.trackerCompanies} listAttrs={{ id: WIDGET_ID }} />
             )}
         </div>
     )
@@ -99,12 +80,13 @@ function PrivacyStatsConfigured ({ parentRef, expansion, data, toggle }) {
 
 /**
  * @param {object} props
+ * @param {Expansion} props.expansion
  * @param {TrackerCompany[]} props.trackerCompanies
  * @param {number} props.totalCount
- * @param {() => void} [props.onToggle]
- * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs] - The maximum capacity for items to be displayed before hiding.
+ * @param {() => void} props.onToggle
+ * @param {import("preact").ComponentProps<'button'>} [props.buttonAttrs]
  */
-export function Heading ({ trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
+export function Heading ({ expansion, trackerCompanies, totalCount, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslation()
     const [formatter] = useState(() => new Intl.NumberFormat())
     const recent = trackerCompanies.reduce((sum, item) => sum + item.count, 0)
@@ -131,16 +113,18 @@ export function Heading ({ trackerCompanies, totalCount, onToggle, buttonAttrs =
                 <p className={styles.title}>{alltimeTitle}</p>
             )}
             <span className={styles.expander}>
-                <button
-                    {...buttonAttrs}
-                    type="button"
-                    className={styles.toggle}
+                <ShowHideButton
+                    buttonAttrs={{
+                        ...buttonAttrs,
+                        hidden: trackerCompanies.length === 0,
+                        'aria-expanded': expansion === 'expanded',
+                        'aria-pressed': expansion === 'expanded'
+                    }}
                     onClick={onToggle}
-                    aria-label={t('trackerStatsToggleLabel')}
-                    hidden={trackerCompanies.length === 0}
-                >
-                    <Chevron/>
-                </button>
+                    text={expansion === 'expanded'
+                        ? t('trackerStatsHideLabel')
+                        : t('trackerStatsToggleLabel')}
+                />
             </span>
             <p className={styles.subtitle}>
                 {recent === 0 && t('trackerStatsNoActivity')}
@@ -152,19 +136,15 @@ export function Heading ({ trackerCompanies, totalCount, onToggle, buttonAttrs =
 
 /**
  * @param {object} props
+ * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
  * @param {TrackerCompany[]} props.trackerCompanies
- * @param {string} props.id
  */
-export function Body ({ trackerCompanies, id }) {
+export function Body ({ trackerCompanies, listAttrs = {} }) {
     const max = trackerCompanies[0]?.count ?? 0
     const [formatter] = useState(() => new Intl.NumberFormat())
 
-    const bodyClasses = cn({
-        [styles.list]: true
-    })
-
     return (
-        <ul className={bodyClasses} id={id}>
+        <ul {...listAttrs} class={styles.list}>
             {trackerCompanies.map(company => {
                 const percentage = Math.min((company.count * 100) / max, 100)
                 const valueOrMin = Math.max(percentage, 10)
@@ -174,14 +154,14 @@ export function Body ({ trackerCompanies, id }) {
                 const countText = formatter.format(company.count)
                 return (
                     <li key={company.displayName}>
-                        <div className={styles.row}>
-                            <div className={styles.company}>
+                        <div class={styles.row}>
+                            <div class={styles.company}>
                                 <CompanyIcon company={company}/>
-                                <span className={styles.name}>{company.displayName}</span>
+                                <span class={styles.name}>{company.displayName}</span>
                             </div>
-                            <span className={styles.count}>{countText}</span>
-                            <span className={styles.bar}></span>
-                            <span className={styles.fill} style={inlineStyles}></span>
+                            <span class={styles.count}>{countText}</span>
+                            <span class={styles.bar}></span>
+                            <span class={styles.fill} style={inlineStyles}></span>
                         </div>
                     </li>
                 )

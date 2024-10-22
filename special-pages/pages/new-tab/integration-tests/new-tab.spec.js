@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { NewtabPage } from './page-objects/newtab'
+import { NewtabPage } from './new-tab.page.js'
 
 test.describe('newtab widgets', () => {
     test('widget config single click', async ({ page }, workerInfo) => {
