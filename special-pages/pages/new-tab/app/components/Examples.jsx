@@ -1,11 +1,9 @@
-import { Fragment, h } from "preact";
-import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
-import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
-import { RemoteMessagingFramework } from "../remote-messaging-framework/RemoteMessagingFramework.js";
-import { stats } from "../privacy-stats/mocks/stats.js";
-import { noop } from "../utils.js";
-import { VisibilityMenu } from "../customizer/VisibilityMenu.js";
-import { CustomizerButton } from "../customizer/Customizer.js";
+import { h } from 'preact'
+import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js'
+import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js'
+import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js'
+import { stats } from '../privacy-stats/mocks/stats.js'
+import { noop } from '../utils.js'
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -26,13 +24,24 @@ export const mainExamples = {
             data={stats.norecent}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
     },
     'stats.list': {
-        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} id='example-stats.list' />
+        factory: () => <Body trackerCompanies={stats.few.trackerCompanies} listAttrs={{ id: 'example-stats.list' }} />
     },
     'stats.heading': {
-        factory: () => <Heading trackerCompanies={stats.few.trackerCompanies} totalCount={stats.few.totalCount} />
+        factory: () => <Heading
+            trackerCompanies={stats.few.trackerCompanies}
+            totalCount={stats.few.totalCount}
+            expansion={'expanded'}
+            onToggle={noop('stats.heading onToggle')}
+        />
     },
     'stats.heading.none': {
-        factory: () => <Heading trackerCompanies={stats.none.trackerCompanies} totalCount={stats.none.totalCount} />
+        factory: () => (
+            <Heading
+                trackerCompanies={stats.none.trackerCompanies}
+                totalCount={stats.none.totalCount}
+                expansion={'expanded'}
+                onToggle={noop('stats.heading.none')}
+            />)
     },
     'rmf.small': {
         factory: () => (
@@ -68,7 +77,7 @@ export const mainExamples = {
                     icon: 'DDGAnnounce',
                     titleText: 'New Search Feature!',
                     descriptionText: 'DuckDuckGo now offers Instant Answers for quicker access to the information you need.',
-                    primaryActionText: 'Learn More',
+                    primaryActionText: 'Learn More'
                 }}
                 primaryAction={() => { }}
             />
@@ -84,7 +93,7 @@ export const mainExamples = {
                     titleText: 'Update Available',
                     descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.',
                     primaryActionText: 'How to update',
-                    secondaryActionText: 'Remind me later',
+                    secondaryActionText: 'Remind me later'
                 }}
                 primaryAction={() => { }}
                 secondaryAction={() => { }}
@@ -122,7 +131,7 @@ export const otherExamples = {
                     titleText: 'Update Available',
                     descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance. A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.',
                     primaryActionText: 'How to update Windows',
-                    secondaryActionText: 'Remind me later, but only if I’m actually going to update soon',
+                    secondaryActionText: 'Remind me later, but only if I’m actually going to update soon'
                 }}
                 primaryAction={() => { }}
                 secondaryAction={() => { }}
