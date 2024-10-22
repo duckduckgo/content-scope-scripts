@@ -1,27 +1,21 @@
-* @duckduckgo/content-scope-scripts-owners
+* @jonathanKingston @shakyShane
 
 # Feature owners
-injected/src/features/fingerprinting-* @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
-injected/src/canvas.js @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
-injected/src/element-hiding.js @duckduckgo/content-scope-scripts-owners @jonathanKingston @dharb
-injected/src/features/click-to-load.js @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-injected/src/features/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-injected/src/locales/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-injected/src/features/broker-protection.js @duckduckgo/content-scope-scripts-owners @brianhall @shakyShane
-injected/src/features/broker-protection/ @duckduckgo/content-scope-scripts-owners @brianhall @shakyShane
+src/features/fingerprinting-* @jonathanKingston @englehardt
+src/canvas.js @jonathanKingston @englehardt
+src/element-hiding.js @jonathanKingston @dharb
+src/features/click-to-load.js @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
+src/features/click-to-load/ @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
+src/locales/click-to-load/ @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
+src/features/broker-protection.js @brianhall @shakyShane
+src/features/broker-protection/ @brianhall @shakyShane
 
 # Platform owners
-Sources/ @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs
-injected/entry-points/android.js @duckduckgo/content-scope-scripts-owners @duckduckgo/android-devs
-injected/entry-points/chrome-mv3.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth
-injected/entry-points/chrome.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth
-injected/entry-points/windows.js @duckduckgo/content-scope-scripts-owners @duckduckgo/team-windows-development
+inject/android.js @jonathanKingston @joshliebe
+inject/chrome-mv3.js @kzar @sammacbeth
+inject/chrome.js @jonathanKingston @sammacbeth
+inject/windows.js @jonathanKingston @q71114 @szanto90balazs
 
 # Test owners
-injected/integration-tests/test-pages/ @duckduckgo/content-scope-scripts-owners @kdzwinel @jonathanKingston
-
-# Special Pages
-special-pages/ @duckduckgo/content-scope-scripts-owners @shakyShane @mgurgel
-
-# Others
-types-generator/ @duckduckgo/content-scope-scripts-owners @shakyShane
+integration-tests/test-pages/ @kdzwinel @jonathanKingston
+unit-tests/script-overload-snapshots/ @shakyShane @jonathanKingston @englehardt

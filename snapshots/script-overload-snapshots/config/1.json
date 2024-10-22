@@ -1,0 +1,18 @@
+{
+    "navigator.userAgent": {
+        "type": "string",
+        "value": "testingThisOut"
+    },
+    "document.cookie": {
+        "type": "string",
+        "value": "testingThisOut"
+    },
+    "navigator.mediaSession.playbackState": {
+        "type": "string",
+        "value": "playing"
+    },
+    "navigator.mediaSession.doesNotExist.depth.a.lot": {
+        "type": "string",
+        "value": "boop"
+    }
+}
