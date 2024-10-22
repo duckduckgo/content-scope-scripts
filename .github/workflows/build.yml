@@ -34,14 +34,14 @@ jobs:
             git checkout -b releases origin/releases
           fi
 
+      - name: Collect commit ranges
+        run: |
+          bash ./scripts/changelog.sh > ${{ github.workspace }}/CHANGELOG.txt
+
       - name: Debug changelog file
         run: |
           ls -la ${{ github.workspace }}/CHANGELOG.txt
           cat ${{ github.workspace }}/CHANGELOG.txt
-  
-      - name: Collect commit ranges
-        run: |
-          bash ./scripts/changelog.sh > ${{ github.workspace }}/CHANGELOG.txt
 
       - name: Checkout code from main into release branch
         run: |
