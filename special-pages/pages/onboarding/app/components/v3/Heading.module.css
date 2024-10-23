@@ -121,7 +121,7 @@
     }
 
     & .title {
-        font-size: var(--sp-5);
+        font-size: calc(22 * var(--px-in-rem));
         line-height: 1.2;
         font-weight: 600;
 
