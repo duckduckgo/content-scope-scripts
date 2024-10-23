@@ -11,7 +11,7 @@ test.describe('newtab widgets', () => {
         await page.getByRole('button', { name: 'Customize' }).click()
 
         // hide
-        await page.getByLabel('Privacy Stats').uncheck()
+        await page.locator('label').filter({ hasText: 'Privacy Stats' }).click()
 
         // debounced
         await page.waitForTimeout(500)
@@ -40,10 +40,10 @@ test.describe('newtab widgets', () => {
         await page.getByRole('button', { name: 'Customize' }).click()
 
         // hide
-        await page.getByLabel('Privacy Stats').uncheck()
+        await page.locator('label').filter({ hasText: 'Privacy Stats' }).uncheck()
 
         // show
-        await page.getByLabel('Privacy Stats').check()
+        await page.locator('label').filter({ hasText: 'Privacy Stats' }).check()
 
         // debounced
         await page.waitForTimeout(500)
