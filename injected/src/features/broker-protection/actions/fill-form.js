@@ -69,6 +69,14 @@ export function fillMany (root, elements, data) {
             results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()))
         } else if (element.type === '$generated_street_address$') {
             results.push(setValueForInput(inputElem, generateStreetAddress()))
+
+        // This is a composite of existing (but separate) city and state fields
+        } else if (element.type === 'cityState') {
+            if (!Object.prototype.hasOwnProperty.call(data, 'city') || !Object.prototype.hasOwnProperty.call(data, 'state')) {
+                results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'` })
+                continue
+            }
+            results.push(setValueForInput(inputElem, data.city + ', ' + data.state))
         } else {
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
                 results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` })
