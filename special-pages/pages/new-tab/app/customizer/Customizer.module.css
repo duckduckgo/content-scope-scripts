@@ -2,29 +2,24 @@
     position: relative
 }
 
-.lowerRight {
-    position: absolute;
-    bottom: 16px;
-    right: 16px;
-}
-
 .lowerRightFixed {
     position: fixed;
     bottom: 16px;
     right: 16px;
 }
 
-.list {
-    display: grid;
-    grid-row-gap: .5rem;
+.dropdownMenu {
+    display: none;
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 10px);
 }
 
-.label {
-    display: grid;
-    grid-template-columns: max-content max-content;
-    grid-column-gap: 1rem;
+.show {
+    display: block;
 }
 
+/** todo: is this a re-usable button, yet? */
 .customizeButton {
     background-color: transparent;
     border: 1px solid var(--color-black-at-9);
@@ -33,71 +28,35 @@
     cursor: pointer;
     display: flex;
     gap: 6px;
-
     color: var(--color-black-at-84);
 
     @media screen and (prefers-color-scheme: dark) {
-        border-color: var(--color-white-at-9);
         color: var(--color-white-at-80);
+        border-color: var(--color-white-at-9);
     }
 
     &:focus-visible {
         outline: 1px dotted var(--ntp-focus-outline-color);
     }
-}
 
-.dropdownMenu {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: var(--ntp-surface-background-color);
-    border: 1px solid var(--color-black-at-9);
-    @media screen and (prefers-color-scheme: dark) {
-        border-color: var(--color-white-at-9);
+    &:hover {
+        background-color: var(--color-black-at-6);
+        border-color: var(--color-black-at-18);
+        @media screen and (prefers-color-scheme: dark) {
+            background-color: var(--color-white-at-18);
+            border-color: var(--color-white-at-36);
+        }
     }
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .08);
-    padding: 0.75rem 1rem;
-    bottom: calc(100% + 10px);
-    border-radius: 8px;
-}
 
-.show {
-    display: block;
-}
-
-.list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-2);
-}
-
-.menuItem {
-
-}
-
-.menuItemLabel {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    white-space: nowrap;
-    font-size: var(--title-3-em-font-size);
-}
-
-.svg {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.checkbox {
-    height: 16px;
-    width: 16px;
-    &:focus-visible {
-        outline: 1px solid var(--ntp-focus-outline-color)
+    &:active {
+        background-color: var(--color-white-at-12);
+        @media screen and (prefers-color-scheme: dark) {
+            background-color: var(--color-white-at-24);
+            border-color: var(--color-white-at-50);
+        }
     }
 }
+
+
+
+
