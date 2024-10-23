@@ -1,0 +1,79 @@
+.dropdownInner {
+    background: var(--ntp-surface-background-color);
+    border: 1px solid var(--color-black-at-9);
+    @media screen and (prefers-color-scheme: dark) {
+        border-color: var(--color-white-at-9);
+    }
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .08);
+    padding: var(--sp-1);
+    border-radius: 8px;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+}
+
+.menuItemLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    font-size: var(--title-3-em-font-size);
+    height: 28px;
+    padding-left: 10px;
+    padding-right: 10px;
+    > * {
+        min-width: 0;
+    }
+}
+
+.svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+}
+
+.checkbox {
+    position: absolute;
+    clip: rect(1px, 1px, 1px, 1px);
+    padding: 0;
+    border: 0;
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+}
+
+.checkboxIcon {
+    font-size: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 4px;
+    border: 1px solid var(--color-black-at-9);
+    @media screen and (prefers-color-scheme: dark) {
+        border: 1px solid var(--color-white-at-9);
+    }
+}
+
+.menuItemLabel input:checked + .checkboxIcon  {
+    background: var(--color-blue-50);
+    border-color: var(--color-blue-50);
+}
+
+.menuItemLabel input:checked + .checkboxIcon svg path {
+    stroke: white;
+}
+
+.menuItemLabel input:focus-visible + .checkboxIcon {
+    outline: dotted 1px var(--ntp-focus-outline-color);
+    outline-offset: 2px
+}
