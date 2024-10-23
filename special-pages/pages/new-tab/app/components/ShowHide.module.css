@@ -9,7 +9,6 @@
     justify-content: center;
     align-items: center;
     color: var(--ntp-text-normal);
-    background: var(--ntp-background-color);
     height: 32px;
     width: 32px;
     line-height: 32px;

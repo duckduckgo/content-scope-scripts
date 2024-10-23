@@ -198,7 +198,7 @@ export function FavoritesCustomized () {
 
     // register with the visibility menu
     const title = t('favorites_menu_title')
-    useCustomizer({ title, id, icon: 'shield' })
+    useCustomizer({ title, id, icon: 'star' })
 
     if (visibility === 'hidden') {
         return null
