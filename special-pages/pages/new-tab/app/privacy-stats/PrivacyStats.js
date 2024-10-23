@@ -6,6 +6,7 @@ import { PrivacyStatsContext, PrivacyStatsProvider } from './PrivacyStatsProvide
 import { useVisibility } from '../widget-list/widget-config.provider.js'
 import { viewTransition } from '../utils.js'
 import { ShowHideButton } from '../components/ShowHideButton.jsx'
+import { useCustomizer } from '../customizer/Customizer.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').TrackerCompany} TrackerCompany
@@ -177,10 +178,16 @@ export function Body ({ trackerCompanies, listAttrs = {} }) {
  * whether to incur the side effects (data fetching).
  */
 export function PrivacyStatsCustomized () {
-    const { visibility } = useVisibility()
+    const { t } = useTypedTranslation()
+    const { visibility, id } = useVisibility()
+
+    const title = t('trackerStatsMenuTitle')
+    useCustomizer({ title, id, icon: 'star' })
+
     if (visibility === 'hidden') {
         return null
     }
+
     return (
         <PrivacyStatsProvider>
             <PrivacyStatsConsumer />
