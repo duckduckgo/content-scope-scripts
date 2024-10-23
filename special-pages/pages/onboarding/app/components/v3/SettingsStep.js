@@ -108,7 +108,7 @@ export function SettingListItem ({ index, item, dispatch }) {
             return (
                 <FadeIn>
                     {item.data.kind === 'one-time' && (
-                        <Button disabled={item.pending} variant={item.data.accepButtonVariant} onClick={accept}>
+                        <Button disabled={item.pending} variant={'secondary'} onClick={accept}>
                             {item.data.acceptTextRecall || item.data.acceptText}
                         </Button>
                     )}
