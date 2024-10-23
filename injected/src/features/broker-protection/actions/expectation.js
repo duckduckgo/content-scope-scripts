@@ -22,7 +22,7 @@ export async function expectation (action, userData, root = document) {
         })
 
     if (errors.length > 0) {
-        return new ErrorResponse({ actionID: action.id, message: 'bees ' + errors.join(', ') + ' error length ' + errors.length })
+        return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
     }
 
     // only run later actions if every expectation was met
