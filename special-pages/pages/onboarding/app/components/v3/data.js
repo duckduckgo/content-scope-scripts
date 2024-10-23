@@ -153,7 +153,7 @@ export const settingsRowItems = {
         title: t('row_default-browser_title_v3'),
         kind: 'one-time',
         acceptText: t('row_default-browser_accept'),
-        accepButtonVariant: 'primary',
+        accepButtonVariant: 'primary'
     }),
     import: (t) => ({
         id: 'import',
@@ -163,7 +163,7 @@ export const settingsRowItems = {
         kind: 'one-time',
         acceptText: t('row_import_accept_v3'),
         acceptTextRecall: t('row_import_accept'),
-        accepButtonVariant: 'primary',
+        accepButtonVariant: 'primary'
     }),
     dock: (t, platform) => {
         const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3')
