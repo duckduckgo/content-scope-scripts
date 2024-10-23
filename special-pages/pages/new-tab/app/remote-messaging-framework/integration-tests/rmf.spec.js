@@ -19,12 +19,9 @@ test.describe('newtab remote messaging framework rmf', () => {
     test('renders a title and button', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo)
         await ntp.reducedMotion()
-        await ntp.openPage({ rmfParam: 'rmf.big-two-action' })
+        await ntp.openPage({ rmf: 'big_single_action' })
 
-        const titleText = page.getByText('Update Available')
-        const button = page.getByRole('button', { name: 'How to update' })
-
-        expect(titleText).toBeVisible()
-        expect(button).toBeVisible()
+        await page.getByRole('button', { name: 'Take Survey' }).waitFor()
+        await page.getByText('Tell Us Your Thoughts on Privacy Pro').waitFor()
     })
 })

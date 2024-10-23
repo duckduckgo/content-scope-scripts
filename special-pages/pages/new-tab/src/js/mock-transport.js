@@ -140,15 +140,13 @@ export function mockTransport () {
                 }
                 return Promise.resolve(fromStorage)
             }
-            case 'rmf_getConfig': {
-                /** @type {import('../../../../types/new-tab').RMFConfig} */
-                const defaultConfig = { expansion: 'expanded' }
-                return Promise.resolve(defaultConfig)
-            }
             case 'rmf_getData': {
                 /** @type {import('../../../../types/new-tab.js').RMFData} */
-                const payload = {
-                    content: {
+                const message = { content: undefined }
+
+                /** @type {import('../../../../types/new-tab.js').RMFData} */
+                if (url.searchParams.get('rmf') === 'big_single_action') {
+                    message.content = {
                         id: 'id-1',
                         messageType: 'big_single_action',
                         titleText: 'Tell Us Your Thoughts on Privacy Pro',
@@ -158,7 +156,7 @@ export function mockTransport () {
                     }
                 }
                 if (url.searchParams.get('rmf') === 'medium') {
-                    payload.content = {
+                    message.content = {
                         messageType: 'medium',
                         icon: 'Announce',
                         id: 'id-2',
@@ -166,7 +164,8 @@ export function mockTransport () {
                         descriptionText: 'Here is some mighty fine content'
                     }
                 }
-                return Promise.resolve(payload)
+
+                return Promise.resolve(message)
             }
             case 'initialSetup': {
                 const widgetsFromStorage = read('widgets') || [
@@ -177,8 +176,7 @@ export function mockTransport () {
 
                 const widgetConfigFromStorage = read('widget_config') || [
                     { id: 'favorites', visibility: 'visible' },
-                    { id: 'privacyStats', visibility: 'visible' },
-                    { id: 'rmf', visibility: 'visible' }
+                    { id: 'privacyStats', visibility: 'visible' }
                 ]
 
                 /** @type {import('../../../../types/new-tab.js').InitialSetupResponse} */

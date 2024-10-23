@@ -48,7 +48,9 @@ export function RemoteMessagingFramework ({ message, primaryAction, secondaryAct
 
 export function RMFConsumer () {
     const { state, primaryAction, secondaryAction } = useContext(RMFContext)
-    if (state.status === 'ready') {
+
+    // `state.data.content` can be empty - meaning there's no message to display!
+    if (state.status === 'ready' && state.data.content) {
         return (
             <RemoteMessagingFramework
                 message={state.data.content}

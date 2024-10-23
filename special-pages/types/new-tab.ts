@@ -38,7 +38,7 @@ export interface NewTabMessages {
     | ReportPageExceptionNotification
     | StatsSetConfigNotification
     | WidgetsSetConfigNotification;
-  requests: InitialSetupRequest | RmfGetConfigRequest | RmfGetDataRequest | StatsGetConfigRequest | StatsGetDataRequest;
+  requests: InitialSetupRequest | RmfGetDataRequest | StatsGetConfigRequest | StatsGetDataRequest;
   subscriptions:
     | RmfOnDataUpdateSubscription
     | StatsOnConfigUpdateSubscription
@@ -128,24 +128,17 @@ export interface WidgetListItem {
   id: string;
 }
 /**
- * Generated from @see "../messages/new-tab/rmf_getConfig.request.json"
- */
-export interface RmfGetConfigRequest {
-  method: "rmf_getConfig";
-  result: RMFConfig;
-}
-export interface RMFConfig {
-  expansion: Expansion;
-}
-/**
  * Generated from @see "../messages/new-tab/rmf_getData.request.json"
  */
 export interface RmfGetDataRequest {
   method: "rmf_getData";
   result: RMFData;
 }
+/**
+ * The 'content' field is optional. Use that fact to show/hide messages
+ */
 export interface RMFData {
-  content: RMFMessage;
+  content?: RMFMessage;
 }
 export interface SmallMessage {
   messageType: "small";

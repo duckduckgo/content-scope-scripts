@@ -2,13 +2,16 @@ import { createContext, h } from 'preact'
 import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks'
 import { useMessaging } from '../types.js'
 import { RMFService } from './rmf.service.js'
-import { reducer, useConfigSubscription, useDataSubscription, useInitialData } from '../service.hooks.js'
+import {
+    reducer,
+    useDataSubscription,
+    useInitialData
+} from '../service.hooks.js'
 
 /**
  * @typedef {import('../../../../types/new-tab.js').RMFData} RMFData
- * @typedef {import('../../../../types/new-tab.js').RMFConfig} RMFConfig
- * @typedef {import('../service.hooks.js').State<RMFData, RMFConfig>} State
- * @typedef {import('../service.hooks.js').Events<RMFData, RMFConfig>} Events
+ * @typedef {import('../service.hooks.js').State<RMFData, undefined>} State
+ * @typedef {import('../service.hooks.js').Events<RMFData, undefined>} Events
  */
 
 /**
@@ -18,11 +21,7 @@ export const RMFContext = createContext({
     /** @type {State} */
     state: { status: 'idle', data: null, config: null },
     /** @type {() => void} */
-    toggle: () => {
-        throw new Error('must implement')
-    },
-    /** @type {() => void} */
-    onDismiss: () => {
+    dismiss: () => {
         throw new Error('must implement')
     },
     /** @type {() => void} */
@@ -63,10 +62,8 @@ export function RMFProvider (props) {
     // subscribe to data updates
     useDataSubscription({ dispatch, service })
 
-    // subscribe to toggle + expose a fn for sync toggling
-    const { toggle } = useConfigSubscription({ dispatch, service })
-
-    const onDismiss = useCallback(() => {
+    // todo(valerie): implement onDismiss in the service
+    const dismiss = useCallback(() => {
         console.log('onDismiss')
     }, [service])
 
@@ -78,10 +75,8 @@ export function RMFProvider (props) {
         console.log('secondaryAction')
     }, [service])
 
-    console.log(state)
-
     return (
-        <RMFContext.Provider value={{ state, toggle, onDismiss, primaryAction, secondaryAction }}>
+        <RMFContext.Provider value={{ state, dismiss, primaryAction, secondaryAction }}>
             <RMFDispatchContext.Provider value={dispatch}>
                 {props.children}
             </RMFDispatchContext.Provider>

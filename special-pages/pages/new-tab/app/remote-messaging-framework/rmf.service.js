@@ -1,7 +1,6 @@
 /**
  * @typedef {import("../../../../types/new-tab.js").RMFData} RMFData
  * @typedef {import("../../../../types/new-tab.js").StatsConfig} StatsConfig
- * @typedef {import("../../../../types/new-tab.js").RMFConfig} RMFConfig
  */
 import { Service } from '../service.js'
 
@@ -20,21 +19,14 @@ export class RMFService {
             initial: () => ntp.messaging.request('rmf_getData'),
             subscribe: (cb) => ntp.messaging.subscribe('rmf_onDataUpdate', cb)
         })
-        /** @type {Service<RMFConfig>} */
-        this.configService = new Service({
-            initial: () => ntp.messaging.request('rmf_getConfig')
-        })
     }
 
     /**
-     * @returns {Promise<{data: RMFData; config: RMFConfig}>}
+     * @returns {Promise<RMFData>}
      * @internal
      */
     async getInitial () {
-        const p1 = this.configService.fetchInitial()
-        const p2 = this.dataService.fetchInitial()
-        const [config, data] = await Promise.all([p1, p2])
-        return { config, data }
+        return await this.dataService.fetchInitial()
     }
 
     /**
@@ -50,14 +42,6 @@ export class RMFService {
      */
     onData (cb) {
         return this.dataService.onData(cb)
-    }
-
-    /**
-     * @param {(evt: {data: RMFConfig, source: 'manual' | 'subscription'}) => void} cb
-     * @internal
-     */
-    onConfig (cb) {
-        return this.configService.onData(cb)
     }
 
     /**
