@@ -58,7 +58,7 @@ export class RMFService {
     /**
      * @param {string} id
      */
-    primaryAction(id) {
+    primaryAction (id) {
         this.ntp.messaging.notify('rmf_primaryAction', { id })
     }
 }

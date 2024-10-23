@@ -20,7 +20,7 @@ test.describe('newtab remote messaging framework rmf', () => {
         await ntp.openPage({ rmf: 'big_single_action' })
 
         await page.getByText('Tell Us Your Thoughts on Privacy Pro').waitFor()
-        await page.getByRole('button', { name: 'Take Survey' }).click();
+        await page.getByRole('button', { name: 'Take Survey' }).click()
         await ntp.mocks.waitForCallCount({ method: 'rmf_primaryAction', count: 1 })
     })
 })

@@ -30,7 +30,7 @@ export function WidgetList () {
             {widgets.map((widget) => {
                 const matchingConfig = widgetConfigItems.find(item => item.id === widget.id)
                 if (!matchingConfig) {
-                    const matching = widgetMap[widget.id];
+                    const matching = widgetMap[widget.id]
                     if (matching) {
                         return (
                             <Fragment key={widget.id}>
