@@ -49,3 +49,12 @@ export function viewTransition (fn) {
     }
     return fn()
 }
+
+/**
+ *
+ */
+export function noop (named) {
+    return () => {
+        console.log(named, 'noop')
+    }
+}

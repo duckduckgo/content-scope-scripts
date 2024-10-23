@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { NewtabPage } from './page-objects/newtab'
+import { NewtabPage } from './new-tab.page.js'
 
 test.describe('newtab widgets', () => {
     test('widget config single click', async ({ page }, workerInfo) => {
@@ -7,8 +7,11 @@ test.describe('newtab widgets', () => {
         await ntp.reducedMotion()
         await ntp.openPage()
 
+        // menu
+        await page.getByRole('button', { name: 'Customize' }).click()
+
         // hide
-        await page.getByLabel('privacyStats').uncheck()
+        await page.locator('label').filter({ hasText: 'Privacy Stats' }).click()
 
         // debounced
         await page.waitForTimeout(500)
@@ -33,11 +36,14 @@ test.describe('newtab widgets', () => {
         await ntp.reducedMotion()
         await ntp.openPage()
 
+        // menu
+        await page.getByRole('button', { name: 'Customize' }).click()
+
         // hide
-        await page.getByLabel('privacyStats').uncheck()
+        await page.locator('label').filter({ hasText: 'Privacy Stats' }).uncheck()
 
         // show
-        await page.getByLabel('privacyStats').check()
+        await page.locator('label').filter({ hasText: 'Privacy Stats' }).check()
 
         // debounced
         await page.waitForTimeout(500)

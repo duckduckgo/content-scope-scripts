@@ -35,6 +35,6 @@
     "preact": "^10.24.3",
     "classnames": "^2.3.2",
     "@formkit/auto-animate": "^0.8.0",
-    "@rive-app/canvas-single": "^2.21.5"
+    "@rive-app/canvas-single": "^2.21.6"
   }
 }

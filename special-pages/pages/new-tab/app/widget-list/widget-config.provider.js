@@ -36,6 +36,7 @@ export const WidgetConfigDispatchContext = createContext({
 export function WidgetConfigProvider (props) {
     const [data, setData] = useState(props.widgetConfigs)
 
+    // todo: should we just useSyncExternalStore here?
     useEffect(() => {
         const unsub = props.api.onData((widgetConfig) => {
             setData(widgetConfig.data)
@@ -55,7 +56,7 @@ export function WidgetConfigProvider (props) {
             // this field is static for the lifespan of the page
             widgets: props.widgets,
             // this will be updated via subscriptions
-            widgetConfigItems: data,
+            widgetConfigItems: data || [],
             toggle
         }}>
             {props.children}
@@ -76,6 +77,7 @@ export function useVisibility () {
 }
 
 /**
+ * This wraps each widget and gives
  * @param {object} props
  * @param {WidgetConfigItem['id']} props.id - the current id key used for storage
  * @param {WidgetConfigItem['visibility']} props.visibility - the current id key used for storage

@@ -10,7 +10,6 @@ on:
 jobs:
   release_pr:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
 
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +18,14 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Fetch files and checkout
+      - name: Fetch files and ensure branches exist
         run: |
           git fetch origin
+          if [ -f .git/shallow ]; then
+            echo "Shallow repo clone, unshallowing"
+            git fetch --unshallow
+          fi
+          git fetch --tags
           # Check if the 'main' branch exists, if not, create it
           if git rev-parse --verify main >/dev/null 2>&1; then
             git checkout main
@@ -34,6 +38,19 @@ jobs:
           else
             git checkout -b releases origin/releases
           fi
+
+      - name: Collect commit ranges
+        run: |
+          bash ./scripts/changelog.sh > ${{ github.workspace }}/CHANGELOG.txt
+
+      - name: Debug changelog file
+        run: |
+          ls -la ${{ github.workspace }}/CHANGELOG.txt
+          cat ${{ github.workspace }}/CHANGELOG.txt
+          echo "Current tag is: $(git rev-list --tags --max-count=1)"
+
+      - name: Checkout code from main into release branch
+        run: |
           # Checkout the code of main onto releases
           git checkout main -- .
 
@@ -47,16 +64,12 @@ jobs:
           git add -f build/ Sources/
 
       - name: Commit build files
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Release build ${{ github.event.inputs.version }} [ci release]"
           commit_options: '--allow-empty'
           skip_checkout: true
           branch: "releases"
-
-      - name: Collect commit ranges
-        run: |
-          bash ./scripts/changelog.sh > ${{ github.workspace }}/CHANGELOG.txt
 
       - name: Debug changelog file
         run: |
