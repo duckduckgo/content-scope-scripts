@@ -8,16 +8,19 @@
 <body>
     <div class="result">
         How old is John Doe?
-        <a href="#" class="view-more" data-id="1">View More</a>
+        <a href="#" class="view-more" data-id="1">Yes</a>
+        <a href="#" class="view-more" data-id="2">No</a>
     </div>
     <script>
-        document.querySelector('.view-more').addEventListener('click', function(e) {
-            e.preventDefault();
-            const id = this.getAttribute('data-id');
+        document.querySelectorAll('.view-more').forEach(viewMore =>
+            viewMore.addEventListener('click', function(e) {
+                e.preventDefault();
+                const id = this.getAttribute('data-id');
 
-            window.location.hash = id;
-            this.removeEventListener('click', arguments.callee);
-        })
+                window.location.hash = id;
+                this.removeEventListener('click', arguments.callee);
+            })
+        );
     </script>
 </body>
 </html>

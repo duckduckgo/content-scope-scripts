@@ -167,15 +167,21 @@ function evaluateChoices (action, userData) {
  */
 function runComparison (choice, action, userData) {
     let compare
+    let left
+    let right
 
     try {
         compare = getComparisonFunction(choice.condition.operation)
     } catch (error) {
-        throw new ErrorResponse({ actionID: action.id, message: error.message })
+        throw new ErrorResponse({ actionID: action.id, message: `Unable to get comparison function: ${error.message}` })
     }
 
-    const left = processTemplateStringWithUserData(choice.condition.left, action, userData)
-    const right = processTemplateStringWithUserData(choice.condition.right, action, userData)
+    try {
+        left = processTemplateStringWithUserData(choice.condition.left, action, userData)
+        right = processTemplateStringWithUserData(choice.condition.right, action, userData)
+    } catch (error) {
+        throw new ErrorResponse({ actionID: action.id, message: `Unable to resolve left/right comparison arguments ${error.message}` })
+    }
 
     let result
 

@@ -604,6 +604,17 @@ test.describe('Broker Protection communications', () => {
         expect(currentUrl).not.toContain('#')
     })
 
+    test('expectation with conditional subaction', async ({ page }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        await dbp.enabled()
+        await dbp.navigatesTo('expectation-actions.html')
+        await dbp.receivesAction('expectation-actions-conditional-subaction.json')
+        const response = await dbp.waitForMessage('actionCompleted')
+
+        dbp.isSuccessMessage(response)
+        await page.waitForURL(url => url.hash === '#2', { timeout: 2000 })
+    })
+
     test.describe('retrying', () => {
         test('retrying a click', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)

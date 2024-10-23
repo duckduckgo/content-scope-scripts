@@ -34,7 +34,7 @@ export async function expectation (action, userData, root = document) {
             const result = await execute(subAction, userData, root)
 
             if ('error' in result) {
-                secondaryErrors.push(result.error)
+                secondaryErrors.push(`Sub-action actionID ${subAction.id} error - ${result.error.message}`)
             }
         }
 
