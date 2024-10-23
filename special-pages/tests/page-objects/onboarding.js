@@ -512,10 +512,10 @@ export class OnboardingPage {
         await page.getByRole('button', { name: 'Next' }).click()
 
         /* Duckplayer */
-        // await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 })
+        await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 })
         // await page.getByLabel('See Without Duck Player').click()
         // await page.getByLabel('See With Duck Player').click()
-        // await page.getByRole('button', { name: 'Next' }).click()
+        await page.getByRole('button', { name: 'Next' }).click()
 
         /* Customize */
         await page.getByText('Let’s customize a few things').nth(1).waitFor({ timeout: 1000 })

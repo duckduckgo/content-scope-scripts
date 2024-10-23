@@ -154,8 +154,7 @@ test.describe('onboarding', () => {
             const onboarding = OnboardingPage.create(page, workerInfo)
             onboarding.withInitData({
                 stepDefinitions: null,
-                order: 'v3',
-                exclude: ['duckPlayerSingle']
+                order: 'v3'
             })
             await onboarding.reducedMotion()
             await onboarding.darkMode()
