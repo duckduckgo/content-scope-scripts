@@ -513,8 +513,8 @@ export class OnboardingPage {
 
         /* Duckplayer */
         await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 })
-        // await page.getByLabel('See Without Duck Player').click()
-        // await page.getByLabel('See With Duck Player').click()
+        await page.getByLabel('See Without Duck Player').click()
+        await page.getByLabel('See With Duck Player').click()
         await page.getByRole('button', { name: 'Next' }).click()
 
         /* Customize */
