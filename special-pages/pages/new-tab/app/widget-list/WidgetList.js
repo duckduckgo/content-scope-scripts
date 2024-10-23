@@ -4,7 +4,10 @@ import { useContext } from 'preact/hooks'
 import { PrivacyStatsCustomized } from '../privacy-stats/PrivacyStats.js'
 import { FavoritesCustomized } from '../favorites/Favorites.js'
 import { Stack } from '../../../onboarding/app/components/Stack.js'
-import { Customizer } from '../customizer/Customizer.js'
+import {
+    Customizer,
+    CustomizerMenuPositionedFixed
+} from '../customizer/Customizer.js'
 
 const widgetMap = {
     privacyStats: () => (
@@ -37,7 +40,9 @@ export function WidgetList () {
                     </Fragment>
                 )
             })}
-            <Customizer />
+            <CustomizerMenuPositionedFixed>
+                <Customizer />
+            </CustomizerMenuPositionedFixed>
         </Stack>
     )
 }
