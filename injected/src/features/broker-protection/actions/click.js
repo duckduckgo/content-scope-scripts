@@ -10,65 +10,15 @@ import { processTemplateStringWithUserData } from './build-url-transforms.js'
  * @return {import('../types.js').ActionResponse}
  */
 export function click (action, userData, root = document) {
+    /** @type {Array<any> | null} */
     let elements = []
 
     if (action.choices?.length) {
-        // const elements = evaluateChoices(action.choices, userData, root)
-        if ('elements' in action) {
-            return new ErrorResponse({ actionID: action.id, message: 'Elements should be nested inside of choices' })
-        }
+        elements = evaluateChoices(action, userData)
 
-        let conditionMet = false
-
-        for (const choice of action.choices) {
-            if (!('condition' in choice) || !('elements' in choice)) {
-                return new ErrorResponse({ actionID: action.id, message: 'All choices must have a condition and elements' })
-            }
-
-            let compare
-
-            try {
-                compare = getComparisonFunction(choice.condition.operation)
-            } catch (error) {
-                return new ErrorResponse({ actionID: action.id, message: error.message })
-            }
-
-            // Test whether this works without a URL and change the type if so.
-            const left = processTemplateStringWithUserData(choice.condition.left, action, userData)
-            const right = processTemplateStringWithUserData(choice.condition.right, action, userData)
-
-            let result
-
-            try {
-                result = compare(left, right)
-            } catch (error) {
-                return new ErrorResponse({ actionID: action.id, message: `Comparison failed with the following error: ${error.message}` })
-            }
-
-            if (result) {
-                // Should we bail here so we don't evaluate two true conditions?
-                elements = choice.elements
-                conditionMet = true
-            }
-        }
-
-        if (!conditionMet) {
-            // If there's no default defined, return an error.
-            if (!('default' in action)) {
-                return new ErrorResponse({ actionID: action.id, message: 'All conditions failed and no default action was provided' })
-            }
-
-            // If there is a default and it's null (meaning skip any further action) return success.
-            if (action.default === null) {
-                return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
-            }
-
-            // If the default is defined and not null (without elements), return an error.
-            if (!('elements' in action.default)) {
-                return new ErrorResponse({ actionID: action.id, message: 'No elements were provided in the default action' })
-            }
-
-            elements = action.default.elements
+        // Elements returns null if the default action is defined as such, and we can just move on
+        if (elements === null) {
+            return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
         }
     } else {
         if (!('elements' in action)) {
@@ -78,7 +28,7 @@ export function click (action, userData, root = document) {
         elements = action.elements
     }
 
-    if (!elements.length) {
+    if (!elements || !elements.length) {
         return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' })
     }
 
@@ -138,14 +88,17 @@ function selectRootElement (clickElement, userData, root = document) {
 }
 
 /**
- *
+ * Evaluate a comparator and return the appropriate function
  * @param {string} operator
- * @returns
+ * @returns {(a: any, b: any) => boolean}
  */
 export function getComparisonFunction (operator) {
     switch (operator) {
+    case '=':
+    case '==':
     case '===':
         return (a, b) => a === b
+    case '!=':
     case '!==':
         return (a, b) => a !== b
     case '<':
@@ -159,4 +112,78 @@ export function getComparisonFunction (operator) {
     default:
         throw new Error(`Invalid operator: ${operator}`)
     }
+}
+
+/**
+ * Evaluates the defined choices (and/or the default) and returns an array of the elements to be clicked
+ *
+ * @param {Record<string, any>} action
+ * @param {Record<string, any>} userData
+ * @returns {[Record<string, any>] | null}
+ */
+function evaluateChoices (action, userData) {
+    if ('elements' in action) {
+        throw new ErrorResponse({ actionID: action.id, message: 'Elements should be nested inside of choices' })
+    }
+
+    for (const choice of action.choices) {
+        if (!('condition' in choice) || !('elements' in choice)) {
+            throw new ErrorResponse({ actionID: action.id, message: 'All choices must have a condition and elements' })
+        }
+
+        const result = runComparison(choice, action, userData)
+
+        if (result) {
+            return choice.elements
+        }
+    }
+
+    // If there's no default defined, return an error.
+    if (!('default' in action)) {
+        throw new ErrorResponse({ actionID: action.id, message: 'All conditions failed and no default action was provided' })
+    }
+
+    // If there is a default and it's null (meaning skip any further action) return success.
+    if (action.default === null) {
+        // Nothing else to do, return null
+        return null
+    }
+
+    // If the default is defined and not null (without elements), return an error.
+    if (!('elements' in action.default)) {
+        throw new ErrorResponse({ actionID: action.id, message: 'No elements were provided in the default action' })
+    }
+
+    return action.default.elements
+}
+
+/**
+ * Attempts to turn a choice definition into an executable comparison and returns the result
+ *
+ * @param {Record<string, any>} choice
+ * @param {Record<string, any>} action
+ * @param {Record<string, any>} userData
+ * @returns {Boolean}
+ */
+function runComparison (choice, action, userData) {
+    let compare
+
+    try {
+        compare = getComparisonFunction(choice.condition.operation)
+    } catch (error) {
+        throw new ErrorResponse({ actionID: action.id, message: error.message })
+    }
+
+    const left = processTemplateStringWithUserData(choice.condition.left, action, userData)
+    const right = processTemplateStringWithUserData(choice.condition.right, action, userData)
+
+    let result
+
+    try {
+        result = compare(left, right)
+    } catch (error) {
+        throw new ErrorResponse({ actionID: action.id, message: `Comparison failed with the following error: ${error.message}` })
+    }
+
+    return result
 }
