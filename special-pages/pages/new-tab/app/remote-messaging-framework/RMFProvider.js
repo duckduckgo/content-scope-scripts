@@ -24,9 +24,9 @@ export const RMFContext = createContext({
     dismiss: () => {
         throw new Error('must implement')
     },
-    /** @type {() => void} */
-    primaryAction: () => {
-        throw new Error('must implement')
+    /** @type {(id: string) => void} */
+    primaryAction: (id) => {
+        throw new Error('must implement ' + id)
     },
     /** @type {() => void} */
     secondaryAction: () => {
@@ -63,12 +63,13 @@ export function RMFProvider (props) {
     useDataSubscription({ dispatch, service })
 
     // todo(valerie): implement onDismiss in the service
-    const dismiss = useCallback(() => {
+    const dismiss = useCallback((id) => {
         console.log('onDismiss')
+        service.current?.dismiss(id)
     }, [service])
 
-    const primaryAction = useCallback(() => {
-        console.log('primaryAction')
+    const primaryAction = useCallback((id) => {
+        service.current?.primaryAction(id)
     }, [service])
 
     const secondaryAction = useCallback(() => {

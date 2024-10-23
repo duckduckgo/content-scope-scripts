@@ -68,6 +68,10 @@ export function mockTransport () {
                 broadcast('stats_config')
                 return
             }
+            case 'rmf_primaryAction': {
+                console.log('ignoring rmf_primaryAction', msg.params)
+                return
+            }
             default: {
                 console.warn('unhandled notification', msg)
             }

@@ -36,6 +36,7 @@ export interface NewTabMessages {
   notifications:
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
+    | RmfPrimaryActionNotification
     | StatsSetConfigNotification
     | WidgetsSetConfigNotification;
   requests: InitialSetupRequest | RmfGetDataRequest | StatsGetConfigRequest | StatsGetDataRequest;
@@ -64,6 +65,16 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_primaryAction.notify.json"
+ */
+export interface RmfPrimaryActionNotification {
+  method: "rmf_primaryAction";
+  params: RMFPrimaryAction;
+}
+export interface RMFPrimaryAction {
+  id: string;
 }
 /**
  * Generated from @see "../messages/new-tab/stats_setConfig.notify.json"

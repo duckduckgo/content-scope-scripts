@@ -54,4 +54,11 @@ export class RMFService {
     }
 
     toggleExpansion () { }
+
+    /**
+     * @param {string} id
+     */
+    primaryAction(id) {
+        this.ntp.messaging.notify('rmf_primaryAction', { id })
+    }
 }
