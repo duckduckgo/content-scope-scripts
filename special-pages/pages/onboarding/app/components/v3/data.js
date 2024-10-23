@@ -140,7 +140,9 @@ export const stepsConfig = {
  * @property {string} title
  * @property {string} [secondaryText]
  * @property {string} acceptText
- * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined, acceptText is shown.
+ * @property {'primary'|'secondary'} [accepButtonVariant]
+ * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined,
+ * @property acceptText is shown.
 */
 
 /** @type {Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['platform']) => RowData>} */
@@ -150,7 +152,8 @@ export const settingsRowItems = {
         icon: 'v3/default-browser.svg',
         title: t('row_default-browser_title_v3'),
         kind: 'one-time',
-        acceptText: t('row_default-browser_accept')
+        acceptText: t('row_default-browser_accept'),
+        accepButtonVariant: 'primary',
     }),
     import: (t) => ({
         id: 'import',
@@ -159,7 +162,8 @@ export const settingsRowItems = {
         secondaryText: t('row_import_summary_v3'),
         kind: 'one-time',
         acceptText: t('row_import_accept_v3'),
-        acceptTextRecall: t('row_import_accept')
+        acceptTextRecall: t('row_import_accept'),
+        accepButtonVariant: 'primary',
     }),
     dock: (t, platform) => {
         const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3')
@@ -172,7 +176,8 @@ export const settingsRowItems = {
             title,
             secondaryText,
             kind: 'one-time',
-            acceptText
+            acceptText,
+            accepButtonVariant: 'primary'
         }
     },
     bookmarks: (t) => ({
@@ -180,21 +185,24 @@ export const settingsRowItems = {
         icon: 'v3/favorite.svg',
         title: t('row_bookmarks_title_v3'),
         kind: 'toggle',
-        acceptText: t('row_bookmarks_accept')
+        acceptText: t('row_bookmarks_accept'),
+        accepButtonVariant: 'secondary'
     }),
     'session-restore': (t) => ({
         id: 'session-restore',
         icon: 'v3/session-restore.svg',
         title: t('row_session-restore_title_v3'),
         kind: 'toggle',
-        acceptText: t('row_session-restore_accept')
+        acceptText: t('row_session-restore_accept'),
+        accepButtonVariant: 'secondary'
     }),
     'home-shortcut': (t) => ({
         id: 'home-shortcut',
         icon: 'v3/home.svg',
         title: t('row_home-shortcut_title_v3'),
         kind: 'toggle',
-        acceptText: t('row_home-shortcut_accept')
+        acceptText: t('row_home-shortcut_accept'),
+        accepButtonVariant: 'secondary'
     })
 }
 
