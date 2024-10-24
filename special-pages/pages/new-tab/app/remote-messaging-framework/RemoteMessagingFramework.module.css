@@ -29,19 +29,18 @@
 
 .content {
     flex-grow: 1;
-    display: grid;
-    gap: var(--sp-3);
-    line-height: 1.25rem;
     font-size: calc(14 * var(--px-in-rem));
 }
 
 .title {
     font-weight: var(--title-2-font-weight);
     line-height: normal;
+    margin-bottom: var(--sp-2);
 }
 
 .description {
-    margin-top: -0.25rem;
+    line-height: 1.25rem;
+    margin-bottom: var(--sp-3);
 }
 
 .btnBlock {
