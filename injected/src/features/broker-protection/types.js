@@ -27,7 +27,8 @@ export class SuccessResponse {
     * @param {string} params.actionID
     * @param {string} params.actionType
     * @param {any} params.response
-   * @param {Record<string, any>} [params.meta] - optional meta data
+    * @param {import("./actions/extract").Action[]} [params.next]
+    * @param {Record<string, any>} [params.meta] - optional meta data
     */
     constructor (params) {
         this.success = params

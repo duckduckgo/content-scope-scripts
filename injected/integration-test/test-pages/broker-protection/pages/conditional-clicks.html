@@ -7,13 +7,13 @@
 </head>
 <body>
     <div class="result">
-        How old is John Doe?
-        <a href="#" class="view-more" data-id="1">Yes</a>
-        <a href="#" class="view-more" data-id="2">No</a>
+        <h3>Is John Doe over the age of 45?</h3>
+        <a href="#" class="answer" data-id="yes">Yes</a>
+        <a href="#" class="answer" data-id="no">No</a>
     </div>
     <script>
-        document.querySelectorAll('.view-more').forEach(viewMore =>
-            viewMore.addEventListener('click', function(e) {
+        document.querySelectorAll('.answer').forEach(answer => 
+            answer.addEventListener('click', function(e) {
                 e.preventDefault();
                 const id = this.getAttribute('data-id');
 

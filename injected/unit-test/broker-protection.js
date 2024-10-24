@@ -15,6 +15,7 @@ import { generateRandomInt, hashObject, sortAddressesByStateAndCity } from '../s
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from '../src/features/broker-protection/actions/generators.js'
 import { CityStateExtractor } from '../src/features/broker-protection/extractors/address.js'
 import { ProfileHashTransformer } from '../src/features/broker-protection/extractors/profile-url.js'
+import { getComparisonFunction } from '../src/features/broker-protection/actions/click.js'
 
 describe('Actions', () => {
     describe('extract', () => {
@@ -554,6 +555,32 @@ describe('Actions', () => {
                     }
                 )
             )
+        })
+    })
+
+    describe('click', () => {
+        it('should return the appropriate comparison function for a valid comparator', () => {
+            const areEqual = getComparisonFunction('=')
+            expect(areEqual(5, 5)).toBe(true)
+
+            const areNotEqual = getComparisonFunction('!==')
+            expect(areNotEqual(6, 5)).toBe(true)
+
+            const isLessThan = getComparisonFunction('<')
+            expect(isLessThan(5, 6)).toBe(true)
+
+            const isLessThanOrEqualTo = getComparisonFunction('<=')
+            expect(isLessThanOrEqualTo(6, 6)).toBe(true)
+
+            const isMoreThan = getComparisonFunction('>')
+            expect(isMoreThan(7, 6)).toBe(true)
+
+            const isMoreThanOrEqualTo = getComparisonFunction('>=')
+            expect(isMoreThanOrEqualTo(7, 7)).toBe(true)
+        })
+
+        it('should return an error for an invalid comparator', () => {
+            expect(() => getComparisonFunction('!!')).toThrow()
         })
     })
 })
