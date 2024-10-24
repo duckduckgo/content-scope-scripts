@@ -1,14 +1,13 @@
 import { getElement } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
-import { execute } from '../execute.js'
 
 /**
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
  * @param {Document} root
- * @return {Promise<import('../types.js').ActionResponse>}
+ * @return {import('../types.js').ActionResponse}
  */
-export async function expectation (action, userData, root = document) {
+export function expectation (action, userData, root = document) {
     const results = expectMany(action.expectations, root)
 
     // filter out good results + silent failures, leaving only fatal errors
@@ -27,20 +26,14 @@ export async function expectation (action, userData, root = document) {
 
     // only run later actions if every expectation was met
     const runActions = results.every(x => x.result === true)
-    const secondaryErrors = []
 
     if (action.actions?.length && runActions) {
-        for (const subAction of action.actions) {
-            const result = await execute(subAction, userData, root)
-
-            if ('error' in result) {
-                secondaryErrors.push(`Sub-action actionID ${subAction.id} error - ${result.error.message}`)
-            }
-        }
-
-        if (secondaryErrors.length > 0) {
-            return new ErrorResponse({ actionID: action.id, message: secondaryErrors.join(', ') })
-        }
+        return new SuccessResponse({
+            actionID: action.id,
+            actionType: action.actionType,
+            response: null,
+            next: action.actions,
+        })
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })

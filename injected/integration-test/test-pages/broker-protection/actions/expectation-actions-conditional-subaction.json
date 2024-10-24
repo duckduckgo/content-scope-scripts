@@ -15,9 +15,9 @@
                 "actionType": "click",
                 "id": "1",
                 "choices": [
-                    { 
+                    {
                         "condition": {
-                            "left": "40",
+                            "left": "${age}",
                             "operation": ">=",
                             "right": "45"
                         },
