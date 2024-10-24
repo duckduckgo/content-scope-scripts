@@ -19,7 +19,7 @@ test.describe('newtab remote messaging framework rmf', () => {
         await ntp.reducedMotion()
         await ntp.openPage({ rmf: 'small' })
 
-        await page.getByText('Tell Us Your Thoughts on Privacy Pro').waitFor()
+        await page.getByText('Search services limited').waitFor()
         await page.getByLabel('Close').click()
         await ntp.mocks.waitForCallCount({ method: 'rmf_dismiss', count: 1 })
     })
@@ -29,7 +29,6 @@ test.describe('newtab remote messaging framework rmf', () => {
         await ntp.reducedMotion()
         await ntp.openPage({ rmf: 'big_single_action' })
 
-        await page.getByText('Tell Us Your Thoughts on Privacy Pro').waitFor()
         await page.getByRole('button', { name: 'Take Survey' }).click()
         await page.getByRole('button', { name: 'Remind me' }).click()
         await ntp.mocks.waitForCallCount({ method: 'rmf_primaryAction', count: 1 })
