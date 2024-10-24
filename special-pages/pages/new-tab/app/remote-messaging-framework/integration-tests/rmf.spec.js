@@ -27,7 +27,7 @@ test.describe('newtab remote messaging framework rmf', () => {
     test('renders two buttons for big_two_action variant', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo)
         await ntp.reducedMotion()
-        await ntp.openPage({ rmf: 'big_single_action' })
+        await ntp.openPage({ rmf: 'big_two_action' })
 
         await page.getByRole('button', { name: 'Take Survey' }).click()
         await page.getByRole('button', { name: 'Remind me' }).click()
