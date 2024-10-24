@@ -119,6 +119,22 @@ export class FavoritesPage {
         // read the id of the thing we'll drag so we can compare with the payload
         const id = await source.getAttribute('data-id')
 
+        // capture the drag data
+        await page.evaluate(() => {
+            document.addEventListener('dragstart', (event) => {
+                const dataTransfer = event.dataTransfer
+                const url = dataTransfer?.getData('text/plain')
+                const data = dataTransfer?.getData('application/vnd.duckduckgo.bookmark')
+
+                if (url && data) {
+                    /** @type {any} */(window).__dragdata ??= [];
+                    /** @type {any} */(window).__dragdata.push(url, data)
+                } else {
+                    throw new Error('missing text/plain or application/vnd.duckduckgo.bookmark')
+                }
+            })
+        })
+
         /**
          * ⚠️⚠️⚠️ NOTE ⚠️⚠️⚠️
          * the `targetPosition` here needs to be over HALF of the icon width, since
@@ -128,8 +144,11 @@ export class FavoritesPage {
          * over half-way.
          */
         await source.dragTo(target, { targetPosition: { x: 50, y: 50 } })
-        await page.pause()
         const calls = await this.ntp.mocks.waitForCallCount({ method: 'favorites_move', count: 1 })
+
+        // verify drag data
+        const dragData = await page.evaluate(() => /** @type {any} */(window).__dragdata)
+        expect(dragData).toStrictEqual(['https://example.com?id=id-many-1', '{"id":"id-many-1"}'])
 
         expect(calls[0].payload).toStrictEqual({
             context: 'specialPages',

@@ -9,6 +9,8 @@ import { attachClosestEdge, extractClosestEdge } from '@atlaskit/pragmatic-drag-
 import styles from './Favorites.module.css'
 import { InstanceIdContext } from './FavouritesGrid.js'
 
+const DDG_MIME_TYPE = 'application/vnd.duckduckgo.bookmark'
+
 /**
  * @typedef {{ type: 'idle' }
  *         | { type: 'dragging' }
@@ -77,6 +79,10 @@ function useTileState (url, id) {
             draggable({
                 element: el,
                 getInitialData: () => ({ type: 'grid-item', url, id, instanceId }),
+                getInitialDataForExternal: () => ({
+                    'text/plain': url,
+                    [DDG_MIME_TYPE]: JSON.stringify({ id })
+                }),
                 onDragStart: () => setState({ type: 'dragging' }),
                 onDrop: () => setState({ type: 'idle' })
             }),
