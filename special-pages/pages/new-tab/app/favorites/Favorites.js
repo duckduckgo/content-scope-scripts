@@ -122,9 +122,9 @@ export function FavoritesConfigured ({ gridRef, favorites, listDidReOrder, expan
                 event.stopImmediatePropagation()
                 const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey
                 if (isControlClick) {
-                    openFavorite(target.dataset.id, 'new-tab')
+                    return openFavorite(target.dataset.id, 'new-tab')
                 } else if (event.shiftKey) {
-                    openFavorite(target.dataset.id, 'new-window')
+                    return openFavorite(target.dataset.id, 'new-window')
                 }
                 return openFavorite(target.dataset.id, 'same-tab')
             } else {
