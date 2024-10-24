@@ -15,6 +15,12 @@
         padding-left: var(--sp-2);
     }
 
+    /* &:hover {
+        .dismissBtn {
+            opacity: 1;
+        }
+    } */
+
     @media screen and (prefers-color-scheme: dark) {
         background-color: var(--color-white-at-6);
         color: var(--color-white-at-84);
@@ -165,6 +171,7 @@
     color: var(--color-black-at-60);
     border: none;
     border-radius: 50%;
+    /* opacity: 0; */
 
     * {
         user-select: none;
