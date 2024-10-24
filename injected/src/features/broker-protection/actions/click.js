@@ -14,12 +14,18 @@ export function click (action, userData, root = document) {
     let elements = []
 
     if (action.choices?.length) {
-        elements = evaluateChoices(action, userData)
+        const choices = evaluateChoices(action, userData)
 
-        // Elements returns null if the default action is defined as such, and we can just move on
-        if (elements === null) {
+        // If we returned null, the intention is to skip execution, so return success
+        if (choices === null) {
             return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
+        } else if ('error' in choices) {
+            return new ErrorResponse({ actionID: action.id, message: `Unable to evaluate choices: ${choices.error}` })
+        } else if (!('elements' in choices)) {
+            return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' })
         }
+
+        elements = choices.elements
     } else {
         if (!('elements' in action)) {
             return new ErrorResponse({ actionID: action.id, message: 'No elements provided to click action' })
@@ -34,7 +40,14 @@ export function click (action, userData, root = document) {
 
     // there can be multiple elements provided by the action
     for (const element of elements) {
-        const rootElement = selectRootElement(element, userData, root)
+        let rootElement
+
+        try {
+            rootElement = selectRootElement(element, userData, root)
+        } catch (error) {
+            return new ErrorResponse({ actionID: action.id, message: `Could not find root element: ${error.message}` })
+        }
+
         const elements = getElements(rootElement, element.selector)
 
         if (!elements?.length) {
@@ -119,28 +132,30 @@ export function getComparisonFunction (operator) {
  *
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
- * @returns {[Record<string, any>] | null}
+ * @returns {{ elements: [Record<string, any>] } | { error: String } | null}
  */
 function evaluateChoices (action, userData) {
     if ('elements' in action) {
-        throw new ErrorResponse({ actionID: action.id, message: 'Elements should be nested inside of choices' })
+        return { error: 'Elements should be nested inside of choices' }
     }
 
     for (const choice of action.choices) {
         if (!('condition' in choice) || !('elements' in choice)) {
-            throw new ErrorResponse({ actionID: action.id, message: 'All choices must have a condition and elements' })
+            return { error: 'All choices must have a condition and elements' }
         }
 
-        const result = runComparison(choice, action, userData)
+        const comparison = runComparison(choice, action, userData)
 
-        if (result) {
-            return choice.elements
+        if ('error' in comparison) {
+            return { error: comparison.error }
+        } else if ('result' in comparison && comparison.result === true) {
+            return { elements: choice.elements }
         }
     }
 
     // If there's no default defined, return an error.
     if (!('default' in action)) {
-        throw new ErrorResponse({ actionID: action.id, message: 'All conditions failed and no default action was provided' })
+        return { error: 'All conditions failed and no default action was provided' }
     }
 
     // If there is a default and it's null (meaning skip any further action) return success.
@@ -151,10 +166,10 @@ function evaluateChoices (action, userData) {
 
     // If the default is defined and not null (without elements), return an error.
     if (!('elements' in action.default)) {
-        throw new ErrorResponse({ actionID: action.id, message: 'No elements were provided in the default action' })
+        return { error: 'Default action must have elements' }
     }
 
-    return action.default.elements
+    return { elements: action.default.elements }
 }
 
 /**
@@ -163,7 +178,7 @@ function evaluateChoices (action, userData) {
  * @param {Record<string, any>} choice
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
- * @returns {Boolean}
+ * @returns {{ result: Boolean } | { error: String }}
  */
 function runComparison (choice, action, userData) {
     let compare
@@ -173,14 +188,14 @@ function runComparison (choice, action, userData) {
     try {
         compare = getComparisonFunction(choice.condition.operation)
     } catch (error) {
-        throw new ErrorResponse({ actionID: action.id, message: `Unable to get comparison function: ${error.message}` })
+        return { error: `Unable to get comparison function: ${error.message}` }
     }
 
     try {
         left = processTemplateStringWithUserData(choice.condition.left, action, userData)
         right = processTemplateStringWithUserData(choice.condition.right, action, userData)
     } catch (error) {
-        throw new ErrorResponse({ actionID: action.id, message: `Unable to resolve left/right comparison arguments ${error.message}` })
+        return { error: `Unable to resolve left/right comparison arguments: ${error.message}` }
     }
 
     let result
@@ -188,8 +203,8 @@ function runComparison (choice, action, userData) {
     try {
         result = compare(left, right)
     } catch (error) {
-        throw new ErrorResponse({ actionID: action.id, message: `Comparison failed with the following error: ${error.message}` })
+        return { error: `Comparison failed with the following error: ${error.message}` }
     }
 
-    return result
+    return { result }
 }
