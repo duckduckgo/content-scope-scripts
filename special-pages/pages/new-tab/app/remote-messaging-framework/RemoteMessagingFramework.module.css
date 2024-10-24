@@ -72,6 +72,7 @@
 
     &:hover {
         background-color: var(--color-black-at-9);
+        cursor: pointer;
     }
 
     &:active {
@@ -177,11 +178,29 @@
         user-select: none;
     }
 
+    &:active {
+        background-color: var(--color-black-at-18);
+        color: var(--color-black-at-84);
+    }
+
     /* &:focus-visible {
         opacity: 1;
     } */
 
+    &:hover {
+        background-color: var(--color-black-at-9);
+    }
+
     @media screen and (prefers-color-scheme: dark) {
         color: var(--color-white-at-60);
+
+        &:hover {
+            background-color: var(--color-white-at-9);
+        }
+
+        &:active {
+            background-color: var(--color-white-at-18);
+            color: var(--color-white-at-84);
+        }
     }
 }
