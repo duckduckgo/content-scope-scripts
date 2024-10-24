@@ -24,7 +24,6 @@ test.describe('newtab widgets', () => {
                 context: 'specialPages',
                 featureName: 'newTabPage',
                 params: [
-                    { id: 'rmf', visibility: 'visible' },
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'hidden' }
                 ],
@@ -56,7 +55,6 @@ test.describe('newtab widgets', () => {
                 context: 'specialPages',
                 featureName: 'newTabPage',
                 params: [
-                    { id: 'rmf', visibility: 'visible' },
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'visible' }
                 ],
