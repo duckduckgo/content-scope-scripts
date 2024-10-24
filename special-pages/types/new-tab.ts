@@ -36,7 +36,9 @@ export interface NewTabMessages {
   notifications:
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
+    | RmfDismissNotification
     | RmfPrimaryActionNotification
+    | RmfSecondaryActionNotification
     | StatsSetConfigNotification
     | WidgetsSetConfigNotification;
   requests: InitialSetupRequest | RmfGetDataRequest | StatsGetConfigRequest | StatsGetDataRequest;
@@ -67,6 +69,16 @@ export interface ReportPageExceptionNotify {
   message: string;
 }
 /**
+ * Generated from @see "../messages/new-tab/rmf_dismiss.notify.json"
+ */
+export interface RmfDismissNotification {
+  method: "rmf_dismiss";
+  params: RMFDismissAction;
+}
+export interface RMFDismissAction {
+  id: string;
+}
+/**
  * Generated from @see "../messages/new-tab/rmf_primaryAction.notify.json"
  */
 export interface RmfPrimaryActionNotification {
@@ -74,6 +86,16 @@ export interface RmfPrimaryActionNotification {
   params: RMFPrimaryAction;
 }
 export interface RMFPrimaryAction {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_secondaryAction.notify.json"
+ */
+export interface RmfSecondaryActionNotification {
+  method: "rmf_secondaryAction";
+  params: RMFSecondaryAction;
+}
+export interface RMFSecondaryAction {
   id: string;
 }
 /**

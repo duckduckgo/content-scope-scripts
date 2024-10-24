@@ -20,17 +20,17 @@ import {
 export const RMFContext = createContext({
     /** @type {State} */
     state: { status: 'idle', data: null, config: null },
-    /** @type {() => void} */
-    dismiss: () => {
-        throw new Error('must implement')
+    /** @type {(id: string) => void} */
+    dismiss: (id) => {
+        throw new Error('must implement dismiss' + id)
     },
     /** @type {(id: string) => void} */
     primaryAction: (id) => {
-        throw new Error('must implement ' + id)
+        throw new Error('must implement primaryAction' + id)
     },
-    /** @type {() => void} */
-    secondaryAction: () => {
-        throw new Error('must implement')
+    /** @type {(id: string) => void} */
+    secondaryAction: (id) => {
+        throw new Error('must implement secondaryAction' + id)
     }
 })
 
@@ -72,8 +72,9 @@ export function RMFProvider (props) {
         service.current?.primaryAction(id)
     }, [service])
 
-    const secondaryAction = useCallback(() => {
+    const secondaryAction = useCallback((id) => {
         console.log('secondaryAction')
+        service.current?.secondaryAction(id)
     }, [service])
 
     return (

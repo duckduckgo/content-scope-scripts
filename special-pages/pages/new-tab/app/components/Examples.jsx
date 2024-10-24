@@ -49,9 +49,10 @@ export const mainExamples = {
                 message={{
                     id: 'small',
                     messageType: 'small',
-                    titleText: 'Update Available',
-                    descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.'
+                    titleText: 'No searchy-search today!',
+                    descriptionText: 'The ravens have left Bing Tower and the internet is broken. Sorry.'
                 }}
+                dismiss={() => {}}
             />
         )
     },
@@ -65,6 +66,7 @@ export const mainExamples = {
                     titleText: 'Tell Us Your Thoughts on Privacy Pro',
                     descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.'
                 }}
+                dismiss={() => {}}
             />
         )
     },
@@ -80,6 +82,7 @@ export const mainExamples = {
                     primaryActionText: 'Learn More'
                 }}
                 primaryAction={() => { }}
+                dismiss={() => {}}
             />
         )
     },
@@ -97,6 +100,7 @@ export const mainExamples = {
                 }}
                 primaryAction={() => { }}
                 secondaryAction={() => { }}
+                dismiss={() => {}}
             />
         )
     }
@@ -128,13 +132,14 @@ export const otherExamples = {
                     id: 'big-two-overflow',
                     messageType: 'big_two_action',
                     icon: 'CriticalUpdate',
-                    titleText: 'Update Available',
-                    descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance. A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.',
+                    titleText: 'Critical Browser Update Available',
+                    descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.  And a little more long text for science.',
                     primaryActionText: 'How to update Windows',
                     secondaryActionText: 'Remind me later, but only if I’m actually going to update soon'
                 }}
                 primaryAction={() => { }}
                 secondaryAction={() => { }}
+                dismiss={() => {}}
             />
         )
     },

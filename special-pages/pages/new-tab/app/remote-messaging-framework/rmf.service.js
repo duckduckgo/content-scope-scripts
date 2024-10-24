@@ -45,12 +45,11 @@ export class RMFService {
     }
 
     /**
-     * @param {(evt: {data: RMFData, source: 'manual' | 'subscription'}) => void} cb
+     * @param {string} id
      * @internal
      */
-    dismiss (cb) {
-        // return this.ntp.messaging.notify('')
-        console.log(cb)
+    dismiss (id) {
+        return this.ntp.messaging.notify('rmf_dismiss', { id })
     }
 
     toggleExpansion () { }
@@ -60,5 +59,12 @@ export class RMFService {
      */
     primaryAction (id) {
         this.ntp.messaging.notify('rmf_primaryAction', { id })
+    }
+
+    /**
+     * @param {string} id
+     */
+    secondaryAction (id) {
+        this.ntp.messaging.notify('rmf_secondaryAction', { id })
     }
 }

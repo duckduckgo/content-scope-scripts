@@ -72,6 +72,14 @@ export function mockTransport () {
                 console.log('ignoring rmf_primaryAction', msg.params)
                 return
             }
+            case 'rmf_secondaryAction': {
+                console.log('ignoring rmf_secondaryAction', msg.params)
+                return
+            }
+            case 'rmf_dismiss': {
+                console.log('ignoring rmf_dismiss', msg.params)
+                return
+            }
             default: {
                 console.warn('unhandled notification', msg)
             }
@@ -147,25 +155,55 @@ export function mockTransport () {
             case 'rmf_getData': {
                 /** @type {import('../../../../types/new-tab.js').RMFData} */
                 const message = { content: undefined }
-
+                const rmfParam = url.searchParams.get('rmf')
                 /** @type {import('../../../../types/new-tab.js').RMFData} */
-                if (url.searchParams.get('rmf') === 'big_single_action') {
+                if (rmfParam === 'small') {
                     message.content = {
-                        id: 'id-1',
+                        messageType: 'small',
+                        id: 'id-small',
+                        titleText: 'Search services limited',
+                        descriptionText: 'Search services are impacted by a Bing outage, results may not be what you expect'
+                    }
+                }
+                if (rmfParam === 'medium') {
+                    message.content = {
+                        messageType: 'medium',
+                        id: 'id-2',
+                        icon: 'DDGAnnounce',
+                        titleText: 'New Search Feature!',
+                        descriptionText: 'DuckDuckGo now offers Instant Answers for quicker access to the information you need.'
+                    }
+                }
+                if (rmfParam === 'big_single_action') {
+                    message.content = {
                         messageType: 'big_single_action',
+                        id: 'id-big-single',
                         titleText: 'Tell Us Your Thoughts on Privacy Pro',
                         descriptionText: 'Take our short anonymous survey and share your feedback.',
-                        icon: 'Announce',
+                        icon: 'PrivacyPro',
                         primaryActionText: 'Take Survey'
                     }
                 }
-                if (url.searchParams.get('rmf') === 'medium') {
+                if (rmfParam === 'big_two_action') {
                     message.content = {
-                        messageType: 'medium',
+                        messageType: 'big_two_action',
+                        id: 'id-big-two',
+                        titleText: 'Tell Us Your Thoughts on Privacy Pro',
+                        descriptionText: 'Take our short anonymous survey and share your feedback.',
                         icon: 'Announce',
-                        id: 'id-2',
-                        titleText: 'Hello Medium!',
-                        descriptionText: 'Here is some mighty fine content'
+                        primaryActionText: 'Take Survey',
+                        secondaryActionText: 'Remind me'
+                    }
+                }
+                if (rmfParam === 'big_two_action_overflow') {
+                    message.content = {
+                        id: 'big-two-overflow',
+                        messageType: 'big_two_action',
+                        icon: 'CriticalUpdate',
+                        titleText: 'Windows Update Recommended',
+                        descriptionText: 'Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.',
+                        primaryActionText: 'How to update Windows',
+                        secondaryActionText: 'Remind me later, but only if I’m actually going to update soon'
                     }
                 }
 

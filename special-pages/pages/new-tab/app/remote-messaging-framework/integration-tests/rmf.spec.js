@@ -14,13 +14,25 @@ test.describe('newtab remote messaging framework rmf', () => {
         expect(calls2.length).toBe(1)
     })
 
-    test('renders a title and button', async ({ page }, workerInfo) => {
+    test('renders a title and dismiss button for small variant', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo)
+        await ntp.reducedMotion()
+        await ntp.openPage({ rmf: 'small' })
+
+        await page.getByText('Tell Us Your Thoughts on Privacy Pro').waitFor()
+        await page.getByLabel('Close').click()
+        await ntp.mocks.waitForCallCount({ method: 'rmf_dismiss', count: 1 })
+    })
+
+    test('renders two buttons for big_two_action variant', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo)
         await ntp.reducedMotion()
         await ntp.openPage({ rmf: 'big_single_action' })
 
         await page.getByText('Tell Us Your Thoughts on Privacy Pro').waitFor()
         await page.getByRole('button', { name: 'Take Survey' }).click()
+        await page.getByRole('button', { name: 'Remind me' }).click()
         await ntp.mocks.waitForCallCount({ method: 'rmf_primaryAction', count: 1 })
+        await ntp.mocks.waitForCallCount({ method: 'rmf_secondaryAction', count: 1 })
     })
 })

@@ -3,11 +3,13 @@
     background: var(--ntp-rmf-surface-background-color);
     padding: 14px var(--sp-8) 14px var(--sp-4);
     border-radius: var(--sp-3);
+    position: relative;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    font-family: 'Segoe UI', system-ui, Tahoma, Geneva, Verdana, sans-serif;
+    font-family: system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto;
     color: var(--color-black);
+    line-height: 1.25rem;
 
     &.icon {
         padding-left: var(--sp-2);
@@ -29,11 +31,13 @@
     flex-grow: 1;
     display: grid;
     gap: var(--sp-3);
+    line-height: 1.25rem;
+    font-size: calc(14 * var(--px-in-rem));
 }
 
 .title {
     font-weight: var(--title-2-font-weight);
-    font-size: 14px;
+    line-height: normal;
 }
 
 .btnBlock {
@@ -50,11 +54,15 @@
 .btn {
     padding-left: var(--sp-3);
     padding-right: var(--sp-3);
-    height: var(--Windows-Button-Height-Medium, 32px);
+    height: var(--sp-8);
     background-color: var(--color-black-at-6);
     border-width: 0;
     border-radius: 6px;
     text-wrap: nowrap;
+
+    * {
+        user-select: none;
+    }
 
     &:hover {
         background-color: var(--color-black-at-9);
@@ -141,5 +149,28 @@
         &:focus-visible {
             box-shadow: 0px 0px 0px 1px var(--color-blue-90), 0px 0px 0px 3px var(--color-white);
         }
+    }
+}
+
+.dismissBtn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    height: 1rem;
+    width: 1rem;
+    padding: 0;
+    line-height: 1;
+    font-size: 12px;
+    background-color: transparent;
+    color: var(--color-black-at-60);
+    border: none;
+    border-radius: 50%;
+
+    * {
+        user-select: none;
+    }
+
+    @media screen and (prefers-color-scheme: dark) {
+        color: var(--color-white-at-60);
     }
 }
