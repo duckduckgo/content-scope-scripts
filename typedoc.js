@@ -40,7 +40,8 @@ const config = {
     readme: 'none',
     treatWarningsAsErrors: true,
     searchInComments: true,
-    modifierTags: [...OptionDefaults.modifierTags, '@implements']
+    modifierTags: [...OptionDefaults.modifierTags, '@implements'],
+    highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid']
 }
 
 export default config

@@ -182,7 +182,7 @@ export function PrivacyStatsCustomized () {
     const { visibility, id } = useVisibility()
 
     const title = t('trackerStatsMenuTitle')
-    useCustomizer({ title, id, icon: 'star' })
+    useCustomizer({ title, id, icon: 'shield' })
 
     if (visibility === 'hidden') {
         return null
