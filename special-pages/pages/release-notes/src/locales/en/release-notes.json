@@ -9,8 +9,8 @@
         }]
     },
     "browserReleaseNotes": {
-        "title": "Browser Release Notes",
-        "note": "Page title for the Browser Release Notes page"
+        "title": "What’s New",
+        "note": "Page title for the Browser Release Notes page showing what's new in the current release"
     },
     "versionNumber": {
         "title": "Version {version}",
