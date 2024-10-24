@@ -25,7 +25,7 @@ export async function execute (action, inputData, root = document) {
         case 'click':
             return click(action, data(action, inputData, 'userProfile'), root)
         case 'expectation':
-            return await expectation(action, data(action, inputData, 'userProfile'), root)
+            return expectation(action, root)
         case 'fillForm':
             return fillForm(action, data(action, inputData, 'extractedProfile'), root)
         case 'getCaptchaInfo':
