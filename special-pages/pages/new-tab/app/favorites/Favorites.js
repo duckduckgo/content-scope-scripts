@@ -11,6 +11,7 @@ import { memo } from 'preact/compat'
 import { ShowHideButton } from '../components/ShowHideButton.jsx'
 import { useTypedTranslation } from '../types.js'
 import { useCustomizer } from '../customizer/Customizer.js'
+import { usePlatformName } from '../settings.provider.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').Expansion} Expansion
@@ -18,6 +19,7 @@ import { useCustomizer } from '../customizer/Customizer.js'
  * @typedef {import('../../../../types/new-tab').Favorite} Favorite
  * @typedef {import('../../../../types/new-tab').FavoritesData} FavoritesData
  * @typedef {import('../../../../types/new-tab').FavoritesConfig} FavoritesConfig
+ * @typedef {import('../../../../types/new-tab').FavoritesOpenAction['target']} OpenTarget
  */
 
 /**
@@ -25,6 +27,7 @@ import { useCustomizer } from '../customizer/Customizer.js'
  * @param {Favorite[]} props.favorites
  * @param {(list: Favorite[], id: string, toIndex: number) => void} props.listDidReOrder
  * @param {(id: string) => void} props.openContextMenu
+ * @param {(id: string, target: OpenTarget) => void} props.openFavorite
  * @param {() => void} props.add
  * @param {Expansion} props.expansion
  * @param {() => void} props.toggle
@@ -48,10 +51,12 @@ export function Favorites (props) {
  * @param {Animation['kind']} props.animateItems
  * @param {() => void} props.toggle
  * @param {(id: string) => void} props.openContextMenu
+ * @param {(id: string, target: OpenTarget) => void} props.openFavorite
  * @param {() => void} props.add
  */
-export function FavoritesConfigured ({ gridRef, favorites, listDidReOrder, expansion, toggle, animateItems, openContextMenu, add }) {
+export function FavoritesConfigured ({ gridRef, favorites, listDidReOrder, expansion, toggle, animateItems, openContextMenu, openFavorite, add }) {
     useGridState(favorites, listDidReOrder, animateItems)
+    const platformName = usePlatformName()
     const { t } = useTypedTranslation()
 
     // todo: does this need to be dynamic for smaller screens?
@@ -106,6 +111,27 @@ export function FavoritesConfigured ({ gridRef, favorites, listDidReOrder, expan
             }
         }
     }
+    /**
+     * @param {MouseEvent} event
+     */
+    function onClick (event) {
+        let target = /** @type {HTMLElement|null} */(event.target)
+        while (target && target !== event.currentTarget) {
+            if (typeof target.dataset.id === 'string') {
+                event.preventDefault()
+                event.stopImmediatePropagation()
+                const isControlClick = platformName === 'macos' ? event.metaKey : event.ctrlKey
+                if (isControlClick) {
+                    openFavorite(target.dataset.id, 'new-tab')
+                } else if (event.shiftKey) {
+                    openFavorite(target.dataset.id, 'new-window')
+                }
+                return openFavorite(target.dataset.id, 'same-tab')
+            } else {
+                target = target.parentElement
+            }
+        }
+    }
 
     const canToggleExpansion = items.length > ROW_CAPACITY
 
@@ -116,6 +142,7 @@ export function FavoritesConfigured ({ gridRef, favorites, listDidReOrder, expan
                 id={WIDGET_ID}
                 ref={gridRef}
                 onContextMenu={onContextMenu}
+                onClick={onClick}
             >
                 {items.slice(0, expansion === 'expanded' ? undefined : ROW_CAPACITY)}
             </div>
@@ -214,7 +241,7 @@ export function FavoritesCustomized () {
  * Component that consumes FavoritesContext for displaying favorites list.
  */
 export function FavoritesConsumer () {
-    const { state, toggle, listDidReOrder, openContextMenu, add } = useContext(FavoritesContext)
+    const { state, toggle, listDidReOrder, openContextMenu, openFavorite, add } = useContext(FavoritesContext)
     if (state.status === 'ready') {
         return (
             <Favorites
@@ -222,6 +249,7 @@ export function FavoritesConsumer () {
                 expansion={state.config.expansion}
                 listDidReOrder={listDidReOrder}
                 openContextMenu={openContextMenu}
+                openFavorite={openFavorite}
                 add={add}
                 toggle={toggle}
             />

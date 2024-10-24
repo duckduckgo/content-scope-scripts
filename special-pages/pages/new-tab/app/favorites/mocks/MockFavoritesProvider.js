@@ -64,13 +64,17 @@ export function MockFavoritesProvider ({
         /* no-op */
     }
 
+    const openFavorite = () => {
+        /* no-op */
+    }
+
     const add = () => {
         /* no-op */
     }
 
     return (
         <InstanceIdContext.Provider value={instanceId}>
-            <FavoritesContext.Provider value={{ state, toggle, listDidReOrder, openContextMenu, add }}>
+            <FavoritesContext.Provider value={{ state, toggle, listDidReOrder, openContextMenu, openFavorite, add }}>
                 <FavoritesDispatchContext.Provider value={dispatch}>
                     {children}
                 </FavoritesDispatchContext.Provider>

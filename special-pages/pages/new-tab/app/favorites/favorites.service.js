@@ -4,6 +4,7 @@ import { Service } from '../service.js'
  * @typedef {import("../../../../types/new-tab.js").FavoritesData} FavoritesData
  * @typedef {import("../../../../types/new-tab.js").Favorite} Favorite
  * @typedef {import("../../../../types/new-tab.js").FavoritesConfig} FavoritesConfig
+ * @typedef {import("../../../../types/new-tab.js").FavoritesOpenAction} FavoritesOpenAction
  */
 
 /**
@@ -59,6 +60,17 @@ import { Service } from '../service.js'
  *        "id": "abc",
  *     }
  *     ```
+ * - {@link "NewTab Messages".FavoritesOpenNotification `favorites_open`}
+ *   - Sends {@link "NewTab Messages".FavoritesOpenNotification}
+ *   - When you receive this message, open the favorite in the given target
+ *  - Example payload:
+ *     ```json
+ *     {
+ *        "id": "abc",
+ *        "target": "same-tab"
+ *     }
+ *     ```
+ *
  */
 export class FavoritesService {
     /**
@@ -159,6 +171,16 @@ export class FavoritesService {
     openContextMenu (id) {
         // let the native side know too
         this.ntp.messaging.notify('favorites_openContextMenu', { id })
+    }
+
+    /**
+     * @param {string} id - entity id
+     * @param {FavoritesOpenAction['target']} target
+     * @internal
+     */
+    openFavorite (id, target) {
+        // let the native side know too
+        this.ntp.messaging.notify('favorites_open', { id, target })
     }
 
     /**

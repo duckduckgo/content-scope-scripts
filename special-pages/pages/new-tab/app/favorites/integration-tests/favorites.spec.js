@@ -23,6 +23,27 @@ test.describe('newtab favorites', () => {
         await ntp.openPage()
         await favorites.togglesExpansion()
     })
+    test('Opens a favorite', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo)
+        const favorites = new FavoritesPage(ntp)
+        await ntp.reducedMotion()
+        await ntp.openPage({ platformName: 'macos' })
+        await favorites.opensInSameTab()
+    })
+    test('Opens a favorite in new tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo)
+        const favorites = new FavoritesPage(ntp)
+        await ntp.reducedMotion()
+        await ntp.openPage({ platformName: 'macos' })
+        await favorites.opensInNewTab()
+    })
+    test('Opens a favorite in new window', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo)
+        const favorites = new FavoritesPage(ntp)
+        await ntp.reducedMotion()
+        await ntp.openPage({ platformName: 'macos' })
+        await favorites.opensInNewWindow()
+    })
     test('Adds an item', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo)
         const favorites = new FavoritesPage(ntp)

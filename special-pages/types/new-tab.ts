@@ -34,6 +34,7 @@ export interface NewTabMessages {
   notifications:
     | FavoritesAddNotification
     | FavoritesMoveNotification
+    | FavoritesOpenNotification
     | FavoritesOpenContextMenuNotification
     | FavoritesSetConfigNotification
     | ReportInitExceptionNotification
@@ -75,6 +76,20 @@ export interface FavoritesMoveAction {
    * zero-indexed target
    */
   targetIndex: number;
+}
+/**
+ * Generated from @see "../messages/new-tab/favorites_open.notify.json"
+ */
+export interface FavoritesOpenNotification {
+  method: "favorites_open";
+  params: FavoritesOpenAction;
+}
+export interface FavoritesOpenAction {
+  /**
+   * Entity ID
+   */
+  id: string;
+  target: "same-tab" | "new-tab" | "new-window";
 }
 /**
  * Generated from @see "../messages/new-tab/favorites_openContextMenu.notify.json"

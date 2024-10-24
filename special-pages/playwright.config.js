@@ -19,7 +19,8 @@ export default defineConfig({
             name: 'integration',
             testMatch: [
                 'privacy-stats.spec.js',
-                'new-tab.spec.js'
+                'new-tab.spec.js',
+                'favorites.spec.js'
             ],
             use: {
                 ...devices['Desktop Chrome'],

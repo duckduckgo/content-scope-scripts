@@ -9,6 +9,7 @@ import { reducer, useConfigSubscription, useDataSubscription, useInitialData } f
  * @typedef {import('../../../../types/new-tab.js').Favorite} Favorite
  * @typedef {import('../../../../types/new-tab.js').FavoritesData} FavoritesData
  * @typedef {import('../../../../types/new-tab.js').FavoritesConfig} FavoritesConfig
+ * @typedef {import('../../../../types/new-tab.js').FavoritesOpenAction['target']} OpenTarget
  * @typedef {import('../service.hooks.js').State<FavoritesData, FavoritesConfig>} State
  * @typedef {import('../service.hooks.js').Events<FavoritesData, FavoritesConfig>} Events
  */
@@ -31,6 +32,11 @@ export const FavoritesContext = createContext({
     /** @type {(id: string) => void} */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     openContextMenu: (id) => {
+        throw new Error('must implement')
+    },
+    /** @type {(id: string, target: OpenTarget) => void} */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    openFavorite: (id, target) => {
         throw new Error('must implement')
     },
     /** @type {() => void} */
@@ -84,6 +90,12 @@ export function FavoritesProvider ({ children }) {
         service.current.openContextMenu(id)
     }, [service])
 
+    /** @type {(id: string, target: OpenTarget) => void} */
+    const openFavorite = useCallback((id, target) => {
+        if (!service.current) return
+        service.current.openFavorite(id, target)
+    }, [service])
+
     /** @type {() => void} */
     const add = useCallback(() => {
         if (!service.current) return
@@ -92,7 +104,7 @@ export function FavoritesProvider ({ children }) {
 
     return (
         <InstanceIdContext.Provider value={instanceId}>
-            <FavoritesContext.Provider value={{ state, toggle, listDidReOrder, openContextMenu, add }}>
+            <FavoritesContext.Provider value={{ state, toggle, listDidReOrder, openFavorite, openContextMenu, add }}>
                 <FavoritesDispatchContext.Provider value={dispatch}>
                     {children}
                 </FavoritesDispatchContext.Provider>
