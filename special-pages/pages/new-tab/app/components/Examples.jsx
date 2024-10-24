@@ -6,6 +6,7 @@ import { stats } from '../privacy-stats/mocks/stats.js'
 import { noop } from '../utils.js'
 import { VisibilityMenu } from '../customizer/VisibilityMenu.js'
 import { CustomizerButton } from '../customizer/Customizer.js'
+import { rmfDataExamples } from "../remote-messaging-framework/mocks/rmf.data.js";
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -51,12 +52,7 @@ export const mainExamples = {
     'rmf.small': {
         factory: () => (
             <RemoteMessagingFramework
-                message={{
-                    id: 'small',
-                    messageType: 'small',
-                    titleText: 'No searchy-search today!',
-                    descriptionText: 'The ravens have left Bing Tower and the internet is broken. Sorry.'
-                }}
+                message={rmfDataExamples.small.content}
                 dismiss={() => {}}
             />
         )
@@ -64,13 +60,7 @@ export const mainExamples = {
     'rmf.medium': {
         factory: () => (
             <RemoteMessagingFramework
-                message={{
-                    id: 'medium',
-                    messageType: 'medium',
-                    icon: 'Announce',
-                    titleText: 'Tell Us Your Thoughts on Privacy Pro',
-                    descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.'
-                }}
+                message={rmfDataExamples.medium.content}
                 dismiss={() => {}}
             />
         )
@@ -78,14 +68,7 @@ export const mainExamples = {
     'rmf.big-single-action': {
         factory: () => (
             <RemoteMessagingFramework
-                message={{
-                    id: 'big-single',
-                    messageType: 'big_single_action',
-                    icon: 'DDGAnnounce',
-                    titleText: 'New Search Feature!',
-                    descriptionText: 'DuckDuckGo now offers Instant Answers for quicker access to the information you need.',
-                    primaryActionText: 'Learn More'
-                }}
+                message={rmfDataExamples.big_single_action.content}
                 primaryAction={() => { }}
                 dismiss={() => {}}
             />
@@ -94,15 +77,7 @@ export const mainExamples = {
     'rmf.big-two-action': {
         factory: () => (
             <RemoteMessagingFramework
-                message={{
-                    id: 'big-two',
-                    messageType: 'big_two_action',
-                    icon: 'AppUpdate',
-                    titleText: 'Update Available',
-                    descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.',
-                    primaryActionText: 'How to update',
-                    secondaryActionText: 'Remind me later'
-                }}
+                message={rmfDataExamples.big_two_action.content}
                 primaryAction={() => { }}
                 secondaryAction={() => { }}
                 dismiss={() => {}}
@@ -133,15 +108,7 @@ export const otherExamples = {
     'rmf.big-two-action-overflow': {
         factory: () => (
             <RemoteMessagingFramework
-                message={{
-                    id: 'big-two-overflow',
-                    messageType: 'big_two_action',
-                    icon: 'CriticalUpdate',
-                    titleText: 'Critical Browser Update Available',
-                    descriptionText: 'A new version of DuckDuckGo Browser is available. Update now to enjoy improved privacy features and enhanced performance.  And a little more long text for science.',
-                    primaryActionText: 'How to update Windows',
-                    secondaryActionText: 'Remind me later, but only if I’m actually going to update soon'
-                }}
+                message={rmfDataExamples.big_two_action_overflow.content}
                 primaryAction={() => { }}
                 secondaryAction={() => { }}
                 dismiss={() => {}}

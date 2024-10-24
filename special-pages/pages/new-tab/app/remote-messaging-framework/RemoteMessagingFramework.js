@@ -1,7 +1,6 @@
 import { h } from 'preact'
 import cn from 'classnames'
 import styles from './RemoteMessagingFramework.module.css'
-import MessageIcons from './MessageIcons'
 import { useContext } from 'preact/hooks'
 import { RMFContext } from './RMFProvider.js'
 
@@ -20,7 +19,7 @@ export function RemoteMessagingFramework ({ message, primaryAction, secondaryAct
         <div id={id} class={cn(styles.root, (messageType !== 'small' && message.icon) && styles.icon)}>
             {messageType !== 'small' && message.icon && (
                 <span class={styles.iconBlock}>
-                    <MessageIcons name={message.icon} />
+                    <img src={`./icons/${message.icon}.svg`} alt=""/>
                 </span>
             )}
             <div class={styles.content}>

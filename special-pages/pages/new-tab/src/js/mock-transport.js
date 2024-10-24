@@ -1,9 +1,11 @@
 import { TestTransportConfig } from '@duckduckgo/messaging'
 
 import { stats } from '../../app/privacy-stats/mocks/stats.js'
+import { rmfDataExamples } from '../../app/remote-messaging-framework/mocks/rmf.data.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import('../../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  */
 
 const VERSION_PREFIX = '__ntp_15__.'
@@ -50,6 +52,18 @@ export function mockTransport () {
         }
     }
 
+    /** @type {Map<SubscriptionNames, any[]>} */
+    const rmfSubscriptions = new Map()
+
+    function clearRmf () {
+        const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || []
+        /** @type {import('../../../../types/new-tab.js').RMFData} */
+        const message = { content: undefined }
+        for (const listener of listeners) {
+            listener(message)
+        }
+    }
+
     return new TestTransportConfig({
         notify (_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) })
@@ -70,14 +84,17 @@ export function mockTransport () {
             }
             case 'rmf_primaryAction': {
                 console.log('ignoring rmf_primaryAction', msg.params)
+                clearRmf()
                 return
             }
             case 'rmf_secondaryAction': {
                 console.log('ignoring rmf_secondaryAction', msg.params)
+                clearRmf()
                 return
             }
             case 'rmf_dismiss': {
                 console.log('ignoring rmf_dismiss', msg.params)
+                clearRmf()
                 return
             }
             default: {
@@ -115,18 +132,24 @@ export function mockTransport () {
                 return () => controller.abort()
             }
             case 'rmf_onDataUpdate': {
-                // const timeout = setTimeout(() => {
-                //     /** @type {import('../../../../types/new-tab.js').SmallMessage} */
-                //     const payload = {
-                //         id: "id-1",
-                //         messageType: "small",
-                //         titleText: "Hello world",
-                //         descriptionText: "My Description"
-                //     }
-                //     cb(payload)
-                // }, 2000)
-                // return () => clearTimeout(timeout)
-                return () => { }
+                // store the callback for later (eg: dismiss)
+                const prev = rmfSubscriptions.get('rmf_onDataUpdate') || []
+                const next = [...prev]
+                next.push(cb)
+                rmfSubscriptions.set('rmf_onDataUpdate', next)
+
+                const delay = url.searchParams.get('rmf-delay')
+                const rmfParam = url.searchParams.get('rmf')
+
+                if (delay !== null && rmfParam !== null && rmfParam in rmfDataExamples) {
+                    const ms = parseInt(delay, 10)
+                    const timeout = setTimeout(() => {
+                        const message = rmfDataExamples[rmfParam]
+                        cb(message)
+                    }, ms)
+                    return () => clearTimeout(timeout)
+                }
+                return () => {}
             }
             }
             return () => { }
@@ -154,57 +177,15 @@ export function mockTransport () {
             }
             case 'rmf_getData': {
                 /** @type {import('../../../../types/new-tab.js').RMFData} */
-                const message = { content: undefined }
+                let message = { content: undefined }
                 const rmfParam = url.searchParams.get('rmf')
-                /** @type {import('../../../../types/new-tab.js').RMFData} */
-                if (rmfParam === 'small') {
-                    message.content = {
-                        messageType: 'small',
-                        id: 'id-small',
-                        titleText: 'Search services limited',
-                        descriptionText: 'Search services are impacted by a Bing outage, results may not be what you expect'
-                    }
-                }
-                if (rmfParam === 'medium') {
-                    message.content = {
-                        messageType: 'medium',
-                        id: 'id-2',
-                        icon: 'DDGAnnounce',
-                        titleText: 'New Search Feature!',
-                        descriptionText: 'DuckDuckGo now offers Instant Answers for quicker access to the information you need.'
-                    }
-                }
-                if (rmfParam === 'big_single_action') {
-                    message.content = {
-                        messageType: 'big_single_action',
-                        id: 'id-big-single',
-                        titleText: 'Tell Us Your Thoughts on Privacy Pro',
-                        descriptionText: 'Take our short anonymous survey and share your feedback.',
-                        icon: 'PrivacyPro',
-                        primaryActionText: 'Take Survey'
-                    }
-                }
-                if (rmfParam === 'big_two_action') {
-                    message.content = {
-                        messageType: 'big_two_action',
-                        id: 'id-big-two',
-                        titleText: 'Tell Us Your Thoughts on Privacy Pro',
-                        descriptionText: 'Take our short anonymous survey and share your feedback.',
-                        icon: 'Announce',
-                        primaryActionText: 'Take Survey',
-                        secondaryActionText: 'Remind me'
-                    }
-                }
-                if (rmfParam === 'big_two_action_overflow') {
-                    message.content = {
-                        id: 'big-two-overflow',
-                        messageType: 'big_two_action',
-                        icon: 'CriticalUpdate',
-                        titleText: 'Windows Update Recommended',
-                        descriptionText: 'Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.',
-                        primaryActionText: 'How to update Windows',
-                        secondaryActionText: 'Remind me later, but only if I’m actually going to update soon'
-                    }
+
+                // if the message should be delayed, initially return nothing here
+                const delayed = url.searchParams.has('rmf-delay')
+                if (delayed) return Promise.resolve(message)
+
+                if (rmfParam && rmfParam in rmfDataExamples) {
+                    message = rmfDataExamples[rmfParam]
                 }
 
                 return Promise.resolve(message)
