@@ -181,7 +181,7 @@
     border-radius: var(--sp-1_5) 0;
     color: var(--color-black);
     display: inline-block;
-    padding: var(--sp-1) var(--sp-2);
+    padding: calc(3 * var(--px-in-rem)) var(--sp-2);
     text-transform: uppercase;
     top: calc(-1 * var(--sp-0_5));
 
