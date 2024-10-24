@@ -40,9 +40,9 @@
     line-height: normal;
 }
 
-/* .description:first-line {
-    line-height: normal;
-} */
+.description {
+    margin-top: -0.25rem;
+}
 
 .btnBlock {
     margin-left: var(--sp-3);
