@@ -6,7 +6,7 @@ A collection of shared JavaScript and HTML projects that are used within our Bro
 
 ### [Injected](./injected)
 
-A library of features/protections that are executed within our browsers. 
+A library of features/protections that are executed into webpages. 
 
 Features have a deep integration with [privacy-configuration](https://github.com/duckduckgo/privacy-configuration),
 to allow dynamic enabling or disabling of features at runtime.
