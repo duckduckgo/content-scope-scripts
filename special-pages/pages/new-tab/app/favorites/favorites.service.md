@@ -4,6 +4,27 @@ title: Favorites API
 
 # Public API for the Favorites Widget.
 
+## Diagrams
+
+### Page Load + Move operation
+
+```mermaid
+sequenceDiagram
+    participant 🖥️ Page
+    participant ⭐ FavoritesWidget
+    participant 🌐 Browser
+
+    🖥️ Page->>⭐ FavoritesWidget: Page loads 🖱️
+    ⭐ FavoritesWidget->>🌐 Browser: Request initial data+config 📡
+    🌐 Browser-->>⭐ FavoritesWidget: Respond with initial data+config 📦
+    ⭐ FavoritesWidget->>🖥️ Page: Render tiles 🧩
+
+    User->>⭐ FavoritesWidget: Drag and drop a tile 🖱️↔️
+    ⭐ FavoritesWidget->>🌐 Browser: Send `favorites_move` action 📤
+    🌐 Browser-->>⭐ FavoritesWidget: Push fresh data 🔄
+    ⭐ FavoritesWidget->>🖥️ Page: Re-render with updated order 🧩🔄
+```
+
 ## Requests:
 
 - {@link "NewTab Messages".FavoritesGetDataRequest `favorites_getData`}
