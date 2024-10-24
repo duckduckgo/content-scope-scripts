@@ -26,7 +26,7 @@ import { useCallback, useEffect } from 'preact/hooks'
 
 /**
  * @template D
- * @template {{expansion: import("../../../types/new-tab").Expansion}} C
+ * @template {{expansion: import("../../../types/new-tab").Expansion}|undefined} C
  * @param {State<D, C>} state
  * @param {Events<D, C>} event
  */
@@ -88,7 +88,7 @@ export function reducer (state, event) {
  *   destroy: () => void;
  * }>} params.service
  */
-export function useInitialData ({ dispatch, service }) {
+export function useInitialDataAndConfig ({ dispatch, service }) {
     useEffect(() => {
         if (!service.current) return console.warn('missing service')
         const stats = service.current
@@ -96,6 +96,42 @@ export function useInitialData ({ dispatch, service }) {
             const { config, data } = await stats.getInitial()
             if (data) {
                 dispatch({ kind: 'initial-data', data, config })
+            } else {
+                dispatch({ kind: 'error', error: 'missing data from getInitial' })
+            }
+        }
+
+        dispatch({ kind: 'load-initial' })
+
+        // eslint-disable-next-line promise/prefer-await-to-then
+        init().catch((e) => {
+            console.error('uncaught error', e)
+            dispatch({ kind: 'error', error: e })
+        })
+
+        return () => {
+            stats.destroy()
+        }
+    }, [])
+}
+
+/**
+ * @template D
+ * @param {object} params
+ * @param {import("preact/hooks").Dispatch<any>} params.dispatch
+ * @param {import("preact").RefObject<{
+ *   getInitial: () => Promise<D>;
+ *   destroy: () => void;
+ * }>} params.service
+ */
+export function useInitialData ({ dispatch, service }) {
+    useEffect(() => {
+        if (!service.current) return console.warn('missing service')
+        const stats = service.current
+        async function init () {
+            const data = await stats.getInitial()
+            if (data) {
+                dispatch({ kind: 'initial-data', data })
             } else {
                 dispatch({ kind: 'error', error: 'missing data from getInitial' })
             }

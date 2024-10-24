@@ -2,7 +2,7 @@ import { createContext, h } from 'preact'
 import { useEffect, useReducer, useRef } from 'preact/hooks'
 import { useMessaging } from '../types.js'
 import { PrivacyStatsService } from './privacy-stats.service.js'
-import { reducer, useConfigSubscription, useDataSubscription, useInitialData } from '../service.hooks.js'
+import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../service.hooks.js'
 
 /**
  * @typedef {import('../../../../types/new-tab.js').PrivacyStatsData} PrivacyStatsData
@@ -46,7 +46,7 @@ export function PrivacyStatsProvider (props) {
     const service = useService()
 
     // get initial data
-    useInitialData({ dispatch, service })
+    useInitialDataAndConfig({ dispatch, service })
 
     // subscribe to data updates
     useDataSubscription({ dispatch, service })

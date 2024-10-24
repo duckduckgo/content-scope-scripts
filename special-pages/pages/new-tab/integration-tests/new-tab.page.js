@@ -30,10 +30,12 @@ export class NewtabPage {
             /** @type {import('../../../types/new-tab.ts').InitialSetupResponse} */
             initialSetup: {
                 widgets: [
+                    { id: 'rmf' },
                     { id: 'favorites' },
                     { id: 'privacyStats' }
                 ],
                 widgetConfigs: [
+                    { id: 'rmf', visibility: 'visible' },
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'visible' }
                 ],
@@ -45,6 +47,8 @@ export class NewtabPage {
             },
             stats_getConfig: {},
             stats_getData: {},
+            rmf_getConfig: {},
+            rmf_getData: {},
             widgets_setConfig: {}
         })
     }
@@ -57,8 +61,9 @@ export class NewtabPage {
      * @param {'debug' | 'production'} [params.mode] - Optional parameters for opening the page.
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {number} [params.favoritesCount] - Optional flag to preload a list of favorites
+     * @param {string} [params.rmf] - Optional flag to point to display=components view with certain rmf example visible
      */
-    async openPage ({ mode = 'debug', willThrow = false, favoritesCount } = { }) {
+    async openPage ({ mode = 'debug', willThrow = false, favoritesCount, rmf } = { }) {
         await this.mocks.install()
         await this.page.route('/**', (route, req) => {
             const url = new URL(req.url())
@@ -75,6 +80,10 @@ export class NewtabPage {
 
         if (favoritesCount !== undefined) {
             searchParams.set('favorites', String(favoritesCount))
+        }
+
+        if (rmf !== undefined) {
+            searchParams.set('rmf', rmf)
         }
 
         await this.page.goto('/' + '?' + searchParams.toString())
