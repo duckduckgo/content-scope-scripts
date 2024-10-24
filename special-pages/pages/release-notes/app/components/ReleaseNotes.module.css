@@ -56,11 +56,15 @@
 }
 
 .checkIcon {
-    background: url(../../../../shared/assets/img/icons/Check-Recolorable-24.svg) no-repeat;
+    background: url(../../../../shared/assets/img/icons/Check-Color-24.svg) no-repeat;
 }
 
 .alertIcon {
-    background: url(../../../../shared/assets/img/icons/Alert-Recolorable-24.svg) no-repeat;
+    background: url(../../../../shared/assets/img/icons/Exclamation-Color-24.svg) no-repeat;
+}
+
+.warningIcon {
+    background: url(../../../../shared/assets/img/icons/Exclamation-High-Color-24.svg) no-repeat;
 }
 
 .spinnerIcon {
@@ -173,27 +177,15 @@
 
 /* New Tag */
 .newTag {
-    background-color: var(--color-yellow-50);
-    border-radius: var(--sp-2_5) var(--sp-2_5) var(--sp-2_5) 0;
-    color: var(--color-black-at-84);
+    background-color: var(--color-yellow-60);
+    border-radius: var(--sp-1_5) 0;
+    color: var(--color-black);
     display: inline-block;
-    padding: 0 var(--sp-2_5);
-    position: relative;
+    padding: calc(3 * var(--px-in-rem)) var(--sp-2);
     text-transform: uppercase;
     top: calc(-1 * var(--sp-0_5));
 
-    font-size: calc(13 * var(--px-in-rem));
-    font-weight: 700;
-    line-height: calc(20 * var(--px-in-rem));
-
-    &::after {
-        background-color: var(--color-yellow-50);
-        mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'><path fill='currentColor' d='M0 0v5.336A13.975 13.975 0 0 1 10.699 0H0Z'/></svg>");
-        content: '';
-        height: calc(6 * var(--px-in-rem));;
-        left: 0;
-        position: absolute;
-        top: calc(20 * var(--px-in-rem));
-        width: calc(11 * var(--px-in-rem));;
-    }
+    font-size: calc(11.5 * var(--px-in-rem));
+    font-weight: 600;
+    line-height: calc(11 * var(--px-in-rem));
 }
