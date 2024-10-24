@@ -1,9 +1,11 @@
-import { h } from 'preact'
+import { Fragment, h } from 'preact'
 import { PrivacyStatsMockProvider } from '../privacy-stats/mocks/PrivacyStatsMockProvider.js'
 import { Body, Heading, PrivacyStatsConsumer } from '../privacy-stats/PrivacyStats.js'
 import { RemoteMessagingFramework } from '../remote-messaging-framework/RemoteMessagingFramework.js'
 import { stats } from '../privacy-stats/mocks/stats.js'
 import { noop } from '../utils.js'
+import { VisibilityMenu } from '../customizer/VisibilityMenu.js'
+import { CustomizerButton } from '../customizer/Customizer.js'
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -27,12 +29,14 @@ export const mainExamples = {
         factory: () => <Body trackerCompanies={stats.few.trackerCompanies} listAttrs={{ id: 'example-stats.list' }} />
     },
     'stats.heading': {
-        factory: () => <Heading
-            trackerCompanies={stats.few.trackerCompanies}
-            totalCount={stats.few.totalCount}
-            expansion={'expanded'}
-            onToggle={noop('stats.heading onToggle')}
-        />
+        factory: () => (
+            <Heading
+                trackerCompanies={stats.few.trackerCompanies}
+                totalCount={stats.few.totalCount}
+                expansion={'expanded'}
+                onToggle={noop('stats.heading onToggle')}
+            />
+        )
     },
     'stats.heading.none': {
         factory: () => (
@@ -40,8 +44,9 @@ export const mainExamples = {
                 trackerCompanies={stats.none.trackerCompanies}
                 totalCount={stats.none.totalCount}
                 expansion={'expanded'}
-                onToggle={noop('stats.heading.none')}
-            />)
+                onToggle={noop('stats.heading onToggle')}
+            />
+        )
     },
     'rmf.small': {
         factory: () => (
@@ -166,19 +171,19 @@ export const otherExamples = {
                             }
                         ]}
                         state={[
-                            {checked: true},
-                            {checked: false},
+                            { checked: true },
+                            { checked: false }
                         ]}
                     />
                 </MaxContent>
             </Fragment>
         )
-    },
+    }
 }
 
-function MaxContent({children}) {
+function MaxContent ({ children }) {
     return (
-        <div style={{display: 'grid', gridTemplateColumns: 'max-content'}}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'max-content' }}>
             {children}
         </div>
     )

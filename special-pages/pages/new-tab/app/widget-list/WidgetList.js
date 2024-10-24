@@ -4,7 +4,10 @@ import { useContext } from 'preact/hooks'
 import { PrivacyStatsCustomized } from '../privacy-stats/PrivacyStats.js'
 import { FavoritesCustomized } from '../favorites/Favorites.js'
 import { Stack } from '../../../onboarding/app/components/Stack.js'
-import { Customizer } from '../customizer/Customizer.js'
+import {
+    Customizer,
+    CustomizerMenuPositionedFixed
+} from '../customizer/Customizer.js'
 import { RMFProvider } from '../remote-messaging-framework/RMFProvider.js'
 import { RMFConsumer } from '../remote-messaging-framework/RemoteMessagingFramework.js'
 
