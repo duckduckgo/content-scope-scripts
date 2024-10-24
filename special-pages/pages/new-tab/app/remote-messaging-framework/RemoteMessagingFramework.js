@@ -24,7 +24,7 @@ export function RemoteMessagingFramework ({ message, primaryAction, secondaryAct
             )}
             <div class={styles.content}>
                 <p class={styles.title}>{titleText}</p>
-                <p>{descriptionText}</p>
+                <p class={styles.description}>{descriptionText}</p>
                 {messageType === 'big_two_action' && (
                     <div class={styles.btnRow}>
                         {primaryAction && message.primaryActionText.length > 0 && (

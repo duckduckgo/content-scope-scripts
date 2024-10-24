@@ -9,17 +9,11 @@
     align-items: flex-start;
     font-family: system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto;
     color: var(--color-black);
-    line-height: 1.25rem;
+
 
     &.icon {
         padding-left: var(--sp-2);
     }
-
-    /* &:hover {
-        .dismissBtn {
-            opacity: 1;
-        }
-    } */
 
     @media screen and (prefers-color-scheme: dark) {
         background-color: var(--color-white-at-6);
@@ -46,6 +40,10 @@
     line-height: normal;
 }
 
+/* .description:first-line {
+    line-height: normal;
+} */
+
 .btnBlock {
     margin-left: var(--sp-3);
     align-self: center;
@@ -66,10 +64,6 @@
     border-radius: 6px;
     text-wrap: nowrap;
 
-    * {
-        user-select: none;
-    }
-
     &:hover {
         background-color: var(--color-black-at-9);
         cursor: pointer;
@@ -89,8 +83,8 @@
     }
 
     &:focus-visible {
-        outline: 2px solid var(--ddg-color-primary);
-        border: 1px solid white;
+        /* box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-blue-50); */
+        box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     }
 
     @media screen and (prefers-color-scheme: dark) {
@@ -116,8 +110,8 @@
         }
 
         &:focus-visible {
-            outline: 2px solid var(--ddg-color-primary);
-            border: 1px solid white;
+            /* box-shadow: 0px 0px 0px 1px var(--color-blue-90), 0px 0px 0px 3px var(--color-white); */
+            box-shadow: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
         }
     }
 }
@@ -126,6 +120,7 @@
 .primary {
     background-color: var(--ddg-color-primary);
     color: var(--color-white);
+    position: relative;
 
 
     &:hover {
@@ -135,6 +130,10 @@
     &:active {
         background-color: var(--color-blue-70);
     }
+
+    /* &:focus-visible {
+        box-shadow: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-blue-50);
+    } */
 
     @media screen and (prefers-color-scheme: dark) {
         color: var(--color-black-at-84);
@@ -153,9 +152,9 @@
             color: var(--color-black-at-84);
         }
 
-        &:focus-visible {
+        /* &:focus-visible {
             box-shadow: 0px 0px 0px 1px var(--color-blue-90), 0px 0px 0px 3px var(--color-white);
-        }
+        } */
     }
 }
 
@@ -172,20 +171,11 @@
     color: var(--color-black-at-60);
     border: none;
     border-radius: 50%;
-    /* opacity: 0; */
-
-    * {
-        user-select: none;
-    }
 
     &:active {
         background-color: var(--color-black-at-18);
         color: var(--color-black-at-84);
     }
-
-    /* &:focus-visible {
-        opacity: 1;
-    } */
 
     &:hover {
         background-color: var(--color-black-at-9);
