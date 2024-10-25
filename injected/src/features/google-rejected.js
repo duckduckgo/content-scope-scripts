@@ -25,7 +25,7 @@ export default class GoogleRejected extends ContentFeature {
             if (this.getFeatureSetting('getInterestGroupAdAuctionData')) {
                 if ('getInterestGroupAdAuctionData' in Navigator.prototype) {
                     delete Navigator.prototype.getInterestGroupAdAuctionData
-                
+                }
             }
         } catch {
             // Throw away this exception, it's likely a confict with another extension
