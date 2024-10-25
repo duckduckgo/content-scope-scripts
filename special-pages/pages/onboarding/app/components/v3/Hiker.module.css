@@ -1,5 +1,5 @@
 .hiker {
-    bottom: calc(-1 * var(--sp-2));
+    bottom: 0;
     position: absolute;
     right: var(--sp-35);
 
