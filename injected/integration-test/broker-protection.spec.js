@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 import { BrokerProtectionPage } from './page-objects/broker-protection.js'
 
 test.describe('Broker Protection communications', () => {
@@ -488,6 +488,56 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
         })
+    })
+
+    test('expectation with actions', async ({ page }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        await dbp.enabled()
+        await dbp.navigatesTo('expectation-actions.html')
+        await dbp.receivesAction('expectation-actions.json')
+        const response = await dbp.waitForMessage('actionCompleted')
+
+        dbp.isSuccessMessage(response)
+        await page.waitForURL(url => url.hash === '#1', { timeout: 2000 })
+    })
+
+    test('expectation fails when failSilently is not present', async ({ page }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        await dbp.enabled()
+        await dbp.navigatesTo('expectation-actions.html')
+        await dbp.receivesAction('expectation-actions-fail.json')
+
+        const response = await dbp.waitForMessage('actionCompleted')
+        dbp.isErrorMessage(response)
+
+        const currentUrl = page.url()
+        expect(currentUrl).not.toContain('#')
+    })
+
+    test('expectation succeeds when failSilently is present', async ({ page }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        await dbp.enabled()
+        await dbp.navigatesTo('expectation-actions.html')
+        await dbp.receivesAction('expectation-actions-fail-silently.json')
+
+        const response = await dbp.waitForMessage('actionCompleted')
+        dbp.isSuccessMessage(response)
+
+        const currentUrl = page.url()
+        expect(currentUrl).not.toContain('#')
+    })
+
+    test('expectation succeeds but subaction fails should throw error', async ({ page }, workerInfo) => {
+        const dbp = BrokerProtectionPage.create(page, workerInfo)
+        await dbp.enabled()
+        await dbp.navigatesTo('expectation-actions.html')
+        await dbp.receivesAction('expectation-actions-subaction-fail.json')
+
+        const response = await dbp.waitForMessage('actionCompleted')
+        dbp.isErrorMessage(response)
+
+        const currentUrl = page.url()
+        expect(currentUrl).not.toContain('#')
     })
 
     test.describe('retrying', () => {

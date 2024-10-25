@@ -11544,7 +11544,7 @@
     /**
      * @typedef {SuccessResponse | ErrorResponse} ActionResponse
      * @typedef {{ result: true } | { result: false; error: string }} BooleanResult
-     * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string}} Expectation
+     * @typedef {{type: "element" | "text" | "url"; selector: string; parent?: string; expect?: string; failSilently?: boolean}} Expectation
      */
 
     /**
@@ -15290,6 +15290,14 @@
                 results.push(setValueForInput(inputElem, generateRandomInt(parseInt(element.min), parseInt(element.max)).toString()));
             } else if (element.type === '$generated_street_address$') {
                 results.push(setValueForInput(inputElem, generateStreetAddress()));
+
+            // This is a composite of existing (but separate) city and state fields
+            } else if (element.type === 'cityState') {
+                if (!Object.prototype.hasOwnProperty.call(data, 'city') || !Object.prototype.hasOwnProperty.call(data, 'state')) {
+                    results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'` });
+                    continue
+                }
+                results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
             } else {
                 if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
                     results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` });
@@ -15650,19 +15658,43 @@
 
     /**
      * @param {Record<string, any>} action
-     * @param {Document | HTMLElement} root
-     * @return {import('../types.js').ActionResponse}
+     * @param {Record<string, any>} userData
+     * @param {Document} root
+     * @return {Promise<import('../types.js').ActionResponse>}
      */
-    function expectation (action, root = document) {
+    async function expectation (action, userData, root = document) {
         const results = expectMany(action.expectations, root);
 
-        const errors = results.filter(x => x.result === false).map(x => {
-            if ('error' in x) return x.error
-            return 'unknown error'
-        });
+        // filter out good results + silent failures, leaving only fatal errors
+        const errors = results
+            .filter((x, index) => {
+                if (x.result === true) return false
+                if (action.expectations[index].failSilently) return false
+                return true
+            }).map((x) => {
+                return 'error' in x ? x.error : 'unknown error'
+            });
 
         if (errors.length > 0) {
             return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
+        }
+
+        // only run later actions if every expectation was met
+        const runActions = results.every(x => x.result === true);
+        const secondaryErrors = [];
+
+        if (action.actions?.length && runActions) {
+            for (const subAction of action.actions) {
+                const result = await execute(subAction, userData, root);
+
+                if ('error' in result) {
+                    secondaryErrors.push(result.error);
+                }
+            }
+
+            if (secondaryErrors.length > 0) {
+                return new ErrorResponse({ actionID: action.id, message: secondaryErrors.join(', ') })
+            }
         }
 
         return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })
@@ -15806,7 +15838,7 @@
             case 'click':
                 return click(action, data(action, inputData, 'userProfile'), root)
             case 'expectation':
-                return expectation(action, root)
+                return await expectation(action, data(action, inputData, 'userProfile'), root)
             case 'fillForm':
                 return fillForm(action, data(action, inputData, 'extractedProfile'), root)
             case 'getCaptchaInfo':

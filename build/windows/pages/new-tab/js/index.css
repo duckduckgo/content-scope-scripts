@@ -193,6 +193,17 @@ li {
   margin: 0;
   padding: 0;
 }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
 /* pages/new-tab/app/styles/ntp-theme.css */
 :root {
@@ -212,7 +223,7 @@ li {
   --ntp-focus-outline-color: black;
   @media (prefers-color-scheme: dark) {
     --ntp-background-color: var(--color-gray-85);
-    --ntp-surface-background-color: var(--color-black-at-18);
+    --ntp-surface-background-color: #2a2a2a;
     --ntp-surface-border-color: var(--color-black-at-6);
     --ntp-text-normal: white;
     --ntp-focus-outline-color: white;
@@ -482,6 +493,132 @@ body {
     fill-opacity: 0.5;
   }
 }
+.Icons_customize {
+}
+
+/* pages/new-tab/app/customizer/Customizer.module.css */
+.Customizer_root {
+  position: relative;
+}
+.Customizer_lowerRightFixed {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+}
+.Customizer_dropdownMenu {
+  display: none;
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+}
+.Customizer_show {
+  display: block;
+}
+.Customizer_customizeButton {
+  background-color: transparent;
+  border: 1px solid var(--color-black-at-9);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+  color: var(--color-black-at-84);
+  @media screen and (prefers-color-scheme: dark) {
+    color: var(--color-white-at-80);
+    border-color: var(--color-white-at-9);
+  }
+  &:focus-visible {
+    outline: 1px dotted var(--ntp-focus-outline-color);
+  }
+  &:hover {
+    background-color: var(--color-black-at-6);
+    border-color: var(--color-black-at-18);
+    @media screen and (prefers-color-scheme: dark) {
+      background-color: var(--color-white-at-18);
+      border-color: var(--color-white-at-36);
+    }
+  }
+  &:active {
+    background-color: var(--color-white-at-12);
+    @media screen and (prefers-color-scheme: dark) {
+      background-color: var(--color-white-at-24);
+      border-color: var(--color-white-at-50);
+    }
+  }
+}
+
+/* pages/new-tab/app/customizer/VisibilityMenu.module.css */
+.VisibilityMenu_dropdownInner {
+  background: var(--ntp-surface-background-color);
+  border: 1px solid var(--color-black-at-9);
+  @media screen and (prefers-color-scheme: dark) {
+    border-color: var(--color-white-at-9);
+  }
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .08);
+  padding: var(--sp-1);
+  border-radius: 8px;
+}
+.VisibilityMenu_list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.VisibilityMenu_menuItemLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  font-size: var(--title-3-em-font-size);
+  height: 28px;
+  padding-left: 10px;
+  padding-right: 10px;
+  > * {
+    min-width: 0;
+  }
+}
+.VisibilityMenu_svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+}
+.VisibilityMenu_checkbox {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+.VisibilityMenu_checkboxIcon {
+  font-size: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid var(--color-black-at-9);
+  @media screen and (prefers-color-scheme: dark) {
+    border: 1px solid var(--color-white-at-9);
+  }
+}
+.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon {
+  background: var(--color-blue-50);
+  border-color: var(--color-blue-50);
+}
+.VisibilityMenu_menuItemLabel input:checked + .VisibilityMenu_checkboxIcon svg path {
+  stroke: white;
+}
+.VisibilityMenu_menuItemLabel input:focus-visible + .VisibilityMenu_checkboxIcon {
+  outline: dotted 1px var(--ntp-focus-outline-color);
+  outline-offset: 2px;
+}
 
 /* pages/onboarding/app/components/Stack.module.css */
 .Stack_stack {
@@ -494,24 +631,6 @@ body {
       outline: 1px dotted black;
     }
   }
-}
-
-/* pages/new-tab/app/customizer/Customizer.module.css */
-.Customizer_root {
-  position: fixed;
-  bottom: 0;
-  padding: 1rem;
-}
-.Customizer_list {
-  display: grid;
-  grid-row-gap: .5rem;
-}
-.Customizer_item {
-}
-.Customizer_label {
-  display: grid;
-  grid-template-columns: max-content max-content;
-  grid-column-gap: 1rem;
 }
 
 /* shared/components/Fallback/Fallback.module.css */

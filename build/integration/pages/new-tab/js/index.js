@@ -1,5 +1,82 @@
 "use strict";
 (() => {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target2) => (target2 = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    // If the importer is in node compatibility mode or this is not an ESM
+    // file that has been converted to a CommonJS file using a Babel-
+    // compatible transform (i.e. "__esModule" has not been set), then set
+    // "default" to the CommonJS "module.exports" for node compatibility.
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target2, "default", { value: mod, enumerable: true }) : target2,
+    mod
+  ));
+
+  // ../node_modules/classnames/index.js
+  var require_classnames = __commonJS({
+    "../node_modules/classnames/index.js"(exports, module) {
+      (function() {
+        "use strict";
+        var hasOwn = {}.hasOwnProperty;
+        var nativeCodeString = "[native code]";
+        function classNames() {
+          var classes = [];
+          for (var i4 = 0; i4 < arguments.length; i4++) {
+            var arg = arguments[i4];
+            if (!arg)
+              continue;
+            var argType = typeof arg;
+            if (argType === "string" || argType === "number") {
+              classes.push(arg);
+            } else if (Array.isArray(arg)) {
+              if (arg.length) {
+                var inner = classNames.apply(null, arg);
+                if (inner) {
+                  classes.push(inner);
+                }
+              }
+            } else if (argType === "object") {
+              if (arg.toString !== Object.prototype.toString && !arg.toString.toString().includes("[native code]")) {
+                classes.push(arg.toString());
+                continue;
+              }
+              for (var key in arg) {
+                if (hasOwn.call(arg, key) && arg[key]) {
+                  classes.push(key);
+                }
+              }
+            }
+          }
+          return classes.join(" ");
+        }
+        if (typeof module !== "undefined" && module.exports) {
+          classNames.default = classNames;
+          module.exports = classNames;
+        } else if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
+          define("classnames", [], function() {
+            return classNames;
+          });
+        } else {
+          window.classNames = classNames;
+        }
+      })();
+    }
+  });
+
   // ../node_modules/preact/dist/preact.module.js
   var n;
   var l;
@@ -551,7 +628,7 @@
       // this field is static for the lifespan of the page
       widgets: props.widgets,
       // this will be updated via subscriptions
-      widgetConfigItems: data,
+      widgetConfigItems: data || [],
       toggle
     } }, props.children);
   }
@@ -656,8 +733,12 @@
         }
       ]
     },
+    widgets_visibility_menu_title: {
+      title: "Customize New Tab Page",
+      note: "Heading text describing that there's a list of toggles for customizing the page layout."
+    },
     trackerStatsMenuTitle: {
-      title: "Blocked Tracking Attempts",
+      title: "Privacy Stats",
       note: "Used as a toggle label in a page customization menu"
     },
     trackerStatsNoActivity: {
@@ -699,6 +780,10 @@
     favorites_show_more: {
       title: "Show more ({count} remaining)",
       note: ""
+    },
+    favorites_menu_title: {
+      title: "Favorites",
+      note: "Used as a toggle label in a page customization menu"
     }
   };
 
@@ -1090,7 +1175,8 @@
   var Icons_default = {
     chevron: "Icons_chevron",
     chevronCircle: "Icons_chevronCircle",
-    chevronArrow: "Icons_chevronArrow"
+    chevronArrow: "Icons_chevronArrow",
+    customize: "Icons_customize"
   };
 
   // pages/new-tab/app/components/Icons.js
@@ -1102,6 +1188,46 @@
         "fill-opacity": "0.6",
         class: Icons_default.chevronArrow,
         d: "M6.90039 10.191C6.91514 9.99804 7.00489 9.81855 7.15039 9.69098C7.2879 9.56799 7.46591 9.5 7.65039 9.5C7.83487 9.5 8.01289 9.56799 8.15039 9.69098L12.1504 13.691L16.1504 9.69098C16.2903 9.62414 16.4476 9.60233 16.6004 9.62856C16.7533 9.65479 16.8943 9.72776 17.0039 9.83743C17.1136 9.9471 17.1866 10.0881 17.2128 10.2409C17.239 10.3938 17.2172 10.551 17.1504 10.691L12.6504 15.191C12.5098 15.3314 12.3191 15.4103 12.1204 15.4103C11.9216 15.4103 11.731 15.3314 11.5904 15.191L7.15039 10.691C7.00489 10.5634 6.91514 10.3839 6.90039 10.191Z"
+      }
+    ));
+  }
+  function CustomizeIcon() {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: Icons_default.customize }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M4.5 1C2.567 1 1 2.567 1 4.5C1 6.433 2.567 8 4.5 8C6.17556 8 7.57612 6.82259 7.91946 5.25H14.375C14.7202 5.25 15 4.97018 15 4.625C15 4.27982 14.7202 4 14.375 4H7.96456C7.72194 2.30385 6.26324 1 4.5 1ZM2.25 4.5C2.25 3.25736 3.25736 2.25 4.5 2.25C5.74264 2.25 6.75 3.25736 6.75 4.5C6.75 5.74264 5.74264 6.75 4.5 6.75C3.25736 6.75 2.25 5.74264 2.25 4.5Z",
+        fill: "currentColor"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M8.03544 12H1.625C1.27982 12 1 11.7202 1 11.375C1 11.0298 1.27982 10.75 1.625 10.75H8.08054C8.42388 9.17741 9.82444 8 11.5 8C13.433 8 15 9.567 15 11.5C15 13.433 13.433 15 11.5 15C9.73676 15 8.27806 13.6961 8.03544 12ZM9.25 11.5C9.25 10.2574 10.2574 9.25 11.5 9.25C12.7426 9.25 13.75 10.2574 13.75 11.5C13.75 12.7426 12.7426 13.75 11.5 13.75C10.2574 13.75 9.25 12.7426 9.25 11.5Z",
+        fill: "currentColor"
+      }
+    ));
+  }
+  function DuckFoot() {
+    return /* @__PURE__ */ _("svg", { viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "clip-rule": "evenodd",
+        fill: "currentColor",
+        d: "M6.483.612A2.13 2.13 0 0 1 7.998 0c.56.001 1.115.215 1.512.62.673.685 1.26 1.045 1.852 1.228.594.185 1.31.228 2.311.1a2.175 2.175 0 0 1 1.575.406c.452.34.746.862.75 1.445.033 3.782-.518 6.251-1.714 8.04-1.259 1.882-3.132 2.831-5.045 3.8l-.123.063-.003.001-.125.063a2.206 2.206 0 0 1-1.976 0l-.124-.063-.003-.001-.124-.063c-1.913-.969-3.786-1.918-5.045-3.8C.52 10.05-.031 7.58 0 3.798a1.83 1.83 0 0 1 .75-1.444 2.175 2.175 0 0 1 1.573-.407c1.007.127 1.725.076 2.32-.114.59-.189 1.172-.551 1.839-1.222Zm2.267 1.36v12.233c1.872-.952 3.311-1.741 4.287-3.2.949-1.42 1.493-3.529 1.462-7.194 0-.072-.037-.17-.152-.257a.677.677 0 0 0-.484-.118c-1.126.144-2.075.115-2.945-.155-.77-.239-1.47-.664-2.168-1.309Zm-1.5 12.233V1.955c-.69.635-1.383 1.063-2.15 1.308-.87.278-1.823.317-2.963.174a.677.677 0 0 0-.484.117c-.115.087-.151.186-.152.258-.03 3.664.513 5.774 1.462 7.192.976 1.46 2.415 2.249 4.287 3.201Z"
+      }
+    ));
+  }
+  function Shield() {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M6.341 1.367c.679-1.375 2.64-1.375 3.318 0l1.366 2.767a.35.35 0 0 0 .264.192l3.054.444c1.517.22 2.123 2.085 1.025 3.155l-2.21 2.155a.35.35 0 0 0-.1.31l.521 3.041c.26 1.512-1.327 2.664-2.684 1.95l-2.732-1.436a.35.35 0 0 0-.326 0l-2.732 1.437c-1.357.713-2.943-.44-2.684-1.95l.522-3.043a.35.35 0 0 0-.1-.31L.631 7.926C-.466 6.855.14 4.99 1.657 4.77l3.055-.444a.35.35 0 0 0 .263-.192l1.366-2.767Zm1.973.664a.35.35 0 0 0-.628 0L6.32 4.798A1.85 1.85 0 0 1 4.927 5.81l-3.054.444a.35.35 0 0 0-.194.597l2.21 2.154a1.85 1.85 0 0 1 .532 1.638L3.9 13.685a.35.35 0 0 0 .508.369l2.732-1.436a1.85 1.85 0 0 1 1.722 0l2.732 1.436a.35.35 0 0 0 .508-.369l-.522-3.042a1.85 1.85 0 0 1 .532-1.638l2.21-2.154a.35.35 0 0 0-.194-.597l-3.054-.444A1.85 1.85 0 0 1 9.68 4.798L8.314 2.031Z",
+        fill: "currentColor"
       }
     ));
   }
@@ -1118,6 +1244,186 @@
       },
       /* @__PURE__ */ _(ChevronButton, null)
     );
+  }
+
+  // pages/new-tab/app/customizer/Customizer.module.css
+  var Customizer_default = {
+    root: "Customizer_root",
+    lowerRightFixed: "Customizer_lowerRightFixed",
+    dropdownMenu: "Customizer_dropdownMenu",
+    show: "Customizer_show",
+    customizeButton: "Customizer_customizeButton"
+  };
+
+  // pages/new-tab/app/customizer/VisibilityMenu.module.css
+  var VisibilityMenu_default = {
+    dropdownInner: "VisibilityMenu_dropdownInner",
+    list: "VisibilityMenu_list",
+    menuItemLabel: "VisibilityMenu_menuItemLabel",
+    svg: "VisibilityMenu_svg",
+    checkbox: "VisibilityMenu_checkbox",
+    checkboxIcon: "VisibilityMenu_checkboxIcon"
+  };
+
+  // pages/new-tab/app/customizer/VisibilityMenu.js
+  function VisibilityMenu({ rows, state, toggle }) {
+    const { t: t3 } = useTypedTranslation();
+    const MENU_ID = g2();
+    return /* @__PURE__ */ _("div", { className: VisibilityMenu_default.dropdownInner }, /* @__PURE__ */ _("h2", { className: "sr-only" }, t3("widgets_visibility_menu_title")), /* @__PURE__ */ _("ul", { className: VisibilityMenu_default.list }, rows.map((row, index) => {
+      const current = state[index];
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("label", { className: VisibilityMenu_default.menuItemLabel, htmlFor: MENU_ID + row.id }, /* @__PURE__ */ _(
+        "input",
+        {
+          type: "checkbox",
+          checked: current.checked,
+          onChange: () => toggle(row.id),
+          id: MENU_ID + row.id,
+          class: VisibilityMenu_default.checkbox
+        }
+      ), /* @__PURE__ */ _("span", { "aria-hidden": true, className: VisibilityMenu_default.checkboxIcon }, current.checked && /* @__PURE__ */ _(
+        "svg",
+        {
+          width: "16",
+          height: "16",
+          viewBox: "0 0 16 16",
+          fill: "none",
+          xmlns: "http://www.w3.org/2000/svg"
+        },
+        /* @__PURE__ */ _(
+          "path",
+          {
+            d: "M3.5 9L6 11.5L12.5 5",
+            stroke: "white",
+            "stroke-width": "1.5",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round"
+          }
+        )
+      )), /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id)));
+    })));
+  }
+
+  // pages/new-tab/app/customizer/Customizer.js
+  var import_classnames = __toESM(require_classnames(), 1);
+  function Customizer() {
+    const { widgetConfigItems, toggle } = x2(WidgetConfigContext);
+    const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown();
+    const [rowData, setRowData] = h2(
+      /** @type {VisibilityRowData[]} */
+      []
+    );
+    const toggleMenu = q2(() => {
+      if (isOpen)
+        return setIsOpen(false);
+      const next = [];
+      const detail = {
+        register: (incoming) => {
+          next.push(structuredClone(incoming));
+        }
+      };
+      const event = new CustomEvent(Customizer.OPEN_EVENT, { detail });
+      window.dispatchEvent(event);
+      setRowData(next);
+      setIsOpen(true);
+    }, [isOpen]);
+    const visibilityState = rowData.map((row) => {
+      const item = widgetConfigItems.find((w3) => w3.id === row.id);
+      if (!item)
+        console.warn("could not find", row.id);
+      return {
+        checked: item?.visibility === "visible"
+      };
+    });
+    const MENU_ID = g2();
+    const BUTTON_ID = g2();
+    return /* @__PURE__ */ _("div", { class: Customizer_default.root, ref: dropdownRef }, /* @__PURE__ */ _(
+      CustomizerButton,
+      {
+        buttonId: BUTTON_ID,
+        menuId: MENU_ID,
+        toggleMenu,
+        buttonRef,
+        isOpen
+      }
+    ), /* @__PURE__ */ _(
+      "div",
+      {
+        id: MENU_ID,
+        class: (0, import_classnames.default)(Customizer_default.dropdownMenu, { [Customizer_default.show]: isOpen }),
+        "aria-labelledby": BUTTON_ID
+      },
+      /* @__PURE__ */ _(
+        VisibilityMenu,
+        {
+          rows: rowData,
+          state: visibilityState,
+          toggle
+        }
+      )
+    ));
+  }
+  Customizer.OPEN_EVENT = "ntp-customizer-open";
+  function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef }) {
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        ref: buttonRef,
+        className: Customizer_default.customizeButton,
+        onClick: toggleMenu,
+        "aria-haspopup": "true",
+        "aria-expanded": isOpen,
+        "aria-controls": menuId,
+        id: buttonId
+      },
+      /* @__PURE__ */ _(CustomizeIcon, null),
+      /* @__PURE__ */ _("span", null, "Customize")
+    );
+  }
+  function CustomizerMenuPositionedFixed({ children }) {
+    return /* @__PURE__ */ _("div", { class: Customizer_default.lowerRightFixed }, children);
+  }
+  function useDropdown() {
+    const dropdownRef = A2(null);
+    const buttonRef = A2(null);
+    const [isOpen, setIsOpen] = h2(false);
+    y2(() => {
+      if (!isOpen)
+        return;
+      const handleFocusOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !buttonRef.current?.contains(event.target)) {
+          setIsOpen(false);
+        }
+      };
+      const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains?.(event.target)) {
+          setIsOpen(false);
+        }
+      };
+      const handleKeyDown = (event) => {
+        if (event.key === "Escape") {
+          setIsOpen(false);
+          buttonRef.current?.focus?.();
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+      document.addEventListener("focusin", handleFocusOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+        document.removeEventListener("focusin", handleFocusOutside);
+      };
+    }, [isOpen]);
+    return { dropdownRef, buttonRef, isOpen, setIsOpen };
+  }
+  function useCustomizer({ title, id, icon }) {
+    y2(() => {
+      const handler = (e3) => {
+        e3.detail.register({ title, id, icon });
+      };
+      window.addEventListener(Customizer.OPEN_EVENT, handler);
+      return () => window.removeEventListener(Customizer.OPEN_EVENT, handler);
+    }, [title, id, icon]);
   }
 
   // pages/new-tab/app/privacy-stats/PrivacyStats.js
@@ -1189,7 +1495,10 @@
     }));
   }
   function PrivacyStatsCustomized() {
-    const { visibility } = useVisibility();
+    const { t: t3 } = useTypedTranslation();
+    const { visibility, id } = useVisibility();
+    const title = t3("trackerStatsMenuTitle");
+    useCustomizer({ title, id, icon: "star" });
     if (visibility === "hidden") {
       return null;
     }
@@ -1256,7 +1565,10 @@
 
   // pages/new-tab/app/favorites/Favorites.js
   function FavoritesCustomized() {
+    const { t: t3 } = useTypedTranslation();
     const { id, visibility } = useVisibility();
+    const title = t3("favorites_menu_title");
+    useCustomizer({ title, id, icon: "shield" });
     if (visibility === "hidden") {
       return null;
     }
@@ -1825,35 +2137,6 @@
     3: "var(--sp-3)"
   };
 
-  // pages/new-tab/app/customizer/Customizer.module.css
-  var Customizer_default = {
-    root: "Customizer_root",
-    list: "Customizer_list",
-    item: "Customizer_item",
-    label: "Customizer_label"
-  };
-
-  // pages/new-tab/app/customizer/Customizer.js
-  function Customizer() {
-    const { widgets, widgetConfigItems, toggle } = x2(WidgetConfigContext);
-    return /* @__PURE__ */ _("div", { class: Customizer_default.root }, /* @__PURE__ */ _("ul", { class: Customizer_default.list }, widgets.map((widget) => {
-      const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
-      if (!matchingConfig) {
-        console.warn("missing config for widget: ", widget);
-        return null;
-      }
-      return /* @__PURE__ */ _("li", { key: widget.id, class: Customizer_default.item }, /* @__PURE__ */ _("label", { class: Customizer_default.label }, /* @__PURE__ */ _(
-        "input",
-        {
-          type: "checkbox",
-          checked: matchingConfig.visibility === "visible",
-          onChange: () => toggle(widget.id),
-          value: widget.id
-        }
-      ), /* @__PURE__ */ _("span", null, widget.id)));
-    })));
-  }
-
   // pages/new-tab/app/widget-list/WidgetList.js
   var widgetMap = {
     privacyStats: () => /* @__PURE__ */ _(PrivacyStatsCustomized, null),
@@ -1875,7 +2158,7 @@
         },
         widgetMap[widget.id]?.()
       ));
-    }), /* @__PURE__ */ _(Customizer, null));
+    }), /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(Customizer, null)));
   }
 
   // pages/new-tab/app/components/App.js
@@ -2178,8 +2461,35 @@
         },
         /* @__PURE__ */ _(PrivacyStatsConsumer, null)
       )
+    },
+    "customizer-menu": {
+      factory: () => /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true })), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(
+        VisibilityMenu,
+        {
+          toggle: noop("toggle!"),
+          rows: [
+            {
+              id: "favorites",
+              title: "Favorites",
+              icon: "star"
+            },
+            {
+              id: "privacyStats",
+              title: "Privacy Stats",
+              icon: "shield"
+            }
+          ],
+          state: [
+            { checked: true },
+            { checked: false }
+          ]
+        }
+      )))
     }
   };
+  function MaxContent({ children }) {
+    return /* @__PURE__ */ _("div", { style: { display: "grid", gridTemplateColumns: "max-content" } }, children);
+  }
 
   // pages/new-tab/app/components/Components.jsx
   var url = new URL(window.location.href);
@@ -3662,3 +3972,12 @@
     newTabMessaging.reportInitException(msg);
   });
 })();
+/*! Bundled license information:
+
+classnames/index.js:
+  (*!
+  	Copyright (c) 2018 Jed Watson.
+  	Licensed under the MIT License (MIT), see
+  	http://jedwatson.github.io/classnames
+  *)
+*/

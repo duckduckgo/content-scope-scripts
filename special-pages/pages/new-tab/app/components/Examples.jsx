@@ -1,8 +1,10 @@
-import { h } from "preact";
+import { Fragment, h } from "preact";
 import { PrivacyStatsMockProvider } from "../privacy-stats/mocks/PrivacyStatsMockProvider.js";
 import { Body, Heading, PrivacyStatsConsumer } from "../privacy-stats/PrivacyStats.js";
 import { stats } from "../privacy-stats/mocks/stats.js";
 import { noop } from "../utils.js";
+import { VisibilityMenu } from "../customizer/VisibilityMenu.js";
+import { CustomizerButton } from "../customizer/Customizer.js";
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
@@ -51,7 +53,7 @@ export const otherExamples = {
             ticker={true}
             config={{
                 expansion: "expanded",
-                animation: { kind: "none" }
+                animation: {kind: "none"}
             }}
         ><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
     },
@@ -60,8 +62,47 @@ export const otherExamples = {
             ticker={true}
             config={{
                 expansion: "expanded",
-                animation: { kind: "view-transitions" }
+                animation: {kind: "view-transitions"}
             }}
         ><PrivacyStatsConsumer/></PrivacyStatsMockProvider>
     },
+    'customizer-menu': {
+        factory: () => (
+            <Fragment>
+                <div>
+                    <CustomizerButton isOpen={true}/>
+                </div>
+                <br/>
+                <MaxContent>
+                    <VisibilityMenu
+                        toggle={noop('toggle!')}
+                        rows={[
+                            {
+                                id: 'favorites',
+                                title: 'Favorites',
+                                icon: 'star'
+                            },
+                            {
+                                id: 'privacyStats',
+                                title: 'Privacy Stats',
+                                icon: 'shield'
+                            }
+                        ]}
+                        state={[
+                            {checked: true},
+                            {checked: false},
+                        ]}
+                    />
+                </MaxContent>
+            </Fragment>
+        )
+    },
+}
+
+function MaxContent({children}) {
+    return (
+        <div style={{display: 'grid', gridTemplateColumns: 'max-content'}}>
+            {children}
+        </div>
+    )
 }
