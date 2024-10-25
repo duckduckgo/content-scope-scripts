@@ -614,6 +614,8 @@
     /**
      * Takes a function that returns an element and tries to find it with exponential backoff.
      * @param {number} delay
+     * @param {number} [maxAttempts=4] - The maximum number of attempts to find the element.
+     * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
      * @returns {Promise<Element|HTMLElement|null>}
      */
     function withExponentialBackoff (fn, maxAttempts = 4, delay = 500) {
@@ -20737,6 +20739,36 @@
         #signInButtonSettings
 
         /**
+         * @returns {any}
+         */
+        get settingsButtonStyle () {
+            return {
+                scale: 1,
+                backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            }
+        }
+
+        /**
+         * @returns {any}
+         */
+        get exportButtonStyle () {
+            return {
+                scale: 1.01,
+                backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            }
+        }
+
+        /**
+         * @returns {any}
+         */
+        get signInButtonStyle () {
+            return {
+                scale: 1.5,
+                backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            }
+        }
+
+        /**
          * Takes a path and returns the element and style to animate.
          * @param {string} path
          * @returns {Promise<{element: HTMLElement|Element, style: any, shouldTap: boolean}|null>}
@@ -20746,10 +20778,7 @@
                 const element = await this.findSettingsElement();
                 return element != null
                     ? {
-                        style: {
-                            scale: 1,
-                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                        },
+                        style: this.settingsButtonStyle,
                         element,
                         shouldTap: this.#settingsButtonSettings.shouldAutotap ?? false
                     }
@@ -20758,10 +20787,7 @@
                 const element = await this.findExportElement();
                 return element != null
                     ? {
-                        style: {
-                            scale: 1.01,
-                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                        },
+                        style: this.exportButtonStyle,
                         element,
                         shouldTap: this.#exportButtonSettings.shouldAutotap ?? false
                     }
@@ -20770,10 +20796,7 @@
                 const element = await this.findSignInButton();
                 return element != null
                     ? {
-                        style: {
-                            scale: 1.5,
-                            backgroundColor: 'rgba(0, 39, 142, 0.5)'
-                        },
+                        style: this.signInButtonStyle,
                         element,
                         shouldTap: this.#signInButtonSettings.shouldAutotap ?? false
                     }
@@ -20935,7 +20958,7 @@
             const handleElementForPath = this.handleElementForPath.bind(this);
             const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
                 async apply (target, thisArg, args) {
-                    const path = args[1] === "" ? args[2].split("?")[0] : args[1];
+                    const path = args[1] === '' ? args[2].split('?')[0] : args[1];
                     await handleElementForPath(path);
                     return DDGReflect.apply(target, thisArg, args)
                 }
