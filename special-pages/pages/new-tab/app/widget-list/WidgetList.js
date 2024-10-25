@@ -8,6 +8,8 @@ import {
     Customizer,
     CustomizerMenuPositionedFixed
 } from '../customizer/Customizer.js'
+import { RMFProvider } from '../remote-messaging-framework/RMFProvider.js'
+import { RMFConsumer } from '../remote-messaging-framework/RemoteMessagingFramework.js'
 
 const widgetMap = {
     privacyStats: () => (
@@ -15,6 +17,11 @@ const widgetMap = {
     ),
     favorites: () => (
         <FavoritesCustomized />
+    ),
+    rmf: () => (
+        <RMFProvider>
+            <RMFConsumer />
+        </RMFProvider>
     )
 }
 
@@ -26,6 +33,14 @@ export function WidgetList () {
             {widgets.map((widget) => {
                 const matchingConfig = widgetConfigItems.find(item => item.id === widget.id)
                 if (!matchingConfig) {
+                    const matching = widgetMap[widget.id]
+                    if (matching) {
+                        return (
+                            <Fragment key={widget.id}>
+                                {matching?.()}
+                            </Fragment>
+                        )
+                    }
                     console.warn('missing config for widget: ', widget)
                     return null
                 }
