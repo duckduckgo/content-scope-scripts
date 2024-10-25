@@ -5,8 +5,9 @@
 import { Service } from '../service.js'
 
 /**
- *
+ * @document ./rmf.service.md
  */
+
 export class RMFService {
     /**
      * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
