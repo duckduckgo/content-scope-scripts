@@ -40,7 +40,6 @@
 
 .description {
     line-height: 1.25rem;
-    margin-bottom: var(--sp-3);
 }
 
 .btnBlock {
@@ -49,6 +48,7 @@
 }
 
 .btnRow {
+    margin-top: var(--sp-3);
     display: flex;
     flex-wrap: wrap;
     gap: calc(10 * var(--px-in-rem));
