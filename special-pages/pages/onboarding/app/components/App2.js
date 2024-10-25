@@ -52,7 +52,7 @@ export function App2 ({ children }) {
     }
 
     return (
-        <main className={styles.main} data-platform-name={platformName || 'macos'}>
+        <main className={styles.main} data-platform-name={platformName || 'macos'} data-app-version="2">
             <Background/>
             {debugState && <Debug state={globalState}/>}
             <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} data-step-visible={activeStepVisible} ref={didRender} onAnimationEnd={animationDidFinish}>
