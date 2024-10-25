@@ -24,7 +24,7 @@
 
     @media (prefers-color-scheme: dark) {
         --ntp-background-color: var(--color-gray-85);
-        --ntp-surface-background-color: var(--color-black-at-18);
+        --ntp-surface-background-color: #2a2a2a;
         --ntp-surface-border-color: var(--color-black-at-6);
         --ntp-text-normal: white;
         --ntp-focus-outline-color: white;

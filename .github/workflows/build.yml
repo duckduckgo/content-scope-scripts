@@ -21,6 +21,11 @@ jobs:
       - name: Fetch files and ensure branches exist
         run: |
           git fetch origin
+          if [ -f .git/shallow ]; then
+            echo "Shallow repo clone, unshallowing"
+            git fetch --unshallow
+          fi
+          git fetch --tags
           # Check if the 'main' branch exists, if not, create it
           if git rev-parse --verify main >/dev/null 2>&1; then
             git checkout main
@@ -42,6 +47,7 @@ jobs:
         run: |
           ls -la ${{ github.workspace }}/CHANGELOG.txt
           cat ${{ github.workspace }}/CHANGELOG.txt
+          echo "Current tag is: $(git rev-list --tags --max-count=1)"
 
       - name: Checkout code from main into release branch
         run: |

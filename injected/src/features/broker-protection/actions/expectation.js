@@ -1,21 +1,46 @@
 import { getElement } from '../utils.js'
 import { ErrorResponse, SuccessResponse } from '../types.js'
+import { execute } from '../execute.js'
 
 /**
  * @param {Record<string, any>} action
- * @param {Document | HTMLElement} root
- * @return {import('../types.js').ActionResponse}
+ * @param {Record<string, any>} userData
+ * @param {Document} root
+ * @return {Promise<import('../types.js').ActionResponse>}
  */
-export function expectation (action, root = document) {
+export async function expectation (action, userData, root = document) {
     const results = expectMany(action.expectations, root)
 
-    const errors = results.filter(x => x.result === false).map(x => {
-        if ('error' in x) return x.error
-        return 'unknown error'
-    })
+    // filter out good results + silent failures, leaving only fatal errors
+    const errors = results
+        .filter((x, index) => {
+            if (x.result === true) return false
+            if (action.expectations[index].failSilently) return false
+            return true
+        }).map((x) => {
+            return 'error' in x ? x.error : 'unknown error'
+        })
 
     if (errors.length > 0) {
         return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
+    }
+
+    // only run later actions if every expectation was met
+    const runActions = results.every(x => x.result === true)
+    const secondaryErrors = []
+
+    if (action.actions?.length && runActions) {
+        for (const subAction of action.actions) {
+            const result = await execute(subAction, userData, root)
+
+            if ('error' in result) {
+                secondaryErrors.push(result.error)
+            }
+        }
+
+        if (secondaryErrors.length > 0) {
+            return new ErrorResponse({ actionID: action.id, message: secondaryErrors.join(', ') })
+        }
     }
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null })

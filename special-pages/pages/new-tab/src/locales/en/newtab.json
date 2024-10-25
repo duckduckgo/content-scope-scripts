@@ -9,8 +9,12 @@
       }
     ]
   },
+  "widgets_visibility_menu_title": {
+    "title": "Customize New Tab Page",
+    "note": "Heading text describing that there's a list of toggles for customizing the page layout."
+  },
   "trackerStatsMenuTitle": {
-    "title": "Blocked Tracking Attempts",
+    "title": "Privacy Stats",
     "note": "Used as a toggle label in a page customization menu"
   },
   "trackerStatsNoActivity": {
@@ -52,5 +56,9 @@
   "favorites_show_more": {
     "title": "Show more ({count} remaining)",
     "note": ""
+  },
+  "favorites_menu_title": {
+    "title": "Favorites",
+    "note": "Used as a toggle label in a page customization menu"
   }
 }
