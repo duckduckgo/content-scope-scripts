@@ -10,6 +10,9 @@ const rmfDataSmallMsg = {
     },
 }
 
+/**
+ * @type {import("../../../types/new-tab").RMFData}
+ */
 const rmfDataMediumMsg = {
     "content": {
             messageType: 'medium',
@@ -20,6 +23,9 @@ const rmfDataMediumMsg = {
     }, 
 }
 
+/**
+ * @type {import("../../../types/new-tab").RMFData}
+ */
 const rmfDataBigSingleActionMsg = {
     "content": {
         messageType: 'big_single_action',
@@ -31,6 +37,9 @@ const rmfDataBigSingleActionMsg = {
     }
 }
 
+/**
+ * @type {import("../../../types/new-tab").RMFData}
+ */
 const rmfDataBigTwoActionMsg = {
     "content": {
         messageType: 'big_two_action',
