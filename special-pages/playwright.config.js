@@ -19,6 +19,7 @@ export default defineConfig({
             name: 'integration',
             testMatch: [
                 'privacy-stats.spec.js',
+                'rmf.spec.js',
                 'new-tab.spec.js'
             ],
             use: {
