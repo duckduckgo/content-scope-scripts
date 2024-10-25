@@ -21,6 +21,12 @@ export default class GoogleRejected extends ContentFeature {
             if ('adAuctionComponents' in Navigator.prototype) {
                 delete Navigator.prototype.adAuctionComponents
             }
+            // https://github.com/WICG/privacy-preserving-ads/blob/main/API%20Details.md
+            if (this.getFeatureSetting('getInterestGroupAdAuctionData')) {
+                if ('getInterestGroupAdAuctionData' in Navigator.prototype) {
+                    delete Navigator.prototype.getInterestGroupAdAuctionData
+                
+            }
         } catch {
             // Throw away this exception, it's likely a confict with another extension
         }
