@@ -23,7 +23,7 @@ const otherFeatures = /** @type {const} */([
     'brokerProtection',
     'performanceMetrics',
     'breakageReporting',
-    'passwordImport'
+    'autofillPasswordImport'
 ])
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -46,8 +46,8 @@ export const platformSupport = {
         'breakageReporting',
         'duckPlayer'
     ],
-    'android-password-import': [
-        'passwordImport'
+    'android-autofill-password-import': [
+        'autofillPasswordImport'
     ],
     windows: [
         'cookie',

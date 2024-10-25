@@ -7,7 +7,7 @@ import {
 import { perPlatform } from './type-helpers.mjs'
 
 test('Password import feature', async ({ page }, testInfo) => {
-    const passwordImportFeature = PasswordImportSpec.create(page, testInfo)
+    const passwordImportFeature = AutofillPasswordImportSpec.create(page, testInfo)
     await passwordImportFeature.enabled()
     await passwordImportFeature.navigate()
     await passwordImportFeature.clickOnElement('Home page')
@@ -20,9 +20,9 @@ test('Password import feature', async ({ page }, testInfo) => {
     await passwordImportFeature.assertElementIsAnimating('button[aria-label="Export"')
 })
 
-export class PasswordImportSpec {
-    htmlPage = '/password-import/index.html'
-    config = './integration-test/test-pages/password-import/config/config.json'
+export class AutofillPasswordImportSpec {
+    htmlPage = '/autofill-password-import/index.html'
+    config = './integration-test/test-pages/autofill-password-import/config/config.json'
     /**
      * @param {import("@playwright/test").Page} page
      * @param {import("./type-helpers.mjs").Build} build
@@ -86,7 +86,7 @@ export class PasswordImportSpec {
     static create (page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
-        return new PasswordImportSpec(page, build, platformInfo)
+        return new AutofillPasswordImportSpec(page, build, platformInfo)
     }
 
     /**

@@ -670,7 +670,7 @@
         'brokerProtection',
         'performanceMetrics',
         'breakageReporting',
-        'passwordImport'
+        'autofillPasswordImport'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -693,8 +693,8 @@
             'breakageReporting',
             'duckPlayer'
         ],
-        'android-password-import': [
-            'passwordImport'
+        'android-autofill-password-import': [
+            'autofillPasswordImport'
         ],
         windows: [
             'cookie',
@@ -20765,7 +20765,7 @@
      * 2. Find the element to animate based on the path - using structural selectors first and then fallback to label texts),
      * 3. Animate the element, or tap it if it should be autotapped.
      */
-    class PasswordImport extends ContentFeature {
+    class AutofillPasswordImport extends ContentFeature {
         #exportButtonSettings
         #settingsButtonSettings
         #signInButtonSettings
@@ -20812,7 +20812,7 @@
                     ? {
                         style: this.settingsButtonStyle,
                         element,
-                        shouldTap: this.#settingsButtonSettings.shouldAutotap ?? false
+                        shouldTap: this.#settingsButtonSettings?.shouldAutotap ?? false
                     }
                     : null
             } else if (path === '/options') {
@@ -20821,7 +20821,7 @@
                     ? {
                         style: this.exportButtonStyle,
                         element,
-                        shouldTap: this.#exportButtonSettings.shouldAutotap ?? false
+                        shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false
                     }
                     : null
             } else if (path === '/intro') {
@@ -20830,7 +20830,7 @@
                     ? {
                         style: this.signInButtonStyle,
                         element,
-                        shouldTap: this.#signInButtonSettings.shouldAutotap ?? false
+                        shouldTap: this.#signInButtonSettings?.shouldAutotap ?? false
                     }
                     : null
             } else {
@@ -20915,7 +20915,7 @@
             // for some reason google doesn't wait to proceed with the signin step.
             // Not too sure why this is happening, there are no errors on the console.
 
-            if ([this.#exportButtonSettings.path, this.#settingsButtonSettings.path, this.#signInButtonSettings.path].indexOf(path) !== -1) {
+            if ([this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path].indexOf(path) !== -1) {
                 try {
                     const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {};
                     if (element != null) {
@@ -20975,17 +20975,14 @@
             return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`
         }
 
-        /**
-         * @param {any} settings
-         */
-        setButtonSettings (settings) {
-            this.#exportButtonSettings = settings?.exportButton;
-            this.#settingsButtonSettings = settings?.settingsButton;
-            this.#signInButtonSettings = settings?.signInButton;
+        setButtonSettings () {
+            this.#exportButtonSettings = this.getFeatureSetting('exportButton');
+            this.#signInButtonSettings = this.getFeatureSetting('signInButton');
+            this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
         }
 
-        init (args) {
-            this.setButtonSettings(args?.featureSettings?.passwordImport || {});
+        init () {
+            this.setButtonSettings();
 
             const handleElementForPath = this.handleElementForPath.bind(this);
             const historyMethodProxy = new DDGProxy(this, History.prototype, 'pushState', {
@@ -21029,7 +21026,7 @@
         ddg_feature_brokerProtection: BrokerProtection,
         ddg_feature_performanceMetrics: PerformanceMetrics,
         ddg_feature_breakageReporting: BreakageReporting,
-        ddg_feature_passwordImport: PasswordImport
+        ddg_feature_autofillPasswordImport: AutofillPasswordImport
     };
 
     let initArgs = null;

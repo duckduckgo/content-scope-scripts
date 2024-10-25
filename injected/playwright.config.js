@@ -45,11 +45,11 @@ export default defineConfig({
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] }
         },
         {
-            name: 'android-password-import',
+            name: 'android-autofill-password-import',
             testMatch: [
-                'integration-test/password-import.spec.js'
+                'integration-test/autofill-password-import.spec.js'
             ],
-            use: { injectName: 'android-password-import', platform: 'android', ...devices['Galaxy S5'] }
+            use: { injectName: 'android-autofill-password-import', platform: 'android', ...devices['Galaxy S5'] }
         },
         {
             name: 'chrome',
