@@ -3915,7 +3915,7 @@
                 });
               };
               var __generator = function(thisArg, body) {
-                var _2 = { label: 0, sent: function() {
+                var _3 = { label: 0, sent: function() {
                   if (t3[0] & 1)
                     throw t3[1];
                   return t3[1];
@@ -3931,7 +3931,7 @@
                 function step(op) {
                   if (f3)
                     throw new TypeError("Generator is already executing.");
-                  while (g2 && (g2 = 0, op[0] && (_2 = 0)), _2)
+                  while (g2 && (g2 = 0, op[0] && (_3 = 0)), _3)
                     try {
                       if (f3 = 1, y3 && (t3 = op[0] & 2 ? y3["return"] : op[0] ? y3["throw"] || ((t3 = y3["return"]) && t3.call(y3), 0) : y3.next) && !(t3 = t3.call(y3, op[1])).done)
                         return t3;
@@ -3943,42 +3943,42 @@
                           t3 = op;
                           break;
                         case 4:
-                          _2.label++;
+                          _3.label++;
                           return { value: op[1], done: false };
                         case 5:
-                          _2.label++;
+                          _3.label++;
                           y3 = op[1];
                           op = [0];
                           continue;
                         case 7:
-                          op = _2.ops.pop();
-                          _2.trys.pop();
+                          op = _3.ops.pop();
+                          _3.trys.pop();
                           continue;
                         default:
-                          if (!(t3 = _2.trys, t3 = t3.length > 0 && t3[t3.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                            _2 = 0;
+                          if (!(t3 = _3.trys, t3 = t3.length > 0 && t3[t3.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                            _3 = 0;
                             continue;
                           }
                           if (op[0] === 3 && (!t3 || op[1] > t3[0] && op[1] < t3[3])) {
-                            _2.label = op[1];
+                            _3.label = op[1];
                             break;
                           }
-                          if (op[0] === 6 && _2.label < t3[1]) {
-                            _2.label = t3[1];
+                          if (op[0] === 6 && _3.label < t3[1]) {
+                            _3.label = t3[1];
                             t3 = op;
                             break;
                           }
-                          if (t3 && _2.label < t3[2]) {
-                            _2.label = t3[2];
-                            _2.ops.push(op);
+                          if (t3 && _3.label < t3[2]) {
+                            _3.label = t3[2];
+                            _3.ops.push(op);
                             break;
                           }
                           if (t3[2])
-                            _2.ops.pop();
-                          _2.trys.pop();
+                            _3.ops.pop();
+                          _3.trys.pop();
                           continue;
                       }
-                      op = body.call(thisArg, _2);
+                      op = body.call(thisArg, _3);
                     } catch (e3) {
                       op = [6, e3];
                       y3 = 0;
@@ -4690,7 +4690,7 @@
                   AudioManager2.prototype.timeout = function() {
                     return __awaiter(this, void 0, void 0, function() {
                       return __generator(this, function(_a) {
-                        return [2, new Promise(function(_2, reject) {
+                        return [2, new Promise(function(_3, reject) {
                           return setTimeout(reject, 50);
                         })];
                       });
@@ -5989,14 +5989,11 @@
     async init() {
       if (this.injectName === "integration") {
         return {
-          stepDefinitions: {
-            systemSettings: {
-              rows: ["dock", "import", "default-browser"]
-            }
-          },
+          stepDefinitions: {},
           exclude: [],
-          order: "v1",
-          locale: "en"
+          order: "v3",
+          locale: "en",
+          env: "development"
         };
       }
       return await this.messaging.request("init");
@@ -6169,9 +6166,9 @@
     M.__r = 0;
   }
   function P(n2, l3, u3, t3, i3, o3, r3, f3, e3, c3, s3) {
-    var a3, p3, y3, d3, w3, _2 = t3 && t3.__k || v, g2 = l3.length;
-    for (u3.__d = e3, $(u3, l3, _2), e3 = u3.__d, a3 = 0; a3 < g2; a3++)
-      null != (y3 = u3.__k[a3]) && (p3 = -1 === y3.__i ? h : _2[y3.__i] || h, y3.__i = a3, O(n2, y3, p3, i3, o3, r3, f3, e3, c3, s3), d3 = y3.__e, y3.ref && p3.ref != y3.ref && (p3.ref && N(p3.ref, null, y3), s3.push(y3.ref, y3.__c || d3, y3)), null == w3 && null != d3 && (w3 = d3), 65536 & y3.__u || p3.__k === y3.__k ? e3 = I(y3, e3, n2) : "function" == typeof y3.type && void 0 !== y3.__d ? e3 = y3.__d : d3 && (e3 = d3.nextSibling), y3.__d = void 0, y3.__u &= -196609);
+    var a3, p3, y3, d3, w3, _3 = t3 && t3.__k || v, g2 = l3.length;
+    for (u3.__d = e3, $(u3, l3, _3), e3 = u3.__d, a3 = 0; a3 < g2; a3++)
+      null != (y3 = u3.__k[a3]) && (p3 = -1 === y3.__i ? h : _3[y3.__i] || h, y3.__i = a3, O(n2, y3, p3, i3, o3, r3, f3, e3, c3, s3), d3 = y3.__e, y3.ref && p3.ref != y3.ref && (p3.ref && N(p3.ref, null, y3), s3.push(y3.ref, y3.__c || d3, y3)), null == w3 && null != d3 && (w3 = d3), 65536 & y3.__u || p3.__k === y3.__k ? e3 = I(y3, e3, n2) : "function" == typeof y3.type && void 0 !== y3.__d ? e3 = y3.__d : d3 && (e3 = d3.nextSibling), y3.__d = void 0, y3.__u &= -196609);
     u3.__d = e3, u3.__e = w3;
   }
   function $(n2, l3, u3) {
@@ -6258,7 +6255,7 @@
     };
   }
   function O(n2, u3, t3, i3, o3, r3, f3, e3, c3, s3) {
-    var a3, h3, v3, p3, w3, _2, g2, m2, x3, C3, S2, M2, $2, I2, H, L2, T3 = u3.type;
+    var a3, h3, v3, p3, w3, _3, g2, m2, x3, C3, S2, M2, $2, I2, H, L2, T3 = u3.type;
     if (void 0 !== u3.constructor)
       return null;
     128 & t3.__u && (c3 = !!(32 & t3.__u), r3 = [e3 = u3.__e = t3.__e]), (a3 = l.__b) && a3(u3);
@@ -6277,7 +6274,7 @@
               break n;
             }
             null != h3.componentWillUpdate && h3.componentWillUpdate(m2, h3.__s, S2), x3 && null != h3.componentDidUpdate && h3.__h.push(function() {
-              h3.componentDidUpdate(p3, w3, _2);
+              h3.componentDidUpdate(p3, w3, _3);
             });
           }
           if (h3.context = S2, h3.props = m2, h3.__P = n2, h3.__e = false, $2 = l.__r, I2 = 0, x3) {
@@ -6288,7 +6285,7 @@
             do {
               h3.__d = false, $2 && $2(u3), a3 = h3.render(h3.props, h3.state, h3.context), h3.state = h3.__s;
             } while (h3.__d && ++I2 < 25);
-          h3.state = h3.__s, null != h3.getChildContext && (i3 = d(d({}, i3), h3.getChildContext())), x3 && !v3 && null != h3.getSnapshotBeforeUpdate && (_2 = h3.getSnapshotBeforeUpdate(p3, w3)), P(n2, y(L2 = null != a3 && a3.type === b && null == a3.key ? a3.props.children : a3) ? L2 : [L2], u3, t3, i3, o3, r3, f3, e3, c3, s3), h3.base = u3.__e, u3.__u &= -161, h3.__h.length && f3.push(h3), g2 && (h3.__E = h3.__ = null);
+          h3.state = h3.__s, null != h3.getChildContext && (i3 = d(d({}, i3), h3.getChildContext())), x3 && !v3 && null != h3.getSnapshotBeforeUpdate && (_3 = h3.getSnapshotBeforeUpdate(p3, w3)), P(n2, y(L2 = null != a3 && a3.type === b && null == a3.key ? a3.props.children : a3) ? L2 : [L2], u3, t3, i3, o3, r3, f3, e3, c3, s3), h3.base = u3.__e, u3.__u &= -161, h3.__h.length && f3.push(h3), g2 && (h3.__E = h3.__ = null);
         } catch (n3) {
           if (u3.__v = null, c3 || null != r3) {
             for (u3.__u |= c3 ? 160 : 128; e3 && 8 === e3.nodeType && e3.nextSibling; )
@@ -6317,11 +6314,11 @@
     });
   }
   function z(u3, t3, i3, o3, r3, f3, e3, c3, s3) {
-    var a3, v3, p3, d3, _2, g2, m2, b2 = i3.props, k3 = t3.props, C3 = t3.type;
+    var a3, v3, p3, d3, _3, g2, m2, b2 = i3.props, k3 = t3.props, C3 = t3.type;
     if ("svg" === C3 ? r3 = "http://www.w3.org/2000/svg" : "math" === C3 ? r3 = "http://www.w3.org/1998/Math/MathML" : r3 || (r3 = "http://www.w3.org/1999/xhtml"), null != f3) {
       for (a3 = 0; a3 < f3.length; a3++)
-        if ((_2 = f3[a3]) && "setAttribute" in _2 == !!C3 && (C3 ? _2.localName === C3 : 3 === _2.nodeType)) {
-          u3 = _2, f3[a3] = null;
+        if ((_3 = f3[a3]) && "setAttribute" in _3 == !!C3 && (C3 ? _3.localName === C3 : 3 === _3.nodeType)) {
+          u3 = _3, f3[a3] = null;
           break;
         }
     }
@@ -6335,19 +6332,19 @@
     else {
       if (f3 = f3 && n.call(u3.childNodes), b2 = i3.props || h, !c3 && null != f3)
         for (b2 = {}, a3 = 0; a3 < u3.attributes.length; a3++)
-          b2[(_2 = u3.attributes[a3]).name] = _2.value;
+          b2[(_3 = u3.attributes[a3]).name] = _3.value;
       for (a3 in b2)
-        if (_2 = b2[a3], "children" == a3)
+        if (_3 = b2[a3], "children" == a3)
           ;
         else if ("dangerouslySetInnerHTML" == a3)
-          p3 = _2;
+          p3 = _3;
         else if (!(a3 in k3)) {
           if ("value" == a3 && "defaultValue" in k3 || "checked" == a3 && "defaultChecked" in k3)
             continue;
-          A(u3, a3, null, _2, r3);
+          A(u3, a3, null, _3, r3);
         }
       for (a3 in k3)
-        _2 = k3[a3], "children" == a3 ? d3 = _2 : "dangerouslySetInnerHTML" == a3 ? v3 = _2 : "value" == a3 ? g2 = _2 : "checked" == a3 ? m2 = _2 : c3 && "function" != typeof _2 || b2[a3] === _2 || A(u3, a3, _2, b2[a3], r3);
+        _3 = k3[a3], "children" == a3 ? d3 = _3 : "dangerouslySetInnerHTML" == a3 ? v3 = _3 : "value" == a3 ? g2 = _3 : "checked" == a3 ? m2 = _3 : c3 && "function" != typeof _3 || b2[a3] === _3 || A(u3, a3, _3, b2[a3], r3);
       if (v3)
         c3 || p3 && (v3.__html === p3.__html || v3.__html === u3.innerHTML) || (u3.innerHTML = v3.__html), t3.__k = [];
       else if (p3 && (u3.innerHTML = ""), P(u3, y(d3) ? d3 : [d3], t3, i3, o3, "foreignObject" === C3 ? "http://www.w3.org/1999/xhtml" : r3, f3, e3, f3 ? f3[0] : i3.__k && x(i3, 0), c3, s3), null != f3)
@@ -6496,6 +6493,10 @@
   function y2(n2, u3) {
     var i3 = d2(t2++, 3);
     !c2.__s && C2(i3.__H, u3) && (i3.__ = n2, i3.i = u3, r2.__H.__h.push(i3));
+  }
+  function _2(n2, u3) {
+    var i3 = d2(t2++, 4);
+    !c2.__s && C2(i3.__H, u3) && (i3.__ = n2, i3.i = u3, r2.__h.push(i3));
   }
   function A2(n2) {
     return o2 = 5, T2(function() {
@@ -7208,8 +7209,8 @@
       }
     ));
   }
-  function Replay() {
-    return /* @__PURE__ */ _("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_10021_2837)" }, /* @__PURE__ */ _(
+  function Replay({ direction = "backward" }) {
+    return /* @__PURE__ */ _("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg", style: direction === "forward" ? { transform: "scale(-1,1)" } : {} }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_10021_2837)" }, /* @__PURE__ */ _(
       "path",
       {
         d: "M7.11485 1.37611C6.05231 1.12541 4.93573 1.25089 3.95534 1.73116C3.06198 2.1688 2.33208 2.87636 1.86665 3.75003H3.9837C4.32888 3.75003 4.6087 4.02985 4.6087 4.37503C4.6087 4.7202 4.32888 5.00003 3.9837 5.00003H0.625013C0.279836 5.00003 1.33514e-05 4.7202 1.33514e-05 4.37503V0.651184C1.33514e-05 0.306006 0.279836 0.0261841 0.625013 0.0261841C0.970191 0.0261841 1.25001 0.306006 1.25001 0.651184V2.39582C1.81304 1.64241 2.54999 1.02768 3.40543 0.608623C4.64552 0.00112504 6.05789 -0.157593 7.40189 0.159513C8.74589 0.476619 9.93836 1.24993 10.7761 2.34768C11.6139 3.44543 12.0451 4.7997 11.9963 6.17974C11.9475 7.55977 11.4216 8.88019 10.5084 9.91601C9.59521 10.9518 8.35109 11.639 6.98804 11.8603C5.625 12.0817 4.22737 11.8236 3.03329 11.13C1.83922 10.4364 0.922573 9.35022 0.43955 8.05655C0.318811 7.73318 0.483079 7.37316 0.806451 7.25242C1.12982 7.13168 1.48985 7.29595 1.61059 7.61932C1.99245 8.64206 2.71713 9.50076 3.66114 10.0491C4.60514 10.5974 5.71008 10.8015 6.78767 10.6265C7.86526 10.4515 8.84883 9.90826 9.5708 9.08936C10.2928 8.27047 10.7085 7.22658 10.747 6.13555C10.7856 5.04453 10.4447 3.97387 9.78243 3.10602C9.12012 2.23816 8.17738 1.6268 7.11485 1.37611Z",
@@ -7364,6 +7365,10 @@
     },
     summary: {
       id: "summary",
+      kind: "info"
+    },
+    duckPlayerSingle: {
+      id: "duckPlayerSingle",
       kind: "info"
     }
   };
@@ -7521,17 +7526,45 @@
     })
   };
 
+  // pages/onboarding/app/components/List.js
+  var import_classnames3 = __toESM(require_classnames(), 1);
+
   // pages/onboarding/app/components/List.module.css
   var List_default = {
     list: "List_list",
+    plainListContainer: "List_plainListContainer",
+    plainList: "List_plainList",
+    borderedList: "List_borderedList",
     summaryList: "List_summaryList"
   };
 
   // pages/onboarding/app/components/List.js
-  function List(props) {
+  function List({ animate: animate2 = false, children }) {
     const { isReducedMotion } = useEnv();
     const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
-    return /* @__PURE__ */ _("ul", { className: List_default.list, ref: props.animate ? parent : null }, props.children);
+    return /* @__PURE__ */ _("ul", { className: List_default.list, ref: animate2 ? parent : null }, children);
+  }
+  function PlainList({ variant, animate: animate2 = false, children }) {
+    const listRef = A2(null);
+    const containerRef = A2(null);
+    const classes = (0, import_classnames3.default)({
+      [List_default.plainList]: true,
+      [List_default.borderedList]: variant === "bordered"
+    });
+    y2(() => {
+      if (containerRef.current && listRef.current) {
+        const container = (
+          /** @type {HTMLElement} */
+          containerRef.current
+        );
+        const list = (
+          /** @type {HTMLElement} */
+          listRef.current
+        );
+        container.style.height = `${list.clientHeight}px`;
+      }
+    }, [containerRef, listRef, children]);
+    return /* @__PURE__ */ _("div", { className: List_default.plainListContainer, ref: animate2 ? containerRef : null }, /* @__PURE__ */ _("ul", { className: classes, ref: animate2 ? listRef : null }, children));
   }
   function SummaryList(props) {
     return /* @__PURE__ */ _("ul", { className: List_default.summaryList }, props.children);
@@ -7850,6 +7883,150 @@
     beforeAfter_duckPlayer_hide: {
       title: "See Without Duck Player",
       note: "Option for comparing YouTube viewing experience with and without Duck Player."
+    },
+    getStarted_title_v3: {
+      title: "Hi there.{paragraph}Ready for a faster browser{newline}that keeps you protected?",
+      note: "Introductory text when a user starts the onboarding process. `{paragraph}` and `{newline}` should not be translated. Please adjust `{newline}` placement ensuring visual balance and readability."
+    },
+    getStartedButton_v3: {
+      title: "Let\u2019s Do It!",
+      note: "Button label prompting user to start the onboarding process."
+    },
+    protectionsActivated_title: {
+      title: "Protections activated!",
+      note: "Title for a page that shows all the protections offered by the DuckDuckGo browser and how they compare to other browsers."
+    },
+    makeDefaultButton: {
+      title: "Make DuckDuckGo Your Default",
+      note: "Button label prompting user to set DuckDuckGo as their default browser."
+    },
+    makeDefaultAccept_title: {
+      title: "Excellent! I was hoping you\u2019d pick me.",
+      note: "Page title shown if a user chose to make DuckDuckGo their default browser."
+    },
+    taskbar_title: {
+      title: "Want me to stick around in the taskbar?",
+      note: "Title for a page that asks the user to add the DuckDuckGo browser to their Windows taskbar."
+    },
+    dock_title: {
+      title: "Want me to stick around in the dock?",
+      note: "Title for a page that asks the user to add the DuckDuckGo browser to their dock on macOS."
+    },
+    duckPlayer_title: {
+      title: "Drowning in ads on YouTube? Not with Duck Player!",
+      note: "Title for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
+    },
+    duckPlayer_subtitle: {
+      title: "No targeted ads. No targeted recommendations. Just your video.",
+      note: "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
+    },
+    customize_title_v3: {
+      title: "Let\u2019s customize a few things\u2026",
+      note: "Title for a page that allows the user to customize specific settings in the DuckDuckGo browser."
+    },
+    customize_subtitle_v3: {
+      title: "Set things up just the way you want.",
+      note: "Subtitle for a page that allows the user to customize specific settings in the DuckDuckGo browser."
+    },
+    systemSettings_title_v3: {
+      title: "Let\u2019s get you set up!",
+      note: "Title for a page that allows the user to customize system settings for the DuckDuckGo browser"
+    },
+    systemSettings_subtitle_v3: {
+      title: "It\u2019s easy to make me your go-to browser.",
+      note: "Subtitle for a page that allows the user to customize system settings for the DuckDuckGo browser"
+    },
+    row_bookmarks_title_v3: {
+      title: "Show a bookmarks bar with your favorite sites",
+      note: "Heading for a toggle that puts the bookmarks bar withing easy reach of the user."
+    },
+    "row_session-restore_title_v3": {
+      title: "Restore previous websites on startup",
+      note: "Heading for a toggle that restores the user's previously open tabs when relaunching the browser."
+    },
+    "row_home-shortcut_title_v3": {
+      title: "Add a shortcut to your homepage in the toolbar",
+      note: "Heading for a toggle that adds the user's homepage to the browser toolbar."
+    },
+    "row_default-browser_title_v3": {
+      title: "Make DuckDuckGo your default browser",
+      note: "Title for the default browser suggestion, encourages users to make DuckDuckGo their primary browser."
+    },
+    row_import_title_v3: {
+      title: "Import bookmarks and passwords",
+      note: "Title for importing user data (bookmarks, passwords) to DuckDuckGo from other browsers."
+    },
+    row_import_summary_v3: {
+      title: "On device encryption keeps your passwords secure.",
+      note: "Explanation of additional security benefits of importing user's passwords into DuckDuckGo."
+    },
+    row_import_accept_v3: {
+      title: "Import Now",
+      note: "The text shown in the button to perform the import action."
+    },
+    row_taskbar_title_v3: {
+      title: "Keep DuckDuckGo in your Taskbar",
+      note: "Suggests users to keep DuckDuckGo in their taskbar for quick access."
+    },
+    row_taskbar_summary_v3: {
+      title: 'Choose "Yes" when prompted in the bottom right.',
+      note: "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
+    },
+    row_dock_title_v3: {
+      title: "Keep DuckDuckGo in your Dock",
+      note: "Suggests users to keep DuckDuckGo in their dock for quick access."
+    },
+    row_dock_summary_v3: {
+      title: "Get to DuckDuckGo faster.",
+      note: "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
+    },
+    comparison_searchPrivately: {
+      title: "Search privately by default",
+      note: "The description of a browser privacy feature in the comparison table."
+    },
+    comparison_blockTrackers: {
+      title: "Block 3rd-party trackers",
+      note: "The description of a browser privacy feature in the comparison table."
+    },
+    comparison_blockCookies: {
+      title: "Block cookie requests & popups",
+      note: "The description of a browser privacy feature in the comparison table."
+    },
+    comparison_blockAds: {
+      title: "Block targeted ads",
+      note: "The description of a browser privacy feature in the comparison table."
+    },
+    comparison_eraseData: {
+      title: "Erase browsing data swiftly",
+      note: "The description of a browser privacy feature in the comparison table."
+    },
+    comparison_privateYoutube: {
+      title: "YouTube without targeted ads",
+      note: "The description of a browser privacy feature in the comparison table."
+    },
+    comparison_fullSupport: {
+      title: "Significant protection",
+      note: "The level of protection offered by a browser on a specific feature in the comparison table."
+    },
+    comparison_partialSupport: {
+      title: "Limited protection",
+      note: "The level of protection offered by a browser on a specific feature in the comparison table."
+    },
+    comparison_notSupported: {
+      title: "No protection",
+      note: "The level of protection offered by a browser on a specific feature in the comparison table."
+    },
+    browser_DuckDuckGo: {
+      title: "DuckDuckGo",
+      note: "Brand name of the DuckDuckGo browser"
+    },
+    browser_Chrome: {
+      title: "Chrome",
+      note: "Brand name of the Google Chrome browser"
+    },
+    browser_Safari: {
+      title: "Safari",
+      note: "Brand name of the Apple Safari browser"
     }
   };
 
@@ -7864,7 +8041,8 @@
     "summary",
     "dockSingle",
     "importSingle",
-    "makeDefaultSingle"
+    "makeDefaultSingle",
+    "duckPlayerSingle"
   ];
   var DEFAULT_ORDER = [
     "welcome",
@@ -7885,6 +8063,14 @@
     "makeDefaultSingle",
     "customize",
     "summary"
+  ];
+  var ORDER_V3 = [
+    "welcome",
+    "getStarted",
+    "makeDefaultSingle",
+    "systemSettings",
+    "duckPlayerSingle",
+    "customize"
   ];
   function useTypedTranslation() {
     return {
@@ -8029,12 +8215,12 @@
     }
     return state;
   }
-  function GlobalProvider({ order, children, stepDefinitions: stepDefinitions2, messaging: messaging2, firstPage = "welcome" }) {
+  function GlobalProvider({ order, children, stepDefinitions: stepDefinitions3, messaging: messaging2, firstPage = "welcome" }) {
     const [state, dispatch] = p2(reducer, {
       status: { kind: "idle" },
       order,
-      stepDefinitions: stepDefinitions2,
-      step: stepDefinitions2[firstPage],
+      stepDefinitions: stepDefinitions3,
+      step: stepDefinitions3[firstPage],
       activeStep: firstPage,
       nextStep: order[1],
       activeRow: 0,
@@ -8167,9 +8353,9 @@
   };
 
   // pages/onboarding/app/components/Background.js
-  var import_classnames3 = __toESM(require_classnames(), 1);
+  var import_classnames4 = __toESM(require_classnames(), 1);
   function Background() {
-    return /* @__PURE__ */ _("div", { className: Background_default.background }, /* @__PURE__ */ _("div", { className: (0, import_classnames3.default)(Background_default.foreground, Background_default.layer1) }), /* @__PURE__ */ _("div", { className: (0, import_classnames3.default)(Background_default.foreground, Background_default.layer2) }), /* @__PURE__ */ _("div", { className: (0, import_classnames3.default)(Background_default.foreground, Background_default.layer3) }));
+    return /* @__PURE__ */ _("div", { className: Background_default.background }, /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer1) }), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer2) }), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer3) }));
   }
 
   // pages/onboarding/app/pages/Welcome.js
@@ -8280,7 +8466,7 @@
 
   // pages/onboarding/app/components/RiveAnimation.js
   var import_canvas_single = __toESM(require_rive(), 1);
-  function RiveAnimation({ animation, state, stateMachine, artboard, inputName, isDarkMode }) {
+  function RiveAnimation({ animation, state, stateMachine, artboard, inputName, autoplay = true, isDarkMode }) {
     const ref = A2(
       /** @type {null | HTMLCanvasElement} */
       null
@@ -8296,14 +8482,14 @@
         src: ["js", animation].join("/"),
         canvas: ref.current,
         enableRiveAssetCDN: false,
-        autoplay: true,
+        autoplay,
         artboard,
         stateMachines: stateMachine
       });
       return () => {
         rive.current?.cleanup();
       };
-    }, [stateMachine, inputName, artboard]);
+    }, [stateMachine, inputName, artboard, autoplay]);
     y2(() => {
       if (!stateMachine)
         return;
@@ -8570,7 +8756,7 @@
   }
 
   // pages/onboarding/app/components/Typed.js
-  function Typed({ text, children = null, onComplete = null, delay = 20, ...rest }) {
+  function Typed({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
     const globalState = x2(GlobalContext);
     const { activeStep } = globalState;
     const pre = A2(
@@ -8592,13 +8778,14 @@
         key: text,
         text,
         onComplete,
+        paused,
         delay,
         ...rest
       },
       children
     );
   }
-  function TypedInner({ text, onComplete, delay, children, ...rest }) {
+  function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
     const { isReducedMotion } = useEnv();
     const [screenWidth, setScreenWidth] = h2(0);
     const [coords2, setCoords] = h2({ left: 0, width: 0 });
@@ -8633,9 +8820,25 @@
       };
     }, []);
     y2(() => {
+      if (paused)
+        return () => {
+        };
       const controller = new AbortController();
       let enabled2 = true;
-      document.body.addEventListener("pointerdown", () => {
+      document.body.addEventListener("pointerdown", (e3) => {
+        let clickedElement = (
+          /** @type {HTMLElement|null} */
+          e3.target
+        );
+        let level = 0;
+        const maxLevels = 3;
+        while (clickedElement && level < maxLevels) {
+          if (clickedElement.matches("button")) {
+            return;
+          }
+          clickedElement = clickedElement.parentElement;
+          level += 1;
+        }
         setCurrentText(text);
         setCurrentIndex(text.length);
         enabled2 = false;
@@ -8658,7 +8861,7 @@
         localOnComplete();
         return () => controller.abort();
       }
-    }, [currentIndex, delay, text]);
+    }, [currentIndex, delay, text, paused]);
     function updatePlacement() {
       const actualCurrent = (
         /** @type {HTMLSpanElement} */
@@ -8759,12 +8962,17 @@
     progressContainer: "Progress_progressContainer",
     "fade-in": "Progress_fade-in",
     count: "Progress_count",
-    progress: "Progress_progress"
+    progress: "Progress_progress",
+    singleLineContainer: "Progress_singleLineContainer"
   };
 
   // pages/onboarding/app/components/Progress.js
+  var import_classnames5 = __toESM(require_classnames(), 1);
   function Progress({ total, current }) {
     return /* @__PURE__ */ _("div", { className: Progress_default.progressContainer }, /* @__PURE__ */ _("div", { className: Progress_default.count }, current, " / ", total), /* @__PURE__ */ _("progress", { className: Progress_default.progress, max: total, value: current }, "(Page ", current, " of circa ", total, ")"));
+  }
+  function SingleLineProgress({ total, current }) {
+    return /* @__PURE__ */ _("div", { className: (0, import_classnames5.default)([Progress_default.progressContainer, Progress_default.singleLineContainer]) }, /* @__PURE__ */ _("div", { className: Progress_default.count }, current, " / ", total), /* @__PURE__ */ _("progress", { className: Progress_default.progress, max: total, value: current }, "(Page ", current, " of circa ", total, ")"));
   }
 
   // pages/onboarding/app/components/App.js
@@ -8841,7 +9049,7 @@
         advance();
       }
     };
-    return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _("link", { rel: "preload", href: ["js", Onboarding_default].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["js", stepMeta.dockSingle.rows.dock.path].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["js", stepMeta.importSingle.rows.import.path].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["js", stepMeta.makeDefaultSingle.rows["default-browser"].path].join("/"), as: "image" }), /* @__PURE__ */ _(Background, null), debugState && /* @__PURE__ */ _(Debug, { state: globalState }), /* @__PURE__ */ _("div", { className: App_default.container, "data-current": activeStep }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(Header, { aside: showProgress && /* @__PURE__ */ _(Progress, { current: progress.indexOf(activeStep) + 1, total: progress.length }) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _("link", { rel: "preload", href: ["js", Onboarding_default].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["js", stepMeta.dockSingle.rows.dock.path].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["js", stepMeta.importSingle.rows.import.path].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["js", stepMeta.makeDefaultSingle.rows["default-browser"].path].join("/"), as: "image" }), /* @__PURE__ */ _(Background, null), debugState && /* @__PURE__ */ _(Debug, { state: globalState }), /* @__PURE__ */ _("div", { className: App_default.container, "data-current": activeStep }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(Header, { aside: showProgress && /* @__PURE__ */ _(Progress, { current: progress.indexOf(activeStep) + 1, total: progress.length }) }, pageTitle && /* @__PURE__ */ _(
       Typed,
       {
         onComplete: titleDone,
@@ -8898,8 +9106,873 @@
     return /* @__PURE__ */ _("div", { style: "position: fixed; bottom: 0; left: 0; width: 50px; height: 50px", onClick: handler, "data-testid": "skip" });
   }
 
+  // pages/onboarding/app/components/SettingsProvider.js
+  var SettingsContext = G(
+    /** @type {{platform: {name: ImportMeta['platform']}|undefined}} */
+    {}
+  );
+  function SettingsProvider({ platform, children }) {
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { platform } }, children);
+  }
+  function usePlatformName() {
+    return x2(SettingsContext).platform?.name;
+  }
+
+  // pages/onboarding/app/components/v3/Background.module.css
+  var Background_default2 = {
+    background: "Background_background2",
+    foreground: "Background_foreground2",
+    layer1: "Background_layer12",
+    slidein1: "Background_slidein12",
+    layer2: "Background_layer22",
+    slidein2: "Background_slidein22",
+    layer3: "Background_layer32",
+    slidein3: "Background_slidein32"
+  };
+
+  // pages/onboarding/app/components/v3/Background.js
+  var import_classnames6 = __toESM(require_classnames(), 1);
+  function Background2() {
+    return /* @__PURE__ */ _("div", { className: Background_default2.background }, /* @__PURE__ */ _("div", { className: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.layer1) }), /* @__PURE__ */ _("div", { className: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.layer2) }), /* @__PURE__ */ _("div", { className: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.layer3) }));
+  }
+
+  // pages/onboarding/app/components/v3/BeforeAfterProvider.js
+  var beforeAfterValues = ["before", "after"];
+  var BeforeAfterContext = G({
+    /**
+     * @type {StepStates}
+     */
+    stepStates: {},
+    /**
+     * @param {steps[number]} step
+     * @returns {BeforeAfter|null}
+     */
+    getStep: (step) => {
+      console.log(step);
+      return null;
+    },
+    /**
+     * @param {steps[number]} step
+     * @param {BeforeAfter} value
+     */
+    setStep: (step, value) => {
+      console.log(step, value);
+    },
+    /**
+     * @param {steps[number]} step
+     */
+    toggleStep: (step) => {
+      console.log(step);
+    }
+  });
+  function BeforeAfterProvider({ children }) {
+    const [stepStates, setStepStates] = h2({});
+    function getStep(step) {
+      return stepStates[step] || null;
+    }
+    function setStep(step, value) {
+      if (ORDER_V3.includes(step) && beforeAfterValues.includes(value)) {
+        setStepStates((prevState) => ({ ...prevState, [step]: value }));
+      }
+    }
+    function toggleStep(step) {
+      if (ORDER_V3.includes(step)) {
+        setStepStates((prevState) => {
+          const newValue = prevState[step] === "before" ? "after" : "before";
+          return { ...prevState, [step]: newValue };
+        });
+      }
+    }
+    return /* @__PURE__ */ _(BeforeAfterContext.Provider, { value: { stepStates, getStep, setStep, toggleStep } }, children);
+  }
+  function useBeforeAfter() {
+    return x2(BeforeAfterContext);
+  }
+
+  // pages/onboarding/app/components/v3/SingleStep.js
+  var import_classnames11 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/components/v3/ComparisonTable.js
+  var import_classnames7 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/components/v3/data-comparison-table.js
+  var SupportStatus = {
+    NOT_SUPPORTED: "notSupported",
+    PARTIAL_SUPPORT: "partialSupport",
+    FULL_SUPPORT: "fullSupport"
+  };
+  var tableIconPrefix = "assets/img/steps/v3/";
+  var comparisonTableData = (t3) => [
+    {
+      icon: "search.svg",
+      title: t3("comparison_searchPrivately"),
+      statuses: {
+        chrome: SupportStatus.NOT_SUPPORTED,
+        safari: SupportStatus.NOT_SUPPORTED,
+        ddg: SupportStatus.FULL_SUPPORT
+      }
+    },
+    {
+      icon: "shield.svg",
+      title: t3("comparison_blockTrackers"),
+      statuses: {
+        chrome: SupportStatus.NOT_SUPPORTED,
+        safari: SupportStatus.PARTIAL_SUPPORT,
+        ddg: SupportStatus.FULL_SUPPORT
+      }
+    },
+    {
+      icon: "cookie.svg",
+      title: t3("comparison_blockCookies"),
+      statuses: {
+        chrome: SupportStatus.NOT_SUPPORTED,
+        safari: SupportStatus.NOT_SUPPORTED,
+        ddg: SupportStatus.FULL_SUPPORT
+      }
+    },
+    {
+      icon: "ads.svg",
+      title: t3("comparison_blockAds"),
+      statuses: {
+        chrome: SupportStatus.NOT_SUPPORTED,
+        safari: SupportStatus.NOT_SUPPORTED,
+        ddg: SupportStatus.FULL_SUPPORT
+      }
+    },
+    {
+      icon: "fire.svg",
+      title: t3("comparison_eraseData"),
+      statuses: {
+        chrome: SupportStatus.NOT_SUPPORTED,
+        safari: SupportStatus.NOT_SUPPORTED,
+        ddg: SupportStatus.FULL_SUPPORT
+      }
+    },
+    {
+      icon: "video-player.svg",
+      title: t3("comparison_privateYoutube"),
+      statuses: {
+        chrome: SupportStatus.NOT_SUPPORTED,
+        safari: SupportStatus.NOT_SUPPORTED,
+        ddg: SupportStatus.FULL_SUPPORT
+      }
+    }
+  ];
+
+  // pages/onboarding/app/components/v3/ComparisonTable.module.css
+  var ComparisonTable_default = {
+    table: "ComparisonTable_table",
+    rowHeading: "ComparisonTable_rowHeading",
+    rowCell: "ComparisonTable_rowCell",
+    row: "ComparisonTable_row",
+    rowHeadingContents: "ComparisonTable_rowHeadingContents",
+    rowIcon: "ComparisonTable_rowIcon",
+    status: "ComparisonTable_status",
+    notSupported: "ComparisonTable_notSupported",
+    partialSupport: "ComparisonTable_partialSupport",
+    fullSupport: "ComparisonTable_fullSupport",
+    browserIcon: "ComparisonTable_browserIcon",
+    browserIconChrome: "ComparisonTable_browserIconChrome",
+    browserIconSafari: "ComparisonTable_browserIconSafari",
+    browserIconDuckDuckGo: "ComparisonTable_browserIconDuckDuckGo"
+  };
+
+  // pages/onboarding/app/components/v3/ComparisonTable.js
+  function ComparisonTableColumnHeading({ title }) {
+    const className = `browserIcon${title}`;
+    return /* @__PURE__ */ _("th", null, /* @__PURE__ */ _("span", { className: (0, import_classnames7.default)(ComparisonTable_default.browserIcon, ComparisonTable_default[className]), "aria-label": title }));
+  }
+  function ComparisonTableRowHeading({ icon, title }) {
+    const path = tableIconPrefix + icon;
+    return /* @__PURE__ */ _("th", { scope: "row", className: ComparisonTable_default.rowHeading }, /* @__PURE__ */ _("div", { className: ComparisonTable_default.rowHeadingContents }, /* @__PURE__ */ _("img", { className: ComparisonTable_default.rowIcon, src: path, "aria-hidden": "true" }), title));
+  }
+  function ComparisonTableCell({ status }) {
+    const { t: t3 } = useTypedTranslation();
+    const arialLabel = t3(`comparison_${status}`);
+    return /* @__PURE__ */ _("td", { className: ComparisonTable_default.rowCell }, /* @__PURE__ */ _("span", { className: (0, import_classnames7.default)(ComparisonTable_default.status, ComparisonTable_default[status]), "aria-label": arialLabel }));
+  }
+  function ComparisonTableRow({ icon, title, statuses }) {
+    const { chrome, ddg } = statuses;
+    return /* @__PURE__ */ _("tr", { className: ComparisonTable_default.row }, /* @__PURE__ */ _(ComparisonTableRowHeading, { icon, title }), /* @__PURE__ */ _(ComparisonTableCell, { status: chrome }), /* @__PURE__ */ _(ComparisonTableCell, { status: ddg }));
+  }
+  function ComparisonTable() {
+    const { t: t3 } = useTypedTranslation();
+    const tableData = comparisonTableData(t3);
+    return /* @__PURE__ */ _("table", { className: ComparisonTable_default.table }, /* @__PURE__ */ _("caption", null), /* @__PURE__ */ _("thead", null, /* @__PURE__ */ _("tr", null, /* @__PURE__ */ _("th", null), /* @__PURE__ */ _(ComparisonTableColumnHeading, { title: "Chrome" }), /* @__PURE__ */ _(ComparisonTableColumnHeading, { title: "DuckDuckGo" }))), /* @__PURE__ */ _("tbody", null, tableData.map((data) => /* @__PURE__ */ _(ComparisonTableRow, { ...data }))));
+  }
+
+  // pages/onboarding/app/components/v3/Animation.module.css
+  var Animation_default = {
+    container: "Animation_container",
+    slideIn: "Animation_slideIn",
+    slide: "Animation_slide"
+  };
+
+  // pages/onboarding/app/components/v3/Animation.js
+  function SlideIn2({ children, onAnimationEnd }) {
+    const [animationState, setAnimationState] = h2(
+      /** @type {AnimationState} */
+      "idle"
+    );
+    const { activeStepVisible, activeStep } = x2(GlobalContext);
+    const { isReducedMotion } = useEnv();
+    const animationEnd = q2(() => {
+      setAnimationState("done");
+      onAnimationEnd && onAnimationEnd();
+    }, [onAnimationEnd]);
+    y2(() => {
+      setAnimationState(activeStepVisible ? "animating" : "idle");
+      if (isReducedMotion)
+        animationEnd();
+    }, [activeStep, activeStepVisible, isReducedMotion]);
+    const animationDidEnd = (e3) => {
+      if (e3.animationName === "Animation_slide")
+        animationEnd();
+    };
+    return /* @__PURE__ */ _("div", { class: Animation_default.container, onAnimationEnd: animationDidEnd, key: activeStep, "data-animation-state": animationState }, /* @__PURE__ */ _("div", { className: Animation_default.slideIn }, children));
+  }
+
+  // pages/onboarding/app/components/v3/MakeDefaultStep.js
+  function MakeDefaultStep() {
+    return /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _(ComparisonTable, null));
+  }
+
+  // pages/onboarding/app/components/v3/DuckPlayerStep.module.css
+  var DuckPlayerStep_default = {
+    animationContainer: "DuckPlayerStep_animationContainer"
+  };
+
+  // pages/onboarding/app/components/v3/DuckPlayerStep.js
+  function DuckPlayerStep() {
+    const { isDarkMode, isReducedMotion } = useEnv();
+    const [canPlay, setCanPlay] = h2(false);
+    const { getStep, setStep } = useBeforeAfter();
+    const timer = A2(null);
+    y2(() => {
+      if (canPlay && !timer.current) {
+        timer.current = setTimeout(() => {
+          setStep("duckPlayerSingle", "after");
+        }, isReducedMotion ? 100 : 0);
+      }
+      return () => {
+        if (timer.current)
+          clearTimeout(timer.current);
+      };
+    }, [canPlay, isReducedMotion]);
+    const animationDidEnd = () => {
+      if (!timer.current)
+        setCanPlay(true);
+    };
+    return /* @__PURE__ */ _(SlideIn2, { onAnimationEnd: animationDidEnd }, /* @__PURE__ */ _("div", { className: DuckPlayerStep_default.animationContainer }, /* @__PURE__ */ _(
+      RiveAnimation,
+      {
+        animation: Onboarding_default,
+        state: getStep("duckPlayerSingle") || "before",
+        isDarkMode,
+        artboard: "Duck Player",
+        inputName: "Duck Player?",
+        stateMachine: "State Machine 2"
+      }
+    )));
+  }
+
+  // pages/onboarding/app/components/v3/ElasticButton.js
+  var import_classnames8 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/components/v3/ElasticButton.module.css
+  var ElasticButton_default = {
+    button: "ElasticButton_button",
+    background: "ElasticButton_background",
+    content: "ElasticButton_content",
+    elastic: "ElasticButton_elastic",
+    secondary: "ElasticButton_secondary",
+    primary: "ElasticButton_primary",
+    fixedWidthContainer: "ElasticButton_fixedWidthContainer",
+    hiddenContent: "ElasticButton_hiddenContent",
+    visibleContent: "ElasticButton_visibleContent"
+  };
+
+  // pages/onboarding/app/components/v3/ElasticButton.js
+  function ElasticButton({ text, variant = "primary", startIcon, endIcon, longestText, elastic = true, ...rest }) {
+    const classes = (0, import_classnames8.default)({
+      [ElasticButton_default.button]: true,
+      [ElasticButton_default.primary]: variant === "primary",
+      [ElasticButton_default.secondary]: variant === "secondary",
+      [ElasticButton_default.elastic]: elastic === true
+    });
+    return /* @__PURE__ */ _("button", { className: classes, "aria-label": text, ...rest }, /* @__PURE__ */ _("div", { className: ElasticButton_default.background }), /* @__PURE__ */ _("div", { class: ElasticButton_default.content }, startIcon, longestText ? /* @__PURE__ */ _(FixedWidthContent, { text, longestText }) : text, endIcon));
+  }
+  function FixedWidthContent({ text, longestText }) {
+    return /* @__PURE__ */ _("span", { className: ElasticButton_default.fixedWidthContainer }, /* @__PURE__ */ _("span", { "aria-hidden": true, className: ElasticButton_default.hiddenContent }, longestText), /* @__PURE__ */ _("span", { className: ElasticButton_default.visibleContent }, text));
+  }
+
+  // pages/onboarding/app/components/v3/Buttons.module.css
+  var Buttons_default2 = {
+    buttons: "Buttons_buttons2",
+    button: "Buttons_button2",
+    large: "Buttons_large2",
+    xl: "Buttons_xl2",
+    secondary: "Buttons_secondary2",
+    primary: "Buttons_primary2"
+  };
+
+  // pages/onboarding/app/components/v3/Buttons.js
+  var import_classnames9 = __toESM(require_classnames(), 1);
+  function ButtonBar2(props) {
+    const { children, ...rest } = props;
+    return /* @__PURE__ */ _("div", { className: Buttons_default2.buttons, ...rest }, children);
+  }
+  function Button2({ variant = "primary", size = "normal", children, ...rest }) {
+    const classes = (0, import_classnames9.default)({
+      [Buttons_default2.button]: true,
+      [Buttons_default2.primary]: variant === "primary",
+      [Buttons_default2.secondary]: variant === "secondary",
+      [Buttons_default2.large]: size === "large",
+      [Buttons_default2.xl]: size === "xl"
+    });
+    return /* @__PURE__ */ _("button", { className: classes, ...rest }, children);
+  }
+
+  // pages/onboarding/app/components/v3/SettingsStep.js
+  function SettingsStep2({ data }) {
+    const platform = usePlatformName();
+    const { t: t3 } = useTypedTranslation();
+    const dispatch = useGlobalDispatch();
+    const appState = useGlobalState();
+    if (appState.step.kind !== "settings")
+      throw new Error("unreachable, for TS benefit");
+    const { step, status } = appState;
+    const pendingId = status.kind === "executing" && status.action.kind === "update-system-value" && status.action.id;
+    const rows = step.rows.map((rowId, index) => {
+      return {
+        visible: appState.activeRow >= index,
+        current: appState.activeRow === index,
+        systemValue: appState.values[rowId] || null,
+        uiValue: appState.UIValues[rowId],
+        pending: pendingId === rowId,
+        id: rowId,
+        data: data[rowId](t3, platform)
+      };
+    });
+    return /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _(Stack, null, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), /* @__PURE__ */ _(PlainList, { variant: "bordered", animate: true }, rows.filter((item) => item.visible).map((item, index) => {
+      return /* @__PURE__ */ _(SettingListItem2, { key: item.id, dispatch, item, index });
+    }))));
+  }
+  function SettingListItem2({ index, item, dispatch }) {
+    const data = item.data;
+    const { t: t3 } = useTypedTranslation();
+    const accept = () => {
+      dispatch({
+        kind: "update-system-value",
+        id: data.id,
+        payload: { enabled: true },
+        current: item.current
+      });
+    };
+    const deny = () => {
+      dispatch({
+        kind: "update-system-value",
+        id: data.id,
+        payload: { enabled: false },
+        current: item.current
+      });
+    };
+    const inline = (() => {
+      if (item.uiValue === "idle")
+        return null;
+      if (!item.systemValue)
+        return null;
+      const enabled2 = item.systemValue.enabled;
+      if (item.uiValue === "skipped") {
+        if (enabled2 && item.data.kind === "one-time") {
+          return /* @__PURE__ */ _(BounceIn, { delay: "normal" }, /* @__PURE__ */ _(Check, null));
+        }
+        return /* @__PURE__ */ _(FadeIn, null, item.data.kind === "one-time" && /* @__PURE__ */ _(Button2, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptTextRecall || item.data.acceptText), item.data.kind === "toggle" && /* @__PURE__ */ _(
+          Switch,
+          {
+            ariaLabel: item.data.acceptText,
+            pending: item.pending,
+            checked: enabled2,
+            onChecked: accept,
+            onUnchecked: deny
+          }
+        ));
+      }
+      if (item.uiValue === "accepted") {
+        return /* @__PURE__ */ _(BounceIn, { delay: "normal" }, /* @__PURE__ */ _(Check, null));
+      }
+      throw new Error("unreachable");
+    })();
+    return /* @__PURE__ */ _(
+      ListItem,
+      {
+        key: data.id,
+        icon: data.icon,
+        title: data.title,
+        secondaryText: item.current && data.secondaryText,
+        inline,
+        animate: true,
+        index
+      },
+      item.current && /* @__PURE__ */ _(ListItem.Indent, null, /* @__PURE__ */ _(ButtonBar2, null, /* @__PURE__ */ _(Button2, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ _(Button2, { disabled: item.pending, variant: item.data.accepButtonVariant, onClick: accept }, item.data.acceptText)))
+    );
+  }
+
+  // pages/onboarding/app/components/v3/data.js
+  var stepsConfig = {
+    welcome: ({ t: t3, advance }) => {
+      return {
+        variant: "plain",
+        heading: {
+          title: t3("welcome_title"),
+          speechBubble: false,
+          children: /* @__PURE__ */ _(Timeout, { onComplete: advance, ignore: true })
+        }
+      };
+    },
+    getStarted: ({ t: t3, advance }) => {
+      return {
+        variant: "plain",
+        heading: {
+          title: t3("getStarted_title_v3", { newline: "\n" }).split("{paragraph}"),
+          speechBubble: true,
+          children: /* @__PURE__ */ _(ElasticButton, { onClick: advance, text: t3("getStartedButton_v3") })
+        }
+      };
+    },
+    makeDefaultSingle: ({ t: t3, globalState, advance, enableSystemValue }) => {
+      const { UIValues } = globalState;
+      const isIdle = UIValues["default-browser"] === "idle";
+      return {
+        variant: "box",
+        heading: {
+          title: isIdle ? t3("protectionsActivated_title") : t3("makeDefaultAccept_title"),
+          speechBubble: true
+        },
+        dismissButton: isIdle ? {
+          text: t3("skipButton"),
+          handler: advance
+        } : null,
+        acceptButton: isIdle ? {
+          text: t3("makeDefaultButton"),
+          handler: () => enableSystemValue("default-browser")
+        } : {
+          text: t3("nextButton"),
+          handler: advance
+        },
+        content: /* @__PURE__ */ _(MakeDefaultStep, null)
+      };
+    },
+    systemSettings: ({ t: t3, globalState, advance }) => {
+      const { step, activeRow } = globalState;
+      const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */
+      step.rows.length;
+      return {
+        variant: "box",
+        heading: {
+          title: t3("systemSettings_title_v3"),
+          subtitle: t3("systemSettings_subtitle_v3"),
+          speechBubble: true
+        },
+        acceptButton: isDone ? {
+          text: t3("nextButton"),
+          handler: advance
+        } : null,
+        content: /* @__PURE__ */ _(SettingsStep2, { data: settingsRowItems2 })
+      };
+    },
+    duckPlayerSingle: ({ t: t3, advance, beforeAfter }) => {
+      const beforeAfterState = beforeAfter.get();
+      const longestText = [t3("beforeAfter_duckPlayer_show"), t3("beforeAfter_duckPlayer_hide")].reduce((acc, cur) => {
+        return cur.length > acc.length ? cur : acc;
+      });
+      return {
+        variant: "box",
+        heading: {
+          title: t3("duckPlayer_title"),
+          subtitle: t3("duckPlayer_subtitle"),
+          speechBubble: true
+        },
+        dismissButton: {
+          startIcon: /* @__PURE__ */ _(Replay, { direction: beforeAfterState === "before" ? "forward" : "backward" }),
+          text: beforeAfterState === "before" ? t3("beforeAfter_duckPlayer_show") : t3("beforeAfter_duckPlayer_hide"),
+          longestText,
+          handler: () => beforeAfter.toggle()
+        },
+        acceptButton: {
+          text: t3("nextButton"),
+          handler: advance
+        },
+        content: /* @__PURE__ */ _(DuckPlayerStep, null)
+      };
+    },
+    customize: ({ t: t3, globalState, dismiss }) => {
+      const { step, activeRow } = globalState;
+      const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */
+      step.rows.length;
+      return {
+        variant: "box",
+        heading: {
+          title: t3("customize_title_v3"),
+          subtitle: t3("customize_subtitle_v3"),
+          speechBubble: true
+        },
+        acceptButton: isDone ? {
+          text: t3("startBrowsing"),
+          endIcon: /* @__PURE__ */ _(Launch, null),
+          handler: dismiss
+        } : null,
+        content: /* @__PURE__ */ _(SettingsStep2, { data: settingsRowItems2 })
+      };
+    }
+  };
+  var settingsRowItems2 = {
+    "default-browser": (t3) => ({
+      id: "default-browser",
+      icon: "v3/default-browser.svg",
+      title: t3("row_default-browser_title_v3"),
+      kind: "one-time",
+      acceptText: t3("row_default-browser_accept"),
+      accepButtonVariant: "primary"
+    }),
+    import: (t3) => ({
+      id: "import",
+      icon: "v3/import.svg",
+      title: t3("row_import_title_v3"),
+      secondaryText: t3("row_import_summary_v3"),
+      kind: "one-time",
+      acceptText: t3("row_import_accept_v3"),
+      acceptTextRecall: t3("row_import_accept"),
+      accepButtonVariant: "primary"
+    }),
+    dock: (t3, platform) => {
+      const title = platform === "macos" ? t3("row_dock_title_v3") : t3("row_taskbar_title_v3");
+      const acceptText = platform === "macos" ? t3("row_dock_macos_accept") : t3("row_dock_accept");
+      const secondaryText = platform === "macos" ? t3("row_dock_summary_v3") : t3("row_taskbar_summary_v3");
+      return {
+        id: "dock",
+        icon: "v3/dock.svg",
+        title,
+        secondaryText,
+        kind: "one-time",
+        acceptText,
+        accepButtonVariant: "primary"
+      };
+    },
+    bookmarks: (t3) => ({
+      id: "bookmarks",
+      icon: "v3/favorite.svg",
+      title: t3("row_bookmarks_title_v3"),
+      kind: "toggle",
+      acceptText: t3("row_bookmarks_accept"),
+      accepButtonVariant: "secondary"
+    }),
+    "session-restore": (t3) => ({
+      id: "session-restore",
+      icon: "v3/session-restore.svg",
+      title: t3("row_session-restore_title_v3"),
+      kind: "toggle",
+      acceptText: t3("row_session-restore_accept"),
+      accepButtonVariant: "secondary"
+    }),
+    "home-shortcut": (t3) => ({
+      id: "home-shortcut",
+      icon: "v3/home.svg",
+      title: t3("row_home-shortcut_title_v3"),
+      kind: "toggle",
+      acceptText: t3("row_home-shortcut_accept"),
+      accepButtonVariant: "secondary"
+    })
+  };
+  var stepDefinitions2 = {
+    systemSettings: {
+      id: "systemSettings",
+      kind: "settings",
+      rows: ["dock", "import"]
+    },
+    customize: {
+      id: "customize",
+      kind: "settings",
+      rows: ["bookmarks", "session-restore", "home-shortcut"]
+    }
+  };
+
+  // pages/onboarding/app/components/v3/useStepConfig.js
+  function calculateProgress(order, activeStep) {
+    const progressSteps = order.slice(2, order.length);
+    return {
+      current: progressSteps.indexOf(activeStep) + 1,
+      total: progressSteps.length
+    };
+  }
+  function useStepConfig() {
+    const globalState = x2(GlobalContext);
+    const platformName = usePlatformName() || "macos";
+    const dispatch = x2(GlobalDispatch);
+    const { t: t3 } = useTypedTranslation();
+    const { getStep, setStep, toggleStep } = useBeforeAfter();
+    const { order, activeStep } = globalState;
+    const progress = calculateProgress(order, activeStep);
+    const advance = () => {
+      dispatch({ kind: "advance" });
+    };
+    const dismiss = () => dispatch({ kind: "dismiss" });
+    const enableSystemValue = (id) => dispatch({
+      kind: "update-system-value",
+      id,
+      payload: { enabled: true },
+      current: true
+    });
+    const beforeAfter = {
+      get: () => getStep(activeStep),
+      set: (value) => setStep(activeStep, value),
+      toggle: () => toggleStep(activeStep)
+    };
+    const configParams = {
+      t: t3,
+      platformName,
+      globalState,
+      progress,
+      advance,
+      dismiss,
+      enableSystemValue,
+      beforeAfter
+    };
+    if (!stepsConfig[activeStep]) {
+      throw new Error(`Missing step config for ${activeStep}`);
+    }
+    return {
+      ...configParams,
+      ...stepsConfig[activeStep](configParams)
+    };
+  }
+
+  // pages/onboarding/app/components/v3/Heading.js
+  var import_classnames10 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/components/v3/Heading.module.css
+  var Heading_default = {
+    heading: "Heading_heading",
+    headingContents: "Heading_headingContents",
+    title: "Heading_title",
+    subTitle: "Heading_subTitle",
+    svg: "Heading_svg",
+    "dax-bouncein": "Heading_dax-bouncein",
+    speechBubble: "Heading_speechBubble",
+    speechBubbleCallout: "Heading_speechBubbleCallout",
+    speechBubbleContainer: "Heading_speechBubbleContainer",
+    speechBubbleBackground: "Heading_speechBubbleBackground",
+    speechBubbleContents: "Heading_speechBubbleContents",
+    additionalContent: "Heading_additionalContent",
+    titleContainer: "Heading_titleContainer",
+    hidden: "Heading_hidden"
+  };
+
+  // pages/onboarding/app/components/v3/Heading.js
+  function Heading({ title, subtitle, speechBubble = false, onTitleComplete, children }) {
+    const onComplete = () => {
+      onTitleComplete && onTitleComplete();
+    };
+    const HeadingComponent = speechBubble ? SpeechBubble : PlainHeading;
+    if (!title) {
+      console.warn("Missing title");
+      return null;
+    }
+    const titleArray = Array.isArray(title) ? title : [title];
+    return /* @__PURE__ */ _("header", { className: Heading_default.heading }, /* @__PURE__ */ _("div", { className: Heading_default.logo }, /* @__PURE__ */ _("img", { className: Heading_default.svg, src: "assets/img/dax.svg", alt: "DuckDuckGo Logo" })), /* @__PURE__ */ _(
+      HeadingComponent,
+      {
+        title: titleArray,
+        subtitle,
+        onComplete
+      },
+      children
+    ));
+  }
+  function PlainHeading({ title, subtitle, onComplete, children }) {
+    const [typingDone, setTypingDone] = h2(false);
+    const onTypingComplete = () => {
+      setTypingDone(true);
+      onComplete && onComplete();
+    };
+    const subtitleClass = (0, import_classnames10.default)({
+      [Heading_default.subTitle]: true,
+      [Heading_default.hidden]: !typingDone
+    });
+    return /* @__PURE__ */ _("div", { className: Heading_default.headingContents }, /* @__PURE__ */ _("h1", { className: Heading_default.title }, /* @__PURE__ */ _(TypedTitle, { title, paused: false, onComplete: onTypingComplete })), subtitle && /* @__PURE__ */ _("h2", { className: subtitleClass }, subtitle), typingDone && children);
+  }
+  function SpeechBubble({ title, subtitle, onComplete, children }) {
+    const bubbleContents = A2(null);
+    const { isReducedMotion } = useEnv();
+    const [dimensions, setDimensions] = h2({ width: 0, height: 0 });
+    const initialState = (
+      /** @type {AnimationState} */
+      isReducedMotion ? "typing-done" : "animating"
+    );
+    const [animationState, setAnimationState] = h2(initialState);
+    const calculateMaximumWidth = (element) => {
+      const { height } = element.getBoundingClientRect();
+      const widths = Array.from(element.querySelectorAll(".bubbleTitle span, .bubbleSubtitle, .bubbleChildren > *")).map((e3) => e3.getBoundingClientRect().width);
+      const width = Math.max(...widths);
+      return { width, height };
+    };
+    _2(() => {
+      if (bubbleContents.current) {
+        const { width, height } = calculateMaximumWidth(
+          /** @type {HTMLDivElement} */
+          bubbleContents.current
+        );
+        if (dimensions.width !== width || dimensions.height !== height) {
+          setAnimationState(initialState);
+          setDimensions({ width, height });
+        }
+      }
+    }, [bubbleContents, title, subtitle, children]);
+    y2(() => {
+      let debounce;
+      const handleResize = () => {
+        if (bubbleContents.current) {
+          const { width, height } = calculateMaximumWidth(
+            /** @type {HTMLDivElement} */
+            bubbleContents.current
+          );
+          if (dimensions.width !== width || dimensions.height !== height) {
+            setDimensions({ width, height });
+          }
+        }
+      };
+      window.addEventListener("resize", () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(handleResize, 30);
+      });
+      return () => {
+        clearTimeout(debounce);
+        window.removeEventListener("resize", handleResize);
+      };
+    });
+    const onTransitionEnd = () => {
+      setAnimationState((state) => {
+        if (state === "animating")
+          return "animation-done";
+        return state;
+      });
+    };
+    const onTypingComplete = () => {
+      setAnimationState("typing-done");
+      onComplete && onComplete();
+    };
+    const titleClass = (0, import_classnames10.default)(["bubbleTitle", Heading_default.title]);
+    const subtitleClass = (0, import_classnames10.default)({
+      bubbleSubtitle: true,
+      [Heading_default.subTitle]: true,
+      [Heading_default.hidden]: animationState !== "typing-done"
+    });
+    const childrenClass = (0, import_classnames10.default)({
+      bubbleChildren: true,
+      [Heading_default.additionalContent]: true,
+      [Heading_default.hidden]: animationState !== "typing-done"
+    });
+    return /* @__PURE__ */ _("div", { className: Heading_default.speechBubble }, /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleCallout }), /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleContainer }, /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleBackground, style: { width: `${dimensions.width}px`, height: `${dimensions.height}px` }, onTransitionEnd }), /* @__PURE__ */ _("div", { className: Heading_default.speechBubbleContents, ref: bubbleContents }, /* @__PURE__ */ _("h1", { className: titleClass }, /* @__PURE__ */ _(TypedTitle, { title, paused: animationState === "animating", onComplete: onTypingComplete })), subtitle && /* @__PURE__ */ _("h2", { className: subtitleClass }, subtitle), children && animationState === "typing-done" && /* @__PURE__ */ _("div", { className: childrenClass }, children))));
+  }
+  function TypedTitle({ title, paused = true, onComplete }) {
+    const [textIndex, setTextIndex] = h2(0);
+    const onTypingComplete = () => {
+      setTextIndex((value) => value += 1);
+      if (textIndex >= title.length - 1) {
+        onComplete && onComplete();
+      }
+    };
+    return /* @__PURE__ */ _("div", { className: Heading_default.titleContainer }, title.map((text, index) => /* @__PURE__ */ _(Typed, { key: index, onComplete: onTypingComplete, text, paused: paused || textIndex < index })));
+  }
+
+  // pages/onboarding/app/components/v3/SingleStep.module.css
+  var SingleStep_default = {
+    panel: "SingleStep_panel",
+    heading: "SingleStep_heading",
+    boxed: "SingleStep_boxed",
+    container: "SingleStep_container",
+    content: "SingleStep_content",
+    progress: "SingleStep_progress",
+    buttonBar: "SingleStep_buttonBar",
+    buttonBarContents: "SingleStep_buttonBarContents",
+    dismiss: "SingleStep_dismiss",
+    accept: "SingleStep_accept"
+  };
+
+  // pages/onboarding/app/components/v3/SingleStep.js
+  function StepGrid({ progress, dismissButton, acceptButton, children }) {
+    return /* @__PURE__ */ _("div", { className: SingleStep_default.container }, /* @__PURE__ */ _("div", { className: SingleStep_default.content }, /* @__PURE__ */ _(Stack, { animate: true }, children)), /* @__PURE__ */ _("div", { className: SingleStep_default.progress }, /* @__PURE__ */ _(SingleLineProgress, { current: progress.current, total: progress.total })), /* @__PURE__ */ _("div", { className: SingleStep_default.buttonBar }, (dismissButton || acceptButton) && /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _("div", { class: SingleStep_default.buttonBarContents }, /* @__PURE__ */ _("div", { className: SingleStep_default.dismiss }, dismissButton), /* @__PURE__ */ _("div", { className: SingleStep_default.accept }, acceptButton)))));
+  }
+  function SingleStep() {
+    const dispatch = useGlobalDispatch();
+    const { variant, heading, dismissButton, acceptButton, content, progress } = useStepConfig();
+    const classes = (0, import_classnames11.default)({
+      [SingleStep_default.panel]: true,
+      [SingleStep_default.boxed]: variant === "box"
+    });
+    const onTitleComplete = () => dispatch({ kind: "title-complete" });
+    return /* @__PURE__ */ _("div", { className: classes }, /* @__PURE__ */ _(Stack, { animate: true }, /* @__PURE__ */ _("div", { className: SingleStep_default.heading }, /* @__PURE__ */ _(Heading, { ...heading, onTitleComplete })), content && /* @__PURE__ */ _(
+      StepGrid,
+      {
+        progress,
+        dismissButton: dismissButton && /* @__PURE__ */ _(ElasticButton, { ...dismissButton, elastic: false, variant: "secondary", onClick: dismissButton.handler }),
+        acceptButton: acceptButton && /* @__PURE__ */ _(ElasticButton, { ...acceptButton, elastic: true, variant: "primary", onClick: acceptButton.handler })
+      },
+      content
+    )));
+  }
+
+  // pages/onboarding/app/components/v3/Hiker.module.css
+  var Hiker_default = {
+    hiker: "Hiker_hiker",
+    "hiker-appear": "Hiker_hiker-appear"
+  };
+
+  // pages/onboarding/app/components/v3/Hiker.js
+  function Hiker() {
+    return /* @__PURE__ */ _("img", { className: Hiker_default.hiker, src: "assets/img/hiker.svg", alt: "Image of hiker" });
+  }
+
+  // pages/onboarding/app/components/App2.module.css
+  var App2_default = {
+    main: "App2_main",
+    container: "App2_container"
+  };
+
+  // pages/onboarding/app/components/App2.js
+  function App2({ children }) {
+    const { debugState } = useEnv();
+    const platformName = usePlatformName();
+    const globalState = x2(GlobalContext);
+    const dispatch = x2(GlobalDispatch);
+    const { activeStep, activeStepVisible, exiting, step } = globalState;
+    const advance = () => dispatch({ kind: "advance" });
+    const didCatch = ({ error }) => {
+      const message = error?.message || "unknown";
+      dispatch({ kind: "error-boundary", error: { message, id: activeStep } });
+    };
+    function animationDidFinish(e3) {
+      if (e3.target?.dataset?.exiting === "true") {
+        advance();
+      }
+    }
+    const didRender = (e3) => {
+      const ignoredSteps = ["welcome", "getStarted"];
+      const shouldSkipAnimation = ignoredSteps.includes(e3?.dataset?.current);
+      if (shouldSkipAnimation && exiting === true) {
+        advance();
+      }
+    };
+    return /* @__PURE__ */ _("main", { className: App2_default.main, "data-platform-name": platformName || "macos", "data-app-version": "2" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _("div", { className: App2_default.container, "data-current": activeStep, "data-exiting": String(exiting), "data-step-visible": activeStepVisible, ref: didRender, onAnimationEnd: animationDidFinish }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(BeforeAfterProvider, null, /* @__PURE__ */ _(SingleStep, null))), children), (step.id === "welcome" || step.id === "getStarted") && /* @__PURE__ */ _(Hiker, null));
+  }
+  function Debug2(props) {
+    const { order, step, exiting, activeStep, nextStep } = props.state;
+    const debugData = { order, step, exiting, activeStep, nextStep };
+    return /* @__PURE__ */ _("div", { style: { position: "absolute", top: 0, right: 0, overflowY: "scroll", height: "100vh", zIndex: 1e4 } }, /* @__PURE__ */ _("pre", null, /* @__PURE__ */ _("code", null, JSON.stringify(debugData, null, 2))));
+  }
+
   // pages/onboarding/app/Components.js
-  var import_classnames4 = __toESM(require_classnames(), 1);
+  var import_classnames12 = __toESM(require_classnames(), 1);
   function noop(name) {
     return () => {
       console.log("clicked " + name);
@@ -9070,7 +10143,7 @@
           "session-restore": { enabled: true }
         }
       }
-    )), /* @__PURE__ */ _("div", { style: { height: "100px" } })), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(App_default.foreground, App_default.layer1) }), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(App_default.foreground, App_default.layer2) }), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(App_default.foreground, App_default.layer3) }));
+    ), /* @__PURE__ */ _("h2", { style: { fontSize: "24px", fontWeight: "bold" } }, "V3 - Highlights"), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!" }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up..." }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up..." }, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true })), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", speechBubble: true }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up...", speechBubble: true }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", speechBubble: true }, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true })), /* @__PURE__ */ _(SingleLineProgress, { current: 2, total: 5 }), /* @__PURE__ */ _(ComparisonTable, null), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Skip", elastic: false }), /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Replay", startIcon: /* @__PURE__ */ _(Replay, null), elastic: false }), /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Replay", endIcon: /* @__PURE__ */ _(Replay, { direction: "forward" }), elastic: false })), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true }), /* @__PURE__ */ _(ElasticButton, { text: "Start Browsing", startIcon: /* @__PURE__ */ _(Launch, null), elastic: true }), /* @__PURE__ */ _(ElasticButton, { text: "Start Browsing", endIcon: /* @__PURE__ */ _(Launch, null), elastic: true })), /* @__PURE__ */ _("div", { style: { position: "relative", overflow: "hidden", width: "400px", height: "400px" } }, /* @__PURE__ */ _(Hiker, null))), /* @__PURE__ */ _("div", { style: { height: "100px" } })), /* @__PURE__ */ _("div", { className: (0, import_classnames12.default)(App_default.foreground, App_default.layer1) }), /* @__PURE__ */ _("div", { className: (0, import_classnames12.default)(App_default.foreground, App_default.layer2) }), /* @__PURE__ */ _("div", { className: (0, import_classnames12.default)(App_default.foreground, App_default.layer3) }));
   }
 
   // shared/environment.js
@@ -10157,21 +11230,40 @@
   var Settings = class _Settings {
     /**
      * @param {object} params
+     * @param {{name: ImportMeta['platform']}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
+     * @param {'v1'|'v2'|'v3'} [params.orderName] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
      * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
     constructor({
+      platform = { name: "macos" },
       order = DEFAULT_ORDER,
-      stepDefinitions: stepDefinitions2 = stepDefinitions,
+      orderName = "v1",
+      stepDefinitions: stepDefinitions3 = stepDefinitions,
       first = "welcome",
       exclude = []
     } = {}) {
+      this.platform = platform;
       this.order = order;
-      this.stepDefinitions = stepDefinitions2;
+      this.orderName = orderName;
+      this.stepDefinitions = stepDefinitions3;
       this.first = first;
       this.exclude = exclude;
+    }
+    withPlatformName(name) {
+      const valid = ["windows", "macos", "ios", "android"];
+      if (valid.includes(
+        /** @type {any} */
+        name
+      )) {
+        return new _Settings({
+          ...this,
+          platform: { name }
+        });
+      }
+      return this;
     }
     /**
      * @param {string[]|null|undefined} order
@@ -10213,13 +11305,22 @@
       if (named === "v1") {
         return new _Settings({
           ...this,
+          orderName: named,
           order: DEFAULT_ORDER
         });
       }
       if (named === "v2") {
         return new _Settings({
           ...this,
+          orderName: named,
           order: ALT_ORDER
+        });
+      }
+      if (named === "v3") {
+        return new _Settings({
+          ...this,
+          orderName: named,
+          order: ORDER_V3
         });
       } else {
         console.warn("ignoring named order:", named);
@@ -10267,19 +11368,20 @@
      * @param {import('./data.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
      * @return {Settings}
      */
-    withStepDefinitions(stepDefinitions2) {
-      if (!stepDefinitions2)
+    withStepDefinitions(stepDefinitions3) {
+      if (!stepDefinitions3)
         return this;
-      if (!Object.keys(stepDefinitions2)?.length)
+      if (!Object.keys(stepDefinitions3)?.length)
         return this;
       const nextSteps = { ...this.stepDefinitions };
-      for (const [key, value] of Object.entries(stepDefinitions2 || {})) {
+      for (const [key, value] of Object.entries(stepDefinitions3 || {})) {
         if (!this.order.includes(
           /** @type {any} */
           key
         )) {
           continue;
         }
+        console.log("KV", key, value);
         nextSteps[key] = { ...nextSteps[key], ...value };
       }
       return new _Settings({
@@ -10326,7 +11428,8 @@
       console.error("Could not load locale", environment.locale, e3);
       return onboarding_default;
     });
-    const settings = new Settings().withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page"));
+    const settings = new Settings().withPlatformName(baseEnvironment.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment.urlParams.get("platform")).withStepDefinitions(init2.order === "v3" ? stepDefinitions2 : null).withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page"));
+    const AppComponent = settings.orderName === "v3" ? App2 : App;
     const root2 = document.querySelector("#app");
     if (!root2)
       throw new Error("could not render, root element missing");
@@ -10340,7 +11443,7 @@
             willThrow: environment.willThrow
           },
           /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }),
-          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ _(
+          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: onboarding_default, textLength: environment.textLength }, /* @__PURE__ */ _(SettingsProvider, { platform: settings.platform }, /* @__PURE__ */ _(
             GlobalProvider,
             {
               messaging: onboarding,
@@ -10348,8 +11451,8 @@
               stepDefinitions: settings.stepDefinitions,
               firstPage: settings.first
             },
-            /* @__PURE__ */ _(App, null, environment.env === "development" && /* @__PURE__ */ _(SkipLink, null))
-          ))
+            /* @__PURE__ */ _(AppComponent, null, environment.env === "development" && /* @__PURE__ */ _(SkipLink, null))
+          )))
         ),
         root2
       );

@@ -1056,7 +1056,7 @@
         return state;
     }
   }
-  function useInitialData({ dispatch, service }) {
+  function useInitialDataAndConfig({ dispatch, service }) {
     y2(() => {
       if (!service.current)
         return console.warn("missing service");
@@ -1065,6 +1065,29 @@
         const { config, data } = await stats2.getInitial();
         if (data) {
           dispatch({ kind: "initial-data", data, config });
+        } else {
+          dispatch({ kind: "error", error: "missing data from getInitial" });
+        }
+      }
+      dispatch({ kind: "load-initial" });
+      init2().catch((e3) => {
+        console.error("uncaught error", e3);
+        dispatch({ kind: "error", error: e3 });
+      });
+      return () => {
+        stats2.destroy();
+      };
+    }, []);
+  }
+  function useInitialData({ dispatch, service }) {
+    y2(() => {
+      if (!service.current)
+        return console.warn("missing service");
+      const stats2 = service.current;
+      async function init2() {
+        const data = await stats2.getInitial();
+        if (data) {
+          dispatch({ kind: "initial-data", data });
         } else {
           dispatch({ kind: "error", error: "missing data from getInitial" });
         }
@@ -1132,7 +1155,7 @@
     );
     const [state, dispatch] = p2(reducer, initial);
     const service = useService();
-    useInitialData({ dispatch, service });
+    useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const { toggle } = useConfigSubscription({ dispatch, service });
     return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
@@ -2137,16 +2160,179 @@
     3: "var(--sp-3)"
   };
 
+  // pages/new-tab/app/remote-messaging-framework/rmf.service.js
+  var RMFService = class {
+    /**
+     * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+     * @internal
+     */
+    constructor(ntp) {
+      this.ntp = ntp;
+      this.dataService = new Service({
+        initial: () => ntp.messaging.request("rmf_getData"),
+        subscribe: (cb) => ntp.messaging.subscribe("rmf_onDataUpdate", cb)
+      });
+    }
+    /**
+     * @returns {Promise<RMFData>}
+     * @internal
+     */
+    async getInitial() {
+      return await this.dataService.fetchInitial();
+    }
+    /**
+     * @internal
+     */
+    destroy() {
+      this.dataService.destroy();
+    }
+    /**
+     * @param {(evt: {data: RMFData, source: 'manual' | 'subscription'}) => void} cb
+     * @internal
+     */
+    onData(cb) {
+      return this.dataService.onData(cb);
+    }
+    /**
+     * @param {string} id
+     * @internal
+     */
+    dismiss(id) {
+      return this.ntp.messaging.notify("rmf_dismiss", { id });
+    }
+    toggleExpansion() {
+    }
+    /**
+     * @param {string} id
+     */
+    primaryAction(id) {
+      this.ntp.messaging.notify("rmf_primaryAction", { id });
+    }
+    /**
+     * @param {string} id
+     */
+    secondaryAction(id) {
+      this.ntp.messaging.notify("rmf_secondaryAction", { id });
+    }
+  };
+
+  // pages/new-tab/app/remote-messaging-framework/RMFProvider.js
+  var RMFContext = G({
+    /** @type {State} */
+    state: { status: "idle", data: null, config: null },
+    /** @type {(id: string) => void} */
+    dismiss: (id) => {
+      throw new Error("must implement dismiss" + id);
+    },
+    /** @type {(id: string) => void} */
+    primaryAction: (id) => {
+      throw new Error("must implement primaryAction" + id);
+    },
+    /** @type {(id: string) => void} */
+    secondaryAction: (id) => {
+      throw new Error("must implement secondaryAction" + id);
+    }
+  });
+  var RMFDispatchContext = G(
+    /** @type {import("preact/hooks").Dispatch<Events>} */
+    {}
+  );
+  function RMFProvider(props) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: "idle",
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = p2(reducer, initial);
+    const service = useService2();
+    useInitialData({ dispatch, service });
+    useDataSubscription({ dispatch, service });
+    const dismiss = q2((id) => {
+      console.log("onDismiss");
+      service.current?.dismiss(id);
+    }, [service]);
+    const primaryAction = q2((id) => {
+      service.current?.primaryAction(id);
+    }, [service]);
+    const secondaryAction = q2((id) => {
+      console.log("secondaryAction");
+      service.current?.secondaryAction(id);
+    }, [service]);
+    return /* @__PURE__ */ _(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ _(RMFDispatchContext.Provider, { value: dispatch }, props.children));
+  }
+  function useService2() {
+    const service = A2(
+      /** @type {RMFService|null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const stats2 = new RMFService(ntp);
+      service.current = stats2;
+      return () => {
+        stats2.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+
+  // pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.js
+  var import_classnames2 = __toESM(require_classnames(), 1);
+
+  // pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.module.css
+  var RemoteMessagingFramework_default = {
+    root: "RemoteMessagingFramework_root",
+    icon: "RemoteMessagingFramework_icon",
+    iconBlock: "RemoteMessagingFramework_iconBlock",
+    content: "RemoteMessagingFramework_content",
+    title: "RemoteMessagingFramework_title",
+    description: "RemoteMessagingFramework_description",
+    btnBlock: "RemoteMessagingFramework_btnBlock",
+    btnRow: "RemoteMessagingFramework_btnRow",
+    btn: "RemoteMessagingFramework_btn",
+    primary: "RemoteMessagingFramework_primary",
+    dismissBtn: "RemoteMessagingFramework_dismissBtn"
+  };
+
+  // pages/new-tab/app/remote-messaging-framework/RemoteMessagingFramework.js
+  function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
+    const { id, messageType, titleText, descriptionText } = message;
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames2.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames2.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.primary), onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _("button", { class: (0, import_classnames2.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.secondary), onClick: () => secondaryAction(id) }, message.secondaryActionText))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _("button", { class: (0, import_classnames2.default)(RemoteMessagingFramework_default.btn), onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _("button", { className: (0, import_classnames2.default)(RemoteMessagingFramework_default.btn, RemoteMessagingFramework_default.dismissBtn), onClick: () => dismiss(id), "aria-label": "Close" }, /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _("path", { d: "M11.4419 5.44194C11.686 5.19786 11.686 4.80214 11.4419 4.55806C11.1979 4.31398 10.8021 4.31398 10.5581 4.55806L8 7.11612L5.44194 4.55806C5.19786 4.31398 4.80214 4.31398 4.55806 4.55806C4.31398 4.80214 4.31398 5.19786 4.55806 5.44194L7.11612 8L4.55806 10.5581C4.31398 10.8021 4.31398 11.1979 4.55806 11.4419C4.80214 11.686 5.19786 11.686 5.44194 11.4419L8 8.88388L10.5581 11.4419C10.8021 11.686 11.1979 11.686 11.4419 11.4419C11.686 11.1979 11.686 10.8021 11.4419 10.5581L8.88388 8L11.4419 5.44194Z", fill: "currentColor" }))));
+  }
+  function RMFConsumer() {
+    const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
+    if (state.status === "ready" && state.data.content) {
+      return /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: state.data.content,
+          primaryAction,
+          secondaryAction,
+          dismiss
+        }
+      );
+    }
+    return null;
+  }
+
   // pages/new-tab/app/widget-list/WidgetList.js
   var widgetMap = {
     privacyStats: () => /* @__PURE__ */ _(PrivacyStatsCustomized, null),
-    favorites: () => /* @__PURE__ */ _(FavoritesCustomized, null)
+    favorites: () => /* @__PURE__ */ _(FavoritesCustomized, null),
+    rmf: () => /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null))
   };
   function WidgetList() {
     const { widgets, widgetConfigItems } = x2(WidgetConfigContext);
     return /* @__PURE__ */ _(Stack, { gap: "var(--sp-8)" }, widgets.map((widget) => {
       const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
       if (!matchingConfig) {
+        const matching = widgetMap[widget.id];
+        if (matching) {
+          return /* @__PURE__ */ _(b, { key: widget.id }, matching?.());
+        }
         console.warn("missing config for widget: ", widget);
         return null;
       }
@@ -2386,6 +2572,59 @@
     return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: send }, children));
   }
 
+  // pages/new-tab/app/remote-messaging-framework/mocks/rmf.data.js
+  var rmfDataExamples = {
+    small: {
+      content: {
+        messageType: "small",
+        id: "id-small",
+        titleText: "Search services limited",
+        descriptionText: "Search services are impacted by a Bing outage, results may not be what you expect"
+      }
+    },
+    medium: {
+      content: {
+        messageType: "medium",
+        id: "id-2",
+        icon: "DDGAnnounce",
+        titleText: "New Search Feature!",
+        descriptionText: "DuckDuckGo now offers Instant Answers for quicker access to the information you need."
+      }
+    },
+    big_single_action: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single",
+        titleText: "Tell Us Your Thoughts on Privacy Pro",
+        descriptionText: "Take our short anonymous survey and share your feedback.",
+        icon: "PrivacyPro",
+        primaryActionText: "Take Survey"
+      }
+    },
+    big_two_action: {
+      content: {
+        messageType: "big_two_action",
+        id: "id-big-two",
+        titleText: "Tell Us Your Thoughts on Privacy Pro",
+        descriptionText: "Take our short anonymous survey and share your feedback.",
+        icon: "Announce",
+        primaryActionText: "Take Survey",
+        secondaryActionText: "Remind me"
+      }
+    },
+    big_two_action_overflow: {
+      content: {
+        id: "big-two-overflow",
+        messageType: "big_two_action",
+        icon: "CriticalUpdate",
+        titleText: "Windows Update Recommended",
+        descriptionText: "Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.",
+        primaryActionText: "How to update Windows",
+        secondaryActionText: "Remind me later, but only if I\u2019m actually going to update soon"
+      }
+    }
+  };
+
   // pages/new-tab/app/components/Examples.jsx
   var mainExamples = {
     "stats.few": {
@@ -2430,7 +2669,53 @@
           trackerCompanies: stats.none.trackerCompanies,
           totalCount: stats.none.totalCount,
           expansion: "expanded",
-          onToggle: noop("stats.heading.none")
+          onToggle: noop("stats.heading onToggle")
+        }
+      )
+    },
+    "rmf.small": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.small.content,
+          dismiss: () => {
+          }
+        }
+      )
+    },
+    "rmf.medium": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.medium.content,
+          dismiss: () => {
+          }
+        }
+      )
+    },
+    "rmf.big-single-action": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action.content,
+          primaryAction: () => {
+          },
+          dismiss: () => {
+          }
+        }
+      )
+    },
+    "rmf.big-two-action": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_two_action.content,
+          primaryAction: () => {
+          },
+          secondaryAction: () => {
+          },
+          dismiss: () => {
+          }
         }
       )
     }
@@ -2460,6 +2745,20 @@
           }
         },
         /* @__PURE__ */ _(PrivacyStatsConsumer, null)
+      )
+    },
+    "rmf.big-two-action-overflow": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_two_action_overflow.content,
+          primaryAction: () => {
+          },
+          secondaryAction: () => {
+          },
+          dismiss: () => {
+          }
+        }
       )
     },
     "customizer-menu": {
@@ -2548,6 +2847,15 @@
           title: "show this component only"
         },
         "select"
+      ), " ", /* @__PURE__ */ _(
+        "a",
+        {
+          href: next.toString(),
+          target: "_blank",
+          class: Components_default.itemLink,
+          title: "isolate this component"
+        },
+        "isolate"
       ), " ", /* @__PURE__ */ _(
         "a",
         {
@@ -3810,6 +4118,14 @@
         console.error("Failed to write", e3);
       }
     }
+    const rmfSubscriptions = /* @__PURE__ */ new Map();
+    function clearRmf() {
+      const listeners = rmfSubscriptions.get("rmf_onDataUpdate") || [];
+      const message = { content: void 0 };
+      for (const listener of listeners) {
+        listener(message);
+      }
+    }
     return new TestTransportConfig({
       notify(_msg) {
         window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
@@ -3830,6 +4146,21 @@
               throw new Error("unreachable");
             write("stats_config", msg.params);
             broadcast("stats_config");
+            return;
+          }
+          case "rmf_primaryAction": {
+            console.log("ignoring rmf_primaryAction", msg.params);
+            clearRmf();
+            return;
+          }
+          case "rmf_secondaryAction": {
+            console.log("ignoring rmf_secondaryAction", msg.params);
+            clearRmf();
+            return;
+          }
+          case "rmf_dismiss": {
+            console.log("ignoring rmf_dismiss", msg.params);
+            clearRmf();
             return;
           }
           default: {
@@ -3868,6 +4199,24 @@
             }, { signal: controller.signal });
             return () => controller.abort();
           }
+          case "rmf_onDataUpdate": {
+            const prev = rmfSubscriptions.get("rmf_onDataUpdate") || [];
+            const next = [...prev];
+            next.push(cb);
+            rmfSubscriptions.set("rmf_onDataUpdate", next);
+            const delay = url2.searchParams.get("rmf-delay");
+            const rmfParam = url2.searchParams.get("rmf");
+            if (delay !== null && rmfParam !== null && rmfParam in rmfDataExamples) {
+              const ms = parseInt(delay, 10);
+              const timeout = setTimeout(() => {
+                const message = rmfDataExamples[rmfParam];
+                cb(message);
+              }, ms);
+              return () => clearTimeout(timeout);
+            }
+            return () => {
+            };
+          }
         }
         return () => {
         };
@@ -3894,8 +4243,20 @@
             }
             return Promise.resolve(fromStorage);
           }
+          case "rmf_getData": {
+            let message = { content: void 0 };
+            const rmfParam = url2.searchParams.get("rmf");
+            const delayed = url2.searchParams.has("rmf-delay");
+            if (delayed)
+              return Promise.resolve(message);
+            if (rmfParam && rmfParam in rmfDataExamples) {
+              message = rmfDataExamples[rmfParam];
+            }
+            return Promise.resolve(message);
+          }
           case "initialSetup": {
             const widgetsFromStorage = read("widgets") || [
+              { id: "rmf" },
               { id: "favorites" },
               { id: "privacyStats" }
             ];

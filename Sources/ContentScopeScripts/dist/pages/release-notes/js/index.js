@@ -742,11 +742,12 @@
   };
 
   // shared/components/Button/Button.js
-  function Button({ variant, className, children, onClick }) {
+  function Button({ variant, className, children, onClick, type = "button" }) {
     return /* @__PURE__ */ _(
       "button",
       {
         className: (0, import_classnames4.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
+        type,
         onClick: (
           /**
            * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event

@@ -1,9 +1,11 @@
 import { TestTransportConfig } from '@duckduckgo/messaging'
 
 import { stats } from '../../app/privacy-stats/mocks/stats.js'
+import { rmfDataExamples } from '../../app/remote-messaging-framework/mocks/rmf.data.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import('../../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  */
 
 const VERSION_PREFIX = '__ntp_15__.'
@@ -50,6 +52,18 @@ export function mockTransport () {
         }
     }
 
+    /** @type {Map<SubscriptionNames, any[]>} */
+    const rmfSubscriptions = new Map()
+
+    function clearRmf () {
+        const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || []
+        /** @type {import('../../../../types/new-tab.js').RMFData} */
+        const message = { content: undefined }
+        for (const listener of listeners) {
+            listener(message)
+        }
+    }
+
     return new TestTransportConfig({
         notify (_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) })
@@ -66,6 +80,21 @@ export function mockTransport () {
                 if (!msg.params) throw new Error('unreachable')
                 write('stats_config', msg.params)
                 broadcast('stats_config')
+                return
+            }
+            case 'rmf_primaryAction': {
+                console.log('ignoring rmf_primaryAction', msg.params)
+                clearRmf()
+                return
+            }
+            case 'rmf_secondaryAction': {
+                console.log('ignoring rmf_secondaryAction', msg.params)
+                clearRmf()
+                return
+            }
+            case 'rmf_dismiss': {
+                console.log('ignoring rmf_dismiss', msg.params)
+                clearRmf()
                 return
             }
             default: {
@@ -102,8 +131,28 @@ export function mockTransport () {
                 }, { signal: controller.signal })
                 return () => controller.abort()
             }
+            case 'rmf_onDataUpdate': {
+                // store the callback for later (eg: dismiss)
+                const prev = rmfSubscriptions.get('rmf_onDataUpdate') || []
+                const next = [...prev]
+                next.push(cb)
+                rmfSubscriptions.set('rmf_onDataUpdate', next)
+
+                const delay = url.searchParams.get('rmf-delay')
+                const rmfParam = url.searchParams.get('rmf')
+
+                if (delay !== null && rmfParam !== null && rmfParam in rmfDataExamples) {
+                    const ms = parseInt(delay, 10)
+                    const timeout = setTimeout(() => {
+                        const message = rmfDataExamples[rmfParam]
+                        cb(message)
+                    }, ms)
+                    return () => clearTimeout(timeout)
+                }
+                return () => {}
             }
-            return () => {}
+            }
+            return () => { }
         },
         // eslint-ignore-next-line require-await
         request (_msg) {
@@ -126,8 +175,24 @@ export function mockTransport () {
                 }
                 return Promise.resolve(fromStorage)
             }
+            case 'rmf_getData': {
+                /** @type {import('../../../../types/new-tab.js').RMFData} */
+                let message = { content: undefined }
+                const rmfParam = url.searchParams.get('rmf')
+
+                // if the message should be delayed, initially return nothing here
+                const delayed = url.searchParams.has('rmf-delay')
+                if (delayed) return Promise.resolve(message)
+
+                if (rmfParam && rmfParam in rmfDataExamples) {
+                    message = rmfDataExamples[rmfParam]
+                }
+
+                return Promise.resolve(message)
+            }
             case 'initialSetup': {
                 const widgetsFromStorage = read('widgets') || [
+                    { id: 'rmf' },
                     { id: 'favorites' },
                     { id: 'privacyStats' }
                 ]
