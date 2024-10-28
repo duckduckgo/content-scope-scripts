@@ -1,6 +1,5 @@
 /**
  * @typedef {import("../../../../types/new-tab.js").RMFData} RMFData
- * @typedef {import("../../../../types/new-tab.js").StatsConfig} StatsConfig
  */
 import { Service } from '../service.js'
 
