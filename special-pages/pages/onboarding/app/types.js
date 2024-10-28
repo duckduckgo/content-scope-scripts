@@ -24,6 +24,7 @@ import { useContext } from 'preact/hooks'
  *   | DockSingleStep
  *   | ImportSingleStep
  *   | MakeDefaultSingleStep
+ *   | DuckPlayerSingleStep
  * } Step
  * @typedef {{ kind: 'info'; id: 'welcome' }} WelcomeStep
  * @typedef {{ kind: 'info'; id: 'getStarted' }} GetStartedStep
@@ -34,6 +35,7 @@ import { useContext } from 'preact/hooks'
  * @typedef {{ kind: 'settings'; id: 'dockSingle'; rows: SystemValueId[]; }} DockSingleStep
  * @typedef {{ kind: 'settings'; id: 'importSingle'; rows: SystemValueId[]; }} ImportSingleStep
  * @typedef {{ kind: 'settings'; id: 'makeDefaultSingle'; rows: SystemValueId[]; }} MakeDefaultSingleStep
+ * @typedef {{ kind: 'info'; id: 'duckPlayerSingle' }} DuckPlayerSingleStep
  * @typedef {{ kind: 'info'; id: 'summary' }} SummaryStep
  */
 
@@ -48,7 +50,8 @@ export const EVERY_PAGE_ID = [
     'summary',
     'dockSingle',
     'importSingle',
-    'makeDefaultSingle'
+    'makeDefaultSingle',
+    'duckPlayerSingle'
 ]
 
 /** @type {Step['id'][]} */
@@ -73,6 +76,16 @@ export const ALT_ORDER = [
     'makeDefaultSingle',
     'customize',
     'summary'
+]
+
+/** @type {Step['id'][]} */
+export const ORDER_V3 = [
+    'welcome',
+    'getStarted',
+    'makeDefaultSingle',
+    'systemSettings',
+    'duckPlayerSingle',
+    'customize'
 ]
 
 /**
