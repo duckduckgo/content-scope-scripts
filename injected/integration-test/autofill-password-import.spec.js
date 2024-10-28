@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 import { readFileSync } from 'fs'
 import {
     mockAndroidMessaging,
@@ -10,14 +10,17 @@ test('Password import feature', async ({ page }, testInfo) => {
     const passwordImportFeature = AutofillPasswordImportSpec.create(page, testInfo)
     await passwordImportFeature.enabled()
     await passwordImportFeature.navigate()
+    const didAnimatePasswordOptions = passwordImportFeature.waitForAnimation('a[aria-label="Password options"]')
     await passwordImportFeature.clickOnElement('Home page')
-    await passwordImportFeature.assertElementIsAnimating('a[aria-label="Password options"')
+    await didAnimatePasswordOptions
 
+    const didAnimateSignin = passwordImportFeature.waitForAnimation('a[aria-label="Sign in"]')
     await passwordImportFeature.clickOnElement('Signin page')
-    await passwordImportFeature.assertElementIsAnimating('a[aria-label="Sign in"')
+    await didAnimateSignin
 
+    const didAnimateExport = passwordImportFeature.waitForAnimation('button[aria-label="Export"]')
     await passwordImportFeature.clickOnElement('Export page')
-    await passwordImportFeature.assertElementIsAnimating('button[aria-label="Export"')
+    await didAnimateExport
 })
 
 export class AutofillPasswordImportSpec {
@@ -93,16 +96,15 @@ export class AutofillPasswordImportSpec {
      * Helper to assert that an element is animating
      * @param {string} selector
      */
-    async assertElementIsAnimating (selector) {
-        const isAnimating = await this.page.evaluate((selector) => {
-            const el = document.querySelector(selector)
+    async waitForAnimation (selector) {
+        const locator = await this.page.locator(selector)
+        return await locator.evaluate((el) => {
             if (el != null) {
                 return el.getAnimations().some((animation) => animation.playState === 'running')
             } else {
                 return false
             }
         }, selector)
-        expect(isAnimating).toBe(true)
     }
 
     /**

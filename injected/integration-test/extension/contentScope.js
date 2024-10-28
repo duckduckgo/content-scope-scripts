@@ -20911,11 +20911,12 @@
          * @param {string} path
          */
         async handleElementForPath (path) {
-            // FIXME: we need to check if the path is supported, otherwise
-            // for some reason google doesn't wait to proceed with the signin step.
-            // Not too sure why this is happening, there are no errors on the console.
-
-            if ([this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path].indexOf(path) !== -1) {
+            const supportedPaths = [
+                this.#exportButtonSettings?.path,
+                this.#settingsButtonSettings?.path,
+                this.#signInButtonSettings?.path
+            ];
+            if (supportedPaths.indexOf(path)) {
                 try {
                     const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {};
                     if (element != null) {
