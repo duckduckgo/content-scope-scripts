@@ -26,6 +26,8 @@ export type WidgetConfigs = WidgetConfigItem[];
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
+export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
+export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -34,10 +36,17 @@ export interface NewTabMessages {
   notifications:
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
+    | RmfDismissNotification
+    | RmfPrimaryActionNotification
+    | RmfSecondaryActionNotification
     | StatsSetConfigNotification
     | WidgetsSetConfigNotification;
-  requests: InitialSetupRequest | StatsGetConfigRequest | StatsGetDataRequest;
-  subscriptions: StatsOnConfigUpdateSubscription | StatsOnDataUpdateSubscription | WidgetsOnConfigUpdatedSubscription;
+  requests: InitialSetupRequest | RmfGetDataRequest | StatsGetConfigRequest | StatsGetDataRequest;
+  subscriptions:
+    | RmfOnDataUpdateSubscription
+    | StatsOnConfigUpdateSubscription
+    | StatsOnDataUpdateSubscription
+    | WidgetsOnConfigUpdatedSubscription;
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"
@@ -58,6 +67,36 @@ export interface ReportPageExceptionNotification {
 }
 export interface ReportPageExceptionNotify {
   message: string;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_dismiss.notify.json"
+ */
+export interface RmfDismissNotification {
+  method: "rmf_dismiss";
+  params: RMFDismissAction;
+}
+export interface RMFDismissAction {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_primaryAction.notify.json"
+ */
+export interface RmfPrimaryActionNotification {
+  method: "rmf_primaryAction";
+  params: RMFPrimaryAction;
+}
+export interface RMFPrimaryAction {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_secondaryAction.notify.json"
+ */
+export interface RmfSecondaryActionNotification {
+  method: "rmf_secondaryAction";
+  params: RMFSecondaryAction;
+}
+export interface RMFSecondaryAction {
+  id: string;
 }
 /**
  * Generated from @see "../messages/new-tab/stats_setConfig.notify.json"
@@ -122,6 +161,49 @@ export interface WidgetListItem {
   id: string;
 }
 /**
+ * Generated from @see "../messages/new-tab/rmf_getData.request.json"
+ */
+export interface RmfGetDataRequest {
+  method: "rmf_getData";
+  result: RMFData;
+}
+/**
+ * The 'content' field is optional. Use that fact to show/hide messages
+ */
+export interface RMFData {
+  content?: RMFMessage;
+}
+export interface SmallMessage {
+  messageType: "small";
+  id: string;
+  titleText: string;
+  descriptionText: string;
+}
+export interface MediumMessage {
+  messageType: "medium";
+  id: string;
+  titleText: string;
+  descriptionText: string;
+  icon: RMFIcon;
+}
+export interface BigSingleActionMessage {
+  messageType: "big_single_action";
+  id: string;
+  titleText: string;
+  descriptionText: string;
+  icon: RMFIcon;
+  primaryActionText: string;
+}
+export interface BigTwoActionMessage {
+  messageType: "big_two_action";
+  id: string;
+  titleText: string;
+  descriptionText: string;
+  icon: RMFIcon;
+  primaryActionText: string;
+  secondaryActionText: string;
+}
+/**
  * Generated from @see "../messages/new-tab/stats_getConfig.request.json"
  */
 export interface StatsGetConfigRequest {
@@ -145,6 +227,13 @@ export interface PrivacyStatsData {
 export interface TrackerCompany {
   displayName: string;
   count: number;
+}
+/**
+ * Generated from @see "../messages/new-tab/rmf_onDataUpdate.subscribe.json"
+ */
+export interface RmfOnDataUpdateSubscription {
+  subscriptionEvent: "rmf_onDataUpdate";
+  params: RMFData;
 }
 /**
  * Generated from @see "../messages/new-tab/stats_onConfigUpdate.subscribe.json"
