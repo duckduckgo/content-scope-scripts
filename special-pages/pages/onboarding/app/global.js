@@ -17,10 +17,10 @@ export const GlobalDispatch = createContext(/** @type {import("preact/hooks").Di
  * @return {GlobalState}
  */
 export function reducer (state, action) {
-    console.group('reducer')
-    console.log('state', state)
-    console.log('action', action)
-    console.groupEnd()
+    // console.group('reducer')
+    // console.log('state', state)
+    // console.log('action', action)
+    // console.groupEnd()
 
     switch (state.status.kind) {
     case 'idle': {

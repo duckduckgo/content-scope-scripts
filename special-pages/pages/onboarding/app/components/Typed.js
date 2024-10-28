@@ -80,7 +80,6 @@ function TypedInner ({ text, onComplete, paused, delay, children, ...rest }) {
         let enabled = true
 
         document.body.addEventListener('pointerdown', (e) => {
-            // TODO: Check that it's not affecting v1/v2
             let clickedElement = /** @type {HTMLElement|null} */(e.target)
             let level = 0
             const maxLevels = 3
