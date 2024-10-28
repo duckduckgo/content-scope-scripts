@@ -91,7 +91,7 @@ export function SettingsStep ({ onNextPage, data, metaData, subtitle }) {
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch - The function to dispatch actions.
  * @param {number} props.index
  */
-function SettingListItem ({ index, item, dispatch }) {
+export function SettingListItem ({ index, item, dispatch }) {
     const data = item.data
     const { t } = useTypedTranslation()
 
