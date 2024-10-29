@@ -1,4 +1,4 @@
-import { TestTransportConfig } from "@duckduckgo/messaging";
+import { TestTransportConfig } from '@duckduckgo/messaging'
 import { sampleData } from '../../app/sampleData'
 
 /**
@@ -25,52 +25,52 @@ export function mockTransport () {
     }
 
     return new TestTransportConfig({
-        notify(msg) {
-
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        notify (_msg) {
         },
-        request(_msg) {
+        request (_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) })
             /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['requests']} */
             const msg = /** @type {any} */(_msg)
             switch (msg.method) {
-                case "initialSetup": {
-                    return Promise.resolve({
-                        env: 'development',
-                        locale: 'en'
-                    })
-                }
-                default: return Promise.resolve(null)
+            case 'initialSetup': {
+                return Promise.resolve({
+                    env: 'development',
+                    locale: 'en'
+                })
+            }
+            default: return Promise.resolve(null)
             }
         },
-        subscribe(_msg, callback) {
+        subscribe (_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) })
             /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['subscriptions']} */
             const msg = /** @type {any} */(_msg)
             switch (msg.subscriptionEvent) {
-                case "onUpdate": {
-                    const searchParams = new URLSearchParams(window.location.search)
-                    let stateId = searchParams.get('stateId')
-                    if (!stateId || !sampleData[stateId]) {
-                        stateId = 'loading'
-                    }
-                    let updateData = sampleData[stateId]
-
-                    Object.entries(dataOverrides).forEach(([key, value]) => {
-                        if (searchParams.has(key)) {
-                            updateData = { ...updateData, ...value }
-                        }
-                    })
-
-                    callback(sampleData.loading)
-
-                    const timer = setTimeout(() => {
-                        callback(updateData)
-                    }, 1000)
-
-                    return () => {
-                        clearTimeout(timer)
-                    }
+            case 'onUpdate': {
+                const searchParams = new URLSearchParams(window.location.search)
+                let stateId = searchParams.get('stateId')
+                if (!stateId || !sampleData[stateId]) {
+                    stateId = 'loading'
                 }
+                let updateData = sampleData[stateId]
+
+                Object.entries(dataOverrides).forEach(([key, value]) => {
+                    if (searchParams.has(key)) {
+                        updateData = { ...updateData, ...value }
+                    }
+                })
+
+                callback(sampleData.loading)
+
+                const timer = setTimeout(() => {
+                    callback(updateData)
+                }, 1000)
+
+                return () => {
+                    clearTimeout(timer)
+                }
+            }
             }
 
             return () => {

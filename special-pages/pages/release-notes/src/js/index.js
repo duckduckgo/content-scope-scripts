@@ -18,7 +18,7 @@ import { init } from '../../app/index'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 import { Environment } from '../../../../shared/environment'
 import { createTypedMessages } from '@duckduckgo/messaging'
-import { mockTransport } from "./mock-transport.js";
+import { mockTransport } from './mock-transport.js'
 
 /**
  * This describes the messages that will be sent to the native layer,
