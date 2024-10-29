@@ -47,6 +47,13 @@ export class NewTabPage {
     reportPageException (params) {
         this.messaging.notify('reportPageException', params)
     }
+
+    /**
+     * Sent when a right-click occurs, and wasn't intercepted by another widget
+     */
+    contextMenu () {
+        this.messaging.notify('contextMenu')
+    }
 }
 
 const baseEnvironment = new Environment()

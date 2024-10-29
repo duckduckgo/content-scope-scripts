@@ -34,6 +34,7 @@ export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate
  */
 export interface NewTabMessages {
   notifications:
+    | ContextMenuNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | RmfDismissNotification
@@ -49,6 +50,12 @@ export interface NewTabMessages {
     | StatsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
+}
+/**
+ * Generated from @see "../messages/new-tab/contextMenu.notify.json"
+ */
+export interface ContextMenuNotification {
+  method: "contextMenu";
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"

@@ -2,6 +2,7 @@ import { h } from 'preact'
 import styles from './App.module.css'
 import { usePlatformName } from '../settings.provider.js'
 import { WidgetList } from '../widget-list/WidgetList.js'
+import { useContextMenu } from '../utils.js'
 
 /**
  * Renders the App component.
@@ -11,6 +12,7 @@ import { WidgetList } from '../widget-list/WidgetList.js'
  */
 export function App ({ children }) {
     const platformName = usePlatformName()
+    useContextMenu()
     return (
         <div className={styles.layout} data-platform={platformName}>
             <WidgetList />
