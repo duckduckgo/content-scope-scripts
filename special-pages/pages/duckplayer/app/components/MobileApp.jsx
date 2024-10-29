@@ -14,6 +14,7 @@ import { createAppFeaturesFrom } from "../features/app.js";
 import { MobileButtons } from "./MobileButtons.jsx";
 import { OrientationProvider } from "../providers/OrientationProvider.jsx";
 import { FocusMode } from "./FocusMode.jsx";
+import { useTelemetry } from "../types.js";
 
 const DISABLED_HEIGHT = 450;
 
@@ -23,6 +24,7 @@ const DISABLED_HEIGHT = 450;
  */
 export function MobileApp({ embed }) {
     const settings = useSettings();
+    const telemetry = useTelemetry();
     const features = createAppFeaturesFrom(settings)
     return (
         <>
@@ -35,7 +37,9 @@ export function MobileApp({ embed }) {
                     // landscape
                     // if the height is too low, just disable it
                     if (window.innerHeight < DISABLED_HEIGHT) {
-                        return FocusMode.disable()
+                        FocusMode.disable()
+                        telemetry.landscapeImpression()
+                        return;
                     }
                     return FocusMode.enable()
                 }} />

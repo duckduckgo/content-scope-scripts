@@ -446,6 +446,23 @@ export class DuckPlayerPage {
         })
     }
 
+    /**
+     * @param {import('../../types/duckplayer.js').TelemetryEvent} evt
+     */
+    async didSendTelemetry (evt) {
+        const events = await this.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 })
+        expect(events).toStrictEqual([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'duckPlayerPage',
+                    method: 'telemetryEvent',
+                    params: evt
+                }
+            }
+        ])
+    }
+
     async withStorageValues () {
         await this.page.evaluate(() => {
             localStorage.setItem('foo', 'bar')

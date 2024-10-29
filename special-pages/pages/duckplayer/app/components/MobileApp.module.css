@@ -1,3 +1,6 @@
+body[data-display="app"] {
+    padding: 8px;
+}
 html[data-focus-mode="on"]:root .main {
     --bg-color: transparent;
 }
@@ -31,9 +34,9 @@ html[data-focus-mode="on"] .hideInFocus {
     --gutter-width: 8px;
     --gutter-combined: calc(var(--gutter-width) * 2);
     --outer-radius: 16px;
-    --inner-radius: 8px;
+    --inner-radius: 12px;
     --logo-width: 157px;
-    --inner-padding: 12px;
+    --inner-padding: 8px;
     position: relative;
     max-width: 100vh;
     margin: 0 auto;
@@ -44,7 +47,7 @@ html[data-focus-mode="on"] .hideInFocus {
     --row-2: auto;
     --row-3: max-content;
     --row-4: max-content;
-    --row-5: 12px;
+    --row-5: 16px;
     --row-6: max-content;
     --row-7: auto;
     grid-template-rows:
@@ -83,7 +86,7 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
 .embed {
     background: var(--bg-color);
     grid-area: embed;
-    padding: var(--inner-padding);
+    padding: calc(var(--inner-padding) / 2);
     padding-bottom: 0;
     border-top-left-radius: var(--outer-radius);
     border-top-right-radius: var(--outer-radius);
@@ -104,9 +107,7 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
 
 .switch {
     grid-area: switch;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 16px;
+    height: 44px;
 }
 
 @media screen and (min-width: 425px) and (max-height: 600px) {
@@ -159,8 +160,8 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
         background: var(--bg-color);
         border-radius: unset;
         display: grid;
-        padding-top: 12px;
-        padding-bottom: 12px;
+        padding-top: 8px;
+        padding-bottom: 8px;
         height: 100%;
     }
     .buttons {
@@ -180,75 +181,41 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
     }
 }
 @media screen and (min-width: 600px) and (max-height: 450px) {
+    :root {
+        --body-padding: 4px;
+        --max-width: calc(100vw - var(--body-padding) * 2);
+    }
+    body[data-display="app"] {
+        padding: var(--body-padding);
+    }
     .main {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: calc(44px + 24px) 44px auto calc(44px + 24px);
-        grid-template-areas:
-            'embed logo'
-            'embed buttons'
-            'embed filler'
-            'embed switch';
-        align-content: center;
-        max-width: 100%;
-        max-height: 90vh;
-    }
-    body:has([data-state="completed"] [aria-checked="true"]) .main {
-        grid-template-rows: max-content max-content 0 0;
-    }
-    body:has([data-state="completed"] [aria-checked="true"]) .logo {
-        padding-top: 0;
-        align-items: end;
-    }
-    body:has([data-state="completed"] [aria-checked="true"]) .buttons {
-        border-bottom-right-radius: var(--outer-radius);
-        padding-bottom: 12px;
-    }
-    body:has([data-state="completed"] [aria-checked="true"]) .switch {
-        display: none;
-    }
-    .filler {
-        display: block;
-        height: 100%;
-        grid-area: filler;
-        background: var(--bg-color)
+        grid-template-columns: 100%;
+        grid-template-rows: 100%;
+        grid-template-areas: 'embed';
+        max-width: none;
     }
     .embed {
-        padding: var(--inner-padding);
-        border-bottom-left-radius: var(--outer-radius);
-        border-top-right-radius: 0;
+        padding: 0;
+        border-radius: 0;
+        width: 100%;
+        max-width: var(--max-width);
+        background-color: transparent;
+    }
+    .filler {
+        display: none;
     }
     .logo {
-        display: grid;
-        width: 100%;
-        background: var(--bg-color);
-        justify-content: center;
-        border-top-right-radius: var(--outer-radius);
-        padding: var(--inner-padding);
-        padding-left: 0;
+        display: none;
     }
     .buttons {
-        border-bottom-right-radius: 0;
-        border-bottom-left-radius: 0;
-        padding: 0;
-        padding-right: var(--inner-padding);
+        display: none;
     }
     .switch {
-        background: var(--bg-color);
-        border-top-right-radius: 0;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: var(--outer-radius);
-        align-self: end;
-        padding: var(--inner-padding);
-        padding-left: 0;
-        height: 100%;
+        display: none;
     }
 }
 @media screen and (min-width: 1100px) {
     .switch {
         justify-content: end;
-    }
-    .switch > * {
-        min-width: 400px
     }
 }

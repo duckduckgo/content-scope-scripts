@@ -7,7 +7,10 @@ import { useEffect } from "preact/hooks";
  */
 export function OrientationProvider ({ onChange }) {
     useEffect(() => {
-        if (!screen.orientation?.type) return;
+        if (!screen.orientation?.type) {
+            onChange(getOrientationFromWidth());
+            return
+        }
         onChange(getOrientationFromScreen())
         const handleOrientationChange = () => {
             onChange(getOrientationFromScreen());
