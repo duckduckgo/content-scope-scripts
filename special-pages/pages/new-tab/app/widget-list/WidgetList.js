@@ -30,7 +30,7 @@ export function WidgetList () {
 
     return (
         <Stack gap={'var(--sp-8)'}>
-            {widgets.map((widget) => {
+            {widgets.map((widget, index) => {
                 const matchingConfig = widgetConfigItems.find(item => item.id === widget.id)
                 if (!matchingConfig) {
                     const matching = widgetMap[widget.id]
@@ -49,6 +49,7 @@ export function WidgetList () {
                         <WidgetVisibilityProvider
                             visibility={matchingConfig.visibility}
                             id={matchingConfig.id}
+                            index={index}
                         >
                             {widgetMap[widget.id]?.()}
                         </WidgetVisibilityProvider>
