@@ -44,9 +44,9 @@ export function mockTransport () {
         },
         subscribe (_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) })
-            /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['subscriptions']} */
-            const msg = /** @type {any} */(_msg)
-            switch (msg.subscriptionEvent) {
+            /** @type {import('../../../../types/release-notes').ReleaseNotesMessages['subscriptions']['subscriptionEvent']} */
+            const subscription = /** @type {any} */(_msg.subscriptionName)
+            switch (subscription) {
             case 'onUpdate': {
                 const searchParams = new URLSearchParams(window.location.search)
                 let stateId = searchParams.get('stateId')
