@@ -1,4 +1,4 @@
-import { useRef } from "preact/hooks";
+import { useRef } from 'preact/hooks'
 
 /**
  * Use this to verify the result of updating some local state.

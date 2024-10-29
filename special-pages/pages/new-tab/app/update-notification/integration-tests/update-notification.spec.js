@@ -10,9 +10,9 @@ test.describe('newtab update notifications', () => {
         const calls1 = await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 })
 
         expect(calls1.length).toBe(1)
-        const text = page.getByText('Browser Updated to version 1.65.0.');
-        await text.waitFor();
-        await page.getByRole('button', { name: 'Dismiss' }).click();
+        const text = page.getByText('Browser Updated to version 1.65.0.')
+        await text.waitFor()
+        await page.getByRole('button', { name: 'Dismiss' }).click()
         await ntp.mocks.waitForCallCount({ method: 'updateNotification_dismiss', count: 1 })
         await expect(text).not.toBeVisible()
     })
@@ -24,9 +24,9 @@ test.describe('newtab update notifications', () => {
         const calls1 = await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 })
 
         expect(calls1.length).toBe(1)
-        await page.getByRole('link', { name: 'what\'s new' }).click();
-        await page.getByText('Bug fixes and improvements').waitFor();
-        await page.getByRole('button', { name: 'Dismiss' }).click();
+        await page.getByRole('link', { name: 'what\'s new' }).click()
+        await page.getByText('Bug fixes and improvements').waitFor()
+        await page.getByRole('button', { name: 'Dismiss' }).click()
         await ntp.mocks.waitForCallCount({ method: 'updateNotification_dismiss', count: 1 })
     })
 })

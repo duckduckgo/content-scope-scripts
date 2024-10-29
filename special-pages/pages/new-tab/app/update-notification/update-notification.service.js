@@ -42,7 +42,7 @@ export class UpdateNotificationService {
     dismiss () {
         this.ntp.messaging.notify('updateNotification_dismiss')
         this.dataService.update(_old => {
-            return {content: null}
+            return { content: null }
         })
     }
 }

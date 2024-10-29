@@ -4,7 +4,7 @@ import { useInitialSetupData, useMessaging } from '../types.js'
 import { UpdateNotificationService } from './update-notification.service.js'
 import {
     reducer,
-    useDataSubscription,
+    useDataSubscription
 } from '../service.hooks.js'
 
 /**
@@ -22,7 +22,7 @@ export const UpdateNotificationContext = createContext({
     /** @type {() => void} */
     dismiss: () => {
         throw new Error('must implement dismiss')
-    },
+    }
 })
 
 export const UpdateNotificationDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */({}))
@@ -35,7 +35,7 @@ export const UpdateNotificationDispatchContext = createContext(/** @type {import
  * @param {import("preact").ComponentChild} props.children
  */
 export function UpdateNotificationProvider (props) {
-    const { updateNotification } = useInitialSetupData();
+    const { updateNotification } = useInitialSetupData()
     const initial = /** @type {State} */({
         status: 'ready',
         data: updateNotification,

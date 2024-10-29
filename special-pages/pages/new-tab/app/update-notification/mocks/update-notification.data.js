@@ -4,14 +4,14 @@
 export const updateNotificationExamples = {
     empty: {
         content: {
-            version: "1.65.0",
+            version: '1.65.0',
             notes: []
         }
     },
     populated: {
         content: {
-            notes: ["Bug fixes and improvements"],
-            version: "1.91"
+            notes: ['Bug fixes and improvements'],
+            version: '1.91'
         }
     }
 }

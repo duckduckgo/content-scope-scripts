@@ -2,7 +2,7 @@ import { TestTransportConfig } from '@duckduckgo/messaging'
 
 import { stats } from '../../app/privacy-stats/mocks/stats.js'
 import { rmfDataExamples } from '../../app/remote-messaging-framework/mocks/rmf.data.js'
-import { updateNotificationExamples } from "../../app/update-notification/mocks/update-notification.data.js";
+import { updateNotificationExamples } from '../../app/update-notification/mocks/update-notification.data.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
@@ -216,10 +216,10 @@ export function mockTransport () {
                 /** @type {UpdateNotificationData} */
                 let updateNotification = { content: null }
 
-                if (url.searchParams.get('update-notification') === "empty") {
+                if (url.searchParams.get('update-notification') === 'empty') {
                     updateNotification = updateNotificationExamples.empty
                 }
-                if (url.searchParams.get('update-notification') === "populated") {
+                if (url.searchParams.get('update-notification') === 'populated') {
                     updateNotification = updateNotificationExamples.populated
                 }
 
@@ -230,7 +230,7 @@ export function mockTransport () {
                     platform: { name: 'integration' },
                     env: 'development',
                     locale: 'en',
-                    updateNotification,
+                    updateNotification
                 }
 
                 return Promise.resolve(initial)

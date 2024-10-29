@@ -10,8 +10,8 @@ import {
 } from '../customizer/Customizer.js'
 import { RMFProvider } from '../remote-messaging-framework/RMFProvider.js'
 import { RMFConsumer } from '../remote-messaging-framework/RemoteMessagingFramework.js'
-import { UpdateNotificationProvider } from "../update-notification/UpdateNotificationProvider.js";
-import { UpdateNotificationConsumer } from "../update-notification/UpdateNotification.js";
+import { UpdateNotificationProvider } from '../update-notification/UpdateNotificationProvider.js'
+import { UpdateNotificationConsumer } from '../update-notification/UpdateNotification.js'
 
 const widgetMap = {
     privacyStats: () => (
