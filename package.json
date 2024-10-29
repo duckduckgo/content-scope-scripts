@@ -44,6 +44,7 @@
     "stylelint-csstree-validator": "^3.0.0",
     "minimist": "^1.2.8",
     "typedoc": "^0.26.10",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "@playwright/test": "^1.48.2"
   }
 }
