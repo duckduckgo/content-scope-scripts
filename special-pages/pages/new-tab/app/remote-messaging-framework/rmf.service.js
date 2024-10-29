@@ -1,12 +1,12 @@
 /**
  * @typedef {import("../../../../types/new-tab.js").RMFData} RMFData
- * @typedef {import("../../../../types/new-tab.js").StatsConfig} StatsConfig
  */
 import { Service } from '../service.js'
 
 /**
- *
+ * @document ./rmf.service.md
  */
+
 export class RMFService {
     /**
      * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
@@ -51,8 +51,6 @@ export class RMFService {
     dismiss (id) {
         return this.ntp.messaging.notify('rmf_dismiss', { id })
     }
-
-    toggleExpansion () { }
 
     /**
      * @param {string} id

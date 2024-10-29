@@ -490,7 +490,8 @@
         "windowsPermissionUsage",
         "brokerProtection",
         "performanceMetrics",
-        "breakageReporting"
+        "breakageReporting",
+        "autofillPasswordImport"
       ]
     );
     const platformSupport = {
@@ -510,6 +511,9 @@
         "clickToLoad",
         "breakageReporting",
         "duckPlayer"
+      ],
+      "android-autofill-password-import": [
+        "autofillPasswordImport"
       ],
       windows: [
         "cookie",

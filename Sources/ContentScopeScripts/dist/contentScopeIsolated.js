@@ -423,7 +423,8 @@
         'windowsPermissionUsage',
         'brokerProtection',
         'performanceMetrics',
-        'breakageReporting'
+        'breakageReporting',
+        'autofillPasswordImport'
     ]);
 
     /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -445,6 +446,9 @@
             'clickToLoad',
             'breakageReporting',
             'duckPlayer'
+        ],
+        'android-autofill-password-import': [
+            'autofillPasswordImport'
         ],
         windows: [
             'cookie',

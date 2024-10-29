@@ -2200,8 +2200,6 @@
     dismiss(id) {
       return this.ntp.messaging.notify("rmf_dismiss", { id });
     }
-    toggleExpansion() {
-    }
     /**
      * @param {string} id
      */
