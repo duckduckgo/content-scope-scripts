@@ -1,21 +1,10 @@
 .switchBar {
     display: grid;
-    border-radius: 16px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.03);
     padding-inline: 16px;
     height: 100%;
     line-height: 1.1;
-}
-
-@media screen and (min-width: 900px) {
-    .switchBar {
-        border-radius: 8px;
-    }
-}
-@media screen and (min-width: 667px) and (max-height: 450px) {
-    .switchBar {
-        border-radius: 8px;
-    }
 }
 
 .stateExiting {

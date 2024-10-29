@@ -16,3 +16,5 @@ export function useTypedTranslation () {
 
 export const MessagingContext = createContext(/** @type {import("../src/js/index.js").DuckplayerPage} */({}))
 export const useMessaging = () => useContext(MessagingContext)
+export const TelemetryContext = createContext(/** @type {import("../src/js/index.js").Telemetry} */({}))
+export const useTelemetry = () => useContext(TelemetryContext)
