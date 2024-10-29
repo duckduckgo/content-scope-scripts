@@ -68,7 +68,9 @@ export function noop (named) {
 export function useContextMenu () {
     const messaging = useMessaging()
     useEffect(() => {
-        function handler () {
+        function handler (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
             messaging.contextMenu()
         }
         document.body.addEventListener('contextmenu', handler)
