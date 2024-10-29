@@ -1,5 +1,4 @@
 import { Mocks } from '../../../tests/page-objects/mocks.js'
-import { join } from 'node:path'
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs'
 
 /**
@@ -62,20 +61,10 @@ export class NewtabPage {
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {number} [params.favoritesCount] - Optional flag to preload a list of favorites
      * @param {string} [params.rmf] - Optional flag to point to display=components view with certain rmf example visible
+     * @param {string} [params.platformName] - Optional parameters for opening the page.
      */
-    async openPage ({ mode = 'debug', willThrow = false, favoritesCount, rmf } = { }) {
+    async openPage ({ mode = 'debug', platformName, willThrow = false, favoritesCount, rmf } = { }) {
         await this.mocks.install()
-        await this.page.route('/**', (route, req) => {
-            const url = new URL(req.url())
-            // try to serve assets, but change `/` to 'index'
-            let filepath = url.pathname
-            if (filepath === '/') filepath = 'index.html'
-
-            return route.fulfill({
-                status: 200,
-                path: join(this.basePath, filepath)
-            })
-        })
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) })
 
         if (favoritesCount !== undefined) {
@@ -86,7 +75,11 @@ export class NewtabPage {
             searchParams.set('rmf', rmf)
         }
 
-        await this.page.goto('/' + '?' + searchParams.toString())
+        if (platformName !== undefined) {
+            searchParams.set('platform', platformName)
+        }
+
+        await this.page.goto('/new-tab' + '?' + searchParams.toString())
     }
 
     /**

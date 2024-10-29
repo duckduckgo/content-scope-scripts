@@ -37,9 +37,6 @@ export async function init (messaging, baseEnvironment) {
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
         .withDisplay(baseEnvironment.urlParams.get('display'))
 
-    console.log('environment:', environment)
-    console.log('locale:', environment.locale)
-
     const strings = environment.locale === 'en'
         ? enStrings
         : await fetch(`./locales/${environment.locale}/new-tab.json`)
@@ -53,6 +50,10 @@ export async function init (messaging, baseEnvironment) {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
+
+    console.log('environment:', environment)
+    console.log('settings:', settings)
+    console.log('locale:', environment.locale)
 
     const didCatch = (error) => {
         const message = error?.message || error?.error || 'unknown'
@@ -71,9 +72,11 @@ export async function init (messaging, baseEnvironment) {
                 debugState={environment.debugState}
                 injectName={environment.injectName}
                 willThrow={environment.willThrow}>
-                <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                    <Components />
-                </TranslationProvider>
+                <SettingsProvider settings={settings}>
+                    <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                        <Components />
+                    </TranslationProvider>
+                </SettingsProvider>
             </EnvironmentProvider>
             , root)
     }
@@ -82,7 +85,9 @@ export async function init (messaging, baseEnvironment) {
         <EnvironmentProvider
             debugState={environment.debugState}
             injectName={environment.injectName}
-            willThrow={environment.willThrow}>
+            willThrow={environment.willThrow}
+            env={environment.env}
+        >
             <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
                 <UpdateEnvironment search={window.location.search}/>
                 <MessagingContext.Provider value={messaging}>

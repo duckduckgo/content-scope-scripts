@@ -179,10 +179,10 @@ export function Body ({ trackerCompanies, listAttrs = {} }) {
  */
 export function PrivacyStatsCustomized () {
     const { t } = useTypedTranslation()
-    const { visibility, id } = useVisibility()
+    const { visibility, id, toggle, index } = useVisibility()
 
     const title = t('trackerStatsMenuTitle')
-    useCustomizer({ title, id, icon: 'star' })
+    useCustomizer({ title, id, icon: 'shield', toggle, visibility, index })
 
     if (visibility === 'hidden') {
         return null
