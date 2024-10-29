@@ -124,22 +124,23 @@ export const otherExamples = {
                 <br/>
                 <MaxContent>
                     <VisibilityMenu
-                        toggle={noop('toggle!')}
                         rows={[
                             {
                                 id: 'favorites',
                                 title: 'Favorites',
-                                icon: 'star'
+                                icon: 'star',
+                                toggle: noop("toggle favorites"),
+                                visibility: "hidden",
+                                index:0
                             },
                             {
                                 id: 'privacyStats',
                                 title: 'Privacy Stats',
-                                icon: 'shield'
+                                icon: 'shield',
+                                toggle: noop("toggle favorites"),
+                                visibility: "visible",
+                                index: 1
                             }
-                        ]}
-                        state={[
-                            { checked: true },
-                            { checked: false }
                         ]}
                     />
                 </MaxContent>
