@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["widgets", "widgetConfigs", "locale", "env", "platform"],
+  "required": ["widgets", "widgetConfigs", "locale", "env", "platform", "updateNotification"],
   "properties": {
     "widgets": {
       "$ref": "./types/widget-list.json"
@@ -25,6 +25,9 @@
           "enum": ["macos", "windows", "android", "ios", "integration"]
         }
       }
+    },
+    "updateNotification": {
+      "$ref": "types/update-notification.json"
     }
   }
 }

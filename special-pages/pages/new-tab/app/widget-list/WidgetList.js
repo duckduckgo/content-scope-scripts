@@ -10,6 +10,8 @@ import {
 } from '../customizer/Customizer.js'
 import { RMFProvider } from '../remote-messaging-framework/RMFProvider.js'
 import { RMFConsumer } from '../remote-messaging-framework/RemoteMessagingFramework.js'
+import { UpdateNotificationProvider } from "../update-notification/UpdateNotificationProvider.js";
+import { UpdateNotificationConsumer } from "../update-notification/UpdateNotification.js";
 
 const widgetMap = {
     privacyStats: () => (
@@ -22,6 +24,11 @@ const widgetMap = {
         <RMFProvider>
             <RMFConsumer />
         </RMFProvider>
+    ),
+    updateNotification: () => (
+        <UpdateNotificationProvider>
+            <UpdateNotificationConsumer />
+        </UpdateNotificationProvider>
     )
 }
 
@@ -41,7 +48,7 @@ export function WidgetList () {
                             </Fragment>
                         )
                     }
-                    console.warn('missing config for widget: ', widget)
+                    console.warn('missing component for widget id:', widget)
                     return null
                 }
                 return (

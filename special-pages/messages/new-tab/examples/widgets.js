@@ -43,7 +43,8 @@ const initialSetupResponse = {
     ],
     env: 'production',
     locale: 'en',
-    platform: {name: 'windows'}
+    platform: { name: 'windows' },
+    updateNotification: { content: null }
 }
 
 export {}

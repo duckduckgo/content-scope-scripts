@@ -40,12 +40,14 @@ export interface NewTabMessages {
     | RmfPrimaryActionNotification
     | RmfSecondaryActionNotification
     | StatsSetConfigNotification
+    | UpdateNotificationDismissNotification
     | WidgetsSetConfigNotification;
   requests: InitialSetupRequest | RmfGetDataRequest | StatsGetConfigRequest | StatsGetDataRequest;
   subscriptions:
     | RmfOnDataUpdateSubscription
     | StatsOnConfigUpdateSubscription
     | StatsOnDataUpdateSubscription
+    | UpdateNotificationOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
 }
 /**
@@ -125,6 +127,12 @@ export interface Auto {
   kind: "auto-animate";
 }
 /**
+ * Generated from @see "../messages/new-tab/updateNotification_dismiss.notify.json"
+ */
+export interface UpdateNotificationDismissNotification {
+  method: "updateNotification_dismiss";
+}
+/**
  * Generated from @see "../messages/new-tab/widgets_setConfig.notify.json"
  */
 export interface WidgetsSetConfigNotification {
@@ -153,12 +161,20 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
+  updateNotification: UpdateNotificationData;
 }
 export interface WidgetListItem {
   /**
    * A unique identifier for the widget.
    */
   id: string;
+}
+export interface UpdateNotificationData {
+  content: null | UpdateNotification;
+}
+export interface UpdateNotification {
+  version: string;
+  notes: string[];
 }
 /**
  * Generated from @see "../messages/new-tab/rmf_getData.request.json"
@@ -248,6 +264,13 @@ export interface StatsOnConfigUpdateSubscription {
 export interface StatsOnDataUpdateSubscription {
   subscriptionEvent: "stats_onDataUpdate";
   params: PrivacyStatsData;
+}
+/**
+ * Generated from @see "../messages/new-tab/updateNotification_onDataUpdate.subscribe.json"
+ */
+export interface UpdateNotificationOnDataUpdateSubscription {
+  subscriptionEvent: "updateNotification_onDataUpdate";
+  params: UpdateNotificationData;
 }
 /**
  * Generated from @see "../messages/new-tab/widgets_onConfigUpdated.subscribe.json"
