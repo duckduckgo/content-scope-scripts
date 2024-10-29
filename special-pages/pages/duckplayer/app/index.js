@@ -8,7 +8,7 @@ import { EmbedSettings } from './embed-settings.js'
 import enStrings from '../src/locales/en/duckplayer.json'
 import { Settings } from './settings.js'
 import { SettingsProvider } from './providers/SettingsProvider.jsx'
-import { MessagingContext } from './types.js'
+import { MessagingContext, TelemetryContext } from './types.js'
 import { UserValuesProvider } from './providers/UserValuesProvider.jsx'
 import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx'
 import { Components } from './components/Components.jsx'
@@ -17,10 +17,11 @@ import { DesktopApp } from './components/DesktopApp.jsx'
 
 /**
  * @param {import("../src/js/index.js").DuckplayerPage} messaging
+ * @param {import("../src/js/index.js").Telemetry} telemetry
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  * @return {Promise<void>}
  */
-export async function init (messaging, baseEnvironment) {
+export async function init (messaging, telemetry, baseEnvironment) {
     const result = await callWithRetry(() => messaging.initialSetup())
     if ('error' in result) {
         throw new Error(result.error)
@@ -77,23 +78,25 @@ export async function init (messaging, baseEnvironment) {
                 willThrow={environment.willThrow}>
                 <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
                     <UpdateEnvironment search={window.location.search}/>
-                    <MessagingContext.Provider value={messaging}>
-                        <SettingsProvider settings={settings}>
-                            <UserValuesProvider initial={init.userValues}>
-                                {settings.layout === 'desktop' && (
-                                    <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
-                                        <DesktopApp embed={embed} />
-                                    </TranslationProvider>
-                                )}
-                                {settings.layout === 'mobile' && (
-                                    <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                                        <MobileApp embed={embed} />
-                                    </TranslationProvider>
-                                )}
-                                <WillThrow />
-                            </UserValuesProvider>
-                        </SettingsProvider>
-                    </MessagingContext.Provider>
+                    <TelemetryContext.Provider value={telemetry}>
+                        <MessagingContext.Provider value={messaging}>
+                            <SettingsProvider settings={settings}>
+                                <UserValuesProvider initial={init.userValues}>
+                                    {settings.layout === 'desktop' && (
+                                        <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
+                                            <DesktopApp embed={embed} />
+                                        </TranslationProvider>
+                                    )}
+                                    {settings.layout === 'mobile' && (
+                                        <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                                            <MobileApp embed={embed} />
+                                        </TranslationProvider>
+                                    )}
+                                    <WillThrow />
+                                </UserValuesProvider>
+                            </SettingsProvider>
+                        </MessagingContext.Provider>
+                    </TelemetryContext.Provider>
                 </ErrorBoundary>
             </EnvironmentProvider>
             , root)

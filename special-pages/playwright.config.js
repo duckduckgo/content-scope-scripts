@@ -59,7 +59,8 @@ export default defineConfig({
         {
             name: 'android-landscape',
             testMatch: [
-                'duckplayer-screenshots.spec.js'
+                'duckplayer-screenshots.spec.js',
+                'duckplayer-telemetry.spec.js'
             ],
             use: {
                 ...devices['Galaxy S III landscape'],

@@ -108,6 +108,55 @@ export class DuckplayerPage {
     }
 }
 
+/**
+ * Events that occur in the client-side application
+ */
+export class Telemetry {
+    /**
+     * @internal
+     */
+    oneTimeEvents = new Set()
+    /**
+     * @param {import("@duckduckgo/messaging").Messaging} messaging
+     * @internal
+     */
+    constructor (messaging) {
+        /**
+         * @internal
+         */
+        this.messaging = messaging
+    }
+
+    /**
+     * @param {import('../../../../types/duckplayer').TelemetryEvent} event
+     * @internal
+     */
+    _event (event) {
+        this.messaging.notify('telemetryEvent', event)
+    }
+
+    /**
+     * A landscape impression should only be sent once
+     *
+     * - Sends {@link "Duckplayer Messages".TelemetryEvent}
+     * - With attributes: {@link "Duckplayer Messages".Impression}
+     *
+     * ```json
+     * {
+     *   "attributes": {
+     *     "name": "impression",
+     *     "value": "landscape-layout"
+     *   }
+     * }
+     * ```
+     */
+    landscapeImpression () {
+        if (this.oneTimeEvents.has('landscapeImpression')) return
+        this.oneTimeEvents.add('landscapeImpression')
+        this._event({ attributes: { name: 'impression', value: 'landscape-layout' } })
+    }
+}
+
 const baseEnvironment = new Environment()
     .withInjectName(document.documentElement.dataset.platform)
     .withEnv(import.meta.env)
@@ -118,13 +167,14 @@ const messaging = createSpecialPageMessaging({
     pageName: 'duckPlayerPage'
 })
 
-const example = new DuckplayerPage(messaging, import.meta.injectName)
+const duckplayerPage = new DuckplayerPage(messaging, import.meta.injectName)
+const telemetry = new Telemetry(messaging)
 
-init(example, baseEnvironment).catch(e => {
+init(duckplayerPage, telemetry, baseEnvironment).catch(e => {
     // messages.
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
-    example.reportInitException({ message: msg })
+    duckplayerPage.reportInitException({ message: msg })
 })
 
 initStorage()
