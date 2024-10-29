@@ -143,9 +143,6 @@ for (const buildJob of buildJobs) {
             format: 'iife',
             // external: ['../assets/img/*'],
             sourcemap: NODE_ENV === 'development',
-            supported: {
-                nesting: false,
-            },
             loader: {
                 '.js': 'jsx',
                 '.module.css': 'local-css',

@@ -12,12 +12,10 @@
         height: 100px;
     }
 }
-.logoSvg {
-    img {
-        display: block;
-        width: 32px;
-        height: 32px;
-    }
+.logoSvg img {
+    display: block;
+    width: 32px;
+    height: 32px;
 }
 .text {
     font-size: 17px;
