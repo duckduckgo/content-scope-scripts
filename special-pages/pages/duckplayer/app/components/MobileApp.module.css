@@ -29,10 +29,7 @@ html[data-focus-mode="on"] .hideInFocus {
 .main {
     --bg-color: rgba(0, 0, 0, 0.3);
     --logo-spacing: 185px;
-    --ui-control-height: calc(44px + 12px + 12px);
-    --additional-ui: calc(44px * 3);
     --gutter-width: 8px;
-    --gutter-combined: calc(var(--gutter-width) * 2);
     --outer-radius: 16px;
     --inner-radius: 12px;
     --logo-width: 157px;
@@ -130,7 +127,7 @@ body:has([data-state="completed"] [aria-checked="true"]) .switch {
         border-bottom-left-radius: var(--outer-radius);
         display: grid;
         align-items: center;
-        padding-left: var(--inner-padding);
+        padding-left: 12px;
     }
     .buttons {
         border-bottom-left-radius: unset;
