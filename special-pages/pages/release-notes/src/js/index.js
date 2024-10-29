@@ -18,7 +18,7 @@ import { init } from '../../app/index'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 import { Environment } from '../../../../shared/environment'
 import { createTypedMessages } from '@duckduckgo/messaging'
-import { sampleData } from '../../app/sampleData'
+import { mockTransport } from "./mock-transport.js";
 
 /**
  * This describes the messages that will be sent to the native layer,
@@ -92,63 +92,6 @@ export class ReleaseNotesPage {
     }
 }
 
-export class IntegrationReleaseNotesPage extends ReleaseNotesPage {
-    /**
-     * Allows for sample data overrides. Overrides can be combined. Ex:
-     *
-     * ?stateId=updateReady&manualUpdate
-     * ?stateId=loaded&noPrivacyPro
-     * ?stateId=updateReady&manualUpdate&noPrivacyPro
-     *
-     * @type Record<string, Partial<UpdateMessage>> */
-    dataOverrides = {
-        manualUpdate: {
-            automaticUpdate: false
-        },
-        noPrivacyPro: {
-            releaseNotesPrivacyPro: undefined
-        }
-    }
-
-    /**
-     * Emulates the initial setup response from a browser
-     * @returns {Promise<import('../../../../types/release-notes').InitialSetupResponse>}
-     */
-    initialSetup () {
-        return Promise.resolve({
-            env: 'development',
-            locale: 'en'
-        })
-    }
-
-    /**
-     * Emulates an update event from a browser
-     * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
-     */
-    onUpdate (callback) {
-        const searchParams = new URLSearchParams(window.location.search)
-        let stateId = searchParams.get('stateId')
-        if (!stateId || !sampleData[stateId]) {
-            stateId = 'loading'
-        }
-        let updateData = sampleData[stateId]
-
-        Object.entries(this.dataOverrides).forEach(([key, value]) => {
-            if (searchParams.has(key)) {
-                updateData = { ...updateData, ...value }
-            }
-        })
-
-        callback(sampleData.loading)
-
-        setTimeout(() => {
-            callback(updateData)
-        }, 1000)
-
-        return this.messaging.subscribe('onUpdate', callback)
-    }
-}
-
 const baseEnvironment = new Environment()
     .withInjectName(document.documentElement.dataset.platform)
     .withEnv(import.meta.env) // use the build's ENV
@@ -157,12 +100,18 @@ const baseEnvironment = new Environment()
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: import.meta.env,
-    pageName: import.meta.pageName || 'unknown'
+    pageName: import.meta.pageName || 'unknown',
+    mockTransport: () => {
+        // only in integration environments
+        if (baseEnvironment.injectName !== 'integration') return null
+        let mock = null
+        // eslint-disable-next-line no-labels
+        $INTEGRATION: mock = mockTransport()
+        return mock
+    }
 })
 
-const releaseNotesPage = baseEnvironment.injectName === 'integration'
-    ? new IntegrationReleaseNotesPage(messaging)
-    : new ReleaseNotesPage(messaging)
+const releaseNotesPage = new ReleaseNotesPage(messaging)
 
 init(releaseNotesPage, baseEnvironment).catch(e => {
     console.error(e)
