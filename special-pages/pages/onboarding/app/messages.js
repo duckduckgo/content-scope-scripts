@@ -52,15 +52,6 @@ export class OnboardingMessages {
      * @returns {Promise<InitResponse>}
      */
     async init() {
-        if (this.injectName === 'integration') {
-            return {
-                stepDefinitions: {},
-                exclude: [],
-                order: 'v3',
-                locale: 'en',
-                env: 'development',
-            };
-        }
         return await this.messaging.request('init');
     }
 
