@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 import { Fragment, h } from 'preact'
 import { useMessaging } from '../index'
 import classNames from 'classnames'

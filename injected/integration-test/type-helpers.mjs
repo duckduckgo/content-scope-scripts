@@ -59,7 +59,7 @@ export class Build {
         const path = this.switch({
             windows: () => '../build/windows/contentScope.js',
             android: () => '../build/android/contentScope.js',
-            'apple': () => '../Sources/ContentScopeScripts/dist/contentScope.js',
+            apple: () => '../Sources/ContentScopeScripts/dist/contentScope.js',
             'apple-isolated': () => '../Sources/ContentScopeScripts/dist/contentScopeIsolated.js',
             'android-autofill-password-import': () => '../build/android/autofillPasswordImport.js'
         })

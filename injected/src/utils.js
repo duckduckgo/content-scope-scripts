@@ -2,7 +2,7 @@
 import { Set } from './captured-globals.js'
 
 // Only use globalThis for testing this breaks window.wrappedJSObject code in Firefox
-// eslint-disable-next-line no-global-assign
+ 
 let globalObj = typeof window === 'undefined' ? globalThis : window
 let Error = globalObj.Error
 let messageSecret
@@ -284,7 +284,7 @@ const functionMap = {
         // eslint-disable-next-line no-debugger
         debugger
     },
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+     
     noop: () => { }
 }
 

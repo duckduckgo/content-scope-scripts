@@ -47,7 +47,7 @@ export async function createSchemasFromFiles(rootDir) {
 
     const outputs = [];
 
-    for (let dir of dirs) {
+    for (const dir of dirs) {
         const fileList = createFileList(rootDir, dir.name);
         const valid = fileList.filter(x => x.valid);
         if (valid.length === 0) continue;

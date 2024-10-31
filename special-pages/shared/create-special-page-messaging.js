@@ -66,7 +66,7 @@ export function createSpecialPageMessaging (opts) {
         /**
          * @param {import('@duckduckgo/messaging').RequestMessage} msg
          */
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         request: (msg) => {
             console.log(msg)
             if (msg.method === 'initialSetup') {

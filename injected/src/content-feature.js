@@ -214,7 +214,7 @@ export default class ContentFeature {
         })
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+     
     init (args) {
     }
 
@@ -227,7 +227,7 @@ export default class ContentFeature {
         this.measure()
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+     
     load (args) {
     }
 
@@ -296,7 +296,7 @@ export default class ContentFeature {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+     
     update () {
     }
 

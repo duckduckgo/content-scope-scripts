@@ -214,7 +214,7 @@ export function mockAndroidMessaging(params) {
                 id: msg.id,
             }
 
-            globalThis['messageCallback']?.(secret, r);
+            globalThis.messageCallback?.(secret, r);
         }
     }
 }
@@ -260,7 +260,7 @@ export function readOutgoingMessages() {
  * @param {Record<string, any>} replacements
  */
 export function wrapWindowsScripts(js, replacements) {
-    for (let [find, replace] of Object.entries(replacements)) {
+    for (const [find, replace] of Object.entries(replacements)) {
         js = js.replace(find, JSON.stringify(replace));
     }
     return `
@@ -286,7 +286,7 @@ export function wrapWindowsScripts(js, replacements) {
  * @param {Record<string, any>} replacements
  */
 export function wrapWebkitScripts(js, replacements) {
-    for (let [find, replace] of Object.entries(replacements)) {
+    for (const [find, replace] of Object.entries(replacements)) {
         js = js.replace(find, JSON.stringify(replace));
     }
     return js;

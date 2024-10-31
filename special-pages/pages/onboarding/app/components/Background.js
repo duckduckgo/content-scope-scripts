@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 import { h } from 'preact'
 import styles from './Background.module.css'
 import cn from 'classnames'

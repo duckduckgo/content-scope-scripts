@@ -5,14 +5,14 @@ import {createFileList} from "./json-schema-fs.mjs";
  */
 function title(file) {
     switch (file.kind) {
-        case "request":
-        case "response":
-            return file.method + '_' + file.kind
-        case "subscribe":
-            return file.method + '_' + "subscription"
-        case "notify":
-            return file.method + '_' + "notification"
-        default: return file.kind
+    case "request":
+    case "response":
+        return file.method + '_' + file.kind
+    case "subscribe":
+        return file.method + '_' + "subscription"
+    case "notify":
+        return file.method + '_' + "notification"
+    default: return file.kind
     }
 }
 
@@ -41,14 +41,14 @@ function hasParams(schema) {
  */
 function baseSchema(file) {
     return {
-        "type": "object",
-        "title": title(file),
-        "description": description(file),
-        "additionalProperties": false,
-        "required": ["method"],
-        "properties": {
-            "method": {
-                "const": file.method
+        type: "object",
+        title: title(file),
+        description: description(file),
+        additionalProperties: false,
+        required: ["method"],
+        properties: {
+            method: {
+                const: file.method
             },
         }
     }
@@ -58,14 +58,14 @@ function baseSchema(file) {
  */
 function subscribeBaseSchema(file) {
     return {
-        "type": "object",
-        "title": title(file),
-        "description": description(file),
-        "additionalProperties": false,
-        "required": ["subscriptionEvent"],
-        "properties": {
-            "subscriptionEvent": {
-                "const": file.method
+        type: "object",
+        title: title(file),
+        description: description(file),
+        additionalProperties: false,
+        required: ["subscriptionEvent"],
+        properties: {
+            subscriptionEvent: {
+                const: file.method
             },
         }
     }
@@ -79,7 +79,7 @@ function createNotification(file) {
     const json = file.json;
     const base = baseSchema(file)
     if (hasParams(json)) {
-        base.properties.params = { "$ref": "./" + file.relative }
+        base.properties.params = { $ref: "./" + file.relative }
         base.required.push('params')
     }
     return base;
@@ -92,7 +92,7 @@ function createNotification(file) {
 function createRequest(file, response) {
     const base = createNotification(file);
     if (response && response.valid) {
-        base.properties.result = { "$ref": "./" + response.relative }
+        base.properties.result = { $ref: "./" + response.relative }
         base.required.push('result')
     }
     return base;
@@ -106,7 +106,7 @@ function createSubscription(file) {
     const json = file.json;
     const base = subscribeBaseSchema(file)
     if (hasParams(json)) {
-        base.properties.params = { "$ref": "./" + file.relative }
+        base.properties.params = { $ref: "./" + file.relative }
         base.required.push('params')
     }
     return base;
@@ -122,7 +122,7 @@ export function generateSchema(featureName, fileList) {
     const requests = [];
     const subscriptions = [];
 
-    for (let file of fileList.filter(x => x.valid)) {
+    for (const file of fileList.filter(x => x.valid)) {
         if (file.valid === false) continue; // ts
         if (file.kind === 'notify') {
             notifications.push(createNotification(file))
@@ -137,14 +137,14 @@ export function generateSchema(featureName, fileList) {
     }
 
     const base = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object",
-        "title": featureName + "_messages",
-        "description": `Requests, Notifications and Subscriptions from the ${featureName} feature`,
-        "additionalProperties": false,
-        "properties": {},
+        $schema: "http://json-schema.org/draft-07/schema#",
+        type: "object",
+        title: featureName + "_messages",
+        description: `Requests, Notifications and Subscriptions from the ${featureName} feature`,
+        additionalProperties: false,
+        properties: {},
         /** @type {string[]} */
-        "required": []
+        required: []
     }
 
     if (notifications.length) {

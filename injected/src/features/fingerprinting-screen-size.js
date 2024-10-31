@@ -65,7 +65,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
         try {
             this.defineProperty(globalThis, property, {
                 get: () => value,
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                 
                 set: () => {},
                 configurable: true,
                 enumerable: true

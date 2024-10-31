@@ -63,7 +63,7 @@ export async function extract (action, userData, root = document) {
     const filtered = await Promise.all(filteredPromises)
 
     // omit the DOM node from data transfer
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     const debugResults = extractResult.results.map((result) => result.asData())
 
     return new SuccessResponse({
