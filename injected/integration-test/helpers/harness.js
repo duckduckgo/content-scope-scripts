@@ -1,3 +1,4 @@
+/* global process */
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'os'
 import { join } from 'path'

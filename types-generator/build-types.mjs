@@ -42,7 +42,7 @@ export async function buildTypes(mapping) {
         }
         if (manifest.kind === 'messages') {
             // create a job for each sub-folder that contains schemas
-            const schemas = await createSchemasFromFiles(manifest.schemaDir)
+            const schemas = createSchemasFromFiles(manifest.schemaDir)
 
             // for each folder
             for (const schema of schemas) {

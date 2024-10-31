@@ -1,3 +1,4 @@
+/* global process */
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({

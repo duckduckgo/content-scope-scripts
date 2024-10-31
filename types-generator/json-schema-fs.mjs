@@ -34,14 +34,14 @@ export function createFileList(rootDir, featureDirName) {
 
 /**
  * @param {string} rootDir
- * @return {Promise<{
+ * @return {{
  *   schema: import("json-schema-to-typescript").JSONSchema;
  *   featureName: string;
  *   dirname: string;
  *   topLevelType: string;
- * }[]>}
+ * }[]}
  */
-export async function createSchemasFromFiles(rootDir) {
+export function createSchemasFromFiles(rootDir) {
     const dirList = readdirSync(rootDir, { withFileTypes: true });
     const dirs = dirList.filter(x => x.isDirectory());
 
@@ -73,6 +73,7 @@ export async function createSchemasFromFiles(rootDir) {
 export function isValidFileName(file) {
     if (!file.isFile()) return {result: false}
     if (!file.name.endsWith('json')) return {result: false}
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [method, kind, ext] = file.name.split('.');
     if (kind === 'request' || kind === 'response' || kind === 'notify' || kind === 'subscribe') {
         return { result: true, method, kind }

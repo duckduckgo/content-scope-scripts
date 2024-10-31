@@ -140,6 +140,7 @@ export function Heading ({ expansion, trackerCompanies, totalCount, onToggle, bu
  * @param {import("preact").ComponentProps<'ul'>} [props.listAttrs]
  * @param {TrackerCompany[]} props.trackerCompanies
  */
+// eslint-disable-next-line no-redeclare
 export function Body ({ trackerCompanies, listAttrs = {} }) {
     const max = trackerCompanies[0]?.count ?? 0
     const [formatter] = useState(() => new Intl.NumberFormat())

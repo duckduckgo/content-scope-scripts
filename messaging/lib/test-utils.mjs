@@ -24,9 +24,9 @@ export function mockWindowsMessaging(params) {
         }
     }
     const listeners = []
-    // @ts-ignore
+    // @ts-expect-error mocking is intentional
     window.chrome = {};
-    // @ts-ignore
+    // @ts-expect-error mocking is intentional
     window.chrome.webview = {
         /**
          * @param {AnyWindowsMessage} input
@@ -87,7 +87,6 @@ export function mockWindowsMessaging(params) {
                             result: response,
                             context: msg.context,
                             featureName: msg.featureName,
-                            // @ts-ignore - shane: fix this
                             id: msg.id,
                         },
                     })
@@ -134,7 +133,7 @@ export function mockWebkitMessaging(params) {
                     })))
 
                     // force a 'tick' to allow tests to reset mocks before reading responses
-                    await new Promise(res => setTimeout(res, 0));
+                    await new Promise(resolve => setTimeout(resolve, 0));
 
                     // if it's a notification, simulate the empty response and don't check for a response
                     if (!('id' in msg)) {
@@ -152,7 +151,6 @@ export function mockWebkitMessaging(params) {
                         result: response,
                         context: msg.context,
                         featureName: msg.featureName,
-                        // @ts-ignore - shane: fix this
                         id: msg.id,
                     }
 
@@ -185,6 +183,7 @@ export function mockAndroidMessaging(params) {
          * @param {string} secret
          * @return {Promise<void>}
          */
+        // eslint-disable-next-line require-await
         process: async (jsonString, secret) => {
 
             /** @type {RequestMessage | NotificationMessage} */
@@ -210,7 +209,6 @@ export function mockAndroidMessaging(params) {
                 result: response,
                 context: msg.context,
                 featureName: msg.featureName,
-                // @ts-ignore - shane: fix this
                 id: msg.id,
             }
 
@@ -308,7 +306,7 @@ export function simulateSubscriptionMessage(params) {
     }
     switch (params.injectName) {
     case "windows": {
-        // @ts-expect-error
+        // @ts-expect-error DDG custom global
         const fn = window.chrome?.webview?.postMessage || window.windowsInteropPostMessage;
         fn(subscriptionEvent)
         break;

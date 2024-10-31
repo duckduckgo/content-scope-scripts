@@ -84,7 +84,7 @@ function displayDiffs (dir1Files, dir2Files, isOpen) {
 }
 
 function renderDetails (section, text, isOpen) {
-    if (section == 'dist') {
+    if (section === 'dist') {
         section = 'apple'
     }
     const open = section !== 'integration' ? 'open' : ''

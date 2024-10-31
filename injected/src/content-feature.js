@@ -2,6 +2,7 @@ import { camelcase, matchHostname, processAttr, computeEnabledFeatures, parseFea
 import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js'
+// eslint-disable-next-line no-redeclare
 import { Proxy, Reflect } from './captured-globals.js'
 import { Messaging, MessagingContext } from '../../messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
@@ -28,8 +29,10 @@ export default class ContentFeature {
     /** @type {boolean | undefined} */
     #documentOriginIsTracker
     /** @type {Record<string, unknown> | undefined} */
+    // eslint-disable-next-line no-unused-private-class-members
     #bundledfeatureSettings
     /** @type {import('../../messaging').Messaging} */
+    // eslint-disable-next-line no-unused-private-class-members
     #messaging
     /** @type {boolean} */
     #isDebugFlagSet = false

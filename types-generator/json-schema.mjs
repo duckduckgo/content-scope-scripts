@@ -1,4 +1,6 @@
-import {createFileList} from "./json-schema-fs.mjs";
+/**
+ * @typedef {import("./json-schema-fs.mjs").createFileList} createFileList
+ */
 
 /**
  * @param {ReturnType<createFileList>[number]} file
@@ -171,9 +173,9 @@ export function generateSchema(featureName, fileList) {
  */
 export function createMessagingTypes(job, { featurePath, className }) {
     const json = job.schema
-    const notifications = json.properties?.notifications?.oneOf?.length ?? 0 > 0;
-    const requests = json.properties?.requests?.oneOf?.length ?? 0 > 0;
-    const subscriptions = json.properties?.subscriptions?.oneOf?.length ?? 0 > 0;
+    const notifications = (json.properties?.notifications?.oneOf?.length ?? 0) > 0;
+    const requests = (json.properties?.requests?.oneOf?.length ?? 0) > 0;
+    const subscriptions = (json.properties?.subscriptions?.oneOf?.length ?? 0) > 0;
     const lines = [];
     if (notifications) {
         lines.push(`notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<${job.topLevelType}>['notify']`)

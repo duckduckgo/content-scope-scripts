@@ -5,6 +5,7 @@ import { test as base, expect } from '@playwright/test'
 import { testContextForExtension } from './helpers/harness.js'
 import { createRequire } from 'node:module'
 
+// eslint-disable-next-line no-redeclare
 const require = createRequire(import.meta.url)
 
 const test = testContextForExtension(base)

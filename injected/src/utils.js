@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare, no-global-assign */
 /* global cloneInto, exportFunction, mozProxies */
 import { Set } from './captured-globals.js'
 

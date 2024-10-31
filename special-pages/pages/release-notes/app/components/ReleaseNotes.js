@@ -3,6 +3,7 @@ import { Fragment, h } from 'preact'
 import { useMessaging } from '../index'
 import classNames from 'classnames'
 import { useTypedTranslation } from '../types'
+// eslint-disable-next-line no-redeclare
 import { Text } from '../../../../shared/components/Text/Text'
 import { Card } from '../../../../shared/components/Card/Card'
 import { Button } from '../../../../shared/components/Button/Button'

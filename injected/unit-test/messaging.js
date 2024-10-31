@@ -15,7 +15,7 @@ describe('Messaging Transports', () => {
         messaging.request('helloWorld', { foo: 'bar' })
 
         // grab the auto-generated `id` field
-        const [requestMessage] = spy.calls.first()?.args
+        const [requestMessage] = spy.calls.first()?.args ?? []
         expect(typeof requestMessage.id).toBe('string')
         expect(requestMessage.id.length).toBeGreaterThan(0)
 
