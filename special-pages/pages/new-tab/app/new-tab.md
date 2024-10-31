@@ -13,6 +13,23 @@ title: New Tab Page
 - {@link "NewTab Messages".ContextMenuNotification `contextMenu`}
   - Sent when the user right-clicks in the page
   - Note: Other widgets might prevent this (and send their own, eg: favorites)
+  - Sends: {@link "NewTab Messages".ContextMenuNotify}
+  - Example:
+
+```json
+{
+  "visibilityMenuItems": [
+    {
+      "id": "favorites",
+      "title": "Favorites"
+    },
+    {
+      "id": "privacyStats",
+      "title": "Privacy Stats"
+    }
+  ]
+}
+```
 
 - {@link "NewTab Messages".ReportInitExceptionNotification `reportInitException`}
   - Sent when the application fails to initialize (for example, a JavaScript exception prevented it)

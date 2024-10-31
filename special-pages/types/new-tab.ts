@@ -56,6 +56,17 @@ export interface NewTabMessages {
  */
 export interface ContextMenuNotification {
   method: "contextMenu";
+  params: ContextMenuNotify;
+}
+export interface ContextMenuNotify {
+  visibilityMenuItems: VisibilityMenuItem[];
+}
+export interface VisibilityMenuItem {
+  id: string;
+  /**
+   * Translated name of the section
+   */
+  title: string;
 }
 /**
  * Generated from @see "../messages/new-tab/reportInitException.notify.json"

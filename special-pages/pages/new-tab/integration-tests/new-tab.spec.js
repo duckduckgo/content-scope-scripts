@@ -71,6 +71,24 @@ test.describe('newtab widgets', () => {
         await page.getByRole('button', { name: 'Customize' }).waitFor()
 
         await page.locator('body').click({ button: 'right' })
-        await ntp.mocks.waitForCallCount({ method: 'contextMenu', count: 1 })
+
+        const calls = await ntp.mocks.waitForCallCount({ method: 'contextMenu', count: 1 })
+        expect(calls[0].payload).toStrictEqual({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'contextMenu',
+            params: {
+                visibilityMenuItems: [
+                    {
+                        id: 'favorites',
+                        title: 'Favorites'
+                    },
+                    {
+                        id: 'privacyStats',
+                        title: 'Privacy Stats'
+                    }
+                ]
+            }
+        })
     })
 })

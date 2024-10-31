@@ -1,6 +1,3 @@
-import { useEffect } from 'preact/hooks'
-import { useMessaging } from './types.js'
-
 /**
  * Use this to verify the result of updating some local state.
  *
@@ -60,22 +57,4 @@ export function noop (named) {
     return () => {
         console.log(named, 'noop')
     }
-}
-
-/**
- * Forward the contextmenu event
- */
-export function useContextMenu () {
-    const messaging = useMessaging()
-    useEffect(() => {
-        function handler (e) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            messaging.contextMenu()
-        }
-        document.body.addEventListener('contextmenu', handler)
-        return () => {
-            document.body.removeEventListener('contextmenu', handler)
-        }
-    }, [messaging])
 }

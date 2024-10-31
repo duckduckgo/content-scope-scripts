@@ -50,9 +50,10 @@ export class NewTabPage {
 
     /**
      * Sent when a right-click occurs, and wasn't intercepted by another widget
+     * @param {import('../../../../types/new-tab.js').ContextMenuNotify} params
      */
-    contextMenu () {
-        this.messaging.notify('contextMenu')
+    contextMenu (params) {
+        this.messaging.notify('contextMenu', params)
     }
 }
 
