@@ -9,8 +9,8 @@
     }]
   },
   "browserReleaseNotes" : {
-    "title" : "Notes de mise à jour du navigateur",
-    "note" : "Page title for the Browser Release Notes page"
+    "title" : "Nouveautés",
+    "note" : "Page title for the Browser Release Notes page showing what's new in the current release"
   },
   "versionNumber" : {
     "title" : "Version {version}",
@@ -36,13 +36,37 @@
     "title" : "Une nouvelle version du navigateur est disponible",
     "note" : "Status text for when a new browser version is available"
   },
+  "criticallyOutOfDate" : {
+    "title" : "Une mise à jour critique est nécessaire",
+    "note" : "Status text for when a new browser version is available and the current version is very out of date"
+  },
   "checkingForUpdate" : {
     "title" : "Vérification de la mise à jour",
     "note" : "Status text for when the browser is checking for a newer version"
   },
+  "updateError" : {
+    "title" : "Échec de la mise à jour",
+    "note" : "Status text for when an error has occurred during the update process"
+  },
+  "updateDownloading" : {
+    "title" : "Téléchargement de la mise à jour {progress} %",
+    "note" : "Status text for when the browser is downloading a new update. {progress} is a placeholder for a number from 0 to 100 - the word {progress} should not be translated, but it should be placed in the appropriate position within the text. The percentage sign should also be placed correctly according to the locale (example: Downloading Update 74%)"
+  },
+  "updatePreparing" : {
+    "title" : "Préparation de la mise à jour",
+    "note" : "Status text for when the browser has finished downloading the update but is still installing it"
+  },
   "restartToUpdate" : {
     "title" : "Redémarrer pour mettre à jour",
     "note" : "Label for a button that triggers a browser restart after a version update"
+  },
+  "updateBrowser" : {
+    "title" : "Mettre à jour DuckDuckGo",
+    "note" : "Label for a button that triggers a manual browser update"
+  },
+  "retryUpdate" : {
+    "title" : "Réessayer la mise à jour",
+    "note" : "Label for a button that retries applying the failed update"
   },
   "forPrivacyProSubscribers" : {
     "title" : "Pour les abonnés Privacy Pro",
