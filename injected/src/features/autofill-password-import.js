@@ -162,7 +162,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             this.#settingsButtonSettings?.path,
             this.#signInButtonSettings?.path
         ]
-        if (supportedPaths.indexOf(path)) {
+        if (supportedPaths.includes(path)) {
             try {
                 const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
                 if (element != null) {
