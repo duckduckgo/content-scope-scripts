@@ -9,8 +9,8 @@
     }]
   },
   "browserReleaseNotes" : {
-    "title" : "Примечания к выпуску браузера",
-    "note" : "Page title for the Browser Release Notes page"
+    "title" : "Что нового",
+    "note" : "Page title for the Browser Release Notes page showing what's new in the current release"
   },
   "versionNumber" : {
     "title" : "Версия {version}",
@@ -36,13 +36,37 @@
     "title" : "Доступна более новая версия браузера",
     "note" : "Status text for when a new browser version is available"
   },
+  "criticallyOutOfDate" : {
+    "title" : "Требуется критическое обновление",
+    "note" : "Status text for when a new browser version is available and the current version is very out of date"
+  },
   "checkingForUpdate" : {
     "title" : "Проверка обновлений",
     "note" : "Status text for when the browser is checking for a newer version"
   },
+  "updateError" : {
+    "title" : "Не удалось обновить",
+    "note" : "Status text for when an error has occurred during the update process"
+  },
+  "updateDownloading" : {
+    "title" : "Загрузка обновления: {progress}%",
+    "note" : "Status text for when the browser is downloading a new update. {progress} is a placeholder for a number from 0 to 100 - the word {progress} should not be translated, but it should be placed in the appropriate position within the text. The percentage sign should also be placed correctly according to the locale (example: Downloading Update 74%)"
+  },
+  "updatePreparing" : {
+    "title" : "Подготовка обновления",
+    "note" : "Status text for when the browser has finished downloading the update but is still installing it"
+  },
   "restartToUpdate" : {
     "title" : "Перезапустите для обновления",
     "note" : "Label for a button that triggers a browser restart after a version update"
+  },
+  "updateBrowser" : {
+    "title" : "Обновить DuckDuckGo",
+    "note" : "Label for a button that triggers a manual browser update"
+  },
+  "retryUpdate" : {
+    "title" : "Повторить попытку обновления",
+    "note" : "Label for a button that retries applying the failed update"
   },
   "forPrivacyProSubscribers" : {
     "title" : "Для подписчиков Privacy Pro",
