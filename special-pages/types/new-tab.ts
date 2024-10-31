@@ -179,7 +179,7 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
-  updateNotification: UpdateNotificationData;
+  updateNotification: null | UpdateNotificationData;
 }
 export interface WidgetListItem {
   /**

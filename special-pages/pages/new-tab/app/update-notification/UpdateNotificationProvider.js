@@ -36,6 +36,22 @@ export const UpdateNotificationDispatchContext = createContext(/** @type {import
  */
 export function UpdateNotificationProvider (props) {
     const { updateNotification } = useInitialSetupData()
+    if (updateNotification === null) {
+        return null
+    }
+    return (
+        <UpdateNotificationWithInitial updateNotification={updateNotification}>
+            {props.children}
+        </UpdateNotificationWithInitial>
+    )
+}
+
+/**
+ * @param {Object} props
+ * @param {import("preact").ComponentChild} props.children
+ * @param {UpdateNotificationData} props.updateNotification
+ */
+function UpdateNotificationWithInitial ({ updateNotification, children }) {
     const initial = /** @type {State} */({
         status: 'ready',
         data: updateNotification,
@@ -58,7 +74,7 @@ export function UpdateNotificationProvider (props) {
     return (
         <UpdateNotificationContext.Provider value={{ state, dismiss }}>
             <UpdateNotificationDispatchContext.Provider value={dispatch}>
-                {props.children}
+                {children}
             </UpdateNotificationDispatchContext.Provider>
         </UpdateNotificationContext.Provider>
     )

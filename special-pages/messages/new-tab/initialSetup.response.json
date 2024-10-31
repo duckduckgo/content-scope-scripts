@@ -27,7 +27,14 @@
       }
     },
     "updateNotification": {
-      "$ref": "types/update-notification.json"
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "types/update-notification.json"
+        }
+      ]
     }
   }
 }

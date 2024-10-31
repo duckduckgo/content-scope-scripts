@@ -32,6 +32,16 @@ Signal there are notes to show.
 }
 ```
 
+If your platform does not support Update Notifications, you can set this initial property to `null`
+
+```json
+{
+  "...": "...",
+  "updateNotification": null
+}
+```
+
+
 **NOTE**: `updateNotification` and it's field `content` are **required**. Set `content` to `null` to indicate 
 nothing to show. This mirrors how RMF is designed
 
