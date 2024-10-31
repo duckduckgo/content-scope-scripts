@@ -27,26 +27,14 @@ export default tseslint.config(
     {
         languageOptions: {
             globals: {
-                ...globals.webextensions,
-                ...globals.browser,
-                ...globals.jasmine,
                 $USER_PREFERENCES$: "readonly",
                 $USER_UNPROTECTED_DOMAINS$: "readonly",
                 $CONTENT_SCOPE$: "readonly",
                 $BUNDLED_CONFIG$: "readonly",
-                windowsInteropPostMessage: "readonly",
-                windowsInteropAddEventListener: "readonly",
-                windowsInteropRemoveEventListener: "readonly",
             },
 
             ecmaVersion: "latest",
             sourceType: "script",
-
-            parserOptions: {
-                projectService: {
-                    allowDefaultProject: ['eslint.config.mjs'],
-                },
-            },
         },
 
         rules: {
@@ -57,7 +45,6 @@ export default tseslint.config(
 
             "require-await": ["error"],
             "promise/prefer-await-to-then": ["error"],
-            "@typescript-eslint/await-thenable": "error",
             "@typescript-eslint/no-unused-vars": ["error", {
                 args: "none",
                 caughtErrors: "none",
@@ -65,5 +52,53 @@ export default tseslint.config(
                 vars: "all"
             }],
         },
+    },
+    {
+        ignores: ["injected/integration-test/test-pages/**", "injected/integration-test/extension/**"],
+        languageOptions: {
+            parserOptions: {
+                projectService: {
+                    allowDefaultProject: ['eslint.config.mjs'],
+                },
+            }
+        },
+        rules: {
+            "@typescript-eslint/await-thenable": "error",
+        },
+    },
+    {
+        files: ["**/scripts/*.js", "**/*.mjs", "**/unit-test/**/*.js", "**/integration-test/**/*.spec.js"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            }
+        }
+    },
+    {
+        files: ["injected/**/*.js"],
+        languageOptions: {
+            globals: {
+                windowsInteropPostMessage: "readonly",
+                windowsInteropAddEventListener: "readonly",
+                windowsInteropRemoveEventListener: "readonly",
+            }
+        }
+    },
+    {
+        files: ["**/unit-test/*.js"],
+        languageOptions: {
+            globals: {
+                ...globals.jasmine,
+            }
+        }
+    },
+    {
+        ignores: ["**/scripts/*.js"],
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.webextensions,
+            }
+        }
     }
 );
