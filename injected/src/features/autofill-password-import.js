@@ -3,6 +3,8 @@ import { DDGProxy, DDGReflect, withExponentialBackoff } from '../utils'
 
 const ANIMATION_DURATION_MS = 1000
 const ANIMATION_ITERATIONS = Infinity
+const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)'
+const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)'
 
 /**
  * This feature is responsible for animating some buttons passwords.google.com,
@@ -21,8 +23,11 @@ export default class AutofillPasswordImport extends ContentFeature {
      */
     get settingsButtonStyle () {
         return {
-            scale: 1,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            transform: {
+                start: 'scale(0.90)',
+                mid: 'scale(0.96)'
+            },
+            borderRadius: '100%'
         }
     }
 
@@ -31,8 +36,11 @@ export default class AutofillPasswordImport extends ContentFeature {
      */
     get exportButtonStyle () {
         return {
-            scale: 1.01,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            transform: {
+                start: 'scale(1)',
+                mid: 'scale(1.01)'
+            },
+            borderRadius: '100%'
         }
     }
 
@@ -41,8 +49,11 @@ export default class AutofillPasswordImport extends ContentFeature {
      */
     get signInButtonStyle () {
         return {
-            scale: 1.5,
-            backgroundColor: 'rgba(0, 39, 142, 0.5)'
+            transform: {
+                start: 'scale(1)',
+                mid: 'scale(1.3, 1.5)'
+            },
+            borderRadius: '2px'
         }
     }
 
@@ -84,21 +95,38 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
     }
 
+    insertOverlayElement (mainElement) {
+        const overlay = document.createElement('div')
+        overlay.style.position = 'absolute'
+        overlay.style.top = `${mainElement.offsetTop}px`
+        overlay.style.left = `${mainElement.offsetLeft}px`
+        overlay.style.width = `${mainElement.offsetWidth}px`
+        overlay.style.height = `${mainElement.offsetHeight}px`
+
+        // Ensure overlay is non-interactive
+        overlay.style.pointerEvents = 'none'
+
+        // Ensure that the element is injected before the parent to avoid z-index issues
+        mainElement.parentNode.insertBefore(overlay, mainElement.nextSibling)
+        return overlay
+    }
+
     /**
      * Moves the element into view and animates it.
      * @param {HTMLElement|Element} element
      * @param {any} style
      */
     animateElement (element, style) {
-        element.scrollIntoView({
+        const overlay = this.insertOverlayElement(element)
+        overlay.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
             inline: 'center'
         }) // Scroll into view
         const keyframes = [
-            { backgroundColor: 'rgba(0, 0, 255, 0)', offset: 0, borderRadius: '2px' }, // Start: transparent
-            { backgroundColor: style.backgroundColor, offset: 0.5, borderRadius: '2px', transform: `scale(${style.scale})` }, // Midpoint: blue with 50% opacity
-            { backgroundColor: 'rgba(0, 0, 255, 0)', borderRadius: '2px', offset: 1 } // End: transparent
+            { backgroundColor: BACKGROUND_COLOR_START, offset: 0, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_START}`, transform: style.transform.start }, // Start: 10% blue
+            { backgroundColor: BACKGROUND_COLOR_END, offset: 0.5, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_END}`, transform: style.transform.mid, transformOrigin: 'center' }, // Middle: 25% blue
+            { backgroundColor: BACKGROUND_COLOR_START, offset: 1, borderRadius: style.borderRadius, border: `1px solid ${BACKGROUND_COLOR_START}`, transform: style.transform.start } // End: 10% blue
         ]
 
         // Define the animation options
@@ -108,7 +136,7 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
 
         // Apply the animation to the element
-        element.animate(keyframes, options)
+        overlay.animate(keyframes, options)
     }
 
     autotapElement (element) {
@@ -166,7 +194,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             try {
                 const { element, style, shouldTap } = await this.getElementAndStyleFromPath(path) ?? {}
                 if (element != null) {
-                    shouldTap ? this.autotapElement(element) : this.animateElement(element, style)
+                    shouldTap ? this.autotapElement(element) : setTimeout(() => this.animateElement(element, style), 300)
                 }
             } catch {
                 console.error('password-import: handleElementForPath failed for path:', path)
