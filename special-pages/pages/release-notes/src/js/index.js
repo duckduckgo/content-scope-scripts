@@ -18,6 +18,7 @@ import { init } from '../../app/index'
 import { createSpecialPageMessaging } from '../../../../shared/create-special-page-messaging'
 import { Environment } from '../../../../shared/environment'
 import { createTypedMessages } from '@duckduckgo/messaging'
+import { mockTransport } from './mock-transport.js'
 
 /**
  * This describes the messages that will be sent to the native layer,
@@ -76,6 +77,13 @@ export class ReleaseNotesPage {
     }
 
     /**
+     * Forwards a click on retry update button to browser
+     */
+    retryUpdate () {
+        this.messaging.notify('retryUpdate', {})
+    }
+
+    /**
      * Subscribes to release info updates from browser
      * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
      */
@@ -92,13 +100,21 @@ const baseEnvironment = new Environment()
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: import.meta.env,
-    pageName: import.meta.pageName || 'unknown'
+    pageName: import.meta.pageName || 'unknown',
+    mockTransport: () => {
+        // only in integration environments
+        if (baseEnvironment.injectName !== 'integration') return null
+        let mock = null
+        // eslint-disable-next-line no-labels
+        $INTEGRATION: mock = mockTransport()
+        return mock
+    }
 })
 
-const messages = new ReleaseNotesPage(messaging)
+const releaseNotesPage = new ReleaseNotesPage(messaging)
 
-init(messages, baseEnvironment).catch(e => {
+init(releaseNotesPage, baseEnvironment).catch(e => {
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
-    messages.reportInitException({ message: msg })
+    releaseNotesPage.reportInitException({ message: msg })
 })

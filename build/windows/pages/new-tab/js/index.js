@@ -644,7 +644,9 @@
     /** @type {(id: string) => void} */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     toggle: (_id) => {
-    }
+    },
+    /** @type {number} */
+    index: -1
   });
   function useVisibility() {
     return x2(WidgetVisibilityContext);
@@ -654,8 +656,9 @@
     return /* @__PURE__ */ _(WidgetVisibilityContext.Provider, { value: {
       visibility: props.visibility,
       id: props.id,
-      toggle
-    } }, /* @__PURE__ */ _("div", { style: { viewTransitionName: `widget-${props.id}` } }, props.children));
+      toggle,
+      index: props.index
+    } }, props.children);
   }
 
   // pages/new-tab/app/privacy-stats/PrivacyStats.module.css
@@ -1289,21 +1292,20 @@
   };
 
   // pages/new-tab/app/customizer/VisibilityMenu.js
-  function VisibilityMenu({ rows, state, toggle }) {
+  function VisibilityMenu({ rows }) {
     const { t: t3 } = useTypedTranslation();
     const MENU_ID = g2();
-    return /* @__PURE__ */ _("div", { className: VisibilityMenu_default.dropdownInner }, /* @__PURE__ */ _("h2", { className: "sr-only" }, t3("widgets_visibility_menu_title")), /* @__PURE__ */ _("ul", { className: VisibilityMenu_default.list }, rows.map((row, index) => {
-      const current = state[index];
+    return /* @__PURE__ */ _("div", { className: VisibilityMenu_default.dropdownInner }, /* @__PURE__ */ _("h2", { className: "sr-only" }, t3("widgets_visibility_menu_title")), /* @__PURE__ */ _("ul", { className: VisibilityMenu_default.list }, rows.map((row) => {
       return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("label", { className: VisibilityMenu_default.menuItemLabel, htmlFor: MENU_ID + row.id }, /* @__PURE__ */ _(
         "input",
         {
           type: "checkbox",
-          checked: current.checked,
-          onChange: () => toggle(row.id),
+          checked: row.visibility === "visible",
+          onChange: () => row.toggle?.(row.id),
           id: MENU_ID + row.id,
           class: VisibilityMenu_default.checkbox
         }
-      ), /* @__PURE__ */ _("span", { "aria-hidden": true, className: VisibilityMenu_default.checkboxIcon }, current.checked && /* @__PURE__ */ _(
+      ), /* @__PURE__ */ _("span", { "aria-hidden": true, className: VisibilityMenu_default.checkboxIcon }, row.visibility === "visible" && /* @__PURE__ */ _(
         "svg",
         {
           width: "16",
@@ -1329,7 +1331,6 @@
   // pages/new-tab/app/customizer/Customizer.js
   var import_classnames = __toESM(require_classnames(), 1);
   function Customizer() {
-    const { widgetConfigItems, toggle } = x2(WidgetConfigContext);
     const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown();
     const [rowData, setRowData] = h2(
       /** @type {VisibilityRowData[]} */
@@ -1338,25 +1339,20 @@
     const toggleMenu = q2(() => {
       if (isOpen)
         return setIsOpen(false);
-      const next = [];
-      const detail = {
-        register: (incoming) => {
-          next.push(structuredClone(incoming));
-        }
-      };
-      const event = new CustomEvent(Customizer.OPEN_EVENT, { detail });
-      window.dispatchEvent(event);
-      setRowData(next);
+      setRowData(getItems());
       setIsOpen(true);
     }, [isOpen]);
-    const visibilityState = rowData.map((row) => {
-      const item = widgetConfigItems.find((w3) => w3.id === row.id);
-      if (!item)
-        console.warn("could not find", row.id);
-      return {
-        checked: item?.visibility === "visible"
+    y2(() => {
+      if (!isOpen)
+        return;
+      function handler() {
+        setRowData(getItems());
+      }
+      window.addEventListener(Customizer.UPDATE_EVENT, handler);
+      return () => {
+        window.removeEventListener(Customizer.UPDATE_EVENT, handler);
       };
-    });
+    }, [isOpen]);
     const MENU_ID = g2();
     const BUTTON_ID = g2();
     return /* @__PURE__ */ _("div", { class: Customizer_default.root, ref: dropdownRef }, /* @__PURE__ */ _(
@@ -1375,17 +1371,23 @@
         class: (0, import_classnames.default)(Customizer_default.dropdownMenu, { [Customizer_default.show]: isOpen }),
         "aria-labelledby": BUTTON_ID
       },
-      /* @__PURE__ */ _(
-        VisibilityMenu,
-        {
-          rows: rowData,
-          state: visibilityState,
-          toggle
-        }
-      )
+      /* @__PURE__ */ _(VisibilityMenu, { rows: rowData })
     ));
   }
   Customizer.OPEN_EVENT = "ntp-customizer-open";
+  Customizer.UPDATE_EVENT = "ntp-customizer-update";
+  function getItems() {
+    const next = [];
+    const detail = {
+      register: (incoming) => {
+        next.push(incoming);
+      }
+    };
+    const event = new CustomEvent(Customizer.OPEN_EVENT, { detail });
+    window.dispatchEvent(event);
+    next.sort((a3, b2) => a3.index - b2.index);
+    return next;
+  }
   function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef }) {
     return /* @__PURE__ */ _(
       "button",
@@ -1439,14 +1441,17 @@
     }, [isOpen]);
     return { dropdownRef, buttonRef, isOpen, setIsOpen };
   }
-  function useCustomizer({ title, id, icon }) {
+  function useCustomizer({ title, id, icon, toggle, visibility, index }) {
     y2(() => {
       const handler = (e3) => {
-        e3.detail.register({ title, id, icon });
+        e3.detail.register({ title, id, icon, toggle, visibility, index });
       };
       window.addEventListener(Customizer.OPEN_EVENT, handler);
       return () => window.removeEventListener(Customizer.OPEN_EVENT, handler);
-    }, [title, id, icon]);
+    }, [title, id, icon, toggle, visibility, index]);
+    y2(() => {
+      window.dispatchEvent(new Event(Customizer.UPDATE_EVENT));
+    }, [visibility]);
   }
 
   // pages/new-tab/app/privacy-stats/PrivacyStats.js
@@ -1519,9 +1524,9 @@
   }
   function PrivacyStatsCustomized() {
     const { t: t3 } = useTypedTranslation();
-    const { visibility, id } = useVisibility();
+    const { visibility, id, toggle, index } = useVisibility();
     const title = t3("trackerStatsMenuTitle");
-    useCustomizer({ title, id, icon: "star" });
+    useCustomizer({ title, id, icon: "shield", toggle, visibility, index });
     if (visibility === "hidden") {
       return null;
     }
@@ -1589,9 +1594,9 @@
   // pages/new-tab/app/favorites/Favorites.js
   function FavoritesCustomized() {
     const { t: t3 } = useTypedTranslation();
-    const { id, visibility } = useVisibility();
+    const { id, visibility, toggle, index } = useVisibility();
     const title = t3("favorites_menu_title");
-    useCustomizer({ title, id, icon: "shield" });
+    useCustomizer({ title, id, icon: "star", toggle, visibility, index });
     if (visibility === "hidden") {
       return null;
     }
@@ -1695,7 +1700,8 @@
   }
   var mutations;
   var resize;
-  if (typeof window !== "undefined") {
+  var supportedBrowser = typeof window !== "undefined" && "ResizeObserver" in window;
+  if (supportedBrowser) {
     root = document.documentElement;
     mutations = new MutationObserver(handleMutations);
     resize = new ResizeObserver(handleResizes);
@@ -2098,11 +2104,19 @@
       /** @type {import('../environment').Environment['injectName']} */
       "windows"
     ),
-    willThrow: false
+    willThrow: false,
+    /** @type {import('../environment').Environment['env']} */
+    env: "production"
   });
   var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({ children, debugState, willThrow = false, injectName = "windows" }) {
+  function EnvironmentProvider({
+    children,
+    debugState,
+    env = "production",
+    willThrow = false,
+    injectName = "windows"
+  }) {
     const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     y2(() => {
@@ -2130,7 +2144,8 @@
       debugState,
       isDarkMode: theme === "dark",
       injectName,
-      willThrow
+      willThrow,
+      env
     } }, children);
   }
   function UpdateEnvironment({ search }) {
@@ -2324,7 +2339,7 @@
   };
   function WidgetList() {
     const { widgets, widgetConfigItems } = x2(WidgetConfigContext);
-    return /* @__PURE__ */ _(Stack, { gap: "var(--sp-8)" }, widgets.map((widget) => {
+    return /* @__PURE__ */ _(Stack, { gap: "var(--sp-8)" }, widgets.map((widget, index) => {
       const matchingConfig = widgetConfigItems.find((item) => item.id === widget.id);
       if (!matchingConfig) {
         const matching = widgetMap[widget.id];
@@ -2338,7 +2353,8 @@
         WidgetVisibilityProvider,
         {
           visibility: matchingConfig.visibility,
-          id: matchingConfig.id
+          id: matchingConfig.id,
+          index
         },
         widgetMap[widget.id]?.()
       ));
@@ -2763,22 +2779,23 @@
       factory: () => /* @__PURE__ */ _(b, null, /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true })), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(
         VisibilityMenu,
         {
-          toggle: noop("toggle!"),
           rows: [
             {
               id: "favorites",
               title: "Favorites",
-              icon: "star"
+              icon: "star",
+              toggle: noop("toggle favorites"),
+              visibility: "hidden",
+              index: 0
             },
             {
               id: "privacyStats",
               title: "Privacy Stats",
-              icon: "shield"
+              icon: "shield",
+              toggle: noop("toggle favorites"),
+              visibility: "visible",
+              index: 1
             }
-          ],
-          state: [
-            { checked: true },
-            { checked: false }
           ]
         }
       )))
@@ -2950,13 +2967,14 @@
     }
     const widgetConfigAPI = new WidgetConfigService(messaging2, init2.widgetConfigs);
     const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
-    console.log("environment:", environment);
-    console.log("locale:", environment.locale);
     const strings = environment.locale === "en" ? newtab_default : await fetch(`./locales/${environment.locale}/new-tab.json`).then((x3) => x3.json()).catch((e3) => {
       console.error("Could not load locale", environment.locale, e3);
       return newtab_default;
     });
     const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform"));
+    console.log("environment:", environment);
+    console.log("settings:", settings);
+    console.log("locale:", environment.locale);
     const didCatch = (error) => {
       const message = error?.message || error?.error || "unknown";
       messaging2.reportPageException({ message });
@@ -2975,7 +2993,7 @@
             injectName: environment.injectName,
             willThrow: environment.willThrow
           },
-          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: strings, textLength: environment.textLength }, /* @__PURE__ */ _(Components, null))
+          /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: strings, textLength: environment.textLength }, /* @__PURE__ */ _(Components, null)))
         ),
         root2
       );
@@ -2986,7 +3004,8 @@
         {
           debugState: environment.debugState,
           injectName: environment.injectName,
-          willThrow: environment.willThrow
+          willThrow: environment.willThrow,
+          env: environment.env
         },
         /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, { showDetails: environment.env === "development" }) }, /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }), /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: strings, textLength: environment.textLength }, /* @__PURE__ */ _(WidgetConfigProvider, { api: widgetConfigAPI, widgetConfigs: init2.widgetConfigs, widgets: init2.widgets }, /* @__PURE__ */ _(App, null))))))
       ),

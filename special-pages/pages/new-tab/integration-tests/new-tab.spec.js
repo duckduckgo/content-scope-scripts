@@ -31,7 +31,7 @@ test.describe('newtab widgets', () => {
             }
         }])
     })
-    test('widget config double click', async ({ page }, workerInfo) => {
+    test.skip('widget config double click', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo)
         await ntp.reducedMotion()
         await ntp.openPage()

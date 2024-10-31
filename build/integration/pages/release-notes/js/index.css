@@ -402,10 +402,13 @@ body:not([data-platform-name]) {
   height: var(--sp-6);
 }
 .ReleaseNotes_checkIcon {
-  background: url("./Check-Recolorable-24-ABG5R7A5.svg") no-repeat;
+  background: url("./Check-Color-24-Y2U7ZXXE.svg") no-repeat;
 }
 .ReleaseNotes_alertIcon {
-  background: url("./Alert-Recolorable-24-BWKAEUXC.svg") no-repeat;
+  background: url("./Exclamation-Color-24-AAA3M64P.svg") no-repeat;
+}
+.ReleaseNotes_warningIcon {
+  background: url("./Exclamation-High-Color-24-6LOXQFBN.svg") no-repeat;
 }
 .ReleaseNotes_spinnerIcon {
   mask: url("./Spinner-16-YPLGMJ6P.svg") no-repeat;
@@ -496,27 +499,16 @@ body:not([data-platform-name]) {
   }
 }
 .ReleaseNotes_newTag {
-  background-color: var(--color-yellow-50);
-  border-radius: var(--sp-2_5) var(--sp-2_5) var(--sp-2_5) 0;
-  color: var(--color-black-at-84);
+  background-color: var(--color-yellow-60);
+  border-radius: var(--sp-1_5) 0;
+  color: var(--color-black);
   display: inline-block;
-  padding: 0 var(--sp-2_5);
-  position: relative;
+  padding: calc(3 * var(--px-in-rem)) var(--sp-2);
   text-transform: uppercase;
   top: calc(-1 * var(--sp-0_5));
-  font-size: calc(13 * var(--px-in-rem));
-  font-weight: 700;
-  line-height: calc(20 * var(--px-in-rem));
-  &::after {
-    background-color: var(--color-yellow-50);
-    mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'><path fill='currentColor' d='M0 0v5.336A13.975 13.975 0 0 1 10.699 0H0Z'/></svg>");
-    content: "";
-    height: calc(6 * var(--px-in-rem));
-    left: 0;
-    position: absolute;
-    top: calc(20 * var(--px-in-rem));
-    width: calc(11 * var(--px-in-rem));
-  }
+  font-size: calc(11.5 * var(--px-in-rem));
+  font-weight: 600;
+  line-height: calc(11 * var(--px-in-rem));
 }
 
 /* pages/release-notes/app/components/App.module.css */
@@ -607,6 +599,7 @@ body {
   --color-purple-50: #5132a9;
   --color-yellow-50: #fcd00a;
   --color-green-50: #4cba3c;
+  --color-yellow-60: #f9be1a;
   --color-blue-100: #051133;
   --color-blue-90: #0b2059;
   --color-blue-80: #14307e;

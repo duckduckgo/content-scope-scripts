@@ -29,6 +29,10 @@ export function mockTransport () {
     function read (name) {
         // console.log('*will* read from LS', name)
         try {
+            if (url.searchParams.has('skip-read')) {
+                console.warn('not reading from localstorage, because skip-read was in the search')
+                return null
+            }
             const item = localStorage.getItem(VERSION_PREFIX + name)
             if (!item) return null
             // console.log('did read from LS', item)
@@ -45,6 +49,10 @@ export function mockTransport () {
      */
     function write (name, value) {
         try {
+            if (url.searchParams.has('skip-write')) {
+                console.warn('not writing to localstorage, because skip-write was in the search')
+                return
+            }
             localStorage.setItem(VERSION_PREFIX + name, JSON.stringify(value))
             // console.log('✅ did write')
         } catch (e) {

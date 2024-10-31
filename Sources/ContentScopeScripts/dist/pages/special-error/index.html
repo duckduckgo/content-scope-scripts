@@ -598,6 +598,7 @@ body {
   --color-purple-50: #5132a9;
   --color-yellow-50: #fcd00a;
   --color-green-50: #4cba3c;
+  --color-yellow-60: #f9be1a;
   --color-blue-100: #051133;
   --color-blue-90: #0b2059;
   --color-blue-80: #14307e;
@@ -2489,11 +2490,19 @@ li {
       /** @type {import('../environment').Environment['injectName']} */
       "windows"
     ),
-    willThrow: false
+    willThrow: false,
+    /** @type {import('../environment').Environment['env']} */
+    env: "production"
   });
   var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({ children, debugState, willThrow = false, injectName = "windows" }) {
+  function EnvironmentProvider({
+    children,
+    debugState,
+    env = "production",
+    willThrow = false,
+    injectName = "windows"
+  }) {
     const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     y2(() => {
@@ -2521,7 +2530,8 @@ li {
       debugState,
       isDarkMode: theme === "dark",
       injectName,
-      willThrow
+      willThrow,
+      env
     } }, children);
   }
   function UpdateEnvironment({ search }) {

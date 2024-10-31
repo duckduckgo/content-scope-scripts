@@ -69,7 +69,9 @@ const WidgetVisibilityContext = createContext({
     id: /** @type {WidgetConfigItem['id']} */(''),
     /** @type {(id: string) => void} */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    toggle: (_id) => {}
+    toggle: (_id) => {},
+    /** @type {number} */
+    index: -1
 })
 
 export function useVisibility () {
@@ -81,6 +83,7 @@ export function useVisibility () {
  * @param {object} props
  * @param {WidgetConfigItem['id']} props.id - the current id key used for storage
  * @param {WidgetConfigItem['visibility']} props.visibility - the current id key used for storage
+ * @param {number} props.index - the current id key used for storage
  * @param {import("preact").ComponentChild} props.children
  */
 export function WidgetVisibilityProvider (props) {
@@ -89,10 +92,9 @@ export function WidgetVisibilityProvider (props) {
     return <WidgetVisibilityContext.Provider value={{
         visibility: props.visibility,
         id: props.id,
-        toggle
+        toggle,
+        index: props.index
     }}>
-        <div style={{ viewTransitionName: `widget-${props.id}` }}>
-            {props.children}
-        </div>
+        {props.children}
     </WidgetVisibilityContext.Provider>
 }

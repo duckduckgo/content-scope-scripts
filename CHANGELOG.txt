@@ -1,1 +1,4 @@
-- duckplayer: larger video on mobile landscape (#1164)
+- New states in Release Notes (#1105)
+- ntp: making the customizer menu more dynamic (#1177)
+- Bump @formkit/auto-animate from 0.8.0 to 0.8.2 (#1136)
+- Bump @rive-app/canvas-single from 2.21.6 to 2.21.7 (#1172)

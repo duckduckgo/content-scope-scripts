@@ -1,12 +1,16 @@
 .dropdownInner {
     background: var(--ntp-surface-background-color);
-    border: 1px solid var(--color-black-at-9);
-    @media screen and (prefers-color-scheme: dark) {
-        border-color: var(--color-white-at-9);
-    }
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .08);
     padding: var(--sp-1);
     border-radius: 8px;
+    backdrop-filter: blur(48px);
+
+    border: 1px solid var(--color-black-at-9);
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12), 0px 8px 16px 0px rgba(0, 0, 0, 0.20), 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+
+    @media screen and (prefers-color-scheme: dark) {
+        border-color: var(--color-white-at-9);
+        box-shadow: 0px 0px 0px 1px rgba(255, 255, 255, 0.09) inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.50), 0px 2px 4px 0px rgba(0, 0, 0, 0.15), 0px 8px 16px 0px rgba(0, 0, 0, 0.40);
+    }
 }
 
 .list {

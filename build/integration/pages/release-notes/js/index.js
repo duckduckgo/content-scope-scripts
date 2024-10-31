@@ -637,11 +637,19 @@
       /** @type {import('../environment').Environment['injectName']} */
       "windows"
     ),
-    willThrow: false
+    willThrow: false,
+    /** @type {import('../environment').Environment['env']} */
+    env: "production"
   });
   var THEME_QUERY = "(prefers-color-scheme: dark)";
   var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({ children, debugState, willThrow = false, injectName = "windows" }) {
+  function EnvironmentProvider({
+    children,
+    debugState,
+    env = "production",
+    willThrow = false,
+    injectName = "windows"
+  }) {
     const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     y2(() => {
@@ -669,7 +677,8 @@
       debugState,
       isDarkMode: theme === "dark",
       injectName,
-      willThrow
+      willThrow,
+      env
     } }, children);
   }
   function useEnv() {
@@ -784,6 +793,7 @@
     statusIcon: "ReleaseNotes_statusIcon",
     checkIcon: "ReleaseNotes_checkIcon",
     alertIcon: "ReleaseNotes_alertIcon",
+    warningIcon: "ReleaseNotes_warningIcon",
     spinnerIcon: "ReleaseNotes_spinnerIcon",
     spinner: "ReleaseNotes_spinner",
     statusText: "ReleaseNotes_statusText",
@@ -806,12 +816,17 @@
   function PageTitle({ title }) {
     return /* @__PURE__ */ _("h1", { className: ReleaseNotes_default.title }, title);
   }
-  function StatusText({ status, version }) {
+  function StatusText({ status, version, progress = 0 }) {
     const { t: t3 } = useTypedTranslation();
+    const progressPercentage = (progress * 100).toFixed(0);
     const statusTexts = {
       loaded: t3("browserUpToDate"),
       loading: t3("checkingForUpdate"),
-      updateReady: t3("newVersionAvailable")
+      updateReady: t3("newVersionAvailable"),
+      updateError: t3("updateError"),
+      criticalUpdateReady: t3("criticallyOutOfDate"),
+      updateDownloading: t3("updateDownloading", { progress: progressPercentage }),
+      updatePreparing: t3("updatePreparing")
     };
     return /* @__PURE__ */ _(Text, { variant: "title-2", className: ReleaseNotes_default.statusText }, t3("versionNumber", { version: `${version}` }), " \u2014 ", statusTexts[status]);
   }
@@ -819,7 +834,11 @@
     const iconClasses = {
       loaded: ReleaseNotes_default.checkIcon,
       loading: ReleaseNotes_default.spinnerIcon,
-      updateReady: ReleaseNotes_default.alertIcon
+      updateReady: ReleaseNotes_default.alertIcon,
+      criticalUpdateReady: ReleaseNotes_default.warningIcon,
+      updateError: ReleaseNotes_default.warningIcon,
+      updatePreparing: ReleaseNotes_default.spinnerIcon,
+      updateDownloading: ReleaseNotes_default.spinnerIcon
     };
     return /* @__PURE__ */ _("div", { className: (0, import_classnames5.default)(ReleaseNotes_default.statusIcon, iconClasses[status], className) });
   }
@@ -836,8 +855,8 @@
       dateString = t3("todayAt", { time: timeString });
     return /* @__PURE__ */ _(Text, { variant: "body", className: ReleaseNotes_default.statusTimestamp }, t3("lastChecked", { date: dateString }));
   }
-  function UpdateStatus({ status, timestamp, version }) {
-    return /* @__PURE__ */ _("div", { className: ReleaseNotes_default.statusContainer }, /* @__PURE__ */ _(StatusIcon, { status, className: ReleaseNotes_default.gridIcon }), /* @__PURE__ */ _(StatusText, { status, version }), /* @__PURE__ */ _(StatusTimestamp, { timestamp }));
+  function UpdateStatus({ status, timestamp, version, progress }) {
+    return /* @__PURE__ */ _("div", { className: ReleaseNotes_default.statusContainer }, /* @__PURE__ */ _(StatusIcon, { status, className: ReleaseNotes_default.gridIcon }), /* @__PURE__ */ _(StatusText, { status, version, progress }), /* @__PURE__ */ _(StatusTimestamp, { timestamp }));
   }
   function ReleaseNotesHeading({ title, version, showNewTag = false }) {
     const { t: t3 } = useTypedTranslation();
@@ -849,20 +868,22 @@
   function ReleaseNotesList({ notes }) {
     return /* @__PURE__ */ _("ul", { className: ReleaseNotes_default.list }, notes.map((note) => /* @__PURE__ */ _(Text, { as: "li", variant: "body", className: ReleaseNotes_default.listItem }, note)));
   }
-  function ReleaseNotesContent({ status, title: releaseTitle, version: releaseVersion, notes: releaseNotes }) {
+  function ReleaseNotesContent({ title: releaseTitle, currentVersion, latestVersion, notes: releaseNotes }) {
     if (!releaseTitle || !releaseNotes.length)
       return null;
-    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(ReleaseNotesHeading, { title: releaseTitle, version: releaseVersion, showNewTag: status === "updateReady" }), /* @__PURE__ */ _("div", { className: ReleaseNotes_default.listGrid }, releaseNotes.map(({ icon, title, notes }) => /* @__PURE__ */ _("div", { class: ReleaseNotes_default.listContainer }, title && /* @__PURE__ */ _(ReleaseNotesSubheading, { title, icon }), /* @__PURE__ */ _(ReleaseNotesList, { notes })))));
+    const version = latestVersion || currentVersion;
+    const showNewTag = !!latestVersion && currentVersion !== latestVersion;
+    return /* @__PURE__ */ _(b, null, /* @__PURE__ */ _(ReleaseNotesHeading, { title: releaseTitle, version, showNewTag }), /* @__PURE__ */ _("div", { className: ReleaseNotes_default.listGrid }, releaseNotes.map(({ icon, title, notes }) => /* @__PURE__ */ _("div", { class: ReleaseNotes_default.listContainer }, title && /* @__PURE__ */ _(ReleaseNotesSubheading, { title, icon }), /* @__PURE__ */ _(ReleaseNotesList, { notes })))));
   }
-  function ReleaseNotes({ releaseData }) {
+  function CardContents({ releaseData }) {
     const { t: t3 } = useTypedTranslation();
-    const { messages: messages2 } = useMessaging();
-    const onRestartButtonClick = () => {
-      messages2?.browserRestart();
-    };
-    const { status, currentVersion, lastUpdate, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData;
-    const timestampInMilliseconds = lastUpdate * 1e3;
+    const { status } = releaseData;
+    const isLoading = status === "loading" || status === "updateDownloading" || status === "updatePreparing";
+    if (isLoading) {
+      return /* @__PURE__ */ _(ContentPlaceholder, null);
+    }
     const notes = [];
+    const { currentVersion, latestVersion, releaseTitle, releaseNotes, releaseNotesPrivacyPro } = releaseData;
     if (releaseNotes?.length) {
       notes.push({ notes: releaseNotes });
     }
@@ -872,20 +893,53 @@
         title: t3("forPrivacyProSubscribers"),
         notes: [
           ...releaseNotesPrivacyPro,
-          /* The following should only get translated when the full Release Notes are localized */
+          /* The following should only get translated when the contents of the Release Notes update message are localized */
           /* @__PURE__ */ _("span", null, "Not subscribed? Find out more at ", /* @__PURE__ */ _("a", { href: "https://duckduckgo.com/pro", target: "_blank" }, "duckduckgo.com/pro"))
         ]
       });
     }
-    return /* @__PURE__ */ _("article", { className: ReleaseNotes_default.article }, /* @__PURE__ */ _("header", { className: ReleaseNotes_default.heading }, /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _(UpdateStatus, { status, timestamp: timestampInMilliseconds, version: currentVersion }), status === "updateReady" && /* @__PURE__ */ _("div", { className: ReleaseNotes_default.buttonContainer }, /* @__PURE__ */ _(Button, { onClick: onRestartButtonClick }, t3("restartToUpdate")))), /* @__PURE__ */ _(Card, { className: ReleaseNotes_default.card }, status === "loading" ? /* @__PURE__ */ _(ContentPlaceholder, null) : /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(
       ReleaseNotesContent,
       {
-        status,
         title: releaseTitle,
-        version: latestVersion || currentVersion,
+        currentVersion,
+        latestVersion,
         notes
       }
-    )));
+    );
+  }
+  function UpdateButton({ releaseData }) {
+    const { t: t3 } = useTypedTranslation();
+    const { messages } = useMessaging();
+    const { status } = releaseData;
+    let button;
+    if (status === "updateError") {
+      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.retryUpdate() }, t3("retryUpdate"));
+    }
+    if (status === "updateReady" || status === "criticalUpdateReady") {
+      const { automaticUpdate } = releaseData;
+      const buttonText = automaticUpdate ? t3("restartToUpdate") : t3("updateBrowser");
+      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.browserRestart() }, buttonText);
+    }
+    if (!button)
+      return null;
+    return /* @__PURE__ */ _("div", { className: ReleaseNotes_default.buttonContainer }, button);
+  }
+  function ReleaseNotes({ releaseData }) {
+    const { t: t3 } = useTypedTranslation();
+    const { status, currentVersion, lastUpdate } = releaseData;
+    const timestampInMilliseconds = lastUpdate * 1e3;
+    let progress = 0;
+    if (status === "updateDownloading") {
+      const { downloadProgress } = releaseData;
+      if (downloadProgress && !Number.isNaN(downloadProgress)) {
+        progress = downloadProgress;
+      } else {
+        console.warn("Invalid download progress value in data");
+      }
+    }
+    const shouldShowButton = status === "updateReady" || status === "criticalUpdateReady" || status === "updateError";
+    return /* @__PURE__ */ _("article", { className: ReleaseNotes_default.article }, /* @__PURE__ */ _("header", { className: ReleaseNotes_default.heading }, /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _(UpdateStatus, { status, timestamp: timestampInMilliseconds, version: currentVersion, progress }), shouldShowButton && /* @__PURE__ */ _(UpdateButton, { releaseData })), /* @__PURE__ */ _(Card, { className: ReleaseNotes_default.card }, /* @__PURE__ */ _(CardContents, { releaseData })));
   }
 
   // pages/release-notes/app/components/App.module.css
@@ -897,10 +951,10 @@
 
   // pages/release-notes/app/components/App.js
   function App({ children }) {
-    const { messages: messages2 } = useMessaging();
+    const { messages } = useMessaging();
     const [releaseData, setReleaseData] = h2();
     y2(() => {
-      return messages2?.onUpdate((data) => {
+      return messages?.onUpdate((data) => {
         console.log("DATA RECEIVED", data);
         setReleaseData(data);
       });
@@ -908,7 +962,7 @@
     function didCatch(error) {
       const message = error?.message || "unknown";
       console.error("ErrorBoundary", message);
-      messages2?.reportPageException({ message });
+      messages?.reportPageException({ message });
     }
     return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(ErrorFallback, null) }, /* @__PURE__ */ _("header", { className: App_default.header }, /* @__PURE__ */ _(DuckDuckGoLogo, null)), /* @__PURE__ */ _("div", { class: App_default.core }, releaseData && /* @__PURE__ */ _(ReleaseNotes, { releaseData })), /* @__PURE__ */ _(WillThrow, null), children));
   }
@@ -955,6 +1009,7 @@
       latestVersion: "1.2.0",
       lastUpdate: timestampInSeconds,
       status: "updateReady",
+      automaticUpdate: true,
       releaseTitle: "June 20 2024",
       releaseNotes: [
         "Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.",
@@ -965,6 +1020,52 @@
         "Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.",
         "Privacy Pro is currently available to U.S. residents only"
       ]
+    },
+    criticalUpdateReady: {
+      currentVersion: "1.0.1",
+      latestVersion: "1.2.0",
+      lastUpdate: timestampInSeconds,
+      status: "criticalUpdateReady",
+      automaticUpdate: true,
+      releaseTitle: "June 20 2024",
+      releaseNotes: [
+        "Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.",
+        "Fixed an issue where Microsoft Teams links wouldn't open the Teams app.",
+        "Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish."
+      ],
+      releaseNotesPrivacyPro: [
+        "Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.",
+        "Privacy Pro is currently available to U.S. residents only"
+      ]
+    },
+    updateError: {
+      currentVersion: "1.0.1",
+      latestVersion: "1.2.0",
+      lastUpdate: timestampInSeconds,
+      status: "updateError",
+      releaseTitle: "June 20 2024",
+      releaseNotes: [
+        "Startup Boost Enabled! DuckDuckGo will now run a background task whenever you startup your computer to help it launch faster.",
+        "Fixed an issue where Microsoft Teams links wouldn't open the Teams app.",
+        "Improved credential autofill on websites in Dutch, French, German, Italian, Spanish, and Swedish."
+      ],
+      releaseNotesPrivacyPro: [
+        "Personal Information Removal update! The list of data broker sites we can scan and remove your info from is growing.",
+        "Privacy Pro is currently available to U.S. residents only"
+      ]
+    },
+    updateDownloading: {
+      currentVersion: "1.0.1",
+      latestVersion: "1.2.0",
+      lastUpdate: timestampInSeconds,
+      status: "updateDownloading",
+      downloadProgress: 0.74
+    },
+    updatePreparing: {
+      currentVersion: "1.0.1",
+      latestVersion: "1.2.0",
+      lastUpdate: timestampInSeconds,
+      status: "updatePreparing"
     }
   };
 
@@ -991,7 +1092,10 @@
         ]
       }
     ];
-    return /* @__PURE__ */ _("main", { className: Components_default.main }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Restart Button"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("restartToUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { status: "updateReady", title: "May 10 2024", version: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })));
+    return /* @__PURE__ */ _("main", { className: Components_default.main }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ _(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Buttons"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("restartToUpdate"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("updateBrowser"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("retryUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: (
+      /** @type {import('../../../types/release-notes').UpdateMessage} */
+      { ...sampleData.updateReady, automaticUpdate: false }
+    ) })));
   }
   function LoadingThen({ children }) {
     const [ready, setReady] = h2(false);
@@ -1034,8 +1138,8 @@
       ]
     },
     browserReleaseNotes: {
-      title: "Browser Release Notes",
-      note: "Page title for the Browser Release Notes page"
+      title: "What\u2019s New",
+      note: "Page title for the Browser Release Notes page showing what's new in the current release"
     },
     versionNumber: {
       title: "Version {version}",
@@ -1061,13 +1165,37 @@
       title: "A newer version of the browser is available",
       note: "Status text for when a new browser version is available"
     },
+    criticallyOutOfDate: {
+      title: "Critical update needed",
+      note: "Status text for when a new browser version is available and the current version is very out of date"
+    },
     checkingForUpdate: {
       title: "Checking for update",
       note: "Status text for when the browser is checking for a newer version"
     },
+    updateError: {
+      title: "Update failed",
+      note: "Status text for when an error has occurred during the update process"
+    },
+    updateDownloading: {
+      title: "Downloading update {progress}%",
+      note: "Status text for when the browser is downloading a new update. {progress} is a placeholder for a number from 0 to 100 - the word {progress} should not be translated, but it should be placed in the appropriate position within the text. The percentage sign should also be placed correctly according to the locale (example: Downloading Update 74%)"
+    },
+    updatePreparing: {
+      title: "Preparing update",
+      note: "Status text for when the browser has finished downloading the update but is still installing it"
+    },
     restartToUpdate: {
-      title: "Restart to Update",
+      title: "Restart To Update",
       note: "Label for a button that triggers a browser restart after a version update"
+    },
+    updateBrowser: {
+      title: "Update DuckDuckGo",
+      note: "Label for a button that triggers a manual browser update"
+    },
+    retryUpdate: {
+      title: "Retry Update",
+      note: "Label for a button that retries applying the failed update"
     },
     forPrivacyProSubscribers: {
       title: "For Privacy Pro Subscribers",
@@ -1091,8 +1219,8 @@
     )
   });
   var useMessaging = () => x2(MessagingContext);
-  async function init(messages2, baseEnvironment2) {
-    const result = await callWithRetry(() => messages2.initialSetup());
+  async function init(messages, baseEnvironment2) {
+    const result = await callWithRetry(() => messages.initialSetup());
     if ("error" in result) {
       throw new Error(result.error);
     }
@@ -1114,7 +1242,7 @@
             injectName: environment.injectName,
             willThrow: environment.willThrow
           },
-          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages: messages2 } }, /* @__PURE__ */ _(App, null)))
+          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(App, null)))
         ),
         root
       );
@@ -1128,7 +1256,7 @@
             injectName: environment.injectName,
             willThrow: environment.willThrow
           },
-          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages: messages2 } }, /* @__PURE__ */ _(Components, null)))
+          /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(Components, null)))
         ),
         root
       );
@@ -2227,6 +2355,71 @@
     return allowed.includes(input);
   }
 
+  // pages/release-notes/src/js/mock-transport.js
+  function mockTransport() {
+    const dataOverrides = {
+      manualUpdate: {
+        automaticUpdate: false
+      },
+      noPrivacyPro: {
+        releaseNotesPrivacyPro: void 0
+      }
+    };
+    return new TestTransportConfig({
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      notify(_msg) {
+      },
+      request(_msg) {
+        window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+        const msg = (
+          /** @type {any} */
+          _msg
+        );
+        switch (msg.method) {
+          case "initialSetup": {
+            return Promise.resolve({
+              env: "development",
+              locale: "en"
+            });
+          }
+          default:
+            return Promise.resolve(null);
+        }
+      },
+      subscribe(_msg, callback) {
+        window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+        const subscription = (
+          /** @type {any} */
+          _msg.subscriptionName
+        );
+        switch (subscription) {
+          case "onUpdate": {
+            const searchParams = new URLSearchParams(window.location.search);
+            let stateId = searchParams.get("stateId");
+            if (!stateId || !sampleData[stateId]) {
+              stateId = "loading";
+            }
+            let updateData = sampleData[stateId];
+            Object.entries(dataOverrides).forEach(([key, value]) => {
+              if (searchParams.has(key)) {
+                updateData = { ...updateData, ...value };
+              }
+            });
+            callback(sampleData.loading);
+            const timer = setTimeout(() => {
+              callback(updateData);
+            }, 1e3);
+            return () => {
+              clearTimeout(timer);
+            };
+          }
+        }
+        return () => {
+        };
+      }
+    });
+  }
+
   // pages/release-notes/src/js/index.js
   var ReleaseNotesPage = class {
     /**
@@ -2274,6 +2467,12 @@
       this.messaging.notify("browserRestart", {});
     }
     /**
+     * Forwards a click on retry update button to browser
+     */
+    retryUpdate() {
+      this.messaging.notify("retryUpdate", {});
+    }
+    /**
      * Subscribes to release info updates from browser
      * @param {(value: import('../../../../types/release-notes').UpdateMessage) => void} callback
      */
@@ -2285,13 +2484,21 @@
   var messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: "production",
-    pageName: "release-notes"
+    pageName: "release-notes",
+    mockTransport: () => {
+      if (baseEnvironment.injectName !== "integration")
+        return null;
+      let mock = null;
+      $INTEGRATION:
+        mock = mockTransport();
+      return mock;
+    }
   });
-  var messages = new ReleaseNotesPage(messaging);
-  init(messages, baseEnvironment).catch((e3) => {
+  var releaseNotesPage = new ReleaseNotesPage(messaging);
+  init(releaseNotesPage, baseEnvironment).catch((e3) => {
     console.error(e3);
     const msg = typeof e3?.message === "string" ? e3.message : "unknown init error";
-    messages.reportInitException({ message: msg });
+    releaseNotesPage.reportInitException({ message: msg });
   });
 })();
 /*! Bundled license information:

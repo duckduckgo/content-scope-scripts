@@ -147,7 +147,7 @@ export class Service {
         // some services will not implement persistence
         if (!this.impl.persist) return
 
-        // if the data never read, there's nothing to persist
+        // if the data was never set, there's nothing to persist
         if (this.data === null) return
 
         // send the data
