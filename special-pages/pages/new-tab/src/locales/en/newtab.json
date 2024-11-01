@@ -62,7 +62,7 @@
     "note": "Used as a toggle label in a page customization menu"
   },
   "updateNotification_updated_version": {
-    "title": "Browser Updated to version {version}",
+    "title": "Browser Updated to version {version}.",
     "note": "Text to indicate which new version was updated. `version` will be formatted like `1.22.0`"
   },
   "updateNotification_whats_new": {
