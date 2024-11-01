@@ -9,7 +9,7 @@
     align-items: flex-start;
     font-family: system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto;
     color: var(--color-black);
-
+    width: 100%;
 
     &.icon {
         padding-left: var(--sp-2);

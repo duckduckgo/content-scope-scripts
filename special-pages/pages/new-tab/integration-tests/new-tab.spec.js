@@ -62,4 +62,33 @@ test.describe('newtab widgets', () => {
             }
         }])
     })
+    test('context menu', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo)
+        await ntp.reducedMotion()
+        await ntp.openPage()
+
+        // wait for the menu, as a signal that the JS is ready
+        await page.getByRole('button', { name: 'Customize' }).waitFor()
+
+        await page.locator('body').click({ button: 'right' })
+
+        const calls = await ntp.mocks.waitForCallCount({ method: 'contextMenu', count: 1 })
+        expect(calls[0].payload).toStrictEqual({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'contextMenu',
+            params: {
+                visibilityMenuItems: [
+                    {
+                        id: 'favorites',
+                        title: 'Favorites'
+                    },
+                    {
+                        id: 'privacyStats',
+                        title: 'Privacy Stats'
+                    }
+                ]
+            }
+        })
+    })
 })
