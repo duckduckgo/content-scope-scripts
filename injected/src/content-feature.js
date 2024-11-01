@@ -3,7 +3,7 @@ import { immutableJSONPatch } from 'immutable-json-patch'
 import { PerformanceMonitor } from './performance.js'
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js'
 import { Proxy, Reflect } from './captured-globals.js'
-import { Messaging, MessagingContext } from '../../messaging/index.js'
+import { MessagingContext } from '../../messaging/index.js'
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js'
 
 /**
@@ -125,7 +125,7 @@ export default class ContentFeature {
             if (this.platform?.name !== 'extension') throw new Error('Only extension messaging supported, all others should be passed in')
             messagingConfig = extensionConstructMessagingConfig()
         }
-        this._messaging = new Messaging(messagingContext, messagingConfig)
+        this._messaging = messagingConfig.intoMessaging(messagingContext)
         return this._messaging
     }
 

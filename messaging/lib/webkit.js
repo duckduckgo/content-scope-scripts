@@ -7,7 +7,7 @@
  * part of the message handling, see {@link WebkitMessagingTransport} for details.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, MissingHandler } from '../index.js'
+import { MessagingTransport, MissingHandler, Messaging } from '../index.js'
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js'
 
 /**
@@ -317,6 +317,9 @@ export class WebkitMessagingTransport {
  * Please see {@link WebkitMessagingTransport} for details on how messages are sent/received
  *
  * [Example](./examples/webkit.example.js)
+ *
+ * @import { IntoMessaging, MessagingContext } from "../index.js"
+ * @implements IntoMessaging
  */
 export class WebkitMessagingConfig {
     /**
@@ -353,6 +356,14 @@ export class WebkitMessagingConfig {
          * messages.
          */
         this.secret = params.secret
+    }
+
+    /**
+     * @param {MessagingContext} context
+     * @return {Messaging}
+     */
+    intoMessaging (context) {
+        return new Messaging(context, new WebkitMessagingTransport(this, context))
     }
 }
 

@@ -1,5 +1,4 @@
 import {
-    Messaging,
     MessagingContext,
     TestTransportConfig,
     RequestMessage, NotificationMessage, Subscription, MessageResponse, SubscriptionEvent
@@ -82,7 +81,7 @@ describe('Android', () => {
             featureName,
             env: 'development'
         })
-        const messaging = new Messaging(messageContextA, config)
+        const messaging = config.intoMessaging(messageContextA)
         return { messaging }
     }
     it('sends notification to 1 feature', () => {
@@ -232,7 +231,7 @@ function createMessaging () {
         env: 'development'
     })
 
-    const messaging = new Messaging(messagingContext, testTransportConfig)
+    const messaging = testTransportConfig.intoMessaging(messagingContext)
 
     return { transport, messaging }
 }

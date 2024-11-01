@@ -6,13 +6,16 @@
  *
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, MessageResponse, SubscriptionEvent } from '../index.js'
+import { Messaging, MessagingTransport } from '../index.js'
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js'
 
 /**
  * @typedef {import('../index.js').Subscription} Subscription
  * @typedef {import('../index.js').MessagingContext} MessagingContext
  * @typedef {import('../index.js').RequestMessage} RequestMessage
+ * @typedef {import('../index.js').SubscriptionEvent} SubscriptionEvent
+ * @typedef {import('../index.js').MessageResponse} MessageResponse
+ * @typedef {import('../index.js').IntoMessaging} IntoMessaging
  * @typedef {import('../index.js').NotificationMessage} NotificationMessage
  */
 
@@ -171,6 +174,7 @@ export class AndroidMessagingTransport {
  *     }
  * }
  * ```
+ * @implements IntoMessaging
  */
 export class AndroidMessagingConfig {
     /** @type {(json: string, secret: string) => void} */
@@ -208,6 +212,14 @@ export class AndroidMessagingConfig {
          * Assign the incoming handler method to the global object.
          */
         this._assignHandlerMethod()
+    }
+
+    /**
+     * @param {MessagingContext} context
+     * @return {Messaging}
+     */
+    intoMessaging (context) {
+        return new Messaging(context, new AndroidMessagingTransport(this, context))
     }
 
     /**
