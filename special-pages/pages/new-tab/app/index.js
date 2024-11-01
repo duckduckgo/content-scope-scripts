@@ -4,7 +4,7 @@ import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/componen
 import { Fallback } from '../../../shared/components/Fallback/Fallback.jsx'
 import { ErrorBoundary } from '../../../shared/components/ErrorBoundary.js'
 import { SettingsProvider } from './settings.provider.js'
-import { MessagingContext } from './types'
+import { InitialSetupContext, MessagingContext } from './types'
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js'
 import { WidgetConfigService } from './widget-list/widget-config.service.js'
 import enStrings from '../src/locales/en/newtab.json'
@@ -91,13 +91,15 @@ export async function init (messaging, baseEnvironment) {
             <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
                 <UpdateEnvironment search={window.location.search}/>
                 <MessagingContext.Provider value={messaging}>
-                    <SettingsProvider settings={settings}>
-                        <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                            <WidgetConfigProvider api={widgetConfigAPI} widgetConfigs={init.widgetConfigs} widgets={init.widgets}>
-                                <App />
-                            </WidgetConfigProvider>
-                        </TranslationProvider>
-                    </SettingsProvider>
+                    <InitialSetupContext.Provider value={init}>
+                        <SettingsProvider settings={settings}>
+                            <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
+                                <WidgetConfigProvider api={widgetConfigAPI} widgetConfigs={init.widgetConfigs} widgets={init.widgets}>
+                                    <App />
+                                </WidgetConfigProvider>
+                            </TranslationProvider>
+                        </SettingsProvider>
+                    </InitialSetupContext.Provider>
                 </MessagingContext.Provider>
             </ErrorBoundary>
         </EnvironmentProvider>

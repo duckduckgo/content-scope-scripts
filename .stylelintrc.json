@@ -32,6 +32,7 @@
         "keyframes-name-pattern": null,
         "block-no-empty": null,
         "selector-id-pattern": null,
+        "selector-pseudo-class-no-unknown": null,
         "declaration-block-no-shorthand-property-overrides": null,
         "font-family-no-missing-generic-family-keyword": null,
         "font-family-name-quotes": null,
