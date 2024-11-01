@@ -28,8 +28,8 @@ export default class AutofillPasswordImport extends ContentFeature {
                 mid: 'scale(0.96)'
             },
             borderRadius: '100%',
-            offsetLeft: 0,
-            offsetTop: 0
+            offsetLeft: 0.03,
+            offsetTop: 0.03
         }
     }
 
@@ -58,8 +58,8 @@ export default class AutofillPasswordImport extends ContentFeature {
                 mid: 'scale(1.3, 1.5)'
             },
             borderRadius: '2px',
-            offsetLeft: 1.30,
-            offsetTop: 0.15
+            offsetLeft: 0.08,
+            offsetTop: 0.05
         }
     }
 
@@ -106,8 +106,8 @@ export default class AutofillPasswordImport extends ContentFeature {
         overlay.style.position = 'absolute'
 
         // FIXME: Workaround for the overlay not being positioned correctly
-        overlay.style.top = `${mainElement.offsetTop - offsetTop}px`
-        overlay.style.left = `${mainElement.offsetLeft - offsetLeft}px`
+        overlay.style.top = `calc(${mainElement.offsetTop}px - ${offsetTop}em)`
+        overlay.style.left = `calc(${mainElement.offsetLeft}px - ${offsetLeft}em)`
         const dimensions = mainElement.getBoundingClientRect()
         overlay.style.width = `${dimensions.width}px`
         overlay.style.height = `${dimensions.height}px`
