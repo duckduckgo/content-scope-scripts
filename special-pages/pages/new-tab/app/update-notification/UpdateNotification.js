@@ -1,6 +1,11 @@
 import { h } from 'preact'
-import { useContext, useId, useState } from 'preact/hooks'
+import cn from 'classnames'
+import styles from './UpdateNotification.module.css'
+import { useContext, useId, useRef } from 'preact/hooks'
 import { UpdateNotificationContext } from './UpdateNotificationProvider.js'
+import { useTypedTranslation } from '../types.js'
+import { Trans } from '../../../../shared/components/TranslationsProvider.js'
+import { Cross } from '../components/Icons.js'
 
 /**
   * @param {object} props
@@ -10,21 +15,60 @@ import { UpdateNotificationContext } from './UpdateNotificationProvider.js'
   */
 
 export function UpdateNotification ({ notes, dismiss, version }) {
-    const id = useId()
-    const [visible, show] = useState(false)
-    const href = `#${id}whats-new`
-    const whatsNewLink = notes.length > 0 ? <span>See <a href={href} onClick={() => show(prev => !prev)}>what's new</a> in this release</span> : null
+    const { t } = useTypedTranslation()
 
     return (
-        <div>
-            <p>Browser Updated to version {version}. {whatsNewLink}</p>
-            <div id={href} hidden={!visible}>
-                {notes.map((note, index) => {
-                    return <div key={note + index}>{note}</div>
-                })}
+        <div class={styles.root}>
+            <div class={cn('layout-centered', styles.body)}>
+                {notes.length > 0 && <WithNotes notes={notes} version={version} />}
+                {notes.length === 0 && <WithoutNotes version={version} />}
             </div>
-            <button onClick={dismiss}>Dismiss</button>
+            <div class={styles.dismiss}>
+                <button onClick={dismiss} class={styles.dismissBtn}>
+                    <span class="sr-only">{t('updateNotification_dismiss_btn')}</span>
+                    <Cross />
+                </button>
+            </div>
         </div>
+    )
+}
+
+export function WithNotes ({ notes, version }) {
+    const id = useId()
+    const ref = useRef(/** @type {HTMLDetailsElement|null} */(null))
+    const { t } = useTypedTranslation()
+    const inlineLink = <Trans
+        str={t('updateNotification_whats_new')}
+        values={{
+            a: {
+                href: `#${id}`,
+                class: styles.inlineLink,
+                click: (e) => {
+                    e.preventDefault()
+                    if (!ref.current) return
+                    ref.current.open = !ref.current.open
+                }
+            }
+        }}
+    />
+    return (
+        <details ref={ref}>
+            <summary tabIndex={-1} className={styles.summary}>{t('updateNotification_updated_version', { version })}. {inlineLink}</summary>
+            <div id={id} class={styles.detailsContent}>
+                <ul class={styles.list}>
+                    {notes.map((note, index) => {
+                        return <li key={note + index}>{note}</li>
+                    })}
+                </ul>
+            </div>
+        </details>
+    )
+}
+
+export function WithoutNotes ({ version }) {
+    const { t } = useTypedTranslation()
+    return (
+        <p>{t('updateNotification_updated_version', { version })}</p>
     )
 }
 

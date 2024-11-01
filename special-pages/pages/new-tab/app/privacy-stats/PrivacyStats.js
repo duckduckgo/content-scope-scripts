@@ -1,4 +1,5 @@
 import { h } from 'preact'
+import cn from 'classnames'
 import styles from './PrivacyStats.module.css'
 import { useTypedTranslation } from '../types.js'
 import { useContext, useState, useId, useCallback } from 'preact/hooks'
@@ -60,8 +61,9 @@ function PrivacyStatsConfigured ({ parentRef, expansion, data, toggle }) {
     // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
     const WIDGET_ID = useId()
     const TOGGLE_ID = useId()
+
     return (
-        <div class={styles.root} ref={parentRef}>
+        <div class={cn('layout-centered', styles.root)} ref={parentRef}>
             <Heading
                 totalCount={data.totalCount}
                 trackerCompanies={data.trackerCompanies}
