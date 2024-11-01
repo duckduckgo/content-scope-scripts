@@ -29,7 +29,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             },
             borderRadius: '100%',
             offsetLeft: 0,
-            offsetTop: 0,
+            offsetTop: 0
         }
     }
 
@@ -44,7 +44,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             },
             borderRadius: '100%',
             offsetLeft: 0,
-            offsetTop: 0,
+            offsetTop: 0
         }
     }
 
@@ -59,7 +59,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             },
             borderRadius: '2px',
             offsetLeft: 1.30,
-            offsetTop: 0.15,
+            offsetTop: 0.15
         }
     }
 
@@ -105,7 +105,7 @@ export default class AutofillPasswordImport extends ContentFeature {
         const overlay = document.createElement('div')
         overlay.style.position = 'absolute'
 
-        //FIXME: Workaround for the overlay not being positioned correctly
+        // FIXME: Workaround for the overlay not being positioned correctly
         overlay.style.top = `${mainElement.offsetTop - offsetTop}px`
         overlay.style.left = `${mainElement.offsetLeft - offsetLeft}px`
         const dimensions = mainElement.getBoundingClientRect()
