@@ -27,7 +27,9 @@ export default class AutofillPasswordImport extends ContentFeature {
                 start: 'scale(0.90)',
                 mid: 'scale(0.96)'
             },
-            borderRadius: '100%'
+            borderRadius: '100%',
+            offsetLeft: 0,
+            offsetTop: 0,
         }
     }
 
@@ -40,7 +42,9 @@ export default class AutofillPasswordImport extends ContentFeature {
                 start: 'scale(1)',
                 mid: 'scale(1.01)'
             },
-            borderRadius: '100%'
+            borderRadius: '100%',
+            offsetLeft: 0,
+            offsetTop: 0,
         }
     }
 
@@ -53,7 +57,9 @@ export default class AutofillPasswordImport extends ContentFeature {
                 start: 'scale(1)',
                 mid: 'scale(1.3, 1.5)'
             },
-            borderRadius: '2px'
+            borderRadius: '2px',
+            offsetLeft: 1.30,
+            offsetTop: 0.15,
         }
     }
 
@@ -95,13 +101,16 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
     }
 
-    insertOverlayElement (mainElement) {
+    insertOverlayElement (mainElement, offsetLeft, offsetTop) {
         const overlay = document.createElement('div')
         overlay.style.position = 'absolute'
-        overlay.style.top = `${mainElement.offsetTop}px`
-        overlay.style.left = `${mainElement.offsetLeft}px`
-        overlay.style.width = `${mainElement.offsetWidth}px`
-        overlay.style.height = `${mainElement.offsetHeight}px`
+
+        //FIXME: Workaround for the overlay not being positioned correctly
+        overlay.style.top = `${mainElement.offsetTop - offsetTop}px`
+        overlay.style.left = `${mainElement.offsetLeft - offsetLeft}px`
+        const dimensions = mainElement.getBoundingClientRect()
+        overlay.style.width = `${dimensions.width}px`
+        overlay.style.height = `${dimensions.height}px`
 
         // Ensure overlay is non-interactive
         overlay.style.pointerEvents = 'none'
@@ -117,7 +126,7 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @param {any} style
      */
     animateElement (element, style) {
-        const overlay = this.insertOverlayElement(element)
+        const overlay = this.insertOverlayElement(element, style.offsetLeft, style.offsetTop)
         overlay.scrollIntoView({
             behavior: 'smooth',
             block: 'center',
