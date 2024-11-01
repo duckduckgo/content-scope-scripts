@@ -161,6 +161,18 @@ export function mockTransport () {
                 }
                 return () => {}
             }
+            case 'updateNotification_onDataUpdate': {
+                const update = url.searchParams.get('update-notification')
+                const delay = url.searchParams.get('update-notification-delay')
+                if (update && delay && update in updateNotificationExamples) {
+                    const ms = parseInt(delay, 10)
+                    const timeout = setTimeout(() => {
+                        const message = updateNotificationExamples[update]
+                        cb(message)
+                    }, ms)
+                    return () => clearTimeout(timeout)
+                }
+            }
             }
             return () => { }
         },
@@ -215,11 +227,12 @@ export function mockTransport () {
 
                 /** @type {UpdateNotificationData} */
                 let updateNotification = { content: null }
+                const isDelayed = url.searchParams.has('update-notification-delay')
 
-                if (url.searchParams.get('update-notification') === 'empty') {
+                if (!isDelayed && url.searchParams.get('update-notification') === 'empty') {
                     updateNotification = updateNotificationExamples.empty
                 }
-                if (url.searchParams.get('update-notification') === 'populated') {
+                if (!isDelayed && url.searchParams.get('update-notification') === 'populated') {
                     updateNotification = updateNotificationExamples.populated
                 }
 

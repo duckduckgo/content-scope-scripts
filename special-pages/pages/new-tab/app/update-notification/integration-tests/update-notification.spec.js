@@ -24,6 +24,8 @@ test.describe('newtab update notifications', () => {
         const calls1 = await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 })
 
         expect(calls1.length).toBe(1)
+
+        await page.getByText('Browser Updated to version 1.91. See what\'s new in this release.').waitFor()
         await page.getByRole('link', { name: 'what\'s new' }).click()
         await page.getByText('Bug fixes and improvements').waitFor()
         await page.getByRole('button', { name: 'Dismiss' }).click()

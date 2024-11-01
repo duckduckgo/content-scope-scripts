@@ -33,6 +33,14 @@ export function UpdateNotification ({ notes, dismiss, version }) {
     )
 }
 
+export function PulledUp ({ children }) {
+    return (
+        <div class={styles.pulled}>
+            {children}
+        </div>
+    )
+}
+
 export function WithNotes ({ notes, version }) {
     const id = useId()
     const ref = useRef(/** @type {HTMLDetailsElement|null} */(null))
@@ -53,7 +61,7 @@ export function WithNotes ({ notes, version }) {
     />
     return (
         <details ref={ref}>
-            <summary tabIndex={-1} className={styles.summary}>{t('updateNotification_updated_version', { version })}. {inlineLink}</summary>
+            <summary tabIndex={-1} className={styles.summary}>{t('updateNotification_updated_version', { version })} {inlineLink}</summary>
             <div id={id} class={styles.detailsContent}>
                 <ul class={styles.list}>
                     {notes.map((note, index) => {
@@ -78,11 +86,13 @@ export function UpdateNotificationConsumer () {
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {
         return (
-            <UpdateNotification
-                notes={state.data.content.notes}
-                version={state.data.content.version}
-                dismiss={dismiss}
-            />
+            <PulledUp>
+                <UpdateNotification
+                    notes={state.data.content.notes}
+                    version={state.data.content.version}
+                    dismiss={dismiss}
+                />
+            </PulledUp>
         )
     }
     return null

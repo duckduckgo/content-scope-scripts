@@ -1,7 +1,11 @@
+.pulled {
+    margin-top: -40px;
+}
 .root {
     border-bottom: 1px solid var(--ntp-surface-border-color);
     position: relative;
     min-height: var(--sp-10);
+
     &:hover {
         .dismiss {
             opacity: 1;
