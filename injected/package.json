@@ -15,8 +15,6 @@
     "build-integration": "node scripts/entry-points.js --platform integration",
     "build-types": "node scripts/types.mjs",
     "bundle-trackers": "node scripts/bundleTrackers.mjs --output ../build/tracker-lookup.json",
-    "lint": "npm run lint-no-output-globals",
-    "lint-no-output-globals": "eslint --no-eslintrc --config=build-output.eslintrc --no-ignore ../Sources/ContentScopeScripts/dist/contentScope.js",
     "test-unit": "jasmine --config=unit-test/config.json",
     "test-int": "npm run build-integration && npm run playwright",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
