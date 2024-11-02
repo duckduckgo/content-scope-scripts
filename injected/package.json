@@ -41,9 +41,9 @@
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
     "@fingerprintjs/fingerprintjs": "^4.5.1",
-    "@rollup/plugin-commonjs": "^26.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-replace": "^5.0.7",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-replace": "^6.0.1",
     "@types/chrome": "^0.0.279",
     "@types/jasmine": "^5.1.4",
     "@types/node": "^22.8.6",
@@ -52,8 +52,8 @@
     "fast-check": "^3.22.0",
     "jasmine": "^5.4.0",
     "minimist": "^1.2.8",
-    "rollup": "^3.29.5",
-    "rollup-plugin-import-css": "^3.5.2",
-    "rollup-plugin-svg-import": "^2.1.0"
+    "rollup": "^4.24.3",
+    "rollup-plugin-import-css": "^3.5.6",
+    "rollup-plugin-svg-import": "^3.0.0"
   }
 }
