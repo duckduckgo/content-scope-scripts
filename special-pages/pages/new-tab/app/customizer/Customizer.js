@@ -91,12 +91,14 @@ export function useContextMenu () {
             e.stopImmediatePropagation()
             const items = getItems()
             /** @type {VisibilityMenuItem[]} */
-            const simplified = items.map(item => {
-                return {
-                    id: item.id,
-                    title: item.title
-                }
-            })
+            const simplified = items
+                .filter(x => x.id !== "debug")
+                .map(item => {
+                    return {
+                        id: item.id,
+                        title: item.title
+                    }
+                });
             messaging.contextMenu({ visibilityMenuItems: simplified })
         }
         document.body.addEventListener('contextmenu', handler)
