@@ -6,8 +6,6 @@ import {
     Customizer,
     CustomizerMenuPositionedFixed
 } from '../customizer/Customizer.js'
-import { DebugCustomized } from '../telemetry/Debug.js'
-import { useEnv } from '../../../../shared/components/EnvironmentProvider.js'
 
 /**
  * @param {string} id
@@ -28,7 +26,7 @@ function placeholderWidget (id) {
 function widgetEntryPoint (id) {
     try {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const mod = require(`./entry-points/${id}.js`)
+        const mod = require(`../entry-points/${id}.js`)
         if (typeof mod.factory !== 'function') {
             console.error(`module found for ${id}, but missing 'factory' export`)
             return placeholderWidget(id)
@@ -38,11 +36,10 @@ function widgetEntryPoint (id) {
         console.error(e)
         return placeholderWidget(id)
     }
-};
+}
 
 export function WidgetList () {
     const { widgets, widgetConfigItems } = useContext(WidgetConfigContext)
-    const { env } = useEnv()
 
     return (
         <Stack gap={'var(--sp-8)'}>
@@ -68,9 +65,6 @@ export function WidgetList () {
                     </Fragment>
                 )
             })}
-            {env === 'development' && (
-                <DebugCustomized index={widgets.length} />
-            )}
             <CustomizerMenuPositionedFixed>
                 <Customizer />
             </CustomizerMenuPositionedFixed>
