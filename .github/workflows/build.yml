@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
@@ -75,7 +75,7 @@ jobs:
         run: |
           ls -la ${{ github.workspace }}/CHANGELOG.txt
           cat ${{ github.workspace }}/CHANGELOG.txt
-    
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         env:
