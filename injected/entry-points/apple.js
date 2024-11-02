@@ -4,7 +4,8 @@
 import { load, init } from '../src/content-scope-features.js'
 import { processConfig, isGloballyDisabled } from './../src/utils'
 import { isTrackerOrigin } from '../src/trackers'
-import { WebkitMessagingConfig, TestTransportConfig } from '../../messaging/index.js'
+import { TestTransportConfig } from '../../messaging/index.js'
+import { WebkitMessagingConfig } from '../../messaging/lib/webkit.js'
 
 function initCode () {
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f

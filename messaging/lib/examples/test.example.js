@@ -1,4 +1,4 @@
-import { Messaging, MessagingContext, TestTransportConfig } from '../../index.js'
+import { MessagingContext, TestTransportConfig } from '../../index.js'
 
 /**
  * Creates an ad-hoc messaging transport on the fly - useful for testing
@@ -36,7 +36,7 @@ const messagingContext = new MessagingContext({
 /**
  * And then send notifications!
  */
-const messaging = new Messaging(messagingContext, config)
+const messaging = config.intoMessaging(messagingContext)
 messaging.notify('helloWorld')
 
 /**

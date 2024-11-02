@@ -7,7 +7,7 @@
  *
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, NotificationMessage, RequestMessage } from '../index.js'
+import { MessagingTransport, NotificationMessage, RequestMessage, Messaging } from '../index.js'
 
 /**
  * An implementation of {@link MessagingTransport} for Windows
@@ -204,6 +204,8 @@ export class WindowsMessagingTransport {
  *
  * [Example](./examples/windows.example.js)
  *
+ * @import { IntoMessaging, MessagingContext } from "../index.js"
+ * @implements IntoMessaging
  */
 export class WindowsMessagingConfig {
     /**
@@ -220,6 +222,14 @@ export class WindowsMessagingConfig {
          * @type {'windows'}
          */
         this.platform = 'windows'
+    }
+
+    /**
+     * @param {MessagingContext} context
+     * @return {Messaging}
+     */
+    intoMessaging (context) {
+        return new Messaging(context, new WindowsMessagingTransport(this, context))
     }
 }
 

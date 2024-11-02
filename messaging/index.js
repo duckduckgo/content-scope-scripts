@@ -19,11 +19,16 @@
  * - Implementation Guide: {@link "Messaging Implementation Guide"}
  *
  * @module Messaging
+ *
+ * @import { WindowsMessagingConfig, } from './lib/windows.js'
+ * @import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js';
+ * @import { AndroidMessagingConfig } from './lib/android.js';
+ * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} MessagingConfig
+ * @typedef {{intoMessaging: (ctx: MessagingContext) => Messaging}} IntoMessaging
+ *
  */
-import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods, WindowsNotification, WindowsRequestMessage } from './lib/windows.js'
-import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
+
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js'
-import { AndroidMessagingConfig, AndroidMessagingTransport } from './lib/android.js'
 import { createTypedMessages } from './lib/typed-messages.js'
 
 /**
@@ -45,20 +50,22 @@ export class MessagingContext {
 }
 
 /**
- * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} MessagingConfig
- */
-
-/**
- *
+ * The consumer interface
  */
 export class Messaging {
     /**
      * @param {MessagingContext} messagingContext
-     * @param {MessagingConfig} config
+     * @param {MessagingTransport} transport
      */
-    constructor (messagingContext, config) {
+    constructor (messagingContext, transport) {
+        /**
+         * @internal
+         */
         this.messagingContext = messagingContext
-        this.transport = getTransport(config, this.messagingContext)
+        /**
+         * @internal
+         */
+        this.transport = transport
     }
 
     /**
@@ -164,6 +171,7 @@ export class MessagingTransport {
  * It's useful for debugging, and for enabling scripts to run in
  * other environments - for example, testing in a browser without the need
  * for a full integration
+ * @implements IntoMessaging
  */
 export class TestTransportConfig {
     /**
@@ -171,6 +179,13 @@ export class TestTransportConfig {
      */
     constructor (impl) {
         this.impl = impl
+    }
+
+    /**
+     * @param {MessagingContext} context
+     */
+    intoMessaging (context) {
+        return new Messaging(context, new TestTransport(this, context))
     }
 }
 
@@ -201,27 +216,6 @@ export class TestTransport {
 }
 
 /**
- * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
- * @param {MessagingContext} messagingContext
- * @returns {MessagingTransport}
- */
-function getTransport (config, messagingContext) {
-    if (config instanceof WebkitMessagingConfig) {
-        return new WebkitMessagingTransport(config, messagingContext)
-    }
-    if (config instanceof WindowsMessagingConfig) {
-        return new WindowsMessagingTransport(config, messagingContext)
-    }
-    if (config instanceof AndroidMessagingConfig) {
-        return new AndroidMessagingTransport(config, messagingContext)
-    }
-    if (config instanceof TestTransportConfig) {
-        return new TestTransport(config, messagingContext)
-    }
-    throw new Error('unreachable')
-}
-
-/**
  * Thrown when a handler cannot be found
  */
 export class MissingHandler extends Error {
@@ -239,20 +233,11 @@ export class MissingHandler extends Error {
  * Some re-exports for convenience
  */
 export {
-    WebkitMessagingConfig,
-    WebkitMessagingTransport,
-    WindowsMessagingConfig,
-    WindowsMessagingTransport,
-    WindowsInteropMethods,
     NotificationMessage,
     RequestMessage,
     Subscription,
     MessageResponse,
     MessageError,
     SubscriptionEvent,
-    WindowsNotification,
-    WindowsRequestMessage,
-    AndroidMessagingConfig,
-    AndroidMessagingTransport,
     createTypedMessages
 }
