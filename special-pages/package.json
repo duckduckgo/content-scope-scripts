@@ -28,7 +28,7 @@
     "esbuild": "^0.24.0",
     "@playwright/test": "^1.40.1",
     "http-server": "^14.1.1",
-    "web-resource-inliner": "^6.0.1",
+    "web-resource-inliner": "^7.0.0",
     "fast-check": "^3.22.0"
   },
   "dependencies": {
