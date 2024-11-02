@@ -11,7 +11,7 @@ test.describe('Web Share API', () => {
 
     test.describe('disabled feature', () => {
         test('should not expose navigator.canShare() and navigator.share()', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } })
+            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } }, null, 'script')
             const noCanShare = await page.evaluate(checkForCanShare)
             const noShare = await page.evaluate(checkForShare)
             // Base implementation of the test env should not have it (it's only available on mobile)
@@ -31,7 +31,7 @@ test.describe('Web Share API', () => {
                         // no webShare
                     }
                 }
-            })
+            }, null, 'script')
             const noCanShare = await page.evaluate(checkForCanShare)
             const noShare = await page.evaluate(checkForShare)
             // Base implementation of the test env should not have it (it's only available on mobile)
@@ -52,7 +52,7 @@ test.describe('Web Share API', () => {
                         webShare: 'enabled'
                     }
                 }
-            })
+            }, null, 'script')
         }
 
         test('should expose navigator.canShare() and navigator.share() when enabled', async ({ page }) => {
@@ -247,8 +247,7 @@ test.describe('Web Share API', () => {
                         return { threw: e }
                     })
 
-                    expect(result.threw.message).toContain('something wrong')
-                    expect(result.threw.message).toContain('DOMException')
+                    expect(result.threw.message).toContain('DataError: something wrong')
                 })
 
                 test('should handle soft failures', async ({ page }) => {
@@ -262,9 +261,8 @@ test.describe('Web Share API', () => {
                     const result = await page.evaluate('navigator.share({ text: "xxx" })').catch((e) => {
                         return { threw: e }
                     })
-                    console.error(result.threw)
-                    expect(result.threw.message).toContain('some error message')
-                    expect(result.threw.message).toContain('DOMException')
+                    // console.error(result.threw)
+                    expect(result.threw.message).toContain('AbortError: some error message')
                 })
             })
         })
