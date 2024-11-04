@@ -13,7 +13,7 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider'
  * @param {boolean} [props.debug=false] - Specifies whether to enable debug mode for the stack component.
  * @param {boolean} [props.animate=false] - Should immediate children be animated into place?
  */
-export function Stack ({ children, gap = 'var(--sp-6)', animate = false, debug = false }) {
+export function Stack({ children, gap = 'var(--sp-6)', animate = false, debug = false }) {
     const { isReducedMotion } = useEnv()
     const [parent] = useAutoAnimate({ duration: isReducedMotion ? 0 : 300 })
     return (

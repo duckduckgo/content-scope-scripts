@@ -60,7 +60,7 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
  */
 export default class DuckPlayerFeature extends ContentFeature {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    init (args) {
+    init(args) {
         /**
          * This feature never operates in a frame
          */
@@ -109,7 +109,7 @@ export default class DuckPlayerFeature extends ContentFeature {
         }
     }
 
-    load (args) {
+    load(args) {
         super.load(args)
     }
 }

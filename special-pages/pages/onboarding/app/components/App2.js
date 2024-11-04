@@ -17,7 +17,7 @@ import styles from './App2.module.css'
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  */
-export function App2 ({ children }) {
+export function App2({ children }) {
     const { debugState } = useEnv()
     const platformName = usePlatformName()
     const globalState = useContext(GlobalContext)
@@ -35,7 +35,7 @@ export function App2 ({ children }) {
     // typescript is not quite smart enough to figure this part out
 
     // for screens that animate out, trigger the 'advance' when it's finished.
-    function animationDidFinish (e) {
+    function animationDidFinish(e) {
         if (e.target?.dataset?.exiting === 'true') {
             advance()
         }
@@ -53,10 +53,17 @@ export function App2 ({ children }) {
 
     return (
         <main className={styles.main} data-platform-name={platformName || 'macos'} data-app-version="2">
-            <Background/>
-            {debugState && <Debug state={globalState}/>}
-            <div className={styles.container} data-current={activeStep} data-exiting={String(exiting)} data-step-visible={activeStepVisible} ref={didRender} onAnimationEnd={animationDidFinish}>
-                <ErrorBoundary didCatch={didCatch} fallback={<Fallback/>}>
+            <Background />
+            {debugState && <Debug state={globalState} />}
+            <div
+                className={styles.container}
+                data-current={activeStep}
+                data-exiting={String(exiting)}
+                data-step-visible={activeStepVisible}
+                ref={didRender}
+                onAnimationEnd={animationDidFinish}
+            >
+                <ErrorBoundary didCatch={didCatch} fallback={<Fallback />}>
                     <BeforeAfterProvider>
                         <SingleStep />
                     </BeforeAfterProvider>
@@ -68,7 +75,7 @@ export function App2 ({ children }) {
     )
 }
 
-function Debug (props) {
+function Debug(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state
     const debugData = { order, step, exiting, activeStep, nextStep }
 

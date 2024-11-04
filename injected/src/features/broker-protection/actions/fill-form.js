@@ -8,7 +8,7 @@ import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './g
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export function fillForm (action, userData, root = document) {
+export function fillForm(action, userData, root = document) {
     const form = getElement(root, action.selector)
     if (!form) return new ErrorResponse({ actionID: action.id, message: 'missing form' })
     if (!userData) return new ErrorResponse({ actionID: action.id, message: 'user data was absent' })
@@ -18,10 +18,12 @@ export function fillForm (action, userData, root = document) {
 
     const results = fillMany(form, action.elements, userData)
 
-    const errors = results.filter(x => x.result === false).map(x => {
-        if ('error' in x) return x.error
-        return 'unknown error'
-    })
+    const errors = results
+        .filter((x) => x.result === false)
+        .map((x) => {
+            if ('error' in x) return x.error
+            return 'unknown error'
+        })
 
     if (errors.length > 0) {
         return new ErrorResponse({ actionID: action.id, message: errors.join(', ') })
@@ -37,7 +39,7 @@ export function fillForm (action, userData, root = document) {
  * @param {Record<string, any>} data
  * @return {({result: true} | {result: false; error: string})[]}
  */
-export function fillMany (root, elements, data) {
+export function fillMany(root, elements, data) {
     const results = []
 
     for (const element of elements) {
@@ -55,7 +57,10 @@ export function fillMany (root, elements, data) {
             results.push(setValueForInput(inputElem, generateZipCode()))
         } else if (element.type === '$generated_random_number$') {
             if (!element.min || !element.max) {
-                results.push({ result: false, error: `element found with selector '${element.selector}', but missing min and/or max values` })
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but missing min and/or max values`
+                })
                 continue
             }
             const minInt = parseInt(element?.min)
@@ -70,20 +75,29 @@ export function fillMany (root, elements, data) {
         } else if (element.type === '$generated_street_address$') {
             results.push(setValueForInput(inputElem, generateStreetAddress()))
 
-        // This is a composite of existing (but separate) city and state fields
+            // This is a composite of existing (but separate) city and state fields
         } else if (element.type === 'cityState') {
             if (!Object.prototype.hasOwnProperty.call(data, 'city') || !Object.prototype.hasOwnProperty.call(data, 'state')) {
-                results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'` })
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data didn't contain the keys 'city' and 'state'`
+                })
                 continue
             }
             results.push(setValueForInput(inputElem, data.city + ', ' + data.state))
         } else {
             if (!Object.prototype.hasOwnProperty.call(data, element.type)) {
-                results.push({ result: false, error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'` })
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data didn't contain the key '${element.type}'`
+                })
                 continue
             }
             if (!data[element.type]) {
-                results.push({ result: false, error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}` })
+                results.push({
+                    result: false,
+                    error: `data contained the key '${element.type}', but it wasn't something we can fill: ${data[element.type]}`
+                })
                 continue
             }
             results.push(setValueForInput(inputElem, data[element.type]))
@@ -102,7 +116,7 @@ export function fillMany (root, elements, data) {
  * @param {string} val
  * @return {{result: true} | {result: false; error: string}}
  */
-function setValueForInput (el, val) {
+function setValueForInput(el, val) {
     // Access the original setters
     // originally needed to bypass React's implementation on mobile
     let target
@@ -160,7 +174,7 @@ function setValueForInput (el, val) {
  * @param element
  * @return {{result: true}|{result: false, error: string}}
  */
-function setImageUpload (element) {
+function setImageUpload(element) {
     const base64PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/B8AAusB9VF9PmUAAAAASUVORK5CYII='
     try {
         // Convert the Base64 string to a Blob
@@ -178,10 +192,10 @@ function setImageUpload (element) {
 
         // Create a DataTransfer object and append the Blob
         const dataTransfer = new DataTransfer()
-        dataTransfer.items.add(new File([blob], 'id.png', { type: 'image/png' }));
+        dataTransfer.items.add(new File([blob], 'id.png', { type: 'image/png' }))
 
         // Step 4: Assign the Blob to the Input Element
-        /** @type {any} */(element).files = dataTransfer.files
+        /** @type {any} */ ;(element).files = dataTransfer.files
         return { result: true }
     } catch (e) {
         // failed

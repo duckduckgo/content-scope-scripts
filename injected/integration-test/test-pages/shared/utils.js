@@ -5,7 +5,7 @@
  * @property {any} expected The expected result.
  */
 
-function buildTableCell (value, tagName = 'td') {
+function buildTableCell(value, tagName = 'td') {
     const td = document.createElement(tagName)
     td.textContent = value
     return td
@@ -17,7 +17,7 @@ function buildTableCell (value, tagName = 'td') {
  * @return {Element} The table element.
  */
 // eslint-disable-next-line no-unused-vars
-function buildResultTable (results) {
+function buildResultTable(results) {
     const table = document.createElement('table')
     table.className = 'results'
     const thead = document.createElement('thead')
@@ -69,13 +69,13 @@ if (url.searchParams.get('automation')) {
 // @ts-expect-error - ongoingTests is not defined in the type definition
 window.ongoingTests = []
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function test (name, test) {
+function test(name, test) {
     // @ts-expect-error - ongoingTests is not defined in the type definition
     window.ongoingTests.push({ name, test })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function renderResults () {
+async function renderResults() {
     const results = {}
     if (isInAutomation) {
         await isReadyPromise

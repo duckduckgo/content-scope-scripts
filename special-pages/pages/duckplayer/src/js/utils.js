@@ -5,7 +5,7 @@ import { VideoParams } from 'injected/src/features/duckplayer/util.js'
  * @param {string} urlBase
  * @return {null | string}
  */
-export function createYoutubeURLForError (href, urlBase) {
+export function createYoutubeURLForError(href, urlBase) {
     const valid = VideoParams.forWatchPage(href)
     if (!valid) return null
 
@@ -33,7 +33,7 @@ export function createYoutubeURLForError (href, urlBase) {
  * @param {string|null|undefined} iframeTitle
  * @return {string | null}
  */
-export function getValidVideoTitle (iframeTitle) {
+export function getValidVideoTitle(iframeTitle) {
     if (typeof iframeTitle !== 'string') return null
     if (iframeTitle === 'YouTube') return null
     return iframeTitle.replace(/ - YouTube$/g, '')

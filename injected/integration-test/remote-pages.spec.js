@@ -5,7 +5,7 @@ import { baseFeatures } from '../src/features.js'
 
 const testRoot = path.join('integration-test')
 
-function getHARPath (harFile) {
+function getHARPath(harFile) {
     return path.join(testRoot, 'data', 'har', harFile)
 }
 
@@ -18,7 +18,7 @@ Object.keys(baseFeatures).forEach((key) => {
     }
 })
 
-function wrapScript (js, replacements) {
+function wrapScript(js, replacements) {
     for (const [find, replace] of Object.entries(replacements)) {
         js = js.replace(find, JSON.stringify(replace))
     }
@@ -31,7 +31,7 @@ const tests = [
 ]
 
 test.describe('Remotely loaded files tests', () => {
-    tests.forEach(testCase => {
+    tests.forEach((testCase) => {
         test(`${testCase.url} should load resources and look correct`, async ({ page }, testInfo) => {
             const injectedJS = wrapScript(css, {
                 $CONTENT_SCOPE$: parsedConfig,

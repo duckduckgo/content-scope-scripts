@@ -1,29 +1,29 @@
-import { h } from "preact";
-import cn from "classnames";
-import { useCallback, useEffect } from "preact/hooks";
-import styles from "./FocusMode.module.css";
+import { h } from 'preact'
+import cn from 'classnames'
+import { useCallback, useEffect } from 'preact/hooks'
+import styles from './FocusMode.module.css'
 
 const EVENT_ON = 'ddg-duckplayer-focusmode-on'
 const EVENT_OFF = 'ddg-duckplayer-focusmode-off'
 
 export function FocusMode() {
     useEffect(() => {
-        let enabled = true;
-        let timerId;
+        let enabled = true
+        let timerId
         const on = () => {
             if (document.documentElement.dataset.focusModeState === 'paused') {
                 // try again after delay
                 wait()
             } else {
                 if (!enabled) {
-                    return console.warn("ignoring focusMode because it was disabled")
+                    return console.warn('ignoring focusMode because it was disabled')
                 }
                 document.documentElement.dataset.focusMode = 'on'
             }
         }
-        const off = () => document.documentElement.dataset.focusMode = 'off'
+        const off = () => (document.documentElement.dataset.focusMode = 'off')
         const cancel = () => {
-            clearTimeout(timerId);
+            clearTimeout(timerId)
             off()
             wait()
         }
@@ -42,16 +42,16 @@ export function FocusMode() {
         // other events that might occur
         window.addEventListener('frame-mousemove', cancel)
         window.addEventListener(EVENT_OFF, () => {
-            enabled = false;
+            enabled = false
             off()
         })
         window.addEventListener(EVENT_ON, () => {
-            if (enabled === true) return;
-            enabled = true;
+            if (enabled === true) return
+            enabled = true
             on()
         })
         return () => {
-            clearTimeout(timerId);
+            clearTimeout(timerId)
         }
     }, [])
     return null
@@ -67,14 +67,16 @@ FocusMode.enable = () => setTimeout(() => window.dispatchEvent(new Event(EVENT_O
  * @param {import("preact").ComponentChild} props.children - The content to be hidden.
  * @param {"fade" | "slide"} [props.style="fade"] - The style for hiding the content.
  */
-export function HideInFocusMode({ children, style="fade"}) {
+export function HideInFocusMode({ children, style = 'fade' }) {
     const classes = cn({
         [styles.hideInFocus]: true,
-        [styles.fade]: style==="fade",
-        [styles.slide]: style==="slide",
+        [styles.fade]: style === 'fade',
+        [styles.slide]: style === 'slide'
     })
     return (
-        <div class={classes} data-style={style}>{children}</div>
+        <div class={classes} data-style={style}>
+            {children}
+        </div>
     )
 }
 
@@ -82,7 +84,7 @@ export function HideInFocusMode({ children, style="fade"}) {
  * Allow a mechanism for pausing focus mode - for example, when a tooltip is open
  */
 export function useSetFocusMode() {
-    return useCallback((/** @type {'enabled' | 'disabled' | 'paused'} */action) => {
+    return useCallback((/** @type {'enabled' | 'disabled' | 'paused'} */ action) => {
         document.documentElement.dataset.focusModeState = action
     }, [])
 }

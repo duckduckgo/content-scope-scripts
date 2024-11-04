@@ -26,12 +26,12 @@ const messaging = new Messaging(messagingContext, config)
 /**
  * send notifications (fire and forget)
  */
-messaging.notify('sendPixel');
+messaging.notify('sendPixel')
 
 /**
  * request data
  */
-(async () => {
+;(async () => {
     const result = await messaging.request('helloWorld', { foo: 'bar' })
     console.log(result)
 })()

@@ -17,12 +17,12 @@ const allowedMessages = [
 ]
 const messageSecret = randomString()
 
-function randomString () {
+function randomString() {
     const num = crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
     return num.toString().replace('0.', '')
 }
 
-function initCode () {
+function initCode() {
     const trackerLookup = import.meta.trackerLookup
     load({
         platform: {
@@ -35,30 +35,32 @@ function initCode () {
         bundledConfig: $BUNDLED_CONFIG$
     })
 
-    chrome.runtime.sendMessage({
-        messageType: 'registeredContentScript',
-        options: {
-            documentUrl: window.location.href
+    chrome.runtime.sendMessage(
+        {
+            messageType: 'registeredContentScript',
+            options: {
+                documentUrl: window.location.href
+            }
+        },
+        (message) => {
+            // Background has disabled features
+            if (!message) {
+                return
+            }
+            if (message.debug) {
+                window.addEventListener('message', (m) => {
+                    if (m.data.action && m.data.message) {
+                        chrome.runtime.sendMessage({
+                            messageType: 'debuggerMessage',
+                            options: m.data
+                        })
+                    }
+                })
+            }
+            message.messageSecret = messageSecret
+            init(message)
         }
-    },
-    (message) => {
-        // Background has disabled features
-        if (!message) {
-            return
-        }
-        if (message.debug) {
-            window.addEventListener('message', (m) => {
-                if (m.data.action && m.data.message) {
-                    chrome.runtime.sendMessage({
-                        messageType: 'debuggerMessage',
-                        options: m.data
-                    })
-                }
-            })
-        }
-        message.messageSecret = messageSecret
-        init(message)
-    })
+    )
 
     chrome.runtime.onMessage.addListener((message) => {
         // forward update messages to the embedded script
@@ -67,7 +69,7 @@ function initCode () {
         }
     })
 
-    window.addEventListener('sendMessageProxy' + messageSecret, event => {
+    window.addEventListener('sendMessageProxy' + messageSecret, (event) => {
         event.stopImmediatePropagation()
 
         if (!(event instanceof CustomEvent) || !event?.detail) {
@@ -79,7 +81,7 @@ function initCode () {
             return console.warn('Ignoring invalid sendMessage messageType', messageType)
         }
 
-        chrome.runtime.sendMessage(event.detail, response => {
+        chrome.runtime.sendMessage(event.detail, (response) => {
             const message = {
                 messageType: 'response',
                 responseMessageType: messageType,

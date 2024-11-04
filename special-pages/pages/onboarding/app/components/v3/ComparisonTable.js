@@ -9,7 +9,7 @@ import styles from './ComparisonTable.module.css'
  * @param {object} props
  * @param {string} props.title
  */
-export function ComparisonTableColumnHeading ({ title }) {
+export function ComparisonTableColumnHeading({ title }) {
     const className = `browserIcon${title}`
 
     return (
@@ -22,7 +22,7 @@ export function ComparisonTableColumnHeading ({ title }) {
 /**
  * @param {Omit<import('./data-comparison-table').FeatureSupportData, 'statuses'>} props
  */
-export function ComparisonTableRowHeading ({ icon, title }) {
+export function ComparisonTableRowHeading({ icon, title }) {
     const path = tableIconPrefix + icon
 
     return (
@@ -39,7 +39,7 @@ export function ComparisonTableRowHeading ({ icon, title }) {
  * @param {object} props
  * @param {import('./data-comparison-table').SupportStatus} props.status
  */
-export function ComparisonTableCell ({ status }) {
+export function ComparisonTableCell({ status }) {
     const { t } = useTypedTranslation()
     // eslint-disable-next-line
     // @ts-ignore TODO: Fix type
@@ -55,7 +55,7 @@ export function ComparisonTableCell ({ status }) {
 /**
  * @param {import('./data-comparison-table').FeatureSupportData} props
  */
-export function ComparisonTableRow ({ icon, title, statuses }) {
+export function ComparisonTableRow({ icon, title, statuses }) {
     const { chrome, ddg } = statuses
 
     return (
@@ -67,7 +67,7 @@ export function ComparisonTableRow ({ icon, title, statuses }) {
     )
 }
 
-export function ComparisonTable () {
+export function ComparisonTable() {
     const { t } = useTypedTranslation()
     const tableData = comparisonTableData(t)
 
@@ -82,7 +82,9 @@ export function ComparisonTable () {
                 </tr>
             </thead>
             <tbody>
-                {tableData.map(data => <ComparisonTableRow {...data} />)}
+                {tableData.map((data) => (
+                    <ComparisonTableRow {...data} />
+                ))}
             </tbody>
         </table>
     )

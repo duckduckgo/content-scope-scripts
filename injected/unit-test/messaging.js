@@ -2,7 +2,11 @@ import {
     Messaging,
     MessagingContext,
     TestTransportConfig,
-    RequestMessage, NotificationMessage, Subscription, MessageResponse, SubscriptionEvent
+    RequestMessage,
+    NotificationMessage,
+    Subscription,
+    MessageResponse,
+    SubscriptionEvent
 } from '@duckduckgo/messaging'
 import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js'
 
@@ -19,13 +23,15 @@ describe('Messaging Transports', () => {
         expect(typeof requestMessage.id).toBe('string')
         expect(requestMessage.id.length).toBeGreaterThan(0)
 
-        expect(spy).toHaveBeenCalledWith(new RequestMessage({
-            context: 'contentScopeScripts',
-            featureName: 'hello-world',
-            id: requestMessage.id,
-            method: 'helloWorld',
-            params: { foo: 'bar' }
-        }))
+        expect(spy).toHaveBeenCalledWith(
+            new RequestMessage({
+                context: 'contentScopeScripts',
+                featureName: 'hello-world',
+                id: requestMessage.id,
+                method: 'helloWorld',
+                params: { foo: 'bar' }
+            })
+        )
     })
     it('calls transport with a NotificationMessage', () => {
         const { messaging, transport } = createMessaging()
@@ -34,12 +40,14 @@ describe('Messaging Transports', () => {
 
         messaging.notify('helloWorld', { foo: 'bar' })
 
-        expect(spy).toHaveBeenCalledWith(new NotificationMessage({
-            context: 'contentScopeScripts',
-            featureName: 'hello-world',
-            method: 'helloWorld',
-            params: { foo: 'bar' }
-        }))
+        expect(spy).toHaveBeenCalledWith(
+            new NotificationMessage({
+                context: 'contentScopeScripts',
+                featureName: 'hello-world',
+                method: 'helloWorld',
+                params: { foo: 'bar' }
+            })
+        )
     })
     it('calls transport with a Subscription', () => {
         const { messaging, transport } = createMessaging()
@@ -49,11 +57,14 @@ describe('Messaging Transports', () => {
 
         messaging.subscribe('helloWorld', callback)
 
-        expect(spy).toHaveBeenCalledWith(new Subscription({
-            context: 'contentScopeScripts',
-            featureName: 'hello-world',
-            subscriptionName: 'helloWorld'
-        }), callback)
+        expect(spy).toHaveBeenCalledWith(
+            new Subscription({
+                context: 'contentScopeScripts',
+                featureName: 'hello-world',
+                subscriptionName: 'helloWorld'
+            }),
+            callback
+        )
     })
 })
 
@@ -62,7 +73,7 @@ describe('Android', () => {
      * @param {Record<string, any>} target
      * @return {AndroidMessagingConfig}
      */
-    function createConfig (target) {
+    function createConfig(target) {
         const config = new AndroidMessagingConfig({
             target,
             messageSecret: 'abc',
@@ -76,7 +87,7 @@ describe('Android', () => {
      * @param {string} featureName
      * @param {AndroidMessagingConfig} config
      */
-    function createContext (featureName, config) {
+    function createContext(featureName, config) {
         const messageContextA = new MessagingContext({
             context: 'contentScopeScripts',
             featureName,
@@ -203,11 +214,11 @@ describe('Android', () => {
 /**
  * Creates a test transport and Messaging instance for testing
  */
-function createMessaging () {
+function createMessaging() {
     /** @type {import("@duckduckgo/messaging").MessagingTransport} */
     const transport = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        notify (msg) {
+        notify(msg) {
             // test
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -216,7 +227,7 @@ function createMessaging () {
             return Promise.resolve(null)
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        subscribe (_msg) {
+        subscribe(_msg) {
             // test
             return () => {
                 // test teardown

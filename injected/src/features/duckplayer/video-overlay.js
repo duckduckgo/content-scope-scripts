@@ -53,7 +53,7 @@ export class VideoOverlay {
      * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} options.messages
      * @param {import("../duck-player.js").UISettings} options.ui
      */
-    constructor ({ userValues, settings, environment, messages, ui }) {
+    constructor({ userValues, settings, environment, messages, ui }) {
         this.userValues = userValues
         this.settings = settings
         this.environment = environment
@@ -64,7 +64,7 @@ export class VideoOverlay {
     /**
      * @param {'page-load' | 'preferences-changed' | 'href-changed'} trigger
      */
-    init (trigger) {
+    init(trigger) {
         if (trigger === 'page-load') {
             this.handleFirstPageLoad()
         } else if (trigger === 'preferences-changed') {
@@ -77,7 +77,7 @@ export class VideoOverlay {
     /**
      * Special handling of a first-page, an attempt to load our overlay as quickly as possible
      */
-    handleFirstPageLoad () {
+    handleFirstPageLoad() {
         // don't continue unless we're in 'alwaysAsk' mode
         if ('disabled' in this.userValues.privatePlayerMode) return
 
@@ -124,7 +124,7 @@ export class VideoOverlay {
     /**
      * @param {import("./util").VideoParams} params
      */
-    addSmallDaxOverlay (params) {
+    addSmallDaxOverlay(params) {
         const containerElement = document.querySelector(this.settings.selectors.videoElementContainer)
         if (!containerElement || !(containerElement instanceof HTMLElement)) {
             console.error('no container element')
@@ -148,7 +148,7 @@ export class VideoOverlay {
     /**
      * @param {{ignoreCache?: boolean, via?: string}} [opts]
      */
-    watchForVideoBeingAdded (opts = {}) {
+    watchForVideoBeingAdded(opts = {}) {
         const params = VideoParams.forWatchPage(this.environment.getPlayerPageHref())
 
         if (!params) {
@@ -226,24 +226,22 @@ export class VideoOverlay {
      * @param {Element} targetElement
      * @param {import("./util").VideoParams} params
      */
-    appendOverlayToPage (targetElement, params) {
+    appendOverlayToPage(targetElement, params) {
         this.sideEffects.add(`appending ${DDGVideoOverlay.CUSTOM_TAG_NAME} or ${DDGVideoOverlayMobile.CUSTOM_TAG_NAME} to the page`, () => {
             this.messages.sendPixel(new Pixel({ name: 'overlay' }))
             const controller = new AbortController()
             const { environment } = this
 
             if (this.environment.layout === 'mobile') {
-                const elem = /** @type {DDGVideoOverlayMobile} */(document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME))
+                const elem = /** @type {DDGVideoOverlayMobile} */ (document.createElement(DDGVideoOverlayMobile.CUSTOM_TAG_NAME))
                 elem.testMode = this.environment.isTestMode()
                 elem.text = mobileStrings(this.environment.strings)
                 elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo())
-                elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */e) => {
-                    return this.mobileOptOut(e.detail.remember)
-                        .catch(console.error)
+                elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptOut(e.detail.remember).catch(console.error)
                 })
-                elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */e) => {
-                    return this.mobileOptIn(e.detail.remember, params)
-                        .catch(console.error)
+                elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
+                    return this.mobileOptIn(e.detail.remember, params).catch(console.error)
                 })
                 targetElement.appendChild(elem)
             } else {
@@ -270,14 +268,14 @@ export class VideoOverlay {
     /**
      * Just brute-force calling video.pause() for as long as the user is seeing the overlay.
      */
-    stopVideoFromPlaying () {
+    stopVideoFromPlaying() {
         this.sideEffects.add(`pausing the <video> element with selector '${this.settings.selectors.videoElement}'`, () => {
             /**
              * Set up the interval - keep calling .pause() to prevent
              * the video from playing
              */
             const int = setInterval(() => {
-                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.settings.selectors.videoElement))
+                const video = /** @type {HTMLVideoElement} */ (document.querySelector(this.settings.selectors.videoElement))
                 if (video?.isConnected) {
                     video.pause()
                 }
@@ -290,7 +288,7 @@ export class VideoOverlay {
             return () => {
                 clearInterval(int)
 
-                const video = /** @type {HTMLVideoElement} */(document.querySelector(this.settings.selectors.videoElement))
+                const video = /** @type {HTMLVideoElement} */ (document.querySelector(this.settings.selectors.videoElement))
                 if (video?.isConnected) {
                     video.play()
                 }
@@ -308,7 +306,7 @@ export class VideoOverlay {
      * @param {boolean} remember
      * @param {VideoParams} params
      */
-    userOptIn (remember, params) {
+    userOptIn(remember, params) {
         /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
         let privatePlayerMode = { alwaysAsk: {} }
         if (remember) {
@@ -322,21 +320,22 @@ export class VideoOverlay {
             overlayInteracted: false,
             privatePlayerMode
         }
-        this.messages.setUserValues(outgoing)
+        this.messages
+            .setUserValues(outgoing)
             .then(() => {
                 if (this.environment.opensVideoOverlayLinksViaMessage) {
                     return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }))
                 }
                 return this.environment.setHref(params.toPrivatePlayerUrl())
             })
-            .catch(e => console.error('error setting user choice', e))
+            .catch((e) => console.error('error setting user choice', e))
     }
 
     /**
      * @param {boolean} remember
      * @param {import("./util").VideoParams} params
      */
-    userOptOut (remember, params) {
+    userOptOut(remember, params) {
         /**
          * If the checkbox was checked we send the 'interacted' flag to the backend
          * so that the next video can just see the Dax icon instead of the full overlay
@@ -348,15 +347,16 @@ export class VideoOverlay {
             this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '1' }))
             /** @type {import("../duck-player.js").UserValues['privatePlayerMode']} */
             const privatePlayerMode = { alwaysAsk: {} }
-            this.messages.setUserValues({
-                privatePlayerMode,
-                overlayInteracted: true
-            })
-                .then(values => {
+            this.messages
+                .setUserValues({
+                    privatePlayerMode,
+                    overlayInteracted: true
+                })
+                .then((values) => {
                     this.userValues = values
                 })
                 .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
-                .catch(e => console.error('could not set userChoice for opt-out', e))
+                .catch((e) => console.error('could not set userChoice for opt-out', e))
         } else {
             this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }))
             this.destroy()
@@ -368,19 +368,15 @@ export class VideoOverlay {
      * @param {boolean} remember
      * @param {import("./util").VideoParams} params
      */
-    async mobileOptIn (remember, params) {
-        const pixel = remember
-            ? new Pixel({ name: 'play.use', remember: '1' })
-            : new Pixel({ name: 'play.use', remember: '0' })
+    async mobileOptIn(remember, params) {
+        const pixel = remember ? new Pixel({ name: 'play.use', remember: '1' }) : new Pixel({ name: 'play.use', remember: '0' })
 
         this.messages.sendPixel(pixel)
 
         /** @type {import("../duck-player.js").UserValues} */
         const outgoing = {
             overlayInteracted: false,
-            privatePlayerMode: remember
-                ? { enabled: {} }
-                : { alwaysAsk: {} }
+            privatePlayerMode: remember ? { enabled: {} } : { alwaysAsk: {} }
         }
 
         const result = await this.messages.setUserValues(outgoing)
@@ -395,7 +391,7 @@ export class VideoOverlay {
     /**
      * @param {boolean} remember
      */
-    async mobileOptOut (remember) {
+    async mobileOptOut(remember) {
         const pixel = remember
             ? new Pixel({ name: 'play.do_not_use', remember: '1' })
             : new Pixel({ name: 'play.do_not_use', remember: '0' })
@@ -431,7 +427,7 @@ export class VideoOverlay {
     /**
      * Remove elements, event listeners etc
      */
-    destroy () {
+    destroy() {
         this.sideEffects.destroy()
     }
 }

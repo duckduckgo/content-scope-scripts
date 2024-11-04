@@ -4,7 +4,7 @@ describe('ContentFeature class', () => {
     it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
         let didRun = false
         class MyTestFeature extends ContentFeature {
-            init () {
+            init() {
                 expect(this.getFeatureSetting('test')).toBe('enabled3')
                 expect(this.getFeatureSetting('otherTest')).toBe('enabled')
                 expect(this.getFeatureSetting('otherOtherTest')).toBe('ding')
@@ -33,15 +33,11 @@ describe('ContentFeature class', () => {
                         },
                         {
                             domain: 'beep.example.com',
-                            patchSettings: [
-                                { op: 'replace', path: '/test', value: 'enabled3' }
-                            ]
+                            patchSettings: [{ op: 'replace', path: '/test', value: 'enabled3' }]
                         },
                         {
                             domain: ['meep.com', 'example.com'],
-                            patchSettings: [
-                                { op: 'replace', path: '/arrayTest', value: 'enabledArray' }
-                            ]
+                            patchSettings: [{ op: 'replace', path: '/arrayTest', value: 'enabledArray' }]
                         }
                     ]
                 }
@@ -56,7 +52,7 @@ describe('ContentFeature class', () => {
             // @ts-ignore partial mock
             messaging = {
                 // eslint-disable-next-line
-                notify (name, data) {}
+                notify(name, data) {}
             }
         }
         let feature
@@ -76,18 +72,15 @@ describe('ContentFeature class', () => {
         it('should send an empty suffix by default', () => {
             const spyNotify = spyOn(feature.messaging, 'notify')
             feature.addDebugFlag()
-            expect(spyNotify).toHaveBeenCalledWith(
-                'addDebugFlag',
-                {
-                    flag: 'someFeatureName'
-                }
-            )
+            expect(spyNotify).toHaveBeenCalledWith('addDebugFlag', {
+                flag: 'someFeatureName'
+            })
         })
     })
 
     describe('defineProperty', () => {
         class MyTestFeature extends ContentFeature {
-            addDebugFlag () {
+            addDebugFlag() {
                 this.debugFlagAdded = true
             }
         }
@@ -150,7 +143,7 @@ describe('ContentFeature class', () => {
                 configurable: true
             })
             expect(feature.debugFlagAdded).toBeUndefined()
-            expect(object.someProp = 'someValue').toBe('someValue')
+            expect((object.someProp = 'someValue')).toBe('someValue')
             const newDesc = Object.getOwnPropertyDescriptor(object, 'someProp')
             expect(newDesc).toBeDefined()
             // @ts-expect-error - this must be defined

@@ -34,7 +34,7 @@ export class DDGCtlLoginButton {
      * @param {LearnMoreParams} params.learnMore - Localized strings for "Learn More" link.
      * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onClick
      */
-    constructor (params) {
+    constructor(params) {
         this.params = params
 
         /**
@@ -79,14 +79,14 @@ export class DDGCtlLoginButton {
     /**
      * @returns {HTMLDivElement}
      */
-    get element () {
+    get element() {
         return this.#element
     }
 
     /**
      * @param {HTMLDivElement} el - New placeholder element
      */
-    set element (el) {
+    set element(el) {
         this.#element = el
     }
 
@@ -96,7 +96,7 @@ export class DDGCtlLoginButton {
      * proceed.
      * @returns {HTMLDivElement}
      */
-    _createLoginButton () {
+    _createLoginButton() {
         const { label, hoverText, logoIcon, learnMore } = this.params
 
         const { popoverStyle, arrowStyle } = this._calculatePopoverPosition()
@@ -153,7 +153,7 @@ export class DDGCtlLoginButton {
      *  arrowStyle: string,   // CSS styles to be applied in the Popover arrow
      * }}
      */
-    _calculatePopoverPosition () {
+    _calculatePopoverPosition() {
         const { originalElement } = this.params
         const rect = originalElement.getBoundingClientRect()
         const textBubbleWidth = 360 // Should match the width rule in .ddg-popover
@@ -187,11 +187,9 @@ export class DDGCtlLoginButton {
      *
      * @param {HTMLElement} loginButton
      */
-    _setupEventListeners (loginButton) {
+    _setupEventListeners(loginButton) {
         const { originalElement, onClick } = this.params
 
-        loginButton
-            .querySelector('.ddg-ctl-fb-login-btn')
-            ?.addEventListener('click', onClick(originalElement, this.element))
+        loginButton.querySelector('.ddg-ctl-fb-login-btn')?.addEventListener('click', onClick(originalElement, this.element))
     }
 }

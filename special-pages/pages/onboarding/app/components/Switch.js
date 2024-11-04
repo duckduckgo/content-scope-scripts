@@ -13,11 +13,11 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider'
  * @param {Function} props.onChecked - Callback function to be called when the switch is checked.
  * @param {Function} props.onUnchecked - Callback function to be called when the switch is unchecked.
  */
-export function Switch ({ checked = false, variant, ...props }) {
+export function Switch({ checked = false, variant, ...props }) {
     const { onChecked, onUnchecked, ariaLabel, pending } = props
     const env = useEnv()
     const platform = variant || env.injectName
-    function change (e) {
+    function change(e) {
         if (e.target.checked === true) {
             onChecked()
         } else {
@@ -26,7 +26,15 @@ export function Switch ({ checked = false, variant, ...props }) {
     }
     return (
         <label className={styles.toggleSwitch} data-variant={platform}>
-            <input disabled={pending} type="checkbox" role="switch" aria-label={ariaLabel} className={styles.input} checked={checked} onChange={change} />
+            <input
+                disabled={pending}
+                type="checkbox"
+                role="switch"
+                aria-label={ariaLabel}
+                className={styles.input}
+                checked={checked}
+                onChange={change}
+            />
             <span className={styles.switch} style="transition-duration: 130ms;transition-delay: 0ms;"></span>
         </label>
     )

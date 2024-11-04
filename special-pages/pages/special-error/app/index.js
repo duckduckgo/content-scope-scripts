@@ -22,14 +22,14 @@ import './styles/variables.css'
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  * @return {Promise<void>}
  */
-export async function init (messaging, baseEnvironment) {
+export async function init(messaging, baseEnvironment) {
     const result = await callWithRetry(() => messaging.initialSetup())
     if ('error' in result) {
         throw new Error(result.error)
     }
 
     const init = result.value
-    const missingProperties = ['errorData', 'platform'].filter(prop => !init[prop])
+    const missingProperties = ['errorData', 'platform'].filter((prop) => !init[prop])
     if (missingProperties.length > 0) {
         throw new Error(`Missing setup data: ${missingProperties.join(', ')}`)
     }
@@ -42,10 +42,10 @@ export async function init (messaging, baseEnvironment) {
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
         .withDisplay(baseEnvironment.urlParams.get('display'))
 
-    const strings = environment.locale === 'en'
-        ? enStrings
-        : await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale) ||
-            enStrings
+    const strings =
+        environment.locale === 'en'
+            ? enStrings
+            : (await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale)) || enStrings
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -54,31 +54,27 @@ export async function init (messaging, baseEnvironment) {
 
     document.body.dataset.platformName = settings.platform?.name
 
-    const specialError = new SpecialError({ errorData: init.errorData })
-        .withSampleErrorId(baseEnvironment.urlParams.get('errorId'))
+    const specialError = new SpecialError({ errorData: init.errorData }).withSampleErrorId(baseEnvironment.urlParams.get('errorId'))
 
     const root = document.querySelector('#app')
     if (!root) throw new Error('could not render, root element missing')
 
     if (environment.display === 'app') {
         render(
-            <EnvironmentProvider
-                debugState={environment.debugState}
-                injectName={environment.injectName}
-                willThrow={environment.willThrow}
-            >
-                <UpdateEnvironment search={window.location.search}/>
+            <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
+                <UpdateEnvironment search={window.location.search} />
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingProvider messaging={messaging}>
                         <SettingsProvider settings={settings}>
                             <SpecialErrorProvider specialError={specialError}>
-                                <App/>
+                                <App />
                             </SpecialErrorProvider>
                         </SettingsProvider>
                     </MessagingProvider>
                 </TranslationProvider>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root
+        )
     } else if (environment.display === 'components') {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
@@ -89,8 +85,9 @@ export async function init (messaging, baseEnvironment) {
                         </SpecialErrorProvider>
                     </SettingsProvider>
                 </TranslationProvider>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root
+        )
     }
 }
 
@@ -99,7 +96,7 @@ export async function init (messaging, baseEnvironment) {
  * @param {string} locale
  * @return {Promise<Record<string, any> | null>}
  */
-async function getTranslationsFromStringOrLoadDynamically (stringInput, locale) {
+async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
     /**
      * This is a special situation - the native side (iOS/macOS at the time) wanted to
      * use a single HTML file for the error pages. This created an issues since special pages

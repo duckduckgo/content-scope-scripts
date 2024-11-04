@@ -215,7 +215,7 @@ describe('Helpers checks', () => {
 
     describe('utils.postDebugMessage', () => {
         const counters = new Map()
-        globalThis.postMessage = message => {
+        globalThis.postMessage = (message) => {
             counters.set(message.action, (counters.get(message.action) || 0) + 1)
         }
         initStringExemptionLists({ debug: false })

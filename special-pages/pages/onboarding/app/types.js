@@ -55,15 +55,7 @@ export const EVERY_PAGE_ID = [
 ]
 
 /** @type {Step['id'][]} */
-export const DEFAULT_ORDER = [
-    'welcome',
-    'getStarted',
-    'privateByDefault',
-    'cleanerBrowsing',
-    'systemSettings',
-    'customize',
-    'summary'
-]
+export const DEFAULT_ORDER = ['welcome', 'getStarted', 'privateByDefault', 'cleanerBrowsing', 'systemSettings', 'customize', 'summary']
 
 /** @type {Step['id'][]} */
 export const ALT_ORDER = [
@@ -79,14 +71,7 @@ export const ALT_ORDER = [
 ]
 
 /** @type {Step['id'][]} */
-export const ORDER_V3 = [
-    'welcome',
-    'getStarted',
-    'makeDefaultSingle',
-    'systemSettings',
-    'duckPlayerSingle',
-    'customize'
-]
+export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize']
 
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
@@ -140,10 +125,7 @@ export const ORDER_V3 = [
  */
 
 /** @type {ImportMeta['injectName'][]} */
-export const PLATFORMS = [
-    'apple',
-    'windows'
-]
+export const PLATFORMS = ['apple', 'windows']
 
 export {}
 
@@ -155,7 +137,7 @@ export {}
  * This is a wrapper to only allow keys from the default translation file
  * @type {() => { t: (key: keyof json, replacements?: Record<string, string>) => string }}
  */
-export function useTypedTranslation () {
+export function useTypedTranslation() {
     return {
         t: useContext(TranslationContext).t
     }

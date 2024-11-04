@@ -1,4 +1,4 @@
-export default function setup () {
+export default function setup() {
     // Pollyfill for globalThis methods needed in processConfig
     globalThis.document = {
         referrer: 'http://localhost:8080',

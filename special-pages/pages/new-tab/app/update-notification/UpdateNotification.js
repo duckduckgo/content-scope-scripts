@@ -8,13 +8,13 @@ import { Trans } from '../../../../shared/components/TranslationsProvider.js'
 import { Cross } from '../components/Icons.js'
 
 /**
-  * @param {object} props
-  * @param {string[]} props.notes
-  * @param {string} props.version
-  * @param {() => void} [props.dismiss]
-  */
+ * @param {object} props
+ * @param {string[]} props.notes
+ * @param {string} props.version
+ * @param {() => void} [props.dismiss]
+ */
 
-export function UpdateNotification ({ notes, dismiss, version }) {
+export function UpdateNotification({ notes, dismiss, version }) {
     const { t } = useTypedTranslation()
 
     return (
@@ -33,35 +33,35 @@ export function UpdateNotification ({ notes, dismiss, version }) {
     )
 }
 
-export function PulledUp ({ children }) {
-    return (
-        <div class={styles.pulled}>
-            {children}
-        </div>
-    )
+export function PulledUp({ children }) {
+    return <div class={styles.pulled}>{children}</div>
 }
 
-export function WithNotes ({ notes, version }) {
+export function WithNotes({ notes, version }) {
     const id = useId()
-    const ref = useRef(/** @type {HTMLDetailsElement|null} */(null))
+    const ref = useRef(/** @type {HTMLDetailsElement|null} */ (null))
     const { t } = useTypedTranslation()
-    const inlineLink = <Trans
-        str={t('updateNotification_whats_new')}
-        values={{
-            a: {
-                href: `#${id}`,
-                class: styles.inlineLink,
-                click: (e) => {
-                    e.preventDefault()
-                    if (!ref.current) return
-                    ref.current.open = !ref.current.open
+    const inlineLink = (
+        <Trans
+            str={t('updateNotification_whats_new')}
+            values={{
+                a: {
+                    href: `#${id}`,
+                    class: styles.inlineLink,
+                    click: (e) => {
+                        e.preventDefault()
+                        if (!ref.current) return
+                        ref.current.open = !ref.current.open
+                    }
                 }
-            }
-        }}
-    />
+            }}
+        />
+    )
     return (
         <details ref={ref}>
-            <summary tabIndex={-1} className={styles.summary}>{t('updateNotification_updated_version', { version })} {inlineLink}</summary>
+            <summary tabIndex={-1} className={styles.summary}>
+                {t('updateNotification_updated_version', { version })} {inlineLink}
+            </summary>
             <div id={id} class={styles.detailsContent}>
                 <ul class={styles.list}>
                     {notes.map((note, index) => {
@@ -73,25 +73,19 @@ export function WithNotes ({ notes, version }) {
     )
 }
 
-export function WithoutNotes ({ version }) {
+export function WithoutNotes({ version }) {
     const { t } = useTypedTranslation()
-    return (
-        <p>{t('updateNotification_updated_version', { version })}</p>
-    )
+    return <p>{t('updateNotification_updated_version', { version })}</p>
 }
 
-export function UpdateNotificationConsumer () {
+export function UpdateNotificationConsumer() {
     const { state, dismiss } = useContext(UpdateNotificationContext)
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {
         return (
             <PulledUp>
-                <UpdateNotification
-                    notes={state.data.content.notes}
-                    version={state.data.content.version}
-                    dismiss={dismiss}
-                />
+                <UpdateNotification notes={state.data.content.notes} version={state.data.content.version} dismiss={dismiss} />
             </PulledUp>
         )
     }

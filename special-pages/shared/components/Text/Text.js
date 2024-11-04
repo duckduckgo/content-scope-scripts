@@ -10,7 +10,7 @@ import styles from './Text.module.css'
  * @param {boolean} [props.strictSpacing] - Apply Design System letter spacing. Default: true
  * @param {import("preact").ComponentChild} [props.children]
  */
-export function Text ({ as: Comp = 'p', variant, strictSpacing = true, className, children }) {
+export function Text({ as: Comp = 'p', variant, strictSpacing = true, className, children }) {
     return (
         <Comp className={classNames({ [styles[`${variant}`]]: variant, [styles.strictSpacing]: strictSpacing }, className)}>
             {children}

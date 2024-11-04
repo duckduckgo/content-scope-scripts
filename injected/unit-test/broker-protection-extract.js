@@ -1,7 +1,4 @@
-import {
-    aggregateFields,
-    createProfile
-} from '../src/features/broker-protection/actions/extract.js'
+import { aggregateFields, createProfile } from '../src/features/broker-protection/actions/extract.js'
 import { cleanArray } from '../src/features/broker-protection/utils.js'
 
 describe('create profiles from extracted data', () => {
@@ -94,10 +91,7 @@ describe('create profiles from extracted data', () => {
                         afterText: 'Also Known as:'
                     }
                 },
-                elements: [
-                    { innerText: 'Also Known as: John Smith' },
-                    { innerText: 'Jon Smith' }
-                ],
+                elements: [{ innerText: 'Also Known as: John Smith' }, { innerText: 'Jon Smith' }],
                 expected: {
                     alternativeNamesList: ['John Smith', 'Jon Smith']
                 }
@@ -110,10 +104,7 @@ describe('create profiles from extracted data', () => {
                         beforeText: ', '
                     }
                 },
-                elements: [
-                    { innerText: 'John Smith, 89' },
-                    { innerText: 'Jon Smith, 78' }
-                ],
+                elements: [{ innerText: 'John Smith, 89' }, { innerText: 'Jon Smith, 78' }],
                 expected: {
                     alternativeNamesList: ['John Smith', 'Jon Smith']
                 }
@@ -190,7 +181,7 @@ describe('create profiles from extracted data', () => {
         }
 
         const elementFactory = () => example.elements
-        const profile = createProfile(elementFactory, /** @type {any} */(example.selectors))
+        const profile = createProfile(elementFactory, /** @type {any} */ (example.selectors))
         const aggregated = aggregateFields(profile)
 
         expect(aggregated.addresses).toEqual(example.expected.addresses)
@@ -207,14 +198,17 @@ describe('create profiles from extracted data', () => {
                 },
                 elements: [{ innerText: '123 fake street,\nDallas, TX 75215' }, { innerText: '123 fake street,\nMiami, FL 75215' }],
                 expected: {
-                    addresses: [{ city: 'Miami', state: 'FL' }, { city: 'Dallas', state: 'TX' }]
+                    addresses: [
+                        { city: 'Miami', state: 'FL' },
+                        { city: 'Dallas', state: 'TX' }
+                    ]
                 }
             }
         ]
 
         for (const elementExample of elementExamples) {
             const elementFactory = () => elementExample.elements
-            const profile = createProfile(elementFactory, /** @type {any} */(elementExample.selectors))
+            const profile = createProfile(elementFactory, /** @type {any} */ (elementExample.selectors))
             const aggregated = aggregateFields(profile)
             expect(aggregated.addresses).toEqual(elementExample.expected.addresses)
         }
@@ -248,7 +242,7 @@ describe('create profiles from extracted data', () => {
                 ]
             }[key]
         }
-        const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
         expect(scraped).toEqual({
             relativesList: [
                 'Jane Smith',
@@ -286,15 +280,12 @@ describe('create profiles from extracted data', () => {
             return {
                 name: [{ innerText: 'Shane Osbourne' }],
                 age: [{ innerText: '39' }],
-                addressCityState: [
-                    { innerText: 'Dallas, TX' },
-                    { innerText: 'anything, here' }
-                ]
+                addressCityState: [{ innerText: 'Dallas, TX' }, { innerText: 'anything, here' }]
             }[key]
         }
         const expected = [{ city: 'Dallas', state: 'TX' }]
 
-        const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
         const actual = aggregateFields(scraped)
         expect(actual.addresses).toEqual(expected)
     })
@@ -317,16 +308,10 @@ describe('create profiles from extracted data', () => {
                 ]
             }[key]
         }
-        const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
         const actual = aggregateFields(scraped)
 
-        expect(actual.relatives).toEqual([
-            'Dale Johnson',
-            'Jack Johnson',
-            'Jill Johnson',
-            'Jimmy Smith',
-            'John Smith'
-        ])
+        expect(actual.relatives).toEqual(['Dale Johnson', 'Jack Johnson', 'Jill Johnson', 'Jimmy Smith', 'John Smith'])
     })
 
     it('should sort phone numbers numerically', () => {
@@ -347,16 +332,10 @@ describe('create profiles from extracted data', () => {
                 ]
             }[key]
         }
-        const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
         const actual = aggregateFields(scraped)
 
-        expect(actual.phoneNumbers).toEqual([
-            '1234567890',
-            '1234567891',
-            '1234567892',
-            '1234567894',
-            '1234567895'
-        ])
+        expect(actual.phoneNumbers).toEqual(['1234567890', '1234567891', '1234567892', '1234567894', '1234567895'])
     })
 
     it('should sort alternative names alphabetically', () => {
@@ -376,14 +355,9 @@ describe('create profiles from extracted data', () => {
                 ]
             }[key]
         }
-        const scraped = createProfile(elementFactory, /** @type {any} */(selectors))
+        const scraped = createProfile(elementFactory, /** @type {any} */ (selectors))
         const actual = aggregateFields(scraped)
 
-        expect(actual.alternativeNames).toEqual([
-            'Fred Firth',
-            'Jerry Doug',
-            'Marvin Smith',
-            'Roger Star'
-        ])
+        expect(actual.alternativeNames).toEqual(['Fred Firth', 'Jerry Doug', 'Marvin Smith', 'Roger Star'])
     })
 })

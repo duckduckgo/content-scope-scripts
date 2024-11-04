@@ -9,7 +9,7 @@ import onboardingAnimation from '../../animations/Onboarding.riv'
 
 import styles from './DuckPlayerStep.module.css'
 
-export function DuckPlayerStep () {
+export function DuckPlayerStep() {
     const { isDarkMode, isReducedMotion } = useEnv()
     const [canPlay, setCanPlay] = useState(false)
     const { getStep, setStep } = useBeforeAfter()
@@ -18,9 +18,12 @@ export function DuckPlayerStep () {
 
     useEffect(() => {
         if (canPlay && !timer.current) {
-            timer.current = setTimeout(() => {
-                setStep('duckPlayerSingle', 'after')
-            }, isReducedMotion ? 100 : 0)
+            timer.current = setTimeout(
+                () => {
+                    setStep('duckPlayerSingle', 'after')
+                },
+                isReducedMotion ? 100 : 0
+            )
         }
 
         return () => {
@@ -39,9 +42,9 @@ export function DuckPlayerStep () {
                     animation={onboardingAnimation}
                     state={getStep('duckPlayerSingle') || 'before'}
                     isDarkMode={isDarkMode}
-                    artboard='Duck Player'
-                    inputName='Duck Player?'
-                    stateMachine='State Machine 2'
+                    artboard="Duck Player"
+                    inputName="Duck Player?"
+                    stateMachine="State Machine 2"
                 />
             </div>
         </SlideIn>

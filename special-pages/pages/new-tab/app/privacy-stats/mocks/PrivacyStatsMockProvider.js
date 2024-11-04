@@ -24,13 +24,13 @@ import { reducer } from '../../service.hooks.js'
  * @param {boolean} [props.ticker] - if true, gradually increment the count of the first company, for testing
  *
  */
-export function PrivacyStatsMockProvider ({
+export function PrivacyStatsMockProvider({
     data = stats.few,
     config = { expansion: 'expanded', animation: { kind: 'auto-animate' } },
     ticker = false,
     children
 }) {
-    const initial = /** @type {import('../PrivacyStatsProvider.js').State} */({
+    const initial = /** @type {import('../PrivacyStatsProvider.js').State} */ ({
         status: 'ready',
         data,
         config
@@ -54,8 +54,7 @@ export function PrivacyStatsMockProvider ({
             }, 1000)
             return () => clearTimeout(time)
         }
-        return () => {
-        }
+        return () => {}
     }, [state.data?.totalCount, ticker])
 
     const toggle = useCallback(() => {
@@ -69,9 +68,7 @@ export function PrivacyStatsMockProvider ({
 
     return (
         <PrivacyStatsContext.Provider value={{ state, toggle }}>
-            <PrivacyStatsDispatchContext.Provider value={send}>
-                {children}
-            </PrivacyStatsDispatchContext.Provider>
+            <PrivacyStatsDispatchContext.Provider value={send}>{children}</PrivacyStatsDispatchContext.Provider>
         </PrivacyStatsContext.Provider>
     )
 }

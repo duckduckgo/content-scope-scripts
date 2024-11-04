@@ -17,7 +17,7 @@ import { useTypedTranslation } from '../types.js'
  * @param {object} props
  * @param {VisibilityRowData[]} props.rows
  */
-export function VisibilityMenu ({ rows }) {
+export function VisibilityMenu({ rows }) {
     const { t } = useTypedTranslation()
     const MENU_ID = useId()
 
@@ -38,9 +38,9 @@ export function VisibilityMenu ({ rows }) {
                                 />
                                 <span aria-hidden={true} className={styles.checkboxIcon}>
                                     {row.visibility === 'visible' && (
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M3.5 9L6 11.5L12.5 5"
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M3.5 9L6 11.5L12.5 5"
                                                 stroke="white"
                                                 stroke-width="1.5"
                                                 stroke-linecap="round"
@@ -50,8 +50,8 @@ export function VisibilityMenu ({ rows }) {
                                     )}
                                 </span>
                                 <span className={styles.svg}>
-                                    {row.icon === 'shield' && <DuckFoot/>}
-                                    {row.icon === 'star' && <Shield/>}
+                                    {row.icon === 'shield' && <DuckFoot />}
+                                    {row.icon === 'star' && <Shield />}
                                 </span>
                                 <span>{row.title ?? row.id}</span>
                             </label>

@@ -5,7 +5,7 @@
  * @param {string} selector
  * @return {HTMLElement | null}
  */
-export function getElement (doc = document, selector) {
+export function getElement(doc = document, selector) {
     if (isXpath(selector)) {
         return safeQuerySelectorXPath(doc, selector)
     }
@@ -20,7 +20,7 @@ export function getElement (doc = document, selector) {
  * @param {string} selector
  * @return {HTMLElement[] | null}
  */
-export function getElements (doc = document, selector) {
+export function getElements(doc = document, selector) {
     if (isXpath(selector)) {
         return safeQuerySelectorAllXpath(doc, selector)
     }
@@ -34,7 +34,7 @@ export function getElements (doc = document, selector) {
  * @param {HTMLElement} element
  * @param {string} selector
  */
-export function getElementMatches (element, selector) {
+export function getElementMatches(element, selector) {
     try {
         if (isXpath(selector)) {
             return matchesXPath(element, selector) ? element : null
@@ -53,14 +53,8 @@ export function getElementMatches (element, selector) {
  * @param {string} selector
  * @return {boolean}
  */
-function matchesXPath (element, selector) {
-    const xpathResult = document.evaluate(
-        selector,
-        element,
-        null,
-        XPathResult.BOOLEAN_TYPE,
-        null
-    )
+function matchesXPath(element, selector) {
+    const xpathResult = document.evaluate(selector, element, null, XPathResult.BOOLEAN_TYPE, null)
 
     return xpathResult.booleanValue
 }
@@ -69,7 +63,7 @@ function matchesXPath (element, selector) {
  * @param {unknown} selector
  * @returns {boolean}
  */
-function isXpath (selector) {
+function isXpath(selector) {
     if (!(typeof selector === 'string')) return false
 
     // see: https://www.w3.org/TR/xpath20/
@@ -83,7 +77,7 @@ function isXpath (selector) {
  * @param selector
  * @returns {HTMLElement[] | null}
  */
-function safeQuerySelectorAll (element, selector) {
+function safeQuerySelectorAll(element, selector) {
     try {
         if (element && 'querySelectorAll' in element) {
             return Array.from(element?.querySelectorAll?.(selector))
@@ -98,7 +92,7 @@ function safeQuerySelectorAll (element, selector) {
  * @param selector
  * @returns {HTMLElement | null}
  */
-function safeQuerySelector (element, selector) {
+function safeQuerySelector(element, selector) {
     try {
         if (element && 'querySelector' in element) {
             return element?.querySelector?.(selector)
@@ -114,12 +108,12 @@ function safeQuerySelector (element, selector) {
  * @param selector
  * @returns {HTMLElement | null}
  */
-function safeQuerySelectorXPath (element, selector) {
+function safeQuerySelectorXPath(element, selector) {
     try {
         const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)
         const single = match?.singleNodeValue
         if (single) {
-            return /** @type {HTMLElement} */(single)
+            return /** @type {HTMLElement} */ (single)
         }
         return null
     } catch (e) {
@@ -133,7 +127,7 @@ function safeQuerySelectorXPath (element, selector) {
  * @param selector
  * @returns {HTMLElement[] | null}
  */
-function safeQuerySelectorAllXpath (element, selector) {
+function safeQuerySelectorAllXpath(element, selector) {
     try {
         // gets all elements matching the xpath query
         const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)
@@ -142,9 +136,9 @@ function safeQuerySelectorAllXpath (element, selector) {
             const matchedNodes = []
             for (let i = 0; i < xpathResult.snapshotLength; i++) {
                 const item = xpathResult.snapshotItem(i)
-                if (item) matchedNodes.push(/** @type {HTMLElement} */(item))
+                if (item) matchedNodes.push(/** @type {HTMLElement} */ (item))
             }
-            return /** @type {HTMLElement[]} */(matchedNodes)
+            return /** @type {HTMLElement[]} */ (matchedNodes)
         }
         return null
     } catch (e) {
@@ -158,7 +152,7 @@ function safeQuerySelectorAllXpath (element, selector) {
  * @param {number} max
  * @returns {number}
  */
-export function generateRandomInt (min, max) {
+export function generateRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
@@ -170,7 +164,7 @@ export function generateRandomInt (min, max) {
  * @param {NonNullable<T>[]} prev
  * @return {NonNullable<T>[]} - The cleaned array.
  */
-export function cleanArray (input, prev = []) {
+export function cleanArray(input, prev = []) {
     if (!Array.isArray(input)) {
         if (input === null) return prev
         if (input === undefined) return prev
@@ -178,7 +172,7 @@ export function cleanArray (input, prev = []) {
         if (typeof input === 'string') {
             const trimmed = input.trim()
             if (trimmed.length > 0) {
-                prev.push(/** @type {NonNullable<T>} */(trimmed))
+                prev.push(/** @type {NonNullable<T>} */ (trimmed))
             }
         } else {
             prev.push(input)
@@ -199,7 +193,7 @@ export function cleanArray (input, prev = []) {
  * @param {any} [input] - The input to be checked.
  * @return {boolean} - True if the input is a non-empty string, false otherwise.
  */
-export function nonEmptyString (input) {
+export function nonEmptyString(input) {
     if (typeof input !== 'string') return false
     return input.trim().length > 0
 }
@@ -211,7 +205,7 @@ export function nonEmptyString (input) {
  * @param {any} b - The second string to compare.
  * @return {boolean} - Returns true if the strings are a matching pair, false otherwise.
  */
-export function matchingPair (a, b) {
+export function matchingPair(a, b) {
     if (!nonEmptyString(a)) return false
     if (!nonEmptyString(b)) return false
     return a.toLowerCase().trim() === b.toLowerCase().trim()
@@ -223,10 +217,14 @@ export function matchingPair (a, b) {
  * @param {any} addresses
  * @return {Array}
  */
-export function sortAddressesByStateAndCity (addresses) {
+export function sortAddressesByStateAndCity(addresses) {
     return addresses.sort((a, b) => {
-        if (a.state < b.state) { return -1 }
-        if (a.state > b.state) { return 1 }
+        if (a.state < b.state) {
+            return -1
+        }
+        if (a.state > b.state) {
+            return 1
+        }
         return a.city.localeCompare(b.city)
     })
 }
@@ -234,11 +232,11 @@ export function sortAddressesByStateAndCity (addresses) {
 /**
  * Returns a SHA-1 hash of the profile
  */
-export async function hashObject (profile) {
+export async function hashObject(profile) {
     const msgUint8 = new TextEncoder().encode(JSON.stringify(profile)) // encode as (utf-8)
     const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
     const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
+    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
 
     return hashHex
 }

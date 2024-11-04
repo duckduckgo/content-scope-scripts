@@ -64,9 +64,7 @@ describe('generateSchema', () => {
                     $schema: 'http://json-schema.org/draft-07/schema#',
                     type: 'object',
                     additionalProperties: false,
-                    required: [
-                        'a'
-                    ],
+                    required: ['a'],
                     properties: {
                         a: {
                             type: 'string'
@@ -119,9 +117,7 @@ describe('generateSchema', () => {
                             title: 'opened_notification',
                             description: 'Generated from @see "../messages/duck-player/opened.notify.json"',
                             additionalProperties: false,
-                            required: [
-                                'method'
-                            ],
+                            required: ['method'],
                             properties: {
                                 method: {
                                     const: 'opened'
@@ -133,10 +129,7 @@ describe('generateSchema', () => {
                             title: 'pageView_notification',
                             description: 'Generated from @see "../messages/duck-player/pageView.notify.json"',
                             additionalProperties: false,
-                            required: [
-                                'method',
-                                'params'
-                            ],
+                            required: ['method', 'params'],
                             properties: {
                                 method: {
                                     const: 'pageView'
@@ -155,10 +148,7 @@ describe('generateSchema', () => {
                             title: 'getUserValues_request',
                             description: 'Generated from @see "../messages/duck-player/getUserValues.request.json"',
                             additionalProperties: false,
-                            required: [
-                                'method',
-                                'result'
-                            ],
+                            required: ['method', 'result'],
                             properties: {
                                 method: {
                                     const: 'getUserValues'
@@ -173,11 +163,7 @@ describe('generateSchema', () => {
                             title: 'setUserValues_request',
                             description: 'Generated from @see "../messages/duck-player/setUserValues.request.json"',
                             additionalProperties: false,
-                            required: [
-                                'method',
-                                'params',
-                                'result'
-                            ],
+                            required: ['method', 'params', 'result'],
                             properties: {
                                 method: {
                                     const: 'setUserValues'
@@ -199,10 +185,7 @@ describe('generateSchema', () => {
                             title: 'onUserValuesChanged_subscription',
                             description: 'Generated from @see "../messages/duck-player/onUserValuesChanged.subscribe.json"',
                             additionalProperties: false,
-                            required: [
-                                'subscriptionEvent',
-                                'params'
-                            ],
+                            required: ['subscriptionEvent', 'params'],
                             properties: {
                                 subscriptionEvent: {
                                     const: 'onUserValuesChanged'
@@ -215,13 +198,9 @@ describe('generateSchema', () => {
                     ]
                 }
             },
-            required: [
-                'notifications',
-                'requests',
-                'subscriptions'
-            ]
+            required: ['notifications', 'requests', 'subscriptions']
         }
         const actual = generateSchema('DuckPlayer', fileList)
-        expect(actual).toEqual(/** @type {any} */(expected))
+        expect(actual).toEqual(/** @type {any} */ (expected))
     })
 })

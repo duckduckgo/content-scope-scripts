@@ -29,22 +29,22 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'John Smith',
-                alternativeNames: [],
-                age: '38',
-                addresses: [
-                    { city: 'Chicago', state: 'IL' },
-                    { city: 'Cadillac', state: 'MI' },
-                    { city: 'Ypsilanti', state: 'MI' }
-                ],
-                phoneNumbers: [],
-                relatives: [
-                    'Cheryl Lamar'
-                ],
-                profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
-                identifier: baseURL + 'view/John-Smith-CyFdD.F'
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Smith',
+                    alternativeNames: [],
+                    age: '38',
+                    addresses: [
+                        { city: 'Chicago', state: 'IL' },
+                        { city: 'Cadillac', state: 'MI' },
+                        { city: 'Ypsilanti', state: 'MI' }
+                    ],
+                    phoneNumbers: [],
+                    relatives: ['Cheryl Lamar'],
+                    profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
+                    identifier: baseURL + 'view/John-Smith-CyFdD.F'
+                }
+            ])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
         test('extract with retry', async ({ page, baseURL }, workerInfo) => {
@@ -54,22 +54,22 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'John Smith',
-                alternativeNames: [],
-                age: '38',
-                addresses: [
-                    { city: 'Chicago', state: 'IL' },
-                    { city: 'Cadillac', state: 'MI' },
-                    { city: 'Ypsilanti', state: 'MI' }
-                ],
-                phoneNumbers: [],
-                relatives: [
-                    'Cheryl Lamar'
-                ],
-                profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
-                identifier: baseURL + 'view/John-Smith-CyFdD.F'
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Smith',
+                    alternativeNames: [],
+                    age: '38',
+                    addresses: [
+                        { city: 'Chicago', state: 'IL' },
+                        { city: 'Cadillac', state: 'MI' },
+                        { city: 'Ypsilanti', state: 'MI' }
+                    ],
+                    phoneNumbers: [],
+                    relatives: ['Cheryl Lamar'],
+                    profileUrl: baseURL + 'view/John-Smith-CyFdD.F',
+                    identifier: baseURL + 'view/John-Smith-CyFdD.F'
+                }
+            ])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
 
@@ -83,9 +83,7 @@ test.describe('Broker Protection communications', () => {
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [
                 {
                     name: 'Ben Smith',
-                    alternativeNames: [
-                        'Ben S Smith'
-                    ],
+                    alternativeNames: ['Ben S Smith'],
                     age: '40',
                     addresses: [
                         { city: 'Miami', state: 'FL' },
@@ -101,9 +99,7 @@ test.describe('Broker Protection communications', () => {
                     name: 'Ben Smith',
                     alternativeNames: [],
                     age: '40',
-                    addresses: [
-                        { city: 'Miami', state: 'FL' }
-                    ],
+                    addresses: [{ city: 'Miami', state: 'FL' }],
                     phoneNumbers: [],
                     relatives: [],
                     profileUrl: baseURL + 'view/Ben-Smith-DSAJBtFB',
@@ -111,11 +107,7 @@ test.describe('Broker Protection communications', () => {
                 },
                 {
                     name: 'Benjamin H Smith',
-                    alternativeNames: [
-                        'Bejamin Smith',
-                        'Ben Smith',
-                        'Benjamin Smith'
-                    ],
+                    alternativeNames: ['Bejamin Smith', 'Ben Smith', 'Benjamin Smith'],
                     age: '39',
                     addresses: [
                         {
@@ -146,23 +138,26 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract3.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'John A Smith',
-                age: '63',
-                alternativeNames: [
-                    'John Smithe',
-                    'Jonathan Smith'
-                ],
-                addresses: [
-                    { city: 'Miami', state: 'FL' },
-                    { city: 'Orlando', state: 'FL' },
-                    { city: 'Plantation', state: 'FL' }
-                ],
-                profileUrl: baseURL + 'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
-                identifier: baseURL + 'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
-                phoneNumbers: [],
-                relatives: []
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John A Smith',
+                    age: '63',
+                    alternativeNames: ['John Smithe', 'Jonathan Smith'],
+                    addresses: [
+                        { city: 'Miami', state: 'FL' },
+                        { city: 'Orlando', state: 'FL' },
+                        { city: 'Plantation', state: 'FL' }
+                    ],
+                    profileUrl:
+                        baseURL +
+                        'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
+                    identifier:
+                        baseURL +
+                        'products/name?firstName=john&middleName=a&lastName=smith&ln=smith&city=orlando&state=fl&id=G421681744450237260',
+                    phoneNumbers: [],
+                    relatives: []
+                }
+            ])
         })
 
         test('extract profiles test 4', async ({ page, baseURL }, workerInfo) => {
@@ -172,18 +167,20 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract4.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'Ben Smith',
-                age: '55',
-                alternativeNames: [],
-                addresses: [
-                    { city: 'Tampa', state: 'FL' }
-                ],
-                profileUrl: baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
-                identifier: baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
-                phoneNumbers: [],
-                relatives: []
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'Ben Smith',
+                    age: '55',
+                    alternativeNames: [],
+                    addresses: [{ city: 'Tampa', state: 'FL' }],
+                    profileUrl:
+                        baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
+                    identifier:
+                        baseURL + 'products/name?firstName=ben&lastName=smith&ln=smith&city=tampa&state=fl&id=G-3492284932683347509',
+                    phoneNumbers: [],
+                    relatives: []
+                }
+            ])
         })
 
         test('extract profiles test 5', async ({ page, baseURL }, workerInfo) => {
@@ -193,23 +190,23 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract5.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'Jonathan Smith',
-                age: '50',
-                alternativeNames: [],
-                phoneNumbers: [
-                    '97021405106'
-                ],
-                profileUrl: baseURL + 'person/Smith-41043103849',
-                identifier: baseURL + 'person/Smith-41043103849',
-                addresses: [
-                    {
-                        city: 'Orlando',
-                        state: 'FL'
-                    }
-                ],
-                relatives: []
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'Jonathan Smith',
+                    age: '50',
+                    alternativeNames: [],
+                    phoneNumbers: ['97021405106'],
+                    profileUrl: baseURL + 'person/Smith-41043103849',
+                    identifier: baseURL + 'person/Smith-41043103849',
+                    addresses: [
+                        {
+                            city: 'Orlando',
+                            state: 'FL'
+                        }
+                    ],
+                    relatives: []
+                }
+            ])
         })
 
         test('extract profile from irregular HTML 1', async ({ page, baseURL }, workerInfo) => {
@@ -219,30 +216,21 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract-irregular1.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'John M Smith',
-                age: '75',
-                alternativeNames: [
-                    'John Ark',
-                    'John Mark',
-                    'John Smith',
-                    'John-Mark Smith',
-                    'Johna Smith',
-                    'Johnmark Smith'
-                ],
-                addresses: [
-                    { city: 'Chicago', state: 'IL' },
-                    { city: 'Evanston', state: 'IL' }
-                ],
-                profileUrl: baseURL + 'pp/John-Smith-HdDWHRBD',
-                identifier: baseURL + 'pp/John-Smith-HdDWHRBD',
-                relatives: [
-                    'Margaret Kelly',
-                    'Mary Kelly',
-                    'Michael Kelly'
-                ],
-                phoneNumbers: []
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John M Smith',
+                    age: '75',
+                    alternativeNames: ['John Ark', 'John Mark', 'John Smith', 'John-Mark Smith', 'Johna Smith', 'Johnmark Smith'],
+                    addresses: [
+                        { city: 'Chicago', state: 'IL' },
+                        { city: 'Evanston', state: 'IL' }
+                    ],
+                    profileUrl: baseURL + 'pp/John-Smith-HdDWHRBD',
+                    identifier: baseURL + 'pp/John-Smith-HdDWHRBD',
+                    relatives: ['Margaret Kelly', 'Mary Kelly', 'Michael Kelly'],
+                    phoneNumbers: []
+                }
+            ])
         })
 
         test('extract profile from irregular HTML 2', async ({ page, baseURL }, workerInfo) => {
@@ -252,24 +240,22 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract-irregular2.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'John Smith',
-                age: '71',
-                addresses: [
-                    { city: 'Chicago', state: 'IL' },
-                    { city: 'South Holland', state: 'IL' },
-                    { city: 'Crown Point', state: 'IN' }
-                ],
-                alternativeNames: [],
-                relatives: [
-                    'Brittany J Hoard',
-                    'Jame...',
-                    'Joyce E Doyle'
-                ],
-                profileUrl: baseURL + 'find/person/p286nuu00u98lu9n0n96',
-                identifier: baseURL + 'find/person/p286nuu00u98lu9n0n96',
-                phoneNumbers: []
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Smith',
+                    age: '71',
+                    addresses: [
+                        { city: 'Chicago', state: 'IL' },
+                        { city: 'South Holland', state: 'IL' },
+                        { city: 'Crown Point', state: 'IN' }
+                    ],
+                    alternativeNames: [],
+                    relatives: ['Brittany J Hoard', 'Jame...', 'Joyce E Doyle'],
+                    profileUrl: baseURL + 'find/person/p286nuu00u98lu9n0n96',
+                    identifier: baseURL + 'find/person/p286nuu00u98lu9n0n96',
+                    phoneNumbers: []
+                }
+            ])
         })
 
         test('extract profile from irregular HTML 3', async ({ page, baseURL }, workerInfo) => {
@@ -279,29 +265,23 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract-irregular3.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'John I Smith',
-                age: '59',
-                addresses: [
-                    { city: 'Chicago', state: 'IL' },
-                    { city: 'Forest Park', state: 'IL' },
-                    { city: 'Oak Park', state: 'IL' },
-                    { city: 'River Forest', state: 'IL' }
-                ],
-                alternativeNames: [
-                    'John Farmersmith',
-                    'John Smith',
-                    'Johni Smith'
-                ],
-                phoneNumbers: [],
-                relatives: [
-                    'Alexander Makely',
-                    'Ethel Makely',
-                    'Veronica Berrios'
-                ],
-                profileUrl: baseURL + 'people/John-Smith-AIGwGOFD',
-                identifier: baseURL + 'people/John-Smith-AIGwGOFD'
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John I Smith',
+                    age: '59',
+                    addresses: [
+                        { city: 'Chicago', state: 'IL' },
+                        { city: 'Forest Park', state: 'IL' },
+                        { city: 'Oak Park', state: 'IL' },
+                        { city: 'River Forest', state: 'IL' }
+                    ],
+                    alternativeNames: ['John Farmersmith', 'John Smith', 'Johni Smith'],
+                    phoneNumbers: [],
+                    relatives: ['Alexander Makely', 'Ethel Makely', 'Veronica Berrios'],
+                    profileUrl: baseURL + 'people/John-Smith-AIGwGOFD',
+                    identifier: baseURL + 'people/John-Smith-AIGwGOFD'
+                }
+            ])
         })
 
         test('extracts profile and generates id', async ({ page }, workerInfo) => {
@@ -311,25 +291,27 @@ test.describe('Broker Protection communications', () => {
             await dbp.receivesAction('extract-generate-id.json')
             const response = await dbp.waitForMessage('actionCompleted')
             dbp.isSuccessMessage(response)
-            dbp.isExtractMatch(response[0].payload.params.result.success.response, [{
-                name: 'John Smith',
-                alternativeNames: [],
-                age: '38',
-                addresses: [
-                    { city: 'Chicago', state: 'IL' },
-                    { city: 'Cadillac', state: 'MI' },
-                    { city: 'Ypsilanti', state: 'MI' }
-                ],
-                phoneNumbers: [],
-                relatives: [
-                    'Cheryl Lamar'
-                ],
-                identifier: 'b3ccf90a0ffaaa5f57fd262ab1b694b3c208d622'
-            }])
+            dbp.isExtractMatch(response[0].payload.params.result.success.response, [
+                {
+                    name: 'John Smith',
+                    alternativeNames: [],
+                    age: '38',
+                    addresses: [
+                        { city: 'Chicago', state: 'IL' },
+                        { city: 'Cadillac', state: 'MI' },
+                        { city: 'Ypsilanti', state: 'MI' }
+                    ],
+                    phoneNumbers: [],
+                    relatives: ['Cheryl Lamar'],
+                    identifier: 'b3ccf90a0ffaaa5f57fd262ab1b694b3c208d622'
+                }
+            ])
             dbp.responseContainsMetadata(response[0].payload.params.result.success.meta)
         })
 
-        test('returns an empty array when no profile selector matches but the no results selector is present', async ({ page }, workerInfo) => {
+        test('returns an empty array when no profile selector matches but the no results selector is present', async ({
+            page
+        }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
             await dbp.navigatesTo('results-not-found.html')
@@ -339,7 +321,9 @@ test.describe('Broker Protection communications', () => {
             dbp.isExtractMatch(response[0].payload.params.result.success.response, [])
         })
 
-        test('returns an error when no profile selector matches and the no results selector is not present', async ({ page }, workerInfo) => {
+        test('returns an error when no profile selector matches and the no results selector is not present', async ({
+            page
+        }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo)
             await dbp.enabled()
             await dbp.navigatesTo('results.html')
@@ -386,7 +370,7 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
-            await page.waitForURL(url => url.hash === '#2', { timeout: 2000 })
+            await page.waitForURL((url) => url.hash === '#2', { timeout: 2000 })
         })
 
         test('clicking with parent selector (clicking the actual parent)', async ({ page }, workerInfo) => {
@@ -397,7 +381,7 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
-            await page.waitForURL(url => url.hash === '#2', { timeout: 2000 })
+            await page.waitForURL((url) => url.hash === '#2', { timeout: 2000 })
         })
 
         test('click multiple targets', async ({ page }, workerInfo) => {
@@ -408,7 +392,7 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.waitForMessage('actionCompleted')
 
             dbp.isSuccessMessage(response)
-            await page.waitForURL(url => url.hash === '#1-2', { timeout: 2000 })
+            await page.waitForURL((url) => url.hash === '#1-2', { timeout: 2000 })
         })
 
         test('getCaptchaInfo', async ({ page }, workerInfo) => {
@@ -498,7 +482,7 @@ test.describe('Broker Protection communications', () => {
         const response = await dbp.waitForMessage('actionCompleted')
 
         dbp.isSuccessMessage(response)
-        await page.waitForURL(url => url.hash === '#1', { timeout: 2000 })
+        await page.waitForURL((url) => url.hash === '#1', { timeout: 2000 })
     })
 
     test('expectation fails when failSilently is not present', async ({ page }, workerInfo) => {

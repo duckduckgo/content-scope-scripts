@@ -72,7 +72,7 @@ export class Thumbnails {
     /**
      * @param {ThumbnailParams} params
      */
-    constructor (params) {
+    constructor(params) {
         this.settings = params.settings
         this.messages = params.messages
         this.environment = params.environment
@@ -81,7 +81,7 @@ export class Thumbnails {
     /**
      * Perform side effects
      */
-    init () {
+    init() {
         this.sideEffects.add('showing overlays on hover', () => {
             const { selectors } = this.settings
             const parentNode = document.documentElement || document.body
@@ -160,7 +160,7 @@ export class Thumbnails {
 
                 // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
                 // that we know to be a thumbnail overlay, like a preview
-                const matched = selectors.allowedEventTargets.find(css => e.target.matches(css))
+                const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css))
                 if (matched) {
                     appendOverlay(hoverElement)
                 }
@@ -176,7 +176,7 @@ export class Thumbnails {
         })
     }
 
-    destroy () {
+    destroy() {
         this.sideEffects.destroy()
     }
 }
@@ -186,7 +186,7 @@ export class ClickInterception {
     /**
      * @param {ThumbnailParams} params
      */
-    constructor (params) {
+    constructor(params) {
         this.settings = params.settings
         this.messages = params.messages
         this.environment = params.environment
@@ -195,7 +195,7 @@ export class ClickInterception {
     /**
      * Perform side effects
      */
-    init () {
+    init() {
         this.sideEffects.add('intercepting clicks', () => {
             const { selectors } = this.settings
             const parentNode = document.documentElement || document.body
@@ -222,7 +222,7 @@ export class ClickInterception {
 
                 // finally, check the 'allowedEventTargets' to see if the hover occurred in an element
                 // that we know to be a thumbnail overlay, like a preview
-                const matched = selectors.allowedEventTargets.find(css => e.target.matches(css))
+                const matched = selectors.allowedEventTargets.find((css) => e.target.matches(css))
                 if (matched) {
                     block(validLink)
                 }
@@ -236,7 +236,7 @@ export class ClickInterception {
         })
     }
 
-    destroy () {
+    destroy() {
         this.sideEffects.destroy()
     }
 }
@@ -247,7 +247,7 @@ export class ClickInterception {
  * @param {MouseEvent} e
  * @return {HTMLElement|null}
  */
-function findElementFromEvent (selector, excludedSelectors, e) {
+function findElementFromEvent(selector, excludedSelectors, e) {
     /** @type {HTMLElement | null} */
     let matched = null
 
@@ -255,7 +255,7 @@ function findElementFromEvent (selector, excludedSelectors, e) {
 
     for (const element of document.elementsFromPoint(e.clientX, e.clientY)) {
         // bail early if this item was excluded anywhere in the element stack
-        if (excludedSelectors.some(ex => element.matches(ex))) {
+        if (excludedSelectors.some((ex) => element.matches(ex))) {
             return null
         }
 
@@ -264,7 +264,7 @@ function findElementFromEvent (selector, excludedSelectors, e) {
         if (element.matches(selector)) {
             // in lots of cases we can just return the element as soon as it's found, to prevent
             // checking the entire stack
-            matched = /** @type {HTMLElement} */(element)
+            matched = /** @type {HTMLElement} */ (element)
             if (fastPath) return matched
         }
     }
@@ -276,13 +276,13 @@ function findElementFromEvent (selector, excludedSelectors, e) {
  * @param {string[]} excludedRegions
  * @return {string | null | undefined}
  */
-function isValidLink (element, excludedRegions) {
+function isValidLink(element, excludedRegions) {
     if (!element) return null
 
     /**
      * Does this element exist inside an excluded region?
      */
-    const existsInExcludedParent = excludedRegions.some(selector => {
+    const existsInExcludedParent = excludedRegions.some((selector) => {
         for (const parent of document.querySelectorAll(selector)) {
             if (parent.contains(element)) return true
         }

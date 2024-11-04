@@ -8,9 +8,9 @@ import { write } from '../../scripts/script-utils.js'
  * @param localesRoot
  * @return {string}
  */
-function bundle (localesRoot) {
+function bundle(localesRoot) {
     const locales = {}
-    const localeDirs = readdirSync(localesRoot).filter(f => !f.startsWith('.'))
+    const localeDirs = readdirSync(localesRoot).filter((f) => !f.startsWith('.'))
     for (const locale of localeDirs) {
         locales[locale] = {}
         const dir = join(localesRoot, locale)
@@ -28,9 +28,7 @@ function bundle (localesRoot) {
         }
     }
 
-    return 'export default `' +
-        JSON.stringify(locales).replace('`', '\\`') +
-        '`'
+    return 'export default `' + JSON.stringify(locales).replace('`', '\\`') + '`'
 }
 
 const jobs = {

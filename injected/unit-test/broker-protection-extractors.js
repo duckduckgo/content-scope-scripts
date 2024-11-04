@@ -6,12 +6,14 @@ import { ProfileUrlExtractor } from '../src/features/broker-protection/extractor
 describe('individual extractors', () => {
     describe('PhoneExtractor', () => {
         it('should extract digits only', () => {
-            fc.assert(fc.property(fc.array(fc.string()), (s) => {
-                const cleanInput = cleanArray(s)
-                const numbers = new PhoneExtractor().extract(cleanInput, {})
-                const cleanOutput = cleanArray(numbers)
-                return cleanOutput.every(num => num.match(/^\d+$/))
-            }))
+            fc.assert(
+                fc.property(fc.array(fc.string()), (s) => {
+                    const cleanInput = cleanArray(s)
+                    const numbers = new PhoneExtractor().extract(cleanInput, {})
+                    const cleanOutput = cleanArray(numbers)
+                    return cleanOutput.every((num) => num.match(/^\d+$/))
+                })
+            )
         })
     })
     describe('ProfileUrlExtractor', () => {

@@ -14,7 +14,7 @@ export class SpecialErrorPage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
-    constructor (messaging, env) {
+    constructor(messaging, env) {
         this.integration = env === 'integration'
         this.messaging = createTypedMessages(this, messaging)
     }
@@ -32,7 +32,7 @@ export class SpecialErrorPage {
      *
      * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
      */
-    initialSetup () {
+    initialSetup() {
         return this.messaging.request('initialSetup')
     }
 
@@ -41,7 +41,7 @@ export class SpecialErrorPage {
      * has occurred that cannot be recovered from
      * @param {{message: string}} params
      */
-    reportPageException (params) {
+    reportPageException(params) {
         this.messaging.notify('reportPageException', params)
     }
 
@@ -49,28 +49,28 @@ export class SpecialErrorPage {
      * This will be sent if the application fails to load.
      * @param {{message: string}} params
      */
-    reportInitException (params) {
+    reportInitException(params) {
         this.messaging.notify('reportInitException', params)
     }
 
     /**
      * This will be sent when the user chooses to leave the current site
      */
-    leaveSite () {
+    leaveSite() {
         this.messaging.notify('leaveSite')
     }
 
     /**
      * This will be sent when the user chooses to visit the current site despite warnings
      */
-    visitSite () {
+    visitSite() {
         this.messaging.notify('visitSite')
     }
 
     /**
      * This will be sent when the user clicks the Advanced Info button
      */
-    advancedInfo () {
+    advancedInfo() {
         this.messaging.notify('advancedInfo')
     }
 }
@@ -79,7 +79,7 @@ export class IntegrationSpecialErrorPage extends SpecialErrorPage {
     /**
      * @returns {Promise<import('../../../../types/special-error').InitialSetupResponse>}
      */
-    initialSetup () {
+    initialSetup() {
         const searchParams = new URLSearchParams(window.location.search)
         const errorId = searchParams.get('errorId')
         const platformName = searchParams.get('platformName')
@@ -94,7 +94,9 @@ export class IntegrationSpecialErrorPage extends SpecialErrorPage {
         /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']} */
         let platform = { name: 'macos' }
         if (platformName && supportedPlatforms.includes(platformName)) {
-            platform = { name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */(platformName) }
+            platform = {
+                name: /** @type {import('../../../../types/special-error').InitialSetupResponse['platform']['name']} */ (platformName)
+            }
         }
 
         return Promise.resolve({
@@ -106,21 +108,20 @@ export class IntegrationSpecialErrorPage extends SpecialErrorPage {
     }
 }
 
-const baseEnvironment = new Environment()
-    .withInjectName(document.documentElement.dataset.platform)
-    .withEnv(import.meta.env)
+const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env)
 
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
-    pageName: /** @type {string} */(import.meta.pageName)
+    pageName: /** @type {string} */ (import.meta.pageName)
 })
 
-const specialErrorPage = baseEnvironment.injectName === 'integration'
-    ? new IntegrationSpecialErrorPage(messaging, baseEnvironment.injectName)
-    : new SpecialErrorPage(messaging, baseEnvironment.injectName)
+const specialErrorPage =
+    baseEnvironment.injectName === 'integration'
+        ? new IntegrationSpecialErrorPage(messaging, baseEnvironment.injectName)
+        : new SpecialErrorPage(messaging, baseEnvironment.injectName)
 
-init(specialErrorPage, baseEnvironment).catch(e => {
+init(specialErrorPage, baseEnvironment).catch((e) => {
     // messages.
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'

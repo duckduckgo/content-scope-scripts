@@ -12,17 +12,17 @@ export class ClickCapture {
      * @param {object} params
      * @param {string} params.baseUrl
      */
-    constructor ({ baseUrl }) {
+    constructor({ baseUrl }) {
         this.baseUrl = baseUrl
     }
 
     /**
      * @param {HTMLIFrameElement} iframe
      */
-    iframeDidLoad (iframe) {
+    iframeDidLoad(iframe) {
         const handler = (e) => {
             if (!e.target) return
-            const target = /** @type {Element} */(e.target)
+            const target = /** @type {Element} */ (e.target)
 
             // only act on elements with a `href` property
             if (!('href' in target) || typeof target.href !== 'string') return

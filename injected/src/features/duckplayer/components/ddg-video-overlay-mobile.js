@@ -24,11 +24,11 @@ export class DDGVideoOverlayMobile extends HTMLElement {
     /** @type {Text | null} */
     text = null
 
-    connectedCallback () {
+    connectedCallback() {
         this.createMarkupAndStyles()
     }
 
-    createMarkupAndStyles () {
+    createMarkupAndStyles() {
         const shadow = this.attachShadow({ mode: this.testMode ? 'open' : 'closed' })
         const style = document.createElement('style')
         style.innerText = mobilecss
@@ -42,7 +42,7 @@ export class DDGVideoOverlayMobile extends HTMLElement {
     /**
      * @returns {string}
      */
-    mobileHtml () {
+    mobileHtml() {
         if (!this.text) {
             console.warn('missing `text`. Please assign before rendering')
             return ''
@@ -56,24 +56,18 @@ export class DDGVideoOverlayMobile extends HTMLElement {
                     <div class="logo">${svgIcon}</div>
                     <div class="title">${this.text.title}</div>
                     <div class="info">
-                        <button class="button button--info" type="button" aria-label="Open Information Modal">
-                            ${infoIcon}
-                        </button>
+                        <button class="button button--info" type="button" aria-label="Open Information Modal">${infoIcon}</button>
                     </div>
-                    <div class="text">
-                        ${this.text.subtitle}
-                    </div>
+                    <div class="text">${this.text.subtitle}</div>
                     <div class="buttons">
                         <button class="button cancel ddg-vpo-cancel" type="button">${this.text.buttonOptOut}</button>
                         <a class="button open ddg-vpo-open" href="#">${this.text.buttonOpen}</a>
                     </div>
                     <div class="remember">
                         <div class="remember-label">
-                            <span class="remember-text">
-                                ${this.text.rememberLabel} 
-                            </span>
+                            <span class="remember-text"> ${this.text.rememberLabel} </span>
                             <span class="remember-checkbox">
-                                <input id="remember" type="checkbox" name="ddg-remember" hidden> 
+                                <input id="remember" type="checkbox" name="ddg-remember" hidden />
                                 <button role="switch" aria-checked="false" class="switch ios-switch">
                                     <span class="thumb"></span>
                                 </button>
@@ -82,24 +76,21 @@ export class DDGVideoOverlayMobile extends HTMLElement {
                     </div>
                 </div>
             </div>
-            `.toString()
+        `.toString()
     }
 
     /**
      * @param {HTMLElement} containerElement
      */
-    setupEventHandlers (containerElement) {
+    setupEventHandlers(containerElement) {
         const switchElem = containerElement.querySelector('[role=switch]')
         const infoButton = containerElement.querySelector('.button--info')
         const remember = containerElement.querySelector('input[name="ddg-remember"]')
         const cancelElement = containerElement.querySelector('.ddg-vpo-cancel')
         const watchInPlayer = containerElement.querySelector('.ddg-vpo-open')
 
-        if (!infoButton ||
-            !cancelElement ||
-            !watchInPlayer ||
-            !switchElem ||
-            !(remember instanceof HTMLInputElement)) return console.warn('missing elements')
+        if (!infoButton || !cancelElement || !watchInPlayer || !switchElem || !(remember instanceof HTMLInputElement))
+            return console.warn('missing elements')
 
         infoButton.addEventListener('click', () => {
             this.dispatchEvent(new Event(DDGVideoOverlayMobile.OPEN_INFO))

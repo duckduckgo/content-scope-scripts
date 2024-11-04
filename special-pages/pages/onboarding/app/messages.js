@@ -21,7 +21,7 @@ export class OnboardingMessages {
      * @param {ImportMeta["injectName"]} injectName
      * @internal
      */
-    constructor (messaging, injectName) {
+    constructor(messaging, injectName) {
         /**
          * @internal
          */
@@ -51,7 +51,7 @@ export class OnboardingMessages {
      *
      * @returns {Promise<InitResponse>}
      */
-    async init () {
+    async init() {
         if (this.injectName === 'integration') {
             return {
                 stepDefinitions: {},
@@ -69,7 +69,7 @@ export class OnboardingMessages {
      *
      * @param {StepCompleteParams} params
      */
-    stepCompleted (params) {
+    stepCompleted(params) {
         this.messaging.notify('stepCompleted', params)
     }
 
@@ -78,7 +78,7 @@ export class OnboardingMessages {
      *
      * @param {import('./types').BooleanSystemValue} params
      */
-    setBookmarksBar (params) {
+    setBookmarksBar(params) {
         this.messaging.notify('setBookmarksBar', params)
     }
 
@@ -87,7 +87,7 @@ export class OnboardingMessages {
      *
      * @param {import('./types').BooleanSystemValue} params
      */
-    setSessionRestore (params) {
+    setSessionRestore(params) {
         this.messaging.notify('setSessionRestore', params)
     }
 
@@ -98,7 +98,7 @@ export class OnboardingMessages {
      *
      * @param {import('./types').BooleanSystemValue} params
      */
-    setShowHomeButton (params) {
+    setShowHomeButton(params) {
         this.messaging.notify('setShowHomeButton', params)
     }
 
@@ -109,7 +109,7 @@ export class OnboardingMessages {
      *
      * @returns {Promise<any>}
      */
-    requestDockOptIn () {
+    requestDockOptIn() {
         return this.messaging.request('requestDockOptIn')
     }
 
@@ -121,7 +121,7 @@ export class OnboardingMessages {
      *
      * @returns {Promise<any>}
      */
-    requestImport () {
+    requestImport() {
         return this.messaging.request('requestImport')
     }
 
@@ -133,21 +133,21 @@ export class OnboardingMessages {
      *
      * @returns {Promise<any>}
      */
-    requestSetAsDefault () {
+    requestSetAsDefault() {
         return this.messaging.request('requestSetAsDefault')
     }
 
     /**
      * Sent when onboarding is complete and the user has chosen to go to settings
      */
-    dismissToSettings () {
+    dismissToSettings() {
         this.messaging.notify('dismissToSettings')
     }
 
     /**
      * Sent when the "Start Browsing" button has been clicked.
      */
-    dismissToAddressBar () {
+    dismissToAddressBar() {
         this.messaging.notify('dismissToAddressBar')
     }
 
@@ -156,7 +156,7 @@ export class OnboardingMessages {
      * has occurred that cannot be recovered from
      * @param {import('./types').ErrorBoundaryEvent["error"]} params
      */
-    reportPageException (params) {
+    reportPageException(params) {
         this.messaging.notify('reportPageException', params)
     }
 
@@ -164,7 +164,7 @@ export class OnboardingMessages {
      * This will be sent if the application fails to load.
      * @param {{message: string}} params
      */
-    reportInitException (params) {
+    reportInitException(params) {
         this.messaging.notify('reportInitException', params)
     }
 }

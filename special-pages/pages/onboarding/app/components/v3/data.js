@@ -47,25 +47,25 @@ export const stepsConfig = {
             },
             dismissButton: isIdle
                 ? {
-                    text: t('skipButton'),
-                    handler: advance
-                }
+                      text: t('skipButton'),
+                      handler: advance
+                  }
                 : null,
             acceptButton: isIdle
                 ? {
-                    text: t('makeDefaultButton'),
-                    handler: () => enableSystemValue('default-browser')
-                }
+                      text: t('makeDefaultButton'),
+                      handler: () => enableSystemValue('default-browser')
+                  }
                 : {
-                    text: t('nextButton'),
-                    handler: advance
-                },
+                      text: t('nextButton'),
+                      handler: advance
+                  },
             content: <MakeDefaultStep />
         }
     },
     systemSettings: ({ t, globalState, advance }) => {
         const { step, activeRow } = globalState
-        const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */(step).rows.length
+        const isDone = activeRow >= /** @type {import('../../types').SystemSettingsStep} */ (step).rows.length
 
         return {
             variant: 'box',
@@ -76,9 +76,9 @@ export const stepsConfig = {
             },
             acceptButton: isDone
                 ? {
-                    text: t('nextButton'),
-                    handler: advance
-                }
+                      text: t('nextButton'),
+                      handler: advance
+                  }
                 : null,
             content: <SettingsStep data={settingsRowItems} />
         }
@@ -111,7 +111,7 @@ export const stepsConfig = {
     },
     customize: ({ t, globalState, dismiss }) => {
         const { step, activeRow } = globalState
-        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */(step).rows.length
+        const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */ (step).rows.length
 
         return {
             variant: 'box',
@@ -122,10 +122,10 @@ export const stepsConfig = {
             },
             acceptButton: isDone
                 ? {
-                    text: t('startBrowsing'),
-                    endIcon: <Launch/>,
-                    handler: dismiss
-                }
+                      text: t('startBrowsing'),
+                      endIcon: <Launch />,
+                      handler: dismiss
+                  }
                 : null,
             content: <SettingsStep data={settingsRowItems} />
         }
@@ -143,7 +143,7 @@ export const stepsConfig = {
  * @property {'primary'|'secondary'} [accepButtonVariant]
  * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined,
  * @property acceptText is shown.
-*/
+ */
 
 /** @type {Record<import('../../types').SystemValueId, (t: import('../../types').TranslationFn, platform: ImportMeta['platform']) => RowData>} */
 export const settingsRowItems = {

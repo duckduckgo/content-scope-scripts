@@ -1,12 +1,12 @@
 declare const mozProxies: boolean
-declare function exportFunction(fn: () => unknown, desc: object, out: object): void;
-declare function exportFunction(fn: () => unknown, desc: object): void;
-declare function cloneInto(fn: object, desc: object, out: object): void;
-declare function cloneInto(fn: object, desc: object): void;
+declare function exportFunction(fn: () => unknown, desc: object, out: object): void
+declare function exportFunction(fn: () => unknown, desc: object): void
+declare function cloneInto(fn: object, desc: object, out: object): void
+declare function cloneInto(fn: object, desc: object): void
 declare namespace contentScopeFeatures {
-    function init(args: object): void;
-    function load(args: object): void;
-    function update(args: object): void;
+    function init(args: object): void
+    function load(args: object): void
+    function update(args: object): void
 }
 
 /**
@@ -16,7 +16,16 @@ interface ImportMeta {
     env: 'production' | 'development'
     platform?: 'windows' | 'macos' | 'android' | 'ios'
     // this represents the different build artifact names
-    injectName?: 'firefox' | 'apple' | 'apple-isolated' | 'android' | 'windows' | 'integration' | 'chrome-mv3' | 'chrome' | 'android-autofill-password-import'
+    injectName?:
+        | 'firefox'
+        | 'apple'
+        | 'apple-isolated'
+        | 'android'
+        | 'windows'
+        | 'integration'
+        | 'chrome-mv3'
+        | 'chrome'
+        | 'android-autofill-password-import'
     trackerLookup?: Record<string, unknown>
     pageName?: string
 }

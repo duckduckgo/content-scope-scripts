@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature'
 
 export default class FingerprintingTemporaryStorage extends ContentFeature {
-    init () {
+    init() {
         const navigator = globalThis.navigator
         const Navigator = globalThis.Navigator
 
@@ -17,7 +17,7 @@ export default class FingerprintingTemporaryStorage extends ContentFeature {
                 const org = navigator.webkitTemporaryStorage.queryUsageAndQuota
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 const tStorage = navigator.webkitTemporaryStorage
-                tStorage.queryUsageAndQuota = function queryUsageAndQuota (callback, err) {
+                tStorage.queryUsageAndQuota = function queryUsageAndQuota(callback, err) {
                     const modifiedCallback = function (usedBytes, grantedBytes) {
                         const maxBytesGranted = 4 * 1024 * 1024 * 1024
                         const spoofedGrantedBytes = Math.min(grantedBytes, maxBytesGranted)

@@ -21,7 +21,7 @@ import { DesktopApp } from './components/DesktopApp.jsx'
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  * @return {Promise<void>}
  */
-export async function init (messaging, telemetry, baseEnvironment) {
+export async function init(messaging, telemetry, baseEnvironment) {
     const result = await callWithRetry(() => messaging.initialSetup())
     if ('error' in result) {
         throw new Error(result.error)
@@ -43,9 +43,10 @@ export async function init (messaging, telemetry, baseEnvironment) {
 
     document.body.dataset.display = environment.display
 
-    const strings = environment.locale === 'en'
-        ? enStrings
-        : await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale) || enStrings
+    const strings =
+        environment.locale === 'en'
+            ? enStrings
+            : (await getTranslationsFromStringOrLoadDynamically(init.localeStrings, environment.locale)) || enStrings
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -72,23 +73,28 @@ export async function init (messaging, telemetry, baseEnvironment) {
 
     if (environment.display === 'app') {
         render(
-            <EnvironmentProvider
-                debugState={environment.debugState}
-                injectName={environment.injectName}
-                willThrow={environment.willThrow}>
-                <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
-                    <UpdateEnvironment search={window.location.search}/>
+            <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
+                <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'} />}>
+                    <UpdateEnvironment search={window.location.search} />
                     <TelemetryContext.Provider value={telemetry}>
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
                                 <UserValuesProvider initial={init.userValues}>
                                     {settings.layout === 'desktop' && (
-                                        <TranslationProvider translationObject={enStrings} fallback={enStrings} textLength={environment.textLength}>
+                                        <TranslationProvider
+                                            translationObject={enStrings}
+                                            fallback={enStrings}
+                                            textLength={environment.textLength}
+                                        >
                                             <DesktopApp embed={embed} />
                                         </TranslationProvider>
                                     )}
                                     {settings.layout === 'mobile' && (
-                                        <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
+                                        <TranslationProvider
+                                            translationObject={strings}
+                                            fallback={enStrings}
+                                            textLength={environment.textLength}
+                                        >
                                             <MobileApp embed={embed} />
                                         </TranslationProvider>
                                     )}
@@ -98,8 +104,9 @@ export async function init (messaging, telemetry, baseEnvironment) {
                         </MessagingContext.Provider>
                     </TelemetryContext.Provider>
                 </ErrorBoundary>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root
+        )
     } else if (environment.display === 'components') {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
@@ -108,8 +115,9 @@ export async function init (messaging, telemetry, baseEnvironment) {
                         <Components />
                     </TranslationProvider>
                 </MessagingContext.Provider>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root
+        )
     }
 }
 
@@ -118,13 +126,11 @@ export async function init (messaging, telemetry, baseEnvironment) {
  * @param {import("./settings.js").Settings} settings
  * @return {EmbedSettings|null}
  */
-function createEmbedSettings (href, settings) {
+function createEmbedSettings(href, settings) {
     const embed = EmbedSettings.fromHref(href)
     if (!embed) return null
 
-    return embed
-        .withAutoplay(settings.autoplay.state === 'enabled')
-        .withMuted(settings.platform.name === 'ios')
+    return embed.withAutoplay(settings.autoplay.state === 'enabled').withMuted(settings.platform.name === 'ios')
 }
 
 /**
@@ -132,7 +138,7 @@ function createEmbedSettings (href, settings) {
  * @param {string} locale
  * @return {Promise<Record<string, any> | null>}
  */
-async function getTranslationsFromStringOrLoadDynamically (stringInput, locale) {
+async function getTranslationsFromStringOrLoadDynamically(stringInput, locale) {
     /**
      * This is a special situation - the native side (iOS/macOS at the time) wanted to
      * use a single HTML file for the error pages. This created an issues since special pages

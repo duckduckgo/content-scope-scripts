@@ -18,7 +18,7 @@ import { hasMozProxies } from '../wrapper-utils'
  * @internal
  */
 export default class HarmfulApis extends ContentFeature {
-    init () {
+    init() {
         // @ts-expect-error linting is not yet seet up for worker context
         /** @type Navigator | WorkerNavigator */
         this.navigatorPrototype = globalThis.Navigator?.prototype || globalThis.WorkerNavigator?.prototype
@@ -47,7 +47,7 @@ export default class HarmfulApis extends ContentFeature {
      * - WebKit: https://github.com/WebKit/WebKit/blob/main/Source/WebCore/Modules/permissions/PermissionName.idl
      * @param {string[]} permissions permission names to auto-deny
      */
-    filterPermissionQuery (permissions) {
+    filterPermissionQuery(permissions) {
         if (!permissions || permissions.length === 0) {
             return
         }
@@ -69,7 +69,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {DeviceOrientationConfig} settings
      */
-    removeDeviceOrientationEvents (settings) {
+    removeDeviceOrientationEvents(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -79,7 +79,9 @@ export default class HarmfulApis extends ContentFeature {
                 const dom0HandlerName = `on${eventName}`
                 if (dom0HandlerName in globalThis) {
                     this.wrapProperty(globalThis, dom0HandlerName, {
-                        set: () => { /* noop */ }
+                        set: () => {
+                            /* noop */
+                        }
                     })
                 }
             }
@@ -99,16 +101,11 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {GenericSensorConfig} settings
      */
-    blockGenericSensorApi (settings) {
+    blockGenericSensorApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
-        const permissionsToFilter = settings.filterPermissions ?? [
-            'accelerometer',
-            'ambient-light-sensor',
-            'gyroscope',
-            'magnetometer'
-        ]
+        const permissionsToFilter = settings.filterPermissions ?? ['accelerometer', 'ambient-light-sensor', 'gyroscope', 'magnetometer']
         this.filterPermissionQuery(permissionsToFilter)
         if (settings.blockSensorStart) {
             this.wrapMethod(globalThis.Sensor?.prototype, 'start', function () {
@@ -126,7 +123,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {UaClientHintsConfig} settings
      */
-    filterUAClientHints (settings) {
+    filterUAClientHints(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -138,61 +135,61 @@ export default class HarmfulApis extends ContentFeature {
                 let result = value
 
                 switch (key) {
-                case 'brands':
-                    if (highEntropyValues.trimBrands) {
-                        result = value.map((brand) => {
-                            return {
-                                brand: brand.brand,
-                                version: stripVersion(brand.version)
-                            }
-                        })
-                    }
-                    break
-                case 'model':
-                    if (typeof highEntropyValues.model !== 'undefined') {
-                        result = highEntropyValues.model
-                    }
-                    break
-                case 'platformVersion':
-                    if (highEntropyValues.trimPlatformVersion) {
-                        result = stripVersion(value, highEntropyValues.trimPlatformVersion)
-                    }
-                    break
-                case 'uaFullVersion':
-                    if (highEntropyValues.trimUaFullVersion) {
-                        result = stripVersion(value, highEntropyValues.trimUaFullVersion)
-                    }
-                    break
-                case 'fullVersionList':
-                    if (highEntropyValues.trimFullVersionList) {
-                        result = value.map((brand) => {
-                            return {
-                                brand: brand.brand,
-                                version: stripVersion(brand.version, highEntropyValues.trimFullVersionList)
-                            }
-                        })
-                    }
-                    break
-                case 'architecture':
-                    if (typeof highEntropyValues.architecture !== 'undefined') {
-                        result = highEntropyValues.architecture
-                    }
-                    break
-                case 'bitness':
-                    if (typeof highEntropyValues.bitness !== 'undefined') {
-                        result = highEntropyValues.bitness
-                    }
-                    break
-                case 'platform':
-                    if (typeof highEntropyValues.platform !== 'undefined') {
-                        result = highEntropyValues.platform
-                    }
-                    break
-                case 'mobile':
-                    if (typeof highEntropyValues.mobile !== 'undefined') {
-                        result = highEntropyValues.mobile
-                    }
-                    break
+                    case 'brands':
+                        if (highEntropyValues.trimBrands) {
+                            result = value.map((brand) => {
+                                return {
+                                    brand: brand.brand,
+                                    version: stripVersion(brand.version)
+                                }
+                            })
+                        }
+                        break
+                    case 'model':
+                        if (typeof highEntropyValues.model !== 'undefined') {
+                            result = highEntropyValues.model
+                        }
+                        break
+                    case 'platformVersion':
+                        if (highEntropyValues.trimPlatformVersion) {
+                            result = stripVersion(value, highEntropyValues.trimPlatformVersion)
+                        }
+                        break
+                    case 'uaFullVersion':
+                        if (highEntropyValues.trimUaFullVersion) {
+                            result = stripVersion(value, highEntropyValues.trimUaFullVersion)
+                        }
+                        break
+                    case 'fullVersionList':
+                        if (highEntropyValues.trimFullVersionList) {
+                            result = value.map((brand) => {
+                                return {
+                                    brand: brand.brand,
+                                    version: stripVersion(brand.version, highEntropyValues.trimFullVersionList)
+                                }
+                            })
+                        }
+                        break
+                    case 'architecture':
+                        if (typeof highEntropyValues.architecture !== 'undefined') {
+                            result = highEntropyValues.architecture
+                        }
+                        break
+                    case 'bitness':
+                        if (typeof highEntropyValues.bitness !== 'undefined') {
+                            result = highEntropyValues.bitness
+                        }
+                        break
+                    case 'platform':
+                        if (typeof highEntropyValues.platform !== 'undefined') {
+                            result = highEntropyValues.platform
+                        }
+                        break
+                    case 'mobile':
+                        if (typeof highEntropyValues.mobile !== 'undefined') {
+                            result = highEntropyValues.mobile
+                        }
+                        break
                 }
 
                 filteredResult[key] = result
@@ -204,7 +201,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {NetworkInformationConfig} settings
      */
-    removeNetworkInformationApi (settings) {
+    removeNetworkInformationApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -217,7 +214,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {GetInstalledRelatedAppsConfig} settings
      */
-    blockGetInstalledRelatedApps (settings) {
+    blockGetInstalledRelatedApps(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -229,7 +226,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {FileSystemAccessConfig} settings
      */
-    removeFileSystemAccessApi (settings) {
+    removeFileSystemAccessApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -242,7 +239,11 @@ export default class HarmfulApis extends ContentFeature {
         if ('showDirectoryPicker' in globalThis && settings.disableDirectoryPicker) {
             delete globalThis.showDirectoryPicker
         }
-        if ('DataTransferItem' in globalThis && 'getAsFileSystemHandle' in globalThis.DataTransferItem.prototype && settings.disableGetAsFileSystemHandle) {
+        if (
+            'DataTransferItem' in globalThis &&
+            'getAsFileSystemHandle' in globalThis.DataTransferItem.prototype &&
+            settings.disableGetAsFileSystemHandle
+        ) {
             delete globalThis.DataTransferItem.prototype.getAsFileSystemHandle
         }
     }
@@ -250,23 +251,20 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {WindowPlacementConfig} settings
      */
-    blockWindowPlacementApi (settings) {
+    blockWindowPlacementApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
         if ('screenIsExtended' in settings) {
             this.wrapProperty(globalThis.Screen?.prototype, 'isExtended', { get: () => settings.screenIsExtended })
         }
-        this.filterPermissionQuery(settings.filterPermissions ?? [
-            'window-placement',
-            'window-management'
-        ])
+        this.filterPermissionQuery(settings.filterPermissions ?? ['window-placement', 'window-management'])
     }
 
     /**
      * @param {WebBluetoothConfig} settings
      */
-    blockWebBluetoothApi (settings) {
+    blockWebBluetoothApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -299,7 +297,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {WebUsbConfig} settings
      */
-    blockWebUsbApi (settings) {
+    blockWebUsbApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -311,7 +309,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {WebSerialConfig} settings
      */
-    blockWebSerialApi (settings) {
+    blockWebSerialApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -323,7 +321,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {WebHidConfig} settings
      */
-    blockWebHidApi (settings) {
+    blockWebHidApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -334,7 +332,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {WebMidiConfig} settings
      */
-    blockWebMidiApi (settings) {
+    blockWebMidiApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -347,7 +345,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {IdleDetectionConfig} settings
      */
-    removeIdleDetectionApi (settings) {
+    removeIdleDetectionApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -360,7 +358,7 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {WebNfcConfig} settings
      */
-    removeWebNfcApi (settings) {
+    removeWebNfcApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
@@ -378,13 +376,13 @@ export default class HarmfulApis extends ContentFeature {
     /**
      * @param {StorageManagerConfig} settings
      */
-    filterStorageManagerApi (settings) {
+    filterStorageManagerApi(settings) {
         if (settings?.state !== 'enabled') {
             return
         }
         if (settings.allowedQuotaValues) {
             const values = settings.allowedQuotaValues.slice()
-            values.sort().filter(v => v > 0)
+            values.sort().filter((v) => v > 0)
             values.unshift(0)
             // now, values is a sorted array of positive numbers, with 0 as the first element
             if (values.length > 0) {

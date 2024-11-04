@@ -15,15 +15,17 @@ export class IframeFeature {
      * @returns {(() => void) | null}
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    iframeDidLoad (iframe) {
+    iframeDidLoad(iframe) {
         return () => {
             console.log('teardown')
         }
     }
 
-    static noop () {
+    static noop() {
         return {
-            iframeDidLoad: () => { return () => {} }
+            iframeDidLoad: () => {
+                return () => {}
+            }
         }
     }
 }
@@ -35,7 +37,7 @@ export class IframeFeature {
  * @param {import("../settings").Settings} settings
  * @returns {Record<string, () => IframeFeature>}
  */
-export function createIframeFeatures (settings) {
+export function createIframeFeatures(settings) {
     return {
         /**
          * @return {IframeFeature}

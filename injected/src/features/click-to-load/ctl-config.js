@@ -1,6 +1,4 @@
-import {
-    blockedFBLogo, blockedYTVideo, videoPlayDark, videoPlayLight
-} from './ctl-assets.js'
+import { blockedFBLogo, blockedYTVideo, videoPlayDark, videoPlayLight } from './ctl-assets.js'
 
 import localesJSON from '../../../../build/locales/ctl-locales.js'
 
@@ -12,9 +10,10 @@ import localesJSON from '../../../../build/locales/ctl-locales.js'
  * (e.g. fonts.)
  * @param {import('../../content-feature.js').AssetConfig} [assets]
  */
-export function getStyles (assets) {
+export function getStyles(assets) {
     let fontStyle = ''
-    let regularFontFamily = "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"
+    let regularFontFamily =
+        "system, -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'"
     let boldFontFamily = regularFontFamily
     if (assets?.regularFontUrl && assets?.boldFontUrl) {
         fontStyle = `
@@ -619,7 +618,7 @@ export function getStyles (assets) {
 /**
  * @param {string} locale UI locale
  */
-export function getConfig (locale) {
+export function getConfig(locale) {
     const allLocales = JSON.parse(localesJSON)
     const localeStrings = allLocales[locale] || allLocales.en
 
@@ -638,9 +637,7 @@ export function getConfig (locale) {
             },
             elementData: {
                 'FB Like Button': {
-                    selectors: [
-                        '.fb-like'
-                    ],
+                    selectors: ['.fb-like'],
                     replaceSettings: {
                         type: 'blank'
                     }
@@ -657,17 +654,13 @@ export function getConfig (locale) {
                     }
                 },
                 'FB Save Button': {
-                    selectors: [
-                        '.fb-save'
-                    ],
+                    selectors: ['.fb-save'],
                     replaceSettings: {
                         type: 'blank'
                     }
                 },
                 'FB Share Button': {
-                    selectors: [
-                        '.fb-share-button'
-                    ],
+                    selectors: ['.fb-share-button'],
                     replaceSettings: {
                         type: 'blank'
                     }
@@ -688,9 +681,7 @@ export function getConfig (locale) {
                     }
                 },
                 'FB Page Div': {
-                    selectors: [
-                        '.fb-page'
-                    ],
+                    selectors: ['.fb-page'],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockContent,
@@ -699,7 +690,8 @@ export function getConfig (locale) {
                     },
                     clickAction: {
                         type: 'iFrame',
-                        targetURL: 'https://www.facebook.com/plugins/page.php?href=data-href&tabs=data-tabs&width=data-width&height=data-height',
+                        targetURL:
+                            'https://www.facebook.com/plugins/page.php?href=data-href&tabs=data-tabs&width=data-width&height=data-height',
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
@@ -743,10 +735,7 @@ export function getConfig (locale) {
                     }
                 },
                 'FB Comments': {
-                    selectors: [
-                        '.fb-comments',
-                        'fb\\:comments'
-                    ],
+                    selectors: ['.fb-comments', 'fb\\:comments'],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockComments,
@@ -755,7 +744,8 @@ export function getConfig (locale) {
                     },
                     clickAction: {
                         type: 'allowFull',
-                        targetURL: 'https://www.facebook.com/v9.0/plugins/comments.php?href=data-href&numposts=data-numposts&sdk=joey&version=v9.0&width=data-width',
+                        targetURL:
+                            'https://www.facebook.com/v9.0/plugins/comments.php?href=data-href&numposts=data-numposts&sdk=joey&version=v9.0&width=data-width',
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
@@ -771,9 +761,7 @@ export function getConfig (locale) {
                     }
                 },
                 'FB Embedded Comment Div': {
-                    selectors: [
-                        '.fb-comment-embed'
-                    ],
+                    selectors: ['.fb-comment-embed'],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockComment,
@@ -782,7 +770,8 @@ export function getConfig (locale) {
                     },
                     clickAction: {
                         type: 'iFrame',
-                        targetURL: 'https://www.facebook.com/v9.0/plugins/comment_embed.php?href=data-href&sdk=joey&width=data-width&include_parent=data-include-parent',
+                        targetURL:
+                            'https://www.facebook.com/v9.0/plugins/comment_embed.php?href=data-href&sdk=joey&width=data-width&include_parent=data-include-parent',
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',
@@ -819,9 +808,7 @@ export function getConfig (locale) {
                     }
                 },
                 'FB Posts Div': {
-                    selectors: [
-                        '.fb-post'
-                    ],
+                    selectors: ['.fb-post'],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockPost,
@@ -869,9 +856,7 @@ export function getConfig (locale) {
                     }
                 },
                 'FB Video': {
-                    selectors: [
-                        '.fb-video'
-                    ],
+                    selectors: ['.fb-video'],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockVideo,
@@ -919,9 +904,7 @@ export function getConfig (locale) {
                     }
                 },
                 'FB Group': {
-                    selectors: [
-                        '.fb-group'
-                    ],
+                    selectors: ['.fb-group'],
                     replaceSettings: {
                         type: 'dialog',
                         buttonText: fbStrings.buttonTextUnblockContent,
@@ -949,9 +932,7 @@ export function getConfig (locale) {
                     }
                 },
                 'FB Login Button': {
-                    selectors: [
-                        '.fb-login-button'
-                    ],
+                    selectors: ['.fb-login-button'],
                     replaceSettings: {
                         type: 'loginButton',
                         icon: blockedFBLogo,
@@ -961,7 +942,8 @@ export function getConfig (locale) {
                     },
                     clickAction: {
                         type: 'allowFull',
-                        targetURL: 'https://www.facebook.com/v9.0/plugins/login_button.php?app_id=app_id_replace&auto_logout_link=false&button_type=continue_with&sdk=joey&size=large&use_continue_as=false&width=',
+                        targetURL:
+                            'https://www.facebook.com/v9.0/plugins/login_button.php?app_id=app_id_replace&auto_logout_link=false&button_type=continue_with&sdk=joey&size=large&use_continue_as=false&width=',
                         urlDataAttributesToPreserve: {
                             'data-href': {
                                 default: '',

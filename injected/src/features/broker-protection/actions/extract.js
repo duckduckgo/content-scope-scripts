@@ -1,15 +1,5 @@
-import {
-    cleanArray,
-    getElement,
-    getElementMatches,
-    getElements,
-    sortAddressesByStateAndCity
-} from '../utils.js' // Assuming you have imported the address comparison function
-import {
-    ErrorResponse,
-    ProfileResult,
-    SuccessResponse
-} from '../types.js'
+import { cleanArray, getElement, getElementMatches, getElements, sortAddressesByStateAndCity } from '../utils.js' // Assuming you have imported the address comparison function
+import { ErrorResponse, ProfileResult, SuccessResponse } from '../types.js'
 import { isSameAge } from '../comparisons/is-same-age.js'
 import { isSameName } from '../comparisons/is-same-name.js'
 import { addressMatch } from '../comparisons/address.js'
@@ -48,7 +38,7 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  * @param {Document | HTMLElement} root
  * @return {Promise<import('../types.js').ActionResponse>}
  */
-export async function extract (action, userData, root = document) {
+export async function extract(action, userData, root = document) {
     const extractResult = extractProfiles(action, userData, root)
 
     if ('error' in extractResult) {
@@ -56,9 +46,9 @@ export async function extract (action, userData, root = document) {
     }
 
     const filteredPromises = extractResult.results
-        .filter(x => x.result === true)
-        .map(x => aggregateFields(x.scrapedData))
-        .map(profile => applyPostTransforms(profile, action.profile))
+        .filter((x) => x.result === true)
+        .map((x) => aggregateFields(x.scrapedData))
+        .map((profile) => applyPostTransforms(profile, action.profile))
 
     const filtered = await Promise.all(filteredPromises)
 
@@ -83,7 +73,7 @@ export async function extract (action, userData, root = document) {
  * @param {Element | Document} [root]
  * @return {{error: string} | {results: ProfileResult[]}}
  */
-export function extractProfiles (action, userData, root = document) {
+export function extractProfiles(action, userData, root = document) {
     const profilesElementList = getElements(root, action.selector) ?? []
 
     if (profilesElementList.length === 0) {
@@ -144,7 +134,7 @@ export function extractProfiles (action, userData, root = document) {
  * @param {Record<string, ExtractProfileProperty>} extractData
  * @return {Record<string, any>}
  */
-export function createProfile (elementFactory, extractData) {
+export function createProfile(elementFactory, extractData) {
     const output = {}
     for (const [key, value] of Object.entries(extractData)) {
         if (!value?.selector) {
@@ -175,8 +165,8 @@ export function createProfile (elementFactory, extractData) {
  * @param {ExtractProfileProperty} extractField
  * @return {string[]}
  */
-function stringValuesFromElements (elements, key, extractField) {
-    return elements.map(element => {
+function stringValuesFromElements(elements, key, extractField) {
+    return elements.map((element) => {
         // todo: should we use textContent here?
         let elementValue = rules[key]?.(element) ?? element?.innerText ?? null
 
@@ -200,7 +190,7 @@ function stringValuesFromElements (elements, key, extractField) {
  * @param {Record<string, any>} scrapedData
  * @return {{score: number, matchedFields: string[], result: boolean}}
  */
-export function scrapedDataMatchesUserData (userData, scrapedData) {
+export function scrapedDataMatchesUserData(userData, scrapedData) {
     const matchedFields = []
 
     // the name matching is always a *requirement*
@@ -219,12 +209,7 @@ export function scrapedDataMatchesUserData (userData, scrapedData) {
         }
     }
 
-    const addressFields = [
-        'addressCityState',
-        'addressCityStateList',
-        'addressFull',
-        'addressFullList'
-    ]
+    const addressFields = ['addressCityState', 'addressCityStateList', 'addressFull', 'addressFullList']
 
     for (const addressField of addressFields) {
         if (addressField in scrapedData) {
@@ -249,15 +234,15 @@ export function scrapedDataMatchesUserData (userData, scrapedData) {
 /**
  * @param {Record<string, any>} profile
  */
-export function aggregateFields (profile) {
+export function aggregateFields(profile) {
     // addresses
     const combinedAddresses = [
-        ...profile.addressCityState || [],
-        ...profile.addressCityStateList || [],
-        ...profile.addressFullList || [],
-        ...profile.addressFull || []
+        ...(profile.addressCityState || []),
+        ...(profile.addressCityStateList || []),
+        ...(profile.addressFullList || []),
+        ...(profile.addressFull || [])
     ]
-    const addressMap = new Map(combinedAddresses.map(addr => [`${addr.city},${addr.state}`, addr]))
+    const addressMap = new Map(combinedAddresses.map((addr) => [`${addr.city},${addr.state}`, addr]))
     const addresses = sortAddressesByStateAndCity([...addressMap.values()])
 
     // phone
@@ -300,25 +285,30 @@ export function aggregateFields (profile) {
  * @param {string[]} elementValues
  * @return {any}
  */
-export function extractValue (outputFieldKey, extractorParams, elementValues) {
+export function extractValue(outputFieldKey, extractorParams, elementValues) {
     switch (outputFieldKey) {
-    case 'age': return new AgeExtractor().extract(elementValues, extractorParams)
-    case 'name': return new NameExtractor().extract(elementValues, extractorParams)
+        case 'age':
+            return new AgeExtractor().extract(elementValues, extractorParams)
+        case 'name':
+            return new NameExtractor().extract(elementValues, extractorParams)
 
-    // all addresses are processed the same way
-    case 'addressFull':
-    case 'addressFullList':
-        return new AddressFullExtractor().extract(elementValues, extractorParams)
-    case 'addressCityState':
-    case 'addressCityStateList':
-        return new CityStateExtractor().extract(elementValues, extractorParams)
+        // all addresses are processed the same way
+        case 'addressFull':
+        case 'addressFullList':
+            return new AddressFullExtractor().extract(elementValues, extractorParams)
+        case 'addressCityState':
+        case 'addressCityStateList':
+            return new CityStateExtractor().extract(elementValues, extractorParams)
 
-    case 'alternativeNamesList': return new AlternativeNamesExtractor().extract(elementValues, extractorParams)
-    case 'relativesList': return new RelativesExtractor().extract(elementValues, extractorParams)
-    case 'phone':
-    case 'phoneList':
-        return new PhoneExtractor().extract(elementValues, extractorParams)
-    case 'profileUrl': return new ProfileUrlExtractor().extract(elementValues, extractorParams)
+        case 'alternativeNamesList':
+            return new AlternativeNamesExtractor().extract(elementValues, extractorParams)
+        case 'relativesList':
+            return new RelativesExtractor().extract(elementValues, extractorParams)
+        case 'phone':
+        case 'phoneList':
+            return new PhoneExtractor().extract(elementValues, extractorParams)
+        case 'profileUrl':
+            return new ProfileUrlExtractor().extract(elementValues, extractorParams)
     }
     return null
 }
@@ -330,7 +320,7 @@ export function extractValue (outputFieldKey, extractorParams, elementValues) {
  * @param {Record<string, ExtractProfileProperty>} params
  * @return {Promise<Record<string, any>>}
  */
-async function applyPostTransforms (profile, params) {
+async function applyPostTransforms(profile, params) {
     /** @type {import("../types.js").AsyncProfileTransform[]} */
     const transforms = [
         // creates a hash if needed
@@ -350,7 +340,7 @@ async function applyPostTransforms (profile, params) {
  * @param {string} [separator]
  * @return {string[]}
  */
-export function stringToList (inputList, separator) {
+export function stringToList(inputList, separator) {
     const defaultSeparator = /[|\n•·]/
     return cleanArray(inputList.split(separator || defaultSeparator))
 }
@@ -372,7 +362,7 @@ const rules = {
  * @param {string} elementValue
  * @return {string}
  */
-function removeCommonSuffixesAndPrefixes (elementValue) {
+function removeCommonSuffixesAndPrefixes(elementValue) {
     const regexes = [
         // match text such as +3 more when it appears at the end of a string
         /\+\s*\d+.*$/
@@ -393,10 +383,7 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
     ]
 
     // strings that are always safe to remove from the end
-    const endsWith = [
-        ' -',
-        'years old'
-    ]
+    const endsWith = [' -', 'years old']
 
     for (const regex of regexes) {
         elementValue = elementValue.replace(regex, '').trim()
@@ -408,7 +395,7 @@ function removeCommonSuffixesAndPrefixes (elementValue) {
     }
     for (const suffix of endsWith) {
         if (elementValue.endsWith(suffix)) {
-            elementValue = elementValue.slice(0, 0 - (suffix.length)).trim()
+            elementValue = elementValue.slice(0, 0 - suffix.length).trim()
         }
     }
 

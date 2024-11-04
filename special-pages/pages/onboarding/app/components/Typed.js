@@ -15,10 +15,10 @@ import { GlobalContext } from '../global'
  * @param {boolean} [props.paused=false] - Pauses typing
  * @param {number} [props.delay=20] - The delay (in milliseconds) between each character being typed.
  */
-export function Typed ({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
+export function Typed({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
     const globalState = useContext(GlobalContext)
     const { activeStep } = globalState
-    const pre = useRef(/** @type {string|undefined} */(undefined))
+    const pre = useRef(/** @type {string|undefined} */ (undefined))
     useEffect(() => {
         if (activeStep && pre.current) {
             if (text === pre.current) {
@@ -29,16 +29,13 @@ export function Typed ({ text, children = null, onComplete = null, paused = fals
         pre.current = text
     }, [activeStep, text])
     return (
-        <TypedInner key={text}
-            text={text}
-            onComplete={onComplete}
-            paused={paused}
-            delay={delay}
-            {...rest}>{children}</TypedInner>
+        <TypedInner key={text} text={text} onComplete={onComplete} paused={paused} delay={delay} {...rest}>
+            {children}
+        </TypedInner>
     )
 }
 
-function TypedInner ({ text, onComplete, paused, delay, children, ...rest }) {
+function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
     const { isReducedMotion } = useEnv()
     const [screenWidth, setScreenWidth] = useState(0)
     const [coords, setCoords] = useState({ left: 0, width: 0 })
@@ -47,10 +44,10 @@ function TypedInner ({ text, onComplete, paused, delay, children, ...rest }) {
     const [currentText, setCurrentText] = useState('')
     const [currentIndex, setCurrentIndex] = useState(0)
 
-    const actual = useRef(/** @type {null | HTMLSpanElement } */(null))
-    const overlay = useRef(/** @type {null | HTMLSpanElement} */(null))
+    const actual = useRef(/** @type {null | HTMLSpanElement } */ (null))
+    const overlay = useRef(/** @type {null | HTMLSpanElement} */ (null))
 
-    function localOnComplete () {
+    function localOnComplete() {
         onComplete?.()
         setLocalComplete(true)
     }
@@ -79,24 +76,28 @@ function TypedInner ({ text, onComplete, paused, delay, children, ...rest }) {
         const controller = new AbortController()
         let enabled = true
 
-        document.body.addEventListener('pointerdown', (e) => {
-            let clickedElement = /** @type {HTMLElement|null} */(e.target)
-            let level = 0
-            const maxLevels = 3
+        document.body.addEventListener(
+            'pointerdown',
+            (e) => {
+                let clickedElement = /** @type {HTMLElement|null} */ (e.target)
+                let level = 0
+                const maxLevels = 3
 
-            // Loop through at most 3 parent elements
-            while (clickedElement && level < maxLevels) {
-                if (clickedElement.matches('button')) {
-                    return
+                // Loop through at most 3 parent elements
+                while (clickedElement && level < maxLevels) {
+                    if (clickedElement.matches('button')) {
+                        return
+                    }
+                    clickedElement = clickedElement.parentElement
+                    level += 1
                 }
-                clickedElement = clickedElement.parentElement
-                level += 1
-            }
 
-            setCurrentText(text)
-            setCurrentIndex(text.length)
-            enabled = false
-        }, { signal: controller.signal })
+                setCurrentText(text)
+                setCurrentIndex(text.length)
+                enabled = false
+            },
+            { signal: controller.signal }
+        )
 
         if (currentIndex < text.length) {
             const timeout = setTimeout(
@@ -117,9 +118,9 @@ function TypedInner ({ text, onComplete, paused, delay, children, ...rest }) {
         }
     }, [currentIndex, delay, text, paused])
 
-    function updatePlacement () {
-        const actualCurrent = /** @type {HTMLSpanElement} */(actual.current)
-        const overlayCurrent = /** @type {HTMLSpanElement} */(overlay.current)
+    function updatePlacement() {
+        const actualCurrent = /** @type {HTMLSpanElement} */ (actual.current)
+        const overlayCurrent = /** @type {HTMLSpanElement} */ (overlay.current)
 
         if (!actualCurrent || !actualCurrent || !overlayCurrent.parentElement) {
             return
@@ -144,11 +145,7 @@ function TypedInner ({ text, onComplete, paused, delay, children, ...rest }) {
     }, [])
 
     return (
-        <div
-            style={{ position: 'relative', width: '100%', whiteSpace: 'pre-line' }}
-            aria-label={text}
-            {...rest}
-        >
+        <div style={{ position: 'relative', width: '100%', whiteSpace: 'pre-line' }} aria-label={text} {...rest}>
             <span style={{ visibility: 'hidden', paddingRight: '10px' }} ref={actual}>
                 {text}
             </span>
@@ -164,11 +161,7 @@ function TypedInner ({ text, onComplete, paused, delay, children, ...rest }) {
                 }}
             >
                 {currentText}
-                {children && (
-                    <span hidden={!complete}>
-                        {children}
-                    </span>
-                )}
+                {children && <span hidden={!complete}>{children}</span>}
             </span>
         </div>
     )

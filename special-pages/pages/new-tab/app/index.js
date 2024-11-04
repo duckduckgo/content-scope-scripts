@@ -16,7 +16,7 @@ import { Components } from './components/Components.jsx'
  * @param {import("../src/js").NewTabPage} messaging
  * @param {import("../../../shared/environment").Environment} baseEnvironment
  */
-export async function init (messaging, baseEnvironment) {
+export async function init(messaging, baseEnvironment) {
     const init = await messaging.init()
 
     if (!Array.isArray(init.widgets)) {
@@ -37,14 +37,15 @@ export async function init (messaging, baseEnvironment) {
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
         .withDisplay(baseEnvironment.urlParams.get('display'))
 
-    const strings = environment.locale === 'en'
-        ? enStrings
-        : await fetch(`./locales/${environment.locale}/new-tab.json`)
-            .then(x => x.json())
-            .catch(e => {
-                console.error('Could not load locale', environment.locale, e)
-                return enStrings
-            })
+    const strings =
+        environment.locale === 'en'
+            ? enStrings
+            : await fetch(`./locales/${environment.locale}/new-tab.json`)
+                  .then((x) => x.json())
+                  .catch((e) => {
+                      console.error('Could not load locale', environment.locale, e)
+                      return enStrings
+                  })
 
     const settings = new Settings({})
         .withPlatformName(baseEnvironment.injectName)
@@ -68,17 +69,15 @@ export async function init (messaging, baseEnvironment) {
     if (environment.display === 'components') {
         document.body.dataset.display = 'components'
         return render(
-            <EnvironmentProvider
-                debugState={environment.debugState}
-                injectName={environment.injectName}
-                willThrow={environment.willThrow}>
+            <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
                 <SettingsProvider settings={settings}>
                     <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
                         <Components />
                     </TranslationProvider>
                 </SettingsProvider>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root
+        )
     }
 
     render(
@@ -88,8 +87,8 @@ export async function init (messaging, baseEnvironment) {
             willThrow={environment.willThrow}
             env={environment.env}
         >
-            <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'}/>}>
-                <UpdateEnvironment search={window.location.search}/>
+            <ErrorBoundary didCatch={didCatch} fallback={<Fallback showDetails={environment.env === 'development'} />}>
+                <UpdateEnvironment search={window.location.search} />
                 <MessagingContext.Provider value={messaging}>
                     <InitialSetupContext.Provider value={init}>
                         <SettingsProvider settings={settings}>
@@ -102,8 +101,7 @@ export async function init (messaging, baseEnvironment) {
                     </InitialSetupContext.Provider>
                 </MessagingContext.Provider>
             </ErrorBoundary>
-        </EnvironmentProvider>
-        ,
+        </EnvironmentProvider>,
         root
     )
 }

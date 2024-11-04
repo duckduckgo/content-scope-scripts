@@ -8,7 +8,7 @@ import { Messaging, MessagingContext, TestTransportConfig } from '../../index.js
  * - subscribe
  */
 const config = new TestTransportConfig({
-    notify (msg) {
+    notify(msg) {
         console.log(msg)
     },
     request: (msg) => {
@@ -19,7 +19,7 @@ const config = new TestTransportConfig({
         }
         return Promise.resolve(null)
     },
-    subscribe (msg) {
+    subscribe(msg) {
         console.log(msg)
         return () => {
             console.log('teardown')

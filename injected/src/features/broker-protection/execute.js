@@ -15,29 +15,29 @@ import { ErrorResponse } from './types.js'
  * @param {Document} [root] - optional root element
  * @return {Promise<import('./types.js').ActionResponse>}
  */
-export async function execute (action, inputData, root = document) {
+export async function execute(action, inputData, root = document) {
     try {
         switch (action.actionType) {
-        case 'navigate':
-            return buildUrl(action, data(action, inputData, 'userProfile'))
-        case 'extract':
-            return await extract(action, data(action, inputData, 'userProfile'), root)
-        case 'click':
-            return click(action, data(action, inputData, 'userProfile'), root)
-        case 'expectation':
-            return await expectation(action, data(action, inputData, 'userProfile'), root)
-        case 'fillForm':
-            return fillForm(action, data(action, inputData, 'extractedProfile'), root)
-        case 'getCaptchaInfo':
-            return getCaptchaInfo(action, root)
-        case 'solveCaptcha':
-            return solveCaptcha(action, data(action, inputData, 'token'), root)
-        default: {
-            return new ErrorResponse({
-                actionID: action.id,
-                message: `unimplemented actionType: ${action.actionType}`
-            })
-        }
+            case 'navigate':
+                return buildUrl(action, data(action, inputData, 'userProfile'))
+            case 'extract':
+                return await extract(action, data(action, inputData, 'userProfile'), root)
+            case 'click':
+                return click(action, data(action, inputData, 'userProfile'), root)
+            case 'expectation':
+                return await expectation(action, data(action, inputData, 'userProfile'), root)
+            case 'fillForm':
+                return fillForm(action, data(action, inputData, 'extractedProfile'), root)
+            case 'getCaptchaInfo':
+                return getCaptchaInfo(action, root)
+            case 'solveCaptcha':
+                return solveCaptcha(action, data(action, inputData, 'token'), root)
+            default: {
+                return new ErrorResponse({
+                    actionID: action.id,
+                    message: `unimplemented actionType: ${action.actionType}`
+                })
+            }
         }
     } catch (e) {
         console.log('unhandled exception: ', e)
@@ -53,7 +53,7 @@ export async function execute (action, inputData, root = document) {
  * @param {Record<string, any>} data
  * @param {string} defaultSource
  */
-function data (action, data, defaultSource) {
+function data(action, data, defaultSource) {
     if (!data) return null
     const source = action.dataSource || defaultSource
     if (Object.prototype.hasOwnProperty.call(data, source)) {

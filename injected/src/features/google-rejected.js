@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature'
 
 export default class GoogleRejected extends ContentFeature {
-    init () {
+    init() {
         try {
             if ('browsingTopics' in Document.prototype) {
                 delete Document.prototype.browsingTopics

@@ -13,9 +13,9 @@ import { useMessaging } from '../types.js'
 /**
  * Represents the NTP customizer. For now it's just the ability to toggle sections.
  */
-export function Customizer () {
+export function Customizer() {
     const { setIsOpen, buttonRef, dropdownRef, isOpen } = useDropdown()
-    const [rowData, setRowData] = useState(/** @type {VisibilityRowData[]} */([]))
+    const [rowData, setRowData] = useState(/** @type {VisibilityRowData[]} */ ([]))
 
     useContextMenu()
 
@@ -31,7 +31,7 @@ export function Customizer () {
 
     useEffect(() => {
         if (!isOpen) return
-        function handler () {
+        function handler() {
             setRowData(getItems())
         }
         window.addEventListener(Customizer.UPDATE_EVENT, handler)
@@ -45,18 +45,8 @@ export function Customizer () {
 
     return (
         <div class={styles.root} ref={dropdownRef}>
-            <CustomizerButton
-                buttonId={BUTTON_ID}
-                menuId={MENU_ID}
-                toggleMenu={toggleMenu}
-                buttonRef={buttonRef}
-                isOpen={isOpen}
-            />
-            <div
-                id={MENU_ID}
-                class={cn(styles.dropdownMenu, { [styles.show]: isOpen })}
-                aria-labelledby={BUTTON_ID}
-            >
+            <CustomizerButton buttonId={BUTTON_ID} menuId={MENU_ID} toggleMenu={toggleMenu} buttonRef={buttonRef} isOpen={isOpen} />
+            <div id={MENU_ID} class={cn(styles.dropdownMenu, { [styles.show]: isOpen })} aria-labelledby={BUTTON_ID}>
                 <VisibilityMenu rows={rowData} />
             </div>
         </div>
@@ -66,11 +56,11 @@ export function Customizer () {
 Customizer.OPEN_EVENT = 'ntp-customizer-open'
 Customizer.UPDATE_EVENT = 'ntp-customizer-update'
 
-export function getItems () {
+export function getItems() {
     /** @type {VisibilityRowData[]} */
     const next = []
     const detail = {
-        register: (/** @type {VisibilityRowData} */incoming) => {
+        register: (/** @type {VisibilityRowData} */ incoming) => {
             next.push(incoming)
         }
     }
@@ -83,15 +73,15 @@ export function getItems () {
 /**
  * Forward the contextmenu event
  */
-export function useContextMenu () {
+export function useContextMenu() {
     const messaging = useMessaging()
     useEffect(() => {
-        function handler (e) {
+        function handler(e) {
             e.preventDefault()
             e.stopImmediatePropagation()
             const items = getItems()
             /** @type {VisibilityMenuItem[]} */
-            const simplified = items.map(item => {
+            const simplified = items.map((item) => {
                 return {
                     id: item.id,
                     title: item.title
@@ -114,7 +104,7 @@ export function useContextMenu () {
  * @param {() => void} [props.toggleMenu]
  * @param {import("preact").Ref<HTMLButtonElement>} [props.buttonRef]
  */
-export function CustomizerButton ({ menuId, buttonId, isOpen, toggleMenu, buttonRef }) {
+export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef }) {
     return (
         <button
             ref={buttonRef}
@@ -125,21 +115,17 @@ export function CustomizerButton ({ menuId, buttonId, isOpen, toggleMenu, button
             aria-controls={menuId}
             id={buttonId}
         >
-            <CustomizeIcon/>
+            <CustomizeIcon />
             <span>Customize</span>
         </button>
     )
 }
 
-export function CustomizerMenuPositionedFixed ({ children }) {
-    return (
-        <div class={styles.lowerRightFixed}>
-            {children}
-        </div>
-    )
+export function CustomizerMenuPositionedFixed({ children }) {
+    return <div class={styles.lowerRightFixed}>{children}</div>
 }
 
-function useDropdown () {
+function useDropdown() {
     /** @type {import("preact").Ref<HTMLDivElement>} */
     const dropdownRef = useRef(null)
     /** @type {import("preact").Ref<HTMLButtonElement>} */
@@ -187,7 +173,7 @@ export class VisibilityRowState {
      * @param {object} params
      * @param {boolean} params.checked - whether this item should appear 'checked'
      */
-    constructor ({ checked }) {
+    constructor({ checked }) {
         this.checked = checked
     }
 }
@@ -202,7 +188,7 @@ export class VisibilityRowData {
      * @param {number} params.index - position in the menu
      * @param {WidgetVisibility} params.visibility - known icon name, maps to an SVG
      */
-    constructor ({ id, title, icon, toggle, visibility, index }) {
+    constructor({ id, title, icon, toggle, visibility, index }) {
         this.id = id
         this.title = title
         this.icon = icon
@@ -216,9 +202,9 @@ export class VisibilityRowData {
  * Call this to opt-in to the visibility menu
  * @param {VisibilityRowData} row
  */
-export function useCustomizer ({ title, id, icon, toggle, visibility, index }) {
+export function useCustomizer({ title, id, icon, toggle, visibility, index }) {
     useEffect(() => {
-        const handler = (/** @type {CustomEvent<any>} */e) => {
+        const handler = (/** @type {CustomEvent<any>} */ e) => {
             e.detail.register({ title, id, icon, toggle, visibility, index })
         }
         window.addEventListener(Customizer.OPEN_EVENT, handler)

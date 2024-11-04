@@ -3,7 +3,7 @@ import { DDGProxy, DDGReflect } from '../utils'
 import ContentFeature from '../content-feature'
 
 export default class WindowsPermissionUsage extends ContentFeature {
-    init () {
+    init() {
         const Permission = {
             Geolocation: 'geolocation',
             Camera: 'camera',
@@ -19,7 +19,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top
 
-        function windowsPostMessage (name, data) {
+        function windowsPostMessage(name, data) {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             windowsInteropPostMessage({
                 Feature: 'Permissions',
@@ -28,7 +28,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             })
         }
 
-        function signalPermissionStatus (permission, status) {
+        function signalPermissionStatus(permission, status) {
             windowsPostMessage('PermissionStatusMessage', { permission, status })
             console.debug(`Permission '${permission}' is ${status}`)
         }
@@ -37,7 +37,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const watchedPositions = new Set()
         // proxy for navigator.geolocation.watchPosition -> show red geolocation indicator
         const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, 'watchPosition', {
-            apply (target, thisArg, args) {
+            apply(target, thisArg, args) {
                 if (isFrameInsideFrame) {
                     // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
                     throw new DOMException('Permission denied')
@@ -61,7 +61,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // proxy for navigator.geolocation.clearWatch -> clear red geolocation indicator
         const clearWatchProxy = new DDGProxy(this, Geolocation.prototype, 'clearWatch', {
-            apply (target, thisArg, args) {
+            apply(target, thisArg, args) {
                 DDGReflect.apply(target, thisArg, args)
                 if (args[0] && watchedPositions.delete(args[0]) && watchedPositions.size === 0) {
                     signalPermissionStatus(Permission.Geolocation, Status.Inactive)
@@ -72,7 +72,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // proxy for navigator.geolocation.getCurrentPosition -> normal geolocation indicator
         const getCurrentPositionProxy = new DDGProxy(this, Geolocation.prototype, 'getCurrentPosition', {
-            apply (target, thisArg, args) {
+            apply(target, thisArg, args) {
                 const successHandler = args[0]
                 args[0] = function (position) {
                     signalPermissionStatus(Permission.Geolocation, Status.Accessed)
@@ -88,73 +88,73 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const audioTracks = new Set()
 
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        function getTracks (permission) {
+        function getTracks(permission) {
             switch (permission) {
-            case Permission.Camera:
-                return videoTracks
-            case Permission.Microphone:
-                return audioTracks
+                case Permission.Camera:
+                    return videoTracks
+                case Permission.Microphone:
+                    return audioTracks
             }
         }
 
-        function stopTracks (streamTracks) {
-            streamTracks?.forEach(track => track.stop())
+        function stopTracks(streamTracks) {
+            streamTracks?.forEach((track) => track.stop())
         }
 
-        function clearAllGeolocationWatch () {
-            watchedPositions.forEach(id => navigator.geolocation.clearWatch(id))
+        function clearAllGeolocationWatch() {
+            watchedPositions.forEach((id) => navigator.geolocation.clearWatch(id))
         }
 
-        function pause (permission) {
+        function pause(permission) {
             switch (permission) {
-            case Permission.Camera:
-            case Permission.Microphone: {
-                const streamTracks = getTracks(permission)
-                streamTracks?.forEach(track => {
-                    track.enabled = false
-                })
-                break
-            }
-            case Permission.Geolocation:
-                pauseWatchedPositions = true
-                signalPermissionStatus(Permission.Geolocation, Status.Paused)
-                break
+                case Permission.Camera:
+                case Permission.Microphone: {
+                    const streamTracks = getTracks(permission)
+                    streamTracks?.forEach((track) => {
+                        track.enabled = false
+                    })
+                    break
+                }
+                case Permission.Geolocation:
+                    pauseWatchedPositions = true
+                    signalPermissionStatus(Permission.Geolocation, Status.Paused)
+                    break
             }
         }
 
-        function resume (permission) {
+        function resume(permission) {
             switch (permission) {
-            case Permission.Camera:
-            case Permission.Microphone: {
-                const streamTracks = getTracks(permission)
-                streamTracks?.forEach(track => {
-                    track.enabled = true
-                })
-                break
-            }
-            case Permission.Geolocation:
-                pauseWatchedPositions = false
-                signalPermissionStatus(Permission.Geolocation, Status.Active)
-                break
+                case Permission.Camera:
+                case Permission.Microphone: {
+                    const streamTracks = getTracks(permission)
+                    streamTracks?.forEach((track) => {
+                        track.enabled = true
+                    })
+                    break
+                }
+                case Permission.Geolocation:
+                    pauseWatchedPositions = false
+                    signalPermissionStatus(Permission.Geolocation, Status.Active)
+                    break
             }
         }
 
-        function stop (permission) {
+        function stop(permission) {
             switch (permission) {
-            case Permission.Camera:
-                stopTracks(videoTracks)
-                break
-            case Permission.Microphone:
-                stopTracks(audioTracks)
-                break
-            case Permission.Geolocation:
-                pauseWatchedPositions = false
-                clearAllGeolocationWatch()
-                break
+                case Permission.Camera:
+                    stopTracks(videoTracks)
+                    break
+                case Permission.Microphone:
+                    stopTracks(audioTracks)
+                    break
+                case Permission.Geolocation:
+                    pauseWatchedPositions = false
+                    clearAllGeolocationWatch()
+                    break
             }
         }
 
-        function monitorTrack (track) {
+        function monitorTrack(track) {
             if (track.readyState === 'ended') return
 
             if (track.kind === 'video' && !videoTracks.has(track)) {
@@ -172,7 +172,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
-        function handleTrackEnded (track) {
+        function handleTrackEnded(track) {
             if (track.kind === 'video' && videoTracks.has(track)) {
                 console.debug(`Video stream track ${track.id} ended`)
                 track.removeEventListener('ended', videoTrackEnded)
@@ -190,15 +190,15 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
         }
 
-        function videoTrackEnded (e) {
+        function videoTrackEnded(e) {
             handleTrackEnded(e.target)
         }
 
-        function audioTrackEnded (e) {
+        function audioTrackEnded(e) {
             handleTrackEnded(e.target)
         }
 
-        function signalTracksState (permission) {
+        function signalTracksState(permission) {
             const tracks = getTracks(permission)
             if (!tracks) return
 
@@ -209,8 +209,8 @@ export default class WindowsPermissionUsage extends ContentFeature {
             }
 
             let mutedTrackCount = 0
-            tracks.forEach(track => {
-                mutedTrackCount += ((!track.enabled || track.muted) ? 1 : 0)
+            tracks.forEach((track) => {
+                mutedTrackCount += !track.enabled || track.muted ? 1 : 0
             })
             if (mutedTrackCount === allTrackCount) {
                 signalPermissionStatus(permission, Status.Paused)
@@ -223,20 +223,20 @@ export default class WindowsPermissionUsage extends ContentFeature {
         }
 
         let signalVideoTracksStateTimer
-        function signalVideoTracksState () {
+        function signalVideoTracksState() {
             clearTimeout(signalVideoTracksStateTimer)
             signalVideoTracksStateTimer = setTimeout(() => signalTracksState(Permission.Camera), 100)
         }
 
         let signalAudioTracksStateTimer
-        function signalAudioTracksState () {
+        function signalAudioTracksState() {
             clearTimeout(signalAudioTracksStateTimer)
             signalAudioTracksStateTimer = setTimeout(() => signalTracksState(Permission.Microphone), 100)
         }
 
         // proxy for track.stop -> clear camera/mic indicator manually here because no ended event raised this way
         const stopTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'stop', {
-            apply (target, thisArg, args) {
+            apply(target, thisArg, args) {
                 handleTrackEnded(thisArg)
                 return DDGReflect.apply(target, thisArg, args)
             }
@@ -245,7 +245,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // proxy for track.clone -> monitor the cloned track
         const cloneTrackProxy = new DDGProxy(this, MediaStreamTrack.prototype, 'clone', {
-            apply (target, thisArg, args) {
+            apply(target, thisArg, args) {
                 const clonedTrack = DDGReflect.apply(target, thisArg, args)
                 if (clonedTrack && (videoTracks.has(thisArg) || audioTracks.has(thisArg))) {
                     // @ts-expect-error - thisArg is possibly undefined
@@ -284,7 +284,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         const getTracksMethodNames = ['getTracks', 'getAudioTracks', 'getVideoTracks']
         for (const methodName of getTracksMethodNames) {
             const getTracksProxy = new DDGProxy(this, MediaStream.prototype, methodName, {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     const tracks = DDGReflect.apply(target, thisArg, args)
                     if (userMediaStreams.has(thisArg)) {
                         tracks.forEach(monitorTrack)
@@ -297,7 +297,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
 
         // proxy for MediaStream.clone -> needed to monitor cloned MediaDevices.getUserMedia streams
         const cloneMediaStreamProxy = new DDGProxy(this, MediaStream.prototype, 'clone', {
-            apply (target, thisArg, args) {
+            apply(target, thisArg, args) {
                 const clonedStream = DDGReflect.apply(target, thisArg, args)
                 if (userMediaStreams.has(thisArg)) {
                     // @ts-expect-error - thisArg is possibly 'undefined' here
@@ -312,7 +312,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // proxy for navigator.mediaDevices.getUserMedia -> show red camera/mic indicators
         if (window.MediaDevices) {
             const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, 'getUserMedia', {
-                apply (target, thisArg, args) {
+                apply(target, thisArg, args) {
                     if (isFrameInsideFrame) {
                         // we can't communicate with iframes inside iframes -> deny permission instead of putting users at risk
                         return Promise.reject(new DOMException('Permission denied'))
@@ -352,18 +352,18 @@ export default class WindowsPermissionUsage extends ContentFeature {
             getUserMediaProxy.overload()
         }
 
-        function performAction (action, permission) {
+        function performAction(action, permission) {
             if (action && permission) {
                 switch (action) {
-                case 'pause':
-                    pause(permission)
-                    break
-                case 'resume':
-                    resume(permission)
-                    break
-                case 'stop':
-                    stop(permission)
-                    break
+                    case 'pause':
+                        pause(permission)
+                        break
+                    case 'resume':
+                        resume(permission)
+                        break
+                    case 'stop':
+                        stop(permission)
+                        break
                 }
             }
         }
@@ -392,7 +392,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {
                 const proxy = new DDGProxy(this, prototype(), method, {
-                    apply () {
+                    apply() {
                         if (isPromise) {
                             return Promise.reject(new DOMException('Permission denied'))
                         } else {

@@ -11,7 +11,7 @@ export const sampleData = {
     loading: {
         status: 'loading',
         currentVersion: '1.0.1',
-        lastUpdate: timestampInSeconds - (24 * 60 * 60)
+        lastUpdate: timestampInSeconds - 24 * 60 * 60
     },
     loaded: {
         currentVersion: '1.0.1',

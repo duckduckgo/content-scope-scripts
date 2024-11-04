@@ -1,4 +1,4 @@
-function injectContentScript (src) {
+function injectContentScript(src) {
     const elem = document.head || document.documentElement
     const script = document.createElement('script')
     script.src = src

@@ -29,11 +29,7 @@ const config = {
         'special-pages/pages/new-tab/app/docs.js',
         'special-pages/types/*'
     ],
-    categoryOrder: [
-        'Special Pages',
-        'Content Scope Scripts Integrations',
-        'Other'
-    ],
+    categoryOrder: ['Special Pages', 'Content Scope Scripts Integrations', 'Other'],
     out: 'docs',
     excludeExternals: true,
     excludeInternal: true,

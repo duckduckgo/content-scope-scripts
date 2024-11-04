@@ -6,7 +6,7 @@ export class Settings {
      * @param {{state: 'enabled' | 'disabled'}} [params.autoplay]
      * @param {{state: 'enabled' | 'disabled'}} [params.focusMode]
      */
-    constructor ({
+    constructor({
         platform = { name: 'macos' },
         pip = { state: 'disabled' },
         autoplay = { state: 'enabled' },
@@ -23,7 +23,7 @@ export class Settings {
      * @param {{state: 'enabled' | 'disabled'} | null | undefined} settings
      * @return {Settings}
      */
-    withFeatureState (named, settings) {
+    withFeatureState(named, settings) {
         if (!settings) return this
         /** @type {(keyof import("../../../types/duckplayer").DuckPlayerPageSettings)[]} */
         const valid = ['pip', 'autoplay', 'focusMode']
@@ -41,10 +41,10 @@ export class Settings {
         return this
     }
 
-    withPlatformName (name) {
+    withPlatformName(name) {
         /** @type {ImportMeta['platform'][]} */
         const valid = ['windows', 'macos', 'ios', 'android']
-        if (valid.includes(/** @type {any} */(name))) {
+        if (valid.includes(/** @type {any} */ (name))) {
             return new Settings({
                 ...this,
                 platform: { name }
@@ -57,7 +57,7 @@ export class Settings {
      * @param {string|null|undefined} newState
      * @return {Settings}
      */
-    withDisabledFocusMode (newState) {
+    withDisabledFocusMode(newState) {
         if (newState === 'disabled' || newState === 'enabled') {
             return new Settings({
                 ...this,
@@ -71,34 +71,36 @@ export class Settings {
     /**
      * @return {string}
      */
-    get youtubeBase () {
+    get youtubeBase() {
         switch (this.platform.name) {
-        case 'windows':
-        case 'ios':
-        case 'android': {
-            return 'duck://player/openInYoutube'
-        }
-        case 'macos': {
-            return 'https://www.youtube.com/watch'
-        }
-        default: throw new Error('unreachable')
+            case 'windows':
+            case 'ios':
+            case 'android': {
+                return 'duck://player/openInYoutube'
+            }
+            case 'macos': {
+                return 'https://www.youtube.com/watch'
+            }
+            default:
+                throw new Error('unreachable')
         }
     }
 
     /**
      * @return {'desktop' | 'mobile'}
      */
-    get layout () {
+    get layout() {
         switch (this.platform.name) {
-        case 'windows':
-        case 'macos': {
-            return 'desktop'
-        }
-        case 'ios':
-        case 'android': {
-            return 'mobile'
-        }
-        default: return 'desktop'
+            case 'windows':
+            case 'macos': {
+                return 'desktop'
+            }
+            case 'ios':
+            case 'android': {
+                return 'mobile'
+            }
+            default:
+                return 'desktop'
         }
     }
 }

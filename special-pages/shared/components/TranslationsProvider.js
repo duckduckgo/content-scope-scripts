@@ -22,20 +22,18 @@ export const TranslationContext = createContext({
  * @param {Record<string, any>} props.fallback - The translations object to use when a value is missing.
  * @param {number} [props.textLength] - The length of strings - a number higher than 1 will cause the string to be repeated. Useful for testing.
  */
-export function TranslationProvider ({ children, translationObject, fallback, textLength = 1 }) {
+export function TranslationProvider({ children, translationObject, fallback, textLength = 1 }) {
     /**
      * Retrieves the title related to the input key from the current locale.
      *
      * @type {LocalTranslationFn}
      */
-    function t (inputKey, replacements) {
+    function t(inputKey, replacements) {
         const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title
         return apply(subject, replacements, textLength)
     }
 
-    return (
-        <TranslationContext.Provider value={{ t }}>{children}</TranslationContext.Provider>
-    )
+    return <TranslationContext.Provider value={{ t }}>{children}</TranslationContext.Provider>
 }
 
 /**
@@ -48,7 +46,7 @@ export function TranslationProvider ({ children, translationObject, fallback, te
  * @param {string} props.str - The string to be directly placed into HTML
  * @param {Object} props.values - props/handlers to be applied to elements within the inserted markup
  */
-export function Trans ({ str, values }) {
+export function Trans({ str, values }) {
     /** @type {import('preact/hooks').MutableRef<HTMLDivElement | null>} */
     const ref = useRef(null)
     /** @type {import('preact/hooks').MutableRef<(()=>void)[]>} */

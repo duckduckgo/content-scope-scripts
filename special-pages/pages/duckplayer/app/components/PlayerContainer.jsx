@@ -1,7 +1,6 @@
-import { h } from "preact";
-import cn from "classnames";
-import styles from "./PlayerContainer.module.css";
-
+import { h } from 'preact'
+import cn from 'classnames'
+import styles from './PlayerContainer.module.css'
 
 /**
  * Creates a container for player elements.
@@ -12,9 +11,11 @@ import styles from "./PlayerContainer.module.css";
  */
 export function PlayerContainer({ children, inset }) {
     return (
-        <div class={cn(styles.container, {
-            [styles.inset]: inset
-        })}>
+        <div
+            class={cn(styles.container, {
+                [styles.inset]: inset
+            })}
+        >
             {children}
         </div>
     )
@@ -27,8 +28,6 @@ export function PlayerContainer({ children, inset }) {
  * @param {import("preact").ComponentChild} props.children - The child elements to render inside the container.
  * @param {boolean} [props.inset] - whether the UI is all inset
  */
-export function PlayerInternal({children, inset}) {
-    return <div class={cn(styles.internals, {[styles.insetInternals]: inset})}>
-        {children}
-    </div>
+export function PlayerInternal({ children, inset }) {
+    return <div class={cn(styles.internals, { [styles.insetInternals]: inset })}>{children}</div>
 }

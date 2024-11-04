@@ -8,7 +8,7 @@ import Seedrandom from 'seedrandom'
  * @param {any} getImageDataProxy
  * @param {CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext} ctx?
  */
-export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
+export function computeOffScreenCanvas(canvas, domainKey, sessionKey, getImageDataProxy, ctx) {
     if (!ctx) {
         // @ts-expect-error - Type 'null' is not assignable to type 'CanvasRenderingContext2D | WebGL2RenderingContext | WebGLRenderingContext'.
         ctx = canvas.getContext('2d')
@@ -50,7 +50,7 @@ export function computeOffScreenCanvas (canvas, domainKey, sessionKey, getImageD
  *
  * @param {CanvasRenderingContext2D} canvasContext
  */
-function clearCanvas (canvasContext) {
+function clearCanvas(canvasContext) {
     // Save state and clean the pixels from the canvas
     canvasContext.save()
     canvasContext.globalCompositeOperation = 'destination-out'
@@ -65,7 +65,7 @@ function clearCanvas (canvasContext) {
  * @param {string} domainKey
  * @param {number} width
  */
-export function modifyPixelData (imageData, domainKey, sessionKey, width) {
+export function modifyPixelData(imageData, domainKey, sessionKey, width) {
     const d = imageData.data
     const length = d.length / 4
     let checkSum = 0
@@ -98,7 +98,7 @@ export function modifyPixelData (imageData, domainKey, sessionKey, width) {
  * @param {number} index
  * @param {number} width
  */
-function adjacentSame (imageData, index, width) {
+function adjacentSame(imageData, index, width) {
     const widthPixel = width * 4
     const x = index % widthPixel
     const maxLength = imageData.length
@@ -154,11 +154,13 @@ function adjacentSame (imageData, index, width) {
  * @param {number} index
  * @param {number} index2
  */
-function pixelsSame (imageData, index, index2) {
-    return imageData[index] === imageData[index2] &&
-           imageData[index + 1] === imageData[index2 + 1] &&
-           imageData[index + 2] === imageData[index2 + 2] &&
-           imageData[index + 3] === imageData[index2 + 3]
+function pixelsSame(imageData, index, index2) {
+    return (
+        imageData[index] === imageData[index2] &&
+        imageData[index + 1] === imageData[index2 + 1] &&
+        imageData[index + 2] === imageData[index2 + 2] &&
+        imageData[index + 3] === imageData[index2 + 3]
+    )
 }
 
 /**
@@ -167,7 +169,7 @@ function pixelsSame (imageData, index, index2) {
  * @param {number} index
  * @returns {boolean}
  */
-function shouldIgnorePixel (imageData, index) {
+function shouldIgnorePixel(imageData, index) {
     // Transparent pixels
     if (imageData[index + 3] === 0) {
         return true

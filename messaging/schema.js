@@ -30,7 +30,7 @@ export class RequestMessage {
      * @param {Record<string, any>} [params.params]
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         /**
          * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
          * @type {string}
@@ -69,7 +69,7 @@ export class MessageResponse {
      * @param {MessageError} [params.error]
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         /**
          * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
          * @type {string}
@@ -108,7 +108,7 @@ export class NotificationMessage {
      * @param {Record<string, any>} [params.params]
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         /**
          * The global context for this message. For example, something like `contentScopeScripts` or `specialPages`
          */
@@ -136,7 +136,7 @@ export class Subscription {
      * @param {string} params.subscriptionName
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         this.context = params.context
         this.featureName = params.featureName
         this.subscriptionName = params.subscriptionName
@@ -155,7 +155,7 @@ export class SubscriptionEvent {
      * @param {Record<string, any>} [params.params]
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         this.context = params.context
         this.featureName = params.featureName
         this.subscriptionName = params.subscriptionName
@@ -172,7 +172,7 @@ export class MessageError {
      * @param {string} params.message
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         this.message = params.message
     }
 }
@@ -182,11 +182,9 @@ export class MessageError {
  * @param {Record<string, any>} data
  * @return {data is MessageResponse}
  */
-export function isResponseFor (request, data) {
+export function isResponseFor(request, data) {
     if ('result' in data) {
-        return data.featureName === request.featureName &&
-            data.context === request.context &&
-            data.id === request.id
+        return data.featureName === request.featureName && data.context === request.context && data.id === request.id
     }
     if ('error' in data) {
         if ('message' in data.error) {
@@ -201,11 +199,9 @@ export function isResponseFor (request, data) {
  * @param {Record<string, any>} data
  * @return {data is SubscriptionEvent}
  */
-export function isSubscriptionEventFor (sub, data) {
+export function isSubscriptionEventFor(sub, data) {
     if ('subscriptionName' in data) {
-        return data.featureName === sub.featureName &&
-            data.context === sub.context &&
-            data.subscriptionName === sub.subscriptionName
+        return data.featureName === sub.featureName && data.context === sub.context && data.subscriptionName === sub.subscriptionName
     }
 
     return false

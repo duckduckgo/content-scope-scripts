@@ -4,11 +4,7 @@ export default defineConfig({
     projects: [
         {
             name: 'windows',
-            testMatch: [
-                'duckplayer.spec.js',
-                'duckplayer-screenshots.spec.js',
-                'onboarding.spec.js'
-            ],
+            testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js', 'onboarding.spec.js'],
             use: {
                 ...devices['Desktop Edge'],
                 injectName: 'windows',
@@ -17,12 +13,7 @@ export default defineConfig({
         },
         {
             name: 'integration',
-            testMatch: [
-                'privacy-stats.spec.js',
-                'rmf.spec.js',
-                'new-tab.spec.js',
-                'update-notification.spec.js'
-            ],
+            testMatch: ['privacy-stats.spec.js', 'rmf.spec.js', 'new-tab.spec.js', 'update-notification.spec.js'],
             use: {
                 ...devices['Desktop Chrome'],
                 injectName: 'integration',
@@ -47,10 +38,7 @@ export default defineConfig({
         },
         {
             name: 'android',
-            testMatch: [
-                'duckplayer.spec.js',
-                'duckplayer-screenshots.spec.js'
-            ],
+            testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js'],
             use: {
                 ...devices['Galaxy S III'],
                 injectName: 'android',
@@ -59,10 +47,7 @@ export default defineConfig({
         },
         {
             name: 'android-landscape',
-            testMatch: [
-                'duckplayer-screenshots.spec.js',
-                'duckplayer-telemetry.spec.js'
-            ],
+            testMatch: ['duckplayer-screenshots.spec.js', 'duckplayer-telemetry.spec.js'],
             use: {
                 ...devices['Galaxy S III landscape'],
                 injectName: 'android',
@@ -71,10 +56,7 @@ export default defineConfig({
         },
         {
             name: 'ios',
-            testMatch: [
-                'duckplayer.spec.js',
-                'duckplayer-screenshots.spec.js'
-            ],
+            testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js'],
             use: {
                 ...devices['iPhone 14'],
                 injectName: 'apple',

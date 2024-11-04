@@ -9,7 +9,7 @@ import { useTypedTranslation } from '../types'
  * @param {Object} props - The component props.
  * @param {() => void} props.onNextPage - Callback function to be called when the "Get Started" button is clicked.
  */
-export function GetStarted ({ onNextPage }) {
+export function GetStarted({ onNextPage }) {
     const { t } = useTypedTranslation()
 
     return (

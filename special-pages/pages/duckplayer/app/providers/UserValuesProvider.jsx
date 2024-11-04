@@ -1,7 +1,7 @@
-import { useContext, useState } from "preact/hooks";
-import { h, createContext } from "preact";
-import { useMessaging } from "../types.js";
-import { useEffect } from "preact/hooks";
+import { useContext, useState } from 'preact/hooks'
+import { h, createContext } from 'preact'
+import { useMessaging } from '../types.js'
+import { useEffect } from 'preact/hooks'
 
 /**
  * @typedef {import("../../../../types/duckplayer").UserValues} UserValues
@@ -19,7 +19,7 @@ const UserValuesContext = createContext({
     setEnabled: () => {
         // throw new Error('must implement')
     }
-});
+})
 
 /**
  * @param {object} props
@@ -28,8 +28,8 @@ const UserValuesContext = createContext({
  */
 export function UserValuesProvider({ initial, children }) {
     // initial state
-    const [value, setValue] = useState(initial);
-    const messaging = useMessaging();
+    const [value, setValue] = useState(initial)
+    const messaging = useMessaging()
 
     // listen for updates
     useEffect(() => {
@@ -42,7 +42,7 @@ export function UserValuesProvider({ initial, children }) {
         const unsubscribe = messaging.onUserValuesChanged((userValues) => {
             setValue(userValues)
         })
-        return () => unsubscribe();
+        return () => unsubscribe()
     }, [messaging])
 
     // API for consumers
@@ -51,15 +51,16 @@ export function UserValuesProvider({ initial, children }) {
             privatePlayerMode: { enabled: {} },
             overlayInteracted: false
         }
-        messaging.setUserValues(values)
+        messaging
+            .setUserValues(values)
             .then((next) => {
                 console.log('response after setUserValues...', next)
                 console.log('will set', values)
-                setValue(values);
+                setValue(values)
             })
-            .catch(err => {
-                console.error("could not set the enabled flag", err)
-                messaging.reportPageException({message: "could not set the enabled flag: " + err.toString()})
+            .catch((err) => {
+                console.error('could not set the enabled flag', err)
+                messaging.reportPageException({ message: 'could not set the enabled flag: ' + err.toString() })
             })
     }
 

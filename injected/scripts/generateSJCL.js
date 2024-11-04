@@ -4,7 +4,7 @@ import util from 'util'
 import { exec as callbackExec } from 'child_process'
 const exec = util.promisify(callbackExec)
 
-async function init () {
+async function init() {
     if (!existsSync('node_modules/sjcl/')) {
         // If content scope scripts is installed as a module there is no need to copy sjcl
         return

@@ -18,7 +18,7 @@ import strings from '../../../../build/locales/duckplayer-locales.js'
  * @param {import("./overlays.js").Environment} environment - methods to read environment-sensitive things like the current URL etc
  * @param {import("./overlay-messages.js").DuckPlayerOverlayMessages} messages - methods to communicate with a native backend
  */
-export async function initOverlays (settings, environment, messages) {
+export async function initOverlays(settings, environment, messages) {
     // bind early to attach all listeners
     const domState = new DomState()
 
@@ -68,7 +68,7 @@ export async function initOverlays (settings, environment, messages) {
         })
     }
 
-    function update () {
+    function update() {
         thumbnails?.destroy()
         videoOverlays?.destroy()
 
@@ -84,7 +84,7 @@ export async function initOverlays (settings, environment, messages) {
     /**
      * Continue to listen for updated preferences and try to re-initiate
      */
-    messages.onUserValuesChanged(_userValues => {
+    messages.onUserValuesChanged((_userValues) => {
         userValues = _userValues
         update()
     })
@@ -92,7 +92,7 @@ export async function initOverlays (settings, environment, messages) {
     /**
      * Continue to listen for updated UI settings and try to re-initiate
      */
-    messages.onUIValuesChanged(_ui => {
+    messages.onUIValuesChanged((_ui) => {
         ui = _ui
         update()
     })
@@ -102,7 +102,7 @@ export async function initOverlays (settings, environment, messages) {
  * @param {OverlayOptions} options
  * @returns {Thumbnails | ClickInterception | null}
  */
-function thumbnailsFeatureFromOptions (options) {
+function thumbnailsFeatureFromOptions(options) {
     return thumbnailOverlays(options) || clickInterceptions(options)
 }
 
@@ -110,7 +110,7 @@ function thumbnailsFeatureFromOptions (options) {
  * @param {OverlayOptions} options
  * @return {Thumbnails | null}
  */
-function thumbnailOverlays ({ userValues, settings, messages, environment, ui }) {
+function thumbnailOverlays({ userValues, settings, messages, environment, ui }) {
     // bail if not enabled remotely
     if (settings.thumbnailOverlays.state !== 'enabled') return null
 
@@ -137,7 +137,7 @@ function thumbnailOverlays ({ userValues, settings, messages, environment, ui })
  * @param {OverlayOptions} options
  * @return {ClickInterception | null}
  */
-function clickInterceptions ({ userValues, settings, messages, environment, ui }) {
+function clickInterceptions({ userValues, settings, messages, environment, ui }) {
     // bail if not enabled remotely
     if (settings.clickInterception.state !== 'enabled') return null
 
@@ -162,7 +162,7 @@ function clickInterceptions ({ userValues, settings, messages, environment, ui }
  * @param {OverlayOptions} options
  * @returns {VideoOverlay | undefined}
  */
-function videoOverlaysFeatureFromSettings ({ userValues, settings, messages, environment, ui }) {
+function videoOverlaysFeatureFromSettings({ userValues, settings, messages, environment, ui }) {
     if (settings.videoOverlays.state !== 'enabled') return undefined
 
     return new VideoOverlay({ userValues, settings, environment, messages, ui })
@@ -179,14 +179,14 @@ export class Environment {
      * @param {ImportMeta['injectName']} params.injectName
      * @param {string} params.locale
      */
-    constructor (params) {
+    constructor(params) {
         this.debug = Boolean(params.debug)
         this.injectName = params.injectName
         this.platform = params.platform
         this.locale = params.locale
     }
 
-    get strings () {
+    get strings() {
         const matched = this._strings[this.locale]
         if (matched) return matched['overlays.json']
         return this._strings.en['overlays.json']
@@ -197,7 +197,7 @@ export class Environment {
      * It's abstracted so that we can mock it in tests
      * @return {string}
      */
-    getPlayerPageHref () {
+    getPlayerPageHref() {
         if (this.debug) {
             const url = new URL(window.location.href)
             if (url.hostname === 'www.youtube.com') return window.location.href
@@ -214,16 +214,16 @@ export class Environment {
         return window.location.href
     }
 
-    getLargeThumbnailSrc (videoId) {
+    getLargeThumbnailSrc(videoId) {
         const url = new URL(`/vi/${videoId}/maxresdefault.jpg`, 'https://i.ytimg.com')
         return url.href
     }
 
-    setHref (href) {
+    setHref(href) {
         window.location.href = href
     }
 
-    hasOneTimeOverride () {
+    hasOneTimeOverride() {
         try {
             // #ddg-play is a hard requirement, regardless of referrer
             if (window.location.hash !== '#ddg-play') return false
@@ -241,36 +241,36 @@ export class Environment {
         return false
     }
 
-    isIntegrationMode () {
+    isIntegrationMode() {
         return this.debug === true && this.injectName === 'integration'
     }
 
-    isTestMode () {
+    isTestMode() {
         return this.debug === true
     }
 
-    get opensVideoOverlayLinksViaMessage () {
+    get opensVideoOverlayLinksViaMessage() {
         return this.platform.name !== 'windows'
     }
 
     /**
      * @return {boolean}
      */
-    get isMobile () {
+    get isMobile() {
         return this.platform.name === 'ios' || this.platform.name === 'android'
     }
 
     /**
      * @return {boolean}
      */
-    get isDesktop () {
+    get isDesktop() {
         return !this.isMobile
     }
 
     /**
      * @return {'desktop' | 'mobile'}
      */
-    get layout () {
+    get layout() {
         if (this.platform.name === 'ios' || this.platform.name === 'android') {
             return 'mobile'
         }

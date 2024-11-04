@@ -12,8 +12,8 @@ export class CityStateExtractor {
      * @param {string[]} strs
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
-    extract (strs, extractorParams) {
-        const cityStateList = strs.map(str => stringToList(str, extractorParams.separator)).flat()
+    extract(strs, extractorParams) {
+        const cityStateList = strs.map((str) => stringToList(str, extractorParams.separator)).flat()
         return getCityStateCombos(cityStateList)
     }
 }
@@ -26,17 +26,19 @@ export class AddressFullExtractor {
      * @param {string[]} strs
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
-    extract (strs, extractorParams) {
-        return strs
-            .map((str) => str.replace('\n', ' '))
-            .map((str) => stringToList(str, extractorParams.separator))
-            .flat()
-            .map((str) => parseAddress.parseLocation(str) || {})
-            // at least 'city' is required.
-            .filter((parsed) => Boolean(parsed?.city))
-            .map((addr) => {
-                return { city: addr.city, state: addr.state || null }
-            })
+    extract(strs, extractorParams) {
+        return (
+            strs
+                .map((str) => str.replace('\n', ' '))
+                .map((str) => stringToList(str, extractorParams.separator))
+                .flat()
+                .map((str) => parseAddress.parseLocation(str) || {})
+                // at least 'city' is required.
+                .filter((parsed) => Boolean(parsed?.city))
+                .map((addr) => {
+                    return { city: addr.city, state: addr.state || null }
+                })
+        )
     }
 }
 
@@ -44,7 +46,7 @@ export class AddressFullExtractor {
  * @param {string[]} inputList
  * @return {{ city: string, state: string|null }[] }
  */
-function getCityStateCombos (inputList) {
+function getCityStateCombos(inputList) {
     const output = []
     for (let item of inputList) {
         let words
@@ -52,12 +54,14 @@ function getCityStateCombos (inputList) {
         item = item.replace(/,?\s*\d{5}(-\d{4})?/, '')
 
         if (item.includes(',')) {
-            words = item.split(',').map(item => item.trim())
+            words = item.split(',').map((item) => item.trim())
         } else {
-            words = item.split(' ').map(item => item.trim())
+            words = item.split(' ').map((item) => item.trim())
         }
         // we are removing this partial city/state combos at the end (i.e. Chi...)
-        if (words.length === 1) { continue }
+        if (words.length === 1) {
+            continue
+        }
 
         const state = words.pop()
         const city = words.join(' ')

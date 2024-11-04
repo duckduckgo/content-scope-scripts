@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature'
 
 export default class FingerprintingHardware extends ContentFeature {
-    init () {
+    init() {
         this.wrapProperty(globalThis.Navigator.prototype, 'keyboard', {
             get: () => {
                 // @ts-expect-error - error TS2554: Expected 2 arguments, but got 1.

@@ -15,7 +15,7 @@
  * @param {{maxAttempts?: number, intervalMs?: number}} params
  * @returns {Promise<{ value: Awaited<ReturnType<FN>>, attempt: number } | { error: string }>}
  */
-export async function callWithRetry (fn, params = {}) {
+export async function callWithRetry(fn, params = {}) {
     const { maxAttempts = 10, intervalMs = 300 } = params
     let attempt = 1
 

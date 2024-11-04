@@ -25,18 +25,20 @@ window.addEventListener(secret, ({ detail: message }) => {
     if (!message) return
 
     switch (message.type) {
-    case 'update':
-        update(message)
-        break
-    case 'register':
-        if (message.argumentsObject) {
-            message.argumentsObject.messageSecret = secret
-            init(message.argumentsObject)
-        }
-        break
+        case 'update':
+            update(message)
+            break
+        case 'register':
+            if (message.argumentsObject) {
+                message.argumentsObject.messageSecret = secret
+                init(message.argumentsObject)
+            }
+            break
     }
 })
 
-window.dispatchEvent(new CustomEvent('ddg-secret', {
-    detail: secret
-}))
+window.dispatchEvent(
+    new CustomEvent('ddg-secret', {
+        detail: secret
+    })
+)

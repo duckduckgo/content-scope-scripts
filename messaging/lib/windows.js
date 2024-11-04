@@ -22,7 +22,7 @@ export class WindowsMessagingTransport {
      * @param {import('../index.js').MessagingContext} messagingContext
      * @internal
      */
-    constructor (config, messagingContext) {
+    constructor(config, messagingContext) {
         this.messagingContext = messagingContext
         this.config = config
         this.globals = {
@@ -43,7 +43,7 @@ export class WindowsMessagingTransport {
     /**
      * @param {import('../index.js').NotificationMessage} msg
      */
-    notify (msg) {
+    notify(msg) {
         const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}))
         const notification = WindowsNotification.fromNotification(msg, data)
         this.config.methods.postMessage(notification)
@@ -54,7 +54,7 @@ export class WindowsMessagingTransport {
      * @param {{signal?: AbortSignal}} opts
      * @return {Promise<any>}
      */
-    request (msg, opts = {}) {
+    request(msg, opts = {}) {
         // convert the message to window-specific naming
         const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}))
         const outgoing = WindowsRequestMessage.fromRequest(msg, data)
@@ -64,16 +64,14 @@ export class WindowsMessagingTransport {
 
         // compare incoming messages against the `msg.id`
         const comparator = (eventData) => {
-            return eventData.featureName === msg.featureName &&
-                eventData.context === msg.context &&
-                eventData.id === msg.id
+            return eventData.featureName === msg.featureName && eventData.context === msg.context && eventData.id === msg.id
         }
 
         /**
          * @param data
          * @return {data is import('../index.js').MessageResponse}
          */
-        function isMessageResponse (data) {
+        function isMessageResponse(data) {
             if ('result' in data) return true
             if ('error' in data) return true
             return false
@@ -107,12 +105,14 @@ export class WindowsMessagingTransport {
      * @param {import('../index.js').Subscription} msg
      * @param {(value: unknown | undefined) => void} callback
      */
-    subscribe (msg, callback) {
+    subscribe(msg, callback) {
         // compare incoming messages against the `msg.subscriptionName`
         const comparator = (eventData) => {
-            return eventData.featureName === msg.featureName &&
+            return (
+                eventData.featureName === msg.featureName &&
                 eventData.context === msg.context &&
                 eventData.subscriptionName === msg.subscriptionName
+            )
         }
 
         // only forward the 'params' from a SubscriptionEvent
@@ -133,7 +133,7 @@ export class WindowsMessagingTransport {
      * @param {(value: Incoming, unsubscribe: (()=>void)) => void} callback
      * @internal
      */
-    _subscribe (comparator, options, callback) {
+    _subscribe(comparator, options, callback) {
         // if already aborted, reject immediately
         if (options?.signal?.aborted) {
             throw new DOMException('Aborted', 'AbortError')
@@ -211,7 +211,7 @@ export class WindowsMessagingConfig {
      * @param {WindowsInteropMethods} params.methods
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         /**
          * The methods required for communication
          */
@@ -233,7 +233,7 @@ export class WindowsInteropMethods {
      * @param {Window['addEventListener']} params.addEventListener
      * @param {Window['removeEventListener']} params.removeEventListener
      */
-    constructor (params) {
+    constructor(params) {
         this.postMessage = params.postMessage
         this.addEventListener = params.addEventListener
         this.removeEventListener = params.removeEventListener
@@ -255,7 +255,7 @@ export class WindowsNotification {
      * @param {Record<string, any>} [params.Data]
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         /**
          * Alias for: {@link NotificationMessage.context}
          */
@@ -279,7 +279,7 @@ export class WindowsNotification {
      * @param {NotificationMessage} notification
      * @returns {WindowsNotification}
      */
-    static fromNotification (notification, data) {
+    static fromNotification(notification, data) {
         /** @type {WindowsNotification} */
         const output = {
             Data: data,
@@ -306,7 +306,7 @@ export class WindowsRequestMessage {
      * @param {string} [params.Id]
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         this.Feature = params.Feature
         this.SubFeatureName = params.SubFeatureName
         this.Name = params.Name
@@ -320,7 +320,7 @@ export class WindowsRequestMessage {
      * @param {Record<string, any>} data
      * @returns {WindowsRequestMessage}
      */
-    static fromRequest (msg, data) {
+    static fromRequest(msg, data) {
         /** @type {WindowsRequestMessage} */
         const output = {
             Data: data,

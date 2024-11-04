@@ -1,28 +1,28 @@
-import { useEffect } from "preact/hooks";
+import { useEffect } from 'preact/hooks'
 
 /**
  * Device orientation
  * @param {object} props
  * @param {(orientation: 'portrait' | 'landscape') => void} props.onChange
  */
-export function OrientationProvider ({ onChange }) {
+export function OrientationProvider({ onChange }) {
     useEffect(() => {
         if (!screen.orientation?.type) {
-            onChange(getOrientationFromWidth());
+            onChange(getOrientationFromWidth())
             return
         }
         onChange(getOrientationFromScreen())
         const handleOrientationChange = () => {
-            onChange(getOrientationFromScreen());
-        };
-        screen.orientation.addEventListener('change', handleOrientationChange);
-        return () => screen.orientation.removeEventListener('change', handleOrientationChange);
-    }, []);
+            onChange(getOrientationFromScreen())
+        }
+        screen.orientation.addEventListener('change', handleOrientationChange)
+        return () => screen.orientation.removeEventListener('change', handleOrientationChange)
+    }, [])
 
     useEffect(() => {
-        let timer;
+        let timer
         const listener = () => {
-            clearTimeout(timer);
+            clearTimeout(timer)
             timer = setTimeout(() => onChange(getOrientationFromWidth()), 300)
         }
         window.addEventListener('resize', listener)
@@ -31,7 +31,6 @@ export function OrientationProvider ({ onChange }) {
 
     return null
 }
-
 
 /**
  * Retrieves the current orientation of the screen.
@@ -52,7 +51,5 @@ function getOrientationFromWidth() {
  * @return {"portrait" | "landscape"} The current orientation of the screen. It can be either 'portrait' or 'landscape'.
  */
 function getOrientationFromScreen() {
-    return screen.orientation.type.includes('landscape')
-        ? 'landscape'
-        : 'portrait'
+    return screen.orientation.type.includes('landscape') ? 'landscape' : 'portrait'
 }

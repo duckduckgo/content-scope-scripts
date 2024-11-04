@@ -1,13 +1,8 @@
 import fc from 'fast-check'
 import { isSameAge } from '../src/features/broker-protection/comparisons/is-same-age.js'
 import { getNicknames, getFullNames, isSameName, getNames } from '../src/features/broker-protection/comparisons/is-same-name.js'
-import {
-    stringToList,
-    extractValue
-} from '../src/features/broker-protection/actions/extract.js'
-import {
-    addressMatch
-} from '../src/features/broker-protection/comparisons/address.js'
+import { stringToList, extractValue } from '../src/features/broker-protection/actions/extract.js'
+import { addressMatch } from '../src/features/broker-protection/comparisons/address.js'
 import { replaceTemplatedUrl } from '../src/features/broker-protection/actions/build-url.js'
 import { processTemplateStringWithUserData } from '../src/features/broker-protection/actions/build-url-transforms.js'
 import { names } from '../src/features/broker-protection/comparisons/constants.js'
@@ -68,7 +63,14 @@ describe('Actions', () => {
             })
 
             it('should return as many full names as are applicable for the nickname', () => {
-                expect(Array.from(getFullNames('Kate', names.nicknames))).toEqual(['katelin', 'katelyn', 'katherine', 'kathryn', 'katia', 'katy'])
+                expect(Array.from(getFullNames('Kate', names.nicknames))).toEqual([
+                    'katelin',
+                    'katelyn',
+                    'katherine',
+                    'kathryn',
+                    'katia',
+                    'katy'
+                ])
             })
 
             it('should return an empty set if the nickname has no full names', () => {
@@ -108,32 +110,37 @@ describe('Actions', () => {
                 expect(isSameName('Jon Andrew Smith', userName.firstName, null, userName.lastName)).toBe(true)
             })
             it('property testing isSameName -> boolean', () => {
-                fc.assert(fc.property(
-                    fc.string(),
-                    fc.string(),
-                    fc.option(fc.string()),
-                    fc.string(),
-                    fc.option(fc.string()),
-                    (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
-                        const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
-                        expect(typeof result).toBe('boolean')
-                    }
-                ))
+                fc.assert(
+                    fc.property(
+                        fc.string(),
+                        fc.string(),
+                        fc.option(fc.string()),
+                        fc.string(),
+                        fc.option(fc.string()),
+                        (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
+                            const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
+                            expect(typeof result).toBe('boolean')
+                        }
+                    )
+                )
             })
             it('property testing isSameName -> boolean (seed 1)', () => {
                 // Got TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))
                 // when doing if (nicknames[name])
-                fc.assert(fc.property(
-                    fc.string(),
-                    fc.string(),
-                    fc.option(fc.string()),
-                    fc.string(),
-                    fc.option(fc.string()),
-                    (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
-                        const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
-                        expect(typeof result).toBe('boolean')
-                    }
-                ), { seed: 203542789, path: '70:1:0:0:1:85:86:85:86:86', endOnFailure: true })
+                fc.assert(
+                    fc.property(
+                        fc.string(),
+                        fc.string(),
+                        fc.option(fc.string()),
+                        fc.string(),
+                        fc.option(fc.string()),
+                        (fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix) => {
+                            const result = isSameName(fullNameExtracted, userFirstName, userMiddleName, userLastName, userSuffix)
+                            expect(typeof result).toBe('boolean')
+                        }
+                    ),
+                    { seed: 203542789, path: '70:1:0:0:1:85:86:85:86:86', endOnFailure: true }
+                )
             })
         })
 
@@ -179,27 +186,19 @@ describe('Actions', () => {
                     }
                 }
 
-                const generatedProfile =
-                  await new ProfileHashTransformer().transform(profile, params)
+                const generatedProfile = await new ProfileHashTransformer().transform(profile, params)
                 expect(generatedProfile.identifier).toMatch(/^[0-9a-f]{40}$/)
             })
         })
 
         describe('get correct city state combos from list', () => {
-            const cityStateLists = [
-                'Chicago IL, River Forest IL, Forest Park IL, Oak Park IL'
-            ]
+            const cityStateLists = ['Chicago IL, River Forest IL, Forest Park IL, Oak Park IL']
             const separator = ','
 
             it('should match when city/state is the same', () => {
                 for (const cityStateList of cityStateLists) {
                     const list = stringToList(cityStateList, separator)
-                    expect(list).toEqual([
-                        'Chicago IL',
-                        'River Forest IL',
-                        'Forest Park IL',
-                        'Oak Park IL'
-                    ])
+                    expect(list).toEqual(['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'])
                     const result = new CityStateExtractor().extract(list, {})
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
@@ -234,18 +233,12 @@ describe('Actions', () => {
         })
 
         describe('get correct city state combos from malformedlist', () => {
-            const malformedCityStateList = [
-                'Chicago IL, River Forest IL, Fores...'
-            ]
+            const malformedCityStateList = ['Chicago IL, River Forest IL, Fores...']
             const separator = ','
             it('shouldshow partial address', () => {
                 for (const cityStateList of malformedCityStateList) {
                     const list = stringToList(cityStateList, separator)
-                    expect(list).toEqual([
-                        'Chicago IL',
-                        'River Forest IL',
-                        'Fores...'
-                    ])
+                    expect(list).toEqual(['Chicago IL', 'River Forest IL', 'Fores...'])
                     const result = new CityStateExtractor().extract(list, {})
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
@@ -257,20 +250,47 @@ describe('Actions', () => {
 
         describe('get correct city state combos with separator', () => {
             const cityStateList = [
-                { listString: 'Chicago IL\nRiver Forest IL\nForest Park IL\nOak Park IL', separator: '\n', list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'] },
-                { listString: 'Chicago, IL\nRiver Forest, IL\nForest Park, IL\nOak Park, IL', separator: '\n', list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'] },
-                { listString: 'Chicago IL | River Forest IL | Forest Park IL | Oak Park IL', separator: '|', list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'] },
-                { listString: 'Chicago, IL | River Forest, IL | Forest Park, IL | Oak Park, IL', separator: '|', list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'] },
-                { listString: 'Chicago, IL • River Forest, IL • Forest Park, IL • Oak Park, IL', separator: '•', list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL'] },
-                { listString: 'Chicago IL • River Forest IL • Forest Park IL • Oak Park IL', separator: '•', list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'] },
-                { listString: 'Chicago IL   ·   River Forest IL   ·   Forest Park IL   ·   Oak Park IL', list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL'] }
+                {
+                    listString: 'Chicago IL\nRiver Forest IL\nForest Park IL\nOak Park IL',
+                    separator: '\n',
+                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']
+                },
+                {
+                    listString: 'Chicago, IL\nRiver Forest, IL\nForest Park, IL\nOak Park, IL',
+                    separator: '\n',
+                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL']
+                },
+                {
+                    listString: 'Chicago IL | River Forest IL | Forest Park IL | Oak Park IL',
+                    separator: '|',
+                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']
+                },
+                {
+                    listString: 'Chicago, IL | River Forest, IL | Forest Park, IL | Oak Park, IL',
+                    separator: '|',
+                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL']
+                },
+                {
+                    listString: 'Chicago, IL • River Forest, IL • Forest Park, IL • Oak Park, IL',
+                    separator: '•',
+                    list: ['Chicago, IL', 'River Forest, IL', 'Forest Park, IL', 'Oak Park, IL']
+                },
+                {
+                    listString: 'Chicago IL • River Forest IL • Forest Park IL • Oak Park IL',
+                    separator: '•',
+                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']
+                },
+                {
+                    listString: 'Chicago IL   ·   River Forest IL   ·   Forest Park IL   ·   Oak Park IL',
+                    list: ['Chicago IL', 'River Forest IL', 'Forest Park IL', 'Oak Park IL']
+                }
             ]
             it('should get correct city state with separator', () => {
                 for (const item of cityStateList) {
                     const list = stringToList(item.listString, item.separator)
                     expect(list).toEqual(item.list)
 
-                    const result = new CityStateExtractor().extract(list, { })
+                    const result = new CityStateExtractor().extract(list, {})
                     expect(result).toEqual([
                         { city: 'Chicago', state: 'IL' },
                         { city: 'River Forest', state: 'IL' },
@@ -330,93 +350,123 @@ describe('Actions', () => {
         }
 
         it('should build url without params', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                url: 'https://example.com/optout'
-            }, userData)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    url: 'https://example.com/optout'
+                },
+                userData
+            )
             expect(result).toEqual({ url: 'https://example.com/optout' })
         })
 
         it('should build url when given valid data from path segments', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/${firstName}-${lastName}/a/b/c/search?state=${state}&city=${city|hyphenated}&fage=${age}'
-            }, userData)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/${firstName}-${lastName}/a/b/c/search?state=${state}&city=${city|hyphenated}&fage=${age}'
+                },
+                userData
+            )
             expect(result).toEqual({ url: 'https://example.com/profile/John-Smith/a/b/c/search?state=il&city=Chicago&fage=24' })
         })
 
         it('should handle url encodings', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                url: 'https://example.com/name/$%7BfirstName%7Cdowncase%7D-$%7BlastName%7Cdowncase%7D/$%7Bcity%7Cdowncase%7D-$%7Bstate%7CstateFull%7Cdowncase%7D?age=$%7Bage%7D'
-            }, userData)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    url: 'https://example.com/name/$%7BfirstName%7Cdowncase%7D-$%7BlastName%7Cdowncase%7D/$%7Bcity%7Cdowncase%7D-$%7Bstate%7CstateFull%7Cdowncase%7D?age=$%7Bage%7D'
+                },
+                userData
+            )
             expect(result).toEqual({ url: 'https://example.com/name/john-smith/chicago-illinois?age=24' })
         })
 
         it('should build url when given valid data from path segments with modifiers path and url', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/${firstName|downcase}-${lastName|downcase}/a/b/c/search?state=${state|downcase}&city=${city|downcase}&fage=${age}'
-            }, userData)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/${firstName|downcase}-${lastName|downcase}/a/b/c/search?state=${state|downcase}&city=${city|downcase}&fage=${age}'
+                },
+                userData
+            )
             expect(result).toEqual({ url: 'https://example.com/profile/john-smith/a/b/c/search?state=il&city=chicago&fage=24' })
         })
 
         it('should build url when given valid data from url-search param segments', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/a/b/c/search?name=${firstName}-${lastName}&other=foobar'
-            }, userData)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/a/b/c/search?name=${firstName}-${lastName}&other=foobar'
+                },
+                userData
+            )
             expect(result).toEqual({ url: 'https://example.com/profile/a/b/c/search?name=John-Smith&other=foobar' })
         })
 
         it('should build url when given valid data', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
-            }, userData)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
+                },
+                userData
+            )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=il&city=Chicago&fage=24' })
         })
 
         it('should build hyphenated url when given hyphenated city', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
-            }, userData2)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
+                },
+                userData2
+            )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=West-Montego&fage=24' })
         })
 
         it('should build downcased hyphenated url when given a downcased hyphenated city', () => {
-            const result = replaceTemplatedUrl({
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|downcase|hyphenated}&fage=${age}'
-            }, userData2)
+            const result = replaceTemplatedUrl(
+                {
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|downcase|hyphenated}&fage=${age}'
+                },
+                userData2
+            )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=west-montego&fage=24' })
         })
 
         it('should build downcased hyphenated url when given a downcased hyphenated city in a different order', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated|downcase}&fage=${age}'
-            }, userData2)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated|downcase}&fage=${age}'
+                },
+                userData2
+            )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=west-montego&fage=24' })
         })
 
         it('should build downcased snakecase url when given a downcased snakecase city', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|snakecase|downcase}&fage=${age}'
-            }, userData2)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|snakecase|downcase}&fage=${age}'
+                },
+                userData2
+            )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=ny&city=west_montego&fage=24' })
         })
@@ -443,40 +493,54 @@ describe('Actions', () => {
                 }
             ]
             for (const testCase of testCases) {
-                const result = replaceTemplatedUrl({
-                    id: 0,
-                    url: testCase.input
-                }, testCase.data)
+                const result = replaceTemplatedUrl(
+                    {
+                        id: 0,
+                        url: testCase.input
+                    },
+                    testCase.data
+                )
                 expect(result).toEqual({ url: testCase.expected })
             }
         })
 
         it('should build hyphenated url when given hyphenated state', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state|stateFull|hyphenated}&city=${city}&fage=${age}'
-            }, userData2)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state|stateFull|hyphenated}&city=${city}&fage=${age}'
+                },
+                userData2
+            )
 
-            expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=New-York&city=West+Montego&fage=24' })
+            expect(result).toEqual({
+                url: 'https://example.com/profile/search?fname=John&lname=Smith&state=New-York&city=West+Montego&fage=24'
+            })
         })
 
         it('should build url when given valid data and age range', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                // eslint-disable-next-line no-template-curly-in-string
-                url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city}&fage=${age|ageRange}',
-                ageRange: ['18-30', '31-40', '41-50']
-            }, userData)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    // eslint-disable-next-line no-template-curly-in-string
+                    url: 'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city}&fage=${age|ageRange}',
+                    ageRange: ['18-30', '31-40', '41-50']
+                },
+                userData
+            )
 
             expect(result).toEqual({ url: 'https://example.com/profile/search?fname=John&lname=Smith&state=il&city=Chicago&fage=18-30' })
         })
 
         it('should error when given an invalid action', () => {
-            const result = replaceTemplatedUrl({
-                id: 0,
-                url: null
-            }, userData)
+            const result = replaceTemplatedUrl(
+                {
+                    id: 0,
+                    url: null
+                },
+                userData
+            )
 
             expect(result).toEqual({ error: 'Error: No url provided.' })
         })
@@ -490,10 +554,7 @@ describe('Actions', () => {
                             url: fc.anything()
                         })
                     ),
-                    fc.oneof(
-                        fc.anything(),
-                        fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer(), fc.boolean()))
-                    ),
+                    fc.oneof(fc.anything(), fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer(), fc.boolean()))),
                     (action, userData) => {
                         const result = replaceTemplatedUrl(action, userData)
                         expect('url' in result || 'error' in result)
@@ -514,7 +575,9 @@ describe('Actions', () => {
                 fc.property(
                     fc.record({
                         // eslint-disable-next-line no-template-curly-in-string
-                        url: fc.constant('https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}')
+                        url: fc.constant(
+                            'https://example.com/profile/search?fname=${firstName}&lname=${lastName}&state=${state}&city=${city|hyphenated}&fage=${age}'
+                        )
                     }),
                     fc.record({
                         firstName: fc.string(),
@@ -535,11 +598,11 @@ describe('Actions', () => {
             )
         })
         it('should test the regex replacer with random values', () => {
-            const variable = fc.string().map(randomMiddle => {
+            const variable = fc.string().map((randomMiddle) => {
                 return '${' + randomMiddle + '}'
             })
 
-            const padded = variable.map(randomMiddle => {
+            const padded = variable.map((randomMiddle) => {
                 return '--' + randomMiddle + '--'
             })
 
@@ -549,7 +612,7 @@ describe('Actions', () => {
                     fc.object(),
                     fc.dictionary(fc.string(), fc.oneof(fc.string(), fc.integer())),
                     (input, action, userData) => {
-                        const output = processTemplateStringWithUserData(input, /** @type {any} */(action), userData)
+                        const output = processTemplateStringWithUserData(input, /** @type {any} */ (action), userData)
                         expect(typeof output).toEqual('string')
                     }
                 )
@@ -598,11 +661,7 @@ describe('utils', () => {
 
                     const result = generateRandomInt(min, max)
 
-                    return (
-                        Number.isInteger(result) &&
-                        result >= min &&
-                        result <= max
-                    )
+                    return Number.isInteger(result) && result >= min && result <= max
                 })
             )
         })

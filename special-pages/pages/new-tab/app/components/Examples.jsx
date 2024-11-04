@@ -6,25 +6,44 @@ import { stats } from '../privacy-stats/mocks/stats.js'
 import { noop } from '../utils.js'
 import { VisibilityMenu } from '../customizer/VisibilityMenu.js'
 import { CustomizerButton } from '../customizer/Customizer.js'
-import { rmfDataExamples } from "../remote-messaging-framework/mocks/rmf.data.js";
+import { rmfDataExamples } from '../remote-messaging-framework/mocks/rmf.data.js'
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const mainExamples = {
     'stats.few': {
-        factory: () => <PrivacyStatsMockProvider ticker={true}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+        factory: () => (
+            <PrivacyStatsMockProvider ticker={true}>
+                <PrivacyStatsConsumer />
+            </PrivacyStatsMockProvider>
+        )
     },
     'stats.few.collapsed': {
-        factory: () => <PrivacyStatsMockProvider config={{ expansion: 'collapsed' }}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+        factory: () => (
+            <PrivacyStatsMockProvider config={{ expansion: 'collapsed' }}>
+                <PrivacyStatsConsumer />
+            </PrivacyStatsMockProvider>
+        )
     },
     'stats.single': {
-        factory: () => <PrivacyStatsMockProvider data={stats.single}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+        factory: () => (
+            <PrivacyStatsMockProvider data={stats.single}>
+                <PrivacyStatsConsumer />
+            </PrivacyStatsMockProvider>
+        )
     },
     'stats.none': {
-        factory: () => <PrivacyStatsMockProvider data={stats.none}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+        factory: () => (
+            <PrivacyStatsMockProvider data={stats.none}>
+                <PrivacyStatsConsumer />
+            </PrivacyStatsMockProvider>
+        )
     },
     'stats.norecent': {
-        factory: () => <PrivacyStatsMockProvider
-            data={stats.norecent}><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+        factory: () => (
+            <PrivacyStatsMockProvider data={stats.norecent}>
+                <PrivacyStatsConsumer />
+            </PrivacyStatsMockProvider>
+        )
     },
     'stats.list': {
         factory: () => <Body trackerCompanies={stats.few.trackerCompanies} listAttrs={{ id: 'example-stats.list' }} />
@@ -50,36 +69,22 @@ export const mainExamples = {
         )
     },
     'rmf.small': {
-        factory: () => (
-            <RemoteMessagingFramework
-                message={rmfDataExamples.small.content}
-                dismiss={() => {}}
-            />
-        )
+        factory: () => <RemoteMessagingFramework message={rmfDataExamples.small.content} dismiss={() => {}} />
     },
     'rmf.medium': {
-        factory: () => (
-            <RemoteMessagingFramework
-                message={rmfDataExamples.medium.content}
-                dismiss={() => {}}
-            />
-        )
+        factory: () => <RemoteMessagingFramework message={rmfDataExamples.medium.content} dismiss={() => {}} />
     },
     'rmf.big-single-action': {
         factory: () => (
-            <RemoteMessagingFramework
-                message={rmfDataExamples.big_single_action.content}
-                primaryAction={() => { }}
-                dismiss={() => {}}
-            />
+            <RemoteMessagingFramework message={rmfDataExamples.big_single_action.content} primaryAction={() => {}} dismiss={() => {}} />
         )
     },
     'rmf.big-two-action': {
         factory: () => (
             <RemoteMessagingFramework
                 message={rmfDataExamples.big_two_action.content}
-                primaryAction={() => { }}
-                secondaryAction={() => { }}
+                primaryAction={() => {}}
+                secondaryAction={() => {}}
                 dismiss={() => {}}
             />
         )
@@ -88,29 +93,37 @@ export const mainExamples = {
 
 export const otherExamples = {
     'stats.without-animation': {
-        factory: () => <PrivacyStatsMockProvider
-            ticker={true}
-            config={{
-                expansion: 'expanded',
-                animation: { kind: 'none' }
-            }}
-        ><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+        factory: () => (
+            <PrivacyStatsMockProvider
+                ticker={true}
+                config={{
+                    expansion: 'expanded',
+                    animation: { kind: 'none' }
+                }}
+            >
+                <PrivacyStatsConsumer />
+            </PrivacyStatsMockProvider>
+        )
     },
     'stats.with-view-transitions': {
-        factory: () => <PrivacyStatsMockProvider
-            ticker={true}
-            config={{
-                expansion: 'expanded',
-                animation: { kind: 'view-transitions' }
-            }}
-        ><PrivacyStatsConsumer /></PrivacyStatsMockProvider>
+        factory: () => (
+            <PrivacyStatsMockProvider
+                ticker={true}
+                config={{
+                    expansion: 'expanded',
+                    animation: { kind: 'view-transitions' }
+                }}
+            >
+                <PrivacyStatsConsumer />
+            </PrivacyStatsMockProvider>
+        )
     },
     'rmf.big-two-action-overflow': {
         factory: () => (
             <RemoteMessagingFramework
                 message={rmfDataExamples.big_two_action_overflow.content}
-                primaryAction={() => { }}
-                secondaryAction={() => { }}
+                primaryAction={() => {}}
+                secondaryAction={() => {}}
                 dismiss={() => {}}
             />
         )
@@ -119,9 +132,9 @@ export const otherExamples = {
         factory: () => (
             <Fragment>
                 <div>
-                    <CustomizerButton isOpen={true}/>
+                    <CustomizerButton isOpen={true} />
                 </div>
-                <br/>
+                <br />
                 <MaxContent>
                     <VisibilityMenu
                         rows={[
@@ -129,16 +142,16 @@ export const otherExamples = {
                                 id: 'favorites',
                                 title: 'Favorites',
                                 icon: 'star',
-                                toggle: noop("toggle favorites"),
-                                visibility: "hidden",
-                                index:0
+                                toggle: noop('toggle favorites'),
+                                visibility: 'hidden',
+                                index: 0
                             },
                             {
                                 id: 'privacyStats',
                                 title: 'Privacy Stats',
                                 icon: 'shield',
-                                toggle: noop("toggle favorites"),
-                                visibility: "visible",
+                                toggle: noop('toggle favorites'),
+                                visibility: 'visible',
                                 index: 1
                             }
                         ]}
@@ -149,10 +162,6 @@ export const otherExamples = {
     }
 }
 
-function MaxContent ({ children }) {
-    return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'max-content' }}>
-            {children}
-        </div>
-    )
+function MaxContent({ children }) {
+    return <div style={{ display: 'grid', gridTemplateColumns: 'max-content' }}>{children}</div>
 }

@@ -8,19 +8,19 @@ import svg from 'rollup-plugin-svg-import'
 import { platformSupport } from '../../src/features.js'
 import { readFileSync } from 'fs'
 
-function prefixPlugin (prefixMessage) {
+function prefixPlugin(prefixMessage) {
     return {
         name: 'prefix-plugin',
-        renderChunk (code) {
+        renderChunk(code) {
             return `${prefixMessage}\n${code}`
         }
     }
 }
 
-function suffixPlugin (suffixMessage) {
+function suffixPlugin(suffixMessage) {
     return {
         name: 'suffix-plugin',
-        renderChunk (code) {
+        renderChunk(code) {
             return `${code}\n${suffixMessage}`
         }
     }
@@ -37,14 +37,8 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https:/
  * @param {boolean} [params.supportsMozProxies]
  * @return {Promise<string>}
  */
-export async function rollupScript (params) {
-    const {
-        scriptPath,
-        platform,
-        name,
-        featureNames,
-        supportsMozProxies = false
-    } = params
+export async function rollupScript(params) {
+    const { scriptPath, platform, name, featureNames, supportsMozProxies = false } = params
 
     const extensions = ['firefox', 'chrome', 'chrome-mv3']
     const isExtension = extensions.includes(platform)
@@ -104,15 +98,15 @@ export async function rollupScript (params) {
  * @param {string} platform
  * @param {string[]} featureNames
  */
-function loadFeatures (platform, featureNames = platformSupport[platform]) {
+function loadFeatures(platform, featureNames = platformSupport[platform]) {
     const pluginId = 'ddg:platformFeatures'
     return {
         name: pluginId,
-        resolveId (id) {
+        resolveId(id) {
             if (id === pluginId) return id
             return null
         },
-        load (id) {
+        load(id) {
             if (id !== pluginId) return null
 
             // convert a list of feature names to
@@ -126,11 +120,9 @@ function loadFeatures (platform, featureNames = platformSupport[platform]) {
                 }
             })
 
-            const importString = imports.map(imp => `import ${imp.ident} from ${JSON.stringify(imp.importPath)}`)
-                .join(';\n')
+            const importString = imports.map((imp) => `import ${imp.ident} from ${JSON.stringify(imp.importPath)}`).join(';\n')
 
-            const exportsString = imports.map(imp => `${imp.ident}`)
-                .join(',\n    ')
+            const exportsString = imports.map((imp) => `${imp.ident}`).join(',\n    ')
 
             const exportString = `export default {\n    ${exportsString}\n}`
 
@@ -145,7 +137,7 @@ function loadFeatures (platform, featureNames = platformSupport[platform]) {
  * @param {string} featureName
  * @return {string}
  */
-function getFileName (featureName) {
+function getFileName(featureName) {
     return featureName.replace(/([a-zA-Z])(?=[A-Z0-9])/g, '$1-').toLowerCase()
 }
 
@@ -160,6 +152,6 @@ function getFileName (featureName) {
  * @param {string} content
  * @return {Promise<import('esbuild').TransformResult>}
  */
-export function postProcess (content) {
+export function postProcess(content) {
     return esbuild.transform(content, { target: 'es2021', format: 'iife' })
 }

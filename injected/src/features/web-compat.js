@@ -4,7 +4,7 @@ import { URL } from '../captured-globals.js'
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
-function windowSizingFix () {
+function windowSizingFix() {
     if (window.outerHeight !== 0 && window.outerWidth !== 0) {
         return
     }
@@ -17,7 +17,7 @@ const MSG_PERMISSIONS_QUERY = 'permissionsQuery'
 const MSG_SCREEN_LOCK = 'screenLock'
 const MSG_SCREEN_UNLOCK = 'screenUnlock'
 
-function canShare (data) {
+function canShare(data) {
     if (typeof data !== 'object') return false
     if (!('url' in data) && !('title' in data) && !('text' in data)) return false // At least one of these is required
     if ('files' in data) return false // File sharing is not supported at the moment
@@ -40,7 +40,7 @@ function canShare (data) {
  * Clean data before sending to the Android side
  * @returns {ShareRequestData}
  */
-function cleanShareData (data) {
+function cleanShareData(data) {
     /** @type {ShareRequestData} */
     const dataToSend = {}
 
@@ -51,7 +51,7 @@ function cleanShareData (data) {
 
     // clean url and handle relative links (e.g. if url is an empty string)
     if ('url' in data) {
-        dataToSend.url = (new URL(data.url, location.href)).href
+        dataToSend.url = new URL(data.url, location.href).href
     }
 
     // combine url and text into text if both are present
@@ -74,7 +74,7 @@ export class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeScreenLockRequest = null
 
-    init () {
+    init() {
         if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix()
         }
@@ -124,7 +124,7 @@ export class WebCompat extends ContentFeature {
     }
 
     /** Shim Web Share API in Android WebView */
-    shimWebShare () {
+    shimWebShare() {
         if (typeof navigator.canShare === 'function' || typeof navigator.share === 'function') return
 
         this.defineProperty(Navigator.prototype, 'canShare', {
@@ -160,12 +160,12 @@ export class WebCompat extends ContentFeature {
 
                 if (resp.failure) {
                     switch (resp.failure.name) {
-                    case 'AbortError':
-                    case 'NotAllowedError':
-                    case 'DataError':
-                        throw new DOMException(resp.failure.message, resp.failure.name)
-                    default:
-                        throw new DOMException(resp.failure.message, 'DataError')
+                        case 'AbortError':
+                        case 'NotAllowedError':
+                        case 'DataError':
+                            throw new DOMException(resp.failure.message, resp.failure.name)
+                        default:
+                            throw new DOMException(resp.failure.message, 'DataError')
                     }
                 }
             }
@@ -175,7 +175,7 @@ export class WebCompat extends ContentFeature {
     /**
      * Notification fix for adding missing API for Android WebView.
      */
-    notificationFix () {
+    notificationFix() {
         if (window.Notification) {
             return
         }
@@ -211,8 +211,8 @@ export class WebCompat extends ContentFeature {
         })
     }
 
-    cleanIframeValue () {
-        function cleanValueData (val) {
+    cleanIframeValue() {
+        function cleanValueData(val) {
             const clone = Object.assign({}, val)
             const deleteKeys = ['iframeProto', 'iframeData', 'remap']
             for (const key of deleteKeys) {
@@ -225,11 +225,13 @@ export class WebCompat extends ContentFeature {
         }
 
         window.XMLHttpRequest.prototype.send = new Proxy(window.XMLHttpRequest.prototype.send, {
-            apply (target, thisArg, args) {
+            apply(target, thisArg, args) {
                 const body = args[0]
                 const cleanKey = 'bi_wvdp'
                 if (body && typeof body === 'string' && body.includes(cleanKey)) {
-                    const parts = body.split('&').map((part) => { return part.split('=') })
+                    const parts = body.split('&').map((part) => {
+                        return part.split('=')
+                    })
                     if (parts.length > 0) {
                         parts.forEach((part) => {
                             if (part[0] === cleanKey) {
@@ -237,7 +239,11 @@ export class WebCompat extends ContentFeature {
                                 part[1] = encodeURIComponent(JSON.stringify(cleanValueData(val)))
                             }
                         })
-                        args[0] = parts.map((part) => { return part.join('=') }).join('&')
+                        args[0] = parts
+                            .map((part) => {
+                                return part.join('=')
+                            })
+                            .join('&')
                     }
                 }
                 return Reflect.apply(target, thisArg, args)
@@ -248,47 +254,54 @@ export class WebCompat extends ContentFeature {
     /**
      * Adds missing permissions API for Android WebView.
      */
-    permissionsFix (settings) {
+    permissionsFix(settings) {
         if (window.navigator.permissions) {
             return
         }
         const permissions = {}
         class PermissionStatus extends EventTarget {
-            constructor (name, state) {
+            constructor(name, state) {
                 super()
                 this.name = name
                 this.state = state
                 this.onchange = null // noop
             }
         }
-        permissions.query = new Proxy(async (query) => {
-            this.addDebugFlag()
-            if (!query) {
-                throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
-            }
-            if (!query.name) {
-                throw new TypeError("Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.")
-            }
-            if (!settings.supportedPermissions || !(query.name in settings.supportedPermissions)) {
-                throw new TypeError(`Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`)
-            }
-            const permSetting = settings.supportedPermissions[query.name]
-            const returnName = permSetting.name || query.name
-            let returnStatus = settings.permissionResponse || 'prompt'
-            if (permSetting.native) {
-                try {
-                    const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query)
-                    returnStatus = response.state || 'prompt'
-                } catch (err) {
-                    // do nothing - keep returnStatus as-is
+        permissions.query = new Proxy(
+            async (query) => {
+                this.addDebugFlag()
+                if (!query) {
+                    throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.")
+                }
+                if (!query.name) {
+                    throw new TypeError(
+                        "Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined."
+                    )
+                }
+                if (!settings.supportedPermissions || !(query.name in settings.supportedPermissions)) {
+                    throw new TypeError(
+                        `Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`
+                    )
+                }
+                const permSetting = settings.supportedPermissions[query.name]
+                const returnName = permSetting.name || query.name
+                let returnStatus = settings.permissionResponse || 'prompt'
+                if (permSetting.native) {
+                    try {
+                        const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query)
+                        returnStatus = response.state || 'prompt'
+                    } catch (err) {
+                        // do nothing - keep returnStatus as-is
+                    }
+                }
+                return Promise.resolve(new PermissionStatus(returnName, returnStatus))
+            },
+            {
+                get(target, name) {
+                    return Reflect.get(target, name)
                 }
             }
-            return Promise.resolve(new PermissionStatus(returnName, returnStatus))
-        }, {
-            get (target, name) {
-                return Reflect.get(target, name)
-            }
-        })
+        )
         // Expose the API
         // @ts-expect-error window.navigator isn't assignable
         window.navigator.permissions = permissions
@@ -297,7 +310,7 @@ export class WebCompat extends ContentFeature {
     /**
      * Fixes screen lock/unlock APIs for Android WebView.
      */
-    screenLockFix () {
+    screenLockFix() {
         const validOrientations = [
             'any',
             'natural',
@@ -313,10 +326,16 @@ export class WebCompat extends ContentFeature {
         this.wrapProperty(globalThis.ScreenOrientation.prototype, 'lock', {
             value: async (requestedOrientation) => {
                 if (!requestedOrientation) {
-                    return Promise.reject(new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present."))
+                    return Promise.reject(
+                        new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present.")
+                    )
                 }
                 if (!validOrientations.includes(requestedOrientation)) {
-                    return Promise.reject(new TypeError(`Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`))
+                    return Promise.reject(
+                        new TypeError(
+                            `Failed to execute 'lock' on 'ScreenOrientation': The provided value '${requestedOrientation}' is not a valid enum value of type OrientationLockType.`
+                        )
+                    )
                 }
                 if (this.#activeScreenLockRequest) {
                     return Promise.reject(new DOMException('Screen lock already in progress', 'AbortError'))
@@ -334,12 +353,12 @@ export class WebCompat extends ContentFeature {
 
                 if (resp.failure) {
                     switch (resp.failure.name) {
-                    case 'TypeError':
-                        return Promise.reject(new TypeError(resp.failure.message))
-                    case 'InvalidStateError':
-                        return Promise.reject(new DOMException(resp.failure.message, resp.failure.name))
-                    default:
-                        return Promise.reject(new DOMException(resp.failure.message, 'DataError'))
+                        case 'TypeError':
+                            return Promise.reject(new TypeError(resp.failure.message))
+                        case 'InvalidStateError':
+                            return Promise.reject(new DOMException(resp.failure.message, resp.failure.name))
+                        default:
+                            return Promise.reject(new DOMException(resp.failure.message, 'DataError'))
                     }
                 }
 
@@ -357,13 +376,13 @@ export class WebCompat extends ContentFeature {
     /**
      * Add missing navigator.credentials API
      */
-    navigatorCredentialsFix () {
+    navigatorCredentialsFix() {
         try {
             if ('credentials' in navigator && 'get' in navigator.credentials) {
                 return
             }
             const value = {
-                get () {
+                get() {
                     return Promise.reject(new Error())
                 }
             }
@@ -379,34 +398,34 @@ export class WebCompat extends ContentFeature {
         }
     }
 
-    safariObjectFix () {
+    safariObjectFix() {
         try {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             if (window.safari) {
                 return
             }
             this.defineProperty(window, 'safari', {
-                value: {
-                },
+                value: {},
                 writable: true,
                 configurable: true,
                 enumerable: true
             })
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.safari, 'pushNotification', {
-                value: {
-                },
+                value: {},
                 configurable: true,
                 enumerable: true
             })
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window.safari.pushNotification, 'toString', {
-                value: () => { return '[object SafariRemoteNotification]' },
+                value: () => {
+                    return '[object SafariRemoteNotification]'
+                },
                 configurable: true,
                 enumerable: true
             })
             class SafariRemoteNotificationPermission {
-                constructor () {
+                constructor() {
                     this.deviceToken = null
                     this.permission = 'denied'
                 }
@@ -437,7 +456,7 @@ export class WebCompat extends ContentFeature {
         }
     }
 
-    mediaSessionFix () {
+    mediaSessionFix() {
         try {
             if (window.navigator.mediaSession && import.meta.injectName !== 'integration') {
                 return
@@ -448,10 +467,10 @@ export class WebCompat extends ContentFeature {
                 /** @type {MediaSession['playbackState']} */
                 playbackState = 'none'
 
-                setActionHandler () {}
-                setCameraActive () {}
-                setMicrophoneActive () {}
-                setPositionState () {}
+                setActionHandler() {}
+                setCameraActive() {}
+                setMicrophoneActive() {}
+                setPositionState() {}
             }
 
             this.shimInterface('MediaSession', MyMediaSession, {
@@ -461,24 +480,28 @@ export class WebCompat extends ContentFeature {
             })
             this.shimProperty(Navigator.prototype, 'mediaSession', new MyMediaSession(), true)
 
-            this.shimInterface('MediaMetadata', class {
-                constructor (metadata = {}) {
-                    this.title = metadata.title
-                    this.artist = metadata.artist
-                    this.album = metadata.album
-                    this.artwork = metadata.artwork
+            this.shimInterface(
+                'MediaMetadata',
+                class {
+                    constructor(metadata = {}) {
+                        this.title = metadata.title
+                        this.artist = metadata.artist
+                        this.album = metadata.album
+                        this.artwork = metadata.artwork
+                    }
+                },
+                {
+                    disallowConstructor: false,
+                    allowConstructorCall: false,
+                    wrapToString: true
                 }
-            }, {
-                disallowConstructor: false,
-                allowConstructorCall: false,
-                wrapToString: true
-            })
+            )
         } catch {
             // Ignore exceptions that could be caused by conflicting with other extensions
         }
     }
 
-    presentationFix () {
+    presentationFix() {
         try {
             // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
             if (window.navigator.presentation && import.meta.injectName !== 'integration') {
@@ -486,11 +509,11 @@ export class WebCompat extends ContentFeature {
             }
 
             const MyPresentation = class {
-                get defaultRequest () {
+                get defaultRequest() {
                     return null
                 }
 
-                get receiver () {
+                get receiver() {
                     return null
                 }
             }
@@ -503,22 +526,30 @@ export class WebCompat extends ContentFeature {
             })
 
             // @ts-expect-error Presentation API is still experimental, TS types are missing
-            this.shimInterface('PresentationAvailability', class {
-                // class definition is empty because there's no way to get an instance of it anyways
-            }, {
-                disallowConstructor: true,
-                allowConstructorCall: false,
-                wrapToString: true
-            })
+            this.shimInterface(
+                'PresentationAvailability',
+                class {
+                    // class definition is empty because there's no way to get an instance of it anyways
+                },
+                {
+                    disallowConstructor: true,
+                    allowConstructorCall: false,
+                    wrapToString: true
+                }
+            )
 
             // @ts-expect-error Presentation API is still experimental, TS types are missing
-            this.shimInterface('PresentationRequest', class {
-                // class definition is empty because there's no way to get an instance of it anyways
-            }, {
-                disallowConstructor: true,
-                allowConstructorCall: false,
-                wrapToString: true
-            })
+            this.shimInterface(
+                'PresentationRequest',
+                class {
+                    // class definition is empty because there's no way to get an instance of it anyways
+                },
+                {
+                    disallowConstructor: true,
+                    allowConstructorCall: false,
+                    wrapToString: true
+                }
+            )
 
             /** TODO: add shims for other classes in the Presentation API:
              * PresentationConnection,
@@ -538,7 +569,7 @@ export class WebCompat extends ContentFeature {
     /**
      * Support for modifying localStorage entries
      */
-    modifyLocalStorage () {
+    modifyLocalStorage() {
         /** @type {import('../types//webcompat-settings').WebCompatSettings['modifyLocalStorage']} */
         const settings = this.getFeatureSetting('modifyLocalStorage')
 
@@ -554,7 +585,7 @@ export class WebCompat extends ContentFeature {
     /**
      * Support for proxying `window.webkit.messageHandlers`
      */
-    messageHandlersFix () {
+    messageHandlersFix() {
         /** @type {import('../types//webcompat-settings').WebCompatSettings['messageHandlers']} */
         const settings = this.getFeatureSetting('messageHandlers')
 
@@ -564,7 +595,7 @@ export class WebCompat extends ContentFeature {
         if (!settings) return
 
         const proxy = new Proxy(globalThis.webkit.messageHandlers, {
-            get (target, messageName, receiver) {
+            get(target, messageName, receiver) {
                 const handlerName = String(messageName)
 
                 // handle known message names, such as DDG webkit messaging
@@ -576,11 +607,9 @@ export class WebCompat extends ContentFeature {
                     return undefined
                 }
 
-                if (settings.handlerStrategies.polyfill.includes('*') ||
-                    settings.handlerStrategies.polyfill.includes(handlerName)
-                ) {
+                if (settings.handlerStrategies.polyfill.includes('*') || settings.handlerStrategies.polyfill.includes(handlerName)) {
                     return {
-                        postMessage () {
+                        postMessage() {
                             return Promise.resolve({})
                         }
                     }
@@ -596,7 +625,7 @@ export class WebCompat extends ContentFeature {
         }
     }
 
-    viewportWidthFix () {
+    viewportWidthFix() {
         if (document.readyState === 'loading') {
             // if the document is not ready, we may miss the original viewport tag
             document.addEventListener('DOMContentLoaded', () => this.viewportWidthFixInner())
@@ -610,7 +639,7 @@ export class WebCompat extends ContentFeature {
      * @param {HTMLMetaElement|null} viewportTag
      * @param {string} forcedValue
      */
-    forceViewportTag (viewportTag, forcedValue) {
+    forceViewportTag(viewportTag, forcedValue) {
         const viewportTagExists = Boolean(viewportTag)
         if (!viewportTag) {
             viewportTag = document.createElement('meta')
@@ -622,7 +651,7 @@ export class WebCompat extends ContentFeature {
         }
     }
 
-    viewportWidthFixInner () {
+    viewportWidthFixInner() {
         /** @type {NodeListOf<HTMLMetaElement>} **/
         const viewportTags = document.querySelectorAll('meta[name=viewport i]')
         // Chrome respects only the last viewport tag
@@ -632,7 +661,7 @@ export class WebCompat extends ContentFeature {
         const viewportContentParts = viewportContent ? viewportContent.split(/,|;/) : []
         /** @type {readonly string[][]} **/
         const parsedViewportContent = viewportContentParts.map((part) => {
-            const [key, value] = part.split('=').map(p => p.trim().toLowerCase())
+            const [key, value] = part.split('=').map((p) => p.trim().toLowerCase())
             return [key, value]
         })
 
@@ -667,7 +696,8 @@ export class WebCompat extends ContentFeature {
             // Race condition: depending on the loading state of the page, initial scale may or may not be respected, so the page may look zoomed-in after applying this hack.
             // Usually this is just an annoyance, but it may be a bigger issue if user-scalable=no is set, so we remove it too.
             forcedValues['user-scalable'] = 'yes'
-        } else { // mobile mode with a viewport tag
+        } else {
+            // mobile mode with a viewport tag
             // fix an edge case where WebView forces the wide viewport
             const widthPart = parsedViewportContent.find(([key]) => key === 'width')
             const initialScalePart = parsedViewportContent.find(([key]) => key === 'initial-scale')
@@ -685,7 +715,8 @@ export class WebCompat extends ContentFeature {
             newContent.push(`${key}=${forcedValues[key]}`)
         })
 
-        if (newContent.length > 0) { // need to override at least one viewport component
+        if (newContent.length > 0) {
+            // need to override at least one viewport component
             parsedViewportContent.forEach(([key], idx) => {
                 if (!(key in forcedValues)) {
                     newContent.push(viewportContentParts[idx].trim()) // reuse the original values, not the parsed ones

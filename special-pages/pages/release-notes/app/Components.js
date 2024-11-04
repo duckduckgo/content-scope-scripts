@@ -18,10 +18,10 @@ import styles from './Components.module.css'
 import { sampleData } from './sampleData.js'
 import { useEffect, useState } from 'preact/hooks'
 
-export function Components () {
+export function Components() {
     const { t } = useTypedTranslation()
     const todayInMilliseconds = Date.now()
-    const yesterdayInMilliseconds = new Date(todayInMilliseconds - (24 * 60 * 60 * 1000)).getTime()
+    const yesterdayInMilliseconds = new Date(todayInMilliseconds - 24 * 60 * 60 * 1000).getTime()
 
     /**
      * @type {import('../app/types.js').Notes[]}
@@ -30,8 +30,11 @@ export function Components () {
         {
             notes: [
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel viverra est. Ut non nisi lacus. Ut sodales leo sed ex condimentum tincidunt.',
-                'Sed eget risus luctus, convallis sapien nec, tincidunt orci.', 'Sed et lobortis enim. Curabitur sit amet placerat felis.']
-        }, {
+                'Sed eget risus luctus, convallis sapien nec, tincidunt orci.',
+                'Sed et lobortis enim. Curabitur sit amet placerat felis.'
+            ]
+        },
+        {
             icon: 'PrivacyPro',
             title: t('forPrivacyProSubscribers'),
             notes: [
@@ -39,7 +42,8 @@ export function Components () {
                 'Duis varius in ex at vestibulum. Morbi finibus fringilla urna, ac varius quam vestibulum sit amet.',
                 'Morbi a ligula vel metus ultrices sodales quis vel velit.'
             ]
-        }]
+        }
+    ]
 
     return (
         <main className={styles.main}>
@@ -47,21 +51,21 @@ export function Components () {
 
             <h2>DuckDuckGo Logo</h2>
             <DuckDuckGoLogo />
-            <hr/>
+            <hr />
 
             <h2>Page Title</h2>
-            <PageTitle title={t('browserReleaseNotes')}/>
-            <hr/>
+            <PageTitle title={t('browserReleaseNotes')} />
+            <hr />
 
             <h2>Update Status</h2>
-            <UpdateStatus status="loading" version="1.0.1" timestamp={yesterdayInMilliseconds}/>
-            <UpdateStatus status="loaded" version="1.0.1" timestamp={todayInMilliseconds}/>
-            <UpdateStatus status="updateReady" version="1.2.0" timestamp={todayInMilliseconds}/>
-            <UpdateStatus status="criticalUpdateReady" version="1.2.0" timestamp={todayInMilliseconds}/>
-            <UpdateStatus status="updateError" version="1.2.0" timestamp={todayInMilliseconds}/>
-            <UpdateStatus status="updateDownloading" version="1.2.0" timestamp={todayInMilliseconds} progress={0.35}/>
-            <UpdateStatus status="updatePreparing" version="1.2.0" timestamp={todayInMilliseconds}/>
-            <hr/>
+            <UpdateStatus status="loading" version="1.0.1" timestamp={yesterdayInMilliseconds} />
+            <UpdateStatus status="loaded" version="1.0.1" timestamp={todayInMilliseconds} />
+            <UpdateStatus status="updateReady" version="1.2.0" timestamp={todayInMilliseconds} />
+            <UpdateStatus status="criticalUpdateReady" version="1.2.0" timestamp={todayInMilliseconds} />
+            <UpdateStatus status="updateError" version="1.2.0" timestamp={todayInMilliseconds} />
+            <UpdateStatus status="updateDownloading" version="1.2.0" timestamp={todayInMilliseconds} progress={0.35} />
+            <UpdateStatus status="updatePreparing" version="1.2.0" timestamp={todayInMilliseconds} />
+            <hr />
 
             <h2>Update Buttons</h2>
             <div>
@@ -73,31 +77,31 @@ export function Components () {
             <div>
                 <Button>{t('retryUpdate')}</Button>
             </div>
-            <hr/>
+            <hr />
 
             <h2>Content Placeholder</h2>
-            <ContentPlaceholder/>
-            <hr/>
+            <ContentPlaceholder />
+            <hr />
 
             <h2>Release Notes Heading</h2>
-            <ReleaseNotesHeading title="May 10 2023" version="1.0.0" showNewTag={false}/>
-            <ReleaseNotesHeading title="May 10 2024" version="1.2.0" showNewTag={true}/>
-            <hr/>
+            <ReleaseNotesHeading title="May 10 2023" version="1.0.0" showNewTag={false} />
+            <ReleaseNotesHeading title="May 10 2024" version="1.2.0" showNewTag={true} />
+            <hr />
 
             <h2>Release Notes Subheading</h2>
-            <ReleaseNotesSubheading title="Release Notes Subheading without Icon"/>
-            <ReleaseNotesSubheading icon="PrivacyPro" title="Release Notes Subheading with Privacy Pro Icon"/>
-            <hr/>
+            <ReleaseNotesSubheading title="Release Notes Subheading without Icon" />
+            <ReleaseNotesSubheading icon="PrivacyPro" title="Release Notes Subheading with Privacy Pro Icon" />
+            <hr />
 
             <h2>Release Notes List</h2>
             <ReleaseNotesList notes={sampleNotesData[0].notes} />
-            <hr/>
+            <hr />
 
             <h2>Content Placeholder Inside a Card</h2>
             <Card className={styles.card}>
-                <ContentPlaceholder/>
+                <ContentPlaceholder />
             </Card>
-            <hr/>
+            <hr />
 
             <h2>Release Notes Inside a Card</h2>
             <Card className={styles.card}>
@@ -124,13 +128,20 @@ export function Components () {
                 <ReleaseNotes releaseData={sampleData.criticalUpdateReady} />
             </LoadingThen>
             <LoadingThen>
-                <ReleaseNotes releaseData={/** @type {import('../../../types/release-notes').UpdateMessage} */({ ...sampleData.updateReady, automaticUpdate: false })} />
+                <ReleaseNotes
+                    releaseData={
+                        /** @type {import('../../../types/release-notes').UpdateMessage} */ ({
+                            ...sampleData.updateReady,
+                            automaticUpdate: false
+                        })
+                    }
+                />
             </LoadingThen>
         </main>
     )
 }
 
-function LoadingThen ({ children }) {
+function LoadingThen({ children }) {
     const [ready, setReady] = useState(false)
     useEffect(() => {
         setTimeout(() => setReady(true), 1000)

@@ -84,7 +84,7 @@ export const stepDefinitions = {
     }
 }
 
-export const stepMeta = /** @type {const} */({
+export const stepMeta = /** @type {const} */ ({
     dockSingle: {
         rows: {
             dock: {
@@ -109,8 +109,7 @@ export const stepMeta = /** @type {const} */({
             }
         }
     }
-}
-)
+})
 /**
  * Row items that do not cause system settings to be altered
  * @type {Record<string, (t: import('./types').TranslationFn) => Omit<RowData, "id" | "acceptText"> & { id: string }>}

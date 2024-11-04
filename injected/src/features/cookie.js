@@ -1,4 +1,12 @@
-import { postDebugMessage, getStackTraceOrigins, getStack, isBeingFramed, isThirdPartyFrame, getTabHostname, matchHostname } from '../utils.js'
+import {
+    postDebugMessage,
+    getStackTraceOrigins,
+    getStack,
+    isBeingFramed,
+    isThirdPartyFrame,
+    getTabHostname,
+    matchHostname
+} from '../utils.js'
 import { Cookie } from '../cookie.js'
 import ContentFeature from '../content-feature.js'
 import { isTrackerOrigin } from '../trackers.js'
@@ -11,7 +19,7 @@ import { isTrackerOrigin } from '../trackers.js'
  * @property {boolean} isThirdPartyFrame
  */
 
-function initialShouldBlockTrackerCookie () {
+function initialShouldBlockTrackerCookie() {
     const injectName = import.meta.injectName
     return injectName === 'chrome' || injectName === 'firefox' || injectName === 'chrome-mv3' || injectName === 'windows'
 }
@@ -33,7 +41,7 @@ let cookiePolicy = {
         threshold: 86400, // 1 day
         maxAge: 86400 // 1 day
     },
-    allowlist: /** @type {{ host: string }[]} */([])
+    allowlist: /** @type {{ host: string }[]} */ ([])
 }
 let trackerLookup = {}
 
@@ -44,24 +52,25 @@ let loadedPolicyResolve
  * @param {string} reason
  * @param {any} ctx
  */
-function debugHelper (action, reason, ctx) {
-    cookiePolicy.debug && postDebugMessage('jscookie', {
-        action,
-        reason,
-        stack: ctx.stack,
-        documentUrl: globalThis.document.location.href,
-        value: ctx.value
-    })
+function debugHelper(action, reason, ctx) {
+    cookiePolicy.debug &&
+        postDebugMessage('jscookie', {
+            action,
+            reason,
+            stack: ctx.stack,
+            documentUrl: globalThis.document.location.href,
+            value: ctx.value
+        })
 }
 
 /**
  * @returns {boolean}
  */
-function shouldBlockTrackingCookie () {
+function shouldBlockTrackingCookie() {
     return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockTrackerCookie && isTrackingCookie()
 }
 
-function shouldBlockNonTrackingCookie () {
+function shouldBlockNonTrackingCookie() {
     return cookiePolicy.shouldBlock && cookiePolicy.shouldBlockNonTrackerCookie && isNonTrackingCookie()
 }
 
@@ -69,7 +78,7 @@ function shouldBlockNonTrackingCookie () {
  * @param {Set<string>} scriptOrigins
  * @returns {boolean}
  */
-function isFirstPartyTrackerScript (scriptOrigins) {
+function isFirstPartyTrackerScript(scriptOrigins) {
     let matched = false
     for (const scriptOrigin of scriptOrigins) {
         if (cookiePolicy.allowlist.find((allowlistOrigin) => matchHostname(allowlistOrigin.host, scriptOrigin))) {
@@ -85,16 +94,16 @@ function isFirstPartyTrackerScript (scriptOrigins) {
 /**
  * @returns {boolean}
  */
-function isTrackingCookie () {
+function isTrackingCookie() {
     return cookiePolicy.isFrame && cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
 }
 
-function isNonTrackingCookie () {
+function isNonTrackingCookie() {
     return cookiePolicy.isFrame && !cookiePolicy.isTracker && cookiePolicy.isThirdPartyFrame
 }
 
 export default class CookieFeature extends ContentFeature {
-    load () {
+    load() {
         if (this.documentOriginIsTracker) {
             cookiePolicy.isTracker = true
         }
@@ -138,7 +147,7 @@ export default class CookieFeature extends ContentFeature {
         // this call.
         const loadPolicyThen = loadPolicy.then.bind(loadPolicy)
 
-        function getCookiePolicy () {
+        function getCookiePolicy() {
             let getCookieContext = null
             if (cookiePolicy.debug) {
                 const stack = getStack()
@@ -161,7 +170,7 @@ export default class CookieFeature extends ContentFeature {
         /**
          * @param {any} argValue
          */
-        function setCookiePolicy (argValue) {
+        function setCookiePolicy(argValue) {
             let setCookieContext = null
             if (!argValue?.toString || typeof argValue.toString() !== 'string') {
                 // not a string, or string-like
@@ -204,7 +213,7 @@ export default class CookieFeature extends ContentFeature {
                     // apply cookie policy
                     if (cookie.getExpiry() > chosenPolicy.threshold) {
                         // check if the cookie still exists
-                        if (document.cookie.split(';').findIndex(kv => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
+                        if (document.cookie.split(';').findIndex((kv) => kv.trim().startsWith(cookie.parts[0].trim())) !== -1) {
                             cookie.maxAge = chosenPolicy.maxAge
 
                             debugHelper('restrict', 'expiry', setCookieContext)
@@ -231,7 +240,7 @@ export default class CookieFeature extends ContentFeature {
         })
     }
 
-    init (args) {
+    init(args) {
         const restOfPolicy = {
             debug: this.isDebug,
             shouldBlockTrackerCookie: this.getFeatureSettingEnabled('trackerCookie'),
@@ -242,14 +251,14 @@ export default class CookieFeature extends ContentFeature {
         }
         // The extension provides some additional info about the cookie policy, let's use that over our guesses
         if (args.cookie) {
-            const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */(args.cookie)
+            const extensionCookiePolicy = /** @type {ExtensionCookiePolicy} */ (args.cookie)
             cookiePolicy = {
                 ...extensionCookiePolicy,
                 ...restOfPolicy
             }
         } else {
             // copy non-null entries from restOfPolicy to cookiePolicy
-            Object.keys(restOfPolicy).forEach(key => {
+            Object.keys(restOfPolicy).forEach((key) => {
                 if (restOfPolicy[key]) {
                     cookiePolicy[key] = restOfPolicy[key]
                 }

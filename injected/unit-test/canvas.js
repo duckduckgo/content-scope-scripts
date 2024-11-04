@@ -1,12 +1,14 @@
 import ImageData from '@canvas/image-data'
 import { modifyPixelData } from '../src/canvas.js'
 
-function calculateCheckSum (imageData) {
-    return imageData.data.reduce((t, v) => { return t + v }, 0)
+function calculateCheckSum(imageData) {
+    return imageData.data.reduce((t, v) => {
+        return t + v
+    }, 0)
 }
 
 // Produce some fake Image data, the values aren't really that important
-function computeSampleImageData () {
+function computeSampleImageData() {
     const height = 100
     const width = 100
     const inVal = []

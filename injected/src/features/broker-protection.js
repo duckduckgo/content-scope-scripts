@@ -7,8 +7,8 @@ import { retry } from '../timer-utils.js'
  */
 
 export default class BrokerProtection extends ContentFeature {
-    init () {
-        this.messaging.subscribe('onActionReceived', async (/** @type {any} */params) => {
+    init() {
+        this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             try {
                 const action = params.state.action
                 const data = params.state.data
@@ -21,9 +21,7 @@ export default class BrokerProtection extends ContentFeature {
                  * Note: We're not currently guarding against concurrent actions here
                  * since the native side contains the scheduling logic to prevent it.
                  */
-                let retryConfig = action.retry?.environment === 'web'
-                    ? action.retry
-                    : undefined
+                let retryConfig = action.retry?.environment === 'web' ? action.retry : undefined
 
                 /**
                  * Special case for the exact action
@@ -39,7 +37,7 @@ export default class BrokerProtection extends ContentFeature {
                  * Special case for when expectation contains a check for an element, retry it
                  */
                 if (!retryConfig && action.actionType === 'expectation') {
-                    if (action.expectations.some(x => x.type === 'element')) {
+                    if (action.expectations.some((x) => x.type === 'element')) {
                         retryConfig = {
                             interval: { ms: 1000 },
                             maxAttempts: 30

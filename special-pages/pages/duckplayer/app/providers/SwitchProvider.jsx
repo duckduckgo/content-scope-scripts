@@ -1,8 +1,7 @@
-import { createContext, h } from "preact";
-import { useEffect, useReducer } from "preact/hooks";
-import { useEnv } from "../../../../shared/components/EnvironmentProvider.js";
-import { useSetEnabled, useUserValues } from "./UserValuesProvider.jsx";
-
+import { createContext, h } from 'preact'
+import { useEffect, useReducer } from 'preact/hooks'
+import { useEnv } from '../../../../shared/components/EnvironmentProvider.js'
+import { useSetEnabled, useUserValues } from './UserValuesProvider.jsx'
 
 /**
  * @typedef {'showing' | 'exiting' | 'completed'} SwitchState
@@ -19,18 +18,18 @@ export const SwitchContext = createContext({
     /** @type {() => void} */
     onDone: () => {
         throw new Error('must implement')
-    },
+    }
 })
 
 export function SwitchProvider({ children }) {
-    const userValues = useUserValues();
-    const setEnabled = useSetEnabled();
+    const userValues = useUserValues()
+    const setEnabled = useSetEnabled()
     const initialState = 'enabled' in userValues.privatePlayerMode ? 'completed' : 'showing'
 
-    const [state, dispatch] = useReducer((/** @type {SwitchState} */state, /** @type {SwitchEvent} */event) => {
-        console.log("📩", {state,event})
+    const [state, dispatch] = useReducer((/** @type {SwitchState} */ state, /** @type {SwitchEvent} */ event) => {
+        console.log('📩', { state, event })
         switch (state) {
-            case "showing": {
+            case 'showing': {
                 if (event === 'change') {
                     return 'exiting'
                 }
@@ -40,22 +39,22 @@ export function SwitchProvider({ children }) {
                 if (event === 'done') {
                     return 'completed'
                 }
-                break;
+                break
             }
-            case "exiting": {
+            case 'exiting': {
                 if (event === 'done') {
                     return 'completed'
                 }
-                break;
+                break
             }
-            case "completed": {
+            case 'completed': {
                 if (event === 'ask') {
                     return 'showing'
                 }
             }
         }
         return state
-    }, initialState);
+    }, initialState)
 
     function onChange() {
         dispatch('change')
@@ -65,16 +64,12 @@ export function SwitchProvider({ children }) {
     // sync the userValues with the state of the switch
     useEffect(() => {
         const evt = 'enabled' in userValues.privatePlayerMode ? 'enabled' : 'ask'
-        dispatch(evt);
+        dispatch(evt)
     }, [initialState])
 
     function onDone() {
         dispatch('done')
     }
 
-    return (
-        <SwitchContext.Provider value={{state, onChange, onDone}}>
-            {children}
-        </SwitchContext.Provider>
-    )
+    return <SwitchContext.Provider value={{ state, onChange, onDone }}>{children}</SwitchContext.Provider>
 }

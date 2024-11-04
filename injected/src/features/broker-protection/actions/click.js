@@ -8,14 +8,17 @@ import { extractProfiles } from './extract.js'
  * @param {Document | HTMLElement} root
  * @return {import('../types.js').ActionResponse}
  */
-export function click (action, userData, root = document) {
+export function click(action, userData, root = document) {
     // there can be multiple elements provided by the action
     for (const element of action.elements) {
         const rootElement = selectRootElement(element, userData, root)
         const elements = getElements(rootElement, element.selector)
 
         if (!elements?.length) {
-            return new ErrorResponse({ actionID: action.id, message: `could not find element to click with selector '${element.selector}'!` })
+            return new ErrorResponse({
+                actionID: action.id,
+                message: `could not find element to click with selector '${element.selector}'!`
+            })
         }
 
         const loopLength = element.multiple && element.multiple === true ? elements.length : 1
@@ -43,7 +46,7 @@ export function click (action, userData, root = document) {
  * @param {Document | HTMLElement} root
  * @return {Node}
  */
-function selectRootElement (clickElement, userData, root = document) {
+function selectRootElement(clickElement, userData, root = document) {
     // if there's no 'parent' field, just use the document
     if (!clickElement.parent) return root
 
@@ -51,9 +54,7 @@ function selectRootElement (clickElement, userData, root = document) {
     if (clickElement.parent.profileMatch) {
         const extraction = extractProfiles(clickElement.parent.profileMatch, userData, root)
         if ('results' in extraction) {
-            const sorted = extraction.results
-                .filter(x => x.result === true)
-                .sort((a, b) => b.score - a.score)
+            const sorted = extraction.results.filter((x) => x.result === true).sort((a, b) => b.score - a.score)
             const first = sorted[0]
             if (first && first.element) {
                 return first.element

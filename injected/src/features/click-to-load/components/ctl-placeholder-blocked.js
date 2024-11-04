@@ -45,7 +45,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
     /**
      * Set observed attributes that will trigger attributeChangedCallback()
      */
-    static get observedAttributes () {
+    static get observedAttributes() {
         return ['style']
     }
 
@@ -77,7 +77,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @param {WithFeedbackParams=} params.withFeedback - Shows feedback link on tablet and desktop sizes,
      * @param {(originalElement: HTMLIFrameElement | HTMLElement, replacementElement: HTMLElement) => (e: any) => void} params.onButtonClick
      */
-    constructor (params) {
+    constructor(params) {
         super()
         this.params = params
         /**
@@ -138,9 +138,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
             .join(' ')
 
         // Only add a card footer if we have the toggle button to display
-        const cardFooterSection = withToggle
-            ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> `
-            : ''
+        const cardFooterSection = withToggle ? html`<div class="ddg-ctl-placeholder-card-footer">${this.createToggleButton()}</div> ` : ''
         const learnMoreLink = this.createLearnMoreLink()
 
         container.innerHTML = html`
@@ -228,14 +226,10 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
     setupEventListeners = (containerElement, feedbackLink) => {
         const { withToggle, withFeedback, originalElement, onButtonClick } = this.params
 
-        containerElement
-            .querySelector('button.ddg-ctl-unblock-btn')
-            ?.addEventListener('click', onButtonClick(originalElement, this))
+        containerElement.querySelector('button.ddg-ctl-unblock-btn')?.addEventListener('click', onButtonClick(originalElement, this))
 
         if (withToggle) {
-            containerElement
-                .querySelector('.ddg-toggle-button-container')
-                ?.addEventListener('click', withToggle.onClick)
+            containerElement.querySelector('.ddg-toggle-button-container')?.addEventListener('click', withToggle.onClick)
         }
         if (withFeedback && feedbackLink) {
             feedbackLink.querySelector('.ddg-ctl-feedback-link')?.addEventListener('click', withFeedback.onClick)
@@ -278,7 +272,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * When element is first added to the DOM, trigger this callback and
      * update the element CSS size class.
      */
-    connectedCallback () {
+    connectedCallback() {
         this.updatePlaceholderSize()
     }
 
@@ -291,7 +285,7 @@ export class DDGCtlPlaceholderBlockedElement extends HTMLElement {
      * @param {*} _ Attribute old value, ignored
      * @param {*} newValue Attribute new value
      */
-    attributeChangedCallback (attr, _, newValue) {
+    attributeChangedCallback(attr, _, newValue) {
         if (attr === 'style') {
             this.placeholderBlocked[attr].cssText = newValue
             this.updatePlaceholderSize()

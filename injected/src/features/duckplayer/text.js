@@ -43,7 +43,7 @@ export const i18n = {
     /**
      * @param {keyof text} name
      */
-    t (name) {
+    t(name) {
         // eslint-disable-next-line no-prototype-builtins
         if (!text.hasOwnProperty(name)) {
             console.error(`missing key ${name}`)
@@ -61,9 +61,8 @@ export const i18n = {
  * Converts occurrences of {newline} in a string to <br> tags
  * @param {string} text
  */
-export function nl2br (text) {
-    return html`${text.split('{newline}')
-        .map((line, i) => i === 0 ? line : html`<br>${line}`)}`
+export function nl2br(text) {
+    return html`${text.split('{newline}').map((line, i) => (i === 0 ? line : html`<br />${line}`))}`
 }
 
 /**

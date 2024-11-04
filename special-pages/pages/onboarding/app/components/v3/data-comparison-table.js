@@ -9,14 +9,7 @@ export const SupportStatus = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const tableIcons = [
-    'ads.svg',
-    'cookie.svg',
-    'fire.svg',
-    'search.svg',
-    'shield.svg',
-    'video-player.svg'
-]
+const tableIcons = ['ads.svg', 'cookie.svg', 'fire.svg', 'search.svg', 'shield.svg', 'video-player.svg']
 
 export const tableIconPrefix = 'assets/img/steps/v3/'
 
@@ -28,7 +21,7 @@ export const tableIconPrefix = 'assets/img/steps/v3/'
  * Safari was removed from the latest comparison table layout. Keeping it the data just in case it comes back.
  *
  * @type {(t: ReturnType<typeof import('../../types')['useTypedTranslation']>['t']) => FeatureSupportData[]} */
-export const comparisonTableData = (t) => ([
+export const comparisonTableData = (t) => [
     {
         icon: 'search.svg',
         title: t('comparison_searchPrivately'),
@@ -83,4 +76,4 @@ export const comparisonTableData = (t) => ([
             ddg: SupportStatus.FULL_SUPPORT
         }
     }
-])
+]

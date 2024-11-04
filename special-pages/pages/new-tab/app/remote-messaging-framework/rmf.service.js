@@ -8,7 +8,7 @@ export class RMFService {
      * @param {import("../../src/js/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
      * @internal
      */
-    constructor (ntp) {
+    constructor(ntp) {
         this.ntp = ntp
         /** @type {Service<RMFData>} */
         this.dataService = new Service({
@@ -21,14 +21,14 @@ export class RMFService {
      * @returns {Promise<RMFData>}
      * @internal
      */
-    async getInitial () {
+    async getInitial() {
         return await this.dataService.fetchInitial()
     }
 
     /**
      * @internal
      */
-    destroy () {
+    destroy() {
         this.dataService.destroy()
     }
 
@@ -36,7 +36,7 @@ export class RMFService {
      * @param {(evt: {data: RMFData, source: 'manual' | 'subscription'}) => void} cb
      * @internal
      */
-    onData (cb) {
+    onData(cb) {
         return this.dataService.onData(cb)
     }
 
@@ -44,21 +44,21 @@ export class RMFService {
      * @param {string} id
      * @internal
      */
-    dismiss (id) {
+    dismiss(id) {
         return this.ntp.messaging.notify('rmf_dismiss', { id })
     }
 
     /**
      * @param {string} id
      */
-    primaryAction (id) {
+    primaryAction(id) {
         this.ntp.messaging.notify('rmf_primaryAction', { id })
     }
 
     /**
      * @param {string} id
      */
-    secondaryAction (id) {
+    secondaryAction(id) {
         this.ntp.messaging.notify('rmf_secondaryAction', { id })
     }
 }

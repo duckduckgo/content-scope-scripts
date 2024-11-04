@@ -8,7 +8,7 @@
  * @param {TEvent} event
  * @param {(s: TState, e: TEvent) => TState} reducer
  */
-export function log (name, state, event, reducer) {
+export function log(name, state, event, reducer) {
     if (window.__playwright_01) {
         return reducer(state, event)
     }
@@ -36,14 +36,14 @@ export function log (name, state, event, reducer) {
  * @param reducer
  * @return {(a: TState, b: TEvent) => TState}
  */
-export function withLog (name, reducer) {
+export function withLog(name, reducer) {
     return (state, event) => log(name, state, event, reducer)
 }
 
 /**
  * @param {(...args: any[]) => void} fn
  */
-export function viewTransition (fn) {
+export function viewTransition(fn) {
     if ('startViewTransition' in document && typeof document.startViewTransition === 'function') {
         return document.startViewTransition(fn)
     }
@@ -53,7 +53,7 @@ export function viewTransition (fn) {
 /**
  *
  */
-export function noop (named) {
+export function noop(named) {
     return () => {
         console.log(named, 'noop')
     }

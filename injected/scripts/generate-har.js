@@ -2,7 +2,7 @@ import { chromium } from '@playwright/test'
 
 const testPath = 'integration-test/data/har/duckduckgo.com/search.har'
 
-async function init () {
+async function init() {
     const browser = await chromium.launch()
     const context = await browser.newContext({
         recordHar: { path: testPath }

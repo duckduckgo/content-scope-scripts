@@ -59,7 +59,7 @@ const builds = {
     }
 }
 
-async function initOther (injectScriptPath, platformName) {
+async function initOther(injectScriptPath, platformName) {
     const supportsMozProxies = platformName === 'firefox'
     const identName = `inject${camelcase(platformName)}`
     const injectScript = await rollupScript({
@@ -76,7 +76,7 @@ async function initOther (injectScriptPath, platformName) {
  * @param {string} entry
  * @param {string} platformName
  */
-async function initChrome (entry, platformName) {
+async function initChrome(entry, platformName) {
     const replaceString = '/* global contentScopeFeatures */'
     const injectScript = await rollupScript({ scriptPath: entry, platform: platformName })
     const contentScope = await rollupScript({
@@ -91,7 +91,7 @@ async function initChrome (entry, platformName) {
     return outputScript
 }
 
-async function init () {
+async function init() {
     // verify the input
     const requiredFields = ['platform']
     const args = parseArgs(process.argv.slice(2), requiredFields)

@@ -3,7 +3,7 @@ import { useVisibility } from '../widget-list/widget-config.provider.js'
 import { useTypedTranslation } from '../types.js'
 import { useCustomizer } from '../customizer/Customizer.js'
 
-export function FavoritesCustomized () {
+export function FavoritesCustomized() {
     const { t } = useTypedTranslation()
     const { id, visibility, toggle, index } = useVisibility()
 
@@ -16,7 +16,9 @@ export function FavoritesCustomized () {
     }
     return (
         <div class="layout-centered">
-            <p>Favourites here... (id: <code>{id}</code>)</p>
+            <p>
+                Favourites here... (id: <code>{id}</code>)
+            </p>
         </div>
     )
 }

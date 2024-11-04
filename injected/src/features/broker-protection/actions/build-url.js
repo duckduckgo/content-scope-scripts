@@ -8,7 +8,7 @@ import { ErrorResponse, SuccessResponse } from '../types.js'
  * @param {Record<string, any>} userData
  * @return {import('../types.js').ActionResponse}
  */
-export function buildUrl (action, userData) {
+export function buildUrl(action, userData) {
     const result = replaceTemplatedUrl(action, userData)
     if ('error' in result) {
         return new ErrorResponse({ actionID: action.id, message: result.error })
@@ -24,7 +24,7 @@ export function buildUrl (action, userData) {
  * @param userData
  * @return {{url: string} | {error: string}}
  */
-export function replaceTemplatedUrl (action, userData) {
+export function replaceTemplatedUrl(action, userData) {
     const url = action?.url
     if (!url) {
         return { error: 'Error: No url provided.' }

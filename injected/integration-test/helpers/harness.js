@@ -10,7 +10,7 @@ const DATA_DIR_PREFIX = 'ddg-temp-'
  * A single place
  * @param {typeof import("@playwright/test").test} test
  */
-export function testContextForExtension (test) {
+export function testContextForExtension(test) {
     return test.extend({
         context: async ({ browserName }, use) => {
             const tmpDirPrefix = join(tmpdir(), DATA_DIR_PREFIX)
@@ -24,16 +24,10 @@ export function testContextForExtension (test) {
                     width: 1920,
                     height: 1080
                 },
-                args: [
-                    '--disable-extensions-except=integration-test/extension',
-                    '--load-extension=integration-test/extension'
-                ]
+                args: ['--disable-extensions-except=integration-test/extension', '--load-extension=integration-test/extension']
             }
 
-            const context = await browserTypes[browserName].launchPersistentContext(
-                dataDir,
-                launchOptions
-            )
+            const context = await browserTypes[browserName].launchPersistentContext(dataDir, launchOptions)
 
             // actually run the tests
             await use(context)
@@ -54,7 +48,7 @@ export function testContextForExtension (test) {
                 }
             })
             const opened = new Promise((resolve, reject) => {
-                serverScript.on('message', (/** @type {any} */resp) => {
+                serverScript.on('message', (/** @type {any} */ resp) => {
                     if (typeof resp.port === 'number') {
                         resolve(resp.port)
                     } else {
@@ -94,7 +88,7 @@ export function testContextForExtension (test) {
  * @param {string|null} [evalBeforeInit]
  * @returns {Promise<void>}
  */
-export async function gotoAndWait (page, urlString, args = {}, evalBeforeInit = null) {
+export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = null) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, search] = urlString.split('?')
     const searchParams = new URLSearchParams(search)

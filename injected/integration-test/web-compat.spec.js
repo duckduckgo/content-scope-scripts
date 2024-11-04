@@ -47,7 +47,9 @@ test.describe('Ensure safari interface is injected', () => {
                 return e.message
             }
         })
-        expect(pushNotificationRequestPermissionThrow).toEqual('Invalid \'callback\' value passed to safari.pushNotification.requestPermission(). Expected a function.')
+        expect(pushNotificationRequestPermissionThrow).toEqual(
+            "Invalid 'callback' value passed to safari.pushNotification.requestPermission(). Expected a function."
+        )
 
         const pushNotificationRequestPermission = await page.evaluate(() => {
             const response = new Promise((resolve) => {
@@ -69,10 +71,10 @@ test.describe('Ensure Notification interface is injected', () => {
         const removeNotificationScript = `
             delete window.Notification
         `
-        function checkForNotification () {
+        function checkForNotification() {
             return 'Notification' in window
         }
-        function checkObjectDescriptorSerializedValue () {
+        function checkObjectDescriptorSerializedValue() {
             const descriptor = Object.getOwnPropertyDescriptor(window, 'Notification')
             const out = {}
             for (const key in descriptor) {
@@ -92,16 +94,21 @@ test.describe('Ensure Notification interface is injected', () => {
         })
         expect(noNotification).toEqual(false)
 
-        await gotoAndWait(page, '/blank.html', {
-            site: {
-                enabledFeatures: ['webCompat']
-            },
-            featureSettings: {
-                webCompat: {
-                    notification: 'enabled'
+        await gotoAndWait(
+            page,
+            '/blank.html',
+            {
+                site: {
+                    enabledFeatures: ['webCompat']
+                },
+                featureSettings: {
+                    webCompat: {
+                        notification: 'enabled'
+                    }
                 }
-            }
-        }, removeNotificationScript)
+            },
+            removeNotificationScript
+        )
         const hasNotification = await page.evaluate(checkForNotification)
         expect(hasNotification).toEqual(true)
 
@@ -132,10 +139,10 @@ test.describe('Permissions API', () => {
     Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
     `
 
-    function checkForPermissions () {
+    function checkForPermissions() {
         return !!window.navigator.permissions
     }
-    function checkObjectDescriptorIsNotPresent () {
+    function checkObjectDescriptorIsNotPresent() {
         const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'permissions')
         return descriptor === undefined
     }
@@ -158,36 +165,41 @@ test.describe('Permissions API', () => {
         /**
          * @param {import("@playwright/test").Page} page
          */
-        async function before (page) {
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat']
-                },
-                featureSettings: {
-                    webCompat: {
-                        permissions: {
-                            state: 'enabled',
-                            supportedPermissions: {
-                                geolocation: {},
-                                push: {
-                                    name: 'notifications'
-                                },
-                                camera: {
-                                    name: 'video_capture',
-                                    native: true
+        async function before(page) {
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: {
+                        enabledFeatures: ['webCompat']
+                    },
+                    featureSettings: {
+                        webCompat: {
+                            permissions: {
+                                state: 'enabled',
+                                supportedPermissions: {
+                                    geolocation: {},
+                                    push: {
+                                        name: 'notifications'
+                                    },
+                                    camera: {
+                                        name: 'video_capture',
+                                        native: true
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            }, removePermissionsScript)
+                },
+                removePermissionsScript
+            )
         }
         /**
          * @param {import("@playwright/test").Page} page
          * @param {any} name
          * @return {Promise<{result: any, message: *}>}
          */
-        async function checkPermission (page, name) {
+        async function checkPermission(page, name) {
             const payload = `window.navigator.permissions.query(${JSON.stringify({ name })})`
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
@@ -236,7 +248,7 @@ test.describe('Permissions API', () => {
         })
         test('should default to prompt when native sends unexpected response', async ({ page }) => {
             await before(page)
-            page.on('console', msg => {
+            page.on('console', (msg) => {
                 console.log(`PAGE LOG: ${msg.text()}`)
             })
 
@@ -272,7 +284,7 @@ test.describe('ScreenOrientation API', () => {
          * @param {any} orientation
          * @return {Promise<any>}
          */
-        async function checkLockThrows (page, orientation) {
+        async function checkLockThrows(page, orientation) {
             const payload = `screen.orientation.lock(${JSON.stringify(orientation)})`
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
@@ -290,7 +302,7 @@ test.describe('ScreenOrientation API', () => {
     })
 
     test.describe('enabled feature', () => {
-        async function beforeAll (page) {
+        async function beforeAll(page) {
             await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat']
@@ -307,7 +319,7 @@ test.describe('ScreenOrientation API', () => {
          * @param {import("@playwright/test").Page} page
          * @param {any} orientation
          */
-        async function checkLock (page, orientation) {
+        async function checkLock(page, orientation) {
             const payload = `screen.orientation.lock(${JSON.stringify(orientation)})`
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
@@ -321,7 +333,7 @@ test.describe('ScreenOrientation API', () => {
         /**
          * @param {import("@playwright/test").Page} page
          */
-        async function checkUnlock (page) {
+        async function checkUnlock(page) {
             const payload = 'screen.orientation.unlock()'
             const result = await page.evaluate(payload).catch((e) => {
                 return { threw: e }
@@ -336,7 +348,9 @@ test.describe('ScreenOrientation API', () => {
             await beforeAll(page)
             const { result } = await checkLock(page, undefined)
             expect(result.threw).not.toBeUndefined()
-            expect(result.threw.message).toContain("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present")
+            expect(result.threw.message).toContain(
+                "Failed to execute 'lock' on 'ScreenOrientation': 1 argument required, but only 0 present"
+            )
         })
 
         test('should err out when orientation of unexpected type', async ({ page }) => {
@@ -423,10 +437,10 @@ test.describe('ScreenOrientation API', () => {
 })
 
 test.describe('Web Share API', () => {
-    function checkForCanShare () {
+    function checkForCanShare() {
         return 'canShare' in navigator
     }
-    function checkForShare () {
+    function checkForShare() {
         return 'share' in navigator
     }
 
@@ -462,7 +476,7 @@ test.describe('Web Share API', () => {
     })
 
     test.describe('enabled feature', () => {
-        async function navigate (page) {
+        async function navigate(page) {
             await gotoAndWait(page, '/blank.html', {
                 site: {
                     enabledFeatures: ['webCompat']
@@ -543,7 +557,7 @@ test.describe('Web Share API', () => {
         })
 
         test.describe('navigator.share()', () => {
-            async function beforeEach (page) {
+            async function beforeEach(page) {
                 await page.evaluate(() => {
                     globalThis.shareReq = null
                     globalThis.cssMessaging.impl.request = (req) => {
@@ -558,7 +572,7 @@ test.describe('Web Share API', () => {
                  * @param {any} data
                  * @return {Promise<any>}
                  */
-                async function checkShare (page, data) {
+                async function checkShare(page, data) {
                     const payload = `navigator.share(${JSON.stringify(data)})`
                     const result = await page.evaluate(payload).catch((e) => {
                         return { threw: e }
@@ -607,7 +621,11 @@ test.describe('Web Share API', () => {
                     await navigate(page)
                     await beforeEach(page)
                     const { result, message } = await checkShare(page, { title: 'xxx', url: 'http://example.com' })
-                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', url: 'http://example.com/' } })
+                    expect(message).toMatchObject({
+                        featureName: 'webCompat',
+                        method: 'webShare',
+                        params: { title: 'xxx', url: 'http://example.com/' }
+                    })
                     expect(result).toBeUndefined()
                 })
 
@@ -615,7 +633,11 @@ test.describe('Web Share API', () => {
                     await navigate(page)
                     await beforeEach(page)
                     const { result, message } = await checkShare(page, { text: 'xxx', url: 'http://example.com' })
-                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { text: 'xxx http://example.com/' } })
+                    expect(message).toMatchObject({
+                        featureName: 'webCompat',
+                        method: 'webShare',
+                        params: { text: 'xxx http://example.com/' }
+                    })
                     expect(result).toBeUndefined()
                 })
 
@@ -692,12 +714,17 @@ test.describe('Web Share API', () => {
 })
 
 test.describe('Viewport fixes', () => {
-    function getViewportValue () {
+    function getViewportValue() {
         return document.querySelector('meta[name="viewport"]')?.getAttribute('content')
     }
 
     test('should not change viewport if disabled', async ({ page }) => {
-        await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\'')
+        await gotoAndWait(
+            page,
+            '/blank.html',
+            { site: { enabledFeatures: [] } },
+            'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\''
+        )
         const initialViewportValue = await page.evaluate(getViewportValue)
         // Base implementation of the test env should have it.
         expect(initialViewportValue).toEqual('width=device-width')
@@ -709,12 +736,17 @@ test.describe('Viewport fixes', () => {
     })
 
     test('should respect forced zoom', async ({ page }) => {
-        await gotoAndWait(page, '/blank.html', {
-            site: { enabledFeatures: ['webCompat'] },
-            featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-            desktopModeEnabled: false,
-            forcedZoomEnabled: true
-        }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\'')
+        await gotoAndWait(
+            page,
+            '/blank.html',
+            {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                desktopModeEnabled: false,
+                forcedZoomEnabled: true
+            },
+            'document.head.innerHTML += \'<meta name="viewport" content="width=device-width">\''
+        )
 
         const viewportValue = await page.evaluate(getViewportValue)
         expect(viewportValue).toEqual('initial-scale=1, user-scalable=yes, maximum-scale=10, width=device-width')
@@ -753,25 +785,37 @@ test.describe('Viewport fixes', () => {
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
-            expect(viewportValue).toEqual(`initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}`)
+            expect(viewportValue).toEqual(
+                `initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}`
+            )
         })
 
         test('should fix the WebView edge case', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: { enabledFeatures: ['webCompat'] },
-                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                desktopModeEnabled: false
-            }, 'document.head.innerHTML += \'<meta name="viewport" content="initial-scale=1.00001, something-something">\'')
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: { enabledFeatures: ['webCompat'] },
+                    featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                    desktopModeEnabled: false
+                },
+                'document.head.innerHTML += \'<meta name="viewport" content="initial-scale=1.00001, something-something">\''
+            )
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual('width=device-width, initial-scale=1.00001, something-something')
         })
 
         test('should ignore the character case in the viewport tag', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: { enabledFeatures: ['webCompat'] },
-                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                desktopModeEnabled: false
-            }, 'document.head.innerHTML += \'<meta name="viewport" content="initIAL-scale=1.00001, something-something">\'')
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: { enabledFeatures: ['webCompat'] },
+                    featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                    desktopModeEnabled: false
+                },
+                'document.head.innerHTML += \'<meta name="viewport" content="initIAL-scale=1.00001, something-something">\''
+            )
             const viewportValue = await page.evaluate(getViewportValue)
             expect(viewportValue).toEqual('width=device-width, initIAL-scale=1.00001, something-something')
         })
@@ -789,52 +833,82 @@ test.describe('Viewport fixes', () => {
         })
 
         test('should force wide viewport, ignoring the viewport tag', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: { enabledFeatures: ['webCompat'] },
-                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                desktopModeEnabled: true
-            }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\'')
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: { enabledFeatures: ['webCompat'] },
+                    featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                    desktopModeEnabled: true
+                },
+                'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\''
+            )
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
-            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`)
+            expect(viewportValue).toEqual(
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`
+            )
         })
 
         test('should force wide viewport, ignoring the viewport tag 2', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: { enabledFeatures: ['webCompat'] },
-                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                desktopModeEnabled: true
-            }, 'document.head.innerHTML += \'<meta name="viewport" content="something-something">\'')
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: { enabledFeatures: ['webCompat'] },
+                    featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                    desktopModeEnabled: true
+                },
+                'document.head.innerHTML += \'<meta name="viewport" content="something-something">\''
+            )
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
-            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`)
+            expect(viewportValue).toEqual(
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`
+            )
         })
 
         test('should respect forced zoom', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: { enabledFeatures: ['webCompat'] },
-                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                desktopModeEnabled: true,
-                forcedZoomEnabled: true
-            }, 'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\'')
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: { enabledFeatures: ['webCompat'] },
+                    featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                    desktopModeEnabled: true,
+                    forcedZoomEnabled: true
+                },
+                'document.head.innerHTML += \'<meta name="viewport" content="width=device-width, initial-scale=2, user-scalable=no, something-something">\''
+            )
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
-            expect(viewportValue).toEqual(`initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`)
+            expect(viewportValue).toEqual(
+                `initial-scale=${(width / expectedWidth).toFixed(
+                    3
+                )}, user-scalable=yes, maximum-scale=10, width=${expectedWidth}, something-something`
+            )
         })
 
         test('should ignore the character case in the viewport tag', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: { enabledFeatures: ['webCompat'] },
-                featureSettings: { webCompat: { viewportWidth: 'enabled' } },
-                desktopModeEnabled: true
-            }, 'document.head.innerHTML += \'<meta name="viewport" content="wIDth=device-width, iniTIal-scale=2, usER-scalable=no, something-something">\'')
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: { enabledFeatures: ['webCompat'] },
+                    featureSettings: { webCompat: { viewportWidth: 'enabled' } },
+                    desktopModeEnabled: true
+                },
+                'document.head.innerHTML += \'<meta name="viewport" content="wIDth=device-width, iniTIal-scale=2, usER-scalable=no, something-something">\''
+            )
             const width = await page.evaluate('screen.width')
             const expectedWidth = width < 1280 ? 980 : 1280
             const viewportValue = await page.evaluate(getViewportValue)
-            expect(viewportValue).toEqual(`width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`)
+            expect(viewportValue).toEqual(
+                `width=${expectedWidth}, initial-scale=${(width / expectedWidth).toFixed(3)}, user-scalable=yes, something-something`
+            )
         })
     })
 })

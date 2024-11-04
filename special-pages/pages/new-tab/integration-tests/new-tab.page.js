@@ -12,7 +12,7 @@ export class NewtabPage {
      * @param {Build} build
      * @param {PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
@@ -28,11 +28,7 @@ export class NewtabPage {
             requestImport: {},
             /** @type {import('../../../types/new-tab.ts').InitialSetupResponse} */
             initialSetup: {
-                widgets: [
-                    { id: 'rmf' },
-                    { id: 'favorites' },
-                    { id: 'privacyStats' }
-                ],
+                widgets: [{ id: 'rmf' }, { id: 'favorites' }, { id: 'privacyStats' }],
                 widgetConfigs: [
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'visible' }
@@ -64,7 +60,7 @@ export class NewtabPage {
      * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
      * @param {string} [params.platformName] - Optional parameters for opening the page.
      */
-    async openPage ({ mode = 'debug', platformName, willThrow = false, favoritesCount, rmf, updateNotification } = { }) {
+    async openPage({ mode = 'debug', platformName, willThrow = false, favoritesCount, rmf, updateNotification } = {}) {
         await this.mocks.install()
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) })
 
@@ -92,7 +88,7 @@ export class NewtabPage {
      * select the correct HTML file.
      * @return {string}
      */
-    get basePath () {
+    get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/new-tab',
             integration: () => '../build/integration/pages/new-tab'
@@ -103,17 +99,17 @@ export class NewtabPage {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new NewtabPage(page, build, platformInfo)
     }
 
-    async reducedMotion () {
+    async reducedMotion() {
         await this.page.emulateMedia({ reducedMotion: 'reduce' })
     }
 
-    async darkMode () {
+    async darkMode() {
         await this.page.emulateMedia({ colorScheme: 'dark' })
     }
 }

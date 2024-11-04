@@ -13,7 +13,7 @@ export class Environment {
      * @param {string} [params.locale] - for applications strings
      * @param {number} [params.textLength] - what ratio of text should be used. Set a number higher than 1 to have longer strings for testing
      */
-    constructor ({
+    constructor({
         env = 'production',
         urlParams = new URLSearchParams(location.search),
         injectName = 'windows',
@@ -37,7 +37,7 @@ export class Environment {
      * @param {string|null|undefined} injectName
      * @returns {Environment}
      */
-    withInjectName (injectName) {
+    withInjectName(injectName) {
         if (!injectName) return this
         if (!isInjectName(injectName)) return this
         return new Environment({
@@ -50,7 +50,7 @@ export class Environment {
      * @param {string|null|undefined} env
      * @returns {Environment}
      */
-    withEnv (env) {
+    withEnv(env) {
         if (!env) return this
         if (env !== 'production' && env !== 'development') return this
 
@@ -64,7 +64,7 @@ export class Environment {
      * @param {string|null|undefined} display
      * @returns {Environment}
      */
-    withDisplay (display) {
+    withDisplay(display) {
         if (!display) return this
         if (display !== 'app' && display !== 'components') return this
 
@@ -78,7 +78,7 @@ export class Environment {
      * @param {string|null|undefined} locale
      * @returns {Environment}
      */
-    withLocale (locale) {
+    withLocale(locale) {
         if (!locale) return this
         if (typeof locale !== 'string') return this
         if (locale.length !== 2) return this
@@ -93,7 +93,7 @@ export class Environment {
      * @param {string|number|null|undefined} length
      * @returns {Environment}
      */
-    withTextLength (length) {
+    withTextLength(length) {
         if (!length) return this
         const num = Number(length)
         if (num >= 1 && num <= 2) {
@@ -110,7 +110,7 @@ export class Environment {
  * @param {any} input
  * @returns {input is ImportMeta['injectName']}
  */
-function isInjectName (input) {
+function isInjectName(input) {
     /** @type {ImportMeta['injectName'][]} */
     const allowed = ['windows', 'apple', 'integration', 'android']
     return allowed.includes(input)

@@ -2,10 +2,7 @@ import { createContext, h } from 'preact'
 import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks'
 import { useInitialSetupData, useMessaging } from '../types.js'
 import { UpdateNotificationService } from './update-notification.service.js'
-import {
-    reducer,
-    useDataSubscription
-} from '../service.hooks.js'
+import { reducer, useDataSubscription } from '../service.hooks.js'
 
 /**
  * @typedef {import('../../../../types/new-tab.js').UpdateNotificationData} UpdateNotificationData
@@ -25,7 +22,7 @@ export const UpdateNotificationContext = createContext({
     }
 })
 
-export const UpdateNotificationDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */({}))
+export const UpdateNotificationDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}))
 
 /**
  * A data provider that will use `RMFService` to fetch data, subscribe
@@ -34,16 +31,12 @@ export const UpdateNotificationDispatchContext = createContext(/** @type {import
  * @param {Object} props
  * @param {import("preact").ComponentChild} props.children
  */
-export function UpdateNotificationProvider (props) {
+export function UpdateNotificationProvider(props) {
     const { updateNotification } = useInitialSetupData()
     if (updateNotification === null) {
         return null
     }
-    return (
-        <UpdateNotificationWithInitial updateNotification={updateNotification}>
-            {props.children}
-        </UpdateNotificationWithInitial>
-    )
+    return <UpdateNotificationWithInitial updateNotification={updateNotification}>{props.children}</UpdateNotificationWithInitial>
 }
 
 /**
@@ -51,8 +44,8 @@ export function UpdateNotificationProvider (props) {
  * @param {import("preact").ComponentChild} props.children
  * @param {UpdateNotificationData} props.updateNotification
  */
-function UpdateNotificationWithInitial ({ updateNotification, children }) {
-    const initial = /** @type {State} */({
+function UpdateNotificationWithInitial({ updateNotification, children }) {
+    const initial = /** @type {State} */ ({
         status: 'ready',
         data: updateNotification,
         config: undefined
@@ -73,9 +66,7 @@ function UpdateNotificationWithInitial ({ updateNotification, children }) {
 
     return (
         <UpdateNotificationContext.Provider value={{ state, dismiss }}>
-            <UpdateNotificationDispatchContext.Provider value={dispatch}>
-                {children}
-            </UpdateNotificationDispatchContext.Provider>
+            <UpdateNotificationDispatchContext.Provider value={dispatch}>{children}</UpdateNotificationDispatchContext.Provider>
         </UpdateNotificationContext.Provider>
     )
 }
@@ -84,8 +75,8 @@ function UpdateNotificationWithInitial ({ updateNotification, children }) {
  * @param {UpdateNotificationData} initial
  * @return {import("preact").RefObject<UpdateNotificationService>}
  */
-export function useService (initial) {
-    const service = useRef(/** @type {UpdateNotificationService|null} */(null))
+export function useService(initial) {
+    const service = useRef(/** @type {UpdateNotificationService|null} */ (null))
     const ntp = useMessaging()
     useEffect(() => {
         const stats = new UpdateNotificationService(ntp, initial)

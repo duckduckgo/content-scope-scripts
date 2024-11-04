@@ -1,20 +1,18 @@
-import { Fragment, h } from "preact";
-import styles from "./Components.module.css";
-import { mainExamples, otherExamples } from "./Examples.jsx";
-const url = new URL(window.location.href);
+import { Fragment, h } from 'preact'
+import styles from './Components.module.css'
+import { mainExamples, otherExamples } from './Examples.jsx'
+const url = new URL(window.location.href)
 
 export function Components() {
-    const ids = url.searchParams.getAll("id");
-    const isolated = url.searchParams.has("isolate");
-    const e2e = url.searchParams.has("e2e");
-    const entries = Object.entries(mainExamples).concat(Object.entries(otherExamples));
-    const entryIds = entries.map(([id]) => id);
+    const ids = url.searchParams.getAll('id')
+    const isolated = url.searchParams.has('isolate')
+    const e2e = url.searchParams.has('e2e')
+    const entries = Object.entries(mainExamples).concat(Object.entries(otherExamples))
+    const entryIds = entries.map(([id]) => id)
 
-    const validIds = ids.filter(id => entryIds.includes(id));
+    const validIds = ids.filter((id) => entryIds.includes(id))
 
-    const filtered = validIds.length
-        ? validIds.map((id) => /** @type {const} */([id, mainExamples[id] || otherExamples[id]]))
-        : entries
+    const filtered = validIds.length ? validIds.map((id) => /** @type {const} */ ([id, mainExamples[id] || otherExamples[id]])) : entries
 
     if (isolated) {
         return <Isolated entries={filtered} e2e={e2e} />
@@ -23,7 +21,7 @@ export function Components() {
     return (
         <div>
             <DebugBar id={ids[0]} ids={ids} entries={entries} />
-            <Stage entries={/** @type {any} */(filtered)} />
+            <Stage entries={/** @type {any} */ (filtered)} />
         </div>
     )
 }
@@ -39,26 +37,24 @@ function Stage({ entries }) {
         <div class={styles.componentList} data-testid="stage">
             {entries.map(([id, item]) => {
                 const next = new URL(url)
-                next.searchParams.set('isolate', 'true');
-                next.searchParams.set('id', id);
+                next.searchParams.set('isolate', 'true')
+                next.searchParams.set('id', id)
 
                 const selected = new URL(url)
-                selected.searchParams.set('id', id);
+                selected.searchParams.set('id', id)
 
                 const e2e = new URL(url)
-                e2e.searchParams.set('isolate', 'true');
-                e2e.searchParams.set('id', id);
-                e2e.searchParams.set('e2e', 'true');
+                e2e.searchParams.set('isolate', 'true')
+                e2e.searchParams.set('id', id)
+                e2e.searchParams.set('e2e', 'true')
 
-                const without = new URL(url);
-                const current = without.searchParams.getAll('id');
-                const others = current.filter(x => x !== id);
-                const matching = current.filter(x => x === id);
-                const matchingMinus1 = matching.length === 1
-                    ? []
-                    : matching.slice(0, -1)
+                const without = new URL(url)
+                const current = without.searchParams.getAll('id')
+                const others = current.filter((x) => x !== id)
+                const matching = current.filter((x) => x === id)
+                const matchingMinus1 = matching.length === 1 ? [] : matching.slice(0, -1)
 
-                without.searchParams.delete('id');
+                without.searchParams.delete('id')
                 for (let string of [...others, ...matchingMinus1]) {
                     without.searchParams.append('id', string)
                 }
@@ -68,23 +64,23 @@ function Stage({ entries }) {
                         <div class={styles.itemInfo}>
                             <div class={styles.itemLinks}>
                                 <code>{id}</code>
-                                <a href={next.toString()}
-                                    target="_blank"
-                                    title="open in new tab">Open 🔗</a>{" "}
-                                <a href={without.toString()} hidden={current.length === 0}>Remove</a>
+                                <a href={next.toString()} target="_blank" title="open in new tab">
+                                    Open 🔗
+                                </a>{' '}
+                                <a href={without.toString()} hidden={current.length === 0}>
+                                    Remove
+                                </a>
                             </div>
                             <div class={styles.itemLinks}>
-                                <a href={selected.toString()}
-                                    class={styles.itemLink}
-                                    title="show this component only">select</a>{" "}
-                                <a href={next.toString()}
-                                    target="_blank"
-                                    class={styles.itemLink}
-                                    title="isolate this component">isolate</a>{" "}
-                                <a href={e2e.toString()}
-                                    target="_blank"
-                                    class={styles.itemLink}
-                                    title="isolate this component">edge-to-edge</a>
+                                <a href={selected.toString()} class={styles.itemLink} title="show this component only">
+                                    select
+                                </a>{' '}
+                                <a href={next.toString()} target="_blank" class={styles.itemLink} title="isolate this component">
+                                    isolate
+                                </a>{' '}
+                                <a href={e2e.toString()} target="_blank" class={styles.itemLink} title="isolate this component">
+                                    edge-to-edge
+                                </a>
                             </div>
                         </div>
                         <div className={styles.item} key={id}>
@@ -102,11 +98,7 @@ function Isolated({ entries, e2e }) {
         return (
             <div>
                 {entries.map(([id, item]) => {
-                    return (
-                        <Fragment key={id}>
-                            {item.factory()}
-                        </Fragment>
-                    )
+                    return <Fragment key={id}>{item.factory()}</Fragment>
                 })}
             </div>
         )
@@ -114,11 +106,7 @@ function Isolated({ entries, e2e }) {
     return (
         <div class={styles.componentList} data-testid="stage">
             {entries.map(([id, item], index) => {
-                return (
-                    <div key={id + index}>
-                        {item.factory()}
-                    </div>
-                )
+                return <div key={id + index}>{item.factory()}</div>
             })}
         </div>
     )
@@ -128,9 +116,7 @@ function DebugBar({ entries, id, ids }) {
     return (
         <div class={styles.debugBar} data-testid="selector">
             <ExampleSelector entries={entries} id={id} />
-            {ids.length > 0 && (
-                <Append entries={entries} id={id} />
-            )}
+            {ids.length > 0 && <Append entries={entries} id={id} />}
             <TextLength />
             <Isolate />
         </div>
@@ -140,26 +126,32 @@ function DebugBar({ entries, id, ids }) {
 function TextLength() {
     function onClick() {
         url.searchParams.set('textLength', '1.5')
-        window.location.href = url.toString();
+        window.location.href = url.toString()
     }
     function onReset() {
         url.searchParams.delete('textLength')
-        window.location.href = url.toString();
+        window.location.href = url.toString()
     }
     return (
         <div class={styles.buttonRow}>
-            <button onClick={onReset} type="button">Text Length 1x</button>
-            <button onClick={onClick} type="button">Text Length 1.5x</button>
+            <button onClick={onReset} type="button">
+                Text Length 1x
+            </button>
+            <button onClick={onClick} type="button">
+                Text Length 1.5x
+            </button>
         </div>
     )
 }
 
 function Isolate() {
     const next = new URL(url)
-    next.searchParams.set('isolate', 'true');
+    next.searchParams.set('isolate', 'true')
     return (
         <div class={styles.buttonRow}>
-            <a href={next.toString()} target={"_blank"}>Isolate (open in a new tab)</a>
+            <a href={next.toString()} target={'_blank'}>
+                Isolate (open in a new tab)
+            </a>
         </div>
     )
 }
@@ -173,31 +165,33 @@ function Isolate() {
  */
 function ExampleSelector({ entries, id }) {
     function onReset() {
-        const url = new URL(window.location.href);
-        url.searchParams.delete("id");
-        window.location.href = url.toString();
+        const url = new URL(window.location.href)
+        url.searchParams.delete('id')
+        window.location.href = url.toString()
     }
 
     function onChange(event) {
-        if (!event.target) return;
-        if (!(event.target instanceof HTMLSelectElement)) return;
-        const selectedId = event.target.value;
+        if (!event.target) return
+        if (!(event.target instanceof HTMLSelectElement)) return
+        const selectedId = event.target.value
         if (selectedId) {
-            if (selectedId === "none") return onReset();
-            const url = new URL(window.location.href);
-            url.searchParams.set("id", selectedId);
-            window.location.href = url.toString();
+            if (selectedId === 'none') return onReset()
+            const url = new URL(window.location.href)
+            url.searchParams.set('id', selectedId)
+            window.location.href = url.toString()
         }
     }
     return (
         <Fragment>
             <div class={styles.buttonRow}>
                 <label>
-                    Single:{" "}
+                    Single:{' '}
                     <select value={id || 'none'} onChange={onChange}>
-                        <option value='none'>Select an example</option>
+                        <option value="none">Select an example</option>
                         {entries.map(([id]) => (
-                            <option key={id} value={id}>{id}</option>
+                            <option key={id} value={id}>
+                                {id}
+                            </option>
                         ))}
                     </select>
                 </label>
@@ -216,32 +210,34 @@ function ExampleSelector({ entries, id }) {
  */
 function Append({ entries, id }) {
     function onReset() {
-        const url = new URL(window.location.href);
-        url.searchParams.delete("id");
-        window.location.href = url.toString();
+        const url = new URL(window.location.href)
+        url.searchParams.delete('id')
+        window.location.href = url.toString()
     }
 
     function onSubmit(event) {
-        if (!event.target) return;
-        event.preventDefault();
-        const form = event.target;
-        const data = new FormData(form);
-        const value = data.get('add-id');
-        if (typeof value !== "string") return;
-        const url = new URL(window.location.href);
-        url.searchParams.append("id", value);
-        window.location.href = url.toString();
+        if (!event.target) return
+        event.preventDefault()
+        const form = event.target
+        const data = new FormData(form)
+        const value = data.get('add-id')
+        if (typeof value !== 'string') return
+        const url = new URL(window.location.href)
+        url.searchParams.append('id', value)
+        window.location.href = url.toString()
     }
 
     return (
         <Fragment>
             <form class={styles.buttonRow} onSubmit={onSubmit}>
                 <label>
-                    Append:{" "}
-                    <select value='none' name="add-id">
-                        <option value='none'>Select an example</option>
+                    Append:{' '}
+                    <select value="none" name="add-id">
+                        <option value="none">Select an example</option>
                         {entries.map(([id]) => (
-                            <option key={id} value={id}>{id}</option>
+                            <option key={id} value={id}>
+                                {id}
+                            </option>
                         ))}
                     </select>
                 </label>

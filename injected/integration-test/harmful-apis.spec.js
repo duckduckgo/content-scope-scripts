@@ -7,10 +7,10 @@ import { windowsGlobalPolyfills } from './shared.mjs'
 test.skip('Harmful APIs protections', async ({ page }, testInfo) => {
     const protection = HarmfulApisSpec.create(page, testInfo)
     await protection.enabled()
-    const results = await protection.runTests();
+    const results = await protection.runTests()
     // note that if protections are disabled, the browser will show a device selection pop-up, which will never be dismissed
 
-    [
+    ;[
         'deviceOrientation',
         'GenericSensor',
         'UaClientHints',
@@ -42,25 +42,25 @@ export class HarmfulApisSpec {
      * @param {import("./type-helpers.mjs").Build} build
      * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
     }
 
-    async enabled () {
+    async enabled() {
         await this.installPolyfills()
         const config = JSON.parse(readFileSync(this.config, 'utf8'))
         await this.setup({ config })
         await this.page.goto(this.htmlPage)
     }
 
-    async runTests () {
+    async runTests() {
         for (const button of await this.page.getByTestId('user-gesture-button').all()) {
             await button.click()
         }
         const resultsPromise = this.page.evaluate(() => {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 window.addEventListener('results-ready', () => {
                     // @ts-expect-error - this is added by the test framework
                     resolve(window.results)
@@ -75,7 +75,7 @@ export class HarmfulApisSpec {
      * In CI, the global objects such as USB might not be installed on the
      * version of chromium running there.
      */
-    async installPolyfills () {
+    async installPolyfills() {
         await this.page.addInitScript(windowsGlobalPolyfills)
     }
 
@@ -84,7 +84,7 @@ export class HarmfulApisSpec {
      * @param {Record<string, any>} params.config
      * @return {Promise<void>}
      */
-    async setup (params) {
+    async setup(params) {
         const { config } = params
 
         // read the built file from disk and do replacements
@@ -115,7 +115,7 @@ export class HarmfulApisSpec {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new HarmfulApisSpec(page, build, platformInfo)

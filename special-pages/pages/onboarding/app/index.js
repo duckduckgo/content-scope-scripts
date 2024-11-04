@@ -1,6 +1,4 @@
-import {
-    OnboardingMessages
-} from './messages'
+import { OnboardingMessages } from './messages'
 import { render, h } from 'preact'
 import './styles/global.css' // global styles
 import { App, SkipLink } from './components/App.js'
@@ -17,9 +15,7 @@ import { SettingsProvider } from './components/SettingsProvider'
 import enStrings from '../src/locales/en/onboarding.json'
 import { stepDefinitions as stepDefinitionsV3 } from './components/v3/data'
 
-const baseEnvironment = new Environment()
-    .withInjectName(document.documentElement.dataset.platform)
-    .withEnv(import.meta.env)
+const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env)
 
 // share this in the app, it's an instance of `OnboardingMessages` where all your native comms should be
 const messaging = createSpecialPageMessaging({
@@ -30,7 +26,7 @@ const messaging = createSpecialPageMessaging({
 
 const onboarding = new OnboardingMessages(messaging, baseEnvironment.injectName)
 
-async function init () {
+async function init() {
     const result = await callWithRetry(() => onboarding.init())
     if ('error' in result) {
         throw new Error(result.error)
@@ -46,14 +42,15 @@ async function init () {
         .withTextLength(baseEnvironment.urlParams.get('textLength'))
         .withDisplay(baseEnvironment.urlParams.get('display'))
 
-    const strings = environment.locale === 'en'
-        ? enStrings
-        : await fetch(`./locales/${environment.locale}/onboarding.json`)
-            .then(x => x.json())
-            .catch(e => {
-                console.error('Could not load locale', environment.locale, e)
-                return enStrings
-            })
+    const strings =
+        environment.locale === 'en'
+            ? enStrings
+            : await fetch(`./locales/${environment.locale}/onboarding.json`)
+                  .then((x) => x.json())
+                  .catch((e) => {
+                      console.error('Could not load locale', environment.locale, e)
+                      return enStrings
+                  })
 
     const settings = new Settings()
         .withPlatformName(baseEnvironment.injectName)
@@ -74,11 +71,7 @@ async function init () {
 
     if (environment.display === 'app') {
         render(
-            <EnvironmentProvider
-                debugState={environment.debugState}
-                injectName={environment.injectName}
-                willThrow={environment.willThrow}
-            >
+            <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
                 <UpdateEnvironment search={window.location.search} />
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <SettingsProvider platform={settings.platform}>
@@ -86,15 +79,15 @@ async function init () {
                             messaging={onboarding}
                             order={settings.order}
                             stepDefinitions={settings.stepDefinitions}
-                            firstPage={settings.first}>
-                            <AppComponent>
-                                {environment.env === 'development' && <SkipLink />}
-                            </AppComponent>
+                            firstPage={settings.first}
+                        >
+                            <AppComponent>{environment.env === 'development' && <SkipLink />}</AppComponent>
                         </GlobalProvider>
                     </SettingsProvider>
                 </TranslationProvider>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root
+        )
     }
     if (environment.display === 'components') {
         render(
@@ -102,12 +95,13 @@ async function init () {
                 <TranslationProvider translationObject={strings} fallback={enStrings}>
                     <Components />
                 </TranslationProvider>
-            </EnvironmentProvider>
-            , root)
+            </EnvironmentProvider>,
+            root
+        )
     }
 }
 
-init().catch(e => {
+init().catch((e) => {
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'
     onboarding.reportInitException({ message: msg })

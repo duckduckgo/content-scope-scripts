@@ -21,7 +21,7 @@ export class Service {
      * @param {(old: Data) => Data} [props.update] - optional updater
      * @param {Data|null} [initial] - optional initial data
      */
-    constructor (props, initial) {
+    constructor(props, initial) {
         this.impl = props
 
         if (initial) {
@@ -34,11 +34,11 @@ export class Service {
     /**
      * @return {Promise<Data>}
      */
-    async fetchInitial () {
+    async fetchInitial() {
         if (!this.impl.initial) throw new Error('unreachable')
         const initial = await this.impl.initial()
         this._accept(initial, 'initial')
-        return /** @type {Data} */(this.data)
+        return /** @type {Data} */ (this.data)
     }
 
     /**
@@ -51,19 +51,23 @@ export class Service {
      *
      * @param {(evt: {data: Data, source: 'manual' | 'subscription'}) => void} cb
      */
-    onData (cb) {
+    onData(cb) {
         this._setupSubscription()
         const controller = new AbortController()
-        this.eventTarget.addEventListener('data', (/** @type {CustomEvent<{data: Data, source: 'manual' | 'subscription'}>} */evt) => {
-            cb(evt.detail)
-        }, { signal: controller.signal })
+        this.eventTarget.addEventListener(
+            'data',
+            (/** @type {CustomEvent<{data: Data, source: 'manual' | 'subscription'}>} */ evt) => {
+                cb(evt.detail)
+            },
+            { signal: controller.signal }
+        )
         return () => controller.abort()
     }
 
     /**
      * Remove data subscriptions
      */
-    destroy () {
+    destroy() {
         this.sub?.()
     }
 
@@ -71,9 +75,9 @@ export class Service {
      * Setup the subscription if one doesn't already exist
      * @private
      */
-    _setupSubscription () {
+    _setupSubscription() {
         if (this.sub) return
-        this.sub = this.impl.subscribe?.(data => {
+        this.sub = this.impl.subscribe?.((data) => {
             this._accept(data, 'subscription')
         })
     }
@@ -86,7 +90,7 @@ export class Service {
      *
      * @param {(prev: Data) => Data} updaterFn - the function that returns the next state
      */
-    update (updaterFn) {
+    update(updaterFn) {
         if (this.data === null) return
         const next = updaterFn(this.data)
         if (next) {
@@ -101,8 +105,8 @@ export class Service {
      * @param {'initial' | 'subscription' | 'manual'} source
      * @private
      */
-    _accept (data, source) {
-        this.data = /** @type {NonNullable<Data>} */(data)
+    _accept(data, source) {
+        this.data = /** @type {NonNullable<Data>} */ (data)
 
         // do nothing when it's the initial data
         if (source === 'initial') return
@@ -121,9 +125,7 @@ export class Service {
 
         // try to persist if the last try was 'manual' update
         if (source === 'manual') {
-            const time = window.location.search.includes('p2')
-                ? this.DEBOUNCE_TIME_MS * 20.5
-                : this.DEBOUNCE_TIME_MS
+            const time = window.location.search.includes('p2') ? this.DEBOUNCE_TIME_MS * 20.5 : this.DEBOUNCE_TIME_MS
             this.debounceTimer = setTimeout(() => {
                 this.persist()
             }, time)
@@ -133,7 +135,7 @@ export class Service {
     /**
      * Clears the debounce timer if it exists, simulating the switchMap behavior.
      */
-    clearDebounceTimer () {
+    clearDebounceTimer() {
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer)
             this.debounceTimer = null
@@ -143,7 +145,7 @@ export class Service {
     /**
      * Persists the current in-memory widget configuration state to the internal data feed.
      */
-    persist () {
+    persist() {
         // some services will not implement persistence
         if (!this.impl.persist) return
 

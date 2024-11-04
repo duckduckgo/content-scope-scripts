@@ -15,7 +15,7 @@ import {
  * @param {(() => TestTransportConfig|null) | null | undefined} [opts.mockTransport]
  * @internal
  */
-export function createSpecialPageMessaging (opts) {
+export function createSpecialPageMessaging(opts) {
     const messageContext = new MessagingContext({
         context: 'specialPages',
         featureName: opts.pageName,
@@ -56,37 +56,39 @@ export function createSpecialPageMessaging (opts) {
     }
 
     // this fallback allows for the 'integration' target to run without errors
-    const fallback = opts.mockTransport?.() || new TestTransportConfig({
-        /**
-         * @param {import('@duckduckgo/messaging').NotificationMessage} msg
-         */
-        notify (msg) {
-            console.log(msg)
-        },
-        /**
-         * @param {import('@duckduckgo/messaging').RequestMessage} msg
-         */
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        request: (msg) => {
-            console.log(msg)
-            if (msg.method === 'initialSetup') {
-                return Promise.resolve({
-                    locale: 'en',
-                    env: opts.env
-                })
+    const fallback =
+        opts.mockTransport?.() ||
+        new TestTransportConfig({
+            /**
+             * @param {import('@duckduckgo/messaging').NotificationMessage} msg
+             */
+            notify(msg) {
+                console.log(msg)
+            },
+            /**
+             * @param {import('@duckduckgo/messaging').RequestMessage} msg
+             */
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            request: (msg) => {
+                console.log(msg)
+                if (msg.method === 'initialSetup') {
+                    return Promise.resolve({
+                        locale: 'en',
+                        env: opts.env
+                    })
+                }
+                return Promise.resolve(null)
+            },
+            /**
+             * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
+             */
+            subscribe(msg) {
+                console.log(msg)
+                return () => {
+                    console.log('teardown')
+                }
             }
-            return Promise.resolve(null)
-        },
-        /**
-         * @param {import('@duckduckgo/messaging').SubscriptionEvent} msg
-         */
-        subscribe (msg) {
-            console.log(msg)
-            return () => {
-                console.log('teardown')
-            }
-        }
-    })
+        })
 
     return new Messaging(messageContext, fallback)
 }

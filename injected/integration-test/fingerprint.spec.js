@@ -21,10 +21,7 @@ const expectedFingerprintValues = {
 }
 
 const pagePath = '/index.html'
-const tests = [
-    { url: `http://localhost:3220${pagePath}` },
-    { url: `http://127.0.0.1:8383${pagePath}` }
-]
+const tests = [{ url: `http://localhost:3220${pagePath}` }, { url: `http://127.0.0.1:8383${pagePath}` }]
 
 test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () => {
     test.describe.serial('Fingerprint Defense Tests', () => {
@@ -65,7 +62,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
          * @param {import("@playwright/test").Page} page
          * @param {tests[number]} test
          */
-        async function runTest (page, test) {
+        async function runTest(page, test) {
             await page.goto(test.url)
             const lib = require.resolve('@fingerprintjs/fingerprintjs/dist/fp.js')
             await page.addScriptTag({ path: lib })
@@ -116,7 +113,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
     })
 
     test.describe.serial('Verify injected script is not visible to the page', () => {
-        tests.forEach(testCase => {
+        tests.forEach((testCase) => {
             test(`Fingerprints should not match across first parties ${testCase.url}`, async ({ page, altServerPort }) => {
                 console.log('running:', altServerPort)
                 await page.goto(testCase.url)

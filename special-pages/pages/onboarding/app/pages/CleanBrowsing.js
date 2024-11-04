@@ -22,13 +22,10 @@ export { animation }
  * @param {object} props
  * @param {(args: any) => void} props.onNextPage
  */
-export function CleanBrowsing ({ onNextPage }) {
+export function CleanBrowsing({ onNextPage }) {
     const { t } = useTypedTranslation()
 
-    const rows = [
-        noneSettingsRowItems.fewerAds(t),
-        noneSettingsRowItems.duckPlayer(t)
-    ]
+    const rows = [noneSettingsRowItems.fewerAds(t), noneSettingsRowItems.duckPlayer(t)]
 
     // show each after interaction
     const frames = new Array(rows.length).fill('start-trigger')
@@ -42,8 +39,8 @@ export function CleanBrowsing ({ onNextPage }) {
                 {state.current > 0 && (
                     <List animate>
                         {rows.slice(0, state.current).map((row, index) => {
-                            const isCurrent = state.current === (index + 1)
-                            return <RowItem isCurrent={isCurrent} row={row} index={index} advance={advance}/>
+                            const isCurrent = state.current === index + 1
+                            return <RowItem isCurrent={isCurrent} row={row} index={index} advance={advance} />
                         })}
                     </List>
                 )}
@@ -51,7 +48,9 @@ export function CleanBrowsing ({ onNextPage }) {
             {state.isLast && (
                 <SlideUp delay={'double'}>
                     <ButtonBar>
-                        <Button onClick={onNextPage} size={'large'}>{t('nextButton')}</Button>
+                        <Button onClick={onNextPage} size={'large'}>
+                            {t('nextButton')}
+                        </Button>
                     </ButtonBar>
                 </SlideUp>
             )}
@@ -59,7 +58,7 @@ export function CleanBrowsing ({ onNextPage }) {
     )
 }
 
-function RowItem ({ isCurrent, row, index, advance }) {
+function RowItem({ isCurrent, row, index, advance }) {
     const { isDarkMode } = useEnv()
     const { t } = useTypedTranslation()
     const meta = beforeAfterMeta[row.id](t)
@@ -69,7 +68,13 @@ function RowItem ({ isCurrent, row, index, advance }) {
             icon={row.icon}
             title={row.title}
             secondaryText={isCurrent && row.secondaryText}
-            inline={!isCurrent && <BounceIn delay={'double'}><Check /></BounceIn>}
+            inline={
+                !isCurrent && (
+                    <BounceIn delay={'double'}>
+                        <Check />
+                    </BounceIn>
+                )
+            }
             index={index}
             animate
         >
@@ -81,15 +86,17 @@ function RowItem ({ isCurrent, row, index, advance }) {
                             btnAfter={meta.btnAfterText}
                             btnBefore={meta.btnBeforeText}
                             media={({ state }) => {
-                                const animationState = (state === 'initial' || state === 'before') ? 'before' : 'after'
-                                return <RiveAnimation
-                                    animation={animation}
-                                    state={animationState}
-                                    isDarkMode={isDarkMode}
-                                    artboard={meta.artboard}
-                                    inputName={meta.inputName}
-                                    stateMachine={meta.stateMachine}
-                                />
+                                const animationState = state === 'initial' || state === 'before' ? 'before' : 'after'
+                                return (
+                                    <RiveAnimation
+                                        animation={animation}
+                                        state={animationState}
+                                        isDarkMode={isDarkMode}
+                                        artboard={meta.artboard}
+                                        inputName={meta.inputName}
+                                        stateMachine={meta.stateMachine}
+                                    />
+                                )
                             }}
                         />
                     </Delay>

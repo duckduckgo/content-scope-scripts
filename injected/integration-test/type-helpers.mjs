@@ -16,7 +16,7 @@ import { readFileSync } from 'node:fs'
  * @param {Partial<Record<NonNullable<ImportMeta['platform']>, VariantFn>>} switchItems
  * @returns {ReturnType<VariantFn>}
  */
-export function platform (name, switchItems) {
+export function platform(name, switchItems) {
     if (name in switchItems) {
         const fn = switchItems[name]
         if (!fn) {
@@ -31,7 +31,7 @@ export class Build {
     /**
      * @param {NonNullable<ImportMeta['injectName']>} name
      */
-    constructor (name) {
+    constructor(name) {
         this.name = name
     }
 
@@ -40,7 +40,7 @@ export class Build {
      * @param {Partial<Record<NonNullable<ImportMeta['injectName']>, VariantFn>>} switchItems
      * @returns {ReturnType<VariantFn>}
      */
-    switch (switchItems) {
+    switch(switchItems) {
         if (this.name in switchItems) {
             const fn = switchItems[this.name]
             if (!fn) {
@@ -55,11 +55,11 @@ export class Build {
      *
      * @returns string
      */
-    get artifact () {
+    get artifact() {
         const path = this.switch({
             windows: () => '../build/windows/contentScope.js',
             android: () => '../build/android/contentScope.js',
-            'apple': () => '../Sources/ContentScopeScripts/dist/contentScope.js',
+            apple: () => '../Sources/ContentScopeScripts/dist/contentScope.js',
             'apple-isolated': () => '../Sources/ContentScopeScripts/dist/contentScopeIsolated.js',
             'android-autofill-password-import': () => '../build/android/autofillPasswordImport.js'
         })
@@ -70,7 +70,7 @@ export class Build {
      * @param {any} name
      * @returns {ImportMeta['injectName']}
      */
-    static supported (name) {
+    static supported(name) {
         /** @type {ImportMeta['injectName'][]} */
         const items = ['apple', 'apple-isolated', 'windows', 'integration', 'android', 'android-autofill-password-import']
         if (items.includes(name)) {
@@ -85,7 +85,7 @@ export class PlatformInfo {
      * @param {object} params
      * @param {ImportMeta['platform']} params.name
      */
-    constructor (params) {
+    constructor(params) {
         this.name = params.name
     }
 
@@ -93,7 +93,7 @@ export class PlatformInfo {
      * @param {any} name
      * @returns {ImportMeta['platform']}
      */
-    static supported (name) {
+    static supported(name) {
         /** @type {ImportMeta['platform'][]} */
         const items = ['macos', 'ios', 'windows', 'android']
         if (items.includes(name)) {
@@ -110,7 +110,7 @@ export class PlatformInfo {
  * @param config
  * @returns {{build: Build; platformInfo: PlatformInfo}}
  */
-export function perPlatform (config) {
+export function perPlatform(config) {
     // Read the configuration object to determine which platform we're testing against
     if (!('injectName' in config) || typeof config.injectName !== 'string') {
         throw new Error('unsupported project - missing `use.injectName`')

@@ -1,9 +1,6 @@
 import { test } from '@playwright/test'
 import { readFileSync } from 'fs'
-import {
-    mockAndroidMessaging,
-    wrapWebkitScripts
-} from '@duckduckgo/messaging/lib/test-utils.mjs'
+import { mockAndroidMessaging, wrapWebkitScripts } from '@duckduckgo/messaging/lib/test-utils.mjs'
 import { perPlatform } from './type-helpers.mjs'
 
 test('Password import feature', async ({ page }, testInfo) => {
@@ -31,18 +28,18 @@ export class AutofillPasswordImportSpec {
      * @param {import("./type-helpers.mjs").Build} build
      * @param {import("./type-helpers.mjs").PlatformInfo} platform
      */
-    constructor (page, build, platform) {
+    constructor(page, build, platform) {
         this.page = page
         this.build = build
         this.platform = platform
     }
 
-    async enabled () {
+    async enabled() {
         const config = JSON.parse(readFileSync(this.config, 'utf8'))
         await this.setup({ config })
     }
 
-    async navigate () {
+    async navigate() {
         await this.page.goto(this.htmlPage)
     }
 
@@ -51,7 +48,7 @@ export class AutofillPasswordImportSpec {
      * @param {Record<string, any>} params.config
      * @return {Promise<void>}
      */
-    async setup (params) {
+    async setup(params) {
         const { config } = params
 
         // read the built file from disk and do replacements
@@ -86,7 +83,7 @@ export class AutofillPasswordImportSpec {
      * @param {import("@playwright/test").Page} page
      * @param {import("@playwright/test").TestInfo} testInfo
      */
-    static create (page, testInfo) {
+    static create(page, testInfo) {
         // Read the configuration object to determine which platform we're testing against
         const { platformInfo, build } = perPlatform(testInfo.project.use)
         return new AutofillPasswordImportSpec(page, build, platformInfo)
@@ -96,7 +93,7 @@ export class AutofillPasswordImportSpec {
      * Helper to assert that an element is animating
      * @param {string} selector
      */
-    async waitForAnimation (selector) {
+    async waitForAnimation(selector) {
         const locator = await this.page.locator(selector)
         return await locator.evaluate((el) => {
             if (el != null) {
@@ -111,7 +108,7 @@ export class AutofillPasswordImportSpec {
      * Helper to click on a button accessed via the aria-label attrbitue
      * @param {string} text
      */
-    async clickOnElement (text) {
+    async clickOnElement(text) {
         const element = await this.page.getByText(text)
         await element.click()
     }

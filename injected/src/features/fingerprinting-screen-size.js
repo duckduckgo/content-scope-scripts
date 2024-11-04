@@ -3,7 +3,7 @@ import ContentFeature from '../content-feature'
 export default class FingerprintingScreenSize extends ContentFeature {
     origPropertyValues = {}
 
-    init () {
+    init() {
         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
         this.origPropertyValues.availTop = globalThis.screen.availTop
         this.wrapProperty(globalThis.Screen.prototype, 'availTop', {
@@ -50,7 +50,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
      * can mean second or more monitors have very large or negative values. This function maps a given
      * given coordinate value to the proper place on the main screen.
      */
-    normalizeWindowDimension (value, targetDimension) {
+    normalizeWindowDimension(value, targetDimension) {
         if (value > targetDimension) {
             return value % targetDimension
         }
@@ -60,7 +60,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
         return value
     }
 
-    setWindowPropertyValue (property, value) {
+    setWindowPropertyValue(property, value) {
         // Here we don't update the prototype getter because the values are updated dynamically
         try {
             this.defineProperty(globalThis, property, {
@@ -79,7 +79,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
      * ensuring that no information is leaked as the dimensions change, but also that the
      * values change correctly for valid use cases.
      */
-    setWindowDimensions () {
+    setWindowDimensions() {
         try {
             const window = globalThis
             const top = globalThis.top

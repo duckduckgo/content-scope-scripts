@@ -14,7 +14,9 @@ describe('Cookie', () => {
 
     describe('.getExpiry', () => {
         it('cookie expires in the past', () => {
-            const cki = new Cookie('jsdata=; expires=Thu, 01-Jan-1970 00:00:01 GMT; domain=good.third-party.site ;path=/privacy-protections/storage-blocking/iframe.html')
+            const cki = new Cookie(
+                'jsdata=; expires=Thu, 01-Jan-1970 00:00:01 GMT; domain=good.third-party.site ;path=/privacy-protections/storage-blocking/iframe.html'
+            )
             expect(cki.getExpiry()).toBeLessThan(0)
         })
         it('cookie expires in the future', () => {
@@ -43,7 +45,9 @@ describe('Cookie', () => {
 
     describe('maxAge setter', () => {
         it('modifies cookie expiry', () => {
-            const cki = new Cookie('jsdata=; expires=Thu, 01-Jan-1970 00:00:01 GMT; domain=good.third-party.site ;path=/privacy-protections/storage-blocking/iframe.html')
+            const cki = new Cookie(
+                'jsdata=; expires=Thu, 01-Jan-1970 00:00:01 GMT; domain=good.third-party.site ;path=/privacy-protections/storage-blocking/iframe.html'
+            )
             expect(cki.getExpiry()).toBeLessThan(0)
             cki.maxAge = 100
             expect(cki.getExpiry()).toBe(100)

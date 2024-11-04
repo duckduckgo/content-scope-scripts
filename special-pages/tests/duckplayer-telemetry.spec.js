@@ -14,13 +14,13 @@ test.describe('duckplayer telemetry', () => {
 /**
  * @param {import("@playwright/test").TestInfo} testInfo
  */
-function isMobile (testInfo) {
-    const u = /** @type {any} */(testInfo.project.use)
+function isMobile(testInfo) {
+    const u = /** @type {any} */ (testInfo.project.use)
     return u?.platform === 'android' || u?.platform === 'ios'
 }
 /**
  * @param {import("@playwright/test").TestInfo} testInfo
  */
-function isDesktop (testInfo) {
+function isDesktop(testInfo) {
     return !isMobile(testInfo)
 }

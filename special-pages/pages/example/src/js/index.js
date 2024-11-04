@@ -13,7 +13,7 @@ export class ExamplePage {
     /**
      * @param {import("@duckduckgo/messaging").Messaging} messaging
      */
-    constructor (messaging) {
+    constructor(messaging) {
         this.messaging = createTypedMessages(this, messaging)
     }
 
@@ -30,7 +30,7 @@ export class ExamplePage {
      *
      * @returns {Promise<import('../../../../types/example').InitialSetupResponse>}
      */
-    initialSetup () {
+    initialSetup() {
         return this.messaging.request('initialSetup')
     }
 
@@ -39,7 +39,7 @@ export class ExamplePage {
      * has occurred that cannot be recovered from
      * @param {{message: string}} params
      */
-    reportPageException (params) {
+    reportPageException(params) {
         this.messaging.notify('reportPageException', params)
     }
 
@@ -47,24 +47,22 @@ export class ExamplePage {
      * This will be sent if the application fails to load.
      * @param {{message: string}} params
      */
-    reportInitException (params) {
+    reportInitException(params) {
         this.messaging.notify('reportInitException', params)
     }
 }
 
-const baseEnvironment = new Environment()
-    .withInjectName(document.documentElement.dataset.platform)
-    .withEnv(import.meta.env)
+const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env)
 
 const messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: baseEnvironment.env,
-    pageName: /** @type {string} */(import.meta.pageName)
+    pageName: /** @type {string} */ (import.meta.pageName)
 })
 
 const example = new ExamplePage(messaging)
 
-init(example, baseEnvironment).catch(e => {
+init(example, baseEnvironment).catch((e) => {
     // messages.
     console.error(e)
     const msg = typeof e?.message === 'string' ? e.message : 'unknown init error'

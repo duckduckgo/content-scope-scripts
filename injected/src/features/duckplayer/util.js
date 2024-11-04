@@ -5,7 +5,7 @@
  * @param {string} event
  * @param {function} callback
  */
-export function addTrustedEventListener (element, event, callback) {
+export function addTrustedEventListener(element, event, callback) {
     element.addEventListener(event, (e) => {
         if (e.isTrusted) {
             callback(e)
@@ -20,7 +20,7 @@ export function addTrustedEventListener (element, event, callback) {
  * @param {string} targetSelector
  * @param {string} imageUrl
  */
-export function appendImageAsBackground (parent, targetSelector, imageUrl) {
+export function appendImageAsBackground(parent, targetSelector, imageUrl) {
     const canceled = false
 
     /**
@@ -30,26 +30,28 @@ export function appendImageAsBackground (parent, targetSelector, imageUrl) {
      * This is needed because YouTube returns a 404 + valid image file when there's no
      * thumbnail and you can't tell the difference through the 'onload' event alone
      */
-    fetch(imageUrl, { method: 'HEAD' }).then(x => {
-        const status = String(x.status)
-        if (canceled) return console.warn('not adding image, cancelled')
-        if (status.startsWith('2')) {
-            if (!canceled) {
-                append()
+    fetch(imageUrl, { method: 'HEAD' })
+        .then((x) => {
+            const status = String(x.status)
+            if (canceled) return console.warn('not adding image, cancelled')
+            if (status.startsWith('2')) {
+                if (!canceled) {
+                    append()
+                } else {
+                    console.warn('ignoring cancelled load')
+                }
             } else {
-                console.warn('ignoring cancelled load')
+                markError()
             }
-        } else {
-            markError()
-        }
-    }).catch(() => {
-        console.error('e from fetch')
-    })
+        })
+        .catch(() => {
+            console.error('e from fetch')
+        })
 
     /**
      * If loading fails, mark the parent with data-attributes
      */
-    function markError () {
+    function markError() {
         parent.dataset.thumbLoaded = String(false)
         parent.dataset.error = String(true)
     }
@@ -57,9 +59,10 @@ export function appendImageAsBackground (parent, targetSelector, imageUrl) {
     /**
      * If loading succeeds, try to append the image
      */
-    function append () {
+    function append() {
         const targetElement = parent.querySelector(targetSelector)
-        if (!(targetElement instanceof HTMLElement)) return console.warn('could not find child with selector', targetSelector, 'from', parent)
+        if (!(targetElement instanceof HTMLElement))
+            return console.warn('could not find child with selector', targetSelector, 'from', parent)
         parent.dataset.thumbLoaded = String(true)
         parent.dataset.thumbSrc = imageUrl
         const img = new Image()
@@ -84,7 +87,7 @@ export class SideEffects {
      * @param {object} params
      * @param {boolean} [params.debug]
      */
-    constructor ({ debug = false } = { }) {
+    constructor({ debug = false } = {}) {
         this.debug = debug
     }
 
@@ -96,7 +99,7 @@ export class SideEffects {
      * @param {string} name
      * @param {() => () => void} fn
      */
-    add (name, fn) {
+    add(name, fn) {
         try {
             if (this.debug) {
                 console.log('☢️', name)
@@ -113,7 +116,7 @@ export class SideEffects {
     /**
      * Remove elements, event listeners etc
      */
-    destroy () {
+    destroy() {
         for (const cleanup of this._cleanups) {
             if (typeof cleanup.fn === 'function') {
                 try {
@@ -152,7 +155,7 @@ export class VideoParams {
      * @param {string} id - the YouTube video ID
      * @param {string|null|undefined} time - an optional time
      */
-    constructor (id, time) {
+    constructor(id, time) {
         this.id = id
         this.time = time
     }
@@ -163,7 +166,7 @@ export class VideoParams {
     /**
      * @returns {string}
      */
-    toPrivatePlayerUrl () {
+    toPrivatePlayerUrl() {
         // no try/catch because we already validated the ID
         // in Microsoft WebView2 v118+ changing from special protocol (https) to non-special one (duck) is forbidden
         // so we need to construct duck player this way
@@ -181,7 +184,7 @@ export class VideoParams {
      * @param {string} href
      * @returns {VideoParams|null}
      */
-    static forWatchPage (href) {
+    static forWatchPage(href) {
         let url
         try {
             url = new URL(href)
@@ -200,7 +203,7 @@ export class VideoParams {
      * @param pathname
      * @returns {VideoParams|null}
      */
-    static fromPathname (pathname) {
+    static fromPathname(pathname) {
         let url
         try {
             url = new URL(pathname, window.location.origin)
@@ -217,7 +220,7 @@ export class VideoParams {
      * @param href
      * @returns {VideoParams|null}
      */
-    static fromHref (href) {
+    static fromHref(href) {
         let url
         try {
             url = new URL(href)
@@ -266,14 +269,14 @@ export class VideoParams {
 export class DomState {
     loaded = false
     loadedCallbacks = []
-    constructor () {
+    constructor() {
         window.addEventListener('DOMContentLoaded', () => {
             this.loaded = true
-            this.loadedCallbacks.forEach(cb => cb())
+            this.loadedCallbacks.forEach((cb) => cb())
         })
     }
 
-    onLoaded (loadedCallback) {
+    onLoaded(loadedCallback) {
         if (this.loaded) return loadedCallback()
         this.loadedCallbacks.push(loadedCallback)
     }

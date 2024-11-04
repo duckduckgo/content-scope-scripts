@@ -14,9 +14,9 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider'
  * @param {('start-trigger' | number)[]} frames - An array of frames to be iterated over.
  * @return {{state: RollInState, advance: () => void}} - An object containing the current state and an 'advance' function.
  */
-export function useRollin (frames) {
+export function useRollin(frames) {
     const { isReducedMotion } = useEnv()
-    const [state, dispatch] = useReducer((/** @type {RollInState} */prev) => {
+    const [state, dispatch] = useReducer((/** @type {RollInState} */ prev) => {
         if (prev.current === prev.frames.length) {
             return prev
         }
@@ -27,7 +27,7 @@ export function useRollin (frames) {
             frame: prev.frames[next],
             isLast: next === prev.frames.length
         }
-    }, /** @type {RollInState} */({ current: 0, frames, frame: frames[0], isLast: false }))
+    }, /** @type {RollInState} */ ({ current: 0, frames, frame: frames[0], isLast: false }))
 
     const current = state.current
     const frame = state.frame

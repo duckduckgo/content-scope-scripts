@@ -10,7 +10,7 @@ export class ProfileUrlExtractor {
      * @param {string[]} strs
      * @param {import('../actions/extract.js').ExtractorParams} extractorParams
      */
-    extract (strs, extractorParams) {
+    extract(strs, extractorParams) {
         if (strs.length === 0) return null
         const profile = {
             profileUrl: strs[0],
@@ -33,7 +33,7 @@ export class ProfileUrlExtractor {
      * @param {string} identifier
      * @return {string}
      */
-    getIdFromProfileUrl (profileUrl, identifierType, identifier) {
+    getIdFromProfileUrl(profileUrl, identifierType, identifier) {
         const parsedUrl = new URL(profileUrl)
         const urlParams = parsedUrl.searchParams
 
@@ -44,7 +44,7 @@ export class ProfileUrlExtractor {
         }
 
         return profileUrl
-    };
+    }
 }
 
 /**
@@ -59,7 +59,7 @@ export class ProfileHashTransformer {
      * @param {Record<string, any> } params
      * @return {Promise<Record<string, any>>}
      */
-    async transform (profile, params) {
+    async transform(profile, params) {
         if (params?.profileUrl?.identifierType !== 'hash') {
             return profile
         }
