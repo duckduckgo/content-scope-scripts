@@ -17,7 +17,7 @@ import { Cross } from '../components/Icons.js'
 export function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message
     return (
-        <div id={id} class={cn(styles.root, (messageType !== 'small' && message.icon) && styles.icon)}>
+        <div id={id} class={cn(styles.root, messageType !== 'small' && message.icon && styles.icon)}>
             {messageType !== 'small' && message.icon && (
                 <span class={styles.iconBlock}>
                     <img src={`./icons/${message.icon}.svg`} alt="" />

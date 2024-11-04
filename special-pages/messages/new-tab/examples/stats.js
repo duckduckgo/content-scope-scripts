@@ -14,8 +14,8 @@ const privacyStatsData = {
  * @type {import("../../../types/new-tab").StatsConfig}
  */
 const minimumConfig = {
-    expansion: "expanded",
-    animation: { kind: "none" }
+    expansion: 'expanded',
+    animation: { kind: 'none' },
 }
 
 /**

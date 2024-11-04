@@ -82,11 +82,11 @@ export function useContextMenu() {
             const items = getItems()
             /** @type {VisibilityMenuItem[]} */
             const simplified = items
-                .filter(x => x.id !== 'debug')
-                .map(item => {
+                .filter((x) => x.id !== 'debug')
+                .map((item) => {
                     return {
                         id: item.id,
-                        title: item.title
+                        title: item.title,
                     }
                 })
             messaging.contextMenu({ visibilityMenuItems: simplified })

@@ -15,6 +15,8 @@ export function FavoritesCustomized() {
         return null
     }
     return (
-        <p>Favourites here... (id: <code>{id}</code>)</p>
+        <p>
+            Favourites here... (id: <code>{id}</code>)
+        </p>
     )
 }
