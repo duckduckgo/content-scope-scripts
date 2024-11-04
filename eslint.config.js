@@ -7,13 +7,6 @@ export default tseslint.config(
     ...ddgConfig,
     ...tseslint.configs.recommended,
     {
-        rules: {
-            indent: 'off',
-            curly: 'off',
-            'quote-props': 'off',
-        },
-    },
-    {
         ignores: [
             '**/build/',
             '**/docs/',
@@ -29,6 +22,7 @@ export default tseslint.config(
             'playwright-report',
             'test-results',
             'injected/src/types',
+            '.idea',
         ],
     },
     {

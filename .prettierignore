@@ -1,9 +1,7 @@
 build/**/*
 docs/**/*
-.github/**/*
 **/*.json
 **/*.md
 **/*.html
 **/*.har
 **/*.css
-.eslintrc
