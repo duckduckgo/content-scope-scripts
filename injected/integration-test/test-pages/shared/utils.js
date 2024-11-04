@@ -16,7 +16,6 @@ function buildTableCell (value, tagName = 'td') {
  * @param {Record<string, ResultRow>} results The results to build the table for.
  * @return {Element} The table element.
  */
-// eslint-disable-next-line no-unused-vars
 function buildResultTable (results) {
     const table = document.createElement('table')
     table.className = 'results'

@@ -55,7 +55,7 @@ describe('ContentFeature class', () => {
             // eslint-disable-next-line
             // @ts-ignore partial mock
             messaging = {
-                // eslint-disable-next-line
+                 
                 notify (name, data) {}
             }
         }

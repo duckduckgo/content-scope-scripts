@@ -2,9 +2,11 @@ import { TestTransportConfig } from '@duckduckgo/messaging'
 
 import { stats } from '../../app/privacy-stats/mocks/stats.js'
 import { rmfDataExamples } from '../../app/remote-messaging-framework/mocks/rmf.data.js'
+import { updateNotificationExamples } from '../../app/update-notification/mocks/update-notification.data.js'
 
 /**
  * @typedef {import('../../../../types/new-tab').StatsConfig} StatsConfig
+ * @typedef {import('../../../../types/new-tab').UpdateNotificationData} UpdateNotificationData
  * @typedef {import('../../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  */
 
@@ -159,6 +161,18 @@ export function mockTransport () {
                 }
                 return () => {}
             }
+            case 'updateNotification_onDataUpdate': {
+                const update = url.searchParams.get('update-notification')
+                const delay = url.searchParams.get('update-notification-delay')
+                if (update && delay && update in updateNotificationExamples) {
+                    const ms = parseInt(delay, 10)
+                    const timeout = setTimeout(() => {
+                        const message = updateNotificationExamples[update]
+                        cb(message)
+                    }, ms)
+                    return () => clearTimeout(timeout)
+                }
+            }
             }
             return () => { }
         },
@@ -200,6 +214,7 @@ export function mockTransport () {
             }
             case 'initialSetup': {
                 const widgetsFromStorage = read('widgets') || [
+                    { id: 'updateNotification' },
                     { id: 'rmf' },
                     { id: 'favorites' },
                     { id: 'privacyStats' }
@@ -210,13 +225,25 @@ export function mockTransport () {
                     { id: 'privacyStats', visibility: 'visible' }
                 ]
 
+                /** @type {UpdateNotificationData} */
+                let updateNotification = { content: null }
+                const isDelayed = url.searchParams.has('update-notification-delay')
+
+                if (!isDelayed && url.searchParams.get('update-notification') === 'empty') {
+                    updateNotification = updateNotificationExamples.empty
+                }
+                if (!isDelayed && url.searchParams.get('update-notification') === 'populated') {
+                    updateNotification = updateNotificationExamples.populated
+                }
+
                 /** @type {import('../../../../types/new-tab.js').InitialSetupResponse} */
                 const initial = {
                     widgets: widgetsFromStorage,
                     widgetConfigs: widgetConfigFromStorage,
                     platform: { name: 'integration' },
                     env: 'development',
-                    locale: 'en'
+                    locale: 'en',
+                    updateNotification
                 }
 
                 return Promise.resolve(initial)

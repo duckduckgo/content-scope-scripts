@@ -97,7 +97,7 @@ export class AutofillPasswordImportSpec {
      * @param {string} selector
      */
     async waitForAnimation (selector) {
-        const locator = await this.page.locator(selector)
+        const locator = this.page.locator(selector)
         return await locator.evaluate((el) => {
             if (el != null) {
                 return el.getAnimations().some((animation) => animation.playState === 'running')
@@ -112,7 +112,7 @@ export class AutofillPasswordImportSpec {
      * @param {string} text
      */
     async clickOnElement (text) {
-        const element = await this.page.getByText(text)
+        const element = this.page.getByText(text)
         await element.click()
     }
 }

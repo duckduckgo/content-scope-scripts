@@ -110,7 +110,7 @@ export class DuckplayerOverlays {
      * @return {Promise<string>}
      */
     async clicksFirstThumbnail () {
-        const elem = await this.page.locator('a[href^="/watch?v"]:has(img)').first()
+        const elem = this.page.locator('a[href^="/watch?v"]:has(img)').first()
         const link = await elem.getAttribute('href')
         if (!link) throw new Error('link must exist')
         await elem.click({ force: true })

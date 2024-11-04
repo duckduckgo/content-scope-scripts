@@ -34,16 +34,19 @@ const widgetConfig = {
  */
 const initialSetupResponse = {
     widgets: [
-        { "id": "weatherWidget" },
-        { "id": "newsWidget" }
+        { "id": "updateNotification" },
+        { "id": "rmf" },
+        { "id": "favorites" },
+        { "id": "privacyStats" }
     ],
     widgetConfigs: [
-        { "id": "weatherWidget", "visibility": "visible" },
-        { "id": "newsWidget", "visibility": "visible" }
+        { "id": "favorites", "visibility": "visible" },
+        { "id": "privacyStats", "visibility": "visible" }
     ],
     env: 'production',
     locale: 'en',
-    platform: {name: 'windows'}
+    platform: { name: 'windows' },
+    updateNotification: { content: null }
 }
 
 export {}
