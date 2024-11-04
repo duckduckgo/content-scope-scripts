@@ -9,113 +9,113 @@
  * @module Duckplayer Settings Schema
  */
 
-export type State = 'enabled' | 'disabled'
+export type State = "enabled" | "disabled";
 
 /**
  * Settings configuration for video player
  */
 export interface DuckPlayerSettings {
-    overlays: Overlays
-    /**
-     * List of domains with specific patch settings
-     */
-    domains: Domain[]
+  overlays: Overlays;
+  /**
+   * List of domains with specific patch settings
+   */
+  domains: Domain[];
 }
 /**
  * Specific configurations for different overlay types
  */
 export interface Overlays {
-    youtube: YouTubeOverlay
-    serpProxy: SERPProxy
+  youtube: YouTubeOverlay;
+  serpProxy: SERPProxy;
 }
 /**
  * Configuration specific to YouTube overlays
  */
 export interface YouTubeOverlay {
-    state: State
-    selectors: Selectors
-    thumbnailOverlays: ThumbnailOverlays
-    clickInterception: ClickInterception
-    videoOverlays: VideoOverlays
+  state: State;
+  selectors: Selectors;
+  thumbnailOverlays: ThumbnailOverlays;
+  clickInterception: ClickInterception;
+  videoOverlays: VideoOverlays;
 }
 /**
  * CSS selectors for identifying specific HTML elements on a YouTube page
  */
 export interface Selectors {
-    /**
-     * CSS selector for YouTube thumbnail links
-     */
-    thumbLink: string
-    /**
-     * CSS selectors for regions to exclude from hover/click interactions
-     */
-    excludedRegions: string[]
-    /**
-     * CSS selectors for elements that should prevent side effects from hovers
-     */
-    hoverExcluded: string[]
-    /**
-     * CSS selectors for elements that should prevent side effects from clicks
-     */
-    clickExcluded: string[]
-    /**
-     * CSS selectors to explicitly allow known event targets for hovers/clicks. For example, preview overlays.
-     */
-    allowedEventTargets: string[]
-    /**
-     * CSS selector for the video element on YouTube
-     */
-    videoElement: string
-    /**
-     * CSS selector for the container of the video element
-     */
-    videoElementContainer: string
+  /**
+   * CSS selector for YouTube thumbnail links
+   */
+  thumbLink: string;
+  /**
+   * CSS selectors for regions to exclude from hover/click interactions
+   */
+  excludedRegions: string[];
+  /**
+   * CSS selectors for elements that should prevent side effects from hovers
+   */
+  hoverExcluded: string[];
+  /**
+   * CSS selectors for elements that should prevent side effects from clicks
+   */
+  clickExcluded: string[];
+  /**
+   * CSS selectors to explicitly allow known event targets for hovers/clicks. For example, preview overlays.
+   */
+  allowedEventTargets: string[];
+  /**
+   * CSS selector for the video element on YouTube
+   */
+  videoElement: string;
+  /**
+   * CSS selector for the container of the video element
+   */
+  videoElementContainer: string;
 }
 /**
  * Settings related to the display of thumbnail overlays
  */
 export interface ThumbnailOverlays {
-    state: State
+  state: State;
 }
 /**
  * Settings for intercepting click events
  */
 export interface ClickInterception {
-    state: State
+  state: State;
 }
 /**
  * Settings related to the display of video overlays
  */
 export interface VideoOverlays {
-    state: State
+  state: State;
 }
 /**
  * Configuration for the SERP (Search Engine Results Page) proxy
  */
 export interface SERPProxy {
-    state: State
+  state: State;
 }
 export interface Domain {
-    /**
-     * Domain name
-     */
-    domain: string
-    /**
-     * List of operations to be applied on the settings for a specific domain
-     */
-    patchSettings: PatchSetting[]
+  /**
+   * Domain name
+   */
+  domain: string;
+  /**
+   * List of operations to be applied on the settings for a specific domain
+   */
+  patchSettings: PatchSetting[];
 }
 export interface PatchSetting {
-    /**
-     * The operation to be performed
-     */
-    op: string
-    /**
-     * The path of the setting to be patched
-     */
-    path: string
-    /**
-     * The value to replace at the specified path
-     */
-    value: string
+  /**
+   * The operation to be performed
+   */
+  op: string;
+  /**
+   * The path of the setting to be patched
+   */
+  path: string;
+  /**
+   * The value to replace at the specified path
+   */
+  value: string;
 }
