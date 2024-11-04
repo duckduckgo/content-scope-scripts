@@ -249,7 +249,11 @@ export default class AutofillPasswordImport extends ContentFeature {
             try {
                 const { element, style, shouldTap, shouldWatchForRemoval } = await this.getElementAndStyleFromPath(path) ?? {}
                 if (element != null) {
-                    shouldTap ? this.autotapElement(element) : setTimeout(() => this.animateElement(element, style), 300)
+                    if (shouldTap) {
+                        this.autotapElement(element)
+                    } else {
+                        setTimeout(() => this.animateElement(element, style), 300)
+                    }
                     if (shouldWatchForRemoval) {
                         // Sometimes navigation events are not triggered, then we need to watch for removal
                         this.observeElementRemoval(element, () => {

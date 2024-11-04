@@ -39,7 +39,7 @@ test.describe('Thumbnail Overlays', () => {
         const navigation = overlays.requestWillFail()
         await overlays.clicksFirstShortsThumbnail()
         const url = await navigation
-        await overlays.opensShort(url)
+        overlays.opensShort(url)
     })
     test('Overlays don\'t show on thumbnails when disabled', async ({ page }, workerInfo) => {
         const overlays = DuckplayerOverlays.create(page, workerInfo)

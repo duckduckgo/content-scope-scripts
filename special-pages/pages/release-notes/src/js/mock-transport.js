@@ -25,7 +25,7 @@ export function mockTransport () {
     }
 
     return new TestTransportConfig({
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         notify (_msg) {
         },
         request (_msg) {

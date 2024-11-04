@@ -1,3 +1,4 @@
+/* global process */
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
@@ -40,7 +41,8 @@ export default defineConfig({
         {
             name: 'android',
             testMatch: [
-                'integration-test/duckplayer-mobile.spec.js'
+                'integration-test/duckplayer-mobile.spec.js',
+                'integration-test/web-compat-android.spec.js'
             ],
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] }
         },

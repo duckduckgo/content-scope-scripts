@@ -10,7 +10,7 @@ export class NameExtractor {
      * @param {string[]} strs
      * @param {import('../actions/extract.js').ExtractorParams} _extractorParams
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     extract (strs, _extractorParams) {
         if (!strs[0]) return null
         return strs[0].replace(/\n/g, ' ').trim()

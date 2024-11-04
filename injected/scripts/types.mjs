@@ -5,6 +5,7 @@ import { buildTypes } from "../../types-generator/build-types.mjs";
 
 const injectRoot = join(cwd(import.meta.url), '..')
 
+// eslint-disable-next-line no-redeclare
 const require = createRequire(import.meta.url);
 const configBuilderRoot = dirname(require.resolve("config-builder"));
 
@@ -42,6 +43,7 @@ const injectSchemaMapping = {
 
 if (isLaunchFile(import.meta.url)) {
     buildTypes(injectSchemaMapping)
+        // eslint-disable-next-line promise/prefer-await-to-then
         .catch((error) => {
             console.error(error)
             process.exit(1)

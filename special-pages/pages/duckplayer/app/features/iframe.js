@@ -14,7 +14,7 @@ export class IframeFeature {
      * @param {HTMLIFrameElement} iframe
      * @returns {(() => void) | null}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     iframeDidLoad (iframe) {
         return () => {
             console.log('teardown')

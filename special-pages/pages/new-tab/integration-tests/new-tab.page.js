@@ -34,7 +34,6 @@ export class NewtabPage {
                     { id: 'privacyStats' }
                 ],
                 widgetConfigs: [
-                    { id: 'rmf', visibility: 'visible' },
                     { id: 'favorites', visibility: 'visible' },
                     { id: 'privacyStats', visibility: 'visible' }
                 ],
@@ -42,7 +41,8 @@ export class NewtabPage {
                 locale: 'en',
                 platform: {
                     name: this.platform.name || 'windows'
-                }
+                },
+                updateNotification: { content: null }
             },
             stats_getConfig: {},
             stats_getData: {},
@@ -61,9 +61,10 @@ export class NewtabPage {
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {number} [params.favoritesCount] - Optional flag to preload a list of favorites
      * @param {string} [params.rmf] - Optional flag to point to display=components view with certain rmf example visible
+     * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
      * @param {string} [params.platformName] - Optional parameters for opening the page.
      */
-    async openPage ({ mode = 'debug', platformName, willThrow = false, favoritesCount, rmf } = { }) {
+    async openPage ({ mode = 'debug', platformName, willThrow = false, favoritesCount, rmf, updateNotification } = { }) {
         await this.mocks.install()
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) })
 
@@ -77,6 +78,10 @@ export class NewtabPage {
 
         if (platformName !== undefined) {
             searchParams.set('platform', platformName)
+        }
+
+        if (updateNotification !== undefined) {
+            searchParams.set('update-notification', updateNotification)
         }
 
         await this.page.goto('/new-tab' + '?' + searchParams.toString())

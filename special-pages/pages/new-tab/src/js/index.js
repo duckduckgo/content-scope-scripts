@@ -47,6 +47,14 @@ export class NewTabPage {
     reportPageException (params) {
         this.messaging.notify('reportPageException', params)
     }
+
+    /**
+     * Sent when a right-click occurs, and wasn't intercepted by another widget
+     * @param {import('../../../../types/new-tab.js').ContextMenuNotify} params
+     */
+    contextMenu (params) {
+        this.messaging.notify('contextMenu', params)
+    }
 }
 
 const baseEnvironment = new Environment()
@@ -61,7 +69,7 @@ const messaging = createSpecialPageMessaging({
         // only in integration environments
         if (baseEnvironment.injectName !== 'integration') return null
         let mock = null
-        // eslint-disable-next-line no-labels
+        // eslint-disable-next-line no-labels,no-unused-labels
         $INTEGRATION: mock = mockTransport()
         return mock
     }
