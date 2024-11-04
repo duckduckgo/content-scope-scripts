@@ -28,7 +28,6 @@ export class TitleCapture {
         }
 
         if (doc.title) {
-             
             setter(doc.title)
         }
         if (win && doc) {

@@ -169,13 +169,13 @@ export class WindowsMessagingTransport {
         }
 
         // console.log('DEBUG: handler setup', { config, comparator })
-         
+
         this.config.methods.addEventListener('message', idHandler)
         options?.signal?.addEventListener('abort', abortHandler)
 
         teardown = () => {
             // console.log('DEBUG: handler teardown', { config, comparator })
-             
+
             this.config.methods.removeEventListener('message', idHandler)
             options?.signal?.removeEventListener('abort', abortHandler)
         }

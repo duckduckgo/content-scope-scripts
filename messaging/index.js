@@ -20,7 +20,13 @@
  *
  * @module Messaging
  */
-import { WindowsMessagingConfig, WindowsMessagingTransport, WindowsInteropMethods, WindowsNotification, WindowsRequestMessage } from './lib/windows.js'
+import {
+    WindowsMessagingConfig,
+    WindowsMessagingTransport,
+    WindowsInteropMethods,
+    WindowsNotification,
+    WindowsRequestMessage,
+} from './lib/windows.js'
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js'
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js'
 import { AndroidMessagingConfig, AndroidMessagingTransport } from './lib/android.js'
@@ -37,7 +43,7 @@ export class MessagingContext {
      * @param {"production" | "development"} params.env
      * @internal
      */
-    constructor (params) {
+    constructor(params) {
         this.context = params.context
         this.featureName = params.featureName
         this.env = params.env
@@ -56,7 +62,7 @@ export class Messaging {
      * @param {MessagingContext} messagingContext
      * @param {MessagingConfig} config
      */
-    constructor (messagingContext, config) {
+    constructor(messagingContext, config) {
         this.messagingContext = messagingContext
         this.transport = getTransport(config, this.messagingContext)
     }
@@ -74,12 +80,12 @@ export class Messaging {
      * @param {string} name
      * @param {Record<string, any>} [data]
      */
-    notify (name, data = {}) {
+    notify(name, data = {}) {
         const message = new NotificationMessage({
             context: this.messagingContext.context,
             featureName: this.messagingContext.featureName,
             method: name,
-            params: data
+            params: data,
         })
         this.transport.notify(message)
     }
@@ -98,14 +104,14 @@ export class Messaging {
      * @param {Record<string, any>} [data]
      * @return {Promise<any>}
      */
-    request (name, data = {}) {
+    request(name, data = {}) {
         const id = globalThis?.crypto?.randomUUID?.() || name + '.response'
         const message = new RequestMessage({
             context: this.messagingContext.context,
             featureName: this.messagingContext.featureName,
             method: name,
             params: data,
-            id
+            id,
         })
         return this.transport.request(message)
     }
@@ -115,11 +121,11 @@ export class Messaging {
      * @param {(value: unknown) => void} callback
      * @return {() => void}
      */
-    subscribe (name, callback) {
+    subscribe(name, callback) {
         const msg = new Subscription({
             context: this.messagingContext.context,
             featureName: this.messagingContext.featureName,
-            subscriptionName: name
+            subscriptionName: name,
         })
         return this.transport.subscribe(msg, callback)
     }
@@ -133,8 +139,8 @@ export class MessagingTransport {
      * @param {NotificationMessage} msg
      * @returns {void}
      */
-     
-    notify (msg) {
+
+    notify(msg) {
         throw new Error("must implement 'notify'")
     }
 
@@ -143,8 +149,8 @@ export class MessagingTransport {
      * @param {{signal?: AbortSignal}} [options]
      * @return {Promise<any>}
      */
-     
-    request (msg, options = {}) {
+
+    request(msg, options = {}) {
         throw new Error('must implement')
     }
 
@@ -153,8 +159,8 @@ export class MessagingTransport {
      * @param {(value: unknown) => void} callback
      * @return {() => void}
      */
-     
-    subscribe (msg, callback) {
+
+    subscribe(msg, callback) {
         throw new Error('must implement')
     }
 }
@@ -169,7 +175,7 @@ export class TestTransportConfig {
     /**
      * @param {MessagingTransport} impl
      */
-    constructor (impl) {
+    constructor(impl) {
         this.impl = impl
     }
 }
@@ -182,20 +188,20 @@ export class TestTransport {
      * @param {TestTransportConfig} config
      * @param {MessagingContext} messagingContext
      */
-    constructor (config, messagingContext) {
+    constructor(config, messagingContext) {
         this.config = config
         this.messagingContext = messagingContext
     }
 
-    notify (msg) {
+    notify(msg) {
         return this.config.impl.notify(msg)
     }
 
-    request (msg) {
+    request(msg) {
         return this.config.impl.request(msg)
     }
 
-    subscribe (msg, callback) {
+    subscribe(msg, callback) {
         return this.config.impl.subscribe(msg, callback)
     }
 }
@@ -205,7 +211,7 @@ export class TestTransport {
  * @param {MessagingContext} messagingContext
  * @returns {MessagingTransport}
  */
-function getTransport (config, messagingContext) {
+function getTransport(config, messagingContext) {
     if (config instanceof WebkitMessagingConfig) {
         return new WebkitMessagingTransport(config, messagingContext)
     }
@@ -229,7 +235,7 @@ export class MissingHandler extends Error {
      * @param {string} message
      * @param {string} handlerName
      */
-    constructor (message, handlerName) {
+    constructor(message, handlerName) {
         super(message)
         this.handlerName = handlerName
     }
@@ -254,5 +260,5 @@ export {
     WindowsRequestMessage,
     AndroidMessagingConfig,
     AndroidMessagingTransport,
-    createTypedMessages
+    createTypedMessages,
 }

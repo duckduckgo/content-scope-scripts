@@ -9,13 +9,13 @@ import { buildSync } from 'esbuild'
 import { cwd, parseArgs } from '../scripts/script-utils.js'
 import inliner from 'web-resource-inliner'
 
-const CWD = cwd(import.meta.url);
+const CWD = cwd(import.meta.url)
 const ROOT = join(CWD, '../')
 const BUILD = join(ROOT, 'build')
 const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist')
 const args = parseArgs(process.argv.slice(2), [])
-const NODE_ENV = args.env || 'production';
-const DEBUG = Boolean(args.debug);
+const NODE_ENV = args.env || 'production'
+const DEBUG = Boolean(args.debug)
 
 export const support = {
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
@@ -23,7 +23,7 @@ export const support = {
         integration: ['copy', 'build-js'],
         windows: ['copy', 'build-js'],
         apple: ['copy', 'build-js', 'inline-html'],
-        android: ['copy', 'build-js']
+        android: ['copy', 'build-js'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     errorpage: {
@@ -38,7 +38,7 @@ export const support = {
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     example: {
-        integration: ['copy', 'build-js']
+        integration: ['copy', 'build-js'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'release-notes': {
@@ -73,11 +73,8 @@ for (const [pageName, injectNames] of Object.entries(support)) {
         continue
     }
     for (const [injectName, jobs] of Object.entries(injectNames)) {
-
         // output main dir
-        const buildDir = injectName === 'apple'
-            ? APPLE_BUILD
-            : join(BUILD, injectName)
+        const buildDir = injectName === 'apple' ? APPLE_BUILD : join(BUILD, injectName)
 
         const pageOutputDirectory = join(buildDir, 'pages', pageName)
 
@@ -86,32 +83,31 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                 copyJobs.push({
                     src: pageSrc,
                     dest: pageOutputDirectory,
-                    injectName
+                    injectName,
                 })
             }
             if (job === 'build-js') {
-                const entryPoints = [
-                    join(pageSrc, 'js', 'index.js'),
-                    join(pageSrc, 'js', 'inline.js')
-                ].filter(pathname => existsSync(pathname));
+                const entryPoints = [join(pageSrc, 'js', 'index.js'), join(pageSrc, 'js', 'inline.js')].filter((pathname) =>
+                    existsSync(pathname)
+                )
                 const outputDir = join(pageOutputDirectory, 'js')
                 buildJobs.push({
                     entryPoints,
                     outputDir,
                     injectName,
-                    pageName
+                    pageName,
                 })
             }
             if (job === 'inline-html') {
                 const htmlSrc = join(pageOutputDirectory, 'index.html')
-                inlineJobs.push({src: htmlSrc})
+                inlineJobs.push({ src: htmlSrc })
             }
         }
     }
 }
 
 if (copyJobs.length === 0) {
-    console.log('⚠️ nothing to copy. This probably means that there isn\'t any pages to release yet.')
+    console.log("⚠️ nothing to copy. This probably means that there isn't any pages to release yet.")
 }
 
 if (errors.length > 0) {
@@ -119,15 +115,15 @@ if (errors.length > 0) {
 }
 
 for (const copyJob of copyJobs) {
-    if (DEBUG) console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest));
+    if (DEBUG) console.log('COPY:', relative(ROOT, copyJob.src), relative(ROOT, copyJob.dest))
     if (!DRY_RUN) {
         rmSync(copyJob.dest, {
             force: true,
-            recursive: true
+            recursive: true,
         })
         cpSync(copyJob.src, copyJob.dest, {
             force: true,
-            recursive: true
+            recursive: true,
         })
     }
 }
@@ -150,30 +146,33 @@ for (const buildJob of buildJobs) {
                 '.data.svg': 'dataurl',
                 '.jpg': 'file',
                 '.png': 'file',
-                '.riv': 'file'
+                '.riv': 'file',
             },
             define: {
                 'import.meta.env': JSON.stringify(NODE_ENV),
                 'import.meta.injectName': JSON.stringify(buildJob.injectName),
                 'import.meta.pageName': JSON.stringify(buildJob.pageName),
             },
-            dropLabels: buildJob.injectName === "integration" ? [] : ["$INTEGRATION"]
+            dropLabels: buildJob.injectName === 'integration' ? [] : ['$INTEGRATION'],
         })
     }
 }
 for (const inlineJob of inlineJobs) {
     if (DEBUG) console.log('INLINE:', relative(ROOT, inlineJob.src))
     if (!DRY_RUN) {
-        inliner.html({
-            fileContent: readFileSync(inlineJob.src, 'utf8'),
-            relativeTo: join(inlineJob.src, '..'),
-            images: true,
-        }, (error, result) => {
-            if (error) {
-                return exitWithErrors([error])
+        inliner.html(
+            {
+                fileContent: readFileSync(inlineJob.src, 'utf8'),
+                relativeTo: join(inlineJob.src, '..'),
+                images: true,
+            },
+            (error, result) => {
+                if (error) {
+                    return exitWithErrors([error])
+                }
+                writeFileSync(inlineJob.src, result)
             }
-            writeFileSync(inlineJob.src, result)
-        })
+        )
     }
 }
 

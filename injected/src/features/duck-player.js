@@ -59,8 +59,7 @@ import { Environment, initOverlays } from './duckplayer/overlays.js'
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {
-     
-    init (args) {
+    init(args) {
         /**
          * This feature never operates in a frame
          */
@@ -98,7 +97,7 @@ export default class DuckPlayerFeature extends ContentFeature {
             debug: args.debug,
             injectName: import.meta.injectName,
             platform: this.platform,
-            locale
+            locale,
         })
         const comms = new DuckPlayerOverlayMessages(this.messaging, env)
 
@@ -109,7 +108,7 @@ export default class DuckPlayerFeature extends ContentFeature {
         }
     }
 
-    load (args) {
+    load(args) {
         super.load(args)
     }
 }

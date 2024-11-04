@@ -1,4 +1,3 @@
- 
 import { h } from 'preact'
 import styles from './Background.module.css'
 import cn from 'classnames'

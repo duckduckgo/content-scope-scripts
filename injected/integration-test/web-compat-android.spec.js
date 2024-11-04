@@ -2,10 +2,10 @@ import { gotoAndWait } from './helpers/harness.js'
 import { test, expect } from '@playwright/test'
 
 test.describe('Web Share API', () => {
-    function checkForCanShare () {
+    function checkForCanShare() {
         return 'canShare' in navigator
     }
-    function checkForShare () {
+    function checkForShare() {
         return 'share' in navigator
     }
 
@@ -22,16 +22,22 @@ test.describe('Web Share API', () => {
 
     test.describe('disabled sub-feature', () => {
         test('should not expose navigator.canShare() and navigator.share()', async ({ page }) => {
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat']
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: {
+                        enabledFeatures: ['webCompat'],
+                    },
+                    featureSettings: {
+                        webCompat: {
+                            // no webShare
+                        },
+                    },
                 },
-                featureSettings: {
-                    webCompat: {
-                        // no webShare
-                    }
-                }
-            }, null, 'script')
+                null,
+                'script'
+            )
             const noCanShare = await page.evaluate(checkForCanShare)
             const noShare = await page.evaluate(checkForShare)
             // Base implementation of the test env should not have it (it's only available on mobile)
@@ -41,18 +47,24 @@ test.describe('Web Share API', () => {
     })
 
     test.describe('enabled feature', () => {
-        async function navigate (page) {
+        async function navigate(page) {
             page.on('console', console.log)
-            await gotoAndWait(page, '/blank.html', {
-                site: {
-                    enabledFeatures: ['webCompat']
+            await gotoAndWait(
+                page,
+                '/blank.html',
+                {
+                    site: {
+                        enabledFeatures: ['webCompat'],
+                    },
+                    featureSettings: {
+                        webCompat: {
+                            webShare: 'enabled',
+                        },
+                    },
                 },
-                featureSettings: {
-                    webCompat: {
-                        webShare: 'enabled'
-                    }
-                }
-            }, null, 'script')
+                null,
+                'script'
+            )
         }
 
         test('should expose navigator.canShare() and navigator.share() when enabled', async ({ page }) => {
@@ -123,7 +135,7 @@ test.describe('Web Share API', () => {
         })
 
         test.describe('navigator.share()', () => {
-            async function beforeEach (page) {
+            async function beforeEach(page) {
                 await page.evaluate(() => {
                     globalThis.shareReq = null
                     globalThis.cssMessaging.impl.request = (req) => {
@@ -138,7 +150,7 @@ test.describe('Web Share API', () => {
                  * @param {any} data
                  * @return {Promise<any>}
                  */
-                async function checkShare (page, data) {
+                async function checkShare(page, data) {
                     const payload = `navigator.share(${JSON.stringify(data)})`
                     const result = await page.evaluate(payload).catch((e) => {
                         return { threw: e }
@@ -187,7 +199,11 @@ test.describe('Web Share API', () => {
                     await navigate(page)
                     await beforeEach(page)
                     const { result, message } = await checkShare(page, { title: 'xxx', url: 'http://example.com' })
-                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { title: 'xxx', url: 'http://example.com/' } })
+                    expect(message).toMatchObject({
+                        featureName: 'webCompat',
+                        method: 'webShare',
+                        params: { title: 'xxx', url: 'http://example.com/' },
+                    })
                     expect(result).toBeUndefined()
                 })
 
@@ -195,7 +211,11 @@ test.describe('Web Share API', () => {
                     await navigate(page)
                     await beforeEach(page)
                     const { result, message } = await checkShare(page, { text: 'xxx', url: 'http://example.com' })
-                    expect(message).toMatchObject({ featureName: 'webCompat', method: 'webShare', params: { text: 'xxx http://example.com/' } })
+                    expect(message).toMatchObject({
+                        featureName: 'webCompat',
+                        method: 'webShare',
+                        params: { text: 'xxx http://example.com/' },
+                    })
                     expect(result).toBeUndefined()
                 })
 

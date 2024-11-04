@@ -65,7 +65,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
         try {
             this.defineProperty(globalThis, property, {
                 get: () => value,
-                 
+
                 set: () => {},
                 configurable: true,
                 enumerable: true,

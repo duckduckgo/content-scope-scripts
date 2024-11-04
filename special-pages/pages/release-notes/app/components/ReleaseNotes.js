@@ -1,4 +1,3 @@
- 
 import { Fragment, h } from 'preact'
 import { useMessaging } from '../index'
 import classNames from 'classnames'

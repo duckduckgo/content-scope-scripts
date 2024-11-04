@@ -186,7 +186,6 @@ export class WebkitMessagingTransport {
              * @param {any[]} args
              */
             value: (...args) => {
-                 
                 callback(...args)
                 delete this.globals.window[randomMethodName]
             },

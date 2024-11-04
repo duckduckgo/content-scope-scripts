@@ -1,4 +1,3 @@
- 
 import { h } from 'preact'
 import { ListItem } from '../components/ListItem'
 import { BounceIn, Check, SlideUp } from '../components/Icons'

@@ -53,7 +53,7 @@ export async function extract(action, userData, root = document) {
     const filtered = await Promise.all(filteredPromises)
 
     // omit the DOM node from data transfer
-     
+
     const debugResults = extractResult.results.map((result) => result.asData())
 
     return new SuccessResponse({

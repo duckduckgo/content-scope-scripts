@@ -1,4 +1,3 @@
- 
 import { h } from 'preact'
 import { useContext, useRef } from 'preact/hooks'
 import styles from './App.module.css'
