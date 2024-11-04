@@ -1,26 +1,28 @@
-import { Fragment, h } from 'preact'
-import styles from './Components.module.css'
-import { mainExamples, otherExamples } from './Examples.jsx'
-import { updateNotificationExamples } from '../update-notification/UpdateNotification.examples.js'
-const url = new URL(window.location.href)
+import { Fragment, h } from "preact";
+import styles from "./Components.module.css";
+import { mainExamples, otherExamples } from "./Examples.jsx";
+import { updateNotificationExamples } from "../update-notification/UpdateNotification.examples.js";
+const url = new URL(window.location.href);
 
 const list = {
     ...mainExamples,
     ...otherExamples,
-    ...updateNotificationExamples,
+    ...updateNotificationExamples
 }
 
-const entries = Object.entries(list)
+const entries = Object.entries(list);
 
 export function Components() {
-    const ids = url.searchParams.getAll('id')
-    const isolated = url.searchParams.has('isolate')
-    const e2e = url.searchParams.has('e2e')
-    const entryIds = entries.map(([id]) => id)
+    const ids = url.searchParams.getAll("id");
+    const isolated = url.searchParams.has("isolate");
+    const e2e = url.searchParams.has("e2e");
+    const entryIds = entries.map(([id]) => id);
 
     const validIds = ids.filter((id) => entryIds.includes(id))
 
-    const filtered = validIds.length ? validIds.map((id) => /** @type {const} */ ([id, list[id]])) : entries
+    const filtered = validIds.length
+        ? validIds.map((id) => /** @type {const} */([id, list[id]]))
+        : entries
 
     if (isolated) {
         return <Isolated entries={filtered} e2e={e2e} />

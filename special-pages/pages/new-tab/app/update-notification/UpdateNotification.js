@@ -33,7 +33,7 @@ export function UpdateNotification({ notes, dismiss, version }) {
     )
 }
 
-export function WithNotes({ notes, version }) {
+export function WithNotes ({ notes, version }) {
     const id = useId()
     const ref = useRef(/** @type {HTMLDetailsElement|null} */ (null))
     const { t } = useTypedTranslation()
@@ -79,7 +79,13 @@ export function UpdateNotificationConsumer() {
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {
-        return <UpdateNotification notes={state.data.content.notes} version={state.data.content.version} dismiss={dismiss} />
+        return (
+            <UpdateNotification
+                notes={state.data.content.notes}
+                version={state.data.content.version}
+                dismiss={dismiss}
+            />
+        )
     }
     return null
 }

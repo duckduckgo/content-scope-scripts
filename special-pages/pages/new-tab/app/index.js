@@ -11,7 +11,7 @@ import enStrings from '../src/locales/en/newtab.json'
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js'
 import { Settings } from './settings.js'
 import { Components } from './components/Components.jsx'
-import { widgetEntryPoint } from './widget-list/WidgetList.js'
+import { widgetEntryPoint } from "./widget-list/WidgetList.js";
 
 /**
  * @param {import("../src/js").NewTabPage} messaging
@@ -67,6 +67,7 @@ export async function init(messaging, baseEnvironment) {
 
     document.body.dataset.platformName = settings.platform.name
 
+
     if (environment.display === 'components') {
         document.body.dataset.display = 'components'
         return render(
@@ -83,15 +84,15 @@ export async function init(messaging, baseEnvironment) {
 
     const entryPoints = await (async () => {
         try {
-            const loaders = init.widgets.map((widget) => {
-                return widgetEntryPoint(widget.id).then((mod) => [widget.id, mod])
+            const loaders = init.widgets.map(widget => {
+                return widgetEntryPoint(widget.id).then(mod => [widget.id, mod]);
             })
             const entryPoints = await Promise.all(loaders)
-            return Object.fromEntries(entryPoints)
+            return Object.fromEntries(entryPoints);
         } catch (e) {
-            const error = new Error('Error loading widget entry points:' + e.message)
+            const error = new Error('Error loading widget entry points:' + e.message);
             didCatch(error)
-            console.error(error)
+            console.error(error);
             return {}
         }
     })()
@@ -109,12 +110,7 @@ export async function init(messaging, baseEnvironment) {
                     <InitialSetupContext.Provider value={init}>
                         <SettingsProvider settings={settings}>
                             <TranslationProvider translationObject={strings} fallback={strings} textLength={environment.textLength}>
-                                <WidgetConfigProvider
-                                    api={widgetConfigAPI}
-                                    widgetConfigs={init.widgetConfigs}
-                                    widgets={init.widgets}
-                                    entryPoints={entryPoints}
-                                >
+                                <WidgetConfigProvider api={widgetConfigAPI} widgetConfigs={init.widgetConfigs} widgets={init.widgets} entryPoints={entryPoints}>
                                     <App />
                                 </WidgetConfigProvider>
                             </TranslationProvider>

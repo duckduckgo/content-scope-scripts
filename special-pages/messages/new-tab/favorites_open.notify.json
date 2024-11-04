@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Favorites Open Action",
+  "type": "object",
+  "required": [
+    "id",
+    "target"
+  ],
+  "properties": {
+    "id": {
+      "description": "Entity ID",
+      "type": "string"
+    },
+    "target": {
+      "type": "string",
+      "enum": ["same-tab", "new-tab", "new-window"]
+    }
+  }
+}

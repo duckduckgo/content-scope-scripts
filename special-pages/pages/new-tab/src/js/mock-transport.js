@@ -80,38 +80,38 @@ export function mockTransport() {
             /** @type {import('../../../../types/new-tab.js').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg)
             switch (msg.method) {
-                case 'widgets_setConfig': {
-                    if (!msg.params) throw new Error('unreachable')
-                    write('widget_config', msg.params)
-                    broadcast('widget_config')
-                    return
-                }
-                case 'stats_setConfig': {
-                    if (!msg.params) throw new Error('unreachable')
-
-                    const { animation, ...rest } = msg.params
-                    write('stats_config', rest)
-                    broadcast('stats_config')
-                    return
-                }
-                case 'rmf_primaryAction': {
-                    console.log('ignoring rmf_primaryAction', msg.params)
-                    clearRmf()
-                    return
-                }
-                case 'rmf_secondaryAction': {
-                    console.log('ignoring rmf_secondaryAction', msg.params)
-                    clearRmf()
-                    return
-                }
-                case 'rmf_dismiss': {
-                    console.log('ignoring rmf_dismiss', msg.params)
-                    clearRmf()
-                    return
-                }
-                default: {
-                    console.warn('unhandled notification', msg)
-                }
+            case 'widgets_setConfig': {
+                if (!msg.params) throw new Error('unreachable')
+                write('widget_config', msg.params)
+                broadcast('widget_config')
+                return
+            }
+            case 'stats_setConfig': {
+                if (!msg.params) throw new Error('unreachable')
+                 
+                const { animation, ...rest } = msg.params
+                write('stats_config', rest)
+                broadcast('stats_config')
+                return
+            }
+            case 'rmf_primaryAction': {
+                console.log('ignoring rmf_primaryAction', msg.params)
+                clearRmf()
+                return
+            }
+            case 'rmf_secondaryAction': {
+                console.log('ignoring rmf_secondaryAction', msg.params)
+                clearRmf()
+                return
+            }
+            case 'rmf_dismiss': {
+                console.log('ignoring rmf_dismiss', msg.params)
+                clearRmf()
+                return
+            }
+            default: {
+                console.warn('unhandled notification', msg)
+            }
             }
         },
         subscribe(_msg, cb) {

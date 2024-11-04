@@ -20,6 +20,8 @@ export const WidgetConfigContext = createContext({
 
     /** @type {(id:string) => void} */
 
+    toggle: (_id) => {
+
     toggle: (_id) => {},
 })
 
@@ -54,16 +56,14 @@ export function WidgetConfigProvider(props) {
     }
 
     return (
-        <WidgetConfigContext.Provider
-            value={{
-                // this field is static for the lifespan of the page
-                widgets: props.widgets,
-                entryPoints: props.entryPoints,
-                // this will be updated via subscriptions
-                widgetConfigItems: data || [],
-                toggle,
-            }}
-        >
+        <WidgetConfigContext.Provider value={{
+            // this field is static for the lifespan of the page
+            widgets: props.widgets,
+            entryPoints: props.entryPoints,
+            // this will be updated via subscriptions
+            widgetConfigItems: data || [],
+            toggle
+        }}>
             {props.children}
         </WidgetConfigContext.Provider>
     )
