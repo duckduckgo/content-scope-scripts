@@ -41,7 +41,7 @@ export class UpdateNotificationService {
      */
     dismiss () {
         this.ntp.messaging.notify('updateNotification_dismiss')
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         this.dataService.update(_old => {
             return { content: null }
         })

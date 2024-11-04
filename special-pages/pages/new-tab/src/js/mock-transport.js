@@ -10,7 +10,7 @@ import { updateNotificationExamples } from '../../app/update-notification/mocks/
  * @typedef {import('../../../../types/new-tab.js').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
  */
 
-const VERSION_PREFIX = '__ntp_15__.'
+const VERSION_PREFIX = '__ntp_27__.'
 const url = new URL(window.location.href)
 
 export function mockTransport () {
@@ -88,7 +88,9 @@ export function mockTransport () {
             }
             case 'stats_setConfig': {
                 if (!msg.params) throw new Error('unreachable')
-                write('stats_config', msg.params)
+                 
+                const { animation, ...rest } = msg.params
+                write('stats_config', rest)
                 broadcast('stats_config')
                 return
             }
