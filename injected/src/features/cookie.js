@@ -45,6 +45,7 @@ let loadedPolicyResolve
  * @param {any} ctx
  */
 function debugHelper (action, reason, ctx) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     cookiePolicy.debug && postDebugMessage('jscookie', {
         action,
         reason,

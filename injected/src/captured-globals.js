@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 export const Set = globalThis.Set
 export const Reflect = globalThis.Reflect
 export const customElementsGet = globalThis.customElements?.get.bind(globalThis.customElements)
